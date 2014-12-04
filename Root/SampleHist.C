@@ -3,13 +3,11 @@
 // -------------------------------------------------------------------------------------------------
 // SampleHist
 
-SampleHist::SampleHist(Sample *sample,TH1 *hist, bool isData, bool isSig){
+SampleHist::SampleHist(Sample *sample,TH1 *hist){
   fSample = sample;
   fHist = (TH1*)hist->Clone(Form("h_%s",fName.c_str()));
   fHist->SetFillColor(fSample->fFillColor);
   fHist->SetLineColor(fSample->fLineColor);
-  fIsData = isData || sample->fIsData;
-  fIsSig = isSig || sample->fIsSignal;
   fName = fSample->fName;
   fHistoName = "";
   fFileName = "";
@@ -17,20 +15,18 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist, bool isData, bool isSig){
   fNNorm = 0;
   // add overall systematics and normFactors from sample
   for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
-    if(sample->fSystematics[i_syst]->IsOverallOnly())
+    if(sample->fSystematics[i_syst]->fType == SystType::Overall)
       AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
   }
   for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
     AddNormFactor(sample->fNormFactors[i_norm]);
   }
 }
-SampleHist::SampleHist(Sample *sample, string histoName, string fileName, bool isData, bool isSig){
+SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
   fSample = sample;
   fHist = HistFromFile(fileName,histoName);
   fHist->SetFillColor(fSample->fFillColor);
   fHist->SetLineColor(fSample->fLineColor);
-  fIsData = isData || sample->fIsData;
-  fIsSig = isSig || sample->fIsSignal;
   fName = fSample->fName;
   fHistoName = histoName;
   fFileName = fileName;
@@ -38,7 +34,7 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName, bool i
   fNNorm = 0;
   // add overall systematics and normFactors from sample
   for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
-    if(sample->fSystematics[i_syst]->IsOverallOnly())
+    if(sample->fSystematics[i_syst]->fType == SystType::Overall)
       AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
   }
   for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
@@ -47,13 +43,13 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName, bool i
 }
 SampleHist::~SampleHist(){}
 
-SystematicHisto* SampleHist::AddOverallSyst(string name,float up,float down){
-  SystematicHisto *sh;
+SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
+  SystematicHist *sh;
   // try if it's already there...
   sh = GetSystematic(name);
   // ... and if not create a new one
   if(sh==0x0){
-    sh = new SystematicHisto(name);
+    sh = new SystematicHist(name);
     fSyst[fNSyst] = sh;
     fNSyst ++;
   }
@@ -69,13 +65,13 @@ SystematicHisto* SampleHist::AddOverallSyst(string name,float up,float down){
   return sh;
 }
 
-SystematicHisto* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
-  SystematicHisto *sh;
+SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
+  SystematicHist *sh;
   // try if it's already there...
   sh = GetSystematic(name);
   // ... and if not create a new one
   if(sh==0x0){
-    sh = new SystematicHisto(name);
+    sh = new SystematicHist(name);
     fSyst[fNSyst] = sh;
     fNSyst ++;
   }
@@ -94,13 +90,13 @@ SystematicHisto* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
   return sh;
 }
 
-SystematicHisto* SampleHist::AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down){
-  SystematicHisto *sh;
+SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down){
+  SystematicHist *sh;
   // try if it's already there...
   sh = GetSystematic(name);
   // ... and if not create a new one
   if(sh==0x0){
-    sh = new SystematicHisto(name);
+    sh = new SystematicHist(name);
     fSyst[fNSyst] = sh;
     fNSyst ++;
   }
@@ -145,7 +141,7 @@ NormFactor* SampleHist::AddNormFactor(string name,float nominal, float min, floa
   }
 }
 
-SystematicHisto* SampleHist::GetSystematic(string systName){
+SystematicHist* SampleHist::GetSystematic(string systName){
   for(int i_syst=0;i_syst<fNSyst;i_syst++){
     if(systName == fSyst[i_syst]->fName) return fSyst[i_syst];
   }
@@ -174,4 +170,14 @@ void SampleHist::WriteToFile(){
 
 void SampleHist::ReadFromFile(){
   fHist = HistFromFile(fFileName,fHistoName);
+}
+
+void SampleHist::Print(){
+  cout << "      Sample: " << fName << "\t" << fHist->GetName() << endl;
+  for(int i_syst=0;i_syst<fNSyst;i_syst++){
+    fSyst[i_syst]->Print();
+  }
+  for(int i_norm=0;i_norm<fNNorm;i_norm++){
+    fNormFactors[i_norm]->Print();
+  }
 }

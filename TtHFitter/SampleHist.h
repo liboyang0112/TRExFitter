@@ -18,16 +18,16 @@
 
 class SampleHist {
 public:
-  SampleHist(Sample *sample,TH1 *hist, bool isData=false, bool isSig=false);
-  SampleHist(Sample *sample, string histoName, string fileName, bool isData=false, bool isSig=false);
+  SampleHist(Sample *sample,TH1 *hist);
+  SampleHist(Sample *sample, string histoName, string fileName);
   ~SampleHist();
   
   TH1* GetHist();
   Sample* GetSample();
-  SystematicHisto* AddOverallSyst(string name,float up,float down);
-  SystematicHisto* AddHistoSyst(string name,TH1* h_up,TH1* h_down);
-  SystematicHisto* AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down);
-  SystematicHisto* GetSystematic(string systName);
+  SystematicHist* AddOverallSyst(string name,float up,float down);
+  SystematicHist* AddHistoSyst(string name,TH1* h_up,TH1* h_down);
+  SystematicHist* AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down);
+  SystematicHist* GetSystematic(string systName);
   NormFactor* AddNormFactor(string name,float nominal, float min, float max);
   NormFactor* AddNormFactor(NormFactor *normFactor);
   NormFactor* GetNormFactor(string name);
@@ -36,6 +36,8 @@ public:
   
   void WriteToFile();
   void ReadFromFile();
+  
+  void Print();
   
   string fName;
   Sample *fSample;
@@ -46,7 +48,7 @@ public:
   bool fIsSig;
 
   int fNSyst;
-  SystematicHisto* fSyst[MAXsyst];
+  SystematicHist* fSyst[MAXsyst];
   int fNNorm;
   NormFactor* fNormFactors[MAXnorm];
 };

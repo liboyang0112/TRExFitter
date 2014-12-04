@@ -1,15 +1,27 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TCanvas.h"
+#include "TDirectory.h"
 
-// #include "RooStats/HistFactory/Measurement.h"
-#include "TtHFit.C"
+#include "Root/Common.C"
+#include "Root/NuisParameter.C"
+#include "Root/CorrelationMatrix.C"
+#include "Root/FitResults.C"
+#include "Root/Systematic.C"
+#include "Root/SystematicHisto.C"
+#include "Root/NormFactor.C"
+#include "Root/Sample.C"
+#include "Root/Region.C"
+#include "Root/SampleHist.C"
+#include "Root/TtHFit.C"
 
+#include "Root/TthPlot.C"
 
 
 void FitExample(){
     
 //   // create dummy data
+//   TDirectory *dir = gDirectory;
 //   TFile *f = new TFile("inputs.root","RECREATE");
 //   TH1F *h_data = new TH1F("h_data","h_data",10,0,1200);
 //     h_data->FillRandom("pol0",100);
@@ -35,9 +47,10 @@ void FitExample(){
 //   h_bkg_jesUp->Write("",TObject::kOverwrite);
 //   h_bkg_jesDown->Write("",TObject::kOverwrite);
 //   h_sig->Write("",TObject::kOverwrite);
-// //   f->Close();
-// //   f->~TFile();
-// //   delete f;
+//   dir->cd();
+//   f->Close();
+//   f->~TFile();
+//   delete f;
 //   return;
   
   // create the fit object
@@ -70,7 +83,7 @@ void FitExample(){
   hS_bkg->AddOverallSyst("BkgXsec",0.10,-0.05);
   hS_bkg->AddHistoSyst("JES","h_bkg_jesUp","inputs.root","h_bkg_jesDown","inputs.root");
   
-  TCanvas *c = SR_6j4b->Draw();
+  TCanvas *c = SR_6j4b->DrawPreFit();
   
   c->SaveAs("Test.png");
   

@@ -1,0 +1,44 @@
+-----------------
+TtHFitter package
+-----------------
+
+
+---------
+Structure
+---------
+ - Root/ contains the .C files
+ - TtHFitter/ contains the .h files
+ - 
+
+-------
+Classes
+-------
+ - TtHFit:
+   - main class
+   - contains a collection of Region objects
+ - Region:
+   - class for fit region / channel
+   - only contains one variable / plot
+   - contains a collection of SampleHist objects
+ - Sample:
+   - class for type of process
+   - stores process name, type (signal, background, data), color for histograms, etc..
+ - SampleHist:
+   - class containing specific histogram in a given region
+   - may contain a collection of SystematicHisto objects
+   - may contain a collection of NormFactor objects
+ - Systematic:
+   - class for each systematic source
+   - stores syst name
+ - SystematicHisto:
+   - class containing the actual up and down variations for a given systematic on a given sample in a given region
+   - the variations can be overall or histogram
+ - NormFactor:
+   - class containing a normalization factor
+ - FitResults:
+   - 
+ - NuisParameter:
+   -
+ - CorrelatinMatrix:
+   -
+

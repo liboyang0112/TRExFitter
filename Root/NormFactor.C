@@ -14,3 +14,7 @@ void NormFactor::Set(string name, float nominal, float min, float max){
   fMin = min;
   fMax = max;
 }
+
+void NormFactor::Print(){
+  cout << "        NormFactor: " << fName << "\t" << fNominal << ", " << fMin << ", " << fMax << endl;
+}

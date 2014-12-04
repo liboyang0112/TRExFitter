@@ -1,9 +1,9 @@
-#include "TtHFitter/SystematicHisto.h"
+#include "TtHFitter/SystematicHist.h"
 
 // -------------------------------------------------------------------------------------------------
-// SystematicHisto
+// SystematicHist
 
-SystematicHisto::SystematicHisto(string name){
+SystematicHist::SystematicHist(string name){
   fName = name;
 
   fIsOverall = false;
@@ -25,9 +25,9 @@ SystematicHisto::SystematicHisto(string name){
   fFileNameShapeDown = "";
   fHistoNameShapeDown = "";
 }
-SystematicHisto::~SystematicHisto(){}
+SystematicHist::~SystematicHist(){}
 
-void SystematicHisto::WriteToFile(){
+void SystematicHist::WriteToFile(){
   WriteHistToFile(fHistUp,fFileNameUp);
   WriteHistToFile(fHistDown,fFileNameDown);
   if(fIsShape){
@@ -36,14 +36,18 @@ void SystematicHisto::WriteToFile(){
   }
 }
 
-void SystematicHisto::ReadFromFile(){
+void SystematicHist::ReadFromFile(){
   fHistUp = HistFromFile(fFileNameUp,fHistoNameUp);
   fHistShapeUp = HistFromFile(fFileNameShapeUp,fHistoNameShapeUp);
   fHistDown = HistFromFile(fFileNameDown,fHistoNameDown);
   fHistShapeDown = HistFromFile(fFileNameShapeDown,fHistoNameShapeDown);
 }
 
-bool SystematicHisto::IsShape(){
+bool SystematicHist::IsShape(){
   if(fHistUp!=0x0 || fHistDown!=0x0) return true;
   return false;
+}
+
+void SystematicHist::Print(){
+  cout << "        Systematic: " << fName << endl;
 }

@@ -20,49 +20,70 @@
 
 class Sample {
 public:
-  Sample(string name);
+  Sample(string name,int type=0);
   ~Sample();
   
-  void SetIsData(bool isData=true);
-  void SetIsSignal(bool isSignal=true);
+  // -------
+  // Methods
+  // -------
+
+  // comsetics
   void SetTitle(string title);
   void SetFillColor(int color);
   void SetLineColor(int color);
-  void AddNormFactor(string name,float nominal,float min,float max);
-  void AddNormFactor(NormFactor *factor);
   
-  void AddNtupleName(string name);
+  // read from ntupes
   void AddNtuplePath(string path);
-  void AddSystematic(Systematic *syst);
+  void AddNtupleFile(string file);
+  void AddNtupleName(string name);
   void SetMCweight(string weight);
+  void SetSelection(string selection);
   
+  // read from histos
+  // ...
+  
+  // norm factors and systs
+  void AddNormFactor(NormFactor *factor);
+  void AddSystematic(Systematic *syst);
+  NormFactor* AddNormFactor(string name,float nominal,float min,float max);
+  Systematic* AddSystematic(string name,int type=0,float up=0,float down=0);
+
+  
+  // -------
+  // Members
+  // -------
+
   string fName;
+  int fType;
   string fFitName;
   string fTitle;
-  bool fIsData;
-  bool fIsSignal;
   int fFillColor;
   int fLineColor;
   
   // to read from ntuples
   string fSelection;
   string fMCweight;
-  string fTreeName;
   vector<string> fNtuplePaths;
   vector<string> fNtuplePathSuffs;
+  vector<string> fNtupleFiles;
+  vector<string> fNtupleFileSuffs;
   vector<string> fNtupleNames;
   vector<string> fNtupleNameSuffs;
   
+  // to read from histograms
+  // <path>/<file>.root/<name>
+  vector<string> fHistoPaths;
+  vector<string> fHistoPathSuffs;
+  vector<string> fHistoFiles;
+  vector<string> fHistoFileSuffs;
+  vector<string> fHistoNames;
+  vector<string> fHistoNameSuffs;
+
   // systematics & norm.factors
   int fNSyst;
   Systematic* fSystematics[MAXsyst];
   int fNNorm;
   NormFactor* fNormFactors[MAXnorm];
-  
-//   // to read from histograms
-//   vector<string> fHistoPaths;
-//   vector<string> fHistoFiles;
-//   vector<string> fHistoNames;
 };
 
 #endif

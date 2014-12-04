@@ -29,15 +29,23 @@ class Region {
 public:
   Region(string name);
   ~Region();
+    
+//   SampleHist* SetDataHist(Sample *sample, string histoName, string fileName);
+//   SampleHist* SetDataHist(Sample *sample, TH1* hist );
+//   SampleHist* SetSigHist(Sample *sample, string histoName, string fileName);
+//   SampleHist* SetSigHist(Sample *sample, TH1* hist );
+//   SampleHist* AddBkgHist(Sample *sample, string histoName, string fileName);
+//   SampleHist* AddBkgHist(Sample *sample, TH1* hist);  
+
+
+  // -------
+  // Methods
+  // -------
   
-  SampleHist* SetDataHist(Sample *sample, string histoName, string fileName);
-  SampleHist* SetDataHist(Sample *sample, TH1* hist );
-  SampleHist* SetSigHist(Sample *sample, string histoName, string fileName);
-  SampleHist* SetSigHist(Sample *sample, TH1* hist );
-  SampleHist* AddBkgHist(Sample *sample, string histoName, string fileName);
-  SampleHist* AddBkgHist(Sample *sample, TH1* hist);  
-  void AddSystematic(Systematic *syst);
+  SampleHist* SetSampleHist(Sample *sample, string histoName, string fileName);
+  SampleHist* SetSampleHist(Sample *sample, TH1* hist );
   SampleHist* GetSampleHist(string sampleName);  
+
   void BuildPreFitErrorHist();
   TCanvas* DrawPreFit();
   void BuildPostFitErrorHist(FitResults *fitRes);
@@ -48,8 +56,19 @@ public:
   void SetVariable(string variable,int nbin,float xmin,float xmax);
   void SetAllSamples(bool readNtuples=true,string fileName="MyMeasurement_histos.root");
   
+  void AddSystematic(Systematic *syst);
+
+  // cosmetics
   void SetVariableTitle(string name);
   void SetLabel(string label);
+  
+  // log
+  void Print();
+  
+  
+  // -------
+  // Members
+  // -------
   
   string fName;
   string fVariableTitle;
@@ -62,6 +81,7 @@ public:
   int fNBkg;
   SampleHist *fBkg[MAXsamples];
   int fNSamples;
+  SampleHist* fSampleHists[MAXsamples];
   Sample* fSamples[MAXsamples];
   
   // to draw
@@ -77,6 +97,8 @@ public:
   string fMCweight;
   vector<string> fNtuplePaths;
   vector<string> fNtuplePathSuffs;
+  vector<string> fNtupleFiles;
+  vector<string> fNtupleFileSuffs;
   vector<string> fNtupleNames;
   vector<string> fNtupleNameSuffs;
 
@@ -87,6 +109,7 @@ public:
   NormFactor* fNormFactors[MAXnorm];  
 };
 
+// for post-fit plots
 float GetDeltaN(float alpha, float Iz, float Ip, float Imi);
 
 #endif

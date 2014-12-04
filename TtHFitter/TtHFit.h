@@ -26,7 +26,7 @@ public:
 
   void SetPOI(string name="SigXsecOverSM");
   void SetLumiErr(float err);
-  Sample* NewSample(string name);
+  Sample* NewSample(string name,int type=0);
   Systematic* NewSystematic(string name);
   Region* NewRegion(string name);
   
@@ -34,7 +34,7 @@ public:
   void AddNtuplePath(string path);
   void SetMCweight(string weight);
   void SetSelection(string selection);
-  void SetTreeName(string name);
+  void SetNtupleName(string name);
 
   // create new root file with all the histograms
   void WriteHistos(string fileName="MyMeasurement_histos.root",bool recreate=true);
@@ -46,6 +46,9 @@ public:
 
   // turn to RooStat::HistFactory
   void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
+  
+  void Print();
+  
   
   string fName;
   string fResultsFolder;
@@ -63,7 +66,7 @@ public:
   vector<string> fNtuplePaths;
   string fMCweight;
   string fSelection;
-  string fTreeName;
+  string fNtupleName;
   
   FitResults *fFitResults;
 };

@@ -3,17 +3,21 @@
 // -------------------------------------------------------------------------------------------------
 // Systematic
 
-Systematic::Systematic(string name){
+Systematic::Systematic(string name,int type,float up,float down){
   fName = name;
+  fType = type;
+  //
+  fOverallUp = up;
+  fOverallDown = down;
   //
   fWeightUp = "";
-  fWeightSufUp = "";  
+  fWeightSufUp = "";
   fNtuplePathsUp.clear();
   fNtuplePathSufUp = "";
   fNtupleFilesUp.clear();
   fNtupleFileSufUp = "";
-  fTreeNameUp = "";
-  fTreeNameSufUp = "";
+  fNtupleNamesUp.clear();
+  fNtupleNameSufUp = "";
   //
   fWeightDown = "";
   fWeightSufDown = "";  
@@ -21,30 +25,21 @@ Systematic::Systematic(string name){
   fNtuplePathSufDown = "";
   fNtupleFilesDown.clear();
   fNtupleFileSufDown = "";
-  fTreeNameDown = "";
-  fTreeNameSufDown = "";
-
+  fNtupleNamesDown.clear();
+  fNtupleNameSufDown = "";
+  //
+  fHistoPathsUp.clear();
+  fHistoPathSufUp = "";
+  fHistoFilesUp.clear();
+  fHistoFileSufUp = "";
+  fHistoNamesUp.clear();
+  fHistoNameSufUp = "";
+  //
+  fHistoPathsDown.clear();
+  fHistoPathSufDown = "";
+  fHistoFilesDown.clear();
+  fHistoFileSufDown = "";
+  fHistoNamesDown.clear();
+  fHistoNameSufDown = "";
 }
 Systematic::~Systematic(){}
-
-bool Systematic::IsOverallOnly(){
-  bool res = true;
-  if(fWeightUp!="") res = false;
-  if(fWeightSufUp!="") res = false;
-  if(fNtuplePathsUp.size()!=0) res = false;
-  if(fNtuplePathSufUp!="") res = false;
-  if(fNtupleFilesUp.size()!=0) res = false;
-  if(fNtupleFileSufUp!="") res = false;
-  if(fTreeNameUp!="") res = false;
-  if(fTreeNameSufUp!="") res = false;
-  //
-  if(fWeightDown!="") res = false;
-  if(fWeightSufDown!="") res = false;
-  if(fNtuplePathsDown.size()!=0) res = false;
-  if(fNtuplePathSufDown!="") res = false;
-  if(fNtupleFilesDown.size()!=0) res = false;
-  if(fNtupleFileSufDown!="") res = false;
-  if(fTreeNameDown!="") res = false;
-  if(fTreeNameSufDown!="") res = false;
-  return res;
-}

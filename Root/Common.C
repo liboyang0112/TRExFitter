@@ -31,3 +31,7 @@ void WriteHistToFile(TH1* h,string fileName,string option){
   f->~TFile();
   dir->cd();
 }
+
+void TtHFitter::SetDebugLevel(int level){
+  DEBUGLEVEL = level;
+}

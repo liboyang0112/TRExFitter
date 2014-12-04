@@ -23,14 +23,14 @@ void TtHFit::SetLumiErr(float err){
   fLumiErr = err;
 }
   
-Sample* TtHFit::NewSample(string name){
-  fSamples[fNSamples] = new Sample(name);
+Sample* TtHFit::NewSample(string name,int type){
+  fSamples[fNSamples] = new Sample(name,type);
   // propagate stuff
   for(int i_path=0;i_path<(int)fNtuplePaths.size();i_path++){
     fSamples[fNSamples]->AddNtuplePath(fNtuplePaths[i_path]);
   }
   if(fMCweight!="") fSamples[fNSamples]->SetMCweight(fMCweight);
-  if(fTreeName!="") fSamples[fNSamples]->fTreeName = fTreeName;
+  if(fNtupleName!="") fSamples[fNSamples]->fNtupleNames.push_back(fNtupleName);
   //
   fNSamples ++;
   return fSamples[fNSamples-1];
@@ -44,14 +44,14 @@ Systematic* TtHFit::NewSystematic(string name){
 
 Region* TtHFit::NewRegion(string name){
   fRegions[fNRegions] = new Region(name);
-  // propagate stuff
-  for(int i_smp=0;i_smp<fNSamples;i_smp++){
-    fRegions[fNRegions]->AddSample(fSamples[i_smp]);
-  }
-  for(int i_syst=0;i_syst<fNSyst;i_syst++){
-    fRegions[fNRegions]->AddSystematic(fSystematics[i_syst]);
-  }
-  if(fSelection!="") fRegions[fNRegions]->AddSelection(fSelection);
+//   // propagate stuff
+//   for(int i_smp=0;i_smp<fNSamples;i_smp++){
+//     fRegions[fNRegions]->AddSample(fSamples[i_smp]);
+//   }
+//   for(int i_syst=0;i_syst<fNSyst;i_syst++){
+//     fRegions[fNRegions]->AddSystematic(fSystematics[i_syst]);
+//   }
+//   if(fSelection!="") fRegions[fNRegions]->AddSelection(fSelection);
   //
   fNRegions ++;
   return fRegions[fNRegions-1];
@@ -70,8 +70,8 @@ void TtHFit::SetSelection(string selection){
   fSelection = selection;
 }
 
-void TtHFit::SetTreeName(string name){
-  fTreeName = name;
+void TtHFit::SetNtupleName(string name){
+  fNtupleName = name;
 }
 
 // create new root file with all the histograms
@@ -120,7 +120,7 @@ void TtHFit::ReadAll(bool readNtuples,string fileName){
   }
   if(!readNtuples){
     SampleHist* h;
-    SystematicHisto* sh;
+    SystematicHist* sh;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
       for(int i_smp=0;i_smp<fNSamples;i_smp++){
         h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
@@ -209,4 +209,14 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
   meas.CollectHistograms();
   meas.PrintTree();
   if(makeWorkspace) RooStats::HistFactory::MakeModelAndMeasurementFast(meas);
+}
+
+
+void TtHFit::Print(){
+  cout << endl;
+  cout << "  TtHFit: " << fName << endl;
+  for(int i_ch=0;i_ch<fNRegions;i_ch++){
+    fRegions[i_ch]->Print();
+  }
+  cout << endl;
 }

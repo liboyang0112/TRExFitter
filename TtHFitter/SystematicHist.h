@@ -1,18 +1,20 @@
 #include "TH1.h"
 
-#ifndef __SystematicHisto__
-#define __SystematicHisto__
+#ifndef __SystematicHist__
+#define __SystematicHist__
 
 // #include "TtHFitter/Sample.h"
 
-class SystematicHisto {
+class SystematicHist {
 public:
-  SystematicHisto(string name);
-  ~SystematicHisto();
+  SystematicHist(string name);
+  ~SystematicHist();
 
   void WriteToFile();
   void ReadFromFile();
   bool IsShape();
+  
+  void Print();
   
   string fName;
 //   Sample *fSample;
