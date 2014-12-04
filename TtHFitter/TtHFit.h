@@ -37,10 +37,10 @@ public:
   void SetNtupleName(string name);
 
   // create new root file with all the histograms
-  void WriteHistos(string fileName="MyMeasurement_histos.root",bool recreate=true);
+  void WriteHistos(string fileName="",bool recreate=true);
   
   // read from ..
-  void ReadAll(bool readNtuples=true,string fileName="MyMeasurement_histos.root");
+  void ReadAll(bool readNtuples=true,string fileName="");
   
   void DrawAndSaveAll();
 

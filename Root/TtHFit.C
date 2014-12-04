@@ -76,7 +76,8 @@ void TtHFit::SetNtupleName(string name){
 
 // create new root file with all the histograms
 void TtHFit::WriteHistos(string fileName,bool recreate){
-  cout << "Writing histograms to file..." << endl;
+  if(fileName=="") fileName = fName + "_histos.root";
+  cout << "Writing histograms to file " << fileName << " ..." << endl;
   TDirectory *dir = gDirectory;
   TFile *f;
   if(recreate){
@@ -156,9 +157,13 @@ void TtHFit::DrawAndSaveAll(){
 
 // turn to RooStat::HistFactory
 void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
-  cout << "--------------------------------" << endl;
-  cout << "|      Export to RooStat       |" << endl;
-  cout << "--------------------------------" << endl;
+  if(TtHFitter::DEBUGLEVEL>0){
+    cout << "--------------------------------" << endl;
+    cout << "|      Export to RooStat       |" << endl;
+    cout << "--------------------------------" << endl;
+  }
+  else
+    cout << "Exporting to RooStats..." << endl;
   RooStats::HistFactory::Measurement meas(fName.c_str(), fName.c_str());
 //   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
   meas.SetOutputFilePrefix((fResultsFolder+"/"+fName).c_str());//"results/myMeasurement");
@@ -167,32 +172,42 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
   meas.SetLumi(1.0);
   meas.SetLumiRelErr(fLumiErr);
   for(int i_ch=0;i_ch<fNRegions;i_ch++){
-    cout << "Adding Channel: " << fRegions[i_ch]->fName << endl;
+    if(TtHFitter::DEBUGLEVEL>0){
+      cout << "Adding Channel: " << fRegions[i_ch]->fName << endl;
+    }
     RooStats::HistFactory::Channel chan(fRegions[i_ch]->fName.c_str());
-    cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->fName << endl;
+    if(TtHFitter::DEBUGLEVEL>0){
+      cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->fName << endl;
+    }
     chan.SetData(fRegions[i_ch]->fData->fHistoName, fRegions[i_ch]->fData->fFileName);
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
       SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-      if( h != 0x0 && !h->fIsData ){
-        cout << "  Adding Sample: " << fSamples[i_smp]->fName << endl;
+      if( h != 0x0 && h->fSample->fType!=SampleType::Data){
+        if(TtHFitter::DEBUGLEVEL>0){
+          cout << "  Adding Sample: " << fSamples[i_smp]->fName << endl;
+        }
         RooStats::HistFactory::Sample sample(fSamples[i_smp]->fName.c_str());
         sample.SetHistoName(h->fHistoName);
         sample.SetInputFile(h->fFileName);
         // norm factors
         for(int i_norm=0;i_norm<h->fNNorm;i_norm++){
-          cout << "    Adding NormFactor: " << h->fNormFactors[i_norm]->fName << endl;
-          sample.AddNormFactor( h->fSample->fNormFactors[i_norm]->fName,
-                                h->fSample->fNormFactors[i_norm]->fNominal,
-                                h->fSample->fNormFactors[i_norm]->fMin,
-                                h->fSample->fNormFactors[i_norm]->fMax  );
+          if(TtHFitter::DEBUGLEVEL>0){
+            cout << "    Adding NormFactor: " << h->fNormFactors[i_norm]->fName << endl;
+          }
+          sample.AddNormFactor( h->fNormFactors[i_norm]->fName,
+                                h->fNormFactors[i_norm]->fNominal,
+                                h->fNormFactors[i_norm]->fMin,
+                                h->fNormFactors[i_norm]->fMax  );
         }
         // systematics
         for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
           // add normalization part
-          cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
+          if(TtHFitter::DEBUGLEVEL>0){
+            cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
+          }
           sample.AddOverallSys( h->fSyst[i_syst]->fName,
-                                h->fSyst[i_syst]->fNormDown,
-                                h->fSyst[i_syst]->fNormUp   );
+                                1+h->fSyst[i_syst]->fNormDown,
+                                1+h->fSyst[i_syst]->fNormUp   );
           // eventually add shape part
           if(h->fSyst[i_syst]->fIsShape){
             sample.AddHistoSys( h->fSyst[i_syst]->fName,

@@ -106,12 +106,7 @@ void Region::AddSystematic(Systematic *syst){
 }
 
 SampleHist* Region::GetSampleHist(string sampleName){
-//   if(fHasData && fData->fSample->fName == sampleName) return fData;
-//   if(fHasSig && fSig->fSample->fName == sampleName) return fSig;
-//   for(int i_bkg=0;i_bkg<fNBkg;i_bkg++){
-//     if(fBkg[i_bkg]->fSample->fName == sampleName) return fBkg[i_bkg];
-//   }
-  for(int i_smp=0;i_smp<fNBkg;i_smp++){
+  for(int i_smp=0;i_smp<fNSamples;i_smp++){
     if(fSampleHists[i_smp]->fSample->fName == sampleName) return fSampleHists[i_smp];
   }
   return 0x0;
