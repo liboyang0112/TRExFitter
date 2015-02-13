@@ -1,4 +1,5 @@
 #include "TtHFitter/TtHFit.h"
+#include "TSystem.h"
 
 // -------------------------------------------------------------------------------------------------
 // class TtHFit
@@ -12,11 +13,19 @@ TtHFit::TtHFit(string name){
   fResultsFolder = "results/";
   fSelection = "";
   fNtuplePaths.clear();
+  fPOI = "";
+  fUseStatErr = false;
+  fStatErrThres = 0.05;
 }
 TtHFit::~TtHFit(){}
 
 void TtHFit::SetPOI(string name){
   fPOI = name;
+}
+
+void TtHFit::SetStatErrorConfig(bool useIt, float thres){
+  fUseStatErr = useIt;
+  fStatErrThres = thres;
 }
 
 void TtHFit::SetLumiErr(float err){
@@ -26,11 +35,11 @@ void TtHFit::SetLumiErr(float err){
 Sample* TtHFit::NewSample(string name,int type){
   fSamples[fNSamples] = new Sample(name,type);
   // propagate stuff
-  for(int i_path=0;i_path<(int)fNtuplePaths.size();i_path++){
-    fSamples[fNSamples]->AddNtuplePath(fNtuplePaths[i_path]);
-  }
-  if(fMCweight!="") fSamples[fNSamples]->SetMCweight(fMCweight);
-  if(fNtupleName!="") fSamples[fNSamples]->fNtupleNames.push_back(fNtupleName);
+//   for(int i_path=0;i_path<(int)fNtuplePaths.size();i_path++){
+//     fSamples[fNSamples]->AddNtuplePath(fNtuplePaths[i_path]);
+//   }
+//   if(fMCweight!="") fSamples[fNSamples]->SetMCweight(fMCweight);
+//   if(fNtupleName!="") fSamples[fNSamples]->fNtupleNames.push_back(fNtupleName);
   //
   fNSamples ++;
   return fSamples[fNSamples-1];
@@ -115,43 +124,257 @@ void TtHFit::WriteHistos(string fileName,bool recreate){
   }
 }
 
-void TtHFit::ReadAll(bool readNtuples,string fileName){
+// for each region, add a SampleHist for each Sample in the Fit, reading from ntuples
+void TtHFit::ReadNtuples(){
+  TH1F* h;
+  TH1F* hUp;
+  TH1F* hDown;
+  TH1F* htmp;
+//   string ntupleFullPath;
+  string fullSelection;
+  string fullMCweight;
+  vector<string> fullPaths;
+  vector<string> empty; empty.clear();
+  //
+  // loop on regions and samples
   for(int i_ch=0;i_ch<fNRegions;i_ch++){
-    fRegions[i_ch]->SetAllSamples(readNtuples,fileName);
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+      //
+      // read nominal
+      //
+      // set selection and weight
+      fullSelection = fSelection + " && " + fRegions[i_ch]->fSelection;
+      if(fSamples[i_smp]->fType==SampleType::Data) fullMCweight = "1";
+      else{
+        fullMCweight = fMCweight + " * " + fSamples[i_smp]->fMCweight;
+        if(fRegions[i_ch]->fMCweight!="") fullMCweight += " * " + fRegions[i_ch]->fMCweight;
+      }
+      //
+      // build a list of ntuples to read
+      fullPaths.clear();
+      // Common::CreatePathsList( vector<string> paths, vector<string> pathSufs, 
+      //                          vector<string> files, vector<string> filesSuf, 
+      //                          vector<string> names, vector<string> namesSuf);
+      fullPaths = CreatePathsList( fNtuplePaths, fRegions[i_ch]->fNtuplePathSuffs, 
+                                   fSamples[i_smp]->fNtupleFiles, empty, // no ntuple file suffs for nominal (syst only)
+                                   ToVec( fNtupleName ), empty  // same for ntuple name
+      );
+      for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+        htmp = HistFromNtuple( fullPaths[i_path],
+                               fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax, 
+                               fullSelection, fullMCweight);
+        if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+        else h->Add(htmp);
+        htmp->~TH1F();
+      }
+      fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
+      //
+      // fix the bin contents FIXME (to avoid fit problems)
+      if(fSamples[i_smp]->fType!=SampleType::Data) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
+      //
+      //  -----------------------------------
+      //
+      // read systematics (Shape and Histo)
+      for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
+        // if not Overall only...
+        if(fSamples[i_smp]->fSystematics[i_syst]->fType==SystType::Overall)
+          continue;
+        cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
+        //
+        // Up
+        //
+        // Note: no need to change selection for systematics. If needed, can be done via weight (partially...)
+        fullMCweight = fMCweight;
+        if(fSamples[i_smp]->fSystematics[i_syst]->fWeightUp!="") 
+          fullMCweight += " * "+fSamples[i_smp]->fSystematics[i_syst]->fWeightUp;
+        else 
+          fullMCweight += " * " + fSamples[i_smp]->fMCweight;
+        if(fSamples[i_smp]->fSystematics[i_syst]->fWeightSufUp!="") 
+          fullMCweight += " * "+fSamples[i_smp]->fSystematics[i_syst]->fWeightSufUp;
+        if(fRegions[i_ch]->fMCweight!="") 
+          fullMCweight += " * " + fRegions[i_ch]->fMCweight;
+        cout << fullSelection << endl;
+        cout << fullMCweight << endl;
+        vector<string> s = CombinePathSufs(
+                                        fRegions[i_ch]->fNtuplePathSuffs,
+                                        fSamples[i_smp]->fSystematics[i_syst]->fNtuplePathsUp );
+                                        cout << "ok" << endl;
+        cout << s[0] << endl;
+        //
+        fullPaths.clear();
+        fullPaths = CreatePathsList( 
+                                      // path
+                                      fNtuplePaths, 
+                                      // path suf
+                                      CombinePathSufs(
+                                        fRegions[i_ch]->fNtuplePathSuffs,
+                                        fSamples[i_smp]->fSystematics[i_syst]->fNtuplePathsUp ),
+                                      // file
+                                      fSamples[i_smp]->fSystematics[i_syst]->fNtupleFilesUp.size()==0 ?
+                                        fSamples[i_smp]->fNtupleFiles :
+                                        fSamples[i_smp]->fSystematics[i_syst]->fNtupleFilesUp ,
+                                      // file suf
+                                      fSamples[i_smp]->fSystematics[i_syst]->fNtupleFileSufUp=="" ?
+                                        empty :
+                                        ToVec( fSamples[i_smp]->fSystematics[i_syst]->fNtupleFileSufUp ),
+                                      // name
+                                      fSamples[i_smp]->fSystematics[i_syst]->fNtupleNamesUp.size()==0 ? 
+                                        ToVec( fNtupleName ) : 
+                                        fSamples[i_smp]->fSystematics[i_syst]->fNtupleNamesUp,
+                                      // name suf
+                                      fSamples[i_smp]->fSystematics[i_syst]->fNtupleNameSufUp=="" ?
+                                        empty : 
+                                        ToVec( fSamples[i_smp]->fSystematics[i_syst]->fNtupleNameSufUp )
+                                    );
+        for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+          htmp = HistFromNtuple( fullPaths[i_path],
+                                fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax, 
+                                fullSelection, fullMCweight);
+          if(i_path==0) hUp = (TH1F*)htmp->Clone();
+          else hUp->Add(htmp);
+          htmp->~TH1F();
+        }
+        hUp->SetName(Form("h_%s_%s_%sUp",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
+        //
+        // Down
+        //
+        // Note: no need to change selection for systematics. If needed, can be done via weight (partially...)
+        fullMCweight = fMCweight;
+        if(fSamples[i_smp]->fSystematics[i_syst]->fWeightDown!="") 
+          fullMCweight += " * "+fSamples[i_smp]->fSystematics[i_syst]->fWeightDown;
+        else 
+          fullMCweight += " * " + fSamples[i_smp]->fMCweight;
+        if(fSamples[i_smp]->fSystematics[i_syst]->fWeightSufDown!="") 
+          fullMCweight += " * "+fSamples[i_smp]->fSystematics[i_syst]->fWeightSufDown;
+        if(fRegions[i_ch]->fMCweight!="") 
+          fullMCweight += " * " + fRegions[i_ch]->fMCweight;
+        //
+        fullPaths.clear();
+        fullPaths = CreatePathsList( 
+                                      // path
+                                      fNtuplePaths, 
+                                      // path suf
+                                      CombinePathSufs(
+                                        fRegions[i_ch]->fNtuplePathSuffs,
+                                        fSamples[i_smp]->fSystematics[i_syst]->fNtuplePathsDown ),
+                                      // file
+                                     fSamples[i_smp]->fSystematics[i_syst]->fNtupleFilesDown.size()==0 ?
+                                        fSamples[i_smp]->fNtupleFiles :
+                                        fSamples[i_smp]->fSystematics[i_syst]->fNtupleFilesDown ,
+                                      // file suf
+                                      fSamples[i_smp]->fSystematics[i_syst]->fNtupleFileSufDown=="" ?
+                                        empty :
+                                        ToVec( fSamples[i_smp]->fSystematics[i_syst]->fNtupleFileSufDown ),
+                                      // name
+                                      fSamples[i_smp]->fSystematics[i_syst]->fNtupleNamesDown.size()==0 ? 
+                                        ToVec( fNtupleName ) : 
+                                        fSamples[i_smp]->fSystematics[i_syst]->fNtupleNamesDown,
+                                      // name suf
+                                      fSamples[i_smp]->fSystematics[i_syst]->fNtupleNameSufDown=="" ?
+                                        empty : 
+                                        ToVec( fSamples[i_smp]->fSystematics[i_syst]->fNtupleNameSufDown )
+                                    );
+        for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+          htmp = HistFromNtuple( fullPaths[i_path],
+                                fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax, 
+                                fullSelection, fullMCweight);
+          if(i_path==0) hDown = (TH1F*)htmp->Clone();
+          else hDown->Add(htmp);
+          htmp->~TH1F();
+        }
+        hDown->SetName(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
+        //
+        //
+        fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,
+                                                                            hUp,hDown);
+      }
+    }
   }
-  if(!readNtuples){
-    SampleHist* h;
-    SystematicHist* sh;
-    for(int i_ch=0;i_ch<fNRegions;i_ch++){
-      for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-        h->fHistoName = h->fHist->GetName();
-        h->fFileName = fileName;
-        if( h != 0x0 && !h->fIsData ){
-          for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
-            sh = h->fSyst[i_syst];
-            sh->fNormUp = sh->fHistUp->Integral() / h->fHist->Integral();
-            sh->fNormDown = sh->fHistDown->Integral() / h->fHist->Integral();
-            if(h->fSyst[i_syst]->fIsShape){
-//                 h->fSystUp[i_syst]->Scale( 1./h->fSystNormUp[i_syst] );
-//                 h->fSystDown[i_syst]->Scale( 1./h->fSystNormDown[i_syst] );
-//                 h->fSystUp[i_syst]->Write("",TObject::kOverwrite);
-//                 h->fSystDown[i_syst]->Write("",TObject::kOverwrite);
-              h->fSyst[i_syst]->fHistoNameShapeUp = h->fSyst[i_syst]->fHistShapeUp->GetName();
-              h->fSyst[i_syst]->fFileNameShapeUp = fileName;
-              h->fSyst[i_syst]->fHistoNameShapeDown = h->fSyst[i_syst]->fHistShapeDown->GetName();
-              h->fSyst[i_syst]->fFileNameShapeDown = fileName;
-            }
-          }
+  delete htmp;
+}
+
+void TtHFit::ReadHistos(string fileName){
+  if(fileName=="") fileName = fName + "_histos.root";
+  cout << "-----------------------------" << endl;
+  cout << "Reading histograms from file " << fileName << " ..." << endl;
+  TH1F* h;
+  SampleHist *sh;
+  SystematicHist *syh;
+  string regionName;
+  string sampleName;
+  string systName;
+  for(int i_ch=0;i_ch<fNRegions;i_ch++){
+    regionName = fRegions[i_ch]->fName;
+    cout << "  Reading region " << regionName << endl;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+      sampleName = fSamples[i_smp]->fName;
+      cout << "    Reading sample " << sampleName << endl;
+      fRegions[i_ch]->SetSampleHist(fSamples[i_smp],regionName+"_"+sampleName,fileName);
+      for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
+        systName = fSamples[i_smp]->fSystematics[i_syst]->fName;
+        cout << "      Reading syst " << systName << endl;
+        sh = fRegions[i_ch]->GetSampleHist(sampleName);
+        // norm only
+        if(fSamples[i_smp]->fSystematics[i_syst]->fType == SystType::Overall){
+         sh->AddOverallSyst(systName,fSamples[i_smp]->fSystematics[i_syst]->fOverallUp,fSamples[i_smp]->fSystematics[i_syst]->fOverallDown); 
+        }
+        // histo syst
+        else{
+          syh = sh->AddHistoSyst(systName,
+            Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systName.c_str()),   fileName,
+            Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systName.c_str()), fileName);
+          syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",regionName.c_str(),sampleName.c_str(),systName.c_str());
+          syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systName.c_str());
+          syh->fFileNameShapeUp    = fileName;
+          syh->fFileNameShapeDown  = fileName;
         }
       }
     }
   }
+  cout << "-----------------------------" << endl;
 }
 
-void TtHFit::DrawAndSaveAll(){
+// old
+void TtHFit::ReadAll(bool readNtuples,string fileName){
+//   for(int i_ch=0;i_ch<fNRegions;i_ch++){
+//     fRegions[i_ch]->SetAllSamples(readNtuples,fileName);
+//   }
+//   if(!readNtuples){
+//     SampleHist* h;
+//     SystematicHist* sh;
+//     for(int i_ch=0;i_ch<fNRegions;i_ch++){
+//       for(int i_smp=0;i_smp<fNSamples;i_smp++){
+//         h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
+//         h->fHistoName = h->fHist->GetName();
+//         h->fFileName = fileName;
+//         if( h != 0x0 && !h->fIsData ){
+//           for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
+//             sh = h->fSyst[i_syst];
+//             sh->fNormUp = sh->fHistUp->Integral() / h->fHist->Integral();
+//             sh->fNormDown = sh->fHistDown->Integral() / h->fHist->Integral();
+//             if(h->fSyst[i_syst]->fIsShape){
+// //                 h->fSystUp[i_syst]->Scale( 1./h->fSystNormUp[i_syst] );
+// //                 h->fSystDown[i_syst]->Scale( 1./h->fSystNormDown[i_syst] );
+// //                 h->fSystUp[i_syst]->Write("",TObject::kOverwrite);
+// //                 h->fSystDown[i_syst]->Write("",TObject::kOverwrite);
+//               h->fSyst[i_syst]->fHistoNameShapeUp = h->fSyst[i_syst]->fHistShapeUp->GetName();
+//               h->fSyst[i_syst]->fFileNameShapeUp = fileName;
+//               h->fSyst[i_syst]->fHistoNameShapeDown = h->fSyst[i_syst]->fHistShapeDown->GetName();
+//               h->fSyst[i_syst]->fFileNameShapeDown = fileName;
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+}
+
+void TtHFit::DrawAndSaveAll(string opt){
+  bool isPostFit = opt.find("post")!=string::npos;
   for(int i_ch=0;i_ch<fNRegions;i_ch++){
-    fRegions[i_ch]->DrawPreFit() -> SaveAs((fRegions[i_ch]->fName+".png").c_str());
+    fRegions[i_ch]->fUseStatErr = fUseStatErr;
+    if(isPostFit) fRegions[i_ch]->DrawPostFit(fFitResults,opt) -> SaveAs((fRegions[i_ch]->fName+"_postFit.png").c_str());
+    else          fRegions[i_ch]->DrawPreFit(opt)              -> SaveAs((fRegions[i_ch]->fName+".png").c_str());
   }
 }
 
@@ -170,7 +393,13 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
   meas.SetExportOnly(exportOnly);
   meas.SetPOI(fPOI.c_str());
   meas.SetLumi(1.0);
-  meas.SetLumiRelErr(fLumiErr);
+  if(fLumiErr==0){
+    meas.AddConstantParam("Lumi");
+    meas.SetLumiRelErr(0.1);
+  }
+  else{
+    meas.SetLumiRelErr(fLumiErr);
+  }
   for(int i_ch=0;i_ch<fNRegions;i_ch++){
     if(TtHFitter::DEBUGLEVEL>0){
       cout << "Adding Channel: " << fRegions[i_ch]->fName << endl;
@@ -180,6 +409,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
       cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->fName << endl;
     }
     chan.SetData(fRegions[i_ch]->fData->fHistoName, fRegions[i_ch]->fData->fFileName);
+    chan.SetStatErrorConfig(fStatErrThres,"Gaussian");
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
       SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
       if( h != 0x0 && h->fSample->fType!=SampleType::Data){
@@ -187,6 +417,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
           cout << "  Adding Sample: " << fSamples[i_smp]->fName << endl;
         }
         RooStats::HistFactory::Sample sample(fSamples[i_smp]->fName.c_str());
+        if(fUseStatErr) sample.ActivateStatError();
         sample.SetHistoName(h->fHistoName);
         sample.SetInputFile(h->fFileName);
         // norm factors
@@ -227,9 +458,20 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 }
 
 
+void TtHFit::ReadFitResults(string fileName){
+  fFitResults = new FitResults();
+  if(fileName.find(".txt")!=string::npos)
+    fFitResults->ReadFromTXT(fileName);
+}
+
+
 void TtHFit::Print(){
   cout << endl;
   cout << "  TtHFit: " << fName << endl;
+  cout << "      ntuplePaths ="; for(int i=0;i<(int)fNtuplePaths.size();i++) cout << " " << fNtuplePaths[i] << endl;
+  cout << "      ntupleName  =";   cout << " " << fNtupleName << endl;
+  cout << "      MCweight    =";   cout << " " << fMCweight << endl;
+  cout << "      selection   =";   cout << " " << fSelection << endl;
   for(int i_ch=0;i_ch<fNRegions;i_ch++){
     fRegions[i_ch]->Print();
   }

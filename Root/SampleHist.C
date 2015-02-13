@@ -159,6 +159,14 @@ bool SampleHist::HasSyst(string name){
   for(int i_syst=0;i_syst<fNSyst;i_syst++){
     if(fSyst[i_syst]->fName == name) return true;
   }
+  return false;
+}
+
+bool SampleHist::HasNorm(string name){
+  for(int i_norm=0;i_norm<fNNorm;i_norm++){
+    if(fNormFactors[i_norm]->fName == name) return true;
+  }
+  return false;
 }
 
 void SampleHist::WriteToFile(){
@@ -172,6 +180,12 @@ void SampleHist::ReadFromFile(){
   fHist = HistFromFile(fFileName,fHistoName);
 }
 
+void SampleHist::FixEmptyBins(){
+  for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+    if(fHist->GetBinContent(i_bin)<=0) fHist->SetBinContent(i_bin,1e-3);
+  }
+}
+
 void SampleHist::Print(){
   cout << "      Sample: " << fName << "\t" << fHist->GetName() << endl;
   for(int i_syst=0;i_syst<fNSyst;i_syst++){
@@ -179,5 +193,71 @@ void SampleHist::Print(){
   }
   for(int i_norm=0;i_norm<fNNorm;i_norm++){
     fNormFactors[i_norm]->Print();
+  }
+}
+
+void SampleHist::Rebin(int ngroup, const Double_t* xbins){
+  fHist->Rebin(ngroup,"",xbins);
+  for(int i_syst=0;i_syst<fNSyst;i_syst++){
+    if(fSyst[i_syst]->fHistUp!=0x0) fSyst[i_syst]->fHistUp->Rebin(ngroup,"",xbins);
+    if(fSyst[i_syst]->fHistDown!=0x0) fSyst[i_syst]->fHistDown->Rebin(ngroup,"",xbins);
+    if(fSyst[i_syst]->fHistShapeUp!=0x0) fSyst[i_syst]->fHistShapeUp->Rebin(ngroup,"",xbins);
+    if(fSyst[i_syst]->fHistShapeDown!=0x0) fSyst[i_syst]->fHistShapeDown->Rebin(ngroup,"",xbins);
+  }
+}
+
+void SampleHist::Smooth(int ntimes){
+  fHist->Smooth(ntimes);
+  for(int i_syst=0;i_syst<fNSyst;i_syst++){
+    if(fSyst[i_syst]->fHistUp!=0x0) fSyst[i_syst]->fHistUp->Smooth(ntimes);
+    if(fSyst[i_syst]->fHistDown!=0x0) fSyst[i_syst]->fHistDown->Smooth(ntimes);
+    if(fSyst[i_syst]->fHistShapeUp!=0x0) fSyst[i_syst]->fHistShapeUp->Smooth(ntimes);
+    if(fSyst[i_syst]->fHistShapeDown!=0x0) fSyst[i_syst]->fHistShapeDown->Smooth(ntimes);
+  }
+}
+
+// this draws the control plots (for each systematic) with the syst variations for this region & sample
+void SampleHist::DrawSystPlot(){
+  TCanvas *c = new TCanvas("c","c",600,600);
+  c->Divide(1,2);
+  TH1* h_nominal = (TH1*)fHist->Clone("h_nominal");
+    h_nominal->SetLineColor(kBlack);
+    h_nominal->SetLineWidth(2);
+    h_nominal->SetLineStyle(2);
+    h_nominal->SetFillStyle(0);
+  TH1* h_1 = (TH1*)h_nominal->Clone("h_1");
+    h_1->Divide(h_1);
+  TH1* h_syst_up;
+  TH1* h_syst_down;
+  for(int i_syst=0;i_syst<fNSyst;i_syst++){
+    c->cd(1);
+    gPad->SetBottomMargin(0);
+    h_nominal->Draw("HIST");
+    h_nominal->SetMinimum(0);
+    h_nominal->SetMaximum(h_nominal->GetMaximum()*2);
+    h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
+    h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
+      h_syst_up->SetLineColor(kRed);
+      h_syst_up->SetLineWidth(2);
+      h_syst_up->SetLineStyle(1);
+      h_syst_up->SetFillStyle(0);
+      h_syst_down->SetLineColor(kBlue);
+      h_syst_down->SetLineWidth(2);
+      h_syst_down->SetLineStyle(1);
+      h_syst_down->SetFillStyle(0);
+    h_syst_down->DrawClone("same HIST");
+    h_syst_up->DrawClone("same HIST");
+    c->cd(2);
+//     gPad = new TPad("c_2", "c_2", .1, .1, .9, .3);
+//     gPad->Draw();
+    gPad->SetTopMargin(0);
+    h_syst_up->Divide(h_nominal);
+    h_syst_down->Divide(h_nominal);
+    h_1->Draw("HIST");
+    h_syst_down->Draw("same HIST");
+    h_syst_up->Draw("same HIST");
+    h_1->SetMinimum(0);
+    h_1->SetMaximum(2);
+    c->SaveAs(Form("systPlots/%s_%s.png",fHist->GetName(),fSyst[i_syst]->fName.c_str()));
   }
 }

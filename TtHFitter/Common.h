@@ -1,4 +1,6 @@
 #include <iostream>
+#include <sstream>
+#include <fstream>
 
 #include "TChain.h"
 #include "TH1F.h"
@@ -37,5 +39,12 @@ const int MAXnorm = 3;
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight);
 TH1* HistFromFile(string fileName,string histoName);
 void WriteHistToFile(TH1* h,string fileName,string option="UPDATE");
-
+vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs, 
+                                vector<string> files, vector<string> fileSufs, 
+                                vector<string> names, vector<string> nameSufs);
+vector<string> CombinePathSufs( vector<string> pathSufs, vector<string> newPathSufs );
+vector<string> ToVec(string s);
+// string RemovePrefix(string s,string prefix);
+std::string ReplaceString(std::string subject, const std::string& search,
+                          const std::string& replace);
 #endif

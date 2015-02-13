@@ -33,15 +33,23 @@ public:
   NormFactor* GetNormFactor(string name);
 
   bool HasSyst(string name);
+  bool HasNorm(string name);
   
   void WriteToFile();
   void ReadFromFile();
   
+  void FixEmptyBins();
+  
   void Print();
+  
+  void Rebin(int ngroup = 2, const Double_t* xbins = 0);
+  void Smooth(int ntimes = 1);
+  void DrawSystPlot();
   
   string fName;
   Sample *fSample;
   TH1 *fHist;
+  TH1 *fHist_postFit;
   string fFileName;
   string fHistoName;
   bool fIsData;

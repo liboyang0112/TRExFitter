@@ -25,6 +25,7 @@ public:
   ~TtHFit();
 
   void SetPOI(string name="SigXsecOverSM");
+  void SetStatErrorConfig(bool useIt=true, float thres=0.05);
   void SetLumiErr(float err);
   Sample* NewSample(string name,int type=0);
   Systematic* NewSystematic(string name);
@@ -40,13 +41,18 @@ public:
   void WriteHistos(string fileName="",bool recreate=true);
   
   // read from ..
+  void ReadNtuples();
+  void ReadHistos(string fileName="");
   void ReadAll(bool readNtuples=true,string fileName="");
   
-  void DrawAndSaveAll();
+  void DrawAndSaveAll(string opt="");
 
   // turn to RooStat::HistFactory
   void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
-  
+
+  // get fit results from txt file
+  void ReadFitResults(string fileName);
+
   void Print();
   
   
@@ -60,6 +66,8 @@ public:
   int fNSamples;
   int fNSyst;
   string fPOI;
+  bool fUseStatErr;
+  float fStatErrThres;
   
   float fLumiErr;
   

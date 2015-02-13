@@ -1,3 +1,4 @@
+#include "TtHFitter/Common.h"
 #include "TtHFitter/NuisParameter.h"
 #include "TtHFitter/CorrelationMatrix.h"
 
@@ -9,13 +10,12 @@ public:
   FitResults();
   ~FitResults();
   
-  // ReadFromROOT(string rootFileName);
-  // ReadFromTXT(string txtFileName);
-  
   void AddNuisPar(NuisParameter *par);
   float GetNuisParValue(string p);
   float GetNuisParErrUp(string p);
   float GetNuisParErrDown(string p);
+  void ReadFromTXT(string fileName);
+  // ReadFromROOT(string rootFileName);
   
   vector<string> fNuisParNames;
   map<string,int> fNuisParIdx;

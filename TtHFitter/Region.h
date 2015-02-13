@@ -47,12 +47,15 @@ public:
   SampleHist* GetSampleHist(string sampleName);  
 
   void BuildPreFitErrorHist();
-  TCanvas* DrawPreFit();
+//   TCanvas* DrawPreFit(string opt="");
+  TthPlot* DrawPreFit(string opt="");
   void BuildPostFitErrorHist(FitResults *fitRes);
-  TCanvas* DrawPostFit(FitResults *fitRes);
+//   TCanvas* DrawPostFit(FitResults *fitRes,string opt="");
+  TthPlot* DrawPostFit(FitResults *fitRes,string opt="");
   
   void AddSample(Sample *sample);
   void AddSelection(string selection);
+  void AddMCweight(string weight);
   void SetVariable(string variable,int nbin,float xmin,float xmax);
   void SetAllSamples(bool readNtuples=true,string fileName="MyMeasurement_histos.root");
   
@@ -69,6 +72,7 @@ public:
   // -------
   // Members
   // -------
+  
   
   string fName;
   string fVariableTitle;
@@ -88,6 +92,11 @@ public:
   THStack *fStack;
   TH1* fTot;
   TGraphAsymmErrors *fErr;
+
+  // post fit
+  THStack *fStack_postFit;
+  TH1* fTot_postFit;
+  TGraphAsymmErrors *fErr_postFit;
   
   // ntuple stuff
   string fVariable;
@@ -106,7 +115,13 @@ public:
   int fNSyst;
   Systematic* fSystematics[MAXsyst];
   int fNNorm;
-  NormFactor* fNormFactors[MAXnorm];  
+  NormFactor* fNormFactors[MAXnorm]; 
+  
+  // plot objects
+  TthPlot *fPlotPreFit;
+  TthPlot *fPlotPostFit;
+
+  bool fUseStatErr;
 };
 
 // for post-fit plots

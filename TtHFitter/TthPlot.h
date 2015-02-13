@@ -53,7 +53,7 @@ class TthPlot {
     
     TCanvas* GetCanvas();
 
-  private:
+//   private:
     string fName;
     TH1* h_data;
     TGraphAsymmErrors* g_data;
@@ -76,7 +76,9 @@ class TthPlot {
     string data_name;
     vector<string> sample_name;
     string leg_title;
-    string lumi;
+    string fLumi;
+    string fCME;
+    string fATLASlabel;
     float yMaxScale;
     float Chi2prob;
     float KSprob;

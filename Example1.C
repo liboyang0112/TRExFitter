@@ -39,7 +39,13 @@ void Example1(){
     h_sig->FillRandom("pol1",10000);
     h_sig->Scale(100./h_sig->Integral());
   
-  
+  // a histo syst...
+  TH1F *h_bkg_jesUp = (TH1F*)h_bkg->Clone("h_bkg_jesUp");
+    h_bkg_jesUp->SetBinContent(1,h_bkg_jesUp->GetBinContent(1)*1.2);
+  TH1F *h_bkg_jesDo = (TH1F*)h_bkg->Clone("h_bkg_jesDo");
+    h_bkg_jesDo->SetBinContent(1,h_bkg_jesDo->GetBinContent(1)*0.8);
+
+    
   TtHFit *myFit = new TtHFit("FitExample1");
 
     // samples used in the following are declared here
@@ -55,6 +61,7 @@ void Example1(){
       SampleHist *SR1_Data = SR1->SetSampleHist(Data,h_data);
       SampleHist *SR1_Background = SR1->SetSampleHist(Background,h_bkg);
         SR1_Background->AddOverallSyst("BkgXsec",0.10,-0.10);
+        SR1_Background->AddHistoSyst("JES",h_bkg_jesUp,h_bkg_jesDo);
 //         SR1_Background->AddSystematic("BkgXsec",SystsType::Overall);
       SampleHist *SR1_Signal = SR1->SetSampleHist(Signal,h_sig);
         SR1_Signal->AddNormFactor("mu",1,0,5);
@@ -65,6 +72,8 @@ void Example1(){
   // draw all pre-fit
   myFit->DrawAndSaveAll();
 
+  SR1_Background->DrawSystPlot();
+  
   // saves all in a root file for later usage
   myFit->WriteHistos();
   
@@ -73,7 +82,7 @@ void Example1(){
   //  - creates a workspace
   //  - make a quick fit
   myFit->SetPOI("mu");
-  myFit->ToRooStat(true,false);
+//   myFit->ToRooStat(true,false);
   
   
     

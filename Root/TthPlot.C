@@ -43,11 +43,14 @@ void TthPlot::Init(){
 //   leg  = new TLegend(0.54,0.93-2*(0.05),0.80,0.93);
 //   leg1 = new TLegend(0.80,0.93-2*(0.05),0.94,0.93);
   leg_title = "e/#mu+jets";
-  lumi = "4.7 fb^{-1}";
+  fLumi = "20.3 fb^{-1}";
+  fCME = "8 TeV";
+  fATLASlabel = "none";
   yMaxScale = 3.;
   Chi2prob = -1;
   KSprob = -1;
   //
+  h_data = 0x0;
   h_signal = 0x0;
   h_normsig = 0x0;
   //
@@ -59,7 +62,7 @@ void TthPlot::SetChannel(string name){
 }
 
 void TthPlot::SetLumi(string name){
-  lumi = name;
+  fLumi = name;
 }
 
 void TthPlot::SetXaxis(string name,bool isNjet){
@@ -86,8 +89,8 @@ void TthPlot::AddSignal(TH1* h,string name){
 }
 
 void TthPlot::AddNormSignal(TH1* h,string name){
-  h_normsig = h;
-  sample_name.push_back(name);
+  h_normsig = (TH1*)h->Clone(name.c_str());
+//   sample_name.push_back(name);
 }
 
 void TthPlot::AddBackground(TH1* h,string name){
@@ -119,7 +122,22 @@ void TthPlot::Draw(string options){
   pad0->cd();
   if(options.find("log")!=string::npos) pad0->SetLogy();
   //
-  h_data->Draw("E");
+  bool hasData = true;
+  if(h_data){
+    h_data->Draw("E");
+    h_data->SetMarkerSize(1.2);
+  }
+  else{
+    hasData = false;
+    h_data = (TH1F*)h_tot->Clone("dummyData");
+    h_data->SetTitle("Asimov Data");
+//     h_data->Scale(0.0001);
+    h_data->SetLineWidth(0);
+    h_data->SetMarkerSize(0);
+    h_data->SetLineColor(kWhite);
+    h_data->SetFillStyle(0);
+    h_data->Draw("HIST");
+  }
   if(h_signal!=0x0) h_stack->Add(h_signal);
   h_stack->Draw("HISTsame");
   //
@@ -131,7 +149,7 @@ void TthPlot::Draw(string options){
   g_tot->Draw("sameE2");
   //
   if(h_normsig!=0x0){
-    h_signal = (TH1*)h_normsig->Clone();
+//     h_signal = (TH1*)h_normsig->Clone();
     h_normsig->Scale(h_tot->Integral()/h_normsig->Integral());
     h_normsig->SetLineColor(h_normsig->GetFillColor());
     h_normsig->SetFillColor(0);
@@ -141,7 +159,7 @@ void TthPlot::Draw(string options){
   }
   //
   gStyle->SetEndErrorSize(4.);
-  h_data->Draw("sameE1");
+  if(hasData) h_data->Draw("sameE1");
 
   h_data->GetXaxis()->SetTitle(xtitle.c_str());
   h_data->GetYaxis()->SetTitle(ytitle.c_str());
@@ -155,14 +173,19 @@ void TthPlot::Draw(string options){
 //     h_data->GetXaxis()->SetLabelSize(0.05);
   }
   h_data->GetYaxis()->SetTitleOffset(1.5);
-  h_data->SetMarkerSize(1.2);
-  h_data->SetMinimum(0);
+  if(options.find("log")==string::npos){
+    h_data->SetMinimum(0);
 //   h_data->SetMaximum(yMaxScale*TMath::Max(h_data->GetMaximum(),h_tot->GetMaximum()));
-  h_data->SetMaximum(yMaxScale*h_tot->GetMaximum());
+    h_data->SetMaximum(yMaxScale*h_tot->GetMaximum());
+  }
+  else{
+    h_data->SetMaximum(h_tot->GetMaximum()*pow(10,yMaxScale));
+  }
   pad0->RedrawAxis();
   
-  ATLASLabel(0.2,0.89,"Internal");
-  myText(0.2,0.8,1,"#sqrt{s} = 8 TeV, 20.3 fb^{-1}",0.045);
+  if(fATLASlabel!="none") ATLASLabel(0.2,0.89,(char*)fATLASlabel.c_str());
+//   myText(0.2,0.8,1,(char*)"#sqrt{s} = 8 TeV, 20.3 fb^{-1}",0.045);
+  myText(0.2,0.8,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()),0.045);
   myText(0.2,0.7,1,Form("%s",leg_title.c_str()),0.045);
   
   leg  = new TLegend(0.54,0.93-(sample_name.size()+2)*0.06,0.80,0.93);
@@ -199,10 +222,17 @@ void TthPlot::Draw(string options){
 
   
   // subpad
+//   bool drawRatio = true;
   TLine *hline;
   pad1->cd();
   pad1->GetFrame()->SetY1(2);
-  TH1 *h_ratio = (TH1*)h_data->Clone("h_ratio");
+  TH1 *h_ratio;
+//   if(h_data)
+  h_ratio = (TH1*)h_data->Clone("h_ratio");
+//   else {
+//     h_ratio = (TH1*)h_tot->Clone("h_ratio");
+//     h_ratio->Scale(0.01);
+//   }
   TH1 *h_ratio2 = (TH1*)h_tot->Clone("h_ratio2");
   TGraphAsymmErrors *g_ratio2 = (TGraphAsymmErrors*)g_tot->Clone("g_ratio2");
   TH1 *h_tot_nosyst = (TH1*)h_tot->Clone("h_tot_nosyst");
