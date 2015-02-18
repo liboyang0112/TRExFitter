@@ -205,9 +205,12 @@ void myAddtoBand(TGraphErrors* g1, TGraphAsymmErrors* g2) {
   for (Int_t i=0; i<g1->GetN(); i++) {
     g1->GetPoint(i, x1,y1);
     g2->GetPoint(i, x1,y2);
-
-    if (y1==0) y1=1;
-    if (y2==0) y2=1;
+    
+    if ( y1==0 || y2==0 ) { 
+      std::cerr << "check these points very carefully : myAddtoBand() : point " << i << std::endl;  
+    }
+    //    if (y1==0) y1=1;
+    //    if (y2==0) y2=1;
 
     //    if (i==g1->GetN()-1) x2=x1;
     //    else                 g2->GetPoint(i+1,x2,dum);
@@ -247,16 +250,16 @@ TGraphErrors* TH1TOTGraph(TH1 *h1){
  TGraphErrors* g1= new TGraphErrors();
 
  Double_t x, y, ex, ey;
- for (Int_t i=0; i<h1->GetNbinsX(); i++) {
+ for (Int_t i=1 ; i<=h1->GetNbinsX(); i++) {
    y=h1->GetBinContent(i);
-  ey=h1->GetBinError(i);
+   ey=h1->GetBinError(i);
    x=h1->GetBinCenter(i);
-  ex=h1->GetBinWidth(i);
-
+   ex=h1->GetBinWidth(i);
+   
   //   cout << " x,y = " << x << " " << y << " ex,ey = " << ex << " " << ey << endl;
 
-   g1->SetPoint(i,x,y);
-   g1->SetPointError(i,ex,ey);
+   g1->SetPoint(i-1,x,y);
+   g1->SetPointError(i-1,ex,ey);
 
  }
 
@@ -265,23 +268,22 @@ TGraphErrors* TH1TOTGraph(TH1 *h1){
  return g1;
 }
 
-void myText(Double_t x,Double_t y,Color_t color,char *text,float size) {
+void myText(Double_t x,Double_t y,Color_t color, const char *text) {
 
-  Double_t tsize=size;
-  TLatex l; //l.SetTextAlign(12); 
-  l.SetTextSize(tsize); 
+  //Double_t tsize=0.05;
+  TLatex l; //l.SetTextAlign(12); l.SetTextSize(tsize); 
   l.SetNDC();
   l.SetTextColor(color);
   l.DrawLatex(x,y,text);
 }
  
 
-void myBoxText(Double_t x, Double_t y,Double_t boxsize,Int_t mcolor,char *text,Float_t mytsize) 
+void myBoxText(Double_t x, Double_t y,Double_t boxsize,Int_t mcolor,const char *text) 
 {
 
   Double_t tsize=0.06;
 
-  TLatex l; l.SetTextAlign(12); l.SetTextSize(mytsize); 
+  TLatex l; l.SetTextAlign(12); //l.SetTextSize(tsize); 
   l.SetNDC();
   l.DrawLatex(x,y,text);
 
@@ -308,8 +310,7 @@ void myBoxText(Double_t x, Double_t y,Double_t boxsize,Int_t mcolor,char *text,F
 }
 
 
-void myMarkerText(Double_t x,Double_t y,Int_t color,Int_t mstyle,char *text,
-		  Float_t msize,Float_t mytsize) 
+void myMarkerText(Double_t x,Double_t y,Int_t color,Int_t mstyle, const char *text,Float_t msize) 
 {
   Double_t tsize=0.06;
   TMarker *marker = new TMarker(x-(0.4*tsize),y,8);
@@ -318,8 +319,7 @@ void myMarkerText(Double_t x,Double_t y,Int_t color,Int_t mstyle,char *text,
   marker->SetMarkerSize(msize);
   marker->Draw();
 
-  TLatex l; l.SetTextAlign(12); 
-  l.SetTextSize(mytsize); 
+  TLatex l; l.SetTextAlign(12); //l.SetTextSize(tsize); 
   l.SetNDC();
   l.DrawLatex(x,y,text);
 }

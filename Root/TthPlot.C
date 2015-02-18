@@ -1,6 +1,7 @@
 #include "TtHFitter/TthPlot.h"
 
 #include "AtlasLabels.C"
+#include "AtlasUtils.C"
 
 using namespace std;
 
@@ -13,7 +14,8 @@ TthPlot::TthPlot(string name){
   Init();
 }
 void TthPlot::Init(){
-  c = new TCanvas(fName.c_str(),fName.c_str(),500,600);
+//   c = new TCanvas(fName.c_str(),fName.c_str(),500,600);
+  c = new TCanvas(fName.c_str(),fName.c_str(),600,700);
   //
   pad0 = new TPad("pad0","pad0",0,0.28,1,1,0,0,0);
   pad0->SetTickx(false);
@@ -163,7 +165,7 @@ void TthPlot::Draw(string options){
 
   h_data->GetXaxis()->SetTitle(xtitle.c_str());
   h_data->GetYaxis()->SetTitle(ytitle.c_str());
-  h_data->GetYaxis()->SetTitleSize(0.05);
+//   h_data->GetYaxis()->SetTitleSize(0.05);
   if(fIsNjet){
     for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
       int nj = (int)h_data->GetXaxis()->GetBinCenter(i_bin);
@@ -172,7 +174,8 @@ void TthPlot::Draw(string options){
     }
 //     h_data->GetXaxis()->SetLabelSize(0.05);
   }
-  h_data->GetYaxis()->SetTitleOffset(1.5);
+//   h_data->GetYaxis()->SetTitleOffset(1.5);
+  h_data->GetYaxis()->SetTitleOffset(2);
   if(options.find("log")==string::npos){
     h_data->SetMinimum(0);
 //   h_data->SetMaximum(yMaxScale*TMath::Max(h_data->GetMaximum(),h_tot->GetMaximum()));
@@ -183,10 +186,9 @@ void TthPlot::Draw(string options){
   }
   pad0->RedrawAxis();
   
-  if(fATLASlabel!="none") ATLASLabel(0.2,0.89,(char*)fATLASlabel.c_str());
-//   myText(0.2,0.8,1,(char*)"#sqrt{s} = 8 TeV, 20.3 fb^{-1}",0.045);
-  myText(0.2,0.8,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()),0.045);
-  myText(0.2,0.7,1,Form("%s",leg_title.c_str()),0.045);
+  if(fATLASlabel!="none") ATLASLabel(0.18,0.85,(char*)fATLASlabel.c_str());
+  myText(0.18,0.8,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
+  myText(0.18,0.75,1,Form("%s",leg_title.c_str()));//,0.045);
   
   leg  = new TLegend(0.54,0.93-(sample_name.size()+2)*0.06,0.80,0.93);
   leg1 = new TLegend(0.80,leg->GetY1(),0.94,leg->GetY2());
@@ -240,10 +242,10 @@ void TthPlot::Draw(string options){
     h_tot_nosyst->SetBinError(i_bin,0);
   }
   h_ratio->SetTitle("Data/MC");
-  h_ratio->GetYaxis()->SetTitle("Data / MC");
-  h_ratio->GetYaxis()->SetTitleSize(0.12);
-  h_ratio->GetYaxis()->SetTitleOffset(0.65);
-  h_ratio->GetYaxis()->SetLabelSize(0.12); // 0.04
+  h_ratio->GetYaxis()->SetTitle("Data / Pred");
+//   h_ratio->GetYaxis()->SetTitleSize(0.12);
+//   h_ratio->GetYaxis()->SetTitleOffset(0.65);
+//   h_ratio->GetYaxis()->SetLabelSize(0.12); // 0.04
   h_ratio->Divide(h_tot_nosyst);
   for(int i_bin=1;i_bin<h_tot_nosyst->GetNbinsX()+1;i_bin++){
     g_ratio2->SetPoint(i_bin-1,g_ratio2->GetX()[i_bin-1],g_ratio2->GetY()[i_bin-1]/h_tot_nosyst->GetBinContent(i_bin));
@@ -274,11 +276,11 @@ void TthPlot::Draw(string options){
     h_ratio->SetMaximum(1.50);
   }
   h_ratio->GetXaxis()->SetTitle(h_data->GetXaxis()->GetTitle());
-  h_ratio->GetXaxis()->SetTitleSize(0.14);
-  h_ratio->GetXaxis()->SetTitleOffset(1.);
+//   h_ratio->GetXaxis()->SetTitleSize(0.14);
+  h_ratio->GetXaxis()->SetTitleOffset(4.);
   h_data->GetXaxis()->SetTitle("");
-  h_ratio->GetXaxis()->SetLabelSize(0.14);
-  if(fIsNjet) h_ratio->GetXaxis()->SetLabelSize(0.2);
+//   h_ratio->GetXaxis()->SetLabelSize(0.14);
+//   if(fIsNjet) h_ratio->GetXaxis()->SetLabelSize(0.2);
   h_data->GetXaxis()->SetLabelSize(0);
   gPad->RedrawAxis();
   // to hide the upper limit

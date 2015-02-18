@@ -13,6 +13,9 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
   fFileName = "";
   fNSyst = 0;
   fNNorm = 0;
+  fRegionName = "Region";
+  fVariableTitle = "Variable";
+  fSystSmoothed = false;
   // add overall systematics and normFactors from sample
   for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
     if(sample->fSystematics[i_syst]->fType == SystType::Overall)
@@ -32,6 +35,9 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
   fFileName = fileName;
   fNSyst = 0;
   fNNorm = 0;
+  fRegionName = "Region";
+  fVariableTitle = "Variable";
+  fSystSmoothed = false;
   // add overall systematics and normFactors from sample
   for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
     if(sample->fSystematics[i_syst]->fType == SystType::Overall)
@@ -217,26 +223,30 @@ void SampleHist::Smooth(int ntimes){
 }
 
 // this draws the control plots (for each systematic) with the syst variations for this region & sample
-void SampleHist::DrawSystPlot(){
-  TCanvas *c = new TCanvas("c","c",600,600);
-  c->Divide(1,2);
+void SampleHist::DrawSystPlot(string syst){
+  // smooth here FIXME
+  SmoothSyst(syst);
+  //
+  float yield_syst_up, yield_syst_down, yield_nominal;
+  TCanvas *c = new TCanvas("c","c",800,600);
   TH1* h_nominal = (TH1*)fHist->Clone("h_nominal");
-    h_nominal->SetLineColor(kBlack);
-    h_nominal->SetLineWidth(2);
-    h_nominal->SetLineStyle(2);
-    h_nominal->SetFillStyle(0);
+  h_nominal->SetLineColor(kBlack);
+  h_nominal->SetLineWidth(2);
+  h_nominal->SetLineStyle(2);
+  h_nominal->SetFillStyle(0);
   TH1* h_1 = (TH1*)h_nominal->Clone("h_1");
-    h_1->Divide(h_1);
   TH1* h_syst_up;
   TH1* h_syst_down;
+  TH1* h_syst_up_orig;
+  TH1* h_syst_down_orig;
   for(int i_syst=0;i_syst<fNSyst;i_syst++){
-    c->cd(1);
-    gPad->SetBottomMargin(0);
-    h_nominal->Draw("HIST");
-    h_nominal->SetMinimum(0);
-    h_nominal->SetMaximum(h_nominal->GetMaximum()*2);
-    h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
-    h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
+    if(syst!="all" && fSyst[i_syst]->fName.find(syst)==string::npos) continue;
+      h_nominal->SetMinimum(0);
+      h_nominal->SetMaximum(h_nominal->GetMaximum()*2);
+      h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
+      h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
+      h_syst_up_orig = (TH1*)fSyst[i_syst]->fHistUp_original->Clone();
+      h_syst_down_orig = (TH1*)fSyst[i_syst]->fHistDown_original->Clone();
       h_syst_up->SetLineColor(kRed);
       h_syst_up->SetLineWidth(2);
       h_syst_up->SetLineStyle(1);
@@ -245,19 +255,96 @@ void SampleHist::DrawSystPlot(){
       h_syst_down->SetLineWidth(2);
       h_syst_down->SetLineStyle(1);
       h_syst_down->SetFillStyle(0);
-    h_syst_down->DrawClone("same HIST");
-    h_syst_up->DrawClone("same HIST");
-    c->cd(2);
-//     gPad = new TPad("c_2", "c_2", .1, .1, .9, .3);
-//     gPad->Draw();
-    gPad->SetTopMargin(0);
+      h_syst_up_orig->SetLineColor(kRed);
+      h_syst_up_orig->SetLineWidth(2);
+      h_syst_up_orig->SetLineStyle(2);
+      h_syst_up_orig->SetFillStyle(0);
+      h_syst_down_orig->SetLineColor(kBlue);
+      h_syst_down_orig->SetLineWidth(2);
+      h_syst_down_orig->SetLineStyle(2);
+      h_syst_down_orig->SetFillStyle(0);
+    yield_nominal = h_nominal->Integral();
+    yield_syst_up = h_syst_up->Integral();
+    yield_syst_down = h_syst_down->Integral();
+    // draw Relative difference
+    h_1->Scale(0);
+    h_syst_up->Add(h_nominal,-1);
+    h_syst_down->Add(h_nominal,-1);
     h_syst_up->Divide(h_nominal);
     h_syst_down->Divide(h_nominal);
+    h_syst_up->Scale(100);
+    h_syst_down->Scale(100);
+    h_syst_up_orig->Add(h_nominal,-1);
+    h_syst_down_orig->Add(h_nominal,-1);
+    h_syst_up_orig->Divide(h_nominal);
+    h_syst_down_orig->Divide(h_nominal);
+    h_syst_up_orig->Scale(100);
+    h_syst_down_orig->Scale(100);
     h_1->Draw("HIST");
+    h_syst_down_orig->Draw("same HIST");
+    h_syst_up_orig->Draw("same HIST");
     h_syst_down->Draw("same HIST");
     h_syst_up->Draw("same HIST");
-    h_1->SetMinimum(0);
-    h_1->SetMaximum(2);
+    double ymax = 0;
+    ymax = TMath::Max( ymax,TMath::Abs(h_syst_up->GetMaximum()));
+    ymax = TMath::Max( ymax,TMath::Abs(h_syst_down->GetMaximum()));
+    ymax = TMath::Max( ymax,TMath::Abs(h_syst_up->GetMinimum()));
+    ymax = TMath::Max( ymax,TMath::Abs(h_syst_down->GetMinimum()));
+    h_1->SetMinimum(-ymax*1.8);
+    h_1->SetMaximum( ymax*1.8);
+    h_1->GetYaxis()->SetTitle("Relative difference [%]");
+    h_1->GetXaxis()->SetTitle(fVariableTitle.c_str());
+    //
+    TLatex *tex = new TLatex();
+    tex->SetNDC();
+    tex->DrawLatex(0.2,0.89,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fName.c_str()));
+    tex->DrawLatex(0.2,0.89-1.2*gStyle->GetTextSize(),fRegionName.c_str());
+    TLegend *leg = new TLegend(0.6,0.8,0.9,0.94);
+    leg->SetFillStyle(0);
+    leg->SetBorderSize(0);
+    leg->SetTextSize(gStyle->GetTextSize());
+    leg->SetTextFont(gStyle->GetTextFont());
+    float acc_up = (yield_syst_up-yield_nominal)/yield_nominal;
+    string sign_up =  "+";
+    if(acc_up<0) sign_up = "-";
+    float acc_down = (yield_syst_down-yield_nominal)/yield_nominal;
+    string sign_down =  "+";
+    if(acc_down<0) sign_down = "-";
+    leg->AddEntry(h_syst_up,  Form("+1#sigma (%s%.1f%)",sign_up.c_str(),  TMath::Abs(acc_up  *100)),"l");
+    leg->AddEntry(h_syst_down,Form("-1#sigma (%s%.1f%)",sign_down.c_str(),TMath::Abs(acc_down*100)),"l");
+    leg->Draw();
+    //
     c->SaveAs(Form("systPlots/%s_%s.png",fHist->GetName(),fSyst[i_syst]->fName.c_str()));
   }
+  delete c;
+}
+
+void SampleHist::SmoothSyst(string syst,bool force){
+  if(fSystSmoothed && !force) return;
+  TH1* h_nominal = (TH1*)fHist->Clone("h_nominal");
+  TH1* h_syst_up;
+  TH1* h_syst_down;
+  //
+  for(int i_syst=0;i_syst<fNSyst;i_syst++){
+    cout << fSyst[i_syst]->fName << endl;
+    if(syst!="all" && fSyst[i_syst]->fName.find(syst)==string::npos) continue;
+    h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
+    h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
+    //
+    SmoothSystHistos(h_nominal,h_syst_up,h_syst_down); // see Root/Commmon.C
+    //
+    // save stuff
+    fSyst[i_syst]->fHistUp_original = (TH1*)fSyst[i_syst]->fHistUp->Clone();
+    fSyst[i_syst]->fHistUp = h_syst_up;
+    fSyst[i_syst]->fHistDown_original = (TH1*)fSyst[i_syst]->fHistDown->Clone();
+    fSyst[i_syst]->fHistDown = h_syst_down;
+    if(fSyst[i_syst]->fIsShape){
+      // update shpae hists as well
+      fSyst[i_syst]->fHistShapeUp = (TH1*)h_syst_up->Clone(fSyst[i_syst]->fHistShapeUp->GetName());
+      fSyst[i_syst]->fHistShapeDown = (TH1*)h_syst_down->Clone(fSyst[i_syst]->fHistShapeDown->GetName());
+      fSyst[i_syst]->fHistShapeUp->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeUp->Integral());
+      fSyst[i_syst]->fHistShapeDown->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeDown->Integral());
+    }
+  }
+  fSystSmoothed = true;
 }

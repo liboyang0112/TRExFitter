@@ -29,14 +29,6 @@ class Region {
 public:
   Region(string name);
   ~Region();
-    
-//   SampleHist* SetDataHist(Sample *sample, string histoName, string fileName);
-//   SampleHist* SetDataHist(Sample *sample, TH1* hist );
-//   SampleHist* SetSigHist(Sample *sample, string histoName, string fileName);
-//   SampleHist* SetSigHist(Sample *sample, TH1* hist );
-//   SampleHist* AddBkgHist(Sample *sample, string histoName, string fileName);
-//   SampleHist* AddBkgHist(Sample *sample, TH1* hist);  
-
 
   // -------
   // Methods
@@ -47,10 +39,8 @@ public:
   SampleHist* GetSampleHist(string sampleName);  
 
   void BuildPreFitErrorHist();
-//   TCanvas* DrawPreFit(string opt="");
   TthPlot* DrawPreFit(string opt="");
   void BuildPostFitErrorHist(FitResults *fitRes);
-//   TCanvas* DrawPostFit(FitResults *fitRes,string opt="");
   TthPlot* DrawPostFit(FitResults *fitRes,string opt="");
   
   void AddSample(Sample *sample);
@@ -63,20 +53,19 @@ public:
 
   // cosmetics
   void SetVariableTitle(string name);
-  void SetLabel(string label);
+  void SetLabel(string label,string shortLabel="");
   
   // log
   void Print();
-  
   
   // -------
   // Members
   // -------
   
-  
   string fName;
   string fVariableTitle;
-  string fLabel;
+  string fLabel; // something like "e/µ + 6 j, >=4 b b"
+  string fShortLabel; // something like "6j,3b"
   string fFitName;
   bool fHasData;
   SampleHist *fData;

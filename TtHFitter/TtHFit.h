@@ -37,6 +37,9 @@ public:
   void SetSelection(string selection);
   void SetNtupleName(string name);
 
+  // systematic handle
+  void SmoothSystematics(string syst="all");
+  
   // create new root file with all the histograms
   void WriteHistos(string fileName="",bool recreate=true);
   
@@ -46,6 +49,13 @@ public:
   void ReadAll(bool readNtuples=true,string fileName="");
   
   void DrawAndSaveAll(string opt="");
+  
+  void DrawSystPlots(string syst="all");
+  
+  // regions examples:
+  // ...
+  void DrawSignalRegionsPlot(int nRows,int nCols,Region *regions[MAXregions]=0x0);
+  void DrawPieChartPlot();
 
   // turn to RooStat::HistFactory
   void ToRooStat(bool createWorkspace=true, bool exportOnly=true);

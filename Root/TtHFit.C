@@ -83,6 +83,15 @@ void TtHFit::SetNtupleName(string name){
   fNtupleName = name;
 }
 
+// apply smoothing to systematics
+void TtHFit::SmoothSystematics(string syst){
+  for(int i_ch=0;i_ch<fNRegions;i_ch++){
+    for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
+      fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(syst);
+    }
+  }
+}
+
 // create new root file with all the histograms
 void TtHFit::WriteHistos(string fileName,bool recreate){
   if(fileName=="") fileName = fName + "_histos.root";
@@ -193,13 +202,12 @@ void TtHFit::ReadNtuples(){
           fullMCweight += " * "+fSamples[i_smp]->fSystematics[i_syst]->fWeightSufUp;
         if(fRegions[i_ch]->fMCweight!="") 
           fullMCweight += " * " + fRegions[i_ch]->fMCweight;
-        cout << fullSelection << endl;
-        cout << fullMCweight << endl;
+//         cout << fullSelection << endl;
+//         cout << fullMCweight << endl;
         vector<string> s = CombinePathSufs(
                                         fRegions[i_ch]->fNtuplePathSuffs,
                                         fSamples[i_smp]->fSystematics[i_syst]->fNtuplePathsUp );
-                                        cout << "ok" << endl;
-        cout << s[0] << endl;
+//         cout << s[0] << endl;
         //
         fullPaths.clear();
         fullPaths = CreatePathsList( 
@@ -377,6 +385,77 @@ void TtHFit::DrawAndSaveAll(string opt){
     else          fRegions[i_ch]->DrawPreFit(opt)              -> SaveAs((fRegions[i_ch]->fName+".png").c_str());
   }
 }
+
+void TtHFit::DrawSystPlots(string syst){
+  for(int i_ch=0;i_ch<fNRegions;i_ch++){
+    for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
+      fRegions[i_ch]->fSampleHists[i_smp]->DrawSystPlot(syst);
+    }
+  }
+}
+
+void TtHFit::DrawSignalRegionsPlot(int nRows,int nCols,Region *regions[MAXregions]){
+  TCanvas *c = new TCanvas("c","c",150*nRows,100+150*nCols);
+//   c->SetTopMargin(100/(100+150*nCols));
+  TPad *pTop = new TPad("c0","c0",0,1-100./(100.+150*nCols),1,1);
+  pTop->Draw();
+  TPad *pBottom = new TPad("c1","c1",0,0,1,1-100./(100.+150*nCols));
+  pBottom->Draw();
+  pBottom->Divide(nRows,nCols);
+  int Nreg = nRows*nCols;
+  TH1F* h[Nreg];
+  float S[Nreg];
+  float B[Nreg];
+  double xbins[] = {0,0.1,0.9,1.0};
+  TLatex *tex = new TLatex();
+  tex->SetNDC();
+  tex->SetTextSize(0.12);
+  pBottom->cd(1);
+  if(regions==0x0) regions = fRegions;
+  //
+  // get the values
+  for(int i=0;i<Nreg;i++){
+    S[i] = regions[i]->fSig->fHist->Integral();
+    B[i] = 0.;
+    for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
+      B[i] += regions[i]->fBkg[i_bkg]->fHist->Integral();
+    }
+//     cout << S[i] << " " << B[i] << endl;
+  }
+  //
+  for(int i=0;i<Nreg;i++){
+    pBottom->cd(i+1);
+    string label = regions[i]->fShortLabel;
+    gPad->SetLeftMargin( gPad->GetLeftMargin()*1.5 );
+    h[i] = new TH1F(Form("h[%d]",i),label.c_str(),3,xbins);
+    h[i]->SetBinContent(2,S[i]/sqrt(B[i]));
+    h[i]->GetYaxis()->SetTitle("S/#sqrt{B}");
+    h[i]->GetYaxis()->CenterTitle();
+//     h[i]->GetYaxis()->SetTitleSize(0.14);
+//     h[i]->GetYaxis()->SetTitleOffset(1.);
+//     h[i]->GetYaxis()->SetLabelSize(0.12);
+    h[i]->GetXaxis()->SetTickLength(0);
+    h[i]->GetYaxis()->SetNdivisions(3);
+    h[i]->SetMaximum(0.2);
+    h[i]->GetXaxis()->SetLabelSize(0);
+    h[i]->SetLineColor(kBlue);
+    h[i]->SetFillColor(kBlue);
+    h[i]->Draw();
+    gPad->SetTicky(0);
+    gPad->RedrawAxis();
+    tex->DrawLatex(0.3,0.85,label.c_str());
+    float SoB = S[i]/B[i];
+    string SB = Form("S/B = %.1f%%",(100.*SoB));
+    tex->DrawLatex(0.3,0.72,SB.c_str());
+  }
+  //
+  c->SaveAs("SignalRegions.png");
+}
+
+void TtHFit::DrawPieChartPlot(){
+  // still to implement...
+}
+
 
 // turn to RooStat::HistFactory
 void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){

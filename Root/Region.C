@@ -5,6 +5,8 @@
 
 Region::Region(string name){
   fName = name;
+  fLabel = name;
+  fShortLabel = name;
   fNBkg = 0;
   fNSyst = 0;
   fHasData = false;
@@ -37,9 +39,12 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
     cout << "ERROR: SampleType not supported." << endl;
   }
   fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
+  fSampleHists[fNSamples]->fRegionName = fName;
+  fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
   fNSamples++;
   return fSampleHists[fNSamples-1];
 }
+
 SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
   fSampleHists[fNSamples] = new SampleHist( sample, hist );
   if(sample->fType==SampleType::Data){
@@ -58,6 +63,8 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     cout << "ERROR: SampleType not supported." << endl;
   }
   fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
+  fSampleHists[fNSamples]->fRegionName = fName;
+  fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
   fNSamples++;
   return fSampleHists[fNSamples-1];
 }
@@ -521,6 +528,10 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         binContentDown = fBkg[i]->fSyst[i_syst]->fHistDown->GetBinContent(i_bin);
         binContentNew += (GetDeltaN(systValue,binContent0,binContentUp,binContentDown) - 1.)*binContent0;
 //         binContentNew += (GetDeltaN(systValue,binContentNew,binContentUp,binContentDown) - 1.)*binContentNew;
+//         binContentNew += (GetDeltaN(systValue,binContent0,binContentUp,binContentDown) - 1.)*binContentNew;
+//         binContentNew += (GetDeltaN(systValue,binContentNew,binContentUp,binContentDown) - 1.)*binContent0;
+//         if(systValue>0) binContentNew += systValue*(binContentUp-binContentNew); // linear - TEST
+//         if(systValue<0) binContentNew -= systValue*(binContentDown-binContentNew); // linear - TEST
       }
       hNew->SetBinContent(i_bin,binContentNew);
     }
@@ -607,8 +618,10 @@ void Region::SetVariableTitle(string name){
   fVariableTitle = name;
 }
 
-void Region::SetLabel(string label){
+void Region::SetLabel(string label,string shortLabel){
   fLabel = label;
+  if(shortLabel=="") fShortLabel = label;
+  else fShortLabel = shortLabel;
 }
 
 
@@ -810,6 +823,9 @@ void Region::Print(){
 
 /////////////
 float GetDeltaN(float alpha, float Iz, float Ip, float Imi){
+  // protection against negative values
+  if(Ip<0)  Ip  = 0.00001*Iz;
+  if(Imi<0) Imi = 0.00001*Iz;
 //   cout << "Running GetDeltaN." << endl;
 //   cout << "  alpha = " << alpha << endl;
 //   cout << "  I0 = " << Iz << endl;

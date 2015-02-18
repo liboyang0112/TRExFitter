@@ -44,7 +44,8 @@ public:
   
   void Rebin(int ngroup = 2, const Double_t* xbins = 0);
   void Smooth(int ntimes = 1);
-  void DrawSystPlot();
+  void DrawSystPlot(string syst="all");
+  void SmoothSyst(string syst="all",bool force=false);
   
   string fName;
   Sample *fSample;
@@ -59,6 +60,11 @@ public:
   SystematicHist* fSyst[MAXsyst];
   int fNNorm;
   NormFactor* fNormFactors[MAXnorm];
+  
+  // other useful info
+  string fRegionName;
+  string fVariableTitle;
+  bool fSystSmoothed;
 };
 
 #endif
