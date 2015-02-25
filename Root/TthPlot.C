@@ -48,11 +48,12 @@ void TthPlot::Init(){
   fLumi = "20.3 fb^{-1}";
   fCME = "8 TeV";
   fATLASlabel = "none";
-  yMaxScale = 3.;
+  yMaxScale = 2.;
   Chi2prob = -1;
   KSprob = -1;
   //
   h_data = 0x0;
+  g_data = 0x0;
   h_signal = 0x0;
   h_normsig = 0x0;
   //
@@ -121,27 +122,36 @@ void TthPlot::SetChi2KS(float chi2,float ks){
 }
 
 void TthPlot::Draw(string options){
+  gStyle->SetEndErrorSize(4.);
   pad0->cd();
+  TH1* h_dummy = (TH1*)h_tot->Clone("h_dummy");
+  h_dummy->Scale(0);
+  h_dummy->Draw("HIST");
+  //
   if(options.find("log")!=string::npos) pad0->SetLogy();
   //
   bool hasData = true;
   if(h_data){
-    h_data->Draw("E");
+//     h_data->Draw("E");
     h_data->SetMarkerSize(1.2);
+    // build asym data
+    g_data = poissonize(h_data);
+    g_data->SetMarkerSize(h_data->GetMarkerSize());
+    g_data->SetMarkerColor(h_data->GetMarkerColor());
+    g_data->SetMarkerStyle(h_data->GetMarkerStyle());
   }
   else{
     hasData = false;
     h_data = (TH1F*)h_tot->Clone("dummyData");
     h_data->SetTitle("Asimov Data");
-//     h_data->Scale(0.0001);
-    h_data->SetLineWidth(0);
-    h_data->SetMarkerSize(0);
-    h_data->SetLineColor(kWhite);
-    h_data->SetFillStyle(0);
-    h_data->Draw("HIST");
+//     h_data->SetLineWidth(0);
+//     h_data->SetMarkerSize(0);
+//     h_data->SetLineColor(kWhite);
+//     h_data->SetFillStyle(0);
+//     h_data->Draw("HIST same");
   }
   if(h_signal!=0x0) h_stack->Add(h_signal);
-  h_stack->Draw("HISTsame");
+  h_stack->Draw("HIST same");
   //
   g_tot->SetFillStyle(3354);
   g_tot->SetFillColor(kBlue-7);
@@ -160,29 +170,26 @@ void TthPlot::Draw(string options){
     h_normsig->Draw("HISTsame");
   }
   //
-  gStyle->SetEndErrorSize(4.);
-  if(hasData) h_data->Draw("sameE1");
+//   if(hasData) h_data->Draw("sameE1");
+  if(hasData) g_data->Draw("Ep1 same");
 
-  h_data->GetXaxis()->SetTitle(xtitle.c_str());
-  h_data->GetYaxis()->SetTitle(ytitle.c_str());
-//   h_data->GetYaxis()->SetTitleSize(0.05);
+  h_dummy->GetXaxis()->SetTitle(xtitle.c_str());
+  h_dummy->GetYaxis()->SetTitle(ytitle.c_str());
   if(fIsNjet){
-    for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
-      int nj = (int)h_data->GetXaxis()->GetBinCenter(i_bin);
-      if(i_bin<h_data->GetNbinsX()) h_data->GetXaxis()->SetBinLabel( i_bin,Form("%d",nj) );
-      else                          h_data->GetXaxis()->SetBinLabel( i_bin,Form("#geq%d",nj) );
+    for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
+      int nj = (int)h_dummy->GetXaxis()->GetBinCenter(i_bin);
+      if(i_bin<h_dummy->GetNbinsX()) h_dummy->GetXaxis()->SetBinLabel( i_bin,Form("%d",nj) );
+      else                          h_dummy->GetXaxis()->SetBinLabel( i_bin,Form("#geq%d",nj) );
     }
-//     h_data->GetXaxis()->SetLabelSize(0.05);
   }
-//   h_data->GetYaxis()->SetTitleOffset(1.5);
-  h_data->GetYaxis()->SetTitleOffset(2);
+  h_dummy->GetYaxis()->SetTitleOffset(2);
   if(options.find("log")==string::npos){
-    h_data->SetMinimum(0);
-//   h_data->SetMaximum(yMaxScale*TMath::Max(h_data->GetMaximum(),h_tot->GetMaximum()));
-    h_data->SetMaximum(yMaxScale*h_tot->GetMaximum());
+    h_dummy->SetMinimum(0);
+    if(hasData) h_dummy->SetMaximum(yMaxScale*TMath::Max(h_tot->GetMaximum(),h_data->GetMaximum()+GC_up(h_data->GetMaximum())));
+    else        h_dummy->SetMaximum(yMaxScale*h_tot->GetMaximum());
   }
   else{
-    h_data->SetMaximum(h_tot->GetMaximum()*pow(10,yMaxScale));
+    h_dummy->SetMaximum(h_tot->GetMaximum()*pow(10,yMaxScale));
   }
   pad0->RedrawAxis();
   
@@ -222,7 +229,6 @@ void TthPlot::Draw(string options){
   leg->Draw();
   leg1->Draw();
 
-  
   // subpad
 //   bool drawRatio = true;
   TLine *hline;
@@ -231,6 +237,7 @@ void TthPlot::Draw(string options){
   TH1 *h_ratio;
 //   if(h_data)
   h_ratio = (TH1*)h_data->Clone("h_ratio");
+  h_ratio->GetYaxis()->SetTitleOffset(1.4*h_dummy->GetTitleOffset());
 //   else {
 //     h_ratio = (TH1*)h_tot->Clone("h_ratio");
 //     h_ratio->Scale(0.01);
@@ -275,13 +282,13 @@ void TthPlot::Draw(string options){
     h_ratio->SetMinimum(0.50);
     h_ratio->SetMaximum(1.50);
   }
-  h_ratio->GetXaxis()->SetTitle(h_data->GetXaxis()->GetTitle());
+  h_ratio->GetXaxis()->SetTitle(h_dummy->GetXaxis()->GetTitle());
 //   h_ratio->GetXaxis()->SetTitleSize(0.14);
   h_ratio->GetXaxis()->SetTitleOffset(4.);
-  h_data->GetXaxis()->SetTitle("");
+  h_dummy->GetXaxis()->SetTitle("");
 //   h_ratio->GetXaxis()->SetLabelSize(0.14);
 //   if(fIsNjet) h_ratio->GetXaxis()->SetLabelSize(0.2);
-  h_data->GetXaxis()->SetLabelSize(0);
+  h_dummy->GetXaxis()->SetLabelSize(0);
   gPad->RedrawAxis();
   // to hide the upper limit
   TLine line(0.01,1,0.1,1);
@@ -328,8 +335,8 @@ void TthPlot::Draw(string options){
         fixDo = new TLine( x-0.07, y0, x+0.07, y0 );
       }
       if (fix!=0) {
-        fix->SetLineColor(1);
-        fix->SetLineWidth(1);
+        fix->SetLineColor(h_ratio->GetLineColor());
+        fix->SetLineWidth(h_ratio->GetLineWidth());
         fix->Draw("SAME");
         fixUp->SetLineColor(1);
         fixUp->SetLineWidth(1);
@@ -377,4 +384,27 @@ void TthPlot::WriteToFile(string name){
 
 TCanvas* TthPlot::GetCanvas(){
   return c;
+}
+
+// function to get asymmetric error bars for hists (Used in WZ observation)
+double GC_up(double data) {
+  if (data == 0 ) return 0;
+  return 0.5*TMath::ChisquareQuantile(1.-0.1586555,2.*(data+1))-data;
+}
+double GC_down(double data) {
+  if (data == 0 ) return 0;
+  return data-0.5*TMath::ChisquareQuantile(0.1586555,2.*data);
+}
+TGraphAsymmErrors* poissonize(TH1 *h) {
+  vector<int> points_to_remove;
+  TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
+  for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
+    double content = (gr->GetY())[i];
+    gr->SetPointError(i,0.5*h->GetBinWidth(i),0.5*h->GetBinWidth(i),GC_down(content),GC_up(content));
+    if(content==0){
+      gr->RemovePoint(i);
+      i--;
+    }
+  }
+  return gr;
 }

@@ -384,7 +384,63 @@ void TtHFit::DrawAndSaveAll(string opt){
     if(isPostFit) fRegions[i_ch]->DrawPostFit(fFitResults,opt) -> SaveAs((fRegions[i_ch]->fName+"_postFit.png").c_str());
     else          fRegions[i_ch]->DrawPreFit(opt)              -> SaveAs((fRegions[i_ch]->fName+".png").c_str());
   }
+//   DrawSummary(opt)->SaveAs("Summary.png");
 }
+
+TthPlot* TtHFit::DrawSummary(string opt){
+  bool isPostFit = opt.find("post")!=string::npos;
+  // build one bin per region
+  TH1F* h_sig;
+  TH1F* h_data;
+  TH1F* h_bkg[MAXsamples];
+  int Nbkg = 0;
+  for(int i_smp=0;i_smp<fNSamples;i_smp++){
+    cout << fSamples[i_smp]->fName << endl;
+    cout << fSamples[i_smp]->fType << endl;
+    if(fSamples[i_smp]->fType==SampleType::Signal){
+    cout << "ok" << endl;
+      h_sig = new TH1F(fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fTitle.c_str(), fNRegions,0,fNRegions);
+      h_sig->SetLineColor(h_sig->GetLineColor());
+      h_sig->SetFillColor(h_sig->GetFillColor());
+      for(int i_bin=1;i_bin<fNRegions;i_bin++){
+        h_sig->SetBinContent( i_bin,fRegions[i_bin]->GetSampleHist(fName)->fHist->Integral() );
+      }
+    }
+    else if(fSamples[i_smp]->fType==SampleType::Background){
+      h_bkg[Nbkg] = new TH1F(fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fTitle.c_str(), fNRegions,0,fNRegions);
+      h_bkg[Nbkg]->SetLineColor(h_bkg[Nbkg]->GetLineColor());
+      h_bkg[Nbkg]->SetFillColor(h_bkg[Nbkg]->GetFillColor());
+      for(int i_bin=1;i_bin<fNRegions;i_bin++){
+        h_bkg[Nbkg]->SetBinContent( i_bin,fRegions[i_bin]->GetSampleHist(fName)->fHist->Integral() );
+      }
+      Nbkg++;
+    }
+    else if(fSamples[i_smp]->fType==SampleType::Data){
+      h_data = new TH1F(fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fTitle.c_str(), fNRegions,0,fNRegions);
+      for(int i_bin=1;i_bin<fNRegions;i_bin++){
+        h_data->SetBinContent( i_bin,fRegions[i_bin]->fData->fHist->Integral() );
+      }
+    }
+  }
+  //
+  TthPlot *p = new TthPlot(fName+"_summary");
+  p->SetXaxis("",true);
+  p->SetChannel("Inclusive");
+  //
+  p->SetData(h_data, h_data->GetTitle());
+  p->AddSignal(h_sig,h_sig->GetTitle());
+  p->AddNormSignal(h_sig,((string)h_sig->GetTitle())+"(norm)");
+  for(int i=0;i<Nbkg;i++)
+    p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
+  //
+//   BuildPreFitErrorHist();
+  //
+//   p->SetTotBkg((TH1*)fTot);
+//   p->SetTotBkgAsym(fErr);
+  p->Draw(opt);
+  return p;
+}
+
 
 void TtHFit::DrawSystPlots(string syst){
   for(int i_ch=0;i_ch<fNRegions;i_ch++){

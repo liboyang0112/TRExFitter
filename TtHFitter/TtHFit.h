@@ -49,6 +49,8 @@ public:
   void ReadAll(bool readNtuples=true,string fileName="");
   
   void DrawAndSaveAll(string opt="");
+
+  TthPlot* DrawSummary(string opt="");
   
   void DrawSystPlots(string syst="all");
   

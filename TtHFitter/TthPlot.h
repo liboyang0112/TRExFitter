@@ -85,5 +85,10 @@ class TthPlot {
     
     bool fIsNjet;
 };
- 
+
+// function to get asymmetric error bars for hists
+double GC_up(double data);
+double GC_down(double data);
+TGraphAsymmErrors* poissonize(TH1 *h);
+
 #endif

@@ -53,7 +53,7 @@ void Fit4t(string opt="t",bool update=false){
     data->SetTitle("Data 2012");
     data->AddNtupleFile("data");
     
-  Sample *ttH = myFit->NewSample("ttH",SampleType::Background);
+  Sample *ttH = myFit->NewSample("ttH",SampleType::Signal);
     ttH->SetTitle("t#bar{t}+H");
     ttH->SetFillColor(kGray);
     ttH->SetLineColor(kBlack);
