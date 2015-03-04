@@ -38,9 +38,11 @@ public:
   void AddNtupleName(string name);
   void SetMCweight(string weight);
   void SetSelection(string selection);
-  
+
   // read from histos
-  // ...
+  void AddHistoPath(string path);
+  void AddHistoFile(string file);
+  void AddHistoName(string name);
   
   // norm factors and systs
   void AddNormFactor(NormFactor *factor);

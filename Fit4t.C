@@ -53,7 +53,7 @@ void Fit4t(string opt="t",bool update=false){
     data->SetTitle("Data 2012");
     data->AddNtupleFile("data");
     
-  Sample *ttH = myFit->NewSample("ttH",SampleType::Signal);
+  Sample *ttH = myFit->NewSample("ttH",SampleType::Background);
     ttH->SetTitle("t#bar{t}+H");
     ttH->SetFillColor(kGray);
     ttH->SetLineColor(kBlack);
@@ -80,7 +80,7 @@ void Fit4t(string opt="t",bool update=false){
 
     // 24% uncertainty every jet bin above 6 (kind of Berend scaling)
     Systematic *ttJetRatio = ttbar->AddSystematic("ttJetRatio",SystType::Histo);
-      ttJetRatio->fWeightSufUp = "(1+(jet_n - 4)*0.05)";
+      ttJetRatio->fWeightSufUp   = "(1+(jet_n - 4)*0.05)";
       ttJetRatio->fWeightSufDown = "(1-(jet_n - 4)*0.05)";
 
     Systematic *ttMCsherpa = ttbar->AddSystematic("ttMCsherpa",SystType::Histo);
@@ -95,37 +95,6 @@ void Fit4t(string opt="t",bool update=false){
     sig->AddNormFactor("SigXsecOverSM",1,0,100);
     sig->AddNtupleFile("tttt_SM");
     
-    
-  // create fit regions
-  Region *SR_ge10jge4b = myFit->NewRegion("SR_ge10jge4b");
-    if(!useTRF) SR_ge10jge4b->AddSelection("jet_n>=10 && nJet_tagged>=4");
-    else{
-      SR_ge10jge4b->AddSelection("jet_n>=10 && (channelNumber!=runNumber || nJet_tagged>=4)");
-      SR_ge10jge4b->AddMCweight("weight_TRF_ge4b");
-    }
-    SR_ge10jge4b->SetVariable("(HTj+lep_pt+met_et)/1e3",7,400,1800);
-    SR_ge10jge4b->SetVariableTitle("H_{T} [GeV]");
-    SR_ge10jge4b->SetLabel("e/#mu + #geq10 j, #geq4 b", "#geq10 j, #geq4 b");
-
-  Region *SR_ge10j3b = myFit->NewRegion("SR_ge10j3b");
-    if(!useTRF) SR_ge10j3b->AddSelection("jet_n>=10 && nJet_tagged==3");
-    else{
-      SR_ge10j3b->AddSelection("jet_n>=10 && (channelNumber!=runNumber || nJet_tagged==3)");
-      SR_ge10j3b->AddMCweight("weight_TRF_3b");
-    }
-    SR_ge10j3b->SetVariable("(HTj+lep_pt+met_et)/1e3",7,400,1800);
-    SR_ge10j3b->SetVariableTitle("H_{T} [GeV]");
-    SR_ge10j3b->SetLabel("e/#mu + #geq10 j, 3 b", "#geq10 j, 3 b");
-    
-  Region *SR_9jge4b = myFit->NewRegion("SR_9jge4b");
-    if(!useTRF) SR_9jge4b->AddSelection("jet_n==9 && nJet_tagged>=4");
-    else{
-      SR_9jge4b->AddSelection("jet_n==9 && (channelNumber!=runNumber || nJet_tagged>=4)");
-      SR_9jge4b->AddMCweight("weight_TRF_ge4b");
-    }
-    SR_9jge4b->SetVariable("(HTj+lep_pt+met_et)/1e3",7,400,1800);
-    SR_9jge4b->SetVariableTitle("H_{T} [GeV]");
-    SR_9jge4b->SetLabel("e/#mu + 9 j, #geq4 b", "9 j, #geq3 b");
 
   // control region
   Region *CR_ge4j2b = myFit->NewRegion("CR_ge4j2b");
@@ -138,6 +107,37 @@ void Fit4t(string opt="t",bool update=false){
     CR_ge4j2b->SetVariableTitle("Number of jets");
     CR_ge4j2b->SetLabel("e/#mu + #geq4 j, 2 b", "#geq4 j, 2 b");
     
+  // signal regions
+  Region *SR_9jge4b = myFit->NewRegion("SR_9jge4b");
+    if(!useTRF) SR_9jge4b->AddSelection("jet_n==9 && nJet_tagged>=4");
+    else{
+      SR_9jge4b->AddSelection("jet_n==9 && (channelNumber!=runNumber || nJet_tagged>=4)");
+      SR_9jge4b->AddMCweight("weight_TRF_ge4b");
+    }
+    SR_9jge4b->SetVariable("(HTj+lep_pt+met_et)/1e3",7,400,1800);
+    SR_9jge4b->SetVariableTitle("H_{T} [GeV]");
+    SR_9jge4b->SetLabel("e/#mu + 9 j, #geq4 b", "9 j, #geq3 b");
+
+  Region *SR_ge10j3b = myFit->NewRegion("SR_ge10j3b");
+    if(!useTRF) SR_ge10j3b->AddSelection("jet_n>=10 && nJet_tagged==3");
+    else{
+      SR_ge10j3b->AddSelection("jet_n>=10 && (channelNumber!=runNumber || nJet_tagged==3)");
+      SR_ge10j3b->AddMCweight("weight_TRF_3b");
+    }
+    SR_ge10j3b->SetVariable("(HTj+lep_pt+met_et)/1e3",7,400,1800);
+    SR_ge10j3b->SetVariableTitle("H_{T} [GeV]");
+    SR_ge10j3b->SetLabel("e/#mu + #geq10 j, 3 b", "#geq10 j, 3 b");
+    
+  Region *SR_ge10jge4b = myFit->NewRegion("SR_ge10jge4b");
+    if(!useTRF) SR_ge10jge4b->AddSelection("jet_n>=10 && nJet_tagged>=4");
+    else{
+      SR_ge10jge4b->AddSelection("jet_n>=10 && (channelNumber!=runNumber || nJet_tagged>=4)");
+      SR_ge10jge4b->AddMCweight("weight_TRF_ge4b");
+    }
+    SR_ge10jge4b->SetVariable("(HTj+lep_pt+met_et)/1e3",7,400,1800);
+    SR_ge10jge4b->SetVariableTitle("H_{T} [GeV]");
+    SR_ge10jge4b->SetLabel("e/#mu + #geq10 j, #geq4 b", "#geq10 j, #geq4 b");
+    
     
   //
   // do actual things
@@ -145,27 +145,28 @@ void Fit4t(string opt="t",bool update=false){
   if(readNtuples){
     myFit->ReadNtuples();
     myFit->Print();
-    myFit->WriteHistos("MyMeasurement_histos.root",!update);
+    myFit->WriteHistos("",!update);
   }
   else{
-    myFit->ReadHistos("MyMeasurement_histos.root");
+    myFit->ReadHistos("");
   }
   
   if(systSmoothing){
     myFit->SmoothSystematics("all");
-    myFit->WriteHistos("MyMeasurement_histos.root",!update);
+    myFit->WriteHistos("",!update);
   }
   
   if(drawPreFit){
     myFit->DrawAndSaveAll();
 //     myFit->DrawAndSaveAll("blind");
-    myFit->DrawSystPlots();
-//     Region *regions[4];
-//     regions[0] = CR_ge4j2b;
-//     regions[1] = SR_9jge4b;
-//     regions[2] = SR_ge10j3b;
-//     regions[3] = SR_ge10jge4b;
-//     myFit->DrawSignalRegionsPlot(2,2,regions);
+//     myFit->DrawSystPlots();
+    myFit->DrawSummary("log");
+    Region *regions[4];
+      regions[0] = CR_ge4j2b;
+      regions[1] = SR_9jge4b;
+      regions[2] = SR_ge10j3b;
+      regions[3] = SR_ge10jge4b;
+    myFit->DrawSignalRegionsPlot(2,2,regions);
   }
 
   if(createWorkspace){
@@ -180,29 +181,16 @@ void Fit4t(string opt="t",bool update=false){
 
   // use the external tool FitCrossCheckForLimits fir fitting
   if(doFit){
-    // PlotHistosBeforeFit=0,
-    // PlotMorphingControlPlots=1, 
-    // PlotHistosAfterFitEachSubChannel=2, 
-    // PlotHistosAfterFitGlobal=3, 
-    // PlotsNuisanceParametersVSmu=4, 
-    // PlotsStatisticalTest=5
-    int algo = 3;
-//     int algo = 0;
-    string workspace = "results/MyMeasurement_combined_MyMeasurement_model.root";
-    string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./xcheckResults/\",\"combined\",\"ModelConfig\",\"obsData\")'",algo,workspace.c_str());
-    gSystem->Exec(cmd.c_str());
-    //
-    // plot the NP fit plot
-    gSystem->Exec("python plotNP.py \"xcheckResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt\"");
+    myFit->Fit(); // with FitCrossCheckForLimits
+    myFit->PlotFittedNP();
   }
   
   if(doLimit){
-    string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/MyMeasurement_combined_MyMeasurement_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
-    gSystem->Exec(cmd.c_str());
+    myFit->GetLimit();
   }
   
   if(drawPostFit){
-    myFit->ReadFitResults("xcheckResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+//     myFit->ReadFitResults("xcheckResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
 //     SR_ge10jge4b->DrawPostFit(myFit->fFitResults)->SaveAs("Test.png");
     myFit->DrawAndSaveAll("post");
   }

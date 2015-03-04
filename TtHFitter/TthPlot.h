@@ -22,22 +22,25 @@
 #ifndef __TthPlot__
 #define __TthPlot__
 
+const int MAXbins = 1000;
+
 using namespace std;
 
 class TthPlot {
   public:
-    TthPlot();
-    TthPlot(string name);
+//     TthPlot();
+    TthPlot(string name="c",int canvasWidth=600,int canvasHeight=700);
     ~TthPlot(){};
 
-    void Init();
+//     void Init(int canvasWidth=600,int canvasHeight=700);
     
     void SetChannel(string name);
     void SetLumi(string name);
     void SetXaxis(string name,bool isNjet=false);
     void SetYaxis(string name);
     void SetYmaxScale(float scale);
-
+    void SetBinLabel(int bin,string name);
+    
     void SetData(TH1* h,string name="Data");
     void AddSignal(TH1* h,string name="Signal");
     void AddNormSignal(TH1* h,string name="Signal");
@@ -84,11 +87,14 @@ class TthPlot {
     float KSprob;
     
     bool fIsNjet;
+    
+    string fBinLabel[MAXbins];
 };
 
 // function to get asymmetric error bars for hists
 double GC_up(double data);
 double GC_down(double data);
 TGraphAsymmErrors* poissonize(TH1 *h);
+TGraphAsymmErrors* histToGraph(TH1* h);
 
 #endif

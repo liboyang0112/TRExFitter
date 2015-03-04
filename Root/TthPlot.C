@@ -5,26 +5,27 @@
 
 using namespace std;
 
-TthPlot::TthPlot(){
-  fName = "c";
-  Init();
-}
-TthPlot::TthPlot(string name){
+// TthPlot::TthPlot(){
+//   fName = "c";
+//   Init();
+// }
+TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
   fName = name;
-  Init();
-}
-void TthPlot::Init(){
+//   Init();
+// }
+// void TthPlot::Init(int canvasWidth,int canvasHeight){
 //   c = new TCanvas(fName.c_str(),fName.c_str(),500,600);
-  c = new TCanvas(fName.c_str(),fName.c_str(),600,700);
+  c = new TCanvas(fName.c_str(),fName.c_str(),canvasWidth,canvasHeight);
   //
-  pad0 = new TPad("pad0","pad0",0,0.28,1,1,0,0,0);
+  pad0 = new TPad("pad0","pad0",0,0.20,1,1,0,0,0);
   pad0->SetTickx(false);
   pad0->SetTicky(false);
   pad0->SetTopMargin(0.05);
-  pad0->SetBottomMargin(0);
+  pad0->SetBottomMargin(0.1);
   pad0->SetLeftMargin(0.14);
   pad0->SetRightMargin(0.05);
   pad0->SetFrameBorderMode(0);
+  pad0->SetFillStyle(0);
   //
   pad1 = new TPad("pad1","pad1",0,0,1,0.28,0,0,0);
   pad1->SetTickx(false);
@@ -34,12 +35,14 @@ void TthPlot::Init(){
   pad1->SetLeftMargin(0.14);
   pad1->SetRightMargin(0.05);
   pad1->SetFrameBorderMode(0);
+  pad1->SetFillStyle(0);
   //
   pad1->Draw();
   pad0->Draw();
   pad0->cd();
   h_stack = new THStack("h_stack","h_stack");
-  h_tot = 0;
+  h_tot = 0x0;
+  g_tot = 0x0;
   xtitle = "Variable [GeV]";
   ytitle = "Events";
 //   leg  = new TLegend(0.54,0.93-2*(0.05),0.80,0.93);
@@ -58,6 +61,9 @@ void TthPlot::Init(){
   h_normsig = 0x0;
   //
   fIsNjet = false;
+  //
+  for(int i_bin=0;i_bin<MAXbins;i_bin++)
+    fBinLabel[i_bin] = "";
 }
 
 void TthPlot::SetChannel(string name){
@@ -80,6 +86,11 @@ void TthPlot::SetYaxis(string name){
 void TthPlot::SetYmaxScale(float scale){
   yMaxScale = scale;
 }
+
+void TthPlot::SetBinLabel(int bin,string name){
+  fBinLabel[bin] = name;
+}
+
 
 void TthPlot::SetData(TH1* h,string name){
   h_data = (TH1*)h;
@@ -123,6 +134,7 @@ void TthPlot::SetChi2KS(float chi2,float ks){
 
 void TthPlot::Draw(string options){
   gStyle->SetEndErrorSize(4.);
+  if(g_tot==0x0) g_tot = new TGraphAsymmErrors(h_tot);
   pad0->cd();
   TH1* h_dummy = (TH1*)h_tot->Clone("h_dummy");
   h_dummy->Scale(0);
@@ -133,12 +145,15 @@ void TthPlot::Draw(string options){
   bool hasData = true;
   if(h_data){
 //     h_data->Draw("E");
-    h_data->SetMarkerSize(1.2);
+//     h_data->SetMarkerSize(1.2);
+    h_data->SetMarkerSize(1.4);
+    h_data->SetLineWidth(2);
     // build asym data
     g_data = poissonize(h_data);
     g_data->SetMarkerSize(h_data->GetMarkerSize());
     g_data->SetMarkerColor(h_data->GetMarkerColor());
     g_data->SetMarkerStyle(h_data->GetMarkerStyle());
+    g_data->SetLineWidth(h_data->GetLineWidth());
   }
   else{
     hasData = false;
@@ -179,7 +194,12 @@ void TthPlot::Draw(string options){
     for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
       int nj = (int)h_dummy->GetXaxis()->GetBinCenter(i_bin);
       if(i_bin<h_dummy->GetNbinsX()) h_dummy->GetXaxis()->SetBinLabel( i_bin,Form("%d",nj) );
-      else                          h_dummy->GetXaxis()->SetBinLabel( i_bin,Form("#geq%d",nj) );
+      else                           h_dummy->GetXaxis()->SetBinLabel( i_bin,Form("#geq%d",nj) );
+    }
+  }
+  else{
+    for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
+      if(fBinLabel[i_bin]!="") h_dummy->GetXaxis()->SetBinLabel( i_bin, fBinLabel[i_bin].c_str());
     }
   }
   h_dummy->GetYaxis()->SetTitleOffset(2);
@@ -190,12 +210,16 @@ void TthPlot::Draw(string options){
   }
   else{
     h_dummy->SetMaximum(h_tot->GetMaximum()*pow(10,yMaxScale));
+    h_dummy->SetMinimum(1.);
   }
   pad0->RedrawAxis();
   
-  if(fATLASlabel!="none") ATLASLabel(0.18,0.85,(char*)fATLASlabel.c_str());
-  myText(0.18,0.8,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
-  myText(0.18,0.75,1,Form("%s",leg_title.c_str()));//,0.045);
+//   if(fATLASlabel!="none") ATLASLabel(0.18,0.85,(char*)fATLASlabel.c_str());
+//   myText(0.18,0.8,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
+//   myText(0.18,0.75,1,Form("%s",leg_title.c_str()));//,0.045);
+  if(fATLASlabel!="none") ATLASLabel(0.18,0.85+0.04,(char*)fATLASlabel.c_str());
+  myText(0.18,0.8+0.04,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
+  myText(0.18,0.75+0.04,1,Form("%s",leg_title.c_str()));//,0.045);
   
   leg  = new TLegend(0.54,0.93-(sample_name.size()+2)*0.06,0.80,0.93);
   leg1 = new TLegend(0.80,leg->GetY1(),0.94,leg->GetY2());
@@ -234,10 +258,17 @@ void TthPlot::Draw(string options){
   TLine *hline;
   pad1->cd();
   pad1->GetFrame()->SetY1(2);
+  //
+  TH1* h_dummy2 = (TH1*)h_tot->Clone("h_dummy2");
+  h_dummy2->Scale(0);
+  h_dummy2->Draw("HIST");
+  //
   TH1 *h_ratio;
+  TGraphAsymmErrors *g_ratio;
 //   if(h_data)
   h_ratio = (TH1*)h_data->Clone("h_ratio");
-  h_ratio->GetYaxis()->SetTitleOffset(1.4*h_dummy->GetTitleOffset());
+  //
+  h_dummy2->GetYaxis()->SetTitleOffset(1.4*h_dummy->GetTitleOffset());
 //   else {
 //     h_ratio = (TH1*)h_tot->Clone("h_ratio");
 //     h_ratio->Scale(0.01);
@@ -248,12 +279,24 @@ void TthPlot::Draw(string options){
   for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
     h_tot_nosyst->SetBinError(i_bin,0);
   }
-  h_ratio->SetTitle("Data/MC");
-  h_ratio->GetYaxis()->SetTitle("Data / Pred");
-//   h_ratio->GetYaxis()->SetTitleSize(0.12);
-//   h_ratio->GetYaxis()->SetTitleOffset(0.65);
-//   h_ratio->GetYaxis()->SetLabelSize(0.12); // 0.04
+  h_dummy2->SetTitle("Data/MC");
+  h_dummy2->GetYaxis()->CenterTitle();
+  h_dummy2->GetYaxis()->SetTitle("Data / Pred.");
+  h_dummy2->GetYaxis()->SetLabelSize(0.8*h_ratio->GetYaxis()->GetLabelSize());
+  h_dummy2->GetYaxis()->SetLabelOffset(0.02);
+  h_dummy2->GetYaxis()->SetNdivisions(504,false);
+//   h_dummy2->GetYaxis()->SetNdivisions(303,true);
+  gStyle->SetEndErrorSize(4.);
   h_ratio->Divide(h_tot_nosyst);
+    h_ratio->SetMarkerStyle(24);
+    h_ratio->SetMarkerSize(1.4);
+    h_ratio->SetMarkerColor(kBlack);
+    h_ratio->SetLineWidth(2);
+  g_ratio = histToGraph(h_ratio);
+  for(int i_bin=1;i_bin<=h_ratio->GetNbinsX();i_bin++){
+    g_ratio->SetPointEYhigh( i_bin-1,g_data->GetErrorYhigh(i_bin-1)/h_tot->GetBinContent(i_bin) );
+    g_ratio->SetPointEYlow(  i_bin-1,g_data->GetErrorYlow(i_bin-1) /h_tot->GetBinContent(i_bin) );
+  }
   for(int i_bin=1;i_bin<h_tot_nosyst->GetNbinsX()+1;i_bin++){
     g_ratio2->SetPoint(i_bin-1,g_ratio2->GetX()[i_bin-1],g_ratio2->GetY()[i_bin-1]/h_tot_nosyst->GetBinContent(i_bin));
     g_ratio2->SetPointEXlow(i_bin-1,g_ratio2->GetEXlow()[i_bin-1]);
@@ -261,34 +304,36 @@ void TthPlot::Draw(string options){
     g_ratio2->SetPointEYlow(i_bin-1,g_ratio2->GetEYlow()[i_bin-1]/h_tot_nosyst->GetBinContent(i_bin));
     g_ratio2->SetPointEYhigh(i_bin-1,g_ratio2->GetEYhigh()[i_bin-1]/h_tot_nosyst->GetBinContent(i_bin));
   }
-  hline = new TLine(h_ratio->GetXaxis()->GetXmin(),1,h_ratio->GetXaxis()->GetXmax(),1);
+  hline = new TLine(h_dummy2->GetXaxis()->GetXmin(),1,h_dummy2->GetXaxis()->GetXmax(),1);
   hline->SetLineColor(kRed);
   hline->SetLineWidth(2);
   hline->SetLineStyle(2);
-  h_ratio->SetMarkerStyle(24);
-  h_ratio->SetMarkerSize(0.8);
-  gStyle->SetEndErrorSize(4.);
-  h_ratio->GetYaxis()->CenterTitle();
-  h_ratio->GetYaxis()->SetNdivisions(504,false);
-  h_ratio->Draw("0E1");
+//   h_ratio->Draw("0E1 same");
+  g_ratio->Draw("Ep1 same");
   hline->Draw();
-  h_ratio->SetMinimum(0.);
-  h_ratio->SetMaximum(2.);
+  h_dummy2->SetMinimum(0.);
+  h_dummy2->SetMaximum(2.);
   if(options.find("prefit")!=string::npos){
-    h_ratio->SetMinimum(0.00);
-    h_ratio->SetMaximum(2.00);
+    h_dummy2->SetMinimum(0.00);
+    h_dummy2->SetMaximum(2.00);
   }
   else{
-    h_ratio->SetMinimum(0.50);
-    h_ratio->SetMaximum(1.50);
+    h_dummy2->SetMinimum(0.50);
+    h_dummy2->SetMaximum(1.50);
+//     h_ratio->SetMinimum(0.501);
+//     h_ratio->SetMaximum(1.499);
   }
-  h_ratio->GetXaxis()->SetTitle(h_dummy->GetXaxis()->GetTitle());
+  h_dummy2->GetXaxis()->SetTitle(h_dummy->GetXaxis()->GetTitle());
 //   h_ratio->GetXaxis()->SetTitleSize(0.14);
-  h_ratio->GetXaxis()->SetTitleOffset(4.);
+  h_dummy2->GetXaxis()->SetTitleOffset(4.);
   h_dummy->GetXaxis()->SetTitle("");
 //   h_ratio->GetXaxis()->SetLabelSize(0.14);
 //   if(fIsNjet) h_ratio->GetXaxis()->SetLabelSize(0.2);
   h_dummy->GetXaxis()->SetLabelSize(0);
+  for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
+//     if(((string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!="") h_ratio->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
+    if(((string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!="") h_dummy2->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
+  }
   gPad->RedrawAxis();
   // to hide the upper limit
   TLine line(0.01,1,0.1,1);
@@ -313,14 +358,20 @@ void TthPlot::Draw(string options){
     }
     if (isUp!=0) {
       TArrow *arrow;
-      if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),1.41, h_ratio->GetXaxis()->GetBinCenter(i_bin),1.45,0.030,"|>");
-      else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),0.54, h_ratio->GetXaxis()->GetBinCenter(i_bin),0.51,0.030,"|>");
-      arrow->SetFillColor(2);
+//       if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),1.41, h_ratio->GetXaxis()->GetBinCenter(i_bin),1.45,0.030,"|>");
+//       else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),0.54, h_ratio->GetXaxis()->GetBinCenter(i_bin),0.51,0.030,"|>");
+//       arrow->SetFillColor(2);
+//       arrow->SetFillStyle(1001);
+//       arrow->SetLineColor(2);
+      if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),1.45, h_ratio->GetXaxis()->GetBinCenter(i_bin),1.5,0.030,"|>");
+      else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),0.55, h_ratio->GetXaxis()->GetBinCenter(i_bin),0.5,0.030,"|>");
+      arrow->SetFillColor(10);
       arrow->SetFillStyle(1001);
-      arrow->SetLineColor(2);
+      arrow->SetLineColor(kBlue-7);
+      arrow->SetLineWidth(2);
       arrow->SetAngle(40);
-      arrow->Draw();
-
+//       arrow->Draw();
+      //
       TLine *fix=0;
       TLine *fixUp=0;
       TLine *fixDo=0;
@@ -345,6 +396,7 @@ void TthPlot::Draw(string options){
         fixDo->SetLineWidth(1);
         fixDo->Draw("SAME");
       }
+      arrow->Draw();
     }
   }
   // ---
@@ -400,11 +452,26 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
   TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
   for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
     double content = (gr->GetY())[i];
-    gr->SetPointError(i,0.5*h->GetBinWidth(i),0.5*h->GetBinWidth(i),GC_down(content),GC_up(content));
+//     gr->SetPointError(i,0.5*h->GetBinWidth(i),0.5*h->GetBinWidth(i),GC_down(content),GC_up(content));
+    gr->SetPointError(i,0.499*h->GetBinWidth(i),0.5*h->GetBinWidth(i),GC_down(content),GC_up(content));
     if(content==0){
       gr->RemovePoint(i);
       i--;
     }
   }
+  return gr;
+}
+
+TGraphAsymmErrors* histToGraph(TH1* h){
+  TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
+  for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
+    gr->SetPointError(i,0.499*h->GetBinWidth(i),0.5*h->GetBinWidth(i),0,0);
+  }
+  gr->SetMarkerStyle(h->GetMarkerStyle());
+  gr->SetMarkerSize(h->GetMarkerSize());
+  gr->SetMarkerColor(h->GetMarkerColor());
+  gr->SetLineWidth(h->GetLineWidth());
+  gr->SetLineColor(h->GetLineColor());
+  gr->SetLineStyle(h->GetLineStyle());
   return gr;
 }

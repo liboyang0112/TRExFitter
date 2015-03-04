@@ -11,16 +11,18 @@ void ATLASLabel(Double_t x,Double_t y,const char* text,Color_t color)
 {
   TLatex l; //l.SetTextAlign(12); l.SetTextSize(tsize); 
   l.SetNDC();
-  l.SetTextFont(72);
+//   l.SetTextFont(72);
+  l.SetTextFont(73);
   l.SetTextColor(color);
 
   double delx = 0.115*696*gPad->GetWh()/(472*gPad->GetWw());
 
   l.DrawLatex(x,y,"ATLAS");
   if (text) {
-    TLatex p; 
+    TLatex p;
     p.SetNDC();
-    p.SetTextFont(42);
+//     p.SetTextFont(42);
+    p.SetTextFont(43);
     p.SetTextColor(color);
     p.DrawLatex(x+delx,y,text);
     //    p.DrawLatex(x,y,"#sqrt{s}=900GeV");

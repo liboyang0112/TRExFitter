@@ -14,9 +14,16 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
   return h;
 }
 
+TH1* HistFromFile(string fullName){
+  string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
+  string histoName = fullName.substr(fullName.find_last_of(".")+6,string::npos);
+  return HistFromFile(fileName,histoName);
+}
+
 TH1* HistFromFile(string fileName,string histoName){
   if(fileName=="") return 0x0;
   if(histoName=="") return 0x0;
+  cout << "  Extracting histogram  " << histoName << "  from file  " << fileName << "  ..." << endl;
   TH1* h;
   TDirectory *dir = gDirectory;
   TFile *f = new TFile(fileName.c_str());
@@ -58,10 +65,12 @@ vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs,
               fullPath += "/";
               fullPath += files[i_file];
               fullPath += fileSufs[i_fileSuf];
-              fullPath += ".root/";
-              fullPath += names[i_name];
-              fullPath += nameSufs[i_nameSuf];
-//               cout << "   Adding " << fullPath << endl;
+              fullPath += ".root";
+              if(names[i_name]!="" || nameSufs[i_nameSuf]!=""){
+                fullPath += "/";
+                fullPath += names[i_name];
+                fullPath += nameSufs[i_nameSuf];
+              }
               output.push_back( fullPath );
             }
           }

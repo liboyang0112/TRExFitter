@@ -11,6 +11,7 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
   fName = fSample->fName;
   fHistoName = "";
   fFileName = "";
+  fFitName = "";
   fNSyst = 0;
   fNNorm = 0;
   fRegionName = "Region";
@@ -30,6 +31,7 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
   fHist = HistFromFile(fileName,histoName);
   fHist->SetFillColor(fSample->fFillColor);
   fHist->SetLineColor(fSample->fLineColor);
+  fHist->SetLineWidth(1);
   fName = fSample->fName;
   fHistoName = histoName;
   fFileName = fileName;
@@ -298,7 +300,7 @@ void SampleHist::DrawSystPlot(string syst){
     TLatex *tex = new TLatex();
     tex->SetNDC();
     tex->DrawLatex(0.2,0.89,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fName.c_str()));
-    tex->DrawLatex(0.2,0.89-1.2*gStyle->GetTextSize(),fRegionName.c_str());
+    tex->DrawLatex(0.2,0.84,fRegionName.c_str());
     TLegend *leg = new TLegend(0.6,0.8,0.9,0.94);
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
@@ -314,7 +316,12 @@ void SampleHist::DrawSystPlot(string syst){
     leg->AddEntry(h_syst_down,Form("-1#sigma (%s%.1f%)",sign_down.c_str(),TMath::Abs(acc_down*100)),"l");
     leg->Draw();
     //
-    c->SaveAs(Form("systPlots/%s_%s.png",fHist->GetName(),fSyst[i_syst]->fName.c_str()));
+//     c->SaveAs(Form("systPlots/%s_%s.png",fHist->GetName(),fSyst[i_syst]->fName.c_str()));
+    cout << fFitName << endl;
+    gSystem->mkdir(fFitName.c_str());
+    gSystem->mkdir((fFitName+"/systPlots/").c_str());
+    string saveName = (fFitName+"/systPlots/"+fHist->fName+"_"+fSyst[i_syst]->fName+".png").Data();
+    c->SaveAs(saveName.c_str());
   }
   delete c;
 }

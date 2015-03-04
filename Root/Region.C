@@ -40,6 +40,7 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
   }
   fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
   fSampleHists[fNSamples]->fRegionName = fName;
+  fSampleHists[fNSamples]->fFitName = fFitName;
   fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
   fNSamples++;
   return fSampleHists[fNSamples-1];
@@ -64,6 +65,7 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
   }
   fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
   fSampleHists[fNSamples]->fRegionName = fName;
+  fSampleHists[fNSamples]->fFitName = fFitName;
   fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
   fNSamples++;
   return fSampleHists[fNSamples-1];
@@ -120,7 +122,8 @@ void Region::AddSystematic(Systematic *syst){
 
 SampleHist* Region::GetSampleHist(string sampleName){
   for(int i_smp=0;i_smp<fNSamples;i_smp++){
-    if(fSampleHists[i_smp]->fSample->fName == sampleName) return fSampleHists[i_smp];
+//     if(fSampleHists[i_smp]->fSample->fName == sampleName) return fSampleHists[i_smp];
+    if(fSampleHists[i_smp]->fName == sampleName) return fSampleHists[i_smp];
   }
   return 0x0;
 }
@@ -290,6 +293,7 @@ TthPlot* Region::DrawPreFit(string opt){
   //
   p->SetTotBkg((TH1*)fTot);
   p->SetTotBkgAsym(fErr);
+  p->fATLASlabel = "Internal";
   p->Draw(opt);
   //
 //   return p->GetCanvas();
@@ -326,14 +330,14 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
   TH1* hSyst;
   TH1* hNew;
   string systName = "";
-  cout << "Building syst list..." << endl;
+//   cout << "Building syst list..." << endl;
   // backgrounds
   for(int i=0;i<fNBkg;i++){
     // norm factors
     for(int i_norm=0;i_norm<fBkg[i]->fNNorm;i_norm++){
       systName = fBkg[i]->fNormFactors[i_norm]->fName;
       if(!systIsThere[systName]){
-        cout << " " << systName << endl;
+//         cout << " " << systName << endl;
         systNames.push_back(systName);
         systIsThere[systName] = true;
       }
@@ -354,7 +358,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     for(int i_norm=0;i_norm<fSig->fNNorm;i_norm++){
       systName = fSig->fNormFactors[i_norm]->fName;
       if(!systIsThere[systName]){
-        cout << " " << systName << endl;
+//         cout << " " << systName << endl;
         systNames.push_back(systName);
         systIsThere[systName] = true;
       }
@@ -363,7 +367,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     for(int i_syst=0;i_syst<fSig->fNSyst;i_syst++){
       systName = fSig->fSyst[i_syst]->fName;
       if(!systIsThere[systName]){
-        cout << " " << systName << endl;
+//         cout << " " << systName << endl;
         systNames.push_back(systName);
         systIsThere[systName] = true;
       }
@@ -371,20 +375,20 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
   }
   //
   for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
-    cout << "Bin " << i_bin << ":" << endl;
+    if(TtHFitter::DEBUGLEVEL>0) cout << "Bin " << i_bin << ":" << endl;
     for(int i_syst=0;i_syst<(int)systNames.size();i_syst++){
-      cout << "  Adding syst " << systNames[i_syst] << endl;
+      if(TtHFitter::DEBUGLEVEL>0) cout << "  Adding syst " << systNames[i_syst] << endl;
       systName = systNames[i_syst];
       systValue = fitRes->GetNuisParValue(systName);
       systErrUp = fitRes->GetNuisParErrUp(systName);
       systErrDown = fitRes->GetNuisParErrDown(systName);
-      cout << "    alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
+      if(TtHFitter::DEBUGLEVEL>0) cout << "    alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
       diffUp = 0.;
       diffDown = 0.;
       TH1* hUp = 0x0;
       TH1* hDown = 0x0;
       for(int i=0;i<fNBkg;i++){
-        cout << "    Sample " << fBkg[i]->fName << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << "    Sample " << fBkg[i]->fName << endl;
         yieldNominal = fBkg[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
 //         yieldNominal = fBkg[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit!
         hUp = 0x0;
@@ -394,7 +398,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 //           diffUp += yieldNominal*(systValue+systErrUp)-yieldNominal*systValue;
           diffUp += yieldNominal*systErrUp;
           diffDown += yieldNominal*systErrDown;
-          cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+          if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
         }
         // syst
         if(fBkg[i]->HasSyst(systNames[i_syst])){
@@ -407,11 +411,11 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
           deltaN = GetDeltaN( systValue, yieldNominal,yieldUp,yieldDown);
           diffUp += yieldNominal*( GetDeltaN( systValue+systErrUp, yieldNominal,yieldUp,yieldDown) - deltaN );
           diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown) - deltaN );
-          cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+          if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
         }
       }
       if(fHasSig){
-        cout << "    Sample " << fSig->fName << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << "    Sample " << fSig->fName << endl;
         yieldNominal = fSig->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
 //         yieldNominal = fSig->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post-fit (wrong I think...)
         hUp = 0x0;
@@ -420,7 +424,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         if(fSig->HasNorm(systNames[i_syst])){
           diffUp += yieldNominal*systErrUp;
           diffDown += yieldNominal*systErrDown;
-          cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+          if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
         }
         // syst
         if(fSig->HasSyst(systNames[i_syst])){
@@ -433,7 +437,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
           deltaN = GetDeltaN( systValue, yieldNominal,yieldUp,yieldDown);
           diffUp   += yieldNominal*( GetDeltaN( systValue+systErrUp, yieldNominal,yieldUp,yieldDown) - deltaN );
           diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown) - deltaN );
-          cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+          if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
         }
       }
       // store errors up and down
@@ -582,14 +586,16 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
   p->Draw();
   //
   // print bin content and errors
-  for(int i_bin=1;i_bin<=fTot_postFit->GetNbinsX();i_bin++){
-    cout << i_bin << ":\t";
-    cout << fTot_postFit->GetBinContent(i_bin);
-    cout << " +";
-    cout << fErr_postFit->GetErrorYhigh(i_bin-1);
-    cout << " -";
-    cout << fErr_postFit->GetErrorYlow(i_bin-1);
-    cout << endl;
+  if(TtHFitter::DEBUGLEVEL>0){
+    for(int i_bin=1;i_bin<=fTot_postFit->GetNbinsX();i_bin++){
+      cout << i_bin << ":\t";
+      cout << fTot_postFit->GetBinContent(i_bin);
+      cout << " +";
+      cout << fErr_postFit->GetErrorYhigh(i_bin-1);
+      cout << " -";
+      cout << fErr_postFit->GetErrorYlow(i_bin-1);
+      cout << endl;
+    }
   }
   //
 //   return p->GetCanvas();
@@ -612,6 +618,10 @@ void Region::SetVariable(string variable,int nbin,float xmin,float xmax){
   fNbins = nbin;
   fXmin = xmin;
   fXmax = xmax;
+}
+
+void Region::SetHistoName(string name){
+  fHistoName = name;
 }
 
 void Region::SetVariableTitle(string name){

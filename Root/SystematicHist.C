@@ -51,4 +51,5 @@ bool SystematicHist::IsShape(){
 void SystematicHist::Print(){
   cout << "        Systematic: " << fName;
   if(fHistShapeUp==0x0 && fHistShapeDown==0x0 && fHistUp==0x0 && fHistDown==0x0) cout << Form("\toverall (%.3f,%.3f)",fNormUp,fNormDown) << endl;
+  else cout << endl;
 }

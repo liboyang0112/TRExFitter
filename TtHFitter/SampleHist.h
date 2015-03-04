@@ -62,6 +62,7 @@ public:
   NormFactor* fNormFactors[MAXnorm];
   
   // other useful info
+  string fFitName;
   string fRegionName;
   string fVariableTitle;
   bool fSystSmoothed;

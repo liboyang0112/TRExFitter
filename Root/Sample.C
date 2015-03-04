@@ -61,6 +61,18 @@ void Sample::AddNtupleName(string name){
   fNtupleNames.push_back(name);
 }
 
+// read from histograms
+void Sample::AddHistoPath(string path){
+  fHistoPaths.push_back(path);
+}
+void Sample::AddHistoFile(string file){
+  fHistoFiles.push_back(file);
+}
+void Sample::AddHistoName(string name){
+  fHistoNames.push_back(name);
+}
+
+
 // norm factors and systs
 void Sample::AddNormFactor(NormFactor* normFactor){
   fNormFactors[fNNorm] = normFactor;

@@ -37,6 +37,7 @@ const int MAXsyst = 100;
 const int MAXnorm = 3;
 
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight);
+TH1* HistFromFile(string fullName);
 TH1* HistFromFile(string fileName,string histoName);
 void WriteHistToFile(TH1* h,string fileName,string option="UPDATE");
 vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs, 

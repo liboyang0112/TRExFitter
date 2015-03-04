@@ -44,9 +44,13 @@ public:
   TthPlot* DrawPostFit(FitResults *fitRes,string opt="");
   
   void AddSample(Sample *sample);
+  
   void AddSelection(string selection);
   void AddMCweight(string weight);
   void SetVariable(string variable,int nbin,float xmin,float xmax);
+
+  void SetHistoName(string name); // name of the histogram to read (the same for each sample)
+  
   void SetAllSamples(bool readNtuples=true,string fileName="MyMeasurement_histos.root");
   
   void AddSystematic(Systematic *syst);
@@ -100,6 +104,15 @@ public:
   vector<string> fNtupleNames;
   vector<string> fNtupleNameSuffs;
 
+  // histogram stuff
+  string fHistoName;
+  vector<string> fHistoPaths;
+  vector<string> fHistoPathSuffs;
+  vector<string> fHistoFiles;
+  vector<string> fHistoFileSuffs;
+  vector<string> fHistoNames;
+  vector<string> fHistoNameSuffs;
+  
   // systematics & norm.factors
   int fNSyst;
   Systematic* fSystematics[MAXsyst];

@@ -37,6 +37,10 @@ public:
   void SetSelection(string selection);
   void SetNtupleName(string name);
 
+  // histogram stuff
+  void AddHistoPath(string path);
+  void SetHistoName(string name);
+
   // systematic handle
   void SmoothSystematics(string syst="all");
   
@@ -45,6 +49,7 @@ public:
   
   // read from ..
   void ReadNtuples();
+  void ReadHistograms();
   void ReadHistos(string fileName="");
   void ReadAll(bool readNtuples=true,string fileName="");
   
@@ -62,6 +67,11 @@ public:
   // turn to RooStat::HistFactory
   void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
 
+  // fit etc...
+  void Fit();
+  void PlotFittedNP();
+  void GetLimit();
+  
   // get fit results from txt file
   void ReadFitResults(string fileName);
 
@@ -88,6 +98,9 @@ public:
   string fSelection;
   string fNtupleName;
   
+  vector<string> fHistoPaths;
+  string fHistoName;
+
   FitResults *fFitResults;
 };
 
