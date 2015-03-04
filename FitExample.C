@@ -1,14 +1,13 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TCanvas.h"
-#include "TDirectory.h"
 
 #include "Root/Common.C"
 #include "Root/NuisParameter.C"
 #include "Root/CorrelationMatrix.C"
 #include "Root/FitResults.C"
 #include "Root/Systematic.C"
-#include "Root/SystematicHisto.C"
+#include "Root/SystematicHist.C"
 #include "Root/NormFactor.C"
 #include "Root/Sample.C"
 #include "Root/Region.C"
@@ -18,75 +17,73 @@
 #include "Root/TthPlot.C"
 
 
+// Simplest example:
+//  - a single region is used
+//  - input (dummy) histograms are created on the flight and set manually
+
 void FitExample(){
-    
-//   // create dummy data
-//   TDirectory *dir = gDirectory;
-//   TFile *f = new TFile("inputs.root","RECREATE");
-//   TH1F *h_data = new TH1F("h_data","h_data",10,0,1200);
-//     h_data->FillRandom("pol0",100);
-//     h_data->FillRandom("pol1",10);
-// //     h_data->FillRandom("pol1",110);
-//   TH1F *h_bkg = new TH1F("h_bkg","h_bkg",10,0,1200);
-//     h_bkg->FillRandom("pol0",100000);
-//     h_bkg->Scale(100./h_bkg->Integral());
-//   TH1F *h_bkg_jesUp = new TH1F("h_bkg_jesUp","h_bkg_jesUp",10,0,1200);
-//     h_bkg_jesUp->FillRandom("pol0",100000);
-//     h_bkg_jesUp->FillRandom("pol1",10000);
-//     h_bkg_jesUp->Scale(100./100000);
-//   TH1F *h_bkg_jesDown = new TH1F("h_bkg_jesDown","h_bkg_jesDown",10,0,1200);
-//     h_bkg_jesDown->FillRandom("pol1",10000);
-//     h_bkg_jesDown->Scale(-1);
-//     h_bkg_jesDown->FillRandom("pol0",100000);
-//     h_bkg_jesDown->Scale(100./100000);
-//   TH1F *h_sig = new TH1F("h_sig","h_sig",10,0,1200);
-//     h_sig->FillRandom("pol1",1000);
-//     h_sig->Scale(10./h_sig->Integral());
-//   h_data->Write("",TObject::kOverwrite);
-//   h_bkg->Write("",TObject::kOverwrite);
-//   h_bkg_jesUp->Write("",TObject::kOverwrite);
-//   h_bkg_jesDown->Write("",TObject::kOverwrite);
-//   h_sig->Write("",TObject::kOverwrite);
-//   dir->cd();
-//   f->Close();
-//   f->~TFile();
-//   delete f;
-//   return;
-  
-  // create the fit object
-  TtHFit *myFit = new TtHFit();
-    myFit->SetPOI("SigXsecOverSM");
-    
-  // create the samples
-  Sample *data = myFit->NewSample("Data");
-    data->SetTitle("Data 2012");
-    data->SetIsData();
-  Sample *bkg = myFit->NewSample("Background");
-    bkg->SetFillColor(kWhite);
-    bkg->SetLineColor(kBlack);
-  Sample *sig = myFit->NewSample("Signal");
-    sig->SetFillColor(kRed);
-    sig->SetLineColor(kRed);
-    sig->AddNormFactor("SigXsecOverSM",1,0,5);
 
-  // create the systematics
-  Systematic *BkgXsec = myFit->NewSystematic("BkgXsec");
-  Systematic *JES = myFit->NewSystematic("JES");
-    
-  // create fit regions
-  Region *SR_6j4b = myFit->NewRegion("SR_6j4b");
-    SampleHist *hS_data = SR_6j4b->SetDataHist(data,"h_data","inputs.root");
-    SampleHist *hS_bkg = SR_6j4b->AddBkgHist(bkg,"h_bkg","inputs.root");
-    SampleHist *hS_sig = SR_6j4b->SetSigHist(sig,"h_sig","inputs.root");
+  TtHFitter::SetDebugLevel(1);
+  
+  TH1F *h_data = new TH1F("h_data","h_data",10,0,1200);
+    h_data->Sumw2();
+    h_data->FillRandom("pol0",1000);
+    h_data->FillRandom("pol1",100);
+//     h_data->FillRandom("pol1",110);
+  TH1F *h_bkg = new TH1F("h_bkg","h_bkg",10,0,1200);
+    h_bkg->Sumw2();
+    h_bkg->FillRandom("pol0",1000000);
+    h_bkg->Scale(1000./h_bkg->Integral());
+  TH1F *h_sig = new TH1F("h_sig","h_sig",10,0,1200);
+    h_sig->Sumw2();
+    h_sig->FillRandom("pol1",10000);
+    h_sig->Scale(100./h_sig->Integral());
+  
+  // a histo syst...
+  TH1F *h_bkg_jesUp = (TH1F*)h_bkg->Clone("h_bkg_jesUp");
+    h_bkg_jesUp->SetBinContent(1,h_bkg_jesUp->GetBinContent(1)*1.2);
+  TH1F *h_bkg_jesDo = (TH1F*)h_bkg->Clone("h_bkg_jesDo");
+    h_bkg_jesDo->SetBinContent(1,h_bkg_jesDo->GetBinContent(1)*0.8);
 
-  // add some systematics to the regions
-  hS_bkg->AddOverallSyst("BkgXsec",0.10,-0.05);
-  hS_bkg->AddHistoSyst("JES","h_bkg_jesUp","inputs.root","h_bkg_jesDown","inputs.root");
+    
+  TtHFit *myFit = new TtHFit("FitExample0");
+
+    // samples used in the following are declared here
+    Sample *Signal = myFit->NewSample("Signal",SampleType::Signal);
+      Signal->SetFillColor(kRed);
+    Sample *Background = myFit->NewSample("Background",SampleType::Background);
+    Sample *Data = myFit->NewSample("Data",SampleType::Data);
+
+//     Region *CR1 = myFit->NewRegion("CR1");
+//       SampleHist *CR1_Background = CR1->SetSampleHist(Background,h_CR1_Background);
+
+    Region *SR1 = myFit->NewRegion("SR1");
+      SampleHist *SR1_Data = SR1->SetSampleHist(Data,h_data);
+      SampleHist *SR1_Background = SR1->SetSampleHist(Background,h_bkg);
+        SR1_Background->AddOverallSyst("BkgXsec",0.10,-0.10);
+        SR1_Background->AddHistoSyst("JES",h_bkg_jesUp,h_bkg_jesDo);
+//         SR1_Background->AddSystematic("BkgXsec",SystsType::Overall);
+      SampleHist *SR1_Signal = SR1->SetSampleHist(Signal,h_sig);
+        SR1_Signal->AddNormFactor("mu",1,0,5);
+
+  // print on the screen what's inside this TtHFit: regions, samples, systematics...
+  myFit->Print();
   
-  TCanvas *c = SR_6j4b->DrawPreFit();
+  // draw all pre-fit
+  myFit->DrawAndSaveAll();
+
+  SR1_Background->DrawSystPlot();
   
-  c->SaveAs("Test.png");
+  // saves all in a root file for later usage
+  myFit->WriteHistos();
   
-  myFit->WriteHistos();  
-  myFit->ReadAll();  
+  // export to RooStat:
+  //  - creates xml
+  //  - creates a workspace
+  //  - make a quick fit
+  myFit->SetPOI("mu");
+//   myFit->ToRooStat(true,false);
+  
+  
+    
 }
