@@ -31,6 +31,7 @@ public:
   void SetTitle(string title);
   void SetFillColor(int color);
   void SetLineColor(int color);
+  void NormalizedByTheory(const bool norm);
   
   // read from ntupes
   void AddNtuplePath(string path);
@@ -61,6 +62,7 @@ public:
   string fTitle;
   int fFillColor;
   int fLineColor;
+  bool fNormalizedByTheory;
   
   // to read from ntuples
   string fSelection;

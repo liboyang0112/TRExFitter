@@ -13,6 +13,8 @@ Region::Region(string name){
   fHasSig = false;
   fNSamples = 0;
   fUseStatErr = false;
+  fHistoBins = 0;
+  fHistoNBinsRebin = -1;
   //
   string cName = "c_"+fName;
   fPlotPreFit = new TthPlot(cName);
@@ -118,6 +120,15 @@ void Region::AddSample(Sample* sample){
 void Region::AddSystematic(Systematic *syst){
   fSystematics[fNSyst] = syst;
   fNSyst++;
+}
+
+void Region::SetBinning(int N, double *bins){
+    fHistoNBinsRebin = N;
+    fHistoBins = bins;
+}
+
+void Region::Rebin(int N){
+    fHistoNBinsRebin = N;
 }
 
 SampleHist* Region::GetSampleHist(string sampleName){
@@ -583,7 +594,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
   //
   p->SetTotBkg(fTot_postFit);
   p->SetTotBkgAsym(fErr_postFit);
-  p->Draw();
+  p->Draw(opt);
   //
   // print bin content and errors
   if(TtHFitter::DEBUGLEVEL>0){

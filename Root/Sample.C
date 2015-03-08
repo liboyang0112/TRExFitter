@@ -11,6 +11,7 @@ Sample::Sample(string name,int type){
   fLineColor = kBlack;
   fNSyst = 0;
   fNNorm = 0;
+  fNormalizedByTheory = true;
   //
   // ntuples
   fSelection = "1";
@@ -41,6 +42,9 @@ void Sample::SetFillColor(int color){
 }
 void Sample::SetLineColor(int color){
   fLineColor = color;
+}
+void Sample::NormalizedByTheory(const bool norm ){
+    fNormalizedByTheory = norm;
 }
 
 

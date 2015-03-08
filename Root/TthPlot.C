@@ -450,14 +450,15 @@ double GC_down(double data) {
 TGraphAsymmErrors* poissonize(TH1 *h) {
   vector<int> points_to_remove;
   TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
+  int hBinConter = 1;
   for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
     double content = (gr->GetY())[i];
-//     gr->SetPointError(i,0.5*h->GetBinWidth(i),0.5*h->GetBinWidth(i),GC_down(content),GC_up(content));
-    gr->SetPointError(i,0.499*h->GetBinWidth(i),0.5*h->GetBinWidth(i),GC_down(content),GC_up(content));
+    gr->SetPointError(i,0.499*h->GetBinWidth(hBinConter),0.5*h->GetBinWidth(hBinConter),GC_down(content),GC_up(content));
     if(content==0){
       gr->RemovePoint(i);
       i--;
     }
+    hBinConter++;
   }
   return gr;
 }
@@ -465,7 +466,7 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
 TGraphAsymmErrors* histToGraph(TH1* h){
   TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
   for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
-    gr->SetPointError(i,0.499*h->GetBinWidth(i),0.5*h->GetBinWidth(i),0,0);
+    gr->SetPointError(i,0.499*h->GetBinWidth(i+1),0.5*h->GetBinWidth(i+1),0,0);
   }
   gr->SetMarkerStyle(h->GetMarkerStyle());
   gr->SetMarkerSize(h->GetMarkerSize());

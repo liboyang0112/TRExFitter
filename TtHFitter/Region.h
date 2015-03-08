@@ -42,7 +42,9 @@ public:
   TthPlot* DrawPreFit(string opt="");
   void BuildPostFitErrorHist(FitResults *fitRes);
   TthPlot* DrawPostFit(FitResults *fitRes,string opt="");
-  
+    
+  void SetBinning(int N, double *bins);
+  void Rebin(int N);
   void AddSample(Sample *sample);
   
   void AddSelection(string selection);
@@ -106,6 +108,8 @@ public:
 
   // histogram stuff
   string fHistoName;
+  double *fHistoBins;
+  int fHistoNBinsRebin;
   vector<string> fHistoPaths;
   vector<string> fHistoPathSuffs;
   vector<string> fHistoFiles;
