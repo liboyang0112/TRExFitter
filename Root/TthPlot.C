@@ -450,15 +450,15 @@ double GC_down(double data) {
 TGraphAsymmErrors* poissonize(TH1 *h) {
   vector<int> points_to_remove;
   TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
-  int hBinConter = 1;
+  int hBinCounter = 1;
   for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
     double content = (gr->GetY())[i];
-    gr->SetPointError(i,0.499*h->GetBinWidth(hBinConter),0.5*h->GetBinWidth(hBinConter),GC_down(content),GC_up(content));
+    gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
     if(content==0){
       gr->RemovePoint(i);
       i--;
     }
-    hBinConter++;
+    hBinCounter++;
   }
   return gr;
 }
