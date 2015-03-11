@@ -25,10 +25,10 @@ TH1* HistFromFile(string fileName,string histoName){
   if(histoName=="") return 0x0;
   cout << "  Extracting histogram  " << histoName << "  from file  " << fileName << "  ..." << endl;
   TH1* h;
-  TDirectory *dir = gDirectory;
   TFile *f = new TFile(fileName.c_str());
   h = (TH1*)f->Get(histoName.c_str())->Clone();
-  dir->cd();
+  h->SetDirectory(0);
+  f->Close();
   return h;
 }
 
