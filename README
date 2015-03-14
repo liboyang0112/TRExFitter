@@ -1,9 +1,11 @@
 -----------------
 TtHFitter package
 -----------------
-Author:  Michele Pinamonti <michele.pinamonti@gmail.com>
-Date:    04 Mar 2015
-Version: 1.0
+Authors:
+  Michele Pinamonti <michele.pinamonti@gmail.com>
+  Loic Valery <loic.valery@cern.ch>
+Latest Update:   04 Mar 2015
+Version:         1.1
 
 ---------
 Setup
@@ -119,6 +121,21 @@ How to run it:
   root -l -b -q 'FitExample_fromHist.C+C("l")'   # to get limits
   root -l -b -q 'FitExample_fromHist.C+C("p")'   # to draw post-fit plots
 
+
+---------------------
+NEW: Compiled version
+---------------------
+It is now possible to compile the code with a Makefile and to produce an executable instead of running on the fly.
+See the example Makefile and source file util/myFit.C.
+The resulting code should do the same as the FitExample_fromHist.C macro.
+To run it:
+
+  ./myFit  h             # to read the histograms
+  ./myFit  s             # to smooth systematics
+  ./myFit  d             # to draw pre-fit plots
+  ...
+
+  
 ---------
 Structure
 ---------
