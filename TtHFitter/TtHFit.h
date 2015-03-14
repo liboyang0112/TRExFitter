@@ -1,16 +1,10 @@
-#include <string>
-
-#include "TFile.h"
-#include "TH1.h"
-#include "THStack.h"
-#include "TGraphAsymmErrors.h"
-#include "TCanvas.h"
-#include "TChain.h"
-
-#include "RooStats/HistFactory/Measurement.h"
-#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
-
 #include "TtHFitter/Common.h"
+
+#include "TtHFitter/TthPlot.h"
+#include "TtHFitter/FitResults.h"
+#include "TtHFitter/Sample.h"
+#include "TtHFitter/Systematic.h"
+#include "TtHFitter/Region.h"
 
 #ifndef __TtHFit__
 #define __TtHFit__

@@ -1,3 +1,4 @@
+#include "TtHFitter/Common.h"
 
 #ifndef __CorrelationMatrix__
 #define __CorrelationMatrix__

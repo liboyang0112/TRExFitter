@@ -1,3 +1,5 @@
+#include "TtHFitter/Common.h"
+
 #ifndef __NuisParameter__
 #define __NuisParameter__
 

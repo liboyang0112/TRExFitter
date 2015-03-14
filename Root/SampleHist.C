@@ -320,8 +320,9 @@ void SampleHist::DrawSystPlot(string syst){
     cout << fFitName << endl;
     gSystem->mkdir(fFitName.c_str());
     gSystem->mkdir((fFitName+"/systPlots/").c_str());
-    string saveName = (fFitName+"/systPlots/"+fHist->fName+"_"+fSyst[i_syst]->fName+".png").Data();
-    c->SaveAs(saveName.c_str());
+//     string saveName = fFitName+"/systPlots/"+fHist->GetName()+"_"+fSyst[i_syst]->fName+".png";
+    const char* saveName = Form("%s/systPlots/%s_%s.png",fFitName.c_str(),fHist->GetName(),fSyst[i_syst]->fName.c_str());
+    c->SaveAs(saveName);
   }
   delete c;
 }

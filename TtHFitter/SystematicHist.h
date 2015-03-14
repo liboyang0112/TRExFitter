@@ -1,5 +1,4 @@
-#include "TH1.h"
-#include "TSystem.h"
+#include "TtHFitter/Common.h"
 
 #ifndef __SystematicHist__
 #define __SystematicHist__

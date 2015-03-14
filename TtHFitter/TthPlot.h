@@ -1,23 +1,4 @@
-#include "TFile.h"
-#include "TObject.h"
-#include "THStack.h"
-#include "TH1.h"
-#include "TH1.h"
-#include "TCanvas.h"
-#include "TPad.h"
-#include "TLegend.h"
-#include "TLine.h"
-#include "TList.h"
-#include "TFrame.h"
-#include "TLatex.h"
-#include "TStyle.h"
-#include "TArrow.h"
-#include "TGraphAsymmErrors.h"
-#include "TRandom3.h"
-
-#include <vector>
-#include <string>
-#include <iostream>
+#include "TtHFitter/Common.h"
 
 #ifndef __TthPlot__
 #define __TthPlot__

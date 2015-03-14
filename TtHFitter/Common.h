@@ -1,14 +1,52 @@
+// c++ stuff
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <cstdlib>
+#include <string>
+#include <vector>
 
+// ROOT stuff
+#include "TArrow.h"
+#include "TCanvas.h"
 #include "TChain.h"
+#include "TDirectory.h"
+#include "TFile.h"
+#include "TFrame.h"
+#include "TGraph.h"
+#include "TGraphAsymmErrors.h"
+#include "TGraphErrors.h"
+#include "TH1.h"
 #include "TH1F.h"
+#include "THStack.h"
+#include "TLatex.h"
+#include "TLegend.h"
+#include "TLine.h"
+#include "TList.h"
+#include "TMath.h"
+#include "TNamed.h"
+#include "TObject.h"
+#include "TPad.h"
+#include "TRandom3.h"
+#include "TROOT.h"
+#include "TString.h"
+#include "TStyle.h"
+#include "TSystem.h"
+#include "TTree.h"
+
+// RooStats stuff
+#include "RooStats/HistFactory/Measurement.h"
+#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
+
+// ATLAS stuff
+#include "AtlasStyle.h"
+#include "AtlasLabels.h"
+#include "AtlasUtils.h"
+
+using namespace std;
 
 #ifndef __Common__
 #define __Common__
-
-using namespace std;
 
 struct SampleType{
   enum {
@@ -27,7 +65,7 @@ struct SystType{
 };
 
 namespace TtHFitter{
-  int DEBUGLEVEL;
+  extern int DEBUGLEVEL;
   void SetDebugLevel(int level=0);
 };
 

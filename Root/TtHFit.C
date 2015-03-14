@@ -1,9 +1,4 @@
 #include "TtHFitter/TtHFit.h"
-#include "TSystem.h"
-
-#include "AtlasLabels.h"
-#include "AtlasUtils.h"
-
 
 // -------------------------------------------------------------------------------------------------
 // class TtHFit
@@ -745,7 +740,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         }
         RooStats::HistFactory::Channel chan(fRegions[i_ch]->fName.c_str());
         if(TtHFitter::DEBUGLEVEL>0){
-            cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->fName << endl;
+            cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->GetName() << endl;
         }
         chan.SetData(fRegions[i_ch]->fData->fHistoName, fRegions[i_ch]->fData->fFileName);
         chan.SetStatErrorConfig(fStatErrThres,"Gaussian");

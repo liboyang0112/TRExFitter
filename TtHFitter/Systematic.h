@@ -1,3 +1,5 @@
+#include "TtHFitter/Common.h"
+
 #ifndef __Systematic__
 #define __Systematic__
 

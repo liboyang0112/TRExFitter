@@ -1,20 +1,9 @@
 #include "TtHFitter/TthPlot.h"
 
-#include "AtlasLabels.C"
-#include "AtlasUtils.C"
-
 using namespace std;
 
-// TthPlot::TthPlot(){
-//   fName = "c";
-//   Init();
-// }
 TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
   fName = name;
-//   Init();
-// }
-// void TthPlot::Init(int canvasWidth,int canvasHeight){
-//   c = new TCanvas(fName.c_str(),fName.c_str(),500,600);
   c = new TCanvas(fName.c_str(),fName.c_str(),canvasWidth,canvasHeight);
   //
   pad0 = new TPad("pad0","pad0",0,0.20,1,1,0,0,0);

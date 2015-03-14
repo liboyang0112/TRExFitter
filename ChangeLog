@@ -1,2 +1,6 @@
+2015-03-13 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Makefile: added
+        * util/myFit.C: added (compiled version of FitExample_fromHist.C)
+        
 2015-03-04 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Start versioning: 1.0

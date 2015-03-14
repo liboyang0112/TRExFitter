@@ -1,3 +1,5 @@
+#include "TtHFitter/Common.h"
+
 #ifndef __NormFactor__
 #define __NormFactor__
 

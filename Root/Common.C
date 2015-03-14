@@ -1,5 +1,8 @@
 #include "TtHFitter/Common.h"
 
+// VARIABLES
+int TtHFitter::DEBUGLEVEL;
+
 // -------------------------------------------------------------------------------------------------
 // FUNCTIONS
 
