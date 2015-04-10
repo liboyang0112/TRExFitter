@@ -230,7 +230,11 @@ void TthPlot::Draw(string options){
   leg->AddEntry(h_signal,sample_name[0].c_str(),"f");
   leg1->AddEntry((TObject*)0,Form("%.1f",h_signal->Integral()),"");
   for(int i_smp=sample_name.size()-1;i_smp>0;i_smp--){
+//   for(int i_smp=sample_name.size()-2;i_smp>=0;i_smp--){
+// cout << i_smp << " " << sample_name[i_smp] << endl;
+// cout << h_bkg[i_smp] << endl;
     leg->AddEntry(h_bkg[i_smp], sample_name[i_smp].c_str(),"f");
+// cout << "OK" << endl;
     leg1->AddEntry((TObject*)0,Form("%.1f",h_bkg[i_smp]->Integral()),"");
   }
   leg->AddEntry((TObject*)0,"Total","");

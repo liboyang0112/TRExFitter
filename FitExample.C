@@ -16,6 +16,10 @@
 
 #include "Root/TthPlot.C"
 
+#include "AtlasStyle.C"
+#include "AtlasLabels.C"
+#include "AtlasUtils.C"
+
 
 // Simplest example:
 //  - a single region is used
@@ -67,12 +71,12 @@ void FitExample(){
         SR1_Signal->AddNormFactor("mu",1,0,5);
 
   // print on the screen what's inside this TtHFit: regions, samples, systematics...
-  myFit->Print();
+//   myFit->Print();
   
   // draw all pre-fit
-  myFit->DrawAndSaveAll();
+//   myFit->DrawAndSaveAll();
 
-  SR1_Background->DrawSystPlot();
+//   SR1_Background->DrawSystPlot();
   
   // saves all in a root file for later usage
   myFit->WriteHistos();
@@ -82,7 +86,9 @@ void FitExample(){
   //  - creates a workspace
   //  - make a quick fit
   myFit->SetPOI("mu");
-//   myFit->ToRooStat(true,false);
+//   myFit->SetStatErrorConfig(true,0.05,"Poisson");
+  myFit->SetStatErrorConfig(true,0.00,"Gaussian");
+  myFit->ToRooStat(true,false);
   
   
     

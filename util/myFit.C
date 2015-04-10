@@ -11,16 +11,18 @@
 #include "TtHFitter/SampleHist.h"
 #include "TtHFitter/TtHFit.h"
 #include "TtHFitter/TthPlot.h"
+#include "TtHFitter/ConfigParser.h"
+
+#include <string>
 
 // -------------------------------------------------------
 
 void FitExample_fromHist(string opt="h",bool update=false){
   TtHFitter::SetDebugLevel(1); 
-  
-//   gROOT->ProcessLine(".L AtlasStyle.C");
-//   gROOT->ProcessLine(".L AtlasLabels.C");
-//   gROOT->ProcessLine(".L AtlasUtils.C");
 
+  // options
+  bool useMCstat = false;
+  
   SetAtlasStyle();
   
   // interpret opt
@@ -31,62 +33,118 @@ void FitExample_fromHist(string opt="h",bool update=false){
   bool drawPreFit      = opt.find("d")!=string::npos;
   bool drawPostFit     = opt.find("p")!=string::npos;
   bool systSmoothing   = opt.find("s")!=string::npos;
+
+  // Read the config file
+  ConfigParser *myConfig = new ConfigParser();
+  myConfig->ReadFile("util/myFit.config");
+  ConfigSet *cs; // to store stuff later
   
-  // create the fit object
-  TtHFit *myFit = new TtHFit("FitExample1");
-    // histogram stuff
-    myFit->AddHistoPath("ExampleInputs");
-    
-  // create the samples
-  Sample *data = myFit->NewSample("Data",SampleType::Data);
-    data->SetTitle("Data 2012");
-    data->AddHistoFile("data");
-    
-  Sample *bkg1 = myFit->NewSample("Bkg1",SampleType::Background);
-    bkg1->SetTitle("Backgr.1");
-    bkg1->SetFillColor(kYellow);
-    bkg1->SetLineColor(kBlack);
-    bkg1->AddHistoFile("bkg1");
-
-    Systematic *JES_bkg1 = bkg1->AddSystematic("JES",SystType::Histo);
-      JES_bkg1->fHistoNameSufUp = "_jesUp";
-      JES_bkg1->fHistoNameSufDown = "_jesDown";
-
-  Sample *bkg2 = myFit->NewSample("Bkg2",SampleType::Background);
-    bkg2->SetTitle("Backg.2");
-    bkg2->SetFillColor(kBlue-9);
-    bkg2->SetLineColor(kBlack);
-    bkg2->AddHistoFile("bkg2");
-    bkg2->AddSystematic("BkgXsec",SystType::Overall,0.10,-0.10);
-      
-  Sample *sig = myFit->NewSample("Signal",SampleType::Signal);
-    sig->SetTitle("Signal");
-    sig->SetFillColor(kRed);
-    sig->SetLineColor(kRed);
-    sig->AddNormFactor("SigXsecOverSM",1,0,100);
-    sig->AddHistoFile("sig");
-    
-  // signal region
-  Region *SR_1 = myFit->NewRegion("SR_1");
-    SR_1->SetHistoName("HTj");
-    SR_1->SetVariableTitle("H_{T} [GeV]");
-    SR_1->SetLabel("Signal Region 1", "SR 1");
+  // set the stuff accordingly...
+  int type;
+  
+  // set fit
+  cs = myConfig->GetConfigSet("Fit");
+  TtHFit *myFit = new TtHFit( cs->GetValue() );
+  myFit->AddHistoPath( cs->Get("HistoPath") );
+  
+  // set regions
+  int nReg = 0;
+  Region *reg;
+  while(true){
+    cs = myConfig->GetConfigSet("Region",nReg);
+    if(cs==0x0) break;
+    reg = myFit->NewRegion(cs->GetValue());
+    reg->SetHistoName(cs->Get("HistoName"));
+    reg->SetVariableTitle(cs->Get("VariableTitle"));
+    reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
+    nReg++;
+  }
+  
+  // set samples 
+  int nSmp = 0;
+  Sample *smp;
+  while(true){
+    cs = myConfig->GetConfigSet("Sample",nSmp);
+    if(cs==0x0) break;
+    type = SampleType::Background;
+    if(cs->Get("Type")=="signal") type = SampleType::Signal;
+    if(cs->Get("Type")=="data") type = SampleType::Data;
+    smp = myFit->NewSample(cs->GetValue(),type);
+    smp->SetTitle(cs->Get("Title"));
+    smp->AddHistoFile(cs->Get("HistoFile"));
+    if(cs->Get("FillColor")!="")
+      smp->SetFillColor(atoi(cs->Get("FillColor").c_str()));
+    if(cs->Get("LineColor")!="")
+      smp->SetLineColor(atoi(cs->Get("LineColor").c_str()));
+    if(cs->Get("NormFactor")!="")
+      smp->AddNormFactor(
+        Vectorize(cs->Get("NormFactor"),',')[0],
+        atof(Vectorize(cs->Get("NormFactor"),',')[1].c_str()),
+        atof(Vectorize(cs->Get("NormFactor"),',')[2].c_str()),
+        atof(Vectorize(cs->Get("NormFactor"),',')[3].c_str())
+      );
+    // ...
+    nSmp++;
+  }
+  
+  
+  // set systs
+  int nSys = 0;
+  Systematic *sys;
+  Sample *sam;
+  while(true){
+    cs = myConfig->GetConfigSet("Systematic",nSys);
+    if(cs==0x0) break;
+    string samples_str = cs->Get("Samples");
+    if(samples_str=="") samples_str = "all";
+    vector<string> samples = Vectorize(samples_str,',');
+    type = SystType::Histo;
+    if(cs->Get("Type")=="overall" || cs->Get("Type")=="Overall")
+      type = SystType::Overall;
+    for(int i_smp=0;i_smp<myFit->fNSamples;i_smp++){
+      sam = myFit->fSamples[i_smp];
+      if(sam->fType == SampleType::Data) continue;
+      if(samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() ){
+//         cout << "Adding syst " << cs->GetValue() << " for sample "<< sam->fName << endl;
+        sys = sam->AddSystematic(cs->Get("Title"),type);
+        if(type==SystType::Histo){
+          sys->fHistoNameSufUp = cs->Get("HistoNameSufUp");
+          sys->fHistoNameSufDown = cs->Get("HistoNameSufDown");
+          // ...
+        }
+        else if(type==SystType::Overall){
+          sys->fOverallUp = atof( cs->Get("NormUp").c_str() );
+          sys->fOverallDown = atof( cs->Get("NormDown").c_str() );
+        }
+      }
+    }
+    // ...
+    nSys++;
+  }
+  
+  
+//     Systematic *JES_bkg1 = bkg1->AddSystematic("JES",SystType::Histo);
+//       JES_bkg1->fHistoNameSufUp = "_jesUp";
+//       JES_bkg1->fHistoNameSufDown = "_jesDown";
     
   //
   // do actual things
   //
+
+  myFit->SetStatErrorConfig(useMCstat,0.05);
+
   if(readHistograms){
     myFit->ReadHistograms();
     myFit->Print();
-    myFit->WriteHistos("FitExample1_histos.root",!update);
+    myFit->WriteHistos("",!update);
   }
   else{
-    myFit->ReadHistos("FitExample1_histos.root");
+    myFit->ReadHistos();
   }
   
   if(systSmoothing){
     myFit->SmoothSystematics("all");
-    myFit->WriteHistos("FitExample1_histos.root",!update);
+    myFit->WriteHistos("",!update);
   }
   
   if(drawPreFit){
@@ -99,13 +157,12 @@ void FitExample_fromHist(string opt="h",bool update=false){
   if(createWorkspace){
     myFit->SetPOI("SigXsecOverSM");
     myFit->SetLumiErr(0.);
-    myFit->SetStatErrorConfig(false,0.05);
     myFit->ToRooStat(true,true);
   }
 
   // use the external tool FitCrossCheckForLimits fir fitting
   if(doFit){
-//     myFit->Fit(); // with FitCrossCheckForLimits
+    myFit->Fit(); // with FitCrossCheckForLimits
     myFit->PlotFittedNP();
   }
   

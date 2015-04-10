@@ -7,6 +7,8 @@ TtHFit::TtHFit(string name){
     fName = name;
     fResultsFolder = "results/";
     
+    gSystem->mkdir(name.c_str());
+    
     fNRegions = 0;
     fNSamples = 0;
     fNSyst = 0;
@@ -33,9 +35,10 @@ void TtHFit::SetPOI(string name){
     fPOI = name;
 }
 
-void TtHFit::SetStatErrorConfig(bool useIt, float thres){
+void TtHFit::SetStatErrorConfig(bool useIt, float thres, string cons){
     fUseStatErr = useIt;
     fStatErrThres = thres;
+    fStatErrCons = cons;
 }
 
 void TtHFit::SetLumiErr(float err){
@@ -743,7 +746,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
             cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->GetName() << endl;
         }
         chan.SetData(fRegions[i_ch]->fData->fHistoName, fRegions[i_ch]->fData->fFileName);
-        chan.SetStatErrorConfig(fStatErrThres,"Gaussian");
+        chan.SetStatErrorConfig(fStatErrThres,fStatErrCons.c_str()); // "Gaussian"
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
             if( h != 0x0 && h->fSample->fType!=SampleType::Data){

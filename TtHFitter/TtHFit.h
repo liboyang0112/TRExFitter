@@ -19,7 +19,7 @@ public:
     ~TtHFit();
     
     void SetPOI(string name="SigXsecOverSM");
-    void SetStatErrorConfig(bool useIt=true, float thres=0.05);
+    void SetStatErrorConfig(bool useIt=true, float thres=0.05, string fStatErrCons="Gaussian");
     void SetLumiErr(float err);
     void SetLumi(const float lumi);
     Sample* NewSample(string name,int type=0);
@@ -85,6 +85,7 @@ public:
     string fPOI;
     bool fUseStatErr;
     float fStatErrThres;
+    string fStatErrCons;
     
     float fLumi;
     float fLumiErr;

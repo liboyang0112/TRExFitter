@@ -10,7 +10,21 @@ void CreateHistograms(){
     h_sig->SetBinContent(i_bin,yield_sig[i_bin-1]);
   }
   h_sig->Write("HTj",TObject::kOverwrite);
-  
+
+    // create sig systs
+    TH1F *h_sig_jesUp = new TH1F("h_sig_jesUp","Signal jesUp",4,0,400);
+    float yield_sig_jesUp[] = {0.11,0.51,1.52,3.13};
+    for(int i_bin=1;i_bin<=sizeof(yield_sig_jesUp)/sizeof(float);i_bin++){
+      h_sig_jesUp->SetBinContent(i_bin,yield_sig_jesUp[i_bin-1]);
+    }
+    h_sig_jesUp->Write("HTj_jesUp",TObject::kOverwrite);
+    TH1F *h_sig_jesDown = new TH1F("h_sig_jesDown","Signal jesDown",4,0,400);
+    float yield_sig_jesDown[] = {0.09,0.49,1.48,3.06};
+    for(int i_bin=1;i_bin<=sizeof(yield_sig_jesDown)/sizeof(float);i_bin++){
+      h_sig_jesDown->SetBinContent(i_bin,yield_sig_jesDown[i_bin-1]);
+    }
+    h_sig_jesDown->Write("HTj_jesDown",TObject::kOverwrite);
+    
   // create bkg1 histos
   TFile *f_bkg1 = new TFile("ExampleInputs/bkg1.root","RECREATE");
   TH1F *h_bkg1 = new TH1F("h_bkg1","Background1",4,0,400);

@@ -17,9 +17,10 @@ LDFLAGS    = $(ROOTLIB)
 LDFLAGS   += -lCintex -lHistFactory -lXMLParser -lRooStats -lRooFit -lRooFitCore -lThread -lMinuit -lFoam -lHtml -lMathMore 
 
 # OBJ := $(wildcard Root/*.o)
-OBJS       = Root/Common.C Root/FitResults.C Root/NuisParameter.C Root/Sample.C Root/Systematic.C Root/TtHFit.C Root/CorrelationMatrix.C Root/NormFactor.C Root/Region.C Root/SampleHist.C Root/SystematicHist.C Root/TthPlot.C
+# OBJS       = Root/Common.C Root/FitResults.C Root/NuisParameter.C Root/Sample.C Root/Systematic.C Root/TtHFit.C Root/CorrelationMatrix.C Root/NormFactor.C Root/Region.C Root/SampleHist.C Root/SystematicHist.C Root/TthPlot.C Root/ConfigParser.C
+OBJS := $(wildcard Root/*.C)
 
-OBJS      += util/myFit.o
+# OBJS      += util/%.o
 
 OBJS      += AtlasStyle.C AtlasUtils.C AtlasLabels.C
 
@@ -32,9 +33,10 @@ CXXFLAGS   += -I${ROOTSYS}/include -L${ROOTSYS}/lib
 %.o: %.C
 	g++ -c $(CXXFLAGS) -o $@ $<
 
-all: myFit
+all: myFit.exe     # this is the default executable
 
-myFit: $(OBJS)
-	g++ $(CXXFLAGS) -o myFit $(OBJS) $(LDFLAGS)
+%.exe: util/%.o $(OBJS) 
+	echo $@
+	g++ $(CXXFLAGS) -o $@ $(patsubst %.exe,%.o,util/$@) $(OBJS) $(LDFLAGS)
 clean:
-	rm -rf *.o myFit Root/*.o util/*.o
+	rm -rf *.exe *.o Root/*.o util/*.o

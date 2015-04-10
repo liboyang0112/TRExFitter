@@ -1,3 +1,10 @@
+2015-04-09 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Makefile: changed in order to accept as argument the main code to use (any .C inside utils/)
+        * Configuration file system added
+        * util/myFit.config: added
+        * util/myFit.C: changed in order to read util/myFit.config
+        * Region.C: Option added to have different constrains on Overall and Histo systs (at the moment both have interpCode=4, which seems to perform better - to check)
+
 2015-03-13 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Makefile: added
         * util/myFit.C: added (compiled version of FitExample_fromHist.C)

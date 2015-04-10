@@ -131,6 +131,6 @@ public:
 };
 
 // for post-fit plots
-float GetDeltaN(float alpha, float Iz, float Ip, float Imi);
+float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode=4);
 
 #endif
