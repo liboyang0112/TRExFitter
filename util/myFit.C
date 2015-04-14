@@ -12,6 +12,7 @@
 #include "TtHFitter/TtHFit.h"
 #include "TtHFitter/TthPlot.h"
 #include "TtHFitter/ConfigParser.h"
+#include "TtHFitter/HistoTools.h"
 
 #include <string>
 
@@ -125,11 +126,22 @@ void FitExample_fromHist(string opt="h",bool update=false){
       sam = myFit->fSamples[i_smp];
       if(sam->fType == SampleType::Data) continue;
       if(samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() ){
-//         cout << "Adding syst " << cs->GetValue() << " for sample "<< sam->fName << endl;
         sys = sam->AddSystematic(cs->Get("Title"),type);
         if(type==SystType::Histo){
-          sys->fHistoNameSufUp = cs->Get("HistoNameSufUp");
-          sys->fHistoNameSufDown = cs->Get("HistoNameSufDown");
+            if(cs->Get("HistoNameSufUp")!="") sys->fHistoNameSufUp = cs->Get("HistoNameSufUp");
+            if(cs->Get("HistoNameSufDown")!="") sys->fHistoNameSufDown = cs->Get("HistoNameSufDown");
+            if(cs->Get("HistoFileUp")!="") sys->fHistoFilesUp.push_back(cs->Get("HistoFileUp"));
+            if(cs->Get("HistoFileDown")!="") sys->fHistoFilesDown.push_back(cs->Get("HistoFileDown"));
+            if(cs->Get("Symmetrisation")!=""){
+                if(cs->Get("Symmetrisation")=="OneSided") sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
+                else if(cs->Get("Symmetrisation")=="TwoSided") sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
+                else {
+                    std::cout << "Symetrisation scheme is not recognized ... " << std::endl;
+                }
+            }
+            if(cs->Get("Smoothing")!=""){
+                sys->fSmoothType = atoi(cs->Get("Smoothing").c_str());
+            }
           // ...
         }
         else if(type==SystType::Overall){
