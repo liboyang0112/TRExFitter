@@ -232,6 +232,7 @@ void Region::BuildPreFitErrorHist(){
       for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType == SampleType::Data) continue;
         yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
+        if(!fUseStatErr) totYield += yieldNominal;
         hUp = 0x0;
         hDown = 0x0;
         if(fSampleHists[i]->HasSyst(systNames[i_syst])){

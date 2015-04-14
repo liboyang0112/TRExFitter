@@ -133,8 +133,8 @@ void FitExample_fromHist(string opt="h",bool update=false){
           // ...
         }
         else if(type==SystType::Overall){
-          sys->fOverallUp = atof( cs->Get("NormUp").c_str() );
-          sys->fOverallDown = atof( cs->Get("NormDown").c_str() );
+          sys->fOverallUp = atof( cs->Get("OverallUp").c_str() );
+          sys->fOverallDown = atof( cs->Get("OverallDown").c_str() );
         }
       }
     }
