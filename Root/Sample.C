@@ -30,8 +30,23 @@ Sample::Sample(string name,int type){
   fHistoPathSuffs.clear();
   fHistoFileSuffs.clear();
   fHistoNameSuffs.clear();
+    
+  fNormFactors.clear();
+  fSystematics.clear();
+    
 }
-Sample::~Sample(){}
+Sample::~Sample(){
+    for(unsigned int i=0;i<fNormFactors.size();++i){
+        if(fNormFactors[i]){
+            delete fNormFactors[i];
+        }
+    }
+    for(unsigned int i=0;i<fSystematics.size();++i){
+        if(fSystematics[i]){
+            delete fSystematics[i];
+        }
+    }
+}
 
 // cosmetics
 void Sample::SetTitle(string title){
@@ -44,7 +59,7 @@ void Sample::SetLineColor(int color){
   fLineColor = color;
 }
 void Sample::NormalizedByTheory(const bool norm ){
-    fNormalizedByTheory = norm;
+  fNormalizedByTheory = norm;
 }
 
 
@@ -79,20 +94,20 @@ void Sample::AddHistoName(string name){
 
 // norm factors and systs
 void Sample::AddNormFactor(NormFactor* normFactor){
-  fNormFactors[fNNorm] = normFactor;
+  fNormFactors.push_back(normFactor);
   fNNorm ++;
 }
 void Sample::AddSystematic(Systematic* syst){
-  fSystematics[fNSyst] = syst;
+  fSystematics.push_back(syst);
   fNSyst++;
 }
 NormFactor* Sample::AddNormFactor(string name,float nominal,float min,float max){
-  fNormFactors[fNNorm] = new NormFactor(name,nominal,min,max);
+  fNormFactors.push_back(new NormFactor(name,nominal,min,max));
   fNNorm ++;
   return fNormFactors[fNNorm-1];
 }
 Systematic* Sample::AddSystematic(string name,int type,float up,float down){
-  fSystematics[fNSyst] = new Systematic(name,type,up,down);
+  fSystematics.push_back(new Systematic(name,type,up,down));
   fNSyst++;
   return fSystematics[fNSyst-1];
 }

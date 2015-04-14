@@ -1,4 +1,5 @@
 #include "TtHFitter/TtHFit.h"
+#include "TtHFitter/HistoTools.h"
 
 // -------------------------------------------------------------------------------------------------
 // class TtHFit
@@ -6,7 +7,8 @@
 TtHFit::TtHFit(string name){
     fName = name;
     fResultsFolder = "results/";
-    
+    fFitType = ControlSignalRegion;
+
     gSystem->mkdir(name.c_str());
     
     fNRegions = 0;
@@ -20,6 +22,9 @@ TtHFit::TtHFit(string name){
     fLumi = 1.;
     fLumiErr = 0.000001;
     
+    fThresholdSystPruning_Normalisation = -1;
+    fThresholdSystPruning_Shape = -1;
+    
     fNtuplePaths.clear();
     fMCweight = "";
     fSelection = "";
@@ -27,9 +32,31 @@ TtHFit::TtHFit(string name){
     
     fHistoPaths.clear();
     fHistoName = "";
+    
+    fFitResults = 0;
+    
+    fRegions.clear();
+    fSamples.clear();
+    fSystematics.clear();
 }
 
-TtHFit::~TtHFit(){}
+TtHFit::~TtHFit(){
+    if(fFitResults) delete fFitResults;
+    
+    for(unsigned int i =0 ; i < fRegions.size(); ++i){
+        if(fRegions[i]){
+            delete fRegions[i];
+        }
+    }
+    fRegions.clear();
+    
+    for(unsigned int i =0 ; i < fSamples.size(); ++i){
+        if(fSamples[i]){
+            delete fSamples[i];
+        }
+    }
+    fSamples.clear();
+}
 
 void TtHFit::SetPOI(string name){
     fPOI = name;
@@ -49,8 +76,13 @@ void TtHFit::SetLumi(const float lumi){
     fLumi = lumi;
 }
 
+void TtHFit::SetFitType(FitType type){
+    fFitType = type;
+}
+
 Sample* TtHFit::NewSample(string name,int type){
-    fSamples[fNSamples] = new Sample(name,type);
+    //fSamples[fNSamples] = new Sample(name,type);
+    fSamples.push_back(new Sample(name,type));
     // propagate stuff
     //   for(int i_path=0;i_path<(int)fNtuplePaths.size();i_path++){
     //     fSamples[fNSamples]->AddNtuplePath(fNtuplePaths[i_path]);
@@ -63,13 +95,16 @@ Sample* TtHFit::NewSample(string name,int type){
 }
 
 Systematic* TtHFit::NewSystematic(string name){
-    fSystematics[fNSyst] = new Systematic(name);
+    //fSystematics[fNSyst] = new Systematic(name);
+    fSystematics.push_back(new Systematic(name));
     fNSyst ++;
     return fSystematics[fNSyst-1];
 }
 
 Region* TtHFit::NewRegion(string name){
-    fRegions[fNRegions] = new Region(name);
+    //fRegions[fNRegions] = new Region(name);
+    fRegions.push_back(new Region(name));
+    
     //   // propagate stuff
     //   for(int i_smp=0;i_smp<fNSamples;i_smp++){
     //     fRegions[fNRegions]->AddSample(fSamples[i_smp]);
@@ -153,6 +188,7 @@ void TtHFit::WriteHistos(string fileName,bool recreate){
                     h->fSyst[i_syst]->fHistoNameShapeDown = h->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
+            h->DrawSystPlot();
             h->WriteToFile();
         }
     }
@@ -369,6 +405,7 @@ void TtHFit::ReadHistograms(){
                 htmp->~TH1F();
             }
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
+            
             //
             // fix the bin contents FIXME (to avoid fit problems)
             if(fSamples[i_smp]->fType!=SampleType::Data) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
@@ -465,10 +502,11 @@ void TtHFit::ReadHistograms(){
                     htmp->~TH1F();
                 }
                 hDown->SetName(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
-                //
-                //
-                fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,
-                                                                                    hUp,hDown);
+                
+                SystematicHist *sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
+                sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
+                
             }
         }
     }
@@ -559,8 +597,13 @@ void TtHFit::DrawAndSaveAll(string opt){
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
-        if(isPostFit) fRegions[i_ch]->DrawPostFit(fFitResults,opt) -> SaveAs((fName+"/"+fRegions[i_ch]->fName+"_postFit.png").c_str());
-        else          fRegions[i_ch]->DrawPreFit(opt)              -> SaveAs((fName+"/"+fRegions[i_ch]->fName+".png").c_str());
+        if(isPostFit){
+            fRegions[i_ch]->DrawPostFit(fFitResults,opt) -> SaveAs((fName+"/"+fRegions[i_ch]->fName+"_postFit.png").c_str());
+            
+        }
+        else{
+            fRegions[i_ch]->DrawPreFit(opt)              -> SaveAs((fName+"/"+fRegions[i_ch]->fName+".png").c_str());            
+        }
     }
     //   DrawSummary(opt+" log")->SaveAs("Summary.png");
 }
@@ -634,16 +677,13 @@ TthPlot* TtHFit::DrawSummary(string opt){
     return p;
 }
 
-
-void TtHFit::DrawSystPlots(string syst){
-    for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
-            fRegions[i_ch]->fSampleHists[i_smp]->DrawSystPlot(syst);
-        }
-    }
+//void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows,Region *regions[MAXregions]){
+void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
+    DrawSignalRegionsPlot(nCols,nRows,fRegions);
 }
 
-void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows,Region *regions[MAXregions]){
+void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > &regions){
+    
     gSystem->mkdir(fName.c_str());
     TCanvas *c = new TCanvas("c","c",200*nCols,100+250*nRows);
     //   c->SetTopMargin(100/(100+150*nCols));
@@ -666,7 +706,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows,Region *regions[MAXregion
     tex->SetNDC();
     tex->SetTextSize(gStyle->GetTextSize());
     pBottom->cd(1);
-    if(regions==0x0) regions = fRegions;
+    
     //
     // get the values
     for(int i=0;i<Nreg;i++){
@@ -717,6 +757,10 @@ void TtHFit::DrawPieChartPlot(){
 
 // turn to RooStat::HistFactory
 void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
+    
+    //Suffix used for the regular bin transformed histogram
+    const std::string suffix_regularBinning = "_regBin";
+    
     if(TtHFitter::DEBUGLEVEL>0){
         cout << "--------------------------------" << endl;
         cout << "|      Export to RooStat       |" << endl;
@@ -737,7 +781,15 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     else{
         meas.SetLumiRelErr(fLumiErr);
     }
+    
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        
+        if(fFitType==ControlRegion){
+            if(fRegions[i_ch]->fRegionType==Region::SIGNAL || fRegions[i_ch]->fRegionType==Region::VALIDATION) continue;
+        } else if(fFitType==ControlSignalRegion){
+            if(fRegions[i_ch]->fRegionType==Region::VALIDATION) continue;
+        }
+        
         if(TtHFitter::DEBUGLEVEL>0){
             cout << "Adding Channel: " << fRegions[i_ch]->fName << endl;
         }
@@ -745,7 +797,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         if(TtHFitter::DEBUGLEVEL>0){
             cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->GetName() << endl;
         }
-        chan.SetData(fRegions[i_ch]->fData->fHistoName, fRegions[i_ch]->fData->fFileName);
+        chan.SetData(fRegions[i_ch]->fData->fHistoName+suffix_regularBinning, fRegions[i_ch]->fData->fFileName);
         chan.SetStatErrorConfig(fStatErrThres,fStatErrCons.c_str()); // "Gaussian"
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
@@ -755,7 +807,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 }
                 RooStats::HistFactory::Sample sample(fSamples[i_smp]->fName.c_str());
                 if(fUseStatErr) sample.ActivateStatError();
-                sample.SetHistoName(h->fHistoName);
+                sample.SetHistoName(h->fHistoName+suffix_regularBinning);
                 sample.SetInputFile(h->fFileName);
                 sample.SetNormalizeByTheory(fSamples[i_smp]->fNormalizedByTheory);
                 // norm factors
@@ -774,14 +826,20 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     if(TtHFitter::DEBUGLEVEL>0){
                         cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
                     }
-                    sample.AddOverallSys( h->fSyst[i_syst]->fName,
-                                         1+h->fSyst[i_syst]->fNormDown,
-                                         1+h->fSyst[i_syst]->fNormUp   );
+                    
+                    if(
+                       (fThresholdSystPruning_Normalisation>-1 && (TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation || TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation)) ||
+                        (fThresholdSystPruning_Normalisation==-1)
+                       ){
+                        sample.AddOverallSys( h->fSyst[i_syst]->fName,
+                                             1+h->fSyst[i_syst]->fNormDown,
+                                             1+h->fSyst[i_syst]->fNormUp   );
+                    }
                     // eventually add shape part
-                    if(h->fSyst[i_syst]->fIsShape){
+                    if( h->fSyst[i_syst]->fIsShape && (fThresholdSystPruning_Shape==-1 || HistoTools::HasShape(h->fHist, h->fSyst[i_syst],fThresholdSystPruning_Shape) ) ){
                         sample.AddHistoSys( h->fSyst[i_syst]->fName,
-                                           h->fSyst[i_syst]->fHistoNameShapeDown, h->fSyst[i_syst]->fFileNameShapeDown, "",
-                                           h->fSyst[i_syst]->fHistoNameShapeUp,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
+                                           h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning, h->fSyst[i_syst]->fFileNameShapeDown, "",
+                                           h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
                     }
                 }
                 chan.AddSample(sample);

@@ -1,4 +1,5 @@
 #include "TtHFitter/SystematicHist.h"
+#include "TtHFitter/HistoTools.h"
 
 // -------------------------------------------------------------------------------------------------
 // SystematicHist
@@ -8,6 +9,8 @@ SystematicHist::SystematicHist(string name){
 
   fIsOverall = false;
   fIsShape = false;
+  fSmoothType = 0;
+  fSymmetrisationType = 0;
 
   fHistUp = 0x0;
   fHistShapeUp = 0x0;
@@ -25,14 +28,21 @@ SystematicHist::SystematicHist(string name){
   fFileNameShapeDown = "";
   fHistoNameShapeDown = "";
 }
-SystematicHist::~SystematicHist(){}
+SystematicHist::~SystematicHist(){
+    if(fHistUp) delete fHistUp;
+    if(fHistShapeUp) delete fHistShapeUp;
+    if(fHistDown) delete fHistDown;
+    if(fHistShapeDown) delete fHistShapeDown;
+}
 
 void SystematicHist::WriteToFile(){
   WriteHistToFile(fHistUp,fFileNameUp);
   WriteHistToFile(fHistDown,fFileNameDown);
   if(fIsShape){
-    WriteHistToFile(fHistShapeUp,fFileNameShapeUp);
-    WriteHistToFile(fHistShapeDown,fFileNameShapeDown);
+        WriteHistToFile(fHistShapeUp,fFileNameShapeUp);
+        WriteHistToFile(fHistShapeDown,fFileNameShapeDown);
+        WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),fFileNameShapeUp);
+        WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),fFileNameShapeDown);
   }
 }
 

@@ -15,6 +15,12 @@ class Systematic;
 
 class TtHFit {
 public:
+    
+    enum FitType {
+        ControlRegion = 1,
+        ControlSignalRegion = 2
+    };
+    
     TtHFit(string name="MyMeasurement");
     ~TtHFit();
     
@@ -22,6 +28,8 @@ public:
     void SetStatErrorConfig(bool useIt=true, float thres=0.05, string fStatErrCons="Gaussian");
     void SetLumiErr(float err);
     void SetLumi(const float lumi);
+    void SetFitType(FitType type);
+    
     Sample* NewSample(string name,int type=0);
     Systematic* NewSystematic(string name);
     Region* NewRegion(string name);
@@ -52,11 +60,10 @@ public:
     
     TthPlot* DrawSummary(string opt="");
     
-    void DrawSystPlots(string syst="all");
-    
     // regions examples:
     // ...
-    void DrawSignalRegionsPlot(int nRows,int nCols,Region *regions[MAXregions]=0x0);
+    void DrawSignalRegionsPlot(int nCols,int nRows);
+    void DrawSignalRegionsPlot(int nRows,int nCols, std::vector < Region* > &regions);
     void DrawPieChartPlot();
     
     // turn to RooStat::HistFactory
@@ -72,13 +79,14 @@ public:
     
     void Print();
     
-    
     string fName;
     string fResultsFolder;
+    FitType fFitType;
     
-    Region *fRegions[MAXregions];
-    Sample *fSamples[MAXsamples];
-    Systematic *fSystematics[MAXsyst];
+    std::vector < Region* > fRegions;
+    std::vector < Sample* > fSamples;
+    std::vector < Systematic* > fSystematics;
+    
     int fNRegions;
     int fNSamples;
     int fNSyst;
@@ -89,6 +97,9 @@ public:
     
     float fLumi;
     float fLumiErr;
+    
+    float fThresholdSystPruning_Normalisation;
+    float fThresholdSystPruning_Shape;
     
     vector<string> fNtuplePaths;
     string fMCweight;

@@ -85,9 +85,9 @@ public:
 
   // systematics & norm.factors
   int fNSyst;
-  Systematic* fSystematics[MAXsyst];
+  std::vector < Systematic* > fSystematics;
   int fNNorm;
-  NormFactor* fNormFactors[MAXnorm];
+  std::vector < NormFactor* > fNormFactors;
 };
 
 #endif

@@ -1,8 +1,14 @@
 #include "TtHFitter/CorrelationMatrix.h"
 
 CorrelationMatrix::CorrelationMatrix(){
+    fNuisParNames.clear();
+    fNuisParIdx.clear();
+    fNuisParIsThere.clear();
 }
 CorrelationMatrix::~CorrelationMatrix(){
+    fNuisParNames.clear();
+    fNuisParIdx.clear();
+    fNuisParIsThere.clear();
 }
 
 void CorrelationMatrix::AddNuisPar(string p){

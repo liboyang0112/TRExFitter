@@ -71,7 +71,7 @@ namespace TtHFitter{
 
 const int MAXregions = 10;
 const int MAXsamples = 10;
-const int MAXsyst = 100;
+const int MAXsyst = 150;
 const int MAXnorm = 3;
 
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight);
@@ -86,7 +86,6 @@ vector<string> ToVec(string s);
 // string RemovePrefix(string s,string prefix);
 std::string ReplaceString(std::string subject, const std::string& search,
                           const std::string& replace);
-void SmoothSystHistos(TH1* h_nominal,TH1* h_syst_up,TH1* h_syst_down); // h_syst_up/down will be overwritten (!!)
-float Separation(TH1* h1,TH1* h2);
+
 
 #endif

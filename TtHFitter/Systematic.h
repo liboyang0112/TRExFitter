@@ -10,7 +10,9 @@ public:
   
   string fName;
   int fType;
-
+  int fSmoothType;
+  int fSymmetrisationType;
+    
   float fOverallUp;
   float fOverallDown;
   

@@ -32,8 +32,7 @@ void FitExample_fromHist(string opt="h",bool update=false){
   bool doLimit         = opt.find("l")!=string::npos;
   bool drawPreFit      = opt.find("d")!=string::npos;
   bool drawPostFit     = opt.find("p")!=string::npos;
-  bool systSmoothing   = opt.find("s")!=string::npos;
-
+    
   // Read the config file
   ConfigParser *myConfig = new ConfigParser();
   myConfig->ReadFile("util/myFit.config");
@@ -46,7 +45,17 @@ void FitExample_fromHist(string opt="h",bool update=false){
   cs = myConfig->GetConfigSet("Fit");
   TtHFit *myFit = new TtHFit( cs->GetValue() );
   myFit->AddHistoPath( cs->Get("HistoPath") );
-  
+  if(cs->Get("LumiScale")!="") myFit -> SetLumi( atof(cs->Get("LumiScale").c_str()) );
+  if(cs->Get("FitType")!=""){
+      if(cs->Get("FitType")=="ControlSignalRegion") myFit -> SetFitType(TtHFit::ControlSignalRegion);
+      else if(cs->Get("FitType")=="ControlRegion")  myFit -> SetFitType(TtHFit::ControlRegion);
+      else {
+          std::cerr << "Unknown FitType argument : " << cs->Get("FitType") << std::endl;
+      }
+  }
+  if(cs->Get("SystPruningShape")!="") myFit->fThresholdSystPruning_Shape = atof(cs->Get("SystPruningShape").c_str());
+  if(cs->Get("SystPruningNorm")!="") myFit->fThresholdSystPruning_Normalisation = atof(cs->Get("SystPruningNorm").c_str());
+
   // set regions
   int nReg = 0;
   Region *reg;
@@ -57,6 +66,17 @@ void FitExample_fromHist(string opt="h",bool update=false){
     reg->SetHistoName(cs->Get("HistoName"));
     reg->SetVariableTitle(cs->Get("VariableTitle"));
     reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
+    //Potential rebinning
+    if(cs->Get("Rebin")!="") reg -> Rebin(atoi(cs->Get("Rebin").c_str()));
+    if(cs->Get("Binning")!=""){
+        std::vector < string > vec_bins = Vectorize(cs->Get("Binning"), ',');
+        const int nBounds = vec_bins.size();
+        double bins[nBounds];
+        for (unsigned int iBound = 0; iBound < nBounds; ++iBound){
+            bins[iBound] = atof(vec_bins[iBound].c_str());
+        }
+        reg -> SetBinning(nBounds-1,bins);
+    }
     nReg++;
   }
   
@@ -141,16 +161,10 @@ void FitExample_fromHist(string opt="h",bool update=false){
   else{
     myFit->ReadHistos();
   }
-  
-  if(systSmoothing){
-    myFit->SmoothSystematics("all");
-    myFit->WriteHistos("",!update);
-  }
-  
+    
   if(drawPreFit){
     myFit->DrawAndSaveAll();
     myFit->DrawSummary();
-    myFit->DrawSystPlots();
     myFit->DrawSignalRegionsPlot(2,2);
   }
 

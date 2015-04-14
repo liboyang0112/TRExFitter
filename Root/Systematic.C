@@ -6,6 +6,8 @@
 Systematic::Systematic(string name,int type,float up,float down){
   fName = name;
   fType = type;
+  fSmoothType = 0;
+  fSymmetrisationType = 0;
   //
   fOverallUp = up;
   fOverallDown = down;
@@ -42,4 +44,17 @@ Systematic::Systematic(string name,int type,float up,float down){
   fHistoNamesDown.clear();
   fHistoNameSufDown = "";
 }
-Systematic::~Systematic(){}
+Systematic::~Systematic(){
+    fNtuplePathsUp.clear();
+    fNtupleFilesUp.clear();
+    fNtupleNamesUp.clear();
+    fNtuplePathsDown.clear();
+    fNtupleFilesDown.clear();
+    fNtupleNamesDown.clear();
+    fHistoPathsUp.clear();
+    fHistoFilesUp.clear();
+    fHistoNamesUp.clear(); 
+    fHistoPathsDown.clear();
+    fHistoFilesDown.clear();
+    fHistoNamesDown.clear();
+}

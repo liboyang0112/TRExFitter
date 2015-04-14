@@ -27,6 +27,14 @@ class SampleHist;
 
 class Region {
 public:
+
+    
+  enum RegionType {
+    CONTROL = 1,
+    VALIDATION = 2,
+    SIGNAL = 3
+  };
+    
   Region(string name);
   ~Region();
 
@@ -36,7 +44,7 @@ public:
   
   SampleHist* SetSampleHist(Sample *sample, string histoName, string fileName);
   SampleHist* SetSampleHist(Sample *sample, TH1* hist );
-  SampleHist* GetSampleHist(string sampleName);  
+  SampleHist* GetSampleHist(string &sampleName);
 
   void BuildPreFitErrorHist();
   TthPlot* DrawPreFit(string opt="");
@@ -45,6 +53,7 @@ public:
     
   void SetBinning(int N, double *bins);
   void Rebin(int N);
+  void SetRegionType(RegionType type);
   void AddSample(Sample *sample);
   
   void AddSelection(string selection);
@@ -73,6 +82,7 @@ public:
   string fLabel; // something like "e/µ + 6 j, >=4 b b"
   string fShortLabel; // something like "6j,3b"
   string fFitName;
+  RegionType fRegionType;
   bool fHasData;
   SampleHist *fData;
   bool fHasSig;
@@ -80,8 +90,8 @@ public:
   int fNBkg;
   SampleHist *fBkg[MAXsamples];
   int fNSamples;
-  SampleHist* fSampleHists[MAXsamples];
-  Sample* fSamples[MAXsamples];
+  std::vector < SampleHist* > fSampleHists;
+  std::vector < Sample* > fSamples;
   
   // to draw
   THStack *fStack;
@@ -117,11 +127,10 @@ public:
   vector<string> fHistoNames;
   vector<string> fHistoNameSuffs;
   
-  // systematics & norm.factors
   int fNSyst;
-  Systematic* fSystematics[MAXsyst];
+  std::vector < Systematic* > fSystematics;
   int fNNorm;
-  NormFactor* fNormFactors[MAXnorm]; 
+  std::vector < NormFactor* > fNormFactors;
   
   // plot objects
   TthPlot *fPlotPreFit;

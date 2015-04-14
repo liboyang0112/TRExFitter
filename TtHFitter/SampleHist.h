@@ -36,7 +36,6 @@ public:
   void Print();
   
   void Rebin(int ngroup = 2, const Double_t* xbins = 0);
-  void Smooth(int ntimes = 1);
   void DrawSystPlot(string syst="all");
   void SmoothSyst(string syst="all",bool force=false);
   
@@ -48,11 +47,11 @@ public:
   string fHistoName;
   bool fIsData;
   bool fIsSig;
-
+    
   int fNSyst;
-  SystematicHist* fSyst[MAXsyst];
+  std::vector < SystematicHist* > fSyst;
   int fNNorm;
-  NormFactor* fNormFactors[MAXnorm];
+  std::vector < NormFactor* > fNormFactors;
   
   // other useful info
   string fFitName;

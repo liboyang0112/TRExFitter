@@ -20,7 +20,8 @@ public:
   vector<string> fNuisParNames;
   map<string,int> fNuisParIdx;
   map<string,bool> fNuisParIsThere;
-  NuisParameter *fNuisPar[MAXsyst];
+
+  std::vector < NuisParameter* > fNuisPar;
   CorrelationMatrix *fCorrMatrix;
 
 };

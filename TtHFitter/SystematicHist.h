@@ -17,10 +17,11 @@ public:
   void Print();
   
   string fName;
-//   Sample *fSample;
 
   bool fIsOverall;
   bool fIsShape;
+  int fSmoothType;
+  int fSymmetrisationType;
 
   TH1* fHistUp;
   TH1* fHistShapeUp;

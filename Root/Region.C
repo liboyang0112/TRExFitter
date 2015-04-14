@@ -6,101 +6,141 @@ const int ICODE_OVERALL = 4;
 // -------------------------------------------------------------------------------------------------
 // class Region
 
+//__________________________________________________________________________________
+//
 Region::Region(string name){
-  fName = name;
-  fLabel = name;
-  fShortLabel = name;
-  fNBkg = 0;
-  fNSyst = 0;
-  fHasData = false;
-  fHasSig = false;
-  fNSamples = 0;
-  fUseStatErr = false;
-  fHistoBins = 0;
-  fHistoNBinsRebin = -1;
-  //
-  string cName = "c_"+fName;
-  fPlotPreFit = new TthPlot(cName);
-  cName = "c_"+fName+"_postFit";
-  fPlotPostFit = new TthPlot(cName);
+    fName = name;
+    fLabel = name;
+    fShortLabel = name;
+    fRegionType = CONTROL;
+    fNBkg = 0;
+    fNSyst = 0;
+    fHasData = false;
+    fHasSig = false;
+    fNSamples = 0;
+    fUseStatErr = false;
+    fHistoBins = 0;
+    fHistoNBinsRebin = -1;
+    //
+    string cName = "c_"+fName;
+    fPlotPreFit = new TthPlot(cName);
+    cName = "c_"+fName+"_postFit";
+    fPlotPostFit = new TthPlot(cName);
+    
+    fSampleHists.clear();
+    fSamples.clear();
+    fSystematics.clear();
+    fNormFactors.clear();
 }
-Region::~Region(){}
 
+//__________________________________________________________________________________
+//
+Region::~Region(){
+    if(fPlotPreFit) delete fPlotPreFit;
+    if(fPlotPostFit) delete fPlotPostFit;
+    
+    for(unsigned int i = 0; i < fSampleHists.size(); ++i){
+        if(fSampleHists[i]){
+            delete fSampleHists[i];
+        }
+    }
+    fSampleHists.clear();
+}
+
+//__________________________________________________________________________________
+//
 SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileName){
-  fSampleHists[fNSamples] = new SampleHist( sample, histoName, fileName );
-  if(sample->fType==SampleType::Data){
-    fHasData = true;
-    fData = fSampleHists[fNSamples];
-  }
-  else if(sample->fType==SampleType::Signal){
-    fHasSig = true;
-    fSig = fSampleHists[fNSamples];
-  }
-  else if(sample->fType==SampleType::Background){
-    fBkg[fNBkg] = fSampleHists[fNSamples];
-    fNBkg ++;
-  }
-  else{
-    cout << "ERROR: SampleType not supported." << endl;
-  }
-  fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
-  fSampleHists[fNSamples]->fRegionName = fName;
-  fSampleHists[fNSamples]->fFitName = fFitName;
-  fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
-  fNSamples++;
-  return fSampleHists[fNSamples-1];
+    fSampleHists.push_back(new SampleHist( sample, histoName, fileName ));
+    if(sample->fType==SampleType::Data){
+        fHasData = true;
+        fData = fSampleHists[fNSamples];
+    }
+    else if(sample->fType==SampleType::Signal){
+        fHasSig = true;
+        fSig = fSampleHists[fNSamples];
+    }
+    else if(sample->fType==SampleType::Background){
+        fBkg[fNBkg] = fSampleHists[fNSamples];
+        fNBkg ++;
+    }
+    else{
+        cout << "ERROR: SampleType not supported." << endl;
+    }
+    fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
+    fSampleHists[fNSamples]->fRegionName = fName;
+    fSampleHists[fNSamples]->fFitName = fFitName;
+    fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
+    fNSamples++;
+    return fSampleHists[fNSamples-1];
 }
 
+//__________________________________________________________________________________
+//
 SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
-  fSampleHists[fNSamples] = new SampleHist( sample, hist );
-  if(sample->fType==SampleType::Data){
-    fHasData = true;
-    fData = fSampleHists[fNSamples];
-  }
-  else if(sample->fType==SampleType::Signal){
-    fHasSig = true;
-    fSig = fSampleHists[fNSamples];
-  }
-  else if(sample->fType==SampleType::Background){
-    fBkg[fNBkg] = fSampleHists[fNSamples];
-    fNBkg ++;
-  }
-  else{
-    cout << "ERROR: SampleType not supported." << endl;
-  }
-  fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
-  fSampleHists[fNSamples]->fRegionName = fName;
-  fSampleHists[fNSamples]->fFitName = fFitName;
-  fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
-  fNSamples++;
-  return fSampleHists[fNSamples-1];
+    fSampleHists.push_back(new SampleHist( sample, hist ));
+    if(sample->fType==SampleType::Data){
+        fHasData = true;
+        fData = fSampleHists[fNSamples];
+    }
+    else if(sample->fType==SampleType::Signal){
+        fHasSig = true;
+        fSig = fSampleHists[fNSamples];
+    }
+    else if(sample->fType==SampleType::Background){
+        fBkg[fNBkg] = fSampleHists[fNSamples];
+        fNBkg ++;
+    }
+    else{
+        cout << "ERROR: SampleType not supported." << endl;
+    }
+    fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
+    fSampleHists[fNSamples]->fRegionName = fName;
+    fSampleHists[fNSamples]->fFitName = fFitName;
+    fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
+    fNSamples++;
+    return fSampleHists[fNSamples-1];
 }
 
 void Region::AddSample(Sample* sample){
-  fSamples[fNSamples] = sample;
-  fNSamples++;
+    fSamples.push_back(sample);
+    fNSamples++;
 }
 
+//__________________________________________________________________________________
+//
 void Region::AddSystematic(Systematic *syst){
-  fSystematics[fNSyst] = syst;
-  fNSyst++;
+    fSystematics.push_back(syst);
+    fNSyst++;
 }
 
+
+//__________________________________________________________________________________
+//
 void Region::SetBinning(int N, double *bins){
     fHistoNBinsRebin = N;
-    fHistoBins = bins;
+    fHistoBins = new double[N+1];
+    for(unsigned int i=0; i<=N; ++i) fHistoBins[i] = bins[i];    
 }
 
+//__________________________________________________________________________________
+//
 void Region::Rebin(int N){
     fHistoNBinsRebin = N;
 }
 
-SampleHist* Region::GetSampleHist(string sampleName){
-  for(int i_smp=0;i_smp<fNSamples;i_smp++){
-//     if(fSampleHists[i_smp]->fSample->fName == sampleName) return fSampleHists[i_smp];
-    if(fSampleHists[i_smp]->fName == sampleName) return fSampleHists[i_smp];
-  }
-  return 0x0;
+//__________________________________________________________________________________
+//
+void Region::SetRegionType( RegionType type ){
+    fRegionType = type;
+}
+
+//__________________________________________________________________________________
+//
+SampleHist* Region::GetSampleHist(string &sampleName){
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSampleHists[i_smp]->fName == sampleName) return fSampleHists[i_smp];
+    }
+    return 0x0;
 }
 
 // (internal)
@@ -155,7 +195,7 @@ void Region::BuildPreFitErrorHist(){
   //
   for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
     if(TtHFitter::DEBUGLEVEL>0){
-      cout << "Bin " << i_bin << ":" << endl;
+        cout << "Building syst list..." << endl;
     }
     errPlus = 0.;
     errMinus = 0.;
@@ -251,143 +291,228 @@ TthPlot* Region::DrawPreFit(string opt){
 
 
 void Region::BuildPostFitErrorHist(FitResults *fitRes){
-  if(TtHFitter::DEBUGLEVEL>0){
-    cout << "-----------------------------------------------" << endl;
-    cout << "->     Post-Fit Plot for Region " << fName << endl;
-    cout << "-----------------------------------------------" << endl;
-  }
-  else
-    cout << "Building post-fit plot for region " << fName << " ..." << endl;
-  //
-  float yieldNominal, yieldUp, yieldDown;
-  float diffUp, diffDown;
-  float diffPlus, diffMinus;
-  float errPlus[MAXsyst];
-  float errMinus[MAXsyst];
-  float deltaN;
-  fErr_postFit = new TGraphAsymmErrors(fTot_postFit);
-  //
-  // collect all the systematics on all the samples
-  vector<string> systNames;
-  systNames.clear();
-  map<string,bool> systIsThere;
-  systIsThere.clear();
-  float systValue;
-  float systErrUp;
-  float systErrDown;
-  TH1* hSyst;
-  TH1* hNew;
-  string systName = "";
-  for(int i=0;i<fNSamples;i++){
-    if(fSampleHists[i]->fSample->fType == SampleType::Data) continue;
-    // norm factors
-    for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
-      systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
-      if(!systIsThere[systName]){
-        systNames.push_back(systName);
-        systIsThere[systName] = true;
-      }
+    if(TtHFitter::DEBUGLEVEL>0){
+        cout << "-----------------------------------------------" << endl;
+        cout << "->     Post-Fit Plot for Region " << fName << endl;
+        cout << "-----------------------------------------------" << endl;
     }
-    // syst
-    for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
-      systName = fSampleHists[i]->fSyst[i_syst]->fName;
-      if(!systIsThere[systName]){
-        cout << " " << systName << endl;
-        systNames.push_back(systName);
-        systIsThere[systName] = true;
-      }
-    }
-  }
-  //
-  for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
-    if(TtHFitter::DEBUGLEVEL>0) cout << "Bin " << i_bin << ":" << endl;
-    for(int i_syst=0;i_syst<(int)systNames.size();i_syst++){
-      if(TtHFitter::DEBUGLEVEL>0) cout << "  Adding syst " << systNames[i_syst] << endl;
-      systName = systNames[i_syst];
-      systValue = fitRes->GetNuisParValue(systName);
-      systErrUp = fitRes->GetNuisParErrUp(systName);
-      systErrDown = fitRes->GetNuisParErrDown(systName);
-      if(TtHFitter::DEBUGLEVEL>0) cout << "    alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
-      diffUp = 0.;
-      diffDown = 0.;
-      TH1* hUp = 0x0;
-      TH1* hDown = 0x0;
-      for(int i=0;i<fNSamples;i++){
-        if(TtHFitter::DEBUGLEVEL>0) cout << "    Sample " << fSampleHists[i]->fName << endl;
-        yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
-//         yieldNominal = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit!
-        hUp = 0x0;
-        hDown = 0x0;
-        // norm
-        if(fSampleHists[i]->HasNorm(systNames[i_syst])){
-          diffUp += yieldNominal*systErrUp;
-          diffDown += yieldNominal*systErrDown;
-          if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+    else
+        cout << "Building post-fit plot for region " << fName << " ..." << endl;
+    
+    //
+    float yieldNominal, yieldUp, yieldDown;
+    float diffUp, diffDown;
+    float diffPlus, diffMinus;
+    float errPlus[MAXsyst];
+    float errMinus[MAXsyst];
+    float deltaN;
+    fErr_postFit = new TGraphAsymmErrors(fTot_postFit);
+    //
+    // collect all the systematics on all the samples
+    vector<string> systNames;
+    systNames.clear();
+    map<string,bool> systIsThere;
+    systIsThere.clear();
+    float systValue;
+    float systErrUp;
+    float systErrDown;
+    TH1* hSyst;
+    TH1* hNew;
+    string systName = "";
+    for(int i=0;i<fNSamples;i++){
+        if(fSampleHists[i]->fSample->fType == SampleType::Data) continue;
+        // norm factors
+        for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
+            systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
+            if(!systIsThere[systName]){
+                systNames.push_back(systName);
+                systIsThere[systName] = true;
+            }
         }
         // syst
-        if(fSampleHists[i]->HasSyst(systNames[i_syst])){
-          // 1: overall
-          SystematicHist *sh = fSampleHists[i]->GetSystematic(systNames[i_syst]);
-          if(sh->fIsOverall){
-            hUp   = sh->fHistUp;
-            hDown = sh->fHistDown;
-            if(sh->fNormUp!=0)   yieldUp     = (sh->fNormUp+1)*yieldNominal;
-            else                 yieldUp     = yieldNominal;
-            if(sh->fNormDown!=0) yieldDown   = (sh->fNormDown+1)*yieldNominal;
-            else                 yieldDown   = yieldNominal;
-            deltaN = GetDeltaN( systValue, yieldNominal,yieldUp,yieldDown, ICODE_OVERALL);
-            diffUp += yieldNominal*( GetDeltaN( systValue+systErrUp, yieldNominal,yieldUp,yieldDown, ICODE_OVERALL) - deltaN );
-            diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown, ICODE_OVERALL) - deltaN );
-          }
-          // 2: shape
-          if(sh->fIsShape){
-            hUp   = sh->fHistShapeUp;
-            hDown = sh->fHistShapeDown;
-            if(hUp!=0x0)    yieldUp     = hUp->GetBinContent(i_bin);
-            else            yieldUp     = yieldNominal;
-            if(hDown!=0x0)  yieldDown   = hDown->GetBinContent(i_bin);
-            else            yieldDown   = yieldNominal;
-            deltaN = GetDeltaN( systValue, yieldNominal,yieldUp,yieldDown, ICODE_SHAPE);
-            diffUp += yieldNominal*( GetDeltaN( systValue+systErrUp, yieldNominal,yieldUp,yieldDown, ICODE_SHAPE) - deltaN );
-            diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown, ICODE_SHAPE) - deltaN );
-          }
-          if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+        for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
+            systName = fSampleHists[i]->fSyst[i_syst]->fName;
+            if(!systIsThere[systName]){
+                cout << " " << systName << endl;
+                systNames.push_back(systName);
+                systIsThere[systName] = true;
+            }
         }
-      }
-      // store errors up and down
-      if(diffUp>=0 && diffDown<=0)     errPlus[i_syst] = diffUp;
-      else if(diffDown>0 && diffUp<=0) errPlus[i_syst] = diffDown;
-      else if(diffUp>0 && diffDown>0)  errPlus[i_syst] = TMath::Max(diffUp,diffDown);
-      if(diffUp<0 && diffDown>=0)      errMinus[i_syst] = diffUp;
-      else if(diffDown<0 && diffUp>=0) errMinus[i_syst] = diffDown;
-      else if(diffUp<0 && diffDown<0)  errMinus[i_syst] = TMath::Min(diffUp,diffDown);
-    }
-    // Loop again on all the syst, two by two, to include the correlations
-    float finalErrPlus = 0;
-    float finalErrMinus = 0;
-    float corr;
-    for(int i_syst=0;i_syst<(int)systNames.size();i_syst++){
-      for(int j_syst=0;j_syst<(int)systNames.size();j_syst++){
-        corr = fitRes->fCorrMatrix->GetCorrelation(systNames[i_syst],systNames[j_syst]);
-        finalErrPlus  += corr*errPlus[i_syst]*errPlus[j_syst];
-        finalErrMinus += corr*errMinus[i_syst]*errMinus[j_syst];
-      }
-    }
-    // add stat unc
-    if(fUseStatErr){
-      cout << "  Adding stat uncertainty" << endl;
-      for(int i=0;i<fNSamples;i++){
-        finalErrPlus  += pow(fSampleHists[i]->fHist->GetBinError(i_bin),2);
-        finalErrMinus += pow(fSampleHists[i]->fHist->GetBinError(i_bin),2);
-      }
     }
     //
-    fErr_postFit->SetPointEYhigh(i_bin-1,sqrt(finalErrPlus));
-    fErr_postFit->SetPointEYlow(i_bin-1,sqrt(finalErrMinus));
-  }
-  // at this point fTot and fErr _postFit should be ready
+    for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
+        if(TtHFitter::DEBUGLEVEL>0) cout << "Bin " << i_bin << ":" << endl;
+        for(int i_syst=0;i_syst<(int)systNames.size();i_syst++){
+            if(TtHFitter::DEBUGLEVEL>0) cout << "  Adding syst " << systNames[i_syst] << endl;
+            systName = systNames[i_syst];
+            systValue = fitRes->GetNuisParValue(systName);
+            systErrUp = fitRes->GetNuisParErrUp(systName);
+            systErrDown = fitRes->GetNuisParErrDown(systName);
+            if(TtHFitter::DEBUGLEVEL>0) cout << "    alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
+            diffUp = 0.;
+            diffDown = 0.;
+            TH1* hUp = 0x0;
+            TH1* hDown = 0x0;
+            for(int i=0;i<fNSamples;i++){
+                if(TtHFitter::DEBUGLEVEL>0) cout << "    Sample " << fSampleHists[i]->fName << endl;
+                yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
+                //         yieldNominal = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit!
+                hUp = 0x0;
+                hDown = 0x0;
+                // norm
+                if(fSampleHists[i]->HasNorm(systNames[i_syst])){
+                    diffUp += yieldNominal*systErrUp;
+                    diffDown += yieldNominal*systErrDown;
+                    if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+                }
+                // syst
+                if(fSampleHists[i]->HasSyst(systNames[i_syst])){
+                    // 1: overall
+                    SystematicHist *sh = fSampleHists[i]->GetSystematic(systNames[i_syst]);
+                    if(sh->fIsOverall){
+                        hUp   = sh->fHistUp;
+                        hDown = sh->fHistDown;
+                        if(sh->fNormUp!=0)   yieldUp     = (sh->fNormUp+1)*yieldNominal;
+                        else                 yieldUp     = yieldNominal;
+                        if(sh->fNormDown!=0) yieldDown   = (sh->fNormDown+1)*yieldNominal;
+                        else                 yieldDown   = yieldNominal;
+                        deltaN = GetDeltaN( systValue, yieldNominal,yieldUp,yieldDown, ICODE_OVERALL);
+                        diffUp += yieldNominal*( GetDeltaN( systValue+systErrUp, yieldNominal,yieldUp,yieldDown, ICODE_OVERALL) - deltaN );
+                        diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown, ICODE_OVERALL) - deltaN );
+                    }
+                    // 2: shape
+                    if(sh->fIsShape){
+                        hUp   = sh->fHistShapeUp;
+                        hDown = sh->fHistShapeDown;
+                        if(hUp!=0x0)    yieldUp     = hUp->GetBinContent(i_bin);
+                        else            yieldUp     = yieldNominal;
+                        if(hDown!=0x0)  yieldDown   = hDown->GetBinContent(i_bin);
+                        else            yieldDown   = yieldNominal;
+                        deltaN = GetDeltaN( systValue, yieldNominal,yieldUp,yieldDown, ICODE_SHAPE);
+                        diffUp += yieldNominal*( GetDeltaN( systValue+systErrUp, yieldNominal,yieldUp,yieldDown, ICODE_SHAPE) - deltaN );
+                        diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown, ICODE_SHAPE) - deltaN );
+                    }
+                    if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+                }
+            }
+            // store errors up and down
+            if(diffUp>=0 && diffDown<=0)     errPlus[i_syst] = diffUp;
+            else if(diffDown>0 && diffUp<=0) errPlus[i_syst] = diffDown;
+            else if(diffUp>0 && diffDown>0)  errPlus[i_syst] = TMath::Max(diffUp,diffDown);
+            if(diffUp<0 && diffDown>=0)      errMinus[i_syst] = diffUp;
+            else if(diffDown<0 && diffUp>=0) errMinus[i_syst] = diffDown;
+            else if(diffUp<0 && diffDown<0)  errMinus[i_syst] = TMath::Min(diffUp,diffDown);
+        }
+        //
+        for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
+            if(TtHFitter::DEBUGLEVEL>0) cout << "==> Bin " << i_bin << ":" << endl;
+            for(int i_syst=0;i_syst<(int)systNames.size();i_syst++){
+                if(TtHFitter::DEBUGLEVEL>0) cout << "  Adding new syst " << systNames[i_syst] << endl;
+                systValue = fitRes->GetNuisParValue(systNames[i_syst]);
+                systErrUp = fitRes->GetNuisParErrUp(systNames[i_syst]);
+                systErrDown = fitRes->GetNuisParErrDown(systNames[i_syst]);
+                if(TtHFitter::DEBUGLEVEL>0) cout << "    alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
+                diffUp = 0.;
+                diffDown = 0.;
+                TH1* hUp = 0x0;
+                TH1* hDown = 0x0;
+                for(int i=0;i<fNBkg;i++){
+                    if(TtHFitter::DEBUGLEVEL>0) cout << "    Sample " << fBkg[i]->fName << endl;
+                    yieldNominal = fBkg[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
+                    //         yieldNominal = fBkg[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit!
+                    hUp = 0x0;
+                    hDown = 0x0;
+                    // norm
+                    if(fBkg[i]->HasNorm(systNames[i_syst])){
+                        //           diffUp += yieldNominal*(systValue+systErrUp)-yieldNominal*systValue;
+                        diffUp += yieldNominal*systErrUp;
+                        diffDown += yieldNominal*systErrDown;
+                        if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+                    }
+                    // syst
+                    if(fBkg[i]->HasSyst(systNames[i_syst])){
+                        hUp   = fBkg[i]->GetSystematic(systNames[i_syst])->fHistUp;
+                        hDown = fBkg[i]->GetSystematic(systNames[i_syst])->fHistDown;
+                        if(hUp!=0x0)    yieldUp     = hUp->GetBinContent(i_bin);
+                        else            yieldUp     = yieldNominal;
+                        if(hDown!=0x0)  yieldDown   = hDown->GetBinContent(i_bin);
+                        else            yieldDown   = yieldNominal;
+                        deltaN = GetDeltaN( systValue, yieldNominal,yieldUp,yieldDown);
+                        diffUp += yieldNominal*( GetDeltaN( systValue+systErrUp, yieldNominal,yieldUp,yieldDown) - deltaN );
+                        diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown) - deltaN );
+                        if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+                    }
+                }
+                if(fHasSig){
+                    if(TtHFitter::DEBUGLEVEL>0) cout << "    Sample " << fSig->fName << endl;
+                    yieldNominal = fSig->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
+                    //         yieldNominal = fSig->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post-fit (wrong I think...)
+                    hUp = 0x0;
+                    hDown = 0x0;
+                    // norm
+                    if(fSig->HasNorm(systNames[i_syst])){
+                        diffUp += yieldNominal*systErrUp;
+                        diffDown += yieldNominal*systErrDown;
+                        if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+                    }
+                    // syst
+                    if(fSig->HasSyst(systNames[i_syst])){
+                        hUp   = fSig->GetSystematic(systNames[i_syst])->fHistUp;
+                        hDown = fSig->GetSystematic(systNames[i_syst])->fHistDown;
+                        if(hUp!=0x0)    yieldUp     = hUp->GetBinContent(i_bin);
+                        else            yieldUp     = yieldNominal;
+                        if(hDown!=0x0)  yieldDown   = hDown->GetBinContent(i_bin);
+                        else            yieldDown   = yieldNominal;
+                        deltaN = GetDeltaN( systValue, yieldNominal,yieldUp,yieldDown);
+                        
+                        diffUp   += yieldNominal*( GetDeltaN( systValue+systErrUp, yieldNominal,yieldUp,yieldDown) - deltaN );
+                        diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown) - deltaN );
+                        
+                        if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
+                    }
+                }
+                // store errors up and down
+                if(diffUp>=0 && diffDown<=0)     errPlus[i_syst] = diffUp;
+                else if(diffDown>0 && diffUp<=0) errPlus[i_syst] = diffDown;
+                else if(diffUp>0 && diffDown>0)  errPlus[i_syst] = TMath::Max(diffUp,diffDown);
+                if(diffUp<0 && diffDown>=0)      errMinus[i_syst] = diffUp;
+                else if(diffDown<0 && diffUp>=0) errMinus[i_syst] = diffDown;
+                else if(diffUp<0 && diffDown<0)  errMinus[i_syst] = TMath::Min(diffUp,diffDown);
+                
+            }
+            // Loop again on all the syst, two by two, to include the correlations
+            float finalErrPlus = 0;
+            float finalErrMinus = 0;
+            float corr;
+            for(int i_syst=0;i_syst<(int)systNames.size();i_syst++){
+                for(int j_syst=0;j_syst<(int)systNames.size();j_syst++){
+                    corr = fitRes->fCorrMatrix->GetCorrelation(systNames[i_syst],systNames[j_syst]);
+                    finalErrPlus  += corr*errPlus[i_syst]*errPlus[j_syst];
+                    finalErrMinus += corr*errMinus[i_syst]*errMinus[j_syst];
+                }
+            }
+            // add stat unc
+            if(fUseStatErr){
+                cout << "  Adding stat uncertainty" << endl;
+                for(int i=0;i<fNBkg;i++){
+                    finalErrPlus  += pow(fBkg[i]->fHist->GetBinError(i_bin),2);
+                    finalErrMinus += pow(fBkg[i]->fHist->GetBinError(i_bin),2);
+                }
+                if(fHasSig){
+                    finalErrPlus  += pow(fSig->fHist->GetBinError(i_bin),2);
+                    finalErrMinus += pow(fSig->fHist->GetBinError(i_bin),2);
+                }
+            }
+            //
+            fErr_postFit->SetPointEYhigh(i_bin-1,sqrt(finalErrPlus));
+            fErr_postFit->SetPointEYlow(i_bin-1,sqrt(finalErrMinus));
+        }
+    }
+    // at this point fTot and fErr _postFit should be ready
 }
 
+//__________________________________________________________________________________
+//
 TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
   TthPlot *p = fPlotPostFit;
   p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
@@ -502,34 +627,34 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
 }
 
 void Region::AddSelection(string selection){
-  if(fSelection=="") fSelection = selection;
-  else fSelection += " && "+selection;
+    if(fSelection=="") fSelection = selection;
+    else fSelection += " && "+selection;
 }
 
 void Region::AddMCweight(string weight){
-  if(fMCweight=="") fMCweight = weight;
-  else fMCweight += " * "+weight;
+    if(fMCweight=="") fMCweight = weight;
+    else fMCweight += " * "+weight;
 }
 
 void Region::SetVariable(string variable,int nbin,float xmin,float xmax){
-  fVariable = variable;
-  fNbins = nbin;
-  fXmin = xmin;
-  fXmax = xmax;
+    fVariable = variable;
+    fNbins = nbin;
+    fXmin = xmin;
+    fXmax = xmax;
 }
 
 void Region::SetHistoName(string name){
-  fHistoName = name;
+    fHistoName = name;
 }
 
 void Region::SetVariableTitle(string name){
-  fVariableTitle = name;
+    fVariableTitle = name;
 }
 
 void Region::SetLabel(string label,string shortLabel){
-  fLabel = label;
-  if(shortLabel=="") fShortLabel = label;
-  else fShortLabel = shortLabel;
+    fLabel = label;
+    if(shortLabel=="") fShortLabel = label;
+    else fShortLabel = shortLabel;
 }
 
 
@@ -538,10 +663,10 @@ void Region::SetAllSamples(bool readNtuples,string fileName){
 }
 
 void Region::Print(){
-  cout << "    Region: " << fName << endl;
-  for(int i_smp=0;i_smp<fNSamples;i_smp++){
-    fSampleHists[i_smp]->Print();
-  }
+    cout << "    Region: " << fName << endl;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        fSampleHists[i_smp]->Print();
+    }
 }
 
 
@@ -555,7 +680,7 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
   float deltaN;
   if(alpha>0)      deltaN = Ip;
   else if(alpha<0) deltaN = Imi;
-  else             return 0.;
+  else             return 1.;
   //
   // --------------------------------------------------------------
   // piecewise linear

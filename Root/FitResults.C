@@ -1,12 +1,26 @@
 #include "TtHFitter/FitResults.h"
 
 FitResults::FitResults(){
+    fNuisParNames.clear();
+    fNuisParIdx.clear();
+    fNuisParIsThere.clear();
+    fCorrMatrix = 0;
+    fNuisPar.clear();
 }
 FitResults::~FitResults(){
+    fNuisParNames.clear();
+    fNuisParIdx.clear();
+    fNuisParIsThere.clear();
+    if(fCorrMatrix) delete fCorrMatrix;
+    
+    for(unsigned int i = 0; i<fNuisPar.size(); ++i){
+        if(fNuisPar[i]) delete fNuisPar[i];
+    }
+    fNuisPar.clear();
 }
 
 void FitResults::AddNuisPar(NuisParameter *par){
-  fNuisPar[(int)fNuisParNames.size()] = par;
+  fNuisPar.push_back(par);
   string p = par->fName;
   fNuisParIdx[p] = (int)fNuisParNames.size();
   fNuisParNames.push_back(p);
@@ -112,29 +126,33 @@ void FitResults::ReadFromTXT(string fileName){
       if(print) cout << name << ": " << value << " +" << up << " " << down << endl;
       i++;
     }
+      
     if(readingCM){
       if(!includeCorrelations) break;
       for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
         iss >> corr;
-        if(invertedCorrMatrix) matrix->SetCorrelation(fNuisParNames[Nsyst_corr-i_sys-1],fNuisParNames[j],corr);
-        else                   matrix->SetCorrelation(fNuisParNames[i_sys],             fNuisParNames[j],corr);
+          if(invertedCorrMatrix){
+              matrix->SetCorrelation(fNuisParNames[Nsyst_corr-i_sys-1],fNuisParNames[j],corr);
+          }
+        else matrix->SetCorrelation(fNuisParNames[i_sys],fNuisParNames[j],corr);
       }
       j++;
     }
   }
-  if(includeCorrelations){
-    if(print){
-      for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
-        for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
-          cout << Form("\t%.4f",matrix->fMatrix[i_sys][j_sys]);
+    if(includeCorrelations){
+        if(print){
+            for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
+                for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
+                    cout << Form("\t%.4f",matrix->fMatrix[i_sys][j_sys]);
+                }
+                cout << endl;
+            }
         }
-        cout << endl;
-      }
     }
-  }
   fCorrMatrix = matrix;
   //
   int TOTsyst = fNuisParNames.size();
   cout << "Found " << TOTsyst << " systematics." << endl;
   if(TOTsyst<=0) cout << "WARNING: No systematics found in fit result file..." << endl;
+    
 }
