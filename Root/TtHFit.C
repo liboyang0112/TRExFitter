@@ -611,31 +611,26 @@ void TtHFit::DrawAndSaveAll(string opt){
 TthPlot* TtHFit::DrawSummary(string opt){
     bool isPostFit = opt.find("post")!=string::npos;
     // build one bin per region
-    TH1F* h_sig;
-    TH1F* h_data;
+    TH1F* h_sig = 0;
+    TH1F* h_data = 0;
     TH1F* h_bkg[MAXsamples];
     int Nbkg = 0;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        //     cout << fSamples[i_smp]->fName << endl;
-        //     cout << fSamples[i_smp]->fType << endl;
+        
         if(fSamples[i_smp]->fType==SampleType::Signal){
             h_sig = new TH1F(fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fTitle.c_str(), fNRegions,0,fNRegions);
-            cout << "Addign Signal: " << h_sig->GetTitle() << endl;
+            cout << "Adding Signal: " << h_sig->GetTitle() << endl;
             h_sig->SetLineColor(fRegions[0]->fSampleHists[i_smp]->fHist->GetLineColor());
             h_sig->SetFillColor(fRegions[0]->fSampleHists[i_smp]->fHist->GetFillColor());
             h_sig->SetLineWidth(fRegions[0]->fSampleHists[i_smp]->fHist->GetLineWidth());
-            //       cout << fRegions[0]->fSampleHists[i_smp]->fName << endl;
-            //       cout << fRegions[0]->GetSampleHist(fName) << endl;
-            //       ->fHist->Integral() << endl;
+            
             for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-                //     cout << fRegions[i_bin-1]->GetSampleHist(fName)->fHist->Integral() << endl;
-                //         h_sig->SetBinContent( i_bin,fRegions[i_bin-1]->GetSampleHist(fName)->fHist->Integral() );
                 h_sig->SetBinContent( i_bin,fRegions[i_bin-1]->fSampleHists[i_smp]->fHist->Integral() );
             }
         }
         else if(fSamples[i_smp]->fType==SampleType::Background){
             h_bkg[Nbkg] = new TH1F(fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fTitle.c_str(), fNRegions,0,fNRegions);
-            cout << "Addign Bkg:    " << h_bkg[Nbkg]->GetTitle() << endl;
+            cout << "Adding Bkg:    " << h_bkg[Nbkg]->GetTitle() << endl;
             h_bkg[Nbkg]->SetLineColor(fRegions[0]->fSampleHists[i_smp]->fHist->GetLineColor());
             h_bkg[Nbkg]->SetFillColor(fRegions[0]->fSampleHists[i_smp]->fHist->GetFillColor());
             h_bkg[Nbkg]->SetLineWidth(fRegions[0]->fSampleHists[i_smp]->fHist->GetLineWidth());
@@ -646,20 +641,26 @@ TthPlot* TtHFit::DrawSummary(string opt){
         }
         else if(fSamples[i_smp]->fType==SampleType::Data){
             h_data = new TH1F(fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fTitle.c_str(), fNRegions,0,fNRegions);
-            cout << "Addign Data:   " << h_data->GetTitle() << endl;
+            cout << "Adding Data:   " << h_data->GetTitle() << endl;
             for(int i_bin=1;i_bin<=fNRegions;i_bin++){
                 h_data->SetBinContent( i_bin,fRegions[i_bin-1]->fData->fHist->Integral() );
             }
         }
     }
+    
     //
     TthPlot *p = new TthPlot(fName+"_summary",900,700);
     p->SetXaxis("",false);
     p->SetChannel("Single Lepton");
     p->fATLASlabel = "Internal";
+    
     //
-    p->SetData(h_data, h_data->GetTitle());
+    if(h_data){
+        p->SetData(h_data, h_data->GetTitle());
+    }
+    
     p->AddSignal(h_sig,h_sig->GetTitle());
+    
     //   p->AddNormSignal(h_sig,((string)h_sig->GetTitle())+"(norm)");
     for(int i=0;i<Nbkg;i++)
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
@@ -768,6 +769,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     }
     else
         cout << "Exporting to RooStats..." << endl;
+    
     RooStats::HistFactory::Measurement meas(fName.c_str(), fName.c_str());
     //   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
     meas.SetOutputFilePrefix((fResultsFolder+"/"+fName).c_str());//"results/myMeasurement");
@@ -777,8 +779,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     if(fLumiErr==0){
         meas.AddConstantParam("Lumi");
         meas.SetLumiRelErr(0.1);
-    }
-    else{
+    } else {
         meas.SetLumiRelErr(fLumiErr);
     }
     
@@ -794,10 +795,24 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
             cout << "Adding Channel: " << fRegions[i_ch]->fName << endl;
         }
         RooStats::HistFactory::Channel chan(fRegions[i_ch]->fName.c_str());
-        if(TtHFitter::DEBUGLEVEL>0){
-            cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->GetName() << endl;
+
+        //Checks if a data sample exists
+        bool hasData = false;
+        for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            if(fSamples[i_smp]->fType==SampleType::Data){
+                hasData = true;
+                break;
+            }
         }
-        chan.SetData(fRegions[i_ch]->fData->fHistoName+suffix_regularBinning, fRegions[i_ch]->fData->fFileName);
+        if(hasData){
+            if(TtHFitter::DEBUGLEVEL>0){
+                cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->GetName() << endl;
+            }
+            chan.SetData(fRegions[i_ch]->fData->fHistoName+suffix_regularBinning, fRegions[i_ch]->fData->fFileName);
+        } else {
+            chan.SetData("", "");
+        }
+        
         chan.SetStatErrorConfig(fStatErrThres,fStatErrCons.c_str()); // "Gaussian"
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
@@ -864,9 +879,24 @@ void TtHFit::Fit(){
     int algo = 3;
     //     int algo = 0;
     string workspace = "results/"+fName+"_combined_"+fName+"_model.root";
-    string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
+    
+    //Checks if a data sample exists
+    bool hasData = false;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==SampleType::Data){
+            hasData = true;
+            break;
+        }
+    }
+    if(hasData){
+        string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
                       algo,workspace.c_str(),fName.c_str());
-    gSystem->Exec(cmd.c_str());
+        gSystem->Exec(cmd.c_str());
+    } else {
+        string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",
+                          algo,workspace.c_str(),fName.c_str());
+        gSystem->Exec(cmd.c_str());
+    }
 }
 
 void TtHFit::PlotFittedNP(){
@@ -878,8 +908,22 @@ void TtHFit::PlotFittedNP(){
 }
 
 void TtHFit::GetLimit(){
-    string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
-    gSystem->Exec(cmd.c_str());
+    
+    //Checks if a data sample exists
+    bool hasData = false;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==SampleType::Data){
+            hasData = true;
+            break;
+        }
+    }
+    if(hasData){
+        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
+        gSystem->Exec(cmd.c_str());
+    } else {
+        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\")'";
+        gSystem->Exec(cmd.c_str());
+    }
 }
 
 void TtHFit::ReadFitResults(string fileName){

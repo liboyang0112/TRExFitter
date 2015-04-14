@@ -484,7 +484,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             // Loop again on all the syst, two by two, to include the correlations
             float finalErrPlus = 0;
             float finalErrMinus = 0;
-            float corr;
+            float corr = 0;
             for(int i_syst=0;i_syst<(int)systNames.size();i_syst++){
                 for(int j_syst=0;j_syst<(int)systNames.size();j_syst++){
                     corr = fitRes->fCorrMatrix->GetCorrelation(systNames[i_syst],systNames[j_syst]);
@@ -671,7 +671,6 @@ void Region::Print(){
 }
 
 
-
 /////////////
 float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
   // protection against negative values
@@ -682,6 +681,7 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
   if(alpha>0)      deltaN = Ip;
   else if(alpha<0) deltaN = Imi;
   else             return 1.;
+    
   //
   // --------------------------------------------------------------
   // piecewise linear

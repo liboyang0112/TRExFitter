@@ -133,8 +133,7 @@ void TthPlot::Draw(string options){
   //
   bool hasData = true;
   if(h_data){
-//     h_data->Draw("E");
-//     h_data->SetMarkerSize(1.2);
+      
     h_data->SetMarkerSize(1.4);
     h_data->SetLineWidth(2);
     // build asym data
@@ -148,14 +147,12 @@ void TthPlot::Draw(string options){
     hasData = false;
     h_data = (TH1F*)h_tot->Clone("dummyData");
     h_data->SetTitle("Asimov Data");
-//     h_data->SetLineWidth(0);
-//     h_data->SetMarkerSize(0);
-//     h_data->SetLineColor(kWhite);
-//     h_data->SetFillStyle(0);
-//     h_data->Draw("HIST same");
+    g_data = new TGraphAsymmErrors(h_data);
   }
+    
   if(h_signal!=0x0) h_stack->Add(h_signal);
   h_stack->Draw("HIST same");
+    
   //
   g_tot->SetFillStyle(3354);
   g_tot->SetFillColor(kBlue-7);
