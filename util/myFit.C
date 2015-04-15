@@ -78,6 +78,14 @@ void FitExample_fromHist(string opt="h",bool update=false){
         }
         reg -> SetBinning(nBounds-1,bins);
     }
+    
+    if(cs->Get("Type")!=""){
+        string param = cs->Get("Type");
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param=="CONTROL" )  reg -> SetRegionType(Region::CONTROL);
+        if( param=="VALIDATION" )  reg -> SetRegionType(Region::VALIDATION);
+        if( param=="SIGNAL" )  reg -> SetRegionType(Region::SIGNAL);
+    }
     nReg++;
   }
   
@@ -104,6 +112,13 @@ void FitExample_fromHist(string opt="h",bool update=false){
         atof(Vectorize(cs->Get("NormFactor"),',')[2].c_str()),
         atof(Vectorize(cs->Get("NormFactor"),',')[3].c_str())
       );
+    if(cs->Get("NormalizedByTheory")!=""){
+        string param = cs->Get("NormalizedByTheory");
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if(param=="FALSE") smp->NormalizedByTheory(false);
+        else if(param=="TRUE") smp->NormalizedByTheory(true);
+        else std::cout << "<!> NormalizedByTheory flag not recognized ... *" << param << "*" << std::endl;
+    }
     // ...
     nSmp++;
   }
