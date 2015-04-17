@@ -314,6 +314,10 @@ void SampleHist::DrawSystPlot(string syst){
         ymax = TMath::Max( ymax,TMath::Abs(h_syst_down->GetMaximum()));
         ymax = TMath::Max( ymax,TMath::Abs(h_syst_up->GetMinimum()));
         ymax = TMath::Max( ymax,TMath::Abs(h_syst_down->GetMinimum()));
+        ymax = TMath::Max( ymax,TMath::Abs(h_syst_up_orig->GetMaximum()));
+        ymax = TMath::Max( ymax,TMath::Abs(h_syst_down_orig->GetMaximum()));
+        ymax = TMath::Max( ymax,TMath::Abs(h_syst_up_orig->GetMinimum()));
+        ymax = TMath::Max( ymax,TMath::Abs(h_syst_down_orig->GetMinimum()));
         h_1->SetMinimum(-ymax*2.1);
         h_1->SetMaximum( ymax*2.1);
         h_1->GetYaxis()->SetTitle("Relative difference [%]");
@@ -326,7 +330,7 @@ void SampleHist::DrawSystPlot(string syst){
         tex->DrawLatex(0.2,0.84,fRegionName.c_str());
         
         //Legend of the histograms
-        TLegend *leg = new TLegend(0.6,0.8,0.9,0.94);
+        TLegend *leg = new TLegend(0.6,0.83,0.9,0.93);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
         leg->SetTextSize(gStyle->GetTextSize());
@@ -343,7 +347,7 @@ void SampleHist::DrawSystPlot(string syst){
         leg->Draw();
         
         //Legend to define the line style
-        TLegend *leg2 = new TLegend(0.6,0.7,0.9,0.8);
+        TLegend *leg2 = new TLegend(0.6,0.77,0.9,0.82);
         leg2->SetFillStyle(0);
         leg2->SetBorderSize(0);
         leg2->SetNColumns(2);

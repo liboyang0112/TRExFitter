@@ -18,7 +18,7 @@
 
 // -------------------------------------------------------
 
-void FitExample_fromHist(string opt="h",bool update=false){
+void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bool update=false){
   TtHFitter::SetDebugLevel(1); 
 
   // options
@@ -28,15 +28,18 @@ void FitExample_fromHist(string opt="h",bool update=false){
   
   // interpret opt
   bool readHistograms  = opt.find("h")!=string::npos;
+  bool readNtuples     = opt.find("n")!=string::npos;
   bool createWorkspace = opt.find("w")!=string::npos;
   bool doFit           = opt.find("f")!=string::npos;
   bool doLimit         = opt.find("l")!=string::npos;
   bool drawPreFit      = opt.find("d")!=string::npos;
   bool drawPostFit     = opt.find("p")!=string::npos;
     
+  int inputType; // 0=histograms, 1=ntuples
+  
   // Read the config file
   ConfigParser *myConfig = new ConfigParser();
-  myConfig->ReadFile("util/myFit.config");
+  myConfig->ReadFile(configFile);
   ConfigSet *cs; // to store stuff later
   
   // set the stuff accordingly...
@@ -45,7 +48,28 @@ void FitExample_fromHist(string opt="h",bool update=false){
   // set fit
   cs = myConfig->GetConfigSet("Fit");
   TtHFit *myFit = new TtHFit( cs->GetValue() );
-  myFit->AddHistoPath( cs->Get("HistoPath") );
+  if( cs->Get("ReadFrom")=="hist" )
+    inputType = 0;
+  else if( cs->Get("ReadFrom")=="ntuples" )
+    inputType = 1;
+  else{
+    cout << "ERROR: Invalid \"ReadFrom\" argument. Options: \"hist\", \"ntuples\"" << endl;
+    return;
+  }
+  if(inputType==0){
+    myFit->AddHistoPath( cs->Get("HistoPath") );
+  }
+  if(inputType==1){
+    if(cs->Get("NtuplePaths")!=""){
+      vector<string> paths = Vectorize(cs->Get("NtuplePaths"),',');
+      for(int i=0;i<(int)paths.size();i++){
+        myFit->AddNtuplePath( paths[i] );
+      }
+    }
+    myFit->SetMCweight( cs->Get("MCweight") );
+    myFit->SetSelection( cs->Get("Selection") );
+    myFit->SetNtupleName( cs->Get("NtupleName") );
+  }
   if(cs->Get("LumiScale")!="") myFit -> SetLumi( atof(cs->Get("LumiScale").c_str()) );
   if(cs->Get("FitType")!=""){
       if(cs->Get("FitType")=="ControlSignalRegion") myFit -> SetFitType(TtHFit::ControlSignalRegion);
@@ -64,9 +88,17 @@ void FitExample_fromHist(string opt="h",bool update=false){
     cs = myConfig->GetConfigSet("Region",nReg);
     if(cs==0x0) break;
     reg = myFit->NewRegion(cs->GetValue());
-    reg->SetHistoName(cs->Get("HistoName"));
     reg->SetVariableTitle(cs->Get("VariableTitle"));
     reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
+    if(inputType==0){
+      reg->SetHistoName( cs->Get("HistoName"));
+    }
+    else if(inputType==1){
+      vector<string> variable = Vectorize(cs->Get("Variable"),',');
+      reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
+      reg->AddSelection( cs->Get("Selection") );
+      reg->AddMCweight(  cs->Get("MCweight") );
+    }
     //Potential rebinning
     if(cs->Get("Rebin")!="") reg -> Rebin(atoi(cs->Get("Rebin").c_str()));
     if(cs->Get("Binning")!=""){
@@ -97,10 +129,11 @@ void FitExample_fromHist(string opt="h",bool update=false){
     if(cs==0x0) break;
     type = SampleType::Background;
     if(cs->Get("Type")=="signal") type = SampleType::Signal;
-    if(cs->Get("Type")=="data") type = SampleType::Data;
+    if(cs->Get("Type")=="data")   type = SampleType::Data;
     smp = myFit->NewSample(cs->GetValue(),type);
     smp->SetTitle(cs->Get("Title"));
-    smp->AddHistoFile(cs->Get("HistoFile"));
+    if(inputType==0)  smp->AddHistoFile(  cs->Get("HistoFile")  );
+    if(inputType==1)  smp->AddNtupleFile( cs->Get("NtupleFile") );
     if(cs->Get("FillColor")!="")
       smp->SetFillColor(atoi(cs->Get("FillColor").c_str()));
     if(cs->Get("LineColor")!="")
@@ -143,20 +176,32 @@ void FitExample_fromHist(string opt="h",bool update=false){
       if(samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() ){
         sys = sam->AddSystematic(cs->Get("Title"),type);
         if(type==SystType::Histo){
+          if(inputType==0){
             if(cs->Get("HistoNameSufUp")!="") sys->fHistoNameSufUp = cs->Get("HistoNameSufUp");
             if(cs->Get("HistoNameSufDown")!="") sys->fHistoNameSufDown = cs->Get("HistoNameSufDown");
             if(cs->Get("HistoFileUp")!="") sys->fHistoFilesUp.push_back(cs->Get("HistoFileUp"));
             if(cs->Get("HistoFileDown")!="") sys->fHistoFilesDown.push_back(cs->Get("HistoFileDown"));
-            if(cs->Get("Symmetrisation")!=""){
-                if(cs->Get("Symmetrisation")=="OneSided") sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
-                else if(cs->Get("Symmetrisation")=="TwoSided") sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
-                else {
-                    std::cout << "Symetrisation scheme is not recognized ... " << std::endl;
-                }
-            }
-            if(cs->Get("Smoothing")!=""){
-                sys->fSmoothType = atoi(cs->Get("Smoothing").c_str());
-            }
+            // ...
+          }
+          else if(inputType==1){
+            if(cs->Get("NtupleFilesUp")!="")   sys->fNtupleFilesUp   = Vectorize( cs->Get("NtupleFilesUp"),  ',' );
+            if(cs->Get("NtupleFilesDown")!="") sys->fNtupleFilesDown = Vectorize( cs->Get("NtupleFilesDown"),',' );
+            sys->fNtupleFileSufUp = cs->Get("NtupleFileSufUp");
+            sys->fNtupleFileSufDown = cs->Get("NtupleFileSufDown");
+            sys->fWeightSufUp = cs->Get("WeightSufUp");
+            sys->fWeightSufDown = cs->Get("WeightSufDown");
+            // ...
+          }
+          if(cs->Get("Symmetrisation")!=""){
+              if(cs->Get("Symmetrisation")=="OneSided") sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
+              else if(cs->Get("Symmetrisation")=="TwoSided") sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
+              else {
+                  std::cout << "Symetrisation scheme is not recognized ... " << std::endl;
+              }
+          }
+          if(cs->Get("Smoothing")!=""){
+              sys->fSmoothType = atoi(cs->Get("Smoothing").c_str());
+          }
           // ...
         }
         else if(type==SystType::Overall){
@@ -177,6 +222,12 @@ void FitExample_fromHist(string opt="h",bool update=false){
 
   if(readHistograms){
     myFit->ReadHistograms();
+    myFit->Print();
+    myFit->WriteHistos("",!update);
+  }
+  else if(readNtuples){
+    myFit->ReadNtuples();
+cout << "OK" << endl;
     myFit->Print();
     myFit->WriteHistos("",!update);
   }
@@ -216,13 +267,15 @@ void FitExample_fromHist(string opt="h",bool update=false){
 
 int main(int argc, char **argv){
   string opt="h";
+  string config="util/myFit.config";
   bool update=false;
   
   if(argc>1) opt    = argv[1];
-  if(argc>2) update = atoi(argv[2])!=0;
+  if(argc>2) config = argv[2];
+  if(argc>3) update = atoi(argv[3])!=0;
 
   // call the function
-  FitExample_fromHist(opt,update);
+  FitExample_fromHist(opt,config,update);
   
   return 0;
 }

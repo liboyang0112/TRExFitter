@@ -29,8 +29,10 @@ void CreateHistograms(){
   TFile *f_bkg1 = new TFile("ExampleInputs/bkg1.root","RECREATE");
   TH1F *h_bkg1 = new TH1F("h_bkg1","Background1",4,0,400);
   float yield_bkg1[] = {100.,75.,20.,10.};
+  float stat_bkg1[] = {1.,1.,2.,0.5};
   for(int i_bin=1;i_bin<=sizeof(yield_bkg1)/sizeof(float);i_bin++){
     h_bkg1->SetBinContent(i_bin,yield_bkg1[i_bin-1]);
+    h_bkg1->SetBinError(i_bin,stat_bkg1[i_bin-1]);
   }
   h_bkg1->Write("HTj",TObject::kOverwrite);
 
@@ -39,12 +41,14 @@ void CreateHistograms(){
     float yield_bkg1_jesUp[] = {90.,70.,30.,20.};
     for(int i_bin=1;i_bin<=sizeof(yield_bkg1_jesUp)/sizeof(float);i_bin++){
       h_bkg1_jesUp->SetBinContent(i_bin,yield_bkg1_jesUp[i_bin-1]);
+      h_bkg1_jesUp->SetBinError(i_bin,stat_bkg1[i_bin-1]);
     }
     h_bkg1_jesUp->Write("HTj_jesUp",TObject::kOverwrite);
     TH1F *h_bkg1_jesDown = new TH1F("h_bkg1_jesDown","Background1 jesDown",4,0,400);
     float yield_bkg1_jesDown[] = {110.,80.,15.,5.};
     for(int i_bin=1;i_bin<=sizeof(yield_bkg1_jesDown)/sizeof(float);i_bin++){
       h_bkg1_jesDown->SetBinContent(i_bin,yield_bkg1_jesDown[i_bin-1]);
+      h_bkg1_jesDown->SetBinError(i_bin,stat_bkg1[i_bin-1]);
     }
     h_bkg1_jesDown->Write("HTj_jesDown",TObject::kOverwrite);
   
