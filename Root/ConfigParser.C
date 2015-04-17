@@ -134,6 +134,11 @@ ConfigParser::~ConfigParser(){
 void ConfigParser::ReadFile(string fileName){
   cout << "Reading config file " << fileName << endl;
   ifstream file(fileName.c_str());
+  if(!file.is_open()){
+      std::cerr << "<!> Error in ConfigParser::ReadFile: The file cannot be opened !" << std::endl;
+      return;
+  }
+    
   string str;
   bool reading = false;
   int n = 1;
@@ -164,6 +169,7 @@ void ConfigParser::ReadFile(string fileName){
       }
     }
   }
+    file.close();
 }
 
 ConfigSet *ConfigParser::GetConfigSet(int i){ // returns the i-th configSet

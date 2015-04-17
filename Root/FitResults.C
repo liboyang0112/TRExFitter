@@ -7,12 +7,12 @@ FitResults::FitResults(){
     fCorrMatrix = 0;
     fNuisPar.clear();
 }
+
 FitResults::~FitResults(){
     fNuisParNames.clear();
     fNuisParIdx.clear();
     fNuisParIsThere.clear();
     if(fCorrMatrix) delete fCorrMatrix;
-    
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
         if(fNuisPar[i]) delete fNuisPar[i];
     }
@@ -131,9 +131,9 @@ void FitResults::ReadFromTXT(string fileName){
       if(!includeCorrelations) break;
       for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
         iss >> corr;
-          if(invertedCorrMatrix){
-              matrix->SetCorrelation(fNuisParNames[Nsyst_corr-i_sys-1],fNuisParNames[j],corr);
-          }
+        if(invertedCorrMatrix){
+            matrix->SetCorrelation(fNuisParNames[Nsyst_corr-i_sys-1],fNuisParNames[j],corr);
+        }
         else matrix->SetCorrelation(fNuisParNames[i_sys],fNuisParNames[j],corr);
       }
       j++;
@@ -141,9 +141,17 @@ void FitResults::ReadFromTXT(string fileName){
   }
     if(includeCorrelations){
         if(print){
+            for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
+                cout << "\t " << fNuisParNames[j_sys];
+            }
+            cout << endl;
             for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
+                
+                
+                
+                cout << fNuisParNames[i_sys];
                 for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
-                    cout << Form("\t%.4f",matrix->fMatrix[i_sys][j_sys]);
+                    cout << Form("\t%.4f",matrix->GetCorrelation(fNuisParNames[i_sys],fNuisParNames[j_sys]));
                 }
                 cout << endl;
             }

@@ -594,7 +594,8 @@ void TtHFit::DrawAndSaveAll(string opt){
     gSystem->mkdir(fName.c_str());
     bool isPostFit = opt.find("post")!=string::npos;
     if(isPostFit){
-        ReadFitResults("xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+        if(fFitType==ControlRegion) ReadFitResults("xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
+        else if(fFitType==ControlSignalRegion) ReadFitResults("xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
@@ -890,13 +891,25 @@ void TtHFit::Fit(){
         }
     }
     if(hasData){
-        string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
+        if(fFitType==ControlRegion){
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
                       algo,workspace.c_str(),fName.c_str());
-        gSystem->Exec(cmd.c_str());
+            gSystem->Exec(cmd.c_str());
+        } else if(fFitType==ControlSignalRegion){
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
+                              algo,workspace.c_str(),fName.c_str());
+            gSystem->Exec(cmd.c_str());
+        }
     } else {
-        string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",
-                          algo,workspace.c_str(),fName.c_str());
-        gSystem->Exec(cmd.c_str());
+        if(fFitType==ControlRegion){
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",
+                              algo,workspace.c_str(),fName.c_str());
+            gSystem->Exec(cmd.c_str());
+        } else if(fFitType==ControlSignalRegion){
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",
+                              algo,workspace.c_str(),fName.c_str());
+            gSystem->Exec(cmd.c_str());
+        }
     }
 }
 
@@ -904,7 +917,8 @@ void TtHFit::PlotFittedNP(){
     // plot the NP fit plot
     string cmd = "python plotNP.py";
     cmd += " --outFile "+fName+"/NuisPar.png";
-    cmd += " xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt";
+    if(fFitType==ControlRegion) cmd += " xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt";
+    else if(fFitType==ControlSignalRegion) cmd += " xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt";
     gSystem->Exec(cmd.c_str());
 }
 

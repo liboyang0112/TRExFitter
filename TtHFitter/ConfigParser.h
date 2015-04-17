@@ -9,7 +9,7 @@
 
 using namespace std;
 
-const int MAXconfig = 200;
+const int MAXconfig = 2000;
 
 // Functions
 string Fix(string s);
