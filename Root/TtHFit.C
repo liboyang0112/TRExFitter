@@ -263,12 +263,9 @@ void TtHFit::ReadNtuples(){
                     fullMCweight += " * "+fSamples[i_smp]->fSystematics[i_syst]->fWeightSufUp;
                 if(fRegions[i_ch]->fMCweight!="")
                     fullMCweight += " * " + fRegions[i_ch]->fMCweight;
-                //         cout << fullSelection << endl;
-                //         cout << fullMCweight << endl;
                 vector<string> s = CombinePathSufs(
                                                    fRegions[i_ch]->fNtuplePathSuffs,
                                                    fSamples[i_smp]->fSystematics[i_syst]->fNtuplePathsUp );
-                //         cout << s[0] << endl;
                 //
                 fullPaths.clear();
                 fullPaths = CreatePathsList(
@@ -391,8 +388,12 @@ void TtHFit::ReadHistograms(){
                 //         cout << "  " << fRegions[i_ch]->fHistoName << endl;
                 //TH1* HistFromFile(string fileName,string histoName)
                 //         htmp = (TH1F*)HistFromFile( fullPaths[i_path],fRegions[i_ch]->fHistoName);
+// cout << fullPaths[i_path] << endl;
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+// cout << "OK" << endl;
                 
+// cout << fRegions[i_ch]->fHistoNBinsRebin << endl;
+// cout << fRegions[i_ch]->fHistoBins[0] << endl;
                 //Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));

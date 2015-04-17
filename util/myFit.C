@@ -168,12 +168,7 @@ void FitExample_fromHist(string opt="h",bool update=false){
     // ...
     nSys++;
   }
-  
-  
-//     Systematic *JES_bkg1 = bkg1->AddSystematic("JES",SystType::Histo);
-//       JES_bkg1->fHistoNameSufUp = "_jesUp";
-//       JES_bkg1->fHistoNameSufDown = "_jesDown";
-    
+      
   //
   // do actual things
   //

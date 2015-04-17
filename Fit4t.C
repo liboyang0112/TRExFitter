@@ -75,8 +75,8 @@ void Fit4t(string opt="t",bool update=false){
     // norm uncertainties
     ttbar->AddSystematic("ttXsec",SystType::Overall,0.10,-0.10);
 //     ttbar->AddSystematic("ttXsec",SystType::Overall,0.0001,-0.0001);
-    ttH->AddSystematic("tthXsec",SystType::Overall,0.50,-0.50);
-    ttV->AddSystematic("ttvXsec",SystType::Overall,0.50,-0.50);
+//     ttH->AddSystematic("tthXsec",SystType::Overall,0.50,-0.50);
+//     ttV->AddSystematic("ttvXsec",SystType::Overall,0.50,-0.50);
 
     // 24% uncertainty every jet bin above 6 (kind of Berend scaling)
     Systematic *ttJetRatio = ttbar->AddSystematic("ttJetRatio",SystType::Histo);

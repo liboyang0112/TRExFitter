@@ -13,6 +13,10 @@ string Fix(string s){ // removes leading and trailing white spaces, remove every
 vector<string> Vectorize(string s,char c){
   vector<string> v;
   v.clear();
+  if(s==""){
+    v.push_back("");
+    return v;
+  }
   string t;
   while(true){
     t = s.substr(0,s.find_first_of(c));
