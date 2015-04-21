@@ -1,7 +1,7 @@
 #include "TtHFitter/Region.h"
 
-const int ICODE_SHAPE = 4;
-const int ICODE_OVERALL = 4;
+const int ICODE_SHAPE = 0;  // 0
+const int ICODE_OVERALL = 1;
 
 // -------------------------------------------------------------------------------------------------
 // class Region
@@ -164,7 +164,7 @@ void Region::BuildPreFitErrorHist(){
   // build error band
   float yieldNominal, yieldUp, yieldDown;
   float diffUp, diffDown;
-  float diffPlus, diffMinus;
+//   float diffPlus, diffMinus;
   float errPlus = 0.;
   float errMinus = 0.;
   float totYield = 0.;
@@ -303,7 +303,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     //
     float yieldNominal, yieldUp, yieldDown;
     float diffUp, diffDown;
-    float diffPlus, diffMinus;
+//     float diffPlus, diffMinus;
+    float errUp[MAXsyst];
+    float errDown[MAXsyst];
     float errPlus[MAXsyst];
     float errMinus[MAXsyst];
     float deltaN;
@@ -397,6 +399,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 }
             }
             // store errors up and down
+            errUp[i_syst] = diffUp;
+            errDown[i_syst] = diffDown;
+            // store error plus and minus
             if(diffUp>=0 && diffDown<=0)     errPlus[i_syst] = diffUp;
             else if(diffDown>0 && diffUp<=0) errPlus[i_syst] = diffDown;
             else if(diffUp>0 && diffDown>0)  errPlus[i_syst] = TMath::Max(diffUp,diffDown);
@@ -405,110 +410,35 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             else if(diffUp<0 && diffDown<0)  errMinus[i_syst] = TMath::Min(diffUp,diffDown);
         }
         //
-//         for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
-//             if(TtHFitter::DEBUGLEVEL>0) cout << "==> Bin " << i_bin << ":" << endl;
-//             for(int i_syst=0;i_syst<(int)systNames.size();i_syst++){
-//                 if(TtHFitter::DEBUGLEVEL>0) cout << "  Adding new syst " << systNames[i_syst] << endl;
-//                 systValue = fitRes->GetNuisParValue(systNames[i_syst]);
-//                 systErrUp = fitRes->GetNuisParErrUp(systNames[i_syst]);
-//                 systErrDown = fitRes->GetNuisParErrDown(systNames[i_syst]);
-//                 if(TtHFitter::DEBUGLEVEL>0) cout << "    alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
-//                 diffUp = 0.;
-//                 diffDown = 0.;
-//                 TH1* hUp = 0x0;
-//                 TH1* hDown = 0x0;
-//                 for(int i=0;i<fNBkg;i++){
-//                     if(TtHFitter::DEBUGLEVEL>0) cout << "    Sample " << fBkg[i]->fName << endl;
-//                     yieldNominal = fBkg[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
-//                     //         yieldNominal = fBkg[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit!
-//                     hUp = 0x0;
-//                     hDown = 0x0;
-//                     // norm
-//                     if(fBkg[i]->HasNorm(systNames[i_syst])){
-//                         //           diffUp += yieldNominal*(systValue+systErrUp)-yieldNominal*systValue;
-//                         diffUp += yieldNominal*systErrUp;
-//                         diffDown += yieldNominal*systErrDown;
-//                         if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
-//                     }
-//                     // syst
-//                     if(fBkg[i]->HasSyst(systNames[i_syst])){
-//                         hUp   = fBkg[i]->GetSystematic(systNames[i_syst])->fHistUp;
-//                         hDown = fBkg[i]->GetSystematic(systNames[i_syst])->fHistDown;
-//                         if(hUp!=0x0)    yieldUp     = hUp->GetBinContent(i_bin);
-//                         else            yieldUp     = yieldNominal;
-//                         if(hDown!=0x0)  yieldDown   = hDown->GetBinContent(i_bin);
-//                         else            yieldDown   = yieldNominal;
-//                         deltaN = GetDeltaN( systValue, yieldNominal,yieldUp,yieldDown);
-//                         diffUp += yieldNominal*( GetDeltaN( systValue+systErrUp, yieldNominal,yieldUp,yieldDown) - deltaN );
-//                         diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown) - deltaN );
-//                         if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
-//                     }
-//                 }
-//                 if(fHasSig){
-//                     if(TtHFitter::DEBUGLEVEL>0) cout << "    Sample " << fSig->fName << endl;
-//                     yieldNominal = fSig->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
-//                     //         yieldNominal = fSig->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post-fit (wrong I think...)
-//                     hUp = 0x0;
-//                     hDown = 0x0;
-//                     // norm
-//                     if(fSig->HasNorm(systNames[i_syst])){
-//                         diffUp += yieldNominal*systErrUp;
-//                         diffDown += yieldNominal*systErrDown;
-//                         if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
-//                     }
-//                     // syst
-//                     if(fSig->HasSyst(systNames[i_syst])){
-//                         hUp   = fSig->GetSystematic(systNames[i_syst])->fHistUp;
-//                         hDown = fSig->GetSystematic(systNames[i_syst])->fHistDown;
-//                         if(hUp!=0x0)    yieldUp     = hUp->GetBinContent(i_bin);
-//                         else            yieldUp     = yieldNominal;
-//                         if(hDown!=0x0)  yieldDown   = hDown->GetBinContent(i_bin);
-//                         else            yieldDown   = yieldNominal;
-//                         deltaN = GetDeltaN( systValue, yieldNominal,yieldUp,yieldDown);
-//                         
-//                         diffUp   += yieldNominal*( GetDeltaN( systValue+systErrUp, yieldNominal,yieldUp,yieldDown) - deltaN );
-//                         diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown) - deltaN );
-//                         
-//                         if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
-//                     }
-//                 }
-//                 // store errors up and down
-//                 if(diffUp>=0 && diffDown<=0)     errPlus[i_syst] = diffUp;
-//                 else if(diffDown>0 && diffUp<=0) errPlus[i_syst] = diffDown;
-//                 else if(diffUp>0 && diffDown>0)  errPlus[i_syst] = TMath::Max(diffUp,diffDown);
-//                 if(diffUp<0 && diffDown>=0)      errMinus[i_syst] = diffUp;
-//                 else if(diffDown<0 && diffUp>=0) errMinus[i_syst] = diffDown;
-//                 else if(diffUp<0 && diffDown<0)  errMinus[i_syst] = TMath::Min(diffUp,diffDown);
-//                 
-//             }
-            // Loop again on all the syst, two by two, to include the correlations
-            float finalErrPlus = 0;
-            float finalErrMinus = 0;
-            float corr = 0;
-            for(int i_syst=0;i_syst<(int)systNames.size();i_syst++){
-                for(int j_syst=0;j_syst<(int)systNames.size();j_syst++){
-                    corr = fitRes->fCorrMatrix->GetCorrelation(systNames[i_syst],systNames[j_syst]);
-                    finalErrPlus  += corr*errPlus[i_syst]*errPlus[j_syst];
-                    finalErrMinus += corr*errMinus[i_syst]*errMinus[j_syst];
-                }
+        // Loop again on all the syst, two by two, to include the correlations
+        float finalErrPlus = 0;
+        float finalErrMinus = 0;
+        float corr = 0;
+        for(int i_syst=0;i_syst<(int)systNames.size();i_syst++){
+            for(int j_syst=0;j_syst<(int)systNames.size();j_syst++){
+                corr = fitRes->fCorrMatrix->GetCorrelation(systNames[i_syst],systNames[j_syst]);
+                // Michele's note: at this point errPlus should contain the positive variation, errMinus the negative; 
+                //                 and to me it seems correct to make the sum of these, not of the errUp and errDonw...
+                finalErrPlus  += corr*errPlus[i_syst]*errPlus[j_syst];
+                finalErrMinus += corr*errMinus[i_syst]*errMinus[j_syst];
             }
-            // add stat unc
-            if(fUseStatErr){
-                cout << "  Adding stat uncertainty" << endl;
-                for(int i=0;i<fNBkg;i++){
-                    finalErrPlus  += pow(fBkg[i]->fHist->GetBinError(i_bin),2);
-                    finalErrMinus += pow(fBkg[i]->fHist->GetBinError(i_bin),2);
-                }
-                if(fHasSig){
-                    finalErrPlus  += pow(fSig->fHist->GetBinError(i_bin),2);
-                    finalErrMinus += pow(fSig->fHist->GetBinError(i_bin),2);
-                }
-            }
-            //
-            fErr_postFit->SetPointEYhigh(i_bin-1,sqrt(finalErrPlus));
-            fErr_postFit->SetPointEYlow(i_bin-1,sqrt(finalErrMinus));
         }
-//     }
+        // add stat unc
+        if(fUseStatErr){
+            cout << "  Adding stat uncertainty" << endl;
+            for(int i=0;i<fNBkg;i++){
+                finalErrPlus  += pow(fBkg[i]->fHist->GetBinError(i_bin),2);
+                finalErrMinus += pow(fBkg[i]->fHist->GetBinError(i_bin),2);
+            }
+            if(fHasSig){
+                finalErrPlus  += pow(fSig->fHist->GetBinError(i_bin),2);
+                finalErrMinus += pow(fSig->fHist->GetBinError(i_bin),2);
+            }
+        }
+        //
+        fErr_postFit->SetPointEYhigh(i_bin-1,sqrt(finalErrPlus));
+        fErr_postFit->SetPointEYlow(i_bin-1,sqrt(finalErrMinus));
+    }
     // at this point fTot and fErr _postFit should be ready
 }
 
@@ -692,7 +622,7 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
   // --------------------------------------------------------------
   // piecewise expo
   else if(intCode==1){
-    deltaN /= Iz; // divde h_tmp by the nominal
+    deltaN /= Iz; // divide h_tmp by the nominal
     deltaN = pow( deltaN, TMath::Abs(alpha) );  // d -> d^(|a|)
   }
   //

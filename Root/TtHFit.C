@@ -349,10 +349,11 @@ void TtHFit::ReadNtuples(){
                     htmp->~TH1F();
                 }
                 hDown->SetName(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
-                //
-                //
-                fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,
-                                                                                    hUp,hDown);
+
+                SystematicHist *sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
+                sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
+                
             }
         }
     }
@@ -388,12 +389,8 @@ void TtHFit::ReadHistograms(){
                 //         cout << "  " << fRegions[i_ch]->fHistoName << endl;
                 //TH1* HistFromFile(string fileName,string histoName)
                 //         htmp = (TH1F*)HistFromFile( fullPaths[i_path],fRegions[i_ch]->fHistoName);
-// cout << fullPaths[i_path] << endl;
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-// cout << "OK" << endl;
                 
-// cout << fRegions[i_ch]->fHistoNBinsRebin << endl;
-// cout << fRegions[i_ch]->fHistoBins[0] << endl;
                 //Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
