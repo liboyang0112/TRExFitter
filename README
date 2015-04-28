@@ -4,178 +4,148 @@ TtHFitter package
 Authors:
   Michele Pinamonti <michele.pinamonti@gmail.com>
   Loic Valery <loic.valery@cern.ch>
-Latest Update:   04 Mar 2015
-Version:         1.1
+Latest Update:   28 Apr 2015
+Version:         1.2
+
 
 ---------
 Setup
 ---------
- - to setup just use the script:
-     source setup.sh
+To setup just use the script:
+    source setup.sh
+(should work on any machine with access to afs)
+
+To compile:
+    make
+(this will take as main code the file util/myFit.C)
+or specify a custom main file as argument:
+    make  util/myNewCustomFit.C
+   
    
 ---------
 How to   
 ---------
-To use the code, you need to create a C macro which creates the fit object and calls the various methods.
+To run the code, after compiling (see "Setup"), use the command:
+    ./myFit.exe  <option(s)>  <config file>
 
-1) Make sure that you include al the needed .C files. The following shoudl be ok:
-    #include "TFile.h"
-    #include "TH1F.h"
-    #include "TCanvas.h"
-    #include "Root/Common.C"
-    #include "Root/NuisParameter.C"
-    #include "Root/CorrelationMatrix.C"
-    #include "Root/FitResults.C"
-    #include "Root/Systematic.C"
-    #include "Root/SystematicHist.C"
-    #include "Root/NormFactor.C"
-    #include "Root/Sample.C"
-    #include "Root/Region.C"
-    #include "Root/SampleHist.C"
-    #include "Root/TtHFit.C"
-    #include "Root/TthPlot.C"
+The configuration file (<config file>) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
+See the section "Config File" for more details.
+As an example give a look at  util/myFit.config .
+Most of the times the only file the user has to modify to get his fit is the configuration file. 
 
-2) Create the TtHFit object:
-    TtHFit *myFit = new TtHFit( <fitName> );
-   The specifid <fitName> will be used when creating outputs (root file, xml, workspace, plots...)
-
-3) Create the region / sample structure:
-   Each TtHFit instance shoudl contains at least one Region and at least one Sample.
-   Each Region should contain at least one SampleHist (which is nothing more than a container for the nominal 
-   and systematic histograms of a given sample in a given region).
-   
-   To create a Sample:
-    Sample *smp = myFit->NewSample(<sampleName>,<SampleType>);
-   where <SampleType> should be one of these: SampleType::Data, SampleType::Signal, SampleType::Background
-   
-   To create a Region:
-    Region *reg = myFit->NewRegion(<regionName>);
-
-   Then each Region should be filled with SampleHist objects.
-   You can do it manually, with the method:
-    SampleHist *smpHist = reg->SetSampleHist(smp,<h>);
-   where <h> is a TH1* object (already loaded in your macro).
-   Alternatively (recommended way), you can do it automatcally, with two options: read from ntuples or from histogram files.
-   To do this, you need to set some Sample and Region attributes, to tell the fit where to look for the inputs you want to be loaded.
-   
-   3a) Case 1 - read from ntuples:
-       You need to specify the main directory where the files containing the ntuples are:
-        myFit->AddNtuplePath(<myInputDir>);  // eg "./inputFiles/"
-       (Note more than one path can be added here, just calling the method more than once)
-       You also need to specify the name of the TTree inside each root file and the used weight for MC samples (usually these are the same for each sample):
-        myFit->SetNtupleName(<treeName>);  // eg "mini"
-        myFit->SetMCweight(<MCweight>);  // eg "FinalWeight"
-       Then you need to specify the name of the file (without the ".root", which will be added automatcally) for each sample:
-        smp->->AddNtupleFile(<fileName>);  // eg "bkg1"
-       Finally, for each Region, you need to specify the selection, the variable you want to plot and the histogram binning:
-        reg->AddSelection(<selection>); // eg "jet_n>=4 && nJet_tagged==2"
-        reg->SetVariable(<variable>,<nBins>,<min>,<max>); // eg "HTj",10,0,1000
-       At this point you can call the method to fill the regions automatcally:
-        myFit->ReadNtuples();
-       With the examples above, the Region  reg  would be filled with a SampleHist corresponding to the Sample  smp  
-       with all the events passing the selection "jet_n>=4 && nJet_tagged==2" from the ntuple "mini" inside the file "./inputFiles/bkg1.root",
-       with the a new histogram showing "HTj" with this binning: 10,0,100;
-       MC events (so if the sample is not decalred with SampleType::Data) will be weighted by "FinalWeight".
-
-   3b) Case 1 - read from histograms:
-       You need to specify the main directory where the files containing the histograms are:
-        myFit->AddHistoPath(<myInputDir>);   // eg "./inputFiles/"
-       Then you need to specify the name of the file (without the ".root", which will be added automatcally) for each sample:
-        smp->AddHistoFile(<fileName>);  // eg "bkg1"
-       Finally, for each Region, you need to specify the name of the histogram inside the root file:
-        reg->SetHistoName(<histoName>);  // eg "HTj"
-       At this point you can call the method to fill the regions automatcally:
-        myFit->ReadHistograms();
-       With the examples above, the Region  reg  would be filled with a SampleHist corresponding to the Sample  smp  
-       with the histogram "HTj" taken from the file "./inputFiles/bkg1.root".
-
-4) Once the structure is created and the histograms are loaded, an output file should be created, with the histograms saved in a standard way. 
-   This is important for the ext steps and is essential for the fit procedure when including shape systematics 
-   (in fact, at this point the normalization and the shape are separated).
-   So you need to call the method:
-    myFit->WriteHistos();
+The other argument, <option(s)>, tells to the TtHFitter which operation(s) to perform. 
+The possible operations are defined in the main file (e.g. util/myFit.C). 
+For instance, if you use the default file util/myFit.C, the available options are:
+    h : read input histograms (valid only if the proper option is spefified in the config file)
+    n : read input ntuples (valid only if the proper option is spefified in the config file)
+    w : create the RooStats xmls and workspace
+    f : fit the workspace
+    l : calculate exclusion limit
+    d : draw pre-fit plots
+    p : draw post-fit plots
     
-5) Now we can perform the operation we want.
-   Note that if we exited the macro after point 4), we will need the file we just created to be loaded again, so you have to call the method:
-    myFit->ReadHistos("");
-   There are many available operations you can perform at this point, eg:
-    myFit->DrawAndSaveAll();  // --> will produce pre-fit plots and save them
-    myFit->SetPOI("SigXsecOverSM"); myFit->ToRooStat(true,true);  // --> will create a workspace (+ the needed xml's)
-    myFit->Fit(); // --> will perform a fit on the workspace we just created, using FitCrossCheckForLimits
-    myFit->GetLimit();   // --> the same but for limits
-    myFit->DrawAndSaveAll("post");  // --> will produce post-fit plots and save them
-    ...
-       
+
 ---------
-Examples
+Working example   
 ---------
-Look at the macro "FitExample_fromHist.C" for a simple but complete example.
-This macro reads some histograms and can perform all the supported operations, which you can choose with the command line argument.
-How to run it:
-  root -l -b -q CreateHistograms.C               # to create some example histograms to be readed
-  root -l -b -q 'FitExample_fromHist.C+C("h")'   # to read the histograms
-  root -l -b -q 'FitExample_fromHist.C+C("s")'   # to smooth systematics
-  root -l -b -q 'FitExample_fromHist.C+C("d")'   # to draw pre-fit plots
-  root -l -b -q 'FitExample_fromHist.C+C("w")'   # to create the workspace & xmls
-  root -l -b -q 'FitExample_fromHist.C+C("f")'   # to fit
-  root -l -b -q 'FitExample_fromHist.C+C("l")'   # to get limits
-  root -l -b -q 'FitExample_fromHist.C+C("p")'   # to draw post-fit plots
+To test the code with a simple example, let's follow this tutorial.
+
+ 1. Create the input histograms. To do it, run the code CreateHistograms.C:
+      root -l -b -q CreateHistograms.C
+    This will create some root files inside the directory ExampleInputs which will be used as input for the fitting tool.
+
+ 2. Compile the standard code (so simply with "make").
+
+ 3. Run the following command line:
+      /myFit.exe  h  util/myFit.config
+    This will read the histogrmas we created at step 1. and create the structure of the samples and regions, which will be saved into a new root file: FitExample_histos.root
+
+ 4. Now we can already create some pre-fit plots:
+      /myFit.exe  d  util/myFit.config
+    Look at the fiels created in the directory  FitExample/
+
+ 5. Then let's export to RooStats:
+      /myFit.exe  w  util/myFit.config
+    This should create two xml files:  FitExample.xml  and  FitExample_SR_1.xml
+    and a workspace inside the root file:  results/FitExample_combined_FitExample_model.root.
+    
+ 6. At this point we can perform the fit:
+      /myFit.exe  f  util/myFit.config
+    This command calls the external macro  FitCrossCheckForLimits.C  which runs on the worksapce we just created and performs the fit. 
+    (By default it's a S+B fit).
+    A bunch of output files is created by  FitCrossCheckForLimits.C  in the directory xcheckResults/FitExample, 
+    and, in addition, a pull plot is created in the directory FitExample/.
 
 
----------------------
-NEW: Compiled version
----------------------
-It is now possible to compile the code with a Makefile and to produce an executable instead of running on the fly.
-See the example Makefile and source file util/myFit.C.
-The resulting code should do the same as the FitExample_fromHist.C macro.
-To run it:
-
-  ./myFit  h             # to read the histograms
-  ./myFit  s             # to smooth systematics
-  ./myFit  d             # to draw pre-fit plots
-  ...
-
-  
 ---------
-Structure
+Config File   
 ---------
- - Root/ contains the .C files
- - TtHFitter/ contains the .h files
- - ...
+Here's a list of the inputs and options which can be specifed in the config file:
 
--------
-Classes
--------
- - TtHFit:
-   - main class
-   - contains a collection of Region objects
- - Region:
-   - class for fit region / channel
-   - only contains one variable / plot
-   - contains a collection of SampleHist objects
- - Sample:
-   - class for type of process
-   - stores process name, type (signal, background, data), color for histograms, etc..
- - SampleHist:
-   - class containing specific histogram in a given region
-   - may contain a collection of SystematicHisto objects
-   - may contain a collection of NormFactor objects
- - Systematic:
-   - class for each systematic source
-   - stores syst name
- - SystematicHist:
-   - class containing the actual up and down variations for a given systematic on a given sample in a given region
-   - the variations can be overall or histogram
- - NormFactor:
-   - class containing a normalization factor
- - FitResults:
-   - class containing a set of fitted NP and POI
- - NuisParameter:
-   - class to store the each fitted NP or POI
- - CorrelatinMatrix:
-   - class to store the Correlatin matrix between the NP and the POI
- - Common:
-   - collection of useful functions
- - TtHPlot:
-   - class for the data/MC plots
-   
+ - The structure of the file shoudl be the following:
+
+     <ObjectType>: <ObjectName>
+       <ObjectProperty>: <Value>
+       <ObjectProperty>: <Value>
+       ...
+     
+     <ObjectType>: <ObjectName>
+       <ObjectProperty>: <Value>
+       <ObjectProperty>: <Value>
+       ...
+
+     ...
+
+    (NB: note the blank line between the obects!!)
+    
+ - The file should contain:
+     * exactly one object of type "Fit"
+     * at least on object of type "Sample"
+     * at least on object of type "Region"
+     * any number of objects of type "Systematic" (even 0 should be ok)
+   Each object should have unique <ObjectName>.
+      
+ - Then, for each object type, here's a list of properties to be speficied:
+
+    Fit:
+      POI       -> the name of the parameter of interest; this should correspond to a NormFactor defined below
+      ReadFrom  -> can be HIST or NTUP; default is HIST
+      FitType   -> can be CONTROL (performs a B-only fit on control regions only) or CONTROLSIGNAL (performs an S+B fit on control and signal regions); default is CONTROLSIGNAL
+      HistoPath -> valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stred
+      NtuplePaths
+      MCstatThreshold
+      SystPruningShape
+      SystPruningNorm
+      IntCodeOverall
+      IntCodeShape
+      LumiScale
+      DebugLevel
+      ...
+      
+    Sample:
+      Type      -> can be SIGNAL, BACKGROUND or DATA; default is BACKGROUND
+      Title     -> title shown on the legends
+      FillColor -> histogram fill color (not valid for data)
+      LineColor -> histogram line color
+      HistoFile -> which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path
+      ...
+      
+    Region:
+      Type      -> can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
+      HistoName -> valid only for option HIST; it's the name of the histogram to read from each of the root files
+      VariableTitle -> it's the label which will be displayed on the x-axis in the plots
+      Label     -> it's the label which will be showed on the plots and specifies which region is shown
+      ShortLabel-> same as above, but a shorter version for plots with smaller available place
+      ...
+      
+    Systematic:
+      Title     ->
+      Type      -> can be HISTO or OVERALL
+      Samples   -> comma-separated list of samples on which to apply the systematic
+      Smoothing -> smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
+      Symmetrisation -> can be ONESIDED or TWOSIDED (...); for no ymmetrisation, skip the line
+      HistoNameSufUp -> valid only for option HIST, for HISTO systematic
+      HistoNameSufDown -> valid only for option HIST, for HISTO systematic
+      OverallUp  -> for OVERALL systematic, the relative "up" shift (0.1 means +10%)
+      OverallDown-> for OVERALL systematic, the relative "down" shift (-0.1 means -10%)
+      ...

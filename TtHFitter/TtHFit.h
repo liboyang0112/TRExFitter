@@ -110,6 +110,9 @@ public:
     string fHistoName;
     
     FitResults *fFitResults;
+    
+    int fIntCode_overall;
+    int fIntCode_shape;
 };
 
 #endif

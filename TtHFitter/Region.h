@@ -61,9 +61,6 @@ public:
   void SetVariable(string variable,int nbin,float xmin,float xmax);
 
   void SetHistoName(string name); // name of the histogram to read (the same for each sample)
-  
-  void SetAllSamples(bool readNtuples=true,string fileName="MyMeasurement_histos.root");
-  
   void AddSystematic(Systematic *syst);
 
   // cosmetics
@@ -97,35 +94,39 @@ public:
   THStack *fStack;
   TH1* fTot;
   TGraphAsymmErrors *fErr;
+  TH1* fTotUp[MAXsyst];
+  TH1* fTotDown[MAXsyst];
 
   // post fit
   THStack *fStack_postFit;
   TH1* fTot_postFit;
   TGraphAsymmErrors *fErr_postFit;
-  
+  TH1* fTotUp_postFit[MAXsyst];
+  TH1* fTotDown_postFit[MAXsyst];
+
   // ntuple stuff
   string fVariable;
   int fNbins;
   float fXmin, fXmax;
   string fSelection;
   string fMCweight;
-  vector<string> fNtuplePaths;
-  vector<string> fNtuplePathSuffs;
-  vector<string> fNtupleFiles;
-  vector<string> fNtupleFileSuffs;
-  vector<string> fNtupleNames;
-  vector<string> fNtupleNameSuffs;
+  std::vector<string> fNtuplePaths;
+  std::vector<string> fNtuplePathSuffs;
+  std::vector<string> fNtupleFiles;
+  std::vector<string> fNtupleFileSuffs;
+  std::vector<string> fNtupleNames;
+  std::vector<string> fNtupleNameSuffs;
 
   // histogram stuff
   string fHistoName;
   double *fHistoBins;
   int fHistoNBinsRebin;
-  vector<string> fHistoPaths;
-  vector<string> fHistoPathSuffs;
-  vector<string> fHistoFiles;
-  vector<string> fHistoFileSuffs;
-  vector<string> fHistoNames;
-  vector<string> fHistoNameSuffs;
+  std::vector<string> fHistoPaths;
+  std::vector<string> fHistoPathSuffs;
+  std::vector<string> fHistoFiles;
+  std::vector<string> fHistoFileSuffs;
+  std::vector<string> fHistoNames;
+  std::vector<string> fHistoNameSuffs;
   
   int fNSyst;
   std::vector < Systematic* > fSystematics;
@@ -135,11 +136,25 @@ public:
   // plot objects
   TthPlot *fPlotPreFit;
   TthPlot *fPlotPostFit;
-
+  
   bool fUseStatErr;
+  
+  int fIntCode_overall;
+  int fIntCode_shape;
+  
+  std::vector< string > fSystNames;
+  
+  int fFitType;
+  string fPOI;
 };
+
+
+// Functions
 
 // for post-fit plots
 float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode=4);
+
+// To build the total error band
+TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > systNames, CorrelationMatrix *matrix=0x0 );
 
 #endif

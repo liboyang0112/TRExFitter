@@ -19,11 +19,6 @@
 // -------------------------------------------------------
 
 void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bool update=false){
-  TtHFitter::SetDebugLevel(1); 
-
-  // options
-  bool useMCstat = false;
-  
   SetAtlasStyle();
   
   // interpret opt
@@ -34,53 +29,60 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
   bool doLimit         = opt.find("l")!=string::npos;
   bool drawPreFit      = opt.find("d")!=string::npos;
   bool drawPostFit     = opt.find("p")!=string::npos;
-    
-  int inputType; // 0=histograms, 1=ntuples
   
   // Read the config file
   ConfigParser *myConfig = new ConfigParser();
   myConfig->ReadFile(configFile);
   ConfigSet *cs; // to store stuff later
-  
-  // set the stuff accordingly...
+  string param;
+  int inputType; // 0=histograms, 1=ntuples
   int type;
   
   // set fit
   cs = myConfig->GetConfigSet("Fit");
   TtHFit *myFit = new TtHFit( cs->GetValue() );
-  if( cs->Get("ReadFrom")=="hist" )
-    inputType = 0;
-  else if( cs->Get("ReadFrom")=="ntuples" )
-    inputType = 1;
+  param = cs->Get("ReadFrom");
+  std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+  if(      param=="HIST" || param=="HISTOGRAMS")  inputType = 0;
+  else if( param=="NTUP" || param=="NTUPLES" )    inputType = 1;
   else{
-    cout << "ERROR: Invalid \"ReadFrom\" argument. Options: \"hist\", \"ntuples\"" << endl;
-    return;
+      std::cerr << "ERROR: Invalid \"ReadFrom\" argument. Options: \"HIST\", \"NTUP\"" << std::endl;
+      return;
   }
   if(inputType==0){
-    myFit->AddHistoPath( cs->Get("HistoPath") );
+      myFit->AddHistoPath( cs->Get("HistoPath") );
   }
   if(inputType==1){
-    if(cs->Get("NtuplePaths")!=""){
-      vector<string> paths = Vectorize(cs->Get("NtuplePaths"),',');
-      for(int i=0;i<(int)paths.size();i++){
-        myFit->AddNtuplePath( paths[i] );
+      param = cs->Get("NtuplePaths");
+      if( param != "" ){
+          std::vector<string> paths = Vectorize( param,',' );
+          for(int i=0;i<(int)paths.size();i++){
+              myFit->AddNtuplePath( paths[i] );
+          }
       }
-    }
-    myFit->SetMCweight( cs->Get("MCweight") );
-    myFit->SetSelection( cs->Get("Selection") );
-    myFit->SetNtupleName( cs->Get("NtupleName") );
+      myFit->SetMCweight(   cs->Get("MCweight")   );
+      myFit->SetSelection(  cs->Get("Selection")  );
+      myFit->SetNtupleName( cs->Get("NtupleName") );
   }
-  if(cs->Get("LumiScale")!="") myFit -> SetLumi( atof(cs->Get("LumiScale").c_str()) );
-  if(cs->Get("FitType")!=""){
-      if(cs->Get("FitType")=="ControlSignalRegion") myFit -> SetFitType(TtHFit::ControlSignalRegion);
-      else if(cs->Get("FitType")=="ControlRegion")  myFit -> SetFitType(TtHFit::ControlRegion);
-      else {
+  param = cs->Get("LumiScale");  if( param != "" ) myFit -> SetLumi( atof(param.c_str()) );
+  param = cs->Get("FitType");    if( param != "" ){
+      if(     param == "ControlSignalRegion" || param == "CONTROLSIGNAL")
+          myFit -> SetFitType(TtHFit::ControlSignalRegion);
+      else if(param == "ControlRegion"       || param == "CONTROL")
+          myFit -> SetFitType(TtHFit::ControlRegion);
+      else{
           std::cerr << "Unknown FitType argument : " << cs->Get("FitType") << std::endl;
+          return;
       }
   }
-  if(cs->Get("SystPruningShape")!="") myFit->fThresholdSystPruning_Shape = atof(cs->Get("SystPruningShape").c_str());
-  if(cs->Get("SystPruningNorm")!="") myFit->fThresholdSystPruning_Normalisation = atof(cs->Get("SystPruningNorm").c_str());
-
+  param = cs->Get("SystPruningShape");  if( param != "")  myFit->fThresholdSystPruning_Shape         = atof(param.c_str());
+  param = cs->Get("SystPruningNorm");   if( param != "")  myFit->fThresholdSystPruning_Normalisation = atof(param.c_str());
+  param = cs->Get("IntCodeOverall");    if( param != "")  myFit->fIntCode_overall  = atoi(param.c_str());
+  param = cs->Get("IntCodeShape");      if( param != "")  myFit->fIntCode_shape    = atoi(param.c_str());
+  param = cs->Get("MCstatThreshold");   if( param != "")  myFit->SetStatErrorConfig( true,  atof(param.c_str()) );
+  else                                                    myFit->SetStatErrorConfig( false, 0.0 );
+  param = cs->Get("DebugLevel");        if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
+  
   // set regions
   int nReg = 0;
   Region *reg;
@@ -110,13 +112,12 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
         }
         reg -> SetBinning(nBounds-1,bins);
     }
-    
     if(cs->Get("Type")!=""){
-        string param = cs->Get("Type");
+        param = cs->Get("Type");
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param=="CONTROL" )  reg -> SetRegionType(Region::CONTROL);
+        if( param=="CONTROL" )     reg -> SetRegionType(Region::CONTROL);
         if( param=="VALIDATION" )  reg -> SetRegionType(Region::VALIDATION);
-        if( param=="SIGNAL" )  reg -> SetRegionType(Region::SIGNAL);
+        if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
     }
     nReg++;
   }
@@ -128,8 +129,8 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
     cs = myConfig->GetConfigSet("Sample",nSmp);
     if(cs==0x0) break;
     type = SampleType::Background;
-    if(cs->Get("Type")=="signal") type = SampleType::Signal;
-    if(cs->Get("Type")=="data")   type = SampleType::Data;
+    if(cs->Get("Type")=="signal" || cs->Get("Type")=="SIGNAL") type = SampleType::Signal;
+    if(cs->Get("Type")=="data"   || cs->Get("Type")=="DATA")   type = SampleType::Data;
     smp = myFit->NewSample(cs->GetValue(),type);
     smp->SetTitle(cs->Get("Title"));
     if(inputType==0)  smp->AddHistoFile(  cs->Get("HistoFile")  );
@@ -146,7 +147,7 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
         atof(Vectorize(cs->Get("NormFactor"),',')[3].c_str())
       );
     if(cs->Get("NormalizedByTheory")!=""){
-        string param = cs->Get("NormalizedByTheory");
+        param = cs->Get("NormalizedByTheory");
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(param=="FALSE") smp->NormalizedByTheory(false);
         else if(param=="TRUE") smp->NormalizedByTheory(true);
@@ -155,8 +156,7 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
     // ...
     nSmp++;
   }
-  
-  
+    
   // set systs
   int nSys = 0;
   Systematic *sys;
@@ -168,8 +168,8 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
     if(samples_str=="") samples_str = "all";
     vector<string> samples = Vectorize(samples_str,',');
     type = SystType::Histo;
-    if(cs->Get("Type")=="overall" || cs->Get("Type")=="Overall")
-      type = SystType::Overall;
+    if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL")
+        type = SystType::Overall;
     for(int i_smp=0;i_smp<myFit->fNSamples;i_smp++){
       sam = myFit->fSamples[i_smp];
       if(sam->fType == SampleType::Data) continue;
@@ -177,10 +177,10 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
         sys = sam->AddSystematic(cs->Get("Title"),type);
         if(type==SystType::Histo){
           if(inputType==0){
-            if(cs->Get("HistoNameSufUp")!="") sys->fHistoNameSufUp = cs->Get("HistoNameSufUp");
+            if(cs->Get("HistoNameSufUp")!="")   sys->fHistoNameSufUp   = cs->Get("HistoNameSufUp");
             if(cs->Get("HistoNameSufDown")!="") sys->fHistoNameSufDown = cs->Get("HistoNameSufDown");
-            if(cs->Get("HistoFileUp")!="") sys->fHistoFilesUp.push_back(cs->Get("HistoFileUp"));
-            if(cs->Get("HistoFileDown")!="") sys->fHistoFilesDown.push_back(cs->Get("HistoFileDown"));
+            if(cs->Get("HistoFileUp")!="")      sys->fHistoFilesUp  .push_back(cs->Get("HistoFileUp"));
+            if(cs->Get("HistoFileDown")!="")    sys->fHistoFilesDown.push_back(cs->Get("HistoFileDown"));
             // ...
           }
           else if(inputType==1){
@@ -193,11 +193,12 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
             // ...
           }
           if(cs->Get("Symmetrisation")!=""){
-              if(cs->Get("Symmetrisation")=="OneSided") sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
-              else if(cs->Get("Symmetrisation")=="TwoSided") sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
-              else {
+              if(cs->Get("Symmetrisation")=="OneSided" || cs->Get("Symmetrisation")=="ONESIDED")
+                  sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
+              else if(cs->Get("Symmetrisation")=="TwoSided" || cs->Get("Symmetrisation")=="TWOSIDED")
+                  sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
+              else
                   std::cout << "Symetrisation scheme is not recognized ... " << std::endl;
-              }
           }
           if(cs->Get("Smoothing")!=""){
               sys->fSmoothType = atoi(cs->Get("Smoothing").c_str());
@@ -205,7 +206,7 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
           // ...
         }
         else if(type==SystType::Overall){
-          sys->fOverallUp = atof( cs->Get("OverallUp").c_str() );
+          sys->fOverallUp   = atof( cs->Get("OverallUp").c_str() );
           sys->fOverallDown = atof( cs->Get("OverallDown").c_str() );
         }
       }
@@ -218,8 +219,6 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
   // do actual things
   //
 
-  myFit->SetStatErrorConfig(useMCstat,0.05);
-
   if(readHistograms){
     myFit->ReadHistograms();
     myFit->Print();
@@ -227,7 +226,6 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
   }
   else if(readNtuples){
     myFit->ReadNtuples();
-cout << "OK" << endl;
     myFit->Print();
     myFit->WriteHistos("",!update);
   }
@@ -259,6 +257,7 @@ cout << "OK" << endl;
   
   if(drawPostFit){
     myFit->DrawAndSaveAll("post");
+    myFit->DrawSummary("post");
   }
 }
 

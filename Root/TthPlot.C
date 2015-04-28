@@ -411,14 +411,18 @@ void TthPlot::SaveAs(string name){
 }
 
 void TthPlot::WriteToFile(string name){
+  TDirectory *here = gDirectory;
   TFile *f = new TFile(name.c_str(),"RECREATE");
   f->cd();
-  h_data->Write("h_Data",TObject::kOverwrite);
-  h_tot->Write("h_TotBkg",TObject::kOverwrite);
+  if(h_data) h_data->Write(Form("h_%s",data_name.c_str()),TObject::kOverwrite);
+  h_tot->Write("h_totErr",TObject::kOverwrite);
+  if(g_tot) g_tot->Write("g_totErr",TObject::kOverwrite);
   for(int i_smp=sample_name.size()-1;i_smp>0;i_smp--){
-    h_bkg[i_smp]->Write("",TObject::kOverwrite);
+    h_bkg[i_smp]->Write(Form("h_%s",sample_name[i_smp].c_str()),TObject::kOverwrite);
   }
-  h_signal->Write("h_ttH",TObject::kOverwrite);
+  if(h_signal)  h_signal ->Write("h_signal",TObject::kOverwrite);
+  if(h_normsig) h_normsig->Write("h_normSignal",TObject::kOverwrite);
+  here->cd();
   f->Close();
   f->~TFile();
   delete f;

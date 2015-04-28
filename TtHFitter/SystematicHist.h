@@ -31,6 +31,7 @@ public:
   string fFileNameShapeUp;
   string fHistoNameShapeUp;
   TH1* fHistUp_original;
+  TH1* fHistUp_postFit;
 
   TH1* fHistDown;
   TH1* fHistShapeDown;
@@ -40,6 +41,7 @@ public:
   string fFileNameShapeDown;
   string fHistoNameShapeDown;
   TH1* fHistDown_original;
+  TH1* fHistDown_postFit;
 }; 
 
 #endif

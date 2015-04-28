@@ -38,6 +38,9 @@ TtHFit::TtHFit(string name){
     fRegions.clear();
     fSamples.clear();
     fSystematics.clear();
+    
+    fIntCode_overall = 4;
+    fIntCode_shape = 0;
 }
 
 TtHFit::~TtHFit(){
@@ -81,40 +84,27 @@ void TtHFit::SetFitType(FitType type){
 }
 
 Sample* TtHFit::NewSample(string name,int type){
-    //fSamples[fNSamples] = new Sample(name,type);
     fSamples.push_back(new Sample(name,type));
-    // propagate stuff
-    //   for(int i_path=0;i_path<(int)fNtuplePaths.size();i_path++){
-    //     fSamples[fNSamples]->AddNtuplePath(fNtuplePaths[i_path]);
-    //   }
-    //   if(fMCweight!="") fSamples[fNSamples]->SetMCweight(fMCweight);
-    //   if(fNtupleName!="") fSamples[fNSamples]->fNtupleNames.push_back(fNtupleName);
     //
     fNSamples ++;
     return fSamples[fNSamples-1];
 }
 
 Systematic* TtHFit::NewSystematic(string name){
-    //fSystematics[fNSyst] = new Systematic(name);
     fSystematics.push_back(new Systematic(name));
     fNSyst ++;
     return fSystematics[fNSyst-1];
 }
 
 Region* TtHFit::NewRegion(string name){
-    //fRegions[fNRegions] = new Region(name);
     fRegions.push_back(new Region(name));
-    
-    //   // propagate stuff
-    //   for(int i_smp=0;i_smp<fNSamples;i_smp++){
-    //     fRegions[fNRegions]->AddSample(fSamples[i_smp]);
-    //   }
-    //   for(int i_syst=0;i_syst<fNSyst;i_syst++){
-    //     fRegions[fNRegions]->AddSystematic(fSystematics[i_syst]);
-    //   }
-    //   if(fSelection!="") fRegions[fNRegions]->AddSelection(fSelection);
     //
     fRegions[fNRegions]->fFitName = fName;
+    fRegions[fNRegions]->fFitType = fFitType;
+    fRegions[fNRegions]->fPOI = fPOI;
+    fRegions[fNRegions]->fIntCode_overall = fIntCode_overall;
+    fRegions[fNRegions]->fIntCode_shape   = fIntCode_shape;
+    //
     fNRegions ++;
     return fRegions[fNRegions-1];
 }
@@ -604,6 +594,7 @@ void TtHFit::ReadAll(bool readNtuples,string fileName){
 }
 
 void TtHFit::DrawAndSaveAll(string opt){
+    TthPlot *p;
     gSystem->mkdir(fName.c_str());
     bool isPostFit = opt.find("post")!=string::npos;
     if(isPostFit){
@@ -613,11 +604,14 @@ void TtHFit::DrawAndSaveAll(string opt){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
         if(isPostFit){
-            fRegions[i_ch]->DrawPostFit(fFitResults,opt) -> SaveAs((fName+"/"+fRegions[i_ch]->fName+"_postFit.png").c_str());
-            
+            p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
+            p->SaveAs(     (fName+"/"+fRegions[i_ch]->fName+"_postFit.png" ).c_str());
+//             p->WriteToFile((fName+"/"+fRegions[i_ch]->fName+"_postFit.root").c_str());
         }
         else{
-            fRegions[i_ch]->DrawPreFit(opt)              -> SaveAs((fName+"/"+fRegions[i_ch]->fName+".png").c_str());            
+            p = fRegions[i_ch]->DrawPreFit(opt);
+            p->SaveAs(     (fName+"/"+fRegions[i_ch]->fName+".png" ).c_str());            
+//             p->WriteToFile((fName+"/"+fRegions[i_ch]->fName+".root").c_str());
         }
     }
     //   DrawSummary(opt+" log")->SaveAs("Summary.png");
@@ -629,67 +623,112 @@ TthPlot* TtHFit::DrawSummary(string opt){
     TH1F* h_sig = 0;
     TH1F* h_data = 0;
     TH1F* h_bkg[MAXsamples];
+    TH1F *h_tot;
+    TGraphAsymmErrors *g_err;
     int Nbkg = 0;
+    //
+    string name;
+    string title;
+    int lineColor;
+    int fillColor;
+    int lineWidth;
+    //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        
+        name = fSamples[i_smp]->fName.c_str();
+        title = fSamples[i_smp]->fTitle.c_str();
+        lineColor = fRegions[0]->fSampleHists[i_smp]->fHist->GetLineColor();
+        fillColor = fRegions[0]->fSampleHists[i_smp]->fHist->GetFillColor();
+        lineWidth = fRegions[0]->fSampleHists[i_smp]->fHist->GetLineWidth();
+        //
         if(fSamples[i_smp]->fType==SampleType::Signal){
-            h_sig = new TH1F(fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fTitle.c_str(), fNRegions,0,fNRegions);
+            h_sig = new TH1F(name.c_str(),title.c_str(), fNRegions,0,fNRegions);
             cout << "Adding Signal: " << h_sig->GetTitle() << endl;
-            h_sig->SetLineColor(fRegions[0]->fSampleHists[i_smp]->fHist->GetLineColor());
-            h_sig->SetFillColor(fRegions[0]->fSampleHists[i_smp]->fHist->GetFillColor());
-            h_sig->SetLineWidth(fRegions[0]->fSampleHists[i_smp]->fHist->GetLineWidth());
-            
+            h_sig->SetLineColor(lineColor);
+            h_sig->SetFillColor(fillColor);
+            h_sig->SetLineWidth(lineWidth);
             for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-                h_sig->SetBinContent( i_bin,fRegions[i_bin-1]->fSampleHists[i_smp]->fHist->Integral() );
+                if(isPostFit)  h_sig->SetBinContent( i_bin,fRegions[i_bin-1]->fSampleHists[i_smp]->fHist_postFit->Integral() );
+                else           h_sig->SetBinContent( i_bin,fRegions[i_bin-1]->fSampleHists[i_smp]->fHist->Integral() );
             }
         }
         else if(fSamples[i_smp]->fType==SampleType::Background){
-            h_bkg[Nbkg] = new TH1F(fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fTitle.c_str(), fNRegions,0,fNRegions);
+            h_bkg[Nbkg] = new TH1F(name.c_str(),title.c_str(), fNRegions,0,fNRegions);
             cout << "Adding Bkg:    " << h_bkg[Nbkg]->GetTitle() << endl;
-            h_bkg[Nbkg]->SetLineColor(fRegions[0]->fSampleHists[i_smp]->fHist->GetLineColor());
-            h_bkg[Nbkg]->SetFillColor(fRegions[0]->fSampleHists[i_smp]->fHist->GetFillColor());
-            h_bkg[Nbkg]->SetLineWidth(fRegions[0]->fSampleHists[i_smp]->fHist->GetLineWidth());
+            h_bkg[Nbkg]->SetLineColor(lineColor);
+            h_bkg[Nbkg]->SetFillColor(fillColor);
+            h_bkg[Nbkg]->SetLineWidth(lineWidth);
             for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-                h_bkg[Nbkg]->SetBinContent( i_bin,fRegions[i_bin-1]->fSampleHists[i_smp]->fHist->Integral() );
+                if(isPostFit)  h_bkg[Nbkg]->SetBinContent( i_bin,fRegions[i_bin-1]->fSampleHists[i_smp]->fHist_postFit->Integral() );
+                else           h_bkg[Nbkg]->SetBinContent( i_bin,fRegions[i_bin-1]->fSampleHists[i_smp]->fHist->Integral() );
             }
             Nbkg++;
         }
         else if(fSamples[i_smp]->fType==SampleType::Data){
-            h_data = new TH1F(fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fTitle.c_str(), fNRegions,0,fNRegions);
+            h_data = new TH1F(name.c_str(),title.c_str(), fNRegions,0,fNRegions);
             cout << "Adding Data:   " << h_data->GetTitle() << endl;
             for(int i_bin=1;i_bin<=fNRegions;i_bin++){
                 h_data->SetBinContent( i_bin,fRegions[i_bin-1]->fData->fHist->Integral() );
             }
         }
     }
-    
     //
     TthPlot *p = new TthPlot(fName+"_summary",900,700);
     p->SetXaxis("",false);
     p->SetChannel("Single Lepton");
     p->fATLASlabel = "Internal";
-    
     //
-    if(h_data){
-        p->SetData(h_data, h_data->GetTitle());
-    }
-    
-    p->AddSignal(h_sig,h_sig->GetTitle());
-    
+    if(h_data) p->SetData(h_data, h_data->GetTitle());
+    if(h_sig) p->AddSignal(h_sig,h_sig->GetTitle());
     //   p->AddNormSignal(h_sig,((string)h_sig->GetTitle())+"(norm)");
     for(int i=0;i<Nbkg;i++)
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
     //
-    //   BuildPreFitErrorHist();
+    // Build tot
+//     if(isPostFit)  h_tot = new TH1F(fRegions[0]->fTot_postFit->GetName(),fRegions[0]->fTot->GetTitle(), fNRegions,0,fNRegions);
+//     else           h_tot = new TH1F(fRegions[0]->fTot->GetName(),fRegions[0]->fTot->GetTitle(), fNRegions,0,fNRegions);
+    h_tot = new TH1F("h_Tot","h_Tot", fNRegions,0,fNRegions);
+    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->Integral() );
+        else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->Integral() );
+    }
     //
-    //   p->SetTotBkg((TH1*)fTot);
-    //   p->SetTotBkgAsym(fErr);
+    //   Build error band
+    // build the vectors of variations
+    std::vector< TH1* > h_up;
+    std::vector< TH1* > h_down;
+    TH1* h_tmp_Up;
+    TH1* h_tmp_Down;
+    for(int i_syst=0;i_syst<(int)fRegions[0]->fSystNames.size();i_syst++){
+        for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+            if(i_bin==1){
+                if(isPostFit){
+                    h_tmp_Up   = fRegions[i_bin-1]->fTotUp_postFit[i_syst];
+                    h_tmp_Down = fRegions[i_bin-1]->fTotDown_postFit[i_syst];
+                }
+                else{
+                    h_tmp_Up   = fRegions[i_bin-1]->fTotUp[i_syst];
+                    h_tmp_Down = fRegions[i_bin-1]->fTotDown[i_syst];
+                }
+                h_up.  push_back( new TH1F(h_tmp_Up->GetName(),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
+                h_down.push_back( new TH1F(h_tmp_Down->GetName(),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
+            }
+            h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+            h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+        }
+    }
+    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, fRegions[0]->fSystNames, fFitResults->fCorrMatrix );
+    else           g_err = BuildTotError( h_tot, h_up, h_down, fRegions[0]->fSystNames );
+    //
+    p->SetTotBkg(h_tot);
+    p->SetTotBkgAsym(g_err);
+    //
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
         p->SetBinLabel(i_bin,fRegions[i_bin-1]->fShortLabel.c_str());
     }
     p->Draw(opt);
     gSystem->mkdir(fName.c_str());
-    p->SaveAs((fName+"/Summary.png").c_str());
+    if(isPostFit)  p->SaveAs((fName+"/Summary_postFit.png").c_str());
+    else           p->SaveAs((fName+"/Summary.png").c_str());
     return p;
 }
 
@@ -788,7 +827,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     
     RooStats::HistFactory::Measurement meas(fName.c_str(), fName.c_str());
     //   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
-    meas.SetOutputFilePrefix((fResultsFolder+"/"+fName).c_str());//"results/myMeasurement");
+    meas.SetOutputFilePrefix((fResultsFolder+"/"+fName).c_str());
     meas.SetExportOnly(exportOnly);
     meas.SetPOI(fPOI.c_str());
     meas.SetLumi(1.0);
@@ -893,7 +932,7 @@ void TtHFit::Fit(){
     // PlotsNuisanceParametersVSmu=4, 
     // PlotsStatisticalTest=5
     int algo = 3;
-    //     int algo = 0;
+//       int algo = 0;
     string workspace = "results/"+fName+"_combined_"+fName+"_model.root";
     
     //Checks if a data sample exists
