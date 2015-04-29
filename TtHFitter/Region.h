@@ -28,7 +28,6 @@ class SampleHist;
 class Region {
 public:
 
-    
   enum RegionType {
     CONTROL = 1,
     VALIDATION = 2,
@@ -146,6 +145,7 @@ public:
   
   int fFitType;
   string fPOI;
+  string fFitLabel;
 };
 
 

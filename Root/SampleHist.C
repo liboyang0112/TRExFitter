@@ -4,61 +4,67 @@
 // -------------------------------------------------------------------------------------------------
 // SampleHist
 
+//_____________________________________________________________________________
+//
 SampleHist::SampleHist(Sample *sample,TH1 *hist){
-    
-  fSample = sample;
-  fName = fSample->fName;
-    
-  //Nominal histogram configuration
-  fHist = (TH1*)hist->Clone(Form("h_%s",fName.c_str()));
-  fHist->SetFillColor(fSample->fFillColor);
-  fHist->SetLineColor(fSample->fLineColor);
-
-  fHist_postFit = 0x0;
-    
-  fHistoName = "";
-  fFileName = "";
-  fFitName = "";
-  fNSyst = 0;
-  fNNorm = 0;
-  fRegionName = "Region";
-  fVariableTitle = "Variable";
-  fSystSmoothed = false;
-  // add overall systematics and normFactors from sample
-  for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
-    if(sample->fSystematics[i_syst]->fType == SystType::Overall)
-      AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
-  }
-  for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
-    AddNormFactor(sample->fNormFactors[i_norm]);
-  }
+    fSample = sample;
+    fName = fSample->fName;
+    //
+    //Nominal histogram configuration
+    fHist = (TH1*)hist->Clone(Form("h_%s",fName.c_str()));
+    fHist->SetFillColor(fSample->fFillColor);
+    fHist->SetLineColor(fSample->fLineColor);
+    //
+    fHist_postFit = 0x0;
+    //
+    fHistoName = "";
+    fFileName = "";
+    fFitName = "";
+    fNSyst = 0;
+    fNNorm = 0;
+    fRegionName = "Region";
+    fRegionLabel = "Region";
+    fVariableTitle = "Variable";
+    fSystSmoothed = false;
+    // add overall systematics and normFactors from sample
+    for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
+        if(sample->fSystematics[i_syst]->fType == SystType::Overall)
+            AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
+    }
+    for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
+        AddNormFactor(sample->fNormFactors[i_norm]);
+    }
 }
 
+//_____________________________________________________________________________
+//
 SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
-  fSample = sample;
-  fHist = HistFromFile(fileName,histoName);
-  fHist->SetFillColor(fSample->fFillColor);
-  fHist->SetLineColor(fSample->fLineColor);
-  fHist->SetLineWidth(1);
-  fName = fSample->fName;
-  fHistoName = histoName;
-  fFileName = fileName;
-  fHist_postFit = 0x0;
-  fNSyst = 0;
-  fNNorm = 0;
-  fRegionName = "Region";
-  fVariableTitle = "Variable";
-  fSystSmoothed = false;
-  // add overall systematics and normFactors from sample
-  for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
-    if(sample->fSystematics[i_syst]->fType == SystType::Overall)
-      AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
-  }
-  for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
-    AddNormFactor(sample->fNormFactors[i_norm]);
-  }
+    fSample = sample;
+    fHist = HistFromFile(fileName,histoName);
+    fHist->SetFillColor(fSample->fFillColor);
+    fHist->SetLineColor(fSample->fLineColor);
+    fHist->SetLineWidth(1);
+    fName = fSample->fName;
+    fHistoName = histoName;
+    fFileName = fileName;
+    fHist_postFit = 0x0;
+    fNSyst = 0;
+    fNNorm = 0;
+    fRegionName = "Region";
+    fVariableTitle = "Variable";
+    fSystSmoothed = false;
+    // add overall systematics and normFactors from sample
+    for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
+        if(sample->fSystematics[i_syst]->fType == SystType::Overall)
+            AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
+    }
+    for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
+        AddNormFactor(sample->fNormFactors[i_norm]);
+    }
 }
 
+//_____________________________________________________________________________
+//
 SampleHist::~SampleHist(){
     delete fHist;
     delete fHist_postFit;
@@ -68,153 +74,176 @@ SampleHist::~SampleHist(){
         }
     }
     fSyst.clear();
-    
 }
 
+//_____________________________________________________________________________
+//
 SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
-  SystematicHist *sh;
-  // try if it's already there...
-  sh = GetSystematic(name);
-  // ... and if not create a new one
-  if(sh==0x0){
-    sh = new SystematicHist(name);
-    fSyst.push_back(sh);
-    fNSyst ++;
-  }
-  //
-  sh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_Up",fHist->GetName(),name.c_str()));
-  sh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
-  sh->fHistUp->Scale(1.+up);
-  sh->fHistDown->Scale(1.+down);
-  sh->fIsOverall = true;
-  sh->fIsShape   = false;
-  sh->fNormUp   = up;
-  sh->fNormDown = down;
-  return sh;
+    SystematicHist *sh;
+    // try if it's already there...
+    sh = GetSystematic(name);
+    // ... and if not create a new one
+    if(sh==0x0){
+      sh = new SystematicHist(name);
+      fSyst.push_back(sh);
+      fNSyst ++;
+    }
+    //
+    sh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_Up",fHist->GetName(),name.c_str()));
+    sh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
+    sh->fHistUp->Scale(1.+up);
+    sh->fHistDown->Scale(1.+down);
+    sh->fIsOverall = true;
+    sh->fIsShape   = false;
+    sh->fNormUp   = up;
+    sh->fNormDown = down;
+    return sh;
 }
 
+//_____________________________________________________________________________
+//
 SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
-  SystematicHist *sh;
-  // try if it's already there...
-  sh = GetSystematic(name);
-  // ... and if not create a new one
-  if(sh==0x0){
-    sh = new SystematicHist(name);
-    fSyst.push_back(sh);
-    fNSyst ++;
-  }
-  //
-  sh->fHistUp   = (TH1*)h_up->Clone(Form("%s_%s_Up",fHist->GetName(),name.c_str()));
-  sh->fHistDown = (TH1*)h_down->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
-  sh->fHistShapeUp = (TH1*)h_up->Clone(Form("%s_%s_Shape_Up",fHist->GetName(),name.c_str()));
-  sh->fHistShapeDown = (TH1*)h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
-  sh->fHistShapeUp->Scale(fHist->Integral() / sh->fHistShapeUp->Integral());
-  sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
-  sh->fIsOverall = true;
-  sh->fIsShape   = true;
-  sh->fNormUp   = ( sh->fHistUp->Integral() - fHist->Integral() ) / fHist->Integral();
-  sh->fNormDown = ( sh->fHistDown->Integral() - fHist->Integral() ) / fHist->Integral();
-  if(sh->fNormUp == 0 && sh->fNormDown == 0) sh->fIsOverall = false;
-  return sh;
+    SystematicHist *sh;
+    // try if it's already there...
+    sh = GetSystematic(name);
+    // ... and if not create a new one
+    if(sh==0x0){
+      sh = new SystematicHist(name);
+      fSyst.push_back(sh);
+      fNSyst ++;
+    }
+    //
+    sh->fHistUp   = (TH1*)h_up->Clone(Form("%s_%s_Up",fHist->GetName(),name.c_str()));
+    sh->fHistDown = (TH1*)h_down->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
+    sh->fHistShapeUp = (TH1*)h_up->Clone(Form("%s_%s_Shape_Up",fHist->GetName(),name.c_str()));
+    sh->fHistShapeDown = (TH1*)h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
+    sh->fHistShapeUp->Scale(fHist->Integral() / sh->fHistShapeUp->Integral());
+    sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
+    sh->fIsOverall = true;
+    sh->fIsShape   = true;
+    sh->fNormUp   = ( sh->fHistUp->Integral() - fHist->Integral() ) / fHist->Integral();
+    sh->fNormDown = ( sh->fHistDown->Integral() - fHist->Integral() ) / fHist->Integral();
+    if(sh->fNormUp == 0 && sh->fNormDown == 0) sh->fIsOverall = false;
+    return sh;
 }
 
+//_____________________________________________________________________________
+//
 SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down){
-  SystematicHist *sh;
-  // try if it's already there...
-  sh = GetSystematic(name);
-  // ... and if not create a new one
-  if(sh==0x0){
-    sh = new SystematicHist(name);
-    fSyst.push_back(sh);
-    fNSyst ++;
-  }
-  //
-  sh->fFileNameUp = fileName_up;
-  sh->fFileNameDown = fileName_down;
-  sh->fHistoNameUp = histoName_up;
-  sh->fHistoNameDown = histoName_down;
-  sh->fHistUp = HistFromFile(sh->fFileNameUp,sh->fHistoNameUp);
-  sh->fHistDown = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown);
-  sh->fHistShapeUp = (TH1*)sh->fHistUp->Clone(Form("%s_%s_Shape_Up",fHist->GetName(),name.c_str()));
-  sh->fHistShapeDown = (TH1*)sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
-  sh->fHistShapeUp->Scale(fHist->Integral() / sh->fHistShapeUp->Integral());
-  sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
-  sh->fIsOverall = true;
-  sh->fIsShape   = true;
-  sh->fNormUp   = ( sh->fHistUp->Integral() - fHist->Integral() ) / fHist->Integral();
-  sh->fNormDown = ( sh->fHistDown->Integral() - fHist->Integral() ) / fHist->Integral();
-  if(sh->fNormUp == 0 && sh->fNormDown == 0) sh->fIsOverall = false;
-  return sh;
+    SystematicHist *sh;
+    // try if it's already there...
+    sh = GetSystematic(name);
+    // ... and if not create a new one
+    if(sh==0x0){
+      sh = new SystematicHist(name);
+      fSyst.push_back(sh);
+      fNSyst ++;
+    }
+    //
+    sh->fFileNameUp = fileName_up;
+    sh->fFileNameDown = fileName_down;
+    sh->fHistoNameUp = histoName_up;
+    sh->fHistoNameDown = histoName_down;
+    sh->fHistUp = HistFromFile(sh->fFileNameUp,sh->fHistoNameUp);
+    sh->fHistDown = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown);
+    sh->fHistShapeUp = (TH1*)sh->fHistUp->Clone(Form("%s_%s_Shape_Up",fHist->GetName(),name.c_str()));
+    sh->fHistShapeDown = (TH1*)sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
+    sh->fHistShapeUp->Scale(fHist->Integral() / sh->fHistShapeUp->Integral());
+    sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
+    sh->fIsOverall = true;
+    sh->fIsShape   = true;
+    sh->fNormUp   = ( sh->fHistUp->Integral() - fHist->Integral() ) / fHist->Integral();
+    sh->fNormDown = ( sh->fHistDown->Integral() - fHist->Integral() ) / fHist->Integral();
+    if(sh->fNormUp == 0 && sh->fNormDown == 0) sh->fIsOverall = false;
+    return sh;
 }
 
+//_____________________________________________________________________________
+//
 NormFactor* SampleHist::AddNormFactor(NormFactor *normFactor){
-  NormFactor *norm = GetNormFactor(normFactor->fName);
-  if(norm==0x0){
-    fNormFactors.push_back(normFactor);
-    fNNorm ++;
-  }
-  else{
-    norm = normFactor;
-  }
+    NormFactor *norm = GetNormFactor(normFactor->fName);
+    if(norm==0x0){
+        fNormFactors.push_back(normFactor);
+        fNNorm ++;
+    }
+    else{
+        norm = normFactor;
+    }
     return norm;
 }
 
+//_____________________________________________________________________________
+//
 NormFactor* SampleHist::AddNormFactor(string name,float nominal, float min, float max){
-  NormFactor *norm = GetNormFactor(name);
-  if(norm==0x0){
-    fNormFactors.push_back(new NormFactor(name,nominal,min,max));
-    fNNorm ++;
-  }
-  else{
-    norm = new NormFactor(name,nominal,min,max);;
-  }
-  return norm;
+    NormFactor *norm = GetNormFactor(name);
+    if(norm==0x0){
+        fNormFactors.push_back(new NormFactor(name,nominal,min,max));
+        fNNorm ++;
+    }
+    else{
+        norm = new NormFactor(name,nominal,min,max);;
+    }
+    return norm;
 }
 
+//_____________________________________________________________________________
+//
 SystematicHist* SampleHist::GetSystematic(string systName){
-  for(int i_syst=0;i_syst<fNSyst;i_syst++){
-    if(systName == fSyst[i_syst]->fName) return fSyst[i_syst];
-  }
-  return 0x0;
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(systName == fSyst[i_syst]->fName) return fSyst[i_syst];
+    }
+    return 0x0;
 }
 
+//_____________________________________________________________________________
+//
 NormFactor* SampleHist::GetNormFactor(string name){
-  for(int i_syst=0;i_syst<fNNorm;i_syst++){
-    if(name == fNormFactors[i_syst]->fName) return fNormFactors[i_syst];
-  }
-  return 0x0;
+    for(int i_syst=0;i_syst<fNNorm;i_syst++){
+        if(name == fNormFactors[i_syst]->fName) return fNormFactors[i_syst];
+    }
+    return 0x0;
 }
 
+//_____________________________________________________________________________
+//
 bool SampleHist::HasSyst(string name){
-  for(int i_syst=0;i_syst<fNSyst;i_syst++){
-    if(fSyst[i_syst]->fName == name) return true;
-  }
-  return false;
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(fSyst[i_syst]->fName == name) return true;
+    }
+    return false;
 }
 
+//_____________________________________________________________________________
+//
 bool SampleHist::HasNorm(string name){
-  for(int i_norm=0;i_norm<fNNorm;i_norm++){
-    if(fNormFactors[i_norm]->fName == name) return true;
-  }
-  return false;
+    for(int i_norm=0;i_norm<fNNorm;i_norm++){
+        if(fNormFactors[i_norm]->fName == name) return true;
+    }
+    return false;
 }
 
+//_____________________________________________________________________________
+//
 void SampleHist::WriteToFile(){
-  WriteHistToFile(fHist,fFileName);
-  WriteHistToFile(HistoTools::TranformHistogramBinning(fHist),fFileName);
-  for(int i_syst=0;i_syst<fNSyst;i_syst++){
-    fSyst[i_syst]->WriteToFile();
-  }
+    WriteHistToFile(fHist,fFileName);
+    WriteHistToFile(HistoTools::TranformHistogramBinning(fHist),fFileName);
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        fSyst[i_syst]->WriteToFile();
+    }
 }
 
+//_____________________________________________________________________________
+//
 void SampleHist::ReadFromFile(){
-  fHist = HistFromFile(fFileName,fHistoName);
+    fHist = HistFromFile(fFileName,fHistoName);
 }
 
+//_____________________________________________________________________________
+//
 void SampleHist::FixEmptyBins(){
-  for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-    if(fHist->GetBinContent(i_bin)<=0) fHist->SetBinContent(i_bin,1e-6);
-  }
+    for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+        if(fHist->GetBinContent(i_bin)<=0) fHist->SetBinContent(i_bin,1e-6);
+    }
 }
 
 //_____________________________________________________________________________
@@ -326,8 +355,10 @@ void SampleHist::DrawSystPlot(string syst){
         // Creates a legend for the plot
         TLatex *tex = new TLatex();
         tex->SetNDC();
-        tex->DrawLatex(0.2,0.89,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fName.c_str()));
-        tex->DrawLatex(0.2,0.84,fRegionName.c_str());
+        if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.2,0.89,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
+        else                                tex->DrawLatex(0.2,0.89,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fTitle.c_str()));
+//         tex->DrawLatex(0.2,0.89,Form("%s, %s",fSample->fSystematics[i_syst]->fTitle.c_str(),fSample->fTitle.c_str()));
+        tex->DrawLatex(0.2,0.84,fRegionLabel.c_str());
         
         //Legend of the histograms
         TLegend *leg = new TLegend(0.6,0.83,0.9,0.93);
@@ -371,7 +402,6 @@ void SampleHist::DrawSystPlot(string syst){
         delete h_syst_up_origin_black;
     }
     delete c;
-    
 }
 
 //_____________________________________________________________________________
@@ -392,7 +422,6 @@ void SampleHist::SmoothSyst(string syst,bool force){
         if(fSyst[i_syst]->fIsShape){
             HistoTools::ManageHistograms( fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType,  h_nominal, fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown, h_syst_up, h_syst_down);
         }
-        
         //
         // save stuff
         //

@@ -41,6 +41,8 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
   // set fit
   cs = myConfig->GetConfigSet("Fit");
   TtHFit *myFit = new TtHFit( cs->GetValue() );
+  param = cs->Get("Label"); if(param!="") myFit->fLabel = param;
+  myFit->SetPOI(cs->Get("POI"));
   param = cs->Get("ReadFrom");
   std::transform(param.begin(), param.end(), param.begin(), ::toupper);
   if(      param=="HIST" || param=="HISTOGRAMS")  inputType = 0;
@@ -174,7 +176,9 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
       sam = myFit->fSamples[i_smp];
       if(sam->fType == SampleType::Data) continue;
       if(samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() ){
-        sys = sam->AddSystematic(cs->Get("Title"),type);
+//         sys = sam->AddSystematic(cs->Get("Title"),type);
+        sys = sam->AddSystematic(cs->GetValue(),type);
+        if(cs->Get("Title")!="") sys->fTitle = cs->Get("Title");
         if(type==SystType::Histo){
           if(inputType==0){
             if(cs->Get("HistoNameSufUp")!="")   sys->fHistoNameSufUp   = cs->Get("HistoNameSufUp");
@@ -240,7 +244,6 @@ void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bo
   }
 
   if(createWorkspace){
-    myFit->SetPOI("SigXsecOverSM");
     myFit->SetLumiErr(0.);
     myFit->ToRooStat(true,true);
   }

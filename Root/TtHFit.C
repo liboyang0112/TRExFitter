@@ -6,6 +6,7 @@
 
 TtHFit::TtHFit(string name){
     fName = name;
+    fLabel = name;
     fResultsFolder = "results/";
     fFitType = ControlSignalRegion;
 
@@ -100,6 +101,7 @@ Region* TtHFit::NewRegion(string name){
     fRegions.push_back(new Region(name));
     //
     fRegions[fNRegions]->fFitName = fName;
+    fRegions[fNRegions]->fFitLabel = fLabel;
     fRegions[fNRegions]->fFitType = fFitType;
     fRegions[fNRegions]->fPOI = fPOI;
     fRegions[fNRegions]->fIntCode_overall = fIntCode_overall;
@@ -339,11 +341,11 @@ void TtHFit::ReadNtuples(){
                     htmp->~TH1F();
                 }
                 hDown->SetName(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
-
+                //
                 SystematicHist *sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
-                
+                sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
             }
         }
     }
@@ -393,7 +395,6 @@ void TtHFit::ReadHistograms(){
                 htmp->~TH1F();
             }
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
-            
             //
             // fix the bin contents FIXME (to avoid fit problems)
             if(fSamples[i_smp]->fType!=SampleType::Data) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
@@ -510,7 +511,7 @@ void TtHFit::ReadHistograms(){
                 SystematicHist *sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
-                
+                sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
             }
         }
     }
@@ -558,41 +559,6 @@ void TtHFit::ReadHistos(string fileName){
     cout << "-----------------------------" << endl;
 }
 
-// old
-void TtHFit::ReadAll(bool readNtuples,string fileName){
-    //   for(int i_ch=0;i_ch<fNRegions;i_ch++){
-    //     fRegions[i_ch]->SetAllSamples(readNtuples,fileName);
-    //   }
-    //   if(!readNtuples){
-    //     SampleHist* h;
-    //     SystematicHist* sh;
-    //     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-    //       for(int i_smp=0;i_smp<fNSamples;i_smp++){
-    //         h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-    //         h->fHistoName = h->fHist->GetName();
-    //         h->fFileName = fileName;
-    //         if( h != 0x0 && !h->fIsData ){
-    //           for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
-    //             sh = h->fSyst[i_syst];
-    //             sh->fNormUp = sh->fHistUp->Integral() / h->fHist->Integral();
-    //             sh->fNormDown = sh->fHistDown->Integral() / h->fHist->Integral();
-    //             if(h->fSyst[i_syst]->fIsShape){
-    // //                 h->fSystUp[i_syst]->Scale( 1./h->fSystNormUp[i_syst] );
-    // //                 h->fSystDown[i_syst]->Scale( 1./h->fSystNormDown[i_syst] );
-    // //                 h->fSystUp[i_syst]->Write("",TObject::kOverwrite);
-    // //                 h->fSystDown[i_syst]->Write("",TObject::kOverwrite);
-    //               h->fSyst[i_syst]->fHistoNameShapeUp = h->fSyst[i_syst]->fHistShapeUp->GetName();
-    //               h->fSyst[i_syst]->fFileNameShapeUp = fileName;
-    //               h->fSyst[i_syst]->fHistoNameShapeDown = h->fSyst[i_syst]->fHistShapeDown->GetName();
-    //               h->fSyst[i_syst]->fFileNameShapeDown = fileName;
-    //             }
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-}
-
 void TtHFit::DrawAndSaveAll(string opt){
     TthPlot *p;
     gSystem->mkdir(fName.c_str());
@@ -614,7 +580,6 @@ void TtHFit::DrawAndSaveAll(string opt){
 //             p->WriteToFile((fName+"/"+fRegions[i_ch]->fName+".root").c_str());
         }
     }
-    //   DrawSummary(opt+" log")->SaveAs("Summary.png");
 }
 
 TthPlot* TtHFit::DrawSummary(string opt){
@@ -674,7 +639,9 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     TthPlot *p = new TthPlot(fName+"_summary",900,700);
     p->SetXaxis("",false);
-    p->SetChannel("Single Lepton");
+    p->AddLabel(fLabel);
+    if(isPostFit) p->AddLabel("Post-Fit");
+    else          p->AddLabel("Pre-Fit");
     p->fATLASlabel = "Internal";
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
@@ -738,7 +705,6 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
 }
 
 void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > &regions){
-    
     gSystem->mkdir(fName.c_str());
     TCanvas *c = new TCanvas("c","c",200*nCols,100+250*nRows);
     //   c->SetTopMargin(100/(100+150*nCols));
@@ -746,7 +712,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     pTop->Draw();
     ATLASLabel(0.1,0.90,(char*)"Internal");
     myText(    0.1,0.85,1,Form("#sqrt{s} = 8 TeV, 20.3 fb^{-1}"));
-    myText(    0.1,0.80,1,Form("Single Lepton"));
+    myText(    0.1,0.80,1,Form("%s",fLabel.c_str()));
     //
     TPad *pBottom = new TPad("c1","c1",0,0,1,1-100./(100.+150*nCols));
     pBottom->Draw();
@@ -791,8 +757,8 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         h[i]->GetXaxis()->SetLabelSize(0);
         h[i]->SetLineWidth(1);
         h[i]->SetLineColor(kBlack);
-        if(i==Nreg-1) h[i]->SetFillColor(kRed+1);
-        else          h[i]->SetFillColor(kAzure-4);
+        if(regions[i]->fRegionType==Region::SIGNAL) h[i]->SetFillColor(kRed+1);
+        else                                        h[i]->SetFillColor(kAzure-4);
         h[i]->Draw();
         gPad->SetLeftMargin(gPad->GetLeftMargin()*1.25);
         gPad->SetTicky(0);

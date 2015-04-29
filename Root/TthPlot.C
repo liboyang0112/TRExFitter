@@ -34,9 +34,7 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
   g_tot = 0x0;
   xtitle = "Variable [GeV]";
   ytitle = "Events";
-//   leg  = new TLegend(0.54,0.93-2*(0.05),0.80,0.93);
-//   leg1 = new TLegend(0.80,0.93-2*(0.05),0.94,0.93);
-  leg_title = "e/#mu+jets";
+  fLabels.clear();
   fLumi = "20.3 fb^{-1}";
   fCME = "8 TeV";
   fATLASlabel = "none";
@@ -56,7 +54,12 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
 }
 
 void TthPlot::SetChannel(string name){
-  leg_title = name;
+  fLabels.clear();
+  fLabels.push_back(name);
+}
+
+void TthPlot::AddLabel(string name){
+  fLabels.push_back(name);
 }
 
 void TthPlot::SetLumi(string name){
@@ -200,12 +203,10 @@ void TthPlot::Draw(string options){
   }
   pad0->RedrawAxis();
   
-//   if(fATLASlabel!="none") ATLASLabel(0.18,0.85,(char*)fATLASlabel.c_str());
-//   myText(0.18,0.8,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
-//   myText(0.18,0.75,1,Form("%s",leg_title.c_str()));//,0.045);
   if(fATLASlabel!="none") ATLASLabel(0.18,0.85+0.04,(char*)fATLASlabel.c_str());
   myText(0.18,0.8+0.04,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
-  myText(0.18,0.75+0.04,1,Form("%s",leg_title.c_str()));//,0.045);
+  for(unsigned int i_lab=0;i_lab<fLabels.size();i_lab++)
+    myText(0.18,0.8+0.04-(i_lab+1)*0.05,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
   
   leg  = new TLegend(0.54,0.93-(sample_name.size()+2)*0.06,0.80,0.93);
   leg1 = new TLegend(0.80,leg->GetY1(),0.94,leg->GetY2());

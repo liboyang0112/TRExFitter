@@ -56,6 +56,7 @@ public:
   // other useful info
   string fFitName;
   string fRegionName;
+  string fRegionLabel;
   string fVariableTitle;
   bool fSystSmoothed;
 };

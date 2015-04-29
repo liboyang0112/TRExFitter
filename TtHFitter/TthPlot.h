@@ -16,6 +16,7 @@ class TthPlot {
 //     void Init(int canvasWidth=600,int canvasHeight=700);
     
     void SetChannel(string name);
+    void AddLabel(string name);
     void SetLumi(string name);
     void SetXaxis(string name,bool isNjet=false);
     void SetYaxis(string name);
@@ -58,8 +59,8 @@ class TthPlot {
     string xtitle;
     string ytitle;
     string data_name;
-    vector<string> sample_name;
-    string leg_title;
+    std::vector< string > sample_name;
+    std::vector< string > fLabels;
     string fLumi;
     string fCME;
     string fATLASlabel;

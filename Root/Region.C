@@ -35,6 +35,7 @@ Region::Region(string name){
     fFitName = "";
     fFitType = 2;
     fPOI = "";
+    fFitLabel = "";
 }
 
 //__________________________________________________________________________________
@@ -72,6 +73,7 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
     }
     fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
     fSampleHists[fNSamples]->fRegionName = fName;
+    fSampleHists[fNSamples]->fRegionLabel = fLabel;
     fSampleHists[fNSamples]->fFitName = fFitName;
     fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
     fNSamples++;
@@ -99,6 +101,7 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     }
     fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
     fSampleHists[fNSamples]->fRegionName = fName;
+    fSampleHists[fNSamples]->fRegionLabel = fLabel;
     fSampleHists[fNSamples]->fFitName = fFitName;
     fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
     fNSamples++;
@@ -174,9 +177,9 @@ void Region::BuildPreFitErrorHist(){
         if(fSampleHists[i]->fSample->fType == SampleType::Data) continue;
         // norm factors
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
+            systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
             // skip POI if B-only fit
             if(fFitType==1 && systName==fPOI) continue; 
-            systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -284,7 +287,9 @@ void Region::BuildPreFitErrorHist(){
 TthPlot* Region::DrawPreFit(string opt){
     TthPlot *p = fPlotPreFit;
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
-    p->SetChannel(fLabel);
+    p->AddLabel(fFitLabel);
+    p->AddLabel(fLabel);
+    p->AddLabel("Pre-Fit");
     //
     // build h_tot
     fTot = 0x0;
@@ -356,6 +361,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         // norm factors
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
             systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
+            // skip POI if B-only fit
+            cout << fFitType << ": " << fPOI << " =? " << systName << endl;
+            if(fFitType==1 && systName==fPOI) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -492,7 +500,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     TthPlot *p = fPlotPostFit;
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
-    p->SetChannel(fLabel);
+    p->AddLabel(fFitLabel);
+    p->AddLabel(fLabel);
+    p->AddLabel("Post-Fit");
     //
     // 0) Create a new hist for each sample
     TH1* hSmpNew[MAXsamples];
@@ -780,11 +790,16 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
                 // Michele's note: at this point errPlus should contain the positive variation, errMinus the negative
 //                 finalErrPlus  += corr*errPlus[i_syst]*errPlus[j_syst];
 //                 finalErrMinus += corr*errMinus[i_syst]*errMinus[j_syst];
-                // TEST:
-                finalErrPlus  += corr * errUp_i   * errUp_j;
-                finalErrMinus += corr * errDown_i * errDown_j;
+//                 // TEST:
+//                 finalErrPlus  += corr * errUp_i   * errUp_j;
+//                 finalErrMinus += corr * errDown_i * errDown_j;
+                // TEST 1:
+                if(corr>=0) finalErrPlus  +=  corr * errUp_i   * errUp_j;
+                else        finalErrPlus  += -corr * errUp_i   * errDown_j;
+                if(corr>=0) finalErrMinus +=  corr * errDown_i * errDown_j;
+                else        finalErrMinus += -corr * errDown_i * errUp_j;
 //                 if(i_bin==1) cout << sqrt(TMath::Abs(finalErrPlus)) << endl;
-                // TEST 2: For some reason this works fine (?)
+                // TEST 2:
 //                 if(errUp[i_syst]>=0 && errUp[j_syst]>=0) finalErrPlus  += corr*errUp[i_syst]*errUp[j_syst];
 //                 else if(errUp[i_syst]>=0 && errDown[j_syst]>=0) finalErrPlus  += -corr*errUp[i_syst]*errDown[j_syst];
 //                 else if(errDown[i_syst]>=0 && errUp[j_syst]>=0) finalErrPlus  += -corr*errDown[i_syst]*errUp[j_syst];

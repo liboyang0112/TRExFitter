@@ -1,9 +1,8 @@
 #include "TtHFitter/Common.h"
+#include "TtHFitter/Systematic.h"
 
 #ifndef __SystematicHist__
 #define __SystematicHist__
-
-// #include "TtHFitter/Sample.h"
 
 class SystematicHist {
 public:
@@ -17,6 +16,7 @@ public:
   void Print();
   
   string fName;
+  Systematic *fSystematic;
 
   bool fIsOverall;
   bool fIsShape;

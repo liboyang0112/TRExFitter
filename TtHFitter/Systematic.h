@@ -9,6 +9,7 @@ public:
   ~Systematic();
   
   string fName;
+  string fTitle;
   int fType;
   int fSmoothType;
   int fSymmetrisationType;

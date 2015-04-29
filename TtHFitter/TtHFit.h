@@ -21,6 +21,11 @@ public:
         ControlSignalRegion = 2
     };
     
+    enum InputType {
+        HIST = 0,
+        NTUP = 1
+    };
+    
     TtHFit(string name="MyMeasurement");
     ~TtHFit();
     
@@ -50,11 +55,13 @@ public:
     // create new root file with all the histograms
     void WriteHistos(string fileName="",bool recreate=true);
     
+    // config file
+//     void ReadConfigFile(string fileName);
+    
     // read from ..
     void ReadNtuples();
     void ReadHistograms();
     void ReadHistos(string fileName="");
-    void ReadAll(bool readNtuples=true,string fileName="");
     
     void DrawAndSaveAll(string opt="");
     
@@ -80,6 +87,7 @@ public:
     void Print();
     
     string fName;
+    string fLabel;
     string fResultsFolder;
     FitType fFitType;
     
@@ -101,18 +109,20 @@ public:
     float fThresholdSystPruning_Normalisation;
     float fThresholdSystPruning_Shape;
     
-    vector<string> fNtuplePaths;
+    std::vector<string> fNtuplePaths;
     string fMCweight;
     string fSelection;
     string fNtupleName;
     
-    vector<string> fHistoPaths;
+    std::vector<string> fHistoPaths;
     string fHistoName;
     
     FitResults *fFitResults;
     
     int fIntCode_overall;
     int fIntCode_shape;
+    
+    int fInputType; // 0: histo, 1: ntup
 };
 
 #endif
