@@ -28,7 +28,7 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
     fSystSmoothed = false;
     // add overall systematics and normFactors from sample
     for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
-        if(sample->fSystematics[i_syst]->fType == SystType::Overall)
+        if(sample->fSystematics[i_syst]->fType == Systematic::OVERALL)
             AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
     }
     for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
@@ -55,7 +55,7 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
     fSystSmoothed = false;
     // add overall systematics and normFactors from sample
     for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
-        if(sample->fSystematics[i_syst]->fType == SystType::Overall)
+        if(sample->fSystematics[i_syst]->fType == Systematic::OVERALL)
             AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
     }
     for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){

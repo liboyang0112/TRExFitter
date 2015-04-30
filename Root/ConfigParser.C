@@ -1,15 +1,22 @@
 #include "TtHFitter/ConfigParser.h" 
 
+//----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 // -- Functions --
+//----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
+//__________________________________________________________________________________
+//
 string Fix(string s){ // removes leading and trailing white spaces, remove everything after "%", remove '"'...
   string ss = s.substr( 0, s.find_first_of('%') );
   replace( ss.begin(), ss.end(), '"', ' ');
   ss = ss.substr( ss.find_first_not_of(' '),ss.find_last_not_of(' ')+1 );
-//   cout << "\"" << ss << "\"" << endl;
   return ss;
 }
 
+//__________________________________________________________________________________
+//
 vector<string> Vectorize(string s,char c){
   vector<string> v;
   v.clear();
@@ -27,34 +34,56 @@ vector<string> Vectorize(string s,char c){
   return v;
 }
 
+//__________________________________________________________________________________
+//
 string First(string s){
   string first;
   first = s.substr( 0, s.find_first_of(':') );
   return Fix(first);
 }
 
+//__________________________________________________________________________________
+//
 string Second(string s){
   string second;
   second = s.substr( s.find_first_of(':')+1,string::npos );
   return Fix(second);
 }
 
-
+//----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 // -- Classes -- 
+//----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------------
 // Config
+//----------------------------------------------------------------------------------
 
+//__________________________________________________________________________________
+//
 Config::Config(){};
+
+//__________________________________________________________________________________
+//
 Config::~Config(){};
 
+//----------------------------------------------------------------------------------
 // ConfigSet
+//----------------------------------------------------------------------------------
 
+//__________________________________________________________________________________
+//
 ConfigSet::ConfigSet(){
   fN = 0;
 }
 
+//__________________________________________________________________________________
+//
 ConfigSet::~ConfigSet(){}
   
+//__________________________________________________________________________________
+//
 void ConfigSet::SetConfig(string name,string value){
   // check if is name is there
   bool isThere = false;
@@ -76,6 +105,8 @@ void ConfigSet::SetConfig(string name,string value){
   }
 }
 
+//__________________________________________________________________________________
+//
 string ConfigSet::Get(string name){
   for(int i=0;i<fN;i++){
     if(fConfig[i].fName == name){
@@ -85,60 +116,85 @@ string ConfigSet::Get(string name){
   return "";
 }
 
+//__________________________________________________________________________________
+//
 string ConfigSet::operator[](string name){
   return Get(name);
 }
 
+//__________________________________________________________________________________
+//
 Config ConfigSet::GetConfig(int i){
   return fConfig[i];
 }
 
+//__________________________________________________________________________________
+//
 string ConfigSet::GetConfigName(int i){
   return fConfig[i].fName;
 }
 
+//__________________________________________________________________________________
+//
 string ConfigSet::GetConfigValue(int i){
   return fConfig[i].fValue;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigSet::GetN(){
   return fN;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigSet::size(){
   return fN;
 }
 
+//__________________________________________________________________________________
+//
 void ConfigSet::Set(string name,string value){
   fName = name;
   fValue = value;
 }
 
+//__________________________________________________________________________________
+//
 string ConfigSet::GetName(){
   return fName;
 }
 
+//__________________________________________________________________________________
+//
 string ConfigSet::GetValue(){
   return fValue;
 }
 
-
+//----------------------------------------------------------------------------------
 // ConfigParser
+//----------------------------------------------------------------------------------
 
+//__________________________________________________________________________________
+//
 ConfigParser::ConfigParser(){
   fN = 0;
 }
+
+//__________________________________________________________________________________
+//
 ConfigParser::~ConfigParser(){
 }
 
+//__________________________________________________________________________________
+//
 void ConfigParser::ReadFile(string fileName){
   cout << "Reading config file " << fileName << endl;
   ifstream file(fileName.c_str());
   if(!file.is_open()){
-      std::cerr << "<!> Error in ConfigParser::ReadFile: The file cannot be opened !" << std::endl;
-      return;
+    std::cerr << "<!> Error in ConfigParser::ReadFile: The file cannot be opened !" << std::endl;
+    return;
   }
-    
   string str;
   bool reading = false;
   int n = 1;
@@ -169,13 +225,17 @@ void ConfigParser::ReadFile(string fileName){
       }
     }
   }
-    file.close();
+  file.close();
 }
 
+//__________________________________________________________________________________
+//
 ConfigSet *ConfigParser::GetConfigSet(int i){ // returns the i-th configSet
   return fConfSets[i];
 }
 
+//__________________________________________________________________________________
+//
 ConfigSet *ConfigParser::GetConfigSet(string name,int i){ // returns the i-th configSet with given name
   int k = 0;
   for(int j=0;j<fN;j++){

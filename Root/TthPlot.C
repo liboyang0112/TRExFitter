@@ -299,8 +299,8 @@ void TthPlot::Draw(string options){
   hline->SetLineColor(kRed);
   hline->SetLineWidth(2);
   hline->SetLineStyle(2);
-//   h_ratio->Draw("0E1 same");
-  g_ratio->Draw("Ep1 same");
+  h_ratio->Draw("0E1 same");
+//   g_ratio->Draw("Ep1 same");
   hline->Draw();
   h_dummy2->SetMinimum(0.);
   h_dummy2->SetMaximum(2.);
@@ -370,15 +370,20 @@ void TthPlot::Draw(string options){
       cout << " bin: " << i_bin << "  with val: " << val << " and upper: " << val+h_ratio->GetBinError(i_bin) <<  endl;
       if (val-h_ratio->GetBinError(i_bin)<1.5) {
         float x = h_ratio->GetXaxis()->GetBinCenter(i_bin);
+        float w = h_ratio->GetXaxis()->GetBinWidth(i_bin);
         float y0 = TMath::Max(val-h_ratio->GetBinError(i_bin),0.50);
         float y1 = TMath::Min(val+h_ratio->GetBinError(i_bin),1.50);
         fix = new TLine( x, y0, x, y1 );
-        fixUp = new TLine( x-0.07, y1, x+0.07, y1 );
-        fixDo = new TLine( x-0.07, y0, x+0.07, y0 );
+        fixUp = new TLine( x-w*0.07, y1, x+w*0.07, y1 );
+        fixDo = new TLine( x-w*0.07, y0, x+w*0.07, y0 );
       }
       if (fix!=0) {
         fix->SetLineColor(h_ratio->GetLineColor());
+        fixUp->SetLineColor(h_ratio->GetLineColor());
+        fixDo->SetLineColor(h_ratio->GetLineColor());
         fix->SetLineWidth(h_ratio->GetLineWidth());
+        fixUp->SetLineWidth(h_ratio->GetLineWidth());
+        fixDo->SetLineWidth(h_ratio->GetLineWidth());
         fix->Draw("SAME");
         fixUp->SetLineColor(1);
         fixUp->SetLineWidth(1);

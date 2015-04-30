@@ -1,9 +1,17 @@
+2015-04-30 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * TtHFit.C, Region.C: modified to better handle post-fit plots
+        * TtHFit.C: post-fit summary plot added
+        * util/myFit.C, TtHFit.C: config parser stuff moved to TtHFit.C
+        * Many other small changes and cosmetic fixes to code and plots
+        * Versioning: 1.2
+        
 2015-04-09 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Makefile: changed in order to accept as argument the main code to use (any .C inside utils/)
         * Configuration file system added
         * util/myFit.config: added
         * util/myFit.C: changed in order to read util/myFit.config
         * Region.C: Option added to have different constrains on Overall and Histo systs (at the moment both have interpCode=4, which seems to perform better - to check)
+        * Versioning: 1.1
 
 2015-03-13 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Makefile: added

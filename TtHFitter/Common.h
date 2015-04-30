@@ -48,21 +48,21 @@ using namespace std;
 #ifndef __Common__
 #define __Common__
 
-struct SampleType{
-  enum {
-    Background, // 0
-    Signal, // 1
-    Data // 2
-  };
-};
+// struct SampleType{
+//   enum {
+//     Background, // 0
+//     Signal, // 1
+//     Data // 2
+//   };
+// };
 
-struct SystType{
-  enum {
-    Overall, // 0
-    Shape, // 1
-    Histo // 2
-  };
-};
+// struct SystType{
+//   enum {
+//     Overall, // 0
+//     Shape, // 1
+//     Histo // 2
+//   };
+// };
 
 namespace TtHFitter{
   extern int DEBUGLEVEL;
@@ -78,14 +78,13 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
 TH1* HistFromFile(string fullName);
 TH1* HistFromFile(string fileName,string histoName);
 void WriteHistToFile(TH1* h,string fileName,string option="UPDATE");
-vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs, 
-                                vector<string> files, vector<string> fileSufs, 
-                                vector<string> names, vector<string> nameSufs);
-vector<string> CombinePathSufs( vector<string> pathSufs, vector<string> newPathSufs );
-vector<string> ToVec(string s);
+std::vector<string> CreatePathsList( std::vector<string> paths, std::vector<string> pathSufs, 
+                                std::vector<string> files, std::vector<string> fileSufs, 
+                                std::vector<string> names, std::vector<string> nameSufs);
+std::vector<string> CombinePathSufs( std::vector<string> pathSufs, std::vector<string> newPathSufs );
+std::vector<string> ToVec(string s);
 // string RemovePrefix(string s,string prefix);
-std::string ReplaceString(std::string subject, const std::string& search,
-                          const std::string& replace);
-
+string ReplaceString(string subject, const string& search,
+                          const string& replace);
 
 #endif

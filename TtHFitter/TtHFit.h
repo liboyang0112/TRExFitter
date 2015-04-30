@@ -5,6 +5,7 @@
 #include "TtHFitter/Sample.h"
 #include "TtHFitter/Systematic.h"
 #include "TtHFitter/Region.h"
+#include "TtHFitter/ConfigParser.h"
 
 #ifndef __TtHFit__
 #define __TtHFit__
@@ -12,13 +13,14 @@
 class Region;
 class Sample;
 class Systematic;
+class ConfigParser;
 
 class TtHFit {
 public:
     
     enum FitType {
-        ControlRegion = 1,
-        ControlSignalRegion = 2
+        CONTROL = 1,
+        CONTROLSIGNAL = 2
     };
     
     enum InputType {
@@ -56,7 +58,7 @@ public:
     void WriteHistos(string fileName="",bool recreate=true);
     
     // config file
-//     void ReadConfigFile(string fileName);
+    void ReadConfigFile(string fileName);
     
     // read from ..
     void ReadNtuples();
@@ -123,6 +125,8 @@ public:
     int fIntCode_shape;
     
     int fInputType; // 0: histo, 1: ntup
+    
+    ConfigParser *fConfig;
 };
 
 #endif

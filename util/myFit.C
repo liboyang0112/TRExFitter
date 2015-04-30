@@ -17,255 +17,83 @@
 #include <string>
 
 // -------------------------------------------------------
+// -------------------------------------------------------
 
-void FitExample_fromHist(string opt="h",string configFile="util/myFit.config",bool update=false){
-  SetAtlasStyle();
-  
-  // interpret opt
-  bool readHistograms  = opt.find("h")!=string::npos;
-  bool readNtuples     = opt.find("n")!=string::npos;
-  bool createWorkspace = opt.find("w")!=string::npos;
-  bool doFit           = opt.find("f")!=string::npos;
-  bool doLimit         = opt.find("l")!=string::npos;
-  bool drawPreFit      = opt.find("d")!=string::npos;
-  bool drawPostFit     = opt.find("p")!=string::npos;
-  
-  // Read the config file
-  ConfigParser *myConfig = new ConfigParser();
-  myConfig->ReadFile(configFile);
-  ConfigSet *cs; // to store stuff later
-  string param;
-  int inputType; // 0=histograms, 1=ntuples
-  int type;
-  
-  // set fit
-  cs = myConfig->GetConfigSet("Fit");
-  TtHFit *myFit = new TtHFit( cs->GetValue() );
-  param = cs->Get("Label"); if(param!="") myFit->fLabel = param;
-  myFit->SetPOI(cs->Get("POI"));
-  param = cs->Get("ReadFrom");
-  std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-  if(      param=="HIST" || param=="HISTOGRAMS")  inputType = 0;
-  else if( param=="NTUP" || param=="NTUPLES" )    inputType = 1;
-  else{
-      std::cerr << "ERROR: Invalid \"ReadFrom\" argument. Options: \"HIST\", \"NTUP\"" << std::endl;
-      return;
-  }
-  if(inputType==0){
-      myFit->AddHistoPath( cs->Get("HistoPath") );
-  }
-  if(inputType==1){
-      param = cs->Get("NtuplePaths");
-      if( param != "" ){
-          std::vector<string> paths = Vectorize( param,',' );
-          for(int i=0;i<(int)paths.size();i++){
-              myFit->AddNtuplePath( paths[i] );
-          }
-      }
-      myFit->SetMCweight(   cs->Get("MCweight")   );
-      myFit->SetSelection(  cs->Get("Selection")  );
-      myFit->SetNtupleName( cs->Get("NtupleName") );
-  }
-  param = cs->Get("LumiScale");  if( param != "" ) myFit -> SetLumi( atof(param.c_str()) );
-  param = cs->Get("FitType");    if( param != "" ){
-      if(     param == "ControlSignalRegion" || param == "CONTROLSIGNAL")
-          myFit -> SetFitType(TtHFit::ControlSignalRegion);
-      else if(param == "ControlRegion"       || param == "CONTROL")
-          myFit -> SetFitType(TtHFit::ControlRegion);
-      else{
-          std::cerr << "Unknown FitType argument : " << cs->Get("FitType") << std::endl;
-          return;
-      }
-  }
-  param = cs->Get("SystPruningShape");  if( param != "")  myFit->fThresholdSystPruning_Shape         = atof(param.c_str());
-  param = cs->Get("SystPruningNorm");   if( param != "")  myFit->fThresholdSystPruning_Normalisation = atof(param.c_str());
-  param = cs->Get("IntCodeOverall");    if( param != "")  myFit->fIntCode_overall  = atoi(param.c_str());
-  param = cs->Get("IntCodeShape");      if( param != "")  myFit->fIntCode_shape    = atoi(param.c_str());
-  param = cs->Get("MCstatThreshold");   if( param != "")  myFit->SetStatErrorConfig( true,  atof(param.c_str()) );
-  else                                                    myFit->SetStatErrorConfig( false, 0.0 );
-  param = cs->Get("DebugLevel");        if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
-  
-  // set regions
-  int nReg = 0;
-  Region *reg;
-  while(true){
-    cs = myConfig->GetConfigSet("Region",nReg);
-    if(cs==0x0) break;
-    reg = myFit->NewRegion(cs->GetValue());
-    reg->SetVariableTitle(cs->Get("VariableTitle"));
-    reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
-    if(inputType==0){
-      reg->SetHistoName( cs->Get("HistoName"));
-    }
-    else if(inputType==1){
-      vector<string> variable = Vectorize(cs->Get("Variable"),',');
-      reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
-      reg->AddSelection( cs->Get("Selection") );
-      reg->AddMCweight(  cs->Get("MCweight") );
-    }
-    //Potential rebinning
-    if(cs->Get("Rebin")!="") reg -> Rebin(atoi(cs->Get("Rebin").c_str()));
-    if(cs->Get("Binning")!=""){
-        std::vector < string > vec_bins = Vectorize(cs->Get("Binning"), ',');
-        const int nBounds = vec_bins.size();
-        double bins[nBounds];
-        for (unsigned int iBound = 0; iBound < nBounds; ++iBound){
-            bins[iBound] = atof(vec_bins[iBound].c_str());
-        }
-        reg -> SetBinning(nBounds-1,bins);
-    }
-    if(cs->Get("Type")!=""){
-        param = cs->Get("Type");
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param=="CONTROL" )     reg -> SetRegionType(Region::CONTROL);
-        if( param=="VALIDATION" )  reg -> SetRegionType(Region::VALIDATION);
-        if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
-    }
-    nReg++;
-  }
-  
-  // set samples 
-  int nSmp = 0;
-  Sample *smp;
-  while(true){
-    cs = myConfig->GetConfigSet("Sample",nSmp);
-    if(cs==0x0) break;
-    type = SampleType::Background;
-    if(cs->Get("Type")=="signal" || cs->Get("Type")=="SIGNAL") type = SampleType::Signal;
-    if(cs->Get("Type")=="data"   || cs->Get("Type")=="DATA")   type = SampleType::Data;
-    smp = myFit->NewSample(cs->GetValue(),type);
-    smp->SetTitle(cs->Get("Title"));
-    if(inputType==0)  smp->AddHistoFile(  cs->Get("HistoFile")  );
-    if(inputType==1)  smp->AddNtupleFile( cs->Get("NtupleFile") );
-    if(cs->Get("FillColor")!="")
-      smp->SetFillColor(atoi(cs->Get("FillColor").c_str()));
-    if(cs->Get("LineColor")!="")
-      smp->SetLineColor(atoi(cs->Get("LineColor").c_str()));
-    if(cs->Get("NormFactor")!="")
-      smp->AddNormFactor(
-        Vectorize(cs->Get("NormFactor"),',')[0],
-        atof(Vectorize(cs->Get("NormFactor"),',')[1].c_str()),
-        atof(Vectorize(cs->Get("NormFactor"),',')[2].c_str()),
-        atof(Vectorize(cs->Get("NormFactor"),',')[3].c_str())
-      );
-    if(cs->Get("NormalizedByTheory")!=""){
-        param = cs->Get("NormalizedByTheory");
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(param=="FALSE") smp->NormalizedByTheory(false);
-        else if(param=="TRUE") smp->NormalizedByTheory(true);
-        else std::cout << "<!> NormalizedByTheory flag not recognized ... *" << param << "*" << std::endl;
-    }
-    // ...
-    nSmp++;
-  }
+void FitExample(string opt="h",string configFile="util/myFit.config",bool update=false){
+    SetAtlasStyle();
     
-  // set systs
-  int nSys = 0;
-  Systematic *sys;
-  Sample *sam;
-  while(true){
-    cs = myConfig->GetConfigSet("Systematic",nSys);
-    if(cs==0x0) break;
-    string samples_str = cs->Get("Samples");
-    if(samples_str=="") samples_str = "all";
-    vector<string> samples = Vectorize(samples_str,',');
-    type = SystType::Histo;
-    if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL")
-        type = SystType::Overall;
-    for(int i_smp=0;i_smp<myFit->fNSamples;i_smp++){
-      sam = myFit->fSamples[i_smp];
-      if(sam->fType == SampleType::Data) continue;
-      if(samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() ){
-//         sys = sam->AddSystematic(cs->Get("Title"),type);
-        sys = sam->AddSystematic(cs->GetValue(),type);
-        if(cs->Get("Title")!="") sys->fTitle = cs->Get("Title");
-        if(type==SystType::Histo){
-          if(inputType==0){
-            if(cs->Get("HistoNameSufUp")!="")   sys->fHistoNameSufUp   = cs->Get("HistoNameSufUp");
-            if(cs->Get("HistoNameSufDown")!="") sys->fHistoNameSufDown = cs->Get("HistoNameSufDown");
-            if(cs->Get("HistoFileUp")!="")      sys->fHistoFilesUp  .push_back(cs->Get("HistoFileUp"));
-            if(cs->Get("HistoFileDown")!="")    sys->fHistoFilesDown.push_back(cs->Get("HistoFileDown"));
-            // ...
-          }
-          else if(inputType==1){
-            if(cs->Get("NtupleFilesUp")!="")   sys->fNtupleFilesUp   = Vectorize( cs->Get("NtupleFilesUp"),  ',' );
-            if(cs->Get("NtupleFilesDown")!="") sys->fNtupleFilesDown = Vectorize( cs->Get("NtupleFilesDown"),',' );
-            sys->fNtupleFileSufUp = cs->Get("NtupleFileSufUp");
-            sys->fNtupleFileSufDown = cs->Get("NtupleFileSufDown");
-            sys->fWeightSufUp = cs->Get("WeightSufUp");
-            sys->fWeightSufDown = cs->Get("WeightSufDown");
-            // ...
-          }
-          if(cs->Get("Symmetrisation")!=""){
-              if(cs->Get("Symmetrisation")=="OneSided" || cs->Get("Symmetrisation")=="ONESIDED")
-                  sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
-              else if(cs->Get("Symmetrisation")=="TwoSided" || cs->Get("Symmetrisation")=="TWOSIDED")
-                  sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
-              else
-                  std::cout << "Symetrisation scheme is not recognized ... " << std::endl;
-          }
-          if(cs->Get("Smoothing")!=""){
-              sys->fSmoothType = atoi(cs->Get("Smoothing").c_str());
-          }
-          // ...
-        }
-        else if(type==SystType::Overall){
-          sys->fOverallUp   = atof( cs->Get("OverallUp").c_str() );
-          sys->fOverallDown = atof( cs->Get("OverallDown").c_str() );
-        }
-      }
+    // interpret opt
+    bool readHistograms  = opt.find("h")!=string::npos;
+    bool readNtuples     = opt.find("n")!=string::npos;
+    bool createWorkspace = opt.find("w")!=string::npos;
+    bool doFit           = opt.find("f")!=string::npos;
+    bool doLimit         = opt.find("l")!=string::npos;
+    bool drawPreFit      = opt.find("d")!=string::npos;
+    bool drawPostFit     = opt.find("p")!=string::npos;
+    
+    TtHFit *myFit = new TtHFit();
+    myFit->ReadConfigFile(configFile);
+    
+    // check compatibility between run option and config file
+    if(readHistograms && myFit->fInputType!=TtHFit::HIST){
+        std::cerr << "ERROR: Option \"h\" asked but no HISTO InputType speficied in the configuration file. Aborting." << std::endl;
+        return;
     }
-    // ...
-    nSys++;
-  }
+    if(readNtuples && myFit->fInputType!=TtHFit::NTUP){
+        std::cerr << "ERROR: Option \"n\" asked but no NTUP InputType speficied in the configuration file. Aborting." << std::endl;
+        return;
+    }
       
-  //
-  // do actual things
-  //
+    // -------------------------------------------------------
 
-  if(readHistograms){
-    myFit->ReadHistograms();
-    myFit->Print();
-    myFit->WriteHistos("",!update);
-  }
-  else if(readNtuples){
-    myFit->ReadNtuples();
-    myFit->Print();
-    myFit->WriteHistos("",!update);
-  }
-  else{
-    myFit->ReadHistos();
-  }
+    if(readHistograms){
+        myFit->ReadHistograms();
+        myFit->Print();
+        myFit->WriteHistos("",!update);
+    }
+    else if(readNtuples){
+        myFit->ReadNtuples();
+        myFit->Print();
+        myFit->WriteHistos("",!update);
+    }
+    else{
+        myFit->ReadHistos();
+    }
+      
+    if(drawPreFit){
+        myFit->DrawAndSaveAll();
+        myFit->DrawSummary("log");
+        if(myFit->fNRegions<=4) myFit->DrawSignalRegionsPlot(2,2);
+        else                    myFit->DrawSignalRegionsPlot((int)sqrt(myFit->fNRegions)+1*(sqrt(myFit->fNRegions)>(int)sqrt(myFit->fNRegions)),
+                                                             (int)sqrt(myFit->fNRegions));
+    }
+
+    if(createWorkspace){
+        myFit->SetLumiErr(0.);
+        myFit->ToRooStat(true,true);
+    }
+
+    // use the external tool FitCrossCheckForLimits fir fitting
+    if(doFit){
+        myFit->Fit(); // with FitCrossCheckForLimits
+        myFit->PlotFittedNP();
+    }
     
-  if(drawPreFit){
-    myFit->DrawAndSaveAll();
-    myFit->DrawSummary();
-    myFit->DrawSignalRegionsPlot(2,2);
-  }
-
-  if(createWorkspace){
-    myFit->SetLumiErr(0.);
-    myFit->ToRooStat(true,true);
-  }
-
-  // use the external tool FitCrossCheckForLimits fir fitting
-  if(doFit){
-    myFit->Fit(); // with FitCrossCheckForLimits
-    myFit->PlotFittedNP();
-  }
-  
-  if(doLimit){
-    myFit->GetLimit();
-  }
-  
-  if(drawPostFit){
-    myFit->DrawAndSaveAll("post");
-    myFit->DrawSummary("post");
-  }
+    if(doLimit){
+        myFit->GetLimit();
+    }
+    
+    if(drawPostFit){
+        myFit->DrawAndSaveAll("post");
+        myFit->DrawSummary("log post");
+    }
 }
 
 // -------------------------------------------------------
+// -------------------------------------------------------
 // main function
+// -------------------------------------------------------
+// -------------------------------------------------------
 
 int main(int argc, char **argv){
   string opt="h";
@@ -277,7 +105,7 @@ int main(int argc, char **argv){
   if(argc>3) update = atoi(argv[3])!=0;
 
   // call the function
-  FitExample_fromHist(opt,config,update);
+  FitExample(opt,config,update);
   
   return 0;
 }

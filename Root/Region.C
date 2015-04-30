@@ -18,7 +18,7 @@ Region::Region(string name){
     fUseStatErr = false;
     fHistoBins = 0;
     fHistoNBinsRebin = -1;
-    //
+
     string cName = "c_"+fName;
     fPlotPreFit = new TthPlot(cName);
     cName = "c_"+fName+"_postFit";
@@ -56,15 +56,15 @@ Region::~Region(){
 //
 SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileName){
     fSampleHists.push_back(new SampleHist( sample, histoName, fileName ));
-    if(sample->fType==SampleType::Data){
+    if(sample->fType==Sample::DATA){
         fHasData = true;
         fData = fSampleHists[fNSamples];
     }
-    else if(sample->fType==SampleType::Signal){
+    else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
         fSig = fSampleHists[fNSamples];
     }
-    else if(sample->fType==SampleType::Background){
+    else if(sample->fType==Sample::BACKGROUND){
         fBkg[fNBkg] = fSampleHists[fNSamples];
         fNBkg ++;
     }
@@ -84,15 +84,15 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
 //
 SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     fSampleHists.push_back(new SampleHist( sample, hist ));
-    if(sample->fType==SampleType::Data){
+    if(sample->fType==Sample::DATA){
         fHasData = true;
         fData = fSampleHists[fNSamples];
     }
-    else if(sample->fType==SampleType::Signal){
+    else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
         fSig = fSampleHists[fNSamples];
     }
-    else if(sample->fType==SampleType::Background){
+    else if(sample->fType==Sample::BACKGROUND){
         fBkg[fNBkg] = fSampleHists[fNSamples];
         fNBkg ++;
     }
@@ -174,7 +174,7 @@ void Region::BuildPreFitErrorHist(){
     //
     // Collect all the systematics on all the samples
     for(int i=0;i<fNSamples;i++){
-        if(fSampleHists[i]->fSample->fType == SampleType::Data) continue;
+        if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
         // norm factors
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
             systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
@@ -200,7 +200,7 @@ void Region::BuildPreFitErrorHist(){
     // - loop on samples
     for(int i=0;i<fNSamples;i++){
         // skip data
-        if(fSampleHists[i]->fSample->fType==SampleType::Data) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(TtHFitter::DEBUGLEVEL>0) cout << "  Sample: " << fSampleHists[i]->fName << endl;
         // - loop on systematics
         for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
@@ -256,7 +256,7 @@ void Region::BuildPreFitErrorHist(){
             // - loop on samples
             for(int i=0;i<fNSamples;i++){
                 // skip data
-                if(fSampleHists[i]->fSample->fType==SampleType::Data) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
                 // get SystematicHist
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
@@ -357,12 +357,12 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     SystematicHist *sh = 0x0;
     //
     for(int i=0;i<fNSamples;i++){
-        if(fSampleHists[i]->fSample->fType == SampleType::Data) continue;
+        if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
         // norm factors
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
             systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
             // skip POI if B-only fit
-            cout << fFitType << ": " << fPOI << " =? " << systName << endl;
+//             cout << fFitType << ": " << fPOI << " =? " << systName << endl;
             if(fFitType==1 && systName==fPOI) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
@@ -384,7 +384,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     // - loop on samples
     for(int i=0;i<fNSamples;i++){
         // skip data
-        if(fSampleHists[i]->fSample->fType==SampleType::Data) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(TtHFitter::DEBUGLEVEL>0) cout << "  Sample: " << fSampleHists[i]->fName << endl;
         // - loop on systematics
         for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
@@ -468,7 +468,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             // - loop on samples
             for(int i=0;i<fNSamples;i++){
                 // skip data
-                if(fSampleHists[i]->fSample->fType==SampleType::Data) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
                 // get SystematicHist
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
@@ -513,7 +513,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     string nfName;
     float nfValue;
     for(int i=0;i<fNSamples;i++){
-        if(fSampleHists[i]->fSample->fType==SampleType::Data) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
             nfName = fSampleHists[i]->fNormFactors[i_norm]->fName;
             nfValue = fitRes->GetNuisParValue(nfName);
@@ -532,7 +532,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     float binContentUp;
     float binContentDown;
     for(int i=0;i<fNSamples;i++){
-        if(fSampleHists[i]->fSample->fType==SampleType::Data) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         hNew = (TH1*)hSmpNew[i]->Clone();
         for(int i_bin=1;i_bin<=hNew->GetNbinsX();i_bin++){
             binContent0 = hSmpNew[i]->GetBinContent(i_bin);
@@ -569,11 +569,11 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     TH1* hBkgNew[MAXsamples];
     TH1* hSigNew;
     for(int i=0, i_bkg=0;i<fNSamples;i++){
-        if(fSampleHists[i]->fSample->fType==SampleType::Background){
+        if(fSampleHists[i]->fSample->fType==Sample::BACKGROUND){
             hBkgNew[i_bkg] = hSmpNew[i];
             i_bkg++;
         }
-        if(fSampleHists[i]->fSample->fType==SampleType::Signal)
+        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL)
             hSigNew = hSmpNew[i];
     }
     if(fHasData) p->SetData(fData->fHist,fData->fSample->fTitle);
@@ -584,7 +584,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     // build hTot
     int j = 0;
     for(int i=0;i<fNSamples;i++){
-        if(fSampleHists[i]->fSample->fType==SampleType::Data) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(j==0) fTot_postFit = (TH1*)hSmpNew[i]->Clone("h_tot_postFit");
         else fTot_postFit->Add(hSmpNew[i]);
         j++;
@@ -605,6 +605,9 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     //
     // print bin content and errors
     if(TtHFitter::DEBUGLEVEL>0){
+        cout << "--------------------" << endl;
+        cout << "Final bin contents" << endl;
+        cout << "--------------------" << endl;
         for(int i_bin=1;i_bin<=fTot_postFit->GetNbinsX();i_bin++){
             cout << i_bin << ":\t";
             cout << fTot_postFit->GetBinContent(i_bin);
@@ -621,12 +624,12 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     TFile *f = new TFile((fFitName+"/"+fName+"_postFit.root").c_str(),"RECREATE");
     fErr_postFit->Write("",TObject::kOverwrite);
     fTot_postFit->Write("",TObject::kOverwrite);
-    for(int i_syst=0;i_syst<MAXsyst;i_syst++){
+    for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
         if(fTotUp_postFit[i_syst])   fTotUp_postFit[i_syst]  ->Write("",TObject::kOverwrite);
         if(fTotDown_postFit[i_syst]) fTotDown_postFit[i_syst]->Write("",TObject::kOverwrite);
     }
     for(int i=0;i<fNSamples;i++){
-        if(fSampleHists[i]->fSample->fType == SampleType::Data){
+        if(fSampleHists[i]->fSample->fType == Sample::DATA){
             fSampleHists[i]->fHist->Write(Form("h_%s",fSampleHists[i]->fName.c_str()),TObject::kOverwrite);
             continue;
         }
