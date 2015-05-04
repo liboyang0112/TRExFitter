@@ -48,29 +48,13 @@ using namespace std;
 #ifndef __Common__
 #define __Common__
 
-// struct SampleType{
-//   enum {
-//     Background, // 0
-//     Signal, // 1
-//     Data // 2
-//   };
-// };
-
-// struct SystType{
-//   enum {
-//     Overall, // 0
-//     Shape, // 1
-//     Histo // 2
-//   };
-// };
-
 namespace TtHFitter{
   extern int DEBUGLEVEL;
   void SetDebugLevel(int level=0);
 };
 
-const int MAXregions = 10;
-const int MAXsamples = 10;
+const int MAXregions = 20;
+const int MAXsamples = 20;
 const int MAXsyst = 150;
 const int MAXnorm = 3;
 

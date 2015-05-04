@@ -195,11 +195,11 @@ void ConfigParser::ReadFile(string fileName){
     std::cerr << "<!> Error in ConfigParser::ReadFile: The file cannot be opened !" << std::endl;
     return;
   }
-  string str;
+  string str, val;
+  vector<string> valVec;
   bool reading = false;
   int n = 1;
   int k = 0;
-  vector<string> valVec;
   while (getline(file, str)){
     replace( str.begin(), str.end(), '\n', ' ');
     replace( str.begin(), str.end(), '\r', ' ');
@@ -213,14 +213,16 @@ void ConfigParser::ReadFile(string fileName){
         n = valVec.size();
         for(k=0;k<n;k++){
           fConfSets[fN] = new ConfigSet();
-          fConfSets[fN]->Set( First(str),valVec[k] );
+          fConfSets[fN]->Set( First(str),Fix(valVec[k]) );
           fN++;
         }
         reading = true;
       }
       else{
         for(k=0;k<n;k++){
-          fConfSets[fN-n+k]->SetConfig(First(str),valVec[k]);
+          if(k>=(int)valVec.size()) val = valVec[valVec.size()-1];
+          else                      val = valVec[k];
+          fConfSets[fN-n+k]->SetConfig(First(str),Fix(val) );
         }
       }
     }

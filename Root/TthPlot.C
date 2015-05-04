@@ -208,8 +208,15 @@ void TthPlot::Draw(string options){
   for(unsigned int i_lab=0;i_lab<fLabels.size();i_lab++)
     myText(0.18,0.8+0.04-(i_lab+1)*0.05,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
   
-  leg  = new TLegend(0.54,0.93-(sample_name.size()+2)*0.06,0.80,0.93);
-  leg1 = new TLegend(0.80,leg->GetY1(),0.94,leg->GetY2());
+//   float legX1 = 0.54;
+  float legX1 = 1-0.46*(596./pad0->GetWw());
+  float legX2 = 0.94;
+  float legXmid = legX1+0.6*(legX2-legX1);
+  
+//   leg  = new TLegend(0.54,0.93-(sample_name.size()+2)*0.06,0.80,0.93);
+//   leg1 = new TLegend(0.80,leg->GetY1(),0.94,leg->GetY2());
+  leg  = new TLegend(legX1,0.93-(sample_name.size()+2)*0.06, legXmid,0.93);
+  leg1 = new TLegend(legXmid,leg->GetY1(), legX2,leg->GetY2());
   
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
@@ -299,8 +306,10 @@ void TthPlot::Draw(string options){
   hline->SetLineColor(kRed);
   hline->SetLineWidth(2);
   hline->SetLineStyle(2);
-  h_ratio->Draw("0E1 same");
-//   g_ratio->Draw("Ep1 same");
+//   gStyle->SetErrorX(0.2);
+//   gStyle->SetEndErrorSize(4);
+  h_ratio->Draw("E0 same");
+//   g_ratio->Draw("0P same");
   hline->Draw();
   h_dummy2->SetMinimum(0.);
   h_dummy2->SetMaximum(2.);
@@ -363,35 +372,36 @@ void TthPlot::Draw(string options){
       arrow->SetAngle(40);
 //       arrow->Draw();
       //
-      TLine *fix=0;
-      TLine *fixUp=0;
-      TLine *fixDo=0;
-      cout << " bin: " << i_bin << "  with val: " << val << " and lower: " << val-h_ratio->GetBinError(i_bin) <<  endl;
-      cout << " bin: " << i_bin << "  with val: " << val << " and upper: " << val+h_ratio->GetBinError(i_bin) <<  endl;
-      if (val-h_ratio->GetBinError(i_bin)<1.5) {
-        float x = h_ratio->GetXaxis()->GetBinCenter(i_bin);
-        float w = h_ratio->GetXaxis()->GetBinWidth(i_bin);
-        float y0 = TMath::Max(val-h_ratio->GetBinError(i_bin),0.50);
-        float y1 = TMath::Min(val+h_ratio->GetBinError(i_bin),1.50);
-        fix = new TLine( x, y0, x, y1 );
-        fixUp = new TLine( x-w*0.07, y1, x+w*0.07, y1 );
-        fixDo = new TLine( x-w*0.07, y0, x+w*0.07, y0 );
-      }
-      if (fix!=0) {
-        fix->SetLineColor(h_ratio->GetLineColor());
-        fixUp->SetLineColor(h_ratio->GetLineColor());
-        fixDo->SetLineColor(h_ratio->GetLineColor());
-        fix->SetLineWidth(h_ratio->GetLineWidth());
-        fixUp->SetLineWidth(h_ratio->GetLineWidth());
-        fixDo->SetLineWidth(h_ratio->GetLineWidth());
-        fix->Draw("SAME");
-        fixUp->SetLineColor(1);
-        fixUp->SetLineWidth(1);
-        fixUp->Draw("SAME");
-        fixDo->SetLineColor(1);
-        fixDo->SetLineWidth(1);
-        fixDo->Draw("SAME");
-      }
+      // Note: the following is not needed if using option "0" when Drawing...
+//       TLine *fix=0;
+//       TLine *fixUp=0;
+//       TLine *fixDo=0;
+//       cout << " bin: " << i_bin << "  with val: " << val << " and lower: " << val-h_ratio->GetBinError(i_bin) <<  endl;
+//       cout << " bin: " << i_bin << "  with val: " << val << " and upper: " << val+h_ratio->GetBinError(i_bin) <<  endl;
+//       if (val-h_ratio->GetBinError(i_bin)<1.5) {
+//         float x = h_ratio->GetXaxis()->GetBinCenter(i_bin);
+//         float w = h_ratio->GetXaxis()->GetBinWidth(i_bin);
+//         float y0 = TMath::Max(val-h_ratio->GetBinError(i_bin),0.50);
+//         float y1 = TMath::Min(val+h_ratio->GetBinError(i_bin),1.50);
+//         fix = new TLine( x, y0, x, y1 );
+//         fixUp = new TLine( x-w*0.07, y1, x+w*0.07, y1 );
+//         fixDo = new TLine( x-w*0.07, y0, x+w*0.07, y0 );
+//       }
+//       if (fix!=0) {
+//         fix->SetLineColor(h_ratio->GetLineColor());
+//         fixUp->SetLineColor(h_ratio->GetLineColor());
+//         fixDo->SetLineColor(h_ratio->GetLineColor());
+//         fix->SetLineWidth(h_ratio->GetLineWidth());
+//         fixUp->SetLineWidth(h_ratio->GetLineWidth());
+//         fixDo->SetLineWidth(h_ratio->GetLineWidth());
+//         fix->Draw("SAME");
+//         fixUp->SetLineColor(1);
+//         fixUp->SetLineWidth(1);
+//         fixUp->Draw("SAME");
+//         fixDo->SetLineColor(1);
+//         fixDo->SetLineWidth(1);
+//         fixDo->Draw("SAME");
+//       }
       arrow->Draw();
     }
   }
