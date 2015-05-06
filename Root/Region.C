@@ -189,7 +189,7 @@ void Region::BuildPreFitErrorHist(){
         for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
             systName = fSampleHists[i]->fSyst[i_syst]->fName;
             if(!systIsThere[systName]){
-                cout << " " << systName << endl;
+//                 cout << " " << systName << endl;
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
             }

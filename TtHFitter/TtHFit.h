@@ -127,6 +127,8 @@ public:
     int fInputType; // 0: histo, 1: ntup
     
     ConfigParser *fConfig;
+    
+    bool fShowYields;
 };
 
 #endif

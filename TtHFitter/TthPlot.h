@@ -9,11 +9,8 @@ using namespace std;
 
 class TthPlot {
   public:
-//     TthPlot();
     TthPlot(string name="c",int canvasWidth=600,int canvasHeight=700);
     ~TthPlot(){};
-
-//     void Init(int canvasWidth=600,int canvasHeight=700);
     
     void SetChannel(string name);
     void AddLabel(string name);
@@ -59,7 +56,8 @@ class TthPlot {
     string xtitle;
     string ytitle;
     string data_name;
-    std::vector< string > sample_name;
+    std::vector< string > fBkgNames;
+    std::vector< string > fSigNames;
     std::vector< string > fLabels;
     string fLumi;
     string fCME;
@@ -68,7 +66,10 @@ class TthPlot {
     float Chi2prob;
     float KSprob;
     
+    float fYmin;
+    
     bool fIsNjet;
+    bool fShowYields;
     
     string fBinLabel[MAXbins];
 };

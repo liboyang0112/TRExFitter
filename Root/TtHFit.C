@@ -48,6 +48,7 @@ TtHFit::TtHFit(string name){
     fConfig = new ConfigParser();
     
     fInputType = HIST;
+    fShowYields = false;
 }
 
 //__________________________________________________________________________________
@@ -226,6 +227,7 @@ void TtHFit::ReadConfigFile(string fileName){
     fConfig->ReadFile(fileName);
     ConfigSet *cs; // to store stuff later
     string param;
+    std::vector< string > vec;
     int type;
     //
     // set fit
@@ -276,6 +278,11 @@ void TtHFit::ReadConfigFile(string fileName){
     param = cs->Get("MCstatThreshold");   if( param != "")  SetStatErrorConfig( true,  atof(param.c_str()) );
                                           else              SetStatErrorConfig( false, 0.0 );
     param = cs->Get("DebugLevel");        if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
+    param = cs->Get("PlotOptions");       if( param != ""){
+        vec = Vectorize(param,',');
+        if( std::find(vec.begin(), vec.end(), "YIELDS")!=vec.end() )  fShowYields = true;
+        // ...
+    }
     //
     // set regions
     int nReg = 0;
@@ -355,6 +362,10 @@ void TtHFit::ReadConfigFile(string fileName){
           if(param=="FALSE") smp->NormalizedByTheory(false);
           else if(param=="TRUE") smp->NormalizedByTheory(true);
           else std::cout << "<!> NormalizedByTheory flag not recognized ... *" << param << "*" << std::endl;
+      }
+      if(fInputType==1){
+          param = cs->Get("MCweight");
+          if(param!="")  smp->SetMCweight( param );
       }
       // ...
       nSmp++;
@@ -885,6 +896,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
     }
     //
     TthPlot *p = new TthPlot(fName+"_summary",900,700);
+    p->fShowYields = fShowYields;
+    p->fYmin = 10;
     p->SetXaxis("",false);
     p->AddLabel(fLabel);
     if(isPostFit) p->AddLabel("Post-Fit");
@@ -964,16 +977,25 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
 //
 void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > &regions){
     gSystem->mkdir(fName.c_str());
-    TCanvas *c = new TCanvas("c","c",200*nCols,100+250*nRows);
-    //   c->SetTopMargin(100/(100+150*nCols));
-    TPad *pTop = new TPad("c0","c0",0,1-100./(100.+150*nCols),1,1);
+    float Hp = 250; // height of one mini-plot, in pixels
+    float Wp = 200; // width of one mini-plot, in pixels
+    float H0 = 100; // height of the top label pad
+    float H = H0 + nRows*Hp; // tot height of the canvas
+    float W = nCols*Wp; // tot width of the canvas
+//     TCanvas *c = new TCanvas("c","c",200*nCols,100+250*nRows);
+//     TPad *pTop = new TPad("c0","c0",0,1-100./(100.+150*nCols),1,1);
+    TCanvas *c = new TCanvas("c","c",W,H);
+    TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
     pTop->Draw();
-    ATLASLabel(0.1,0.90,(char*)"Internal");
-    myText(    0.1,0.85,1,Form("#sqrt{s} = 8 TeV, 20.3 fb^{-1}"));
-    myText(    0.1,0.80,1,Form("%s",fLabel.c_str()));
+    pTop->cd();
+    ATLASLabel(0.1,0.7,(char*)"Internal");
+    myText(    0.1,0.4,1,Form("#sqrt{s} = 8 TeV, 20.3 fb^{-1}"));
+    myText(    0.1,0.1,1,Form("%s",fLabel.c_str()));
     //
-    TPad *pBottom = new TPad("c1","c1",0,0,1,1-100./(100.+150*nCols));
+    c->cd();
+    TPad *pBottom = new TPad("c1","c1",0,0,1,1-H0/H);
     pBottom->Draw();
+    pBottom->cd();
     pBottom->Divide(nCols,nRows);
     int Nreg = nRows*nCols;
     if(Nreg>fNRegions) Nreg = fNRegions;
@@ -996,35 +1018,40 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         }
     }
     //
+    float yMax = 0;
+    //
     for(int i=0;i<Nreg;i++){
         pBottom->cd(i+1);
         string label = regions[i]->fShortLabel;
-        gPad->SetLeftMargin( gPad->GetLeftMargin()*1.5 );
         h[i] = new TH1F(Form("h[%d]",i),label.c_str(),3,xbins);
         h[i]->SetBinContent(2,S[i]/sqrt(B[i]));
         h[i]->GetYaxis()->SetTitle("S / #sqrt{B}");
         h[i]->GetYaxis()->CenterTitle();
         //     h[i]->GetYaxis()->SetTitleSize(0.14);
         h[i]->GetYaxis()->SetLabelOffset(1.5*h[i]->GetYaxis()->GetLabelOffset());
-        h[i]->GetYaxis()->SetTitleOffset(3.5);
+        h[i]->GetYaxis()->SetTitleOffset(9);
         //     h[i]->GetYaxis()->SetLabelSize(0.12);
         h[i]->GetXaxis()->SetTickLength(0);
         h[i]->GetYaxis()->SetNdivisions(3);
-//         h[i]->SetMaximum(0.2);
-        h[i]->SetMaximum(1.5);
+        yMax = TMath::Max(yMax,h[i]->GetMaximum());
         h[i]->GetXaxis()->SetLabelSize(0);
         h[i]->SetLineWidth(1);
         h[i]->SetLineColor(kBlack);
         if(regions[i]->fRegionType==Region::SIGNAL) h[i]->SetFillColor(kRed+1);
         else                                        h[i]->SetFillColor(kAzure-4);
         h[i]->Draw();
-        gPad->SetLeftMargin(gPad->GetLeftMargin()*1.25);
+        gPad->SetLeftMargin( gPad->GetLeftMargin()*2.4 );
+        gPad->SetRightMargin(gPad->GetRightMargin()*0.1);
         gPad->SetTicky(0);
         gPad->RedrawAxis();
-        tex->DrawLatex(0.35,0.85,label.c_str());
+        tex->DrawLatex(0.4,0.85,label.c_str());
         float SoB = S[i]/B[i];
         string SB = Form("S/B = %.1f%%",(100.*SoB));
-        tex->DrawLatex(0.35,0.72,SB.c_str());
+        tex->DrawLatex(0.4,0.72,SB.c_str());
+    }
+    //
+    for(int i=0;i<Nreg;i++){
+        h[i]->SetMaximum(yMax*1.5);
     }
     //
     c->SaveAs((fName+"/SignalRegions.png").c_str());

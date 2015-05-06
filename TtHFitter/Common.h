@@ -53,9 +53,9 @@ namespace TtHFitter{
   void SetDebugLevel(int level=0);
 };
 
-const int MAXregions = 20;
-const int MAXsamples = 20;
-const int MAXsyst = 150;
+const int MAXregions = 100;
+const int MAXsamples = 100;
+const int MAXsyst = 200;
 const int MAXnorm = 3;
 
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight);

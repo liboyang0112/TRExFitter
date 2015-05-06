@@ -48,9 +48,13 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
   h_normsig = 0x0;
   //
   fIsNjet = false;
+  fShowYields = false;
   //
   for(int i_bin=0;i_bin<MAXbins;i_bin++)
     fBinLabel[i_bin] = "";
+  //
+  fSigNames.clear();
+  fBkgNames.clear();
 }
 
 void TthPlot::SetChannel(string name){
@@ -85,35 +89,41 @@ void TthPlot::SetBinLabel(int bin,string name){
 
 
 void TthPlot::SetData(TH1* h,string name){
-  h_data = (TH1*)h;
+  h_data = (TH1*)h->Clone();
   data_name = name;
 }
 
 void TthPlot::AddSignal(TH1* h,string name){
-  h_signal = h;
-  sample_name.push_back(name);
+  h_signal = (TH1*)h->Clone();
+  fSigNames.push_back(name);
 }
 
 void TthPlot::AddNormSignal(TH1* h,string name){
   h_normsig = (TH1*)h->Clone(name.c_str());
-//   sample_name.push_back(name);
+//   fSigNames.push_back(name);
 }
 
 void TthPlot::AddBackground(TH1* h,string name){
-  h_stack->Add(h);
+//   h_stack->Add(h);
   if(h_tot==0x0) h_tot = (TH1*)h->Clone();
   else h_tot->Add(h);
-  h_bkg[sample_name.size()] = h;
-  sample_name.push_back(name);
+  // if already there...
+  if(std::find(fBkgNames.begin(),fBkgNames.end(),name)!=fBkgNames.end()){
+    h_bkg[fBkgNames.size()-1]->Add(h);
+  }
+  else{
+    h_bkg[fBkgNames.size()] = (TH1*)h->Clone();
+    fBkgNames.push_back(name);
+  }
 }
 
 void TthPlot::SetTotBkg(TH1* h){
-  h_tot = h;
+  h_tot = (TH1*)h->Clone();
   g_tot = new TGraphAsymmErrors(h);
 }
 
 void TthPlot::SetTotBkgAsym(TGraphAsymmErrors* g){
-  g_tot = g;
+  g_tot = (TGraphAsymmErrors*)g->Clone();
   for(int i=1;i<h_tot->GetNbinsX()+1;i++){
     h_tot->SetBinContent(i,g_tot->GetY()[i-1]);
   }
@@ -152,7 +162,12 @@ void TthPlot::Draw(string options){
     h_data->SetTitle("Asimov Data");
     g_data = new TGraphAsymmErrors(h_data);
   }
-    
+  
+  // add Bkg's to the stack
+  for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
+    h_stack->Add(h_bkg[i_smp]);
+  }
+  // eventually add Signal
   if(h_signal!=0x0) h_stack->Add(h_signal);
   h_stack->Draw("HIST same");
     
@@ -191,6 +206,7 @@ void TthPlot::Draw(string options){
       if(fBinLabel[i_bin]!="") h_dummy->GetXaxis()->SetBinLabel( i_bin, fBinLabel[i_bin].c_str());
     }
   }
+  h_dummy->GetXaxis()->LabelsOption("d");
   h_dummy->GetYaxis()->SetTitleOffset(2);
   if(options.find("log")==string::npos){
     h_dummy->SetMinimum(0);
@@ -199,7 +215,8 @@ void TthPlot::Draw(string options){
   }
   else{
     h_dummy->SetMaximum(h_tot->GetMaximum()*pow(10,yMaxScale));
-    h_dummy->SetMinimum(1.);
+    if(fYmin>0)  h_dummy->SetMinimum(fYmin);
+    else         h_dummy->SetMinimum(1.);
   }
   pad0->RedrawAxis();
   
@@ -208,48 +225,60 @@ void TthPlot::Draw(string options){
   for(unsigned int i_lab=0;i_lab<fLabels.size();i_lab++)
     myText(0.18,0.8+0.04-(i_lab+1)*0.05,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
   
-//   float legX1 = 0.54;
-  float legX1 = 1-0.46*(596./pad0->GetWw());
+  float legX1 = 1-0.40*(596./pad0->GetWw())-0.08;
   float legX2 = 0.94;
-  float legXmid = legX1+0.6*(legX2-legX1);
-  
-//   leg  = new TLegend(0.54,0.93-(sample_name.size()+2)*0.06,0.80,0.93);
-//   leg1 = new TLegend(0.80,leg->GetY1(),0.94,leg->GetY2());
-  leg  = new TLegend(legX1,0.93-(sample_name.size()+2)*0.06, legXmid,0.93);
-  leg1 = new TLegend(legXmid,leg->GetY1(), legX2,leg->GetY2());
-  
-  leg->SetFillStyle(0);
-  leg->SetBorderSize(0);
-  leg->SetTextAlign(32);
-  leg->SetTextFont(42);
-  leg->SetTextSize(0.042);
-  leg->SetMargin(0.22);
-  leg1->SetFillStyle(0);
-  leg1->SetBorderSize(0);
-  leg1->SetTextAlign(32);
-  leg1->SetTextFont(42);
-  leg1->SetTextSize(0.042);
-  leg1->SetMargin(0.);
-  leg->AddEntry(h_data,data_name.c_str(),"lep");
-  leg1->AddEntry((TObject*)0,Form("%.1f",h_data->Integral()),"");
-  leg->AddEntry(h_signal,sample_name[0].c_str(),"f");
-  leg1->AddEntry((TObject*)0,Form("%.1f",h_signal->Integral()),"");
-  for(int i_smp=sample_name.size()-1;i_smp>0;i_smp--){
-//   for(int i_smp=sample_name.size()-2;i_smp>=0;i_smp--){
-// cout << i_smp << " " << sample_name[i_smp] << endl;
-// cout << h_bkg[i_smp] << endl;
-    leg->AddEntry(h_bkg[i_smp], sample_name[i_smp].c_str(),"f");
-// cout << "OK" << endl;
-    leg1->AddEntry((TObject*)0,Form("%.1f",h_bkg[i_smp]->Integral()),"");
+  float legXmid = legX1+0.5*(legX2-legX1);
+
+  if(fShowYields){
+    legXmid = legX1+0.6*(legX2-legX1);
+    leg  = new TLegend(legX1,0.93-(fBkgNames.size()+fSigNames.size()+2)*0.06, legXmid,0.93);
+    leg1 = new TLegend(legXmid,leg->GetY1(), legX2,leg->GetY2());
+    //
+    leg->SetFillStyle(0);
+    leg->SetBorderSize(0);
+    leg->SetTextAlign(32);
+    leg->SetTextFont(42);
+    leg->SetTextSize(0.042);
+    leg->SetMargin(0.22);
+    leg1->SetFillStyle(0);
+    leg1->SetBorderSize(0);
+    leg1->SetTextAlign(32);
+    leg1->SetTextFont(42);
+    leg1->SetTextSize(0.042);
+    leg1->SetMargin(0.);
+    leg->AddEntry(h_data,data_name.c_str(),"lep");
+    leg1->AddEntry((TObject*)0,Form("%.1f",h_data->Integral()),"");
+    leg->AddEntry(h_signal,fSigNames[0].c_str(),"f");
+    leg1->AddEntry((TObject*)0,Form("%.1f",h_signal->Integral()),"");
+    for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
+      leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+      leg1->AddEntry((TObject*)0,Form("%.1f",h_bkg[i_smp]->Integral()),"");
+    }
+    leg->AddEntry((TObject*)0,"Total","");
+    leg1->AddEntry((TObject*)0,Form("%.1f",h_tot->Integral()),"");
+    leg->AddEntry(g_tot,"Uncertainty","f");
+    leg1->AddEntry((TObject*)0," ","");
+    leg->Draw();
+    leg1->Draw();
   }
-  leg->AddEntry((TObject*)0,"Total","");
-  leg1->AddEntry((TObject*)0,Form("%.1f",h_tot->Integral()),"");
-// //   leg1->AddEntry((TObject*)0,Form("%.1f",g_tot->Integral()),"");
-// //   leg->AddEntry(h_tot,"Uncertainty","f");
-  leg->AddEntry(g_tot,"Uncertainty","f");
-  leg1->AddEntry((TObject*)0," ","");
-  leg->Draw();
-  leg1->Draw();
+  else{
+    leg  = new TLegend(legX1,0.93-(fBkgNames.size()+fSigNames.size()+2)*0.06/2., legX2,0.93);
+    leg->SetNColumns(2);
+    leg->SetFillStyle(0);
+    leg->SetBorderSize(0);
+    leg->SetTextAlign(32);
+    leg->SetTextFont(42);
+    leg->SetTextSize(0.042);
+    leg->SetMargin(0.22);
+    leg->AddEntry(h_data,data_name.c_str(),"lep");
+    leg->AddEntry(h_signal,fSigNames[0].c_str(),"f");
+    for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
+      leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+    }
+//     leg->AddEntry((TObject*)0,"Total","");
+    leg->AddEntry(g_tot,"Uncertainty","f");
+    leg->Draw();
+  }
 
   // subpad
 //   bool drawRatio = true;
@@ -334,6 +363,8 @@ void TthPlot::Draw(string options){
 //     if(((string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!="") h_ratio->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
     if(((string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!="") h_dummy2->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
   }
+  h_dummy2->GetXaxis()->LabelsOption("d");
+  h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
   gPad->RedrawAxis();
   // to hide the upper limit
   TLine line(0.01,1,0.1,1);
@@ -433,8 +464,8 @@ void TthPlot::WriteToFile(string name){
   if(h_data) h_data->Write(Form("h_%s",data_name.c_str()),TObject::kOverwrite);
   h_tot->Write("h_totErr",TObject::kOverwrite);
   if(g_tot) g_tot->Write("g_totErr",TObject::kOverwrite);
-  for(int i_smp=sample_name.size()-1;i_smp>0;i_smp--){
-    h_bkg[i_smp]->Write(Form("h_%s",sample_name[i_smp].c_str()),TObject::kOverwrite);
+  for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
+    h_bkg[i_smp]->Write(Form("h_%s",fBkgNames[i_smp].c_str()),TObject::kOverwrite);
   }
   if(h_signal)  h_signal ->Write("h_signal",TObject::kOverwrite);
   if(h_normsig) h_normsig->Write("h_normSignal",TObject::kOverwrite);

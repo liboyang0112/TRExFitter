@@ -61,11 +61,18 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
     }
       
     if(drawPreFit){
-        myFit->DrawAndSaveAll();
-        myFit->DrawSummary("log");
-        if(myFit->fNRegions<=4) myFit->DrawSignalRegionsPlot(2,2);
-        else                    myFit->DrawSignalRegionsPlot((int)sqrt(myFit->fNRegions)+1*(sqrt(myFit->fNRegions)>(int)sqrt(myFit->fNRegions)),
-                                                             (int)sqrt(myFit->fNRegions));
+//         myFit->DrawAndSaveAll();
+//         myFit->DrawSummary("log");
+        int nCols = 2;
+        int nRows = 2;
+        if(myFit->fNRegions>4){
+            nCols = (int)sqrt(myFit->fNRegions);
+            if(sqrt(myFit->fNRegions)>nCols) nCols++;
+//             +1*(sqrt(myFit->fNRegions)>(int)sqrt(myFit->fNRegions));
+            nRows = (int)sqrt(myFit->fNRegions);
+            if(nCols*nRows < myFit->fNRegions) nRows++;
+        }
+        myFit->DrawSignalRegionsPlot(nCols,nRows);
     }
 
     if(createWorkspace){
