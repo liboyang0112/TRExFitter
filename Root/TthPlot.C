@@ -359,12 +359,17 @@ void TthPlot::Draw(string options){
 //   h_ratio->GetXaxis()->SetLabelSize(0.14);
 //   if(fIsNjet) h_ratio->GetXaxis()->SetLabelSize(0.2);
   h_dummy->GetXaxis()->SetLabelSize(0);
+  bool customLabels = false;
   for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
 //     if(((string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!="") h_ratio->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
-    if(((string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!="") h_dummy2->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
+    if(((string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!=""){
+      h_dummy2->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
+      customLabels = true;
+    }
   }
   h_dummy2->GetXaxis()->LabelsOption("d");
   h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
+  if(customLabels && h_dummy->GetNbinsX()>10) h_dummy2->GetXaxis()->SetLabelSize(0.66*h_dummy2->GetXaxis()->GetLabelSize() );
   gPad->RedrawAxis();
   // to hide the upper limit
   TLine line(0.01,1,0.1,1);
