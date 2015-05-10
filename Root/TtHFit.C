@@ -1018,7 +1018,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         }
     }
     //
-    float yMax = 0;
+    double yMax = 0;
     //
     for(int i=0;i<Nreg;i++){
         pBottom->cd(i+1);
