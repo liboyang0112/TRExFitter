@@ -115,7 +115,7 @@ public:
     std::vector<string> fNtupleNameSuffs;
 
     // histogram stuff
-    string fHistoName;
+//     string fHistoName;
     double *fHistoBins;
     int fHistoNBinsRebin;
     std::vector<string> fHistoPaths;

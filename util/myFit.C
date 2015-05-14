@@ -28,6 +28,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
     bool createWorkspace = opt.find("w")!=string::npos;
     bool doFit           = opt.find("f")!=string::npos;
     bool doLimit         = opt.find("l")!=string::npos;
+    bool doSignificance  = opt.find("s")!=string::npos;
     bool drawPreFit      = opt.find("d")!=string::npos;
     bool drawPostFit     = opt.find("p")!=string::npos;
     
@@ -63,6 +64,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
     if(drawPreFit){
         myFit->DrawAndSaveAll();
         myFit->DrawSummary("log");
+        myFit->BuildYieldTable();
         int nCols = 2;
         int nRows = 2;
         if(myFit->fNRegions>4){
@@ -90,9 +92,14 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
         myFit->GetLimit();
     }
     
+    if(doSignificance){
+        myFit->GetSignificance();
+    }
+    
     if(drawPostFit){
         myFit->DrawAndSaveAll("post");
         myFit->DrawSummary("log post");
+        myFit->BuildYieldTable("post");
     }
 }
 

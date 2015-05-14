@@ -1,3 +1,13 @@
+2015-05-14 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * TtHFit.C: pre and post fit yield tables added
+        * TtHFit.C, runSig.C: significance calculation added
+        * TtHFit.C: limit and significance output stored in proper file sin proper directories
+        * TthPlot.C: plotting style improved (no numbers in the legend, ability to merge small samples...)
+        * TtHFit.C, Region.C: root file outptuts added for pre- and post-fit plots (summary as well)
+        * util/myFit.C: options added for the parser
+        * PlotLimits.C: macro added to plot limits (still not interfaced with the main code)
+        * Versioning: 1.3
+        
 2015-04-30 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit.C, Region.C: modified to better handle post-fit plots
         * TtHFit.C: post-fit summary plot added

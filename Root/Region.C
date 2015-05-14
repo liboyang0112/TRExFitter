@@ -673,7 +673,9 @@ void Region::SetVariable(string variable,int nbin,float xmin,float xmax){
 //__________________________________________________________________________________
 //
 void Region::SetHistoName(string name){
-    fHistoName = name;
+//     fHistoName = name;
+    fHistoNames.clear();
+    fHistoNames.push_back(name);
 }
 
 //__________________________________________________________________________________

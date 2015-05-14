@@ -68,6 +68,7 @@ public:
     void DrawAndSaveAll(string opt="");
     
     TthPlot* DrawSummary(string opt="");
+    void BuildYieldTable(string opt="");
     
     // regions examples:
     // ...
@@ -82,6 +83,7 @@ public:
     void Fit();
     void PlotFittedNP();
     void GetLimit();
+    void GetSignificance();
     
     // get fit results from txt file
     void ReadFitResults(string fileName);
@@ -118,6 +120,7 @@ public:
     
     std::vector<string> fHistoPaths;
     string fHistoName;
+    string fHistoFile;
     
     FitResults *fFitResults;
     

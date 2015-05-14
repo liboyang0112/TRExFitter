@@ -250,7 +250,8 @@ void TthPlot::Draw(string options){
     leg1->AddEntry((TObject*)0,Form("%.1f",h_data->Integral()),"");
     leg->AddEntry(h_signal,fSigNames[0].c_str(),"f");
     leg1->AddEntry((TObject*)0,Form("%.1f",h_signal->Integral()),"");
-    for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
+//     for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
+    for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
       leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
       leg1->AddEntry((TObject*)0,Form("%.1f",h_bkg[i_smp]->Integral()),"");
     }
@@ -272,7 +273,8 @@ void TthPlot::Draw(string options){
     leg->SetMargin(0.22);
     leg->AddEntry(h_data,data_name.c_str(),"lep");
     leg->AddEntry(h_signal,fSigNames[0].c_str(),"f");
-    for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
+//     for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
+    for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
       leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
     }
 //     leg->AddEntry((TObject*)0,"Total","");
