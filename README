@@ -120,6 +120,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       DebugLevel       -> 0 or 1
       SystPruningShape -> Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
       SystPruningNorm  -> Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
+      SystControlPlots -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
       ...
       
     Sample:

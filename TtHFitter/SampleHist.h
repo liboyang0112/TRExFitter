@@ -36,7 +36,7 @@ public:
   void Print();
   
   void Rebin(int ngroup = 2, const Double_t* xbins = 0);
-  void DrawSystPlot(string syst="all");
+  void DrawSystPlot(string syst="all", bool dumpSystPlots = false);
   void SmoothSyst(string syst="all",bool force=false);
   
   string fName;

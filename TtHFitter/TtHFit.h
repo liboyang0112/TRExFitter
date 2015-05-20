@@ -129,6 +129,7 @@ public:
     ConfigParser *fConfig;
     
     bool fShowYields;
+    bool fSystControlPlots;
 };
 
 #endif

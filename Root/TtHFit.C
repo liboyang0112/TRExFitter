@@ -47,6 +47,8 @@ TtHFit::TtHFit(string name){
     
     fInputType = HIST;
     fShowYields = false;
+    
+    fSystControlPlots = false;
 }
 
 //__________________________________________________________________________________
@@ -165,8 +167,15 @@ void TtHFit::AddHistoPath(string path){
 }
 
 //__________________________________________________________________________________
-// create new root file with all the histograms
-void TtHFit::WriteHistos(string fileName,bool recreate){
+//
+void TtHFit::WriteHistos(string fileName, bool recreate){
+   
+    /////////////////////////////////
+    //
+    // Create a new root file with all the histograms
+    //
+    /////////////////////////////////
+    
     if(fileName=="") fileName = fName + "_histos.root";
     cout << "Writing histograms to file " << fileName << " ..." << endl;
     TDirectory *dir = gDirectory;
@@ -176,6 +185,9 @@ void TtHFit::WriteHistos(string fileName,bool recreate){
         f->~TFile();
         dir->cd();
     }
+
+    //
+    // Loop over all Regions, Samples and Systematics to store the final histograms
     //
     SampleHist* h;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -201,7 +213,7 @@ void TtHFit::WriteHistos(string fileName,bool recreate){
                     h->fSyst[i_syst]->fHistoNameShapeDown = h->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
-            h->DrawSystPlot();
+            h->DrawSystPlot("all",fSystControlPlots);
             h->WriteToFile();
         }
     }
@@ -269,6 +281,14 @@ void TtHFit::ReadConfigFile(string fileName){
         if( std::find(vec.begin(), vec.end(), "YIELDS")!=vec.end() )  fShowYields = true;
         // ...
     }
+    param = cs->Get("SystControlPlots");        if( param != ""){
+        if( param == "true" || param == "True" ||  param == "TRUE" ){
+            fSystControlPlots = true;
+        } else {
+            fSystControlPlots = false;
+        }
+    }
+    
     //
     // set regions
     int nReg = 0;
@@ -612,29 +632,34 @@ void TtHFit::ReadHistograms(){
     vector<string> empty; empty.clear();
     //
     // loop on regions and samples
+    //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             cout << "Reading " << fSamples[i_smp]->fName << endl;
+
+            /////////////////////////////////////////
             //
-            // read nominal
+            // READ NOMINAL HISTOGRAM
             //
-            // build a list of histograms to read
+            /////////////////////////////////////////
+            
+            // Build a list of histograms to read
             fullPaths.clear();
             std::vector<string> histoFiles;
             std::vector<string> histoNames;
             if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
             else if(fRegions[i_ch]->fHistoFiles.size()>0) histoFiles = fRegions[i_ch]->fHistoFiles;
             else                                          histoFiles = ToVec( fHistoFile );
+            
             if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
             else if(fRegions[i_ch]->fHistoNames.size()>0) histoNames = fRegions[i_ch]->fHistoNames;
             else                                          histoNames = ToVec( fHistoName );
-            // Common::CreatePathsList( vector<string> paths, vector<string> pathSufs,
-            //                          vector<string> files, vector<string> filesSuf,
-            //                          vector<string> names, vector<string> namesSuf);
+            
             fullPaths = CreatePathsList( fHistoPaths, fRegions[i_ch]->fHistoPathSuffs,
                                         histoFiles, empty, // no histo file suffs for nominal (syst only)
                                         histoNames, empty  // same for histo name
                                         );
+            
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                 //         cout << " " << fullPaths[i_path] << endl;
                 //         cout << "  " << fRegions[i_ch]->fHistoName << endl;
@@ -642,137 +667,151 @@ void TtHFit::ReadHistograms(){
                 //         htmp = (TH1F*)HistFromFile( fullPaths[i_path],fRegions[i_ch]->fHistoName);
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                 
-                //Pre-processing of histograms (rebinning, lumi scaling)
+                //Rebinning
                 if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                 
+                //Lumi scaling
                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
                 
-                //Importing the histogram in TtHFitter
+                //Importing the histogram into TtHFitter
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
                 htmp->~TH1F();
             }
+            
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
+            
             //
-            // fix the bin contents FIXME (to avoid fit problems)
+            // Fix the <=0 bin contents (to avoid fit problems)
+            //
             if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
+
+            
+            
+            /////////////////////////////////////////
             //
-            //  -----------------------------------
+            // READ SYSTEMATIC HISTOGRAMS
             //
-            // read systematics (Shape and Histo)
+            /////////////////////////////////////////
+            
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
-//                 // if not Overall only...
-//                 if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::OVERALL)
-//                     continue;
+                
                 cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
-                //
+                
+                //---------------------------
                 // Up
-                //
-                // For histo syst:
-                if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::HISTO){
-                  fullPaths.clear();
-                  fullPaths = CreatePathsList(
-                                              // path
-                                              fHistoPaths,
-                                              // path suf
-                                              CombinePathSufs(
-                                                              fRegions[i_ch]->fHistoPathSuffs,
-                                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoPathsUp ),
-                                              // file
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesUp.size()==0 ?
-//                                               fSamples[i_smp]->fHistoFiles :
-                                              histoFiles :
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesUp ,
-                                              // file suf
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufUp=="" ?
-                                              empty :
-                                              ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufUp ),
-                                              // name
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesUp.size()==0 ?
-//                                               ToVec( fRegions[i_ch]->fHistoName ) :
-                                              histoNames :
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesUp,
-                                              // name suf
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufUp=="" ?
-                                              empty :
-                                              ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufUp )
-                                              );
-                  for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-                      htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-                      //Pre-processing of histograms (rebinning, lumi scaling)
-                      if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
-                      else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
-                      
-                      if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
-                      
-                      //Importing histogram in TtHFitter
-                      if(i_path==0) hUp = (TH1F*)htmp->Clone();
-                      else hUp->Add(htmp);
-                      htmp->~TH1F();
-                  }
+                //---------------------------
+                
+                if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::HISTO){ //---------- Histo systematics (shape systematics)
+                    fullPaths.clear();
+                    fullPaths = CreatePathsList(
+                                                // path
+                                                fHistoPaths,
+                                                // path suf
+                                                CombinePathSufs(
+                                                                fRegions[i_ch]->fHistoPathSuffs,
+                                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoPathsUp ),
+                                                // file
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesUp.size()==0 ?
+                                                histoFiles :
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesUp ,
+                                                // file suf
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufUp=="" ?
+                                                empty :
+                                                ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufUp ),
+                                                // name
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesUp.size()==0 ?
+                                                histoNames :
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesUp,
+                                                // name suf
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufUp=="" ?
+                                                empty :
+                                                ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufUp )
+                                                );
+                    
+                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                        
+                        htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                        
+                        //Variable binning
+                        if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                        else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                        
+                        //Lumi scaling
+                        if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                        
+                        //Getting the final histogram
+                        if(i_path==0) hUp = (TH1F*)htmp->Clone();
+                        else hUp->Add(htmp);
+                        htmp->~TH1F();
+                    }
                 }
-                // For Overall syst
-                else{
-                  hUp = (TH1F*)h->Clone();
-                  hUp->Scale(1+fSamples[i_smp]->fSystematics[i_syst]->fOverallUp);
+                else { //---------- Normalisation systematics
+                    hUp = (TH1F*)h->Clone();
+                    hUp->Scale(1+fSamples[i_smp]->fSystematics[i_syst]->fOverallUp);
                 }
                 hUp->SetName(Form("h_%s_%s_%sUp",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
-                //
+                
+                
+                //---------------------------
                 // Down
-                //
-                // For histo syst:
-                if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::HISTO){
-                  fullPaths.clear();
-                  fullPaths = CreatePathsList(
-                                              // path
-                                              fHistoPaths,
-                                              // path suf
-                                              CombinePathSufs(
-                                                              fRegions[i_ch]->fHistoPathSuffs,
-                                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoPathsDown ),
-                                              // file
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesDown.size()==0 ?
-//                                               fSamples[i_smp]->fHistoFiles :
-                                              histoFiles :
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesDown ,
-                                              // file suf
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufDown=="" ?
-                                              empty :
-                                              ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufDown ),
-                                              // name
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesDown.size()==0 ?
-//                                               ToVec( fRegions[i_ch]->fHistoName ) :
-                                              histoNames :
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesDown,
-                                              // name suf
-                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufDown=="" ?
-                                              empty :
-                                              ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufDown )
-                                              );
-                  for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-                      htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
-                      //Pre-processing of histograms (rebinning, lumi scaling)
-                      if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
-                      else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
-                      
-                      if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
-                      
-                      //Importing histogram in TtHFitter
-                      if(i_path==0) hDown = (TH1F*)htmp->Clone();
-                      else hDown->Add(htmp);
-                      htmp->~TH1F();
-                  }
+                //---------------------------
+                
+                if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::HISTO){ //---------- Histo systematics (shape systematics)
+                    
+                    fullPaths.clear();
+                    fullPaths = CreatePathsList(
+                                                // path
+                                                fHistoPaths,
+                                                // path suf
+                                                CombinePathSufs(
+                                                                fRegions[i_ch]->fHistoPathSuffs,
+                                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoPathsDown ),
+                                                // file
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesDown.size()==0 ?
+                                                histoFiles :
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesDown ,
+                                                // file suf
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufDown=="" ?
+                                                empty :
+                                                ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufDown ),
+                                                // name
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesDown.size()==0 ?
+                                                histoNames :
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesDown,
+                                                // name suf
+                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufDown=="" ?
+                                                empty :
+                                                ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufDown )
+                                                );
+                    
+                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                        htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
+                        
+                        //Rebinning of the histograms
+                        if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                        else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                        
+                        //Lumi rescaling
+                        if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                        
+                        //Creating the final histogram
+                        if(i_path==0) hDown = (TH1F*)htmp->Clone();
+                        else hDown->Add(htmp);
+                        htmp->~TH1F();
+                    }
                 }
-                // For Overall syst
-                else{
-                  hDown = (TH1F*)h->Clone();
-                  hDown->Scale(1+fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
+                else {  //---------- Normalisation systematics
+                    hDown = (TH1F*)h->Clone();
+                    hDown->Scale(1+fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
                 }
                 hDown->SetName(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
-                // 
-                // Histogram smoothing, Symmetrisation, Massaging...
-                SystematicHist *sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+
+                //
+                // Histogram smoothing and symmetrisation method definitions (at this stage, no symmetrisaiton is performed !)
+                //
+                SystematicHist *sh = fRegions[i_ch] -> GetSampleHist(fSamples[i_smp]->fName) -> AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
                 sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];

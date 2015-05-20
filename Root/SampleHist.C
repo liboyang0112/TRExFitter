@@ -272,10 +272,12 @@ void SampleHist::Rebin(int ngroup, const Double_t* xbins){
 
 //_____________________________________________________________________________
 // this draws the control plots (for each systematic) with the syst variations for this region & sample
-void SampleHist::DrawSystPlot(string syst){
+void SampleHist::DrawSystPlot(string syst, const bool dumpSystPlots){
     
     //Perform the treatment of the systematics
     SmoothSyst(syst);
+    
+    if(!dumpSystPlots) return;
     
     float yield_syst_up, yield_syst_down, yield_nominal;
     TCanvas *c = new TCanvas("c","c",800,600);
