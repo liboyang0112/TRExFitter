@@ -1332,8 +1332,6 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 // systematics
                 for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
 
-		    if(h->fSyst[i_syst]->fHistoNameShapeDown=="" || h->fSyst[i_syst]->fHistoNameShapeUp=="") continue;
-
                     if(TtHFitter::DEBUGLEVEL>0){
                         cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
                     }
