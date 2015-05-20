@@ -12,8 +12,6 @@ TtHFit::TtHFit(string name){
     fResultsFolder = "results/";
     fFitType = CONTROLSIGNAL;
 
-//     gSystem->mkdir(fName.c_str());
-    
     fNRegions = 0;
     fNSamples = 0;
     fNSyst = 0;
@@ -164,18 +162,6 @@ void TtHFit::SetNtupleName(string name){
 //
 void TtHFit::AddHistoPath(string path){
     fHistoPaths.push_back(path);
-}
-
-// ...
-
-//__________________________________________________________________________________
-// apply smoothing to systematics
-void TtHFit::SmoothSystematics(string syst){
-    for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
-            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(syst);
-        }
-    }
 }
 
 //__________________________________________________________________________________
@@ -969,8 +955,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
                 h_tmp_Down = fRegions[i_bin-1]->fTotDown[i_syst];
             }
             if(i_bin==1){
-                h_up.  push_back( new TH1F(h_tmp_Up->GetName(),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
-                h_down.push_back( new TH1F(h_tmp_Down->GetName(),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
+                h_up.  push_back( new TH1F(h_tmp_Up->GetName()+(TString)("_"),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
+                h_down.push_back( new TH1F(h_tmp_Down->GetName()+(TString)("_"),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
             }
             h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
@@ -994,6 +980,12 @@ TthPlot* TtHFit::DrawSummary(string opt){
     gSystem->mkdir(fName.c_str());
     if(isPostFit)  p->SaveAs((fName+"/Summary_postFit.png").c_str());
     else           p->SaveAs((fName+"/Summary.png").c_str());
+    
+    for(unsigned int iSys = 0; iSys < h_up.size(); ++iSys){
+        delete h_up[iSys];
+        delete h_down[iSys];
+    }
+    
     //
     return p;
 }
@@ -1078,8 +1070,8 @@ void TtHFit::BuildYieldTable(string opt){
                         h_tmp_Down = fRegions[i_bin-1]->fSampleHists[i_smp]->fSyst[i_syst]->fHistDown;
                     }
                     if(i_bin==1){
-                        h_up.  push_back( new TH1F(h_tmp_Up->GetName(),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
-                        h_down.push_back( new TH1F(h_tmp_Down->GetName(),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
+                        h_up.  push_back( new TH1F(h_tmp_Up->GetName()+(TString)("_"),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
+                        h_down.push_back( new TH1F(h_tmp_Down->GetName()+(TString)("_"),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
                     }
                     h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
                     h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
@@ -1087,6 +1079,12 @@ void TtHFit::BuildYieldTable(string opt){
             }
             if(isPostFit)  g_err = BuildTotError( h, h_up, h_down, fRegions[0]->fSystNames, fFitResults->fCorrMatrix );
             else           g_err = BuildTotError( h, h_up, h_down, fRegions[0]->fSystNames );
+            
+            for(unsigned int iSys = 0; iSys < h_up.size(); ++iSys){
+                delete h_up[iSys];
+                delete h_down[iSys];
+            }
+            
         }
         //
         // print values
@@ -1147,6 +1145,11 @@ void TtHFit::BuildYieldTable(string opt){
         out << " | ";
     }
     out << endl;
+    
+    for(unsigned int iSys = 0; iSys < h_up.size(); ++iSys){
+        delete h_up[iSys];
+        delete h_down[iSys];
+    }
 }
 
 //__________________________________________________________________________________

@@ -51,9 +51,6 @@ public:
     void AddHistoPath(string path);
     void SetHistoName(string name);
     
-    // systematic handle
-    void SmoothSystematics(string syst="all");
-    
     // create new root file with all the histograms
     void WriteHistos(string fileName="",bool recreate=true);
     
