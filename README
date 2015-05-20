@@ -118,8 +118,8 @@ Here's a list of the inputs and options which can be specifed in the config file
       IntCodeShape     -> interpolation code used for the shape component of systematics (should match the one used in RooStats)
       LumiScale        -> this factor will scale all the MC samples
       DebugLevel       -> 0 or 1
-      SystPruningShape -> 
-      SystPruningNorm  -> 
+      SystPruningShape -> Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
+      SystPruningNorm  -> Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
       ...
       
     Sample:
@@ -144,7 +144,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       Type             -> can be HISTO or OVERALL
       Samples          -> comma-separated list of samples on which to apply the systematic
       Smoothing        -> smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
-      Symmetrisation   -> can be ONESIDED or TWOSIDED (...); for no ymmetrisation, skip the line
+      Symmetrisation   -> can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line
       HistoNameSufUp   -> valid only for option HIST, for HISTO systematic
       HistoNameSufDown -> valid only for option HIST, for HISTO systematic
       OverallUp        -> for OVERALL systematic, the relative "up" shift (0.1 means +10%)
