@@ -1,7 +1,10 @@
+
+
 2015-05-20 Loic Valery <lvalery@cern.ch>
         * TtHFit.C: fix mem leaks, remove unused function (SmoothSystematics), change some histograms names to avoid warning messages
         * TtHFit.h: propagates function suppression
         * TtHFit.C: adding an option in the config file to avoid dumping syst control histograms
+        * SampleHist.C: fix bug in the propagation of the normalisation systematic uncertainties
 
 2015-05-14 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit.C: pre and post fit yield tables added

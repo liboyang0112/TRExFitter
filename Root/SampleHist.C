@@ -424,6 +424,7 @@ void SampleHist::SmoothSyst(string syst,bool force){
         if(fSyst[i_syst]->fIsShape){
             HistoTools::ManageHistograms( fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType,  h_nominal, fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown, h_syst_up, h_syst_down);
         }
+        
         //
         // save stuff
         //
@@ -431,6 +432,16 @@ void SampleHist::SmoothSyst(string syst,bool force){
         fSyst[i_syst]->fHistUp = h_syst_up;
         fSyst[i_syst]->fHistDown_original = (TH1*)fSyst[i_syst]->fHistDown->Clone();
         fSyst[i_syst]->fHistDown = h_syst_down;
+        
+        //normalisation component first
+        if(h_nominal->Integral()!=0){
+            fSyst[i_syst]->fNormUp = fSyst[i_syst]->fHistUp->Integral()/h_nominal->Integral() - 1.;
+            fSyst[i_syst]->fNormDown = fSyst[i_syst]->fHistDown->Integral()/h_nominal->Integral() - 1.;
+        } else {
+            std::cerr << "<!> In SampleHist::SmoothSyst(): A nominal histogram with 0 intergral has been found. Please check ! " << std::endl;
+            std::cerr << "            -> Sample: " << fName << std::endl;
+        }
+        
         if(fSyst[i_syst]->fIsShape){
             // update shape hists as well
             fSyst[i_syst]->fHistShapeUp = (TH1*)h_syst_up->Clone(fSyst[i_syst]->fHistShapeUp->GetName());
