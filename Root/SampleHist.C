@@ -275,7 +275,7 @@ void SampleHist::Rebin(int ngroup, const Double_t* xbins){
 void SampleHist::DrawSystPlot(string syst, const bool dumpSystPlots){
     
     //Perform the treatment of the systematics
-    SmoothSyst(syst);
+//     SmoothSyst(syst);
     
     if(!dumpSystPlots) return;
     
@@ -326,12 +326,26 @@ void SampleHist::DrawSystPlot(string syst, const bool dumpSystPlots){
         h_syst_down->Add(h_nominal,-1);
         h_syst_up->Divide(h_nominal);
         h_syst_down->Divide(h_nominal);
+        // fix empty bins
+        for(int i_bin=1;i_bin<=h_nominal->GetNbinsX();i_bin++){
+            if(h_nominal->GetBinContent(i_bin)<1e-5){
+                h_syst_up  ->SetBinContent(i_bin,0.);
+                h_syst_down->SetBinContent(i_bin,0.);
+            }
+        }
         h_syst_up->Scale(100);
         h_syst_down->Scale(100);
         h_syst_up_orig->Add(h_nominal,-1);
         h_syst_down_orig->Add(h_nominal,-1);
         h_syst_up_orig->Divide(h_nominal);
         h_syst_down_orig->Divide(h_nominal);
+        // fix empty bins
+        for(int i_bin=1;i_bin<=h_nominal->GetNbinsX();i_bin++){
+            if(h_nominal->GetBinContent(i_bin)<1e-5){
+                h_syst_up_orig  ->SetBinContent(i_bin,0.);
+                h_syst_down_orig->SetBinContent(i_bin,0.);
+            }
+        }
         h_syst_up_orig->Scale(100);
         h_syst_down_orig->Scale(100);
         h_1->Draw("HIST");
@@ -395,9 +409,10 @@ void SampleHist::DrawSystPlot(string syst, const bool dumpSystPlots){
         leg2 -> Draw();
         
         gSystem->mkdir(fFitName.c_str());
-        gSystem->mkdir((fFitName+"/systPlots/").c_str());
+        gSystem->mkdir((fFitName+"/Systematics").c_str());
+        gSystem->mkdir((fFitName+"/Systematics/"+fSyst[i_syst]->fName).c_str());
         
-        const char* saveName = Form("%s/systPlots/%s_%s.png",fFitName.c_str(),fHist->GetName(),fSyst[i_syst]->fName.c_str());
+        const char* saveName = Form("%s/Systematics/%s/%s.png",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName());
         c->SaveAs(saveName);
         
         delete h_syst_up_black;

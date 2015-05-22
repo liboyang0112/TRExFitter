@@ -51,8 +51,12 @@ public:
     void AddHistoPath(string path);
     void SetHistoName(string name);
     
+    void SmoothSystematics(string syst="all");
+    
     // create new root file with all the histograms
     void WriteHistos(string fileName="",bool recreate=true);
+    
+    void DrawSystPlots();
     
     // config file
     void ReadConfigFile(string fileName);
@@ -69,7 +73,7 @@ public:
     
     // regions examples:
     // ...
-    void DrawSignalRegionsPlot(int nCols,int nRows);
+    void DrawSignalRegionsPlot(int nCols=0,int nRows=0);
     void DrawSignalRegionsPlot(int nRows,int nCols, std::vector < Region* > &regions);
     void DrawPieChartPlot();
     
@@ -128,7 +132,7 @@ public:
     
     ConfigParser *fConfig;
     
-    bool fShowYields;
+//     bool fShowYields;
     bool fSystControlPlots;
 };
 

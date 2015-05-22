@@ -1,4 +1,9 @@
-
+2015-05-22 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * general: cahnged organization of the output: now all the files created by a fit are inside a single directory, with a sub-directory structure
+        * TtHFit.C: re-introduced SmoothSystematics
+        * TtHFit.C, myFit.C: smoothing and syst-plots commands moved to myFit.C (option for saving syst-plots moved as well)
+        * tableToLatex.sh: example script added to turn txt tables into latex format
+        * TtHFit.C: Fixed signal-regions plot
 
 2015-05-20 Loic Valery <lvalery@cern.ch>
         * TtHFit.C: fix mem leaks, remove unused function (SmoothSystematics), change some histograms names to avoid warning messages

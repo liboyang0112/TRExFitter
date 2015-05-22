@@ -21,8 +21,10 @@ Region::Region(string name){
 
     string cName = "c_"+fName;
     fPlotPreFit = new TthPlot(cName);
+    fPlotPreFit->fShowYields = TtHFitter::SHOWYIELDS;
     cName = "c_"+fName+"_postFit";
     fPlotPostFit = new TthPlot(cName);
+    fPlotPostFit->fShowYields = TtHFitter::SHOWYIELDS;
     
     fSampleHists.clear();
     fSamples.clear();
@@ -620,8 +622,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     }
     //
     // Save in a root file...
-    cout << "Writing file " << fFitName+"/"+fName+"_postFit.root" << endl;
-    TFile *f = new TFile((fFitName+"/"+fName+"_postFit.root").c_str(),"RECREATE");
+    cout << "Writing file " << fFitName+"/Histograms/"+fName+"_postFit.root" << endl;
+    TFile *f = new TFile((fFitName+"/Histograms/"+fName+"_postFit.root").c_str(),"RECREATE");
     fErr_postFit->Write("",TObject::kOverwrite);
     fTot_postFit->Write("",TObject::kOverwrite);
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){

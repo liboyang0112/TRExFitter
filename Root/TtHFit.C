@@ -9,9 +9,12 @@
 TtHFit::TtHFit(string name){
     fName = name;
     fLabel = "";
-    fResultsFolder = "results/";
+//     fResultsFolder = "results/";
+//     fResultsFolder = fName+"/RooStats/";
     fFitType = CONTROLSIGNAL;
 
+//     gSystem->mkdir(fName.c_str());
+    
     fNRegions = 0;
     fNSamples = 0;
     fNSyst = 0;
@@ -46,9 +49,7 @@ TtHFit::TtHFit(string name){
     fConfig = new ConfigParser();
     
     fInputType = HIST;
-    fShowYields = false;
-    
-    fSystControlPlots = false;
+//     fShowYields = false;
 }
 
 //__________________________________________________________________________________
@@ -166,17 +167,27 @@ void TtHFit::AddHistoPath(string path){
     fHistoPaths.push_back(path);
 }
 
+// ...
+
 //__________________________________________________________________________________
-//
-void TtHFit::WriteHistos(string fileName, bool recreate){
-   
-    /////////////////////////////////
-    //
-    // Create a new root file with all the histograms
-    //
-    /////////////////////////////////
-    
-    if(fileName=="") fileName = fName + "_histos.root";
+// apply smoothing to systematics
+void TtHFit::SmoothSystematics(string syst){
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
+            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(syst);
+        }
+    }
+}
+
+//__________________________________________________________________________________
+// create new root file with all the histograms
+void TtHFit::WriteHistos(string fileName,bool recreate){
+  gSystem->mkdir( fName.c_str() );
+//     if(fileName=="") fileName = fName + "_histos.root";
+    if(fileName==""){
+        fileName = fName + "/Histograms/" + fName + "_histos.root";
+        gSystem->mkdir( (fName + "/Histograms/").c_str() );
+    }
     cout << "Writing histograms to file " << fileName << " ..." << endl;
     TDirectory *dir = gDirectory;
     TFile *f;
@@ -185,9 +196,6 @@ void TtHFit::WriteHistos(string fileName, bool recreate){
         f->~TFile();
         dir->cd();
     }
-
-    //
-    // Loop over all Regions, Samples and Systematics to store the final histograms
     //
     SampleHist* h;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -213,8 +221,20 @@ void TtHFit::WriteHistos(string fileName, bool recreate){
                     h->fSyst[i_syst]->fHistoNameShapeDown = h->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
-            h->DrawSystPlot("all",fSystControlPlots);
+//             h->DrawSystPlot();
             h->WriteToFile();
+        }
+    }
+}
+
+//__________________________________________________________________________________
+// Draw syst plots
+void TtHFit::DrawSystPlots(){
+    SampleHist* h;
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
+            h->DrawSystPlot();
         }
     }
 }
@@ -278,17 +298,9 @@ void TtHFit::ReadConfigFile(string fileName){
     param = cs->Get("DebugLevel");        if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
     param = cs->Get("PlotOptions");       if( param != ""){
         vec = Vectorize(param,',');
-        if( std::find(vec.begin(), vec.end(), "YIELDS")!=vec.end() )  fShowYields = true;
+        if( std::find(vec.begin(), vec.end(), "YIELDS")!=vec.end() )  TtHFitter::SHOWYIELDS = true;
         // ...
     }
-    param = cs->Get("SystControlPlots");        if( param != ""){
-        if( param == "true" || param == "True" ||  param == "TRUE" ){
-            fSystControlPlots = true;
-        } else {
-            fSystControlPlots = false;
-        }
-    }
-    
     //
     // set regions
     int nReg = 0;
@@ -307,7 +319,8 @@ void TtHFit::ReadConfigFile(string fileName){
           vector<string> variable = Vectorize(cs->Get("Variable"),',');
           reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
           reg->AddSelection( cs->Get("Selection") );
-          reg->AddMCweight(  cs->Get("MCweight") );
+//           reg->AddMCweight(  cs->Get("MCweight") );
+          reg->fMCweight = cs->Get("MCweight"); // this will override the global MCweight, if any
           if(cs->Get("NtuplePathSuff")!="") { reg->fNtuplePathSuffs.clear(); reg->fNtuplePathSuffs.push_back( cs->Get("NtuplePathSuff") ); }
           param = cs->Get("NtuplePathSuffs");
           if( param != "" ){
@@ -475,6 +488,9 @@ void TtHFit::ReadNtuples(){
             // set selection and weight
             fullSelection = fSelection + " && " + fRegions[i_ch]->fSelection;
             if(fSamples[i_smp]->fType==Sample::DATA) fullMCweight = "1";
+            else if(!fSamples[i_smp]->fNormalizedByTheory){ // for data-driven bkg, use just the sample weight (FIXME)
+                fullMCweight = fSamples[i_smp]->fMCweight;
+            }
             else{
                 fullMCweight = fMCweight + " * " + fSamples[i_smp]->fMCweight;
                 if(fRegions[i_ch]->fMCweight!="") fullMCweight += " * " + fRegions[i_ch]->fMCweight;
@@ -632,34 +648,29 @@ void TtHFit::ReadHistograms(){
     vector<string> empty; empty.clear();
     //
     // loop on regions and samples
-    //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             cout << "Reading " << fSamples[i_smp]->fName << endl;
-
-            /////////////////////////////////////////
             //
-            // READ NOMINAL HISTOGRAM
+            // read nominal
             //
-            /////////////////////////////////////////
-            
-            // Build a list of histograms to read
+            // build a list of histograms to read
             fullPaths.clear();
             std::vector<string> histoFiles;
             std::vector<string> histoNames;
             if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
             else if(fRegions[i_ch]->fHistoFiles.size()>0) histoFiles = fRegions[i_ch]->fHistoFiles;
             else                                          histoFiles = ToVec( fHistoFile );
-            
             if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
             else if(fRegions[i_ch]->fHistoNames.size()>0) histoNames = fRegions[i_ch]->fHistoNames;
             else                                          histoNames = ToVec( fHistoName );
-            
+            // Common::CreatePathsList( vector<string> paths, vector<string> pathSufs,
+            //                          vector<string> files, vector<string> filesSuf,
+            //                          vector<string> names, vector<string> namesSuf);
             fullPaths = CreatePathsList( fHistoPaths, fRegions[i_ch]->fHistoPathSuffs,
                                         histoFiles, empty, // no histo file suffs for nominal (syst only)
                                         histoNames, empty  // same for histo name
                                         );
-            
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                 //         cout << " " << fullPaths[i_path] << endl;
                 //         cout << "  " << fRegions[i_ch]->fHistoName << endl;
@@ -667,151 +678,137 @@ void TtHFit::ReadHistograms(){
                 //         htmp = (TH1F*)HistFromFile( fullPaths[i_path],fRegions[i_ch]->fHistoName);
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                 
-                //Rebinning
+                //Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                 
-                //Lumi scaling
                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
                 
-                //Importing the histogram into TtHFitter
+                //Importing the histogram in TtHFitter
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
                 htmp->~TH1F();
             }
-            
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
-            
             //
-            // Fix the <=0 bin contents (to avoid fit problems)
-            //
+            // fix the bin contents FIXME (to avoid fit problems)
             if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
-
-            
-            
-            /////////////////////////////////////////
             //
-            // READ SYSTEMATIC HISTOGRAMS
+            //  -----------------------------------
             //
-            /////////////////////////////////////////
-            
+            // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
-                
+//                 // if not Overall only...
+//                 if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::OVERALL)
+//                     continue;
                 cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
-                
-                //---------------------------
+                //
                 // Up
-                //---------------------------
-                
-                if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::HISTO){ //---------- Histo systematics (shape systematics)
-                    fullPaths.clear();
-                    fullPaths = CreatePathsList(
-                                                // path
-                                                fHistoPaths,
-                                                // path suf
-                                                CombinePathSufs(
-                                                                fRegions[i_ch]->fHistoPathSuffs,
-                                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoPathsUp ),
-                                                // file
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesUp.size()==0 ?
-                                                histoFiles :
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesUp ,
-                                                // file suf
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufUp=="" ?
-                                                empty :
-                                                ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufUp ),
-                                                // name
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesUp.size()==0 ?
-                                                histoNames :
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesUp,
-                                                // name suf
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufUp=="" ?
-                                                empty :
-                                                ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufUp )
-                                                );
-                    
-                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-                        
-                        htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-                        
-                        //Variable binning
-                        if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
-                        else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
-                        
-                        //Lumi scaling
-                        if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
-                        
-                        //Getting the final histogram
-                        if(i_path==0) hUp = (TH1F*)htmp->Clone();
-                        else hUp->Add(htmp);
-                        htmp->~TH1F();
-                    }
+                //
+                // For histo syst:
+                if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::HISTO){
+                  fullPaths.clear();
+                  fullPaths = CreatePathsList(
+                                              // path
+                                              fHistoPaths,
+                                              // path suf
+                                              CombinePathSufs(
+                                                              fRegions[i_ch]->fHistoPathSuffs,
+                                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoPathsUp ),
+                                              // file
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesUp.size()==0 ?
+//                                               fSamples[i_smp]->fHistoFiles :
+                                              histoFiles :
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesUp ,
+                                              // file suf
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufUp=="" ?
+                                              empty :
+                                              ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufUp ),
+                                              // name
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesUp.size()==0 ?
+//                                               ToVec( fRegions[i_ch]->fHistoName ) :
+                                              histoNames :
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesUp,
+                                              // name suf
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufUp=="" ?
+                                              empty :
+                                              ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufUp )
+                                              );
+                  for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                      htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                      //Pre-processing of histograms (rebinning, lumi scaling)
+                      if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                      else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                      
+                      if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                      
+                      //Importing histogram in TtHFitter
+                      if(i_path==0) hUp = (TH1F*)htmp->Clone();
+                      else hUp->Add(htmp);
+                      htmp->~TH1F();
+                  }
                 }
-                else { //---------- Normalisation systematics
-                    hUp = (TH1F*)h->Clone();
-                    hUp->Scale(1+fSamples[i_smp]->fSystematics[i_syst]->fOverallUp);
+                // For Overall syst
+                else{
+                  hUp = (TH1F*)h->Clone();
+                  hUp->Scale(1+fSamples[i_smp]->fSystematics[i_syst]->fOverallUp);
                 }
                 hUp->SetName(Form("h_%s_%s_%sUp",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
-                
-                
-                //---------------------------
+                //
                 // Down
-                //---------------------------
-                
-                if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::HISTO){ //---------- Histo systematics (shape systematics)
-                    
-                    fullPaths.clear();
-                    fullPaths = CreatePathsList(
-                                                // path
-                                                fHistoPaths,
-                                                // path suf
-                                                CombinePathSufs(
-                                                                fRegions[i_ch]->fHistoPathSuffs,
-                                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoPathsDown ),
-                                                // file
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesDown.size()==0 ?
-                                                histoFiles :
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesDown ,
-                                                // file suf
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufDown=="" ?
-                                                empty :
-                                                ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufDown ),
-                                                // name
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesDown.size()==0 ?
-                                                histoNames :
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesDown,
-                                                // name suf
-                                                fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufDown=="" ?
-                                                empty :
-                                                ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufDown )
-                                                );
-                    
-                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-                        htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
-                        
-                        //Rebinning of the histograms
-                        if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
-                        else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
-                        
-                        //Lumi rescaling
-                        if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
-                        
-                        //Creating the final histogram
-                        if(i_path==0) hDown = (TH1F*)htmp->Clone();
-                        else hDown->Add(htmp);
-                        htmp->~TH1F();
-                    }
+                //
+                // For histo syst:
+                if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::HISTO){
+                  fullPaths.clear();
+                  fullPaths = CreatePathsList(
+                                              // path
+                                              fHistoPaths,
+                                              // path suf
+                                              CombinePathSufs(
+                                                              fRegions[i_ch]->fHistoPathSuffs,
+                                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoPathsDown ),
+                                              // file
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesDown.size()==0 ?
+//                                               fSamples[i_smp]->fHistoFiles :
+                                              histoFiles :
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFilesDown ,
+                                              // file suf
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufDown=="" ?
+                                              empty :
+                                              ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoFileSufDown ),
+                                              // name
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesDown.size()==0 ?
+//                                               ToVec( fRegions[i_ch]->fHistoName ) :
+                                              histoNames :
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNamesDown,
+                                              // name suf
+                                              fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufDown=="" ?
+                                              empty :
+                                              ToVec( fSamples[i_smp]->fSystematics[i_syst]->fHistoNameSufDown )
+                                              );
+                  for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                      htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
+                      //Pre-processing of histograms (rebinning, lumi scaling)
+                      if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                      else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                      
+                      if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                      
+                      //Importing histogram in TtHFitter
+                      if(i_path==0) hDown = (TH1F*)htmp->Clone();
+                      else hDown->Add(htmp);
+                      htmp->~TH1F();
+                  }
                 }
-                else {  //---------- Normalisation systematics
-                    hDown = (TH1F*)h->Clone();
-                    hDown->Scale(1+fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
+                // For Overall syst
+                else{
+                  hDown = (TH1F*)h->Clone();
+                  hDown->Scale(1+fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
                 }
                 hDown->SetName(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
-
-                //
-                // Histogram smoothing and symmetrisation method definitions (at this stage, no symmetrisaiton is performed !)
-                //
-                SystematicHist *sh = fRegions[i_ch] -> GetSampleHist(fSamples[i_smp]->fName) -> AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                // 
+                // Histogram smoothing, Symmetrisation, Massaging...
+                SystematicHist *sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
                 sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
@@ -824,7 +821,8 @@ void TtHFit::ReadHistograms(){
 //__________________________________________________________________________________
 //
 void TtHFit::ReadHistos(string fileName){
-    if(fileName=="") fileName = fName + "_histos.root";
+//     if(fileName=="") fileName = fName + "_histos.root";
+    if(fileName=="") fileName = fName + "/Histograms/" + fName + "_histos.root";
     cout << "-----------------------------" << endl;
     cout << "Reading histograms from file " << fileName << " ..." << endl;
     TH1F* h;
@@ -869,21 +867,22 @@ void TtHFit::ReadHistos(string fileName){
 void TtHFit::DrawAndSaveAll(string opt){
     TthPlot *p;
     gSystem->mkdir(fName.c_str());
+    gSystem->mkdir((fName+"/Plots").c_str());
     bool isPostFit = opt.find("post")!=string::npos;
     if(isPostFit){
-        if(fFitType==CONTROL) ReadFitResults("xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
-        else if(fFitType==CONTROLSIGNAL) ReadFitResults("xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+        if(fFitType==CONTROL)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
+        else if(fFitType==CONTROLSIGNAL) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
         if(isPostFit){
             p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
-            p->SaveAs(     (fName+"/"+fRegions[i_ch]->fName+"_postFit.png" ).c_str());
+            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit.png" ).c_str());
 //             p->WriteToFile((fName+"/"+fRegions[i_ch]->fName+"_postFit.root").c_str());
         }
         else{
             p = fRegions[i_ch]->DrawPreFit(opt);
-            p->SaveAs(     (fName+"/"+fRegions[i_ch]->fName+".png" ).c_str());            
+            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+".png" ).c_str());            
 //             p->WriteToFile((fName+"/"+fRegions[i_ch]->fName+".root").c_str());
         }
     }
@@ -954,7 +953,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     }
     //
     TthPlot *p = new TthPlot(fName+"_summary",900,700);
-    p->fShowYields = fShowYields;
+    p->fShowYields = TtHFitter::SHOWYIELDS;
     p->fYmin = 10;
     p->SetXaxis("",false);
     p->AddLabel(fLabel);
@@ -994,8 +993,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
                 h_tmp_Down = fRegions[i_bin-1]->fTotDown[i_syst];
             }
             if(i_bin==1){
-                h_up.  push_back( new TH1F(h_tmp_Up->GetName()+(TString)("_"),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
-                h_down.push_back( new TH1F(h_tmp_Down->GetName()+(TString)("_"),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
+                h_up.  push_back( new TH1F(h_tmp_Up->GetName(),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
+                h_down.push_back( new TH1F(h_tmp_Down->GetName(),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
             }
             h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
@@ -1017,14 +1016,9 @@ TthPlot* TtHFit::DrawSummary(string opt){
     }
     //
     gSystem->mkdir(fName.c_str());
-    if(isPostFit)  p->SaveAs((fName+"/Summary_postFit.png").c_str());
-    else           p->SaveAs((fName+"/Summary.png").c_str());
-    
-    for(unsigned int iSys = 0; iSys < h_up.size(); ++iSys){
-        delete h_up[iSys];
-        delete h_down[iSys];
-    }
-    
+    gSystem->mkdir((fName+"/Plots").c_str());
+    if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit.png").c_str());
+    else           p->SaveAs((fName+"/Plots/Summary.png").c_str());
     //
     return p;
 }
@@ -1034,9 +1028,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
 void TtHFit::BuildYieldTable(string opt){
     bool isPostFit = opt.find("post")!=string::npos;
     ofstream out;
-    if(!isPostFit)  out.open((fName+"/Yields.txt").c_str());
-    else            out.open((fName+"/Yields_postFit.txt").c_str());
     gSystem->mkdir(fName.c_str());
+    gSystem->mkdir((fName+"/Tables").c_str());
+    if(!isPostFit)  out.open((fName+"/Tables/Yields.txt").c_str());
+    else            out.open((fName+"/Tables/Yields_postFit.txt").c_str());
     // build one bin per region
     TH1F* h_sig = 0;
     TH1F* h_data = 0;
@@ -1053,9 +1048,9 @@ void TtHFit::BuildYieldTable(string opt){
     double intErr; // to store the integral error
     TH1* h0; // to store varius histograms temporary
     //
-    out << " |        ";
+    out << " |       | ";
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-        out << " | " << fRegions[i_bin-1]->fLabel << " | ";
+        out << fRegions[i_bin-1]->fLabel << " | ";
     }
     out << endl;
     //
@@ -1109,8 +1104,8 @@ void TtHFit::BuildYieldTable(string opt){
                         h_tmp_Down = fRegions[i_bin-1]->fSampleHists[i_smp]->fSyst[i_syst]->fHistDown;
                     }
                     if(i_bin==1){
-                        h_up.  push_back( new TH1F(h_tmp_Up->GetName()+(TString)("_"),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
-                        h_down.push_back( new TH1F(h_tmp_Down->GetName()+(TString)("_"),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
+                        h_up.  push_back( new TH1F(h_tmp_Up->GetName(),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
+                        h_down.push_back( new TH1F(h_tmp_Down->GetName(),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
                     }
                     h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
                     h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
@@ -1118,12 +1113,6 @@ void TtHFit::BuildYieldTable(string opt){
             }
             if(isPostFit)  g_err = BuildTotError( h, h_up, h_down, fRegions[0]->fSystNames, fFitResults->fCorrMatrix );
             else           g_err = BuildTotError( h, h_up, h_down, fRegions[0]->fSystNames );
-            
-            for(unsigned int iSys = 0; iSys < h_up.size(); ++iSys){
-                delete h_up[iSys];
-                delete h_down[iSys];
-            }
-            
         }
         //
         // print values
@@ -1184,11 +1173,6 @@ void TtHFit::BuildYieldTable(string opt){
         out << " | ";
     }
     out << endl;
-    
-    for(unsigned int iSys = 0; iSys < h_up.size(); ++iSys){
-        delete h_up[iSys];
-        delete h_down[iSys];
-    }
 }
 
 //__________________________________________________________________________________
@@ -1305,7 +1289,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     
     RooStats::HistFactory::Measurement meas(fName.c_str(), fName.c_str());
     //   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
-    meas.SetOutputFilePrefix((fResultsFolder+"/"+fName).c_str());
+    meas.SetOutputFilePrefix((fName+"/RooStats/"+fName).c_str());
     meas.SetExportOnly(exportOnly);
     meas.SetPOI(fPOI.c_str());
     meas.SetLumi(1.0);
@@ -1370,12 +1354,11 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 }
                 // systematics
                 for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
-
+                    // add normalization part
                     if(TtHFitter::DEBUGLEVEL>0){
                         cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
                     }
-		     
-   		    //Normalisation part                    
+                    
                     if(
                        (fThresholdSystPruning_Normalisation>-1 && (TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation || TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation)) ||
                         (fThresholdSystPruning_Normalisation==-1)
@@ -1396,7 +1379,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         }
         meas.AddChannel(chan);
     }
-    meas.PrintXML();
+    meas.PrintXML((fName+"/RooStats/").c_str());
     meas.CollectHistograms();
     meas.PrintTree();
     if(makeWorkspace) RooStats::HistFactory::MakeModelAndMeasurementFast(meas);
@@ -1413,7 +1396,9 @@ void TtHFit::Fit(){
     // PlotsStatisticalTest=5
     int algo = 3;
 //       int algo = 0;
-    string workspace = "results/"+fName+"_combined_"+fName+"_model.root";
+//     string workspace = "results/"+fName+"_combined_"+fName+"_model.root";
+    string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+    string outputDir = fName+"/FitResults/";
     
     //Checks if a data sample exists
     bool hasData = false;
@@ -1425,22 +1410,22 @@ void TtHFit::Fit(){
     }
     if(hasData){
         if(fFitType==CONTROL){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
-                      algo,workspace.c_str(),fName.c_str());
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
+                      algo,workspace.c_str(),outputDir.c_str());
             gSystem->Exec(cmd.c_str());
         } else if(fFitType==CONTROLSIGNAL){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
-                              algo,workspace.c_str(),fName.c_str());
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
+                              algo,workspace.c_str(),outputDir.c_str());
             gSystem->Exec(cmd.c_str());
         }
     } else {
         if(fFitType==CONTROL){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",
-                              algo,workspace.c_str(),fName.c_str());
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",
+                              algo,workspace.c_str(),outputDir.c_str());
             gSystem->Exec(cmd.c_str());
         } else if(fFitType==CONTROLSIGNAL){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./xcheckResults/%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",
-                              algo,workspace.c_str(),fName.c_str());
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",
+                              algo,workspace.c_str(),outputDir.c_str());
             gSystem->Exec(cmd.c_str());
         }
     }
@@ -1451,9 +1436,13 @@ void TtHFit::Fit(){
 void TtHFit::PlotFittedNP(){
     // plot the NP fit plot
     string cmd = "python plotNP.py";
-    cmd += " --outFile "+fName+"/NuisPar.png";
-    if(fFitType==CONTROL) cmd += " xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt";
-    else if(fFitType==CONTROLSIGNAL) cmd += " xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt";
+//     cmd += " --outFile "+fName+"/NuisPar.png";
+//     if(fFitType==CONTROL) cmd += " xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt";
+//     else if(fFitType==CONTROLSIGNAL) cmd += " xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt";
+    if(fFitType==CONTROL)            cmd += " --outFile "+fName+"/NuisPar_Bonly.png";
+    else if(fFitType==CONTROLSIGNAL) cmd += " --outFile "+fName+"/NuisPar_SplusB.png";
+    if(fFitType==CONTROL)            cmd += " "+fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt";
+    else if(fFitType==CONTROLSIGNAL) cmd += " "+fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt";
     gSystem->Exec(cmd.c_str());
 }
 
@@ -1469,12 +1458,15 @@ void TtHFit::GetLimit(){
             break;
         }
     }
+    string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
     if(hasData){
 //         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
-        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./limits/\",\""+fName+"\",0.95)'";
+//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./limits/\",\""+fName+"\",0.95)'";
+        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
         gSystem->Exec(cmd.c_str());
     } else {
-        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./limits/\",\""+fName+"_blind\",0.95)'";
+//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./limits/\",\""+fName+"_blind\",0.95)'";
+        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
         gSystem->Exec(cmd.c_str());
     }
 }
@@ -1491,12 +1483,15 @@ void TtHFit::GetSignificance(){
             break;
         }
     }
+    string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
     if(hasData){
-        string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
+//         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
+        string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
         gSystem->Exec(cmd.c_str());
         
     } else {
-        string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
+//         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
+        string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
         gSystem->Exec(cmd.c_str());
     }
 }

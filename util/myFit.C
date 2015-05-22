@@ -51,11 +51,15 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
         myFit->ReadHistograms();
         myFit->Print();
         myFit->WriteHistos("",!update);
+        myFit->SmoothSystematics("all");
+        if(myFit->fSystControlPlots) myFit->DrawSystPlots();
     }
     else if(readNtuples){
         myFit->ReadNtuples();
         myFit->Print();
         myFit->WriteHistos("",!update);
+        myFit->SmoothSystematics("all");
+        if(myFit->fSystControlPlots) myFit->DrawSystPlots();
     }
     else{
         myFit->ReadHistos();
@@ -70,7 +74,6 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
         if(myFit->fNRegions>4){
             nCols = (int)sqrt(myFit->fNRegions);
             if(sqrt(myFit->fNRegions)>nCols) nCols++;
-//             +1*(sqrt(myFit->fNRegions)>(int)sqrt(myFit->fNRegions));
             nRows = (int)sqrt(myFit->fNRegions);
             if(nCols*nRows < myFit->fNRegions) nRows++;
         }

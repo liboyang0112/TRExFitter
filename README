@@ -41,6 +41,7 @@ For instance, if you use the default file util/myFit.C, the available options ar
     w : create the RooStats xmls and workspace
     f : fit the workspace
     l : calculate exclusion limit
+    s : calculate significance
     d : draw pre-fit plots
     p : draw post-fit plots
     
@@ -121,6 +122,8 @@ Here's a list of the inputs and options which can be specifed in the config file
       SystPruningShape -> Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
       SystPruningNorm  -> Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
       SystControlPlots -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
+      PlotOptions      -> a set os options for plotting:
+        YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
       ...
       
     Sample:
@@ -151,3 +154,17 @@ Here's a list of the inputs and options which can be specifed in the config file
       OverallUp        -> for OVERALL systematic, the relative "up" shift (0.1 means +10%)
       OverallDown      -> for OVERALL systematic, the relative "down" shift (-0.1 means -10%)
       ...
+
+---------
+Output Directories Structure
+---------
+   * For each TtHFit objetc, a diretory is created, with the same name as the Fit Name
+   * Inside this direcotry, at every step, some outputs are created, following the structure described above
+   
+   Plots/              -> contains the data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots
+   RooStats/           -> contains the workspace(s) and the xmls
+   FitResults/         -> contains the output from FitCrossCheckForLimits
+   Limits/             -> contains the outputs from the limit-setting code
+   Significance/       -> contains the outputs from the significance code
+   Systematics/        -> contains the plots for the syst variations
+   Histograms/         -> contains the root file(s) with all the inputs

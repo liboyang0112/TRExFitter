@@ -3,21 +3,53 @@
 
 void PlotLimits(){
   
+  float xmax = 120;
+  string process = "t#bar{t}t#bar{t} (SM)";
+  
+//   // Fit titles
+//   vector<string> titles;
+//   titles.push_back("Extended l+jets");
+//   titles.push_back("CMS-like l+jets");
+//   titles.push_back("Base l+jets");
+//   // Fit names (the same as the .root file names!!)
+//   vector<string> names;
+//   names.push_back("New4t");
+//   names.push_back("CMS4t");
+//   names.push_back("IFAE4t");
+
+  // ---
+  
   // Fit titles
   vector<string> titles;
-  titles.push_back("Ext. Lepton+jets");
-  titles.push_back("Base Lepton+jets");
-
+  titles.push_back("Default");
+  titles.push_back("20 GeV jets");
   // Fit names (the same as the .root file names!!)
   vector<string> names;
-  names.push_back("New4t");
-  names.push_back("IFAE4t");
+  names.push_back("Test_Default");
+  names.push_back("Test_LowPtJets");
 
+  // ---
+  
+//   process = "t#bar{t}H(b#bar{b})";
+//   xmax = 10;
+//   // Fit titles
+//   vector<string> titles;
+//   titles.push_back("Default");
+//   titles.push_back("20 GeV jets");
+//   // Fit names (the same as the .root file names!!)
+//   vector<string> names;
+//   names.push_back("ttH_Default");
+//   names.push_back("ttH_LowPtJets");
+
+  // ---
+  
+  bool showObs = false;
+  
   int N = names.size();
   
   float ymin = -0.5;
   float ymax = N-0.5;
-  float xmax = 120;
+//   float xmax = 120;
   
   TCanvas *c = new TCanvas("c","c",600,400);
   
@@ -64,6 +96,8 @@ void PlotLimits(){
   g_1s->SetLineWidth(2);
   g_1s->SetLineStyle(2);
   g_2s->SetFillColor(kYellow);
+  g_2s->SetLineColor(kYellow);
+  g_2s->SetLineWidth(0);
   
   g_2s->SetMarkerSize(0);
   g_1s->SetMarkerSize(0);
@@ -73,7 +107,7 @@ void PlotLimits(){
   g_2s->Draw("E2 same");
   g_1s->Draw("E2 same");
   g_exp->Draw("E same");
-  g_obs->Draw("E same");
+  if(showObs) g_obs->Draw("E same");
 
   TLine *l_SM = new TLine(1,-0.5,1,N-0.5);
   l_SM->SetLineWidth(2);
@@ -88,17 +122,19 @@ void PlotLimits(){
   h_dummy->GetXaxis()->SetTitle("95% CL limit on #sigma/#sigma_{SM}");
 
   ATLASLabel(0.2,0.93,"    Internal",kBlack);
-  myText(0.50,0.93,kBlack,"t#bar{t}t#bar{t} (SM)");
+  myText(0.50,0.93,kBlack,process.c_str());
   myText(0.65,0.93,kBlack,"#sqrt{s} = 8 TeV, 20.3 fb^{-1}");
   
-  TLegend *leg = new TLegend(0.60,0.2,0.95,0.40);
+  TLegend *leg;
+  if(showObs) leg = new TLegend(0.60,0.2,0.95,0.40);
+  else        leg = new TLegend(0.60,0.2,0.95,0.35);
   leg->SetTextSize(gStyle->GetTextSize());
   leg->SetTextFont(gStyle->GetTextFont());
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->AddEntry(g_1s,"Expected #pm 1 #sigma","lf");
   leg->AddEntry(g_2s,"Expected #pm 2 #sigma","f");
-  leg->AddEntry(g_obs,"Observed","l");
+  if(showObs) leg->AddEntry(g_obs,"Observed","l");
   leg->Draw();
   
   c->SaveAs("Limits.png");
