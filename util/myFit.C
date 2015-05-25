@@ -50,16 +50,16 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
     if(readHistograms){
         myFit->ReadHistograms();
         myFit->Print();
-        myFit->WriteHistos("",!update);
         myFit->SmoothSystematics("all");
-        if(myFit->fSystControlPlots) myFit->DrawSystPlots();
+        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        myFit->WriteHistos("",!update);
     }
     else if(readNtuples){
         myFit->ReadNtuples();
         myFit->Print();
-        myFit->WriteHistos("",!update);
         myFit->SmoothSystematics("all");
         if(myFit->fSystControlPlots) myFit->DrawSystPlots();
+        myFit->WriteHistos("",!update);
     }
     else{
         myFit->ReadHistos();
