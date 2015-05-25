@@ -234,7 +234,7 @@ void TtHFit::DrawSystPlots(){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-            h->DrawSystPlot();
+            h->DrawSystPlot("all",TtHFitter::SYSTCONTROLPLOTS);
         }
     }
 }
@@ -301,6 +301,14 @@ void TtHFit::ReadConfigFile(string fileName){
         if( std::find(vec.begin(), vec.end(), "YIELDS")!=vec.end() )  TtHFitter::SHOWYIELDS = true;
         // ...
     }
+    param = cs->Get("SystControlPlots");        if( param != ""){
+        if( param == "true" || param == "True" ||  param == "TRUE" ){
+            TtHFitter::SYSTCONTROLPLOTS = true;
+        } else {
+            TtHFitter::SYSTCONTROLPLOTS = false;
+        }
+    }
+    
     //
     // set regions
     int nReg = 0;
@@ -970,11 +978,14 @@ TthPlot* TtHFit::DrawSummary(string opt){
     // Build tot
 //     if(isPostFit)  h_tot = new TH1F(fRegions[0]->fTot_postFit->GetName(),fRegions[0]->fTot->GetTitle(), fNRegions,0,fNRegions);
 //     else           h_tot = new TH1F(fRegions[0]->fTot->GetName(),fRegions[0]->fTot->GetTitle(), fNRegions,0,fNRegions);
-    h_tot = new TH1F("h_Tot","h_Tot", fNRegions,0,fNRegions);
+    h_tot = new TH1F("h_Tot_summary","h_Tot_summary", fNRegions,0,fNRegions);
+    
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
         if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->Integral() );
         else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->Integral() );
+        h_tot->SetBinError( i_bin,0 );
     }
+    
     //
     //   Build error band
     // build the vectors of variations
@@ -1114,6 +1125,7 @@ void TtHFit::BuildYieldTable(string opt){
             if(isPostFit)  g_err = BuildTotError( h, h_up, h_down, fRegions[0]->fSystNames, fFitResults->fCorrMatrix );
             else           g_err = BuildTotError( h, h_up, h_down, fRegions[0]->fSystNames );
         }
+        
         //
         // print values
         out << " | " << fSamples[i_smp]->fTitle << " | ";

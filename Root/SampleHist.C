@@ -436,19 +436,28 @@ void SampleHist::SmoothSyst(string syst,bool force){
         h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
         
+        //
+        // Call the function for smoothing and symmetrisation
+        //
         if(fSyst[i_syst]->fIsShape){
-            HistoTools::ManageHistograms( fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType,  h_nominal, fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown, h_syst_up, h_syst_down);
+            HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                            h_nominal,//nominal histogram
+                                            fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown,//original histograms
+                                            h_syst_up, h_syst_down //modified histograms
+                                         );
         }
         
         //
-        // save stuff
+        // Save stuff
         //
         fSyst[i_syst]->fHistUp_original = (TH1*)fSyst[i_syst]->fHistUp->Clone();
-        fSyst[i_syst]->fHistUp = h_syst_up;
+        fSyst[i_syst]->fHistUp = (TH1*)h_syst_up->Clone();
         fSyst[i_syst]->fHistDown_original = (TH1*)fSyst[i_syst]->fHistDown->Clone();
-        fSyst[i_syst]->fHistDown = h_syst_down;
+        fSyst[i_syst]->fHistDown = (TH1*)h_syst_down->Clone();
         
-        //normalisation component first
+        //
+        // Normalisation component first
+        //
         if(h_nominal->Integral()!=0){
             fSyst[i_syst]->fNormUp = fSyst[i_syst]->fHistUp->Integral()/h_nominal->Integral() - 1.;
             fSyst[i_syst]->fNormDown = fSyst[i_syst]->fHistDown->Integral()/h_nominal->Integral() - 1.;

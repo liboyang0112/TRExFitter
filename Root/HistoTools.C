@@ -111,7 +111,7 @@ TH1F* HistoTools::SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp ){
     if(Separation(h_nominal,h_syst)<1e-05){
         std:: cerr << "\033[1;31m<!> ERROR in HistoTools::SymmetrizeOneSided() the two histograms for one-sided symmetrisation are the same ... ";
         std:: cerr << "Crash is coming ! Please check. \033[0m" << std::endl;
-        return 0;
+        //return h_syst;
     }
     
     return InvertShift(h_syst,h_nominal);

@@ -52,7 +52,7 @@ namespace TtHFitter{
   extern int DEBUGLEVEL;
   void SetDebugLevel(int level=0);
   extern bool SHOWYIELDS; // flag to show or not yields in plots
-  // ... add here more global flags
+  extern bool SYSTCONTROLPLOTS;
 };
 
 const int MAXregions = 100;
