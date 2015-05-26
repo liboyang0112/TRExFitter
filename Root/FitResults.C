@@ -173,3 +173,48 @@ void FitResults::ReadFromTXT(string fileName){
     cout << "Found " << TOTsyst << " systematics." << endl;
     if(TOTsyst<=0) cout << "WARNING: No systematics found in fit result file..." << endl;
 }
+
+
+//__________________________________________________________________________________
+//
+void FitResults::DrawCorrelationMatrix(const string &path, const double corrMin){
+    
+    if(fCorrMatrix){
+        fCorrMatrix->Draw(path, corrMin);
+    }
+    
+}
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

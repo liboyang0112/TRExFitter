@@ -1,3 +1,6 @@
+2015-05-26 Loic Valery <lvlery@cern.ch>
+        * CorrelationMatrix.C: implement duumping of correlation matrix in Plots/ folder
+
 2015-05-25 Loic Valery <lvalery@cern.ch>
         * myFit.C: fixing the order of commands (smoothing done before writing the histos in the file)
         * Region.C: fix on the central values (consistent with Roostats) -- still work to do on the systematics

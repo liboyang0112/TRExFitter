@@ -308,6 +308,9 @@ void TtHFit::ReadConfigFile(string fileName){
             TtHFitter::SYSTCONTROLPLOTS = false;
         }
     }
+    param = cs->Get("CorrelationThreshold");        if( param != ""){
+        TtHFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
+    }
     
     //
     // set regions
@@ -880,6 +883,7 @@ void TtHFit::DrawAndSaveAll(string opt){
     if(isPostFit){
         if(fFitType==CONTROL)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
         else if(fFitType==CONTROLSIGNAL) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+        fFitResults->DrawCorrelationMatrix(fName+"/Plots/",TtHFitter::CORRELATIONTHRESHOLD);
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;

@@ -49,10 +49,11 @@ using namespace std;
 #define __Common__
 
 namespace TtHFitter{
-  extern int DEBUGLEVEL;
-  void SetDebugLevel(int level=0);
-  extern bool SHOWYIELDS; // flag to show or not yields in plots
-  extern bool SYSTCONTROLPLOTS;
+    extern int DEBUGLEVEL;
+    void SetDebugLevel(int level=0);
+    extern bool SHOWYIELDS; // flag to show or not yields in plots
+    extern bool SYSTCONTROLPLOTS;
+    extern float CORRELATIONTHRESHOLD;
 };
 
 const int MAXregions = 100;
@@ -64,13 +65,13 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
 TH1* HistFromFile(string fullName);
 TH1* HistFromFile(string fileName,string histoName);
 void WriteHistToFile(TH1* h,string fileName,string option="UPDATE");
-std::vector<string> CreatePathsList( std::vector<string> paths, std::vector<string> pathSufs, 
-                                std::vector<string> files, std::vector<string> fileSufs, 
-                                std::vector<string> names, std::vector<string> nameSufs);
+std::vector<string> CreatePathsList( std::vector<string> paths, std::vector<string> pathSufs,
+                                    std::vector<string> files, std::vector<string> fileSufs,
+                                    std::vector<string> names, std::vector<string> nameSufs);
 std::vector<string> CombinePathSufs( std::vector<string> pathSufs, std::vector<string> newPathSufs );
 std::vector<string> ToVec(string s);
 // string RemovePrefix(string s,string prefix);
 string ReplaceString(string subject, const string& search,
-                          const string& replace);
+                     const string& replace);
 
 #endif

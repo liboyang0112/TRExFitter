@@ -8,6 +8,7 @@
 int TtHFitter::DEBUGLEVEL = 1;
 bool TtHFitter::SHOWYIELDS = false;
 bool TtHFitter::SYSTCONTROLPLOTS = false;
+float TtHFitter::CORRELATIONTHRESHOLD = -1;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
