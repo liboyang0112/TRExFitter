@@ -58,7 +58,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
         myFit->ReadNtuples();
         myFit->Print();
         myFit->SmoothSystematics("all");
-        if(myFit->fSystControlPlots) myFit->DrawSystPlots();
+        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         myFit->WriteHistos("",!update);
     }
     else{
@@ -89,6 +89,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
     if(doFit){
         myFit->Fit(); // with FitCrossCheckForLimits
         myFit->PlotFittedNP();
+        myFit->PlotCorrelationMatrix();
     }
     
     if(doLimit){

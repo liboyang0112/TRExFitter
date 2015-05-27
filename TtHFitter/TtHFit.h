@@ -83,6 +83,7 @@ public:
     // fit etc...
     void Fit();
     void PlotFittedNP();
+    void PlotCorrelationMatrix();
     void GetLimit();
     void GetSignificance();
     

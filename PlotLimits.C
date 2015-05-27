@@ -21,13 +21,18 @@ void PlotLimits(){
   
   // Fit titles
   vector<string> titles;
-  titles.push_back("Default");
+  titles.push_back("20 GeV & |#eta|<4.5");
+  titles.push_back("|#eta|<4.5 jets");
   titles.push_back("20 GeV jets");
+  titles.push_back("Default jets");
   // Fit names (the same as the .root file names!!)
   vector<string> names;
-  names.push_back("Test_Default");
+  names.push_back("Test_AllJets");
+  names.push_back("Test_ForwJets");
   names.push_back("Test_LowPtJets");
-
+  names.push_back("Test_Default");
+//   xmax = 110;
+  
   // ---
   
 //   process = "t#bar{t}H(b#bar{b})";
@@ -76,7 +81,8 @@ void PlotLimits(){
   for(int i=0;i<N;i++){
     h_dummy->GetYaxis()->SetBinLabel(i+1,titles[i].c_str());
     
-    f = new TFile(Form("root-files/limits/%s.root",names[i].c_str()) );
+//     f = new TFile(Form("root-files/limits/%s.root",names[i].c_str()) );
+    f = new TFile(Form("%s/Limits/%s.root",names[i].c_str(),names[i].c_str()) );
     h = (TH1*)f->Get("limit");
     
     g_obs->SetPoint(i,h->GetBinContent(1),i);
@@ -136,6 +142,8 @@ void PlotLimits(){
   leg->AddEntry(g_2s,"Expected #pm 2 #sigma","f");
   if(showObs) leg->AddEntry(g_obs,"Observed","l");
   leg->Draw();
+  
+  myText(0.75,0.4,kBlack,"Stat. only");
   
   c->SaveAs("Limits.png");
 }
