@@ -272,8 +272,10 @@ void runSig(const char* inFileName,
   f.Close();
 
   stringstream fileName;
-  fileName << "root-files/" << folder << "/" << smass << ".root";
-  system(("mkdir -vp root-files/" + folder).c_str());
+//   fileName << "root-files/" << folder << "/" << smass << ".root";
+  fileName << folder << "/" << smass << ".root";
+//   system(("mkdir -vp root-files/" + folder).c_str());
+  system(("mkdir -vp " + folder).c_str());
   TFile f2(fileName.str().c_str(),"recreate");
 
   TH1D* h_hypo = new TH1D("hypo","hypo",2,0,2);
