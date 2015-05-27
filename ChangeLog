@@ -1,3 +1,6 @@
+2015-05-27 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Root/TtHFit.C, TtHFitter/TtHFit.h, util/myFit.C: CorrelationMatrix drawing command moved to myFit.C
+
 2015-05-26 Loic Valery <lvlery@cern.ch>
         * CorrelationMatrix.C: implement duumping of correlation matrix in Plots/ folder
 
