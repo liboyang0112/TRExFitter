@@ -432,10 +432,12 @@ void runAsymptoticsCLs(const char* infile,
   cout << endl;
 
 
-  system(("mkdir -vp root-files/" + folder).c_str());
+//   system(("mkdir -vp root-files/" + folder).c_str());
+  system(("mkdir -vp " + folder).c_str());
   
   stringstream fileName;
-  fileName << "root-files/" << folder << "/" << mass << ".root";
+//   fileName << "root-files/" << folder << "/" << mass << ".root";
+  fileName << folder << "/" << mass << ".root";
   TFile fout(fileName.str().c_str(),"recreate");
 
   TH1D* h_lim = new TH1D("limit","limit",7,0,7);
