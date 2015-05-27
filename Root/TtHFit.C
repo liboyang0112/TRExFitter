@@ -883,7 +883,6 @@ void TtHFit::DrawAndSaveAll(string opt){
     if(isPostFit){
         if(fFitType==CONTROL)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
         else if(fFitType==CONTROLSIGNAL) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
-//         fFitResults->DrawCorrelationMatrix(fName+"/Plots/",TtHFitter::CORRELATIONTHRESHOLD);
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
@@ -1463,8 +1462,14 @@ void TtHFit::PlotFittedNP(){
     gSystem->Exec(cmd.c_str());
 }
 
+//__________________________________________________________________________________
+//
 void TtHFit::PlotCorrelationMatrix(){
-    fFitResults->DrawCorrelationMatrix(fName+"/Plots/",TtHFitter::CORRELATIONTHRESHOLD);
+    if(fFitType==CONTROL)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
+    else if(fFitType==CONTROLSIGNAL) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+    if(fFitResults){
+        fFitResults->DrawCorrelationMatrix(fName+"/Plots/",TtHFitter::CORRELATIONTHRESHOLD);
+    }
 }
 
 //__________________________________________________________________________________
