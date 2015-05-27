@@ -1254,7 +1254,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         h[i]->GetYaxis()->CenterTitle();
         //     h[i]->GetYaxis()->SetTitleSize(0.14);
         h[i]->GetYaxis()->SetLabelOffset(1.5*h[i]->GetYaxis()->GetLabelOffset());
-        h[i]->GetYaxis()->SetTitleOffset(9);
+        h[i]->GetYaxis()->SetTitleOffset(9*nRows/4.);
         //     h[i]->GetYaxis()->SetLabelSize(0.12);
         h[i]->GetXaxis()->SetTickLength(0);
         h[i]->GetYaxis()->SetNdivisions(3);
@@ -1262,8 +1262,9 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         h[i]->GetXaxis()->SetLabelSize(0);
         h[i]->SetLineWidth(1);
         h[i]->SetLineColor(kBlack);
-        if(regions[i]->fRegionType==Region::SIGNAL) h[i]->SetFillColor(kRed+1);
-        else                                        h[i]->SetFillColor(kAzure-4);
+        if(regions[i]->fRegionType==Region::SIGNAL)          h[i]->SetFillColor(kRed+1);
+        else if(regions[i]->fRegionType==Region::VALIDATION) h[i]->SetFillColor(kGray);
+        else                                                 h[i]->SetFillColor(kAzure-4);
         h[i]->Draw();
         gPad->SetLeftMargin( gPad->GetLeftMargin()*2.4 );
         gPad->SetRightMargin(gPad->GetRightMargin()*0.1);
