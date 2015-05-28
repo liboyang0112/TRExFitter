@@ -111,7 +111,6 @@ TH1F* HistoTools::SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp ){
     if(Separation(h_nominal,h_syst)<1e-05){
         std:: cerr << "\033[1;31m<!> ERROR in HistoTools::SymmetrizeOneSided() the two histograms for one-sided symmetrisation are the same ... ";
         std:: cerr << "Crash is coming ! Please check. \033[0m" << std::endl;
-        //return h_syst;
     }
     
     return InvertShift(h_syst,h_nominal);
@@ -284,7 +283,6 @@ int HistoTools::getBinWidth(TH1 *ratio){
     //
     // Returns the minimal number of consecutive bins with the same content
     //
-    
     float prev=0;
     int count=1, mincount=99;
     
@@ -508,3 +506,202 @@ bool HistoTools::HasShape(TH1* hnom, SystematicHist* sh, float threshold){
     }
     return hasShape;
 }
+
+
+//_________________________________________________________________________
+//
+bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool causeCrash){
+    
+    //======================================================
+    // This code performs sanity checks on the provided
+    // histograms.
+    //======================================================
+    
+    //
+    // Two kinds of detection
+    //    -> ERRORS: fundamental problems (non sense of fit, missing inputs, ...)
+    //    -> WARNINGS: potential issues (possibly affecting the fits or the plots)
+    //
+    
+    //
+    // 1) Checks that the histograms exist
+    //
+    if(!nom){
+        std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms() the nominal histogram doesn't seem to exist !" << std::endl;
+        if(causeCrash) abort();
+        return false;
+    }
+    if(sh){
+        if(!sh->fHistUp){
+            std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms() the up variation histogram doesn't seem to exist !" << std::endl;
+            if(causeCrash) abort();
+            return false;
+        }
+        if(!sh->fHistDown){
+            std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms() the up variation histogram doesn't seem to exist ! " << std::endl;
+            if(causeCrash) abort();
+            return false;
+        }
+    }
+    
+    //
+    // 2) Checks the binning is the same for the three histograms
+    //
+    const int NbinsNom  = nom->GetNbinsX();
+    const int NbinsUp   = sh->fHistUp->GetNbinsX();
+    const int NbinsDown = sh->fHistDown->GetNbinsX();
+    if( (NbinsNom != NbinsUp) || (NbinsNom != NbinsDown) || (NbinsUp != NbinsDown) ){
+        std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): The number of bins is found inconsistent ! Please check !" << std::endl;
+        if(causeCrash) abort();
+        return false;
+    }
+    
+    for( unsigned int iBin = 1; iBin <= NbinsNom; ++iBin ){
+        double lowEdgeNom   = nom->GetBinLowEdge(iBin);
+        double lowEdgeUp    = sh->fHistUp->GetBinLowEdge(iBin);
+        double lowEdgeDown  = sh->fHistDown->GetBinLowEdge(iBin);
+        
+        if( abs(lowEdgeNom-lowEdgeUp)>1e-05 || abs(lowEdgeNom-lowEdgeDown)>1e-05 || abs(lowEdgeDown-lowEdgeUp)>1e-05 ){
+            std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): The bin low edges are not consistent ! Please check !" << std::endl;
+            if(causeCrash) abort();
+            return false;
+        }
+
+        double binWidthNom   = nom->GetBinWidth(iBin);
+        double binWidthUp    = sh->fHistUp->GetBinWidth(iBin);
+        double binWidthDown  = sh->fHistDown->GetBinWidth(iBin);
+        
+        if( abs(binWidthNom-binWidthUp)>1e-05 || abs(binWidthNom-binWidthDown)>1e-05 || abs(binWidthDown-binWidthUp)>1e-05 ){
+            std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): The bin widths are not consistent ! Please check !" << std::endl;
+            if(causeCrash) abort();
+            return false;
+        }
+    }
+    
+    //
+    // 3) Checks the absence on bins with 0 content (for nominal)
+    //
+    for( unsigned int iBin = 1; iBin <= NbinsNom; ++iBin ){
+        double content = nom->GetBinContent(iBin);
+        if(content<=0){
+            std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \""<< nom->GetName() << "\", bin " << iBin << " has 0 content ! Please check !" << std::endl;
+            std::cout << "Nominal: " << content << std::endl;
+            if(causeCrash) abort();
+            return false;
+        }
+    }
+    
+    //
+    // 4) Check the presence of abnormal bins (content-based)
+    //
+    for( unsigned int iBin = 1; iBin <= NbinsNom; ++iBin ){
+        double contentNom   = nom->GetBinContent(iBin);
+        double contentUp    = sh->fHistUp->GetBinContent(iBin);
+        double contentDown  = sh->fHistDown->GetBinContent(iBin);
+        
+        //
+        // 4.a) Checks the presence of negative bins for systematic
+        //
+        if(contentUp<0){
+            std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \""<< sh->fHistUp->GetName() << "\", bin " << iBin << " has negative content ! Please check !" << std::endl;
+            std::cout << "Nominal: " << contentNom << std::endl;
+            std::cout << "Up: " << contentUp << std::endl;
+            std::cout << "Down: " << contentDown << std::endl;
+            if(causeCrash) abort();
+            return false;
+        }
+        if(contentDown<0){
+            std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \"" << sh->fHistDown->GetName() << "\", bin " << iBin << " has negative content ! Please check !" << std::endl;
+            std::cout << "Nominal: " << contentNom << std::endl;
+            std::cout << "Up: " << contentUp << std::endl;
+            std::cout << "Down: " << contentDown << std::endl;
+            if(causeCrash) abort();
+            return false;
+        }
+
+        //
+        // 4.b) Checks that the systematics are not crazy (too large ratio, nan returned, ...)
+        //
+        double ratioUp = contentUp/contentNom;
+        double ratioDown = contentDown/contentNom;
+        
+        // * first check is for nan
+        // * second check is for negative values (normally impossible after step 3 and 4.a)
+        // * third check is for abnormal systematic/nominal values (ratio > 10)
+        if( (ratioUp!=ratioUp) || (ratioUp <= 0) || (abs(ratioUp-1.) >= 10) ){
+            std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \""<< sh->fHistUp->GetName() << "\", bin " << iBin << " has weird content ! Please check !" << std::endl;
+            std::cout << "Nominal: " << contentNom << std::endl;
+            std::cout << "Up: " << contentUp << std::endl;
+            std::cout << "Down: " << contentDown << std::endl;
+            if(causeCrash) abort();
+            return false;
+        }
+        if( (ratioDown!=ratioDown) || (ratioDown <= 0) || (abs(ratioDown-1.) >= 10) ){
+            std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \""<< sh->fHistDown->GetName() << "\", bin " << iBin << " has weird content ! Please check !" << std::endl;
+            std::cout << "Nominal: " << contentNom << std::endl;
+            std::cout << "Up: " << contentUp << std::endl;
+            std::cout << "Down: " << contentDown << std::endl;
+            if(causeCrash) abort();
+            return false;
+        }
+    }
+    
+    //
+    // 5) Warning level: check the presence of underflow/overflow (ignored in the code)
+    //
+    double underflowNom     = nom -> GetBinContent(0);
+    double underflowUp      = sh->fHistUp -> GetBinContent(0);
+    double underflowDown    = sh->fHistDown -> GetBinContent(0);
+    if( abs(underflowNom)>0 || abs(underflowUp)>0 || abs(underflowDown)>0 ){
+        std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): Underflow detected ! This will not be taken into account." << std::endl;
+        std::cout << "Nominal (" << nom -> GetName() << "): " << underflowNom << std::endl;
+        std::cout << "Up (" << sh->fHistUp -> GetName() << "): " << underflowUp << std::endl;
+        std::cout << "Down (" << sh->fHistDown -> GetName() << "): " << underflowDown << std::endl;
+    }
+    
+    double overflowNom      = nom -> GetBinContent(NbinsNom+1);
+    double overflowUp       = sh->fHistUp -> GetBinContent(NbinsUp+1);
+    double overflowDown     = sh->fHistDown -> GetBinContent(NbinsDown+1);
+    if( abs(overflowNom)>0 || abs(overflowUp)>0 || abs(overflowDown)>0 ){
+        std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): Overflow detected ! This will not be taken into account." << std::endl;
+        std::cout << "Nominal (" << nom -> GetName() << "): " << overflowNom << std::endl;
+        std::cout << "Up (" << sh->fHistUp -> GetName() << "): " << overflowUp << std::endl;
+        std::cout << "Down (" << sh->fHistDown -> GetName() << "): " << overflowDown << std::endl;
+    }
+    
+    return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
