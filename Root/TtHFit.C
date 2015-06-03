@@ -301,15 +301,22 @@ void TtHFit::ReadConfigFile(string fileName){
         if( std::find(vec.begin(), vec.end(), "YIELDS")!=vec.end() )  TtHFitter::SHOWYIELDS = true;
         // ...
     }
-    param = cs->Get("SystControlPlots");        if( param != ""){
+    param = cs->Get("SystControlPlots");  if( param != ""){
         if( param == "true" || param == "True" ||  param == "TRUE" ){
             TtHFitter::SYSTCONTROLPLOTS = true;
         } else {
             TtHFitter::SYSTCONTROLPLOTS = false;
         }
     }
-    param = cs->Get("CorrelationThreshold");        if( param != ""){
+    param = cs->Get("CorrelationThreshold"); if( param != ""){
         TtHFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
+    }
+    param = cs->Get("SignalRegionsPlot");  if(param != ""){
+//         fRegionsToPlot.clear();
+//         vec = Vectorize(param,',');
+//         for(unsigned int i=0;i<vec.size();i++){
+//         }
+        fRegionsToPlot = Vectorize(param,',');
     }
     
     //
@@ -1192,9 +1199,31 @@ void TtHFit::BuildYieldTable(string opt){
 
 //__________________________________________________________________________________
 //
-//void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows,Region *regions[MAXregions]){
 void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
-    DrawSignalRegionsPlot(nCols,nRows,fRegions);
+    std::vector< Region* > vRegions;
+    vRegions.clear();
+    if(fRegionsToPlot.size()>0){
+        nCols = 1;
+        nRows = 1;
+        // first loop
+        int nRegInRow = 0;
+        for(unsigned int i=0;i<fRegionsToPlot.size();i++){
+            cout << fRegionsToPlot[i] << endl;
+            if(fRegionsToPlot[i].find("ENDL")!=string::npos){
+                nRows++;
+                if(nRegInRow>nCols) nCols = nRegInRow;
+                nRegInRow = 0;
+            }
+            else{
+                vRegions.push_back( GetRegion(fRegionsToPlot[i]) );
+                nRegInRow ++;
+            }
+        }
+    }
+    else{
+        vRegions = fRegions;
+    }
+    DrawSignalRegionsPlot(nCols,nRows,vRegions);
 }
 
 //__________________________________________________________________________________
@@ -1468,7 +1497,8 @@ void TtHFit::PlotCorrelationMatrix(){
     if(fFitType==CONTROL)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
     else if(fFitType==CONTROLSIGNAL) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
     if(fFitResults){
-        fFitResults->DrawCorrelationMatrix(fName+"/Plots/",TtHFitter::CORRELATIONTHRESHOLD);
+//         fFitResults->DrawCorrelationMatrix(fName+"/Plots/",TtHFitter::CORRELATIONTHRESHOLD);
+        fFitResults->DrawCorrelationMatrix(fName+"/",TtHFitter::CORRELATIONTHRESHOLD);
     }
 }
 
@@ -1545,4 +1575,13 @@ void TtHFit::Print(){
         fRegions[i_ch]->Print();
     }
     cout << endl;
+}
+
+//__________________________________________________________________________________
+//
+Region* TtHFit::GetRegion(string name){
+    for(unsigned int i=0;i<fRegions.size();i++){
+        if(fRegions[i]->fName == name) return fRegions[i];
+    }
+    return 0x0;
 }

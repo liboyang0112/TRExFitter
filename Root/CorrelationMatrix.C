@@ -56,7 +56,7 @@ float CorrelationMatrix::GetCorrelation(string p0,string p1){
 //
 void CorrelationMatrix::Draw(const string &folder, const double minCorr){
     
-    gStyle -> Reset();
+//     gStyle -> Reset();
     
     //
     // 0) Determines the number of lines/columns
@@ -106,27 +106,57 @@ void CorrelationMatrix::Draw(const string &folder, const double minCorr){
     h_corr->SetMinimum(-100.);
     h_corr->SetMaximum(100.);
     
-    TCanvas *c1 = new TCanvas("","",0.,0.,600,600);
+    int size = 500;
+    if(vec_NP.size()>10){
+      size = vec_NP.size()*50;
+    }
+    
+    TCanvas *c1 = new TCanvas("","",0.,0.,size+100,size+100);
+
+    // new Michele's settings
     gStyle->SetPalette(1);
-    gStyle->SetOptStat(0);
-    gStyle->SetCanvasBorderMode(0);
-    c1->SetTickx();
-    c1->SetTicky();
-    c1->SetFillColor(0);
-    
-    gPad->SetTopMargin(0.05);
-    gPad->SetRightMargin(0.05);
-    gPad->SetBottomMargin(0.12);
-    gPad->SetLeftMargin(0.12);
-    
+    h_corr->SetMarkerSize(0.75*1000);
     gStyle->SetPaintTextFormat(".1f");
-    h_corr->Draw("colTEXT");
-    h_corr->GetXaxis()->SetLabelSize(10);
-    h_corr->GetYaxis()->SetLabelSize(10);
-    h_corr->SetMarkerColor(1);
-    h_corr->SetMarkerSize(1);
-    c1 -> Print((TString)folder + "/CorrMarix.eps");
-    c1 -> Print((TString)folder + "/CorrMarix.pdf");
+    gPad->SetLeftMargin(0.5*600/(size+100));
+    gPad->SetBottomMargin(0.5*600/(size+100));
+    gPad->SetRightMargin(0.1*600/(size+100));
+    gPad->SetTopMargin(0.1*600/(size+100));
+//     h_corr->GetXaxis()->SetLabelOffset(0.02*600/(size+100));
+//     h_corr->GetXaxis()->LabelsOption("d");
+//     h_corr->GetYaxis()->LabelsOption("u");
+    h_corr->GetXaxis()->LabelsOption("v");
+    h_corr->GetXaxis()->SetLabelSize( h_corr->GetXaxis()->GetLabelSize()*0.75 );
+    h_corr->GetYaxis()->SetLabelSize( h_corr->GetYaxis()->GetLabelSize()*0.75 );
+    c1->SetTickx(0);
+    c1->SetTicky(0);
+    h_corr->GetYaxis()->SetTickLength(0);
+    h_corr->GetXaxis()->SetTickLength(0);  
+    c1->SetGrid();
+    h_corr->Draw("col TEXT");
+    c1->RedrawAxis("g");
+
+//     gStyle->SetPalette(1);
+//     gStyle->SetOptStat(0);
+//     gStyle->SetCanvasBorderMode(0);
+//     c1->SetTickx();
+//     c1->SetTicky();
+//     c1->SetFillColor(0);
+    
+//     gPad->SetTopMargin(0.05);
+//     gPad->SetRightMargin(0.05);
+//     gPad->SetBottomMargin(0.12);
+//     gPad->SetLeftMargin(0.12);
+//     gPad->SetLeftMargin(0.40);
+    
+//     gStyle->SetPaintTextFormat(".1f");
+//     h_corr->Draw("colTEXT");
+//     h_corr->GetXaxis()->SetLabelSize(10);
+//     h_corr->GetYaxis()->SetLabelSize(10);
+//     h_corr->SetMarkerColor(1);
+//     h_corr->SetMarkerSize(1);
+  
+//     c1 -> Print((TString)folder + "/CorrMarix.eps");
+//     c1 -> Print((TString)folder + "/CorrMarix.pdf");
     c1 -> Print((TString)folder + "/CorrMarix.png");
     
     delete c1;

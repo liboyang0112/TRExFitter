@@ -92,6 +92,8 @@ public:
     
     void Print();
     
+    Region* GetRegion(string name);
+    
     string fName;
     string fLabel;
     string fResultsFolder;
@@ -135,6 +137,8 @@ public:
     
 //     bool fShowYields;
     bool fSystControlPlots;
+    
+    std::vector<string> fRegionsToPlot;
 };
 
 #endif

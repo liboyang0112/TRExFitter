@@ -66,6 +66,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
     }
       
     if(drawPreFit){
+//         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         myFit->DrawAndSaveAll();
         myFit->DrawSummary("log");
         myFit->BuildYieldTable();
@@ -88,8 +89,8 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
     // use the external tool FitCrossCheckForLimits fir fitting
     if(doFit){
         myFit->Fit(); // with FitCrossCheckForLimits
-        myFit->PlotFittedNP();
-        myFit->PlotCorrelationMatrix();
+//         myFit->PlotFittedNP();
+//         myFit->PlotCorrelationMatrix();
     }
     
     if(doLimit){
@@ -102,6 +103,8 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
     
     if(drawPostFit){
         myFit->DrawAndSaveAll("post");
+        myFit->PlotFittedNP();
+        myFit->PlotCorrelationMatrix();
         myFit->DrawSummary("log post");
         myFit->BuildYieldTable("post");
     }

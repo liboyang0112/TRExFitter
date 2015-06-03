@@ -148,6 +148,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       Title            ->
       Type             -> can be HISTO or OVERALL
       Samples          -> comma-separated list of samples on which to apply the systematic
+      Exclude          -> comma-separated list of samples to exclude (used when "all" is indicated as "Samples")
       Smoothing        -> smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
       Symmetrisation   -> can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line
       HistoNameSufUp   -> valid only for option HIST, for HISTO systematic
