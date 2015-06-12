@@ -145,3 +145,16 @@ string ReplaceString(string subject, const string& search,
     }
     return subject;
 }
+
+//__________________________________________________________________________________
+//
+int FindInStringVector(std::vector< string > v, string s){
+    int idx = -1;
+    for(unsigned int i=0;i<v.size();i++){
+        if(v[i]==s){
+            idx = (int)i;
+            break;
+        }
+    }
+    return idx;
+}

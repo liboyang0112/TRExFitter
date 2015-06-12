@@ -4,7 +4,7 @@ TtHFitter package
 Authors:
   Michele Pinamonti <michele.pinamonti@gmail.com>
   Loic Valery <loic.valery@cern.ch>
-Latest Update:   30 Apr 2015
+Latest Update:   03 Jun 2015
 Version:         1.2
 
 
@@ -101,14 +101,15 @@ Here's a list of the inputs and options which can be specifed in the config file
     
  - The file should contain:
      * exactly one object of type "Fit"
-     * at least on object of type "Sample"
-     * at least on object of type "Region"
+     * at least one object of type "Sample"
+     * at least one object of type "Region"
      * any number of objects of type "Systematic" (even 0 should be ok)
    Each object should have unique <ObjectName>.
       
  - Then, for each object type, here's a PARTIAL list of properties to be speficied:
 
     Fit:
+      Label            -> it's the label which will be showed on the plots
       POI              -> the name of the parameter of interest; this should correspond to a NormFactor defined below
       ReadFrom         -> can be HIST or NTUP; default is HIST
       FitType          -> can be CONTROL (performs a B-only fit on control regions only) or CONTROLSIGNAL (performs an S+B fit on control and signal regions); default is CONTROLSIGNAL
@@ -128,8 +129,8 @@ Here's a list of the inputs and options which can be specifed in the config file
       ...
       
     Sample:
-      Type             -> can be SIGNAL, BACKGROUND or DATA; default is BACKGROUND
       Title            -> title shown on the legends
+      Type             -> can be SIGNAL, BACKGROUND or DATA; default is BACKGROUND
       FillColor        -> histogram fill color (not valid for data)
       LineColor        -> histogram line color
       HistoFile        -> valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path
@@ -137,24 +138,60 @@ Here's a list of the inputs and options which can be specifed in the config file
       ...
       
     Region:
+      Label            -> it's the label which will be showed on the plots and specifies which region is shown
       Type             -> can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
       HistoName        -> valid only for option HIST; it's the name of the histogram to read from each of the root files
       VariableTitle    -> it's the label which will be displayed on the x-axis in the plots
-      Label            -> it's the label which will be showed on the plots and specifies which region is shown
       ShortLabel       -> same as above, but a shorter version for plots with smaller available place
+      HistoFile        -> only for option HIST, the file name to be used
+      HistoName        -> only for option HIST, the histogram name to be used
+      NtuplePathSuff(s)-> only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region
+      Variable         -> only for option NTUP, the variable (or expression) inside the ntuple to plot
+      Selection        -> only for option NTUP, the selection done on the ntuple for this region
+      MCweight         -> only for option NTUP, the additional weight sed in this region (for MC samples only)
+      Rebin            -> ...
+      Binning          -> ...
       ...
       
     Systematic:
-      Title            ->
+      Title            -> title of the systematic (will be shown in plots)
       Type             -> can be HISTO or OVERALL
       Samples          -> comma-separated list of samples on which to apply the systematic
       Exclude          -> comma-separated list of samples to exclude (used when "all" is indicated as "Samples")
       Smoothing        -> smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
       Symmetrisation   -> can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line
-      HistoNameSufUp   -> valid only for option HIST, for HISTO systematic
-      HistoNameSufDown -> valid only for option HIST, for HISTO systematic
-      OverallUp        -> for OVERALL systematic, the relative "up" shift (0.1 means +10%)
-      OverallDown      -> for OVERALL systematic, the relative "down" shift (-0.1 means -10%)
+      OverallUp        -> for OVERALL systematic: the relative "up" shift (0.1 means +10%)
+      OverallDown      -> for OVERALL systematic: the relative "down" shift (-0.1 means -10%)
+
+      HistoPathUp      -> only for option HIST, for HISTO systematic: histogram file path for systematic up variation
+      HistoPathDown    -> only for option HIST, for HISTO systematic: histogram file path for systematic down variation
+      HistoPathSufUp   -> only for option HIST, for HISTO systematic: suffix of the histogram file names for systematic up variation
+      HistoPathSufDown -> only for option HIST, for HISTO systematic: suffix of the histogram file names for systematic down variation
+      HistoFileUp      -> only for option HIST, for HISTO systematic: histogram file name for systematic up variation
+      HistoFileDown    -> only for option HIST, for HISTO systematic: histogram file name for systematic down variation
+      HistoFileSufUp   -> only for option HIST, for HISTO systematic: suffix of the histogram file names for systematic up variation
+      HistoFileSufDown -> only for option HIST, for HISTO systematic: suffix of the histogram file names for systematic down variation
+      HistoNameUp      -> only for option HIST, for HISTO systematic: histogram name for systematic up variation
+      HistoNameDown    -> only for option HIST, for HISTO systematic: histogram name for systematic down variation
+      HistoNameSufUp   -> only for option HIST, for HISTO systematic: suffix of the histogram names for systematic up variation
+      HistoNameSufDown -> only for option HIST, for HISTO systematic: suffix of the histogram names for systematic down variation
+      
+      WeightUp         -> only for option NTUP, for HISTO systematic: weight for systematic up variation
+      WeightDown       -> only for option NTUP, for HISTO systematic: weight for systematic down variation
+      WeightSufUp      -> only for option NTUP, for HISTO systematic: additional weight for systematic up variation
+      WeightSufDown    -> only for option NTUP, for HISTO systematic: additional weight for systematic down variation
+      NtuplePathSufUp  -> only for option NTUP, for HISTO systematic: suffix of the ntuple file paths for systematic up variation
+      NtuplePathSufDown-> only for option NTUP, for HISTO systematic: suffix of the ntuple file paths for systematic down variation
+      NtuplePathsUp    -> only for option NTUP, for HISTO systematic: ntuple file path for systematic up variation
+      NtuplePathsDown  -> only for option NTUP, for HISTO systematic: ntuple file path for systematic down variation
+      NtupleFileSufUp  -> only for option NTUP, for HISTO systematic: suffix of the ntuple file names for systematic up variation
+      NtupleFileSufDown-> only for option NTUP, for HISTO systematic: suffix of the ntuple file names for systematic down variation
+      NtupleFilesUp    -> only for option NTUP, for HISTO systematic: ntuple file name for systematic up variation
+      NtupleFilesDown  -> only for option NTUP, for HISTO systematic: ntuple file name for systematic down variation
+      NtupleNameSufUp  -> only for option NTUP, for HISTO systematic: suffix of the ntuple names for systematic up variation
+      NtupleNameSufDown-> only for option NTUP, for HISTO systematic: suffix of the ntuple names for systematic down variation
+      NtupleNamesUp    -> only for option NTUP, for HISTO systematic: ntuple name for systematic up variation
+      NtupleNamesDown  -> only for option NTUP, for HISTO systematic: ntuple name for systematic down variation
       ...
 
 ---------

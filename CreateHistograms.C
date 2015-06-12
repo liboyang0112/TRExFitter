@@ -38,7 +38,7 @@ void CreateHistograms(){
 
     // create bkg1 systs
     TH1F *h_bkg1_jesUp = new TH1F("h_bkg1_jesUp","Background1 jesUp",4,0,400);
-    float yield_bkg1_jesUp[] = {90.,70.,30.,20.};
+    float yield_bkg1_jesUp[] = {90.,70.,30.,30.};
     for(int i_bin=1;i_bin<=sizeof(yield_bkg1_jesUp)/sizeof(float);i_bin++){
       h_bkg1_jesUp->SetBinContent(i_bin,yield_bkg1_jesUp[i_bin-1]);
       h_bkg1_jesUp->SetBinError(i_bin,stat_bkg1[i_bin-1]);

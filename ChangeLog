@@ -1,3 +1,7 @@
+2015-06-12 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Root/TtHFit.C: table code fixed
+        * Root/TtHFit.C, Root/FitResults.C: systematic pulls plot code moved to FitResults.C
+        
 2015-05-27 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Root/TtHFit.C, TtHFitter/TtHFit.h, util/myFit.C: CorrelationMatrix drawing command moved to myFit.C
         * Root/TtHFit.C: signal regions plot fixed (this time really)

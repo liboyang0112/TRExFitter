@@ -74,4 +74,6 @@ std::vector<string> ToVec(string s);
 string ReplaceString(string subject, const string& search,
                      const string& replace);
 
+int FindInStringVector(std::vector<string> v, string s);
+
 #endif

@@ -9,6 +9,7 @@ public:
   ~NuisParameter();
 
   string fName;
+  string fTitle;
   float fStartValue;
   float fFitValue;
   float fPostFitUp; // this should be like +0.8... So alpha+deltaAlpha = fFitValue + fPostFitUp

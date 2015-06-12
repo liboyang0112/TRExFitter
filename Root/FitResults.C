@@ -174,47 +174,103 @@ void FitResults::ReadFromTXT(string fileName){
     if(TOTsyst<=0) cout << "WARNING: No systematics found in fit result file..." << endl;
 }
 
+//__________________________________________________________________________________
+//
+void FitResults::DrawPulls(string path){
+    float xmin = -2.9;
+    float xmax = 2.9;
+    float max = 0;
+    string npToExclude[] = {"SigXsecOverSM","gamma_"};
+    bool brazilian = true;
+    bool grayLines = false;
+    
+    TGraphAsymmErrors *g = new TGraphAsymmErrors();
+    
+    NuisParameter *par;
+    int idx = 0;
+    std::vector< string > Names;
+    Names.clear();
+    
+    for(unsigned int i = 0; i<fNuisPar.size(); ++i){
+        par = fNuisPar[i];
+        bool skip = false;
+        for(int ii=0; ii<sizeof(npToExclude)/sizeof(string); ii++){
+            if(par->fName.find(npToExclude[ii])!=string::npos){
+                skip = true;
+                continue;
+            }
+        }
+        if(skip) continue;
+        
+        g->SetPoint(idx,par->fFitValue,idx+0.5);
+        g->SetPointEXhigh(idx, par->fPostFitUp);
+        g->SetPointEXlow( idx,-par->fPostFitDown);
+
+//         Names.push_back(par->fName);
+        Names.push_back(par->fTitle);
+    
+        idx ++;
+        if(idx > max)  max = idx;      
+    }
+
+    int lineHeight = 20;
+    int offsetUp = 10;
+    int offsetDown = 40;
+    int offset = offsetUp + offsetDown;
+    int newHeight = offset + max*lineHeight;
+    TCanvas *c = new TCanvas("c","c",600,newHeight);
+    c->SetTicks(1,0);
+    gPad->SetLeftMargin(0.05);
+    gPad->SetRightMargin(0.33);
+    gPad->SetTopMargin(1.*offsetUp/newHeight);
+    gPad->SetBottomMargin(1.*offsetDown/newHeight);
+    
+    TH1F *h_dummy = new TH1F("h_dummy","h_dummy",10,xmin,xmax);
+    h_dummy->SetMaximum(max);
+    h_dummy->SetLineWidth(0);
+    h_dummy->SetFillStyle(0);
+    h_dummy->SetLineColor(kWhite);
+    h_dummy->SetFillColor(kWhite);
+    h_dummy->SetMinimum(0.);
+    h_dummy->GetYaxis()->SetLabelSize(0);
+    h_dummy->Draw();
+    h_dummy->GetYaxis()->SetNdivisions(0);
+
+    TLine l0;
+    TBox b1, b2;
+    if(brazilian){
+        l0 = TLine(0,0,0,max);
+        l0.SetLineStyle(7);
+        l0.SetLineColor(kBlack);
+        b1 = TBox(-1,0,1,max);
+        b2 = TBox(-2,0,2,max);
+        b1.SetFillColor(kGreen);
+        b2.SetFillColor(kYellow);
+        b2.Draw("same");
+        b1.Draw("same");
+        l0.Draw("same");
+    }
+    
+    g->Draw("psame");
+    
+    TLatex *systs = new TLatex();
+    systs->SetTextSize( systs->GetTextSize()*0.8 );
+    for(int i=0;i<max;i++){
+        systs->DrawLatex(3.,i+0.25,Names[i].c_str());
+    }
+    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+    
+    gPad->RedrawAxis();
+    
+//     c->SaveAs((path+"/NuisPar.png").c_str());
+    c->SaveAs(path.c_str());
+    delete c;
+}
 
 //__________________________________________________________________________________
 //
 void FitResults::DrawCorrelationMatrix(const string &path, const double corrMin){
-    
     if(fCorrMatrix){
         fCorrMatrix->Draw(path, corrMin);
     }
-    
 }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
