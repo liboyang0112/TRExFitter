@@ -586,8 +586,12 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool causeCrash){
         if(content<=0){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \""<< nom->GetName() << "\", bin " << iBin << " has 0 content ! Please check !" << std::endl;
             std::cout << "Nominal: " << content << std::endl;
-            if(causeCrash) abort();
-            return false;
+            if(causeCrash){
+                abort();
+            } else {
+                std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): I sent the bin content to 1e-05 ! Please check !" << std::endl;
+                nom -> SetBinContent(iBin,1e-05);                
+            }
         }
     }
     

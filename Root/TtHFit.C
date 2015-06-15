@@ -50,6 +50,7 @@ TtHFit::TtHFit(string name){
     
     fInputType = HIST;
 //     fShowYields = false;
+    fHistoCheckCrash = true;
 }
 
 //__________________________________________________________________________________
@@ -182,8 +183,7 @@ void TtHFit::SmoothSystematics(string syst){
 //__________________________________________________________________________________
 // create new root file with all the histograms
 void TtHFit::WriteHistos(string fileName,bool recreate){
-  gSystem->mkdir( fName.c_str() );
-//     if(fileName=="") fileName = fName + "_histos.root";
+    gSystem->mkdir( fName.c_str() );
     if(fileName==""){
         fileName = fName + "/Histograms/" + fName + "_histos.root";
         gSystem->mkdir( (fName + "/Histograms/").c_str() );
@@ -221,7 +221,6 @@ void TtHFit::WriteHistos(string fileName,bool recreate){
                     h->fSyst[i_syst]->fHistoNameShapeDown = h->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
-//             h->DrawSystPlot();
             h->WriteToFile();
         }
     }
@@ -317,6 +316,12 @@ void TtHFit::ReadConfigFile(string fileName){
 //         for(unsigned int i=0;i<vec.size();i++){
 //         }
         fRegionsToPlot = Vectorize(param,',');
+    }
+    param = cs->Get("HistoChecks");  if(param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "NOCRASH" ){
+            fHistoCheckCrash = false;
+        }
     }
     
     //
@@ -554,7 +559,7 @@ void TtHFit::ReadNtuples(){
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
             //
             // fix the bin contents FIXME (to avoid fit problems)
-            if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
+            //if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
             //
             //  -----------------------------------
             //
@@ -669,6 +674,12 @@ void TtHFit::ReadNtuples(){
                 sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
                 sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                
+                //
+                // Calls a utility to check the Histograms are consistent
+                //
+                HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
+                                             sh /*systematic*/, fHistoCheckCrash /*cause crash if problem*/);
             }
         }
     }
@@ -730,15 +741,13 @@ void TtHFit::ReadHistograms(){
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
             //
             // fix the bin contents FIXME (to avoid fit problems)
-            if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
+            //if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
             //
             //  -----------------------------------
             //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
-//                 // if not Overall only...
-//                 if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::OVERALL)
-//                     continue;
+
                 cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
                 //
                 // Up
@@ -850,6 +859,12 @@ void TtHFit::ReadHistograms(){
                 sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
                 sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                
+                //
+                // Calls a utility to check the Histograms are consistent
+                //
+                HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
+                                            sh /*systematic*/, fHistoCheckCrash /*cause crash if problem*/);
             }
         }
     }

@@ -1,3 +1,7 @@
+2015-06-15 Loic Valery <lvalery@cern.ch>
+  	* Root/TtHFit.C: Adding the check of the histograms
+	* Root/SampleHist.C: Adding post-smoothing check of the histograms
+
 2015-06-12 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Root/TtHFit.C: table code fixed
         * Root/TtHFit.C, Root/FitResults.C: systematic pulls plot code moved to FitResults.C
@@ -6,7 +10,7 @@
         * Root/TtHFit.C, TtHFitter/TtHFit.h, util/myFit.C: CorrelationMatrix drawing command moved to myFit.C
         * Root/TtHFit.C: signal regions plot fixed (this time really)
 
-2015-05-26 Loic Valery <lvlery@cern.ch>
+2015-05-26 Loic Valery <lvalery@cern.ch>
         * CorrelationMatrix.C: implement duumping of correlation matrix in Plots/ folder
 
 2015-05-25 Loic Valery <lvalery@cern.ch>

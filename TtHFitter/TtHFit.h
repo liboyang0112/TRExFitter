@@ -139,6 +139,8 @@ public:
     bool fSystControlPlots;
     
     std::vector<string> fRegionsToPlot;
+
+    bool fHistoCheckCrash;
 };
 
 #endif

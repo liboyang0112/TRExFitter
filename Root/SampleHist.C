@@ -456,6 +456,11 @@ void SampleHist::SmoothSyst(string syst,bool force){
         fSyst[i_syst]->fHistDown = (TH1*)h_syst_down->Clone();
         
         //
+        // Perform a check of the output histograms (check for 0 bins and other pathologic behaviours)
+        //
+        HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, true /*cause crash if problem*/);
+        
+        //
         // Normalisation component first
         //
         if(h_nominal->Integral()!=0){
