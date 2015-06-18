@@ -50,7 +50,6 @@ TtHFit::TtHFit(string name){
     
     fInputType = HIST;
 //     fShowYields = false;
-    fHistoCheckCrash = true;
 }
 
 //__________________________________________________________________________________
@@ -183,11 +182,13 @@ void TtHFit::SmoothSystematics(string syst){
 //__________________________________________________________________________________
 // create new root file with all the histograms
 void TtHFit::WriteHistos(string fileName,bool recreate){
-    gSystem->mkdir( fName.c_str() );
+  gSystem->mkdir( fName.c_str() );
+//     if(fileName=="") fileName = fName + "_histos.root";
     if(fileName==""){
         fileName = fName + "/Histograms/" + fName + "_histos.root";
         gSystem->mkdir( (fName + "/Histograms/").c_str() );
     }
+    cout << "-----------------------------" << endl;
     cout << "Writing histograms to file " << fileName << " ..." << endl;
     TDirectory *dir = gDirectory;
     TFile *f;
@@ -202,7 +203,7 @@ void TtHFit::WriteHistos(string fileName,bool recreate){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
             if(h == 0x0){
-                cout << "SampleHist[" << i_smp << "] not there." << endl;
+                if(TtHFitter::DEBUGLEVEL>0) cout << "SampleHist[" << i_smp << "] not there." << endl;
                 continue;
             }
             // set file and histo names for nominal
@@ -221,6 +222,7 @@ void TtHFit::WriteHistos(string fileName,bool recreate){
                     h->fSyst[i_syst]->fHistoNameShapeDown = h->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
+//             h->DrawSystPlot();
             h->WriteToFile();
         }
     }
@@ -316,12 +318,6 @@ void TtHFit::ReadConfigFile(string fileName){
 //         for(unsigned int i=0;i<vec.size();i++){
 //         }
         fRegionsToPlot = Vectorize(param,',');
-    }
-    param = cs->Get("HistoChecks");  if(param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "NOCRASH" ){
-            fHistoCheckCrash = false;
-        }
     }
     
     //
@@ -559,7 +555,7 @@ void TtHFit::ReadNtuples(){
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
             //
             // fix the bin contents FIXME (to avoid fit problems)
-            //if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
+            if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
             //
             //  -----------------------------------
             //
@@ -568,7 +564,7 @@ void TtHFit::ReadNtuples(){
                 // if not Overall only...
                 if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::OVERALL)
                     continue;
-                cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
+                if(TtHFitter::DEBUGLEVEL>0) cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
                 //
                 // Up
                 //
@@ -674,12 +670,6 @@ void TtHFit::ReadNtuples(){
                 sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
                 sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
-                
-                //
-                // Calls a utility to check the Histograms are consistent
-                //
-                HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
-                                             sh /*systematic*/, fHistoCheckCrash /*cause crash if problem*/);
             }
         }
     }
@@ -699,7 +689,7 @@ void TtHFit::ReadHistograms(){
     // loop on regions and samples
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
-            cout << "Reading " << fSamples[i_smp]->fName << endl;
+            if(TtHFitter::DEBUGLEVEL>0) cout << "Reading " << fSamples[i_smp]->fName << endl;
             //
             // read nominal
             //
@@ -741,14 +731,16 @@ void TtHFit::ReadHistograms(){
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
             //
             // fix the bin contents FIXME (to avoid fit problems)
-            //if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
+            if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
             //
             //  -----------------------------------
             //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
-
-                cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
+//                 // if not Overall only...
+//                 if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::OVERALL)
+//                     continue;
+                if(TtHFitter::DEBUGLEVEL>0) cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
                 //
                 // Up
                 //
@@ -859,12 +851,6 @@ void TtHFit::ReadHistograms(){
                 sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
                 sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
-                
-                //
-                // Calls a utility to check the Histograms are consistent
-                //
-                HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
-                                            sh /*systematic*/, fHistoCheckCrash /*cause crash if problem*/);
             }
         }
     }
@@ -886,14 +872,14 @@ void TtHFit::ReadHistos(string fileName){
     string systName;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         regionName = fRegions[i_ch]->fName;
-        cout << "  Reading region " << regionName << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << "  Reading region " << regionName << endl;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             sampleName = fSamples[i_smp]->fName;
-            cout << "    Reading sample " << sampleName << endl;
+            if(TtHFitter::DEBUGLEVEL>0) cout << "    Reading sample " << sampleName << endl;
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp],regionName+"_"+sampleName,fileName);
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
                 systName = fSamples[i_smp]->fSystematics[i_syst]->fName;
-                cout << "      Reading syst " << systName << endl;
+                if(TtHFitter::DEBUGLEVEL>0) cout << "      Reading syst " << systName << endl;
                 sh = fRegions[i_ch]->GetSampleHist(sampleName);
                 // norm only
                 if(fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::OVERALL){
@@ -912,7 +898,6 @@ void TtHFit::ReadHistos(string fileName){
             }
         }
     }
-    cout << "-----------------------------" << endl;
 }
 
 //__________________________________________________________________________________
@@ -944,6 +929,8 @@ void TtHFit::DrawAndSaveAll(string opt){
 //__________________________________________________________________________________
 //
 TthPlot* TtHFit::DrawSummary(string opt){
+    cout << "-------------------------------------------" << endl;
+    cout << "Building Summary Plot..." << endl;
     gSystem->mkdir(fName.c_str());
     bool isPostFit = opt.find("post")!=string::npos;
     // build one bin per region
@@ -971,7 +958,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         //
         if(fSamples[i_smp]->fType==Sample::SIGNAL){
             h_sig = new TH1F(name.c_str(),title.c_str(), fNRegions,0,fNRegions);
-            cout << "Adding Signal: " << h_sig->GetTitle() << endl;
+            if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Signal: " << h_sig->GetTitle() << endl;
             h_sig->SetLineColor(lineColor);
             h_sig->SetFillColor(fillColor);
             h_sig->SetLineWidth(lineWidth);
@@ -984,7 +971,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         }
         else if(fSamples[i_smp]->fType==Sample::BACKGROUND){
             h_bkg[Nbkg] = new TH1F(name.c_str(),title.c_str(), fNRegions,0,fNRegions);
-            cout << "Adding Bkg:    " << h_bkg[Nbkg]->GetTitle() << endl;
+            if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Bkg:    " << h_bkg[Nbkg]->GetTitle() << endl;
             h_bkg[Nbkg]->SetLineColor(lineColor);
             h_bkg[Nbkg]->SetFillColor(fillColor);
             h_bkg[Nbkg]->SetLineWidth(lineWidth);
@@ -998,7 +985,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         }
         else if(fSamples[i_smp]->fType==Sample::DATA){
             h_data = new TH1F(name.c_str(),title.c_str(), fNRegions,0,fNRegions);
-            cout << "Adding Data:   " << h_data->GetTitle() << endl;
+            if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Data:   " << h_data->GetTitle() << endl;
             for(int i_bin=1;i_bin<=fNRegions;i_bin++){
                 h_data->SetBinContent( i_bin,fRegions[i_bin-1]->fData->fHist->Integral() );
             }
@@ -1021,8 +1008,6 @@ TthPlot* TtHFit::DrawSummary(string opt){
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
     //
     // Build tot
-//     if(isPostFit)  h_tot = new TH1F(fRegions[0]->fTot_postFit->GetName(),fRegions[0]->fTot->GetTitle(), fNRegions,0,fNRegions);
-//     else           h_tot = new TH1F(fRegions[0]->fTot->GetName(),fRegions[0]->fTot->GetTitle(), fNRegions,0,fNRegions);
     h_tot = new TH1F("h_Tot_summary","h_Tot_summary", fNRegions,0,fNRegions);
     
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
@@ -1049,8 +1034,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
                 h_tmp_Down = fRegions[i_bin-1]->fTotDown[i_syst];
             }
             if(i_bin==1){
-                h_up.  push_back( new TH1F(h_tmp_Up->GetName(),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
-                h_down.push_back( new TH1F(h_tmp_Down->GetName(),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
+                h_up.  push_back( new TH1F(Form("%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
+                h_down.push_back( new TH1F(Form("%s_TMP",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
             }
             h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
@@ -1068,7 +1053,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     p->Draw(opt);
     //
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-        cout << i_bin << ":\t" << h_tot->GetBinContent(i_bin) << "\t+" << g_err->GetErrorYhigh(i_bin-1) << "\t-" << g_err->GetErrorYlow(i_bin-1) << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << i_bin << ":\t" << h_tot->GetBinContent(i_bin) << "\t+" << g_err->GetErrorYhigh(i_bin-1) << "\t-" << g_err->GetErrorYlow(i_bin-1) << endl;
     }
     //
     gSystem->mkdir(fName.c_str());
@@ -1082,6 +1067,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
 //__________________________________________________________________________________
 //
 void TtHFit::BuildYieldTable(string opt){
+    cout << "-------------------------------------------" << endl;
+    cout << "Building Yields Table..." << endl;
     bool isPostFit = opt.find("post")!=string::npos;
     ofstream out;
     gSystem->mkdir(fName.c_str());
@@ -1157,8 +1144,8 @@ void TtHFit::BuildYieldTable(string opt){
                     h_tmp_Down = fRegions[i_bin-1]->fSampleHists[i_smp]->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistDown;
                 }
                 if(i_bin==1){
-                    h_up.  push_back( new TH1F(h_tmp_Up->GetName(),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
-                    h_down.push_back( new TH1F(h_tmp_Down->GetName(),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
+                    h_up.  push_back( new TH1F(Form("%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
+                    h_down.push_back( new TH1F(Form("%s_TMP",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
                 }
                 h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(0,h_tmp_Up->GetNbinsX()+1) );
                 h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral(0,h_tmp_Down->GetNbinsX()+1) );
@@ -1233,8 +1220,8 @@ void TtHFit::BuildYieldTable(string opt){
                 h_tmp_Down = fRegions[i_bin-1]->fTotDown[i_syst];
             }
             if(i_bin==1){
-                h_up.  push_back( new TH1F(Form("h_%s",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
-                h_down.push_back( new TH1F(Form("h_%s",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
+                h_up.  push_back( new TH1F(Form("h_%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
+                h_down.push_back( new TH1F(Form("h_%s_TMP",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
             }
             h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(0,h_tmp_Up->GetNbinsX()+1) );
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral(0,h_tmp_Down->GetNbinsX()+1) );
@@ -1264,7 +1251,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
         // first loop
         int nRegInRow = 0;
         for(unsigned int i=0;i<fRegionsToPlot.size();i++){
-            cout << fRegionsToPlot[i] << endl;
+            if(TtHFitter::DEBUGLEVEL>0) cout << fRegionsToPlot[i] << endl;
             if(fRegionsToPlot[i].find("ENDL")!=string::npos){
                 nRows++;
                 if(nRegInRow>nCols) nCols = nRegInRow;
@@ -1618,23 +1605,21 @@ void TtHFit::GetSignificance(){
 //__________________________________________________________________________________
 //
 void TtHFit::ReadFitResults(string fileName){
+    cout << "------------------------------------------------------" << endl;
+    cout << "Reading fit results from file " << fileName << endl;
     fFitResults = new FitResults();
     if(fileName.find(".txt")!=string::npos){
         fFitResults->ReadFromTXT(fileName);
     }
-//     cout << "    ------>>" << fFitResults->fNuisPar.size() << endl;
-//     cout << "    ------>>" << fSystematics.size() << endl;
     // make a list of systematics from all samples...
     // ...
     // assign to each NP in the FitResults a title, according to the syst in the fitter
     for(unsigned int i=0;i<fFitResults->fNuisPar.size();i++){
         for(unsigned int j=0;j<fSystematics.size();j++){
-//             cout << fSystematics[j]->fName << " =?= " << fFitResults->fNuisPar[i]->fName;
             if(fSystematics[j]->fName == fFitResults->fNuisPar[i]->fName){
                 fFitResults->fNuisPar[i]->fTitle = fSystematics[j]->fTitle;
-//                 cout << " -> YES!!";
             }
-            cout  << endl;
+            cout << endl;
         }
     }
 }

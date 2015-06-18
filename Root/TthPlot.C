@@ -206,7 +206,7 @@ void TthPlot::Draw(string options){
       if(fBinLabel[i_bin]!="") h_dummy->GetXaxis()->SetBinLabel( i_bin, fBinLabel[i_bin].c_str());
     }
   }
-  h_dummy->GetXaxis()->LabelsOption("d");
+  if(fBinLabel[1]!="") h_dummy->GetXaxis()->LabelsOption("d");
   h_dummy->GetYaxis()->SetTitleOffset(2);
   if(options.find("log")==string::npos){
     h_dummy->SetMinimum(0);
@@ -369,7 +369,7 @@ void TthPlot::Draw(string options){
       customLabels = true;
     }
   }
-  h_dummy2->GetXaxis()->LabelsOption("d");
+  if(fBinLabel[1]!="") h_dummy2->GetXaxis()->LabelsOption("d");
   h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
   if(customLabels && h_dummy->GetNbinsX()>10) h_dummy2->GetXaxis()->SetLabelSize(0.66*h_dummy2->GetXaxis()->GetLabelSize() );
   gPad->RedrawAxis();

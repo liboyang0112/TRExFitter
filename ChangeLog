@@ -1,3 +1,7 @@
+2015-06-18 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * All: Fix various warnings and printout reduced in case DEBUGLEVEL is set to 0
+        * Svn-Tagging: 00-00-01
+        
 2015-06-15 Loic Valery <lvalery@cern.ch>
   	* Root/TtHFit.C: Adding the check of the histograms
 	* Root/SampleHist.C: Adding post-smoothing check of the histograms

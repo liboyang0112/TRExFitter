@@ -270,8 +270,8 @@ void Region::BuildPreFitErrorHist(){
         systName = fSystNames[i_syst];
         
         // initialize the tot variation hists
-        fTotUp[i_syst]   = (TH1*)fTot->Clone(Form("h_tot_%s_Up",  systName.c_str()));
-        fTotDown[i_syst] = (TH1*)fTot->Clone(Form("h_tot_%s_Down",systName.c_str()));
+        fTotUp[i_syst]   = (TH1*)fTot->Clone(Form("h_%s_tot_%s_Up",  fName.c_str(), systName.c_str()));
+        fTotDown[i_syst] = (TH1*)fTot->Clone(Form("h_%s_tot_%s_Down",fName.c_str(), systName.c_str()));
         // - loop on bins
         for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
             diffUp = 0.;

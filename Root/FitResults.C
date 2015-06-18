@@ -104,21 +104,25 @@ void FitResults::ReadFromTXT(string fileName){
     while(std::getline(in, line)){
         if(line=="") continue;
         if(line=="NUISANCE_PARAMETERS"){
-          cout << "--------------------" << endl;
-          cout << "Reading Nuisance Parameters..." << endl;
-          cout << "--------------------" << endl;
-          readingNP = true;
-          continue;
+            if(TtHFitter::DEBUGLEVEL>0){
+                cout << "--------------------" << endl;
+                cout << "Reading Nuisance Parameters..." << endl;
+                cout << "--------------------" << endl;
+            }
+            readingNP = true;
+            continue;
         }
         else if(line=="CORRELATION_MATRIX"){
-          cout << "--------------------" << endl;
-          cout << "Reading Correlation Matrix..." << endl;
-          cout << "--------------------" << endl;
-          readingNP = false;
-          readingCM = true;
-          std::getline(in, line); // skip 1 line
-          Nsyst_corr = atof(line.substr(0,line.find(" ")).c_str());
-          continue;
+            if(TtHFitter::DEBUGLEVEL>0){
+                cout << "--------------------" << endl;
+                cout << "Reading Correlation Matrix..." << endl;
+                cout << "--------------------" << endl;
+            }
+            readingNP = false;
+            readingCM = true;
+            std::getline(in, line); // skip 1 line
+            Nsyst_corr = atof(line.substr(0,line.find(" ")).c_str());
+            continue;
         }
         std::istringstream iss(line);
         if(readingNP){
@@ -137,7 +141,9 @@ void FitResults::ReadFromTXT(string fileName){
             np->fFitValue = value;
             np->fPostFitUp = up;
             np->fPostFitDown = down;
-            if(print) cout << name << ": " << value << " +" << up << " " << down << endl;
+            if(TtHFitter::DEBUGLEVEL>0){
+                if(print) cout << name << ": " << value << " +" << up << " " << down << endl;
+            }
             i++;
         }
         if(readingCM){
@@ -153,18 +159,20 @@ void FitResults::ReadFromTXT(string fileName){
         }
     }
     if(includeCorrelations){
-        if(print){
-            for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
-                cout << "\t " << fNuisParNames[j_sys];
-            }
-            cout << endl;
-            for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
-                cout << fNuisParNames[i_sys];
-                for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
-                    cout << Form("\t%.4f",matrix->GetCorrelation(fNuisParNames[i_sys],fNuisParNames[j_sys]));
-                }
-                cout << endl;
-            }
+        if(TtHFitter::DEBUGLEVEL>0){
+          if(print){
+              for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
+                  cout << "\t " << fNuisParNames[j_sys];
+              }
+              cout << endl;
+              for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
+                  cout << fNuisParNames[i_sys];
+                  for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
+                      cout << Form("\t%.4f",matrix->GetCorrelation(fNuisParNames[i_sys],fNuisParNames[j_sys]));
+                  }
+                  cout << endl;
+              }
+          }
         }
     }
     fCorrMatrix = matrix;

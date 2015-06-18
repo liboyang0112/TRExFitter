@@ -20,7 +20,7 @@ float TtHFitter::CORRELATIONTHRESHOLD = -1;
 //
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight){
     TH1F* h = new TH1F("h","h",nbin,xmin,xmax);
-    cout << "  Extracting histogram from  " << ntuple << "  ..." << endl;
+    if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram from  " << ntuple << "  ..." << endl;
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();
@@ -42,7 +42,7 @@ TH1* HistFromFile(string fullName){
 TH1* HistFromFile(string fileName,string histoName){
     if(fileName=="") return 0x0;
     if(histoName=="") return 0x0;
-    cout << "  Extracting histogram  " << histoName << "  from file  " << fileName << "  ..." << endl;
+    if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram  " << histoName << "  from file  " << fileName << "  ..." << endl;
     TFile *f = new TFile(fileName.c_str());
     TH1 *h = (TH1*)f->Get(histoName.c_str())->Clone();
     h->SetDirectory(0);

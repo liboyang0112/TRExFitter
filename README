@@ -4,8 +4,8 @@ TtHFitter package
 Authors:
   Michele Pinamonti <michele.pinamonti@gmail.com>
   Loic Valery <loic.valery@cern.ch>
-Latest Update:   03 Jun 2015
-Version:         1.2
+Latest Update:   18 Jun 2015
+Tag:             00-00-01
 
 
 ---------
@@ -125,6 +125,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       SystControlPlots -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
       PlotOptions      -> a set os options for plotting:
         YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
+        ...
       CorrelationThreshold -> Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05->5%)
       HistoChecks      -> NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem
       ...
