@@ -49,7 +49,8 @@ TtHFit::TtHFit(string name){
     fConfig = new ConfigParser();
     
     fInputType = HIST;
-//     fShowYields = false;
+    
+    fHistoCheckCrash = true;
 }
 
 //__________________________________________________________________________________
@@ -319,6 +320,12 @@ void TtHFit::ReadConfigFile(string fileName){
 //         }
         fRegionsToPlot = Vectorize(param,',');
     }
+    param = cs->Get("HistoChecks");  if(param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "NOCRASH" ){
+            fHistoCheckCrash = false;
+        }
+    }
     
     //
     // set regions
@@ -552,10 +559,21 @@ void TtHFit::ReadNtuples(){
                 else h->Add(htmp);
                 htmp->~TH1F();
             }
+            
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
-            //
-            // fix the bin contents FIXME (to avoid fit problems)
-            if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
+            
+            std::map < int, bool > applyCorrection;
+            for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
+                double content = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetBinContent(iBin);
+                if( content<=0 ){
+                    std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName << ": negative/null content ! Trying to fix it." << std::endl;
+                    fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->SetBinContent(iBin,1e-06);
+                    applyCorrection.insert( std::pair < int, bool > (iBin, true) );
+                } else {
+                    applyCorrection.insert( std::pair < int, bool > (iBin, false) );
+                }
+            }
+            
             //
             //  -----------------------------------
             //
@@ -670,6 +688,19 @@ void TtHFit::ReadNtuples(){
                 sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
                 sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                
+                //
+                // Histograms checking
+                //
+                for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
+                    if( applyCorrection[iBin]){
+                        sh -> fHistUp   -> SetBinContent(iBin,1e-06);
+                        sh -> fHistDown -> SetBinContent(iBin,1e-06);
+                    }
+                }
+                HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
+                                            sh /*systematic*/, fHistoCheckCrash /*cause crash if problem*/);
+                
             }
         }
     }
@@ -703,18 +734,14 @@ void TtHFit::ReadHistograms(){
             if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
             else if(fRegions[i_ch]->fHistoNames.size()>0) histoNames = fRegions[i_ch]->fHistoNames;
             else                                          histoNames = ToVec( fHistoName );
-            // Common::CreatePathsList( vector<string> paths, vector<string> pathSufs,
-            //                          vector<string> files, vector<string> filesSuf,
-            //                          vector<string> names, vector<string> namesSuf);
+
             fullPaths = CreatePathsList( fHistoPaths, fRegions[i_ch]->fHistoPathSuffs,
                                         histoFiles, empty, // no histo file suffs for nominal (syst only)
                                         histoNames, empty  // same for histo name
                                         );
+            
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-                //         cout << " " << fullPaths[i_path] << endl;
-                //         cout << "  " << fRegions[i_ch]->fHistoName << endl;
-                //TH1* HistFromFile(string fileName,string histoName)
-                //         htmp = (TH1F*)HistFromFile( fullPaths[i_path],fRegions[i_ch]->fHistoName);
+                
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                 
                 //Pre-processing of histograms (rebinning, lumi scaling)
@@ -729,17 +756,25 @@ void TtHFit::ReadHistograms(){
                 htmp->~TH1F();
             }
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
-            //
-            // fix the bin contents FIXME (to avoid fit problems)
-            if(fSamples[i_smp]->fType!=Sample::DATA) fRegions[i_ch]->fSampleHists[i_smp]->FixEmptyBins();
+            
+            std::map < int, bool > applyCorrection;
+            for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
+                double content = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetBinContent(iBin);
+                if( content<=0 ){
+                    std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName << ": negative/null content ! Trying to fix it." << std::endl;
+                    fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->SetBinContent(iBin,1e-06);
+                    applyCorrection.insert( std::pair < int, bool > (iBin, true) );
+                } else {
+                     applyCorrection.insert( std::pair < int, bool > (iBin, false) );
+                }
+            }
+            
             //
             //  -----------------------------------
             //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
-//                 // if not Overall only...
-//                 if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::OVERALL)
-//                     continue;
+                
                 if(TtHFitter::DEBUGLEVEL>0) cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
                 //
                 // Up
@@ -847,10 +882,23 @@ void TtHFit::ReadHistograms(){
                 hDown->SetName(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
                 // 
                 // Histogram smoothing, Symmetrisation, Massaging...
+                //
                 SystematicHist *sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
                 sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                
+                //
+                // Histograms checking
+                //
+                for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
+                    if( applyCorrection[iBin]){
+                        sh -> fHistUp   -> SetBinContent(iBin,1e-06);
+                        sh -> fHistDown -> SetBinContent(iBin,1e-06);
+                    }
+                }
+                HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
+                                                sh /*systematic*/, fHistoCheckCrash /*cause crash if problem*/);
             }
         }
     }
