@@ -15,6 +15,7 @@ class TthPlot {
     void SetChannel(string name);
     void AddLabel(string name);
     void SetLumi(string name);
+    void SetCME(string name);
     void SetXaxis(string name,bool isNjet=false);
     void SetYaxis(string name);
     void SetYmaxScale(float scale);

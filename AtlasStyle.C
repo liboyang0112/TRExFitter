@@ -51,7 +51,8 @@ TStyle* AtlasStyle()
 //   Double_t tsize=0.05;
   // --- Michele
   Int_t font=43;
-  Double_t tsize=24;
+//   Double_t tsize=24;
+  Double_t tsize=21;
   // ---
   atlasStyle->SetTextFont(font);
 

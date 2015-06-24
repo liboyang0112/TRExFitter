@@ -141,6 +141,9 @@ public:
     std::vector<string> fRegionsToPlot;
 
     bool fHistoCheckCrash;
+    
+    string fLumiLabel;
+    string fCmeLabel;
 };
 
 #endif

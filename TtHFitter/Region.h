@@ -144,6 +144,9 @@ public:
     int fFitType;
     string fPOI;
     string fFitLabel;
+    
+    string fLumiLabel;
+    string fCmeLabel;
 };
 
 

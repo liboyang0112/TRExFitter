@@ -316,6 +316,8 @@ TthPlot* Region::DrawPreFit(string opt){
     p->AddLabel(fFitLabel);
     p->AddLabel(fLabel);
     p->AddLabel("Pre-Fit");
+    p->SetLumi(fLumiLabel);
+    p->SetCME(fCmeLabel);
     
     //
     // build h_tot
@@ -324,7 +326,7 @@ TthPlot* Region::DrawPreFit(string opt){
     if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist,fData->fSample->fTitle);
     if(fHasSig){
         p->AddSignal(fSig->fHist,fSig->fSample->fTitle);
-        p->AddNormSignal(fSig->fHist,fSig->fSample->fTitle+"(norm)");
+        if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(fSig->fHist,fSig->fSample->fTitle+"(norm)");
         if(fTot==0x0) fTot = (TH1*)fSig->fHist->Clone("h_tot");
         else          fTot->Add(fSig->fHist);
     }
@@ -604,6 +606,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->AddLabel(fFitLabel);
     p->AddLabel(fLabel);
     p->AddLabel("Post-Fit");
+    p->SetLumi(fLumiLabel);
+    p->SetCME(fCmeLabel);
     
     //
     // 0) Create a new hist for each sample

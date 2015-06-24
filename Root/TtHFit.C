@@ -9,6 +9,9 @@
 TtHFit::TtHFit(string name){
     fName = name;
     fLabel = "";
+    fCmeLabel = "8 TeV";
+    fLumiLabel = "20.3 fb^{-1}";
+    
 //     fResultsFolder = "results/";
 //     fResultsFolder = fName+"/RooStats/";
     fFitType = CONTROLSIGNAL;
@@ -301,6 +304,7 @@ void TtHFit::ReadConfigFile(string fileName){
     param = cs->Get("PlotOptions");       if( param != ""){
         vec = Vectorize(param,',');
         if( std::find(vec.begin(), vec.end(), "YIELDS")!=vec.end() )  TtHFitter::SHOWYIELDS = true;
+        if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG = true;
         // ...
     }
     param = cs->Get("SystControlPlots");  if( param != ""){
@@ -326,6 +330,8 @@ void TtHFit::ReadConfigFile(string fileName){
             fHistoCheckCrash = false;
         }
     }
+    param = cs->Get("LumiLabel"); if( param != "") fLumiLabel = param;
+    param = cs->Get("CmeLabel"); if( param != "") fCmeLabel = param;
     
     //
     // set regions
@@ -337,45 +343,49 @@ void TtHFit::ReadConfigFile(string fileName){
         reg = NewRegion(cs->GetValue());
         reg->SetVariableTitle(cs->Get("VariableTitle"));
         reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
+        param = cs->Get("LumiLabel"); if( param != "") reg->fLumiLabel = param; 
+        else reg->fLumiLabel = fLumiLabel;
+        param = cs->Get("CmeLabel"); if( param != "") reg->fCmeLabel = param;
+        else reg->fCmeLabel = fCmeLabel;
         if(fInputType==0){
             param = cs->Get("HistoFile"); if(param!="") reg->fHistoFiles.push_back( param );
             param = cs->Get("HistoName"); if(param!="") reg->SetHistoName( param );
         }
         else if(fInputType==1){
-          vector<string> variable = Vectorize(cs->Get("Variable"),',');
-          reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
-          reg->AddSelection( cs->Get("Selection") );
-//           reg->AddMCweight(  cs->Get("MCweight") );
-          reg->fMCweight = cs->Get("MCweight"); // this will override the global MCweight, if any
-          if(cs->Get("NtuplePathSuff")!="") { reg->fNtuplePathSuffs.clear(); reg->fNtuplePathSuffs.push_back( cs->Get("NtuplePathSuff") ); }
-          param = cs->Get("NtuplePathSuffs");
-          if( param != "" ){
-              reg->fNtuplePathSuffs.clear();
-              std::vector<string> paths = Vectorize( param,',' );
-              for(int i=0;i<(int)paths.size();i++){
-                  reg->fNtuplePathSuffs.push_back( paths[i] );
-              }
-          }
-      }
-      //Potential rebinning
-      if(cs->Get("Rebin")!="") reg -> Rebin(atoi(cs->Get("Rebin").c_str()));
-      if(cs->Get("Binning")!=""){
-          std::vector < string > vec_bins = Vectorize(cs->Get("Binning"), ',');
-          const int nBounds = vec_bins.size();
-          double bins[nBounds];
-          for (unsigned int iBound = 0; iBound < nBounds; ++iBound){
-              bins[iBound] = atof(vec_bins[iBound].c_str());
-          }
-          reg -> SetBinning(nBounds-1,bins);
-      }
-      if(cs->Get("Type")!=""){
-          param = cs->Get("Type");
-          std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-          if( param=="CONTROL" )     reg -> SetRegionType(Region::CONTROL);
-          if( param=="VALIDATION" )  reg -> SetRegionType(Region::VALIDATION);
-          if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
-      }
-      nReg++;
+            vector<string> variable = Vectorize(cs->Get("Variable"),',');
+            reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
+            reg->AddSelection( cs->Get("Selection") );
+//             reg->AddMCweight(  cs->Get("MCweight") );
+            reg->fMCweight = cs->Get("MCweight"); // this will override the global MCweight, if any
+            if(cs->Get("NtuplePathSuff")!="") { reg->fNtuplePathSuffs.clear(); reg->fNtuplePathSuffs.push_back( cs->Get("NtuplePathSuff") ); }
+            param = cs->Get("NtuplePathSuffs");
+            if( param != "" ){
+                reg->fNtuplePathSuffs.clear();
+                std::vector<string> paths = Vectorize( param,',' );
+                for(int i=0;i<(int)paths.size();i++){
+                    reg->fNtuplePathSuffs.push_back( paths[i] );
+                }
+            }
+        }
+        //Potential rebinning
+        if(cs->Get("Rebin")!="") reg -> Rebin(atoi(cs->Get("Rebin").c_str()));
+        if(cs->Get("Binning")!=""){
+            std::vector < string > vec_bins = Vectorize(cs->Get("Binning"), ',');
+            const int nBounds = vec_bins.size();
+            double bins[nBounds];
+            for (unsigned int iBound = 0; iBound < nBounds; ++iBound){
+                bins[iBound] = atof(vec_bins[iBound].c_str());
+            }
+            reg -> SetBinning(nBounds-1,bins);
+        }
+        if(cs->Get("Type")!=""){
+            param = cs->Get("Type");
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param=="CONTROL" )     reg -> SetRegionType(Region::CONTROL);
+            if( param=="VALIDATION" )  reg -> SetRegionType(Region::VALIDATION);
+            if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
+        }
+        nReg++;
     }
     //
     // set samples 
@@ -1048,6 +1058,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
     if(isPostFit) p->AddLabel("Post-Fit");
     else          p->AddLabel("Pre-Fit");
     p->fATLASlabel = "Internal";
+    p->SetLumi(fLumiLabel);
+    p->SetCME(fCmeLabel);
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
     if(h_sig) p->AddSignal(h_sig,h_sig->GetTitle());
@@ -1333,7 +1345,8 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     pTop->Draw();
     pTop->cd();
     ATLASLabel(0.1,0.7,(char*)"Internal");
-    myText(    0.1,0.4,1,Form("#sqrt{s} = 8 TeV, 20.3 fb^{-1}"));
+    myText(    0.1,0.4,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+//     myText(    0.1,0.4,1,Form("#sqrt{s} = 8 TeV, 20.3 fb^{-1}"));
     myText(    0.1,0.1,1,Form("%s",fLabel.c_str()));
     //
     c->cd();

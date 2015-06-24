@@ -52,6 +52,7 @@ namespace TtHFitter{
     extern int DEBUGLEVEL;
     void SetDebugLevel(int level=0);
     extern bool SHOWYIELDS; // flag to show or not yields in plots
+    extern bool SHOWNORMSIG;  // floag to show normalized signal or not
     extern bool SYSTCONTROLPLOTS;
     extern float CORRELATIONTHRESHOLD;
 };

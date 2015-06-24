@@ -1,3 +1,7 @@
+2015-06-24 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * All: Minor fixes
+        * Svn-Tagging: 00-00-02
+        
 2015-06-23 Loic Valery <lvalery@cern.ch>
         * Changing HistoChecks and preceeds it by corrections for null bins and weird systematics
         * Fix text color problems in HistoChecks

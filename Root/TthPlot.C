@@ -70,6 +70,10 @@ void TthPlot::SetLumi(string name){
   fLumi = name;
 }
 
+void TthPlot::SetCME(string name){
+  fCME = name;
+}
+
 void TthPlot::SetXaxis(string name,bool isNjet){
   xtitle = name;
   fIsNjet = isNjet;
@@ -207,7 +211,8 @@ void TthPlot::Draw(string options){
     }
   }
   if(fBinLabel[1]!="") h_dummy->GetXaxis()->LabelsOption("d");
-  h_dummy->GetYaxis()->SetTitleOffset(2);
+//   h_dummy->GetYaxis()->SetTitleOffset(2);
+  h_dummy->GetYaxis()->SetTitleOffset(2.3);
   if(options.find("log")==string::npos){
     h_dummy->SetMinimum(0);
     if(hasData) h_dummy->SetMaximum(yMaxScale*TMath::Max(h_tot->GetMaximum(),h_data->GetMaximum()+GC_up(h_data->GetMaximum())));
@@ -225,7 +230,8 @@ void TthPlot::Draw(string options){
   for(unsigned int i_lab=0;i_lab<fLabels.size();i_lab++)
     myText(0.18,0.8+0.04-(i_lab+1)*0.05,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
   
-  float legX1 = 1-0.40*(596./pad0->GetWw())-0.08;
+//   float legX1 = 1-0.40*(596./pad0->GetWw())-0.08;
+  float legX1 = 1-0.41*(596./pad0->GetWw())-0.08;
   float legX2 = 0.94;
   float legXmid = legX1+0.5*(legX2-legX1);
 
@@ -237,14 +243,18 @@ void TthPlot::Draw(string options){
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
     leg->SetTextAlign(32);
-    leg->SetTextFont(42);
-    leg->SetTextSize(0.042);
+//     leg->SetTextFont(42);
+//     leg->SetTextSize(0.042);
+    leg->SetTextFont(gStyle->GetTextFont());
+    leg->SetTextSize(gStyle->GetTextSize()*0.9);
     leg->SetMargin(0.22);
     leg1->SetFillStyle(0);
     leg1->SetBorderSize(0);
     leg1->SetTextAlign(32);
-    leg1->SetTextFont(42);
-    leg1->SetTextSize(0.042);
+//     leg1->SetTextFont(42);
+//     leg1->SetTextSize(0.042);
+    leg1->SetTextFont(gStyle->GetTextFont());
+    leg1->SetTextSize(gStyle->GetTextSize()*0.9);
     leg1->SetMargin(0.);
     leg->AddEntry(h_data,data_name.c_str(),"lep");
     leg1->AddEntry((TObject*)0,Form("%.1f",h_data->Integral()),"");
@@ -268,8 +278,10 @@ void TthPlot::Draw(string options){
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
     leg->SetTextAlign(32);
-    leg->SetTextFont(42);
-    leg->SetTextSize(0.042);
+//     leg->SetTextFont(42);
+//     leg->SetTextSize(0.042);
+    leg->SetTextFont(gStyle->GetTextFont());
+    leg->SetTextSize(gStyle->GetTextSize()*0.9);
     leg->SetMargin(0.22);
     leg->AddEntry(h_data,data_name.c_str(),"lep");
     leg->AddEntry(h_signal,fSigNames[0].c_str(),"f");
@@ -502,7 +514,8 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
   for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
     double content = (gr->GetY())[i];
     gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
-    if(content==0){
+//     if(content==0){
+    if(content<0.1){ // FIXME
       gr->RemovePoint(i);
       i--;
     }
