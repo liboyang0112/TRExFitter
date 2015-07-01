@@ -478,8 +478,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 
                 // if it's a norm-factor ==> FIXME
                 if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
-                    diffUp   += yieldNominal*(systErrUp-systValue);
-                    diffDown += yieldNominal*(systValue-systErrDown);
+                    diffUp   += yieldNominal*systErrUp;
+                    diffDown += yieldNominal*systErrDown;
                 }
                 
                 //
