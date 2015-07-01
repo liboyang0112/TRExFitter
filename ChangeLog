@@ -1,6 +1,7 @@
 2015-07-01 Loic Valery <lvalery@cern.ch>
         * Chang TthPlot to avoid nan problems when no data
         * Some cleaning in TthPlot
+        * Fixed bug in post-fit NormFactor error propagation
 
 2015-06-24 Michele Pinamonti <michele.pinamonti@gmail.com>
         * All: Minor fixes
