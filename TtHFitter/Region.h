@@ -1,3 +1,6 @@
+#ifndef __Region__
+#define __Region__
+
 #include "TFile.h"
 #include "TH1.h"
 #include "THStack.h"
@@ -15,9 +18,8 @@
 #include "TtHFitter/FitResults.h"
 
 #include "TtHFitter/TthPlot.h"
+#include "TtHFitter/TtHFit.h"
 
-#ifndef __Region__
-#define __Region__
 
 class Sample;
 class Systematic;
@@ -141,7 +143,7 @@ public:
     
     std::vector< string > fSystNames;
     
-    int fFitType;
+    TtHFit::FitType fFitType;
     string fPOI;
     string fFitLabel;
     

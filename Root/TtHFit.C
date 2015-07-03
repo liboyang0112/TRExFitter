@@ -12,12 +12,9 @@ TtHFit::TtHFit(string name){
     fCmeLabel = "8 TeV";
     fLumiLabel = "20.3 fb^{-1}";
     
-//     fResultsFolder = "results/";
-//     fResultsFolder = fName+"/RooStats/";
-    fFitType = CONTROLSIGNAL;
+    fFitType = SPLUSB;
+    fFitRegion = CRSR;
 
-//     gSystem->mkdir(fName.c_str());
-    
     fNRegions = 0;
     fNSamples = 0;
     fNSyst = 0;
@@ -106,6 +103,12 @@ void TtHFit::SetLumi(const float lumi){
 //
 void TtHFit::SetFitType(FitType type){
     fFitType = type;
+}
+
+//__________________________________________________________________________________
+//
+void TtHFit::SetFitRegion(FitRegion region){
+    fFitRegion = region;
 }
 
 //__________________________________________________________________________________
@@ -284,16 +287,37 @@ void TtHFit::ReadConfigFile(string fileName){
         SetNtupleName( cs->Get("NtupleName") );
     }
     param = cs->Get("LumiScale");  if( param != "" ) SetLumi( atof(param.c_str()) );
+//    param = cs->Get("FitType");    if( param != "" ){
+//        if(     param == "ControlSignalRegion" || param == "CONTROLSIGNAL")
+//            SetFitType(TtHFit::CONTROLSIGNAL);
+//        else if(param == "ControlRegion"       || param == "CONTROL")
+//            SetFitType(TtHFit::CONTROL);
+//        else{
+//            std::cerr << "Unknown FitType argument : " << cs->Get("FitType") << std::endl;
+//            return;
+//        }
+    //    }
     param = cs->Get("FitType");    if( param != "" ){
-        if(     param == "ControlSignalRegion" || param == "CONTROLSIGNAL")
-            SetFitType(TtHFit::CONTROLSIGNAL);
-        else if(param == "ControlRegion"       || param == "CONTROL")
-            SetFitType(TtHFit::CONTROL);
+        if( param == "SPLUSB" )
+            SetFitType(TtHFit::SPLUSB);
+        else if( param == "BONLY" )
+            SetFitType(TtHFit::BONLY);
         else{
             std::cerr << "Unknown FitType argument : " << cs->Get("FitType") << std::endl;
             return;
         }
     }
+    param = cs->Get("FitRegion");    if( param != "" ){
+        if( param == "CRONLY" )
+            SetFitRegion(TtHFit::CRONLY);
+        else if( param == "CRSR" )
+            SetFitRegion(TtHFit::CRSR);
+        else{
+            std::cerr << "Unknown FitRegion argument : " << cs->Get("FitRegion") << std::endl;
+            return;
+        }
+    }
+    
     param = cs->Get("SystPruningShape");  if( param != "")  fThresholdSystPruning_Shape         = atof(param.c_str());
     param = cs->Get("SystPruningNorm");   if( param != "")  fThresholdSystPruning_Normalisation = atof(param.c_str());
     param = cs->Get("IntCodeOverall");    if( param != "")  fIntCode_overall  = atoi(param.c_str());
@@ -965,9 +989,10 @@ void TtHFit::DrawAndSaveAll(string opt){
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
     bool isPostFit = opt.find("post")!=string::npos;
+
     if(isPostFit){
-        if(fFitType==CONTROL)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
-        else if(fFitType==CONTROLSIGNAL) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+        if(fFitType==BONLY)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
+        else if(fFitType==SPLUSB) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
@@ -1451,9 +1476,9 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         
-        if(fFitType==CONTROL){
+        if(fFitRegion==CRONLY){
             if(fRegions[i_ch]->fRegionType==Region::SIGNAL || fRegions[i_ch]->fRegionType==Region::VALIDATION) continue;
-        } else if(fFitType==CONTROLSIGNAL){
+        } else if(fFitRegion==CRSR){
             if(fRegions[i_ch]->fRegionType==Region::VALIDATION) continue;
         }
         
@@ -1557,24 +1582,21 @@ void TtHFit::Fit(){
             break;
         }
     }
+
     if(hasData){
-        if(fFitType==CONTROL){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
-                      algo,workspace.c_str(),outputDir.c_str());
+        if(fFitType==BONLY){
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",algo,workspace.c_str(),outputDir.c_str());
             gSystem->Exec(cmd.c_str());
-        } else if(fFitType==CONTROLSIGNAL){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",
-                              algo,workspace.c_str(),outputDir.c_str());
+        } else if(fFitType==SPLUSB){
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",algo,workspace.c_str(),outputDir.c_str());
             gSystem->Exec(cmd.c_str());
         }
     } else {
-        if(fFitType==CONTROL){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",
-                              algo,workspace.c_str(),outputDir.c_str());
+        if(fFitType==BONLY){
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",algo,workspace.c_str(),outputDir.c_str());
             gSystem->Exec(cmd.c_str());
-        } else if(fFitType==CONTROLSIGNAL){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",
-                              algo,workspace.c_str(),outputDir.c_str());
+        } else if(fFitType==SPLUSB){
+            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",algo,workspace.c_str(),outputDir.c_str());
             gSystem->Exec(cmd.c_str());
         }
     }
@@ -1583,32 +1605,22 @@ void TtHFit::Fit(){
 //__________________________________________________________________________________
 //
 void TtHFit::PlotFittedNP(){    
-//     // plot the NP fit plot
-//     string cmd = "python plotNP.py";
-// //     cmd += " --outFile "+fName+"/NuisPar.png";
-// //     if(fFitType==CONTROL) cmd += " xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt";
-// //     else if(fFitType==CONTROLSIGNAL) cmd += " xcheckResults/"+fName+"/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt";
-//     if(fFitType==CONTROL)            cmd += " --outFile "+fName+"/NuisPar_Bonly.png";
-//     else if(fFitType==CONTROLSIGNAL) cmd += " --outFile "+fName+"/NuisPar_SplusB.png";
-//     if(fFitType==CONTROL)            cmd += " "+fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt";
-//     else if(fFitType==CONTROLSIGNAL) cmd += " "+fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt";
-//     gSystem->Exec(cmd.c_str());
-    //
-    if(fFitType==CONTROL)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
-    else if(fFitType==CONTROLSIGNAL) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+    // plot the NP fit plot
+    if(fFitType==BONLY)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
+    else if(fFitType==SPLUSB) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
     if(fFitResults){
-        if(fFitType==CONTROL)            fFitResults->DrawPulls(fName+"/NuisPar_Bonly.png");
-        else if(fFitType==CONTROLSIGNAL) fFitResults->DrawPulls(fName+"/NuisPar_SplusB.png");
+        if(fFitType==BONLY) fFitResults->DrawPulls(fName+"/NuisPar_Bonly.png");
+        else if(fFitType==SPLUSB) fFitResults->DrawPulls(fName+"/NuisPar_SplusB.png");
     }
 }
 
 //__________________________________________________________________________________
 //
 void TtHFit::PlotCorrelationMatrix(){
-    if(fFitType==CONTROL)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
-    else if(fFitType==CONTROLSIGNAL) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+    //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
+    if(fFitType==BONLY)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
+    else if(fFitType==SPLUSB) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
     if(fFitResults){
-//         fFitResults->DrawCorrelationMatrix(fName+"/Plots/",TtHFitter::CORRELATIONTHRESHOLD);
         fFitResults->DrawCorrelationMatrix(fName+"/",TtHFitter::CORRELATIONTHRESHOLD);
     }
 }
@@ -1627,12 +1639,9 @@ void TtHFit::GetLimit(){
     }
     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
     if(hasData){
-//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
-//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./limits/\",\""+fName+"\",0.95)'";
         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
         gSystem->Exec(cmd.c_str());
     } else {
-//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./limits/\",\""+fName+"_blind\",0.95)'";
         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
         gSystem->Exec(cmd.c_str());
     }
@@ -1652,12 +1661,10 @@ void TtHFit::GetSignificance(){
     }
     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
     if(hasData){
-//         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
         string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
         gSystem->Exec(cmd.c_str());
         
     } else {
-//         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
         string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
         gSystem->Exec(cmd.c_str());
     }

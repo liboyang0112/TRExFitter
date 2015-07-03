@@ -35,7 +35,7 @@ Region::Region(string name){
     fIntCode_shape = 0;
     
     fFitName = "";
-    fFitType = 2;
+    fFitType = TtHFit::SPLUSB;
     fPOI = "";
     fFitLabel = "";
 }
@@ -187,7 +187,7 @@ void Region::BuildPreFitErrorHist(){
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
             systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
             // skip POI if B-only fit
-            if(fFitType==1 && systName==fPOI) continue; 
+            if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -401,8 +401,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
             systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
             // skip POI if B-only fit FIXME
-            //  cout << fFitType << ": " << fPOI << " =? " << systName << endl;
-            if(fFitType==1 && systName==fPOI) continue;
+            if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;

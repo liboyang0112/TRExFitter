@@ -18,9 +18,19 @@ class ConfigParser;
 class TtHFit {
 public:
     
+  //  enum FitType {
+  //      CONTROL = 1,
+  //      CONTROLSIGNAL = 2
+  //  };
+    
     enum FitType {
-        CONTROL = 1,
-        CONTROLSIGNAL = 2
+        SPLUSB = 1,
+        BONLY = 2
+    };
+    
+    enum FitRegion {
+        CRONLY = 1,
+        CRSR = 2
     };
     
     enum InputType {
@@ -36,6 +46,7 @@ public:
     void SetLumiErr(float err);
     void SetLumi(const float lumi);
     void SetFitType(FitType type);
+    void SetFitRegion(FitRegion region);
     
     Sample* NewSample(string name,int type=0);
     Systematic* NewSystematic(string name);
@@ -98,6 +109,7 @@ public:
     string fLabel;
     string fResultsFolder;
     FitType fFitType;
+    FitRegion fFitRegion;
     
     std::vector < Region* > fRegions;
     std::vector < Sample* > fSamples;

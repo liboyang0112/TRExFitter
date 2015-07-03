@@ -112,7 +112,8 @@ Here's a list of the inputs and options which can be specifed in the config file
       Label            -> it's the label which will be showed on the plots
       POI              -> the name of the parameter of interest; this should correspond to a NormFactor defined below
       ReadFrom         -> can be HIST or NTUP; default is HIST
-      FitType          -> can be CONTROL (performs a B-only fit on control regions only) or CONTROLSIGNAL (performs an S+B fit on control and signal regions); default is CONTROLSIGNAL
+      FitType          -> can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
+      FitRegion        -> can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions
       HistoPath        -> valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stored
       NtuplePath(s)    -> valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
       MCstatThreshold  -> if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)

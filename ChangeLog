@@ -1,5 +1,8 @@
+2015-07-03 Loic Valery <lvalery@cern.ch>
+        * Disentangle S+B fit and CRonly/SR+CR fits
+
 2015-07-01 Loic Valery <lvalery@cern.ch>
-        * Chang TthPlot to avoid nan problems when no data
+        * Change TthPlot to avoid nan problems when no data
         * Some cleaning in TthPlot
         * Fixed bug in post-fit NormFactor error propagation
 
