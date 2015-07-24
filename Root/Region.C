@@ -38,6 +38,8 @@ Region::Region(string name){
     fFitType = TtHFit::SPLUSB;
     fPOI = "";
     fFitLabel = "";
+    
+    fLogScale = false;
 }
 
 //__________________________________________________________________________________
@@ -356,6 +358,7 @@ TthPlot* Region::DrawPreFit(string opt){
     p->SetTotBkg((TH1*)fTot);
     p->SetTotBkgAsym(fErr);
     p->fATLASlabel = "Internal";
+    if(fLogScale) opt += " log";
     p->Draw(opt);
     return p;
 }
@@ -735,6 +738,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->SetTotBkg(fTot_postFit);
     p->SetTotBkgAsym(fErr_postFit);
     p->fATLASlabel = "Internal"; //FIXME
+    if(fLogScale) opt += " log";
     p->Draw(opt);
     
     //

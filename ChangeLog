@@ -1,3 +1,7 @@
+2015-07-24 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * All: added few options to config file
+        * TtHFit.C: rebinning added for ntuple inputs
+        
 2015-07-03 Loic Valery <lvalery@cern.ch>
         * Disentangle S+B fit and CRonly/SR+CR fits
 

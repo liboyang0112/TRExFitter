@@ -149,6 +149,8 @@ public:
     
     string fLumiLabel;
     string fCmeLabel;
+    
+    bool fLogScale;
 };
 
 

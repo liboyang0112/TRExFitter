@@ -14,7 +14,7 @@ TtHFit::TtHFit(string name){
     
     fFitType = SPLUSB;
     fFitRegion = CRSR;
-
+    
     fNRegions = 0;
     fNSamples = 0;
     fNSyst = 0;
@@ -317,7 +317,6 @@ void TtHFit::ReadConfigFile(string fileName){
             return;
         }
     }
-    
     param = cs->Get("SystPruningShape");  if( param != "")  fThresholdSystPruning_Shape         = atof(param.c_str());
     param = cs->Get("SystPruningNorm");   if( param != "")  fThresholdSystPruning_Normalisation = atof(param.c_str());
     param = cs->Get("IntCodeOverall");    if( param != "")  fIntCode_overall  = atoi(param.c_str());
@@ -371,6 +370,11 @@ void TtHFit::ReadConfigFile(string fileName){
         else reg->fLumiLabel = fLumiLabel;
         param = cs->Get("CmeLabel"); if( param != "") reg->fCmeLabel = param;
         else reg->fCmeLabel = fCmeLabel;
+        param = cs->Get("LogScale"); if( param != "" ){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param=="TRUE") reg->fLogScale = true;
+            if(param=="FALSE") reg->fLogScale = false;
+        }
         if(fInputType==0){
             param = cs->Get("HistoFile"); if(param!="") reg->fHistoFiles.push_back( param );
             param = cs->Get("HistoName"); if(param!="") reg->SetHistoName( param );
@@ -378,8 +382,10 @@ void TtHFit::ReadConfigFile(string fileName){
         else if(fInputType==1){
             vector<string> variable = Vectorize(cs->Get("Variable"),',');
             reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
+            //
             reg->AddSelection( cs->Get("Selection") );
 //             reg->AddMCweight(  cs->Get("MCweight") );
+            param = cs->Get("NtupleName"); if(param!="") { reg->fNtupleNames.clear(); reg->fNtupleNames.push_back(param); } // NEW
             reg->fMCweight = cs->Get("MCweight"); // this will override the global MCweight, if any
             if(cs->Get("NtuplePathSuff")!="") { reg->fNtuplePathSuffs.clear(); reg->fNtuplePathSuffs.push_back( cs->Get("NtuplePathSuff") ); }
             param = cs->Get("NtuplePathSuffs");
@@ -583,12 +589,21 @@ void TtHFit::ReadNtuples(){
             //                          vector<string> names, vector<string> namesSuf);
             fullPaths = CreatePathsList( fNtuplePaths, fRegions[i_ch]->fNtuplePathSuffs,
                                         fSamples[i_smp]->fNtupleFiles, empty, // no ntuple file suffs for nominal (syst only)
-                                        ToVec( fNtupleName ), empty  // same for ntuple name
+//                                         ToVec( fNtupleName ), empty  // same for ntuple name
+                                        fRegions[i_ch]->fNtupleNames.size()>0 ? fRegions[i_ch]->fNtupleNames : ToVec( fNtupleName ), empty  // NEW
                                         );
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                 htmp = HistFromNtuple( fullPaths[i_path],
                                       fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
                                       fullSelection, fullMCweight);
+                
+                //Pre-processing of histograms (rebinning, lumi scaling)
+                if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                
+                if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                
+                //Importing the histogram in TtHFitter
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
                 htmp->~TH1F();
@@ -663,6 +678,13 @@ void TtHFit::ReadNtuples(){
                     htmp = HistFromNtuple( fullPaths[i_path],
                                           fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
                                           fullSelection, fullMCweight);
+                    //Pre-processing of histograms (rebinning, lumi scaling)
+                    if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                    else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                    
+                    if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                    
+                    //Importing histogram in TtHFitter
                     if(i_path==0) hUp = (TH1F*)htmp->Clone();
                     else hUp->Add(htmp);
                     htmp->~TH1F();
@@ -711,6 +733,13 @@ void TtHFit::ReadNtuples(){
                     htmp = HistFromNtuple( fullPaths[i_path],
                                           fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
                                           fullSelection, fullMCweight);
+                    //Pre-processing of histograms (rebinning, lumi scaling)
+                    if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                    else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                    
+                    if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                    
+                    //Importing histogram in TtHFitter
                     if(i_path==0) hDown = (TH1F*)htmp->Clone();
                     else hDown->Add(htmp);
                     htmp->~TH1F();
@@ -989,7 +1018,6 @@ void TtHFit::DrawAndSaveAll(string opt){
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
     bool isPostFit = opt.find("post")!=string::npos;
-
     if(isPostFit){
         if(fFitType==BONLY)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
         else if(fFitType==SPLUSB) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
@@ -1582,7 +1610,7 @@ void TtHFit::Fit(){
             break;
         }
     }
-
+    
     if(hasData){
         if(fFitType==BONLY){
             string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",algo,workspace.c_str(),outputDir.c_str());
@@ -1639,9 +1667,12 @@ void TtHFit::GetLimit(){
     }
     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
     if(hasData){
+//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
+//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./limits/\",\""+fName+"\",0.95)'";
         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
         gSystem->Exec(cmd.c_str());
     } else {
+//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./limits/\",\""+fName+"_blind\",0.95)'";
         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
         gSystem->Exec(cmd.c_str());
     }
@@ -1661,10 +1692,12 @@ void TtHFit::GetSignificance(){
     }
     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
     if(hasData){
+//         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
         string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
         gSystem->Exec(cmd.c_str());
         
     } else {
+//         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
         string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
         gSystem->Exec(cmd.c_str());
     }
