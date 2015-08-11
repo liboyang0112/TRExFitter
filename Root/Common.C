@@ -10,6 +10,7 @@ bool TtHFitter::SHOWYIELDS = false;
 bool TtHFitter::SHOWNORMSIG = false;
 bool TtHFitter::SYSTCONTROLPLOTS = false;
 float TtHFitter::CORRELATIONTHRESHOLD = -1;
+std::map <string,string> TtHFitter::SYSTMAP; //(TtHFitter::SYSTMAP).clear();
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -26,6 +27,7 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
     t->Add(ntuple.c_str());
     h->Sumw2();
     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
+    MergeUnderOverFlow(h);
     t->~TChain();
     return h;
 }
@@ -60,6 +62,19 @@ void WriteHistToFile(TH1* h,string fileName,string option){
     h->Write("",TObject::kOverwrite);
     delete f;
     dir->cd();
+}
+
+//__________________________________________________________________________________
+//
+void MergeUnderOverFlow(TH1* h){
+    int nbins = h->GetNbinsX();
+    h->AddBinContent( 1, h->GetBinContent(0) ); // merge first bin with underflow bin
+    h->SetBinError(   1, sqrt( pow(h->GetBinError(1),2)+pow(h->GetBinError(0),2)) ); // increase the stat uncertainty as well
+    h->AddBinContent( nbins, h->GetBinContent(nbins+1) ); // merge first bin with overflow bin
+    h->SetBinError(   nbins, sqrt( pow(h->GetBinError(nbins),2)+pow(h->GetBinError(nbins+1),2)) ); // increase the stat uncertainty as well
+    // set under/overflow bins to 0
+    h->SetBinContent( 0, 0. );
+    h->SetBinContent( nbins+1, 0. );
 }
 
 //__________________________________________________________________________________
@@ -127,7 +142,6 @@ vector<string> ToVec(string s){
     output.push_back(s);
     return output;
 }
-
 
 //__________________________________________________________________________________
 //

@@ -138,6 +138,9 @@ void FitResults::ReadFromTXT(string fileName){
             AddNuisPar(new NuisParameter(name));
             iss >> value >> up >> down;
             np = fNuisPar[fNuisParIdx[name]];
+            // set the title of this NP if there in the stored map
+            if(TtHFitter::SYSTMAP[name]!="") np->fTitle = TtHFitter::SYSTMAP[name];
+            //
             np->fFitValue = value;
             np->fPostFitUp = up;
             np->fPostFitDown = down;
@@ -188,7 +191,7 @@ void FitResults::DrawPulls(string path){
     float xmin = -2.9;
     float xmax = 2.9;
     float max = 0;
-    string npToExclude[] = {"SigXsecOverSM","gamma_"};
+    string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
     bool brazilian = true;
     bool grayLines = false;
     

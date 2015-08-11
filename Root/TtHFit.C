@@ -30,8 +30,8 @@ TtHFit::TtHFit(string name){
     fThresholdSystPruning_Shape = -1;
     
     fNtuplePaths.clear();
-    fMCweight = "";
-    fSelection = "";
+    fMCweight = "1";
+    fSelection = "1";
     fNtupleName = "";
     
     fHistoPaths.clear();
@@ -179,6 +179,8 @@ void TtHFit::AddHistoPath(string path){
 //__________________________________________________________________________________
 // apply smoothing to systematics
 void TtHFit::SmoothSystematics(string syst){
+    cout << "-------------------------------------------" << endl;
+    cout << "Smoothing and/or Symmetrising Systematic Variations ..." << endl;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
             fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(syst);
@@ -195,7 +197,7 @@ void TtHFit::WriteHistos(string fileName,bool recreate){
         fileName = fName + "/Histograms/" + fName + "_histos.root";
         gSystem->mkdir( (fName + "/Histograms/").c_str() );
     }
-    cout << "-----------------------------" << endl;
+    cout << "-------------------------------------------" << endl;
     cout << "Writing histograms to file " << fileName << " ..." << endl;
     TDirectory *dir = gDirectory;
     TFile *f;
@@ -233,6 +235,7 @@ void TtHFit::WriteHistos(string fileName,bool recreate){
             h->WriteToFile();
         }
     }
+    cout << "-------------------------------------------" << endl;
 }
 
 //__________________________________________________________________________________
@@ -282,8 +285,8 @@ void TtHFit::ReadConfigFile(string fileName){
                 AddNtuplePath( paths[i] );
             }
         }
-        SetMCweight(   cs->Get("MCweight")   );
-        SetSelection(  cs->Get("Selection")  );
+        param = cs->Get("MCweight");  if(param!="") SetMCweight(param);
+        param = cs->Get("Selection"); if(param!="") SetSelection(param);
         SetNtupleName( cs->Get("NtupleName") );
     }
     param = cs->Get("LumiScale");  if( param != "" ) SetLumi( atof(param.c_str()) );
@@ -383,9 +386,9 @@ void TtHFit::ReadConfigFile(string fileName){
             vector<string> variable = Vectorize(cs->Get("Variable"),',');
             reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
             //
-            reg->AddSelection( cs->Get("Selection") );
+            if(cs->Get("Selection")!="") reg->AddSelection( cs->Get("Selection") );
+            param = cs->Get("NtupleName"); if(param!="") { reg->fNtupleNames.clear(); reg->fNtupleNames.push_back(param); }
 //             reg->AddMCweight(  cs->Get("MCweight") );
-            param = cs->Get("NtupleName"); if(param!="") { reg->fNtupleNames.clear(); reg->fNtupleNames.push_back(param); } // NEW
             reg->fMCweight = cs->Get("MCweight"); // this will override the global MCweight, if any
             if(cs->Get("NtuplePathSuff")!="") { reg->fNtuplePathSuffs.clear(); reg->fNtuplePathSuffs.push_back( cs->Get("NtuplePathSuff") ); }
             param = cs->Get("NtuplePathSuffs");
@@ -482,68 +485,75 @@ void TtHFit::ReadConfigFile(string fileName){
         type = Systematic::HISTO;
         if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL")
             type = Systematic::OVERALL;
+        sys = new Systematic(cs->GetValue(),type);
+        fSystematics.push_back( sys );  // Michele TEST
+        fNSyst++;  // Michele TEST
+        if(cs->Get("Title")!=""){
+            sys->fTitle = cs->Get("Title");
+            TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
+        }
+        if(type==Systematic::HISTO){
+            if(fInputType==0){
+                if(cs->Get("HistoPathUp")!="")      sys->fHistoPathsUp  .push_back(cs->Get("HistoPathUp"));
+                if(cs->Get("HistoPathDown")!="")    sys->fHistoPathsDown.push_back(cs->Get("HistoPathDown"));
+                if(cs->Get("HistoPathSufUp")!="")   sys->fHistoPathSufUp   = cs->Get("HistoPathSufUp");
+                if(cs->Get("HistoPathSufDown")!="") sys->fHistoPathSufDown = cs->Get("HistoPathSufDown");
+                if(cs->Get("HistoFileUp")!="")      sys->fHistoFilesUp  .push_back(cs->Get("HistoFileUp"));
+                if(cs->Get("HistoFileDown")!="")    sys->fHistoFilesDown.push_back(cs->Get("HistoFileDown"));
+                if(cs->Get("HistoFileSufUp")!="")   sys->fHistoFileSufUp   = cs->Get("HistoFileSufUp");
+                if(cs->Get("HistoFileSufDown")!="") sys->fHistoFileSufDown = cs->Get("HistoFileSufDown");
+                if(cs->Get("HistoNameUp")!="")      sys->fHistoNamesUp  .push_back(cs->Get("HistoNameUp"));
+                if(cs->Get("HistoNameDown")!="")    sys->fHistoNamesDown.push_back(cs->Get("HistoNameDown"));
+                if(cs->Get("HistoNameSufUp")!="")   sys->fHistoNameSufUp   = cs->Get("HistoNameSufUp");
+                if(cs->Get("HistoNameSufDown")!="") sys->fHistoNameSufDown = cs->Get("HistoNameSufDown");
+                // ...
+            }
+            else if(fInputType==1){
+//                         if(cs->Get("NtupleFilesUp")!="")   sys->fNtupleFilesUp   = Vectorize( cs->Get("NtupleFilesUp"),  ',' );
+//                         if(cs->Get("NtupleFilesDown")!="") sys->fNtupleFilesDown = Vectorize( cs->Get("NtupleFilesDown"),',' );
+                if(cs->Get("NtuplePathUp")!="")      sys->fNtuplePathsUp  .push_back(cs->Get("NtuplePathsUp"));
+                if(cs->Get("NtuplePathDown")!="")    sys->fNtuplePathsDown.push_back( cs->Get("NtuplePathsDown"));
+                if(cs->Get("NtuplePathSufUp")!="")   sys->fNtuplePathSufUp   = cs->Get("NtuplePathSufUp");
+                if(cs->Get("NtuplePathSufDown")!="") sys->fNtuplePathSufDown = cs->Get("NtuplePathSufDown");
+                if(cs->Get("NtupleFileUp")!="")      sys->fNtupleFilesUp  .push_back(cs->Get("NtupleFileUp"));
+                if(cs->Get("NtupleFileDown")!="")    sys->fNtupleFilesDown.push_back( cs->Get("NtupleFileDown"));
+                if(cs->Get("NtupleFileSufUp")!="")   sys->fNtupleFileSufUp   = cs->Get("NtupleFileSufUp");
+                if(cs->Get("NtupleFileSufDown")!="") sys->fNtupleFileSufDown = cs->Get("NtupleFileSufDown");
+                if(cs->Get("NtupleNameUp")!="")      sys->fNtupleNamesUp  .push_back(cs->Get("NtupleNameUp"));
+                if(cs->Get("NtupleNameDown")!="")    sys->fNtupleNamesDown.push_back( cs->Get("NtupleNameDown"));
+                if(cs->Get("NtupleNameSufUp")!="")   sys->fNtupleNameSufUp   = cs->Get("NtupleNameSufUp");
+                if(cs->Get("NtupleNameSufDown")!="") sys->fNtupleNameSufDown = cs->Get("NtupleNameSufDown");
+                if(cs->Get("WeightUp")!="")          sys->fWeightUp      = cs->Get("WeightUp");
+                if(cs->Get("WeightDown")!="")        sys->fWeightDown    = cs->Get("WeightDown");
+                if(cs->Get("WeightSufUp")!="")       sys->fWeightSufUp   = cs->Get("WeightSufUp");
+                if(cs->Get("WeightSufDown")!="")     sys->fWeightSufDown = cs->Get("WeightSufDown");
+                // ...
+            }
+            if(cs->Get("Symmetrisation")!=""){
+                if(cs->Get("Symmetrisation")=="OneSided" || cs->Get("Symmetrisation")=="ONESIDED")
+                    sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
+                else if(cs->Get("Symmetrisation")=="TwoSided" || cs->Get("Symmetrisation")=="TWOSIDED")
+                    sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
+                else
+                    std::cout << "Symetrisation scheme is not recognized ... " << std::endl;
+            }
+            if(cs->Get("Smoothing")!=""){
+                sys->fSmoothType = atoi(cs->Get("Smoothing").c_str());
+            }
+            // ...
+        }
+        else if(type==Systematic::OVERALL){
+            sys->fOverallUp   = atof( cs->Get("OverallUp").c_str() );
+            sys->fOverallDown = atof( cs->Get("OverallDown").c_str() );
+        }
+        // attach the syst to the proper samples
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             sam = fSamples[i_smp];
             if(sam->fType == Sample::DATA) continue;
             if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
                && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
             ){
-                sys = sam->AddSystematic(cs->GetValue(),type);
-                if(cs->Get("Title")!="") sys->fTitle = cs->Get("Title");
-                if(type==Systematic::HISTO){
-                    if(fInputType==0){
-                        if(cs->Get("HistoPathUp")!="")      sys->fHistoPathsUp  .push_back(cs->Get("HistoPathUp"));
-                        if(cs->Get("HistoPathDown")!="")    sys->fHistoPathsDown.push_back(cs->Get("HistoPathDown"));
-                        if(cs->Get("HistoPathSufUp")!="")   sys->fHistoPathSufUp   = cs->Get("HistoPathSufUp");
-                        if(cs->Get("HistoPathSufDown")!="") sys->fHistoPathSufDown = cs->Get("HistoPathSufDown");
-                        if(cs->Get("HistoFileUp")!="")      sys->fHistoFilesUp  .push_back(cs->Get("HistoFileUp"));
-                        if(cs->Get("HistoFileDown")!="")    sys->fHistoFilesDown.push_back(cs->Get("HistoFileDown"));
-                        if(cs->Get("HistoFileSufUp")!="")   sys->fHistoFileSufUp   = cs->Get("HistoFileSufUp");
-                        if(cs->Get("HistoFileSufDown")!="") sys->fHistoFileSufDown = cs->Get("HistoFileSufDown");
-                        if(cs->Get("HistoNameUp")!="")      sys->fHistoNamesUp  .push_back(cs->Get("HistoNameUp"));
-                        if(cs->Get("HistoNameDown")!="")    sys->fHistoNamesDown.push_back(cs->Get("HistoNameDown"));
-                        if(cs->Get("HistoNameSufUp")!="")   sys->fHistoNameSufUp   = cs->Get("HistoNameSufUp");
-                        if(cs->Get("HistoNameSufDown")!="") sys->fHistoNameSufDown = cs->Get("HistoNameSufDown");
-                        // ...
-                    }
-                    else if(fInputType==1){
-//                         if(cs->Get("NtupleFilesUp")!="")   sys->fNtupleFilesUp   = Vectorize( cs->Get("NtupleFilesUp"),  ',' );
-//                         if(cs->Get("NtupleFilesDown")!="") sys->fNtupleFilesDown = Vectorize( cs->Get("NtupleFilesDown"),',' );
-                        if(cs->Get("NtuplePathUp")!="")      sys->fNtuplePathsUp  .push_back(cs->Get("NtuplePathsUp"));
-                        if(cs->Get("NtuplePathDown")!="")    sys->fNtuplePathsDown.push_back( cs->Get("NtuplePathsDown"));
-                        if(cs->Get("NtuplePathSufUp")!="")   sys->fNtuplePathSufUp   = cs->Get("NtuplePathSufUp");
-                        if(cs->Get("NtuplePathSufDown")!="") sys->fNtuplePathSufDown = cs->Get("NtuplePathSufDown");
-                        if(cs->Get("NtupleFileUp")!="")      sys->fNtupleFilesUp  .push_back(cs->Get("NtupleFilesUp"));
-                        if(cs->Get("NtupleFileDown")!="")    sys->fNtupleFilesDown.push_back( cs->Get("NtupleFilesDown"));
-                        if(cs->Get("NtupleFileSufUp")!="")   sys->fNtupleFileSufUp   = cs->Get("NtupleFileSufUp");
-                        if(cs->Get("NtupleFileSufDown")!="") sys->fNtupleFileSufDown = cs->Get("NtupleFileSufDown");
-                        if(cs->Get("NtupleNameUp")!="")      sys->fNtupleNamesUp  .push_back(cs->Get("NtupleNamesUp"));
-                        if(cs->Get("NtupleNameDown")!="")    sys->fNtupleNamesDown.push_back( cs->Get("NtupleNamesDown"));
-                        if(cs->Get("NtupleNameSufUp")!="")   sys->fNtupleNameSufUp   = cs->Get("NtupleNameSufUp");
-                        if(cs->Get("NtupleNameSufDown")!="") sys->fNtupleNameSufDown = cs->Get("NtupleNameSufDown");
-                        if(cs->Get("WeightUp")!="")          sys->fWeightUp      = cs->Get("WeightUp");
-                        if(cs->Get("WeightDown")!="")        sys->fWeightDown    = cs->Get("WeightDown");
-                        if(cs->Get("WeightSufUp")!="")       sys->fWeightSufUp   = cs->Get("WeightSufUp");
-                        if(cs->Get("WeightSufDown")!="")     sys->fWeightSufDown = cs->Get("WeightSufDown");
-                        // ...
-                    }
-                    if(cs->Get("Symmetrisation")!=""){
-                        if(cs->Get("Symmetrisation")=="OneSided" || cs->Get("Symmetrisation")=="ONESIDED")
-                            sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
-                        else if(cs->Get("Symmetrisation")=="TwoSided" || cs->Get("Symmetrisation")=="TWOSIDED")
-                            sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
-                        else
-                            std::cout << "Symetrisation scheme is not recognized ... " << std::endl;
-                    }
-                    if(cs->Get("Smoothing")!=""){
-                        sys->fSmoothType = atoi(cs->Get("Smoothing").c_str());
-                    }
-                    // ...
-                }
-                else if(type==Systematic::OVERALL){
-                    sys->fOverallUp   = atof( cs->Get("OverallUp").c_str() );
-                    sys->fOverallDown = atof( cs->Get("OverallDown").c_str() );
-                }
+                sam->AddSystematic(sys);
             }
         }
         // ...
@@ -555,6 +565,8 @@ void TtHFit::ReadConfigFile(string fileName){
 //__________________________________________________________________________________
 // for each region, add a SampleHist for each Sample in the Fit, reading from ntuples
 void TtHFit::ReadNtuples(){
+    cout << "-------------------------------------------" << endl;
+    cout << "Reading ntuples..." << endl;
     TH1F* h;
     TH1F* hUp;
     TH1F* hDown;
@@ -567,6 +579,7 @@ void TtHFit::ReadNtuples(){
     //
     // loop on regions and samples
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        cout << "  Region " << fRegions[i_ch]->fName << " ..." << endl;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             //
             // read nominal
@@ -598,7 +611,13 @@ void TtHFit::ReadNtuples(){
                                       fullSelection, fullMCweight);
                 
                 //Pre-processing of histograms (rebinning, lumi scaling)
-                if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                if(fRegions[i_ch]->fHistoBins){
+                    TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
+                    const char *hname = htmp->GetName();
+                    htmp->~TH1F();
+                    htmp = htmp2;
+                    htmp->SetName(hname);
+                }
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                 
                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -679,17 +698,26 @@ void TtHFit::ReadNtuples(){
                                           fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
                                           fullSelection, fullMCweight);
                     //Pre-processing of histograms (rebinning, lumi scaling)
-                    if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                    if(fRegions[i_ch]->fHistoBins){
+//                         htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                        TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
+                        const char *hname = htmp->GetName();
+                        htmp->~TH1F();
+                        htmp = htmp2;
+                        htmp->SetName(hname);
+                    }
                     else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                     
                     if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
                     
                     //Importing histogram in TtHFitter
-                    if(i_path==0) hUp = (TH1F*)htmp->Clone();
+                    if(i_path==0){
+                        hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
+//                         hUp->SetName(Form("h_%s_%s_%sUp",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
+                    }
                     else hUp->Add(htmp);
                     htmp->~TH1F();
                 }
-                hUp->SetName(Form("h_%s_%s_%sUp",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
                 //
                 // Down
                 //
@@ -734,17 +762,26 @@ void TtHFit::ReadNtuples(){
                                           fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
                                           fullSelection, fullMCweight);
                     //Pre-processing of histograms (rebinning, lumi scaling)
-                    if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                    if(fRegions[i_ch]->fHistoBins){
+//                         htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                        TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
+                        const char *hname = htmp->GetName();
+                        htmp->~TH1F();
+                        htmp = htmp2;
+                        htmp->SetName(hname);
+                    }
                     else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                     
                     if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
                     
                     //Importing histogram in TtHFitter
-                    if(i_path==0) hDown = (TH1F*)htmp->Clone();
+                    if(i_path==0){
+                        hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
+//                         hDown->SetName(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
+                    }
                     else hDown->Add(htmp);
                     htmp->~TH1F();
                 }
-                hDown->SetName(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
                 //
                 // Histogram smoothing, Symmetrisation, Massaging...
                 SystematicHist *sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
@@ -808,7 +845,14 @@ void TtHFit::ReadHistograms(){
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                 
                 //Pre-processing of histograms (rebinning, lumi scaling)
-                if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                if(fRegions[i_ch]->fHistoBins){
+//                     htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                    TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
+                    const char *hname = htmp->GetName();
+                    htmp->~TH1F();
+                    htmp = htmp2;
+                    htmp->SetName(hname);
+                }
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                 
                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -874,7 +918,14 @@ void TtHFit::ReadHistograms(){
                   for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                       htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                       //Pre-processing of histograms (rebinning, lumi scaling)
-                      if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                      if(fRegions[i_ch]->fHistoBins){
+//                           htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                          TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
+                          const char *hname = htmp->GetName();
+                          htmp->~TH1F();
+                          htmp = htmp2;
+                          htmp->SetName(hname);
+                      }
                       else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                       
                       if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -926,7 +977,14 @@ void TtHFit::ReadHistograms(){
                   for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                       htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
                       //Pre-processing of histograms (rebinning, lumi scaling)
-                      if(fRegions[i_ch]->fHistoBins) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                      if(fRegions[i_ch]->fHistoBins){
+//                           htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,htmp->GetName(),fRegions[i_ch]->fHistoBins));
+                          TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
+                          const char *hname = htmp->GetName();
+                          htmp->~TH1F();
+                          htmp = htmp2;
+                          htmp->SetName(hname);
+                      }
                       else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                       
                       if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -1105,7 +1163,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     TthPlot *p = new TthPlot(fName+"_summary",900,700);
     p->fShowYields = TtHFitter::SHOWYIELDS;
-    p->fYmin = 10;
+//     p->fYmin = 10;
+    p->fYmin = 1;
     p->SetXaxis("",false);
     p->AddLabel(fLabel);
     if(isPostFit) p->AddLabel("Post-Fit");
@@ -1116,7 +1175,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
     if(h_sig) p->AddSignal(h_sig,h_sig->GetTitle());
-    //   p->AddNormSignal(h_sig,((string)h_sig->GetTitle())+"(norm)");
+    if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(h_sig,((string)h_sig->GetTitle())+"(norm)");
     for(int i=0;i<Nbkg;i++)
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
     //
@@ -1486,8 +1545,10 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         cout << "|      Export to RooStat       |" << endl;
         cout << "--------------------------------" << endl;
     }
-    else
+    else{
+        cout << "-------------------------------------------" << endl;
         cout << "Exporting to RooStats..." << endl;
+    }
     
     RooStats::HistFactory::Measurement meas(fName.c_str(), fName.c_str());
     //   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
@@ -1562,7 +1623,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     }
                     
                     if(
-                       (fThresholdSystPruning_Normalisation>-1 && (TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation || TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation)) ||
+                       (fThresholdSystPruning_Normalisation>-1 && (TMath::Abs(h->fSyst[i_syst]->fNormUp)>fThresholdSystPruning_Normalisation || TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation)) ||
                         (fThresholdSystPruning_Normalisation==-1)
                        ){
                         sample.AddOverallSys( h->fSyst[i_syst]->fName,
@@ -1585,6 +1646,114 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     meas.CollectHistograms();
     meas.PrintTree();
     if(makeWorkspace) RooStats::HistFactory::MakeModelAndMeasurementFast(meas);
+}
+
+//__________________________________________________________________________________
+//
+void TtHFit::DrawPruningPlot(){
+    cout << "------------------------------------------------------" << endl;
+    cout << "Drawing Pruning Plot ..." << endl;
+    vector< TH2F* > histPrun;
+    int iReg = 0;
+    int nSmp = 0;
+    vector< Sample* > samplesVec;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::DATA) continue;
+        samplesVec.push_back(fSamples[i_smp]);
+        nSmp++;
+    }
+    for(int i_reg=0;i_reg<fNRegions;i_reg++){
+        if(fRegions[i_reg]->fRegionType!=Region::VALIDATION){
+            histPrun.push_back( 
+                new TH2F(Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),
+                         fRegions[i_reg]->fShortLabel.c_str(),
+                         nSmp,0,nSmp, fNSyst,0,fNSyst
+                        )
+            );
+            for(int i_smp=0;i_smp<nSmp;i_smp++){
+                for(int i_syst=0;i_syst<fNSyst;i_syst++){
+                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), -1 );
+                }
+                SampleHist *sh = fRegions[i_reg]->GetSampleHist(samplesVec[i_smp]->fName);
+                if(sh!=0x0){
+                    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+                        if(sh->HasSyst(fSystematics[i_syst]->fName)){
+                            histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 0 );
+                            // set to 1 if shape pruned away
+                            if(sh->GetSystematic(fSystematics[i_syst]->fName)->fIsShape && 
+                               fThresholdSystPruning_Shape>-1 && 
+                               !HistoTools::HasShape(sh->fHist, sh->GetSystematic(fSystematics[i_syst]->fName),fThresholdSystPruning_Shape)
+                              ){
+                                histPrun[iReg]->AddBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
+                            }
+                            // set to 2 is normalization pruned away
+                            if(fThresholdSystPruning_Normalisation>-1 && 
+                               TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormUp)<fThresholdSystPruning_Normalisation &&
+                               TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormDown)<fThresholdSystPruning_Normalisation
+                              ){
+                                histPrun[iReg]->AddBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
+                            }
+                        }
+                    }
+                }
+            }
+            iReg++;
+        }
+    }
+    //
+    // draw the histograms
+    TCanvas *c = new TCanvas("c_pruning","Canvas - Pruning",200*(1+iReg),20*(fNSyst)+100+50);
+    Int_t colors[] = {kGray, kGreen, kYellow, kOrange-3, kRed}; // #colors >= #levels - 1
+    gStyle->SetPalette((sizeof(colors)/sizeof(Int_t)), colors);
+    c->Divide(1+iReg);
+    for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
+        c->cd(i_reg+2);
+        gPad->SetGridy();
+        histPrun[i_reg]->Draw("COL");
+        for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsX();i_bin++){
+            histPrun[i_reg]->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fTitle.c_str());
+        }
+        for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsY();i_bin++){
+            if(i_reg==0)
+                histPrun[i_reg]->GetYaxis()->SetBinLabel(i_bin,TtHFitter::SYSTMAP[fSystematics[i_bin-1]->fName].c_str());
+            else
+                histPrun[i_reg]->GetYaxis()->SetBinLabel(i_bin,"");
+        }
+        histPrun[i_reg]->GetYaxis()->SetLabelOffset(0.04);
+        gPad->SetBottomMargin(100./(20*(fNSyst)+100+50));
+        gPad->SetTopMargin(50./(20*(fNSyst)+100+50));
+        gPad->SetLeftMargin(0);
+        gPad->SetRightMargin(0);
+        histPrun[i_reg]->GetXaxis()->LabelsOption("v");
+        histPrun[i_reg]->GetXaxis()->SetLabelSize( histPrun[i_reg]->GetXaxis()->GetLabelSize()*0.75 );
+        histPrun[i_reg]->GetYaxis()->SetLabelSize( histPrun[i_reg]->GetYaxis()->GetLabelSize()*0.75 );
+        gPad->SetTickx(0);
+        gPad->SetTicky(0);
+        histPrun[i_reg]->SetMinimum(-1);
+        histPrun[i_reg]->SetMaximum(3);
+        histPrun[i_reg]->GetYaxis()->SetTickLength(0);
+        histPrun[i_reg]->GetXaxis()->SetTickLength(0);  
+        gPad->SetGrid();
+        myText(    0.1,1.-40./(20.*(fNSyst)+100.+50.),1,histPrun[i_reg]->GetTitle());
+    }
+    c->cd(1);
+    myText(0.1,1.-10./(20.*(fNSyst)+100.+50.),1,fLabel.c_str());
+    TLegend *leg = new TLegend(0.05,90./(20*(fNSyst)+100+50),0.95,0);
+    TH1F* hGray = new TH1F("hGray","hGray",1,0,1);       hGray->SetFillColor(kGray);       hGray->SetLineWidth(0);
+    TH1F* hYellow = new TH1F("hYellow","hYellow",1,0,1); hYellow->SetFillColor(kYellow);   hYellow->SetLineWidth(0);
+    TH1F* hOrange = new TH1F("hOrange","hOrange",1,0,1); hOrange->SetFillColor(kOrange-3); hOrange->SetLineWidth(0);
+    TH1F* hRed = new TH1F("hRed","hRed",1,0,1);          hRed->SetFillColor(kRed);         hRed->SetLineWidth(0);
+    leg->SetBorderSize(0);
+    leg->SetFillStyle(0);
+    leg->AddEntry(hGray,"Not present","f");
+//     leg->AddEntry(hGreen,"Kept","f");
+    leg->AddEntry(hYellow, "Shape dropped","f");
+    leg->AddEntry(hOrange, "Norm. dropped","f");
+    leg->AddEntry(hRed, "Dropped","f");
+    leg->SetTextSize(0.85*gStyle->GetTextSize());
+    leg->Draw();
+    //
+    c->SaveAs( (fName+"/Pruning.png").c_str() );
 }
 
 //__________________________________________________________________________________
@@ -1729,6 +1898,7 @@ void TtHFit::ReadFitResults(string fileName){
 //
 void TtHFit::Print(){
     cout << endl;
+    cout << "-------------------------------------------" << endl;
     cout << "  TtHFit: " << fName << endl;
     cout << "      NtuplePaths ="; for(int i=0;i<(int)fNtuplePaths.size();i++) cout << " " << fNtuplePaths[i] << endl;
     cout << "      NtupleName  =";   cout << " " << fNtupleName << endl;
@@ -1740,6 +1910,7 @@ void TtHFit::Print(){
         fRegions[i_ch]->Print();
     }
     cout << endl;
+    cout << "-------------------------------------------" << endl;
 }
 
 //__________________________________________________________________________________

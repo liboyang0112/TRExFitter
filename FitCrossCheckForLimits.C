@@ -1198,7 +1198,7 @@ namespace LimitCrossCheck{
 
 	// Not consider nuisance parameter being not associated to syst
 	string varname = (string) var->GetName();
-	if ( (varname.find("gamma_stat")!=string::npos) ) continue;
+// 	if ( (varname.find("gamma_stat")!=string::npos) ) continue;
 	
 	double pull  = var->getVal() / 1.0 ; // GetValue() return value in unit of sigma
 	double errorHi = var->getErrorHi() / 1.0; 
@@ -1378,7 +1378,7 @@ namespace LimitCrossCheck{
       TIterator* it3 = mc->GetNuisanceParameters()->createIterator();
       while( (var = (RooRealVar*) it3->Next()) ){
 	TString vname=var->GetName();
-	if (vname.Contains("gamma_stat")) continue;
+// // 	if (vname.Contains("gamma_stat")) continue;
 	vname.ReplaceAll("alpha_","");
 	vname.ReplaceAll("gamma_","");
 	vname.ReplaceAll("ATLAS_","");
@@ -1817,7 +1817,7 @@ namespace LimitCrossCheck{
       
       // Not consider nuisance parameter being not associated to syst
       string varname = (string) var->GetName();
-      if ((varname.find("gamma_stat")!=string::npos)) continue;
+//       if ((varname.find("gamma_stat")!=string::npos)) continue;
       
       double pull  = var->getVal() / 1.0 ; // GetValue() return value in unit of sigma
       double errorHi = var->getErrorHi() / 1.0; 
@@ -2062,7 +2062,7 @@ namespace LimitCrossCheck{
       TIterator* it3 = mc->GetNuisanceParameters()->createIterator();
       while( (var = (RooRealVar*) it3->Next()) ){
         TString vname=var->GetName();
-        if (vname.Contains("gamma_stat")) { continue; }
+//         if (vname.Contains("gamma_stat")) { continue; }
         //if (!vname.Contains("ATLAS_norm")) { continue; }
         bool floating(false); 
         if(vname.Contains("ATLAS_norm")) { floating = true; }

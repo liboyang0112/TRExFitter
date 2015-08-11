@@ -91,6 +91,8 @@ public:
     // turn to RooStat::HistFactory
     void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
     
+    void DrawPruningPlot();
+    
     // fit etc...
     void Fit();
     void PlotFittedNP();

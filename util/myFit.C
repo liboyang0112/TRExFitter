@@ -82,6 +82,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
     }
 
     if(createWorkspace){
+        myFit->DrawPruningPlot();
         myFit->SetLumiErr(0.);
         myFit->ToRooStat(true,true);
     }

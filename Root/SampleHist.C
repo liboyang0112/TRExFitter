@@ -249,12 +249,22 @@ void SampleHist::FixEmptyBins(){
 //_____________________________________________________________________________
 //
 void SampleHist::Print(){
-    cout << "      Sample: " << fName << "\t" << fHist->GetName() << endl;
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        fSyst[i_syst]->Print();
+    cout <<     "      Sample: " << fName << "\t" << fHist->GetName() << endl;
+    if(fNSyst>0){
+        cout << "        Systematics:   ";
+        for(int i_syst=0;i_syst<fNSyst;i_syst++){
+//             fSyst[i_syst]->Print();
+            cout << " " << fSyst[i_syst]->fName;
+        }
+        cout << endl;
     }
-    for(int i_norm=0;i_norm<fNNorm;i_norm++){
-        fNormFactors[i_norm]->Print();
+    if(fNNorm>0){
+        cout << "        NormFactor(s): ";
+        for(int i_norm=0;i_norm<fNNorm;i_norm++){
+//             fNormFactors[i_norm]->Print();
+            cout << " " << fNormFactors[i_norm]->fName;
+        }
+        cout << endl;
     }
 }
 

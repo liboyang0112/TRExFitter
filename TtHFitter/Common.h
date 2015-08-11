@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <map>
 
 // ROOT stuff
 #include "TArrow.h"
@@ -18,6 +19,7 @@
 #include "TGraphErrors.h"
 #include "TH1.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "THStack.h"
 #include "TLatex.h"
 #include "TLegend.h"
@@ -55,6 +57,7 @@ namespace TtHFitter{
     extern bool SHOWNORMSIG;  // floag to show normalized signal or not
     extern bool SYSTCONTROLPLOTS;
     extern float CORRELATIONTHRESHOLD;
+    extern std::map< string,string > SYSTMAP;
 };
 
 const int MAXregions = 100;
@@ -66,6 +69,7 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
 TH1* HistFromFile(string fullName);
 TH1* HistFromFile(string fileName,string histoName);
 void WriteHistToFile(TH1* h,string fileName,string option="UPDATE");
+void MergeUnderOverFlow(TH1* h);
 std::vector<string> CreatePathsList( std::vector<string> paths, std::vector<string> pathSufs,
                                     std::vector<string> files, std::vector<string> fileSufs,
                                     std::vector<string> names, std::vector<string> nameSufs);

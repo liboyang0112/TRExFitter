@@ -64,15 +64,48 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
     
     //FIRST STEP: DO THE SYMMETRISATIONS
     if( histOps % 10 == SYMMETRIZEONESIDED){
-        bool isUp = false; //is the provided uncertainty the up or down variation (based on yield)
-        TH1F* temp = SymmetrizeOneSided(hNom, originUp, isUp);
+//         bool isUp = false; //is the provided uncertainty the up or down variation (based on yield)
+//         TH1F* temp = SymmetrizeOneSided(hNom, originUp, isUp);
+//         if(isUp){
+//             modifiedUp = (TH1*)originUp -> Clone();
+//             modifiedDown = (TH1*)temp -> Clone();
+//         } else {
+//             modifiedUp = (TH1*)temp -> Clone();
+//             modifiedDown = (TH1*)originUp -> Clone();
+//         }
+        // Michele: attempt to fix the isUp issue
+        // if one of the two is a null pointer, it's easy
+        bool isUp = true; //is the provided uncertainty the up or down variation (based on yield)
+        if     (originUp==0x0 && originDown!=0x0) isUp = false;
+        else if(originUp!=0x0 && originDown==0x0) isUp = true;
+        else if(originUp==0x0 && originDown==0x0){
+            std:: cerr << "\033[1;31m<!> ERROR in HistoTools::ManageHistograms() both up and down variations are empty.  \033[0m" << std::endl;;
+            return;
+        }
+        // if both are non-empty, check the differences with the nominal
+        else{
+//             float separationUp = 0.;
+//             float separationDown = 0.;
+//             for(unsigned int i_bin=1;i_bin<hNom->GetNbinsX();i_bin++){
+//                 separationUp += originUp->GetBinContent(i_bin) - hNom->GetBinContent(i_bin);
+//                 separationDown += originDown->GetBinContent(i_bin) - hNom->GetBinContent(i_bin);
+//             }
+//             if(TMath::Abs(separationUp)>TMath::Abs(separationDown)) isUp = true;
+//             if(TMath::Abs(separationUp)<TMath::Abs(separationDown)) isUp = false;
+            if( Separation(hNom,originUp) > Separation(hNom,originDown) ) isUp = true;
+            if( Separation(hNom,originUp) < Separation(hNom,originDown) ) isUp = false;
+        }
+        TH1F* temp;
         if(isUp){
+            temp = SymmetrizeOneSided(hNom, originUp, isUp);
             modifiedUp = (TH1*)originUp -> Clone();
             modifiedDown = (TH1*)temp -> Clone();
         } else {
+            temp = SymmetrizeOneSided(hNom, originDown, isUp);
             modifiedUp = (TH1*)temp -> Clone();
-            modifiedDown = (TH1*)originUp -> Clone();
+            modifiedDown = (TH1*)originDown -> Clone();
         }
+        //
         delete temp;
     } else if( histOps % 10 == SYMMETRIZETWOSIDED ){
         modifiedUp = SymmetrizeTwoSided(originUp, originDown, hNom);

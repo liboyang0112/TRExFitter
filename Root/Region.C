@@ -39,6 +39,9 @@ Region::Region(string name){
     fPOI = "";
     fFitLabel = "";
     
+    fSelection = "1";
+    fMCweight = "1";
+    
     fLogScale = false;
 }
 
@@ -488,39 +491,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 // Systematics treatment
                 //
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
-                    
-//                    double scaleUpNorm = 1.;
-//                    double scaleDownNorm = 1.;
-//                    double scaleUpShape = 1.;
-//                    double scaleDownShape = 1.;
-//                    
-//                    // 1: overall
-//                    if(sh->fIsOverall){
-//                        if(sh->fNormUp!=0)   yieldUp     = (sh->fNormUp+1  )*yieldNominal;
-//                        else                 yieldUp     = yieldNominal;
-//                        if(sh->fNormDown!=0) yieldDown   = (sh->fNormDown+1)*yieldNominal;
-//                        else                 yieldDown   = yieldNominal;
-//                        deltaN    =                GetDeltaN( systValue,             yieldNominal,yieldUp,yieldDown, fIntCode_overall);
-//                        //diffUp   += yieldNominal*( GetDeltaN( systValue+systErrUp,   yieldNominal,yieldUp,yieldDown, fIntCode_overall) - deltaN );
-//                        //diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown, fIntCode_overall) - deltaN );
-//                        scaleUpNorm   *= 1.+( GetDeltaN( systValue+systErrUp,   yieldNominal,yieldUp,yieldDown, fIntCode_overall) - deltaN );
-//                        scaleDownNorm *= 1.+( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown, fIntCode_overall) - deltaN );
-//                    }
-//                    // 2: shape
-//                    if(sh->fIsShape){
-//                        hUp   = sh->fHistShapeUp;
-//                        hDown = sh->fHistShapeDown;
-//                        if(hUp!=0x0)    yieldUp     = hUp  ->GetBinContent(i_bin);
-//                        else            yieldUp     = yieldNominal;
-//                        if(hDown!=0x0)  yieldDown   = hDown->GetBinContent(i_bin);
-//                        else            yieldDown   = yieldNominal;
-//                        deltaN    =                GetDeltaN( systValue,             yieldNominal,yieldUp,yieldDown, fIntCode_shape);
-//                        //diffUp   += yieldNominal*( GetDeltaN( systValue+systErrUp,   yieldNominal,yieldUp,yieldDown, fIntCode_shape) - deltaN );
-//                        //diffDown += yieldNominal*( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown, fIntCode_shape) - deltaN );
-//                        scaleUpShape   *= 1.+( GetDeltaN( systValue+systErrUp,   yieldNominal,yieldUp,yieldDown, fIntCode_shape) - deltaN );
-//                        scaleDownShape *= 1.+( GetDeltaN( systValue+systErrDown, yieldNominal,yieldUp,yieldDown, fIntCode_shape) - deltaN );
-//                    }
-                    
                     hUp   = sh->fHistUp;
                     hDown = sh->fHistDown;
                     if(hUp!=0x0)    yieldUp     = hUp ->GetBinContent(i_bin);
@@ -792,14 +762,16 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
 //__________________________________________________________________________________
 //
 void Region::AddSelection(string selection){
-    if(fSelection=="") fSelection = selection;
+    if(selection=="") return;
+    if(fSelection=="1" || fSelection=="") fSelection = selection;
     else fSelection += " && "+selection;
 }
 
 //__________________________________________________________________________________
 //
 void Region::AddMCweight(string weight){
-    if(fMCweight=="") fMCweight = weight;
+    if(weight=="") return;
+    if(fMCweight=="1" || fMCweight=="") fMCweight = weight;
     else fMCweight += " * "+weight;
 }
 

@@ -1,3 +1,11 @@
+2015-08-11 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * TtHFit.C: Fixed NtupleNameUp and Down option
+        * All: Fixed NP names / titles in plots
+        * HistoTools.C: Fixed issue with one-sided syst symmetrization
+        * All: Fixed memory leak warnings
+        * Common.C/h: overflow/underflow merged to firts/last bin when creating hist from ntup (solving warning from HistoTools)
+        * TtHFit.C: Pruning plot added (created when the option "w" is used)
+        
 2015-07-24 Michele Pinamonti <michele.pinamonti@gmail.com>
         * All: added few options to config file
         * TtHFit.C: rebinning added for ntuple inputs

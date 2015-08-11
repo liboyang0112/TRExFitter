@@ -82,7 +82,28 @@ void CorrelationMatrix::Draw(const string &folder, const double minCorr){
             }
         }
     }
-    const int N = vec_NP.size();
+    int N = vec_NP.size();
+    
+    //
+    // 0.5) Skip some NPs
+    //
+    string npToExclude[] = {"gamma_","stat_"};
+    bool skip = false;
+    std::vector < string > vec_NP_old = vec_NP;
+    vec_NP.clear();
+    for(unsigned int iNP = 0; iNP < vec_NP_old.size(); ++iNP){
+        const string iSystName = vec_NP_old[iNP];
+        skip = false;
+        for(int ii=0; ii<sizeof(npToExclude)/sizeof(string); ii++){
+            if(iSystName.find(npToExclude[ii])!=string::npos){
+                skip = true;
+                continue;
+            }
+        }
+        if(skip) continue;
+        vec_NP.push_back(iSystName);
+    }
+    N = vec_NP.size();
     
     //
     // 1) Performs the plot
@@ -93,8 +114,14 @@ void CorrelationMatrix::Draw(const string &folder, const double minCorr){
     for(unsigned int iNP = 0; iNP < vec_NP.size(); ++iNP){//line number
         const string iSystName = vec_NP[iNP];
         
-        h_corr->GetXaxis()->SetBinLabel(iNP+1,(TString)iSystName);
-        h_corr->GetYaxis()->SetBinLabel(N-iNP,(TString)iSystName);
+        if(TtHFitter::SYSTMAP[iSystName]!=""){
+            h_corr->GetXaxis()->SetBinLabel(iNP+1,(TString)TtHFitter::SYSTMAP[iSystName]);
+            h_corr->GetYaxis()->SetBinLabel(N-iNP,(TString)TtHFitter::SYSTMAP[iSystName]);
+        }
+        else{
+            h_corr->GetXaxis()->SetBinLabel(iNP+1,(TString)iSystName);
+            h_corr->GetYaxis()->SetBinLabel(N-iNP,(TString)iSystName);
+        }
         
         for(unsigned int jNP = 0; jNP < vec_NP.size(); ++jNP){//column number
             const string jSystName = vec_NP[jNP];
