@@ -138,22 +138,24 @@ Here's a list of the inputs and options which can be specifed in the config file
       LineColor        -> histogram line color
       HistoFile        -> valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path
       NtuplePath(s)    -> valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
+      NtupleFile(s)    -> valid only for option NTUP; it's the file name(s) where the input ntuples are stored
       ...
       
     Region:
       Label            -> it's the label which will be showed on the plots and specifies which region is shown
+      ShortLabel       -> same as above, but a shorter version for plots with smaller available place
       Type             -> can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
       HistoName        -> valid only for option HIST; it's the name of the histogram to read from each of the root files
       VariableTitle    -> it's the label which will be displayed on the x-axis in the plots
-      ShortLabel       -> same as above, but a shorter version for plots with smaller available place
       HistoFile        -> only for option HIST, the file name to be used
       HistoName        -> only for option HIST, the histogram name to be used
       NtuplePathSuff(s)-> only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region
       Variable         -> only for option NTUP, the variable (or expression) inside the ntuple to plot
       Selection        -> only for option NTUP, the selection done on the ntuple for this region
       MCweight         -> only for option NTUP, the additional weight sed in this region (for MC samples only)
-      Rebin            -> ...
-      Binning          -> ...
+      Rebin            -> if specified, the histograms will be rebinned merging N bins together, where N is the argument (int)
+      Binning          -> if specified, the histograms will be rebinned according to the new binning specifed, in the form like (0,10,20,50,100)
+      BinWidth         -> if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number
       ...
       
     Systematic:

@@ -20,6 +20,7 @@ class TthPlot {
     void SetYaxis(string name);
     void SetYmaxScale(float scale);
     void SetBinLabel(int bin,string name);
+    void SetBinWidth(float width);
     
     void SetData(TH1* h,string name="Data");
     void AddSignal(TH1* h,string name="Signal");
@@ -59,6 +60,7 @@ class TthPlot {
     string data_name;
     std::vector< string > fBkgNames;
     std::vector< string > fSigNames;
+    std::vector< string > fNormSigNames;
     std::vector< string > fLabels;
     string fLumi;
     string fCME;
@@ -68,6 +70,7 @@ class TthPlot {
     float KSprob;
     
     float fYmin;
+    float fBinWidth;
     
     bool fIsNjet;
     bool fShowYields;
@@ -80,5 +83,7 @@ double GC_up(double data);
 double GC_down(double data);
 TGraphAsymmErrors* poissonize(TH1 *h);
 TGraphAsymmErrors* histToGraph(TH1* h);
+void SetHistBinWidth(TH1* h,float width);
+void SetGraphBinWidth(TGraphAsymmErrors* g,float width);
 
 #endif

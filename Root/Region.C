@@ -43,6 +43,8 @@ Region::Region(string name){
     fMCweight = "1";
     
     fLogScale = false;
+    
+    fBinWidth = 0;
 }
 
 //__________________________________________________________________________________
@@ -328,15 +330,20 @@ TthPlot* Region::DrawPreFit(string opt){
     // build h_tot
     //
     fTot = 0x0;
+    string title;
     if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist,fData->fSample->fTitle);
     if(fHasSig){
-        p->AddSignal(fSig->fHist,fSig->fSample->fTitle);
-        if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(fSig->fHist,fSig->fSample->fTitle+"(norm)");
+        title = fSig->fSample->fTitle;
+        if(fSig->fSample->fGroup != "") title = fSig->fSample->fGroup;
+        p->AddSignal(fSig->fHist,title);
+        if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(fSig->fHist,title+" (norm)");
         if(fTot==0x0) fTot = (TH1*)fSig->fHist->Clone("h_tot");
         else          fTot->Add(fSig->fHist);
     }
     for(int i=0;i<fNBkg;i++){
-        p->AddBackground(fBkg[i]->fHist,fBkg[i]->fSample->fTitle);
+        title = fBkg[i]->fSample->fTitle;
+        if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
+        p->AddBackground(fBkg[i]->fHist,title);
         if(fTot==0x0) fTot = (TH1*)fBkg[i]->fHist->Clone("h_tot");
         else          fTot->Add(fBkg[i]->fHist);
     }
@@ -362,6 +369,7 @@ TthPlot* Region::DrawPreFit(string opt){
     p->SetTotBkgAsym(fErr);
     p->fATLASlabel = "Internal";
     if(fLogScale) opt += " log";
+    if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     p->Draw(opt);
     return p;
 }
@@ -662,6 +670,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     //
     // 3) Add the new Sig and Bkg to plot
     //
+    string title;
     TH1* hBkgNew[MAXsamples];
     TH1* hSigNew;
     for(int i=0, i_bkg=0;i<fNSamples;i++){
@@ -673,8 +682,19 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             hSigNew = hSmpNew[i];
     }
     if(fHasData) p->SetData(fData->fHist,fData->fSample->fTitle);
-    if(fHasSig)  p->AddSignal(hSigNew,fSig->fSample->fTitle);
-    for(int i=0;i<fNBkg;i++) p->AddBackground(hBkgNew[i],fBkg[i]->fSample->fTitle);
+    if(fHasSig){
+        title = fSig->fSample->fTitle;
+        if(fSig->fSample->fGroup != "") title = fSig->fSample->fGroup;
+        p->AddSignal(hSigNew,title);
+        if(TtHFitter::SHOWNORMSIG){
+            p->AddNormSignal(hSigNew,title+" (norm)");
+        }
+    }
+    for(int i=0;i<fNBkg;i++){
+        title = fBkg[i]->fSample->fTitle;
+        if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
+        p->AddBackground(hBkgNew[i],title);
+    }
     
     //
     // 4) Build post-fit error band
@@ -709,6 +729,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->SetTotBkgAsym(fErr_postFit);
     p->fATLASlabel = "Internal"; //FIXME
     if(fLogScale) opt += " log";
+    if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     p->Draw(opt);
     
     //

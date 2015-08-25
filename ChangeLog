@@ -1,3 +1,9 @@
+2015-08-25 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * TthPlot: norm. signal added to legend (to have norm sig, use the option "PlotOptions: "NORMSIG" ")
+        * TthPlot: variable bins divided by bin width / nominal bin width (as region option, specify "BinWidth: ...")
+        * TtHFit.C, Region.C, Sample.C/.h: added Sample::fGroup attribute, to be used to group samples in plots instead of using the same title
+        * TtHFit.C: NtuplePath can be specified for Samples in config file
+
 2015-08-11 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit.C: Fixed NtupleNameUp and Down option
         * All: Fixed NP names / titles in plots

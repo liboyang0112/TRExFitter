@@ -411,6 +411,7 @@ void TtHFit::ReadConfigFile(string fileName){
             }
             reg -> SetBinning(nBounds-1,bins);
         }
+        if(cs->Get("BinWidth")!="") reg->fBinWidth = atof(cs->Get("BinWidth").c_str());
         if(cs->Get("Type")!=""){
             param = cs->Get("Type");
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -432,16 +433,25 @@ void TtHFit::ReadConfigFile(string fileName){
         if(cs->Get("Type")=="data"   || cs->Get("Type")=="DATA")   type = Sample::DATA;
         smp = NewSample(cs->GetValue(),type);
         smp->SetTitle(cs->Get("Title"));
+        param = cs->Get("Group"); if(param!="") smp->fGroup = param;
         if(fInputType==0){
             param = cs->Get("HistoFile"); if(param!="") smp->AddHistoFile( param );
             param = cs->Get("HistoName"); if(param!="") smp->fHistoNames.push_back( param );
         }
         if(fInputType==1){
+            // ntuple files
             param = cs->Get("NtupleFile");
             if(param!="") smp->AddNtupleFile( param );
             param = cs->Get("NtupleFiles");
             if(param!=""){
                 smp->fNtupleFiles = Vectorize( param ,',' );
+            }
+            // ntuple paths
+            param = cs->Get("NtuplePath");
+            if(param!="") smp->AddNtuplePath( param );
+            param = cs->Get("NtuplePaths");
+            if(param!=""){
+                smp->fNtuplePaths = Vectorize( param ,',' );
             }
         }
         if(cs->Get("FillColor")!="")
@@ -600,10 +610,11 @@ void TtHFit::ReadNtuples(){
             // Common::CreatePathsList( vector<string> paths, vector<string> pathSufs,
             //                          vector<string> files, vector<string> filesSuf,
             //                          vector<string> names, vector<string> namesSuf);
-            fullPaths = CreatePathsList( fNtuplePaths, fRegions[i_ch]->fNtuplePathSuffs,
-                                        fSamples[i_smp]->fNtupleFiles, empty, // no ntuple file suffs for nominal (syst only)
+            fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
+                                         fRegions[i_ch]->fNtuplePathSuffs,
+                                         fSamples[i_smp]->fNtupleFiles, empty, // no ntuple file suffs for nominal (syst only)
 //                                         ToVec( fNtupleName ), empty  // same for ntuple name
-                                        fRegions[i_ch]->fNtupleNames.size()>0 ? fRegions[i_ch]->fNtupleNames : ToVec( fNtupleName ), empty  // NEW
+                                         fRegions[i_ch]->fNtupleNames.size()>0 ? fRegions[i_ch]->fNtupleNames : ToVec( fNtupleName ), empty  // NEW
                                         );
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                 htmp = HistFromNtuple( fullPaths[i_path],
@@ -671,7 +682,7 @@ void TtHFit::ReadNtuples(){
                 fullPaths.clear();
                 fullPaths = CreatePathsList(
                                             // path
-                                            fNtuplePaths,
+                                            fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
                                             // path suf
                                             CombinePathSufs(
                                                             fRegions[i_ch]->fNtuplePathSuffs,
@@ -735,7 +746,7 @@ void TtHFit::ReadNtuples(){
                 fullPaths.clear();
                 fullPaths = CreatePathsList(
                                             // path
-                                            fNtuplePaths,
+                                            fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
                                             // path suf
                                             CombinePathSufs(
                                                             fRegions[i_ch]->fNtuplePathSuffs,
@@ -1121,6 +1132,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         name = fSamples[i_smp]->fName.c_str();
         title = fSamples[i_smp]->fTitle.c_str();
+        if(fSamples[i_smp]->fGroup != "") title = fSamples[i_smp]->fGroup.c_str();
         lineColor = fRegions[0]->fSampleHists[i_smp]->fHist->GetLineColor();
         fillColor = fRegions[0]->fSampleHists[i_smp]->fHist->GetFillColor();
         lineWidth = fRegions[0]->fSampleHists[i_smp]->fHist->GetLineWidth();

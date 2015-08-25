@@ -56,7 +56,10 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
         fBinLabel[i_bin] = "";
     //
     fSigNames.clear();
+    fNormSigNames.clear();
     fBkgNames.clear();
+    
+    fBinWidth = -1;
 }
 
 //_____________________________________________________________________________
@@ -111,6 +114,12 @@ void TthPlot::SetBinLabel(int bin,string name){
 
 //_____________________________________________________________________________
 //
+void TthPlot::SetBinWidth(float width){
+    fBinWidth = width;
+}
+
+//_____________________________________________________________________________
+//
 void TthPlot::SetData(TH1* h,string name){
     h_data = (TH1*)h->Clone();
     data_name = name;
@@ -127,7 +136,7 @@ void TthPlot::AddSignal(TH1* h,string name){
 //
 void TthPlot::AddNormSignal(TH1* h,string name){
     h_normsig = (TH1*)h->Clone(name.c_str());
-    //   fSigNames.push_back(name);
+    fNormSigNames.push_back(name);
 }
 
 //_____________________________________________________________________________
@@ -247,6 +256,7 @@ void TthPlot::Draw(string options){
         h_normsig->SetFillColor(0);
         h_normsig->SetFillStyle(0);
         h_normsig->SetLineStyle(2);
+        h_normsig->SetLineWidth(2);
         h_normsig->Draw("HISTsame");
     }
     
@@ -303,7 +313,7 @@ void TthPlot::Draw(string options){
     
     if(fShowYields){
         legXmid = legX1+0.6*(legX2-legX1);
-        leg  = new TLegend(legX1,0.93-(fBkgNames.size()+fSigNames.size()+2)*0.06, legXmid,0.93);
+        leg  = new TLegend(legX1,0.93-(fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+2)*0.05, legXmid,0.93);
         leg1 = new TLegend(legXmid,leg->GetY1(), legX2,leg->GetY2());
         //
         leg->SetFillStyle(0);
@@ -325,8 +335,9 @@ void TthPlot::Draw(string options){
         }
         
         //Signal and background legends
-        leg->AddEntry(h_signal,fSigNames[0].c_str(),"f");
+        if(h_signal)  leg->AddEntry(h_signal, fSigNames[0].c_str(),    "f");
         leg1->AddEntry((TObject*)0,Form("%.1f",h_signal->Integral()),"");
+//         if(h_normsig) leg->AddEntry(h_normsig,fNormSigNames[0].c_str(),"f");
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
             leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
             leg1->AddEntry((TObject*)0,Form("%.1f",h_bkg[i_smp]->Integral()),"");
@@ -339,7 +350,7 @@ void TthPlot::Draw(string options){
         leg1->Draw();
     }
     else{
-        leg  = new TLegend(legX1,0.93-(fBkgNames.size()+fSigNames.size()+2)*0.06/2., legX2,0.93);
+        leg  = new TLegend(legX1,0.93-((fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+2)/2)*0.05, legX2,0.93);
         leg->SetNColumns(2);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
@@ -352,7 +363,8 @@ void TthPlot::Draw(string options){
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
         
         //Signal and background legend
-        leg->AddEntry(h_signal,fSigNames[0].c_str(),"f");
+        if(h_signal)  leg->AddEntry(h_signal, fSigNames[0].c_str(),    "f");
+        if(h_normsig) leg->AddEntry(h_normsig,fNormSigNames[0].c_str(),"f");
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
             leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
         }
@@ -368,7 +380,7 @@ void TthPlot::Draw(string options){
     TH1* h_dummy2 = (TH1*)h_tot->Clone("h_dummy2");
     h_dummy2->Scale(0);
     h_dummy2->Draw("HIST");
-    h_dummy2->GetYaxis()->SetTitleOffset(1.4*h_dummy->GetTitleOffset());
+    h_dummy2->GetYaxis()->SetTitleOffset(1.*h_dummy->GetYaxis()->GetTitleOffset());
     
     //
     // Initialising the ratios
@@ -443,7 +455,7 @@ void TthPlot::Draw(string options){
     }
     
     h_dummy2->GetXaxis()->SetTitle(h_dummy->GetXaxis()->GetTitle());
-    h_dummy2->GetXaxis()->SetTitleOffset(4.);
+    h_dummy2->GetXaxis()->SetTitleOffset(5.);
     h_dummy->GetXaxis()->SetTitle("");
     h_dummy->GetXaxis()->SetLabelSize(0);
     
@@ -543,6 +555,30 @@ void TthPlot::Draw(string options){
         KSlab->DrawLatex(0.15,0.9,Form("#chi^{2} prob = %.2f,   KS prob = %.2f",Chi2prob,KSprob));
     //
     pad0->cd();
+    
+    // 
+    // Set bin width and eventually divide larger bins by this bin width
+    if(fBinWidth>0){
+        if(h_signal)  SetHistBinWidth(h_signal,fBinWidth);
+        if(h_normsig) SetHistBinWidth(h_normsig,fBinWidth);
+        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
+            SetHistBinWidth(h_bkg[i_smp],fBinWidth);  
+        }
+        if(h_tot) SetHistBinWidth(h_tot,fBinWidth);
+        if(g_tot) SetGraphBinWidth(g_tot,fBinWidth);
+        if(h_data) SetHistBinWidth(h_data,fBinWidth);
+        if(g_data) SetGraphBinWidth(g_data,fBinWidth);
+        // try to guess y axis label...
+        if(ytitle=="Events"){
+            if(xtitle.find("GeV")!=string::npos){
+                ytitle = Form("Events / %.0f GeV",fBinWidth);
+            }
+            else{
+                ytitle = Form("Events / %.2f",fBinWidth);
+            }
+            h_dummy->GetYaxis()->SetTitle(ytitle.c_str());
+        }
+    }
 }
 
 void TthPlot::SaveAs(string name){
@@ -618,4 +654,31 @@ TGraphAsymmErrors* histToGraph(TH1* h){
     gr->SetLineColor(h->GetLineColor());
     gr->SetLineStyle(h->GetLineStyle());
     return gr;
+}
+
+//_____________________________________________________________________________
+//
+void SetHistBinWidth(TH1* h,float width){
+    float epsilon = 0.00000001;
+    for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
+        if(TMath::Abs(h->GetBinWidth(i_bin)-width)>epsilon){
+            h->SetBinContent(i_bin,h->GetBinContent(i_bin)*width/h->GetBinWidth(i_bin));
+            h->SetBinError(  i_bin,h->GetBinError(i_bin)  *width/h->GetBinWidth(i_bin));
+        }
+    }
+}
+
+//_____________________________________________________________________________
+//
+void SetGraphBinWidth(TGraphAsymmErrors* g,float width){
+    float epsilon = 0.00000001;
+    float w;
+    for(int i_bin=0;i_bin<g->GetN();i_bin++){
+        w = g->GetErrorXhigh(i_bin)+g->GetErrorXlow(i_bin);
+        if(TMath::Abs(w-width)>epsilon){
+            g->SetPoint(      i_bin,g->GetX()[i_bin], g->GetY()[i_bin]*width/w);
+            g->SetPointEYhigh(i_bin,g->GetErrorYhigh(i_bin)*width/w);
+            g->SetPointEYlow( i_bin,g->GetErrorYlow(i_bin) *width/w);
+        }
+    }
 }

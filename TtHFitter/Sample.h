@@ -63,6 +63,7 @@ public:
     int fType;
     string fFitName;
     string fTitle;
+    string fGroup;
     int fFillColor;
     int fLineColor;
     bool fNormalizedByTheory;

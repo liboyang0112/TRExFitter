@@ -151,6 +151,8 @@ public:
     string fCmeLabel;
     
     bool fLogScale;
+    
+    float fBinWidth;
 };
 
 
