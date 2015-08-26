@@ -165,10 +165,21 @@ string ReplaceString(string subject, const string& search,
 //
 int FindInStringVector(std::vector< string > v, string s){
     int idx = -1;
+    string s1;
+    string s2;
     for(unsigned int i=0;i<v.size();i++){
-        if(v[i]==s){
+        s1 = v[i];
+        if(s1==s){
             idx = (int)i;
             break;
+        }
+        // if last character is "*"...
+        if(s1[s1.size()-1]=='*'){
+            s2 = s1.substr(0,s1.size()-1);
+            if(s.find(s2)!=string::npos){
+                idx = (int)i;
+                break;
+            }
         }
     }
     return idx;

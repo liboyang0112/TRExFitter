@@ -1,3 +1,6 @@
+2015-08-26 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * mainly TtHFit.C & myFit.C: command line argument added: a list of options. See README file for details.
+        
 2015-08-25 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TthPlot: norm. signal added to legend (to have norm sig, use the option "PlotOptions: "NORMSIG" ")
         * TthPlot: variable bins divided by bin width / nominal bin width (as region option, specify "BinWidth: ...")

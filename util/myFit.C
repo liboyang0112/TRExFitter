@@ -19,7 +19,7 @@
 // -------------------------------------------------------
 // -------------------------------------------------------
 
-void FitExample(string opt="h",string configFile="util/myFit.config",bool update=false){
+void FitExample(string opt="h",string configFile="util/myFit.config",bool update=false,string options=""){
     SetAtlasStyle();
     
     // interpret opt
@@ -33,7 +33,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
     bool drawPostFit     = opt.find("p")!=string::npos;
     
     TtHFit *myFit = new TtHFit();
-    myFit->ReadConfigFile(configFile);
+    myFit->ReadConfigFile(configFile,options);
     
     // check compatibility between run option and config file
     if(readHistograms && myFit->fInputType!=TtHFit::HIST){
@@ -121,13 +121,15 @@ int main(int argc, char **argv){
   string opt="h";
   string config="util/myFit.config";
   bool update=false;
+  string options="";
   
   if(argc>1) opt    = argv[1];
   if(argc>2) config = argv[2];
   if(argc>3) update = atoi(argv[3])!=0;
+  if(argc>4) options = argv[4];
 
   // call the function
-  FitExample(opt,config,update);
+  FitExample(opt,config,update,options);
   
   return 0;
 }

@@ -280,7 +280,7 @@ void FitResults::DrawPulls(string path){
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawCorrelationMatrix(const string &path, const double corrMin){
+void FitResults::DrawCorrelationMatrix(string path, const double corrMin){
     if(fCorrMatrix){
         fCorrMatrix->Draw(path, corrMin);
     }

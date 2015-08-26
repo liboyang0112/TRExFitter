@@ -51,6 +51,8 @@ TtHFit::TtHFit(string name){
     fInputType = HIST;
     
     fHistoCheckCrash = true;
+    
+    fSaveSuf = "";
 }
 
 //__________________________________________________________________________________
@@ -194,7 +196,8 @@ void TtHFit::WriteHistos(string fileName,bool recreate){
   gSystem->mkdir( fName.c_str() );
 //     if(fileName=="") fileName = fName + "_histos.root";
     if(fileName==""){
-        fileName = fName + "/Histograms/" + fName + "_histos.root";
+//         fileName = fName + "/Histograms/" + fName + "_histos.root";
+        fileName = fName + "/Histograms/" + fName + "_histos"+fSaveSuf+".root";
         gSystem->mkdir( (fName + "/Histograms/").c_str() );
     }
     cout << "-------------------------------------------" << endl;
@@ -252,12 +255,68 @@ void TtHFit::DrawSystPlots(){
 
 //__________________________________________________________________________________
 // Build fit from config file
-void TtHFit::ReadConfigFile(string fileName){
+void TtHFit::ReadConfigFile(string fileName,string options){
     fConfig->ReadFile(fileName);
     ConfigSet *cs; // to store stuff later
     string param;
     std::vector< string > vec;
     int type;
+    //
+    // Read options (to skip stuff, or include only some regions, samples, systs...)
+    // Syntax: .. .. Regions=ge4jge2b;Exclude=singleTop
+    std::map< string,string > optMap; optMap.clear();
+    std::vector< string > optVec;
+    std::vector< string > onlyRegions; onlyRegions.clear();
+    std::vector< string > onlySamples; onlySamples.clear();
+    std::vector< string > onlySystematics; onlySystematics.clear();
+    std::vector< string > toExclude; toExclude.clear();
+    if(options!=""){
+        optVec = Vectorize(options,';');
+        for(unsigned int i_opt=0;i_opt<optVec.size();i_opt++){
+            std::vector< string > optPair;
+            optPair = Vectorize(optVec[i_opt],'=');
+            optMap[optPair[0]] = optPair[1];
+        }
+        //
+        if(optMap["Regions"]!="")
+            onlyRegions = Vectorize(optMap["Regions"],',');
+        if(optMap["Samples"]!="")
+            onlySamples = Vectorize(optMap["Samples"],',');
+        if(optMap["Systematics"]!="")
+            onlySystematics = Vectorize(optMap["Systematics"],',');
+        if(optMap["Exclude"]!="")
+            toExclude = Vectorize(optMap["Exclude"],',');
+        if(optMap["SaveSuf"]!="")
+            fSaveSuf = optMap["SaveSuf"];
+        //
+        std::cout << "-------------------------------------------" << std::endl;
+        std::cout << "Running options: " << std::endl;
+        if(onlyRegions.size()>0){
+            std::cout << "  Only these Regions: " << std::endl;
+            for(int i=0;i<onlyRegions.size();i++){
+                std::cout << "    " << onlyRegions[i] << std::endl;
+            }
+        }
+        if(onlySamples.size()>0){
+            std::cout << "  Only these Samples: " << std::endl;
+            for(int i=0;i<onlySamples.size();i++){
+                std::cout << "    " << onlySamples[i] << std::endl;
+            }
+        }
+        if(onlySystematics.size()>0){
+            std::cout << "  Only these Systematics: " << std::endl;
+            for(int i=0;i<onlySystematics.size();i++){
+                std::cout << "    " << onlySystematics[i] << std::endl;
+            }
+        }
+        if(toExclude.size()>0){
+            std::cout << "  Exclude: " << std::endl;
+            for(int i=0;i<toExclude.size();i++){
+                std::cout << "    " << toExclude[i] << std::endl;
+            }
+        }
+    }
+    
     //
     // set fit
     cs = fConfig->GetConfigSet("Fit");
@@ -366,6 +425,9 @@ void TtHFit::ReadConfigFile(string fileName){
     while(true){
         cs = fConfig->GetConfigSet("Region",nReg);
         if(cs==0x0) break;
+        nReg++;
+        if(onlyRegions.size()>0 && FindInStringVector(onlyRegions,cs->GetValue())<0) continue;
+        if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
         reg = NewRegion(cs->GetValue());
         reg->SetVariableTitle(cs->Get("VariableTitle"));
         reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
@@ -419,7 +481,6 @@ void TtHFit::ReadConfigFile(string fileName){
             if( param=="VALIDATION" )  reg -> SetRegionType(Region::VALIDATION);
             if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
         }
-        nReg++;
     }
     //
     // set samples 
@@ -428,6 +489,9 @@ void TtHFit::ReadConfigFile(string fileName){
     while(true){
         cs = fConfig->GetConfigSet("Sample",nSmp);
         if(cs==0x0) break;
+        nSmp++;
+        if(onlySamples.size()>0 && FindInStringVector(onlySamples,cs->GetValue())<0) continue;
+        if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
         type = Sample::BACKGROUND;
         if(cs->Get("Type")=="signal" || cs->Get("Type")=="SIGNAL") type = Sample::SIGNAL;
         if(cs->Get("Type")=="data"   || cs->Get("Type")=="DATA")   type = Sample::DATA;
@@ -477,7 +541,6 @@ void TtHFit::ReadConfigFile(string fileName){
             if(param!="")  smp->SetMCweight( param );
         }
         // ...
-        nSmp++;
     }
     //
     // set systs
@@ -487,6 +550,9 @@ void TtHFit::ReadConfigFile(string fileName){
     while(true){
         cs = fConfig->GetConfigSet("Systematic",nSys);
         if(cs==0x0) break;
+        nSys++;
+        if(onlySystematics.size()>0 && FindInStringVector(onlySystematics,cs->GetValue())<0) continue;
+        if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
         string samples_str = cs->Get("Samples");
         string exclude_str = cs->Get("Exclude");
         if(samples_str=="") samples_str = "all";
@@ -567,7 +633,6 @@ void TtHFit::ReadConfigFile(string fileName){
             }
         }
         // ...
-        nSys++;
     }
 }
 
@@ -1095,12 +1160,12 @@ void TtHFit::DrawAndSaveAll(string opt){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
         if(isPostFit){
             p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
-            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit.png" ).c_str());
+            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSaveSuf+".png" ).c_str());
 //             p->WriteToFile((fName+"/"+fRegions[i_ch]->fName+"_postFit.root").c_str());
         }
         else{
             p = fRegions[i_ch]->DrawPreFit(opt);
-            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+".png" ).c_str());            
+            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSaveSuf+".png" ).c_str());            
 //             p->WriteToFile((fName+"/"+fRegions[i_ch]->fName+".root").c_str());
         }
     }
@@ -1242,8 +1307,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
-    if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit.png").c_str());
-    else           p->SaveAs((fName+"/Plots/Summary.png").c_str());
+    if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSaveSuf+".png").c_str());
+    else           p->SaveAs((fName+"/Plots/Summary"+fSaveSuf+".png").c_str());
     //
     return p;
 }
@@ -1536,7 +1601,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         h[i]->SetMaximum(yMax*1.5);
     }
     //
-    c->SaveAs((fName+"/SignalRegions.png").c_str());
+    c->SaveAs((fName+"/SignalRegions"+fSaveSuf+".png").c_str());
 }
 
 //__________________________________________________________________________________
@@ -1765,7 +1830,7 @@ void TtHFit::DrawPruningPlot(){
     leg->SetTextSize(0.85*gStyle->GetTextSize());
     leg->Draw();
     //
-    c->SaveAs( (fName+"/Pruning.png").c_str() );
+    c->SaveAs( (fName+"/Pruning"+fSaveSuf+".png").c_str() );
 }
 
 //__________________________________________________________________________________
@@ -1818,8 +1883,9 @@ void TtHFit::PlotFittedNP(){
     if(fFitType==BONLY)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
     else if(fFitType==SPLUSB) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
     if(fFitResults){
-        if(fFitType==BONLY) fFitResults->DrawPulls(fName+"/NuisPar_Bonly.png");
-        else if(fFitType==SPLUSB) fFitResults->DrawPulls(fName+"/NuisPar_SplusB.png");
+//         if(fFitType==BONLY) fFitResults->DrawPulls(fName+"/NuisPar_Bonly"+fSaveSuf+".png");
+//         else if(fFitType==SPLUSB) fFitResults->DrawPulls(fName+"/NuisPar_SplusB"+fSaveSuf+".png");
+        fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+".png");
     }
 }
 
@@ -1830,7 +1896,7 @@ void TtHFit::PlotCorrelationMatrix(){
     if(fFitType==BONLY)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
     else if(fFitType==SPLUSB) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
     if(fFitResults){
-        fFitResults->DrawCorrelationMatrix(fName+"/",TtHFitter::CORRELATIONTHRESHOLD);
+        fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSaveSuf+".png",TtHFitter::CORRELATIONTHRESHOLD);
     }
 }
 

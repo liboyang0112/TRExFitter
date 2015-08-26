@@ -70,7 +70,7 @@ public:
     void DrawSystPlots();
     
     // config file
-    void ReadConfigFile(string fileName);
+    void ReadConfigFile(string fileName,string options="");
     
     // read from ..
     void ReadNtuples();
@@ -158,6 +158,8 @@ public:
     
     string fLumiLabel;
     string fCmeLabel;
+    
+    string fSaveSuf;
 };
 
 #endif

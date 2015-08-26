@@ -54,7 +54,7 @@ float CorrelationMatrix::GetCorrelation(string p0,string p1){
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::Draw(const string &folder, const double minCorr){
+void CorrelationMatrix::Draw(string path, const double minCorr){
     
 //     gStyle -> Reset();
     
@@ -161,7 +161,8 @@ void CorrelationMatrix::Draw(const string &folder, const double minCorr){
     h_corr->Draw("col TEXT");
     c1->RedrawAxis("g");
 
-    c1 -> Print((TString)folder + "/CorrMatrix.png");
+//     c1 -> Print((TString)folder + "/CorrMatrix"+fSaveSuf+".png");
+    c1->SaveAs(path.c_str());
     delete c1;
 }
 

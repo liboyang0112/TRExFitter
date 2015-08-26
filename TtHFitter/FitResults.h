@@ -19,7 +19,7 @@ public:
     float GetNuisParErrDown(string p);
     void ReadFromTXT(string fileName);
     void DrawPulls(string path);
-    void DrawCorrelationMatrix( const string &path, const double corrMin = -1. );
+    void DrawCorrelationMatrix(string path, const double corrMin = -1. );
     
     //
     // Data members

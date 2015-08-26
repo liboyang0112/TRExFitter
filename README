@@ -4,8 +4,8 @@ TtHFitter package
 Authors:
   Michele Pinamonti <michele.pinamonti@gmail.com>
   Loic Valery <loic.valery@cern.ch>
-Latest Update:   18 Jun 2015
-Tag:             00-00-01
+Latest Update:   26 Aug 2015
+Tag:             00-00-02
 
 
 ---------
@@ -26,14 +26,15 @@ or specify a custom main file as argument:
 How to   
 ---------
 To run the code, after compiling (see "Setup"), use the command:
-    ./myFit.exe  <option(s)>  <config file>
+    ./myFit.exe  <action(s)>  [<config file>]  [<update>]  [<options>]
 
 The configuration file (<config file>) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
+By default the file  utils/myFit.config  is loaded.
 See the section "Config File" for more details.
-As an example give a look at  util/myFit.config .
+As examples give a look at  util/myFit.config  or  utils/ttH2015.config .
 Most of the times the only file the user has to modify to get his fit is the configuration file. 
 
-The other argument, <option(s)>, tells to the TtHFitter which operation(s) to perform. 
+The only mandatory argument, <action(s)>, tells to the TtHFitter which operation(s) to perform. 
 The possible operations are defined in the main file (e.g. util/myFit.C). 
 For instance, if you use the default file util/myFit.C, the available options are:
     h : read input histograms (valid only if the proper option is spefified in the config file)
@@ -44,6 +45,14 @@ For instance, if you use the default file util/myFit.C, the available options ar
     s : calculate significance
     d : draw pre-fit plots
     p : draw post-fit plots
+
+The argument <update> can be 0 or 1 and tells the tool whether the root file containing the histograms should be overwritten or updated.
+Use only for actions n and h.
+
+New optional argument: <options>.
+It's a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form:
+    "<option1>=<value1>,<value2>,...;<option2>=..."
+See the section "Command line options" above.
     
 
 ---------
@@ -198,6 +207,18 @@ Here's a list of the inputs and options which can be specifed in the config file
       NtupleNamesUp    -> only for option NTUP, for HISTO systematic: ntuple name for systematic up variation
       NtupleNamesDown  -> only for option NTUP, for HISTO systematic: ntuple name for systematic down variation
       ...
+
+---------
+Command line options
+---------
+
+Currently the supported options are:
+      Regions:  to limit the regions to use to the list specified
+      Samples:  to limit the samples to use to the list specified
+      Systematics:  to limit the systematics to use to the list specified
+      Exclude: to exclude certain Regions / Samples / Systematics
+Note: the wild-card * is supported, but only as last character.
+
 
 ---------
 Output Directories Structure

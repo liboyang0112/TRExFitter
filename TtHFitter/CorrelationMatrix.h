@@ -15,7 +15,7 @@ public:
     void AddNuisPar(string p);
     void SetCorrelation(string p0,string p1,float corr);
     float GetCorrelation(string p0,string p1);
-    void Draw(const string &name, const double corrMin = -1.);
+    void Draw(string path, const double corrMin = -1.);
     
     //
     // Data members
