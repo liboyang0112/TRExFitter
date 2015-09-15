@@ -52,7 +52,11 @@ TtHFit::TtHFit(string name){
     
     fHistoCheckCrash = true;
     
+    fSuffix = "";
     fSaveSuf = "";
+    fLoadSuf = "";
+    
+    fUpdate = false;
 }
 
 //__________________________________________________________________________________
@@ -192,7 +196,8 @@ void TtHFit::SmoothSystematics(string syst){
 
 //__________________________________________________________________________________
 // create new root file with all the histograms
-void TtHFit::WriteHistos(string fileName,bool recreate){
+void TtHFit::WriteHistos(string fileName){
+  bool recreate = !fUpdate;
   gSystem->mkdir( fName.c_str() );
 //     if(fileName=="") fileName = fName + "_histos.root";
     if(fileName==""){
@@ -286,8 +291,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             onlySystematics = Vectorize(optMap["Systematics"],',');
         if(optMap["Exclude"]!="")
             toExclude = Vectorize(optMap["Exclude"],',');
+        if(optMap["Suffix"]!="")
+            fSuffix = optMap["Suffix"]; // used for: plots, workspace, NOT for histograms file
         if(optMap["SaveSuf"]!="")
-            fSaveSuf = optMap["SaveSuf"];
+            fSaveSuf = optMap["SaveSuf"]; // used for outout histograms file and for plots
+        if(optMap["LoadSuf"]!="")
+            fLoadSuf = optMap["LoadSuf"]; // used for input workspace, fit results, etc...
+        if(optMap["Update"]!="" && optMap["Update"]!="FALSE")
+            fUpdate = true;
         //
         std::cout << "-------------------------------------------" << std::endl;
         std::cout << "Running options: " << std::endl;
@@ -1153,8 +1164,7 @@ void TtHFit::DrawAndSaveAll(string opt){
     gSystem->mkdir((fName+"/Plots").c_str());
     bool isPostFit = opt.find("post")!=string::npos;
     if(isPostFit){
-        if(fFitType==BONLY)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
-        else if(fFitType==SPLUSB) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+        ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
@@ -1857,22 +1867,21 @@ void TtHFit::Fit(){
         }
     }
     
-    if(hasData){
-        if(fFitType==BONLY){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",algo,workspace.c_str(),outputDir.c_str());
-            gSystem->Exec(cmd.c_str());
-        } else if(fFitType==SPLUSB){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",algo,workspace.c_str(),outputDir.c_str());
-            gSystem->Exec(cmd.c_str());
-        }
-    } else {
-        if(fFitType==BONLY){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",algo,workspace.c_str(),outputDir.c_str());
-            gSystem->Exec(cmd.c_str());
-        } else if(fFitType==SPLUSB){
-            string cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",algo,workspace.c_str(),outputDir.c_str());
-            gSystem->Exec(cmd.c_str());
-        }
+    // create fit result directory, perform fit and move resutls to the nwe directory
+    gSystem->mkdir(fName.c_str());
+    gSystem->mkdir((fName+"/Fits").c_str());    
+    string cmd;
+    if(fFitType==BONLY){
+        if(hasData) cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",algo,workspace.c_str(),outputDir.c_str());
+        else        cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",algo,workspace.c_str(),outputDir.c_str());
+        gSystem->Exec(cmd.c_str());
+        gSystem->Exec(("scp  "+fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt  "+fName+"/Fits/"+fName+fSaveSuf+".txt" ).c_str());
+    }
+    else if(fFitType==SPLUSB){
+        if(hasData) cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",algo,workspace.c_str(),outputDir.c_str());
+        else        cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",algo,workspace.c_str(),outputDir.c_str());
+        gSystem->Exec(cmd.c_str());
+        gSystem->Exec(("scp  "+fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt  "+fName+"/Fits/"+fName+fSaveSuf+".txt" ).c_str());
     }
 }
 
@@ -1880,11 +1889,8 @@ void TtHFit::Fit(){
 //
 void TtHFit::PlotFittedNP(){    
     // plot the NP fit plot
-    if(fFitType==BONLY)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
-    else if(fFitType==SPLUSB) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+    ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
     if(fFitResults){
-//         if(fFitType==BONLY) fFitResults->DrawPulls(fName+"/NuisPar_Bonly"+fSaveSuf+".png");
-//         else if(fFitType==SPLUSB) fFitResults->DrawPulls(fName+"/NuisPar_SplusB"+fSaveSuf+".png");
         fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+".png");
     }
 }
@@ -1893,8 +1899,7 @@ void TtHFit::PlotFittedNP(){
 //
 void TtHFit::PlotCorrelationMatrix(){
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
-    if(fFitType==BONLY)            ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt");
-    else if(fFitType==SPLUSB) ReadFitResults(fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt");
+    ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
     if(fFitResults){
         fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSaveSuf+".png",TtHFitter::CORRELATIONTHRESHOLD);
     }
@@ -1916,11 +1921,11 @@ void TtHFit::GetLimit(){
     if(hasData){
 //         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
 //         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./limits/\",\""+fName+"\",0.95)'";
-        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
+        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
         gSystem->Exec(cmd.c_str());
     } else {
 //         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./limits/\",\""+fName+"_blind\",0.95)'";
-        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
+        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
         gSystem->Exec(cmd.c_str());
     }
 }
@@ -1967,7 +1972,7 @@ void TtHFit::ReadFitResults(string fileName){
             if(fSystematics[j]->fName == fFitResults->fNuisPar[i]->fName){
                 fFitResults->fNuisPar[i]->fTitle = fSystematics[j]->fTitle;
             }
-            cout << endl;
+//             cout << endl;
         }
     }
 }

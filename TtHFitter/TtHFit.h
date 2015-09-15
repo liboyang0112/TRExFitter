@@ -18,11 +18,6 @@ class ConfigParser;
 class TtHFit {
 public:
     
-  //  enum FitType {
-  //      CONTROL = 1,
-  //      CONTROLSIGNAL = 2
-  //  };
-    
     enum FitType {
         SPLUSB = 1,
         BONLY = 2
@@ -65,7 +60,7 @@ public:
     void SmoothSystematics(string syst="all");
     
     // create new root file with all the histograms
-    void WriteHistos(string fileName="",bool recreate=true);
+    void WriteHistos(string fileName="");
     
     void DrawSystPlots();
     
@@ -149,7 +144,6 @@ public:
     
     ConfigParser *fConfig;
     
-//     bool fShowYields;
     bool fSystControlPlots;
     
     std::vector<string> fRegionsToPlot;
@@ -159,7 +153,11 @@ public:
     string fLumiLabel;
     string fCmeLabel;
     
+    string fSuffix;
     string fSaveSuf;
+    string fLoadSuf;
+    
+    bool fUpdate;
 };
 
 #endif

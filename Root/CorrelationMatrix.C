@@ -62,23 +62,20 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     // 0) Determines the number of lines/columns
     //
     std::vector < string > vec_NP = fNuisParNames;
-    
     if(minCorr>-1){
-        
         vec_NP.clear();
-        for(unsigned int iNP = 0; iNP < fNuisParNames.size()-1; ++iNP){
+        for(unsigned int iNP = 0; iNP < fNuisParNames.size(); ++iNP){
             const string iSystName = fNuisParNames[iNP];
-            
-            for(unsigned int jNP = iNP+1; jNP < fNuisParNames.size(); ++jNP){
+//             for(unsigned int jNP = iNP+1; jNP < fNuisParNames.size(); ++jNP){
+            for(unsigned int jNP = 0; jNP < fNuisParNames.size(); ++jNP){
+                if(jNP == iNP) continue;
                 const string jSystName = fNuisParNames[jNP];
-                
                 double corr = GetCorrelation(iSystName, jSystName);
                 if(abs(corr)>=minCorr){
-                    std::cout << minCorr << "    " << corr << std::endl;
+                    std::cout << iSystName << " " << minCorr << "    " << corr << " (" << jSystName << ")" << std::endl;
                     vec_NP.push_back(iSystName);
                     break;
                 }
-                
             }
         }
     }
@@ -126,7 +123,8 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
         for(unsigned int jNP = 0; jNP < vec_NP.size(); ++jNP){//column number
             const string jSystName = vec_NP[jNP];
     
-            h_corr -> SetBinContent(N-jNP,iNP+1,100.*GetCorrelation(iSystName, jSystName));
+            h_corr -> SetBinContent(iNP+1,N-jNP,100.*GetCorrelation(iSystName, jSystName));
+//             h_corr -> SetBinContent(N-jNP,iNP+1,100.*GetCorrelation(iSystName, jSystName));
             
         }
     }
@@ -135,20 +133,22 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     
     int size = 500;
     if(vec_NP.size()>10){
-      size = vec_NP.size()*50;
+        size = vec_NP.size()*50;
     }
     
     //
     // 2) Style settings
     //
-    TCanvas *c1 = new TCanvas("","",0.,0.,size+100,size+100);
+    TCanvas *c1 = new TCanvas("","",0.,0.,size+300,size+300);
     gStyle->SetPalette(1);
     h_corr->SetMarkerSize(0.75*1000);
     gStyle->SetPaintTextFormat(".1f");
-    gPad->SetLeftMargin(0.5*600/(size+100));
-    gPad->SetBottomMargin(0.5*600/(size+100));
-    gPad->SetRightMargin(0.1*600/(size+100));
-    gPad->SetTopMargin(0.1*600/(size+100));
+    gPad->SetLeftMargin(0.5*600/(size+300));
+    gPad->SetBottomMargin(0.5*600/(size+300));
+//     gPad->SetRightMargin(0.1*600/(size+100));
+//     gPad->SetTopMargin(0.1*600/(size+100));
+    gPad->SetRightMargin(0.);
+    gPad->SetTopMargin(0.);
     
     h_corr->GetXaxis()->LabelsOption("v");
     h_corr->GetXaxis()->SetLabelSize( h_corr->GetXaxis()->GetLabelSize()*0.75 );
@@ -165,11 +165,3 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     c1->SaveAs(path.c_str());
     delete c1;
 }
-
-
-
-
-
-
-
-

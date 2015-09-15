@@ -13,14 +13,26 @@
 #include "TtHFitter/TthPlot.h"
 #include "TtHFitter/ConfigParser.h"
 #include "TtHFitter/HistoTools.h"
+#include "TtHFitter/MultiFit.h"
 
 #include <string>
 
 // -------------------------------------------------------
 // -------------------------------------------------------
 
-void FitExample(string opt="h",string configFile="util/myFit.config",bool update=false,string options=""){
+void FitExample(string opt="h",string configFile="util/myFit.config",string options=""){
     SetAtlasStyle();
+    
+    // multi-fit
+    bool isMultiFit      = opt.find("m")!=string::npos;    
+    if(isMultiFit){
+        MultiFit *myMultiFit = new MultiFit();
+        myMultiFit->ReadConfigFile(configFile,options);
+        myMultiFit->ComparePulls();
+        myMultiFit->ComparePOI("SigXsecOverSM");
+        myMultiFit->CompareLimit();
+        return;
+    }
     
     // interpret opt
     bool readHistograms  = opt.find("h")!=string::npos;
@@ -52,17 +64,17 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
         myFit->Print();
         myFit->SmoothSystematics("all");
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        myFit->WriteHistos("",!update);
+        myFit->WriteHistos();
     }
     else if(readNtuples){
         myFit->ReadNtuples();
         myFit->Print();
         myFit->SmoothSystematics("all");
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        myFit->WriteHistos("",!update);
+        myFit->WriteHistos();
     }
     else{
-        myFit->ReadHistos();
+        if(drawPreFit || drawPostFit || createWorkspace) myFit->ReadHistos();
     }
       
     if(drawPreFit){
@@ -120,16 +132,14 @@ void FitExample(string opt="h",string configFile="util/myFit.config",bool update
 int main(int argc, char **argv){
   string opt="h";
   string config="util/myFit.config";
-  bool update=false;
   string options="";
   
-  if(argc>1) opt    = argv[1];
-  if(argc>2) config = argv[2];
-  if(argc>3) update = atoi(argv[3])!=0;
-  if(argc>4) options = argv[4];
+  if(argc>1) opt     = argv[1];
+  if(argc>2) config  = argv[2];
+  if(argc>3) options = argv[3];
 
   // call the function
-  FitExample(opt,config,update,options);
+  FitExample(opt,config,options);
   
   return 0;
 }
