@@ -14,7 +14,8 @@ CXXFLAGS  += -Wno-long-long -fPIC
 CXXFLAGS  += $(shell root-config --cflags)
 
 LDFLAGS    = $(ROOTLIB)
-LDFLAGS   += -lCintex -lHistFactory -lXMLParser -lRooStats -lRooFit -lRooFitCore -lThread -lMinuit -lFoam -lHtml -lMathMore 
+# LDFLAGS   += -lCintex -lHistFactory -lXMLParser -lRooStats -lRooFit -lRooFitCore -lThread -lMinuit -lFoam -lHtml -lMathMore 
+LDFLAGS   += -lHistFactory -lXMLParser -lRooStats -lRooFit -lRooFitCore -lThread -lMinuit -lFoam -lHtml -lMathMore 
 
 # OBJ := $(wildcard Root/*.o)
 # OBJS       = Root/Common.C Root/FitResults.C Root/NuisParameter.C Root/Sample.C Root/Systematic.C Root/TtHFit.C Root/CorrelationMatrix.C Root/NormFactor.C Root/Region.C Root/SampleHist.C Root/SystematicHist.C Root/TthPlot.C Root/HistoTools.C Root/ConfigParser.C
