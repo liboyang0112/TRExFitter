@@ -158,6 +158,7 @@ namespace LimitCrossCheck{
   void     PlotMorphingControlPlots();
   void     PlotHistosAfterFitEachSubChannel(bool IsConditionnal , double mu);
   void     PlotHistosAfterFitGlobal(bool IsConditionnal , double mu);
+  void     PlotNPRanking(bool IsConditionnal);
   void     PlotsNuisanceParametersVSmu();
   void     PlotsStatisticalTest(double mu_pe, double mu_hyp);
   void 	   Plot1DResponse(RooAbsReal* nll, RooRealVar* var, TString cname, TCanvas* can, 
@@ -276,7 +277,7 @@ namespace LimitCrossCheck{
     const RooArgSet* glbObs = mc->GetGlobalObservables();
 
     RooRealVar * poi = (RooRealVar*) model->GetParametersOfInterest()->first();
-    cout << "Constatnt POI " << poi->isConstant() << endl;
+    cout << "Constant POI " << poi->isConstant() << endl;
     cout << "Value of POI  " << poi->getVal() << endl;
 
     RooAbsReal * nll = fitpdf->createNLL(*fitdata, Constrain(*constrainedParams), GlobalObservables(*glbObs), Offset(1) );
@@ -2483,7 +2484,6 @@ namespace LimitCrossCheck{
     return;
   }
 
-
   void Plot1DResponse(RooAbsReal* nll, RooRealVar* var, TString cname, TCanvas* can, TF1* poly, bool IsFloating, TLatex* latex, TDirectory* tdir, RooArgSet* SliceSet) {
     TString vname=var->GetName();
     vname.ReplaceAll("alpha_","");
@@ -3840,6 +3840,416 @@ void unfoldConstraints(RooArgSet& initial, RooArgSet& final, RooArgSet& obs, Roo
   return asimovData;
   }  
 
+void PlotNPRanking(bool IsConditionnal){
+    TStopwatch swatch; swatch.Start();
+
+ // Put all parameters to their initial values
+    if(!w->loadSnapshot("snapshot_paramsVals_initial")) { 
+      cout << "Cannot load " <<  "snapshot_paramsVals_initial" << endl;
+      exit(-1);
+    }
+
+    RooFIter iter=w->components().fwdIterator();
+    RooAbsArg *arg;
+    while(arg=iter.next()){
+      if (arg->IsA()==RooRealSumPdf::Class()){
+	cout<<"Activating Binned Likelihood for "<<arg->GetName()<<endl;
+    	arg->setAttribute("BinnedLikelihood");
+      }
+    }
+    
+
+    RooRealVar * firstPOI = dynamic_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
+    //firstPOI->setConstant(0.);
+    firstPOI->setVal(0.);
+    firstPOI->setRange(-10., 10.);
+
+    ostringstream MaindirNameRank;
+    MaindirNameRank << "NPRanking";
+    TDirectory *MainDirRank =  (TDirectory*) MainDirFitGlobal->mkdir(MaindirNameRank.str().c_str());
+    gROOT->cd();
+    TString dirName(OutputDir+"/PlotsAfterGlobalFit");
+
+    // Get the RooSimultaneous PDF
+    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+
+    // Fit 
+    if (IsConditionnal) firstPOI->setConstant();
+
+    ROOT::Math::MinimizerOptions::SetDefaultStrategy(0);
+    ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(1);
+    int status = -99;
+    int HessStatus = -99;
+    double Edm=-99;
+    RooFitResult  *fitresGlobaltest = FitPDF( mc, simPdf, data, status, HessStatus, Edm, "Minuit2", UseMinosError );
+    TString FitNametest = "Test_mu0";
+    AllFitResults_map[FitNametest] = fitresGlobaltest;
+    AllFitStatus_map[FitNametest] = status;
+    const RooArgSet *ParaGlobalFit = mc->GetNuisanceParameters();
+    w->saveSnapshot("snapshot_paramsVals_GlobalFit",*ParaGlobalFit);
+    double muhat = firstPOI->getVal();
+    firstPOI->setConstant(kFALSE);
+    
+    if (IsConditionnal) cout << "Conditionnal fit : mu is fixed at 0" << endl;
+    else                cout << "Unconditionnal fit : mu is fitted" << endl;
+    
+    // PLotting the nuisance paramaters correlations during the fit
+    TString cname = "can_NuisPara_GlobalFit_mu";
+
+    cout << "==========================   " << cname << endl;
+
+    TIterator* it1 = mc->GetNuisanceParameters()->createIterator();
+    RooRealVar* var = NULL;
+    int Npar=0;
+    int NparNotStat=0;
+    int NparNormFactor=0;
+    while( (var = (RooRealVar*) it1->Next()) ) {
+      Npar++;
+      string varname = (string) var->GetName();      
+      if (varname.find("gamma_stat")==string::npos && !IsAnormFactor(var)) NparNotStat++;
+      if (IsAnormFactor(var)) NparNormFactor++;
+    }
+
+    // Create a latex table of NPs after fit
+    //TString fnuiscorrtest =dirName+"/NPR_mu";
+    TString fnuiscorrtest ="NPR_mu";
+    fnuiscorrtest += ".txt";
+    ofstream fnuisParAndCorrtest(fnuiscorrtest.Data());
+    
+    //if(!IsConditionnal){
+    //  double POI_Nom=firstPOI->getVal();
+    //  fnuisParAndCorrtest<<endl;
+    //}
+
+    TIterator* itr = mc->GetNuisanceParameters()->createIterator();
+    while ((var = (RooRealVar*)itr->Next())) {
+        var->setConstant(0);
+    }
+    firstPOI->setConstant(0);
+    w->saveSnapshot("tmp_snapshot", *mc->GetPdf()->getParameters(data));
+
+    vector<TGraphAsymmErrors*> vec_MyGraph;
+    vec_MyGraph.clear();
+    int ibNPs=0;
+    int ibNormFactor=0;
+    TIterator* it2 = mc->GetNuisanceParameters()->createIterator();
+    while( (var = (RooRealVar*) it2->Next()) ){
+      w->loadSnapshot("tmp_snapshot");
+      // Not consider nuisance parameter being not associated to syst
+      string varname = (string) var->GetName();
+      if ((varname.find("gamma_stat")!=string::npos) || (varname.find("Luminosity")!=string::npos)) continue;
+      
+      double pull  = var->getVal() / 1.0 ; // GetValue() return value in unit of sigma
+      double errorHi = var->getErrorHi() / 1.0; 
+      double errorLo = var->getErrorLo() / 1.0; 
+      
+      if(strcmp(var->GetName(),"Lumi")==0){
+	pull  = (var->getVal() - w->var("nominalLumi")->getVal() ) / (w->var("nominalLumi")->getVal() * LumiRelError );
+	  errorHi = var->getErrorHi() / (w->var("nominalLumi")->getVal() * LumiRelError);
+	  errorLo = var->getErrorLo() / (w->var("nominalLumi")->getVal() * LumiRelError); 
+      }
+      
+      TString vname=var->GetName();
+      vname.ReplaceAll("alpha_","");
+      vname.ReplaceAll("Lumi","Luminosity");
+      fnuisParAndCorrtest << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << " ";
+
+      w->saveSnapshot("tmp_snapshot2", *mc->GetPdf()->getParameters(data));
+
+      double nuip_errup;
+      double nuip_errdown;
+
+      FitPDF( mc, simPdf, data, status, HessStatus, Edm, "Minuit2", UseMinosError);
+      nuip_errup = var->getErrorHi();
+      nuip_errdown = var->getErrorLo();
+
+      w->loadSnapshot("tmp_snapshot2");
+      var->setVal(pull+fabs(errorHi));
+      var->setConstant(1);
+      FitPDF( mc, simPdf, data, status, HessStatus, Edm, "Minuit2",  UseMinosError);
+      double pois_up;
+      pois_up=firstPOI->getVal();
+            
+      w->loadSnapshot("tmp_snapshot2");
+      var->setVal(pull-fabs(errorLo));
+      var->setConstant(1);
+      FitPDF( mc, simPdf, data, status, HessStatus, Edm, "Minuit2", UseMinosError );
+      double pois_down;
+      pois_down=firstPOI->getVal();
+
+      fnuisParAndCorrtest <<  pois_up << "  " << pois_down << " ";      
+
+      w->loadSnapshot("tmp_snapshot2");
+      var->setVal(pull+1);
+      var->setConstant(1);
+      FitPDF( mc, simPdf, data, status, HessStatus, Edm, "Minuit2", UseMinosError);
+      double pois_nom_up;
+      pois_nom_up=firstPOI->getVal();
+            
+      w->loadSnapshot("tmp_snapshot2");
+      var->setVal(pull-1);
+      var->setConstant(1);
+      FitPDF( mc, simPdf, data, status, HessStatus, Edm, "Minuit2", UseMinosError );
+      double pois_nom_down;
+      pois_nom_down=firstPOI->getVal();
+
+      fnuisParAndCorrtest << pois_nom_up << "  " << pois_nom_down << "" << endl;     
+
+ 
+    }
+    fnuisParAndCorrtest.close();
+
+    ifstream fin(fnuiscorrtest);
+    string paramname;
+    double nuiphat;
+    double nuiperrhi;
+    double nuiperrlo;
+    double PoiUp;
+    double PoiDown;
+    double PoiNomUp;
+    double PoiNomDown;
+    vector<string> parname;
+    vector<double> nuhat;
+    vector<double> nuerrhi;
+    vector<double> nuerrlo;
+    vector<double> poiup;
+    vector<double> poidown;
+    vector<double> poinomup;
+    vector<double> poinomdown;
+    vector<double> number;
+
+    fin>>paramname>>nuiphat>>nuiperrhi>>nuiperrlo>>PoiUp>>PoiDown>>PoiNomUp>>PoiNomDown;
+
+    if (paramname=="Luminosity"){
+      fin>>paramname>>nuiphat>>nuiperrhi>>nuiperrlo>>PoiUp>>PoiDown>>PoiNomUp>>PoiNomDown;
+    }
+    
+    while (!fin.eof()){
+      parname.push_back(paramname);
+      nuhat.push_back(nuiphat);
+      nuerrhi.push_back(nuiperrhi);
+      nuerrlo.push_back(nuiperrlo);
+      poiup.push_back(PoiUp-muhat);
+      poidown.push_back(PoiDown-muhat);
+      poinomup.push_back(PoiNomUp-muhat);
+      poinomdown.push_back(PoiNomDown-muhat);
+      fin>>paramname>>nuiphat>>nuiperrhi>>nuiperrlo>>PoiUp>>PoiDown>>PoiNomUp>>PoiNomDown;
+      if (paramname=="Luminosity"){
+	fin>>paramname>>nuiphat>>nuiperrhi>>nuiperrlo>>PoiUp>>PoiDown>>PoiNomUp>>PoiNomDown;
+      }
+    }    
+
+    for (unsigned int i=0;i<parname.size();i++){
+      if (poiup[i]<0 && poidown[i]>0){
+	swap(poiup[i],poidown[i]);
+      }
+      if (poinomup[i]<0 && poinomdown[i]>0){
+	swap(poinomup[i],poinomdown[i]);
+      }
+    }
+    
+    int SIZE=parname.size();
+    cout<<"Beginning of NP ordering "<<endl;
+    number.push_back(0.5);
+    for (unsigned int i=1;i<SIZE;i++){
+      number.push_back(i+0.5);
+      double sumi = 0.0;  
+      int index=-1;
+      if (poiup[i] > 0) {
+          sumi += poiup[i];
+        }
+        if (poidown[i] > 0) {
+          sumi += poidown[i];
+        }
+      for (unsigned int j=1;j<=i;j++){
+	double sumii = 0.0;
+        if (poiup[i-j] > 0) {
+          sumii += poiup[i-j];
+        }
+        if (poidown[i-j] > 0) {
+          sumii += poidown[i-j];
+        }
+	if (sumi<sumii){
+	  if (index==-1){
+	    swap(poiup[i],poiup[i-j]);
+	    swap(poidown[i],poidown[i-j]);
+	    swap(poinomup[i],poinomup[i-j]);
+	    swap(poinomdown[i],poinomdown[i-j]);
+	    swap(nuhat[i],nuhat[i-j]);
+	    swap(nuerrhi[i],nuerrhi[i-j]);
+	    swap(nuerrlo[i],nuerrlo[i-j]);
+	    swap(parname[i],parname[i-j]);
+	    index=i-j;
+	      }
+	  else{
+	    swap(poiup[index],poiup[i-j]);
+	    swap(poidown[index],poidown[i-j]);
+	    swap(poinomup[index],poinomup[i-j]);
+	    swap(poinomdown[index],poinomdown[i-j]);
+	    swap(nuhat[index],nuhat[i-j]);
+	    swap(nuerrhi[index],nuerrhi[i-j]);
+	    swap(nuerrlo[index],nuerrlo[i-j]);
+	    swap(parname[index],parname[i-j]);
+	    index=i-j;
+	  }
+	}
+	else{cout<<"We go to next NP"<<endl;
+	  cout<<" "<<endl;
+	  break;}	
+      }
+      cout<<"We go to next NP"<<endl;
+      cout<<" "<<endl;
+    }
+    cout<<"End of ordering"<<endl;
+    number.push_back(parname.size()-0.5);
+
+    double* Poiup = new double[SIZE];
+    double* Poidown = new double[SIZE];
+    double* Poinomup = new double[SIZE];
+    double* Poinomdown = new double[SIZE];
+    double* Nuhat = new double[SIZE];
+    double* Nuerrhi = new double[SIZE];
+    double* Nuerrlo = new double[SIZE];
+    double* One = new double[SIZE];
+    double* Number = new double[SIZE];
+    double* Zero = new double[SIZE];
+    double* Height = new double[SIZE];
+    double borderHi=0;
+    double borderLo=0;
+    double poimax=0;
+    for (int i=0;i<SIZE;i++) {
+      Poiup[i] = poiup[i];
+      poimax=TMath::Max(poimax,Poiup[i]);
+      Poidown[i] = poidown[i];
+      Poinomup[i] = poinomup[i];
+      borderHi=TMath::Max(borderHi,poinomup[i]);
+      Poinomdown[i] = poinomdown[i];
+      borderLo=TMath::Min(borderLo,Poinomdown[i]);
+      Nuhat[i] = nuhat[i];
+      Nuerrhi[i] = nuerrhi[i];
+      Nuerrlo[i] = abs(nuerrlo[i]);
+      One[i]=1;
+      Number[i] = number[i];
+      Zero[i]=0;
+      Height[i]=0.5;
+    }
+
+    for (int i=0;i<SIZE;i++) {
+      Poiup[i]=abs(Poiup[i]/poimax);
+      Poidown[i]=abs(Poidown[i]/poimax);
+      Poinomup[i]=abs(Poinomup[i]/poimax);
+      Poinomdown[i]=abs(Poinomdown[i]/poimax);
+    }
+
+    TCanvas* c1 = new TCanvas("c1","c1",1024,1448);
+    TPad *pad1 = new TPad("pad1", "pad1", 0  , 0  , 1.0 , 1.0  , 0);
+    pad1->SetLeftMargin(0.15);
+    pad1->SetRightMargin(0.05);
+    pad1->SetBottomMargin(0.09);
+    pad1->SetTopMargin(0.10);
+    pad1->Draw();
+    pad1->cd();
+    pad1->SetTicks(0,0);
+    float markerSize = 1.;
+        
+    TGraphAsymmErrors* gr2 = new TGraphAsymmErrors(parname.size(), Nuhat, Number, One, One, NULL, NULL);
+    gr2->SetLineColor(kRed);
+    gr2->SetMarkerColor(kBlack);
+    gr2->SetMarkerStyle(20);
+    gr2->SetLineStyle(1);
+    gr2->SetLineWidth(2);
+    gr2->SetMarkerSize(markerSize);
+    double xlimup=TMath::Max(gr2->GetXaxis()->GetXmax()+0.1,borderHi/poimax+0.1);
+    double xlimdown=TMath::Min(gr2->GetXaxis()->GetXmin()-0.1,borderLo/poimax-0.1);
+    gr2->GetXaxis()->SetLimits(xlimdown,xlimup);
+    gr2->GetHistogram()->SetMaximum(SIZE+0.15);
+    gr2->GetHistogram()->SetMinimum(0.);
+    gr2->GetYaxis()->SetBinLabel(1,"");
+    gr2->GetYaxis()->SetTickLength(0);
+ 
+    TGraphAsymmErrors* gr = new TGraphAsymmErrors(parname.size(), Nuhat, Number, Nuerrlo, Nuerrhi, NULL, NULL);
+    gr->SetLineColor(kBlack);
+    gr->SetMarkerColor(kBlack);
+    gr->SetMarkerStyle(20);
+    gr->SetLineStyle(1);
+    gr->SetLineWidth(2);
+    gr->SetMarkerSize(markerSize);
+    gr->GetXaxis()->SetLimits(xlimdown,xlimup);
+    gr->GetHistogram()->SetMaximum(SIZE+0.15);
+    gr->GetHistogram()->SetMinimum(0.);
+    gr->GetYaxis()->SetTickLength(0);
+ 
+    TGraphAsymmErrors* gr3 = new TGraphAsymmErrors(parname.size(), Zero, Number, Poidown, Poiup, Height, Height);
+    gr3->SetFillColor(kBlue);
+    gr3->SetFillStyle(3354);
+    gr3->GetXaxis()->SetLimits(xlimdown,xlimup);
+    gr3->GetHistogram()->SetMaximum(SIZE+0.15);
+    gr3->GetHistogram()->SetMinimum(0.);
+    gr3->GetYaxis()->SetTickLength(0);
+    gr3->SetMarkerSize(0);
+
+    TGraphAsymmErrors* gr4 = new TGraphAsymmErrors(parname.size(), Zero, Number, Poinomdown, Poinomup, Height, Height);
+    gr4->SetFillColor(kYellow-7);
+    gr4->SetMarkerSize(0);
+    gr4->GetXaxis()->SetLimits(xlimdown,xlimup);
+    gr4->GetHistogram()->SetMaximum(SIZE+0.15);
+    gr4->GetHistogram()->SetMinimum(0.);
+    gr4->GetYaxis()->SetTickLength(0.);
+    gr4->GetYaxis()->SetBinLabel(1,"");
+ 
+    TLine* l0=new TLine(0,0.,0,parname.size()+0.1);
+    l0->SetLineStyle(2);
+    l0->SetLineColor(40);
+    TLine* l1=new TLine(1,0.,1,parname.size()+0.1);
+    l1->SetLineStyle(2);
+    l1->SetLineColor(40);
+    TLine* l2=new TLine(-1,0.,-1,parname.size()+0.1);
+    l2->SetLineStyle(2);
+    l2->SetLineColor(40);
+
+    gr4->Draw("P2A");
+    gr3->Draw("P2same");
+    gr2->Draw("P");
+    gr->Draw("p");
+    l0->Draw();
+    l1->Draw();
+    l2->Draw();
+
+    TH2F *h2 = new TH2F("h2", "", 1,xlimdown, xlimup, parname.size(),0+0.05,parname.size()+0.05);
+    for (unsigned int i=0;i<parname.size();i++){
+      h2->GetYaxis()->SetBinLabel(i+1,parname[i].c_str());
+    }
+    h2->GetYaxis()->SetTickLength(0);
+    TGaxis *axis2=new TGaxis(xlimdown,gr2->GetYaxis()->GetXmin()+0.05,xlimdown,SIZE+0.05,gr2->GetYaxis()->GetXmin(),SIZE+0.05,10);
+    axis2->ImportAxisAttributes(h2->GetYaxis());
+    axis2->SetTickSize(0.);
+    axis2->Draw();
+    TGaxis *axis=new TGaxis(xlimdown,SIZE+0.15,xlimup,SIZE+0.15,xlimdown*poimax,xlimup*poimax,510,"-");
+    axis->SetLabelColor(kBlack);
+    axis->Draw();
+
+    TLegend* leg = new TLegend(0.65,0.1,0.95,0.29);
+    leg->AddEntry(gr, "Pull","lp");
+    leg->AddEntry(gr2, "1 standard deviation","l");
+    leg->AddEntry(gr4, "Prefit Impact on #hat#mu", "f");
+    leg->AddEntry(gr3, "Postfit Impact on #hat#mu", "f");    
+    leg->Draw();
+
+    MainDirRank->cd();
+    c1->Write();
+    //c1->Print(dirName+"/NPRanking.eps");
+    //c1->Print(dirName+"/NPRanking.png");
+    c1->Print("NPRanking.eps");
+    c1->Print("NPRanking.png");
+    c1->Close();
+    gROOT->cd();
+    cout<<"             "<<endl;
+    cout<<"             "<<endl;
+    swatch.Print();
+    return;
+  }
+
+
 }
 
 
@@ -3887,6 +4297,7 @@ void FitCrossCheckForLimits(const Algs algorithm         = PlotHistosBeforeFit,
     break;
     case PlotHistosAfterFitGlobal:
       LimitCrossCheck::PlotHistosAfterFitGlobal(IsConditional, mu);
+      //LimitCrossCheck::PlotNPRanking(IsConditional);
     break;
 
     // -------------------------------------------
@@ -3912,5 +4323,4 @@ void FitCrossCheckForLimits(const Algs algorithm         = PlotHistosBeforeFit,
   return;
 
 }
-
 
