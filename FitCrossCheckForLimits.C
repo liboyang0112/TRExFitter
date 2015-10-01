@@ -3977,7 +3977,8 @@ void PlotNPRanking(bool IsConditionnal){
       double pois_down;
       pois_down=firstPOI->getVal();
 
-      fnuisParAndCorrtest <<  pois_up << "  " << pois_down << " ";      
+//       fnuisParAndCorrtest <<  pois_up << "  " << pois_down << " ";      
+      fnuisParAndCorrtest <<  pois_up-muhat << "  " << pois_down-muhat << " ";      
 
       w->loadSnapshot("tmp_snapshot2");
       var->setVal(pull+1);
@@ -3993,7 +3994,8 @@ void PlotNPRanking(bool IsConditionnal){
       double pois_nom_down;
       pois_nom_down=firstPOI->getVal();
 
-      fnuisParAndCorrtest << pois_nom_up << "  " << pois_nom_down << "" << endl;     
+//       fnuisParAndCorrtest << pois_nom_up << "  " << pois_nom_down << "" << endl;     
+      fnuisParAndCorrtest << pois_nom_up-muhat << "  " << pois_nom_down-muhat << "" << endl;     
 
  
     }
@@ -4029,10 +4031,14 @@ void PlotNPRanking(bool IsConditionnal){
       nuhat.push_back(nuiphat);
       nuerrhi.push_back(nuiperrhi);
       nuerrlo.push_back(nuiperrlo);
-      poiup.push_back(PoiUp-muhat);
-      poidown.push_back(PoiDown-muhat);
-      poinomup.push_back(PoiNomUp-muhat);
-      poinomdown.push_back(PoiNomDown-muhat);
+//       poiup.push_back(PoiUp-muhat);
+//       poidown.push_back(PoiDown-muhat);
+//       poinomup.push_back(PoiNomUp-muhat);
+//       poinomdown.push_back(PoiNomDown-muhat);
+      poiup.push_back(PoiUp);
+      poidown.push_back(PoiDown);
+      poinomup.push_back(PoiNomUp);
+      poinomdown.push_back(PoiNomDown);
       fin>>paramname>>nuiphat>>nuiperrhi>>nuiperrlo>>PoiUp>>PoiDown>>PoiNomUp>>PoiNomDown;
       if (paramname=="Luminosity"){
 	fin>>paramname>>nuiphat>>nuiperrhi>>nuiperrlo>>PoiUp>>PoiDown>>PoiNomUp>>PoiNomDown;
@@ -4297,7 +4303,7 @@ void FitCrossCheckForLimits(const Algs algorithm         = PlotHistosBeforeFit,
     break;
     case PlotHistosAfterFitGlobal:
       LimitCrossCheck::PlotHistosAfterFitGlobal(IsConditional, mu);
-      //LimitCrossCheck::PlotNPRanking(IsConditional);
+      LimitCrossCheck::PlotNPRanking(IsConditional);
     break;
 
     // -------------------------------------------
