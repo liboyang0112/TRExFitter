@@ -1,3 +1,9 @@
+2015-10-02 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * FitCrossCheckForLimits.C, PlotRanking.C: ranking plot added (by Arthur), ranking plot drawing macro added
+        
+2015-09-15 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * MultiFit.C, MultiFit.h: added
+
 2015-08-26 Michele Pinamonti <michele.pinamonti@gmail.com>
         * mainly TtHFit.C & myFit.C: command line argument added: a list of options. See README file for details.
         

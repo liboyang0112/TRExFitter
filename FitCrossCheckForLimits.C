@@ -4303,7 +4303,7 @@ void FitCrossCheckForLimits(const Algs algorithm         = PlotHistosBeforeFit,
     break;
     case PlotHistosAfterFitGlobal:
       LimitCrossCheck::PlotHistosAfterFitGlobal(IsConditional, mu);
-      LimitCrossCheck::PlotNPRanking(IsConditional);
+//       LimitCrossCheck::PlotNPRanking(IsConditional);
     break;
 
     // -------------------------------------------

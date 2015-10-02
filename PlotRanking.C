@@ -22,6 +22,11 @@
 #include "TLegend.h"
 #include "TStyle.h"
 
+// To produce the inputs needed by this macro, 
+// uncomment the following line:
+//     LimitCrossCheck::PlotNPRanking(IsConditional);
+// inside FitCrossCheckForLimits.C, and execute the fit ("f" option)
+
 void PlotRanking(){
   
     map<string,string> systMap;
