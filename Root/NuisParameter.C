@@ -5,6 +5,7 @@
 NuisParameter::NuisParameter(string name){
     fName = name;
     fTitle = name;
+    fCategory = "";
     fStartValue = 0;
     fFitValue = 0;
     fPostFitUp = 1;

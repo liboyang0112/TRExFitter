@@ -21,6 +21,7 @@ public:
   
     string fName;
     string fTitle;
+    string fCategory;
     int fType;
     int fSmoothType;
     int fSymmetrisationType;

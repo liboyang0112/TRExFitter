@@ -1,12 +1,5 @@
 
-ROOTCFLAGS    = $(shell root-config --cflags)
-
-MYCF=""
-
-ifneq ($(findstring m32,$(ROOTCFLAGS)),)
-        MYCF= CXXFLAGS=-m32 CFLAGS=-m32
-endif
-
+ROOTCFLAGS = $(shell root-config --cflags)
 ROOTLIB    = $(shell root-config --libs) -lMinuit
 
 CXXFLAGS   = -g -I.
@@ -14,15 +7,9 @@ CXXFLAGS  += -Wno-long-long -fPIC
 CXXFLAGS  += $(shell root-config --cflags)
 
 LDFLAGS    = $(ROOTLIB)
-# LDFLAGS   += -lCintex -lHistFactory -lXMLParser -lRooStats -lRooFit -lRooFitCore -lThread -lMinuit -lFoam -lHtml -lMathMore 
-LDFLAGS   += -lHistFactory -lXMLParser -lRooStats -lRooFit -lRooFitCore -lThread -lMinuit -lFoam -lHtml -lMathMore 
+LDFLAGS   += -lHistFactory -lRooStats -lRooFit -lRooFitCore
 
-# OBJ := $(wildcard Root/*.o)
-# OBJS       = Root/Common.C Root/FitResults.C Root/NuisParameter.C Root/Sample.C Root/Systematic.C Root/TtHFit.C Root/CorrelationMatrix.C Root/NormFactor.C Root/Region.C Root/SampleHist.C Root/SystematicHist.C Root/TthPlot.C Root/HistoTools.C Root/ConfigParser.C
 OBJS := $(wildcard Root/*.C)
-
-# OBJS      += util/%.o
-
 OBJS      += AtlasStyle.C AtlasUtils.C AtlasLabels.C
 
 # external stuff

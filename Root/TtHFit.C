@@ -1,5 +1,15 @@
-#include "TtHFitter/TtHFit.h"
+//TtHFitter headers
+#include "TtHFitter/FittingTool.h"
 #include "TtHFitter/HistoTools.h"
+
+//Roofit headers
+#include "RooSimultaneous.h"
+#include "RooDataSet.h"
+#include "RooCategory.h"
+
+//Corresponding header
+#include "TtHFitter/TtHFit.h"
+
 
 // -------------------------------------------------------------------------------------------------
 // class TtHFit
@@ -11,9 +21,6 @@ TtHFit::TtHFit(string name){
     fLabel = "";
     fCmeLabel = "8 TeV";
     fLumiLabel = "20.3 fb^{-1}";
-    
-    fFitType = SPLUSB;
-    fFitRegion = CRSR;
     
     fNRegions = 0;
     fNSamples = 0;
@@ -57,6 +64,16 @@ TtHFit::TtHFit(string name){
     fLoadSuf = "";
     
     fUpdate = false;
+    
+    //
+    // Fit caracteristics
+    //
+    fFitType = SPLUSB;
+    fFitRegion = CRSR;
+    fFitRegionsToFit.clear();
+    fFitNPValues.clear();
+    fFitPOIAsimov = 0;
+    fFitIsBlind = false;
 }
 
 //__________________________________________________________________________________
@@ -239,7 +256,6 @@ void TtHFit::WriteHistos(string fileName){
                     h->fSyst[i_syst]->fHistoNameShapeDown = h->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
-//             h->DrawSystPlot();
             h->WriteToFile();
         }
     }
@@ -253,7 +269,7 @@ void TtHFit::DrawSystPlots(){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-            h->DrawSystPlot("all",TtHFitter::SYSTCONTROLPLOTS);
+            h->DrawSystPlot("all");
         }
     }
 }
@@ -328,9 +344,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
     }
     
+    //##########################################################
     //
-    // set fit
-    cs = fConfig->GetConfigSet("Fit");
+    // JOB options
+    //
+    //##########################################################
+    cs = fConfig->GetConfigSet("Job");
     fName = cs->GetValue();
     param = cs->Get("Label");  if(param!="") fLabel = param;
                                else          fLabel = fName;
@@ -360,36 +379,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         SetNtupleName( cs->Get("NtupleName") );
     }
     param = cs->Get("LumiScale");  if( param != "" ) SetLumi( atof(param.c_str()) );
-//    param = cs->Get("FitType");    if( param != "" ){
-//        if(     param == "ControlSignalRegion" || param == "CONTROLSIGNAL")
-//            SetFitType(TtHFit::CONTROLSIGNAL);
-//        else if(param == "ControlRegion"       || param == "CONTROL")
-//            SetFitType(TtHFit::CONTROL);
-//        else{
-//            std::cerr << "Unknown FitType argument : " << cs->Get("FitType") << std::endl;
-//            return;
-//        }
-    //    }
-    param = cs->Get("FitType");    if( param != "" ){
-        if( param == "SPLUSB" )
-            SetFitType(TtHFit::SPLUSB);
-        else if( param == "BONLY" )
-            SetFitType(TtHFit::BONLY);
-        else{
-            std::cerr << "Unknown FitType argument : " << cs->Get("FitType") << std::endl;
-            return;
-        }
-    }
-    param = cs->Get("FitRegion");    if( param != "" ){
-        if( param == "CRONLY" )
-            SetFitRegion(TtHFit::CRONLY);
-        else if( param == "CRSR" )
-            SetFitRegion(TtHFit::CRSR);
-        else{
-            std::cerr << "Unknown FitRegion argument : " << cs->Get("FitRegion") << std::endl;
-            return;
-        }
-    }
     param = cs->Get("SystPruningShape");  if( param != "")  fThresholdSystPruning_Shape         = atof(param.c_str());
     param = cs->Get("SystPruningNorm");   if( param != "")  fThresholdSystPruning_Normalisation = atof(param.c_str());
     param = cs->Get("IntCodeOverall");    if( param != "")  fIntCode_overall  = atoi(param.c_str());
@@ -414,10 +403,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         TtHFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
     }
     param = cs->Get("SignalRegionsPlot");  if(param != ""){
-//         fRegionsToPlot.clear();
-//         vec = Vectorize(param,',');
-//         for(unsigned int i=0;i<vec.size();i++){
-//         }
         fRegionsToPlot = Vectorize(param,',');
     }
     param = cs->Get("HistoChecks");  if(param != ""){
@@ -429,8 +414,62 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("LumiLabel"); if( param != "") fLumiLabel = param;
     param = cs->Get("CmeLabel"); if( param != "") fCmeLabel = param;
     
+    
+    //##########################################################
     //
-    // set regions
+    // FIT options
+    //
+    //##########################################################
+    cs = fConfig->GetConfigSet("Fit");
+    param = cs->Get("FitType");    if( param != "" ){
+        if( param == "SPLUSB" )
+            SetFitType(TtHFit::SPLUSB);
+        else if( param == "BONLY" )
+            SetFitType(TtHFit::BONLY);
+        else{
+            std::cerr << "Unknown FitType argument : " << cs->Get("FitType") << std::endl;
+            return;
+        }
+    }
+    param = cs->Get("FitRegion");    if( param != "" ){
+        if( param == "CRONLY" )
+            SetFitRegion(TtHFit::CRONLY);
+        else if( param == "CRSR" )
+            SetFitRegion(TtHFit::CRSR);
+        else{
+            fFitRegionsToFit = Vectorize(param,',');
+            if(fFitRegionsToFit.size()==0){
+                std::cerr << "Unknown FitRegion argument : " << cs->Get("FitRegion") << std::endl;
+                return;
+            }
+        }
+    }
+    param = cs->Get("FitBlind");    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitIsBlind = true;
+        } else if ( param == "FALSE" ){
+            fFitIsBlind = false;
+        }
+    }
+    param = cs->Get("POIAsimov");    if( param != "" ){ fFitPOIAsimov = atof(param.c_str()); };
+    param = cs->Get("NPValues");    if( param != "" ){
+        std::vector < std::string > temp_vec = Vectorize(param,',');
+        for(unsigned int iNP = 0; iNP < temp_vec.size(); ++iNP){
+            std::vector < std::string > np_value = Vectorize(temp_vec[iNP],':');
+            if(np_value.size()==2){
+                fFitNPValues.insert( std::pair < std::string, double >( np_value[0], atof(np_value[1].c_str()) ) );
+            }
+        }
+    }
+
+    
+    
+    //##########################################################
+    //
+    // REGIONS options
+    //
+    //##########################################################
     int nReg = 0;
     Region *reg;
     while(true){
@@ -493,8 +532,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
         }
     }
+    
+    //##########################################################
     //
-    // set samples 
+    // SAMPLES options
+    //
+    //##########################################################
     int nSmp = 0;
     Sample *smp;
     while(true){
@@ -553,8 +596,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
         // ...
     }
+    
+    //##########################################################
     //
-    // set systs
+    // SYSTEMATICS options
+    //
+    //##########################################################
     int nSys = 0;
     Systematic *sys;
     Sample *sam;
@@ -579,6 +626,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             sys->fTitle = cs->Get("Title");
             TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
         }
+        if(cs->Get("Category")!=""){
+            sys->fCategory = cs->Get("Category");
+        }
+        
         if(type==Systematic::HISTO){
             if(fInputType==0){
                 if(cs->Get("HistoPathUp")!="")      sys->fHistoPathsUp  .push_back(cs->Get("HistoPathUp"));
@@ -596,8 +647,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 // ...
             }
             else if(fInputType==1){
-//                         if(cs->Get("NtupleFilesUp")!="")   sys->fNtupleFilesUp   = Vectorize( cs->Get("NtupleFilesUp"),  ',' );
-//                         if(cs->Get("NtupleFilesDown")!="") sys->fNtupleFilesDown = Vectorize( cs->Get("NtupleFilesDown"),',' );
                 if(cs->Get("NtuplePathUp")!="")      sys->fNtuplePathsUp  .push_back(cs->Get("NtuplePathsUp"));
                 if(cs->Get("NtuplePathDown")!="")    sys->fNtuplePathsDown.push_back( cs->Get("NtuplePathsDown"));
                 if(cs->Get("NtuplePathSufUp")!="")   sys->fNtuplePathSufUp   = cs->Get("NtuplePathSufUp");
@@ -716,7 +765,6 @@ void TtHFit::ReadNtuples(){
             }
             
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
-            
             std::map < int, bool > applyCorrection;
             for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
                 double content = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetBinContent(iBin);
@@ -1846,44 +1894,33 @@ void TtHFit::DrawPruningPlot(){
 //__________________________________________________________________________________
 //
 void TtHFit::Fit(){
-    // PlotHistosBeforeFit=0,
-    // PlotMorphingControlPlots=1, 
-    // PlotHistosAfterFitEachSubChannel=2, 
-    // PlotHistosAfterFitGlobal=3, 
-    // PlotsNuisanceParametersVSmu=4, 
-    // PlotsStatisticalTest=5
-    int algo = 3;
-//       int algo = 0;
-//     string workspace = "results/"+fName+"_combined_"+fName+"_model.root";
-    string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
-    string outputDir = fName+"/FitResults/";
     
-    //Checks if a data sample exists
-    bool hasData = false;
-    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSamples[i_smp]->fType==Sample::DATA){
-            hasData = true;
-            break;
-        }
-    }
+    //
+    // Gets needed objects for the fit
+    //
+    std::string inputFileName = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+    TFile *inputFile = new TFile( inputFileName.c_str(), "read" );
+    RooWorkspace *ws = (RooWorkspace*)inputFile -> Get("combined");
+    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
+    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    RooDataSet* data = data = (RooDataSet*)ws->data("obsData");
     
-    // create fit result directory, perform fit and move resutls to the nwe directory
-    gSystem->mkdir(fName.c_str());
-    gSystem->mkdir((fName+"/Fits").c_str());    
-    string cmd;
+    // Performs the fit
+    gSystem -> mkdir((fName+"/Fits/").c_str(),true);
+    FittingTool* fitTool = new FittingTool();
     if(fFitType==BONLY){
-        if(hasData) cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",algo,workspace.c_str(),outputDir.c_str());
-        else        cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 1,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",algo,workspace.c_str(),outputDir.c_str());
-        gSystem->Exec(cmd.c_str());
-        gSystem->Exec(("scp  "+fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_conditionnal_mu0.txt  "+fName+"/Fits/"+fName+fSaveSuf+".txt" ).c_str());
+        fitTool -> ValPOI(0.);
+        fitTool -> ConstPOI(true);
+    } else if(fFitType==SPLUSB){
+        fitTool -> ValPOI(1.);
+        fitTool -> ConstPOI(false);
     }
-    else if(fFitType==SPLUSB){
-        if(hasData) cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"obsData\")'",algo,workspace.c_str(),outputDir.c_str());
-        else        cmd = Form("root -l -b -q 'FitCrossCheckForLimits.C+(%d, 0, 1, 0,\"%s\",\"./%s/\",\"combined\",\"ModelConfig\",\"asimovData\")'",algo,workspace.c_str(),outputDir.c_str());
-        gSystem->Exec(cmd.c_str());
-        gSystem->Exec(("scp  "+fName+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0.txt  "+fName+"/Fits/"+fName+fSaveSuf+".txt" ).c_str());
-    }
+    fitTool -> FitPDF( mc, simPdf, data );
+    fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+".txt");
+    std::map < std::string, double > result = fitTool -> ExportFitResultInMap();
+    
 }
+
 
 //__________________________________________________________________________________
 //
@@ -1891,7 +1928,21 @@ void TtHFit::PlotFittedNP(){
     // plot the NP fit plot
     ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
     if(fFitResults){
-        fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+".png");
+        std::set < std::string > npCategories;
+        for(unsigned int i=0;i<fSystematics.size();i++){
+            npCategories.insert(fSystematics[i]->fCategory);
+        }
+        fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+".png","all");
+        if(npCategories.size()>1){
+            for( const std::string cat : npCategories ){
+                std::string cat_for_name = cat;
+                std::replace( cat_for_name.begin(), cat_for_name.end(), ' ', '_');
+                std::replace( cat_for_name.begin(), cat_for_name.end(), '#', '_');
+                std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
+                std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
+                fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+"_"+cat_for_name+".png",cat);
+            }
+        }
     }
 }
 
@@ -1966,13 +2017,13 @@ void TtHFit::ReadFitResults(string fileName){
     }
     // make a list of systematics from all samples...
     // ...
-    // assign to each NP in the FitResults a title, according to the syst in the fitter
+    // assign to each NP in the FitResults a title, and a category according to the syst in the fitter
     for(unsigned int i=0;i<fFitResults->fNuisPar.size();i++){
         for(unsigned int j=0;j<fSystematics.size();j++){
             if(fSystematics[j]->fName == fFitResults->fNuisPar[i]->fName){
                 fFitResults->fNuisPar[i]->fTitle = fSystematics[j]->fTitle;
+                fFitResults->fNuisPar[i]->fCategory = fSystematics[j]->fCategory;
             }
-//             cout << endl;
         }
     }
 }

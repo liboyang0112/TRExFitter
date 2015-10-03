@@ -9,6 +9,8 @@ Systematic::Systematic(string name,int type,float up,float down){
     fName = name;
     fTitle = name;
     fType = type;
+    fCategory = "";
+    
     fSmoothType = 0;
     fSymmetrisationType = 0;
     //

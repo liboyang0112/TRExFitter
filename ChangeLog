@@ -1,3 +1,12 @@
+2015-09-25 Loic Valery <lvalery@cern.ch>
+        * Changing setup for ROOT6 (required access to /cvmfs/)
+        * Cleaning Makefile and adapting it to ROOT6
+        * Adding class for fitting
+        * Propagates new class for fitting into TtHFit.C
+        * Change structure of CONFIG file to separate Job and Fit parts and propagate this to TtHFit.C
+        * Adding Category for systematics (splitting the pulls plots depending on categories)
+	* Changing structure of plot for systematics checks
+
 2015-10-02 Michele Pinamonti <michele.pinamonti@gmail.com>
         * FitCrossCheckForLimits.C, PlotRanking.C: ranking plot added (by Arthur), ranking plot drawing macro added
         

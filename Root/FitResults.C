@@ -102,6 +102,7 @@ void FitResults::ReadFromTXT(string fileName){
     //
     // read file line by line
     while(std::getline(in, line)){
+        std::cout << line << std::endl;
         if(line=="") continue;
         if(line=="NUISANCE_PARAMETERS"){
             if(TtHFitter::DEBUGLEVEL>0){
@@ -139,7 +140,7 @@ void FitResults::ReadFromTXT(string fileName){
             iss >> value >> up >> down;
             np = fNuisPar[fNuisParIdx[name]];
             // set the title of this NP if there in the stored map
-            if(TtHFitter::SYSTMAP[name]!="") np->fTitle = TtHFitter::SYSTMAP[name];
+            //if(TtHFitter::SYSTMAP[name]!="") np->fTitle = TtHFitter::SYSTMAP[name];
             //
             np->fFitValue = value;
             np->fPostFitUp = up;
@@ -187,7 +188,7 @@ void FitResults::ReadFromTXT(string fileName){
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawPulls(string path){
+void FitResults::DrawPulls(string path, string category){
     float xmin = -2.9;
     float xmax = 2.9;
     float max = 0;
@@ -204,6 +205,9 @@ void FitResults::DrawPulls(string path){
     
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
         par = fNuisPar[i];
+        
+        if( category != "all" && category != par->fCategory ) continue;
+        
         bool skip = false;
         for(int ii=0; ii<sizeof(npToExclude)/sizeof(string); ii++){
             if(par->fName.find(npToExclude[ii])!=string::npos){
@@ -216,8 +220,7 @@ void FitResults::DrawPulls(string path){
         g->SetPoint(idx,par->fFitValue,idx+0.5);
         g->SetPointEXhigh(idx, par->fPostFitUp);
         g->SetPointEXlow( idx,-par->fPostFitDown);
-
-//         Names.push_back(par->fName);
+        
         Names.push_back(par->fTitle);
     
         idx ++;
@@ -225,7 +228,7 @@ void FitResults::DrawPulls(string path){
     }
 
     int lineHeight = 20;
-    int offsetUp = 10;
+    int offsetUp = 40;
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
@@ -236,7 +239,7 @@ void FitResults::DrawPulls(string path){
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
     
-    TH1F *h_dummy = new TH1F("h_dummy","h_dummy",10,xmin,xmax);
+    TH1F *h_dummy = new TH1F( ("h_dummy"+category).c_str(),("h_dummy"+category).c_str(),10,xmin,xmax);
     h_dummy->SetMaximum(max);
     h_dummy->SetLineWidth(0);
     h_dummy->SetFillStyle(0);
@@ -273,7 +276,11 @@ void FitResults::DrawPulls(string path){
     
     gPad->RedrawAxis();
     
-//     c->SaveAs((path+"/NuisPar.png").c_str());
+    if(category!="all"){
+        TLatex *cat_legend = new TLatex();
+        cat_legend -> DrawLatexNDC(0.5,0.8,category.c_str());
+    }
+    
     c->SaveAs(path.c_str());
     delete c;
 }

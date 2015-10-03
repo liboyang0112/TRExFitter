@@ -56,8 +56,6 @@ float CorrelationMatrix::GetCorrelation(string p0,string p1){
 //
 void CorrelationMatrix::Draw(string path, const double minCorr){
     
-//     gStyle -> Reset();
-    
     //
     // 0) Determines the number of lines/columns
     //
@@ -66,7 +64,6 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
         vec_NP.clear();
         for(unsigned int iNP = 0; iNP < fNuisParNames.size(); ++iNP){
             const string iSystName = fNuisParNames[iNP];
-//             for(unsigned int jNP = iNP+1; jNP < fNuisParNames.size(); ++jNP){
             for(unsigned int jNP = 0; jNP < fNuisParNames.size(); ++jNP){
                 if(jNP == iNP) continue;
                 const string jSystName = fNuisParNames[jNP];

@@ -105,8 +105,6 @@ public:
     string fName;
     string fLabel;
     string fResultsFolder;
-    FitType fFitType;
-    FitRegion fFitRegion;
     
     std::vector < Region* > fRegions;
     std::vector < Sample* > fSamples;
@@ -158,6 +156,16 @@ public:
     string fLoadSuf;
     
     bool fUpdate;
+    
+    //
+    // Fit caracteristics
+    //
+    FitType fFitType;
+    FitRegion fFitRegion;
+    std::vector< std::string > fFitRegionsToFit;
+    std::map< std::string, double > fFitNPValues;
+    double fFitPOIAsimov;
+    bool fFitIsBlind;
 };
 
 #endif

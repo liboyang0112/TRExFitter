@@ -76,9 +76,29 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     else{
         if(drawPreFit || drawPostFit || createWorkspace) myFit->ReadHistos();
     }
-      
+
+    if(createWorkspace){
+        myFit->DrawPruningPlot();
+        myFit->SetLumiErr(0.);
+        myFit->ToRooStat(true,true);
+    }
+
+    // use the external tool FitCrossCheckForLimits fir fitting
+    if(doFit){
+        myFit->Fit();
+        myFit->PlotFittedNP();
+        myFit->PlotCorrelationMatrix();
+    }
+    
+    if(doLimit){
+        myFit->GetLimit();
+    }
+    
+    if(doSignificance){
+        myFit->GetSignificance();
+    }
+    
     if(drawPreFit){
-//         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         myFit->DrawAndSaveAll();
         myFit->DrawSummary("log");
         myFit->BuildYieldTable();
@@ -92,32 +112,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         }
         myFit->DrawSignalRegionsPlot(nCols,nRows);
     }
-
-    if(createWorkspace){
-        myFit->DrawPruningPlot();
-        myFit->SetLumiErr(0.);
-        myFit->ToRooStat(true,true);
-    }
-
-    // use the external tool FitCrossCheckForLimits fir fitting
-    if(doFit){
-        myFit->Fit(); // with FitCrossCheckForLimits
-//         myFit->PlotFittedNP();
-//         myFit->PlotCorrelationMatrix();
-    }
-    
-    if(doLimit){
-        myFit->GetLimit();
-    }
-    
-    if(doSignificance){
-        myFit->GetSignificance();
-    }
     
     if(drawPostFit){
         myFit->DrawAndSaveAll("post");
-        myFit->PlotFittedNP();
-        myFit->PlotCorrelationMatrix();
         myFit->DrawSummary("log post");
         myFit->BuildYieldTable("post");
     }

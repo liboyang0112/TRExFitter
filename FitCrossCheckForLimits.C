@@ -2537,9 +2537,9 @@ namespace LimitCrossCheck{
     latex->SetText(0.925,0.925, fitStr);
 
     // y axis
-    frame2->updateYAxis(min,5.0);
-    frame2->GetYaxis()->SetRangeUser(min,5.0);
-    frame2->GetYaxis()->SetTitle("#Delta [-Log(L)]");
+    //frame2->updateYAxis(min,5.0);
+    //frame2->GetYaxis()->SetRangeUser(min,5.0);
+    //frame2->GetYaxis()->SetTitle("#Delta [-Log(L)]");
 
     if(cname.Length()>0) { cname.Append("_"); } // it is 0 if plotting nll for full PDF - it is not if plotting for 1 channel
     cname.Prepend("NLLscan_");
@@ -4266,7 +4266,7 @@ void PlotNPRanking(bool IsConditionnal){
 
 enum Algs { PlotHistosBeforeFit=0, PlotMorphingControlPlots, PlotHistosAfterFitEachSubChannel, PlotHistosAfterFitGlobal, PlotsNuisanceParametersVSmu, PlotsStatisticalTest };
 
-void FitCrossCheckForLimits(const Algs algorithm         = PlotHistosBeforeFit,
+void FitCrossCheckForLimits(const int algorithm         = PlotHistosBeforeFit,
                             float mu                    = 0,
                             float sigma                 = 1,
                             bool IsConditional          = false,
