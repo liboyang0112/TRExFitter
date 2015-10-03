@@ -102,7 +102,6 @@ void FitResults::ReadFromTXT(string fileName){
     //
     // read file line by line
     while(std::getline(in, line)){
-        std::cout << line << std::endl;
         if(line=="") continue;
         if(line=="NUISANCE_PARAMETERS"){
             if(TtHFitter::DEBUGLEVEL>0){
