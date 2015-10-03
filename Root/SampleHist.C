@@ -253,7 +253,6 @@ void SampleHist::Print(){
     if(fNSyst>0){
         cout << "        Systematics:   ";
         for(int i_syst=0;i_syst<fNSyst;i_syst++){
-//             fSyst[i_syst]->Print();
             cout << " " << fSyst[i_syst]->fName;
         }
         cout << endl;
@@ -261,7 +260,6 @@ void SampleHist::Print(){
     if(fNNorm>0){
         cout << "        NormFactor(s): ";
         for(int i_norm=0;i_norm<fNNorm;i_norm++){
-//             fNormFactors[i_norm]->Print();
             cout << " " << fNormFactors[i_norm]->fName;
         }
         cout << endl;
@@ -365,6 +363,7 @@ void SampleHist::DrawSystPlot( const string &syst ){
             yield_nominal = h_nominal->Integral();
             yield_syst_up = h_syst_up->Integral();
             yield_syst_down = h_syst_down->Integral();
+            
             // draw Relative difference
             h_1->Scale(0);
             
@@ -422,7 +421,20 @@ void SampleHist::DrawSystPlot( const string &syst ){
             
             h_1->Draw("HIST");
             if(!ratioON){
-                h_nominal->Draw("same HIST");
+                h_nominal->DrawCopy("same HIST");
+                h_nominal->SetFillStyle(3005);
+                h_nominal->SetFillColor(kBlue);
+                h_nominal->SetMarkerSize(0);
+                h_nominal->Draw("e2same");
+            } else {
+                h_nominal -> SetFillStyle(3005);
+                h_nominal -> SetFillColor(kBlue);
+                h_nominal -> SetMarkerSize(0);
+                for ( unsigned int i=1; i<=h_nominal->GetNbinsX(); ++i ) {
+                    h_nominal -> SetBinError( i, h_nominal -> GetBinError( i ) * 100. / h_nominal -> GetBinContent( i ) );
+                    h_nominal -> SetBinContent( i, 0 );
+                }
+                h_nominal -> Draw("e2same");
             }
             h_syst_down_orig->Draw("same HIST");
             h_syst_up_orig->Draw("same HIST");
@@ -523,7 +535,7 @@ void SampleHist::SmoothSyst(string syst,bool force){
         //
         // Perform a check of the output histograms (check for 0 bins and other pathologic behaviours)
         //
-        HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, true /*cause crash if problem*/);
+        HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, true /*cause crash if problem*/);
         
         //
         // Normalisation component first

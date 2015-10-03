@@ -1,4 +1,8 @@
-2015-09-25 Loic Valery <lvalery@cern.ch>
+2015-10-03 Loic Valery <lvalery@cern,ch>
+	* Improve style of systematics checks plots (and add the stat error information)
+  	* Adding more checks for null content after symmetrisation and smoothing
+
+2015-10-03 Loic Valery <lvalery@cern.ch>
         * Changing setup for ROOT6 (required access to /cvmfs/)
         * Cleaning Makefile and adapting it to ROOT6
         * Adding class for fitting

@@ -62,19 +62,12 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
         return;
     }
     
-    //FIRST STEP: DO THE SYMMETRISATIONS
-    if( histOps % 10 == SYMMETRIZEONESIDED){
-//         bool isUp = false; //is the provided uncertainty the up or down variation (based on yield)
-//         TH1F* temp = SymmetrizeOneSided(hNom, originUp, isUp);
-//         if(isUp){
-//             modifiedUp = (TH1*)originUp -> Clone();
-//             modifiedDown = (TH1*)temp -> Clone();
-//         } else {
-//             modifiedUp = (TH1*)temp -> Clone();
-//             modifiedDown = (TH1*)originUp -> Clone();
-//         }
-        // Michele: attempt to fix the isUp issue
-        // if one of the two is a null pointer, it's easy
+    //##################################################
+    //
+    // FIRST STEP: SYMMETRISATION
+    //
+    //##################################################
+    if( histOps % 10 == SYMMETRIZEONESIDED ) {
         bool isUp = true; //is the provided uncertainty the up or down variation (based on yield)
         if     (originUp==0x0 && originDown!=0x0) isUp = false;
         else if(originUp!=0x0 && originDown==0x0) isUp = true;
@@ -84,17 +77,12 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
         }
         // if both are non-empty, check the differences with the nominal
         else{
-//             float separationUp = 0.;
-//             float separationDown = 0.;
-//             for(unsigned int i_bin=1;i_bin<hNom->GetNbinsX();i_bin++){
-//                 separationUp += originUp->GetBinContent(i_bin) - hNom->GetBinContent(i_bin);
-//                 separationDown += originDown->GetBinContent(i_bin) - hNom->GetBinContent(i_bin);
-//             }
-//             if(TMath::Abs(separationUp)>TMath::Abs(separationDown)) isUp = true;
-//             if(TMath::Abs(separationUp)<TMath::Abs(separationDown)) isUp = false;
-            if( Separation(hNom,originUp) > Separation(hNom,originDown) ) isUp = true;
-            if( Separation(hNom,originUp) < Separation(hNom,originDown) ) isUp = false;
+            double separationUp = Separation(hNom,originUp);
+            double separationDown = Separation(hNom,originDown);
+            if( separationUp > separationDown ) isUp = true;
+            if( separationUp < separationDown ) isUp = false;
         }
+        
         TH1F* temp;
         if(isUp){
             temp = SymmetrizeOneSided(hNom, originUp, isUp);
@@ -105,9 +93,8 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
             modifiedUp = (TH1*)temp -> Clone();
             modifiedDown = (TH1*)originDown -> Clone();
         }
-        //
         delete temp;
-    } else if( histOps % 10 == SYMMETRIZETWOSIDED ){
+    } else if ( histOps % 10 == SYMMETRIZETWOSIDED ) {
         modifiedUp = SymmetrizeTwoSided(originUp, originDown, hNom);
         modifiedDown = InvertShift(modifiedUp,hNom);
     } else {
@@ -117,17 +104,22 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
     modifiedDown -> SetName(originDown->GetName());
     modifiedUp -> SetName(originUp->GetName());
     
-    //SECOND STEP: DO THE SMOOTHING
+    
+    //##################################################
+    //
+    // SECOND STEP: SMOOTHING
+    //
+    //##################################################
     if(hNom->GetNbinsX()==1){
         if(TtHFitter::DEBUGLEVEL>3){
             std::cout << "In HistoTools::ManageHistograms(): skipping smoothing for systematics on \"" << hNom->GetName() << "\" since just 1 bin." << std::endl;
         }
         return;
     }
-    if( (histOps - histOps % 10) >= SMOOTH && (histOps - histOps % 10) < UNKNOWN ){
-        const int smoothingLevel = (histOps - histOps % 10) / 10;
-        Smooth_maxVariations(modifiedUp,hNom,smoothingLevel);
-        Smooth_maxVariations(modifiedDown,hNom,smoothingLevel);
+    if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < UNKNOWN ){
+        const int smoothingLevel = (histOps - ( histOps % 10 ) ) / 10;
+        Smooth_maxVariations( modifiedUp,    hNom,   smoothingLevel );
+        Smooth_maxVariations( modifiedDown,  hNom,   smoothingLevel );
     }
 }
 
@@ -170,8 +162,7 @@ TH1F* HistoTools::InvertShift(TH1* h_syst, TH1* h_nominal){
     for( unsigned int iBin = 1; iBin <= result -> GetNbinsX(); ++iBin ){
         double content = result -> GetBinContent(iBin);
         if(content < 0){
-            result -> SetBinContent(iBin,1e-05);
-            std::cout << "In HistoTools::InvertShift(): Set the content of bin " << iBin << " to 0 due to negative value." << std::endl;
+            result -> SetBinContent(iBin, 0.);
         }
     }
     return result;
@@ -194,32 +185,45 @@ TH1F* HistoTools::SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom) {
     //
     // Symmetrize a variation that is already two sided to smooth out possible fluctuations
     //
-    
+    //Nominal
     TH1F* nom = (TH1F*)hnom->Clone();
 
+    //Up variation
     TH1F* tmp1 = (TH1F* )var1->Clone();
     tmp1->Divide(nom);
     if(!tmp1->GetSumw2())tmp1->Sumw2();
     
+    //Down variation
     TH1F* tmp2 = (TH1F* )var2->Clone();
     tmp2->Divide(nom);
     if(!tmp2->GetSumw2())tmp2->Sumw2();
     
+    //Flat (content = 0) histogram to substract
     TH1F* unit = (TH1F* )nom->Clone();
     if(!unit->GetSumw2())unit->Sumw2();
     for (int bin=1; bin<= unit->GetNbinsX(); bin++){
         unit->SetBinContent(bin,1);
         unit->SetBinError(bin,0.0);
     }
+    
+    //Computes Var/Nom - 1
     tmp1->Add(unit,-1);
     tmp2->Add(unit,-1);
+    
+    //Computes Corrected = (DeltaUp-DeltaDown)/2 + 1
     tmp1->Add(tmp2,-1);
     tmp1->Scale(0.5);
     tmp1->Add(unit);
     
+    //Computed the new histogram Corrected*Nominal
     tmp1->Multiply(nom);
     
+    //Protection against negative bin
     for (int bin=1; bin<= unit->GetNbinsX(); bin++){
+        double content = tmp1->GetBinContent(bin);
+        if(content<0){
+            tmp1->SetBinContent(bin,0.);
+        }
         tmp1->SetBinError(bin,nom->GetBinError(bin));
     }
     
@@ -237,7 +241,6 @@ void HistoTools::Smooth_maxVariations(TH1* hsyst, TH1* hnom, int nbins){
     //
     // General idea: avoid having more than "nbins" slope variations in the systematic histogram
     //
-    
     float systIntegral = hsyst->Integral();
     
     double tolerance = 0.08;
@@ -288,7 +291,7 @@ void HistoTools::Smooth_maxVariations(TH1* hsyst, TH1* hnom, int nbins){
     
     // Smooth only works well for positive entries: shifts all entries by an offset of 100
     for(int i=1;i<=hsyst->GetNbinsX();i++){
-        hsyst->SetBinContent(i,hsyst->GetBinContent(i) +100);
+        hsyst->SetBinContent( i, hsyst->GetBinContent(i) + 100 );
     }
 
     // Due to the rebinning, some bins can have the same content. Call the ROOT smooth function to avoid this.
@@ -301,11 +304,19 @@ void HistoTools::Smooth_maxVariations(TH1* hsyst, TH1* hnom, int nbins){
     
     // Removes the 100 offset
     for(int i=1;i<=hsyst->GetNbinsX();i++){
-        hsyst->SetBinContent(i,hsyst->GetBinContent(i) -100);
+        hsyst->SetBinContent( i, hsyst->GetBinContent(i) - 100 );
     }
     hsyst->Multiply(hnom);
     hsyst->Add(hnom);
     hsyst->Scale(systIntegral/hsyst->Integral());
+    
+    // Checks if any bin with < 0 content exists
+    for(int i=1;i<=hsyst->GetNbinsX();i++){
+        double content = hsyst->GetBinContent( i );
+        if(content < 0){
+            hsyst -> SetBinContent(i, 0.);
+        }
+    }
     delete ratio;
 }
 
@@ -427,7 +438,7 @@ int HistoTools::rebin_getMaxVar(TH1* hnom,TH1* hsyst, double tolerance){
         hnomBinned->SetBinContent( bigBin, hnomBinned->GetBinContent(bigBin)+ hnom->GetBinContent(bin) );
         hnomBinned->SetBinError( bigBin, sqrt( pow(hnomBinned->GetBinError(bigBin),2) + pow(hnom->GetBinError(bin),2) ) );
     }
-    //systmatics
+    //systematics
     TH1F* hsystBinned=new TH1F(*rebinTemplate);
     hsystBinned->Reset();
     for (int bin=0; bin <=hsyst->GetNbinsX(); bin++) {
@@ -543,7 +554,7 @@ bool HistoTools::HasShape(TH1* hnom, SystematicHist* sh, float threshold){
 
 //_________________________________________________________________________
 //
-bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool causeCrash){
+bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullContent, bool causeCrash){
     
     //======================================================
     // This code performs sanity checks on the provided
@@ -616,7 +627,7 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool causeCrash){
     //
     for( unsigned int iBin = 1; iBin <= NbinsNom; ++iBin ){
         double content = nom->GetBinContent(iBin);
-        if(content<=0){
+        if( ( checkNullContent && content<=0 ) || ( !checkNullContent && content<0 ) ){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \""<< nom->GetName() << "\", bin " << iBin << " has 0 content ! Please check !\033[0m" << std::endl;
             std::cout << "Nominal: " << content << std::endl;
             if(causeCrash){
@@ -659,12 +670,19 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool causeCrash){
         //
         // 4.b) Checks that the systematics are not crazy (too large ratio, nan returned, ...)
         //
-        double ratioUp = contentUp/contentNom;
-        double ratioDown = contentDown/contentNom;
+        double ratioUp = 0.;
+        double ratioDown = 0.;
+        if(contentNom != 0 ){
+            ratioUp = contentUp/contentNom;
+            ratioDown = contentDown/contentNom;
+        } else if( TMath::Abs(contentUp)>0 || TMath::Abs(contentDown)>0 ) {
+            std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): In histo \""<< sh->fHistUp->GetName() << "\", bin " << iBin << " has null nominal content but systematics are >0! Hope you know that !\033[0m" << std::endl;
+            continue;
+        }
         
         // * first check is for nan
         // * second check is for negative values (normally impossible after step 3 and 4.a)
-        // * third check is for abnormal systematic/nominal values (ratio > 10)
+        // * third check is for abnormal systematic/nominal values (ratio > 100)
         if( (ratioUp!=ratioUp) || (ratioUp < 0) || (abs(ratioUp-1.) >= 100) ){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \""<< sh->fHistUp->GetName() << "\", bin " << iBin << " has weird content ! Please check !\033[0m" << std::endl;
             std::cout << "Nominal: " << contentNom << std::endl;
@@ -708,37 +726,4 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool causeCrash){
     
     return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
