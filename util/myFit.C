@@ -39,10 +39,12 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     bool readNtuples     = opt.find("n")!=string::npos;
     bool createWorkspace = opt.find("w")!=string::npos;
     bool doFit           = opt.find("f")!=string::npos;
+    bool doRanking       = opt.find("r")!=string::npos;
     bool doLimit         = opt.find("l")!=string::npos;
     bool doSignificance  = opt.find("s")!=string::npos;
     bool drawPreFit      = opt.find("d")!=string::npos;
     bool drawPostFit     = opt.find("p")!=string::npos;
+    bool drawSeparation  = opt.find("a")!=string::npos;
     
     TtHFit *myFit = new TtHFit();
     myFit->ReadConfigFile(configFile,options);
@@ -74,7 +76,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->WriteHistos();
     }
     else{
-        if(drawPreFit || drawPostFit || createWorkspace) myFit->ReadHistos();
+        if(drawPreFit || drawPostFit || createWorkspace || drawSeparation) myFit->ReadHistos();
     }
 
     if(createWorkspace){
@@ -88,6 +90,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->Fit();
         myFit->PlotFittedNP();
         myFit->PlotCorrelationMatrix();
+    }
+    if(doRanking){
+        myFit->ProduceNPRanking();
     }
     
     if(doLimit){
@@ -118,6 +123,13 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->DrawSummary("log post");
         myFit->BuildYieldTable("post");
     }
+
+    if(drawSeparation){
+        myFit->DrawAndSaveSeparationPlots();
+    //    myFit->ListOfBestSeparationVariables(); // for the future list of best separation variables
+    //    myFit->ListOfBestDataMCVariables();     // for the future list of best data-mc agreement variables based on KS test
+    }
+  
 }
 
 // -------------------------------------------------------

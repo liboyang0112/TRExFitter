@@ -33,6 +33,7 @@ public:
     ConfigParser *fConfig;
     
     string fSaveSuf;
+    std::vector< bool > fFitShowObserved;
 };
     
 #endif

@@ -45,6 +45,8 @@ public:
     inline void ConstPOI( const bool constant ) { m_constPOI = constant; }
     inline double GetConstPOI() { return m_constPOI; }
     
+    inline void FixNP( const TString &np, const double value ) { m_constNP = np; m_constNPvalue = value; }
+    
     inline RooFitResult* GetFitResult() { return m_fitResult; }
     
     //
@@ -61,6 +63,9 @@ private:
     bool m_useMinos,m_constPOI;
     RooFitResult* m_fitResult;
     bool m_debug;
+    
+    TString m_constNP;
+    double m_constNPvalue;
 };
 
 

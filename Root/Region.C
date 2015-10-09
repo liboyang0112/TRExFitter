@@ -45,6 +45,11 @@ Region::Region(string name){
     fLogScale = false;
     
     fBinWidth = 0;
+    
+    fLumiScale = 1.;
+    
+    fSig = 0x0;
+//     fBkg = 0;
 }
 
 //__________________________________________________________________________________
@@ -325,6 +330,7 @@ TthPlot* Region::DrawPreFit(string opt){
     p->AddLabel("Pre-Fit");
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
+    p->SetLumiScale(fLumiScale);
     
     //
     // build h_tot
@@ -588,6 +594,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->AddLabel("Post-Fit");
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
+    p->SetLumiScale(fLumiScale);
     
     //
     // 0) Create a new hist for each sample

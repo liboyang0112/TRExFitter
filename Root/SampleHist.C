@@ -89,8 +89,10 @@ SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
       fNSyst ++;
     }
     //
-    sh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_Up",fHist->GetName(),name.c_str()));
-    sh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
+//     sh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_Up",fHist->GetName(),name.c_str()));
+//     sh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
+    sh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    sh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
     sh->fHistUp->Scale(1.+up);
     sh->fHistDown->Scale(1.+down);
     sh->fIsOverall = true;
@@ -228,6 +230,9 @@ void SampleHist::WriteToFile(){
     WriteHistToFile(fHist,fFileName);
     WriteHistToFile(HistoTools::TranformHistogramBinning(fHist),fFileName);
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        // make sure they all have the correct name!
+        fSyst[i_syst]->fHistUp  ->SetName( Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
+        fSyst[i_syst]->fHistDown->SetName( Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
         fSyst[i_syst]->WriteToFile();
     }
 }

@@ -47,6 +47,33 @@ void ATLASLabelOld(Double_t x,Double_t y,bool Preliminary,Color_t color)
 }
 
 
+void ATLASLabelNew(Double_t x,Double_t y, char* text, Color_t color, float text_size)
+{
+
+  TLatex l;
+  l.SetNDC();
+  l.SetTextFont(72);
+  l.SetTextColor(color);
+  l.SetTextSize(text_size);
+
+  double delx = 0.16;
+
+  l.DrawLatex(x,y,"ATLAS");
+  if (text) {
+    TLatex p;
+    p.SetNDC();
+    p.SetTextFont(42);
+    p.SetTextColor(color);
+    p.SetTextSize(text_size);
+    p.DrawLatex(x+delx,y,text);
+  }
+  return;
+
+}
+
+
+
+
 
 void ATLASVersion(const char* version,Double_t x,Double_t y,Color_t color) 
 {

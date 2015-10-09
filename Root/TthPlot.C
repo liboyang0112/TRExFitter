@@ -60,6 +60,8 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     fBkgNames.clear();
     
     fBinWidth = -1;
+    
+    fLumiScale = 1.;
 }
 
 //_____________________________________________________________________________
@@ -79,6 +81,12 @@ void TthPlot::AddLabel(string name){
 //
 void TthPlot::SetLumi(string name){
     fLumi = name;
+}
+
+//_____________________________________________________________________________
+//
+void TthPlot::SetLumiScale(float scale){
+    fLumiScale = scale;
 }
 
 //_____________________________________________________________________________
@@ -129,6 +137,7 @@ void TthPlot::SetData(TH1* h,string name){
 //
 void TthPlot::AddSignal(TH1* h,string name){
     h_signal = (TH1*)h->Clone();
+    h_signal->Scale(fLumiScale);
     fSigNames.push_back(name);
 }
 
@@ -136,6 +145,7 @@ void TthPlot::AddSignal(TH1* h,string name){
 //
 void TthPlot::AddNormSignal(TH1* h,string name){
     h_normsig = (TH1*)h->Clone(name.c_str());
+    h_normsig->Scale(fLumiScale);
     fNormSigNames.push_back(name);
 }
 
@@ -146,10 +156,11 @@ void TthPlot::AddBackground(TH1* h,string name){
     else h_tot->Add(h);
     // if already there...
     if(std::find(fBkgNames.begin(),fBkgNames.end(),name)!=fBkgNames.end()){
-        h_bkg[fBkgNames.size()-1]->Add(h);
+        h_bkg[fBkgNames.size()-1]->Add(h,fLumiScale);
     }
     else{
         h_bkg[fBkgNames.size()] = (TH1*)h->Clone();
+        h_bkg[fBkgNames.size()]->Scale(fLumiScale);
         fBkgNames.push_back(name);
     }
 }
@@ -158,16 +169,32 @@ void TthPlot::AddBackground(TH1* h,string name){
 //
 void TthPlot::SetTotBkg(TH1* h){
     h_tot = (TH1*)h->Clone();
+    h_tot->Scale(fLumiScale);
     g_tot = new TGraphAsymmErrors(h);
+    for(int i=0;i<g_tot->GetN();i++){
+        g_tot->GetY()[i]      *= fLumiScale;
+//         g_tot->GetEXlow()[i]  *= fLumiScale;
+//         g_tot->GetEXhigh()[i] *= fLumiScale;
+        g_tot->GetEYlow()[i]  *= fLumiScale;
+        g_tot->GetEYhigh()[i] *= fLumiScale;
+    }
 }
 
 //_____________________________________________________________________________
 //
 void TthPlot::SetTotBkgAsym(TGraphAsymmErrors* g){
     g_tot = (TGraphAsymmErrors*)g->Clone();
+    for(int i=0;i<g_tot->GetN();i++){
+        g_tot->GetY()[i] *= fLumiScale;
+//         g_tot->GetEXlow()[i]  *= fLumiScale;
+//         g_tot->GetEXhigh()[i] *= fLumiScale;
+        g_tot->GetEYlow()[i]  *= fLumiScale;
+        g_tot->GetEYhigh()[i] *= fLumiScale;
+    }
     for(int i=1;i<h_tot->GetNbinsX()+1;i++){
         h_tot->SetBinContent(i,g_tot->GetY()[i-1]);
     }
+//     h_tot->Scale(fLumiScale);
 }
 
 //_____________________________________________________________________________
@@ -226,13 +253,21 @@ void TthPlot::Draw(string options){
     // Add Bkg's to the stack
     //
     for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
+        h_bkg[i_smp]->SetLineWidth(1);
         h_stack->Add(h_bkg[i_smp]);
     }
     
     //
     // Eventually add Signal
     //
-    if(h_signal!=0x0) h_stack->Add(h_signal);
+    if(h_signal!=0x0){
+        h_signal->SetLineWidth(1);
+        h_stack->Add(h_signal);
+    }
+    
+    //
+    // Draw
+    //
     h_stack->Draw("HIST same");
     
     //
@@ -336,7 +371,7 @@ void TthPlot::Draw(string options){
         
         //Signal and background legends
         if(h_signal)  leg->AddEntry(h_signal, fSigNames[0].c_str(),    "f");
-        leg1->AddEntry((TObject*)0,Form("%.1f",h_signal->Integral()),"");
+        if(h_signal)  leg1->AddEntry((TObject*)0,Form("%.1f",h_signal->Integral()),"");
 //         if(h_normsig) leg->AddEntry(h_normsig,fNormSigNames[0].c_str(),"f");
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
             leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");

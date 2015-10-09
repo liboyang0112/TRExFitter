@@ -42,7 +42,9 @@ m_valPOI(0.),
 m_useMinos(false),
 m_constPOI(false),
 m_fitResult(0),
-m_debug(false)
+m_debug(false),
+m_constNP(""),
+m_constNPvalue(0.)
 {}
 
 //________________________________________________________________________
@@ -103,7 +105,20 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
         cout << "   -> Value of POI : " << poi->getVal() << endl;
     }
     
-    //RooArgSet nuis = *model->GetNuisanceParameters();
+    // Michele // START //
+    // Needed for Ranking plot
+    RooRealVar* var = NULL;
+    RooArgSet nuis = *model->GetNuisanceParameters();
+    TIterator* it2 = nuis.createIterator();
+    while( (var = (RooRealVar*) it2->Next()) ){
+        if( var->GetName() == m_constNP ){
+            var->setVal(m_constNPvalue);
+            var->setConstant(1);
+            break;
+        }
+    }
+    // Michele // STOP //
+    
     //
     // Create the likelihood based on fitpdf, fitData and the parameters
     //

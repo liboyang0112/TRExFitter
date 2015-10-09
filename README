@@ -13,7 +13,7 @@ Setup
 ---------
 To setup just use the script:
     source setup.sh
-(should work on any machine with access to afs)
+(should work on any machine with access to afs - provided that nothing else is set-up previously)
 
 To compile:
     make
@@ -21,7 +21,12 @@ To compile:
 or specify a custom main file as argument:
     make  util/myNewCustomFit.C
    
+---------
+If compilation fails
+---------
+   * Cintex could give problems (on lxplus); Remove it from the Makefile
    
+      
 ---------
 How to   
 ---------
@@ -220,11 +225,17 @@ Command line options
 ---------
 
 Currently the supported options are:
-      Regions:  to limit the regions to use to the list specified
-      Samples:  to limit the samples to use to the list specified
-      Systematics:  to limit the systematics to use to the list specified
-      Exclude: to exclude certain Regions / Samples / Systematics
+      Regions:     to limit the regions to use to the list specified
+      Samples:     to limit the samples to use to the list specified
+      Systematics: to limit the systematics to use to the list specified
+      Exclude:     to exclude certain Regions / Samples / Systematics
+      Suffix:      used for: plots, workspace, NOT for histograms file
+      SaveSuf:     used for outout histograms file and for plots
+      LoadSuf:     used for input workspace, fit results, etc...
+      Update:      if =TRUE, the output .root file is updated, otherwise is overwrote
 Note: the wild-card * is supported, but only as last character.
+Example:
+      ./myFit.exe  n  util/ttH2015.config 'Regions=HThad_ge6jge4b;Exclude=BTag_*'
 
 
 ---------
@@ -240,3 +251,6 @@ Output Directories Structure
    Significance/       -> contains the outputs from the significance code
    Systematics/        -> contains the plots for the syst variations
    Histograms/         -> contains the root file(s) with all the inputs
+
+
+

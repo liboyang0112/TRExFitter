@@ -150,6 +150,8 @@ public:
     string fLumiLabel;
     string fCmeLabel;
     
+    float fLumiScale;
+    
     bool fLogScale;
     
     float fBinWidth;

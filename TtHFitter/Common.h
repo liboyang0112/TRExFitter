@@ -54,8 +54,9 @@ namespace TtHFitter{
     extern int DEBUGLEVEL;
     void SetDebugLevel(int level=0);
     extern bool SHOWYIELDS; // flag to show or not yields in plots
-    extern bool SHOWNORMSIG;  // floag to show normalized signal or not
+    extern bool SHOWNORMSIG;  // flag to show normalized signal or not
     extern bool SYSTCONTROLPLOTS;
+    extern bool SPLITHISTOFILES;
     extern float CORRELATIONTHRESHOLD;
     extern std::map< string,string > SYSTMAP;
 };
@@ -80,5 +81,6 @@ string ReplaceString(string subject, const string& search,
                      const string& replace);
 
 int FindInStringVector(std::vector<string> v, string s);
+double GetSeparation( TH1F* S1, TH1F* B1 );
 
 #endif

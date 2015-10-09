@@ -1,3 +1,11 @@
+2015-10-09 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * TtHFit, Sample: added option to include Samples only in some Regions (use Regions: and/or Exclude: in config file)
+        * Other small fixes
+        * TtHFit, SampleHist: OVERALL systs now saved with correct name as histograms in root file
+        * TtHFit: option added in order to write and read separated root files for different regions (faster and can be parallelized)
+        * TtHFit: Separation plot added (by Leonid Serkin)
+        * TtHFit, FittingTool: Ranking plot stuff partially ported to new Fitting routine
+        
 2015-10-03 Loic Valery <lvalery@cern,ch>
 	* Improve style of systematics checks plots (and add the stat error information)
   	* Adding more checks for null content after symmetrisation and smoothing

@@ -60,7 +60,7 @@ public:
     void SmoothSystematics(string syst="all");
     
     // create new root file with all the histograms
-    void WriteHistos(string fileName="");
+    void WriteHistos(/*string fileName=""*/);
     
     void DrawSystPlots();
     
@@ -70,9 +70,12 @@ public:
     // read from ..
     void ReadNtuples();
     void ReadHistograms();
-    void ReadHistos(string fileName="");
+    void ReadHistos(/*string fileName=""*/);
     
     void DrawAndSaveAll(string opt="");
+   
+    // separation plots
+    void DrawAndSaveSeparationPlots();
     
     TthPlot* DrawSummary(string opt="");
     void BuildYieldTable(string opt="");
@@ -102,6 +105,10 @@ public:
     
     Region* GetRegion(string name);
     
+    void ProduceNPRanking();
+    
+    // -------------------------
+      
     string fName;
     string fLabel;
     string fResultsFolder;
@@ -119,6 +126,7 @@ public:
     string fStatErrCons;
     
     float fLumi;
+    float fLumiScale;
     float fLumiErr;
     
     float fThresholdSystPruning_Normalisation;

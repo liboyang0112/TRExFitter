@@ -67,6 +67,7 @@ public:
     int fFillColor;
     int fLineColor;
     bool fNormalizedByTheory;
+    std::vector<string> fRegions;
     
     // to read from ntuples
     string fSelection;

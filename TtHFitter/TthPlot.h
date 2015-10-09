@@ -15,6 +15,7 @@ class TthPlot {
     void SetChannel(string name);
     void AddLabel(string name);
     void SetLumi(string name);
+    void SetLumiScale(float scale);
     void SetCME(string name);
     void SetXaxis(string name,bool isNjet=false);
     void SetYaxis(string name);
@@ -76,6 +77,8 @@ class TthPlot {
     bool fShowYields;
     
     string fBinLabel[MAXbins];
+    
+    float fLumiScale;
 };
 
 // function to get asymmetric error bars for hists

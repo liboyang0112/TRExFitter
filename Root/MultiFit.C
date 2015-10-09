@@ -16,6 +16,7 @@ MultiFit::MultiFit(string name){
     fPOITitle = "best fit #mu=#sigma^{t#bar{t}H}/#sigma^{t#bar{t}H}_{SM} for m_{H}=125 GeV";
     fConfig = new ConfigParser();
     fSaveSuf = "";
+    fFitShowObserved.clear();
 }
 
 //__________________________________________________________________________________
@@ -41,10 +42,12 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("Label");
     if(param!="") fLabel = param;
     else          fLabel = fName;
-    param = cs->Get("LumiLabel"); if( param != "") fLumiLabel = param;
-    param = cs->Get("CmeLabel");  if( param != "") fCmeLabel  = param;
-    param = cs->Get("SaveSuf");   if( param != "") fSaveSuf   = param;
+    param = cs->Get("LumiLabel"); if( param != "")  fLumiLabel = param;
+    param = cs->Get("CmeLabel");  if( param != "")  fCmeLabel  = param;
+    param = cs->Get("SaveSuf");   if( param != "")  fSaveSuf   = param;
     param = cs->Get("ShowObserved");   if( param != "" && param != "FALSE") fShowObserved = true;
+    param = cs->Get("LimitTitle"); if( param != "") fLimitTitle = param;
+    if(fLimitTitle.find("95CL")!=string::npos) fLimitTitle.replace(fLimitTitle.find("95CL"),4,"95% CL");
     
     //
     // fits
@@ -71,6 +74,10 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         string confFile = "";
         param = cs->Get("ConfigFile");
         if(param!="") confFile = param;
+        // show obs
+        param = cs->Get("ShowObserved");
+        if(param=="FALSE") fFitShowObserved.push_back(false);
+        else fFitShowObserved.push_back(true);
         //
         AddFitFromConfig(confFile,fullOptions,label,loadSuf);
     }
@@ -268,7 +275,8 @@ void MultiFit::CompareLimit(){
         
         std::cout << " " << h->GetBinContent(1) << std::endl;
         
-        g_obs->SetPoint(i,h->GetBinContent(1),i);
+        if(fFitShowObserved[i]) g_obs->SetPoint(i,h->GetBinContent(1),i);
+        else g_obs->SetPoint(i,-1,i);
         g_exp->SetPoint(i,h->GetBinContent(2),i);
         g_1s->SetPoint(i,h->GetBinContent(2),i);
         g_2s->SetPoint(i,h->GetBinContent(2),i);
@@ -301,7 +309,7 @@ void MultiFit::CompareLimit(){
     g_exp->SetMarkerSize(0);
     g_obs->SetMarkerSize(0);
   
-    xmax *= 2;
+//     xmax *= 2;
     
     TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,0,xmax);
     h_dummy->Draw();

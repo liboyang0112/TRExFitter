@@ -11,6 +11,7 @@
 string Fix(string s){ // removes leading and trailing white spaces, remove everything after "%", remove '"'...
   string ss = s.substr( 0, s.find_first_of('%') );
   replace( ss.begin(), ss.end(), '"', ' ');
+//   if(ss.find("#PERCENT#")!=string::npos) ss.replace( ss.find("#PERCENT#"), 9, "%");
   ss = ss.substr( ss.find_first_not_of(' '),ss.find_last_not_of(' ')+1 );
   return ss;
 }
