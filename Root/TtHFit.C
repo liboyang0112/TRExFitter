@@ -2341,7 +2341,7 @@ void TtHFit::ProduceNPRanking(){
     std::cout << "--------------------------------------------------------" << std::endl;
     std::cout << " mu = " << muhat << std::endl;
     for(unsigned int i=0;i<nuisPars.size();i++){
-        std::cout << nuisPars[i] << "\t" << muVarUp[nuisPars[i]] << "\t-\t" << muVarDown[nuisPars[i]] << std::endl;
-//         std::cout << nuisPars[i] << "\t" << muVarUp[nuisPars[i]]-muhat << "\t-\t" << muVarDown[nuisPars[i]]-muhat << std::endl;
+//         std::cout << nuisPars[i] << "\t" << muVarUp[nuisPars[i]] << "\t-\t" << muVarDown[nuisPars[i]] << std::endl;
+        std::cout << nuisPars[i] << "\t" << muVarUp[nuisPars[i]]-muhat << "\t-\t" << muVarDown[nuisPars[i]]-muhat << std::endl;
     }
 }

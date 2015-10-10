@@ -108,15 +108,22 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     // Michele // START //
     // Needed for Ranking plot
     RooRealVar* var = NULL;
-    RooArgSet nuis = *model->GetNuisanceParameters();
-    TIterator* it2 = nuis.createIterator();
+    RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
+    TIterator* it2 = nuis->createIterator();
+    std::cout << nuis << " " << it2 << std::endl;
     while( (var = (RooRealVar*) it2->Next()) ){
-        if( var->GetName() == m_constNP ){
+        string np = var->GetName();
+        std::cout << np << " == " << m_constNP << std::endl;
+        if( np == ("alpha_"+m_constNP) ){
             var->setVal(m_constNPvalue);
             var->setConstant(1);
-            break;
+        }
+        else if( np.find("alpha_")!=string::npos ){
+            var->setVal(0);
+            var->setConstant(0);
         }
     }
+//     return;
     // Michele // STOP //
     
     //
