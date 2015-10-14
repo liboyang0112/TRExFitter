@@ -1290,7 +1290,8 @@ void TtHFit::DrawAndSaveAll(string opt){
         }
         else{
             p = fRegions[i_ch]->DrawPreFit(opt);
-            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSaveSuf+".png" ).c_str());            
+            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSaveSuf+".png" ).c_str()); 
+	    p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSaveSuf+".eps" ).c_str()); 
         }
     }
 }
@@ -2026,7 +2027,7 @@ void TtHFit::Fit(){
     fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+".txt");
     std::map < std::string, double > result = fitTool -> ExportFitResultInMap();
     
-}
+    }
 
 
 //__________________________________________________________________________________
@@ -2296,6 +2297,11 @@ void TtHFit::ProduceNPRanking(){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         nuisPars.push_back( fSystematics[i_syst]->fName );
     }
+    // 
+    //Text files containing information necessary for drawing of ranking plot
+    TString outName ="NPRanking_mu";
+    outName += ".txt";
+    ofstream outName_file(outName.Data());   
     //
     float central;
     float up;
@@ -2303,6 +2309,8 @@ void TtHFit::ProduceNPRanking(){
     float muhat;
     std::map< string,float > muVarUp;
     std::map< string,float > muVarDown;
+    std::map< string,float > muVarNomUp;
+    std::map< string,float > muVarNomDown;
     //
     // Gets needed objects for the fit
     //
@@ -2324,9 +2332,11 @@ void TtHFit::ProduceNPRanking(){
             fitTool -> ValPOI(1.);
             fitTool -> ConstPOI(false);
         }
+
         central = fFitResults -> GetNuisParValue(   nuisPars[i] );
         up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
         down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
+	outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         //
         fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
         fitTool -> FitPDF( mc, simPdf, data );
@@ -2334,7 +2344,20 @@ void TtHFit::ProduceNPRanking(){
         fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+
+	outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
+
+	fitTool -> FixNP( nuisPars[i], central + 1. );
+        fitTool -> FitPDF( mc, simPdf, data );
+        muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        fitTool -> FixNP( nuisPars[i], central - 1. );
+        fitTool -> FitPDF( mc, simPdf, data );
+        muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+
+	outName_file << muVarNomUp[nuisPars[i]]-muhat << "   " <<  muVarNomDown[nuisPars[i]]-muhat<< " "<<endl;
+
     }
+    outName_file.close();
     //
     std::cout << "--------------------------------------------------------" << std::endl;
     std::cout << "|                 Ranking Results                      |" << std::endl;
