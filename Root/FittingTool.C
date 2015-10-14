@@ -44,7 +44,9 @@ m_constPOI(false),
 m_fitResult(0),
 m_debug(false),
 m_constNP(""),
-m_constNPvalue(0.)
+m_constNPvalue(0.),
+m_RangePOI_up(100.),
+m_RangePOI_down(-10.)
 {}
 
 //________________________________________________________________________
@@ -59,6 +61,8 @@ FittingTool::FittingTool( const FittingTool &q ){
     m_constPOI      = q.m_constPOI;
     m_fitResult     = q.m_fitResult;
     m_debug         = q.m_debug;
+    m_RangePOI_up   = q.m_RangePOI_up;
+    m_RangePOI_down = q.m_RangePOI_down;
 }
 
 //________________________________________________________________________
@@ -97,12 +101,14 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
         std::cout << "<!> In FittingTool::FitPDF(): Cannot find the parameter of interest !" << std::endl;
         return;
     }
+    
     poi -> setVal(m_valPOI);
     poi -> setConstant(m_constPOI);
+    poi -> setRange(m_RangePOI_down,m_RangePOI_up);
     
     if(m_debug){
-        cout << "   -> Constant POI : " << poi->isConstant() << endl;
-        cout << "   -> Value of POI : " << poi->getVal() << endl;
+      cout << "   -> Constant POI : " << poi->isConstant() << endl;
+      cout << "   -> Value of POI : " << poi->getVal() << endl;
     }
     
     // Michele // START //
@@ -133,11 +139,11 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     
     const double nllval = nll->getVal();
     if(m_debug){
-        std::cout << "   -> Initial value of the NLL = " << nllval << std::endl;
-        constrainedParams->Print("v");
+      std::cout << "   -> Initial value of the NLL = " << nllval << std::endl;
+      constrainedParams->Print("v");
     }
-    
-    //
+
+        //
     //
     // Safe fit loop
     //
