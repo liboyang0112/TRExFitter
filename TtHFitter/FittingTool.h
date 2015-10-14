@@ -48,6 +48,9 @@ public:
     inline void FixNP( const TString &np, const double value ) { m_constNP = np; m_constNPvalue = value; }
     
     inline RooFitResult* GetFitResult() { return m_fitResult; }
+
+    inline void RangePOI_up( const double value){m_RangePOI_up = value;}
+    inline void RangePOI_down( const double value){m_RangePOI_down = value;}
     
     //
     // Specific functions
@@ -60,6 +63,7 @@ private:
     TString m_minimType;
     int m_minuitStatus, m_hessStatus;
     double m_edm,m_valPOI;
+    double m_RangePOI_up,m_RangePOI_down;
     bool m_useMinos,m_constPOI;
     RooFitResult* m_fitResult;
     bool m_debug;
