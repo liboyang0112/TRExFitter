@@ -92,7 +92,8 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->PlotCorrelationMatrix();
     }
     if(doRanking){
-        myFit->ProduceNPRanking();
+        if(myFit->fRankingOnly!="plot")  myFit->ProduceNPRanking( myFit->fRankingOnly );
+        if(myFit->fRankingOnly=="all" || myFit->fRankingOnly=="plot")  myFit->PlotNPRanking();
     }
     
     if(doLimit){

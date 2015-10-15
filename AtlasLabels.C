@@ -52,7 +52,7 @@ void ATLASLabelNew(Double_t x,Double_t y, char* text, Color_t color, float text_
 
   TLatex l;
   l.SetNDC();
-  l.SetTextFont(72);
+  l.SetTextFont(73);
   l.SetTextColor(color);
   l.SetTextSize(text_size);
 
@@ -62,7 +62,7 @@ void ATLASLabelNew(Double_t x,Double_t y, char* text, Color_t color, float text_
   if (text) {
     TLatex p;
     p.SetNDC();
-    p.SetTextFont(42);
+    p.SetTextFont(43);
     p.SetTextColor(color);
     p.SetTextSize(text_size);
     p.DrawLatex(x+delx,y,text);

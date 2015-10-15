@@ -37,6 +37,8 @@ class TthPlot {
     void WriteToFile(string name);
     
     TCanvas* GetCanvas();
+    
+    void SetBinBlinding(bool on=true,float threshold=0.02);
 
 //   private:
     string fName;
@@ -49,6 +51,7 @@ class TthPlot {
     THStack* h_stack;
     TH1* h_tot;
     TGraphAsymmErrors* g_tot;
+    TH1F* h_blinding;
 
     TCanvas* c;
     TLegend* leg;
@@ -79,6 +82,8 @@ class TthPlot {
     string fBinLabel[MAXbins];
     
     float fLumiScale;
+    
+    float fBlindingThreshold;
 };
 
 // function to get asymmetric error bars for hists

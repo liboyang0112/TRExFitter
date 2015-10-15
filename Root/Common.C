@@ -185,6 +185,7 @@ int FindInStringVector(std::vector< string > v, string s){
     }
     return idx;
 }
+
 //__________________________________________________________________________________
 //
 double GetSeparation( TH1F* S1, TH1F* B1 ) {
@@ -225,4 +226,23 @@ double GetSeparation( TH1F* S1, TH1F* B1 ) {
     separation = 0;
   }
   return separation;
+}
+
+//__________________________________________________________________________________
+// Code to blind bins with S/B > threshold
+// - the code kills this kind of bins in data
+// - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
+TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
+  TH1F* h_blind = (TH1F*)h_data->Clone();
+  for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
+    if( h_sig->GetBinContent(i_bin) / h_bkg->GetBinContent(i_bin) > threshold ){
+      std::cout << "Common::INFO: Blinding bin n." << i_bin << std::endl;
+      h_data->SetBinContent(i_bin,0.);
+      h_blind->SetBinContent(i_bin,1.);
+    }
+    else{
+      h_blind->SetBinContent(i_bin,0.);
+    }
+  }
+  return h_blind;
 }

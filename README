@@ -56,7 +56,7 @@ Use only for actions n and h.
 
 New optional argument: <options>.
 It's a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form:
-    "<option1>=<value1>,<value2>,...;<option2>=..."
+    "<option1>=<value1>,<value2>,...:<option2>=..."
 See the section "Command line options" above.
     
 

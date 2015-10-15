@@ -7,6 +7,8 @@
 #include "RooDataSet.h"
 #include "RooCategory.h"
 
+#include "TPad.h"
+
 //Corresponding header
 #include "TtHFitter/TtHFit.h"
 
@@ -65,6 +67,11 @@ TtHFit::TtHFit(string name){
     fLoadSuf = "";
     
     fUpdate = false;
+    
+    fBlindingThreshold = -1;
+    
+    fRankingMaxNP = 10;
+    fRankingOnly = "all";
     
     //
     // Fit caracteristics
@@ -164,6 +171,7 @@ Region* TtHFit::NewRegion(string name){
     fRegions[fNRegions]->fIntCode_overall = fIntCode_overall;
     fRegions[fNRegions]->fIntCode_shape   = fIntCode_shape;
     fRegions[fNRegions]->fLumiScale = fLumiScale;
+    fRegions[fNRegions]->fBlindingThreshold = fBlindingThreshold;
     //
     fNRegions ++;
     return fRegions[fNRegions-1];
@@ -333,6 +341,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fLoadSuf = optMap["LoadSuf"]; // used for input workspace, fit results, etc...
         if(optMap["Update"]!="" && optMap["Update"]!="FALSE")
             fUpdate = true;
+        if(optMap["Ranking"]!="")
+            fRankingOnly = optMap["Ranking"];
         //
         std::cout << "-------------------------------------------" << std::endl;
         std::cout << "Running options: " << std::endl;
@@ -440,7 +450,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             TtHFitter::SPLITHISTOFILES = false;
         }
     }
-    
+    param = cs->Get("BlindingThreshold");  if( param != ""){
+        fBlindingThreshold = atof(param.c_str());
+    }
+    param = cs->Get("RankingMaxNP");  if( param != ""){
+        fRankingMaxNP = atoi(param.c_str());
+    }
     
     //##########################################################
     //
@@ -2291,17 +2306,19 @@ void TtHFit::DrawAndSaveSeparationPlots(){
 
 //____________________________________________________________________________________
 //
-void TtHFit::ProduceNPRanking(){
+void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     // list of systematics to check
     std::vector< string > nuisPars;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        nuisPars.push_back( fSystematics[i_syst]->fName );
+        if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName || atoi(NPnames.c_str())==i_syst )
+            nuisPars.push_back( fSystematics[i_syst]->fName );
     }
     // 
     //Text files containing information necessary for drawing of ranking plot
-    TString outName ="NPRanking_mu";
+    string outName = fName+"/Fits/NPRanking"+fSaveSuf;
+    if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
-    ofstream outName_file(outName.Data());   
+    ofstream outName_file(outName.c_str());
     //
     float central;
     float up;
@@ -2359,12 +2376,351 @@ void TtHFit::ProduceNPRanking(){
     }
     outName_file.close();
     //
-    std::cout << "--------------------------------------------------------" << std::endl;
-    std::cout << "|                 Ranking Results                      |" << std::endl;
-    std::cout << "--------------------------------------------------------" << std::endl;
-    std::cout << " mu = " << muhat << std::endl;
-    for(unsigned int i=0;i<nuisPars.size();i++){
-//         std::cout << nuisPars[i] << "\t" << muVarUp[nuisPars[i]] << "\t-\t" << muVarDown[nuisPars[i]] << std::endl;
-        std::cout << nuisPars[i] << "\t" << muVarUp[nuisPars[i]]-muhat << "\t-\t" << muVarDown[nuisPars[i]]-muhat << std::endl;
+}
+
+//____________________________________________________________________________________
+//
+void TtHFit::PlotNPRanking(){
+    //
+    string fileToRead = fName+"/Fits/NPRanking"+fLoadSuf+".txt";
+    //
+    // trick to merge the ranking outputs produced in parallel:
+    string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fLoadSuf+"_*` != \"\" ]] ; ";
+    cmd       += " then rm "+fileToRead+" ; ";
+    cmd       += " cat "+fName+"/Fits/NPRanking"+fLoadSuf+"_* > "+fileToRead+" ; ";
+    cmd       += " fi ;";
+    gSystem->Exec(cmd.c_str());
+    //
+    int maxNP = fRankingMaxNP;
+    //
+    string paramname;
+    double nuiphat;
+    double nuiperrhi;
+    double nuiperrlo;
+    double PoiUp;
+    double PoiDown;
+    double PoiNomUp;
+    double PoiNomDown;
+    std::vector<string> parname;
+    std::vector<double> nuhat;
+    std::vector<double> nuerrhi;
+    std::vector<double> nuerrlo;
+    std::vector<double> poiup;
+    std::vector<double> poidown;
+    std::vector<double> poinomup;
+    std::vector<double> poinomdown;
+    std::vector<double> number;
+
+    ifstream fin( fileToRead.c_str() );
+    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+    if (paramname=="Luminosity"){
+        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     }
+    while (!fin.eof()){
+        parname.push_back(paramname);
+        nuhat.push_back(nuiphat);
+        nuerrhi.push_back(nuiperrhi);
+        nuerrlo.push_back(nuiperrlo);
+        poiup.push_back(PoiUp);
+        poidown.push_back(PoiDown);
+        poinomup.push_back(PoiNomUp);
+        poinomdown.push_back(PoiNomDown);
+        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+        if (paramname=="Luminosity"){
+            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+        }
+    }
+
+    unsigned int SIZE = parname.size();
+    if(TtHFitter::DEBUGLEVEL>0) cout << "NP ordering..." << endl;
+    number.push_back(0.5);
+    for (unsigned int i=1;i<SIZE;i++){
+        number.push_back(i+0.5);
+        double sumi = 0.0;  
+        int index=-1;
+        sumi += TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) );
+        for (unsigned int j=1;j<=i;j++){
+            double sumii = 0.0;
+            sumii += TMath::Max( TMath::Abs(poiup[i-j]),TMath::Abs(poidown[i-j]) );
+            if (sumi<sumii){
+                if (index==-1){
+                    swap(poiup[i],poiup[i-j]);
+                    swap(poidown[i],poidown[i-j]);
+                    swap(poinomup[i],poinomup[i-j]);
+                    swap(poinomdown[i],poinomdown[i-j]);
+                    swap(nuhat[i],nuhat[i-j]);
+                    swap(nuerrhi[i],nuerrhi[i-j]);
+                    swap(nuerrlo[i],nuerrlo[i-j]);
+                    swap(parname[i],parname[i-j]);
+                    index=i-j;
+                }
+                else{
+                    swap(poiup[index],poiup[i-j]);
+                    swap(poidown[index],poidown[i-j]);
+                    swap(poinomup[index],poinomup[i-j]);
+                    swap(poinomdown[index],poinomdown[i-j]);
+                    swap(nuhat[index],nuhat[i-j]);
+                    swap(nuerrhi[index],nuerrhi[i-j]);
+                    swap(nuerrlo[index],nuerrlo[i-j]);
+                    swap(parname[index],parname[i-j]);
+                    index=i-j;
+                }
+            }
+            else{
+                break;
+            }
+        }
+    }
+    number.push_back(parname.size()-0.5);
+    
+    double poimax = 0;
+    for (int i=0;i<SIZE;i++) {
+        poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
+        poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poinomup[i]),TMath::Abs(poinomdown[i]) ));
+        nuerrlo[i] = TMath::Abs(nuerrlo[i]);
+    }
+    poimax *= 1.2;
+
+    for (int i=0;i<SIZE;i++) {
+        poiup[i]     *= (2./poimax);
+        poidown[i]   *= (2./poimax);
+        poinomup[i]  *= (2./poimax);
+        poinomdown[i]*= (2./poimax);
+    }
+
+    // Resttrict to the first N
+    if(SIZE>maxNP) SIZE = maxNP;
+  
+    // Graphical part - rewritten taking DrawPulls in TtHFitter
+    float lineHeight  =  30;
+    float offsetUp    =  60; // external
+    float offsetDown  =  60;
+    float offsetUp1   = 100; // internal
+    float offsetDown1 =  15;
+    int offset = offsetUp + offsetDown + offsetUp1 + offsetDown1;
+    int newHeight = offset + SIZE*lineHeight;
+    
+    float xmin = -2;
+    float xmax =  2;
+    float max  =  0;
+//     string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
+//     bool brazilian = true;
+//     bool grayLines = false;
+    
+    TGraphAsymmErrors *g = new TGraphAsymmErrors();
+    TGraphAsymmErrors *g1 = new TGraphAsymmErrors();
+    TGraphAsymmErrors *g2 = new TGraphAsymmErrors();
+    TGraphAsymmErrors *g1a = new TGraphAsymmErrors();
+    TGraphAsymmErrors *g2a = new TGraphAsymmErrors();
+    
+//     NuisParameter *par;
+    int idx = 0;
+    std::vector< string > Names;
+    Names.clear();
+    string parTitle;
+    
+//     for(unsigned int i = 0; i<parname.size(); ++i){
+    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
+//         par = fNuisPar[i];
+//         bool skip = false;
+//         for(int ii=0; ii<sizeof(npToExclude)/sizeof(string); ii++){
+//             if(par->fName.find(npToExclude[ii])!=string::npos){
+//                 skip = true;
+//                 continue;
+//             }
+//         }
+//         if(skip) continue;
+        
+//         g->SetPoint(idx,par->fFitValue,idx+0.5);
+//         g->SetPointEXhigh(idx, par->fPostFitUp);
+//         g->SetPointEXlow( idx,-par->fPostFitDown);
+
+//         idx++;
+        
+        g->SetPoint(      idx, nuhat[i],idx+0.5);
+        g->SetPointEXhigh(idx, nuerrhi[i]);
+        g->SetPointEXlow( idx, nuerrlo[i]);
+        
+        g1->SetPoint(      idx, 0.,idx+0.5);
+        g1->SetPointEXhigh(idx, poiup[i]);
+        g1->SetPointEXlow( idx, 0.);
+        g1->SetPointEYhigh(idx, 0.4);
+        g1->SetPointEYlow( idx, 0.4);
+        
+        g2->SetPoint(      idx, 0.,idx+0.5);
+        g2->SetPointEXhigh(idx, poidown[i]);
+        g2->SetPointEXlow( idx, 0.);
+        g2->SetPointEYhigh(idx, 0.4);
+        g2->SetPointEYlow( idx, 0.4);
+        
+        g1a->SetPoint(      idx, 0.,idx+0.5);
+        g1a->SetPointEXhigh(idx, poinomup[i]);
+        g1a->SetPointEXlow( idx, 0.);
+        g1a->SetPointEYhigh(idx, 0.4);
+        g1a->SetPointEYlow( idx, 0.4);
+        
+        g2a->SetPoint(      idx, 0.,idx+0.5);
+        g2a->SetPointEXhigh(idx, poinomdown[i]);
+        g2a->SetPointEXlow( idx, 0.);
+        g2a->SetPointEYhigh(idx, 0.4);
+        g2a->SetPointEYlow( idx, 0.4);
+        
+//         Poidown, Poiup
+//         Poinomdown, Poinomup
+        
+//         parTitle = systMap[parname[i]];
+           parTitle = TtHFitter::SYSTMAP[ parname[i] ];
+//         h2->GetYaxis()->SetBinLabel(idx+1,parTitle.c_str());
+        
+//         Names.push_back(par->fName);
+        Names.push_back(parTitle);
+        
+        idx ++;
+        if(idx > max)  max = idx;      
+    }
+
+    TCanvas *c = new TCanvas("c","c",600,newHeight);
+    c->SetTicks(0,0);
+//     gPad->SetLeftMargin(0.33);
+    gPad->SetLeftMargin(0.4);
+    gPad->SetRightMargin(0.05);
+    gPad->SetTopMargin(1.*offsetUp/newHeight);
+    gPad->SetBottomMargin(1.*offsetDown/newHeight);
+    
+    TH1F *h_dummy = new TH1F("h_dummy","h_dummy",10,xmin,xmax);
+//     h_dummy->SetMaximum( SIZE );
+//     h_dummy->SetMinimum( 0 );
+    h_dummy->SetMaximum( SIZE + offsetUp1/lineHeight   );
+    h_dummy->SetMinimum(      - offsetDown1/lineHeight );
+    h_dummy->SetLineWidth(0);
+    h_dummy->SetFillStyle(0);
+    h_dummy->SetLineColor(kWhite);
+    h_dummy->SetFillColor(kWhite);
+    h_dummy->GetYaxis()->SetLabelSize(0);
+    h_dummy->Draw();
+    h_dummy->GetYaxis()->SetNdivisions(0);
+    
+    g1->SetFillColor(kAzure-4);
+    g2->SetFillColor(kCyan);
+    g1->SetLineColor(g1->GetFillColor());
+    g2->SetLineColor(g2->GetFillColor());
+    
+    g1a->SetFillColor(kWhite);
+    g2a->SetFillColor(kWhite);
+    g1a->SetLineColor(kAzure-4);
+    g2a->SetLineColor(kCyan);
+    g1a->SetFillStyle(0);
+    g2a->SetFillStyle(0);
+    g1a->SetLineWidth(1);
+    g2a->SetLineWidth(1);
+    
+    g->SetLineWidth(2);
+    
+    g1a->Draw("5 same");
+    g2a->Draw("5 same");
+    g1->Draw("2 same");
+    g2->Draw("2 same");
+    g->Draw("p same");
+    
+    TLatex *systs = new TLatex();
+    systs->SetTextAlign(32);
+    systs->SetTextSize( systs->GetTextSize()*0.8 );
+    for(int i=0;i<max;i++){
+        systs->DrawLatex(xmin-0.1,i+0.5,Names[i].c_str());
+    }
+    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy->GetXaxis()->CenterTitle();
+    h_dummy->GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
+    h_dummy->GetXaxis()->SetTitleOffset(1.2);
+    
+//     TGaxis *axis_up = new TGaxis(-poimax,g->GetYaxis()->GetXmin()+0.05,poimax,SIZE+0.05,g->GetYaxis()->GetXmin(),SIZE+0.05,10);
+//                Double_t xmin, Double_t ymin, Double_t xmax, Double_t ymax,
+//                Double_t wmin, Double_t wmax, Int_t ndiv, Option_t *chopt,
+//                Double_t gridlength
+    TGaxis *axis_up = new TGaxis( -2, SIZE + (offsetUp1)/lineHeight, 2, SIZE + (offsetUp1)/lineHeight, -poimax,poimax, 510, "-" );
+    axis_up->SetLabelOffset( 0.01 );
+    axis_up->SetLabelSize(   h_dummy->GetXaxis()->GetLabelSize() );
+    axis_up->SetLabelFont(   gStyle->GetTextFont() );
+    axis_up->Draw();
+    axis_up->CenterTitle();
+    axis_up->SetTitle("#Delta#mu");
+    axis_up->SetTitleSize(   h_dummy->GetXaxis()->GetLabelSize() );
+    axis_up->SetTitleFont(   gStyle->GetTextFont() );
+    
+//     TLegend *leg = new TLegend(0.02,0.7,0.3,0.95);
+//     leg->SetFillStyle(0);
+//     leg->SetBorderSize(0);
+//     leg->SetMargin(0.25);
+//     leg->SetTextFont(gStyle->GetTextFont());
+//     leg->SetTextSize(gStyle->GetTextSize());
+//     leg->AddEntry(g,"(#hat{#theta}-#theta_{0})/#Delta#theta","lp");
+//     leg->AddEntry(g1a,"#Delta#mu for #theta_{0}=+#Delta#theta","f");
+//     leg->AddEntry(g2a,"#Delta#mu for #theta_{0}=-#Delta#theta","f");
+//     leg->AddEntry(g1,"#Delta#mu for #theta_{0}=+#Delta#hat{#theta}","f");
+//     leg->AddEntry(g2,"#Delta#mu for #theta_{0}=-#Delta#hat{#theta}","f");
+//     leg->Draw();
+
+//     TPad (const char *name, const char *title, Double_t xlow, Double_t ylow, Double_t xup, Double_t yup, Color_t color=-1, Short_t bordersize=-1, Short_t bordermode=-2)
+//     TPad *pad0 = gPad;
+    TPad *pad1 = new TPad("p1","Pad High",0,(newHeight-offsetUp-offsetUp1)/newHeight,0.4,1);
+    pad1->Draw();
+    
+    pad1->cd();
+    TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,"Pre-fit impact on #mu:");
+    leg1->SetFillStyle(0);
+    leg1->SetBorderSize(0);
+    leg1->SetMargin(0.33);
+    leg1->SetNColumns(2);
+    leg1->SetTextFont(gStyle->GetTextFont());
+    leg1->SetTextSize(gStyle->GetTextSize());
+    leg1->AddEntry(g1a,"#theta_{0}=+#Delta#theta","f");
+    leg1->AddEntry(g2a,"#theta_{0}=-#Delta#theta","f");
+    leg1->Draw();
+
+    TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,"Post-fit impact on #mu:");
+    leg2->SetFillStyle(0);
+    leg2->SetBorderSize(0);
+    leg2->SetMargin(0.33);
+    leg2->SetNColumns(2);
+    leg2->SetTextFont(gStyle->GetTextFont());
+    leg2->SetTextSize(gStyle->GetTextSize());
+    leg2->AddEntry(g1,"#theta_{0}=+#Delta#hat{#theta}","f");
+    leg2->AddEntry(g2,"#theta_{0}=-#Delta#hat{#theta}","f");
+    leg2->Draw();
+
+    TLegend *leg0 = new TLegend(0.02,0.1,1,0.25);
+    leg0->SetFillStyle(0);
+    leg0->SetBorderSize(0);
+    leg0->SetMargin(0.2);
+    leg0->SetTextFont(gStyle->GetTextFont());
+    leg0->SetTextSize(gStyle->GetTextSize());
+    leg0->AddEntry(g,"Nuis. Param. Pull","lp");
+    leg0->Draw();
+    
+    c->cd();
+    
+    TLine l0;
+    TLine l1;
+    TLine l2;
+    l0 = TLine(0,- offsetDown1/lineHeight,0,SIZE+0.5);// + offsetUp1/lineHeight);
+    l0.SetLineStyle(kDashed);
+    l0.SetLineColor(kBlack);
+    l0.Draw("same");
+    l1 = TLine(-1,- offsetDown1/lineHeight,-1,SIZE+0.5);// + offsetUp1/lineHeight);
+    l1.SetLineStyle(kDashed);
+    l1.SetLineColor(kBlack);
+    l1.Draw("same");
+    l2 = TLine(1,- offsetDown1/lineHeight,1,SIZE+0.5);// + offsetUp1/lineHeight);
+    l2.SetLineStyle(kDashed);
+    l2.SetLineColor(kBlack);
+    l2.Draw("same");
+    
+//     ATLASLabelNew(0.42,0.80*(1.*newHeight/(offset + 6.*lineHeight)), (char*)"Internal", kBlack, gStyle->GetTextSize());
+//     myText(       0.42,0.72*(1.*newHeight/(offset + 6.*lineHeight)), 1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    ATLASLabelNew(0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.6*offsetUp1)/newHeight), (char*)"Internal", kBlack, gStyle->GetTextSize());
+    myText(       0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.3*offsetUp1)/newHeight), 1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    
+    gPad->RedrawAxis();
+    
+    c->SaveAs( (fName+"/Ranking.png").c_str() );
 }

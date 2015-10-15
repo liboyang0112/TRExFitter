@@ -62,6 +62,8 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     fBinWidth = -1;
     
     fLumiScale = 1.;
+    
+    fBlindingThreshold = -1; // if <0, no blinding
 }
 
 //_____________________________________________________________________________
@@ -229,6 +231,20 @@ void TthPlot::Draw(string options){
     if(g_tot==0x0) g_tot = new TGraphAsymmErrors(h_tot);
     
     //
+    // Eventually blind bins
+    //
+    h_blinding = 0x0;
+    if(fBlindingThreshold>=0){
+//         std::cout << "TthPlot::INFO: fBlindingThreshold = " << fBlindingThreshold << std::endl;
+        if(h_data!=0x0 && h_signal!=0x0 && h_tot!=0x0)
+            h_blinding = BlindDataHisto( h_data, h_tot, h_signal, fBlindingThreshold );
+        else{
+            std::cout << "TthPlot::WARNING: Either h_data (" << h_data << "), h_signal (" << h_signal << ") or h_tot (" << h_tot << ") not defined.";
+            std::cout << " Blidning not possible. Skipped." << std::endl;
+        }
+    }
+    
+    //
     // Determines if the data is real (and computes the poisson uncertainty) or not
     //
     bool hasData = true;
@@ -329,6 +345,21 @@ void TthPlot::Draw(string options){
         if(fYmin>0)  h_dummy->SetMinimum(fYmin);
         else         h_dummy->SetMinimum(1.);
     }
+    
+    //
+    // Draw blinding markers
+    //
+    if(h_blinding!=0x0){
+        h_blinding->SetLineWidth(0);
+        h_blinding->SetLineColor(kWhite);
+        h_blinding->SetFillColorAlpha(kWhite,0.75);
+        h_blinding->Scale(h_dummy->GetMaximum());
+        h_blinding->Draw("same HIST");
+    }
+    
+    //
+    // Fix / redraw axis
+    //
     pad0->RedrawAxis();
     pad0->SetTickx();
     pad0->SetTicky();
@@ -454,8 +485,15 @@ void TthPlot::Draw(string options){
     TGraphAsymmErrors *g_ratio = histToGraph(h_ratio);
     for(int i_bin=1;i_bin<=h_ratio->GetNbinsX();i_bin++){
         //For the ratio plot, the error is just to illustrate the "poisson uncertainty on the data"
-        g_ratio->SetPointEYhigh( i_bin-1,g_data->GetErrorYhigh(i_bin-1)/h_tot->GetBinContent(i_bin) );
-        g_ratio->SetPointEYlow(  i_bin-1,g_data->GetErrorYlow(i_bin-1) /h_tot->GetBinContent(i_bin) );
+        if(h_data->GetBinContent(i_bin)<1 || h_ratio->GetBinContent(i_bin)<0.001){
+            g_ratio->SetPointEYhigh( i_bin-1,0 );
+            g_ratio->SetPointEYlow(  i_bin-1,0 );
+            h_ratio->SetBinError( i_bin,0 );
+        }
+        else{
+            g_ratio->SetPointEYhigh( i_bin-1,g_data->GetErrorYhigh(i_bin-1)/h_tot->GetBinContent(i_bin) );
+            g_ratio->SetPointEYlow(  i_bin-1,g_data->GetErrorYlow(i_bin-1) /h_tot->GetBinContent(i_bin) );
+        }
     }
     
     //
@@ -494,12 +532,21 @@ void TthPlot::Draw(string options){
     h_dummy->GetXaxis()->SetTitle("");
     h_dummy->GetXaxis()->SetLabelSize(0);
     
+    g_ratio2->Draw("sameE2");
+    
     bool customLabels = false;
     for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
         if(((string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!=""){
             h_dummy2->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
             customLabels = true;
         }
+    }
+    
+    //
+    // Marke blinded bins in ratio pad as  well
+    //
+    if(h_blinding!=0x0){
+        h_blinding->Draw("HIST same");
     }
     
     if(fBinLabel[1]!="") h_dummy2->GetXaxis()->LabelsOption("d");
@@ -512,7 +559,6 @@ void TthPlot::Draw(string options){
     line.SetLineColor(kWhite);
     line.SetLineWidth(20);
     line.DrawLineNDC(0.07,1,0.135,1);
-    g_ratio2->Draw("sameE2");
     
     //
     // Add arrows when the ratio is beyond the limits of the ratio plot
@@ -641,6 +687,13 @@ void TthPlot::WriteToFile(string name){
 TCanvas* TthPlot::GetCanvas(){
     return c;
 }
+
+void TthPlot::SetBinBlinding(bool on,float threshold){
+    fBlindingThreshold = threshold;
+    if(!on) fBlindingThreshold = -1;
+    std::cout << "TthPlot::INFO: Setting blinding threshold = " << fBlindingThreshold << std::endl;
+}
+
 
 //_____________________________________________________________________________
 // function to get asymmetric error bars for hists (Used in WZ observation)

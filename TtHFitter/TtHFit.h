@@ -1,5 +1,7 @@
 #include "TtHFitter/Common.h"
 
+#include "TGaxis.h"
+
 #include "TtHFitter/TthPlot.h"
 #include "TtHFitter/FitResults.h"
 #include "TtHFitter/Sample.h"
@@ -105,7 +107,8 @@ public:
     
     Region* GetRegion(string name);
     
-    void ProduceNPRanking();
+    void ProduceNPRanking(string NPnames="all");
+    void PlotNPRanking();
     
     // -------------------------
       
@@ -164,6 +167,11 @@ public:
     string fLoadSuf;
     
     bool fUpdate;
+    
+    float fBlindingThreshold;
+    
+    int fRankingMaxNP;
+    std::string fRankingOnly;
     
     //
     // Fit caracteristics

@@ -50,6 +50,8 @@ Region::Region(string name){
     
     fSig = 0x0;
 //     fBkg = 0;
+    
+    fBlindingThreshold = -1;
 }
 
 //__________________________________________________________________________________
@@ -331,6 +333,7 @@ TthPlot* Region::DrawPreFit(string opt){
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
+    if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
     
     //
     // build h_tot

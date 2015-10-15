@@ -155,6 +155,8 @@ public:
     bool fLogScale;
     
     float fBinWidth;
+    
+    float fBlindingThreshold;
 };
 
 

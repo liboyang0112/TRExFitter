@@ -1,3 +1,11 @@
+2015-10-15 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * TtHFit, Region, TthPlot: bin-blinding (as in tth bb lep analysis Run 2) implemented; use the option "BlindingThreshold: 0.02" under Fit in config
+        * TtHFit: NP ranking small fixes + parallelization (use inline option Ranking=<name/index of systematic> to run on for single NP - then merge at the plotting stage, with the option Ranking=plot)
+        * TtHFit: NP ranking plot method added (run with r argument with no "Ranking" option or with Ranking=plot option)
+
+2015-10-14 Arthur Chomont <arthur.chomont@cern.ch>
+        * TtHFit, FittingTool: NP Ranking ported to new Fitting routine
+        
 2015-10-09 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit, Sample: added option to include Samples only in some Regions (use Regions: and/or Exclude: in config file)
         * Other small fixes
