@@ -82,6 +82,8 @@ TtHFit::TtHFit(string name){
     fFitNPValues.clear();
     fFitPOIAsimov = 0;
     fFitIsBlind = false;
+    
+    fImageFormat = "png";
 }
 
 //__________________________________________________________________________________
@@ -455,6 +457,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("RankingMaxNP");  if( param != ""){
         fRankingMaxNP = atoi(param.c_str());
+    }
+    param = cs->Get("ImageFormat");  if( param != ""){
+        fImageFormat = param;
     }
     
     //##########################################################
@@ -1301,12 +1306,11 @@ void TtHFit::DrawAndSaveAll(string opt){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
         if(isPostFit){
             p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
-            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSaveSuf+".png" ).c_str());
+            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSaveSuf+"."+fImageFormat ).c_str());
         }
         else{
             p = fRegions[i_ch]->DrawPreFit(opt);
-            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSaveSuf+".png" ).c_str()); 
-	    p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSaveSuf+".eps" ).c_str()); 
+            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSaveSuf+"."+fImageFormat ).c_str()); 
         }
     }
 }
@@ -1418,6 +1422,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
+    if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
     if(h_sig) p->AddSignal(h_sig,h_sig->GetTitle());
@@ -1476,8 +1481,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
-    if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSaveSuf+".png").c_str());
-    else           p->SaveAs((fName+"/Plots/Summary"+fSaveSuf+".png").c_str());
+    if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSaveSuf+"."+fImageFormat).c_str());
+    else           p->SaveAs((fName+"/Plots/Summary"+fSaveSuf+"."+fImageFormat).c_str());
     //
     return p;
 }
@@ -1781,7 +1786,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         h[i]->SetMaximum(yMax*1.5);
     }
     //
-    c->SaveAs((fName+"/SignalRegions"+fSaveSuf+".png").c_str());
+    c->SaveAs((fName+"/SignalRegions"+fSaveSuf+"."+fImageFormat).c_str());
 }
 
 //__________________________________________________________________________________
@@ -2011,7 +2016,7 @@ void TtHFit::DrawPruningPlot(){
     leg->SetTextSize(0.85*gStyle->GetTextSize());
     leg->Draw();
     //
-    c->SaveAs( (fName+"/Pruning"+fSaveSuf+".png").c_str() );
+    c->SaveAs( (fName+"/Pruning"+fSaveSuf+"."+fImageFormat).c_str() );
 }
 
 //__________________________________________________________________________________
@@ -2055,7 +2060,7 @@ void TtHFit::PlotFittedNP(){
         for(unsigned int i=0;i<fSystematics.size();i++){
             npCategories.insert(fSystematics[i]->fCategory);
         }
-        fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+".png","all");
+        fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+"."+fImageFormat,"all");
         if(npCategories.size()>1){
             for( const std::string cat : npCategories ){
                 std::string cat_for_name = cat;
@@ -2063,7 +2068,7 @@ void TtHFit::PlotFittedNP(){
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '#', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
-                fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+"_"+cat_for_name+".png",cat);
+                fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+"_"+cat_for_name+"."+fImageFormat,cat);
             }
         }
     }
@@ -2075,7 +2080,7 @@ void TtHFit::PlotCorrelationMatrix(){
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
     ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
     if(fFitResults){
-        fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSaveSuf+".png",TtHFitter::CORRELATIONTHRESHOLD);
+        fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSaveSuf+"."+fImageFormat,TtHFitter::CORRELATIONTHRESHOLD);
     }
 }
 
@@ -2297,7 +2302,7 @@ void TtHFit::DrawAndSaveSeparationPlots(){
       SEP << "Separation: " << GetSeparation(sig,bkg)*100 << "%";
       ls4.DrawLatex(0.20, 0.69, SEP.str().c_str());
   
-      dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSaveSuf+"_sep.png" ).c_str());
+      dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSaveSuf+"_sep."+fImageFormat ).c_str());
  
     }// regions
 
@@ -2722,5 +2727,5 @@ void TtHFit::PlotNPRanking(){
     
     gPad->RedrawAxis();
     
-    c->SaveAs( (fName+"/Ranking.png").c_str() );
+    c->SaveAs( (fName+"/Ranking."+fImageFormat).c_str() );
 }

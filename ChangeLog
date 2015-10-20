@@ -1,3 +1,7 @@
+2015-10-20 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * TtHFit: option added for outout image format
+        * New config file for default ttHbbLjet fit
+        
 2015-10-15 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit, Region, TthPlot: bin-blinding (as in tth bb lep analysis Run 2) implemented; use the option "BlindingThreshold: 0.02" under Fit in config
         * TtHFit: NP ranking small fixes + parallelization (use inline option Ranking=<name/index of systematic> to run on for single NP - then merge at the plotting stage, with the option Ranking=plot)

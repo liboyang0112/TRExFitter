@@ -173,6 +173,8 @@ public:
     int fRankingMaxNP;
     std::string fRankingOnly;
     
+    std::string fImageFormat;
+    
     //
     // Fit caracteristics
     //

@@ -598,6 +598,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
+    if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
     
     //
     // 0) Create a new hist for each sample
