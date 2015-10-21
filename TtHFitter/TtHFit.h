@@ -157,7 +157,7 @@ public:
     
     std::vector<string> fRegionsToPlot;
 
-    bool fHistoCheckCrash;
+//     bool fHistoCheckCrash;
     
     string fLumiLabel;
     string fCmeLabel;

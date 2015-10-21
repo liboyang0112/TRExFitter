@@ -60,7 +60,7 @@ TtHFit::TtHFit(string name){
     
     fInputType = HIST;
     
-    fHistoCheckCrash = true;
+//     fHistoCheckCrash = true;
     
     fSuffix = "";
     fSaveSuf = "";
@@ -440,7 +440,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("HistoChecks");  if(param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "NOCRASH" ){
-            fHistoCheckCrash = false;
+//             fHistoCheckCrash = false;
+	    TtHFitter::HISTOCHECKCRASH = false;
         }
     }
     param = cs->Get("LumiLabel"); if( param != "") fLumiLabel = param;
@@ -825,13 +826,13 @@ void TtHFit::ReadNtuples(){
             }
             
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
-            std::map < int, bool > applyCorrection;
+            std::map < int, bool > applyCorrection; applyCorrection.clear();
             
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
                 for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
                     double content = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetBinContent(iBin);
                     if( content<=0 ){
-                        std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName << ": negative/null content ! Trying to fix it." << std::endl;
+                        std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName << ": negative/null bin " << iBin << " content ! Trying to fix it." << std::endl;
                         fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->SetBinContent(iBin,1e-06);
                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
                     } else {
@@ -1001,7 +1002,8 @@ void TtHFit::ReadNtuples(){
                 HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
                                              sh /*systematic*/,
                                              fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
-                                             fHistoCheckCrash /*cause crash if problem*/);
+//                                              fHistoCheckCrash /*cause crash if problem*/);
+                                             TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
             }
         }
     }
@@ -1225,7 +1227,8 @@ void TtHFit::ReadHistograms(){
                 HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
                                             sh /*systematic*/,
                                             fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
-                                            fHistoCheckCrash /*cause crash if problem*/);
+//                                             fHistoCheckCrash /*cause crash if problem*/);
+                                            TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
             }
         }
     }
@@ -2022,6 +2025,14 @@ void TtHFit::DrawPruningPlot(){
 //__________________________________________________________________________________
 //
 void TtHFit::Fit(){
+    //Checks if a data sample exists
+    bool hasData = false;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::DATA){
+            hasData = true;
+            break;
+        }
+    }
     
     //
     // Gets needed objects for the fit
@@ -2031,7 +2042,9 @@ void TtHFit::Fit(){
     RooWorkspace *ws = (RooWorkspace*)inputFile -> Get("combined");
     RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
     RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
-    RooDataSet* data = data = (RooDataSet*)ws->data("obsData");
+    RooDataSet* data;
+    if(hasData) data = (RooDataSet*)ws->data("obsData");
+    else        data = (RooDataSet*)ws->data("asimovData");
     
     // Performs the fit
     gSystem -> mkdir((fName+"/Fits/").c_str(),true);

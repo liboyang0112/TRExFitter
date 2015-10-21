@@ -652,18 +652,26 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         //
         if(contentUp<0){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \""<< sh->fHistUp->GetName() << "\", bin " << iBin << " has negative content ! Please check !\033[0m" << std::endl;
-            std::cout << "Nominal: " << contentNom << std::endl;
-            std::cout << "Up: " << contentUp << std::endl;
-            std::cout << "Down: " << contentDown << std::endl;
+            std::cout << "  Nominal: " << contentNom << std::endl;
+            std::cout << "  Up: " << contentUp << std::endl;
+            std::cout << "  Down: " << contentDown << std::endl;
             if(causeCrash) abort();
+            else{
+                std::cout << "  => Setting Up to 1e-06" << std::endl;
+                sh->fHistUp->SetBinContent(iBin,1e-06);
+            }
             return false;
         }
         if(contentDown<0){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \"" << sh->fHistDown->GetName() << "\", bin " << iBin << " has negative content ! Please check !\033[0m" << std::endl;
-            std::cout << "Nominal: " << contentNom << std::endl;
-            std::cout << "Up: " << contentUp << std::endl;
-            std::cout << "Down: " << contentDown << std::endl;
+            std::cout << "  Nominal: " << contentNom << std::endl;
+            std::cout << "  Up: " << contentUp << std::endl;
+            std::cout << "  Down: " << contentDown << std::endl;
             if(causeCrash) abort();
+            else{
+                std::cout << "  => Setting Down to 1e-06" << std::endl;
+                sh->fHistDown->SetBinContent(iBin,1e-06);
+            }
             return false;
         }
 

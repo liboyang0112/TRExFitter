@@ -1,3 +1,10 @@
+2015-10-21 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * TtHFit, Common, SampleHist: HistoCheckCrash flag moved to Common (TtHFitter::HISTOCHECKCRAS) -> correctly propagated to SampleHist
+        * TtHFit: Fit method: Asimov used if no data
+        * TtHFit: Fix: no smooth method called if no smooth and symmetrization set for syst
+        * HistoTools: if no crash, negative syst hist bins set to 1e-06
+        * Smone cleaning of outdated files
+        
 2015-10-20 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit: option added for outout image format
         * New config file for default ttHbbLjet fit

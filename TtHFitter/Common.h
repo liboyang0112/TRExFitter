@@ -57,6 +57,7 @@ namespace TtHFitter{
     extern bool SHOWNORMSIG;  // flag to show normalized signal or not
     extern bool SYSTCONTROLPLOTS;
     extern bool SPLITHISTOFILES;
+    extern bool HISTOCHECKCRASH;
     extern float CORRELATIONTHRESHOLD;
     extern std::map< string,string > SYSTMAP;
 };

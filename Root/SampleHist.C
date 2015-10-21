@@ -518,6 +518,12 @@ void SampleHist::SmoothSyst(string syst,bool force){
         h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
         
+        if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
+	    fSyst[i_syst]->fHistUp_original = h_syst_up;
+	    fSyst[i_syst]->fHistDown_original = h_syst_down;
+	    continue;
+        }
+        
         //
         // Call the function for smoothing and symmetrisation
         //
@@ -540,7 +546,8 @@ void SampleHist::SmoothSyst(string syst,bool force){
         //
         // Perform a check of the output histograms (check for 0 bins and other pathologic behaviours)
         //
-        HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, true /*cause crash if problem*/);
+//         HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, true /*cause crash if problem*/);
+        HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
         
         //
         // Normalisation component first

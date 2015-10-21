@@ -10,6 +10,7 @@ bool TtHFitter::SHOWYIELDS = false;
 bool TtHFitter::SHOWNORMSIG = false;
 bool TtHFitter::SYSTCONTROLPLOTS = false;
 bool TtHFitter::SPLITHISTOFILES = false;
+bool TtHFitter::HISTOCHECKCRASH = true;
 float TtHFitter::CORRELATIONTHRESHOLD = -1;
 std::map <string,string> TtHFitter::SYSTMAP; //(TtHFitter::SYSTMAP).clear();
 
