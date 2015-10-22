@@ -556,7 +556,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 reg->fNtuplePathSuffs.clear();
                 std::vector<string> paths = Vectorize( param,',' );
                 for(int i=0;i<(int)paths.size();i++){
-                    reg->fNtuplePathSuffs.push_back( paths[i] );
+//                     reg->fNtuplePathSuffs.push_back( paths[i] );
+                    reg->fNtuplePathSuffs.push_back( Fix(paths[i]) );
                 }
             }
         }
@@ -641,6 +642,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(fInputType==1){
             param = cs->Get("MCweight");
             if(param!="")  smp->SetMCweight( param );
+            param = cs->Get("Selection");
+            if(param!="")  smp->SetSelection( param );
         }
         // to specify only certain regions
         string regions_str = cs->Get("Regions");
@@ -786,6 +789,7 @@ void TtHFit::ReadNtuples(){
             //
             // set selection and weight
             fullSelection = fSelection + " && " + fRegions[i_ch]->fSelection;
+            if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1") fullSelection += " && " + fSamples[i_smp]->fSelection;
             if(fSamples[i_smp]->fType==Sample::DATA) fullMCweight = "1";
             else if(!fSamples[i_smp]->fNormalizedByTheory){ // for data-driven bkg, use just the sample weight (FIXME)
                 fullMCweight = fSamples[i_smp]->fMCweight;

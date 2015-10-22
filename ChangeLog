@@ -1,3 +1,6 @@
+2015-10-22 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * TtHFit: add possibiliy of Selection for Sample
+        
 2015-10-21 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit, Common, SampleHist: HistoCheckCrash flag moved to Common (TtHFitter::HISTOCHECKCRAS) -> correctly propagated to SampleHist
         * TtHFit: Fit method: Asimov used if no data
