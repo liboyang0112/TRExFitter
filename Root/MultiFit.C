@@ -81,6 +81,9 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         //
         AddFitFromConfig(confFile,fullOptions,label,loadSuf);
     }
+    
+    // make directory
+    gSystem->mkdir(fName.c_str());
 }
 
 //__________________________________________________________________________________

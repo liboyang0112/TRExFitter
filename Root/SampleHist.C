@@ -450,16 +450,17 @@ void SampleHist::DrawSystPlot( const string &syst ){
                 // Creates a legend for the plot
                 TLatex *tex = new TLatex();
                 tex->SetNDC();
-                if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.2,0.86,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
-                else                                tex->DrawLatex(0.2,0.86,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fTitle.c_str()));
-                tex->DrawLatex(0.2,0.81,fRegionLabel.c_str());
+                if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
+                else                                tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fTitle.c_str()));
+                tex->DrawLatex(0.17,0.81,fRegionLabel.c_str());
                 
                 //Legend of the histograms
-                TLegend *leg = new TLegend(0.6,0.76,0.9,0.9);
+                TLegend *leg = new TLegend(0.7,0.76,0.9,0.9);
                 leg->SetFillStyle(0);
                 leg->SetBorderSize(0);
                 leg->SetTextSize(gStyle->GetTextSize());
                 leg->SetTextFont(gStyle->GetTextFont());
+                leg->SetMargin(0.2);
                 
                 float acc_up = (yield_syst_up-yield_nominal)/yield_nominal;
                 string sign_up =  "+";
@@ -467,12 +468,13 @@ void SampleHist::DrawSystPlot( const string &syst ){
                 float acc_down = (yield_syst_down-yield_nominal)/yield_nominal;
                 string sign_down =  "+";
                 if(acc_down<0) sign_down = "-";
-                leg->AddEntry(h_syst_up,  Form("+1#sigma (%s%.1f %%)",sign_up.c_str(),  TMath::Abs(acc_up  *100)),"l");
-                leg->AddEntry(h_syst_down,Form("-1#sigma (%s%.1f %%)",sign_down.c_str(),TMath::Abs(acc_down*100)),"l");
+                leg->AddEntry(h_syst_up,  Form("+ 1 #sigma (%s%.1f %%)",sign_up.c_str(),  TMath::Abs(acc_up  *100)),"l");
+                leg->AddEntry(h_syst_down,Form(" - 1 #sigma (%s%.1f %%)",sign_down.c_str(),TMath::Abs(acc_down*100)),"l");
                 leg->Draw();
                 
                 //Legend to define the line style
-                TLegend *leg2 = new TLegend(0.605,0.69,0.9,0.74);
+//                 TLegend *leg2 = new TLegend(0.605,0.69,0.9,0.74);
+                TLegend *leg2 = new TLegend(0.65,0.69,0.9,0.74);
                 leg2->SetFillStyle(0);
                 leg2->SetBorderSize(0);
                 leg2->SetNColumns(2);

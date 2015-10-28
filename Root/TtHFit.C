@@ -60,11 +60,7 @@ TtHFit::TtHFit(string name){
     
     fInputType = HIST;
     
-//     fHistoCheckCrash = true;
-    
     fSuffix = "";
-    fSaveSuf = "";
-    fLoadSuf = "";
     
     fUpdate = false;
     
@@ -235,7 +231,8 @@ void TtHFit::WriteHistos(/*string fileName*/){
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
-        fileName = fName + "/Histograms/" + fName + "_histos"+fSaveSuf+".root";
+//         fileName = fName + "/Histograms/" + fName + "_histos"+fSaveSuf+".root";
+        fileName = fName + "/Histograms/" + fName + "_histos"+fSuffix+".root";
         cout << "-------------------------------------------" << endl;
         cout << "Writing histograms to file " << fileName << " ..." << endl;
         if(recreate){
@@ -249,7 +246,8 @@ void TtHFit::WriteHistos(/*string fileName*/){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         //
         if(!singleOutputFile){
-            fileName = fName + "/Histograms/" + fName + "_" + fRegions[i_ch]->fName + "_histos"+fSaveSuf+".root";
+//             fileName = fName + "/Histograms/" + fName + "_" + fRegions[i_ch]->fName + "_histos"+fSaveSuf+".root";
+            fileName = fName + "/Histograms/" + fName + "_" + fRegions[i_ch]->fName + "_histos"+fSuffix+".root";
             cout << "-------------------------------------------" << endl;
             cout << "Writing histograms to file " << fileName << " ..." << endl;
             if(recreate){
@@ -336,11 +334,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(optMap["Exclude"]!="")
             toExclude = Vectorize(optMap["Exclude"],',');
         if(optMap["Suffix"]!="")
-            fSuffix = optMap["Suffix"]; // used for: plots, workspace, NOT for histograms file
-        if(optMap["SaveSuf"]!="")
-            fSaveSuf = optMap["SaveSuf"]; // used for outout histograms file and for plots
-        if(optMap["LoadSuf"]!="")
-            fLoadSuf = optMap["LoadSuf"]; // used for input workspace, fit results, etc...
+            fSuffix = optMap["Suffix"]; // used for input & output  plots, txt files & workspaces - NOT for histograms file
+//             fSuffix = optMap["Suffix"]; // used for: plots, workspace, NOT for histograms file
+//         if(optMap["SaveSuf"]!="")
+//             fSaveSuf = optMap["SaveSuf"]; // used for outout histograms file and for plots
+//         if(optMap["LoadSuf"]!="")
+//             fLoadSuf = optMap["LoadSuf"]; // used for input workspace, fit results, etc...
         if(optMap["Update"]!="" && optMap["Update"]!="FALSE")
             fUpdate = true;
         if(optMap["Ranking"]!="")
@@ -1262,7 +1261,8 @@ void TtHFit::ReadHistos(/*string fileName*/){
         if(TtHFitter::DEBUGLEVEL>0) cout << "  Reading region " << regionName << endl;
         //
         if(!singleOutputFile){
-            fileName = fName + "/Histograms/" + fName + "_" + regionName + "_histos"+fSaveSuf+".root";
+            fileName = fName + "/Histograms/" + fName + "_" + regionName + "_histos.root";
+//             fileName = fName + "/Histograms/" + fName + "_" + regionName + "_histos"+fSaveSuf+".root";
             cout << "-----------------------------" << endl;
             cout << "Reading histograms from file " << fileName << " ..." << endl;
         }
@@ -1307,17 +1307,20 @@ void TtHFit::DrawAndSaveAll(string opt){
     gSystem->mkdir((fName+"/Plots").c_str());
     bool isPostFit = opt.find("post")!=string::npos;
     if(isPostFit){
-        ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+//         ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+        ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
         if(isPostFit){
             p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
-            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSaveSuf+"."+fImageFormat ).c_str());
+//             p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSaveSuf+"."+fImageFormat ).c_str());
+            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+fImageFormat ).c_str());
         }
         else{
             p = fRegions[i_ch]->DrawPreFit(opt);
-            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSaveSuf+"."+fImageFormat ).c_str()); 
+//             p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSaveSuf+"."+fImageFormat ).c_str()); 
+            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+fImageFormat ).c_str()); 
         }
     }
 }
@@ -1488,8 +1491,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
-    if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSaveSuf+"."+fImageFormat).c_str());
-    else           p->SaveAs((fName+"/Plots/Summary"+fSaveSuf+"."+fImageFormat).c_str());
+//     if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSaveSuf+"."+fImageFormat).c_str());
+//     else           p->SaveAs((fName+"/Plots/Summary"+fSaveSuf+"."+fImageFormat).c_str());
+    if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSuffix+"."+fImageFormat).c_str());
+    else           p->SaveAs((fName+"/Plots/Summary"+fSuffix+"."+fImageFormat).c_str());
     //
     return p;
 }
@@ -1793,7 +1798,8 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         h[i]->SetMaximum(yMax*1.5);
     }
     //
-    c->SaveAs((fName+"/SignalRegions"+fSaveSuf+"."+fImageFormat).c_str());
+//     c->SaveAs((fName+"/SignalRegions"+fSaveSuf+"."+fImageFormat).c_str());
+    c->SaveAs((fName+"/SignalRegions"+fSuffix+"."+fImageFormat).c_str());
 }
 
 //__________________________________________________________________________________
@@ -1821,7 +1827,8 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     
     RooStats::HistFactory::Measurement meas(fName.c_str(), fName.c_str());
     //   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
-    meas.SetOutputFilePrefix((fName+"/RooStats/"+fName).c_str());
+//     meas.SetOutputFilePrefix((fName+"/RooStats/"+fName).c_str());
+    meas.SetOutputFilePrefix((fName+"/RooStats/"+fName+fSuffix).c_str());
     meas.SetExportOnly(exportOnly);
     meas.SetPOI(fPOI.c_str());
 //     meas.SetLumi(fLumiAddScale);
@@ -1923,6 +1930,10 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 void TtHFit::DrawPruningPlot(){
     cout << "------------------------------------------------------" << endl;
     cout << "Drawing Pruning Plot ..." << endl;
+    if(fSystematics.size()==0){
+        cout << "... No systematics. Skipping." << endl;
+        return;
+    }
     vector< TH2F* > histPrun;
     int iReg = 0;
     int nSmp = 0;
@@ -2023,7 +2034,8 @@ void TtHFit::DrawPruningPlot(){
     leg->SetTextSize(0.85*gStyle->GetTextSize());
     leg->Draw();
     //
-    c->SaveAs( (fName+"/Pruning"+fSaveSuf+"."+fImageFormat).c_str() );
+//     c->SaveAs( (fName+"/Pruning"+fSaveSuf+"."+fImageFormat).c_str() );
+    c->SaveAs( (fName+"/Pruning"+fSuffix+"."+fImageFormat).c_str() );
 }
 
 //__________________________________________________________________________________
@@ -2041,7 +2053,8 @@ void TtHFit::Fit(){
     //
     // Gets needed objects for the fit
     //
-    std::string inputFileName = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+//     std::string inputFileName = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+    std::string inputFileName = fName+"/RooStats/"+fName+fSuffix+"_combined_"+fName+"_model.root";
     TFile *inputFile = new TFile( inputFileName.c_str(), "read" );
     RooWorkspace *ws = (RooWorkspace*)inputFile -> Get("combined");
     RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
@@ -2061,23 +2074,25 @@ void TtHFit::Fit(){
         fitTool -> ConstPOI(false);
     }
     fitTool -> FitPDF( mc, simPdf, data );
-    fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+".txt");
+//     fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+".txt");
+    fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+".txt");
     std::map < std::string, double > result = fitTool -> ExportFitResultInMap();
-    
-    }
+}
 
 
 //__________________________________________________________________________________
 //
 void TtHFit::PlotFittedNP(){    
     // plot the NP fit plot
-    ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+//     ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+    ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     if(fFitResults){
         std::set < std::string > npCategories;
         for(unsigned int i=0;i<fSystematics.size();i++){
             npCategories.insert(fSystematics[i]->fCategory);
         }
-        fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+"."+fImageFormat,"all");
+//         fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+"."+fImageFormat,"all");
+        fFitResults->DrawPulls(fName+"/NuisPar"+fSuffix+"."+fImageFormat,"all");
         if(npCategories.size()>1){
             for( const std::string cat : npCategories ){
                 std::string cat_for_name = cat;
@@ -2085,7 +2100,8 @@ void TtHFit::PlotFittedNP(){
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '#', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
-                fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+"_"+cat_for_name+"."+fImageFormat,cat);
+//                 fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+"_"+cat_for_name+"."+fImageFormat,cat);
+                fFitResults->DrawPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+fImageFormat,cat);
             }
         }
     }
@@ -2095,9 +2111,11 @@ void TtHFit::PlotFittedNP(){
 //
 void TtHFit::PlotCorrelationMatrix(){
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
-    ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+//     ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+    ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     if(fFitResults){
-        fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSaveSuf+"."+fImageFormat,TtHFitter::CORRELATIONTHRESHOLD);
+//         fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSaveSuf+"."+fImageFormat,TtHFitter::CORRELATIONTHRESHOLD);
+        fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+fImageFormat,TtHFitter::CORRELATIONTHRESHOLD);
     }
 }
 
@@ -2113,15 +2131,18 @@ void TtHFit::GetLimit(){
             break;
         }
     }
-    string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+//     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+    string workspace = fName+"/RooStats/"+fName+fSuffix+"_combined_"+fName+"_model.root";
     if(hasData){
 //         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
 //         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./limits/\",\""+fName+"\",0.95)'";
-        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
+//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
+        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
         gSystem->Exec(cmd.c_str());
     } else {
 //         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./limits/\",\""+fName+"_blind\",0.95)'";
-        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
+//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
+        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
         gSystem->Exec(cmd.c_str());
     }
 }
@@ -2138,7 +2159,8 @@ void TtHFit::GetSignificance(){
             break;
         }
     }
-    string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+//     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+    string workspace = fName+"/RooStats/"+fName+fSuffix+"_combined_"+fName+"_model.root";
     if(hasData){
 //         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
         string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
@@ -2319,7 +2341,8 @@ void TtHFit::DrawAndSaveSeparationPlots(){
       SEP << "Separation: " << GetSeparation(sig,bkg)*100 << "%";
       ls4.DrawLatex(0.20, 0.69, SEP.str().c_str());
   
-      dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSaveSuf+"_sep."+fImageFormat ).c_str());
+//       dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSaveSuf+"_sep."+fImageFormat ).c_str());
+      dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+fImageFormat ).c_str());
  
     }// regions
 
@@ -2329,6 +2352,15 @@ void TtHFit::DrawAndSaveSeparationPlots(){
 //____________________________________________________________________________________
 //
 void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
+    //Checks if a data sample exists
+    bool hasData = false;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::DATA){
+            hasData = true;
+            break;
+        }
+    }
+    
     // list of systematics to check
     std::vector< string > nuisPars;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
@@ -2337,7 +2369,8 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     }
     // 
     //Text files containing information necessary for drawing of ranking plot
-    string outName = fName+"/Fits/NPRanking"+fSaveSuf;
+//     string outName = fName+"/Fits/NPRanking"+fSaveSuf;
+    string outName = fName+"/Fits/NPRanking"+fSuffix;
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
     ofstream outName_file(outName.c_str());
@@ -2358,10 +2391,13 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     RooWorkspace *ws = (RooWorkspace*)inputFile -> Get("combined");
     RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
     RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
-    RooDataSet* data = data = (RooDataSet*)ws->data("obsData");
+    RooDataSet* data;
+    if(hasData) data = (RooDataSet*)ws->data("obsData");
+    else        data = (RooDataSet*)ws->data("asimovData");
     //
     FittingTool *fitTool = new FittingTool();
-    ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+//     ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+    ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     muhat = fFitResults -> GetNuisParValue( fPOI );
     for(unsigned int i=0;i<nuisPars.size();i++){
         if(fFitType==BONLY){
@@ -2404,12 +2440,15 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 //
 void TtHFit::PlotNPRanking(){
     //
-    string fileToRead = fName+"/Fits/NPRanking"+fLoadSuf+".txt";
+//     string fileToRead = fName+"/Fits/NPRanking"+fLoadSuf+".txt";
+    string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
     //
     // trick to merge the ranking outputs produced in parallel:
-    string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fLoadSuf+"_*` != \"\" ]] ; ";
+//     string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fLoadSuf+"_*` != \"\" ]] ; ";
+    string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; ";
     cmd       += " then rm "+fileToRead+" ; ";
-    cmd       += " cat "+fName+"/Fits/NPRanking"+fLoadSuf+"_* > "+fileToRead+" ; ";
+//     cmd       += " cat "+fName+"/Fits/NPRanking"+fLoadSuf+"_* > "+fileToRead+" ; ";
+    cmd       += " cat "+fName+"/Fits/NPRanking"+fSuffix+"_* > "+fileToRead+" ; ";
     cmd       += " fi ;";
     gSystem->Exec(cmd.c_str());
     //

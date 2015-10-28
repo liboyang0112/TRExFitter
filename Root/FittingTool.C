@@ -305,7 +305,7 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName )
         //if ((varname.find("gamma_stat")!=string::npos)) continue;
         TString vname=var->GetName();
         vname.ReplaceAll("alpha_","");
-        vname.ReplaceAll("Lumi","Luminosity");
+//         vname.ReplaceAll("Lumi","Luminosity");   // why??
         
         double pull  = var->getVal() / 1.0 ; // GetValue() return value in unit of sigma
         double errorHi = var->getErrorHi() / 1.0;
