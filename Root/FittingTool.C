@@ -104,11 +104,11 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     
     poi -> setVal(m_valPOI);
     poi -> setConstant(m_constPOI);
-    poi -> setRange(m_RangePOI_down,m_RangePOI_up);
+    //poi -> setRange(m_RangePOI_down,m_RangePOI_up); // Commented by Loic to avoid overwriting user's setting in config file
     
     if(m_debug){
-      cout << "   -> Constant POI : " << poi->isConstant() << endl;
-      cout << "   -> Value of POI : " << poi->getVal() << endl;
+        cout << "   -> Constant POI : " << poi->isConstant() << endl;
+        cout << "   -> Value of POI : " << poi->getVal() << endl;
     }
     
     // Michele // START //
@@ -129,7 +129,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
             var->setConstant(0);
         }
     }
-//     return;
+    //     return;
     // Michele // STOP //
     
     //
@@ -139,11 +139,11 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     
     const double nllval = nll->getVal();
     if(m_debug){
-      std::cout << "   -> Initial value of the NLL = " << nllval << std::endl;
-      constrainedParams->Print("v");
+        std::cout << "   -> Initial value of the NLL = " << nllval << std::endl;
+        constrainedParams->Print("v");
     }
-
-        //
+    
+    //
     //
     // Safe fit loop
     //
@@ -305,14 +305,12 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName )
         //if ((varname.find("gamma_stat")!=string::npos)) continue;
         TString vname=var->GetName();
         vname.ReplaceAll("alpha_","");
-//         vname.ReplaceAll("Lumi","Luminosity");   // why??
         
         double pull  = var->getVal() / 1.0 ; // GetValue() return value in unit of sigma
         double errorHi = var->getErrorHi() / 1.0;
         double errorLo = var->getErrorLo() / 1.0;
         
         nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
-        
     }
     
     //

@@ -1,3 +1,6 @@
+2015-11-05 Loic Valery <lvalery@cern.ch>
+        * Fixes POI range in fitting tool
+
 2015-10-28 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit: add protection for no syst case when entering pruning plotting method
         
