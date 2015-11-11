@@ -82,7 +82,8 @@ public:
     bool fHasData;
     SampleHist *fData;
     bool fHasSig;
-    SampleHist *fSig;
+    int fNSig;
+    SampleHist *fSig[MAXsamples];
     int fNBkg;
     SampleHist *fBkg[MAXsamples];
     int fNSamples;

@@ -44,10 +44,11 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     Chi2prob = -1;
     KSprob = -1;
     //
+//     h_bkg = 0x0;
     h_data = 0x0;
     g_data = 0x0;
-    h_signal = 0x0;
-    h_normsig = 0x0;
+//     h_signal = 0x0;
+//     h_normsig = 0x0;
     //
     fIsNjet = false;
     fShowYields = false;
@@ -138,17 +139,37 @@ void TthPlot::SetData(TH1* h,string name){
 //_____________________________________________________________________________
 //
 void TthPlot::AddSignal(TH1* h,string name){
-    h_signal = (TH1*)h->Clone();
-    h_signal->Scale(fLumiScale);
-    fSigNames.push_back(name);
+//     h_signal = (TH1*)h->Clone();
+//     h_signal->Scale(fLumiScale);
+//     fSigNames.push_back(name);
+//     if(h_tot==0x0) h_tot = (TH1*)h->Clone();
+//     else h_tot->Add(h);
+    // if already there...
+    if(std::find(fSigNames.begin(),fSigNames.end(),name)!=fSigNames.end()){
+        h_signal[fSigNames.size()-1]->Add(h,fLumiScale);
+    }
+    else{
+        h_signal[fSigNames.size()] = (TH1*)h->Clone();
+        h_signal[fSigNames.size()]->Scale(fLumiScale);
+        fSigNames.push_back(name);
+    }
 }
 
 //_____________________________________________________________________________
 //
 void TthPlot::AddNormSignal(TH1* h,string name){
-    h_normsig = (TH1*)h->Clone(name.c_str());
-    h_normsig->Scale(fLumiScale);
-    fNormSigNames.push_back(name);
+//     h_normsig = (TH1*)h->Clone(name.c_str());
+//     h_normsig->Scale(fLumiScale);
+//     fNormSigNames.push_back(name);
+    // if already there...
+    if(std::find(fNormSigNames.begin(),fNormSigNames.end(),name)!=fNormSigNames.end()){
+        h_normsig[fNormSigNames.size()-1]->Add(h,fLumiScale);
+    }
+    else{
+        h_normsig[fNormSigNames.size()] = (TH1*)h->Clone();
+        h_normsig[fNormSigNames.size()]->Scale(fLumiScale);
+        fNormSigNames.push_back(name);
+    }
 }
 
 //_____________________________________________________________________________
@@ -236,8 +257,17 @@ void TthPlot::Draw(string options){
     h_blinding = 0x0;
     if(fBlindingThreshold>=0){
 //         std::cout << "TthPlot::INFO: fBlindingThreshold = " << fBlindingThreshold << std::endl;
-        if(h_data!=0x0 && h_signal!=0x0 && h_tot!=0x0)
-            h_blinding = BlindDataHisto( h_data, h_tot, h_signal, fBlindingThreshold );
+//         if(h_data!=0x0 && h_signal!=0x0 && h_tot!=0x0)
+        if(h_data!=0x0 && fSigNames.size()>0 && h_tot!=0x0){
+            h_blinding = BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold );
+            // if more than one signal:
+            if(fSigNames.size()>1){
+                for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
+                    h_blinding->Add( BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold ) );
+                    h_blinding->Scale(2.);
+                }
+            }
+        }
         else{
             std::cout << "TthPlot::WARNING: Either h_data (" << h_data << "), h_signal (" << h_signal << ") or h_tot (" << h_tot << ") not defined.";
             std::cout << " Blidning not possible. Skipped." << std::endl;
@@ -274,11 +304,15 @@ void TthPlot::Draw(string options){
     }
     
     //
-    // Eventually add Signal
+    // Eventually add Signal(s)
     //
-    if(h_signal!=0x0){
-        h_signal->SetLineWidth(1);
-        h_stack->Add(h_signal);
+//     if(h_signal!=0x0){
+//         h_signal->SetLineWidth(1);
+//         h_stack->Add(h_signal);
+//     }
+    for(int i_smp=fSigNames.size()-1;i_smp>=0;i_smp--){
+        h_signal[i_smp]->SetLineWidth(1);
+        h_stack->Add(h_signal[i_smp]);
     }
     
     //
@@ -301,14 +335,16 @@ void TthPlot::Draw(string options){
     //
     double signalScale = 1.;
     if(h_normsig!=0x0){
-        signalScale = h_tot->Integral()/h_normsig->Integral();
-        h_normsig->Scale(signalScale);
-        h_normsig->SetLineColor(h_normsig->GetFillColor());
-        h_normsig->SetFillColor(0);
-        h_normsig->SetFillStyle(0);
-        h_normsig->SetLineStyle(2);
-        h_normsig->SetLineWidth(2);
-        h_normsig->Draw("HISTsame");
+        for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
+            signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
+            h_normsig[i_smp]->Scale(signalScale);
+            h_normsig[i_smp]->SetLineColor(h_normsig[i_smp]->GetFillColor());
+            h_normsig[i_smp]->SetFillColor(0);
+            h_normsig[i_smp]->SetFillStyle(0);
+            h_normsig[i_smp]->SetLineStyle(2);
+            h_normsig[i_smp]->SetLineWidth(2);
+            h_normsig[i_smp]->Draw("HISTsame");
+        }
     }
     
     //
@@ -379,7 +415,8 @@ void TthPlot::Draw(string options){
     
     if(fShowYields){
         legXmid = legX1+0.6*(legX2-legX1);
-        leg  = new TLegend(legX1,0.93-(fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+2)*0.05, legXmid,0.93);
+//         leg  = new TLegend(legX1,0.93-(fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+2)*0.05, legXmid,0.93);
+        leg  = new TLegend(legX1,0.93-(fBkgNames.size()+fSigNames.size()+2)*0.05, legXmid,0.93);
         leg1 = new TLegend(legXmid,leg->GetY1(), legX2,leg->GetY2());
         //
         leg->SetFillStyle(0);
@@ -401,8 +438,12 @@ void TthPlot::Draw(string options){
         }
         
         //Signal and background legends
-        if(h_signal)  leg->AddEntry(h_signal, fSigNames[0].c_str(),    "f");
-        if(h_signal)  leg1->AddEntry((TObject*)0,Form("%.1f",h_signal->Integral()),"");
+//         if(h_signal)  leg->AddEntry(h_signal, fSigNames[0].c_str(),    "f");
+//         if(h_signal)  leg1->AddEntry((TObject*)0,Form("%.1f",h_signal->Integral()),"");
+        for(int i_smp=0;i_smp<fSigNames.size();i_smp++){
+            leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+            leg1->AddEntry((TObject*)0,Form("%.1f",h_signal[i_smp]->Integral()),"");
+        }
 //         if(h_normsig) leg->AddEntry(h_normsig,fNormSigNames[0].c_str(),"f");
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
             leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
@@ -429,8 +470,12 @@ void TthPlot::Draw(string options){
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
         
         //Signal and background legend
-        if(h_signal)  leg->AddEntry(h_signal, fSigNames[0].c_str(),    "f");
-        if(h_normsig) leg->AddEntry(h_normsig,fNormSigNames[0].c_str(),"f");
+//         if(h_signal)  leg->AddEntry(h_signal, fSigNames[0].c_str(),    "f");
+//         if(h_normsig) leg->AddEntry(h_normsig,fNormSigNames[0].c_str(),"f");
+        for(int i_smp=0;i_smp<fSigNames.size();i_smp++){
+            leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+            if(h_normsig[i_smp]) leg->AddEntry(h_normsig[i_smp],fNormSigNames[i_smp].c_str(),"f");
+        }
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
             leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
         }
@@ -640,8 +685,11 @@ void TthPlot::Draw(string options){
     // 
     // Set bin width and eventually divide larger bins by this bin width
     if(fBinWidth>0){
-        if(h_signal)  SetHistBinWidth(h_signal,fBinWidth);
-        if(h_normsig) SetHistBinWidth(h_normsig,fBinWidth);
+//         if(h_signal)  SetHistBinWidth(h_signal,fBinWidth);
+        for(int i_smp=0;i_smp<fSigNames.size();i_smp++){
+            SetHistBinWidth(h_signal[i_smp],fBinWidth);  
+            if(h_normsig[i_smp]) SetHistBinWidth(h_normsig[i_smp],fBinWidth);
+        }
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
             SetHistBinWidth(h_bkg[i_smp],fBinWidth);  
         }
@@ -676,8 +724,11 @@ void TthPlot::WriteToFile(string name){
     for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
         h_bkg[i_smp]->Write(Form("h_%s",fBkgNames[i_smp].c_str()),TObject::kOverwrite);
     }
-    if(h_signal)  h_signal ->Write("h_signal",TObject::kOverwrite);
-    if(h_normsig) h_normsig->Write("h_normSignal",TObject::kOverwrite);
+//     if(h_signal)  h_signal ->Write("h_signal",TObject::kOverwrite);
+    for(int i_smp=fSigNames.size()-1;i_smp>=0;i_smp--){
+        h_signal[i_smp]->Write(Form("h_%s",fSigNames[i_smp].c_str()),TObject::kOverwrite);
+        if(h_normsig[i_smp]) h_normsig[i_smp]->Write(Form("h_%s_norm",fSigNames[i_smp].c_str()),TObject::kOverwrite);
+    }
     here->cd();
     f->Close();
     f->~TFile();

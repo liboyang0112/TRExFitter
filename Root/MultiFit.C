@@ -488,10 +488,13 @@ void MultiFit::ComparePulls(){
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-    TCanvas *c = new TCanvas("c","c",600,newHeight);
+//     TCanvas *c = new TCanvas("c","c",600,newHeight);
+    TCanvas *c = new TCanvas("c","c",800,newHeight);
     c->SetTicks(1,0);
-    gPad->SetLeftMargin(0.05);
-    gPad->SetRightMargin(0.33);
+//     gPad->SetLeftMargin(0.05);
+    gPad->SetLeftMargin(0.05/(8./6.));
+//     gPad->SetRightMargin(0.33);
+    gPad->SetRightMargin(0.5);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
     

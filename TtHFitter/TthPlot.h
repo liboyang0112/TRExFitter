@@ -45,8 +45,8 @@ class TthPlot {
     TH1* h_data;
     TGraphAsymmErrors* g_data;
     TH1* h_mc;
-    TH1* h_signal;
-    TH1* h_normsig;
+    TH1* h_signal[100];
+    TH1* h_normsig[100];
     TH1* h_bkg[100];
     THStack* h_stack;
     TH1* h_tot;

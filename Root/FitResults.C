@@ -231,10 +231,13 @@ void FitResults::DrawPulls(string path, string category){
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-    TCanvas *c = new TCanvas("c","c",600,newHeight);
+//     TCanvas *c = new TCanvas("c","c",600,newHeight);
+    TCanvas *c = new TCanvas("c","c",800,newHeight);
     c->SetTicks(1,0);
-    gPad->SetLeftMargin(0.05);
-    gPad->SetRightMargin(0.33);
+//     gPad->SetLeftMargin(0.05);
+    gPad->SetLeftMargin(0.05/(8./6.));
+//     gPad->SetRightMargin(0.33);
+    gPad->SetRightMargin(0.5);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
     
@@ -277,7 +280,8 @@ void FitResults::DrawPulls(string path, string category){
     
     if(category!="all"){
         TLatex *cat_legend = new TLatex();
-        cat_legend -> DrawLatexNDC(0.5,0.8,category.c_str());
+//         cat_legend -> DrawLatexNDC(0.5,0.8,category.c_str());
+        cat_legend -> DrawLatexNDC(0.5,1-0.8*offsetUp/newHeight,category.c_str());
     }
     
     c->SaveAs(path.c_str());

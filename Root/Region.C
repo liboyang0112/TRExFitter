@@ -48,7 +48,7 @@ Region::Region(string name){
     
     fLumiScale = 1.;
     
-    fSig = 0x0;
+//     fSig = 0x0;
 //     fBkg = 0;
     
     fBlindingThreshold = -1;
@@ -78,7 +78,8 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
     }
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
-        fSig = fSampleHists[fNSamples];
+        fSig[fNSig] = fSampleHists[fNSamples];
+        fNSig ++;
     }
     else if(sample->fType==Sample::BACKGROUND){
         fBkg[fNBkg] = fSampleHists[fNSamples];
@@ -106,7 +107,8 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     }
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
-        fSig = fSampleHists[fNSamples];
+        fSig[fNSig] = fSampleHists[fNSamples];
+        fNSig ++;
     }
     else if(sample->fType==Sample::BACKGROUND){
         fBkg[fNBkg] = fSampleHists[fNSamples];
@@ -341,13 +343,21 @@ TthPlot* Region::DrawPreFit(string opt){
     fTot = 0x0;
     string title;
     if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist,fData->fSample->fTitle);
-    if(fHasSig){
-        title = fSig->fSample->fTitle;
-        if(fSig->fSample->fGroup != "") title = fSig->fSample->fGroup;
-        p->AddSignal(fSig->fHist,title);
-        if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(fSig->fHist,title+" (norm)");
-        if(fTot==0x0) fTot = (TH1*)fSig->fHist->Clone("h_tot");
-        else          fTot->Add(fSig->fHist);
+//     if(fHasSig){
+//         title = fSig->fSample->fTitle;
+//         if(fSig->fSample->fGroup != "") title = fSig->fSample->fGroup;
+//         p->AddSignal(fSig->fHist,title);
+//         if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(fSig->fHist,title+" (norm)");
+//         if(fTot==0x0) fTot = (TH1*)fSig->fHist->Clone("h_tot");
+//         else          fTot->Add(fSig->fHist);
+//     }
+    for(int i=0;i<fNSig;i++){
+        title = fSig[i]->fSample->fTitle;
+        if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
+        p->AddSignal(fSig[i]->fHist,title);
+        if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(fSig[i]->fHist,title+" (norm)");
+        if(fTot==0x0) fTot = (TH1*)fSig[i]->fHist->Clone("h_tot");
+        else          fTot->Add(fSig[i]->fHist);
     }
     for(int i=0;i<fNBkg;i++){
         title = fBkg[i]->fSample->fTitle;
@@ -683,22 +693,33 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     //
     string title;
     TH1* hBkgNew[MAXsamples];
-    TH1* hSigNew;
-    for(int i=0, i_bkg=0;i<fNSamples;i++){
+    TH1* hSigNew[MAXsamples];
+    for(int i=0, i_bkg=0, i_sig=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::BACKGROUND){
             hBkgNew[i_bkg] = hSmpNew[i];
             i_bkg++;
         }
-        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL)
-            hSigNew = hSmpNew[i];
+        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
+            hSigNew[i_sig] = hSmpNew[i];
+//             hSigNew = hSmpNew[i];
+            i_sig++;
+        }
     }
     if(fHasData) p->SetData(fData->fHist,fData->fSample->fTitle);
-    if(fHasSig){
-        title = fSig->fSample->fTitle;
-        if(fSig->fSample->fGroup != "") title = fSig->fSample->fGroup;
-        p->AddSignal(hSigNew,title);
+//     if(fHasSig){
+//         title = fSig->fSample->fTitle;
+//         if(fSig->fSample->fGroup != "") title = fSig->fSample->fGroup;
+//         p->AddSignal(hSigNew,title);
+//         if(TtHFitter::SHOWNORMSIG){
+//             p->AddNormSignal(hSigNew,title+" (norm)");
+//         }
+//     }
+    for(int i=0;i<fNSig;i++){
+        title = fSig[i]->fSample->fTitle;
+        if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
+        p->AddSignal(hSigNew[i],title);
         if(TtHFitter::SHOWNORMSIG){
-            p->AddNormSignal(hSigNew,title+" (norm)");
+            p->AddNormSignal(hSigNew[i],title+" (norm)");
         }
     }
     for(int i=0;i<fNBkg;i++){

@@ -1333,11 +1333,12 @@ TthPlot* TtHFit::DrawSummary(string opt){
     gSystem->mkdir(fName.c_str());
     bool isPostFit = opt.find("post")!=string::npos;
     // build one bin per region
-    TH1F* h_sig = 0;
     TH1F* h_data = 0;
+    TH1F* h_sig[MAXsamples];
     TH1F* h_bkg[MAXsamples];
     TH1F *h_tot;
     TGraphAsymmErrors *g_err;
+    int Nsig = 0;
     int Nbkg = 0;
     //
     string name;
@@ -1349,15 +1350,23 @@ TthPlot* TtHFit::DrawSummary(string opt){
     double intErr; // to store the integral error
     TH1* h; // to store varius histograms temporary
     //
+    // Building region - bin correspondence
+    std::vector<int> regionVec; regionVec.clear();
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        if(fRegions[i_ch]->fRegionType!=Region::VALIDATION){
+            regionVec.push_back(i_ch);
+        }
+    }
+    int Nbin = (int)regionVec.size();
+    //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         SampleHist *sh = 0x0;
         name = fSamples[i_smp]->fName.c_str();
         title = fSamples[i_smp]->fTitle.c_str();
         if(fSamples[i_smp]->fGroup != "") title = fSamples[i_smp]->fGroup.c_str();
         // look for the first SampleHist defined for this sample
-        for(int i_ch=0;i_ch<fNRegions;i_ch++){
-//             sh = fRegions[i_ch]->fSampleHists[i_smp];
-            sh = fRegions[i_ch]->GetSampleHist( name );
+        for(int i_ch=0;i_ch<(int)regionVec.size();i_ch++){
+            sh = fRegions[regionVec[i_ch]]->GetSampleHist( name );
             if(sh!=0x0) break;
         }
         // skip sample if no SampleHist found
@@ -1369,13 +1378,13 @@ TthPlot* TtHFit::DrawSummary(string opt){
         lineWidth = sh->fHist->GetLineWidth();
         //
         if(fSamples[i_smp]->fType==Sample::SIGNAL){
-            h_sig = new TH1F(name.c_str(),title.c_str(), fNRegions,0,fNRegions);
-            if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Signal: " << h_sig->GetTitle() << endl;
-            h_sig->SetLineColor(lineColor);
-            h_sig->SetFillColor(fillColor);
-            h_sig->SetLineWidth(lineWidth);
-            for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-                sh = fRegions[i_bin-1]->GetSampleHist( name );
+            h_sig[Nsig] = new TH1F(name.c_str(),title.c_str(), Nbin,0,Nbin);
+            if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Signal: " << h_sig[Nsig]->GetTitle() << endl;
+            h_sig[Nsig]->SetLineColor(lineColor);
+            h_sig[Nsig]->SetFillColor(fillColor);
+            h_sig[Nsig]->SetLineWidth(lineWidth);
+            for(int i_bin=1;(int)i_bin<=regionVec.size();i_bin++){
+                sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=0x0){
                   if(isPostFit)  h = sh->fHist_postFit;
                   else           h = sh->fHist;
@@ -1385,18 +1394,19 @@ TthPlot* TtHFit::DrawSummary(string opt){
                     integral = 0.;
                     intErr = 0.;
                 }
-                h_sig->SetBinContent( i_bin,integral );
-                h_sig->SetBinError( i_bin,intErr );
+                h_sig[Nsig]->SetBinContent( i_bin,integral );
+                h_sig[Nsig]->SetBinError( i_bin,intErr );
             }
+            Nsig++;
         }
         else if(fSamples[i_smp]->fType==Sample::BACKGROUND){
-            h_bkg[Nbkg] = new TH1F(name.c_str(),title.c_str(), fNRegions,0,fNRegions);
+            h_bkg[Nbkg] = new TH1F(name.c_str(),title.c_str(), Nbin,0,Nbin);
             if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Bkg:    " << h_bkg[Nbkg]->GetTitle() << endl;
             h_bkg[Nbkg]->SetLineColor(lineColor);
             h_bkg[Nbkg]->SetFillColor(fillColor);
             h_bkg[Nbkg]->SetLineWidth(lineWidth);
-            for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-                sh = fRegions[i_bin-1]->GetSampleHist( name );
+            for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
+                sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=0x0){
                     if(isPostFit)  h = sh->fHist_postFit;
                     else           h = sh->fHist;
@@ -1412,16 +1422,16 @@ TthPlot* TtHFit::DrawSummary(string opt){
             Nbkg++;
         }
         else if(fSamples[i_smp]->fType==Sample::DATA){
-            h_data = new TH1F(name.c_str(),title.c_str(), fNRegions,0,fNRegions);
+            h_data = new TH1F(name.c_str(),title.c_str(), Nbin,0,Nbin);
             if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Data:   " << h_data->GetTitle() << endl;
-            for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-                h_data->SetBinContent( i_bin,fRegions[i_bin-1]->fData->fHist->Integral() );
+            for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
+                h_data->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fData->fHist->Integral() );
             }
         }
     }
     //
     TthPlot *p = new TthPlot(fName+"_summary",900,700);
-    p->fShowYields = TtHFitter::SHOWYIELDS;
+//     p->fShowYields = TtHFitter::SHOWYIELDS;   // let's hide it always from the summary plot ;)
 //     p->fYmin = 10;
     p->fYmin = 1;
     p->SetXaxis("",false);
@@ -1435,15 +1445,19 @@ TthPlot* TtHFit::DrawSummary(string opt){
     if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
-    if(h_sig) p->AddSignal(h_sig,h_sig->GetTitle());
-    if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(h_sig,((string)h_sig->GetTitle())+"(norm)");
+//     if(h_sig) p->AddSignal(h_sig,h_sig->GetTitle());
+//     if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(h_sig,((string)h_sig->GetTitle())+"(norm)");
+    for(int i=0;i<Nsig;i++){
+        p->AddSignal(h_sig[i],h_sig[i]->GetTitle());
+        if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(h_sig[i],((string)h_sig[i]->GetTitle())+"(norm)");
+    }
     for(int i=0;i<Nbkg;i++)
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
     //
     // Build tot
-    h_tot = new TH1F("h_Tot_summary","h_Tot_summary", fNRegions,0,fNRegions);
+    h_tot = new TH1F("h_Tot_summary","h_Tot_summary", Nbin,0,Nbin);
     
-    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+    for(int i_bin=1;i_bin<=Nbin;i_bin++){
         if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->Integral() );
         else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->Integral() );
         h_tot->SetBinError( i_bin,0 );
@@ -1457,7 +1471,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     TH1* h_tmp_Up;
     TH1* h_tmp_Down;
     for(int i_syst=0;i_syst<(int)fRegions[0]->fSystNames.size();i_syst++){
-        for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+        for(int i_bin=1;i_bin<=Nbin;i_bin++){
             if(isPostFit){
                 h_tmp_Up   = fRegions[i_bin-1]->fTotUp_postFit[i_syst];
                 h_tmp_Down = fRegions[i_bin-1]->fTotDown_postFit[i_syst];
@@ -1467,8 +1481,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
                 h_tmp_Down = fRegions[i_bin-1]->fTotDown[i_syst];
             }
             if(i_bin==1){
-                h_up.  push_back( new TH1F(Form("%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
-                h_down.push_back( new TH1F(Form("%s_TMP",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
+                h_up.  push_back( new TH1F(Form("%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   Nbin,0,Nbin) );
+                h_down.push_back( new TH1F(Form("%s_TMP",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), Nbin,0,Nbin) );
             }
             h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
@@ -1480,12 +1494,12 @@ TthPlot* TtHFit::DrawSummary(string opt){
     p->SetTotBkg(h_tot);
     p->SetTotBkgAsym(g_err);
     //
-    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+    for(int i_bin=1;i_bin<=Nbin;i_bin++){
         p->SetBinLabel(i_bin,fRegions[i_bin-1]->fShortLabel.c_str());
     }
     p->Draw(opt);
     //
-    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+    for(int i_bin=1;i_bin<=Nbin;i_bin++){
         if(TtHFitter::DEBUGLEVEL>0) cout << i_bin << ":\t" << h_tot->GetBinContent(i_bin) << "\t+" << g_err->GetErrorYhigh(i_bin-1) << "\t-" << g_err->GetErrorYlow(i_bin-1) << endl;
     }
     //
@@ -1735,7 +1749,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     pBottom->cd();
     pBottom->Divide(nCols,nRows);
     int Nreg = nRows*nCols;
-    if(Nreg>fNRegions) Nreg = fNRegions;
+//     if(Nreg>fNRegions) Nreg = fNRegions;
     TH1F* h[Nreg];
     float S[Nreg];
     float B[Nreg];
@@ -1748,11 +1762,13 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     //
     // get the values
     for(int i=0;i<Nreg;i++){
-        if(regions[i]->fSig!=0x0 && regions[i]->fSig->fHist!=0x0)
-            S[i] = regions[i]->fSig->fHist->Integral();
-        else
-            S[i] = 0.;
+        S[i] = 0.;
         B[i] = 0.;
+        if(regions[i]==0x0) continue;
+        if(regions[i]->fNSig > 0){
+            if(regions[i]->fSig[0]!=0x0 && regions[i]->fSig[0]->fHist!=0x0)
+                S[i] = regions[i]->fSig[0]->fHist->Integral();
+        }
         for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
             if(regions[i]->fBkg[i_bkg]!=0x0)
                 B[i] += regions[i]->fBkg[i_bkg]->fHist->Integral();
@@ -1764,6 +1780,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     double yMax = 0;
     //
     for(int i=0;i<Nreg;i++){
+        if(regions[i]==0x0) continue;
         pBottom->cd(i+1);
         string label = regions[i]->fShortLabel;
         h[i] = new TH1F(Form("h[%d]",i),label.c_str(),3,xbins);
@@ -1795,6 +1812,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     }
     //
     for(int i=0;i<Nreg;i++){
+        if(regions[i]==0x0) continue;
         h[i]->SetMaximum(yMax*1.5);
     }
     //
@@ -2243,7 +2261,12 @@ void TtHFit::DrawAndSaveSeparationPlots(){
       TCanvas* dummy3 = new TCanvas("dummy3", "dummy3", 600,600);
       dummy3->cd();
 
-      TH1F* sig = (TH1F*)fRegions[i_ch]->fSig->fHist->Clone();
+      if(fRegions[i_ch]->fNSig==0){
+          std::cout << "ERROR::TtHFit::DrawAndSaveSeparationPlots: No Signal Found" << std::endl;
+          return;
+      }
+      
+      TH1F* sig = (TH1F*)fRegions[i_ch]->fSig[0]->fHist->Clone();
 
       TH1F* bkg = (TH1F*)fRegions[i_ch]->fBkg[0]->fHist->Clone(); // clone the first bkg
       for(int i_bkg=1; i_bkg< fRegions[i_ch] -> fNBkg; i_bkg++){
@@ -2399,6 +2422,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 //     ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     muhat = fFitResults -> GetNuisParValue( fPOI );
+    if(!hasData) muhat = 1.;  // FIXME
     for(unsigned int i=0;i<nuisPars.size();i++){
         if(fFitType==BONLY){
             fitTool -> ValPOI(0.);
