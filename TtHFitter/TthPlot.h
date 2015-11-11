@@ -4,6 +4,7 @@
 #define __TthPlot__
 
 const int MAXbins = 1000;
+const int MAXSAMPLES = 100;
 
 using namespace std;
 
@@ -45,9 +46,9 @@ class TthPlot {
     TH1* h_data;
     TGraphAsymmErrors* g_data;
     TH1* h_mc;
-    TH1* h_signal[100];
-    TH1* h_normsig[100];
-    TH1* h_bkg[100];
+    TH1* h_bkg[MAXSAMPLES];
+    TH1* h_signal[MAXSAMPLES];
+    TH1* h_normsig[MAXSAMPLES];
     THStack* h_stack;
     TH1* h_tot;
     TGraphAsymmErrors* g_tot;

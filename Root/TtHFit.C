@@ -1749,7 +1749,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     pBottom->cd();
     pBottom->Divide(nCols,nRows);
     int Nreg = nRows*nCols;
-//     if(Nreg>fNRegions) Nreg = fNRegions;
+    if(Nreg>(int)regions.size()) Nreg = regions.size();
     TH1F* h[Nreg];
     float S[Nreg];
     float B[Nreg];

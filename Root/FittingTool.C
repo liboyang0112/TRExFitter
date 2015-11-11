@@ -107,30 +107,27 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     //poi -> setRange(m_RangePOI_down,m_RangePOI_up); // Commented by Loic to avoid overwriting user's setting in config file
     
     if(m_debug){
-        cout << "   -> Constant POI : " << poi->isConstant() << endl;
-        cout << "   -> Value of POI : " << poi->getVal() << endl;
+        std::cout << "   -> Constant POI : " << poi->isConstant() << std::endl;
+        std::cout << "   -> Value of POI : " << poi->getVal()     << std::endl;
     }
     
-    // Michele // START //
     // Needed for Ranking plot
     RooRealVar* var = NULL;
     RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
-    TIterator* it2 = nuis->createIterator();
-    std::cout << nuis << " " << it2 << std::endl;
-    while( (var = (RooRealVar*) it2->Next()) ){
-        string np = var->GetName();
-        std::cout << np << " == " << m_constNP << std::endl;
-        if( np == ("alpha_"+m_constNP) ){
-            var->setVal(m_constNPvalue);
-            var->setConstant(1);
-        }
-        else if( np.find("alpha_")!=string::npos ){
-            var->setVal(0);
-            var->setConstant(0);
+    if(nuis){
+        TIterator* it2 = nuis->createIterator();
+        while( (var = (RooRealVar*) it2->Next()) ){
+            string np = var->GetName();
+            if( np == ("alpha_"+m_constNP) ){
+                var->setVal(m_constNPvalue);
+                var->setConstant(1);
+            }
+            else if( np.find("alpha_")!=string::npos ){
+                var->setVal(0);
+                var->setConstant(0);
+            }
         }
     }
-    //     return;
-    // Michele // STOP //
     
     //
     // Create the likelihood based on fitpdf, fitData and the parameters

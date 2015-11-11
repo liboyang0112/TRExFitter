@@ -1,6 +1,6 @@
 2015-11-11 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Fix by Arthur for more than one NtupleFiles (avoid problems when spaces are in between the ",")
-        * 
+        * Fix by Thomas for crash on FittingTool with stat only
         
 2015-11-06 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Support for more than one Signal (still only 1 POI)

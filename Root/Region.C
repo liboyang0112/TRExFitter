@@ -11,6 +11,7 @@ Region::Region(string name){
     fShortLabel = name;
     fRegionType = CONTROL;
     fNBkg = 0;
+    fNSig = 0;
     fNSyst = 0;
     fHasData = false;
     fHasSig = false;
@@ -352,6 +353,10 @@ TthPlot* Region::DrawPreFit(string opt){
 //         else          fTot->Add(fSig->fHist);
 //     }
     for(int i=0;i<fNSig;i++){
+//         std::cout << fNSig << " " << i << std::endl;
+//         std::cout << fSig[i] << std::endl;
+//         std::cout << fSig[i]->fSample << std::endl;
+//         std::cout << fSig[i]->fSample->fTitle << std::endl;
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
         p->AddSignal(fSig[i]->fHist,title);

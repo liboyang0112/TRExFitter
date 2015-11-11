@@ -44,11 +44,14 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     Chi2prob = -1;
     KSprob = -1;
     //
-//     h_bkg = 0x0;
     h_data = 0x0;
     g_data = 0x0;
-//     h_signal = 0x0;
-//     h_normsig = 0x0;
+    for(int i_smp=0;i_smp<MAXSAMPLES;i_smp++){
+        h_bkg[i_smp]     = 0x0;
+        h_signal[i_smp]  = 0x0;
+        h_normsig[i_smp] = 0x0;
+    }
+    
     //
     fIsNjet = false;
     fShowYields = false;
