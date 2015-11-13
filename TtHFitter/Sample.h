@@ -68,6 +68,8 @@ public:
     int fLineColor;
     bool fNormalizedByTheory;
     std::vector<string> fRegions;
+    std::vector<float> fLumiScales;
+    bool fIgnoreSelection;
     
     // to read from ntuples
     string fSelection;

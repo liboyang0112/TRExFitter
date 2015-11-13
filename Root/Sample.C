@@ -16,6 +16,8 @@ Sample::Sample(string name,int type){
     fNNorm = 0;
     fNormalizedByTheory = true;
     fRegions.clear();
+    fLumiScales.clear();
+    fIgnoreSelection = false;
     //
     // ntuples
     fSelection = "1";

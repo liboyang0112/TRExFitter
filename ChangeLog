@@ -1,3 +1,8 @@
+2015-11-13 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Some functionalities added for individual sample scaling and to ignore selection
+        * README: updated
+        * config files moved to new config/ directory
+        
 2015-11-11 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Fix by Arthur for more than one NtupleFiles (avoid problems when spaces are in between the ",")
         * Fix by Thomas for crash on FittingTool with stat only

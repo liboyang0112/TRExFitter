@@ -4,7 +4,7 @@ TtHFitter package
 Authors:
   Michele Pinamonti <michele.pinamonti@gmail.com>
   Loic Valery <loic.valery@cern.ch>
-Latest Update:   26 Aug 2015
+Latest Update:   13 Nov 2015
 Tag:             00-00-02
 
 
@@ -34,9 +34,9 @@ To run the code, after compiling (see "Setup"), use the command:
     ./myFit.exe  <action(s)>  [<config file>]  [<update>]  [<options>]
 
 The configuration file (<config file>) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
-By default the file  utils/myFit.config  is loaded.
+By default the file  config/myFit.config  is loaded.
 See the section "Config File" for more details.
-As examples give a look at  util/myFit.config  or  utils/ttH2015.config .
+As examples give a look at  config/myFit.config  or  config/ttH2015.config .
 Most of the times the only file the user has to modify to get his fit is the configuration file. 
 
 The only mandatory argument, <action(s)>, tells to the TtHFitter which operation(s) to perform. 
@@ -50,6 +50,8 @@ For instance, if you use the default file util/myFit.C, the available options ar
     s : calculate significance
     d : draw pre-fit plots
     p : draw post-fit plots
+    a : draw separation plots
+    r : draw ranking plot (see later)
 
 The argument <update> can be 0 or 1 and tells the tool whether the root file containing the histograms should be overwritten or updated.
 Use only for actions n and h.
@@ -72,20 +74,20 @@ To test the code with a simple example, let's follow this tutorial.
  2. Compile the standard code (so simply with "make").
 
  3. Run the following command line:
-      /myFit.exe  h  util/myFit.config
+      /myFit.exe  h  config/myFit.config
     This will read the histogrmas we created at step 1. and create the structure of the samples and regions, which will be saved into a new root file: FitExample_histos.root
 
  4. Now we can already create some pre-fit plots:
-      /myFit.exe  d  util/myFit.config
+      /myFit.exe  d  config/myFit.config
     Look at the fiels created in the directory  FitExample/
 
  5. Then let's export to RooStats:
-      /myFit.exe  w  util/myFit.config
+      /myFit.exe  w  config/myFit.config
     This should create two xml files:  FitExample.xml  and  FitExample_SR_1.xml
     and a workspace inside the root file:  results/FitExample_combined_FitExample_model.root.
     
  6. At this point we can perform the fit:
-      /myFit.exe  f  util/myFit.config
+      /myFit.exe  f  config/myFit.config
     This command calls the external macro  FitCrossCheckForLimits.C  which runs on the worksapce we just created and performs the fit. 
     (By default it's a S+B fit).
     A bunch of output files is created by  FitCrossCheckForLimits.C  in the directory xcheckResults/FitExample, 
@@ -128,20 +130,30 @@ Here's a list of the inputs and options which can be specifed in the config file
       ReadFrom         -> can be HIST or NTUP; default is HIST
       HistoPath        -> valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stored
       NtuplePath(s)    -> valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
-      MCstatThreshold  -> if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
-      IntCodeOverall   -> interpolation code used for the normalization component of systematics (should match the one used in RooStats)
-      IntCodeShape     -> interpolation code used for the shape component of systematics (should match the one used in RooStats)
-      LumiScale        -> this factor will scale all the MC samples
-      DebugLevel       -> 0 or 1
+      MCweight         -> only for option NTUP; string defining the weight (for MC samples only)
+      Selection        -> only for option NTUP; string defining the selection
+      NtupleName       -> default name of the tree
+      Lumi             -> value to scale all the "NormalizedByTheory" samples
+      LumiScale        -> additional value to scale 'after' histogram creation (for fast scaling)
       SystPruningShape -> Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
       SystPruningNorm  -> Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
-      SystControlPlots -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
+      IntCodeOverall   -> interpolation code used for the normalization component of systematics (should match the one used in RooStats)
+      IntCodeShape     -> interpolation code used for the shape component of systematics (should match the one used in RooStats)
+      MCstatThreshold  -> if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
+      DebugLevel       -> 0 or 1
       PlotOptions      -> a set os options for plotting:
         YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
-        ...
+        NORMSIG : add normlised signal to plots
+      SystControlPlots -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
       CorrelationThreshold -> Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05->5%)
+      SignalRegionsPlot-> list of regions to put in SignalRegionsPlot; use "EMPTY" to put an empty entry, "ENDL" to specify end of line
       HistoChecks      -> NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem
-      ...
+      LumiLabel        -> label for luminosity to be put on plots
+      CmeLabel         -> label for center-of-mass energy to be put on plots
+      SplitHistoFiles  -> set this to true to have histogram files split by region (useful with many regions and/or run in parallel)
+      BlindingThreshold-> bins with S/B > this number will be blinded
+      RankingMaxNP     -> max number of NP to show in ranking plot
+      ImageFormat      -> png, pdf or eps
       
     Fit:
       FitType          -> can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -150,45 +162,52 @@ Here's a list of the inputs and options which can be specifed in the config file
       FitBlind         -> specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind.
       POIAsimov        -> value of the parameter of interest in the AsimovDataset used in the fit
       NPValues         -> values of the nuisance parameters used to build the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
-
-    Sample:
-      Title            -> title shown on the legends
-      Type             -> can be SIGNAL, BACKGROUND or DATA; default is BACKGROUND
-      FillColor        -> histogram fill color (not valid for data)
-      LineColor        -> histogram line color
-      HistoFile        -> valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path
-      NtuplePath(s)    -> valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
-      NtupleFile(s)    -> valid only for option NTUP; it's the file name(s) where the input ntuples are stored
-      ...
       
     Region:
+      VariableTitle    -> it's the label which will be displayed on the x-axis in the plots
       Label            -> it's the label which will be showed on the plots and specifies which region is shown
       ShortLabel       -> same as above, but a shorter version for plots with smaller available place
-      Type             -> can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
-      HistoName        -> valid only for option HIST; it's the name of the histogram to read from each of the root files
-      VariableTitle    -> it's the label which will be displayed on the x-axis in the plots
+      LumiLabel        -> label for luminosity to be put on plots
+      CmeLabel         -> label for center-of-mass energy to be put on plots
+      LogScale         -> set it to true to have log-scale when plotting this region
       HistoFile        -> only for option HIST, the file name to be used
       HistoName        -> only for option HIST, the histogram name to be used
-      NtuplePathSuff(s)-> only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region
       Variable         -> only for option NTUP, the variable (or expression) inside the ntuple to plot
       Selection        -> only for option NTUP, the selection done on the ntuple for this region
+      NtupleName       -> only for option NTUP, the name of the tree for this region
       MCweight         -> only for option NTUP, the additional weight sed in this region (for MC samples only)
+      NtuplePathSuff(s)-> only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region
       Rebin            -> if specified, the histograms will be rebinned merging N bins together, where N is the argument (int)
       Binning          -> if specified, the histograms will be rebinned according to the new binning specifed, in the form like (0,10,20,50,100)
       BinWidth         -> if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number
-      ...
+      Type             -> can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
+
+    Sample:
+      Type             -> can be SIGNAL, BACKGROUND or DATA; default is BACKGROUND
+      Title            -> title shown on the legends
+      Group            -> if specified, sample will be grouped with other samples with same group and this label will be used in plots
+      HistoFile        -> valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path
+      HistoName        -> valid only for option HIST; name of histogram to read
+      NtupleFile(s)    -> valid only for option NTUP; it's the file name(s) where the input ntuples are stored
+      NtupleName       -> valid only for option NTUP; name of tree to read
+      NtuplePath(s)    -> valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
+      FillColor        -> histogram fill color (not valid for data)
+      LineColor        -> histogram line color
+      NormFactor       -> NormalisationFactor (free parameter in the fit); in the format <name>,nominal,min,max
+      NormalizedByTheory-> set it to false for data-driven backgrounds (MCweight, Lumi and LumiScale from Job and Region will be ignored)
+      MCweight         -> only for option NTUP, the additional weight sed in this sample (for all types of samples!! Not only MC)
+      Selection        -> valid only for option NTUP; additional selection for this region
+      Regions          -> set this to have the sample only in some regions
+      Exclude          -> set this to exclude the sample in some regions
+      LumiScale(s)     -> set this to scale the sample by a number; if more numbers are set, use a different one for each file / name / path...
+      IgnoreSelection  -> if set, selection from Job and Region will be ignored
       
     Systematic:
-      Title            -> title of the systematic (will be shown in plots)
-      Type             -> can be HISTO or OVERALL
-      Category         -> major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
       Samples          -> comma-separated list of samples on which to apply the systematic
       Exclude          -> comma-separated list of samples to exclude (used when "all" is indicated as "Samples")
-      Smoothing        -> smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
-      Symmetrisation   -> can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line
-      OverallUp        -> for OVERALL systematic: the relative "up" shift (0.1 means +10%)
-      OverallDown      -> for OVERALL systematic: the relative "down" shift (-0.1 means -10%)
-
+      Type             -> can be HISTO or OVERALL
+      Title            -> title of the systematic (will be shown in plots)
+      Category         -> major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
       HistoPathUp      -> only for option HIST, for HISTO systematic: histogram file path for systematic up variation
       HistoPathDown    -> only for option HIST, for HISTO systematic: histogram file path for systematic down variation
       HistoPathSufUp   -> only for option HIST, for HISTO systematic: suffix of the histogram file names for systematic up variation
@@ -201,24 +220,26 @@ Here's a list of the inputs and options which can be specifed in the config file
       HistoNameDown    -> only for option HIST, for HISTO systematic: histogram name for systematic down variation
       HistoNameSufUp   -> only for option HIST, for HISTO systematic: suffix of the histogram names for systematic up variation
       HistoNameSufDown -> only for option HIST, for HISTO systematic: suffix of the histogram names for systematic down variation
-      
+      NtuplePathsUp    -> only for option NTUP, for HISTO systematic: ntuple file path for systematic up variation
+      NtuplePathsDown  -> only for option NTUP, for HISTO systematic: ntuple file path for systematic down variation
+      NtuplePathSufUp  -> only for option NTUP, for HISTO systematic: suffix of the ntuple file paths for systematic up variation
+      NtuplePathSufDown-> only for option NTUP, for HISTO systematic: suffix of the ntuple file paths for systematic down variation
+      NtupleFilesUp    -> only for option NTUP, for HISTO systematic: ntuple file name for systematic up variation
+      NtupleFilesDown  -> only for option NTUP, for HISTO systematic: ntuple file name for systematic down variation
+      NtupleFileSufUp  -> only for option NTUP, for HISTO systematic: suffix of the ntuple file names for systematic up variation
+      NtupleFileSufDown-> only for option NTUP, for HISTO systematic: suffix of the ntuple file names for systematic down variation
+      NtupleNamesUp    -> only for option NTUP, for HISTO systematic: ntuple name for systematic up variation
+      NtupleNamesDown  -> only for option NTUP, for HISTO systematic: ntuple name for systematic down variation
+      NtupleNameSufUp  -> only for option NTUP, for HISTO systematic: suffix of the ntuple names for systematic up variation
+      NtupleNameSufDown-> only for option NTUP, for HISTO systematic: suffix of the ntuple names for systematic down variation
       WeightUp         -> only for option NTUP, for HISTO systematic: weight for systematic up variation
       WeightDown       -> only for option NTUP, for HISTO systematic: weight for systematic down variation
       WeightSufUp      -> only for option NTUP, for HISTO systematic: additional weight for systematic up variation
       WeightSufDown    -> only for option NTUP, for HISTO systematic: additional weight for systematic down variation
-      NtuplePathSufUp  -> only for option NTUP, for HISTO systematic: suffix of the ntuple file paths for systematic up variation
-      NtuplePathSufDown-> only for option NTUP, for HISTO systematic: suffix of the ntuple file paths for systematic down variation
-      NtuplePathsUp    -> only for option NTUP, for HISTO systematic: ntuple file path for systematic up variation
-      NtuplePathsDown  -> only for option NTUP, for HISTO systematic: ntuple file path for systematic down variation
-      NtupleFileSufUp  -> only for option NTUP, for HISTO systematic: suffix of the ntuple file names for systematic up variation
-      NtupleFileSufDown-> only for option NTUP, for HISTO systematic: suffix of the ntuple file names for systematic down variation
-      NtupleFilesUp    -> only for option NTUP, for HISTO systematic: ntuple file name for systematic up variation
-      NtupleFilesDown  -> only for option NTUP, for HISTO systematic: ntuple file name for systematic down variation
-      NtupleNameSufUp  -> only for option NTUP, for HISTO systematic: suffix of the ntuple names for systematic up variation
-      NtupleNameSufDown-> only for option NTUP, for HISTO systematic: suffix of the ntuple names for systematic down variation
-      NtupleNamesUp    -> only for option NTUP, for HISTO systematic: ntuple name for systematic up variation
-      NtupleNamesDown  -> only for option NTUP, for HISTO systematic: ntuple name for systematic down variation
-      ...
+      Symmetrisation   -> can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line
+      Smoothing        -> smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
+      OverallUp        -> for OVERALL systematic: the relative "up" shift (0.1 means +10%)
+      OverallDown      -> for OVERALL systematic: the relative "down" shift (-0.1 means -10%)
 
 ---------
 Command line options
@@ -235,7 +256,7 @@ Currently the supported options are:
       Update:      if =TRUE, the output .root file is updated, otherwise is overwrote
 Note: the wild-card * is supported, but only as last character.
 Example:
-      ./myFit.exe  n  util/ttH2015.config 'Regions=HThad_ge6jge4b;Exclude=BTag_*'
+      ./myFit.exe  n  config/ttH2015.config 'Regions=HThad_ge6jge4b;Exclude=BTag_*'
 
 
 ---------

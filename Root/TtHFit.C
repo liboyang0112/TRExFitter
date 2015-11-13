@@ -335,11 +335,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             toExclude = Vectorize(optMap["Exclude"],',');
         if(optMap["Suffix"]!="")
             fSuffix = optMap["Suffix"]; // used for input & output  plots, txt files & workspaces - NOT for histograms file
-//             fSuffix = optMap["Suffix"]; // used for: plots, workspace, NOT for histograms file
-//         if(optMap["SaveSuf"]!="")
-//             fSaveSuf = optMap["SaveSuf"]; // used for outout histograms file and for plots
-//         if(optMap["LoadSuf"]!="")
-//             fLoadSuf = optMap["LoadSuf"]; // used for input workspace, fit results, etc...
         if(optMap["Update"]!="" && optMap["Update"]!="FALSE")
             fUpdate = true;
         if(optMap["Ranking"]!="")
@@ -407,7 +402,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         param = cs->Get("Selection"); if(param!="") SetSelection(param);
         SetNtupleName( cs->Get("NtupleName") );
     }
-//     param = cs->Get("LumiScale");  if( param != "" )        SetLumi( atof(param.c_str()) );
     param = cs->Get("Lumi");              if( param != "" ) SetLumi( atof(param.c_str()) );
     param = cs->Get("LumiScale");         if( param != "" ) fLumiScale = atof(param.c_str());
     param = cs->Get("SystPruningShape");  if( param != "")  fThresholdSystPruning_Shape         = atof(param.c_str());
@@ -499,7 +493,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fFitIsBlind = false;
         }
     }
-    param = cs->Get("POIAsimov");    if( param != "" ){ fFitPOIAsimov = atof(param.c_str()); };
+    param = cs->Get("POIAsimov");   if( param != "" ){ fFitPOIAsimov = atof(param.c_str()); };
     param = cs->Get("NPValues");    if( param != "" ){
         std::vector < std::string > temp_vec = Vectorize(param,',');
         for(unsigned int iNP = 0; iNP < temp_vec.size(); ++iNP){
@@ -612,6 +606,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             if(param!=""){
                 smp->fNtupleFiles = Vectorize( param ,',' );
             }
+            param = cs->Get("NtupleName");
+            if(param!="") smp->AddNtupleName( param );
             // ntuple paths
             param = cs->Get("NtuplePath");
             if(param!="") smp->AddNtuplePath( param );
@@ -656,6 +652,20 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 && FindInStringVector(exclude,regName)<0 ){
                 smp->fRegions.push_back( fRegions[i_reg]->fName );
             }
+        }
+        // to scale sample by a factor (can be different for each input ntuple / histogram)
+        // NOTE: be careful when speficifying more than one file and more than one path at the same time!!
+        param = cs->Get("LumiScale");  if(param!="") smp->fLumiScales.push_back( atof(param.c_str()) );
+        param = cs->Get("LumiScales"); if(param!=""){
+            vector<string> lumiScales_str = Vectorize( param ,',' );
+            for(unsigned int i=0;i<lumiScales_str.size();i++)
+                smp->fLumiScales.push_back( atof(lumiScales_str[i].c_str()) );
+        }
+        // to skip global & region selection for this sample
+        param = cs->Get("IgnoreSelection");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "TRUE") smp->fIgnoreSelection = true;
         }
         // ...
     }
@@ -787,8 +797,15 @@ void TtHFit::ReadNtuples(){
             // read nominal
             //
             // set selection and weight
-            fullSelection = fSelection + " && " + fRegions[i_ch]->fSelection;
-            if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1") fullSelection += " && " + fSamples[i_smp]->fSelection;
+            fullSelection = "1";
+//             fSelection + " && " + fRegions[i_ch]->fSelection;
+            if(!fSamples[i_smp]->fIgnoreSelection && fSelection!="" && fSelection!="1")
+                fullSelection += " && "+fSelection;
+            if(!fSamples[i_smp]->fIgnoreSelection && fRegions[i_ch]->fSelection!="" && fRegions[i_ch]->fSelection!="1")
+                fullSelection += " && "+fRegions[i_ch]->fSelection;
+            if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
+                fullSelection += " && "+fSamples[i_smp]->fSelection;
+            //
             if(fSamples[i_smp]->fType==Sample::DATA) fullMCweight = "1";
             else if(!fSamples[i_smp]->fNormalizedByTheory){ // for data-driven bkg, use just the sample weight (FIXME)
                 fullMCweight = fSamples[i_smp]->fMCweight;
@@ -800,10 +817,15 @@ void TtHFit::ReadNtuples(){
             //
             // build a list of ntuples to read
             fullPaths.clear();
+            std::vector<string> ntupleNames;
+            if(fRegions[i_ch]->fNtupleNames.size()>0) ntupleNames = fRegions[i_ch]->fNtupleNames;
+            else                                      ntupleNames = ToVec( fNtupleName );
+            if(fSamples[i_smp]->fNtupleNames.size()>0) ntupleNames = fSamples[i_smp]->fNtupleNames;
             fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
                                          fRegions[i_ch]->fNtuplePathSuffs,
                                          fSamples[i_smp]->fNtupleFiles, empty, // no ntuple file suffs for nominal (syst only)
-                                         fRegions[i_ch]->fNtupleNames.size()>0 ? fRegions[i_ch]->fNtupleNames : ToVec( fNtupleName ), empty  // NEW
+//                                          fRegions[i_ch]->fNtupleNames.size()>0 ? fRegions[i_ch]->fNtupleNames : ToVec( fNtupleName ), empty  // NEW
+                                         ntupleNames, empty
                                         );
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                 htmp = HistFromNtuple( fullPaths[i_path],
@@ -821,6 +843,9 @@ void TtHFit::ReadNtuples(){
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                 
                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                
+                if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+                else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
                 
                 //Importing the histogram in TtHFitter
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
@@ -912,6 +937,9 @@ void TtHFit::ReadNtuples(){
                     
                     if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
                     
+                    if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+                    else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
+                    
                     //Importing histogram in TtHFitter
                     if(i_path==0){
                         hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str(),fSamples[i_smp]->fSystematics[i_syst]->fName.c_str()));
@@ -975,6 +1003,9 @@ void TtHFit::ReadNtuples(){
                     else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                     
                     if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                    
+                    if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+                    else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
                     
                     //Importing histogram in TtHFitter
                     if(i_path==0){
@@ -1066,6 +1097,9 @@ void TtHFit::ReadHistograms(){
                 
                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
                 
+                if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+                else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
+                
                 //Importing the histogram in TtHFitter
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
@@ -1139,6 +1173,9 @@ void TtHFit::ReadHistograms(){
                       
                       if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
                       
+                      if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+                      else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
+                      
                       //Importing histogram in TtHFitter
                       if(i_path==0) hUp = (TH1F*)htmp->Clone();
                       else hUp->Add(htmp);
@@ -1194,6 +1231,9 @@ void TtHFit::ReadHistograms(){
                       else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                       
                       if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                      
+                      if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+                      else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
                       
                       //Importing histogram in TtHFitter
                       if(i_path==0) hDown = (TH1F*)htmp->Clone();
