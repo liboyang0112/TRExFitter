@@ -6,12 +6,17 @@
 #include "RooSimultaneous.h"
 #include "RooDataSet.h"
 #include "RooCategory.h"
+#include "RooDataSet.h"
+
+//HistFactory headers
+#include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
 
 #include "TPad.h"
 
 //Corresponding header
 #include "TtHFitter/TtHFit.h"
 
+using namespace RooFit;
 
 // -------------------------------------------------------------------------------------------------
 // class TtHFit
@@ -79,6 +84,13 @@ TtHFit::TtHFit(string name){
     fFitPOIAsimov = 0;
     fFitIsBlind = false;
     
+    //
+    // Limit type
+    //
+    fLimitType = ASYMPTOTIC;
+    fLimitIsBlind = false;
+    fLimitPOIAsimov = 0;
+    
     fImageFormat = "png";
 }
 
@@ -132,6 +144,12 @@ void TtHFit::SetLumi(const float lumi){
 //
 void TtHFit::SetFitType(FitType type){
     fFitType = type;
+}
+
+//__________________________________________________________________________________
+//
+void TtHFit::SetLimitType(LimitType type){
+    fLimitType = type;
 }
 
 //__________________________________________________________________________________
@@ -315,6 +333,13 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     std::vector< string > onlySamples; onlySamples.clear();
     std::vector< string > onlySystematics; onlySystematics.clear();
     std::vector< string > toExclude; toExclude.clear();
+    
+    
+    //##########################################################
+    //
+    // COMMAND LINE options
+    //
+    //##########################################################
     if(options!=""){
 //         optVec = Vectorize(options,';');
 //         optVec = Vectorize(options,'-');
@@ -433,8 +458,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("HistoChecks");  if(param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "NOCRASH" ){
-//             fHistoCheckCrash = false;
-	    TtHFitter::HISTOCHECKCRASH = false;
+            TtHFitter::HISTOCHECKCRASH = false;
         }
     }
     param = cs->Get("LumiLabel"); if( param != "") fLumiLabel = param;
@@ -478,6 +502,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         else if( param == "CRSR" )
             SetFitRegion(TtHFit::CRSR);
         else{
+            SetFitRegion(TtHFit::USERSPECIFIC);
             fFitRegionsToFit = Vectorize(param,',');
             if(fFitRegionsToFit.size()==0){
                 std::cerr << "Unknown FitRegion argument : " << cs->Get("FitRegion") << std::endl;
@@ -503,9 +528,36 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             }
         }
     }
+    
+    //##########################################################
+    //
+    // Reads LIMIT parameters
+    //
+    //##########################################################
+    cs = fConfig->GetConfigSet("Limit");
+    if (cs) {
+        param = cs->Get("LimitType");    if( param != "" ){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param == "ASYMPTOTIC" )
+                SetLimitType(TtHFit::ASYMPTOTIC);
+            else if( param == "TOYS" )
+                SetLimitType(TtHFit::TOYS);
+            else{
+                std::cerr << "Unknown LimitType argument : " << cs->Get("LimitType") << std::endl;
+                return;
+            }
+        }
+        param = cs->Get("LimitBlind");    if( param != "" ){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param == "TRUE" ){
+                fLimitIsBlind = true;
+            } else if ( param == "FALSE" ){
+                fLimitIsBlind = false;
+            }
+        }
+        param = cs->Get("POIAsimov");  if( param != "" ){ fLimitPOIAsimov = atof(param.c_str()); };
+    }
 
-    
-    
     //##########################################################
     //
     // REGIONS options
@@ -572,6 +624,15 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             if( param=="CONTROL" )     reg -> SetRegionType(Region::CONTROL);
             if( param=="VALIDATION" )  reg -> SetRegionType(Region::VALIDATION);
             if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
+        }
+        if(cs->Get("DataType")!=""){
+            param = cs->Get("DataType");
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param=="DATA" )     reg -> SetRegionDataType(Region::REALDATA);
+            else if( param=="ASIMOV" )  reg -> SetRegionDataType(Region::ASIMOVDATA);
+            else{
+                std::cout << "<!> DataType is not recognised: " << param << std::endl;
+            }
         }
     }
     
@@ -1270,7 +1331,6 @@ void TtHFit::ReadHistograms(){
                 HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
                                             sh /*systematic*/,
                                             fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
-//                                             fHistoCheckCrash /*cause crash if problem*/);
                                             TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
             }
         }
@@ -1347,7 +1407,6 @@ void TtHFit::DrawAndSaveAll(string opt){
     gSystem->mkdir((fName+"/Plots").c_str());
     bool isPostFit = opt.find("post")!=string::npos;
     if(isPostFit){
-//         ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
         ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -1884,8 +1943,6 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     }
     
     RooStats::HistFactory::Measurement meas(fName.c_str(), fName.c_str());
-    //   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
-//     meas.SetOutputFilePrefix((fName+"/RooStats/"+fName).c_str());
     meas.SetOutputFilePrefix((fName+"/RooStats/"+fName+fSuffix).c_str());
     meas.SetExportOnly(exportOnly);
     meas.SetPOI(fPOI.c_str());
@@ -1899,12 +1956,8 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     }
     
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        
-        if(fFitRegion==CRONLY){
-            if(fRegions[i_ch]->fRegionType==Region::SIGNAL || fRegions[i_ch]->fRegionType==Region::VALIDATION) continue;
-        } else if(fFitRegion==CRSR){
-            if(fRegions[i_ch]->fRegionType==Region::VALIDATION) continue;
-        }
+
+        if(fRegions[i_ch]->fRegionType==Region::VALIDATION) continue;
         
         if(TtHFitter::DEBUGLEVEL>0){
             cout << "Adding Channel: " << fRegions[i_ch]->fName << endl;
@@ -2099,57 +2152,323 @@ void TtHFit::DrawPruningPlot(){
 //__________________________________________________________________________________
 //
 void TtHFit::Fit(){
-    //Checks if a data sample exists
-    bool hasData = false;
-    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSamples[i_smp]->fType==Sample::DATA){
-            hasData = true;
-            break;
+    
+    //
+    // Fills a vector of regions to consider for fit
+    //
+    std::vector < std:: string > regionsToFit;
+    std::map < std::string, int > regionDataType;
+    for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+        bool isToFit = false;
+ 
+        if ( fFitRegion == CRONLY ) {
+            if( fRegions[i_ch] -> fRegionType == Region::CONTROL ){
+                isToFit = true;
+            }
+        } else if ( fFitRegion == CRSR ){
+            if( fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL ){
+                isToFit = true;
+            }
+        }
+        if ( ! isToFit ){
+            for (unsigned int iReg = 0; iReg < fFitRegionsToFit.size(); ++iReg ){
+                if( fFitRegionsToFit[iReg] == fRegions[i_ch] -> fName ){
+                    isToFit = true;
+                    break;
+                }
+            }
+        }
+        
+        if(isToFit){
+            regionsToFit.push_back( fRegions[i_ch] -> fName );
+            Region::DataType dataType;
+            if(fFitIsBlind){
+                dataType = Region::ASIMOVDATA;
+            } else {
+                dataType = fRegions[i_ch] -> fRegionDataType;
+            }
+            regionDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
         }
     }
     
     //
-    // Gets needed objects for the fit
+    // Creating the combined model with the regions to fit only
     //
-//     std::string inputFileName = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
-    std::string inputFileName = fName+"/RooStats/"+fName+fSuffix+"_combined_"+fName+"_model.root";
-    TFile *inputFile = new TFile( inputFileName.c_str(), "read" );
-    RooWorkspace *ws = (RooWorkspace*)inputFile -> Get("combined");
-    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
-    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
-    RooDataSet* data;
-    if(hasData) data = (RooDataSet*)ws->data("obsData");
-    else        data = (RooDataSet*)ws->data("asimovData");
+    RooWorkspace* ws = PerformWorkspaceCombination( regionsToFit );
     
-    // Performs the fit
-    gSystem -> mkdir((fName+"/Fits/").c_str(),true);
-    FittingTool* fitTool = new FittingTool();
-    if(fFitType==BONLY){
+    //
+    // If needed, create a RooDataset object
+    //
+    RooDataSet* data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+    
+    //
+    // Calls the PerformFit() function to actually do the fit
+    //
+    PerformFit( ws, regionsToFit, data);
+
+}
+
+//__________________________________________________________________________________
+//
+RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue  ){
+    
+    //
+    // This function dumps a RooDataSet object using the input informations provided by the user
+    //    |-> Used when testing Fit response (inject one NP in data and check fit result)
+    //    |-> Used when using fit results in some regions to generate Asimov data in blinded regions
+    //
+    if(TtHFitter::DEBUGLEVEL>0){
+        std::cout << "=> In TtHFit::DumpData(): Dumping data with the followng parameters" << std::endl;
+        std::cout << "    * Regions data type " << std::endl;
+        for( const std::pair < std::string, int > dataType : regionDataType ){
+            std::cout << "       - Region: " << dataType.first << "       DataType: " << dataType.second << std::endl;
+        }
+        if(npValues.size()){
+            std::cout << "    * Injected NP values " << std::endl;
+            for ( const std::pair < std::string, double > npValue : npValues ){
+                std::cout << "       - NP: " << npValue.first << "       Value: " << npValue.second << std::endl;
+            }
+        } else {
+            std::cout << "    * No NP values injected " << std::endl;
+        }
+        std::cout << "    * POI value: " << poiValue << std::endl;
+    }
+    
+    RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
+    
+    //Save the initial values of the NP
+    ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
+    ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
+    
+    //Be sure to take the initial values of the NP
+    ws->loadSnapshot("InitialStateModelGlob");
+    ws->loadSnapshot("InitialStateModelNuis");
+    
+    //Creating a set
+    const char* weightName="weightVar";
+    RooArgSet obsAndWeight;
+    obsAndWeight.add(*mc->GetObservables());
+    
+    RooRealVar* weightVar = NULL;
+    if ( !(weightVar = ws->var(weightName)) ){
+        ws->import(*(new RooRealVar(weightName, weightName, 1,0,10000000)));
+        weightVar = ws->var(weightName);
+    }
+    obsAndWeight.add(*ws->var(weightName));
+    ws->defineSet("obsAndWeight",obsAndWeight);
+    
+    //
+    // Getting observed data (in case some regions are unblinded)
+    //
+    RooDataSet* realData = (RooDataSet*)ws -> data("obsData");
+    
+    //
+    // Set some parameters for the Asimov production
+    //     |-> Values of NPs
+    //     |-> Values of POI
+    //
+    
+    //-- POI
+    RooRealVar * poi = (RooRealVar*) mc->GetParametersOfInterest()->first();
+    poi -> setVal(poiValue);
+    
+    //-- Nuisance parameters
+    RooRealVar* var(nullptr);
+    TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
+    while( (var = (RooRealVar*) npIterator->Next()) ){
+        std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
+        if( it_npValue != npValues.end() ){
+            var -> setVal(it_npValue -> second);
+        }
+    }
+    
+    //Looping over regions
+    map<string, RooDataSet*> asimovDataMap;
+    RooSimultaneous* simPdf = dynamic_cast<RooSimultaneous*>(mc->GetPdf());
+    RooCategory* channelCat = (RooCategory*)&simPdf->indexCat();
+    TIterator* iter = channelCat->typeIterator() ;
+    RooCatType* tt = NULL;
+    int nrIndices = 0;
+    int iFrame = 0;
+    int i = 0;
+    while( (tt = (RooCatType*) iter -> Next()) ) {
+        
+        channelCat->setIndex(i);
+        iFrame++;
+        i++;
+        
+        //Check the type of data to store for this region !
+        int dataType = Region::ASIMOVDATA;//default is AsimovData
+        std::map < std::string, int >::const_iterator it_dataType = regionDataType.find( channelCat->getLabel() );
+        if( it_dataType == regionDataType.end() ){
+            std::cout << "=> In TtHFit::DumpData(): the following region is not specified in the inputs to the function (" << channelCat->getLabel() << "): use Asimov" << std::endl;
+            std::cout << "   This SHOULD NOT HAPPEN ! Please check if everying is fine !" << std::endl;
+        } else {
+            dataType = regionDataType[channelCat->getLabel()];
+        }
+        
+        //A protection: if there is no real observed data, use only ASIMOV (but print a warning)
+        if(dataType==Region::REALDATA && !realData){
+            std::cout << "=> In TtHFit::DumpData(): you want real data for channel " << channelCat->getLabel() << " but none is available in the workspace. Using Asimov instead." << std::endl;
+            dataType = Region::ASIMOVDATA;
+        }
+        
+        if(dataType==Region::ASIMOVDATA){
+            // Get pdf associated with state from simpdf
+            RooAbsPdf* pdftmp = simPdf->getPdf(channelCat->getLabel()) ;
+            
+            // Generate observables defined by the pdf associated with this state
+            RooArgSet* obstmp = pdftmp->getObservables(*mc->GetObservables()) ;
+            
+            RooDataSet* obsDataUnbinned = new RooDataSet(Form("combAsimovData%d",iFrame),Form("combAsimovData%d",iFrame),RooArgSet(obsAndWeight,*channelCat),RooFit::WeightVar(*weightVar));
+            RooRealVar* thisObs = ((RooRealVar*)obstmp->first());
+            double expectedEvents = pdftmp->expectedEvents(*obstmp);
+            double thisNorm = 0;
+            
+            for(int jj=0; jj<thisObs->numBins(); ++jj){
+                thisObs->setBin(jj);
+                thisNorm=pdftmp->getVal(obstmp)*thisObs->getBinWidth(jj);
+                if (thisNorm*expectedEvents > 0 && thisNorm*expectedEvents < pow(10.0, 18)) obsDataUnbinned->add(*mc->GetObservables(), thisNorm*expectedEvents);
+            }
+            obsDataUnbinned->Print();
+            if(obsDataUnbinned->sumEntries()!=obsDataUnbinned->sumEntries()){
+                exit(1);
+            }
+            asimovDataMap[string(channelCat->getLabel())] = obsDataUnbinned;
+            
+        } else if(dataType==Region::REALDATA) {
+            RooAbsData *datatmp = realData->reduce(Form("%s==%s::%s",channelCat->GetName(),channelCat->GetName(),tt->GetName()));
+            asimovDataMap[string(channelCat->getLabel())] = (RooDataSet*)datatmp;
+        }
+    }
+    
+    RooDataSet *asimovData = new RooDataSet("newasimovData",
+                                            "newasimovData",
+                                            RooArgSet(obsAndWeight,*channelCat),
+                                            Index(*channelCat),
+                                            Import(asimovDataMap),
+                                            WeightVar(*weightVar));
+    
+    ws->loadSnapshot("InitialStateModelGlob");
+    ws->loadSnapshot("InitialStateModelNuis");
+    
+    return asimovData;
+}
+
+//__________________________________________________________________________________
+//
+std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, std::vector < std::string > &regionsToFit, RooDataSet* inputData, FitType fitType ){
+    
+    std::map < std::string, double > result;
+    
+    /////////////////////////////////
+    //
+    // Function performing a fit in a given configuration.
+    //
+    /////////////////////////////////
+    
+    //
+    // Fit configuration (SPLUSB or BONLY)
+    //
+    FittingTool *fitTool = new FittingTool();
+    if(fFitType==BONLY || fitType==BONLY){
         fitTool -> ValPOI(0.);
         fitTool -> ConstPOI(true);
     } else if(fFitType==SPLUSB){
         fitTool -> ValPOI(1.);
         fitTool -> ConstPOI(false);
     }
+    
+    //
+    // Gets needed objects for the fit
+    //
+    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
+    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    
+    //
+    // Creates the data object
+    //
+    RooDataSet* data = 0;
+    if(inputData){
+        data = inputData;
+    } else {
+        std::cout << "In TtHFit::PerformFit() function: you didn't provide inputData => will use the observed data !" << std::endl;
+        data = (RooDataSet*)ws->data("obsData");
+    }
+    
+    // Performs the fit
+    gSystem -> mkdir((fName+"/Fits/").c_str(),true);
+    fitTool -> MinimType("Minuit2");
     fitTool -> FitPDF( mc, simPdf, data );
-//     fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+".txt");
-    fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+".txt");
-    std::map < std::string, double > result = fitTool -> ExportFitResultInMap();
+    if(fitType==FitType::SPLUSB)fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+".txt");
+    result = fitTool -> ExportFitResultInMap();
+    
+    return result;
 }
-
 
 //__________________________________________________________________________________
 //
-void TtHFit::PlotFittedNP(){    
-    // plot the NP fit plot
-//     ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ){
+    
+    //
+    // Definition of the fit regions
+    //
+    std::vector < RooWorkspace* > vec_ws;
+    std::vector < std::string > vec_chName;
+    RooStats::HistFactory::Measurement *measurement = 0;
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        bool isToFit = false;
+        for(unsigned int iRegion = 0; iRegion < regionsToFit.size(); ++iRegion){
+            if(fRegions[i_ch] -> fName == regionsToFit[iRegion]){
+                isToFit = true;
+                break;
+            }
+        }
+        if(isToFit){
+            std::string fileName = fName+"/RooStats/"+fName+"_"+fRegions[i_ch]->fName+"_"+fName+"_model.root";
+            TFile *rootFile = new TFile(fileName.c_str(),"read");
+            RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get((fRegions[i_ch]->fName).c_str());
+            if(!m_ws){
+                std::cout << "<!> Error in TtHFit::PerformWorkspaceCombination: The workspace (\"" << fRegions[i_ch] -> fName << "\") cannot be found in file " << fileName << ". Please check !" << std::endl;
+            }
+            vec_ws.push_back(m_ws);
+            vec_chName.push_back(fRegions[i_ch] -> fName);
+            if(!measurement){
+                measurement = (RooStats::HistFactory::Measurement*) rootFile -> Get(fName.c_str());
+            }
+        }
+    }
+    
+    //
+    // Create the HistoToWorkspaceFactoryFast object to perform safely the combination
+    //
+    if(!measurement){
+        std::cout << "<!> Error in TtHFit::PerformWorkspaceCombination() : The measurement object has not been retrieved ! Please check." << std::endl;
+        return 0;
+    }
+    RooStats::HistFactory::HistoToWorkspaceFactoryFast factory(*measurement);
+    
+    // Creating the combined model
+    RooWorkspace* ws = factory.MakeCombinedModel( vec_chName, vec_ws );
+    
+    // Configure the workspace
+    RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
+    
+    return ws;
+}
+
+//__________________________________________________________________________________
+//
+void TtHFit::PlotFittedNP(){
+    //
+    // plot the NP fit pull plot
+    //
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     if(fFitResults){
         std::set < std::string > npCategories;
         for(unsigned int i=0;i<fSystematics.size();i++){
             npCategories.insert(fSystematics[i]->fCategory);
         }
-//         fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+"."+fImageFormat,"all");
         fFitResults->DrawPulls(fName+"/NuisPar"+fSuffix+"."+fImageFormat,"all");
         if(npCategories.size()>1){
             for( const std::string cat : npCategories ){
@@ -2158,7 +2477,6 @@ void TtHFit::PlotFittedNP(){
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '#', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
-//                 fFitResults->DrawPulls(fName+"/NuisPar"+fSaveSuf+"_"+cat_for_name+"."+fImageFormat,cat);
                 fFitResults->DrawPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+fImageFormat,cat);
             }
         }
@@ -2169,10 +2487,8 @@ void TtHFit::PlotFittedNP(){
 //
 void TtHFit::PlotCorrelationMatrix(){
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
-//     ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     if(fFitResults){
-//         fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSaveSuf+"."+fImageFormat,TtHFitter::CORRELATIONTHRESHOLD);
         fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+fImageFormat,TtHFitter::CORRELATIONTHRESHOLD);
     }
 }
@@ -2181,55 +2497,190 @@ void TtHFit::PlotCorrelationMatrix(){
 //
 void TtHFit::GetLimit(){
     
-    //Checks if a data sample exists
-    bool hasData = false;
-    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSamples[i_smp]->fType==Sample::DATA){
-            hasData = true;
-            break;
+    //
+    // Fills a vector of regions to consider for fit
+    //
+    std::vector < std:: string > regionsForFit;
+    std::vector < std::string > regionsForLimit;
+    std::map < std::string, int > regionsForFitDataType;
+    std::map < std::string, int > regionsForLimitDataType;
+    for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+        if( fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
+            Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
+            regionsForFit.push_back( fRegions[i_ch] -> fName );
+            regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
         }
+        regionsForLimit.push_back(fRegions[i_ch] -> fName);
+        regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , fLimitIsBlind ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
     }
-//     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
-    string workspace = fName+"/RooStats/"+fName+fSuffix+"_combined_"+fName+"_model.root";
-    if(hasData){
-//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
-//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./limits/\",\""+fName+"\",0.95)'";
-//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
-        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
-        gSystem->Exec(cmd.c_str());
-    } else {
-//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./limits/\",\""+fName+"_blind\",0.95)'";
-//         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
-        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
-        gSystem->Exec(cmd.c_str());
+    
+    std::map < std::string, double > npValues;
+    RooDataSet* data = 0;
+    if(regionsForFit.size()>0){
+        //
+        // Creates a combined workspace with the regions to be used *in the fit*
+        //
+        RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+        
+        //
+        // Calls the PerformFit() function to actually do the fit
+        //
+        npValues = PerformFit( ws_forFit, regionsForFit, data, FitType::BONLY);
     }
+    
+    //
+    // Create the final asimov dataset for limit setting
+    //
+    RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
+    data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
+    
+    //
+    // Gets the measurement object in the original combined workspace (created with the "w" command)
+    //
+    const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+    TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
+    RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
+    TString outputName = f_origin->GetName();
+    f_origin -> Close();
+
+    //
+    // Creating the rootfile used as input for the limit setting :-)
+    //
+    outputName = outputName.ReplaceAll(".root","_forLimits.root");
+    TFile *f_clone = new TFile( outputName, "recreate" );
+    ws_forLimit -> import(*data,Rename("ttHFitterData"));
+    originalMeasurement -> Write();
+    ws_forLimit -> Write();
+    f_clone -> Close();
+    
+    //
+    // Finally computing the limit
+    //
+    string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
+    gSystem->Exec(cmd.c_str());
 }
+
+
+////__________________________________________________________________________________
+////
+//void TtHFit::GetLimit(){
+//    
+//    //Checks if a data sample exists
+//    bool hasData = false;
+//    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+//        if(fSamples[i_smp]->fType==Sample::DATA){
+//            hasData = true;
+//            break;
+//        }
+//    }
+////     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+//    string workspace = fName+"/RooStats/"+fName+fSuffix+"_combined_"+fName+"_model.root";
+//    if(hasData){
+////         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
+////         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./limits/\",\""+fName+"\",0.95)'";
+////         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
+//        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+//        gSystem->Exec(cmd.c_str());
+//    } else {
+////         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./limits/\",\""+fName+"_blind\",0.95)'";
+////         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
+//        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+//        gSystem->Exec(cmd.c_str());
+//    }
+//}
 
 //__________________________________________________________________________________
 //
 void TtHFit::GetSignificance(){
     
-    //Checks if a data sample exists
-    bool hasData = false;
-    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSamples[i_smp]->fType==Sample::DATA){
-            hasData = true;
-            break;
+    //
+    // Fills a vector of regions to consider for fit
+    //
+    std::vector < std:: string > regionsForFit;
+    std::vector < std::string > regionsForSign;
+    std::map < std::string, int > regionsForFitDataType;
+    std::map < std::string, int > regionsForSignDataType;
+    for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+        if( fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
+            Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
+            regionsForFit.push_back( fRegions[i_ch] -> fName );
+            regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
         }
+        regionsForSign.push_back(fRegions[i_ch] -> fName);
+        regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , fLimitIsBlind ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
     }
-//     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
-    string workspace = fName+"/RooStats/"+fName+fSuffix+"_combined_"+fName+"_model.root";
-    if(hasData){
-//         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
-        string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
-        gSystem->Exec(cmd.c_str());
+    
+    std::map < std::string, double > npValues;
+    RooDataSet* data = 0;
+    if(regionsForFit.size()>0){
+        //
+        // Creates a combined workspace with the regions to be used *in the fit*
+        //
+        RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
         
-    } else {
-//         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
-        string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
-        gSystem->Exec(cmd.c_str());
+        //
+        // Calls the PerformFit() function to actually do the fit
+        //
+        npValues = PerformFit( ws_forFit, regionsForFit, data, FitType::BONLY);
     }
+    
+    //
+    // Create the final asimov dataset for limit setting
+    //
+    RooWorkspace* ws_forSignificance = PerformWorkspaceCombination( regionsForSign );
+    data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
+    
+    //
+    // Gets the measurement object in the original combined workspace (created with the "w" command)
+    //
+    const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+    TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
+    RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
+    TString outputName = f_origin->GetName();
+    f_origin -> Close();
+
+    //
+    // Creating the rootfile used as input for the limit setting :-)
+    //
+    outputName = outputName.ReplaceAll(".root","_forSignificance.root");
+    TFile *f_clone = new TFile( outputName, "recreate" );
+    ws_forSignificance -> import(*data,Rename("ttHFitterData"));
+    originalMeasurement -> Write();
+    ws_forSignificance -> Write();
+    f_clone -> Close();
+    
+    //
+    // Finally computing the limit
+    //
+    string cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
+    gSystem->Exec(cmd.c_str());
 }
+
+////__________________________________________________________________________________
+////
+//void TtHFit::GetSignificance(){
+//    
+//    //Checks if a data sample exists
+//    bool hasData = false;
+//    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+//        if(fSamples[i_smp]->fType==Sample::DATA){
+//            hasData = true;
+//            break;
+//        }
+//    }
+////     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+//    string workspace = fName+"/RooStats/"+fName+fSuffix+"_combined_"+fName+"_model.root";
+//    if(hasData){
+////         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
+//        string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
+//        gSystem->Exec(cmd.c_str());
+//        
+//    } else {
+////         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
+//        string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
+//        gSystem->Exec(cmd.c_str());
+//    }
+//}
 
 //__________________________________________________________________________________
 //
@@ -2415,24 +2866,25 @@ void TtHFit::DrawAndSaveSeparationPlots(){
 //____________________________________________________________________________________
 //
 void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
-    //Checks if a data sample exists
-    bool hasData = false;
-    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSamples[i_smp]->fType==Sample::DATA){
-            hasData = true;
-            break;
-        }
+
+    if(fFitType==BONLY){
+        std::cerr << "\033[1;31m<!> ERROR in TtHFit::ProduceNPRanking(): For ranking plots, the SPLUSB FitType is needed.  \033[0m"<<std::endl;
+        return;
     }
     
-    // list of systematics to check
+    //
+    // List of systematics to check
+    //
     std::vector< string > nuisPars;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName || atoi(NPnames.c_str())==i_syst )
             nuisPars.push_back( fSystematics[i_syst]->fName );
     }
-    // 
+    
+    //
     //Text files containing information necessary for drawing of ranking plot
-//     string outName = fName+"/Fits/NPRanking"+fSaveSuf;
+    //     string outName = fName+"/Fits/NPRanking"+fSaveSuf;
+    //
     string outName = fName+"/Fits/NPRanking"+fSuffix;
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
@@ -2446,58 +2898,103 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     std::map< string,float > muVarDown;
     std::map< string,float > muVarNomUp;
     std::map< string,float > muVarNomDown;
+    
+    //
+    // Fills a vector of regions to consider for fit
+    //
+    std::vector < std:: string > regionsToFit;
+    std::map < std::string, int > regionDataType;
+    for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+        bool isToFit = false;
+        
+        if ( fFitRegion == CRONLY ) {
+            if( fRegions[i_ch] -> fRegionType == Region::CONTROL ){
+                isToFit = true;
+            }
+        } else if ( fFitRegion == CRSR ){
+            if( fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL ){
+                isToFit = true;
+            }
+        }
+        if ( ! isToFit ){
+            for (unsigned int iReg = 0; iReg < fFitRegionsToFit.size(); ++iReg ){
+                if( fFitRegionsToFit[iReg] == fRegions[i_ch] -> fName ){
+                    isToFit = true;
+                    break;
+                }
+            }
+        }
+        
+        if(isToFit){
+            regionsToFit.push_back( fRegions[i_ch] -> fName );
+            Region::DataType dataType;
+            if(fFitIsBlind){
+                dataType = Region::ASIMOVDATA;
+            } else {
+                dataType = fRegions[i_ch] -> fRegionDataType;
+            }
+            regionDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
+        }
+    }
+    
+    //
+    // Creating the combined model
+    //
+    RooWorkspace* ws = PerformWorkspaceCombination( regionsToFit );
+    
     //
     // Gets needed objects for the fit
     //
-    std::string inputFileName = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
-    TFile *inputFile = new TFile( inputFileName.c_str(), "read" );
-    RooWorkspace *ws = (RooWorkspace*)inputFile -> Get("combined");
     RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
     RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
-    RooDataSet* data;
-    if(hasData) data = (RooDataSet*)ws->data("obsData");
-    else        data = (RooDataSet*)ws->data("asimovData");
+    RooDataSet* data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+    
+    //
+    // Initialize the FittingTool object
     //
     FittingTool *fitTool = new FittingTool();
-//     ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+    fitTool -> ValPOI(1.);
+    fitTool -> ConstPOI(false);
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     muhat = fFitResults -> GetNuisParValue( fPOI );
-    if(!hasData) muhat = 1.;  // FIXME
+    //if(!hasData) muhat = 1.;  // FIXME -> Loic: Do we actually need that ?
+    
     for(unsigned int i=0;i<nuisPars.size();i++){
-        if(fFitType==BONLY){
-            fitTool -> ValPOI(0.);
-            fitTool -> ConstPOI(true);
-        } else if(fFitType==SPLUSB){
-            fitTool -> ValPOI(1.);
-            fitTool -> ConstPOI(false);
-        }
-
+        
+        //Getting the postfit values of the nuisance parameter
         central = fFitResults -> GetNuisParValue(   nuisPars[i] );
         up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
         down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
-	outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
-        //
+        outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
+        
+        //Set the NP to its post-fit *up* variation and refit to get the fitted POI
         fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        
+        //Set the NP to its post-fit *down* variation and refit to get the fitted POI
         fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
-
-	outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
-
-	fitTool -> FixNP( nuisPars[i], central + 1. );
+        
+        outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
+        
+        
+        //Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
+        fitTool -> FixNP( nuisPars[i], central + 1. );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        
+        //Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
         fitTool -> FixNP( nuisPars[i], central - 1. );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
-
-	outName_file << muVarNomUp[nuisPars[i]]-muhat << "   " <<  muVarNomDown[nuisPars[i]]-muhat<< " "<<endl;
-
+        
+        outName_file << muVarNomUp[nuisPars[i]]-muhat << "   " <<  muVarNomDown[nuisPars[i]]-muhat<< " "<<endl;
+        
     }
     outName_file.close();
-    //
+
 }
 
 //____________________________________________________________________________________

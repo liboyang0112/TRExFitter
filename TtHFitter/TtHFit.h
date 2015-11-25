@@ -16,6 +16,8 @@ class Region;
 class Sample;
 class Systematic;
 class ConfigParser;
+class RooDataSet;
+class RooWorkspace;
 
 class TtHFit {
 public:
@@ -27,12 +29,18 @@ public:
     
     enum FitRegion {
         CRONLY = 1,
-        CRSR = 2
+        CRSR = 2,
+        USERSPECIFIC = 3
     };
     
     enum InputType {
         HIST = 0,
         NTUP = 1
+    };
+    
+    enum LimitType {
+        ASYMPTOTIC = 0,
+        TOYS = 1
     };
     
     TtHFit(string name="MyMeasurement");
@@ -43,6 +51,7 @@ public:
     void SetLumiErr(float err);
     void SetLumi(const float lumi);
     void SetFitType(FitType type);
+    void SetLimitType( LimitType type );
     void SetFitRegion(FitRegion region);
     
     Sample* NewSample(string name,int type=0);
@@ -95,6 +104,10 @@ public:
     
     // fit etc...
     void Fit();
+    RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue);
+    std::map < std::string, double > PerformFit( RooWorkspace *ws, std::vector < std::string > &regionsToFit, RooDataSet* inputData, FitType fitType=SPLUSB );
+    RooWorkspace* PerformWorkspaceCombination( std::vector < std::string > &regionsToFit );
+
     void PlotFittedNP();
     void PlotCorrelationMatrix();
     void GetLimit();
@@ -184,6 +197,13 @@ public:
     std::map< std::string, double > fFitNPValues;
     double fFitPOIAsimov;
     bool fFitIsBlind;
+    
+    //
+    // Limit parameters
+    //
+    LimitType fLimitType;
+    bool fLimitIsBlind;
+    double fLimitPOIAsimov;
 };
 
 #endif

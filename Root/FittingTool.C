@@ -111,7 +111,9 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
         std::cout << "   -> Value of POI : " << poi->getVal()     << std::endl;
     }
     
+    //
     // Needed for Ranking plot
+    //
     RooRealVar* var = NULL;
     RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
     if(nuis){
@@ -121,8 +123,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
             if( np == ("alpha_"+m_constNP) ){
                 var->setVal(m_constNPvalue);
                 var->setConstant(1);
-            }
-            else if( np.find("alpha_")!=string::npos ){
+            } else if( np.find("alpha_")!=string::npos ){
                 var->setVal(0);
                 var->setConstant(0);
             }

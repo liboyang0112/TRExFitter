@@ -53,6 +53,8 @@ Region::Region(string name){
 //     fBkg = 0;
     
     fBlindingThreshold = -1;
+    
+    fRegionDataType = REALDATA;
 }
 
 //__________________________________________________________________________________
@@ -139,7 +141,6 @@ void Region::AddSystematic(Systematic *syst){
     fNSyst++;
 }
 
-
 //__________________________________________________________________________________
 //
 void Region::SetBinning(int N, double *bins){
@@ -158,6 +159,12 @@ void Region::Rebin(int N){
 //
 void Region::SetRegionType( RegionType type ){
     fRegionType = type;
+}
+
+//__________________________________________________________________________________
+//
+void Region::SetRegionDataType( DataType type ){
+    fRegionDataType = type;
 }
 
 //__________________________________________________________________________________

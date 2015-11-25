@@ -34,6 +34,11 @@ public:
         SIGNAL = 3
     };
     
+    enum DataType {
+        REALDATA = 0,
+        ASIMOVDATA = 1
+    };
+    
     Region(string name);
     ~Region();
 
@@ -53,6 +58,7 @@ public:
     void SetBinning(int N, double *bins);
     void Rebin(int N);
     void SetRegionType(RegionType type);
+    void SetRegionDataType( DataType type );
     void AddSample(Sample *sample);
     
     void AddSelection(string selection);
@@ -79,6 +85,7 @@ public:
     string fShortLabel; // something like "6j,3b"
     string fFitName;
     RegionType fRegionType;
+    DataType fRegionDataType;
     bool fHasData;
     SampleHist *fData;
     bool fHasSig;

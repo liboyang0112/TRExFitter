@@ -1,3 +1,6 @@
+2015-11-25 Loic Valery <lvalery@cern.ch>
+        * Adding the partial blinding for fit, limits and significance
+
 2015-11-13 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Some functionalities added for individual sample scaling and to ignore selection
         * README: updated
