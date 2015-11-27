@@ -1,3 +1,5 @@
+#include <cctype>
+
 //TtHFitter headers
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/HistoTools.h"
@@ -150,6 +152,19 @@ void TtHFit::SetFitType(FitType type){
 //
 void TtHFit::SetLimitType(LimitType type){
     fLimitType = type;
+}
+
+//__________________________________________________________________________________
+//
+std::string TtHFit::CheckName( const std::string &name ){
+    if( isdigit( name.at(0) ) ){
+        std::cerr << "\033[1;31m<!> ERROR in browsing name: " << name << ". A number has been detected at the first position of the name." << std::endl;
+        std::cerr << "           This can lead to unexpected behaviours in HistFactory. Please change the name. " << std::endl;
+        std::cout << "           The code is about to crash. \033[0m" << std::endl;
+        abort();
+    } else {
+        return name;
+    }
 }
 
 //__________________________________________________________________________________
@@ -399,10 +414,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     //
     //##########################################################
     cs = fConfig->GetConfigSet("Job");
-    fName = cs->GetValue();
+    fName = CheckName(cs->GetValue());
     param = cs->Get("Label");  if(param!="") fLabel = param;
                                else          fLabel = fName;
-    SetPOI(cs->Get("POI"));
+    SetPOI(CheckName(cs->Get("POI")));
     param = cs->Get("ReadFrom");
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(      param=="HIST" || param=="HISTOGRAMS")  fInputType = 0;
@@ -571,7 +586,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         nReg++;
         if(onlyRegions.size()>0 && FindInStringVector(onlyRegions,cs->GetValue())<0) continue;
         if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
-        reg = NewRegion(cs->GetValue());
+        reg = NewRegion(CheckName(cs->GetValue()));
         reg->SetVariableTitle(cs->Get("VariableTitle"));
         reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
         param = cs->Get("LumiLabel"); if( param != "") reg->fLumiLabel = param; 
@@ -652,7 +667,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         type = Sample::BACKGROUND;
         if(cs->Get("Type")=="signal" || cs->Get("Type")=="SIGNAL") type = Sample::SIGNAL;
         if(cs->Get("Type")=="data"   || cs->Get("Type")=="DATA")   type = Sample::DATA;
-        smp = NewSample(cs->GetValue(),type);
+        smp = NewSample(CheckName(cs->GetValue()),type);
         smp->SetTitle(cs->Get("Title"));
         param = cs->Get("Group"); if(param!="") smp->fGroup = param;
         if(fInputType==0){
@@ -753,7 +768,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         type = Systematic::HISTO;
         if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL")
             type = Systematic::OVERALL;
-        sys = new Systematic(cs->GetValue(),type);
+        sys = new Systematic(CheckName(cs->GetValue()),type);
         fSystematics.push_back( sys );
         fNSyst++;
         if(cs->Get("Title")!=""){

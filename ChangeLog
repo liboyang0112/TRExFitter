@@ -1,3 +1,6 @@
+2015-11-25 - Loic Valery <lvalery@cern.ch>
+        * Adding protection against initial numbers in names. Leads to crash if present (https://its.cern.ch/jira/browse/TTHFITTER-7)
+
 2015-11-25 Loic Valery <lvalery@cern.ch>
         * Adding the partial blinding for fit, limits and significance
 
