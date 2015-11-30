@@ -1,3 +1,6 @@
+2015-11-30 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * StatOnly flag added (to "Fit" for the moment - actually it affects also Limit... To fix)
+
 2015-11-25 - Loic Valery <lvalery@cern.ch>
         * Adding protection against initial numbers in names. Leads to crash if present (https://its.cern.ch/jira/browse/TTHFITTER-7)
 

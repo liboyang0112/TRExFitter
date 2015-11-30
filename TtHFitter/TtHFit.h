@@ -168,6 +168,7 @@ public:
     ConfigParser *fConfig;
     
     bool fSystControlPlots;
+    bool fStatOnly;
     
     std::vector<string> fRegionsToPlot;
 

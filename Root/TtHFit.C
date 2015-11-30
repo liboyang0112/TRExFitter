@@ -76,6 +76,8 @@ TtHFit::TtHFit(string name){
     fRankingMaxNP = 10;
     fRankingOnly = "all";
     
+    fStatOnly = false;
+    
     //
     // Fit caracteristics
     //
@@ -453,7 +455,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("DebugLevel");        if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
     param = cs->Get("PlotOptions");       if( param != ""){
         vec = Vectorize(param,',');
-        if( std::find(vec.begin(), vec.end(), "YIELDS")!=vec.end() )  TtHFitter::SHOWYIELDS = true;
+        if( std::find(vec.begin(), vec.end(), "YIELDS")!=vec.end() )   TtHFitter::SHOWYIELDS = true;
         if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG = true;
         // ...
     }
@@ -541,6 +543,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             if(np_value.size()==2){
                 fFitNPValues.insert( std::pair < std::string, double >( np_value[0], atof(np_value[1].c_str()) ) );
             }
+        }
+    }
+    param = cs->Get("StatOnly");    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fStatOnly = true;
+        } else if ( param == "FALSE" ){
+            fStatOnly = false;
         }
     }
     
@@ -1889,6 +1899,11 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         }
         // to avoid nan or inf...
         if(B[i]==0) B[i] = 1e-10;
+        // scale up for projections
+        if(fLumiScale!=1){
+            S[i]*=fLumiScale;
+            B[i]*=fLumiScale;
+        }
     }
     //
     double yMax = 0;
@@ -2019,25 +2034,27 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                          h->fNormFactors[i_norm]->fMax  );
                 }
                 // systematics
-                for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
-                    // add normalization part
-                    if(TtHFitter::DEBUGLEVEL>0){
-                        cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
-                    }
-                    
-                    if(
-                       (fThresholdSystPruning_Normalisation>-1 && (TMath::Abs(h->fSyst[i_syst]->fNormUp)>fThresholdSystPruning_Normalisation || TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation)) ||
-                        (fThresholdSystPruning_Normalisation==-1)
-                       ){
-                        sample.AddOverallSys( h->fSyst[i_syst]->fName,
-                                             1+h->fSyst[i_syst]->fNormDown,
-                                             1+h->fSyst[i_syst]->fNormUp   );
-                    }
-                    // eventually add shape part
-                    if( h->fSyst[i_syst]->fIsShape && (fThresholdSystPruning_Shape==-1 || HistoTools::HasShape(h->fHist, h->fSyst[i_syst],fThresholdSystPruning_Shape) ) ){
-                        sample.AddHistoSys( h->fSyst[i_syst]->fName,
-                                           h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning, h->fSyst[i_syst]->fFileNameShapeDown, "",
-                                           h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
+                if(!fStatOnly){
+                    for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
+                        // add normalization part
+                        if(TtHFitter::DEBUGLEVEL>0){
+                            cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
+                        }
+                        
+                        if(
+                          (fThresholdSystPruning_Normalisation>-1 && (TMath::Abs(h->fSyst[i_syst]->fNormUp)>fThresholdSystPruning_Normalisation || TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation)) ||
+                            (fThresholdSystPruning_Normalisation==-1)
+                          ){
+                            sample.AddOverallSys( h->fSyst[i_syst]->fName,
+                                                1+h->fSyst[i_syst]->fNormDown,
+                                                1+h->fSyst[i_syst]->fNormUp   );
+                        }
+                        // eventually add shape part
+                        if( h->fSyst[i_syst]->fIsShape && (fThresholdSystPruning_Shape==-1 || HistoTools::HasShape(h->fHist, h->fSyst[i_syst],fThresholdSystPruning_Shape) ) ){
+                            sample.AddHistoSys( h->fSyst[i_syst]->fName,
+                                              h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning, h->fSyst[i_syst]->fFileNameShapeDown, "",
+                                              h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
+                        }
                     }
                 }
                 chan.AddSample(sample);

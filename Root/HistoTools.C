@@ -292,6 +292,7 @@ void HistoTools::Smooth_maxVariations(TH1* hsyst, TH1* hnom, int nbins){
     // Smooth only works well for positive entries: shifts all entries by an offset of 100
     for(int i=1;i<=hsyst->GetNbinsX();i++){
         hsyst->SetBinContent( i, hsyst->GetBinContent(i) + 100 );
+//         hsyst->SetBinContent( i, hsyst->GetBinContent(i) + 1000 );
     }
 
     // Due to the rebinning, some bins can have the same content. Call the ROOT smooth function to avoid this.
@@ -305,6 +306,7 @@ void HistoTools::Smooth_maxVariations(TH1* hsyst, TH1* hnom, int nbins){
     // Removes the 100 offset
     for(int i=1;i<=hsyst->GetNbinsX();i++){
         hsyst->SetBinContent( i, hsyst->GetBinContent(i) - 100 );
+//         hsyst->SetBinContent( i, hsyst->GetBinContent(i) - 1000 );
     }
     hsyst->Multiply(hnom);
     hsyst->Add(hnom);
@@ -567,24 +569,29 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
     //    -> WARNINGS: potential issues (possibly affecting the fits or the plots)
     //
     
+    bool isGood = true;
+  
     //
     // 1) Checks that the histograms exist
     //
     if(!nom){
         std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms() the nominal histogram doesn't seem to exist !\033[0m" << std::endl;
         if(causeCrash) abort();
-        return false;
+        isGood = false;
+        return isGood;
     }
     if(sh){
         if(!sh->fHistUp){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms() the up variation histogram doesn't seem to exist !\033[0m" << std::endl;
             if(causeCrash) abort();
-            return false;
+            isGood = false;
+            return isGood;
         }
         if(!sh->fHistDown){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms() the up variation histogram doesn't seem to exist ! \033[0m" << std::endl;
             if(causeCrash) abort();
-            return false;
+            isGood = false;
+            return isGood;
         }
     }
     
@@ -597,7 +604,8 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
     if( (NbinsNom != NbinsUp) || (NbinsNom != NbinsDown) || (NbinsUp != NbinsDown) ){
         std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): The number of bins is found inconsistent ! Please check !\033[0m" << std::endl;
         if(causeCrash) abort();
-        return false;
+        isGood = false;
+        return isGood;
     }
     
     for( unsigned int iBin = 1; iBin <= NbinsNom; ++iBin ){
@@ -608,7 +616,8 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         if( abs(lowEdgeNom-lowEdgeUp)>1e-05 || abs(lowEdgeNom-lowEdgeDown)>1e-05 || abs(lowEdgeDown-lowEdgeUp)>1e-05 ){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): The bin low edges are not consistent ! Please check !\033[0m" << std::endl;
             if(causeCrash) abort();
-            return false;
+            isGood = false;
+            return isGood;
         }
 
         double binWidthNom   = nom->GetBinWidth(iBin);
@@ -618,7 +627,8 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         if( abs(binWidthNom-binWidthUp)>1e-05 || abs(binWidthNom-binWidthDown)>1e-05 || abs(binWidthDown-binWidthUp)>1e-05 ){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): The bin widths are not consistent ! Please check !\033[0m" << std::endl;
             if(causeCrash) abort();
-            return false;
+            isGood = false;
+            return isGood;
         }
     }
     
@@ -630,11 +640,12 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         if( ( checkNullContent && content<=0 ) || ( !checkNullContent && content<0 ) ){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \""<< nom->GetName() << "\", bin " << iBin << " has 0 content ! Please check !\033[0m" << std::endl;
             std::cout << "Nominal: " << content << std::endl;
+            isGood = false;
             if(causeCrash){
                 abort();
             } else {
                 std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): I sent the bin content to 1e-05 ! Please check !\033[0m" << std::endl;
-                nom -> SetBinContent(iBin,1e-05);                
+                nom -> SetBinContent(iBin,1e-05);
             }
         }
     }
@@ -655,33 +666,35 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
             std::cout << "  Nominal: " << contentNom << std::endl;
             std::cout << "  Up: " << contentUp << std::endl;
             std::cout << "  Down: " << contentDown << std::endl;
+            isGood = false;
             if(causeCrash) abort();
             else{
                 std::cout << "  => Setting Up to 1e-06" << std::endl;
                 sh->fHistUp->SetBinContent(iBin,1e-06);
             }
-            return false;
+//             return false;
         }
         if(contentDown<0){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \"" << sh->fHistDown->GetName() << "\", bin " << iBin << " has negative content ! Please check !\033[0m" << std::endl;
             std::cout << "  Nominal: " << contentNom << std::endl;
             std::cout << "  Up: " << contentUp << std::endl;
             std::cout << "  Down: " << contentDown << std::endl;
+            isGood = false;
             if(causeCrash) abort();
             else{
                 std::cout << "  => Setting Down to 1e-06" << std::endl;
                 sh->fHistDown->SetBinContent(iBin,1e-06);
             }
-            return false;
+//             return false;
         }
 
         //
         // 4.b) Checks that the systematics are not crazy (too large ratio, nan returned, ...)
         //
-        double ratioUp = 0.;
+        double ratioUp   = 0.;
         double ratioDown = 0.;
         if(contentNom != 0 ){
-            ratioUp = contentUp/contentNom;
+            ratioUp   = contentUp  /contentNom;
             ratioDown = contentDown/contentNom;
         } else if( TMath::Abs(contentUp)>0 || TMath::Abs(contentDown)>0 ) {
             std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): In histo \""<< sh->fHistUp->GetName() << "\", bin " << iBin << " has null nominal content but systematics are >0! Hope you know that !\033[0m" << std::endl;
@@ -696,16 +709,24 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
             std::cout << "Nominal: " << contentNom << std::endl;
             std::cout << "Up: " << contentUp << std::endl;
             std::cout << "Down: " << contentDown << std::endl;
+            isGood = false;
             if(causeCrash) abort();
-            return false;
+            // try to fix it, if not aborting
+            if(ratioUp!=ratioUp) sh->fHistUp->SetBinContent(iBin,contentNom);
+            else return isGood;
+//             return false;
         }
         if( (ratioDown!=ratioDown) || (ratioDown < 0) || (abs(ratioDown-1.) >= 100) ){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \""<< sh->fHistDown->GetName() << "\", bin " << iBin << " has weird content ! Please check !\033[0m" << std::endl;
             std::cout << "Nominal: " << contentNom << std::endl;
             std::cout << "Up: " << contentUp << std::endl;
             std::cout << "Down: " << contentDown << std::endl;
+            isGood = false;
             if(causeCrash) abort();
-            return false;
+            // try to fix it, if not aborting
+            if(ratioDown!=ratioDown) sh->fHistDown->SetBinContent(iBin,contentNom);
+            else return isGood;
+//             return false;
         }
     }
     
@@ -732,6 +753,7 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         std::cout << "Down (" << sh->fHistDown -> GetName() << "): " << overflowDown << std::endl;
     }
     
-    return true;
+//     return true;
+    return isGood;
 }
 
