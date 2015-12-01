@@ -546,7 +546,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
     }
     param = cs->Get("StatOnly");    if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
             fStatOnly = true;
         } else if ( param == "FALSE" ){
@@ -731,7 +731,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         string exclude_str = cs->Get("Exclude");
         vector<string> regions = Vectorize(regions_str,',');
         vector<string> exclude = Vectorize(exclude_str,',');
-        smp->fRegions.clear();
+        smp->fRegions.clear();	
         for(int i_reg=0;i_reg<fNRegions;i_reg++){
             string regName = fRegions[i_reg]->fName;
             if( (regions_str=="" || regions_str=="all" || FindInStringVector(regions,regName)>=0)
@@ -1552,7 +1552,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                 h_data->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fData->fHist->Integral() );
             }
         }
-    }
+    } 
     //
     TthPlot *p = new TthPlot(fName+"_summary",900,700);
 //     p->fShowYields = TtHFitter::SHOWYIELDS;   // let's hide it always from the summary plot ;)
@@ -1586,7 +1586,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->Integral() );
         h_tot->SetBinError( i_bin,0 );
     }
-    
+
     //
     //   Build error band
     // build the vectors of variations
@@ -1596,7 +1596,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     TH1* h_tmp_Down;
     for(int i_syst=0;i_syst<(int)fRegions[0]->fSystNames.size();i_syst++){
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
-            if(isPostFit){
+	  if(isPostFit){
                 h_tmp_Up   = fRegions[i_bin-1]->fTotUp_postFit[i_syst];
                 h_tmp_Down = fRegions[i_bin-1]->fTotDown_postFit[i_syst];
             }
@@ -2250,7 +2250,7 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     //    |-> Used when using fit results in some regions to generate Asimov data in blinded regions
     //
     if(TtHFitter::DEBUGLEVEL>0){
-        std::cout << "=> In TtHFit::DumpData(): Dumping data with the followng parameters" << std::endl;
+        std::cout << "=> In TtHFit::DumpData(): Dumping data with the following parameters" << std::endl;
         std::cout << "    * Regions data type " << std::endl;
         for( const std::pair < std::string, int > dataType : regionDataType ){
             std::cout << "       - Region: " << dataType.first << "       DataType: " << dataType.second << std::endl;
@@ -2267,14 +2267,18 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     }
     
     RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
-    
+
     //Save the initial values of the NP
     ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
-    ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
-    
+    if (!fStatOnly){
+      ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
+    }
+
     //Be sure to take the initial values of the NP
     ws->loadSnapshot("InitialStateModelGlob");
-    ws->loadSnapshot("InitialStateModelNuis");
+    if (!fStatOnly){
+      ws->loadSnapshot("InitialStateModelNuis");
+    }
     
     //Creating a set
     const char* weightName="weightVar";
@@ -2305,13 +2309,15 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     poi -> setVal(poiValue);
     
     //-- Nuisance parameters
-    RooRealVar* var(nullptr);
-    TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
-    while( (var = (RooRealVar*) npIterator->Next()) ){
+    if (!fStatOnly){
+      RooRealVar* var(nullptr);
+      TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
+      while( (var = (RooRealVar*) npIterator->Next()) ){
         std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
         if( it_npValue != npValues.end() ){
-            var -> setVal(it_npValue -> second);
+	  var -> setVal(it_npValue -> second);
         }
+      }
     }
     
     //Looping over regions
@@ -2382,7 +2388,9 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
                                             WeightVar(*weightVar));
     
     ws->loadSnapshot("InitialStateModelGlob");
-    ws->loadSnapshot("InitialStateModelNuis");
+    if (!fStatOnly){
+      ws->loadSnapshot("InitialStateModelNuis");
+    }
     
     return asimovData;
 }
