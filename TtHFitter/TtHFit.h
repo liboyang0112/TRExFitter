@@ -124,6 +124,8 @@ public:
     void ProduceNPRanking(string NPnames="all");
     void PlotNPRanking();
     
+    void PrintSystTables();
+    
     // -------------------------
       
     string fName;

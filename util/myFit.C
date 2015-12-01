@@ -108,6 +108,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->DrawAndSaveAll();
         myFit->DrawSummary("log");
         myFit->BuildYieldTable();
+        myFit->PrintSystTables();
         int nCols = 2;
         int nRows = 2;
         if(myFit->fNRegions>4){

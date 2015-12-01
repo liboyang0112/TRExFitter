@@ -1510,9 +1510,18 @@ TthPlot* TtHFit::DrawSummary(string opt){
             for(int i_bin=1;(int)i_bin<=regionVec.size();i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=0x0){
-                  if(isPostFit)  h = sh->fHist_postFit;
-                  else           h = sh->fHist;
-                  integral = h->IntegralAndError(0,h->GetNbinsX()+1,intErr);
+                    if(isPostFit)  h = sh->fHist_postFit;
+                    else           h = sh->fHist;
+                    //
+                    if(!isPostFit){
+                        // scale it according to NormFactors
+                        for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
+                            h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
+                            std::cout << "TtHFit::INFO: Scaling " << sh->fSample->fName << " by " << sh->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+                        }
+                    }
+                    //
+                    integral = h->IntegralAndError(0,h->GetNbinsX()+1,intErr);
                 }
                 else{
                     integral = 0.;
@@ -1534,6 +1543,15 @@ TthPlot* TtHFit::DrawSummary(string opt){
                 if(sh!=0x0){
                     if(isPostFit)  h = sh->fHist_postFit;
                     else           h = sh->fHist;
+                    //
+                    if(!isPostFit){
+                        // scale it according to NormFactors
+                        for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
+                            h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
+                            std::cout << "TtHFit::INFO: Scaling " << sh->fSample->fName << " by " << sh->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+                        }
+                    }
+                    //
                     integral = h->IntegralAndError(0,h->GetNbinsX()+1,intErr);
                 }
                 else{
@@ -3385,4 +3403,13 @@ void TtHFit::PlotNPRanking(){
     gPad->RedrawAxis();
     
     c->SaveAs( (fName+"/Ranking."+fImageFormat).c_str() );
+}
+
+//____________________________________________________________________________________
+//
+void TtHFit::PrintSystTables(){
+    std::cout << "TtHFit::INFO: Printing syt tables" << std::endl;
+    for(int i_reg=0;i_reg<fNRegions;i_reg++){
+        fRegions[i_reg]->PrintSystTable();
+    }
 }

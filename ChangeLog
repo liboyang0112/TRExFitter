@@ -1,3 +1,7 @@
+2015-12-01 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * TtHFit, Region: Syst table output added: when running with option d, one table per region created
+        * signals scaled by nominal NormFactor when plotting pre-fit
+        
 2015-11-30 Michele Pinamonti <michele.pinamonti@gmail.com>
         * StatOnly flag added (to "Fit" for the moment - actually it affects also Limit... To fix)
 

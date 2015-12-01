@@ -350,33 +350,34 @@ TthPlot* Region::DrawPreFit(string opt){
     //
     fTot = 0x0;
     string title;
+    TH1* h = 0x0;
     if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist,fData->fSample->fTitle);
-//     if(fHasSig){
-//         title = fSig->fSample->fTitle;
-//         if(fSig->fSample->fGroup != "") title = fSig->fSample->fGroup;
-//         p->AddSignal(fSig->fHist,title);
-//         if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(fSig->fHist,title+" (norm)");
-//         if(fTot==0x0) fTot = (TH1*)fSig->fHist->Clone("h_tot");
-//         else          fTot->Add(fSig->fHist);
-//     }
     for(int i=0;i<fNSig;i++){
-//         std::cout << fNSig << " " << i << std::endl;
-//         std::cout << fSig[i] << std::endl;
-//         std::cout << fSig[i]->fSample << std::endl;
-//         std::cout << fSig[i]->fSample->fTitle << std::endl;
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
-        p->AddSignal(fSig[i]->fHist,title);
-        if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(fSig[i]->fHist,title+" (norm)");
-        if(fTot==0x0) fTot = (TH1*)fSig[i]->fHist->Clone("h_tot");
-        else          fTot->Add(fSig[i]->fHist);
+        h = (TH1*)fSig[i]->fHist->Clone();
+        // scale it according to NormFactors
+        for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
+            h->Scale(fSig[i]->fSample->fNormFactors[i_nf]->fNominal);
+            std::cout << "Region::INFO: Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+        }
+        p->AddSignal(h,title);
+        if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(h,title+" (norm)");
+        if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
+        else          fTot->Add(h);
     }
     for(int i=0;i<fNBkg;i++){
         title = fBkg[i]->fSample->fTitle;
         if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
-        p->AddBackground(fBkg[i]->fHist,title);
-        if(fTot==0x0) fTot = (TH1*)fBkg[i]->fHist->Clone("h_tot");
-        else          fTot->Add(fBkg[i]->fHist);
+        h = (TH1*)fBkg[i]->fHist->Clone();
+        // scale it according to NormFactors
+        for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
+            h->Scale(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal);
+            std::cout << "Region::INFO: Scaling " << fSig[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+        }
+        p->AddBackground(h,title);
+        if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
+        else          fTot->Add(h);
     }
     
     //
@@ -880,6 +881,45 @@ void Region::Print(){
     }
 }
 
+//__________________________________________________________________________________
+//
+void Region::PrintSystTable(){
+    ofstream out;
+    gSystem->mkdir(fFitName.c_str());
+    gSystem->mkdir((fFitName+"/Tables").c_str());
+    out.open((fFitName+"/Tables/"+fName+"_syst.txt").c_str());
+    Sample *s = 0x0;
+    SampleHist *sh = 0x0;
+    SystematicHist *syh = 0x0;
+    out << " | ";
+    for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
+        sh = fSampleHists[i_smp];
+        s = sh->fSample;
+        if(s->fType==Sample::DATA) continue;
+        out << "      | " << s->fTitle;
+    }
+    out << " |" << endl;
+    //
+    for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+        if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]];
+        else                                           out << " | " << fSystNames[i_syst];
+        for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
+            sh = fSampleHists[i_smp];
+            s = sh->fSample;
+            if(s->fType==Sample::DATA) continue;
+            syh = sh->GetSystematic(fSystNames[i_syst]);
+            if(syh==0x0){
+                out << " |    nan   ";
+            }
+//             sh = GetSampleHist(fSamples[i_smp]->fName);
+            else{
+                out << " | " << syh->fNormUp;
+                out << " / " << syh->fNormDown;
+            }
+        }
+        out << " |" << endl;
+    }
+}
 
 // --------------- Functions --------------- //
 
@@ -1041,3 +1081,4 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
 }
 
 //--------------- ~ ---------------
+ 

@@ -75,6 +75,8 @@ public:
     // log
     void Print();
     
+    void PrintSystTable();
+    
     // -------
     // Members
     // -------
