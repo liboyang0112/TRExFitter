@@ -844,6 +844,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 if(cs->Get("WeightDown")!="")        sys->fWeightDown    = cs->Get("WeightDown");
                 if(cs->Get("WeightSufUp")!="")       sys->fWeightSufUp   = cs->Get("WeightSufUp");
                 if(cs->Get("WeightSufDown")!="")     sys->fWeightSufDown = cs->Get("WeightSufDown");
+                if(cs->Get("IgnoreWeight")!="")      sys->fIgnoreWeight  = cs->Get("IgnoreWeight");
                 // ...
             }
             if(cs->Get("Symmetrisation")!=""){
@@ -999,6 +1000,12 @@ void TtHFit::ReadNtuples(){
                     fullMCweight += " * "+fSamples[i_smp]->fSystematics[i_syst]->fWeightSufUp;
                 if(fRegions[i_ch]->fMCweight!="")
                     fullMCweight += " * " + fRegions[i_ch]->fMCweight;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fIgnoreWeight!=""){
+                    ReplaceString(fullMCweight, fSamples[i_smp]->fSystematics[i_syst]->fIgnoreWeight,"");
+                    ReplaceString(fullMCweight,"*  *","*");
+                    ReplaceString(fullMCweight,"* *","*");
+                    ReplaceString(fullMCweight,"**","*");
+                }
                 vector<string> s = CombinePathSufs(
                                                    fRegions[i_ch]->fNtuplePathSuffs,
                                                    fSamples[i_smp]->fSystematics[i_syst]->fNtuplePathsUp );
@@ -1069,6 +1076,13 @@ void TtHFit::ReadNtuples(){
                     fullMCweight += " * "+fSamples[i_smp]->fSystematics[i_syst]->fWeightSufDown;
                 if(fRegions[i_ch]->fMCweight!="")
                     fullMCweight += " * " + fRegions[i_ch]->fMCweight;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fIgnoreWeight!=""){
+                    ReplaceString(fullMCweight, fSamples[i_smp]->fSystematics[i_syst]->fIgnoreWeight,"");
+                    ReplaceString(fullMCweight,"*  *","*");
+                    ReplaceString(fullMCweight,"* *","*");
+                    ReplaceString(fullMCweight,"**","*");
+                }
+
                 //
                 fullPaths.clear();
                 fullPaths = CreatePathsList(
@@ -1459,13 +1473,13 @@ void TtHFit::DrawAndSaveAll(string opt){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
         if(isPostFit){
-            p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
-//             p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSaveSuf+"."+fImageFormat ).c_str());
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,opt+" blind");
+            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
             p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+fImageFormat ).c_str());
         }
         else{
-            p = fRegions[i_ch]->DrawPreFit(opt);
-//             p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSaveSuf+"."+fImageFormat ).c_str()); 
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
+            else                                                    p = fRegions[i_ch]->DrawPreFit(opt);
             p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+fImageFormat ).c_str()); 
         }
     }
@@ -1504,6 +1518,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         }
     }
     int Nbin = (int)regionVec.size();
+    if(Nbin<=0) return 0x0;
     //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         SampleHist *sh = 0x0;
@@ -1589,7 +1604,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
             h_data = new TH1F(name.c_str(),title.c_str(), Nbin,0,Nbin);
             if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Data:   " << h_data->GetTitle() << endl;
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
-                h_data->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fData->fHist->Integral() );
+                if(fRegions[regionVec[i_bin-1]]->fRegionDataType==Region::ASIMOVDATA)
+                    h_data->SetBinContent( i_bin,0 );
+                else
+                    h_data->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fData->fHist->Integral() );
             }
         }
     } 
@@ -1622,8 +1640,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
     h_tot = new TH1F("h_Tot_summary","h_Tot_summary", Nbin,0,Nbin);
     
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
-        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->Integral() );
-        else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->Integral() );
+        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot_postFit->Integral() );
+        else          h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot->Integral() );
         h_tot->SetBinError( i_bin,0 );
     }
 
@@ -1637,12 +1655,12 @@ TthPlot* TtHFit::DrawSummary(string opt){
     for(int i_syst=0;i_syst<(int)fRegions[0]->fSystNames.size();i_syst++){
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
 	  if(isPostFit){
-                h_tmp_Up   = fRegions[i_bin-1]->fTotUp_postFit[i_syst];
-                h_tmp_Down = fRegions[i_bin-1]->fTotDown_postFit[i_syst];
+                h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[i_syst];
+                h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[i_syst];
             }
             else{
-                h_tmp_Up   = fRegions[i_bin-1]->fTotUp[i_syst];
-                h_tmp_Down = fRegions[i_bin-1]->fTotDown[i_syst];
+                h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[i_syst];
+                h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[i_syst];
             }
             if(i_bin==1){
                 h_up.  push_back( new TH1F(Form("%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   Nbin,0,Nbin) );
@@ -1657,9 +1675,12 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     p->SetTotBkg(h_tot);
     p->SetTotBkgAsym(g_err);
+    
+    std::cout << g_err->GetErrorYhigh(1) << std::endl;
+    
     //
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
-        p->SetBinLabel(i_bin,fRegions[i_bin-1]->fShortLabel.c_str());
+        p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
     p->Draw(opt);
     //
@@ -2012,8 +2033,10 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         cout << "Exporting to RooStats..." << endl;
     }
     
-    RooStats::HistFactory::Measurement meas(fName.c_str(), fName.c_str());
-    meas.SetOutputFilePrefix((fName+"/RooStats/"+fName+fSuffix).c_str());
+//     RooStats::HistFactory::Measurement meas(fName.c_str(), fName.c_str());
+//     meas.SetOutputFilePrefix((fName+"/RooStats/"+fName+fSuffix).c_str());
+    RooStats::HistFactory::Measurement meas((fName+fSuffix).c_str(), (fName+fSuffix).c_str());
+    meas.SetOutputFilePrefix((fName+"/RooStats/"+fName).c_str());
     meas.SetExportOnly(exportOnly);
     meas.SetPOI(fPOI.c_str());
 //     meas.SetLumi(fLumiAddScale);
@@ -2074,8 +2097,12 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                          h->fNormFactors[i_norm]->fMax  );
                 }
                 // systematics
-                //if(!fStatOnly){
+                if(!fStatOnly){
                     for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
+//                         if(fStatOnly)
+//                             if(h->fSyst[i_syst]->fSystematic)
+//                                 if(h->fSyst[i_syst]->fSystematic->fName!="Dummy") continue;
+//                         std::cout << "OU?" << std::endl;
                         // add normalization part
                         if(TtHFitter::DEBUGLEVEL>0){
                             cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
@@ -2096,7 +2123,10 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                               h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
                         }
                     }
-		    //}
+		}
+		else{
+                    sample.AddOverallSys( "Dummy",1,1 );
+                }
                 chan.AddSample(sample);
             }
         }
@@ -2113,8 +2143,9 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 void TtHFit::DrawPruningPlot(){
     cout << "------------------------------------------------------" << endl;
     cout << "Drawing Pruning Plot ..." << endl;
-    if(fSystematics.size()==0){
-        cout << "... No systematics. Skipping." << endl;
+    if(fSystematics.size()==0 || fStatOnly){
+        std::cout << "TtHFit::INFO: Stat only fit => No Pruning plot generated." << std::endl;
+//         cout << "... No systematics. Skipping." << endl;
         return;
     }
     vector< TH2F* > histPrun;
@@ -2505,7 +2536,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
             }
         }
         if(isToFit){
-            std::string fileName = fName+"/RooStats/"+fName+"_"+fRegions[i_ch]->fName+"_"+fName+"_model.root";
+            std::string fileName = fName+"/RooStats/"+fName+"_"+fRegions[i_ch]->fName+"_"+fName+fSuffix+"_model.root";
             TFile *rootFile = new TFile(fileName.c_str(),"read");
             RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get((fRegions[i_ch]->fName).c_str());
             if(!m_ws){
@@ -2514,7 +2545,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
             vec_ws.push_back(m_ws);
             vec_chName.push_back(fRegions[i_ch] -> fName);
             if(!measurement){
-                measurement = (RooStats::HistFactory::Measurement*) rootFile -> Get(fName.c_str());
+                measurement = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fName+fSuffix).c_str());
             }
         }
     }
@@ -2540,6 +2571,10 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
 //__________________________________________________________________________________
 //
 void TtHFit::PlotFittedNP(){
+    if(fStatOnly){
+        std::cout << "TtHFit::INFO: Stat only fit => No NP Pull plots generated." << std::endl;
+        return;
+    }
     //
     // plot the NP fit pull plot
     //
@@ -2566,6 +2601,10 @@ void TtHFit::PlotFittedNP(){
 //__________________________________________________________________________________
 //
 void TtHFit::PlotCorrelationMatrix(){
+    if(fStatOnly){
+        std::cout << "TtHFit::INFO: Stat only fit => No Correlation Matrix generated." << std::endl;
+        return;
+    }
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     if(fFitResults){
@@ -2576,67 +2615,85 @@ void TtHFit::PlotCorrelationMatrix(){
 //__________________________________________________________________________________
 //
 void TtHFit::GetLimit(){
-    
-    //
-    // Fills a vector of regions to consider for fit
-    //
-    std::vector < std:: string > regionsForFit;
-    std::vector < std::string > regionsForLimit;
-    std::map < std::string, int > regionsForFitDataType;
-    std::map < std::string, int > regionsForLimitDataType;
-    for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-        if( fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
-            Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
-            regionsForFit.push_back( fRegions[i_ch] -> fName );
-            regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
+
+    //Checks if a data sample exists
+    bool hasData = false;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::DATA){
+            hasData = true;
+            break;
         }
-        regionsForLimit.push_back(fRegions[i_ch] -> fName);
-        regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , fLimitIsBlind ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
     }
     
-    std::map < std::string, double > npValues;
-    RooDataSet* data = 0;
-    if(regionsForFit.size()>0){
+    string cmd;
+    string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
+    if(hasData && !fLimitIsBlind){ // FIXME
         //
-        // Creates a combined workspace with the regions to be used *in the fit*
+        // Fills a vector of regions to consider for fit
         //
-        RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+        std::vector < std:: string > regionsForFit;
+        std::vector < std::string > regionsForLimit;
+        std::map < std::string, int > regionsForFitDataType;
+        std::map < std::string, int > regionsForLimitDataType;
+        for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+            if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
+            if( fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
+                Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
+                regionsForFit.push_back( fRegions[i_ch] -> fName );
+                regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
+            }
+            regionsForLimit.push_back(fRegions[i_ch] -> fName);
+            regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , fLimitIsBlind ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+        }
+        
+        std::map < std::string, double > npValues;
+        RooDataSet* data = 0;
+        if(regionsForFit.size()>0){
+            //
+            // Creates a combined workspace with the regions to be used *in the fit*
+            //
+            RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+            
+            //
+            // Calls the PerformFit() function to actually do the fit
+            //
+            npValues = PerformFit( ws_forFit, regionsForFit, data, FitType::BONLY);
+        }
         
         //
-        // Calls the PerformFit() function to actually do the fit
+        // Create the final asimov dataset for limit setting
         //
-        npValues = PerformFit( ws_forFit, regionsForFit, data, FitType::BONLY);
-    }
-    
-    //
-    // Create the final asimov dataset for limit setting
-    //
-    RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
-    data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
-    
-    //
-    // Gets the measurement object in the original combined workspace (created with the "w" command)
-    //
-    const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
-    TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
-    RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
-    TString outputName = f_origin->GetName();
-    f_origin -> Close();
+        RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
+        data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
+        
+        //
+        // Gets the measurement object in the original combined workspace (created with the "w" command)
+        //
+        const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
+        TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
+        RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
+        TString outputName = f_origin->GetName();
+        f_origin -> Close();
 
-    //
-    // Creating the rootfile used as input for the limit setting :-)
-    //
-    outputName = outputName.ReplaceAll(".root","_forLimits.root");
-    TFile *f_clone = new TFile( outputName, "recreate" );
-    ws_forLimit -> import(*data,Rename("ttHFitterData"));
-    originalMeasurement -> Write();
-    ws_forLimit -> Write();
-    f_clone -> Close();
+        //
+        // Creating the rootfile used as input for the limit setting :-)
+        //
+        outputName = outputName.ReplaceAll(".root","_forLimits.root");
+        TFile *f_clone = new TFile( outputName, "recreate" );
+        ws_forLimit -> import(*data,Rename("ttHFitterData"));
+        originalMeasurement -> Write();
+        ws_forLimit -> Write();
+        f_clone -> Close();
+        string cmd;
+        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+    }
+    else{
+        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+    }
     
     //
     // Finally computing the limit
     //
-    string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
     gSystem->Exec(cmd.c_str());
 }
 
@@ -2713,7 +2770,7 @@ void TtHFit::GetSignificance(){
     //
     // Gets the measurement object in the original combined workspace (created with the "w" command)
     //
-    const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
+    const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
     TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
     RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
     TString outputName = f_origin->GetName();
@@ -2730,7 +2787,7 @@ void TtHFit::GetSignificance(){
     f_clone -> Close();
     
     //
-    // Finally computing the limit
+    // Finally computing the significance
     //
     string cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
     gSystem->Exec(cmd.c_str());
@@ -3424,7 +3481,7 @@ void TtHFit::PlotNPRanking(){
     
     gPad->RedrawAxis();
     
-    c->SaveAs( (fName+"/Ranking."+fImageFormat).c_str() );
+    c->SaveAs( (fName+"/Ranking"+fSuffix+"."+fImageFormat).c_str() );
 }
 
 //____________________________________________________________________________________

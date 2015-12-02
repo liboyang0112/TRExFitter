@@ -243,6 +243,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       WeightDown       -> only for option NTUP, for HISTO systematic: weight for systematic down variation
       WeightSufUp      -> only for option NTUP, for HISTO systematic: additional weight for systematic up variation
       WeightSufDown    -> only for option NTUP, for HISTO systematic: additional weight for systematic down variation
+      IgnoreWeight     -> only for option NTUP: if set, the corresponding weight (present in Job, Sample or Region) will be ignored for this systematic
       Symmetrisation   -> can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line
       Smoothing        -> smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
       OverallUp        -> for OVERALL systematic: the relative "up" shift (0.1 means +10%)

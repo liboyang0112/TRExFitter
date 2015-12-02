@@ -39,11 +39,11 @@ void CorrelationMatrix::SetCorrelation(string p0,string p1,float corr){
 //
 float CorrelationMatrix::GetCorrelation(string p0,string p1){
     if(!fNuisParIsThere[p0]){
-        cout << "  WARNING: NP " << p0 << " not found in correlation matrix. Returning correlation = 0." << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p0 << " not found in correlation matrix. Returning correlation = 0." << endl;
         return 0.;
     }
     if(!fNuisParIsThere[p1]){
-        cout << "  WARNING: NP " << p1 << " not found in correlation matrix. Returning correlation = 0." << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p1 << " not found in correlation matrix. Returning correlation = 0." << endl;
         return 0.;
     }
     int idx0 = fNuisParIdx[p0];

@@ -1,3 +1,9 @@
+2015-12-02 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * IgnoreWeight option added for systematics (e.g. to avoid using pile-up weight for MC systematics)
+        * Data not shown if Region has ASIMOVDATA
+        * (thanks to Arthur) Fix Stat-only limit  and significance by adding a dummy NP
+        * Fix fully blind limit
+        
 2015-12-01 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit, Region: Syst table output added: when running with option d, one table per region created
         * signals scaled by nominal NormFactor when plotting pre-fit

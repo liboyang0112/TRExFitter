@@ -35,6 +35,8 @@ Systematic::Systematic(string name,int type,float up,float down){
     fNtupleNamesDown.clear();
     fNtupleNameSufDown = "";
     //
+    fIgnoreWeight = "";
+    //
     fHistoPathsUp.clear();
     fHistoPathSufUp = "";
     fHistoFilesUp.clear();

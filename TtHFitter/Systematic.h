@@ -49,6 +49,8 @@ public:
     std::vector<string> fNtupleNamesDown;
     string fNtupleNameSufDown;
 
+    string fIgnoreWeight;
+    
     // from histos - up
     std::vector<string> fHistoPathsUp;
     string fHistoPathSufUp;

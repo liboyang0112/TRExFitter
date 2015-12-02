@@ -8,6 +8,8 @@
 #include "TCanvas.h"
 #include "TChain.h"
 #include "TMath.h"
+#include "TPaveText.h"
+#include "TBox.h"
 
 #include "RooStats/HistFactory/Measurement.h"
 #include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"

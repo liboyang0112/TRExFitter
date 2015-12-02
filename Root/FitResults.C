@@ -41,7 +41,7 @@ float FitResults::GetNuisParValue(string p){
         idx = fNuisParIdx[p];
     }
     else{
-        cout << "  WARNING: NP " << p << " not found... Returning 0." << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p << " not found... Returning 0." << endl;
         return 0.;
     }
     return fNuisPar[idx]->fFitValue;
@@ -55,7 +55,7 @@ float FitResults::GetNuisParErrUp(string p){
         idx = fNuisParIdx[p];
     }
     else{
-        cout << "  WARNING: NP " << p << " not found... Returning error = 1." << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p << " not found... Returning error = 1." << endl;
         return 1.;
     }
     return fNuisPar[idx]->fPostFitUp;
@@ -69,7 +69,7 @@ float FitResults::GetNuisParErrDown(string p){
         idx = fNuisParIdx[p];
     }
     else{
-        cout << "  WARNING: NP " << p << " not found... Returning error = 1." << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p << " not found... Returning error = 1." << endl;
         return 1.;
     }
     return fNuisPar[idx]->fPostFitDown;

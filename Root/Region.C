@@ -581,6 +581,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             for(int i=0;i<fNSamples;i++){
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+                // skip signal if Bkg only
+                if(fFitType==TtHFit::BONLY && fSampleHists[i]->fSample->fType==Sample::SIGNAL) continue;
                 // get SystematicHist
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
@@ -718,7 +720,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             i_sig++;
         }
     }
-    if(fHasData) p->SetData(fData->fHist,fData->fSample->fTitle);
+    if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist,fData->fSample->fTitle);
+//     if(fHasData) p->SetData(fData->fHist,fData->fSample->fTitle);
 //     if(fHasSig){
 //         title = fSig->fSample->fTitle;
 //         if(fSig->fSample->fGroup != "") title = fSig->fSample->fGroup;
@@ -892,33 +895,78 @@ void Region::PrintSystTable(){
     SampleHist *sh = 0x0;
     SystematicHist *syh = 0x0;
     out << " | ";
+    float Ncol = 2.;
     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
         sh = fSampleHists[i_smp];
         s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
+        Ncol+=1;
+    }
+    // plot a table with ROOT ;)
+    int width = (Ncol)*120;
+    int height = fSystNames.size()*25;
+    //
+    TCanvas *c = new TCanvas("c","c",width,height);
+//     TCanvas *c = new TCanvas("c","c",3000,3000);
+    TPaveText *pt0;
+    TPaveText *pt[MAXsamples];
+    //
+    pt0 = new TPaveText(0,0,2./Ncol,1);
+    pt0->SetTextSize(gStyle->GetTextSize());
+    pt0->SetFillStyle(0);
+    float i_col = 1;
+    for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
+        pt[i_smp] = new TPaveText((i_col+1.)/Ncol,0,(i_col+2.)/Ncol,1); // ,"blNDC"
+        pt[i_smp]->SetTextSize(gStyle->GetTextSize());
+        pt[i_smp]->SetFillStyle(0);
+        sh = fSampleHists[i_smp];
+        s = sh->fSample;
+        if(s->fType==Sample::DATA) continue;
         out << "      | " << s->fTitle;
+        pt[i_smp]->AddText(s->fTitle.c_str());
+        i_col+=1;
     }
     out << " |" << endl;
+    pt0->AddText(" ");
     //
+    TPave *b[100];
+    int i_gray = 0;
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+        if(i_syst%2==0) {
+            b[i_gray] = new TPave(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst-1)/(fSystNames.size()+1.),0);
+            b[i_gray]->SetFillColor(kGray);
+            b[i_gray]->Draw("NB");
+            i_gray++;
+        }
+        //
         if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]];
         else                                           out << " | " << fSystNames[i_syst];
+        if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") pt0->AddText(TtHFitter::SYSTMAP[fSystNames[i_syst]].c_str());
+        else                                           pt0->AddText(fSystNames[i_syst].c_str());
+        if(i_syst==0) pt0->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
         for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
+            if(i_syst==0) pt[i_smp]->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
             sh = fSampleHists[i_smp];
             s = sh->fSample;
             if(s->fType==Sample::DATA) continue;
             syh = sh->GetSystematic(fSystNames[i_syst]);
             if(syh==0x0){
                 out << " |    nan   ";
+                pt[i_smp]->AddText(" - ");
             }
 //             sh = GetSampleHist(fSamples[i_smp]->fName);
             else{
                 out << " | " << syh->fNormUp;
                 out << " / " << syh->fNormDown;
+                pt[i_smp]->AddText(Form("%.2f / %.2f",syh->fNormUp,syh->fNormDown) );
             }
+            if(i_syst==(int)fSystNames.size()-1) pt[i_smp]->Draw("NB");
         }
         out << " |" << endl;
+        if(i_syst==(int)fSystNames.size()-1) pt0->Draw("NB");
     }
+    //
+    c->SaveAs((fFitName+"/Tables/"+fName+"_syst.pdf").c_str());
 }
 
 // --------------- Functions --------------- //
