@@ -764,6 +764,28 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     int nSys = 0;
     Systematic *sys;
     Sample *sam;
+
+
+    //Addition for StatOnly fit: dummy systematic for the significance computation and limit setting
+    int typed=0;
+    Systematic *sysd; 
+    if (fStatOnly) {
+      typed = Systematic::OVERALL;
+      sysd = new Systematic("Dummy",typed);
+      sysd->fOverallUp   = 0.;
+      sysd->fOverallDown = -0.;
+	fSystematics.push_back( sysd );
+	TtHFitter::SYSTMAP[sysd->fName] = "Dummy";
+	fNSyst++;
+	for(int i_smp=0;i_smp<fNSamples;i_smp++){
+	  sam = fSamples[i_smp];
+	  if(sam->fType == Sample::SIGNAL ) {
+	    sam->AddSystematic(sysd);
+	  }
+        }
+      } 
+
+
     while(true){
         cs = fConfig->GetConfigSet("Systematic",nSys);
         if(cs==0x0) break;
@@ -2052,7 +2074,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                          h->fNormFactors[i_norm]->fMax  );
                 }
                 // systematics
-                if(!fStatOnly){
+                //if(!fStatOnly){
                     for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
                         // add normalization part
                         if(TtHFitter::DEBUGLEVEL>0){
@@ -2074,7 +2096,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                               h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
                         }
                     }
-                }
+		    //}
                 chan.AddSample(sample);
             }
         }
