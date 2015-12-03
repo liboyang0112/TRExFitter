@@ -88,8 +88,11 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
         fBkg[fNBkg] = fSampleHists[fNSamples];
         fNBkg ++;
     }
+    else if(sample->fType==Sample::GHOST){
+        cout << "Region::INFO: Adding GHOST sample." << endl;
+    }
     else{
-        cout << "ERROR: SampleType not supported." << endl;
+        cout << "Region::ERROR: SampleType not supported." << endl;
     }
     fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
     fSampleHists[fNSamples]->fRegionName = fName;
@@ -116,6 +119,9 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     else if(sample->fType==Sample::BACKGROUND){
         fBkg[fNBkg] = fSampleHists[fNSamples];
         fNBkg ++;
+    }
+    else if(sample->fType==Sample::GHOST){
+        cout << "Region::INFO: Adding GHOST sample." << endl;
     }
     else{
         cout << "ERROR: SampleType not supported." << endl;

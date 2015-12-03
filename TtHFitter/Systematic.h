@@ -25,6 +25,7 @@ public:
     int fType;
     int fSmoothType;
     int fSymmetrisationType;
+    string fReferenceSample;
       
     float fOverallUp;
     float fOverallDown;

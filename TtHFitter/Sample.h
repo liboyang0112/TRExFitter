@@ -21,7 +21,8 @@ public:
     enum SampleType{
         BACKGROUND, // 0
         SIGNAL, // 1
-        DATA // 2
+        DATA, // 2
+        GHOST // 3
     };
     
     Sample(string name,int type=0);

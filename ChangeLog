@@ -1,3 +1,7 @@
+2015-12-03 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * ReferenceSample option added for systematics (to derive syst relativly to a given sample)
+        * Type::GHOST added for Sample => sample not shown enywhere, but used for systs with ReferenceSample option
+        
 2015-12-03 Calvet Thomas <calvet@cppm.in2p3.fr>
 	* Merging trunk with devbranch
 	

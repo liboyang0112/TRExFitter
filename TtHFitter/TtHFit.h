@@ -121,6 +121,7 @@ public:
     void Print();
     
     Region* GetRegion(string name);
+    Sample* GetSample(string name);
     
     void ProduceNPRanking(string NPnames="all");
     void PlotNPRanking();
