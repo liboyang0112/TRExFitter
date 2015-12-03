@@ -89,7 +89,7 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
         fNBkg ++;
     }
     else if(sample->fType==Sample::GHOST){
-        cout << "Region::INFO: Adding GHOST sample." << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << "Region::INFO: Adding GHOST sample." << endl;
     }
     else{
         cout << "Region::ERROR: SampleType not supported." << endl;
@@ -121,7 +121,7 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
         fNBkg ++;
     }
     else if(sample->fType==Sample::GHOST){
-        cout << "Region::INFO: Adding GHOST sample." << endl;
+        if(TtHFitter::DEBUGLEVEL>0) cout << "Region::INFO: Adding GHOST sample." << endl;
     }
     else{
         cout << "ERROR: SampleType not supported." << endl;
@@ -210,6 +210,7 @@ void Region::BuildPreFitErrorHist(){
     //
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
+        if(fSampleHists[i]->fSample->fType == Sample::GHOST) continue;
         
         //
         // Norm factors
@@ -246,6 +247,7 @@ void Region::BuildPreFitErrorHist(){
         
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         
         if(TtHFitter::DEBUGLEVEL>0) cout << "  Sample: " << fSampleHists[i]->fName << endl;
         
@@ -310,6 +312,7 @@ void Region::BuildPreFitErrorHist(){
             for(int i=0;i<fNSamples;i++){
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
                 // get SystematicHist
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
@@ -446,6 +449,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
+        if(fSampleHists[i]->fSample->fType == Sample::GHOST) continue;
         
         //
         // Norm factors
@@ -481,6 +485,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         if(TtHFitter::DEBUGLEVEL>0) cout << "  Sample: " << fSampleHists[i]->fName << endl;
         
         // - loop on systematics
@@ -587,6 +592,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             for(int i=0;i<fNSamples;i++){
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
                 // skip signal if Bkg only
                 if(fFitType==TtHFit::BONLY && fSampleHists[i]->fSample->fType==Sample::SIGNAL) continue;
                 // get SystematicHist
@@ -650,6 +656,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     TH1* hNew;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         hNew = (TH1*)hSmpNew[i]->Clone();
         for(int i_bin=1;i_bin<=hNew->GetNbinsX();i_bin++){
             double binContent0 = hSmpNew[i]->GetBinContent(i_bin);
@@ -702,6 +709,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     float nfValue;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
             nfName = fSampleHists[i]->fNormFactors[i_norm]->fName;
             nfValue = fitRes->GetNuisParValue(nfName);
@@ -757,6 +765,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     int j = 0;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         if(j==0) fTot_postFit = (TH1*)hSmpNew[i]->Clone("h_tot_postFit");
         else fTot_postFit->Add(hSmpNew[i]);
         j++;
@@ -906,6 +915,7 @@ void Region::PrintSystTable(){
         sh = fSampleHists[i_smp];
         s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
+        if(s->fType==Sample::GHOST) continue;
         Ncol+=1;
     }
     // plot a table with ROOT ;)
@@ -928,6 +938,7 @@ void Region::PrintSystTable(){
         sh = fSampleHists[i_smp];
         s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
+        if(s->fType==Sample::GHOST) continue;
         out << "      | " << s->fTitle;
         pt[i_smp]->AddText(s->fTitle.c_str());
         i_col+=1;
@@ -955,6 +966,7 @@ void Region::PrintSystTable(){
             sh = fSampleHists[i_smp];
             s = sh->fSample;
             if(s->fType==Sample::DATA) continue;
+            if(s->fType==Sample::GHOST) continue;
             syh = sh->GetSystematic(fSystNames[i_syst]);
             if(syh==0x0){
                 out << " |    nan   ";

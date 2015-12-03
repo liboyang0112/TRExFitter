@@ -905,6 +905,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             sam = fSamples[i_smp];
             if(sam->fType == Sample::DATA) continue;
+            if(sam->fType == Sample::GHOST) continue;
             if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
                && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
             ){
@@ -921,10 +922,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
 void TtHFit::ReadNtuples(){
     cout << "-------------------------------------------" << endl;
     cout << "Reading ntuples..." << endl;
-    TH1F* h;
-    TH1F* hUp;
-    TH1F* hDown;
-    TH1F* htmp;
+    TH1F* h = 0x0;
+    TH1F* hUp = 0x0;
+    TH1F* hDown = 0x0;
+    TH1F* htmp = 0x0;
     //   string ntupleFullPath;
     string fullSelection;
     string fullMCweight;
@@ -1611,6 +1612,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     if(Nbin<=0) return 0x0;
     //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::GHOST) continue;
         SampleHist *sh = 0x0;
         name = fSamples[i_smp]->fName.c_str();
         title = fSamples[i_smp]->fTitle.c_str();
@@ -1823,8 +1825,9 @@ void TtHFit::BuildYieldTable(string opt){
     std::vector< int > idxVec;
     SampleHist *sh = 0x0;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        name = fSamples[i_smp]->fName;//.c_str();
-        title = fSamples[i_smp]->fTitle;//.c_str();
+//         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
+        name = fSamples[i_smp]->fName;
+        title = fSamples[i_smp]->fTitle;
         //
         int idx = FindInStringVector(titleVec,title);
         if(idx>=0){
@@ -1850,6 +1853,7 @@ void TtHFit::BuildYieldTable(string opt){
     //
     // add tot uncertainty on each sample
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::GHOST) continue;
         name = fSamples[i_smp]->fName;
         if(idxVec[i_smp]!=i_smp) continue;
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
@@ -1906,6 +1910,7 @@ void TtHFit::BuildYieldTable(string opt){
     }
     //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::GHOST) continue;
         if(idxVec[i_smp]!=i_smp) continue;
         //
         // print values
@@ -2167,7 +2172,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         chan.SetStatErrorConfig(fStatErrThres,fStatErrCons.c_str()); // "Gaussian"
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-            if( h != 0x0 && h->fSample->fType!=Sample::DATA){
+            if( h != 0x0 && h->fSample->fType!=Sample::DATA && h->fSample->fType!=Sample::GHOST ){
                 if(TtHFitter::DEBUGLEVEL>0){
                     cout << "  Adding Sample: " << fSamples[i_smp]->fName << endl;
                 }
@@ -2244,6 +2249,7 @@ void TtHFit::DrawPruningPlot(){
     vector< Sample* > samplesVec;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
+        if(fSamples[i_smp]->fType==Sample::GHOST) continue;
         samplesVec.push_back(fSamples[i_smp]);
         nSmp++;
     }
