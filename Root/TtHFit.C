@@ -236,6 +236,12 @@ void TtHFit::SetNtupleName(string name){
 
 //__________________________________________________________________________________
 //
+void TtHFit::SetNtupleFile(string name){
+    fNtupleFile = name;
+}
+
+//__________________________________________________________________________________
+//
 void TtHFit::AddHistoPath(string path){
     fHistoPaths.push_back(path);
 }
@@ -432,6 +438,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         AddHistoPath( cs->Get("HistoPath") );
     }
     if(fInputType==1){
+        SetNtupleFile( cs->Get("NtupleFile") );
         if(cs->Get("NtuplePath")!="") { AddNtuplePath( cs->Get("NtuplePath") ); }
         param = cs->Get("NtuplePaths");
         if( param != "" ){
@@ -618,6 +625,15 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             //
             if(cs->Get("Selection")!="") reg->AddSelection( cs->Get("Selection") );
             param = cs->Get("NtupleName"); if(param!="") { reg->fNtupleNames.clear(); reg->fNtupleNames.push_back(param); }
+            if(cs->Get("NtupleNameSuff")!="") { reg->fNtupleNameSuffs.clear(); reg->fNtupleNameSuffs.push_back( cs->Get("NtupleNameSuff") ); }
+            param = cs->Get("NtupleNameSuffs");
+            if( param != "" ){
+                reg->fNtupleNameSuffs.clear();
+                std::vector<string> paths = Vectorize( param,',' );
+                for(int i=0;i<(int)paths.size();i++){
+                    reg->fNtupleNameSuffs.push_back( paths[i] );
+                }
+            }
 //             reg->AddMCweight(  cs->Get("MCweight") );
             reg->fMCweight = cs->Get("MCweight"); // this will override the global MCweight, if any
             if(cs->Get("NtuplePathSuff")!="") { reg->fNtuplePathSuffs.clear(); reg->fNtuplePathSuffs.push_back( cs->Get("NtuplePathSuff") ); }
@@ -694,12 +710,25 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             }
             param = cs->Get("NtupleName");
             if(param!="") smp->AddNtupleName( param );
+            param = cs->Get("NtupleNames");
+            if(param!=""){
+                smp->fNtupleNames = Vectorize( param ,',' );
+            }
             // ntuple paths
             param = cs->Get("NtuplePath");
             if(param!="") smp->AddNtuplePath( param );
             param = cs->Get("NtuplePaths");
             if(param!=""){
                 smp->fNtuplePaths = Vectorize( param ,',' );
+            }
+            if(cs->Get("NtupleNameSuff")!="") { smp->fNtupleNameSuffs.clear(); smp->fNtupleNameSuffs.push_back( cs->Get("NtupleNameSuff") ); }
+            param = cs->Get("NtupleNameSuffs");
+            if( param != "" ){
+                smp->fNtupleNameSuffs.clear();
+                std::vector<string> paths = Vectorize( param,',' );
+                for(int i=0;i<(int)paths.size();i++){
+                    smp->fNtupleNameSuffs.push_back( paths[i] );
+                }
             }
         }
         if(cs->Get("FillColor")!="")
@@ -926,15 +955,20 @@ void TtHFit::ReadNtuples(){
             //
             // build a list of ntuples to read
             fullPaths.clear();
-            std::vector<string> ntupleNames;
-            if(fRegions[i_ch]->fNtupleNames.size()>0) ntupleNames = fRegions[i_ch]->fNtupleNames;
-            else                                      ntupleNames = ToVec( fNtupleName );
-            if(fSamples[i_smp]->fNtupleNames.size()>0) ntupleNames = fSamples[i_smp]->fNtupleNames;
+	    vector<string> NtupleNames;
+	    for(unsigned int ns_ch=0; ns_ch<fRegions[i_ch]->fNtupleNames.size(); ++ns_ch){
+	      NtupleNames.push_back(fRegions[i_ch]->fNtupleNames.at(ns_ch));
+	    }
+	    for(unsigned int ns_smp=0; ns_smp<fSamples[i_smp]->fNtupleNames.size(); ++ns_smp){
+	      NtupleNames.push_back(fSamples[i_smp]->fNtupleNames.at(ns_smp));
+	    }
+	    vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
+							      fRegions[i_ch]->fNtupleNameSuffs );
             fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
                                          fRegions[i_ch]->fNtuplePathSuffs,
-                                         fSamples[i_smp]->fNtupleFiles, empty, // no ntuple file suffs for nominal (syst only)
-//                                          fRegions[i_ch]->fNtupleNames.size()>0 ? fRegions[i_ch]->fNtupleNames : ToVec( fNtupleName ), empty  // NEW
-                                         ntupleNames, empty
+                                         fSamples[i_smp]->fNtupleFiles.size()>0 ? fSamples[i_smp]->fNtupleFiles : ToVec(fNtupleFile), empty, // no ntuple file suffs for nominal (syst only)
+                                         NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ), 
+					 NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                         );
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                 htmp = HistFromNtuple( fullPaths[i_path],
@@ -1011,6 +1045,8 @@ void TtHFit::ReadNtuples(){
                                                    fSamples[i_smp]->fSystematics[i_syst]->fNtuplePathsUp );
                 //
                 fullPaths.clear();
+		vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( fSamples[i_smp]->fSystematics[i_syst]->fNtupleNameSufUp ),
+								    fRegions[i_ch]->fNtupleNameSuffs );
                 fullPaths = CreatePathsList(
                                             // path
                                             fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
@@ -1020,7 +1056,7 @@ void TtHFit::ReadNtuples(){
                                                             fSamples[i_smp]->fSystematics[i_syst]->fNtuplePathsUp ),
                                             // file
                                             fSamples[i_smp]->fSystematics[i_syst]->fNtupleFilesUp.size()==0 ?
-                                            fSamples[i_smp]->fNtupleFiles :
+                                            ( fSamples[i_smp]->fNtupleFiles.size()>0 ? fSamples[i_smp]->fNtupleFiles : ToVec(fNtupleFile) ) :
                                             fSamples[i_smp]->fSystematics[i_syst]->fNtupleFilesUp ,
                                             // file suf
                                             fSamples[i_smp]->fSystematics[i_syst]->fNtupleFileSufUp=="" ?
@@ -1028,12 +1064,10 @@ void TtHFit::ReadNtuples(){
                                             ToVec( fSamples[i_smp]->fSystematics[i_syst]->fNtupleFileSufUp ),
                                             // name
                                             fSamples[i_smp]->fSystematics[i_syst]->fNtupleNamesUp.size()==0 ?
-                                            ToVec( fNtupleName ) :
+                                            ( fSamples[i_smp]->fNtupleNames.size()==0 ? ToVec( fNtupleName ) : fSamples[i_smp]->fNtupleNames ) :
                                             fSamples[i_smp]->fSystematics[i_syst]->fNtupleNamesUp,
                                             // name suf
-                                            fSamples[i_smp]->fSystematics[i_syst]->fNtupleNameSufUp=="" ?
-                                            empty :
-                                            ToVec( fSamples[i_smp]->fSystematics[i_syst]->fNtupleNameSufUp )
+					    NtupleNameSuffsUp.size()>0 ? NtupleNameSuffsUp : empty
                                             );
                 for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                     htmp = HistFromNtuple( fullPaths[i_path],
@@ -1085,6 +1119,8 @@ void TtHFit::ReadNtuples(){
 
                 //
                 fullPaths.clear();
+		vector<string> NtupleNameSuffsDown = CombinePathSufs( ToVec( fSamples[i_smp]->fSystematics[i_syst]->fNtupleNameSufDown ),
+								    fRegions[i_ch]->fNtupleNameSuffs );
                 fullPaths = CreatePathsList(
                                             // path
                                             fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
@@ -1094,7 +1130,7 @@ void TtHFit::ReadNtuples(){
                                                             fSamples[i_smp]->fSystematics[i_syst]->fNtuplePathsDown ),
                                             // file
                                             fSamples[i_smp]->fSystematics[i_syst]->fNtupleFilesDown.size()==0 ?
-                                            fSamples[i_smp]->fNtupleFiles :
+                                            ( fSamples[i_smp]->fNtupleFiles.size()>0 ? fSamples[i_smp]->fNtupleFiles : ToVec(fNtupleFile) ) :
                                             fSamples[i_smp]->fSystematics[i_syst]->fNtupleFilesDown ,
                                             // file suf
                                             fSamples[i_smp]->fSystematics[i_syst]->fNtupleFileSufDown=="" ?
@@ -1102,12 +1138,10 @@ void TtHFit::ReadNtuples(){
                                             ToVec( fSamples[i_smp]->fSystematics[i_syst]->fNtupleFileSufDown ),
                                             // name
                                             fSamples[i_smp]->fSystematics[i_syst]->fNtupleNamesDown.size()==0 ?
-                                            ToVec( fNtupleName ) :
+                                            ( fSamples[i_smp]->fNtupleNames.size()==0 ? ToVec( fNtupleName ) : fSamples[i_smp]->fNtupleNames ) :
                                             fSamples[i_smp]->fSystematics[i_syst]->fNtupleNamesDown,
                                             // name suf
-                                            fSamples[i_smp]->fSystematics[i_syst]->fNtupleNameSufDown=="" ?
-                                            empty :
-                                            ToVec( fSamples[i_smp]->fSystematics[i_syst]->fNtupleNameSufDown )
+					    NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
                                             );
                 for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                     htmp = HistFromNtuple( fullPaths[i_path],

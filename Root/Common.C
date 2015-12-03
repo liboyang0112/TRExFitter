@@ -130,7 +130,7 @@ vector<string> CombinePathSufs( vector<string> pathSufs, vector<string> newPathS
     if(newPathSufs.size()==0) newPathSufs.push_back("");
     for(int i=0;i<(int)pathSufs.size();i++){
         for(int j=0;j<(int)newPathSufs.size();j++){
-            output.push_back(pathSufs[i]+"/"+newPathSufs[j]);
+            output.push_back(pathSufs[i]+newPathSufs[j]);
         }
     }
     return output;

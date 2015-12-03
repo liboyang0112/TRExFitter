@@ -1,3 +1,6 @@
+2015-12-03 Calvet Thomas <calvet@cppm.in2p3.fr>
+	* Merging trunk with devbranch
+	
 2015-12-02 Michele Pinamonti <michele.pinamonti@gmail.com>
         * IgnoreWeight option added for systematics (e.g. to avoid using pile-up weight for MC systematics)
         * Data not shown if Region has ASIMOVDATA
@@ -10,13 +13,18 @@
         
 2015-11-30 Michele Pinamonti <michele.pinamonti@gmail.com>
         * StatOnly flag added (to "Fit" for the moment - actually it affects also Limit... To fix)
-
+	
 2015-11-25 - Loic Valery <lvalery@cern.ch>
         * Adding protection against initial numbers in names. Leads to crash if present (https://its.cern.ch/jira/browse/TTHFITTER-7)
-
+	
 2015-11-25 Loic Valery <lvalery@cern.ch>
         * Adding the partial blinding for fit, limits and significance
-
+	
+2015-11-24 Calvet Thomas <calvet@cppm.in2p3.fr>
+	* Update to trunk
+	* Add possibility to merge trees coming from same root file
+	* Add config example for navigation in root files
+	
 2015-11-13 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Some functionalities added for individual sample scaling and to ignore selection
         * README: updated
@@ -31,10 +39,14 @@
         
 2015-11-05 Loic Valery <lvalery@cern.ch>
         * Fixes POI range in fitting tool
-
+	
 2015-10-28 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit: add protection for no syst case when entering pruning plotting method
-        
+	
+2015-10-21 Thomas Calvet <calvet@cppm.in2p3.fr>
+	* TtHFit: adding new functionalities for navigation in single root file
+	* Common: small fix
+	
 2015-10-22 Michele Pinamonti <michele.pinamonti@gmail.com>
         * TtHFit: add possibiliy of Selection for Sample
         

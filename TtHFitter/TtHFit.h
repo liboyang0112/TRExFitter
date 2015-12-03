@@ -64,6 +64,7 @@ public:
     void SetMCweight(string weight);
     void SetSelection(string selection);
     void SetNtupleName(string name);
+    void SetNtupleFile(string name);
     
     // histogram stuff
     void AddHistoPath(string path);
@@ -152,6 +153,7 @@ public:
     float fThresholdSystPruning_Shape;
     
     std::vector<string> fNtuplePaths;
+    string fNtupleFile;
     string fMCweight;
     string fSelection;
     string fNtupleName;
