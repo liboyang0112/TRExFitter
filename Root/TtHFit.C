@@ -2711,7 +2711,7 @@ void TtHFit::PlotCorrelationMatrix(){
 //__________________________________________________________________________________
 //
 void TtHFit::GetLimit(){
-
+    
     //Checks if a data sample exists
     bool hasData = false;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -2721,71 +2721,65 @@ void TtHFit::GetLimit(){
         }
     }
     
+    //
+    // Fills a vector of regions to consider for fit
+    //
+    std::vector < std:: string > regionsForFit;
+    std::vector < std::string > regionsForLimit;
+    std::map < std::string, int > regionsForFitDataType;
+    std::map < std::string, int > regionsForLimitDataType;
+    for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+        if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
+        if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind ){
+            Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
+            regionsForFit.push_back( fRegions[i_ch] -> fName );
+            regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
+        }
+        regionsForLimit.push_back(fRegions[i_ch] -> fName);
+        regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (fLimitIsBlind || !hasData) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+    }
+    
+    std::map < std::string, double > npValues;
+    RooDataSet* data = 0;
+    
+    if(regionsForFit.size()>0){
+        //
+        // Creates a combined workspace with the regions to be used *in the fit*
+        //
+        RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+        
+        //
+        // Calls the PerformFit() function to actually do the fit
+        //
+        npValues = PerformFit( ws_forFit, regionsForFit, data, FitType::BONLY);
+    }
+    
+    //
+    // Create the final asimov dataset for limit setting
+    //
+    RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
+    data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
+    
+    //
+    // Gets the measurement object in the original combined workspace (created with the "w" command)
+    //
+    const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
+    TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
+    RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
+    TString outputName = f_origin->GetName();
+    f_origin -> Close();
+    
+    //
+    // Creating the rootfile used as input for the limit setting :-)
+    //
+    outputName = outputName.ReplaceAll(".root","_forLimits.root");
+    TFile *f_clone = new TFile( outputName, "recreate" );
+    ws_forLimit -> import(*data,Rename("ttHFitterData"));
+    originalMeasurement -> Write();
+    ws_forLimit -> Write();
+    f_clone -> Close();
     string cmd;
-    string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
-    if(hasData && !fLimitIsBlind){ // FIXME
-        //
-        // Fills a vector of regions to consider for fit
-        //
-        std::vector < std:: string > regionsForFit;
-        std::vector < std::string > regionsForLimit;
-        std::map < std::string, int > regionsForFitDataType;
-        std::map < std::string, int > regionsForLimitDataType;
-        for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-            if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-            if( fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
-                Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
-                regionsForFit.push_back( fRegions[i_ch] -> fName );
-                regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
-            }
-            regionsForLimit.push_back(fRegions[i_ch] -> fName);
-            regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , fLimitIsBlind ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
-        }
-        
-        std::map < std::string, double > npValues;
-        RooDataSet* data = 0;
-        if(regionsForFit.size()>0){
-            //
-            // Creates a combined workspace with the regions to be used *in the fit*
-            //
-            RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
-            
-            //
-            // Calls the PerformFit() function to actually do the fit
-            //
-            npValues = PerformFit( ws_forFit, regionsForFit, data, FitType::BONLY);
-        }
-        
-        //
-        // Create the final asimov dataset for limit setting
-        //
-        RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
-        data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
-        
-        //
-        // Gets the measurement object in the original combined workspace (created with the "w" command)
-        //
-        const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
-        TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
-        RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
-        TString outputName = f_origin->GetName();
-        f_origin -> Close();
-
-        //
-        // Creating the rootfile used as input for the limit setting :-)
-        //
-        outputName = outputName.ReplaceAll(".root","_forLimits.root");
-        TFile *f_clone = new TFile( outputName, "recreate" );
-        ws_forLimit -> import(*data,Rename("ttHFitterData"));
-        originalMeasurement -> Write();
-        ws_forLimit -> Write();
-        f_clone -> Close();
-        string cmd;
-        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
-    }
-    else{
-        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
-    }
+    cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
     
     //
     // Finally computing the limit
@@ -2797,7 +2791,7 @@ void TtHFit::GetLimit(){
 ////__________________________________________________________________________________
 ////
 //void TtHFit::GetLimit(){
-//    
+//
 //    //Checks if a data sample exists
 //    bool hasData = false;
 //    for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -2826,6 +2820,15 @@ void TtHFit::GetLimit(){
 //
 void TtHFit::GetSignificance(){
     
+    //Checks if a data sample exists
+    bool hasData = false;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::DATA){
+            hasData = true;
+            break;
+        }
+    }
+    
     //
     // Fills a vector of regions to consider for fit
     //
@@ -2834,13 +2837,13 @@ void TtHFit::GetSignificance(){
     std::map < std::string, int > regionsForFitDataType;
     std::map < std::string, int > regionsForSignDataType;
     for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-        if( fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
+        if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
             Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
             regionsForFit.push_back( fRegions[i_ch] -> fName );
             regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
         }
         regionsForSign.push_back(fRegions[i_ch] -> fName);
-        regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , fLimitIsBlind ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+        regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (!hasData || fLimitIsBlind) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
     }
     
     std::map < std::string, double > npValues;
