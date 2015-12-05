@@ -2728,6 +2728,7 @@ void TtHFit::GetLimit(){
     std::vector < std::string > regionsForLimit;
     std::map < std::string, int > regionsForFitDataType;
     std::map < std::string, int > regionsForLimitDataType;
+    bool onlyUseRealData = true;
     for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
         if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
         if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind ){
@@ -2737,12 +2738,15 @@ void TtHFit::GetLimit(){
         }
         regionsForLimit.push_back(fRegions[i_ch] -> fName);
         regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (fLimitIsBlind || !hasData) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+        if(fLimitIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
+            onlyUseRealData = false;
+        }
     }
     
     std::map < std::string, double > npValues;
     RooDataSet* data = 0;
     
-    if(regionsForFit.size()>0){
+    if(regionsForFit.size()>0 && !onlyUseRealData){
         //
         // Creates a combined workspace with the regions to be used *in the fit*
         //
@@ -2836,6 +2840,7 @@ void TtHFit::GetSignificance(){
     std::vector < std::string > regionsForSign;
     std::map < std::string, int > regionsForFitDataType;
     std::map < std::string, int > regionsForSignDataType;
+    bool onlyUseRealData = true;
     for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
         if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
             Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
@@ -2844,11 +2849,14 @@ void TtHFit::GetSignificance(){
         }
         regionsForSign.push_back(fRegions[i_ch] -> fName);
         regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (!hasData || fLimitIsBlind) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+        if(fLimitIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
+            onlyUseRealData = false;
+        }
     }
     
     std::map < std::string, double > npValues;
     RooDataSet* data = 0;
-    if(regionsForFit.size()>0){
+    if(regionsForFit.size()>0 && !onlyUseRealData){
         //
         // Creates a combined workspace with the regions to be used *in the fit*
         //
