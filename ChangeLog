@@ -1,5 +1,6 @@
 2015-12-05 Loic Valery <lvalery@cern.ch>
         * Remove useless fits from the limits computation (when everything uses data, no need to fit to get an Asimov)
+        * Fixing nans for the regions with 0 signal events bins 
 
 2015-12-04 Loic Valery <lvalery@cern.ch>
         * Fixing the fully blinded limits to be compatible when no data sample is there

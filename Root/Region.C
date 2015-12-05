@@ -552,9 +552,12 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     //
                     // Compute updated relative syst. variations (linear scaling)
                     //
-                    double scaleUp = (yieldUp/yieldNominal-1.)*(systErrUp-systValue);
-                    double scaleDown = (yieldDown/yieldNominal-1.)*(systValue-systErrDown);
-
+                    double scaleUp = 0;
+                    double scaleDown = 0;
+                    if(yieldNominal!=0){
+                        scaleUp = (yieldUp/yieldNominal-1.)*(systErrUp-systValue);
+                        scaleDown = (yieldDown/yieldNominal-1.)*(systValue-systErrDown);
+                    }
                     diffUp += scaleUp*yieldNominal_postFit;
                     diffDown += scaleDown*yieldNominal_postFit;
                 }
