@@ -1911,19 +1911,16 @@ void TtHFit::BuildYieldTable(string opt){
     //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
+        if(fSamples[i_smp]->fType==Sample::SIGNAL && fFitType==FitType::BONLY) continue;
         if(idxVec[i_smp]!=i_smp) continue;
         //
         // print values
         out << " | " << fSamples[i_smp]->fTitle << " | ";
         for(int i_bin=1;i_bin<=fNRegions;i_bin++){
             out << h_smp[i_smp]->GetBinContent(i_bin);
-            out << " +/- ";
             if(fSamples[i_smp]->fType!=Sample::DATA){
+                out << " +/- ";
                 out << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
-            }
-            else{
-//                 out << h_smp[i_smp]->GetBinError(i_bin);
-                out << sqrt(h_smp[i_smp]->GetBinContent(i_bin) );
             }
             out << " | ";
         }
