@@ -1908,8 +1908,12 @@ void TtHFit::BuildYieldTable(string opt){
         if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, fRegions[0]->fSystNames, fFitResults->fCorrMatrix );
         else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, fRegions[0]->fSystNames );
     }
+    
+    //
+    // Print samples except data
     //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::DATA) continue;
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
         if(fSamples[i_smp]->fType==Sample::SIGNAL && fFitType==FitType::BONLY) continue;
         if(idxVec[i_smp]!=i_smp) continue;
@@ -1918,16 +1922,16 @@ void TtHFit::BuildYieldTable(string opt){
         out << " | " << fSamples[i_smp]->fTitle << " | ";
         for(int i_bin=1;i_bin<=fNRegions;i_bin++){
             out << h_smp[i_smp]->GetBinContent(i_bin);
-            if(fSamples[i_smp]->fType!=Sample::DATA){
-                out << " +/- ";
-                out << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
-            }
+            out << " pm ";
+            out << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
             out << " | ";
         }
         out << endl;
     }
+    
     //
     // Build tot
+    //
     h_tot = new TH1F("h_Tot_","h_Tot", fNRegions,0,fNRegions);
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
         if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->Integral(0,fRegions[i_bin-1]->fTot_postFit->GetNbinsX()+1) );
@@ -1964,9 +1968,23 @@ void TtHFit::BuildYieldTable(string opt){
     out << " | Total | ";
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
         out << h_tot->GetBinContent(i_bin);
-        out << " +/- ";
+        out << " pm ";
         out << g_err_tot->GetErrorYhigh(i_bin-1);
         out << " | ";
+    }
+    out << endl;
+    
+    //
+    // Print the data at last
+    //
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType!=Sample::DATA) continue;
+        if(idxVec[i_smp]!=i_smp) continue;
+        out << " | " << fSamples[i_smp]->fTitle << " | ";
+        for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+            out << h_smp[i_smp]->GetBinContent(i_bin);
+            out << " | ";
+        }
     }
     out << endl;
 }
