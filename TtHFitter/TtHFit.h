@@ -97,7 +97,8 @@ public:
     // ...
     void DrawSignalRegionsPlot(int nCols=0,int nRows=0);
     void DrawSignalRegionsPlot(int nRows,int nCols, std::vector < Region* > &regions);
-    void DrawPieChartPlot();
+    void DrawPieChartPlot(const std::string &opt="", int nCols=0,int nRows=0);
+    void DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions);
     
     // turn to RooStat::HistFactory
     void ToRooStat(bool createWorkspace=true, bool exportOnly=true);

@@ -1,5 +1,6 @@
 2015-12-06 Loic Valery <lvalery@cern.ch>
         * Improve tables by automating the script -> Still to be improved for the $$
+        * Adding pie charts
 
 2015-12-05 Loic Valery <lvalery@cern.ch>
         * Remove useless fits from the limits computation (when everything uses data, no need to fit to get an Asimov)

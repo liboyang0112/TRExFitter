@@ -118,12 +118,22 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
             if(nCols*nRows < myFit->fNRegions) nRows++;
         }
         myFit->DrawSignalRegionsPlot(nCols,nRows);
+        myFit->DrawPieChartPlot("pre",nCols,nRows);
     }
     
     if(drawPostFit){
         myFit->DrawAndSaveAll("post");
         myFit->DrawSummary("log post");
         myFit->BuildYieldTable("post");
+        int nCols = 2;
+        int nRows = 2;
+        if(myFit->fNRegions>4){
+            nCols = (int)sqrt(myFit->fNRegions);
+            if(sqrt(myFit->fNRegions)>nCols) nCols++;
+            nRows = (int)sqrt(myFit->fNRegions);
+            if(nCols*nRows < myFit->fNRegions) nRows++;
+        }
+        myFit->DrawPieChartPlot("post",nCols,nRows);
     }
 
     if(drawSeparation){

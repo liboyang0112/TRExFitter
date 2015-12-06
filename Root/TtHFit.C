@@ -14,6 +14,7 @@
 #include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
 
 #include "TPad.h"
+#include "TPie.h"
 
 //Corresponding header
 #include "TtHFitter/TtHFit.h"
@@ -936,7 +937,7 @@ void TtHFit::ReadNtuples(){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         cout << "  Region " << fRegions[i_ch]->fName << " ..." << endl;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
-            // 
+            //
             // eventually skip sample / region combination
             //
             if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[i_ch]->fName)<0 ) continue;
@@ -945,7 +946,7 @@ void TtHFit::ReadNtuples(){
             //
             // set selection and weight
             fullSelection = "1";
-//             fSelection + " && " + fRegions[i_ch]->fSelection;
+            //             fSelection + " && " + fRegions[i_ch]->fSelection;
             if(!fSamples[i_smp]->fIgnoreSelection && fSelection!="" && fSelection!="1")
                 fullSelection += " && "+fSelection;
             if(!fSamples[i_smp]->fIgnoreSelection && fRegions[i_ch]->fSelection!="" && fRegions[i_ch]->fSelection!="1")
@@ -964,20 +965,20 @@ void TtHFit::ReadNtuples(){
             //
             // build a list of ntuples to read
             fullPaths.clear();
-	    vector<string> NtupleNames;
-	    for(unsigned int ns_ch=0; ns_ch<fRegions[i_ch]->fNtupleNames.size(); ++ns_ch){
-	      NtupleNames.push_back(fRegions[i_ch]->fNtupleNames.at(ns_ch));
-	    }
-	    for(unsigned int ns_smp=0; ns_smp<fSamples[i_smp]->fNtupleNames.size(); ++ns_smp){
-	      NtupleNames.push_back(fSamples[i_smp]->fNtupleNames.at(ns_smp));
-	    }
-	    vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
-							      fRegions[i_ch]->fNtupleNameSuffs );
+            vector<string> NtupleNames;
+            for(unsigned int ns_ch=0; ns_ch<fRegions[i_ch]->fNtupleNames.size(); ++ns_ch){
+                NtupleNames.push_back(fRegions[i_ch]->fNtupleNames.at(ns_ch));
+            }
+            for(unsigned int ns_smp=0; ns_smp<fSamples[i_smp]->fNtupleNames.size(); ++ns_smp){
+                NtupleNames.push_back(fSamples[i_smp]->fNtupleNames.at(ns_smp));
+            }
+            vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
+                                                             fRegions[i_ch]->fNtupleNameSuffs );
             fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
-                                         fRegions[i_ch]->fNtuplePathSuffs,
-                                         fSamples[i_smp]->fNtupleFiles.size()>0 ? fSamples[i_smp]->fNtupleFiles : ToVec(fNtupleFile), empty, // no ntuple file suffs for nominal (syst only)
-                                         NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ), 
-					 NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
+                                        fRegions[i_ch]->fNtuplePathSuffs,
+                                        fSamples[i_smp]->fNtupleFiles.size()>0 ? fSamples[i_smp]->fNtupleFiles : ToVec(fNtupleFile), empty, // no ntuple file suffs for nominal (syst only)
+                                        NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
+                                        NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                         );
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                 htmp = HistFromNtuple( fullPaths[i_path],
@@ -1044,7 +1045,7 @@ void TtHFit::ReadNtuples(){
                     fullSelection += " && "+reg->fSelection;
                 if(smp->fSelection!="" && smp->fSelection!="1")
                     fullSelection += " && "+smp->fSelection;
-
+                
                 //
                 // Up
                 //
@@ -1069,15 +1070,13 @@ void TtHFit::ReadNtuples(){
                                                    syst->fNtuplePathsUp );
                 //
                 fullPaths.clear();
-		vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ),
-								    reg->fNtupleNameSuffs );
+                vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ),
+                                                                   reg->fNtupleNameSuffs );
                 fullPaths = CreatePathsList(
                                             // path
                                             smp->fNtuplePaths.size()>0 ? smp->fNtuplePaths : fNtuplePaths,
                                             // path suf
-                                            CombinePathSufs(
-                                                            reg->fNtuplePathSuffs,
-                                                            syst->fNtuplePathsUp ),
+                                            CombinePathSufs(reg->fNtuplePathSuffs,syst->fNtuplePathsUp ),
                                             // file
                                             syst->fNtupleFilesUp.size()==0 ?
                                             ( smp->fNtupleFiles.size()>0 ? smp->fNtupleFiles : ToVec(fNtupleFile) ) :
@@ -1091,7 +1090,7 @@ void TtHFit::ReadNtuples(){
                                             ( smp->fNtupleNames.size()==0 ? ToVec( fNtupleName ) : smp->fNtupleNames ) :
                                             syst->fNtupleNamesUp,
                                             // name suf
-					    NtupleNameSuffsUp.size()>0 ? NtupleNameSuffsUp : empty
+                                            NtupleNameSuffsUp.size()>0 ? NtupleNameSuffsUp : empty
                                             );
                 for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                     htmp = HistFromNtuple( fullPaths[i_path],
@@ -1099,7 +1098,7 @@ void TtHFit::ReadNtuples(){
                                           fullSelection, fullMCweight);
                     //Pre-processing of histograms (rebinning, lumi scaling)
                     if(reg->fHistoBins){
-//                         htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,htmp->GetName(),reg->fHistoBins));
+                        //                         htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,htmp->GetName(),reg->fHistoBins));
                         TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                         const char *hname = htmp->GetName();
                         htmp->~TH1F();
@@ -1146,11 +1145,11 @@ void TtHFit::ReadNtuples(){
                     ReplaceString(fullMCweight,"* *","*");
                     ReplaceString(fullMCweight,"**","*");
                 }
-
+                
                 //
                 fullPaths.clear();
-		vector<string> NtupleNameSuffsDown = CombinePathSufs( ToVec( syst->fNtupleNameSufDown ),
-								    reg->fNtupleNameSuffs );
+                vector<string> NtupleNameSuffsDown = CombinePathSufs( ToVec( syst->fNtupleNameSufDown ),
+                                                                     reg->fNtupleNameSuffs );
                 fullPaths = CreatePathsList(
                                             // path
                                             smp->fNtuplePaths.size()>0 ? smp->fNtuplePaths : fNtuplePaths,
@@ -1171,7 +1170,7 @@ void TtHFit::ReadNtuples(){
                                             ( smp->fNtupleNames.size()==0 ? ToVec( fNtupleName ) : smp->fNtupleNames ) :
                                             syst->fNtupleNamesDown,
                                             // name suf
-					    NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
+                                            NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
                                             );
                 for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                     htmp = HistFromNtuple( fullPaths[i_path],
@@ -1179,7 +1178,7 @@ void TtHFit::ReadNtuples(){
                                           fullSelection, fullMCweight);
                     //Pre-processing of histograms (rebinning, lumi scaling)
                     if(reg->fHistoBins){
-//                         htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,htmp->GetName(),reg->fHistoBins));
+                        //                         htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,htmp->GetName(),reg->fHistoBins));
                         TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                         const char *hname = htmp->GetName();
                         htmp->~TH1F();
@@ -1203,7 +1202,7 @@ void TtHFit::ReadNtuples(){
                     //Importing histogram in TtHFitter
                     if(i_path==0){
                         hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
-//                         hDown->SetName(Form("h_%s_%s_%sDown",reg->fName.c_str(),smp->fName.c_str(),syst->fName.c_str()));
+                        //                         hDown->SetName(Form("h_%s_%s_%sDown",reg->fName.c_str(),smp->fName.c_str(),syst->fName.c_str()));
                     }
                     else hDown->Add(htmp);
                     htmp->~TH1F();
@@ -1227,10 +1226,9 @@ void TtHFit::ReadNtuples(){
                     }
                 }
                 HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
-                                             sh /*systematic*/,
-                                             fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
-//                                              fHistoCheckCrash /*cause crash if problem*/);
-                                             TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
+                                            sh /*systematic*/,
+                                            fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
+                                            TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
             }
         }
     }
@@ -1285,8 +1283,9 @@ void TtHFit::ReadHistograms(){
                     htmp->~TH1F();
                     htmp = htmp2;
                     htmp->SetName(hname);
+                } else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
+                    htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                 }
-                else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                 
                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
                 
@@ -1297,11 +1296,11 @@ void TtHFit::ReadHistograms(){
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
                 htmp->~TH1F();
+                
             }
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
             
             std::map < int, bool > applyCorrection;
-            
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
                 for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
                     double content = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetBinContent(iBin);
@@ -1338,9 +1337,7 @@ void TtHFit::ReadHistograms(){
                                               // path
                                               fHistoPaths,
                                               // path suf
-                                              CombinePathSufs(
-                                                              reg->fHistoPathSuffs,
-                                                              syst->fHistoPathsUp ),
+                                              CombinePathSufs(reg->fHistoPathSuffs,syst->fHistoPathsUp ),
                                               // file
                                               syst->fHistoFilesUp.size()==0 ?
                                               histoFiles :
@@ -1404,9 +1401,7 @@ void TtHFit::ReadHistograms(){
                                               // path
                                               fHistoPaths,
                                               // path suf
-                                              CombinePathSufs(
-                                                              reg->fHistoPathSuffs,
-                                                              syst->fHistoPathsDown ),
+                                              CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDown ),
                                               // file
                                               syst->fHistoFilesDown.size()==0 ?
                                               histoFiles :
@@ -1514,7 +1509,6 @@ void TtHFit::ReadHistos(/*string fileName*/){
         //
         if(!singleOutputFile){
             fileName = fName + "/Histograms/" + fName + "_" + regionName + "_histos.root";
-//             fileName = fName + "/Histograms/" + fName + "_" + regionName + "_histos"+fSaveSuf+".root";
             cout << "-----------------------------" << endl;
             cout << "Reading histograms from file " << fileName << " ..." << endl;
         }
@@ -1705,8 +1699,6 @@ TthPlot* TtHFit::DrawSummary(string opt){
     } 
     //
     TthPlot *p = new TthPlot(fName+"_summary",900,700);
-//     p->fShowYields = TtHFitter::SHOWYIELDS;   // let's hide it always from the summary plot ;)
-//     p->fYmin = 10;
     p->fYmin = 1;
     p->SetXaxis("",false);
     p->AddLabel(fLabel);
@@ -1782,8 +1774,6 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
-//     if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSaveSuf+"."+fImageFormat).c_str());
-//     else           p->SaveAs((fName+"/Plots/Summary"+fSaveSuf+"."+fImageFormat).c_str());
     if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSuffix+"."+fImageFormat).c_str());
     else           p->SaveAs((fName+"/Plots/Summary"+fSuffix+"."+fImageFormat).c_str());
     //
@@ -2027,17 +2017,15 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     float H0 = 100; // height of the top label pad
     float H = H0 + nRows*Hp; // tot height of the canvas
     float W = nCols*Wp; // tot width of the canvas
-//     TCanvas *c = new TCanvas("c","c",200*nCols,100+250*nRows);
-//     TPad *pTop = new TPad("c0","c0",0,1-100./(100.+150*nCols),1,1);
+    
     TCanvas *c = new TCanvas("c","c",W,H);
     TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
     pTop->Draw();
     pTop->cd();
     ATLASLabel(0.1,0.7,(char*)"Internal");
     myText(    0.1,0.4,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
-//     myText(    0.1,0.4,1,Form("#sqrt{s} = 8 TeV, 20.3 fb^{-1}"));
     myText(    0.1,0.1,1,Form("%s",fLabel.c_str()));
-    //
+    
     c->cd();
     TPad *pBottom = new TPad("c1","c1",0,0,1,1-H0/H);
     pBottom->Draw();
@@ -2055,7 +2043,8 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     pBottom->cd(1);
     
     //
-    // get the values
+    // Get the values
+    //
     for(int i=0;i<Nreg;i++){
         S[i] = 0.;
         B[i] = 0.;
@@ -2122,8 +2111,163 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
 
 //__________________________________________________________________________________
 //
-void TtHFit::DrawPieChartPlot(){
-    // still to implement...
+void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows){
+    
+    std::vector< Region* > vRegions;
+    vRegions.clear();
+    if(fRegionsToPlot.size()>0){
+        nCols = 1;
+        nRows = 1;
+        // first loop
+        int nRegInRow = 0;
+        for(unsigned int i=0;i<fRegionsToPlot.size();i++){
+            if(TtHFitter::DEBUGLEVEL>0) cout << fRegionsToPlot[i] << endl;
+            if(fRegionsToPlot[i].find("ENDL")!=string::npos){
+                nRows++;
+                if(nRegInRow>nCols) nCols = nRegInRow;
+                nRegInRow = 0;
+            }
+            else{
+                vRegions.push_back( GetRegion(fRegionsToPlot[i]) );
+                nRegInRow ++;
+            }
+        }
+    }
+    else{
+        vRegions = fRegions;
+    }
+    DrawPieChartPlot(opt, nCols,nRows,vRegions);
+
+}
+
+
+//__________________________________________________________________________________
+//
+void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions ){
+    
+    gSystem->mkdir((fName+"/PieChart").c_str());
+    
+    float Hp = 250; // height of one mini-plot, in pixels
+    float Wp = 250; // width of one mini-plot, in pixels
+    float H0 = 100; // height of the top label pad
+    float H = H0 + nRows*Hp; // tot height of the canvas
+    float W = nCols*Wp; // tot width of the canvas
+    
+    bool isPostFit = opt.find("post")!=string::npos;
+    
+    //
+    // Create the canvas
+    //
+    TCanvas *c = new TCanvas("c","c",W,H);
+    TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
+    pTop->Draw();
+    pTop->cd();
+    ATLASLabel(0.05,0.7,(char*)"Internal");
+    myText(    0.05,0.4,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    myText(    0.05,0.1,1,Form("%s",fLabel.c_str()));
+    
+    c->cd();
+    TPad *pBottom = new TPad("c1","c1",0,0,1,1-H0/H);
+    pBottom->Draw();
+    pBottom->cd();
+    pBottom->Divide(nCols,nRows);
+    int Nreg = nRows*nCols;
+    if(Nreg>(int)regions.size()) Nreg = regions.size();
+    TLatex *tex = new TLatex();
+    tex->SetNDC();
+    tex->SetTextSize(gStyle->GetTextSize());
+    pBottom->cd(1);
+    
+    //
+    // Create the map to store all the needed information
+    //
+    std::map < std::string, int > map_for_legend;
+    std::vector < std::map < std::string, double > > results;
+    std::vector < std::map < std::string, int > > results_color;
+    
+    //
+    // Get the values
+    //
+    for(int i=0;i<Nreg;i++){
+        if(regions[i]==0x0) continue;
+        std::map < std::string, double > temp_map_for_region;
+        std::map < std::string, int > temp_map_for_region_color;
+        
+        for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
+            if(regions[i]->fBkg[i_bkg]!=0x0){
+                std::string title = regions[i]->fBkg[i_bkg]->fSample->fTitle;
+                if(regions[i]->fBkg[i_bkg]->fSample->fGroup != "") title = regions[i]->fBkg[i_bkg]->fSample->fGroup.c_str();
+                
+                double integral = 0;
+                if(!isPostFit) integral = regions[i]->fBkg[i_bkg]->fHist->Integral() * fLumiScale;
+                else integral = regions[i]->fBkg[i_bkg]->fHist_postFit->Integral() * fLumiScale;
+                
+                if(temp_map_for_region.find(title)!=temp_map_for_region.end()){
+                    temp_map_for_region[title] += integral;
+                } else {
+                    temp_map_for_region.insert( std::pair < std::string, double > (title,integral) );
+                    temp_map_for_region_color.insert( std::pair < std::string, int > (title, regions[i]->fBkg[i_bkg]->fSample->fFillColor) );
+                }
+                map_for_legend[title] = regions[i]->fBkg[i_bkg]->fSample->fFillColor;
+            }
+        }
+        results.push_back(temp_map_for_region);
+        results_color.push_back(temp_map_for_region_color);
+    }
+    
+    //
+    // Finally writting the pie chart
+    //
+    for(int i=0;i<Nreg;i++){
+        if(regions[i]==0x0) continue;
+        pBottom->cd(i+1);
+        string label = regions[i]->fShortLabel;
+        
+        const int back_n = results[i].size();
+        float values[back_n];
+        int colors[back_n];
+        for( unsigned int iTemp = 0; iTemp < back_n; ++iTemp ){
+            values[iTemp] = 0.;
+            colors[iTemp] = 0;
+        }
+        
+        int count = 0;
+        for ( std::pair < string, double > temp_pair : results[i] ){
+            values[count] = temp_pair.second;
+            colors[count] = results_color[i][temp_pair.first];
+            count++;
+        }
+        
+        TPie *pie = new TPie(("pie_"+label).c_str()," ",back_n, values, colors);
+        pie -> SetRadius( pie -> GetRadius() * 0.8 );
+        for( unsigned int iEntry = 0; iEntry < pie->GetEntries(); ++iEntry) pie -> SetEntryLabel(iEntry,"");
+        pie -> Draw();
+        tex->DrawLatex(0.1,0.85,label.c_str());
+    }
+    
+    c -> cd();
+    
+    //
+    // Adding the legend in the top panel
+    //
+    pTop->cd();
+    TLegend *leg = new TLegend(0.5,0.1,0.95,0.90);
+    if(map_for_legend.size()>4){
+        leg -> SetNColumns(2);
+    }
+    leg -> SetLineStyle(0);
+    leg -> SetFillStyle(0);
+    leg -> SetLineColor(0);
+    leg -> SetBorderSize(0);
+    
+    for ( const std::pair < std::string, int > legend_entry : map_for_legend ) {
+        TH1F *dummy = new TH1F( ("legend_entry_" + legend_entry.first).c_str(), "",1,0,1);
+        dummy -> SetFillColor(legend_entry.second);
+        dummy -> SetLineColor(kBlack);
+        leg -> AddEntry(dummy,legend_entry.first.c_str(),"f");
+    }
+    leg -> Draw();
+    c->SaveAs((fName+"/Plots/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+fImageFormat).c_str());
 }
 
 //__________________________________________________________________________________
@@ -2143,13 +2287,10 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         cout << "Exporting to RooStats..." << endl;
     }
     
-//     RooStats::HistFactory::Measurement meas(fName.c_str(), fName.c_str());
-//     meas.SetOutputFilePrefix((fName+"/RooStats/"+fName+fSuffix).c_str());
     RooStats::HistFactory::Measurement meas((fName+fSuffix).c_str(), (fName+fSuffix).c_str());
     meas.SetOutputFilePrefix((fName+"/RooStats/"+fName).c_str());
     meas.SetExportOnly(exportOnly);
     meas.SetPOI(fPOI.c_str());
-//     meas.SetLumi(fLumiAddScale);
     meas.SetLumi(fLumiScale);
     if(fLumiErr==0){
         meas.AddConstantParam("Lumi");
