@@ -56,7 +56,6 @@ function write_preamble {
     line="\t \\\begin{tabular}{| l |"
     for i in $(seq 1 $column)
         do
-            echo $i
             line+=" c |"
         done
     line+="}"
@@ -73,13 +72,12 @@ function write_end {
 ##____________________________________________
 ## Build the latex tables (assuming one provided a config files)
 function tableToLatex {
-    echo $#
     if [[ $# -eq 0 ]]; then
             echo "=> No config file provided. Plase provide one."
     else
-            fitName=`less $1 | grep "Fit:" | awk '{print $2}'`
-            echo $fitName
-            for inFile in `find FitExample/Tables -name '*.txt'`
+            fitName=`less $1 | grep "Job:" | awk '{print $2}'`
+            fitName=${fitName//'"'/''}
+            for inFile in `find $fitName/Tables -name '*.txt'`
                 do
                     echo "-> Dumping info from $inFile"
                     outFile=${inFile/".txt"/".tex"}
