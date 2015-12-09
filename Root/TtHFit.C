@@ -1859,13 +1859,11 @@ void TtHFit::BuildYieldTable(string opt){
                     if(isPostFit){
                         h_tmp_Up   = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistUp_postFit;
                         h_tmp_Down = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistDown_postFit;
-                    }
-                    else{
+                    } else {
                         h_tmp_Up   = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistUp;
                         h_tmp_Down = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistDown;
                     }
-                }
-                else{
+                } else {
                     h_tmp_Up   = new TH1F(Form("h_DUMMY_%s_up_%i",  fRegions[0]->fSystNames[i_syst].c_str(),i_bin-1),"h_dummy",1,0,1);
                     h_tmp_Down = new TH1F(Form("h_DUMMY_%s_down_%i",fRegions[0]->fSystNames[i_syst].c_str(),i_bin-1),"h_dummy",1,0,1);
                 }
@@ -1905,7 +1903,7 @@ void TtHFit::BuildYieldTable(string opt){
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
-        if(fSamples[i_smp]->fType==Sample::SIGNAL && fFitType==FitType::BONLY) continue;
+        if( fSamples[i_smp]->fType==Sample::SIGNAL && (fFitType==FitType::BONLY && isPostFit) ) continue;
         if(idxVec[i_smp]!=i_smp) continue;
         //
         // print values
@@ -1927,6 +1925,8 @@ void TtHFit::BuildYieldTable(string opt){
         if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->Integral(0,fRegions[i_bin-1]->fTot_postFit->GetNbinsX()+1) );
         else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->Integral(        0,fRegions[i_bin-1]->fTot->GetNbinsX()+1) );
     }
+    
+    
     //
     //   Build error band
     // build the vectors of variations
