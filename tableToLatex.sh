@@ -19,25 +19,25 @@ function convert_all_lines {
         do
             if [[ $isSyst -eq 0 ]]; then
                 if [ $nline -eq 0 ] || [ $nline -eq $((total_lines-1)) ] || [ $nline -eq $((total_lines-2)) ] ; then
-                    echo "\t \t \\hline" >> $2
+                    echo "          \hline" >> $2
                 fi
             else
                 if [ $nline -eq 0 ] ; then
-                    echo "\t \t \\hline" >> $2
+                    echo "          \hline" >> $2
                 fi
             fi
             line=${line/'|'/' $'}
             line=${line//'|'/'$ & $'}
-            line=${line//'pm'/'\\pm'}
+            line=${line//'pm'/'\pm'}
             line=${line//'#'/'\'}
-            line="\t \t ${line%?}"
             line="${line%?}"
             line="${line%?}"
-            line+=' \\\\'
-            echo $line >> $2
+            line="${line%?}"
+            line+=' \\'
+            echo "         $line" >> $2
             nline=$((nline+1))
             if [ $nline -eq 1 ] || [ $nline -eq $total_lines ] ; then
-                echo "\t \t \\hline" >> $2
+                echo "          \hline" >> $2
             fi
         done < $1
 }
@@ -52,21 +52,21 @@ function write_preamble {
         column=$((column-1))
         break
         done < $1
-    echo "\\\begin{table}" > $2
-    line="\t \\\begin{tabular}{| l |"
+    echo "\begin{table}" > $2
+    line="\begin{tabular}{| l |"
     for i in $(seq 1 $column)
         do
             line+=" c |"
         done
     line+="}"
-    echo $line >> $2
+    echo "  $line" >> $2
 }
 
 ##____________________________________________
 ## Write the end of the latex tables
 function write_end {
-    echo "\t \\\end{tabular}" >> $2
-    echo "\\\end{table}" >> $2
+    echo "  \end{tabular}" >> $2
+    echo "\end{table}" >> $2
 }
 
 ##____________________________________________
