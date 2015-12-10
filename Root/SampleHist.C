@@ -499,8 +499,10 @@ void SampleHist::DrawSystPlot( const string &syst ){
         gSystem->mkdir((fFitName+"/Systematics").c_str());
         gSystem->mkdir((fFitName+"/Systematics/"+fSyst[i_syst]->fName).c_str());
         
-        const char* saveName = Form("%s/Systematics/%s/%s.png",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName());
-        c->SaveAs(saveName);
+        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
+            c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), TtHFitter::IMAGEFORMAT[i_format].c_str()));
+        }
+//         c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), "png"));
     }
     delete c;
 }

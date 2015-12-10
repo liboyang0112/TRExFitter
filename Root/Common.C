@@ -13,6 +13,7 @@ bool TtHFitter::SPLITHISTOFILES = false;
 bool TtHFitter::HISTOCHECKCRASH = true;
 float TtHFitter::CORRELATIONTHRESHOLD = -1;
 std::map <string,string> TtHFitter::SYSTMAP; //(TtHFitter::SYSTMAP).clear();
+std::vector <string> TtHFitter::IMAGEFORMAT;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------

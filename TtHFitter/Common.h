@@ -60,6 +60,7 @@ namespace TtHFitter{
     extern bool HISTOCHECKCRASH;
     extern float CORRELATIONTHRESHOLD;
     extern std::map< string,string > SYSTMAP;
+    extern std::vector< string > IMAGEFORMAT;
 };
 
 const int MAXregions = 100;

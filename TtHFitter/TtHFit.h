@@ -1,6 +1,8 @@
 #include "TtHFitter/Common.h"
 
 #include "TGaxis.h"
+#include "TPad.h"
+#include "TPie.h"
 
 #include "TtHFitter/TthPlot.h"
 #include "TtHFitter/FitResults.h"

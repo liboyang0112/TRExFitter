@@ -368,7 +368,7 @@ TthPlot* Region::DrawPreFit(string opt){
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
             h->Scale(fSig[i]->fSample->fNormFactors[i_nf]->fNominal);
-            std::cout << "Region::INFO: Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
         }
         p->AddSignal(h,title);
         if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(h,title+" (norm)");
@@ -925,47 +925,46 @@ void Region::PrintSystTable(){
     int width = (Ncol)*120;
     int height = fSystNames.size()*25;
     //
-    TCanvas *c = new TCanvas("c","c",width,height);
-//     TCanvas *c = new TCanvas("c","c",3000,3000);
-    TPaveText *pt0;
-    TPaveText *pt[MAXsamples];
+//     TCanvas *c = new TCanvas("c","c",width,height);
+//     TPaveText *pt0;
+//     TPaveText *pt[MAXsamples];
+//     pt0 = new TPaveText(0,0,2./Ncol,1);
+//     pt0->SetTextSize(gStyle->GetTextSize());
+//     pt0->SetFillStyle(0);
     //
-    pt0 = new TPaveText(0,0,2./Ncol,1);
-    pt0->SetTextSize(gStyle->GetTextSize());
-    pt0->SetFillStyle(0);
     float i_col = 1;
     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-        pt[i_smp] = new TPaveText((i_col+1.)/Ncol,0,(i_col+2.)/Ncol,1); // ,"blNDC"
-        pt[i_smp]->SetTextSize(gStyle->GetTextSize());
-        pt[i_smp]->SetFillStyle(0);
+//         pt[i_smp] = new TPaveText((i_col+1.)/Ncol,0,(i_col+2.)/Ncol,1); // ,"blNDC"
+//         pt[i_smp]->SetTextSize(gStyle->GetTextSize());
+//         pt[i_smp]->SetFillStyle(0);
         sh = fSampleHists[i_smp];
         s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
         if(s->fType==Sample::GHOST) continue;
         out << "      | " << s->fTitle;
-        pt[i_smp]->AddText(s->fTitle.c_str());
+//         pt[i_smp]->AddText(s->fTitle.c_str());
         i_col+=1;
     }
     out << " |" << endl;
-    pt0->AddText(" ");
+//     pt0->AddText(" ");
     //
-    TPave *b[100];
-    int i_gray = 0;
+//     TPave *b[100];
+//     int i_gray = 0;
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
-        if(i_syst%2==0) {
-            b[i_gray] = new TPave(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst-1)/(fSystNames.size()+1.),0);
-            b[i_gray]->SetFillColor(kGray);
-            b[i_gray]->Draw("NB");
-            i_gray++;
-        }
+//         if(i_syst%2==0) {
+//             b[i_gray] = new TPave(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst-1)/(fSystNames.size()+1.),0);
+//             b[i_gray]->SetFillColor(kGray);
+//             b[i_gray]->Draw("NB");
+//             i_gray++;
+//         }
         //
         if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]];
         else                                           out << " | " << fSystNames[i_syst];
-        if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") pt0->AddText(TtHFitter::SYSTMAP[fSystNames[i_syst]].c_str());
-        else                                           pt0->AddText(fSystNames[i_syst].c_str());
-        if(i_syst==0) pt0->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
+//         if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") pt0->AddText(TtHFitter::SYSTMAP[fSystNames[i_syst]].c_str());
+//         else                                           pt0->AddText(fSystNames[i_syst].c_str());
+//         if(i_syst==0) pt0->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
         for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-            if(i_syst==0) pt[i_smp]->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
+//             if(i_syst==0) pt[i_smp]->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
             sh = fSampleHists[i_smp];
             s = sh->fSample;
             if(s->fType==Sample::DATA) continue;
@@ -973,21 +972,21 @@ void Region::PrintSystTable(){
             syh = sh->GetSystematic(fSystNames[i_syst]);
             if(syh==0x0){
                 out << " |    nan   ";
-                pt[i_smp]->AddText(" - ");
+//                 pt[i_smp]->AddText(" - ");
             }
 //             sh = GetSampleHist(fSamples[i_smp]->fName);
             else{
                 out << " | " << syh->fNormUp;
                 out << " / " << syh->fNormDown;
-                pt[i_smp]->AddText(Form("%.2f / %.2f",syh->fNormUp,syh->fNormDown) );
+//                 pt[i_smp]->AddText(Form("%.2f / %.2f",syh->fNormUp,syh->fNormDown) );
             }
-            if(i_syst==(int)fSystNames.size()-1) pt[i_smp]->Draw("NB");
+//             if(i_syst==(int)fSystNames.size()-1) pt[i_smp]->Draw("NB");
         }
         out << " |" << endl;
-        if(i_syst==(int)fSystNames.size()-1) pt0->Draw("NB");
+//         if(i_syst==(int)fSystNames.size()-1) pt0->Draw("NB");
     }
     //
-    c->SaveAs((fFitName+"/Tables/"+fName+"_syst.pdf").c_str());
+//     c->SaveAs((fFitName+"/Tables/"+fName+"_syst.pdf").c_str());
 }
 
 // --------------- Functions --------------- //

@@ -13,9 +13,6 @@
 //HistFactory headers
 #include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
 
-#include "TPad.h"
-#include "TPie.h"
-
 //Corresponding header
 #include "TtHFitter/TtHFit.h"
 
@@ -97,6 +94,8 @@ TtHFit::TtHFit(string name){
     fLimitPOIAsimov = 0;
     
     fImageFormat = "png";
+    TtHFitter::IMAGEFORMAT.clear();
+    TtHFitter::IMAGEFORMAT.push_back("png");
 }
 
 //__________________________________________________________________________________
@@ -502,7 +501,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         fRankingMaxNP = atoi(param.c_str());
     }
     param = cs->Get("ImageFormat");  if( param != ""){
-        fImageFormat = param;
+        fImageFormat = Vectorize(param,',')[0];
+        TtHFitter::IMAGEFORMAT = Vectorize(param,',');
     }
     
     //##########################################################
@@ -1112,11 +1112,22 @@ void TtHFit::ReadNtuples(){
                     if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                     else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
                     
+//                     // obtain relative variation and apply it to proper sample
+//                     if(syst->fReferenceSample!=""){
+//                         TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+//                         htmp->Divide(href);
+//                         htmp->Multiply( reg->GetSampleHist( fSamples[i_smp]->fName )->fHist );
+//                     }
                     // obtain relative variation and apply it to proper sample
+                    // & try to keep also the same total relative variation
                     if(syst->fReferenceSample!=""){
                         TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                        htmp->Divide(href);
-                        htmp->Multiply( reg->GetSampleHist( fSamples[i_smp]->fName )->fHist );
+                        TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                        float relVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
+                        htmp->Divide(   href );
+                        htmp->Multiply( hnom );
+                        float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
+                        if(relVar > 0.0001 && newVar > 0.0001) htmp->Scale( relVar / newVar );
                     }
                     
                     //Importing histogram in TtHFitter
@@ -1192,11 +1203,22 @@ void TtHFit::ReadNtuples(){
                     if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                     else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
                     
+//                     // obtain relative variation and apply it to proper sample
+//                     if(syst->fReferenceSample!=""){
+//                         TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+//                         htmp->Divide(href);
+//                         htmp->Multiply( reg->GetSampleHist( fSamples[i_smp]->fName )->fHist );
+//                     }
                     // obtain relative variation and apply it to proper sample
+                    // & try to keep also the same total relative variation
                     if(syst->fReferenceSample!=""){
                         TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                        htmp->Divide(href);
-                        htmp->Multiply( reg->GetSampleHist( fSamples[i_smp]->fName )->fHist );
+                        TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                        float relVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
+                        htmp->Divide(   href );
+                        htmp->Multiply( hnom );
+                        float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
+                        if(relVar > 0.0001 && newVar > 0.0001) htmp->Scale( relVar / newVar );
                     }
                     
                     //Importing histogram in TtHFitter
@@ -1560,12 +1582,14 @@ void TtHFit::DrawAndSaveAll(string opt){
         if(isPostFit){
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
-            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+fImageFormat ).c_str());
+	    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+	        p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPreFit(opt);
-            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+fImageFormat ).c_str()); 
+            for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+	        p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str()); 
         }
     }
 }
@@ -1774,8 +1798,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
-    if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSuffix+"."+fImageFormat).c_str());
-    else           p->SaveAs((fName+"/Plots/Summary"+fSuffix+"."+fImageFormat).c_str());
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
+	if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+	else           p->SaveAs((fName+"/Plots/Summary"        +fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    }
     //
     return p;
 }
@@ -1830,7 +1856,7 @@ void TtHFit::BuildYieldTable(string opt){
         for(int i_bin=1;i_bin<=fNRegions;i_bin++){
             sh = fRegions[i_bin-1]->GetSampleHist( name );
             if(sh!=0x0){
-                if(isPostFit && fSamples[i_smp]->fType!=Sample::DATA)
+                if(isPostFit && fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::GHOST)
                     h0 = sh->fHist_postFit;
                 else
                     h0 = sh->fHist;
@@ -1901,8 +1927,8 @@ void TtHFit::BuildYieldTable(string opt){
     // Print samples except data
     //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSamples[i_smp]->fType==Sample::DATA) continue;
-        if(fSamples[i_smp]->fType==Sample::GHOST) continue;
+        if( fSamples[i_smp]->fType==Sample::DATA  ) continue;
+        if( fSamples[i_smp]->fType==Sample::GHOST ) continue;
         if( fSamples[i_smp]->fType==Sample::SIGNAL && (fFitType==FitType::BONLY && isPostFit) ) continue;
         if(idxVec[i_smp]!=i_smp) continue;
         //
@@ -2106,7 +2132,8 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     }
     //
 //     c->SaveAs((fName+"/SignalRegions"+fSaveSuf+"."+fImageFormat).c_str());
-    c->SaveAs((fName+"/SignalRegions"+fSuffix+"."+fImageFormat).c_str());
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs((fName+"/SignalRegions"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
 }
 
 //__________________________________________________________________________________
@@ -2193,7 +2220,8 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
         std::map < std::string, double > temp_map_for_region;
         std::map < std::string, int > temp_map_for_region_color;
         
-        for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
+//         for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
+        for(int i_bkg=regions[i]->fNBkg-1;i_bkg>=0;i_bkg--){
             if(regions[i]->fBkg[i_bkg]!=0x0){
                 std::string title = regions[i]->fBkg[i_bkg]->fSample->fTitle;
                 if(regions[i]->fBkg[i_bkg]->fSample->fGroup != "") title = regions[i]->fBkg[i_bkg]->fSample->fGroup.c_str();
@@ -2251,7 +2279,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
     // Adding the legend in the top panel
     //
     pTop->cd();
-    TLegend *leg = new TLegend(0.5,0.1,0.95,0.90);
+    TLegend *leg = new TLegend(0.7,0.1,0.95,0.90);
     if(map_for_legend.size()>4){
         leg -> SetNColumns(2);
     }
@@ -2264,10 +2292,13 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
         TH1F *dummy = new TH1F( ("legend_entry_" + legend_entry.first).c_str(), "",1,0,1);
         dummy -> SetFillColor(legend_entry.second);
         dummy -> SetLineColor(kBlack);
+        dummy -> SetLineWidth(1);
         leg -> AddEntry(dummy,legend_entry.first.c_str(),"f");
     }
     leg -> Draw();
-    c->SaveAs((fName+"/Plots/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+fImageFormat).c_str());
+//     c->SaveAs((fName+"/Plots/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+fImageFormat).c_str());
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs((fName+"/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
 }
 
 //__________________________________________________________________________________
@@ -2501,7 +2532,8 @@ void TtHFit::DrawPruningPlot(){
     leg->Draw();
     //
 //     c->SaveAs( (fName+"/Pruning"+fSaveSuf+"."+fImageFormat).c_str() );
-    c->SaveAs( (fName+"/Pruning"+fSuffix+"."+fImageFormat).c_str() );
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/Pruning"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
 }
 
 //__________________________________________________________________________________
@@ -2836,7 +2868,8 @@ void TtHFit::PlotFittedNP(){
         for(unsigned int i=0;i<fSystematics.size();i++){
             npCategories.insert(fSystematics[i]->fCategory);
         }
-        fFitResults->DrawPulls(fName+"/NuisPar"+fSuffix+"."+fImageFormat,"all");
+        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+	    fFitResults->DrawPulls(fName+"/NuisPar"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],"all");
         if(npCategories.size()>1){
             for( const std::string cat : npCategories ){
                 std::string cat_for_name = cat;
@@ -2844,7 +2877,8 @@ void TtHFit::PlotFittedNP(){
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '#', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
-                fFitResults->DrawPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+fImageFormat,cat);
+                for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+		    fFitResults->DrawPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],cat);
             }
         }
     }
@@ -2860,7 +2894,8 @@ void TtHFit::PlotCorrelationMatrix(){
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     if(fFitResults){
-        fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+fImageFormat,TtHFitter::CORRELATIONTHRESHOLD);
+        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+            fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],TtHFitter::CORRELATIONTHRESHOLD);
     }
 }
 
@@ -3266,7 +3301,8 @@ void TtHFit::DrawAndSaveSeparationPlots(){
       ls4.DrawLatex(0.20, 0.69, SEP.str().c_str());
   
 //       dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSaveSuf+"_sep."+fImageFormat ).c_str());
-      dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+fImageFormat ).c_str());
+      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+	  dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
  
     }// regions
 
@@ -3754,7 +3790,8 @@ void TtHFit::PlotNPRanking(){
     
     gPad->RedrawAxis();
     
-    c->SaveAs( (fName+"/Ranking"+fSuffix+"."+fImageFormat).c_str() );
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/Ranking"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
 }
 
 //____________________________________________________________________________________
