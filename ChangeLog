@@ -1,6 +1,6 @@
 2015-12-10 Michele Pinamonti <michele.pinamonti@gmail.com>
         * ReferenceSample option fixed (relative overall normalization variation kept)
-        * Image format propagated to syst plots
+        * Image format propagated to syst plots, and now possible to specify more than one (e.g. eps,png)
         * PieChart plot fixed and moved to main output directory (as SignalRegions)
         
 2015-12-06 Loic Valery <lvalery@cern.ch>
