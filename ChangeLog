@@ -1,3 +1,8 @@
+2015-12-11 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Command-line option "Signal" added: e.g.  ./myFit.exe  wl  config/myconfig.config  'Signal=signalA:Suffix=_A'
+        * Fixed limit when having a suffix
+        * MC stat uncertinaty in post-fit tables fixed
+
 2015-12-10 Michele Pinamonti <michele.pinamonti@gmail.com>
         * ReferenceSample option fixed (relative overall normalization variation kept)
         * Image format propagated to syst plots, and now possible to specify more than one (e.g. eps,png)

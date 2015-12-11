@@ -356,6 +356,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     std::vector< string > onlySamples; onlySamples.clear();
     std::vector< string > onlySystematics; onlySystematics.clear();
     std::vector< string > toExclude; toExclude.clear();
+    string onlySignal; onlySignal = "";
     
     
     //##########################################################
@@ -387,6 +388,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fUpdate = true;
         if(optMap["Ranking"]!="")
             fRankingOnly = optMap["Ranking"];
+        if(optMap["Signal"]!="")
+            onlySignal = optMap["Signal"];
         //
         std::cout << "-------------------------------------------" << std::endl;
         std::cout << "Running options: " << std::endl;
@@ -413,6 +416,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             for(int i=0;i<toExclude.size();i++){
                 std::cout << "    " << toExclude[i] << std::endl;
             }
+        }
+        if(onlySignal!=""){
+            std::cout << "  Only Signal: " << std::endl;
+            std::cout << "    " << onlySignal << std::endl;
         }
     }
     
@@ -695,6 +702,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(cs->Get("Type")=="signal" || cs->Get("Type")=="SIGNAL") type = Sample::SIGNAL;
         if(cs->Get("Type")=="data"   || cs->Get("Type")=="DATA")   type = Sample::DATA;
         if(cs->Get("Type")=="ghost"  || cs->Get("Type")=="GHOST")  type = Sample::GHOST;
+        if(onlySignal!="" && type==Sample::SIGNAL && cs->GetValue()!=onlySignal) continue;
         smp = NewSample(CheckName(cs->GetValue()),type);
         smp->SetTitle(cs->Get("Title"));
         param = cs->Get("Group"); if(param!="") smp->fGroup = param;
@@ -1664,7 +1672,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
-                            std::cout << "TtHFit::INFO: Scaling " << sh->fSample->fName << " by " << sh->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+                            if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFit::INFO: Scaling " << sh->fSample->fName << " by " << sh->fSample->fNormFactors[i_nf]->fNominal << std::endl;
                         }
                     }
                     //
@@ -1695,7 +1703,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
-                            std::cout << "TtHFit::INFO: Scaling " << sh->fSample->fName << " by " << sh->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+                            if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFit::INFO: Scaling " << sh->fSample->fName << " by " << sh->fSample->fNormFactors[i_nf]->fNominal << std::endl;
                         }
                     }
                     //
@@ -1784,8 +1792,6 @@ TthPlot* TtHFit::DrawSummary(string opt){
     p->SetTotBkg(h_tot);
     p->SetTotBkgAsym(g_err);
     
-    std::cout << g_err->GetErrorYhigh(1) << std::endl;
-    
     //
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
@@ -1860,9 +1866,10 @@ void TtHFit::BuildYieldTable(string opt){
                     h0 = sh->fHist_postFit;
                 else
                     h0 = sh->fHist;
+                float tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
                 h_smp[idxVec[i_smp]]->AddBinContent( i_bin,h0->IntegralAndError(0,h0->GetNbinsX()+1,intErr) );
+                h_smp[idxVec[i_smp]]->SetBinError(   i_bin, sqrt( pow(tmpErr,2) + pow(intErr,2) ) );
             }
-//             h_smp[idxVec[i_smp]]->SetBinError( i_bin, sqrt( pow(h_smp[idxVec[i_smp]]->GetBinError(i_bin),2) + pow(intErr,2) ) );
         }
         titleVec.push_back(title);
     }
@@ -2960,7 +2967,8 @@ void TtHFit::GetLimit(){
     //
     const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
     TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
-    RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
+//     RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
+    RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fName+fSuffix).c_str());
     TString outputName = f_origin->GetName();
     f_origin -> Close();
     
