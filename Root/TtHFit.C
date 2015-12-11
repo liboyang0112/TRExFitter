@@ -1955,8 +1955,11 @@ void TtHFit::BuildYieldTable(string opt){
     //
     h_tot = new TH1F("h_Tot_","h_Tot", fNRegions,0,fNRegions);
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->Integral(0,fRegions[i_bin-1]->fTot_postFit->GetNbinsX()+1) );
-        else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->Integral(        0,fRegions[i_bin-1]->fTot->GetNbinsX()+1) );
+//         if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->Integral(0,fRegions[i_bin-1]->fTot_postFit->GetNbinsX()+1) );
+//         else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->Integral(        0,fRegions[i_bin-1]->fTot->GetNbinsX()+1) );
+        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->IntegralAndError(0,fRegions[i_bin-1]->fTot_postFit->GetNbinsX()+1,intErr) );
+        else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->IntegralAndError(        0,fRegions[i_bin-1]->fTot->GetNbinsX()+1,        intErr) );
+        h_tot->SetBinError( i_bin, intErr );
     }
     
     
