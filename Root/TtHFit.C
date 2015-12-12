@@ -287,7 +287,6 @@ void TtHFit::WriteHistos(/*string fileName*/){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         //
         if(!singleOutputFile){
-//             fileName = fName + "/Histograms/" + fName + "_" + fRegions[i_ch]->fName + "_histos"+fSaveSuf+".root";
             fileName = fName + "/Histograms/" + fName + "_" + fRegions[i_ch]->fName + "_histos"+fSuffix+".root";
             cout << "-------------------------------------------" << endl;
             cout << "Writing histograms to file " << fileName << " ..." << endl;
@@ -459,7 +458,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         SetNtupleName( cs->Get("NtupleName") );
     }
     param = cs->Get("Lumi");              if( param != "" ) SetLumi( atof(param.c_str()) );
-    param = cs->Get("LumiScale");         if( param != "" ) fLumiScale = atof(param.c_str());
+    param = cs->Get("LumiScale");         if( param != "" ){
+        std::cout << "\033[1;33m<!> WARNING: \"LumiScale\" is only done for quick tests since it is inefficient. To normalize all the samples to the luminosity, use \"Lumi\" instead.\033[0m" << std::endl;
+        fLumiScale = atof(param.c_str());
+    }
     param = cs->Get("SystPruningShape");  if( param != "")  fThresholdSystPruning_Shape         = atof(param.c_str());
     param = cs->Get("SystPruningNorm");   if( param != "")  fThresholdSystPruning_Normalisation = atof(param.c_str());
     param = cs->Get("IntCodeOverall");    if( param != "")  fIntCode_overall  = atoi(param.c_str());
@@ -935,13 +937,14 @@ void TtHFit::ReadNtuples(){
     TH1F* hUp = 0x0;
     TH1F* hDown = 0x0;
     TH1F* htmp = 0x0;
-    //   string ntupleFullPath;
     string fullSelection;
     string fullMCweight;
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
+    
     //
-    // loop on regions and samples
+    // Loop on regions and samples
+    //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         cout << "  Region " << fRegions[i_ch]->fName << " ..." << endl;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -1021,7 +1024,10 @@ void TtHFit::ReadNtuples(){
                 for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
                     double content = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetBinContent(iBin);
                     if( content<=0 ){
-                        std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName << ": negative/null bin " << iBin << " content ! Trying to fix it." << std::endl;
+                        std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName;
+                        std::cout << " in region " << fRegions[i_ch]->fName << ", the bin " << iBin;
+                        std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
+                        std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
                         fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->SetBinContent(iBin,1e-06);
                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
                     } else {
@@ -1335,7 +1341,10 @@ void TtHFit::ReadHistograms(){
                 for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
                     double content = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetBinContent(iBin);
                     if( content<=0 ){
-                        std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName << ": negative/null content ! Trying to fix it." << std::endl;
+                        std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName;
+                        std::cout << " in region " << fRegions[i_ch]->fName << ", the bin " << iBin;
+                        std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
+                        std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
                         fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->SetBinContent(iBin,1e-06);
                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
                     } else {
@@ -2182,8 +2191,6 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows){
 //
 void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions ){
     
-    gSystem->mkdir((fName+"/PieChart").c_str());
-    
     float Hp = 250; // height of one mini-plot, in pixels
     float Wp = 250; // width of one mini-plot, in pixels
     float H0 = 100; // height of the top label pad
@@ -2229,8 +2236,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
         if(regions[i]==0x0) continue;
         std::map < std::string, double > temp_map_for_region;
         std::map < std::string, int > temp_map_for_region_color;
-        
-//         for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
+
         for(int i_bkg=regions[i]->fNBkg-1;i_bkg>=0;i_bkg--){
             if(regions[i]->fBkg[i_bkg]!=0x0){
                 std::string title = regions[i]->fBkg[i_bkg]->fSample->fTitle;
@@ -2306,9 +2312,13 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
         leg -> AddEntry(dummy,legend_entry.first.c_str(),"f");
     }
     leg -> Draw();
-//     c->SaveAs((fName+"/Plots/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+fImageFormat).c_str());
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+    
+    //
+    // Stores the pie chart in the desired format
+    //
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
         c->SaveAs((fName+"/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    }
 }
 
 //__________________________________________________________________________________

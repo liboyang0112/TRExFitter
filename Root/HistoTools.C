@@ -644,7 +644,7 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
             if(causeCrash){
                 abort();
             } else {
-                std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): I sent the bin content to 1e-05 ! Please check !\033[0m" << std::endl;
+                std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): I set the bin content to 1e-05 ! Please check !\033[0m" << std::endl;
                 nom -> SetBinContent(iBin,1e-05);
             }
         }
@@ -672,7 +672,6 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
                 std::cout << "  => Setting Up to 1e-06" << std::endl;
                 sh->fHistUp->SetBinContent(iBin,1e-06);
             }
-//             return false;
         }
         if(contentDown<0){
             std:: cerr << "\033[1;31m<!> ERROR in HistoTools::CheckHistograms(): In histo \"" << sh->fHistDown->GetName() << "\", bin " << iBin << " has negative content ! Please check !\033[0m" << std::endl;
@@ -685,7 +684,6 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
                 std::cout << "  => Setting Down to 1e-06" << std::endl;
                 sh->fHistDown->SetBinContent(iBin,1e-06);
             }
-//             return false;
         }
 
         //
