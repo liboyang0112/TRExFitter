@@ -1617,7 +1617,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
     cout << "-------------------------------------------" << endl;
     cout << "Building Summary Plot..." << endl;
     gSystem->mkdir(fName.c_str());
-    bool isPostFit = opt.find("post")!=string::npos;
+    const bool isPostFit = opt.find("post")!=string::npos;
+    const bool checkVR = opt.find("valid")!=string::npos;
     // build one bin per region
     TH1F* h_data = 0;
     TH1F* h_sig[MAXsamples];
@@ -1635,21 +1636,28 @@ TthPlot* TtHFit::DrawSummary(string opt){
     float integral;
     double intErr; // to store the integral error
     TH1* h; // to store varius histograms temporary
+    
     //
     // Building region - bin correspondence
+    //
     std::vector<int> regionVec; regionVec.clear();
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        if(fRegions[i_ch]->fRegionType!=Region::VALIDATION){
+        if(!checkVR && fRegions[i_ch]->fRegionType!=Region::VALIDATION){
+            regionVec.push_back(i_ch);
+        } else if(checkVR && fRegions[i_ch]->fRegionType==Region::VALIDATION){
             regionVec.push_back(i_ch);
         }
     }
+    if(regionVec.size()==0) return 0;
+    
+    
     int Nbin = (int)regionVec.size();
     if(Nbin<=0) return 0x0;
     //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
         SampleHist *sh = 0x0;
-        name = fSamples[i_smp]->fName.c_str();
+        name = (fSamples[i_smp]->fName).c_str();
         title = fSamples[i_smp]->fTitle.c_str();
         if(fSamples[i_smp]->fGroup != "") title = fSamples[i_smp]->fGroup.c_str();
         // look for the first SampleHist defined for this sample
@@ -1685,7 +1693,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                         }
                     }
                     //
-                    integral = h->IntegralAndError(0,h->GetNbinsX()+1,intErr);
+                    integral = h->IntegralAndError(1,h->GetNbinsX(),intErr);
                 }
                 else{
                     integral = 0.;
@@ -1716,7 +1724,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                         }
                     }
                     //
-                    integral = h->IntegralAndError(0,h->GetNbinsX()+1,intErr);
+                    integral = h->IntegralAndError(1,h->GetNbinsX(),intErr);
                 }
                 else{
                     integral = 0.;
@@ -1758,10 +1766,13 @@ TthPlot* TtHFit::DrawSummary(string opt){
         p->AddSignal(h_sig[i],h_sig[i]->GetTitle());
         if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(h_sig[i],((string)h_sig[i]->GetTitle())+"(norm)");
     }
-    for(int i=0;i<Nbkg;i++)
+    for(int i=0;i<Nbkg;i++){
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
+    }
+    
     //
     // Build tot
+    //
     h_tot = new TH1F("h_Tot_summary","h_Tot_summary", Nbin,0,Nbin);
     
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
@@ -1779,7 +1790,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     TH1* h_tmp_Down;
     for(int i_syst=0;i_syst<(int)fRegions[0]->fSystNames.size();i_syst++){
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
-	  if(isPostFit){
+            if(isPostFit){
                 h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[i_syst];
                 h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[i_syst];
             }
@@ -1814,8 +1825,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-	if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
-	else           p->SaveAs((fName+"/Plots/Summary"        +fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+	if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+	else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
     }
     //
     return p;

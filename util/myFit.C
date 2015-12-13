@@ -107,6 +107,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     if(drawPreFit){
         myFit->DrawAndSaveAll();
         myFit->DrawSummary("log");
+        myFit->DrawSummary("logvalid");
         myFit->BuildYieldTable();
         myFit->PrintSystTables();
         int nCols = 2;
@@ -124,6 +125,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     if(drawPostFit){
         myFit->DrawAndSaveAll("post");
         myFit->DrawSummary("log post");
+        myFit->DrawSummary("log post valid");
         myFit->BuildYieldTable("post");
         int nCols = 2;
         int nRows = 2;
