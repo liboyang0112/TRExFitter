@@ -50,6 +50,9 @@ Systematic::Systematic(string name,int type,float up,float down){
     fHistoFileSufDown = "";
     fHistoNamesDown.clear();
     fHistoNameSufDown = "";
+    //
+    fRegions.clear();
+    fExclude.clear();
 }
 
 //_____________________________________________________________________________

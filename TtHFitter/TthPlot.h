@@ -27,6 +27,7 @@ class TthPlot {
     void SetData(TH1* h,string name="Data");
     void AddSignal(TH1* h,string name="Signal");
     void AddNormSignal(TH1* h,string name="Signal");
+    void AddOverSignal(TH1* h,string name="Signal");
     void AddBackground(TH1* h,string name="MC");
     void SetTotBkgAsym(TGraphAsymmErrors* g);
     void SetTotBkg(TH1* h);
@@ -49,6 +50,7 @@ class TthPlot {
     TH1* h_bkg[MAXSAMPLES];
     TH1* h_signal[MAXSAMPLES];
     TH1* h_normsig[MAXSAMPLES];
+    TH1* h_oversig[MAXSAMPLES];
     THStack* h_stack;
     TH1* h_tot;
     TGraphAsymmErrors* g_tot;
@@ -66,6 +68,7 @@ class TthPlot {
     std::vector< string > fBkgNames;
     std::vector< string > fSigNames;
     std::vector< string > fNormSigNames;
+    std::vector< string > fOverSigNames;
     std::vector< string > fLabels;
     string fLumi;
     string fCME;

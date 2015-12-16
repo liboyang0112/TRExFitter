@@ -30,6 +30,9 @@ public:
     float fOverallUp;
     float fOverallDown;
     
+    std::vector<string> fRegions;
+    std::vector<string> fExclude;
+    
     // from ntuples - up
     string fWeightUp;
     string fWeightSufUp;  

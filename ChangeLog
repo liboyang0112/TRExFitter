@@ -1,3 +1,7 @@
+2015-12-16 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Option added to specify a list of regions where to apply each syst. See option Regions under Systematic (also Exclude should work - to exclude both for regions and sample)
+        * Added few optins for signal in plots (NOSIG, OVERSIG)
+
 2015-12-11 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Command-line option "Signal" added: e.g.  ./myFit.exe  wl  config/myconfig.config  'Signal=signalA:Suffix=_A'
         * Fixed limit when having a suffix

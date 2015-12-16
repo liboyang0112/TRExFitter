@@ -7,7 +7,9 @@
 //----------------------------------------------------------------------------------
 int TtHFitter::DEBUGLEVEL = 1;
 bool TtHFitter::SHOWYIELDS = false;
+bool TtHFitter::SHOWSTACKSIG = true;
 bool TtHFitter::SHOWNORMSIG = false;
+bool TtHFitter::SHOWOVERLAYSIG = false;
 bool TtHFitter::SYSTCONTROLPLOTS = false;
 bool TtHFitter::SPLITHISTOFILES = false;
 bool TtHFitter::HISTOCHECKCRASH = true;

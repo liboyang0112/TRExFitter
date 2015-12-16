@@ -370,8 +370,9 @@ TthPlot* Region::DrawPreFit(string opt){
             h->Scale(fSig[i]->fSample->fNormFactors[i_nf]->fNominal);
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
         }
-        p->AddSignal(h,title);
-        if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(h,title+" (norm)");
+        if(TtHFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
+        if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h,title+" (norm)");
+        if(TtHFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
         if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
         else          fTot->Add(h);
     }
@@ -382,7 +383,7 @@ TthPlot* Region::DrawPreFit(string opt){
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
             h->Scale(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal);
-            std::cout << "Region::INFO: Scaling " << fSig[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            std::cout << "Region::INFO: Scaling " << fBkg[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
         }
         p->AddBackground(h,title);
         if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
@@ -733,27 +734,16 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         }
         if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
             hSigNew[i_sig] = hSmpNew[i];
-//             hSigNew = hSmpNew[i];
             i_sig++;
         }
     }
     if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist,fData->fSample->fTitle);
-//     if(fHasData) p->SetData(fData->fHist,fData->fSample->fTitle);
-//     if(fHasSig){
-//         title = fSig->fSample->fTitle;
-//         if(fSig->fSample->fGroup != "") title = fSig->fSample->fGroup;
-//         p->AddSignal(hSigNew,title);
-//         if(TtHFitter::SHOWNORMSIG){
-//             p->AddNormSignal(hSigNew,title+" (norm)");
-//         }
-//     }
     for(int i=0;i<fNSig;i++){
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
-        p->AddSignal(hSigNew[i],title);
-        if(TtHFitter::SHOWNORMSIG){
-            p->AddNormSignal(hSigNew[i],title+" (norm)");
-        }
+        if(TtHFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
+        if(TtHFitter::SHOWNORMSIG)     p->AddNormSignal(hSigNew[i],title+" (norm)");
+        if(TtHFitter::SHOWOVERLAYSIG)  p->AddOverSignal(hSigNew[i],title);
     }
     for(int i=0;i<fNBkg;i++){
         title = fBkg[i]->fSample->fTitle;

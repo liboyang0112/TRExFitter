@@ -54,7 +54,9 @@ namespace TtHFitter{
     extern int DEBUGLEVEL;
     void SetDebugLevel(int level=0);
     extern bool SHOWYIELDS; // flag to show or not yields in plots
+    extern bool SHOWSTACKSIG;  // flag to show signal or not
     extern bool SHOWNORMSIG;  // flag to show normalized signal or not
+    extern bool SHOWOVERLAYSIG;  // flag to show overlayed signal or not
     extern bool SYSTCONTROLPLOTS;
     extern bool SPLITHISTOFILES;
     extern bool HISTOCHECKCRASH;

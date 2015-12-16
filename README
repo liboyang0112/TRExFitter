@@ -4,7 +4,7 @@ TtHFitter package
 Authors:
   Michele Pinamonti <michele.pinamonti@gmail.com>
   Loic Valery <loic.valery@cern.ch>
-Latest Update:   13 Nov 2015
+Latest Update:   16 Dec 2015
 Tag:             00-00-02
 
 
@@ -144,6 +144,8 @@ Here's a list of the inputs and options which can be specifed in the config file
       PlotOptions      -> a set os options for plotting:
         YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
         NORMSIG : add normlised signal to plots
+        NOSIG: don't show signal in stack
+        OVERSIG: overlay signal (not normalised)
       SystControlPlots -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
       CorrelationThreshold -> Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05->5%)
       SignalRegionsPlot-> list of regions to put in SignalRegionsPlot; use "EMPTY" to put an empty entry, "ENDL" to specify end of line
@@ -190,7 +192,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       DataType         -> ASIMOV or DATA. Is asimov is set, the limits and significances are computed without taking into acount the data in these region, but a projection of the fit performed in the regions with DATA
 
     Sample:
-      Type             -> can be SIGNAL, BACKGROUND or DATA; default is BACKGROUND
+      Type             -> can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace
       Title            -> title shown on the legends
       Group            -> if specified, sample will be grouped with other samples with same group and this label will be used in plots
       HistoFile        -> valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path
@@ -211,7 +213,8 @@ Here's a list of the inputs and options which can be specifed in the config file
       
     Systematic:
       Samples          -> comma-separated list of samples on which to apply the systematic
-      Exclude          -> comma-separated list of samples to exclude (used when "all" is indicated as "Samples")
+      Regions          -> comma-separated list of regions where to apply the systematic
+      Exclude          -> comma-separated list of samples/regions to exclude
       Type             -> can be HISTO or OVERALL
       Title            -> title of the systematic (will be shown in plots)
       Category         -> major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
@@ -248,6 +251,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       Smoothing        -> smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
       OverallUp        -> for OVERALL systematic: the relative "up" shift (0.1 means +10%)
       OverallDown      -> for OVERALL systematic: the relative "down" shift (-0.1 means -10%)
+      ReferenceSample  -> if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
 
 ---------
 Command line options

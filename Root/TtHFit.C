@@ -471,8 +471,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("DebugLevel");        if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
     param = cs->Get("PlotOptions");       if( param != ""){
         vec = Vectorize(param,',');
-        if( std::find(vec.begin(), vec.end(), "YIELDS")!=vec.end() )   TtHFitter::SHOWYIELDS = true;
-        if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG = true;
+        if( std::find(vec.begin(), vec.end(), "YIELDS") !=vec.end() )  TtHFitter::SHOWYIELDS     = true;
+        if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TtHFitter::SHOWSTACKSIG   = false;
+        if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG    = true;
+        if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG = true;
         // ...
     }
     param = cs->Get("SystControlPlots");  if( param != ""){
@@ -839,9 +841,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(onlySystematics.size()>0 && FindInStringVector(onlySystematics,cs->GetValue())<0) continue;
         if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
         string samples_str = cs->Get("Samples");
+        string regions_str = cs->Get("Regions");
         string exclude_str = cs->Get("Exclude");
         if(samples_str=="") samples_str = "all";
+        if(regions_str=="") regions_str = "all";
         vector<string> samples = Vectorize(samples_str,',');
+        vector<string> regions = Vectorize(regions_str,',');
         vector<string> exclude = Vectorize(exclude_str,',');
         type = Systematic::HISTO;
         if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL")
@@ -912,6 +917,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
         // this to obtain syst variation relatively to given sample
         param = cs->Get("ReferenceSample"); if(param!="") sys->fReferenceSample = param;
+        // save list of 
+        if(regions[0]!="all") sys->fRegions = regions;
+        if(exclude[0]!="")    sys->fExclude = exclude;
         // attach the syst to the proper samples
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             sam = fSamples[i_smp];
@@ -1036,11 +1044,20 @@ void TtHFit::ReadNtuples(){
                 }
             }
             
+            // end here if data or GHOST
+            if(fSamples[i_smp]->fType==Sample::DATA || fSamples[i_smp]->fType==Sample::GHOST) continue;
+            
             //
             //  -----------------------------------
             //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
+                //
+                // eventually skip systematic / region combination
+                //
+                if( fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
                 // if not Overall only...
                 if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::OVERALL)
                     continue;
@@ -1352,13 +1369,21 @@ void TtHFit::ReadHistograms(){
                     }
                 }
             }
+
+            // end here if data or GHOST
+            if(fSamples[i_smp]->fType==Sample::DATA || fSamples[i_smp]->fType==Sample::GHOST) continue;
             
             //
             //  -----------------------------------
             //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
-                
+                //
+                // eventually skip systematic / region combination
+                //
+                if( fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
                 if(TtHFitter::DEBUGLEVEL>0) cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
                 //
                 Region *reg = fRegions[i_ch];
@@ -1562,7 +1587,13 @@ void TtHFit::ReadHistos(/*string fileName*/){
             if(TtHFitter::DEBUGLEVEL>0) cout << "    Reading sample " << sampleName << endl;
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp],regionName+"_"+sampleName,fileName);
             sh = fRegions[i_ch]->GetSampleHist(sampleName);
-            for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
+            for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){                
+                //
+                // eventually skip systematic / region combination
+                //
+                if( fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
                 systName = fSamples[i_smp]->fSystematics[i_syst]->fName;
                 if(TtHFitter::DEBUGLEVEL>0) cout << "      Reading syst " << systName << endl;
                 // norm only
@@ -1760,11 +1791,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
     if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
-//     if(h_sig) p->AddSignal(h_sig,h_sig->GetTitle());
-//     if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(h_sig,((string)h_sig->GetTitle())+"(norm)");
     for(int i=0;i<Nsig;i++){
-        p->AddSignal(h_sig[i],h_sig[i]->GetTitle());
-        if(TtHFitter::SHOWNORMSIG) p->AddNormSignal(h_sig[i],((string)h_sig[i]->GetTitle())+"(norm)");
+        if(TtHFitter::SHOWSTACKSIG)   p->AddSignal(    h_sig[i],h_sig[i]->GetTitle());
+        if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h_sig[i],((string)h_sig[i]->GetTitle())+"(norm)");
+        if(TtHFitter::SHOWOVERLAYSIG) p->AddOverSignal(h_sig[i],(h_sig[i]->GetTitle()));
     }
     for(int i=0;i<Nbkg;i++){
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
