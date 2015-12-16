@@ -2571,6 +2571,15 @@ void TtHFit::DrawPruningPlot(){
 //
 void TtHFit::Fit(){
     
+    //Checks if a data sample exists
+    bool hasData = false;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::DATA){
+            hasData = true;
+            break;
+        }
+    }
+    
     //
     // Fills a vector of regions to consider for fit
     //
@@ -2600,7 +2609,7 @@ void TtHFit::Fit(){
         if(isToFit){
             regionsToFit.push_back( fRegions[i_ch] -> fName );
             Region::DataType dataType;
-            if(fFitIsBlind){
+            if(fFitIsBlind || !hasData){
                 dataType = Region::ASIMOVDATA;
             } else {
                 dataType = fRegions[i_ch] -> fRegionDataType;
