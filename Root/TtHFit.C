@@ -1,4 +1,5 @@
 #include <cctype>
+#include <iomanip>
 
 //TtHFitter headers
 #include "TtHFitter/FittingTool.h"
@@ -1869,9 +1870,10 @@ void TtHFit::BuildYieldTable(string opt){
     cout << "Building Yields Table..." << endl;
     bool isPostFit = opt.find("post")!=string::npos;
     ofstream out;
+    ofstream texout;
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Tables").c_str());
-    if(!isPostFit)  out.open((fName+"/Tables/Yields.txt").c_str());
+    if(!isPostFit)  {out.open((fName+"/Tables/Yields.txt").c_str()); texout.open((fName+"/Tables/Yields.tex").c_str());}
     else            out.open((fName+"/Tables/Yields_postFit.txt").c_str());
     // build one bin per region
     TH1F* h_smp[MAXsamples];
@@ -1892,6 +1894,32 @@ void TtHFit::BuildYieldTable(string opt){
         out << fRegions[i_bin-1]->fLabel << " | ";
     }
     out << endl;
+    
+    
+    texout << "\\documentclass[10pt]{article}" << endl;
+    texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
+    texout << "\\begin{document}" << endl;
+    //texout << "\\small" << endl;
+    
+    texout << "\\begin{table}[htbp]" << endl;
+    texout << "\\begin{center}" << endl;
+    //texout << "\\begin{tabular}{|c|c|c|c|c|c|c|c|}" << endl;
+    texout << "\\begin{tabular}{|c" ;
+    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+    texout << "|c";      
+      }
+    texout << "|}" << endl;
+
+    texout << "\\hline " << endl;
+    
+    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+        texout << " & " << fRegions[i_bin-1]->fLabel ;
+    }
+
+     texout << "\\\\" << endl;
+   
+    texout << "\\hline " << endl;
+    
     //
     std::vector< string > titleVec;
     std::vector< int > idxVec;
@@ -1991,13 +2019,20 @@ void TtHFit::BuildYieldTable(string opt){
         //
         // print values
         out << " | " << fSamples[i_smp]->fTitle << " | ";
+        texout << "  " << fSamples[i_smp]->fTitle << "  ";
         for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+            texout << " & ";
             out << h_smp[i_smp]->GetBinContent(i_bin);
+            texout << setprecision(3) << h_smp[i_smp]->GetBinContent(i_bin);
             out << " pm ";
+            texout << " $\\pm$ ";
             out << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
+            texout << setprecision(3) << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
             out << " | ";
         }
         out << endl;
+        texout << " \\\\ ";
+        texout << endl;
     }
     
     //
@@ -2042,14 +2077,31 @@ void TtHFit::BuildYieldTable(string opt){
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, fRegions[0]->fSystNames );
     //
     out << " | Total | ";
+    texout << "  Total ";
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+        texout << " & ";
         out << h_tot->GetBinContent(i_bin);
+        texout << setprecision(3) << h_tot->GetBinContent(i_bin);
         out << " pm ";
+        texout << " $\\pm$ ";
         out << g_err_tot->GetErrorYhigh(i_bin-1);
+        texout << setprecision(3) << g_err_tot->GetErrorYhigh(i_bin-1);
         out << " | ";
     }
     out << endl;
-    
+    texout << " \\\\ ";
+    texout << endl;
+
+    texout << "\\hline " << endl;
+    texout << "\\end{tabular} " << endl;
+    texout << "\\caption{Yields of the analysis} " << endl;
+    texout << "\\end{center} " << endl;
+    texout << "\\end{table} " << endl;
+    texout << "\\end{document}" << endl;
+
+    TString shellcommand = "cat "+fName+"/Tables/Yields.tex|sed -e \"s/\\#/ /g\" > "+fName+"/Tables/Yields_clean.tex";
+    gSystem->Exec(shellcommand);
+       
     //
     // Print the data at last
     //

@@ -1,3 +1,4 @@
+#include <iomanip>
 #include "TtHFitter/Region.h"
 
 // -------------------------------------------------------------------------------------------------
@@ -896,13 +897,33 @@ void Region::Print(){
 //
 void Region::PrintSystTable(){
     ofstream out;
+    ofstream texout;
     gSystem->mkdir(fFitName.c_str());
     gSystem->mkdir((fFitName+"/Tables").c_str());
     out.open((fFitName+"/Tables/"+fName+"_syst.txt").c_str());
+    texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
     Sample *s = 0x0;
     SampleHist *sh = 0x0;
     SystematicHist *syh = 0x0;
     out << " | ";
+    
+    texout << "\\documentclass[10pt]{article}" << endl;
+    texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
+    texout << "\\begin{document}" << endl;
+    //texout << "\\small" << endl;
+    
+    texout << "\\begin{table}[htbp]" << endl;
+    texout << "\\begin{center}" << endl;
+    //texout << "\\begin{tabular}{|c|c|c|c|c|c|c|c|}" << endl;
+    texout << "\\begin{tabular}{|c" ;
+    for (int i =0; i<fSampleHists.size(); i++)
+      {
+    texout << "|c";      
+      }
+    texout << "|}" << endl;
+
+    texout << "\\hline " << endl;
+    
     float Ncol = 2.;
     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
         sh = fSampleHists[i_smp];
@@ -932,10 +953,14 @@ void Region::PrintSystTable(){
         if(s->fType==Sample::DATA) continue;
         if(s->fType==Sample::GHOST) continue;
         out << "      | " << s->fTitle;
+        texout << "      & " << s->fTitle;
 //         pt[i_smp]->AddText(s->fTitle.c_str());
         i_col+=1;
     }
     out << " |" << endl;
+    texout << " \\\\ " << endl;
+    texout << "\\hline " << endl;
+
 //     pt0->AddText(" ");
     //
 //     TPave *b[100];
@@ -948,8 +973,8 @@ void Region::PrintSystTable(){
 //             i_gray++;
 //         }
         //
-        if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]];
-        else                                           out << " | " << fSystNames[i_syst];
+        if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") {out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]]; texout << "  " << TtHFitter::SYSTMAP[fSystNames[i_syst]];}
+        else                                           {out << " | " << fSystNames[i_syst]; texout << " " << fSystNames[i_syst];}
 //         if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") pt0->AddText(TtHFitter::SYSTMAP[fSystNames[i_syst]].c_str());
 //         else                                           pt0->AddText(fSystNames[i_syst].c_str());
 //         if(i_syst==0) pt0->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
@@ -962,20 +987,41 @@ void Region::PrintSystTable(){
             syh = sh->GetSystematic(fSystNames[i_syst]);
             if(syh==0x0){
                 out << " |    nan   ";
+                texout << " &    nan   ";
 //                 pt[i_smp]->AddText(" - ");
             }
 //             sh = GetSampleHist(fSamples[i_smp]->fName);
             else{
                 out << " | " << syh->fNormUp;
+                texout << setprecision(3) << " & " << syh->fNormUp;
                 out << " / " << syh->fNormDown;
+                texout << setprecision(3) << " / " << syh->fNormDown;
 //                 pt[i_smp]->AddText(Form("%.2f / %.2f",syh->fNormUp,syh->fNormDown) );
             }
 //             if(i_syst==(int)fSystNames.size()-1) pt[i_smp]->Draw("NB");
         }
         out << " |" << endl;
+        texout << " \\\\ " << endl;
 //         if(i_syst==(int)fSystNames.size()-1) pt0->Draw("NB");
     }
-    //
+
+    texout << "\\hline " << endl;
+
+    texout << "\\end{tabular} " << endl;
+    texout << "\\caption{Yields of the analysis} " << endl;
+    texout << "\\end{center} " << endl;
+    texout << "\\end{table} " << endl;
+    texout << "\\end{document}" << endl;
+
+    //TString shellcommand = "cat l3_syst.tex|sed -e \"s/\\#/ /g\" > truc.tex";
+    //texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
+
+    TString shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst.tex|sed -e \"s/\\#/ /g\" > "+fFitName+"/Tables/"+fName+"_syst_clean.tex";
+    //TString shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst.tex|sed -e \"s/t\\#bar\\{t\\}/t\\$\\bar\\{t\\}\\$/g\" > "+fFitName+"/Tables/"+fName+"_syst_truc.tex";
+    gSystem->Exec(shellcommand);
+    
+    //cat l3_syst.tex|sed -e "s/\#/ /g" > truc.tex
+    
 //     c->SaveAs((fFitName+"/Tables/"+fName+"_syst.pdf").c_str());
 }
 
