@@ -482,8 +482,11 @@ void TthPlot::Draw(string options){
         leg1->Draw();
     }
     else{
+        int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
+        if(hasData) Nrows ++;
+        Nrows ++; // for "Uncertainty"
 //         leg  = new TLegend(legX1,0.93-((fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size()+2)/2)*0.05, legX2,0.93);
-        leg  = new TLegend(legX1,0.93-((fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size()+2+1)/2)*0.05, legX2,0.93);
+        leg  = new TLegend(legX1,0.93-((Nrows+1)/2)*0.05, legX2,0.93);
         leg->SetNColumns(2);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
@@ -502,6 +505,8 @@ void TthPlot::Draw(string options){
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
         leg->AddEntry(g_tot,"Uncertainty","f");
         leg->Draw();
+        
+        if(fNormSigNames.size()>0) myText(legX1,0.93-((Nrows+1)/2)*0.05 - 0.05,  1,"*: normalised to total Bkg.");
     }
     
     //
@@ -706,15 +711,11 @@ void TthPlot::Draw(string options){
     // 
     // Set bin width and eventually divide larger bins by this bin width
     if(fBinWidth>0){
-//         if(h_signal)  SetHistBinWidth(h_signal,fBinWidth);
-        for(int i_smp=0;i_smp<fSigNames.size();i_smp++){
-            SetHistBinWidth(h_signal[i_smp],fBinWidth);  
-            if(h_normsig[i_smp]) SetHistBinWidth(h_normsig[i_smp],fBinWidth);
-            if(h_oversig[i_smp]) SetHistBinWidth(h_oversig[i_smp],fBinWidth);
-        }
-        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
-            SetHistBinWidth(h_bkg[i_smp],fBinWidth);  
-        }
+        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)      SetHistBinWidth(h_signal[i_smp], fBinWidth);  
+        for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++)  SetHistBinWidth(h_normsig[i_smp],fBinWidth);
+        for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++)  SetHistBinWidth(h_oversig[i_smp],fBinWidth);
+        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)      SetHistBinWidth(h_bkg[i_smp],fBinWidth);  
+        //
         if(h_tot) SetHistBinWidth(h_tot,fBinWidth);
         if(g_tot) SetGraphBinWidth(g_tot,fBinWidth);
         if(h_data) SetHistBinWidth(h_data,fBinWidth);

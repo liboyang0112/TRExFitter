@@ -372,10 +372,13 @@ TthPlot* Region::DrawPreFit(string opt){
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
         }
         if(TtHFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
-        if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h,title+" (norm)");
+//         if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h,title+" (norm)");
+        if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h,title+"*");
         if(TtHFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
-        if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
-        else          fTot->Add(h);
+        if(TtHFitter::SHOWSTACKSIG){
+            if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
+            else          fTot->Add(h);
+        }
     }
     for(int i=0;i<fNBkg;i++){
         title = fBkg[i]->fSample->fTitle;
@@ -743,7 +746,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
         if(TtHFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
-        if(TtHFitter::SHOWNORMSIG)     p->AddNormSignal(hSigNew[i],title+" (norm)");
+//         if(TtHFitter::SHOWNORMSIG)     p->AddNormSignal(hSigNew[i],title+" (norm)");
+        if(TtHFitter::SHOWNORMSIG)     p->AddNormSignal(hSigNew[i],title+"*");
         if(TtHFitter::SHOWOVERLAYSIG)  p->AddOverSignal(hSigNew[i],title);
     }
     for(int i=0;i<fNBkg;i++){
@@ -760,6 +764,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
         if(j==0) fTot_postFit = (TH1*)hSmpNew[i]->Clone("h_tot_postFit");
         else fTot_postFit->Add(hSmpNew[i]);
         j++;
