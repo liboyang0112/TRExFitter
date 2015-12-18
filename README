@@ -261,6 +261,7 @@ Currently the supported options are:
       Regions:     to limit the regions to use to the list specified
       Samples:     to limit the samples to use to the list specified
       Systematics: to limit the systematics to use to the list specified
+      Signal:      in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance)
       Exclude:     to exclude certain Regions / Samples / Systematics
       Suffix:      used for: plots, workspace, fit resutls, etc
       Update:      if =TRUE, the output .root file is updated, otherwise is overwrote
@@ -277,7 +278,7 @@ Output Directories Structure
    
    Plots/              -> contains the data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots
    RooStats/           -> contains the workspace(s) and the xmls
-   FitResults/         -> contains the output from FitCrossCheckForLimits
+   Fits/               -> contains the output from fits
    Limits/             -> contains the outputs from the limit-setting code
    Significance/       -> contains the outputs from the significance code
    Systematics/        -> contains the plots for the syst variations
