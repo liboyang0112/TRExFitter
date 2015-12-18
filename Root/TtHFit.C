@@ -273,7 +273,6 @@ void TtHFit::WriteHistos(/*string fileName*/){
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
-//         fileName = fName + "/Histograms/" + fName + "_histos"+fSaveSuf+".root";
         fileName = fName + "/Histograms/" + fName + "_histos"+fSuffix+".root";
         cout << "-------------------------------------------" << endl;
         cout << "Writing histograms to file " << fileName << " ..." << endl;
@@ -365,8 +364,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     //
     //##########################################################
     if(options!=""){
-//         optVec = Vectorize(options,';');
-//         optVec = Vectorize(options,'-');
         optVec = Vectorize(options,':');
         for(unsigned int i_opt=0;i_opt<optVec.size();i_opt++){
             std::vector< string > optPair;
@@ -647,7 +644,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                     reg->fNtupleNameSuffs.push_back( paths[i] );
                 }
             }
-//             reg->AddMCweight(  cs->Get("MCweight") );
             reg->fMCweight = cs->Get("MCweight"); // this will override the global MCweight, if any
             if(cs->Get("NtuplePathSuff")!="") { reg->fNtuplePathSuffs.clear(); reg->fNtuplePathSuffs.push_back( cs->Get("NtuplePathSuff") ); }
             param = cs->Get("NtuplePathSuffs");
@@ -655,7 +651,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 reg->fNtuplePathSuffs.clear();
                 std::vector<string> paths = Vectorize( param,',' );
                 for(int i=0;i<(int)paths.size();i++){
-//                     reg->fNtuplePathSuffs.push_back( paths[i] );
                     reg->fNtuplePathSuffs.push_back( Fix(paths[i]) );
                 }
             }
@@ -797,11 +792,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
             if(param == "TRUE") smp->fIgnoreSelection = true;
         }
-//         param = cs->Get("IsGhost");
-//         if(param!=""){
-//             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-//             if(param == "TRUE") smp->fIsGhost = true;
-//         }
         // ...
     }
     
@@ -819,20 +809,20 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     int typed=0;
     Systematic *sysd; 
     if (fStatOnly) {
-      typed = Systematic::OVERALL;
-      sysd = new Systematic("Dummy",typed);
-      sysd->fOverallUp   = 0.;
-      sysd->fOverallDown = -0.;
-	fSystematics.push_back( sysd );
-	TtHFitter::SYSTMAP[sysd->fName] = "Dummy";
-	fNSyst++;
-	for(int i_smp=0;i_smp<fNSamples;i_smp++){
-	  sam = fSamples[i_smp];
-	  if(sam->fType == Sample::SIGNAL ) {
-	    sam->AddSystematic(sysd);
-	  }
+        typed = Systematic::OVERALL;
+        sysd = new Systematic("Dummy",typed);
+        sysd->fOverallUp   = 0.;
+        sysd->fOverallDown = -0.;
+        fSystematics.push_back( sysd );
+        TtHFitter::SYSTMAP[sysd->fName] = "Dummy";
+        fNSyst++;
+        for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            sam = fSamples[i_smp];
+            if(sam->fType == Sample::SIGNAL ) {
+                sam->AddSystematic(sysd);
+            }
         }
-      } 
+    } 
 
 
     while(true){
@@ -1144,12 +1134,6 @@ void TtHFit::ReadNtuples(){
                     if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                     else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
                     
-//                     // obtain relative variation and apply it to proper sample
-//                     if(syst->fReferenceSample!=""){
-//                         TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-//                         htmp->Divide(href);
-//                         htmp->Multiply( reg->GetSampleHist( fSamples[i_smp]->fName )->fHist );
-//                     }
                     // obtain relative variation and apply it to proper sample
                     // & try to keep also the same total relative variation
                     if(syst->fReferenceSample!=""){
@@ -1235,12 +1219,6 @@ void TtHFit::ReadNtuples(){
                     if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                     else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
                     
-//                     // obtain relative variation and apply it to proper sample
-//                     if(syst->fReferenceSample!=""){
-//                         TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-//                         htmp->Divide(href);
-//                         htmp->Multiply( reg->GetSampleHist( fSamples[i_smp]->fName )->fHist );
-//                     }
                     // obtain relative variation and apply it to proper sample
                     // & try to keep also the same total relative variation
                     if(syst->fReferenceSample!=""){
@@ -1437,11 +1415,22 @@ void TtHFit::ReadHistograms(){
                       if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                       else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
                       
+//                       // obtain relative variation and apply it to proper sample
+//                       if(syst->fReferenceSample!=""){
+//                           TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+//                           htmp->Divide(href);
+//                           htmp->Multiply( reg->GetSampleHist( fSamples[i_smp]->fName )->fHist );
+//                       }
                       // obtain relative variation and apply it to proper sample
+                      // & try to keep also the same total relative variation
                       if(syst->fReferenceSample!=""){
                           TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                          htmp->Divide(href);
-                          htmp->Multiply( reg->GetSampleHist( fSamples[i_smp]->fName )->fHist );
+                          TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                          float relVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
+                          htmp->Divide(   href );
+                          htmp->Multiply( hnom );
+                          float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
+                          if(relVar > 0.0001 && newVar > 0.0001) htmp->Scale( relVar / newVar );
                       }
                       
                       //Importing histogram in TtHFitter
@@ -1501,11 +1490,22 @@ void TtHFit::ReadHistograms(){
                       if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                       else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
                       
+//                       // obtain relative variation and apply it to proper sample
+//                       if(syst->fReferenceSample!=""){
+//                           TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+//                           htmp->Divide(href);
+//                           htmp->Multiply( reg->GetSampleHist( fSamples[i_smp]->fName )->fHist );
+//                       }
                       // obtain relative variation and apply it to proper sample
+                      // & try to keep also the same total relative variation
                       if(syst->fReferenceSample!=""){
                           TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                          htmp->Divide(href);
-                          htmp->Multiply( reg->GetSampleHist( fSamples[i_smp]->fName )->fHist );
+                          TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                          float relVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
+                          htmp->Divide(   href );
+                          htmp->Multiply( hnom );
+                          float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
+                          if(relVar > 0.0001 && newVar > 0.0001) htmp->Scale( relVar / newVar );
                       }
                       
                       //Importing histogram in TtHFitter
@@ -1631,14 +1631,14 @@ void TtHFit::DrawAndSaveAll(string opt){
         if(isPostFit){
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
-	    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-	        p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
+            for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPreFit(opt);
             for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-	        p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str()); 
+                p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str()); 
         }
     }
 }
@@ -1856,8 +1856,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-	if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
-	else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
     }
     //
     return p;
@@ -1925,7 +1925,6 @@ void TtHFit::BuildYieldTable(string opt){
     std::vector< int > idxVec;
     SampleHist *sh = 0x0;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
-//         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
         name = fSamples[i_smp]->fName;
         title = fSamples[i_smp]->fTitle;
         //
@@ -2040,8 +2039,6 @@ void TtHFit::BuildYieldTable(string opt){
     //
     h_tot = new TH1F("h_Tot_","h_Tot", fNRegions,0,fNRegions);
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-//         if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->Integral(0,fRegions[i_bin-1]->fTot_postFit->GetNbinsX()+1) );
-//         else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->Integral(        0,fRegions[i_bin-1]->fTot->GetNbinsX()+1) );
         if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->IntegralAndError(0,fRegions[i_bin-1]->fTot_postFit->GetNbinsX()+1,intErr) );
         else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->IntegralAndError(        0,fRegions[i_bin-1]->fTot->GetNbinsX()+1,        intErr) );
         h_tot->SetBinError( i_bin, intErr );
@@ -2494,10 +2491,6 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 // systematics
                 if(!fStatOnly){
                     for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
-//                         if(fStatOnly)
-//                             if(h->fSyst[i_syst]->fSystematic)
-//                                 if(h->fSyst[i_syst]->fSystematic->fName!="Dummy") continue;
-//                         std::cout << "OU?" << std::endl;
                         // add normalization part
                         if(TtHFitter::DEBUGLEVEL>0){
                             cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
@@ -2518,8 +2511,8 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                               h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
                         }
                     }
-		}
-		else{
+                }
+                else{
                     sample.AddOverallSys( "Dummy",1,1 );
                 }
                 chan.AddSample(sample);
@@ -2540,7 +2533,6 @@ void TtHFit::DrawPruningPlot(){
     cout << "Drawing Pruning Plot ..." << endl;
     if(fSystematics.size()==0 || fStatOnly){
         std::cout << "TtHFit::INFO: Stat only fit => No Pruning plot generated." << std::endl;
-//         cout << "... No systematics. Skipping." << endl;
         return;
     }
     vector< TH2F* > histPrun;
@@ -2644,7 +2636,6 @@ void TtHFit::DrawPruningPlot(){
     leg->SetTextSize(0.85*gStyle->GetTextSize());
     leg->Draw();
     //
-//     c->SaveAs( (fName+"/Pruning"+fSaveSuf+"."+fImageFormat).c_str() );
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
         c->SaveAs( (fName+"/Pruning"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
 }
@@ -3000,7 +2991,7 @@ void TtHFit::PlotFittedNP(){
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
                 for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-		    fFitResults->DrawPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],cat);
+                    fFitResults->DrawPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],cat);
             }
         }
     }
@@ -3082,7 +3073,6 @@ void TtHFit::GetLimit(){
     //
     const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
     TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
-//     RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
     RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fName+fSuffix).c_str());
     TString outputName = f_origin->GetName();
     f_origin -> Close();
@@ -3310,123 +3300,117 @@ void TtHFit::DrawAndSaveSeparationPlots(){
 
  
     // loop over regions
-    for(unsigned int i_ch=0; i_ch < fRegions.size(); i_ch++)      {
-      //cout << fRegions[i_ch]->fSig->fSample->fName << endl;
-      //for(int i_bkg=0; i_bkg< fRegions[i_ch] -> fNBkg; i_bkg++){
-      //      cout << fRegions[i_ch]->fBkg[i_bkg]->fSample->fName << endl; // will be used to discriminate other bkgs
-      //  }
+    for(unsigned int i_ch=0; i_ch < fRegions.size(); i_ch++){
+        // begin plotting
+        TCanvas* dummy3 = new TCanvas("dummy3", "dummy3", 600,600);
+        dummy3->cd();
 
-      // begin plotting
-      TCanvas* dummy3 = new TCanvas("dummy3", "dummy3", 600,600);
-      dummy3->cd();
+        if(fRegions[i_ch]->fNSig==0){
+            std::cout << "ERROR::TtHFit::DrawAndSaveSeparationPlots: No Signal Found" << std::endl;
+            return;
+        }
+        
+        TH1F* sig = (TH1F*)fRegions[i_ch]->fSig[0]->fHist->Clone();
 
-      if(fRegions[i_ch]->fNSig==0){
-          std::cout << "ERROR::TtHFit::DrawAndSaveSeparationPlots: No Signal Found" << std::endl;
-          return;
-      }
-      
-      TH1F* sig = (TH1F*)fRegions[i_ch]->fSig[0]->fHist->Clone();
+        TH1F* bkg = (TH1F*)fRegions[i_ch]->fBkg[0]->fHist->Clone(); // clone the first bkg
+        for(int i_bkg=1; i_bkg< fRegions[i_ch] -> fNBkg; i_bkg++){
+            bkg->Add(fRegions[i_ch]->fBkg[i_bkg]->fHist); // add the rest
+        }
+        
+        sig->SetLineColor( 2 );
+        sig->SetLineWidth( 3 );
+        sig->SetFillStyle( 0 );
+        sig->SetLineStyle( 2 );
 
-      TH1F* bkg = (TH1F*)fRegions[i_ch]->fBkg[0]->fHist->Clone(); // clone the first bkg
-      for(int i_bkg=1; i_bkg< fRegions[i_ch] -> fNBkg; i_bkg++){
-         bkg->Add(fRegions[i_ch]->fBkg[i_bkg]->fHist); // add the rest
-      }
-      
-      sig->SetLineColor( 2 );
-      sig->SetLineWidth( 3 );
-      sig->SetFillStyle( 0 );
-      sig->SetLineStyle( 2 );
+        bkg->SetLineColor( kBlue );
+        bkg->SetLineWidth( 3 );
+        bkg->SetFillStyle( 0 );
+        bkg->SetLineStyle( 1 );
 
-      bkg->SetLineColor( kBlue );
-      bkg->SetLineWidth( 3 );
-      bkg->SetFillStyle( 0 );
-      bkg->SetLineStyle( 1 );
+        TLegend *legend3=new TLegend(0.48,0.72,0.94,0.87);
+        legend3->SetTextFont(42);
+        legend3->SetTextSize(0.043);
+        legend3->AddEntry(bkg, "Total background" , "l");
+        legend3->AddEntry(sig, "t#bar{t}H (m_{H} = 125 GeV)" , "l");
+        legend3->SetFillColor(0) ;
+        legend3->SetLineColor(0) ;
+        legend3->SetFillStyle(0) ;
+        legend3->SetBorderSize(0);
 
-      TLegend *legend3=new TLegend(0.48,0.72,0.94,0.87);
-      legend3->SetTextFont(42);
-      legend3->SetTextSize(0.043);
-      legend3->AddEntry(bkg, "Total background" , "l");
-      legend3->AddEntry(sig, "t#bar{t}H (m_{H} = 125 GeV)" , "l");
-      legend3->SetFillColor(0) ;
-      legend3->SetLineColor(0) ;
-      legend3->SetFillStyle(0) ;
-      legend3->SetBorderSize(0);
-
-      std::string xaxis = fRegions[i_ch]->fVariableTitle;
+        std::string xaxis = fRegions[i_ch]->fVariableTitle;
 
 
-      sig->GetYaxis()->SetTitle("Arbitrary units");
-      sig->GetXaxis()->SetTitle(xaxis.c_str());
+        sig->GetYaxis()->SetTitle("Arbitrary units");
+        sig->GetXaxis()->SetTitle(xaxis.c_str());
 
-      sig->GetYaxis()->SetTitleOffset(1.6);
+        sig->GetYaxis()->SetTitleOffset(1.6);
 
-      bkg->GetYaxis()->SetTitle("Arbitrary units");
-      bkg->GetXaxis()->SetTitle(xaxis.c_str());
+        bkg->GetYaxis()->SetTitle("Arbitrary units");
+        bkg->GetXaxis()->SetTitle(xaxis.c_str());
 
-      bkg->GetYaxis()->SetTitleOffset(1.6);
+        bkg->GetYaxis()->SetTitleOffset(1.6);
 
-      sig->GetYaxis()->SetNdivisions(506);
-      bkg->GetYaxis()->SetNdivisions(506);
+        sig->GetYaxis()->SetNdivisions(506);
+        bkg->GetYaxis()->SetNdivisions(506);
 
-      sig->Scale(1./sig->Integral());
-      bkg->Scale(1./bkg->Integral());
+        sig->Scale(1./sig->Integral());
+        bkg->Scale(1./bkg->Integral());
 
 
-      if(bkg->GetMaximum() > sig->GetMaximum()){
-        bkg->GetYaxis()->SetRangeUser(0.,bkg->GetMaximum()*1.5);
-        bkg->Draw("hist");
-        sig->Draw("histsame");
-      }
-      else {
-        sig->GetYaxis()->SetRangeUser(0.,sig->GetMaximum()*1.5);
-        sig->Draw("hist");
-        bkg->Draw("histsame");
-        sig->Draw("histsame");
-      }
- 
-      legend3->Draw("same");
-
-      std::string identS = fRegions[i_ch]->fLabel;      
-      TLatex ls;
-      ls.SetNDC();
-      ls.SetTextSize(0.03);
-      ls.SetTextColor(kBlack);
-      ls.SetTextFont(42);
-      ls.DrawLatex(0.20,0.73,identS.c_str());
-
-      TLatex ls2;
-      ls2.SetNDC();
-      ls2.SetTextSize(0.03);
-      ls2.SetTextColor(kBlack);
-      ls2.SetTextFont(62);
-      ls2.DrawLatex(0.20,0.78,"Single lepton");
-
-      std::string cme = fRegions[i_ch]->fCmeLabel;
-      std::string lumi = fRegions[i_ch]->fLumiLabel;
-
-      TLatex ls3;
-      ls3.SetNDC();
-      ls3.SetTextSize(0.03);
-      ls3.SetTextColor(kBlack);
-      ls3.SetTextFont(42);
-      ls3.DrawLatex(0.20,0.83, Form("#sqrt{s} = %s, %s", cme.c_str(), lumi.c_str()));
-
-      ATLASLabelNew(0.20, 0.90,(char*)" Internal Simulation",kBlack, 0.03);
-
-      TLatex ls4;
-      ls4.SetNDC();
-      ls4.SetTextSize(0.03);
-      ls4.SetTextColor(kBlack);
-      ls4.SetTextFont(42);
-      ostringstream SEP;
-      SEP.precision(3);
-      SEP << "Separation: " << GetSeparation(sig,bkg)*100 << "%";
-      ls4.DrawLatex(0.20, 0.69, SEP.str().c_str());
+        if(bkg->GetMaximum() > sig->GetMaximum()){
+            bkg->GetYaxis()->SetRangeUser(0.,bkg->GetMaximum()*1.5);
+            bkg->Draw("hist");
+            sig->Draw("histsame");
+        }
+        else {
+            sig->GetYaxis()->SetRangeUser(0.,sig->GetMaximum()*1.5);
+            sig->Draw("hist");
+            bkg->Draw("histsame");
+            sig->Draw("histsame");
+        }
   
-//       dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSaveSuf+"_sep."+fImageFormat ).c_str());
-      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-	  dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
- 
+        legend3->Draw("same");
+
+        std::string identS = fRegions[i_ch]->fLabel;      
+        TLatex ls;
+        ls.SetNDC();
+        ls.SetTextSize(0.03);
+        ls.SetTextColor(kBlack);
+        ls.SetTextFont(42);
+        ls.DrawLatex(0.20,0.73,identS.c_str());
+
+        TLatex ls2;
+        ls2.SetNDC();
+        ls2.SetTextSize(0.03);
+        ls2.SetTextColor(kBlack);
+        ls2.SetTextFont(62);
+        ls2.DrawLatex(0.20,0.78,"Single lepton");
+
+        std::string cme = fRegions[i_ch]->fCmeLabel;
+        std::string lumi = fRegions[i_ch]->fLumiLabel;
+
+        TLatex ls3;
+        ls3.SetNDC();
+        ls3.SetTextSize(0.03);
+        ls3.SetTextColor(kBlack);
+        ls3.SetTextFont(42);
+        ls3.DrawLatex(0.20,0.83, Form("#sqrt{s} = %s, %s", cme.c_str(), lumi.c_str()));
+
+        ATLASLabelNew(0.20, 0.90,(char*)" Internal Simulation",kBlack, 0.03);
+
+        TLatex ls4;
+        ls4.SetNDC();
+        ls4.SetTextSize(0.03);
+        ls4.SetTextColor(kBlack);
+        ls4.SetTextFont(42);
+        ostringstream SEP;
+        SEP.precision(3);
+        SEP << "Separation: " << GetSeparation(sig,bkg)*100 << "%";
+        ls4.DrawLatex(0.20, 0.69, SEP.str().c_str());
+    
+        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+            dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
+  
     }// regions
 
    return;
@@ -3570,11 +3554,9 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 //
 void TtHFit::PlotNPRanking(){
     //
-//     string fileToRead = fName+"/Fits/NPRanking"+fLoadSuf+".txt";
     string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
     //
     // trick to merge the ranking outputs produced in parallel:
-//     string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fLoadSuf+"_*` != \"\" ]] ; ";
     string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; ";
     cmd       += " then rm "+fileToRead+" ; ";
 //     cmd       += " cat "+fName+"/Fits/NPRanking"+fLoadSuf+"_* > "+fileToRead+" ; ";
@@ -3694,9 +3676,6 @@ void TtHFit::PlotNPRanking(){
     float xmin = -2;
     float xmax =  2;
     float max  =  0;
-//     string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
-//     bool brazilian = true;
-//     bool grayLines = false;
     
     TGraphAsymmErrors *g = new TGraphAsymmErrors();
     TGraphAsymmErrors *g1 = new TGraphAsymmErrors();
@@ -3704,30 +3683,12 @@ void TtHFit::PlotNPRanking(){
     TGraphAsymmErrors *g1a = new TGraphAsymmErrors();
     TGraphAsymmErrors *g2a = new TGraphAsymmErrors();
     
-//     NuisParameter *par;
     int idx = 0;
     std::vector< string > Names;
     Names.clear();
     string parTitle;
     
-//     for(unsigned int i = 0; i<parname.size(); ++i){
-    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
-//         par = fNuisPar[i];
-//         bool skip = false;
-//         for(int ii=0; ii<sizeof(npToExclude)/sizeof(string); ii++){
-//             if(par->fName.find(npToExclude[ii])!=string::npos){
-//                 skip = true;
-//                 continue;
-//             }
-//         }
-//         if(skip) continue;
-        
-//         g->SetPoint(idx,par->fFitValue,idx+0.5);
-//         g->SetPointEXhigh(idx, par->fPostFitUp);
-//         g->SetPointEXlow( idx,-par->fPostFitDown);
-
-//         idx++;
-        
+    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){        
         g->SetPoint(      idx, nuhat[i],idx+0.5);
         g->SetPointEXhigh(idx, nuerrhi[i]);
         g->SetPointEXlow( idx, nuerrlo[i]);
@@ -3756,14 +3717,8 @@ void TtHFit::PlotNPRanking(){
         g2a->SetPointEYhigh(idx, 0.4);
         g2a->SetPointEYlow( idx, 0.4);
         
-//         Poidown, Poiup
-//         Poinomdown, Poinomup
+        parTitle = TtHFitter::SYSTMAP[ parname[i] ];
         
-//         parTitle = systMap[parname[i]];
-           parTitle = TtHFitter::SYSTMAP[ parname[i] ];
-//         h2->GetYaxis()->SetBinLabel(idx+1,parTitle.c_str());
-        
-//         Names.push_back(par->fName);
         Names.push_back(parTitle);
         
         idx ++;
@@ -3772,15 +3727,12 @@ void TtHFit::PlotNPRanking(){
 
     TCanvas *c = new TCanvas("c","c",600,newHeight);
     c->SetTicks(0,0);
-//     gPad->SetLeftMargin(0.33);
     gPad->SetLeftMargin(0.4);
     gPad->SetRightMargin(0.05);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
     
     TH1F *h_dummy = new TH1F("h_dummy","h_dummy",10,xmin,xmax);
-//     h_dummy->SetMaximum( SIZE );
-//     h_dummy->SetMinimum( 0 );
     h_dummy->SetMaximum( SIZE + offsetUp1/lineHeight   );
     h_dummy->SetMinimum(      - offsetDown1/lineHeight );
     h_dummy->SetLineWidth(0);
@@ -3824,10 +3776,6 @@ void TtHFit::PlotNPRanking(){
     h_dummy->GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
     h_dummy->GetXaxis()->SetTitleOffset(1.2);
     
-//     TGaxis *axis_up = new TGaxis(-poimax,g->GetYaxis()->GetXmin()+0.05,poimax,SIZE+0.05,g->GetYaxis()->GetXmin(),SIZE+0.05,10);
-//                Double_t xmin, Double_t ymin, Double_t xmax, Double_t ymax,
-//                Double_t wmin, Double_t wmax, Int_t ndiv, Option_t *chopt,
-//                Double_t gridlength
     TGaxis *axis_up = new TGaxis( -2, SIZE + (offsetUp1)/lineHeight, 2, SIZE + (offsetUp1)/lineHeight, -poimax,poimax, 510, "-" );
     axis_up->SetLabelOffset( 0.01 );
     axis_up->SetLabelSize(   h_dummy->GetXaxis()->GetLabelSize() );
@@ -3838,21 +3786,6 @@ void TtHFit::PlotNPRanking(){
     axis_up->SetTitleSize(   h_dummy->GetXaxis()->GetLabelSize() );
     axis_up->SetTitleFont(   gStyle->GetTextFont() );
     
-//     TLegend *leg = new TLegend(0.02,0.7,0.3,0.95);
-//     leg->SetFillStyle(0);
-//     leg->SetBorderSize(0);
-//     leg->SetMargin(0.25);
-//     leg->SetTextFont(gStyle->GetTextFont());
-//     leg->SetTextSize(gStyle->GetTextSize());
-//     leg->AddEntry(g,"(#hat{#theta}-#theta_{0})/#Delta#theta","lp");
-//     leg->AddEntry(g1a,"#Delta#mu for #theta_{0}=+#Delta#theta","f");
-//     leg->AddEntry(g2a,"#Delta#mu for #theta_{0}=-#Delta#theta","f");
-//     leg->AddEntry(g1,"#Delta#mu for #theta_{0}=+#Delta#hat{#theta}","f");
-//     leg->AddEntry(g2,"#Delta#mu for #theta_{0}=-#Delta#hat{#theta}","f");
-//     leg->Draw();
-
-//     TPad (const char *name, const char *title, Double_t xlow, Double_t ylow, Double_t xup, Double_t yup, Color_t color=-1, Short_t bordersize=-1, Short_t bordermode=-2)
-//     TPad *pad0 = gPad;
     TPad *pad1 = new TPad("p1","Pad High",0,(newHeight-offsetUp-offsetUp1)/newHeight,0.4,1);
     pad1->Draw();
     
@@ -3906,8 +3839,6 @@ void TtHFit::PlotNPRanking(){
     l2.SetLineColor(kBlack);
     l2.Draw("same");
     
-//     ATLASLabelNew(0.42,0.80*(1.*newHeight/(offset + 6.*lineHeight)), (char*)"Internal", kBlack, gStyle->GetTextSize());
-//     myText(       0.42,0.72*(1.*newHeight/(offset + 6.*lineHeight)), 1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     ATLASLabelNew(0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.6*offsetUp1)/newHeight), (char*)"Internal", kBlack, gStyle->GetTextSize());
     myText(       0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.3*offsetUp1)/newHeight), 1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     

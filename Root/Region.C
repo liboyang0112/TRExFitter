@@ -50,9 +50,6 @@ Region::Region(string name){
     
     fLumiScale = 1.;
     
-//     fSig = 0x0;
-//     fBkg = 0;
-    
     fBlindingThreshold = -1;
     
     fRegionDataType = REALDATA;

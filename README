@@ -4,7 +4,7 @@ TtHFitter package
 Authors:
   Michele Pinamonti <michele.pinamonti@gmail.com>
   Loic Valery <loic.valery@cern.ch>
-Latest Update:   16 Dec 2015
+Latest Update:   18 Dec 2015
 Tag:             00-00-02
 
 
@@ -20,11 +20,6 @@ To compile:
 (this will take as main code the file util/myFit.C)
 or specify a custom main file as argument:
     make  util/myNewCustomFit.C
-   
----------
-If compilation fails
----------
-   * Cintex could give problems (on lxplus); Remove it from the Makefile
    
       
 ---------
@@ -63,38 +58,6 @@ See the section "Command line options" above.
     
 
 ---------
-Working example   
----------
-To test the code with a simple example, let's follow this tutorial.
-
- 1. Create the input histograms. To do it, run the code CreateHistograms.C:
-      root -l -b -q CreateHistograms.C
-    This will create some root files inside the directory ExampleInputs which will be used as input for the fitting tool.
-
- 2. Compile the standard code (so simply with "make").
-
- 3. Run the following command line:
-      /myFit.exe  h  config/myFit.config
-    This will read the histogrmas we created at step 1. and create the structure of the samples and regions, which will be saved into a new root file: FitExample_histos.root
-
- 4. Now we can already create some pre-fit plots:
-      /myFit.exe  d  config/myFit.config
-    Look at the fiels created in the directory  FitExample/
-
- 5. Then let's export to RooStats:
-      /myFit.exe  w  config/myFit.config
-    This should create two xml files:  FitExample.xml  and  FitExample_SR_1.xml
-    and a workspace inside the root file:  results/FitExample_combined_FitExample_model.root.
-    
- 6. At this point we can perform the fit:
-      /myFit.exe  f  config/myFit.config
-    This command calls the external macro  FitCrossCheckForLimits.C  which runs on the worksapce we just created and performs the fit. 
-    (By default it's a S+B fit).
-    A bunch of output files is created by  FitCrossCheckForLimits.C  in the directory xcheckResults/FitExample, 
-    and, in addition, a pull plot is created in the directory FitExample/.
-
-
----------
 Config File   
 ---------
 Here's a list of the inputs and options which can be specifed in the config file:
@@ -113,7 +76,7 @@ Here's a list of the inputs and options which can be specifed in the config file
 
      ...
 
-    (NB: note the blank line between the obects!!)
+    (NB: note the blank line between the objects!!)
     
  - The file should contain:
      * exactly one object of type "Fit"
@@ -134,7 +97,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       Selection        -> only for option NTUP; string defining the selection
       NtupleName       -> default name of the tree
       Lumi             -> value to scale all the "NormalizedByTheory" samples
-      LumiScale        -> additional value to scale 'after' histogram creation (for fast scaling)
+      LumiScale        -> additional value to scale 'after' histogram creation (for fast scaling) IMPORTANT: use it only if you know what you are doing!!
       SystPruningShape -> Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
       SystPruningNorm  -> Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
       IntCodeOverall   -> interpolation code used for the normalization component of systematics (should match the one used in RooStats)
@@ -253,6 +216,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       OverallDown      -> for OVERALL systematic: the relative "down" shift (-0.1 means -10%)
       ReferenceSample  -> if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
 
+      
 ---------
 Command line options
 ---------
@@ -284,5 +248,4 @@ Output Directories Structure
    Systematics/        -> contains the plots for the syst variations
    Histograms/         -> contains the root file(s) with all the inputs
 
-
-
+   
