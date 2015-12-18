@@ -2,6 +2,7 @@
         * Fixing signal draw options
         * Updating documentation
         * tex tables automatic creating added (by Marine)
+        * Svn-Tagging: 00-01-01
         
 2015-12-16 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Option added to specify a list of regions where to apply each syst. See option Regions under Systematic (also Exclude should work - to exclude both for regions and sample)
