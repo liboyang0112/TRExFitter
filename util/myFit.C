@@ -20,7 +20,7 @@
 // -------------------------------------------------------
 // -------------------------------------------------------
 
-void FitExample(string opt="h",string configFile="util/myFit.config",string options=""){
+void FitExample(string opt="h",string configFile="util/myl2tau.config",string options=""){
     SetAtlasStyle();
     
     // multi-fit
@@ -154,7 +154,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
 
 int main(int argc, char **argv){
   string opt="h";
-  string config="util/myFit.config";
+  string config="util/myl2tau,config";
   string options="";
   
   if(argc>1) opt     = argv[1];
