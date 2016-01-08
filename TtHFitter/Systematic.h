@@ -30,6 +30,9 @@ public:
     float fOverallUp;
     float fOverallDown;
     
+    bool fHasUpVariation;
+    bool fHasDownVariation;
+    
     std::vector<string> fRegions;
     std::vector<string> fExclude;
     

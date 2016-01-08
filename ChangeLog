@@ -1,3 +1,7 @@
+2016-01-08 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Fixing problems with reference systematics & one-sided symmetrisation
+        * ConfigParser: spaces before % now allowed
+        
 2016-01-08 Thomas Calvet <calvet@cppm.in2p3.fr>
 	* Modification if the Binning option is set, NTuple are directly turned in histograms with the specified binning (remove the rebin step to avoid edge problems).
 	* Adding AutoBin option for Binning (Binning: "AutoBin","TransfoD",1.,5.).

@@ -211,7 +211,8 @@ void ConfigParser::ReadFile(string fileName){
   while (getline(file, str)){
     replace( str.begin(), str.end(), '\n', ' ');
     replace( str.begin(), str.end(), '\r', ' ');
-    if(str[0]=='%') continue;
+//     if(str[0]=='%') continue;
+    if(str[str.find_first_not_of(' ')]=='%') continue;
     if(str.find_first_not_of(' ')==string::npos){
       reading = false;
     }
