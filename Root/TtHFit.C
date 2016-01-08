@@ -658,13 +658,31 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         //Potential rebinning
         if(cs->Get("Rebin")!="") reg -> Rebin(atoi(cs->Get("Rebin").c_str()));
         if(cs->Get("Binning")!=""){
-            std::vector < string > vec_bins = Vectorize(cs->Get("Binning"), ',');
-            const int nBounds = vec_bins.size();
-            double bins[nBounds];
-            for (unsigned int iBound = 0; iBound < nBounds; ++iBound){
-                bins[iBound] = atof(vec_bins[iBound].c_str());
-            }
-            reg -> SetBinning(nBounds-1,bins);
+	    std::vector < string > vec_bins = Vectorize(cs->Get("Binning"), ',');
+	    if(vec_bins[0]=="AutoBin"){
+	      if(fInputType==0) cout<<"WARNING: AutoBin set with Histo inputs, no binning applied"<<endl;
+	      reg -> fBinTransfo = vec_bins[1];
+	      if(vec_bins[1]=="TransfoD"){
+		reg -> fTransfoDzSig=convertStoD(vec_bins[2]);
+		reg -> fTransfoDzBkg=convertStoD(vec_bins[3]);
+	      }
+	      else if(vec_bins[1]=="TransfoF"){
+		reg -> fTransfoFzSig=convertStoD(vec_bins[2]);
+		reg -> fTransfoFzBkg=convertStoD(vec_bins[3]);
+	      }
+	      else{
+		cout<<" ERROR: Unknown transformation: "<<vec_bins[1]<<", try again"<<endl;
+		exit(1);
+	      }
+	    }
+	    else{
+	        const int nBounds = vec_bins.size();
+		double bins[nBounds];
+		for (unsigned int iBound = 0; iBound < nBounds; ++iBound){
+		  bins[iBound] = atof(vec_bins[iBound].c_str());
+		}
+		reg -> SetBinning(nBounds-1,bins);
+	    }
         }
         if(cs->Get("BinWidth")!="") reg->fBinWidth = atof(cs->Get("BinWidth").c_str());
         if(cs->Get("Type")!=""){
@@ -940,12 +958,15 @@ void TtHFit::ReadNtuples(){
     string fullMCweight;
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
-    
+
     //
     // Loop on regions and samples
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         cout << "  Region " << fRegions[i_ch]->fName << " ..." << endl;
+
+	if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch);
+
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             //
             // eventually skip sample / region combination
@@ -985,26 +1006,25 @@ void TtHFit::ReadNtuples(){
             vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
                                                              fRegions[i_ch]->fNtupleNameSuffs );
             fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
-                                        fRegions[i_ch]->fNtuplePathSuffs,
-                                        fSamples[i_smp]->fNtupleFiles.size()>0 ? fSamples[i_smp]->fNtupleFiles : ToVec(fNtupleFile), empty, // no ntuple file suffs for nominal (syst only)
-                                        NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
-                                        NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
-                                        );
+					 fRegions[i_ch]->fNtuplePathSuffs,
+					 fSamples[i_smp]->fNtupleFiles.size()>0 ? fSamples[i_smp]->fNtupleFiles : ToVec(fNtupleFile), empty, // no ntuple file suffs for nominal (syst only)
+					 NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
+					 NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
+					 );
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-                htmp = HistFromNtuple( fullPaths[i_path],
-                                      fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
-                                      fullSelection, fullMCweight);
-                
-                //Pre-processing of histograms (rebinning, lumi scaling)
-                if(fRegions[i_ch]->fHistoBins){
-                    TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
-                    const char *hname = htmp->GetName();
-                    htmp->~TH1F();
-                    htmp = htmp2;
-                    htmp->SetName(hname);
-                }
-                else if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
-                
+	        if(fRegions[i_ch]->fHistoBins){
+		    htmp = HistFromNtupleBinArr( fullPaths[i_path],
+						 fRegions[i_ch]->fVariable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
+						 fullSelection, fullMCweight);
+		}
+		else{
+		    htmp = HistFromNtuple( fullPaths[i_path],
+					   fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
+					   fullSelection, fullMCweight);
+		    //Pre-processing of histograms (rebinning, lumi scaling)
+		    if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+		}
+
                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
                 
                 if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
@@ -1115,19 +1135,18 @@ void TtHFit::ReadNtuples(){
                                             NtupleNameSuffsUp.size()>0 ? NtupleNameSuffsUp : empty
                                             );
                 for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-                    htmp = HistFromNtuple( fullPaths[i_path],
-                                          reg->fVariable, reg->fNbins, reg->fXmin, reg->fXmax,
-                                          fullSelection, fullMCweight);
-                    //Pre-processing of histograms (rebinning, lumi scaling)
-                    if(reg->fHistoBins){
-                        //                         htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,htmp->GetName(),reg->fHistoBins));
-                        TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
-                        const char *hname = htmp->GetName();
-                        htmp->~TH1F();
-                        htmp = htmp2;
-                        htmp->SetName(hname);
-                    }
-                    else if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
+		    if(reg->fHistoBins){
+		        htmp = HistFromNtupleBinArr( fullPaths[i_path],
+						     reg->fVariable, reg->fHistoNBinsRebin, reg->fHistoBins,
+						     fullSelection, fullMCweight);
+		    }
+		    else{
+		        htmp = HistFromNtuple( fullPaths[i_path],
+					       reg->fVariable, reg->fNbins, reg->fXmin, reg->fXmax,
+					       fullSelection, fullMCweight);
+			//Pre-processing of histograms (rebinning, lumi scaling)
+			if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
+		    }
                     
                     if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
                     
@@ -1200,19 +1219,18 @@ void TtHFit::ReadNtuples(){
                                             NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
                                             );
                 for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-                    htmp = HistFromNtuple( fullPaths[i_path],
-                                          reg->fVariable, reg->fNbins, reg->fXmin, reg->fXmax,
-                                          fullSelection, fullMCweight);
-                    //Pre-processing of histograms (rebinning, lumi scaling)
-                    if(reg->fHistoBins){
-                        //                         htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,htmp->GetName(),reg->fHistoBins));
-                        TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
-                        const char *hname = htmp->GetName();
-                        htmp->~TH1F();
-                        htmp = htmp2;
-                        htmp->SetName(hname);
-                    }
-                    else if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
+		    if(reg->fHistoBins){
+		        htmp = HistFromNtupleBinArr( fullPaths[i_path],
+						     reg->fVariable, reg->fHistoNBinsRebin, reg->fHistoBins,
+						     fullSelection, fullMCweight);
+		    }
+		    else{
+		        htmp = HistFromNtuple( fullPaths[i_path],
+					       reg->fVariable, reg->fNbins, reg->fXmin, reg->fXmax,
+					       fullSelection, fullMCweight);
+			//Pre-processing of histograms (rebinning, lumi scaling)
+			if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
+		    }
                     
                     if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
                     
@@ -3855,4 +3873,193 @@ void TtHFit::PrintSystTables(){
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
         fRegions[i_reg]->PrintSystTable();
     }
+}
+
+
+void TtHFit::ComputeBining(int regIter){
+  //
+  //Creating histograms to rebin
+  TH1F* hsig = 0x0;
+  TH1F* hbkg = 0x0;
+  TH1F* htmp = 0x0;
+  bool nDefSig=true;
+  bool nDefBkg=true;
+  string fullSelection;
+  string fullMCweight;
+  vector<string> fullPaths;
+  vector<string> empty; empty.clear();
+  for(int i_smp=0;i_smp<fNSamples;i_smp++){
+    if(fSamples[i_smp]->fType==Sample::DATA) continue;
+    if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[regIter]->fName)<0 ) continue;
+    fullSelection = "1";
+    if(!fSamples[i_smp]->fIgnoreSelection && fSelection!="" && fSelection!="1")
+      fullSelection += " && "+fSelection;
+    if(!fSamples[i_smp]->fIgnoreSelection && fRegions[regIter]->fSelection!="" && fRegions[regIter]->fSelection!="1")
+      fullSelection += " && "+fRegions[regIter]->fSelection;
+    if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
+      fullSelection += " && "+fSamples[i_smp]->fSelection;
+    if(!fSamples[i_smp]->fNormalizedByTheory){
+      fullMCweight = fSamples[i_smp]->fMCweight;
+    }
+    else{
+      fullMCweight = fMCweight + " * " + fSamples[i_smp]->fMCweight;
+      if(fRegions[regIter]->fMCweight!="") fullMCweight += " * " + fRegions[regIter]->fMCweight;
+    }
+    //
+    // build a list of ntuples to read
+    fullPaths.clear();
+    vector<string> NtupleNames;
+    for(unsigned int ns_ch=0; ns_ch<fRegions[regIter]->fNtupleNames.size(); ++ns_ch){
+      NtupleNames.push_back(fRegions[regIter]->fNtupleNames.at(ns_ch));
+    }
+    for(unsigned int ns_smp=0; ns_smp<fSamples[i_smp]->fNtupleNames.size(); ++ns_smp){
+      NtupleNames.push_back(fSamples[i_smp]->fNtupleNames.at(ns_smp));
+    }
+    vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
+						      fRegions[regIter]->fNtupleNameSuffs );
+    fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
+				 fRegions[regIter]->fNtuplePathSuffs,
+				 fSamples[i_smp]->fNtupleFiles.size()>0 ? fSamples[i_smp]->fNtupleFiles : ToVec(fNtupleFile), empty,
+				 NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
+				 NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
+				 );
+    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+      htmp = HistFromNtuple( fullPaths[i_path],
+			     fRegions[regIter]->fVariable, 10000, fRegions[regIter]->fXmin, fRegions[regIter]->fXmax,
+			     fullSelection, fullMCweight);
+                
+      //Pre-processing of histograms (rebinning, lumi scaling)
+      if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                
+      if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+      else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
+                
+      //Importing the histogram in TtHFitter
+      if(fSamples[i_smp]->fType==Sample::SIGNAL){
+	if(nDefSig){
+	  hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+	  nDefSig=false;
+	}
+	else hsig->Add(htmp);
+      }
+      else{
+	if(nDefBkg){
+	  hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+	  nDefBkg=false;
+	}
+	else hbkg->Add(htmp);
+      }
+      htmp->~TH1F();
+    }
+  }
+  //
+  //computing new bins
+  //
+  // get a vector of bins where to rebin to get an uncertainty <= 5% per bin.
+  // starting from highest bin!
+  // the numbers give the lowest bin included in the new bin
+  // overflowbin+1 and underflow bins are returned as the first and last element in the vector, respectively.
+  vector<int> bins_vec;
+  bins_vec.clear();
+
+  if (!hbkg || !hsig) {
+    cout << "ERROR: please provide signal and background histograms!" << endl;
+    gSystem -> Exit(1);
+  }
+  int iBin2 = 0;
+  int nBins_Vec = hbkg -> GetNbinsX();
+  int iBin = nBins_Vec + 1; // start with overflow bin
+  bins_vec.push_back(nBins_Vec + 2);
+
+  float nBkg = hbkg -> Integral(0, nBins_Vec + 1);
+  float nSig = hsig -> Integral(0, nBins_Vec + 1);
+
+  while (iBin > 0) {
+
+    double sumBkg = 0;
+    double sumSig = 0;
+    double sumSigL = 0;
+    double err2Bkg = 0;
+    bool pass = false;
+    int binCount = 1;
+
+    double dist = 1e10;
+    double distPrev = 1e10;
+
+    while (!pass && iBin >= 0) {
+      double nBkgBin = hbkg -> GetBinContent(iBin);
+      double nSigBin = hsig -> GetBinContent(iBin);
+      sumBkg += nBkgBin;
+      sumSig += nSigBin;
+      if (nBkgBin > 0 && nSigBin > 0) {
+        sumSigL += nSigBin * log(1 + nSigBin / nBkgBin);
+      }
+      err2Bkg += pow(hbkg -> GetBinError(iBin), 2);
+ 
+      double err2RelBkg = 1;
+      if (sumBkg != 0) {
+        err2RelBkg = err2Bkg / pow(sumBkg, 2);
+      }
+ 
+      float err2Rel = 1;
+      if(fRegions[regIter]->fBinTransfo == "TransfoD"){
+          // "trafo D"
+          if (sumBkg != 0 && sumSig != 0)
+            err2Rel = 1 / (sumBkg / (nBkg / fRegions[regIter]->fTransfoDzBkg) + sumSig / (nSig / fRegions[regIter]->fTransfoDzSig));
+          else if (sumBkg != 0)
+            err2Rel = (nBkg / fRegions[regIter]->fTransfoDzBkg) / sumBkg;
+          else if (sumSig != 0)
+            err2Rel = (nSig / fRegions[regIter]->fTransfoDzSig) / sumSig;
+          pass = sqrt(err2Rel) < 1;
+	  // distance
+	  dist = fabs(err2Rel - 1);
+      }
+      else if(fRegions[regIter]->fBinTransfo == "TransfoF"){
+          // "trafo F" with 5% bkg stat unc
+          if (sumBkg != 0 && sumSigL != 0)
+            err2Rel = 1 / (sqrt(sumBkg / (nBkg / fRegions[regIter]->fTransfoFzBkg)) + sqrt(sumSigL / (1 / fRegions[regIter]->fTransfoFzSig)));
+          else if (sumBkg != 0)
+            err2Rel = sqrt((nBkg / fRegions[regIter]->fTransfoFzBkg) / sumBkg);
+          else if (sumSigL != 0)
+            err2Rel = sqrt((1 / fRegions[regIter]->fTransfoFzSig) / sumSigL);
+          pass = sqrt(err2Rel) < 1 && sqrt(err2RelBkg) < 0.10;
+      }
+      else{
+	cout << "ERROR: transformation method '" << fRegions[regIter]->fBinTransfo << "' unknown, try again!" << endl;
+	exit(1);
+      }
+      if (!(pass && dist > distPrev)) {
+	binCount++;
+	iBin--;
+      } // else use previous bin
+      distPrev = dist;
+    }
+    iBin2++;
+    // remove last bin
+    if (iBin + 1 == 0 && bins_vec.size() > 1) {
+      if (fRegions[regIter]->fBinTransfo == "TransfoF") {
+        bins_vec.pop_back();
+      } else if (fRegions[regIter]->fBinTransfo == "TransfoD" && bins_vec.size() > fRegions[regIter]->fTransfoDzSig + fRegions[regIter]->fTransfoDzBkg + 0.01) {
+        // remove last bin if Nbin > Zsig + Zbkg
+        // (1% threshold to capture rounding issues)
+        bins_vec.pop_back();
+      }
+    }
+    bins_vec.push_back(iBin + 1);
+  }
+  //
+  //transform bin numbers in histo edges
+  int nBins = bins_vec.size();
+  double *bins = new double[nBins];
+  bins[0] = hbkg->GetBinLowEdge(1);
+  for(unsigned int i=1; i<bins_vec.size()-1; ++i){
+    bins[i] = hbkg->GetBinLowEdge(bins_vec[nBins-i-1]);
+  }
+  bins[nBins-1]=hbkg->GetBinLowEdge( hbkg->GetNbinsX() + 1 );
+
+  delete hsig;
+  delete hbkg;
+  fRegions[regIter]->SetBinning(nBins-1, bins);
+  delete bins;
+
 }

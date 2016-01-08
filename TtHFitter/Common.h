@@ -71,6 +71,7 @@ const int MAXsyst = 200;
 const int MAXnorm = 3;
 
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight);
+TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight);
 TH1* HistFromFile(string fullName);
 TH1* HistFromFile(string fileName,string histoName);
 void WriteHistToFile(TH1* h,string fileName,string option="UPDATE");
@@ -88,5 +89,6 @@ int FindInStringVector(std::vector<string> v, string s);
 double GetSeparation( TH1F* S1, TH1F* B1 );
 
 TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
+double convertStoD(string toConvert);
 
 #endif

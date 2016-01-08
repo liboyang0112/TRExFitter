@@ -67,6 +67,7 @@ public:
     void SetSelection(string selection);
     void SetNtupleName(string name);
     void SetNtupleFile(string name);
+    void ComputeBining(int regIter);
     
     // histogram stuff
     void AddHistoPath(string path);

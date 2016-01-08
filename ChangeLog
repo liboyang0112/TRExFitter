@@ -1,3 +1,9 @@
+2016-01-08 Thomas Calvet <calvet@cppm.in2p3.fr>
+	* Modification if the Binning option is set, NTuple are directly turned in histograms with the specified binning (remove the rebin step to avoid edge problems).
+	* Adding AutoBin option for Binning (Binning: "AutoBin","TransfoD",1.,5.).
+	* Adding two transformation ("TransfoD","TransfoF") for binning. Each of them requires two parameters.
+	* Adding string to double conversion function, with exception protection (try-catch) and protection for incomplete convertion (52f8 -> 52 will crash). Used in the options added here, can be propagated to all conversions.
+	
 2015-12-18 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Fixing signal draw options
         * Updating documentation

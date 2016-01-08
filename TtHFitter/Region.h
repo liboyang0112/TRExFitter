@@ -116,6 +116,11 @@ public:
     TH1* fTotDown_postFit[MAXsyst];
 
     // ntuple stuff
+    string fBinTransfo;
+    double fTransfoDzBkg;
+    double fTransfoDzSig;
+    double fTransfoFzBkg;
+    double fTransfoFzSig;
     string fVariable;
     int fNbins;
     float fXmin, fXmax;

@@ -39,6 +39,20 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
 
 //__________________________________________________________________________________
 //
+TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight){
+    TH1F* h = new TH1F("h","h",nbin,bins);
+    if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram from  " << ntuple << "  ..." << endl;
+    TChain *t = new TChain();
+    t->Add(ntuple.c_str());
+    h->Sumw2();
+    t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
+    MergeUnderOverFlow(h);
+    t->~TChain();
+    return h;
+}
+
+//__________________________________________________________________________________
+//
 TH1* HistFromFile(string fullName){
     string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
     string histoName = fullName.substr(fullName.find_last_of(".")+6,string::npos);
@@ -249,4 +263,21 @@ TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
     }
   }
   return h_blind;
+}
+
+double convertStoD(string toConvert){
+  double converted;
+  std::string::size_type pos; 
+  try{
+    converted = std::stod(toConvert, &pos);
+    if(pos != toConvert.size()){
+      std::cerr << "ERROR: Convert string -> double, partially converted object: " << toConvert << std::endl;
+      exit(1);
+    }
+  }
+  catch(const std::exception& err){
+    std::cerr << "ERROR: Convert string -> double, exception catched: " << toConvert <<  " " << err.what() << std::endl;
+    exit(1);
+  }
+  return converted;
 }

@@ -53,6 +53,12 @@ Region::Region(string name){
     fBlindingThreshold = -1;
     
     fRegionDataType = REALDATA;
+
+    fBinTransfo = "";
+    fTransfoDzBkg = 0.;
+    fTransfoDzSig = 0.;
+    fTransfoFzBkg = 0.;
+    fTransfoFzSig = 0.;
 }
 
 //__________________________________________________________________________________
