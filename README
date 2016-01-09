@@ -119,7 +119,8 @@ Here's a list of the inputs and options which can be specifed in the config file
       BlindingThreshold-> bins with S/B > this number will be blinded
       RankingMaxNP     -> max number of NP to show in ranking plot
       ImageFormat      -> png, pdf or eps
-      
+      StatOnly         -> the code ignores the MC stat uncertainties from all computations (limits, significances, fit, ...)
+
     Fit:
       FitType          -> can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
       FitRegion        -> can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions
@@ -127,7 +128,6 @@ Here's a list of the inputs and options which can be specifed in the config file
       FitBlind         -> specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind.
       POIAsimov        -> value of the parameter of interest in the AsimovDataset used in the fit
       NPValues         -> values of the nuisance parameters used to build the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
-      StatOnly         -> the fit ignores systematics (but not MC stat - this needs to be switched off separately)
 
     Limit:
       LimitType        -> can be ASYMPTOTIC or TOYS (the latter is not yet supported)

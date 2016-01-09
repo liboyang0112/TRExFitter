@@ -513,6 +513,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         fImageFormat = Vectorize(param,',')[0];
         TtHFitter::IMAGEFORMAT = Vectorize(param,',');
     }
+    param = cs->Get("StatOnly");    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fStatOnly = true;
+        } else if ( param == "FALSE" ){
+            fStatOnly = false;
+        }
+    }
     
     //##########################################################
     //
@@ -560,14 +568,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             if(np_value.size()==2){
                 fFitNPValues.insert( std::pair < std::string, double >( np_value[0], atof(np_value[1].c_str()) ) );
             }
-        }
-    }
-    param = cs->Get("StatOnly");    if( param != "" ){
-         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fStatOnly = true;
-        } else if ( param == "FALSE" ){
-            fStatOnly = false;
         }
     }
     
