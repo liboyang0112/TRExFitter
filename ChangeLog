@@ -1,3 +1,6 @@
+2016-01-11 Tamara Vazquez Schroeder <tamara.vazquez.schroeder@cern.ch>
+	* Adding likelihood scan option of POI or NP
+
 2016-01-09 Loic Valery <lvalery@cern.ch>
         * Moved StatOnly flag from Fit to Job block
 

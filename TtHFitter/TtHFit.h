@@ -3,6 +3,7 @@
 #include "TGaxis.h"
 #include "TPad.h"
 #include "TPie.h"
+#include "TF1.h"
 
 #include "TtHFitter/TthPlot.h"
 #include "TtHFitter/FitResults.h"
@@ -118,6 +119,7 @@ public:
     void PlotCorrelationMatrix();
     void GetLimit();
     void GetSignificance();
+    void GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data);
     
     // get fit results from txt file
     void ReadFitResults(string fileName);
@@ -208,7 +210,8 @@ public:
     std::map< std::string, double > fFitNPValues;
     double fFitPOIAsimov;
     bool fFitIsBlind;
-    
+    string fVarNameLH;
+
     //
     // Limit parameters
     //

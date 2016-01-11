@@ -86,6 +86,7 @@ TtHFit::TtHFit(string name){
     fFitNPValues.clear();
     fFitPOIAsimov = 0;
     fFitIsBlind = false;
+    fVarNameLH = "";
     
     //
     // Limit type
@@ -570,6 +571,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             }
         }
     }
+    param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = param; };
     
     //##########################################################
     //
@@ -2766,6 +2768,11 @@ void TtHFit::Fit(){
     //
     PerformFit( ws, regionsToFit, data);
 
+    //
+    // Calls the  function to create LH scan with respect to a parameter
+    //
+    if (fVarNameLH!="") GetLikelihoodScan( ws, fVarNameLH, data);
+
 }
 
 //__________________________________________________________________________________
@@ -4104,4 +4111,84 @@ void TtHFit::ComputeBining(int regIter){
   fRegions[regIter]->SetBinning(nBins-1, bins);
   delete bins;
 
+}
+//__________________________________________________________________________________
+//
+void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data){
+  std::cout << "TtHFit::INFO: Running likelihood scan for the parameter = " << varName << std::endl;
+  
+  RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
+  RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+
+  bool isPoI = false;
+  RooRealVar* firstPOI = (RooRealVar*) mc->GetParametersOfInterest()->first();
+  TString firstPOIname = (TString)firstPOI->GetName();
+  if (firstPOIname.Contains(varName.c_str())) isPoI = true;
+
+  RooRealVar* var = NULL;
+  TString vname = "";
+
+  if (isPoI){
+    TIterator* it = mc->GetParametersOfInterest()->createIterator();
+    while( (var = (RooRealVar*) it->Next()) ){
+      vname=var->GetName();
+      if (vname.Contains(varName.c_str())) { std::cout << "TtHFit::INFO: GetLikelihoodScan for POI = " << vname << std::endl; break; }
+    }
+  }
+  else {
+    TIterator* it = mc->GetNuisanceParameters()->createIterator();
+    while( (var = (RooRealVar*) it->Next()) ){
+      vname=var->GetName();
+      if (vname.Contains(varName.c_str())) { std::cout << "TtHFit::INFO: GetLikelihoodScan for NP = " << vname << std::endl; break; }
+    }
+  }
+
+  std::cout << "TtHFit::INFO: GetLikelihoodScan for parameter = " << vname << std::endl;
+
+  TF1* poly = new TF1("poly2","[0]+[1]*x+[2]*x*x",0,10);
+  TCanvas* can = new TCanvas("NLLscan");
+
+  RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(10, RooFit::Hybrid));
+
+  TString tag("");
+  RooAbsReal* pll = nll->createProfile(*var);
+  RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(-1.5,3.5));
+  pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(3));
+  RooCurve* curve = frameLH->getCurve();
+
+  float val = var->getVal();
+  Double_t minVal = 0;
+  Double_t maxVal = 2;
+  if(val>1/5) {
+    minVal = val - 2; if(minVal<0) { minVal = 0; }
+    maxVal = val + 2;
+  }
+  frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
+  
+  // fit function
+  for( int par(0); par<3; par++) { poly->SetParameter(par,0); }
+  curve->Fit(poly,"RQN"); // R=range, Q=quiet, N=do not draw
+  TString fitStr = Form("%5.2f + %5.2fx + %5.2fx^{2}", poly->GetParameter(0), poly->GetParameter(1), poly->GetParameter(2));
+  TLatex* latex = new TLatex();
+  latex->SetNDC(); latex->SetTextSize(0.055); latex->SetTextAlign(32);
+  latex->SetText(0.925,0.925, fitStr);
+
+  // y axis
+  //frameLH->updateYAxis(minVal,maxVal,"");
+  frameLH->GetYaxis()->SetRangeUser(minVal,5.0);
+  frameLH->GetYaxis()->SetTitle("#Delta [-Log(L)]");
+
+  TString cname="";
+  cname.Append("NLLscan_");
+  cname.Append(vname);
+ 
+  can->SetTitle(cname);
+  can->SetName(cname);
+  can->cd();
+  frameLH->Draw();
+  latex->Draw("same");
+
+  TString LHDir("LHoodPlots/");  
+  system(TString("mkdir -vp ")+fName+"/"+LHDir);
+  can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+fImageFormat );
 }
