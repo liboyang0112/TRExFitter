@@ -1,4 +1,7 @@
 2016-01-11 Tamara Vazquez Schroeder <tamara.vazquez.schroeder@cern.ch>
+        * Fixing problems with OveralSystematic in case of correction for negative/null bins in the nom. histogram
+
+2016-01-11 Tamara Vazquez Schroeder <tamara.vazquez.schroeder@cern.ch>
 	* Adding likelihood scan option of POI or NP
 
 2016-01-09 Loic Valery <lvalery@cern.ch>

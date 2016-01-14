@@ -1040,30 +1040,31 @@ void TtHFit::ReadNtuples(){
                 if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
                 else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
                 
-                //Importing the histogram in TtHFitter
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
                 htmp->~TH1F();
             }
             
-            fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
+            //Looping over all bins to check the presence of bins with negative/null contents
             std::map < int, bool > applyCorrection; applyCorrection.clear();
-            
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
-                for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
-                    double content = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetBinContent(iBin);
+                for(unsigned int iBin = 1; iBin <= h->GetNbinsX(); ++iBin ){
+                    double content = h->GetBinContent(iBin);
                     if( content<=0 ){
                         std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName;
                         std::cout << " in region " << fRegions[i_ch]->fName << ", the bin " << iBin;
                         std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
                         std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
-                        fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->SetBinContent(iBin,1e-06);
+                        h->SetBinContent(iBin,1e-06);
                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
                     } else {
                         applyCorrection.insert( std::pair < int, bool > (iBin, false) );
                     }
                 }
             }
+            
+            //Importing the histogram in TtHFitter
+            fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
             
             // end here if data or GHOST
             if(fSamples[i_smp]->fType==Sample::DATA || fSamples[i_smp]->fType==Sample::GHOST) continue;
@@ -1378,30 +1379,33 @@ void TtHFit::ReadHistograms(){
                 if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
                 else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
                 
-                //Importing the histogram in TtHFitter
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
                 htmp->~TH1F();
                 
             }
-            fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
             
+            // Loop over all bins to check the presence of bins with <=0 content bins
             std::map < int, bool > applyCorrection;
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
-                for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
-                    double content = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetBinContent(iBin);
+                for(unsigned int iBin = 1; iBin <= h->GetNbinsX(); ++iBin ){
+                    double content = h->GetBinContent(iBin);
                     if( content<=0 ){
                         std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName;
                         std::cout << " in region " << fRegions[i_ch]->fName << ", the bin " << iBin;
                         std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
                         std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
-                        fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->SetBinContent(iBin,1e-06);
+                        h->SetBinContent(iBin,1e-06);
                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
                     } else {
                         applyCorrection.insert( std::pair < int, bool > (iBin, false) );
                     }
                 }
             }
+            
+            // Importing the histogram in TtHFitter
+            fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
+            
 
             // end here if data or GHOST
             if(fSamples[i_smp]->fType==Sample::DATA || fSamples[i_smp]->fType==Sample::GHOST) continue;
