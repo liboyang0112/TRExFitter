@@ -1051,7 +1051,7 @@ void TtHFit::ReadNtuples(){
                 for(unsigned int iBin = 1; iBin <= h->GetNbinsX(); ++iBin ){
                     double content = h->GetBinContent(iBin);
                     if( content<=0 ){
-                        std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName;
+                        std::cout << "WARNING: Checking your nominal histogram for sample " << fSamples[i_smp] -> fName;
                         std::cout << " in region " << fRegions[i_ch]->fName << ", the bin " << iBin;
                         std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
                         std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
@@ -1391,7 +1391,7 @@ void TtHFit::ReadHistograms(){
                 for(unsigned int iBin = 1; iBin <= h->GetNbinsX(); ++iBin ){
                     double content = h->GetBinContent(iBin);
                     if( content<=0 ){
-                        std::cout << "WARNING: Checking your nominal histogram for sample " << fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fName;
+                        std::cout << "WARNING: Checking your nominal histogram for sample " << fSamples[i_smp] -> fName;
                         std::cout << " in region " << fRegions[i_ch]->fName << ", the bin " << iBin;
                         std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
                         std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
