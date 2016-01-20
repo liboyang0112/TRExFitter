@@ -630,6 +630,15 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(fInputType==0){
             param = cs->Get("HistoFile"); if(param!="") reg->fHistoFiles.push_back( param );
             param = cs->Get("HistoName"); if(param!="") reg->SetHistoName( param );
+            if(cs->Get("HistoPathSuff")!="") { reg->fHistoPathSuffs.clear(); reg->fHistoPathSuffs.push_back( cs->Get("HistoPathSuff") ); }
+            param = cs->Get("HistoPathSuffs");
+            if( param != "" ){
+                reg->fHistoPathSuffs.clear();
+                std::vector<string> paths = Vectorize( param,',' );
+                for(int i=0;i<(int)paths.size();i++){
+                    reg->fHistoPathSuffs.push_back( Fix(paths[i]) );
+                }
+            }
         }
         else if(fInputType==1){
             vector<string> variable = Vectorize(cs->Get("Variable"),',');
@@ -872,6 +881,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(cs->Get("Category")!=""){
             sys->fCategory = cs->Get("Category");
         }
+        // Experimental
+        if(cs->Get("IsFreeParameter")!="" && cs->Get("IsFreeParameter")!="FALSE" && cs->Get("IsFreeParameter")!="False" && cs->Get("IsFreeParameter")!="false"){
+            sys->fIsFreeParameter = true;
+        }
+        //
         bool hasUp   = false;
         bool hasDown = false;
         if(type==Systematic::HISTO){
@@ -1053,7 +1067,7 @@ void TtHFit::ReadNtuples(){
                     if( content<=0 ){
                         std::cout << "WARNING: Checking your nominal histogram for sample " << fSamples[i_smp] -> fName;
                         std::cout << " in region " << fRegions[i_ch]->fName << ", the bin " << iBin;
-                        std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
+                        std::cout << " has a null/negative bin content (content = " << content << ") ! You should have a look at this !" << std::endl;
                         std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
                         h->SetBinContent(iBin,1e-06);
                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
@@ -1121,18 +1135,20 @@ void TtHFit::ReadNtuples(){
                         ReplaceString(fullMCweight,"* *","*");
                         ReplaceString(fullMCweight,"**","*");
                     }
-                    vector<string> s = CombinePathSufs(
-                                                      reg->fNtuplePathSuffs,
-                                                      syst->fNtuplePathsUp );
                     //
                     fullPaths.clear();
-                    vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ),
-                                                                      reg->fNtupleNameSuffs );
+                    vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ), reg->fNtupleNameSuffs );
+                    vector<string> NtuplePaths       = fNtuplePaths;
+                      if(smp->fNtuplePaths.size()>0)    NtuplePaths = smp->fNtuplePaths;
+                      if(syst->fNtuplePathsUp.size()>0) NtuplePaths = syst->fNtuplePathsUp;
+                    vector<string> NtuplePathSuffs   = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufUp ) );
+                    //
                     fullPaths = CreatePathsList(
                                                 // path
-                                                smp->fNtuplePaths.size()>0 ? smp->fNtuplePaths : fNtuplePaths,
+//                                                 smp->fNtuplePaths.size()>0 ? smp->fNtuplePaths : fNtuplePaths,
+                                                NtuplePaths,
                                                 // path suf
-                                                CombinePathSufs(reg->fNtuplePathSuffs,syst->fNtuplePathsUp ),
+                                                NtuplePathSuffs,
                                                 // file
                                                 syst->fNtupleFilesUp.size()==0 ?
                                                 ( smp->fNtupleFiles.size()>0 ? smp->fNtupleFiles : ToVec(fNtupleFile) ) :
@@ -1215,18 +1231,20 @@ void TtHFit::ReadNtuples(){
                         ReplaceString(fullMCweight,"* *","*");
                         ReplaceString(fullMCweight,"**","*");
                     }
-                    
                     //
                     fullPaths.clear();
-                    vector<string> NtupleNameSuffsDown = CombinePathSufs( ToVec( syst->fNtupleNameSufDown ),
-                                                                        reg->fNtupleNameSuffs );
+                    vector<string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDown ), reg->fNtupleNameSuffs );
+                    vector<string> NtuplePaths          = fNtuplePaths;
+                      if(smp->fNtuplePaths.size()>0)      NtuplePaths = smp->fNtuplePaths;
+                      if(syst->fNtuplePathsDown.size()>0) NtuplePaths = syst->fNtuplePathsDown;
+                    vector<string> NtuplePathSuffs      = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufDown ) );
+                    //
                     fullPaths = CreatePathsList(
                                                 // path
-                                                smp->fNtuplePaths.size()>0 ? smp->fNtuplePaths : fNtuplePaths,
+//                                                 smp->fNtuplePaths.size()>0 ? smp->fNtuplePaths : fNtuplePaths,
+                                                NtuplePaths,
                                                 // path suf
-                                                CombinePathSufs(
-                                                                reg->fNtuplePathSuffs,
-                                                                syst->fNtuplePathsDown ),
+                                                NtuplePathSuffs,
                                                 // file
                                                 syst->fNtupleFilesDown.size()==0 ?
                                                 ( smp->fNtupleFiles.size()>0 ? smp->fNtupleFiles : ToVec(fNtupleFile) ) :
@@ -2586,6 +2604,11 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         }
         meas.AddChannel(chan);
     }
+    // Experimental: turn off constraints for given systematics
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+      if(fSystematics[i_syst]->fIsFreeParameter) meas.AddNoSyst(fSystematics[i_syst]->fName.c_str());
+    }
+    //
     meas.PrintXML((fName+"/RooStats/").c_str());
     meas.CollectHistograms();
     meas.PrintTree();

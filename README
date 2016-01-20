@@ -144,11 +144,12 @@ Here's a list of the inputs and options which can be specifed in the config file
       LogScale         -> set it to true to have log-scale when plotting this region
       HistoFile        -> only for option HIST, the file name to be used
       HistoName        -> only for option HIST, the histogram name to be used
+      HistoPathSuff(s) -> only for option HIST, the path suffix (or suffixes, comma-separated) where to find the histogram files for this region
       Variable         -> only for option NTUP, the variable (or expression) inside the ntuple to plot
       Selection        -> only for option NTUP, the selection done on the ntuple for this region
       NtupleName       -> only for option NTUP, the name of the tree for this region
-      MCweight         -> only for option NTUP, the additional weight sed in this region (for MC samples only)
       NtuplePathSuff(s)-> only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region
+      MCweight         -> only for option NTUP, the additional weight sed in this region (for MC samples only)
       Rebin            -> if specified, the histograms will be rebinned merging N bins together, where N is the argument (int)
       Binning          -> if specified, the histograms will be rebinned according to the new binning specifed, in the form like (0,10,20,50,100)
       		       	  if option AutoBin is set, use algorithms/functions ro define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation)

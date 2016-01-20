@@ -1,3 +1,7 @@
+2016-01-20 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Adding experimental option to remove constrain for some systematics -> use IsFreeParameter: TRUE (working only for fit, crashing for limits...)
+        * Implementing new options for histogram inputs: Region -> HistoPathSuff(s)
+        
 2016-01-11 Tamara Vazquez Schroeder <tamara.vazquez.schroeder@cern.ch>
         * Fixing problems with OveralSystematic in case of correction for negative/null bins in the nom. histogram
 

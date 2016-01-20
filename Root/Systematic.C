@@ -20,6 +20,8 @@ Systematic::Systematic(string name,int type,float up,float down){
     fHasUpVariation = true;
     fHasDownVariation = true;
     //
+    fIsFreeParameter = false;
+    //
     fWeightUp = "";
     fWeightSufUp = "";
     fNtuplePathsUp.clear();

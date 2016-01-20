@@ -33,6 +33,8 @@ public:
     bool fHasUpVariation;
     bool fHasDownVariation;
     
+    bool fIsFreeParameter;
+    
     std::vector<string> fRegions;
     std::vector<string> fExclude;
     
