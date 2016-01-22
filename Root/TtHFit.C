@@ -86,7 +86,7 @@ TtHFit::TtHFit(string name){
     fFitNPValues.clear();
     fFitPOIAsimov = 0;
     fFitIsBlind = false;
-    fVarNameLH = "";
+    fVarNameLH.clear();
     
     //
     // Limit type
@@ -571,7 +571,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             }
         }
     }
-    param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = param; };
+    param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = Vectorize(param,','); };
     
     //##########################################################
     //
@@ -2798,7 +2798,19 @@ void TtHFit::Fit(){
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
-    if (fVarNameLH!="") GetLikelihoodScan( ws, fVarNameLH, data);
+
+    if(fVarNameLH.size()>0){
+      if (fVarNameLH[0]=="all"){
+	for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
+	  GetLikelihoodScan( ws, it->first, data);
+	}
+      } 
+      else{
+	for(unsigned int i=0; i<fVarNameLH.size(); ++i){
+	  GetLikelihoodScan( ws, fVarNameLH[i], data);
+	}
+      }
+    }
 
 }
 
@@ -4154,22 +4166,27 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
 
   RooRealVar* var = NULL;
   TString vname = "";
+  bool foundSyst = false;
 
   if (isPoI){
     TIterator* it = mc->GetParametersOfInterest()->createIterator();
     while( (var = (RooRealVar*) it->Next()) ){
       vname=var->GetName();
-      if (vname.Contains(varName.c_str())) { std::cout << "TtHFit::INFO: GetLikelihoodScan for POI = " << vname << std::endl; break; }
+      if (vname.Contains(varName.c_str())) { std::cout << "TtHFit::INFO: GetLikelihoodScan for POI = " << vname << std::endl; foundSyst=true; break; }
     }
   }
   else {
     TIterator* it = mc->GetNuisanceParameters()->createIterator();
     while( (var = (RooRealVar*) it->Next()) ){
       vname=var->GetName();
-      if (vname.Contains(varName.c_str())) { std::cout << "TtHFit::INFO: GetLikelihoodScan for NP = " << vname << std::endl; break; }
+      if (vname.Contains(varName.c_str())) { std::cout << "TtHFit::INFO: GetLikelihoodScan for NP = " << vname << std::endl; foundSyst=true; break; }
     }
   }
 
+  if(!foundSyst){
+    std::cout << "TtHFit::WARNING: GetLikelihoodScan : systematic "<< varName <<" not found (most probably due to Pruning), skip LHscan !"<<std::endl;
+    return;
+  }
   std::cout << "TtHFit::INFO: GetLikelihoodScan for parameter = " << vname << std::endl;
 
   TF1* poly = new TF1("poly2","[0]+[1]*x+[2]*x*x",0,10);

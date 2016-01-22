@@ -210,7 +210,7 @@ public:
     std::map< std::string, double > fFitNPValues;
     double fFitPOIAsimov;
     bool fFitIsBlind;
-    string fVarNameLH;
+    vector<string> fVarNameLH;
 
     //
     // Limit parameters

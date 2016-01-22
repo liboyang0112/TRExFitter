@@ -128,7 +128,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       FitBlind         -> specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind.
       POIAsimov        -> value of the parameter of interest in the AsimovDataset used in the fit
       NPValues         -> values of the nuisance parameters used to build the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
-      doLHscan         -> name of the POI or NP from which you want to produce the likelihood scan
+      doLHscan         -> coma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is all then all systematics are profiled
 
     Limit:
       LimitType        -> can be ASYMPTOTIC or TOYS (the latter is not yet supported)

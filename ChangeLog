@@ -1,3 +1,7 @@
+2016-01-22 Thomas Calvet <calvet@cppm.in2p3.fr>
+	* Adding possibility to profile several/all systematics (coma separated list/all)
+	* Adding protection to the likelihood scan in case the systematic has been removed in the pruning step
+	
 2016-01-20 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Adding experimental option to remove constrain for some systematics -> use IsFreeParameter: TRUE (working only for fit, crashing for limits...)
         * Implementing new options for histogram inputs: Region -> HistoPathSuff(s)
