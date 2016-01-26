@@ -1,5 +1,6 @@
 2016-01-26 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Option added to swithc OFF MC for given sample
+        * Fix to HistoTools for one-sided systematics with symmatrisation & smoothing
         
 2016-01-22 Thomas Calvet <calvet@cppm.in2p3.fr>
 	* Adding possibility to profile several/all systematics (coma separated list/all)
