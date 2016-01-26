@@ -176,6 +176,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       Exclude          -> set this to exclude the sample in some regions
       LumiScale(s)     -> set this to scale the sample by a number; if more numbers are set, use a different one for each file / name / path...
       IgnoreSelection  -> if set, selection from Job and Region will be ignored
+      UseMCstat        -> if set to FALSE, makes the fitter ignore the stat uncertainty for this sample
       
     Systematic:
       Samples          -> comma-separated list of samples on which to apply the systematic

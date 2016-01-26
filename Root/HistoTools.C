@@ -45,7 +45,6 @@ TH1F* HistoTools::TranformHistogramBinning(TH1* originalHist){
 //
 void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
                                     TH1* &modifiedUp, TH1* &modifiedDown){
-    
     //
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
     //
@@ -62,6 +61,23 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
         return;
     }
     
+    // if one-sided & symmetrization asked, do smoothing first and symmetrization after
+    if( histOps % 10 == SYMMETRIZEONESIDED ){
+        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown);
+        SymmetrizeHistograms(histOps,hNom,modifiedUp,modifiedDown,modifiedUp,modifiedDown);
+    }
+      
+    // otherwise, first symmetrization and then smoothing
+    else{
+        SymmetrizeHistograms(histOps,hNom,originUp,originDown,modifiedUp,modifiedDown);
+        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown);
+    }
+}
+    
+//_________________________________________________________________________
+//
+void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
+                                    TH1* &modifiedUp, TH1* &modifiedDown){
     //##################################################
     //
     // FIRST STEP: SYMMETRISATION
@@ -102,9 +118,13 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
         modifiedDown = originDown;
     }
     modifiedDown -> SetName(originDown->GetName());
-    modifiedUp -> SetName(originUp->GetName());
+    modifiedUp   -> SetName(originUp->GetName());
+}
     
-    
+//_________________________________________________________________________
+//
+void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
+                                    TH1* &modifiedUp, TH1* &modifiedDown){
     //##################################################
     //
     // SECOND STEP: SMOOTHING

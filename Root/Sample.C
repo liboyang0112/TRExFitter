@@ -18,6 +18,7 @@ Sample::Sample(string name,int type){
     fRegions.clear();
     fLumiScales.clear();
     fIgnoreSelection = false;
+    fUseMCStat = true;
     //
     // ntuples
     fSelection = "1";

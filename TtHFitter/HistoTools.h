@@ -22,6 +22,8 @@ namespace HistoTools {
     TH1F* TranformHistogramBinning(TH1* originalHist);
     
     void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown);
+    void SymmetrizeHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown);
+    void SmoothHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown);
     
     //Symmetrisation functions
     TH1F* SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp );

@@ -71,6 +71,7 @@ public:
     std::vector<string> fRegions;
     std::vector<float> fLumiScales;
     bool fIgnoreSelection;
+    bool fUseMCStat;
     
     // to read from ntuples
     string fSelection;

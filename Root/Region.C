@@ -369,6 +369,10 @@ TthPlot* Region::DrawPreFit(string opt){
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
         h = (TH1*)fSig[i]->fHist->Clone();
+        // set to 0 uncertainty in each bin if MCstat set to FALSE
+        if(!fSig[i]->fSample->fUseMCStat){
+            for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
+        }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
             h->Scale(fSig[i]->fSample->fNormFactors[i_nf]->fNominal);
@@ -387,6 +391,10 @@ TthPlot* Region::DrawPreFit(string opt){
         title = fBkg[i]->fSample->fTitle;
         if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
         h = (TH1*)fBkg[i]->fHist->Clone();
+        // set to 0 uncertainty in each bin if MCstat set to FALSE
+        if(!fBkg[i]->fSample->fUseMCStat){
+            for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
+        }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
             h->Scale(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal);
@@ -654,6 +662,10 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     TH1* hSmpNew[MAXsamples];
     for(int i=0;i<fNSamples;i++){
         hSmpNew[i] = (TH1*)fSampleHists[i]->fHist->Clone();
+        // set to 0 uncertainty in each bin if MCstat set to FALSE
+        if(!fSampleHists[i]->fSample->fUseMCStat){
+            for(int i_bin=0;i_bin<hSmpNew[i]->GetNbinsX()+2;i_bin++) hSmpNew[i]->SetBinError(i_bin,0.);
+        }
     }
     
     //

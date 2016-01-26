@@ -630,7 +630,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(fInputType==0){
             param = cs->Get("HistoFile"); if(param!="") reg->fHistoFiles.push_back( param );
             param = cs->Get("HistoName"); if(param!="") reg->SetHistoName( param );
-            if(cs->Get("HistoPathSuff")!="") { reg->fHistoPathSuffs.clear(); reg->fHistoPathSuffs.push_back( cs->Get("HistoPathSuff") ); }
+            if(cs->Get("HistoPathSuff")!="") { reg->fHistoPathSuffs.clear(); reg->fHistoPathSuffs.push_back( Fix(cs->Get("HistoPathSuff")) ); }
             param = cs->Get("HistoPathSuffs");
             if( param != "" ){
                 reg->fHistoPathSuffs.clear();
@@ -820,6 +820,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(param!=""){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
             if(param == "TRUE") smp->fIgnoreSelection = true;
+        }
+        // to skip MC stat uncertainty for this sample
+        param = cs->Get("UseMCstat");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "FALSE") smp->fUseMCStat = false;
         }
         // ...
     }
@@ -1368,7 +1374,7 @@ void TtHFit::ReadHistograms(){
             if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
             else if(fRegions[i_ch]->fHistoNames.size()>0) histoNames = fRegions[i_ch]->fHistoNames;
             else                                          histoNames = ToVec( fHistoName );
-
+            
             fullPaths = CreatePathsList( fHistoPaths, fRegions[i_ch]->fHistoPathSuffs,
                                         histoFiles, empty, // no histo file suffs for nominal (syst only)
                                         histoNames, empty  // same for histo name
@@ -2029,7 +2035,8 @@ void TtHFit::BuildYieldTable(string opt){
                     h0 = sh->fHist;
                 float tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
                 h_smp[idxVec[i_smp]]->AddBinContent( i_bin,h0->IntegralAndError(0,h0->GetNbinsX()+1,intErr) );
-                h_smp[idxVec[i_smp]]->SetBinError(   i_bin, sqrt( pow(tmpErr,2) + pow(intErr,2) ) );
+                if(!fUseStatErr || !sh->fSample->fUseMCStat) h_smp[idxVec[i_smp]]->SetBinError(i_bin,0.);
+                else                                         h_smp[idxVec[i_smp]]->SetBinError(   i_bin, sqrt( pow(tmpErr,2) + pow(intErr,2) ) );
             }
         }
         titleVec.push_back(title);
@@ -2558,7 +2565,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     cout << "  Adding Sample: " << fSamples[i_smp]->fName << endl;
                 }
                 RooStats::HistFactory::Sample sample(fSamples[i_smp]->fName.c_str());
-                if(fUseStatErr) sample.ActivateStatError();
+                if(fUseStatErr && fSamples[i_smp]->fUseMCStat) sample.ActivateStatError();
                 sample.SetHistoName(h->fHistoName+suffix_regularBinning);
                 sample.SetInputFile(h->fFileName);
                 sample.SetNormalizeByTheory(fSamples[i_smp]->fNormalizedByTheory);
