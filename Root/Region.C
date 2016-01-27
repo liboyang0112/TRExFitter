@@ -59,6 +59,9 @@ Region::Region(string name){
     fTransfoDzSig = 0.;
     fTransfoFzBkg = 0.;
     fTransfoFzSig = 0.;
+    fTransfoJpar1 = 0.;
+    fTransfoJpar2 = 0.;
+    fTransfoJpar3 = 0.;
 }
 
 //__________________________________________________________________________________
