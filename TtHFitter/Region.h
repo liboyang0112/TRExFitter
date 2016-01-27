@@ -121,6 +121,9 @@ public:
     double fTransfoDzSig;
     double fTransfoFzBkg;
     double fTransfoFzSig;
+    double fTransfoJpar1;
+    double fTransfoJpar2;
+    double fTransfoJpar3;
     string fVariable;
     int fNbins;
     float fXmin, fXmax;
