@@ -1,3 +1,7 @@
+2016-01-27 John Keller <jkeller@cern.ch>
+	* Adding New AutoBin algorithm "Transform J"
+	* Modify Auto-binning to be compatible with HIST input
+       
 2016-01-26 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Option added to swithc OFF MC for given sample
         * Fix to HistoTools for one-sided systematics with symmatrisation & smoothing
