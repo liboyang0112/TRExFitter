@@ -3626,6 +3626,11 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     RooDataSet* data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
     
     //
+    // Create snapshot to keep inital values
+    //
+    ws -> saveSnapshot("tmp_snapshot", *mc->GetPdf()->getParameters(data));
+    
+    //
     // Initialize the FittingTool object
     //
     FittingTool *fitTool = new FittingTool();
@@ -3644,32 +3649,42 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         
         //Set the NP to its post-fit *up* variation and refit to get the fitted POI
+        ws->loadSnapshot("tmp_snapshot");
         fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
         
         //Set the NP to its post-fit *down* variation and refit to get the fitted POI
+        ws->loadSnapshot("tmp_snapshot");
         fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
-        
         outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
         
-        
         //Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
+        ws->loadSnapshot("tmp_snapshot");
         fitTool -> FixNP( nuisPars[i], central + 1. );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
         
         //Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
+        ws->loadSnapshot("tmp_snapshot");
         fitTool -> FixNP( nuisPars[i], central - 1. );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
-        
         outName_file << muVarNomUp[nuisPars[i]]-muhat << "   " <<  muVarNomDown[nuisPars[i]]-muhat<< " "<<endl;
         
     }
     outName_file.close();
+    ws->loadSnapshot("tmp_snapshot");
+    
+    //
+    // Creating the rootfile
+    //
+    TFile *f_clone = new TFile( "ws_forRanking.root", "recreate" );
+    ws -> import(*data,Rename("ttHFitterData"));
+    ws -> Write();
+    f_clone -> Close();
 
 }
 

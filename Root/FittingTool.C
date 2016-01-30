@@ -79,7 +79,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     //
     // Printing the whole model for information
     //
-    model->Print();
+    if(m_debug) model->Print();
     
     //
     // Getting the list of model that can be constrained (parameters of the MC)
@@ -278,6 +278,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     
     m_minuitStatus = status;
     m_fitResult = r;
+
 }
 
 //____________________________________________________________________________________
