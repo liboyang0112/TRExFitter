@@ -1,3 +1,7 @@
+2016-01-05 Loic Valery <lvalery@cern.ch>
+	* Fix inconsistency for integral to only take into account the range allowed by the user
+          (TTHFITTER-37)
+
 2016-01-30 Loic Valery <lvalery@cern.ch>
      	* Fix bug in ranking plot in TtHFit.C
 

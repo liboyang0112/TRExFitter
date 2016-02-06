@@ -2044,7 +2044,7 @@ void TtHFit::BuildYieldTable(string opt){
                 else
                     h0 = sh->fHist;
                 float tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
-                h_smp[idxVec[i_smp]]->AddBinContent( i_bin,h0->IntegralAndError(0,h0->GetNbinsX()+1,intErr) );
+                h_smp[idxVec[i_smp]]->AddBinContent( i_bin,h0->IntegralAndError(1,h0->GetNbinsX(),intErr) );
                 if(!fUseStatErr || !sh->fSample->fUseMCStat) h_smp[idxVec[i_smp]]->SetBinError(i_bin,0.);
                 else                                         h_smp[idxVec[i_smp]]->SetBinError(   i_bin, sqrt( pow(tmpErr,2) + pow(intErr,2) ) );
             }
@@ -2082,8 +2082,8 @@ void TtHFit::BuildYieldTable(string opt){
                     h_up.  push_back( new TH1F(Form("%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
                     h_down.push_back( new TH1F(Form("%s_TMP",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
                 }
-                h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(0,h_tmp_Up->GetNbinsX()+1) );
-                h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral(0,h_tmp_Down->GetNbinsX()+1) );
+                h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
+                h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
                 // eventually add any other samples with the same title
                 for(int j_smp=0;j_smp<fNSamples;j_smp++){
                     sh = fRegions[i_bin-1]->GetSampleHist( fSamples[j_smp]->fName );
@@ -2096,8 +2096,8 @@ void TtHFit::BuildYieldTable(string opt){
                             h_tmp_Up   = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistUp;
                             h_tmp_Down = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistDown;
                         }
-                        h_up[i_syst]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(0,h_tmp_Up->GetNbinsX()+1) );
-                        h_down[i_syst]->AddBinContent( i_bin,h_tmp_Down->Integral(0,h_tmp_Down->GetNbinsX()+1) );
+                        h_up[i_syst]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
+                        h_down[i_syst]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
                     }
                 }
             }
@@ -2140,8 +2140,8 @@ void TtHFit::BuildYieldTable(string opt){
     //
     h_tot = new TH1F("h_Tot_","h_Tot", fNRegions,0,fNRegions);
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->IntegralAndError(0,fRegions[i_bin-1]->fTot_postFit->GetNbinsX()+1,intErr) );
-        else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->IntegralAndError(        0,fRegions[i_bin-1]->fTot->GetNbinsX()+1,        intErr) );
+        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->IntegralAndError(1,fRegions[i_bin-1]->fTot_postFit->GetNbinsX(),intErr) );
+        else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->IntegralAndError(        1,fRegions[i_bin-1]->fTot->GetNbinsX(),        intErr) );
         h_tot->SetBinError( i_bin, intErr );
     }
     
@@ -2167,8 +2167,8 @@ void TtHFit::BuildYieldTable(string opt){
                 h_up.  push_back( new TH1F(Form("h_%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
                 h_down.push_back( new TH1F(Form("h_%s_TMP",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
             }
-            h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(0,h_tmp_Up->GetNbinsX()+1) );
-            h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral(0,h_tmp_Down->GetNbinsX()+1) );
+            h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
+            h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
         }
     }
     if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, fRegions[0]->fSystNames, fFitResults->fCorrMatrix );
