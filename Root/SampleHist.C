@@ -6,6 +6,29 @@
 
 //_____________________________________________________________________________
 //
+SampleHist::SampleHist(){
+    fName = "";
+    //
+    fSample = 0x0;
+    //
+    fHist = 0x0;
+    //
+    fHist_postFit = 0x0;
+    //
+    fHistoName = "";
+    fFileName = "";
+    fFitName = "";
+    fNSyst = 0;
+    fNNorm = 0;
+    fRegionName = "Region";
+    fRegionLabel = "Region";
+    fVariableTitle = "Variable";
+    fSystSmoothed = false;
+
+}
+
+//_____________________________________________________________________________
+//
 SampleHist::SampleHist(Sample *sample,TH1 *hist){
     fSample = sample;
     fName = fSample->fName;
@@ -284,13 +307,13 @@ void SampleHist::Rebin(int ngroup, const Double_t* xbins){
 }
 
 //_____________________________________________________________________________
-// this draws the control plots (for each systematic) with the syst variations for this region & sample
-void SampleHist::DrawSystPlot( const string &syst ){
+// this draws the control plots (for each systematic) with the syst variations for this region & all sample
+void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData, bool bothPanels ){
     
     //
     // Draw the distributions for nominal, syst (before and after smoothing)
     //
-    float yield_syst_up, yield_syst_down, yield_nominal;
+    float yield_syst_up, yield_syst_down, yield_nominal, yield_data;
     TCanvas *c = new TCanvas("c","c",800,600);
     //
     TPad* pad0 = new TPad("pad0","pad0",0,0.30,1,1,0,0,0);
@@ -316,6 +339,7 @@ void SampleHist::DrawSystPlot( const string &syst ){
     pad0->cd();
     
     TH1* h_nominal;
+    TH1* h_dataCopy;
     TH1* h_syst_up;
     TH1* h_syst_down;
     TH1* h_syst_up_orig;
@@ -323,7 +347,6 @@ void SampleHist::DrawSystPlot( const string &syst ){
     
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(syst!="all" && fSyst[i_syst]->fName.find(syst)==string::npos) continue;
-        
         std::vector < bool > drawRatio;
         drawRatio.push_back(false);
         drawRatio.push_back(true);
@@ -333,9 +356,11 @@ void SampleHist::DrawSystPlot( const string &syst ){
             if(ratioON) pad1->cd();
             else pad0 -> cd();
             
+	    if(SumAndData) h_dataCopy = (TH1*)h_data->Clone();
             h_nominal = (TH1*)fHist->Clone("h_nominal");
             h_nominal->SetLineColor(kBlack);
             h_nominal->SetLineWidth(2);
+            if(SumAndData) h_dataCopy->SetMarkerColor(kBlack);
             if(ratioON)h_nominal->SetLineStyle(2);
             else h_nominal->SetLineStyle(1);
             
@@ -368,6 +393,7 @@ void SampleHist::DrawSystPlot( const string &syst ){
             yield_nominal = h_nominal->Integral();
             yield_syst_up = h_syst_up->Integral();
             yield_syst_down = h_syst_down->Integral();
+            if(SumAndData) yield_data = h_dataCopy->Integral();
             
             // draw Relative difference
             h_1->Scale(0);
@@ -375,17 +401,21 @@ void SampleHist::DrawSystPlot( const string &syst ){
             if(ratioON){
                 h_syst_up->Add(h_nominal,-1);
                 h_syst_down->Add(h_nominal,-1);
+                if(SumAndData) h_dataCopy->Add(h_nominal,-1);
                 h_syst_up->Divide(h_nominal);
                 h_syst_down->Divide(h_nominal);
+                if(SumAndData) h_dataCopy->Divide(h_nominal);
                 // fix empty bins
                 for(int i_bin=1;i_bin<=h_nominal->GetNbinsX();i_bin++){
                     if(h_nominal->GetBinContent(i_bin)<1e-5){
                         h_syst_up  ->SetBinContent(i_bin,0.);
                         h_syst_down->SetBinContent(i_bin,0.);
+                        if(SumAndData) h_dataCopy->SetBinContent(i_bin,0.);
                     }
                 }
                 h_syst_up->Scale(100);
                 h_syst_down->Scale(100);
+                if(SumAndData) h_dataCopy->Scale(100);
                 h_syst_up_orig->Add(h_nominal,-1);
                 h_syst_down_orig->Add(h_nominal,-1);
                 h_syst_up_orig->Divide(h_nominal);
@@ -403,6 +433,7 @@ void SampleHist::DrawSystPlot( const string &syst ){
             
             double ymax = 0;
             if(!ratioON) ymax = TMath::Max( ymax,TMath::Abs(h_nominal->GetMaximum()));
+            if((ratioON || bothPanels) && SumAndData ) ymax = TMath::Max( ymax,TMath::Abs(h_dataCopy->GetMaximum()));
             ymax = TMath::Max( ymax,TMath::Abs(h_syst_up->GetMaximum()));
             ymax = TMath::Max( ymax,TMath::Abs(h_syst_down->GetMaximum()));
             ymax = TMath::Max( ymax,TMath::Abs(h_syst_up->GetMinimum()));
@@ -441,6 +472,7 @@ void SampleHist::DrawSystPlot( const string &syst ){
                 }
                 h_nominal -> Draw("e2same");
             }
+	    if((ratioON || bothPanels) && SumAndData ) h_dataCopy->Draw("same");
             h_syst_down_orig->Draw("same HIST");
             h_syst_up_orig->Draw("same HIST");
             h_syst_down->Draw("same HIST");
@@ -450,8 +482,14 @@ void SampleHist::DrawSystPlot( const string &syst ){
                 // Creates a legend for the plot
                 TLatex *tex = new TLatex();
                 tex->SetNDC();
-                if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
-                else                                tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fTitle.c_str()));
+		if(SumAndData) {
+		  if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),"all samples"));
+		  else                                tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fName.c_str(),"all samples"));
+		}
+		else{
+		  if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
+		  else                                tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fTitle.c_str()));
+		}
                 tex->DrawLatex(0.17,0.81,fRegionLabel.c_str());
                 
                 //Legend of the histograms
@@ -487,6 +525,19 @@ void SampleHist::DrawSystPlot( const string &syst ){
                 leg2->AddEntry(h_syst_up_origin_black,"Original","l");
                 leg2->AddEntry(h_syst_up_black,"Modified","l");
                 leg2 -> Draw();
+		if(SumAndData){
+		  float acc_data = (yield_data-yield_nominal)/yield_nominal;
+		  string sign_data =  "+";
+		  if(acc_data<0) sign_data = "-";
+		  TLegend *leg3 = new TLegend(0.7,0.61,0.9,0.66);
+		  leg3->SetFillStyle(0);
+		  leg3->SetBorderSize(0);
+		  leg3->SetTextSize(gStyle->GetTextSize());
+		  leg3->SetTextFont(gStyle->GetTextFont());
+		  leg3->SetMargin(0.2);
+		  leg3->AddEntry(h_dataCopy,Form("data (%s%.1f %%)",sign_data.c_str(),TMath::Abs(acc_data*100)),"l");
+		  leg3 -> Draw();
+		}
             } else {
                 TLine line(0.01,1,0.1,1);
                 line.SetLineColor(kWhite);
@@ -500,7 +551,8 @@ void SampleHist::DrawSystPlot( const string &syst ){
         gSystem->mkdir((fFitName+"/Systematics/"+fSyst[i_syst]->fName).c_str());
         
         for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-            c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), TtHFitter::IMAGEFORMAT[i_format].c_str()));
+	  if(SumAndData) c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(), fName.c_str(), TtHFitter::IMAGEFORMAT[i_format].c_str()));
+	  else c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), TtHFitter::IMAGEFORMAT[i_format].c_str()));
         }
 //         c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), "png"));
     }
@@ -573,4 +625,74 @@ void SampleHist::SmoothSyst(string syst,bool force){
         }
     }
     fSystSmoothed = true;
+}
+
+//_____________________________________________________________________________
+//
+void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names){
+
+  fName = h->fName;
+  fHist = (TH1*)h->fHist->Clone();
+  fFileName = h->fFileName;
+  fHistoName = h->fHistoName;
+  fIsData = h->fIsData;
+  fIsSig = h->fIsSig;
+    
+  fNSyst = h->fNSyst;
+  for(auto systname : names ){
+    bool notFound=true;
+    for(int i_syst=0; i_syst<h->fNSyst; i_syst++){
+      SystematicHist* syst_tmp = new SystematicHist("tmp");
+      if(systname!=h->fSyst[i_syst]->fName) continue;
+      syst_tmp->fHistUp = (TH1*)h->fSyst[i_syst]->fHistUp->Clone();
+      syst_tmp->fHistUp_original = (TH1*)h->fSyst[i_syst]->fHistUp_original->Clone();
+      syst_tmp->fHistDown = (TH1*)h->fSyst[i_syst]->fHistDown->Clone();
+      syst_tmp->fHistDown_original = (TH1*)h->fSyst[i_syst]->fHistDown_original->Clone();
+      syst_tmp->fName = h->fSyst[i_syst]->fName;
+      fSyst.push_back(syst_tmp);
+      notFound=false;
+    }
+    if(notFound){
+      SystematicHist* syst_tmp = new SystematicHist("tmp");
+      ++fNSyst;
+      syst_tmp->fHistUp = (TH1*)h->fHist->Clone();
+      syst_tmp->fHistUp_original = (TH1*)h->fHist->Clone();
+      syst_tmp->fHistDown = (TH1*)h->fHist->Clone();
+      syst_tmp->fHistDown_original = (TH1*)h->fHist->Clone();
+      syst_tmp->fName = systname;
+      fSyst.push_back(syst_tmp);
+    }
+  }
+  
+  fFitName = h->fFitName;
+  fRegionName = h->fRegionName;
+  fRegionLabel = h->fRegionLabel;
+  fVariableTitle = h->fVariableTitle;
+  fSystSmoothed = h->fSystSmoothed;
+
+}
+
+//_____________________________________________________________________________
+//
+void SampleHist::SampleHistAdd(SampleHist* h){
+
+  fHist->Add(h->fHist);
+  for(int i_syst=0;i_syst<fNSyst;i_syst++){
+    bool wasIn=false;
+    for(int j_syst=0;j_syst<h->fNSyst;j_syst++){
+      if(fSyst[i_syst]->fName==h->fSyst[j_syst]->fName){
+	fSyst[i_syst]->fHistUp->Add(h->fSyst[j_syst]->fHistUp);
+	fSyst[i_syst]->fHistDown->Add(h->fSyst[j_syst]->fHistDown);
+	fSyst[i_syst]->fHistUp_original->Add(h->fSyst[j_syst]->fHistUp_original);
+	fSyst[i_syst]->fHistDown_original->Add(h->fSyst[j_syst]->fHistDown_original);
+	wasIn=true;
+      }
+    }
+    if(wasIn) continue;
+    fSyst[i_syst]->fHistUp->Add(h->fHist);
+    fSyst[i_syst]->fHistDown->Add(h->fHist);
+    fSyst[i_syst]->fHistUp_original->Add(h->fHist);
+    fSyst[i_syst]->fHistDown_original->Add(h->fHist);
+  }
+
 }

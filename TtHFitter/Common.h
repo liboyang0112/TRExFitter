@@ -58,6 +58,7 @@ namespace TtHFitter{
     extern bool SHOWNORMSIG;  // flag to show normalized signal or not
     extern bool SHOWOVERLAYSIG;  // flag to show overlayed signal or not
     extern bool SYSTCONTROLPLOTS;
+    extern bool SYSTDATAPLOT;
     extern bool SPLITHISTOFILES;
     extern bool HISTOCHECKCRASH;
     extern float CORRELATIONTHRESHOLD;

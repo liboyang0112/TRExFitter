@@ -1,3 +1,7 @@
+2016-01-22 Thomas Calvet <calvet@cppm.in2p3.fr>
+	* Adding new ploting functionnality
+	* Remove overflow and underflow usage in Auto-bin function
+	
 2016-01-05 Loic Valery <lvalery@cern.ch>
 	* Fix inconsistency for integral to only take into account the range allowed by the user
           (TTHFITTER-37)

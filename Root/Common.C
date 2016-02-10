@@ -11,6 +11,7 @@ bool TtHFitter::SHOWSTACKSIG = true;
 bool TtHFitter::SHOWNORMSIG = false;
 bool TtHFitter::SHOWOVERLAYSIG = false;
 bool TtHFitter::SYSTCONTROLPLOTS = false;
+bool TtHFitter::SYSTDATAPLOT = false;
 bool TtHFitter::SPLITHISTOFILES = false;
 bool TtHFitter::HISTOCHECKCRASH = true;
 float TtHFitter::CORRELATIONTHRESHOLD = -1;

@@ -80,7 +80,8 @@ public:
     void WriteHistos(/*string fileName=""*/);
     
     void DrawSystPlots();
-    
+    void DrawSystPlotsSumSamples();
+
     // config file
     void ReadConfigFile(string fileName,string options="");
     
@@ -179,6 +180,7 @@ public:
     ConfigParser *fConfig;
     
     bool fSystControlPlots;
+    bool fSystDataPlot_upFrame;
     bool fStatOnly;
     
     std::vector<string> fRegionsToPlot;

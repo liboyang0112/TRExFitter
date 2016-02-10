@@ -11,6 +11,7 @@
 
 class SampleHist {
 public:
+  SampleHist();
   SampleHist(Sample *sample,TH1 *hist);
   SampleHist(Sample *sample, string histoName, string fileName);
   ~SampleHist();
@@ -36,9 +37,12 @@ public:
   void Print();
   
   void Rebin(int ngroup = 2, const Double_t* xbins = 0);
-  void DrawSystPlot( const string &syst="all");
+  void DrawSystPlot( const string &syst="all", TH1* h_data=0x0, bool SumAndData=false, bool bothPanels=false );
   void SmoothSyst(string syst="all",bool force=false);
   
+  void SampleHistAdd(SampleHist* h);
+  void CloneSampleHist(SampleHist* h, std::set<std::string> names);
+
   string fName;
   Sample *fSample;
   TH1 *fHist;

@@ -76,6 +76,7 @@ TtHFit::TtHFit(string name){
     fRankingOnly = "all";
     
     fStatOnly = false;
+    fSystDataPlot_upFrame = false;
     
     //
     // Fit caracteristics
@@ -340,6 +341,42 @@ void TtHFit::DrawSystPlots(){
 }
 
 //__________________________________________________________________________________
+// Draw syst plots
+void TtHFit::DrawSystPlotsSumSamples(){
+  TH1* h_dataCopy;
+  for(int i_ch=0;i_ch<fNRegions;i_ch++){
+    SampleHist* hist = new SampleHist();
+    bool empty=true;
+    std::set<std::string> systNames;
+    for(int i_regSmp=0; i_regSmp<fRegions[i_ch]->fNSamples; i_regSmp++){
+      for(int i_smSyst=0; i_smSyst<fSamples[i_regSmp]->fNSyst; i_smSyst++){
+	bool isNotInReg=true;
+	for(unsigned int i_systReg=0; i_systReg<fSamples[i_regSmp]->fSystematics[i_smSyst]->fRegions.size(); i_systReg++){
+	  if(fSamples[i_regSmp]->fSystematics[i_smSyst]->fRegions[i_systReg] == fRegions[i_ch]->fName){
+	    isNotInReg=false;
+	    break;
+	  }
+	}
+	if(fSamples[i_regSmp]->fSystematics[i_smSyst]->fRegions.size()!=0
+	   && isNotInReg ) continue;
+	systNames.insert(fRegions[i_ch]->fSampleHists[i_regSmp]->fSyst[i_smSyst]->fName);
+      }
+    }
+    for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
+      if(fSamples[i_smp]->fType==Sample::DATA) h_dataCopy=(TH1*)fRegions[i_ch]->fSampleHists[i_smp]->fHist->Clone();
+      else if(empty){
+	hist->CloneSampleHist(fRegions[i_ch]->fSampleHists[i_smp],systNames);
+	hist->fName = fRegions[i_ch]->fName + "_Combined";
+	empty=false;
+      }
+      else hist->SampleHistAdd(fRegions[i_ch]->fSampleHists[i_smp]);
+    }
+    hist->DrawSystPlot("all", h_dataCopy, true, fSystDataPlot_upFrame);
+    delete hist;
+  }
+}
+
+//__________________________________________________________________________________
 // Build fit from config file
 void TtHFit::ReadConfigFile(string fileName,string options){
     fConfig->ReadFile(fileName);
@@ -481,6 +518,18 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             TtHFitter::SYSTCONTROLPLOTS = true;
         } else {
             TtHFitter::SYSTCONTROLPLOTS = false;
+        }
+    }
+    param = cs->Get("SystDataPlots");  if( param != "" ){
+        if( param == "true" || param == "True" ||  param == "TRUE" ){
+            TtHFitter::SYSTDATAPLOT = true;
+	    fSystDataPlot_upFrame=false;
+        } else if( param == "fillUpFrame" ){
+            TtHFitter::SYSTDATAPLOT = true;
+	    fSystDataPlot_upFrame=true;
+	} else {
+            TtHFitter::SYSTDATAPLOT = false;
+	    fSystDataPlot_upFrame=false;
         }
     }
     param = cs->Get("CorrelationThreshold"); if( param != ""){
@@ -2946,7 +2995,7 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
             // Get pdf associated with state from simpdf
             RooAbsPdf* pdftmp = simPdf->getPdf(channelCat->getLabel()) ;
             
-            // Generate observables defined by the pdf associated with this state
+	    // Generate observables defined by the pdf associated with this state
             RooArgSet* obstmp = pdftmp->getObservables(*mc->GetObservables()) ;
             
             RooDataSet* obsDataUnbinned = new RooDataSet(Form("combAsimovData%d",iFrame),Form("combAsimovData%d",iFrame),RooArgSet(obsAndWeight,*channelCat),RooFit::WeightVar(*weightVar));
@@ -4155,11 +4204,11 @@ void TtHFit::ComputeBining(int regIter){
   }
   int iBin2 = 0;
   int nBins_Vec = hbkg -> GetNbinsX();
-  int iBin = nBins_Vec + 1; // start with overflow bin
-  bins_vec.push_back(nBins_Vec + 2);
+  int iBin = nBins_Vec; // skip overflow bin
+  bins_vec.push_back(nBins_Vec + 1);
 
-  float nBkg = hbkg -> Integral(0, nBins_Vec + 1);
-  float nSig = hsig -> Integral(0, nBins_Vec + 1);
+  float nBkg = hbkg -> Integral(1, nBins_Vec );
+  float nSig = hsig -> Integral(1, nBins_Vec );
 
   bool jBreak = false;
   double jTarget = 1e5;
@@ -4177,7 +4226,7 @@ void TtHFit::ComputeBining(int regIter){
     double dist = 1e10;
     double distPrev = 1e10;
 
-    while (!pass && iBin >= 0) {
+    while (!pass && iBin > 0) {
       double nBkgBin = hbkg -> GetBinContent(iBin);
       double nSigBin = hsig -> GetBinContent(iBin);
       sumBkg += nBkgBin;
@@ -4240,7 +4289,7 @@ void TtHFit::ComputeBining(int regIter){
     }
     iBin2++;
     // remove last bin
-    if (iBin + 1 == 0 && bins_vec.size() > 1) {
+    if (iBin == 0 && bins_vec.size() > 1) {
       if (fRegions[regIter]->fBinTransfo == "TransfoF") {
         bins_vec.pop_back();
       } else if (fRegions[regIter]->fBinTransfo == "TransfoD" && bins_vec.size() > fRegions[regIter]->fTransfoDzSig + fRegions[regIter]->fTransfoDzBkg + 0.01) {

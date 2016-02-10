@@ -66,6 +66,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->Print();
         myFit->SmoothSystematics("all");
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+	if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
         myFit->WriteHistos();
     }
     else if(readNtuples){
@@ -73,6 +74,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->Print();
         myFit->SmoothSystematics("all");
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+	if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
         myFit->WriteHistos();
     }
     else{
