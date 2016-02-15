@@ -20,6 +20,7 @@ public:
     // -------
   
     string fName;
+    string fNuisanceParameter;
     string fTitle;
     string fCategory;
     int fType;

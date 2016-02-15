@@ -40,6 +40,9 @@ public:
   void DrawSystPlot( const string &syst="all", TH1* h_data=0x0, bool SumAndData=false, bool bothPanels=false );
   void SmoothSyst(string syst="all",bool force=false);
   
+  void Divide(  SampleHist* sh);
+  void Multiply(SampleHist* sh);
+  
   void SampleHistAdd(SampleHist* h);
   void CloneSampleHist(SampleHist* h, std::set<std::string> names);
 

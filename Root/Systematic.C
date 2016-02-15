@@ -8,6 +8,7 @@
 Systematic::Systematic(string name,int type,float up,float down){
     fName = name;
     fTitle = name;
+    fNuisanceParameter = name;
     fType = type;
     fCategory = "";
     

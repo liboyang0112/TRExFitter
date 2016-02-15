@@ -77,3 +77,45 @@ void SystematicHist::Print(){
     if(fHistShapeUp==0x0 && fHistShapeDown==0x0 && fHistUp==0x0 && fHistDown==0x0) cout << Form("\toverall (%.3f,%.3f)",fNormUp,fNormDown) << endl;
     else cout << endl;
 }
+
+//_____________________________________________________________________________
+//
+void SystematicHist::Divide(TH1 *h){
+//     TH1* h = (TH1*)sh->fHist->Clone("h_tmp");
+//     for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
+    fHistUp->Divide(h);
+    fHistShapeUp->Divide(h);
+    fHistDown->Divide(h);
+    fHistShapeDown->Divide(h);
+//     delete h;
+}
+
+//_____________________________________________________________________________
+//
+void SystematicHist::Divide(SystematicHist *syh){
+    fHistUp->Divide(       syh->fHistUp);
+    fHistShapeUp->Divide(  syh->fHistShapeUp);
+    fHistDown->Divide(     syh->fHistDown);
+    fHistShapeDown->Divide(syh->fHistShapeDown);
+}
+
+//_____________________________________________________________________________
+//
+void SystematicHist::Multiply(TH1 *h){
+//     TH1* h = (TH1*)sh->fHist->Clone("h_tmp");
+//     for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
+    fHistUp->Multiply(h);
+    fHistShapeUp->Multiply(h);
+    fHistDown->Multiply(h);
+    fHistShapeDown->Multiply(h);
+//     delete h;
+}
+
+//_____________________________________________________________________________
+//
+void SystematicHist::Multiply(SystematicHist *syh){
+    fHistUp->Multiply(       syh->fHistUp);
+    fHistShapeUp->Multiply(  syh->fHistShapeUp);
+    fHistDown->Multiply(     syh->fHistDown);
+    fHistShapeDown->Multiply(syh->fHistShapeDown);
+}

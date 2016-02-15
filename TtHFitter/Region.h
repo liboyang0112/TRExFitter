@@ -162,6 +162,7 @@ public:
     int fIntCode_shape;
     
     std::vector< string > fSystNames;
+    std::vector< string > fNpNames;
     
     TtHFit::FitType fFitType;
     string fPOI;
@@ -177,6 +178,8 @@ public:
     float fBinWidth;
     
     float fBlindingThreshold;
+    
+    bool fSkipSmoothing;
 };
 
 

@@ -63,6 +63,7 @@ namespace TtHFitter{
     extern bool HISTOCHECKCRASH;
     extern float CORRELATIONTHRESHOLD;
     extern std::map< string,string > SYSTMAP;
+    extern std::map< string,string > NPMAP;
     extern std::vector< string > IMAGEFORMAT;
 };
 

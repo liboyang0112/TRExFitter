@@ -45,6 +45,7 @@ Region::Region(string name){
     fMCweight = "1";
     
     fLogScale = false;
+    fSkipSmoothing = false;
     
     fBinWidth = 0;
     
@@ -205,42 +206,62 @@ void Region::BuildPreFitErrorHist(){
     float diffUp(0.), diffDown(0.);
     //
     fSystNames.clear();
+    fNpNames.clear();
     std::map<string,bool> systIsThere;
     systIsThere.clear();
     TH1* hUp = 0x0;
     TH1* hDown = 0x0;
     string systName = "";
+    string systNuisPar = "";
     SystematicHist *sh = 0x0;
     
     //
     // Collect all the systematics on all the samples
+    // (in parallel also colect all the nuisance parameters)
     //
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType == Sample::GHOST) continue;
         
-        //
-        // Norm factors
-        //
-        for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
-            systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
-            // skip POI if B-only fit
-            if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
-            if(!systIsThere[systName]){
-                fSystNames.push_back(systName);
-                systIsThere[systName] = true;
-            }
-        }
+        // NOTE: probably we don't need NormFactors here, as they don't introduce prefit uncertainty...
+//         //
+//         // Norm factors
+//         //
+//         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
+//             systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
+//             // skip POI if B-only fit
+//             if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
+//             if(!systIsThere[systName]){
+//                 fSystNames.push_back(systName);
+//                 systIsThere[systName] = true;
+//             }
+//             systNuisPar = systName;
+// //             if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0) systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+//             if(FindInStringVector(fNpNames,systNuisPar)<0){
+//                 fNpNames.push_back(systNuisPar);
+//             }
+//         }
         
         //
         // Systematics
         //
+        Systematic *syst = 0x0;
+        Sample *sample = fSampleHists[i]->fSample;
         for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
             systName = fSampleHists[i]->fSyst[i_syst]->fName;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
             }
+//             syst = sample->GetSystematic(systName);
+//             systNuisPar = syst->fNuisanceParameter;
+            cout << systName << " -> " << fSampleHists[i]->fSyst[i_syst]->fSystematic << endl;
+            if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0)
+                systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+            if(FindInStringVector(fNpNames,systNuisPar)<0){
+                fNpNames.push_back(systNuisPar);
+            }
+            cout << systName << ": " << systNuisPar << endl;
         }
     }
     
@@ -333,15 +354,32 @@ void Region::BuildPreFitErrorHist(){
         }
     }
     
+    cout << "----" << endl;
+    
     //
-    // build the vectors of variations
+    // build the vectors of variations (sum histograms for systematics with the same NP)
     std::vector< TH1* > h_up;
     std::vector< TH1* > h_down;
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+        // look for all the already stored systematics, to find if one had the same NP
+        bool found = false;
+        for(int j_syst=0;j_syst<i_syst;j_syst++){
+            if(TtHFitter::NPMAP[fSystNames[i_syst]]==TtHFitter::NPMAP[fSystNames[j_syst]]){
+                found = true;
+                cout << fSystNames[i_syst] << endl;
+                cout << TtHFitter::NPMAP[fSystNames[i_syst]] << endl;
+                cout << FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) << endl;
+                h_up[   FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotUp[  i_syst]);
+                h_down[ FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotDown[i_syst]);
+                break;
+            }
+        }
+        if(found) continue;
         h_up.  push_back( fTotUp[i_syst]   );
         h_down.push_back( fTotDown[i_syst] );
     }
-    fErr = BuildTotError( fTot, h_up, h_down, fSystNames );
+//     fErr = BuildTotError( fTot, h_up, h_down, fSystNames );
+    fErr = BuildTotError( fTot, h_up, h_down, fNpNames );
     fErr->SetName("g_totErr");
     
     // at this point fTot and fErr should be ready

@@ -165,6 +165,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       Group            -> if specified, sample will be grouped with other samples with same group and this label will be used in plots
       HistoFile        -> valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path
       HistoName        -> valid only for option HIST; name of histogram to read
+      NtuplePath       -> valid only for option HIST; it's the path where the input root files containing the histograms are stored
       NtupleFile(s)    -> valid only for option NTUP; it's the file name(s) where the input ntuples are stored
       NtupleName       -> valid only for option NTUP; name of tree to read
       NtuplePath(s)    -> valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
@@ -179,6 +180,8 @@ Here's a list of the inputs and options which can be specifed in the config file
       LumiScale(s)     -> set this to scale the sample by a number; if more numbers are set, use a different one for each file / name / path...
       IgnoreSelection  -> if set, selection from Job and Region will be ignored
       UseMCstat        -> if set to FALSE, makes the fitter ignore the stat uncertainty for this sample
+      MultiplyBy       -> if specified, each sample hist is multiplied bin-by-bin by another sample hist, in each of the regions
+      DivideBy         -> if specified, each sample hist is divided bin-by-bin by another sample hist, in each of the regions
       
     Systematic:
       Samples          -> comma-separated list of samples on which to apply the systematic

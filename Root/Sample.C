@@ -19,6 +19,9 @@ Sample::Sample(string name,int type){
     fLumiScales.clear();
     fIgnoreSelection = false;
     fUseMCStat = true;
+    fUseSystematics = true;
+    fDivideBy = "";
+    fMultiplyBy = "";
     //
     // ntuples
     fSelection = "1";

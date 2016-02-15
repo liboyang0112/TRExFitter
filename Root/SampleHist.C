@@ -694,5 +694,36 @@ void SampleHist::SampleHistAdd(SampleHist* h){
     fSyst[i_syst]->fHistUp_original->Add(h->fHist);
     fSyst[i_syst]->fHistDown_original->Add(h->fHist);
   }
+}
 
+//_____________________________________________________________________________
+//
+void SampleHist::Divide(SampleHist *sh){
+    fHist->Divide( sh->fHist );
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        string systName = fSyst[i_syst]->fName;
+        SystematicHist *syh = sh->GetSystematic( systName );
+        if(syh==0x0){
+            fSyst[i_syst]->Divide( sh->fHist );
+        }
+        else{
+            fSyst[i_syst]->Divide( syh );
+        }
+    }
+}
+
+//_____________________________________________________________________________
+//
+void SampleHist::Multiply(SampleHist *sh){
+  fHist->Multiply( sh->fHist );
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        string systName = fSyst[i_syst]->fName;
+        SystematicHist *syh = sh->GetSystematic( systName );
+        if(syh==0x0){
+            fSyst[i_syst]->Multiply( sh->fHist );
+        }
+        else{
+            fSyst[i_syst]->Multiply( syh );
+        }
+    }
 }

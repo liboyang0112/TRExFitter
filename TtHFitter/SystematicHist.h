@@ -14,6 +14,11 @@ public:
   bool IsShape();
   
   void Print();
+
+  void Divide(TH1* h);
+  void Divide(SystematicHist *syh);
+  void Multiply(TH1* h);
+  void Multiply(SystematicHist *syh);
   
   string fName;
   Systematic *fSystematic;

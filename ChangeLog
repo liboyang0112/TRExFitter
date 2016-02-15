@@ -1,3 +1,10 @@
+2016-02-15 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Added option to specify NuisanceParameter for each systematic -> allow correlated systematics
+        * Added option SkipSmoothing for Regions
+        * Added option to multiply and/or divide a sample by another sample (useful for corrections on the flight)
+        * Added option UseSystematics for Samples: by default is FALSE for ghost samples, true for other non-data samples
+        * Added HistoPath option for Sample, following Ian's suggestion (still to check and to add stuff for systematics!)
+
 2016-01-22 Thomas Calvet <calvet@cppm.in2p3.fr>
 	* Adding new ploting functionnality
 	* Remove overflow and underflow usage in Auto-bin function

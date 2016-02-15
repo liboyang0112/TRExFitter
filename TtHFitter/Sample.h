@@ -72,6 +72,9 @@ public:
     std::vector<float> fLumiScales;
     bool fIgnoreSelection;
     bool fUseMCStat;
+    bool fUseSystematics;
+    string fDivideBy;
+    string fMultiplyBy;
     
     // to read from ntuples
     string fSelection;
