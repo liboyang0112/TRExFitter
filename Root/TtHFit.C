@@ -3331,35 +3331,6 @@ void TtHFit::GetLimit(){
     gSystem->Exec(cmd.c_str());
 }
 
-
-////__________________________________________________________________________________
-////
-//void TtHFit::GetLimit(){
-//
-//    //Checks if a data sample exists
-//    bool hasData = false;
-//    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-//        if(fSamples[i_smp]->fType==Sample::DATA){
-//            hasData = true;
-//            break;
-//        }
-//    }
-////     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
-//    string workspace = fName+"/RooStats/"+fName+fSuffix+"_combined_"+fName+"_model.root";
-//    if(hasData){
-////         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\")'";
-////         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./limits/\",\""+fName+"\",0.95)'";
-////         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
-//        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
-//        gSystem->Exec(cmd.c_str());
-//    } else {
-////         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./limits/\",\""+fName+"_blind\",0.95)'";
-////         string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
-//        string cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
-//        gSystem->Exec(cmd.c_str());
-//    }
-//}
-
 //__________________________________________________________________________________
 //
 void TtHFit::GetSignificance(){
@@ -3382,6 +3353,7 @@ void TtHFit::GetSignificance(){
     std::map < std::string, int > regionsForSignDataType;
     bool onlyUseRealData = true;
     for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+        if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
         if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
             Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
             regionsForFit.push_back( fRegions[i_ch] -> fName );
@@ -3439,32 +3411,6 @@ void TtHFit::GetSignificance(){
     string cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
     gSystem->Exec(cmd.c_str());
 }
-
-////__________________________________________________________________________________
-////
-//void TtHFit::GetSignificance(){
-//    
-//    //Checks if a data sample exists
-//    bool hasData = false;
-//    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-//        if(fSamples[i_smp]->fType==Sample::DATA){
-//            hasData = true;
-//            break;
-//        }
-//    }
-////     string workspace = fName+"/RooStats/"+fName+"_combined_"+fName+"_model.root";
-//    string workspace = fName+"/RooStats/"+fName+fSuffix+"_combined_"+fName+"_model.root";
-//    if(hasData){
-////         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
-//        string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"obsData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
-//        gSystem->Exec(cmd.c_str());
-//        
-//    } else {
-////         string cmd = "root -l -b -q 'runSig.C(\"results/"+fName+"_combined_"+fName+"_model.root\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\"significance\")'";
-//        string cmd = "root -l -b -q 'runSig.C(\""+workspace+"\",\"combined\",\"ModelConfig\",\"asimovData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
-//        gSystem->Exec(cmd.c_str());
-//    }
-//}
 
 //__________________________________________________________________________________
 //

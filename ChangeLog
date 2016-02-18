@@ -1,3 +1,6 @@
+2016-02-17 Loic Valery <lvalery@cern.ch>
+        * Fix crash when computing significance and using validation regions
+
 2016-02-15 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Added option to specify NuisanceParameter for each systematic -> allow correlated systematics
         * Added option SkipSmoothing for Regions
