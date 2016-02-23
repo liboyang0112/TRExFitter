@@ -213,6 +213,7 @@ public:
     double fFitPOIAsimov;
     bool fFitIsBlind;
     vector<string> fVarNameLH;
+    vector<string> fVarNameMinos;
 
     //
     // Limit parameters

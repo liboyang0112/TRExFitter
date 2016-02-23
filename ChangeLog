@@ -1,3 +1,6 @@
+2016-02-23 Tamara Vazquez Schroeder <tamara.vazquez.schroeder@cern.ch>
+        * Adding functionality to run MINOS over a specified set of parameters (UseMinos in config)
+
 2016-02-17 Loic Valery <lvalery@cern.ch>
         * Fix crash when computing significance and using validation regions
 

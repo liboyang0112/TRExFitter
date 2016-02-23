@@ -40,6 +40,7 @@ m_hessStatus(-1),
 m_edm(-1.),
 m_valPOI(0.),
 m_useMinos(false),
+m_varMinos(0),
 m_constPOI(false),
 m_fitResult(0),
 m_debug(false),
@@ -58,6 +59,7 @@ FittingTool::FittingTool( const FittingTool &q ){
     m_edm           = q.m_edm;
     m_valPOI        = q.m_valPOI;
     m_useMinos      = q.m_useMinos;
+    m_varMinos      = q.m_varMinos;
     m_constPOI      = q.m_constPOI;
     m_fitResult     = q.m_fitResult;
     m_debug         = q.m_debug;
@@ -238,7 +240,44 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
             m_edm = r->edm();
         }
         
-        if(m_useMinos) { minim.minos(); }
+
+	if(m_useMinos){
+	  TIterator* it3 = model->GetNuisanceParameters()->createIterator();
+	  TIterator* it4 = model->GetParametersOfInterest()->createIterator();
+	  RooArgSet* SliceNPs = new RooArgSet( *(model->GetNuisanceParameters()) );
+	  SliceNPs->add(*(model->GetParametersOfInterest()));
+	  RooRealVar* var = NULL;
+	  RooRealVar* var2 = NULL;
+	  std::cout << "Size of variables for MINOS: " << m_varMinos.size() << std::endl;
+	  
+	  if (m_varMinos.at(0)!="all"){
+	    while( (var = (RooRealVar*) it3->Next()) ){
+	      TString vname=var->GetName();
+	      bool isthere=false;
+	      for (unsigned int m=0;m<m_varMinos.size();++m){
+		//std::cout << "MINOS var: " << m_varMinos.at(m) << std::endl;
+		if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+		//cout << " --> NP: " << vname << endl;
+	      }
+	      if (!isthere) SliceNPs->remove(*var, true, true);
+	    }
+	    while( (var2 = (RooRealVar*) it4->Next()) ){
+	      TString vname=var2->GetName();
+	      bool isthere=false;
+	      for (unsigned int m=0;m<m_varMinos.size();++m){
+		//std::cout << "MINOS var: " << m_varMinos.at(m) << std::endl;
+		if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+		//cout << " --> POI: " << vname << endl;
+	      }
+	      if (!isthere) SliceNPs->remove(*var2, true, true);
+	    }
+
+	    minim.minos(*SliceNPs);
+	  }
+	  else
+	    minim.minos();
+	  
+	}//end useMinos
         
         FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>1.0);
         if ( FitIsNotGood ) nrItr++;

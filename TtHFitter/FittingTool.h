@@ -40,7 +40,7 @@ public:
     inline void ValPOI( const double value ) { m_valPOI = value; }
     inline double GetValPOI() { return m_valPOI; }
     
-    inline void UseMinos( const bool use ) { m_useMinos = use; }
+    //inline void UseMinos( const bool use ) { m_useMinos = use; }
     
     inline void ConstPOI( const bool constant ) { m_constPOI = constant; }
     inline double GetConstPOI() { return m_constPOI; }
@@ -51,6 +51,8 @@ public:
 
     inline void RangePOI_up( const double value){m_RangePOI_up = value;}
     inline void RangePOI_down( const double value){m_RangePOI_down = value;}
+
+    inline void UseMinos( const std::vector<std::string> minosvar){ m_useMinos = true; m_varMinos = minosvar; }
     
     //
     // Specific functions
@@ -65,6 +67,7 @@ private:
     double m_edm,m_valPOI;
     double m_RangePOI_up,m_RangePOI_down;
     bool m_useMinos,m_constPOI;
+    std::vector<std::string> m_varMinos;
     RooFitResult* m_fitResult;
     bool m_debug;
     

@@ -88,6 +88,7 @@ TtHFit::TtHFit(string name){
     fFitPOIAsimov = 0;
     fFitIsBlind = false;
     fVarNameLH.clear();
+    fVarNameMinos.clear();
     
     //
     // Limit type
@@ -621,6 +622,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
     }
     param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = Vectorize(param,','); };
+    
+    param = cs->Get("UseMinos"); if( param != "" ){ fVarNameMinos = Vectorize(param,','); };
     
     //##########################################################
     //
@@ -3121,6 +3124,11 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, std::vect
     } else if(fFitType==SPLUSB){
         fitTool -> ValPOI(1.);
         fitTool -> ConstPOI(false);
+    }
+
+    if(fVarNameMinos.size()>0){
+      std::cout << "Setting the variables to use MINOS with" << std::endl;
+      fitTool -> UseMinos(fVarNameMinos);
     }
     
     //
