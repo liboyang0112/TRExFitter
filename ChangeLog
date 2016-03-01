@@ -1,3 +1,7 @@
+2016-02-29 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Fixed bug when declaring overall syst in some regions only (by doing so, many changes in SummaryPlot and YieldTables - need some testers!!)
+        * Nominal histo smoothing option added (unders "Sample", once can specify "  Smooth: TRUE")
+        
 2016-02-23 Tamara Vazquez Schroeder <tamara.vazquez.schroeder@cern.ch>
         * Adding functionality to run MINOS over a specified set of parameters (UseMinos in config)
 

@@ -75,6 +75,7 @@ public:
     bool fUseSystematics;
     string fDivideBy;
     string fMultiplyBy;
+    bool fSmooth;
     
     // to read from ntuples
     string fSelection;

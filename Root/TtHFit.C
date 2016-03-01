@@ -255,8 +255,8 @@ void TtHFit::AddHistoPath(string path){
 //__________________________________________________________________________________
 // apply smoothing to systematics
 void TtHFit::SmoothSystematics(string syst){
-    cout << "-------------------------------------------" << endl;
-    cout << "Smoothing and/or Symmetrising Systematic Variations ..." << endl;
+    std::cout << "-------------------------------------------" << std::endl;
+    std::cout << "Smoothing and/or Symmetrising Systematic Variations ..." << std::endl;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
             fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(syst);
@@ -277,8 +277,8 @@ void TtHFit::WriteHistos(/*string fileName*/){
     //
     if(singleOutputFile){
         fileName = fName + "/Histograms/" + fName + "_histos"+fSuffix+".root";
-        cout << "-------------------------------------------" << endl;
-        cout << "Writing histograms to file " << fileName << " ..." << endl;
+        std::cout << "-------------------------------------------" << std::endl;
+        std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
         if(recreate){
             f = new TFile(fileName.c_str(),"RECREATE");
             f->~TFile();
@@ -291,8 +291,8 @@ void TtHFit::WriteHistos(/*string fileName*/){
         //
         if(!singleOutputFile){
             fileName = fName + "/Histograms/" + fName + "_" + fRegions[i_ch]->fName + "_histos"+fSuffix+".root";
-            cout << "-------------------------------------------" << endl;
-            cout << "Writing histograms to file " << fileName << " ..." << endl;
+            std::cout << "-------------------------------------------" << std::endl;
+            std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
             if(recreate){
                 f = new TFile(fileName.c_str(),"RECREATE");
                 f->~TFile();
@@ -303,7 +303,7 @@ void TtHFit::WriteHistos(/*string fileName*/){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
             if(h == 0x0){
-                if(TtHFitter::DEBUGLEVEL>0) cout << "SampleHist[" << i_smp << "] not there." << endl;
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "SampleHist[" << i_smp << "] not there." << std::endl;
                 continue;
             }
             // set file and histo names for nominal
@@ -325,7 +325,7 @@ void TtHFit::WriteHistos(/*string fileName*/){
             h->WriteToFile();
         }
     }
-    cout << "-------------------------------------------" << endl;
+    std::cout << "-------------------------------------------" << endl;
 }
 
 //__________________________________________________________________________________
@@ -365,6 +365,7 @@ void TtHFit::DrawSystPlotsSumSamples(){
     }
     for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
       if(fSamples[i_smp]->fType==Sample::DATA) h_dataCopy=(TH1*)fRegions[i_ch]->fSampleHists[i_smp]->fHist->Clone();
+      else if(fSamples[i_smp]->fType==Sample::GHOST) continue;
       else if(empty){
 	hist->CloneSampleHist(fRegions[i_ch]->fSampleHists[i_smp],systNames);
 	hist->fName = fRegions[i_ch]->fName + "_Combined";
@@ -741,7 +742,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
 		else reg -> fTransfoJpar3 = 5.;
 	      }
               else{
-                cout<<" ERROR: Unknown transformation: "<<vec_bins[1]<<", try again"<<endl;
+                std::cout<<" ERROR: Unknown transformation: "<<vec_bins[1]<<", try again" << std::endl;
                 exit(1);
               }
             }
@@ -904,6 +905,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         // divide and multiply by another sample
         smp->fDivideBy   = cs->Get("DivideBy");
         smp->fMultiplyBy = cs->Get("MultiplyBy");
+        // allow smoothing of nominal histogram?
+        param = cs->Get("Smooth");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "TRUE") smp->fSmooth = true;
+        }
         // ...
     }
     
@@ -1037,6 +1044,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
         // this to obtain syst variation relatively to given sample
         param = cs->Get("ReferenceSample"); if(param!="") sys->fReferenceSample = param;
+        param = cs->Get("DropShapeIn"); if(param!=""){
+            sys->fDropShapeIn = Vectorize(param,',');
+        }
+        //
         // save list of 
         if(regions[0]!="all") sys->fRegions = regions;
         if(exclude[0]!="")    sys->fExclude = exclude;
@@ -1044,8 +1055,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             sam = fSamples[i_smp];
             if(sam->fType == Sample::DATA) continue;
-//             if(sam->fType == Sample::GHOST) continue;
-//             cout << "  " << sam->fName << " -> " << sam->fUseSystematics << endl;
 	    if(!sam->fUseSystematics) continue;
             if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
                && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
@@ -1163,11 +1172,19 @@ void TtHFit::ReadNtuples(){
                         std::cout << " has a null/negative bin content (content = " << content << ") ! You should have a look at this !" << std::endl;
                         std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
                         h->SetBinContent(iBin,1e-06);
+//                         h->SetBinError(iBin,1e-03);  // adding also an uncertainty...
+                        h->SetBinError(iBin,1e-01);  // adding also an uncertainty...
                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
                     } else {
                         applyCorrection.insert( std::pair < int, bool > (iBin, false) );
                     }
                 }
+            }
+            
+            // Eventually smooth nominal histogram  (use with caution...)
+            TH1* h_correction = 0x0;
+            if(fSamples[i_smp]->fSmooth && !fRegions[i_ch]->fSkipSmoothing){
+                h_correction = SmoothHistogram( h );
             }
             
             //Importing the histogram in TtHFitter
@@ -1220,7 +1237,8 @@ void TtHFit::ReadNtuples(){
                 if(syst->fHasUpVariation){
                   
                     // Note: no need to change selection for systematics. If needed, can be done via weight (partially...)
-                    fullMCweight = fMCweight;
+                    fullMCweight = 1.;
+                    if(fSamples[i_smp]->fNormalizedByTheory)  fullMCweight = fMCweight;
                     if(syst->fWeightUp!="")
                         fullMCweight += " * "+syst->fWeightUp;
                     else
@@ -1235,6 +1253,7 @@ void TtHFit::ReadNtuples(){
                         ReplaceString(fullMCweight,"* *","*");
                         ReplaceString(fullMCweight,"**","*");
                     }
+                    if(TtHFitter::DEBUGLEVEL>0) cout << "  Syst Up full weight: " << fullMCweight << endl;
                     //
                     fullPaths.clear();
                     vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ), reg->fNtupleNameSuffs );
@@ -1316,7 +1335,8 @@ void TtHFit::ReadNtuples(){
                 if(syst->fHasDownVariation){
                     
                     // Note: no need to change selection for systematics. If needed, can be done via weight (partially...)
-                    fullMCweight = fMCweight;
+                    fullMCweight = 1.;
+                    if(fSamples[i_smp]->fNormalizedByTheory)  fullMCweight = fMCweight;
                     if(syst->fWeightDown!="")
                         fullMCweight += " * "+syst->fWeightDown;
                     else
@@ -1406,6 +1426,12 @@ void TtHFit::ReadNtuples(){
                     }
                 }
                 
+                // correct according to the sample nominal smoothing
+                if(h_correction!=0x0 && fSamples[i_smp]->fSmooth){
+                    if(hUp!=0x0  ) hUp  ->Multiply(h_correction);
+                    if(hDown!=0x0) hDown->Multiply(h_correction);
+                }
+                
                 if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 
@@ -1432,6 +1458,7 @@ void TtHFit::ReadNtuples(){
                                             sh /*systematic*/,
                                             fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
                                             TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
+                
             }
             // END SYST LOOP
             //
@@ -1533,6 +1560,7 @@ void TtHFit::ReadHistograms(){
                         std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
                         std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
                         h->SetBinContent(iBin,1e-06);
+                        h->SetBinError(iBin,1e-03);  // adding also an uncertainty...
                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
                     } else {
                         applyCorrection.insert( std::pair < int, bool > (iBin, false) );
@@ -1806,6 +1834,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 if(fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::OVERALL){
                     syh = sh->AddOverallSyst(systName,fSamples[i_smp]->fSystematics[i_syst]->fOverallUp,fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                    cout << "adding syst" <<syh->fSystematic->fName << endl;
                 }
                 // histo syst
                 else{
@@ -1888,7 +1917,6 @@ TthPlot* TtHFit::DrawSummary(string opt){
         }
     }
     if(regionVec.size()==0) return 0;
-    
     
     int Nbin = (int)regionVec.size();
     if(Nbin<=0) return 0x0;
@@ -2026,31 +2054,54 @@ TthPlot* TtHFit::DrawSummary(string opt){
     std::vector< TH1* > h_up;
     std::vector< TH1* > h_down;
     TH1* h_tmp_Up;
-    TH1* h_tmp_Down;
-    for(int i_syst=0;i_syst<(int)fRegions[0]->fSystNames.size();i_syst++){
+    TH1* h_tmp_Down;  
+    std::vector<string> systNames;
+    systNames.clear();
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        string systName = fSystematics[i_syst]->fName;
+        systNames.push_back( systName );
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
+            // find the systematic in the region
+            int syst_idx = -1;
+            for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
+                if(systName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
+                    syst_idx = j_syst;
+                }
+            }
+            //
             if(isPostFit){
-                h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[i_syst];
-                h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[i_syst];
+                if(syst_idx<0){
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit; 
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                }
+                else{
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx];
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx];
+                }
             }
             else{
-                h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[i_syst];
-                h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[i_syst];
+                if(syst_idx<0){
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot; 
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot;
+                }
+                else{
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx];
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx];
+                }
             }
             if(i_bin==1){
-                h_up.  push_back( new TH1F(Form("%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   Nbin,0,Nbin) );
-                h_down.push_back( new TH1F(Form("%s_TMP",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), Nbin,0,Nbin) );
+                h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,systName.c_str()), Form("h_Tot_%s_Up_TMP",  systName.c_str()), Nbin,0,Nbin) );
+                h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",systName.c_str()), Form("h_Tot_%s_Down_TMP",systName.c_str()), Nbin,0,Nbin) );
             }
             h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
-    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, fRegions[0]->fSystNames, fFitResults->fCorrMatrix );
-    else           g_err = BuildTotError( h_tot, h_up, h_down, fRegions[0]->fSystNames );
+    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, systNames, fFitResults->fCorrMatrix );
+    else           g_err = BuildTotError( h_tot, h_up, h_down, systNames );
     //
     p->SetTotBkg(h_tot);
     p->SetTotBkgAsym(g_err);
-    
     //
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
@@ -2102,38 +2153,44 @@ void TtHFit::BuildYieldTable(string opt){
     //
     double intErr; // to store the integral error
     TH1* h0; // to store varius histograms temporary
+    
+    //
+    // Building region - bin correspondence
+    //
+    std::vector<int> regionVec; regionVec.clear();
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+//         if(!checkVR && fRegions[i_ch]->fRegionType!=Region::VALIDATION){
+            regionVec.push_back(i_ch);
+//         } else if(checkVR && fRegions[i_ch]->fRegionType==Region::VALIDATION){
+//             regionVec.push_back(i_ch);
+//         }
+    }
+    if(regionVec.size()==0) return;   
+    int Nbin = regionVec.size();
     //
     out << " |       | ";
-    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-        out << fRegions[i_bin-1]->fLabel << " | ";
+    for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
+        out << fRegions[regionVec[i_bin-1]]->fLabel << " | ";
     }
     out << endl;
-    
-    
     texout << "\\documentclass[10pt]{article}" << endl;
     texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
     texout << "\\begin{document}" << endl;
     //texout << "\\small" << endl;
-    
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
     //texout << "\\begin{tabular}{|c|c|c|c|c|c|c|c|}" << endl;
     texout << "\\begin{tabular}{|c" ;
-    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+    for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
     texout << "|c";      
       }
     texout << "|}" << endl;
-
     texout << "\\hline " << endl;
-    
-    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-        texout << " & " << fRegions[i_bin-1]->fLabel ;
+    for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
+        texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
     }
-
-     texout << "\\\\" << endl;
-   
+    texout << "\\\\" << endl;
     texout << "\\hline " << endl;
-    
     //
     std::vector< string > titleVec;
     std::vector< int > idxVec;
@@ -2150,8 +2207,8 @@ void TtHFit::BuildYieldTable(string opt){
             idxVec.push_back(i_smp);
             h_smp[idxVec[i_smp]] = new TH1F(("h_"+name).c_str(),title.c_str(), fNRegions,0,fNRegions);
         }
-        for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-            sh = fRegions[i_bin-1]->GetSampleHist( name );
+        for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
+            sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
             if(sh!=0x0){
                 if(isPostFit && fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::GHOST)
 //                 if(isPostFit && fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fUseSystematics)
@@ -2179,38 +2236,78 @@ void TtHFit::BuildYieldTable(string opt){
         std::vector< TH1* > h_down; h_down.clear();
         TH1* h_tmp_Up;
         TH1* h_tmp_Down;
+        std::vector<string> systNames;
+        systNames.clear();
         for(int i_syst=0;i_syst<(int)fRegions[0]->fSystNames.size();i_syst++){
+            string systName = fSystematics[i_syst]->fName;
+            systNames.push_back( systName );
             for(int i_bin=1;i_bin<=fNRegions;i_bin++){
                 sh = fRegions[i_bin-1]->GetSampleHist( name );
+                //
+                // find the systematic in the region
+                int syst_idx = -1;
+                for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
+                    if(systName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
+                        syst_idx = j_syst;
+                    }
+                }
+                //
                 if(sh!=0x0){
                     if(isPostFit){
-                        h_tmp_Up   = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistUp_postFit;
-                        h_tmp_Down = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistDown_postFit;
-                    } else {
-                        h_tmp_Up   = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistUp;
-                        h_tmp_Down = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistDown;
-                    }
-                } else {
-                    h_tmp_Up   = new TH1F(Form("h_DUMMY_%s_up_%i",  fRegions[0]->fSystNames[i_syst].c_str(),i_bin-1),"h_dummy",1,0,1);
-                    h_tmp_Down = new TH1F(Form("h_DUMMY_%s_down_%i",fRegions[0]->fSystNames[i_syst].c_str(),i_bin-1),"h_dummy",1,0,1);
-                }
-                if(i_bin==1){
-                    h_up.  push_back( new TH1F(Form("%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
-                    h_down.push_back( new TH1F(Form("%s_TMP",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
-                }
-                h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-                h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
-                // eventually add any other samples with the same title
-                for(int j_smp=0;j_smp<fNSamples;j_smp++){
-                    sh = fRegions[i_bin-1]->GetSampleHist( fSamples[j_smp]->fName );
-                    if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
-                        if(isPostFit){
-                            h_tmp_Up   = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistUp_postFit;
-                            h_tmp_Down = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistDown_postFit;
+                        if(syst_idx<0){
+                            h_tmp_Up   = sh->fHist_postFit;
+                            h_tmp_Down = sh->fHist_postFit;
                         }
                         else{
-                            h_tmp_Up   = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistUp;
-                            h_tmp_Down = sh->GetSystematic(fRegions[0]->fSystNames[i_syst])->fHistDown;
+                            h_tmp_Up   = sh->GetSystematic(systName)->fHistUp_postFit;
+                            h_tmp_Down = sh->GetSystematic(systName)->fHistDown_postFit;
+                        }
+                    }
+                    else {
+                        if(syst_idx<0){
+                            h_tmp_Up   = sh->fHist;
+                            h_tmp_Down = sh->fHist;
+                        }
+                        else{
+                            h_tmp_Up   = sh->GetSystematic(systName)->fHistUp;
+                            h_tmp_Down = sh->GetSystematic(systName)->fHistDown;
+                        }
+                    }
+                }
+                else {
+                    h_tmp_Up   = new TH1F(Form("h_DUMMY_%s_up_%i",  systName.c_str(),i_bin-1),"h_dummy",1,0,1);
+                    h_tmp_Down = new TH1F(Form("h_DUMMY_%s_down_%i",systName.c_str(),i_bin-1),"h_dummy",1,0,1);
+                }
+                if(i_bin==1){
+                    h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()), Nbin,0,Nbin) );
+                    h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
+                }
+                h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
+                h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                //
+                // eventually add any other samples with the same title
+                for(int j_smp=0;j_smp<fNSamples;j_smp++){
+                    sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( fSamples[j_smp]->fName );
+                    if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
+                        if(isPostFit){
+                            if(syst_idx<0){
+                                h_tmp_Up   = sh->fHist_postFit;
+                                h_tmp_Down = sh->fHist_postFit;
+                            }
+                            else{
+                                h_tmp_Up   = sh->GetSystematic(systName)->fHistUp_postFit;
+                                h_tmp_Down = sh->GetSystematic(systName)->fHistDown_postFit;
+                            }
+                        }
+                        else{
+                            if(syst_idx<0){
+                                h_tmp_Up   = sh->fHist;
+                                h_tmp_Down = sh->fHist;
+                            }
+                            else{
+                                h_tmp_Up   = sh->GetSystematic(systName)->fHistUp;
+                                h_tmp_Down = sh->GetSystematic(systName)->fHistDown;
+                            }
                         }
                         h_up[i_syst]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
                         h_down[i_syst]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
@@ -2220,8 +2317,8 @@ void TtHFit::BuildYieldTable(string opt){
         }
         //
         //
-        if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, fRegions[0]->fSystNames, fFitResults->fCorrMatrix );
-        else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, fRegions[0]->fSystNames );
+        if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, systNames, fFitResults->fCorrMatrix );
+        else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, systNames );
     }
     
     //
@@ -2254,13 +2351,12 @@ void TtHFit::BuildYieldTable(string opt){
     //
     // Build tot
     //
-    h_tot = new TH1F("h_Tot_","h_Tot", fNRegions,0,fNRegions);
-    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot_postFit->IntegralAndError(1,fRegions[i_bin-1]->fTot_postFit->GetNbinsX(),intErr) );
-        else          h_tot->SetBinContent( i_bin,fRegions[i_bin-1]->fTot->IntegralAndError(        1,fRegions[i_bin-1]->fTot->GetNbinsX(),        intErr) );
+    h_tot = new TH1F("h_Tot_","h_Tot", Nbin,0,Nbin);
+    for(int i_bin=1;i_bin<=Nbin;i_bin++){
+        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot_postFit->IntegralAndError(1,fRegions[regionVec[i_bin-1]]->fTot_postFit->GetNbinsX(),intErr) );
+        else          h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot->IntegralAndError(        1,fRegions[regionVec[i_bin-1]]->fTot->GetNbinsX(),        intErr) );
         h_tot->SetBinError( i_bin, intErr );
     }
-    
     
     //
     //   Build error band
@@ -2268,27 +2364,51 @@ void TtHFit::BuildYieldTable(string opt){
     std::vector< TH1* > h_up;
     std::vector< TH1* > h_down;
     TH1* h_tmp_Up;
-    TH1* h_tmp_Down;
-    for(int i_syst=0;i_syst<(int)fRegions[0]->fSystNames.size();i_syst++){
-        for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+    TH1* h_tmp_Down;  
+    std::vector<string> systNames;
+    systNames.clear();
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        string systName = fSystematics[i_syst]->fName;
+        systNames.push_back( systName );
+        for(int i_bin=1;i_bin<=Nbin;i_bin++){
+            // find the systematic in the region
+            int syst_idx = -1;
+            for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
+                if(systName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
+                    syst_idx = j_syst;
+                }
+            }
+            //
             if(isPostFit){
-                h_tmp_Up   = fRegions[i_bin-1]->fTotUp_postFit[i_syst];
-                h_tmp_Down = fRegions[i_bin-1]->fTotDown_postFit[i_syst];
+                if(syst_idx<0){
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit; 
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                }
+                else{
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx];
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx];
+                }
             }
             else{
-                h_tmp_Up   = fRegions[i_bin-1]->fTotUp[i_syst];
-                h_tmp_Down = fRegions[i_bin-1]->fTotDown[i_syst];
+                if(syst_idx<0){
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot; 
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot;
+                }
+                else{
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx];
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx];
+                }
             }
             if(i_bin==1){
-                h_up.  push_back( new TH1F(Form("h_%s_TMP",h_tmp_Up->GetName()),  h_tmp_Up->GetTitle(),   fNRegions,0,fNRegions) );
-                h_down.push_back( new TH1F(Form("h_%s_TMP",h_tmp_Down->GetName()),h_tmp_Down->GetTitle(), fNRegions,0,fNRegions) );
+                h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,systName.c_str()), Form("h_Tot_%s_Up_TMP",  systName.c_str()), Nbin,0,Nbin) );
+                h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",systName.c_str()), Form("h_Tot_%s_Down_TMP",systName.c_str()), Nbin,0,Nbin) );
             }
-            h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-            h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+            h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+            h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
-    if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, fRegions[0]->fSystNames, fFitResults->fCorrMatrix );
-    else           g_err_tot = BuildTotError( h_tot, h_up, h_down, fRegions[0]->fSystNames );
+    if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames, fFitResults->fCorrMatrix );
+    else           g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames );
     //
     out << " | Total | ";
     texout << "  Total ";
@@ -2712,9 +2832,10 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                         if(TtHFitter::DEBUGLEVEL>0){
                             cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
                         }
-                        
                         if(
-                          (fThresholdSystPruning_Normalisation>-1 && (TMath::Abs(h->fSyst[i_syst]->fNormUp)>fThresholdSystPruning_Normalisation || TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation)) ||
+                          ( fThresholdSystPruning_Normalisation>-1 && 
+                             ( TMath::Abs(h->fSyst[i_syst]->fNormUp)>fThresholdSystPruning_Normalisation || 
+                               TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation) ) ||
                             (fThresholdSystPruning_Normalisation==-1)
                           ){
                             sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
@@ -2722,10 +2843,17 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                                 1+h->fSyst[i_syst]->fNormUp   );
                         }
                         // eventually add shape part
-                        if( h->fSyst[i_syst]->fIsShape && (fThresholdSystPruning_Shape==-1 || HistoTools::HasShape(h->fHist, h->fSyst[i_syst],fThresholdSystPruning_Shape) ) ){
-                            sample.AddHistoSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
-                                              h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning, h->fSyst[i_syst]->fFileNameShapeDown, "",
-                                              h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
+                        if( h->fSyst[i_syst]->fIsShape ){
+                            bool hasShape = true;
+                            if( FindInStringVector( h->fSyst[i_syst]->fSystematic->fDropShapeIn, fRegions[i_ch]->fName )>=0  ) hasShape = false;
+                            if( FindInStringVector( h->fSyst[i_syst]->fSystematic->fDropShapeIn, fSamples[i_smp]->fName )>=0 ) hasShape = false;
+                            if( fThresholdSystPruning_Shape!=-1 && !HistoTools::HasShape(h->fHist, h->fSyst[i_syst],fThresholdSystPruning_Shape) )
+                                hasShape = false;
+                            if(hasShape){
+                                sample.AddHistoSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
+                                                  h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning, h->fSyst[i_syst]->fFileNameShapeDown, "",
+                                                  h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
+                            }
                         }
                     }
                 }
@@ -2785,9 +2913,21 @@ void TtHFit::DrawPruningPlot(){
                         if(sh->HasSyst(fSystematics[i_syst]->fName)){
                             histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 0 );
                             // set to 1 if shape pruned away
+//                             SystematicHist *ss = sh->GetSystematic(fSystematics[i_syst]->fName);
+//                             bool hasShape = true;
+//                             if( !ss->fIsShape ) hasShape = false;
+//                             if( FindInStringVector( ss->fSystematic->fDropShapeIn, fRegions[i_reg]->fName )>=0  ) hasShape = false;
+//                             if( FindInStringVector( ss->fSystematic->fDropShapeIn, samplesVec[i_smp]->fName )>=0 ) hasShape = false; 
+//                             if( fThresholdSystPruning_Shape!=-1 
+//                               && !HistoTools::HasShape(sh->fHist, sh->GetSystematic(fSystematics[i_syst]->fName),fThresholdSystPruning_Shape) )
+//                                 hasShape = false;
+//                             if(!hasShape){
                             if(sh->GetSystematic(fSystematics[i_syst]->fName)->fIsShape && 
                                fThresholdSystPruning_Shape>-1 && 
-                               !HistoTools::HasShape(sh->fHist, sh->GetSystematic(fSystematics[i_syst]->fName),fThresholdSystPruning_Shape)
+                               ( !HistoTools::HasShape(sh->fHist, sh->GetSystematic(fSystematics[i_syst]->fName),fThresholdSystPruning_Shape)
+                               || FindInStringVector( fSystematics[i_syst]->fDropShapeIn, fRegions[i_reg]->fName )>=0
+                               || FindInStringVector( fSystematics[i_syst]->fDropShapeIn, samplesVec[i_smp]->fName )>=0
+                               )
                               ){
                                 histPrun[iReg]->AddBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
                             }
@@ -3423,8 +3563,8 @@ void TtHFit::GetSignificance(){
 //__________________________________________________________________________________
 //
 void TtHFit::ReadFitResults(string fileName){
-    cout << "------------------------------------------------------" << endl;
-    cout << "Reading fit results from file " << fileName << endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    std::cout << "Reading fit results from file " << fileName << std::endl;
     fFitResults = new FitResults();
     if(fileName.find(".txt")!=string::npos){
         fFitResults->ReadFromTXT(fileName);
@@ -3445,20 +3585,20 @@ void TtHFit::ReadFitResults(string fileName){
 //__________________________________________________________________________________
 //
 void TtHFit::Print(){
-    cout << endl;
-    cout << "-------------------------------------------" << endl;
-    cout << "  TtHFit: " << fName << endl;
-    cout << "      NtuplePaths ="; for(int i=0;i<(int)fNtuplePaths.size();i++) cout << " " << fNtuplePaths[i] << endl;
-    cout << "      NtupleName  =";   cout << " " << fNtupleName << endl;
-    cout << "      MCweight    =";   cout << " " << fMCweight << endl;
-    cout << "      Selection   =";   cout << " " << fSelection << endl;
-    cout << "      HistoPaths  ="; for(int i=0;i<(int)fHistoPaths.size();i++) cout << " " << fHistoPaths[i] << endl;
-    cout << "      HistoName   =";   cout << " " << fHistoName << endl;
+    std::cout << endl;
+    std::cout << "-------------------------------------------" << endl;
+    std::cout << "  TtHFit: " << fName << endl;
+    std::cout << "      NtuplePaths ="; for(int i=0;i<(int)fNtuplePaths.size();i++) std::cout << " " << fNtuplePaths[i] << std::endl;
+    std::cout << "      NtupleName  =";   std::cout << " " << fNtupleName << std::endl;
+    std::cout << "      MCweight    =";   std::cout << " " << fMCweight   << std::endl;
+    std::cout << "      Selection   =";   std::cout << " " << fSelection  << std::endl;
+    std::cout << "      HistoPaths  ="; for(int i=0;i<(int)fHistoPaths.size();i++) std::cout << " " << fHistoPaths[i] << std::endl;
+    std::cout << "      HistoName   =";   std::cout << " " << fHistoName << endl;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->Print();
     }
-    cout << endl;
-    cout << "-------------------------------------------" << endl;
+    std::cout << endl;
+    std::cout << "-------------------------------------------" << std::endl;
 }
 
 //__________________________________________________________________________________
@@ -3482,7 +3622,7 @@ Sample* TtHFit::GetSample(string name){
 //__________________________________________________________________________________
 //
 void TtHFit::DrawAndSaveSeparationPlots(){
-    cout << "In DrawAndSaveSeparationPlots:" << endl; 
+//     std::cout << "In DrawAndSaveSeparationPlots:" << endl; 
  
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
@@ -3810,7 +3950,7 @@ void TtHFit::PlotNPRanking(){
     }
 
     unsigned int SIZE = parname.size();
-    if(TtHFitter::DEBUGLEVEL>0) cout << "NP ordering..." << endl;
+    if(TtHFitter::DEBUGLEVEL>0) std::cout << "NP ordering..." << std::endl;
     number.push_back(0.5);
     for (unsigned int i=1;i<SIZE;i++){
         number.push_back(i+0.5);
@@ -4217,7 +4357,7 @@ void TtHFit::ComputeBining(int regIter){
   bins_vec.clear();
 
   if (!hbkg || !hsig) {
-    cout << "ERROR: please provide signal and background histograms!" << endl;
+    std::cout << "ERROR: please provide signal and background histograms!" << std::endl;
     gSystem -> Exit(1);
   }
   int iBin2 = 0;
@@ -4296,7 +4436,7 @@ void TtHFit::ComputeBining(int regIter){
 	}
       }
       else{
-        cout << "ERROR: transformation method '" << fRegions[regIter]->fBinTransfo << "' unknown, try again!" << endl;
+        std::cout << "ERROR: transformation method '" << fRegions[regIter]->fBinTransfo << "' unknown, try again!" << std::endl;
         exit(1);
       }
       if (!(pass && dist > distPrev)) {

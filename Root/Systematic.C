@@ -59,6 +59,7 @@ Systematic::Systematic(string name,int type,float up,float down){
     //
     fRegions.clear();
     fExclude.clear();
+    fDropShapeIn.clear();
 }
 
 //_____________________________________________________________________________

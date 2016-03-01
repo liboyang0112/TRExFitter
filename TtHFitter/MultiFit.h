@@ -21,6 +21,10 @@ public:
     std::vector< string > fFitLabels;
     std::vector< string > fFitSuffs;
     
+    bool fCompareLimits;
+    bool fComparePOI;
+    bool fComparePulls;
+    
     string fName;
     string fLabel;
     bool fShowObserved;

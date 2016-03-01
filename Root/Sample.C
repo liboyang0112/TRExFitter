@@ -22,6 +22,7 @@ Sample::Sample(string name,int type){
     fUseSystematics = true;
     fDivideBy = "";
     fMultiplyBy = "";
+    fSmooth = false;
     //
     // ntuples
     fSelection = "1";

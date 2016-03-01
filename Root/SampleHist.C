@@ -24,7 +24,8 @@ SampleHist::SampleHist(){
     fRegionLabel = "Region";
     fVariableTitle = "Variable";
     fSystSmoothed = false;
-
+    //
+    fSyst.clear();
 }
 
 //_____________________________________________________________________________
@@ -50,10 +51,10 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
     fVariableTitle = "Variable";
     fSystSmoothed = false;
     // add overall systematics and normFactors from sample
-    for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
-        if(sample->fSystematics[i_syst]->fType == Systematic::OVERALL)
-            AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
-    }
+//     for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
+//         if(sample->fSystematics[i_syst]->fType == Systematic::OVERALL)
+//             AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
+//     }
     for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
         AddNormFactor(sample->fNormFactors[i_norm]);
     }
@@ -77,10 +78,10 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
     fVariableTitle = "Variable";
     fSystSmoothed = false;
     // add overall systematics and normFactors from sample
-    for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
-        if(sample->fSystematics[i_syst]->fType == Systematic::OVERALL)
-            AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
-    }
+//     for(int i_syst=0;i_syst<sample->fNSyst;i_syst++){
+//         if(sample->fSystematics[i_syst]->fType == Systematic::OVERALL)
+//             AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
+//     }
     for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
         AddNormFactor(sample->fNormFactors[i_norm]);
     }
@@ -589,6 +590,26 @@ void SampleHist::SmoothSyst(string syst,bool force){
                                             fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown,//original histograms
                                             h_syst_up, h_syst_down //modified histograms
                                          );
+        }
+        
+        //
+        // keep the variation below 100% in each bin, if the option Smooth is set for the sample
+        //
+        if(fSample->fSmooth){
+            if(h_syst_up!=0x0){
+                for(unsigned int iBin = 1; iBin <= h_syst_up  ->GetNbinsX(); ++iBin ){
+                    float relDiff = (h_syst_up->GetBinContent(iBin) - h_nominal->GetBinContent(iBin))/ h_nominal->GetBinContent(iBin);
+                    if(relDiff>=1. ) h_syst_up->SetBinContent(iBin, (1.+0.99)*h_nominal->GetBinContent(iBin) );
+                    if(relDiff<=-1.) h_syst_up->SetBinContent(iBin, (1.-0.99)*h_nominal->GetBinContent(iBin) );
+                }
+            }
+            if(h_syst_down!=0x0){
+                for(unsigned int iBin = 1; iBin <= h_syst_down  ->GetNbinsX(); ++iBin ){
+                    float relDiff = (h_syst_down->GetBinContent(iBin) - h_nominal->GetBinContent(iBin))/ h_nominal->GetBinContent(iBin);
+                    if(relDiff>=1. ) h_syst_down->SetBinContent(iBin, (1.+0.99)*h_nominal->GetBinContent(iBin) );
+                    if(relDiff<=-1.) h_syst_down->SetBinContent(iBin, (1.-0.99)*h_nominal->GetBinContent(iBin) );
+                }
+            }
         }
         
         //

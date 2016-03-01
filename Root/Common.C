@@ -283,3 +283,63 @@ double convertStoD(string toConvert){
   }
   return converted;
 }
+
+//__________________________________________________________________________________
+// to smooth a nominal histogram, taking into account the statistical uncertinaty on each bin (note: no empty bins, please!!)
+TH1F* SmoothHistogram( TH1* h ){
+    int nbinsx = h->GetNbinsX();
+    float xmin = h->GetBinLowEdge(1);
+    float xmax = h->GetBinLowEdge(nbinsx)+h->GetBinWidth(nbinsx);
+    float integral = h->Integral();
+    TH1* h_orig = (TH1*)h->Clone("h_orig");
+    //
+    // if not flat, go on with the smoothing
+    TH1* h0;
+    int Nmax = 5;
+    for(int i=0;i<Nmax;i++){
+//         cout << "SMOOTH " << i << endl;
+        h0 = (TH1*)h->Clone("h0");
+        h->Smooth();
+        bool changesApplied = false;
+        for(int i_bin=1;i_bin<=nbinsx;i_bin++){
+//             if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > h0->GetBinError(i_bin) ){
+            if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > 2*h0->GetBinError(i_bin) ){
+                h->SetBinContent(i_bin,h0->GetBinContent(i_bin));
+                h->SetBinError(i_bin,h0->GetBinError(i_bin));
+            }
+            else{
+                changesApplied = true;
+            }
+        }
+        if(!changesApplied) break;
+        h0->~TH1();
+    }
+    //
+    // try to see if it's consistent with being flat
+    TF1 *f_fit = new TF1("f_fit","[0]+0*x",xmin,xmax);
+    h->Fit("f_fit","R0Q");
+    float p0 = f_fit->GetParameter(0);
+    float p0err = f_fit->GetParError(0);
+    bool isFlat = true;
+    for(int i_bin=1;i_bin<=nbinsx;i_bin++){
+        if( TMath::Abs(h->GetBinContent(i_bin)-p0) > h->GetBinError(i_bin) )
+//         if( TMath::Abs(h->GetBinContent(i_bin)-p0) > 2*h->GetBinError(i_bin) )
+            isFlat = false;
+    }
+    if(isFlat){
+        for(int i_bin=1;i_bin<=nbinsx;i_bin++){
+            h->SetBinContent(i_bin,p0);
+//             h->SetBinError(i_bin,p0err);  // this creates problems...
+            h->SetBinError(i_bin,p0);
+        }
+//         cout << "IS FLAT" << endl;
+    }
+    //
+    // make sure you didn't change the integral
+    h->Scale(integral/h->Integral());
+    //
+    TH1F* h_corr = (TH1F*)h->Clone("h_correction");
+    h_corr->Divide( h_orig );
+    return h_corr;
+}
+

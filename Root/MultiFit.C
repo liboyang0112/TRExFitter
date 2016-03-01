@@ -17,6 +17,10 @@ MultiFit::MultiFit(string name){
     fConfig = new ConfigParser();
     fSaveSuf = "";
     fFitShowObserved.clear();
+    //
+    fCompareLimits = true;
+    fComparePOI    = true;
+    fComparePulls  = true;
 }
 
 //__________________________________________________________________________________
@@ -48,6 +52,9 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("ShowObserved");   if( param != "" && param != "FALSE") fShowObserved = true;
     param = cs->Get("LimitTitle"); if( param != "") fLimitTitle = param;
     if(fLimitTitle.find("95CL")!=string::npos) fLimitTitle.replace(fLimitTitle.find("95CL"),4,"95% CL");
+    param = cs->Get("CompareLimits"); if( param != "" && param != "TRUE")  fCompareLimits = false;
+    param = cs->Get("ComparePOI");    if( param != "" && param != "TRUE")  fComparePOI    = false;
+    param = cs->Get("ComparePulls");  if( param != "" && param != "TRUE")  fComparePulls  = false;
     
     //
     // fits

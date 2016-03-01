@@ -28,9 +28,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     if(isMultiFit){
         MultiFit *myMultiFit = new MultiFit();
         myMultiFit->ReadConfigFile(configFile,options);
-        myMultiFit->ComparePulls();
-        myMultiFit->ComparePOI("SigXsecOverSM");
-        myMultiFit->CompareLimit();
+        if(myMultiFit->fComparePulls)  myMultiFit->ComparePulls();
+        if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI("SigXsecOverSM");
+        if(myMultiFit->fCompareLimits) myMultiFit->CompareLimit();
         return;
     }
     

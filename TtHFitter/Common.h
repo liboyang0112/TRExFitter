@@ -35,6 +35,7 @@
 #include "TStyle.h"
 #include "TSystem.h"
 #include "TTree.h"
+#include "TF1.h"
 
 // RooStats stuff
 #include "RooStats/HistFactory/Measurement.h"
@@ -92,5 +93,7 @@ double GetSeparation( TH1F* S1, TH1F* B1 );
 
 TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
 double convertStoD(string toConvert);
+
+TH1F* SmoothHistogram( TH1* h );
 
 #endif
