@@ -546,7 +546,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             //
             // Get fit result
             //
-            systName = fSystNames[i_syst];
+            systName    = fSystNames[i_syst];
             systValue   = fitRes->GetNuisParValue(systName);
             systErrUp   = fitRes->GetNuisParErrUp(systName);
             systErrDown = fitRes->GetNuisParErrDown(systName);
@@ -560,8 +560,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             
             // hack: add a systematic hist if not there... FIXME
             if(sh==0x0){
-              fSampleHists[i]->AddHistoSyst(systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
-              sh = fSampleHists[i]->GetSystematic(systName);
+                fSampleHists[i]->AddHistoSyst(systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
+                sh = fSampleHists[i]->GetSystematic(systName);
             }
             
             //

@@ -1,6 +1,7 @@
 2016-03-03 Michele Pinamonti <michele.pinamonti@gmail.com>
         * MCstatThreshold default changed: now by default all gamma's are kept. To remove them completely (former default) use "MCstatThreshold: NONE" (reommended will be "MCstatThreshold: 0.01")
         * Fix for fit and tables with systematics defined in certain regions only
+        * Fix plots when more samples with same title are declared (now summed together correctly)
         
 2016-02-29 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Fixed bug when declaring overall syst in some regions only (by doing so, many changes in SummaryPlot and YieldTables - need some testers!!)

@@ -145,8 +145,12 @@ void TthPlot::SetData(TH1* h,string name){
 //
 void TthPlot::AddSignal(TH1* h,string name){
     // if already there...
-    if(std::find(fSigNames.begin(),fSigNames.end(),name)!=fSigNames.end()){
-        h_signal[fSigNames.size()-1]->Add(h,fLumiScale);
+//     if(std::find(fSigNames.begin(),fSigNames.end(),name)!=fSigNames.end()){
+//         h_signal[fSigNames.size()-1]->Add(h,fLumiScale);
+//     }
+    int idx = std::find(fSigNames.begin(),fSigNames.end(),name) - fSigNames.begin();
+    if(idx<fSigNames.size()){
+        h_signal[idx]->Add(h,fLumiScale);
     }
     else{
         h_signal[fSigNames.size()] = (TH1*)h->Clone();
@@ -159,8 +163,12 @@ void TthPlot::AddSignal(TH1* h,string name){
 //
 void TthPlot::AddNormSignal(TH1* h,string name){
     // if already there...
-    if(std::find(fNormSigNames.begin(),fNormSigNames.end(),name)!=fNormSigNames.end()){
-        h_normsig[fNormSigNames.size()-1]->Add(h,fLumiScale);
+//     if(std::find(fNormSigNames.begin(),fNormSigNames.end(),name)!=fNormSigNames.end()){
+//         h_normsig[fNormSigNames.size()-1]->Add(h,fLumiScale);
+//     }
+    int idx = std::find(fNormSigNames.begin(),fNormSigNames.end(),name) - fNormSigNames.begin();
+    if(idx<fNormSigNames.size()){
+        h_normsig[idx]->Add(h,fLumiScale);
     }
     else{
         h_normsig[fNormSigNames.size()] = (TH1*)h->Clone();
@@ -173,8 +181,12 @@ void TthPlot::AddNormSignal(TH1* h,string name){
 //
 void TthPlot::AddOverSignal(TH1* h,string name){
     // if already there...
-    if(std::find(fOverSigNames.begin(),fOverSigNames.end(),name)!=fOverSigNames.end()){
-        h_oversig[fOverSigNames.size()-1]->Add(h,fLumiScale);
+//     if(std::find(fOverSigNames.begin(),fOverSigNames.end(),name)!=fOverSigNames.end()){
+//         h_oversig[fOverSigNames.size()-1]->Add(h,fLumiScale);
+//     }
+    int idx = std::find(fOverSigNames.begin(),fOverSigNames.end(),name) - fOverSigNames.begin();
+    if(idx<fOverSigNames.size()){
+        h_oversig[idx]->Add(h,fLumiScale);
     }
     else{
         h_oversig[fOverSigNames.size()] = (TH1*)h->Clone();
@@ -189,8 +201,23 @@ void TthPlot::AddBackground(TH1* h,string name){
     if(h_tot==0x0) h_tot = (TH1*)h->Clone();
     else h_tot->Add(h);
     // if already there...
-    if(std::find(fBkgNames.begin(),fBkgNames.end(),name)!=fBkgNames.end()){
-        h_bkg[fBkgNames.size()-1]->Add(h,fLumiScale);
+//     if(std::find(fBkgNames.begin(),fBkgNames.end(),name)!=fBkgNames.end()){
+//         h_bkg[fBkgNames.size()-1]->Add(h,fLumiScale);
+//     }
+//     int idx = -1;
+//     for(int i=0;i<(int)fBkgNames.size();i++){
+//         if(name==fBkgNames.at(ih)){
+//             idx = i;
+//             break;
+//         }
+//     }
+//     if(idx>=0){
+//         h_bkg[idx]->Add(h,fLumiScale);
+//     }
+    //
+    int idx = std::find(fBkgNames.begin(),fBkgNames.end(),name) - fBkgNames.begin();
+    if(idx<fBkgNames.size()){
+        h_bkg[idx]->Add(h,fLumiScale);
     }
     else{
         h_bkg[fBkgNames.size()] = (TH1*)h->Clone();
@@ -476,7 +503,8 @@ void TthPlot::Draw(string options){
         leg->SetNColumns(2);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
-        leg->SetTextAlign(32);
+        if(TtHFitter::LEGENDLEFT) leg->SetTextAlign(31);
+        else                      leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
         leg->SetTextSize(gStyle->GetTextSize()*0.9);
         leg->SetMargin(0.22);
