@@ -27,6 +27,7 @@ public:
     int fSmoothType;
     int fSymmetrisationType;
     string fReferenceSample;
+    bool fKeepReferenceOverallVar;
       
     float fOverallUp;
     float fOverallDown;

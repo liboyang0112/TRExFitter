@@ -253,15 +253,11 @@ void Region::BuildPreFitErrorHist(){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
             }
-//             syst = sample->GetSystematic(systName);
-//             systNuisPar = syst->fNuisanceParameter;
-            cout << systName << " -> " << fSampleHists[i]->fSyst[i_syst]->fSystematic << endl;
             if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0)
                 systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
             if(FindInStringVector(fNpNames,systNuisPar)<0){
                 fNpNames.push_back(systNuisPar);
             }
-            cout << systName << ": " << systNuisPar << endl;
         }
     }
     
@@ -366,9 +362,6 @@ void Region::BuildPreFitErrorHist(){
         for(int j_syst=0;j_syst<i_syst;j_syst++){
             if(TtHFitter::NPMAP[fSystNames[i_syst]]==TtHFitter::NPMAP[fSystNames[j_syst]]){
                 found = true;
-                cout << fSystNames[i_syst] << endl;
-                cout << TtHFitter::NPMAP[fSystNames[i_syst]] << endl;
-                cout << FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) << endl;
                 h_up[   FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotUp[  i_syst]);
                 h_down[ FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotDown[i_syst]);
                 break;

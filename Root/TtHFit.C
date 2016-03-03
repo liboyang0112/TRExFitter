@@ -78,6 +78,9 @@ TtHFit::TtHFit(string name){
     fStatOnly = false;
     fSystDataPlot_upFrame = false;
     
+    fSummaryPlotRegions.clear();
+    fSummaryPlotLabels.clear();
+    
     //
     // Fit caracteristics
     //
@@ -504,8 +507,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("SystPruningNorm");   if( param != "")  fThresholdSystPruning_Normalisation = atof(param.c_str());
     param = cs->Get("IntCodeOverall");    if( param != "")  fIntCode_overall  = atoi(param.c_str());
     param = cs->Get("IntCodeShape");      if( param != "")  fIntCode_shape    = atoi(param.c_str());
-    param = cs->Get("MCstatThreshold");   if( param != "")  SetStatErrorConfig( true,  atof(param.c_str()) );
-                                          else              SetStatErrorConfig( false, 0.0 );
+    param = cs->Get("MCstatThreshold");   if( param != ""){
+        if(param=="NONE" || param=="None" || param=="none")  SetStatErrorConfig( false, 0. );
+        else                                                 SetStatErrorConfig( true,  atof(param.c_str()) );
+    }
+    else{
+//         SetStatErrorConfig( false, 0.0 );
+        SetStatErrorConfig( true, 0. );  // !! stat config default chenged !!
+    }
     param = cs->Get("DebugLevel");        if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
     param = cs->Get("PlotOptions");       if( param != ""){
         vec = Vectorize(param,',');
@@ -539,6 +548,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("SignalRegionsPlot");  if(param != ""){
         fRegionsToPlot = Vectorize(param,',');
+    }
+    param = cs->Get("SummaryPlotRegions");  if(param != ""){
+        fSummaryPlotRegions = Vectorize(param,',');
+    }
+    param = cs->Get("SummaryPlotLabels");  if(param != ""){
+        fSummaryPlotLabels = Vectorize(param,',');
     }
     param = cs->Get("HistoChecks");  if(param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -1044,6 +1059,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
         // this to obtain syst variation relatively to given sample
         param = cs->Get("ReferenceSample"); if(param!="") sys->fReferenceSample = param;
+        param = cs->Get("KeepReferenceOverallVar");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "FALSE") sys->fKeepReferenceOverallVar = false;
+            if(param == "TRUE" ) sys->fKeepReferenceOverallVar = true;
+        }
         param = cs->Get("DropShapeIn"); if(param!=""){
             sys->fDropShapeIn = Vectorize(param,',');
         }
@@ -1253,7 +1274,7 @@ void TtHFit::ReadNtuples(){
                         ReplaceString(fullMCweight,"* *","*");
                         ReplaceString(fullMCweight,"**","*");
                     }
-                    if(TtHFitter::DEBUGLEVEL>0) cout << "  Syst Up full weight: " << fullMCweight << endl;
+                    if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Syst Up full weight: " << fullMCweight << std::endl;
                     //
                     fullPaths.clear();
                     vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ), reg->fNtupleNameSuffs );
@@ -1316,7 +1337,7 @@ void TtHFit::ReadNtuples(){
                             htmp->Divide(   href );
                             htmp->Multiply( hnom );
                             float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                            if( TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) htmp->Scale( relVar / newVar );
+                            if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) htmp->Scale( relVar / newVar );
                         }
                         
                         //Importing histogram in TtHFitter
@@ -1413,7 +1434,7 @@ void TtHFit::ReadNtuples(){
                             htmp->Divide(   href );
                             htmp->Multiply( hnom );
                             float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                            if( TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
+                            if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
                         }
                         
                         //Importing histogram in TtHFitter
@@ -1495,7 +1516,7 @@ void TtHFit::ReadHistograms(){
       if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch); 
 
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
-            if(TtHFitter::DEBUGLEVEL>0) cout << "Reading " << fSamples[i_smp]->fName << endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Reading " << fSamples[i_smp]->fName << std::endl;
             // 
             // eventually skip sample / region combination
             //
@@ -1587,7 +1608,7 @@ void TtHFit::ReadHistograms(){
                 if( fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                if(TtHFitter::DEBUGLEVEL>0) cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << std::endl;
                 //
                 Region *reg = fRegions[i_ch];
                 Sample *smp = fSamples[i_smp];
@@ -1655,7 +1676,7 @@ void TtHFit::ReadHistograms(){
                                 htmp->Divide(   href );
                                 htmp->Multiply( hnom );
                                 float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                                if( TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
+                                if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
                             }
                             
                             //Importing histogram in TtHFitter
@@ -1733,7 +1754,7 @@ void TtHFit::ReadHistograms(){
                                 htmp->Divide(   href );
                                 htmp->Multiply( hnom );
                                 float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                                if( TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
+                                if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
                             }
                             
                             //Importing histogram in TtHFitter
@@ -1797,18 +1818,18 @@ void TtHFit::ReadHistos(/*string fileName*/){
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
     if(singleOutputFile){
         fileName = fName + "/Histograms/" + fName + "_histos.root";
-        cout << "-----------------------------" << endl;
-        cout << "Reading histograms from file " << fileName << " ..." << endl;
+        std::cout << "-----------------------------" << std::endl;
+        std::cout << "Reading histograms from file " << fileName << " ..." << std::endl;
     }
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         regionName = fRegions[i_ch]->fName;
-        if(TtHFitter::DEBUGLEVEL>0) cout << "  Reading region " << regionName << endl;
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading region " << regionName << std::endl;
         //
         if(!singleOutputFile){
             fileName = fName + "/Histograms/" + fName + "_" + regionName + "_histos.root";
-            cout << "-----------------------------" << endl;
-            cout << "Reading histograms from file " << fileName << " ..." << endl;
+            std::cout << "-----------------------------" << std::endl;
+            std::cout << "Reading histograms from file " << fileName << " ..." << std::endl;
         }
         //
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -1818,7 +1839,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
             if( FindInStringVector(fSamples[i_smp]->fRegions,regionName)<0 ) continue;
             //
             sampleName = fSamples[i_smp]->fName;
-            if(TtHFitter::DEBUGLEVEL>0) cout << "    Reading sample " << sampleName << endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "    Reading sample " << sampleName << std::endl;
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp],regionName+"_"+sampleName,fileName);
             sh = fRegions[i_ch]->GetSampleHist(sampleName);
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){                
@@ -1829,12 +1850,11 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
                 systName = fSamples[i_smp]->fSystematics[i_syst]->fName;
-                if(TtHFitter::DEBUGLEVEL>0) cout << "      Reading syst " << systName << endl;
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "      Reading syst " << systName << std::endl;
                 // norm only
                 if(fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::OVERALL){
                     syh = sh->AddOverallSyst(systName,fSamples[i_smp]->fSystematics[i_syst]->fOverallUp,fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
-                    cout << "adding syst" <<syh->fSystematic->fName << endl;
                 }
                 // histo syst
                 else{
@@ -1882,8 +1902,8 @@ void TtHFit::DrawAndSaveAll(string opt){
 //__________________________________________________________________________________
 //
 TthPlot* TtHFit::DrawSummary(string opt){
-    cout << "-------------------------------------------" << endl;
-    cout << "Building Summary Plot..." << endl;
+    std::cout << "-------------------------------------------" << std::endl;
+    std::cout << "Building Summary Plot..." << std::endl;
     gSystem->mkdir(fName.c_str());
     const bool isPostFit = opt.find("post")!=string::npos;
     const bool checkVR = opt.find("valid")!=string::npos;
@@ -1908,12 +1928,29 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     // Building region - bin correspondence
     //
-    std::vector<int> regionVec; regionVec.clear();
-    for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        if(!checkVR && fRegions[i_ch]->fRegionType!=Region::VALIDATION){
-            regionVec.push_back(i_ch);
-        } else if(checkVR && fRegions[i_ch]->fRegionType==Region::VALIDATION){
-            regionVec.push_back(i_ch);
+    std::vector<int> regionVec;   regionVec.clear();
+    std::vector<int> divisionVec; divisionVec.clear();
+    if(fSummaryPlotRegions.size()==0){
+        for(int i_ch=0;i_ch<fNRegions;i_ch++){
+            if(!checkVR && fRegions[i_ch]->fRegionType!=Region::VALIDATION){
+                regionVec.push_back(i_ch);
+            } else if(checkVR && fRegions[i_ch]->fRegionType==Region::VALIDATION){
+                regionVec.push_back(i_ch);
+            }
+        }
+    }
+    else{
+        for(int i_reg=0;i_reg<(int)fSummaryPlotRegions.size();i_reg++){
+            if(fSummaryPlotRegions[i_reg]=="|"){
+                divisionVec.push_back(regionVec.size());
+                continue;
+            }
+            for(int i_ch=0;i_ch<fNRegions;i_ch++){
+                if(fSummaryPlotRegions[i_reg]==fRegions[i_ch]->fName){
+                    regionVec.push_back(i_ch);
+                    break;
+                }
+            }
         }
     }
     if(regionVec.size()==0) return 0;
@@ -1943,7 +1980,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         //
         if(fSamples[i_smp]->fType==Sample::SIGNAL){
             h_sig[Nsig] = new TH1F(name.c_str(),title.c_str(), Nbin,0,Nbin);
-            if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Signal: " << h_sig[Nsig]->GetTitle() << endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding Signal: " << h_sig[Nsig]->GetTitle() << std::endl;
             h_sig[Nsig]->SetLineColor(lineColor);
             h_sig[Nsig]->SetFillColor(fillColor);
             h_sig[Nsig]->SetLineWidth(lineWidth);
@@ -2005,7 +2042,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         }
         else if(fSamples[i_smp]->fType==Sample::DATA){
             h_data = new TH1F(name.c_str(),title.c_str(), Nbin,0,Nbin);
-            if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Data:   " << h_data->GetTitle() << endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding Data:   " << h_data->GetTitle() << std::endl;
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
                 if(fRegions[regionVec[i_bin-1]]->fRegionDataType==Region::ASIMOVDATA)
                     h_data->SetBinContent( i_bin,0 );
@@ -2108,8 +2145,24 @@ TthPlot* TtHFit::DrawSummary(string opt){
     }
     p->Draw(opt);
     //
+    if(divisionVec.size()>0){
+        p->pad0->cd();
+        TLine line(0,1,0,1);
+        line.SetNDC(0);
+        line.SetLineStyle(7);
+        line.SetLineColor(kBlack);
+        line.SetLineWidth(2);
+        line.DrawLine(divisionVec[0],((TH1F*)p->pad0->GetPrimitive("h_dummy"))->GetMinimum(),
+                      divisionVec[0],pow(((TH1F*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(),2./3.) );
+        if(fSummaryPlotLabels.size()>1){
+            TLatex tex;
+            tex.SetNDC(0);
+            tex.DrawLatex(divisionVec[0]+0.25,sqrt(((TH1F*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum()),fSummaryPlotLabels[1].c_str());
+        }
+    }
+    //
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
-        if(TtHFitter::DEBUGLEVEL>0) cout << i_bin << ":\t" << h_tot->GetBinContent(i_bin) << "\t+" << g_err->GetErrorYhigh(i_bin-1) << "\t-" << g_err->GetErrorYlow(i_bin-1) << endl;
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << i_bin << ":\t" << h_tot->GetBinContent(i_bin) << "\t+" << g_err->GetErrorYhigh(i_bin-1) << "\t-" << g_err->GetErrorYlow(i_bin-1) << std::endl;
     }
     //
     gSystem->mkdir(fName.c_str());
@@ -2462,7 +2515,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
         // first loop
         int nRegInRow = 0;
         for(unsigned int i=0;i<fRegionsToPlot.size();i++){
-            if(TtHFitter::DEBUGLEVEL>0) cout << fRegionsToPlot[i] << endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << fRegionsToPlot[i] << std::endl;
             if(fRegionsToPlot[i].find("ENDL")!=string::npos){
                 nRows++;
                 if(nRegInRow>nCols) nCols = nRegInRow;
@@ -2594,7 +2647,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows){
         // first loop
         int nRegInRow = 0;
         for(unsigned int i=0;i<fRegionsToPlot.size();i++){
-            if(TtHFitter::DEBUGLEVEL>0) cout << fRegionsToPlot[i] << endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << fRegionsToPlot[i] << std::endl;
             if(fRegionsToPlot[i].find("ENDL")!=string::npos){
                 nRows++;
                 if(nRegInRow>nCols) nCols = nRegInRow;
@@ -2756,13 +2809,13 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     const std::string suffix_regularBinning = "_regBin";
     
     if(TtHFitter::DEBUGLEVEL>0){
-        cout << "--------------------------------" << endl;
-        cout << "|      Export to RooStat       |" << endl;
-        cout << "--------------------------------" << endl;
+        std::cout << "--------------------------------" << std::endl;
+        std::cout << "|      Export to RooStat       |" << std::endl;
+        std::cout << "--------------------------------" << std::endl;
     }
     else{
-        cout << "-------------------------------------------" << endl;
-        cout << "Exporting to RooStats..." << endl;
+        std::cout << "-------------------------------------------" << std::endl;
+        std::cout << "Exporting to RooStats..." << std::endl;
     }
     
     RooStats::HistFactory::Measurement meas((fName+fSuffix).c_str(), (fName+fSuffix).c_str());
@@ -2782,7 +2835,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         if(fRegions[i_ch]->fRegionType==Region::VALIDATION) continue;
         
         if(TtHFitter::DEBUGLEVEL>0){
-            cout << "Adding Channel: " << fRegions[i_ch]->fName << endl;
+            std::cout << "Adding Channel: " << fRegions[i_ch]->fName << std::endl;
         }
         RooStats::HistFactory::Channel chan(fRegions[i_ch]->fName.c_str());
 
@@ -2796,7 +2849,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         }
         if(hasData){
             if(TtHFitter::DEBUGLEVEL>0){
-                cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->GetName() << endl;
+                std::cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->GetName() << std::endl;
             }
             chan.SetData(fRegions[i_ch]->fData->fHistoName+suffix_regularBinning, fRegions[i_ch]->fData->fFileName);
         } else {
@@ -2808,7 +2861,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
             SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
             if( h != 0x0 && h->fSample->fType!=Sample::DATA && h->fSample->fType!=Sample::GHOST ){
                 if(TtHFitter::DEBUGLEVEL>0){
-                    cout << "  Adding Sample: " << fSamples[i_smp]->fName << endl;
+                    std::cout << "  Adding Sample: " << fSamples[i_smp]->fName << std::endl;
                 }
                 RooStats::HistFactory::Sample sample(fSamples[i_smp]->fName.c_str());
                 if(fUseStatErr && fSamples[i_smp]->fUseMCStat) sample.ActivateStatError();
@@ -2818,7 +2871,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 // norm factors
                 for(int i_norm=0;i_norm<h->fNNorm;i_norm++){
                     if(TtHFitter::DEBUGLEVEL>0){
-                        cout << "    Adding NormFactor: " << h->fNormFactors[i_norm]->fName << endl;
+                        std::cout << "    Adding NormFactor: " << h->fNormFactors[i_norm]->fName << std::endl;
                     }
                     sample.AddNormFactor( h->fNormFactors[i_norm]->fName,
                                          h->fNormFactors[i_norm]->fNominal,
@@ -2830,7 +2883,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
                         // add normalization part
                         if(TtHFitter::DEBUGLEVEL>0){
-                            cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << endl;
+                            std::cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << std::endl;
                         }
                         if(
                           ( fThresholdSystPruning_Normalisation>-1 && 
@@ -2879,8 +2932,8 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 //__________________________________________________________________________________
 //
 void TtHFit::DrawPruningPlot(){
-    cout << "------------------------------------------------------" << endl;
-    cout << "Drawing Pruning Plot ..." << endl;
+    std::cout << "------------------------------------------------------" << std::endl;
+    std::cout << "Drawing Pruning Plot ..." << std::endl;
     if(fSystematics.size()==0 || fStatOnly){
         std::cout << "TtHFit::INFO: Stat only fit => No Pruning plot generated." << std::endl;
         return;

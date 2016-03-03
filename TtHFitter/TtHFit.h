@@ -184,6 +184,8 @@ public:
     bool fStatOnly;
     
     std::vector<string> fRegionsToPlot;
+    std::vector<string> fSummaryPlotRegions;
+    std::vector<string> fSummaryPlotLabels;
 
 //     bool fHistoCheckCrash;
     

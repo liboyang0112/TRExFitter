@@ -700,7 +700,7 @@ void TthPlot::Draw(string options){
         for(int i_smp=0;i_smp<fSigNames.size();i_smp++)      SetHistBinWidth(h_signal[i_smp], fBinWidth);  
         for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++)  SetHistBinWidth(h_normsig[i_smp],fBinWidth);
         for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++)  SetHistBinWidth(h_oversig[i_smp],fBinWidth);
-        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)      SetHistBinWidth(h_bkg[i_smp],fBinWidth);  
+        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)      SetHistBinWidth(h_bkg[i_smp],    fBinWidth);  
         //
         if(h_tot) SetHistBinWidth(h_tot,fBinWidth);
         if(g_tot) SetGraphBinWidth(g_tot,fBinWidth);

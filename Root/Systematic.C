@@ -23,6 +23,9 @@ Systematic::Systematic(string name,int type,float up,float down){
     //
     fIsFreeParameter = false;
     //
+    fReferenceSample = "";
+    fKeepReferenceOverallVar = true;
+    //
     fWeightUp = "";
     fWeightSufUp = "";
     fNtuplePathsUp.clear();
