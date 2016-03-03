@@ -10,6 +10,7 @@ bool TtHFitter::SHOWYIELDS = false;
 bool TtHFitter::SHOWSTACKSIG = true;
 bool TtHFitter::SHOWNORMSIG = false;
 bool TtHFitter::SHOWOVERLAYSIG = false;
+bool TtHFitter::LEGENDLEFT = false;
 bool TtHFitter::SYSTCONTROLPLOTS = false;
 bool TtHFitter::SYSTDATAPLOT = false;
 bool TtHFitter::SPLITHISTOFILES = false;

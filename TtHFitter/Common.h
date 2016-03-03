@@ -58,6 +58,7 @@ namespace TtHFitter{
     extern bool SHOWSTACKSIG;  // flag to show signal or not
     extern bool SHOWNORMSIG;  // flag to show normalized signal or not
     extern bool SHOWOVERLAYSIG;  // flag to show overlayed signal or not
+    extern bool LEGENDLEFT;  // flag to show sample names on left aligned in the legend
     extern bool SYSTCONTROLPLOTS;
     extern bool SYSTDATAPLOT;
     extern bool SPLITHISTOFILES;

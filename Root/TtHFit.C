@@ -522,6 +522,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TtHFitter::SHOWSTACKSIG   = false;
         if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG    = true;
         if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG = true;
+        if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TtHFitter::LEGENDLEFT     = true;
         // ...
     }
     param = cs->Get("SystControlPlots");  if( param != ""){
@@ -2291,7 +2292,8 @@ void TtHFit::BuildYieldTable(string opt){
         TH1* h_tmp_Down;
         std::vector<string> systNames;
         systNames.clear();
-        for(int i_syst=0;i_syst<(int)fRegions[0]->fSystNames.size();i_syst++){
+//         for(int i_syst=0;i_syst<(int)fRegions[0]->fSystNames.size();i_syst++){
+        for(int i_syst=0;i_syst<fNSyst;i_syst++){
             string systName = fSystematics[i_syst]->fName;
             systNames.push_back( systName );
             for(int i_bin=1;i_bin<=fNRegions;i_bin++){
@@ -3361,6 +3363,11 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
     std::vector < RooWorkspace* > vec_ws;
     std::vector < std::string > vec_chName;
     RooStats::HistFactory::Measurement *measurement = 0;
+    // 
+    // Take the measurement from the combined workspace, to be sure to have all the systematics (even the ones which are not there in the first region)
+    TFile *rootFileCombined = new TFile( (fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root").c_str(),"read");
+    if(rootFileCombined!=0x0) measurement = (RooStats::HistFactory::Measurement*) rootFileCombined -> Get( (fName+fSuffix).c_str());
+    //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         bool isToFit = false;
         for(unsigned int iRegion = 0; iRegion < regionsToFit.size(); ++iRegion){
@@ -3378,6 +3385,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
             }
             vec_ws.push_back(m_ws);
             vec_chName.push_back(fRegions[i_ch] -> fName);
+            // if failed to get the measurement from the combined ws, take it from the first region
             if(!measurement){
                 measurement = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fName+fSuffix).c_str());
             }
