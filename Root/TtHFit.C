@@ -44,6 +44,7 @@ TtHFit::TtHFit(string name){
     
     fThresholdSystPruning_Normalisation = -1;
     fThresholdSystPruning_Shape = -1;
+    fThresholdSystLarge = - 1;
     
     fNtuplePaths.clear();
     fMCweight = "1";
@@ -505,6 +506,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("SystPruningShape");  if( param != "")  fThresholdSystPruning_Shape         = atof(param.c_str());
     param = cs->Get("SystPruningNorm");   if( param != "")  fThresholdSystPruning_Normalisation = atof(param.c_str());
+    param = cs->Get("SystLarge");         if( param != "")  fThresholdSystLarge = atof(param.c_str());
     param = cs->Get("IntCodeOverall");    if( param != "")  fIntCode_overall  = atoi(param.c_str());
     param = cs->Get("IntCodeShape");      if( param != "")  fIntCode_shape    = atoi(param.c_str());
     param = cs->Get("MCstatThreshold");   if( param != ""){
@@ -2967,6 +2969,7 @@ void TtHFit::DrawPruningPlot(){
                     for(int i_syst=0;i_syst<fNSyst;i_syst++){
                         if(sh->HasSyst(fSystematics[i_syst]->fName)){
                             histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 0 );
+
                             // set to 1 if shape pruned away
 //                             SystematicHist *ss = sh->GetSystematic(fSystematics[i_syst]->fName);
 //                             bool hasShape = true;
@@ -2992,7 +2995,20 @@ void TtHFit::DrawPruningPlot(){
                                TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormDown)<fThresholdSystPruning_Normalisation
                               ){
                                 histPrun[iReg]->AddBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
+			    }
+			    // set -2, if syst is too large(> 100% default)
+                            if((fThresholdSystLarge > -1) &&
+			       ((sh->GetSystematic(fSystematics[i_syst]->fName)->fIsShape &&    							( HistoTools::HasShape(sh->fHist, sh->GetSystematic(fSystematics[i_syst]->fName),fThresholdSystLarge)
+				  )
+				)||
+			       ( 
+                               TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormUp)> fThresholdSystLarge &&
+                               TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormDown) > fThresholdSystLarge
+				 ))
+			       ){
+			      histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-2);
                             }
+			    
                         }
                     }
                 }
@@ -3003,7 +3019,7 @@ void TtHFit::DrawPruningPlot(){
     //
     // draw the histograms
     TCanvas *c = new TCanvas("c_pruning","Canvas - Pruning",200*(1+iReg),20*(fNSyst)+100+50);
-    Int_t colors[] = {kGray, kGreen, kYellow, kOrange-3, kRed}; // #colors >= #levels - 1
+    Int_t colors[] = {kBlue, kGray, kGreen, kYellow, kOrange-3, kRed}; // #colors >= #levels - 1
     gStyle->SetPalette((sizeof(colors)/sizeof(Int_t)), colors);
     c->Divide(1+iReg);
     for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
@@ -3029,7 +3045,7 @@ void TtHFit::DrawPruningPlot(){
         histPrun[i_reg]->GetYaxis()->SetLabelSize( histPrun[i_reg]->GetYaxis()->GetLabelSize()*0.75 );
         gPad->SetTickx(0);
         gPad->SetTicky(0);
-        histPrun[i_reg]->SetMinimum(-1);
+        histPrun[i_reg]->SetMinimum(-2);
         histPrun[i_reg]->SetMaximum(3);
         histPrun[i_reg]->GetYaxis()->SetTickLength(0);
         histPrun[i_reg]->GetXaxis()->SetTickLength(0);  
@@ -3043,13 +3059,19 @@ void TtHFit::DrawPruningPlot(){
     TH1F* hYellow = new TH1F("hYellow","hYellow",1,0,1); hYellow->SetFillColor(kYellow);   hYellow->SetLineWidth(0);
     TH1F* hOrange = new TH1F("hOrange","hOrange",1,0,1); hOrange->SetFillColor(kOrange-3); hOrange->SetLineWidth(0);
     TH1F* hRed = new TH1F("hRed","hRed",1,0,1);          hRed->SetFillColor(kRed);         hRed->SetLineWidth(0);
+    TH1F* hBlue = new TH1F("hBlue","hBlue",1,0,1);        hBlue->SetFillColor(kBlue);         hBlue->SetLineWidth(0);
+    char sysLarg [10];
+    sprintf(sysLarg,"#geq %3.f %%",fThresholdSystLarge*100);
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
     leg->AddEntry(hGray,"Not present","f");
-//     leg->AddEntry(hGreen,"Kept","f");
+    //leg->AddEntry(hGreen,"Kept","f");
     leg->AddEntry(hYellow, "Shape dropped","f");
     leg->AddEntry(hOrange, "Norm. dropped","f");
     leg->AddEntry(hRed, "Dropped","f");
+    if (fThresholdSystLarge > -1) {
+    leg->AddEntry(hBlue, sysLarg ,"f");
+    }
     leg->SetTextSize(0.85*gStyle->GetTextSize());
     leg->Draw();
     //
