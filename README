@@ -100,6 +100,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       LumiScale        -> additional value to scale 'after' histogram creation (for fast scaling) IMPORTANT: use it only if you know what you are doing!!
       SystPruningShape -> Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
       SystPruningNorm  -> Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
+      SystLarge        -> all systematics above this threshold will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%)
       IntCodeOverall   -> interpolation code used for the normalization component of systematics (should match the one used in RooStats)
       IntCodeShape     -> interpolation code used for the shape component of systematics (should match the one used in RooStats)
       MCstatThreshold  -> if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
