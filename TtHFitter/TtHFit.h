@@ -159,7 +159,7 @@ public:
     
     float fThresholdSystPruning_Normalisation;
     float fThresholdSystPruning_Shape;
-    
+    float fThresholdSystLarge;
     std::vector<string> fNtuplePaths;
     string fNtupleFile;
     string fMCweight;
