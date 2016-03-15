@@ -1,3 +1,8 @@
+2016-03-15 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * NormFactor usage extended: now is possible to define them in the same way as the Systematics, allowing to have more than one of them for each sample, to have them fixed, to have norm factors affecting more samples, etc... 
+        * Post-fit norm factor propagation to tables and sumary plots fixed
+        * System for additional options (floats) added, for easy implementation of flags and options by users (see "Options:" in the README)
+        
 2016-03-03 Michele Pinamonti <michele.pinamonti@gmail.com>
         * MCstatThreshold default changed: now by default all gamma's are kept. To remove them completely (former default) use "MCstatThreshold: NONE" (reommended will be "MCstatThreshold: 0.01")
         * Fix for fit and tables with systematics defined in certain regions only

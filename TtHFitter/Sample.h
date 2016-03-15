@@ -53,7 +53,7 @@ public:
     // norm factors and systs
     void AddNormFactor(NormFactor *factor);
     void AddSystematic(Systematic *syst);
-    NormFactor* AddNormFactor(string name,float nominal,float min,float max);
+    NormFactor* AddNormFactor(string name,float nominal=1,float min=0,float max=10,bool isConst=false);
     Systematic* AddSystematic(string name,int type=0,float up=0,float down=0);
 
     // -------

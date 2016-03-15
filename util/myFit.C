@@ -107,9 +107,16 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     }
     
     if(drawPreFit){
-        myFit->DrawAndSaveAll();
-        myFit->DrawSummary("log");
-        myFit->DrawSummary("logvalid");
+        if(TtHFitter::OPTION["PrefitRatioMax"]==2){
+            myFit->DrawAndSaveAll("prefit");
+            myFit->DrawSummary("log prefit");
+            myFit->DrawSummary("log valid prefit");
+        }
+        else{
+            myFit->DrawAndSaveAll();
+            myFit->DrawSummary("log");
+            myFit->DrawSummary("logvalid");
+        }
         myFit->BuildYieldTable();
         myFit->PrintSystTables();
         int nCols = 2;

@@ -139,6 +139,9 @@ Here's a list of the inputs and options which can be specifed in the config file
       LimitBlind       -> can be TRUE or FALSE (TRUE means that ALL regions are blinded)
       POIAsimov        -> value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
       
+    Options:           (additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code)
+      ...
+      
     Region:
       VariableTitle    -> it's the label which will be displayed on the x-axis in the plots
       Label            -> it's the label which will be showed on the plots and specifies which region is shown
@@ -184,6 +187,16 @@ Here's a list of the inputs and options which can be specifed in the config file
       UseMCstat        -> if set to FALSE, makes the fitter ignore the stat uncertainty for this sample
       MultiplyBy       -> if specified, each sample hist is multiplied bin-by-bin by another sample hist, in each of the regions
       DivideBy         -> if specified, each sample hist is divided bin-by-bin by another sample hist, in each of the regions
+      
+    NormFactor:
+      Samples          -> comma-separated list of samples on which to apply the norm factor
+      Regions          -> comma-separated list of regions where to apply the norm factor
+      Exclude          -> comma-separated list of samples/regions to exclude
+      Title            -> title of the norm factor
+      Nominal          -> nominal value
+      Min              -> min value
+      Max              -> max value
+      Constant         -> set to TRUE to have a fixed norm factor 
       
     Systematic:
       Samples          -> comma-separated list of samples on which to apply the systematic

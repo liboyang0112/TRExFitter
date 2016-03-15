@@ -82,6 +82,9 @@ TtHFit::TtHFit(string name){
     fSummaryPlotRegions.clear();
     fSummaryPlotLabels.clear();
     
+    fSummaryPlotValidationRegions.clear();
+    fSummaryPlotValidationLabels.clear();
+    
     //
     // Fit caracteristics
     //
@@ -104,6 +107,15 @@ TtHFit::TtHFit(string name){
     fImageFormat = "png";
     TtHFitter::IMAGEFORMAT.clear();
     TtHFitter::IMAGEFORMAT.push_back("png");
+    
+    //
+    fSystematics.clear();
+    fSystematicNames.clear();
+    fNSyst = 0;
+    //
+    fNormFactors.clear();
+    fNormFactorNames.clear();
+    fNNorm = 0;
 }
 
 //__________________________________________________________________________________
@@ -558,6 +570,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("SummaryPlotLabels");  if(param != ""){
         fSummaryPlotLabels = Vectorize(param,',');
     }
+    param = cs->Get("SummaryPlotValidationRegions");  if(param != ""){
+        fSummaryPlotValidationRegions = Vectorize(param,',');
+    }
+    param = cs->Get("SummaryPlotValidationLabels");  if(param != ""){
+        fSummaryPlotValidationLabels = Vectorize(param,',');
+    }
     param = cs->Get("HistoChecks");  if(param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "NOCRASH" ){
@@ -592,6 +610,18 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
     }
     
+    //
+    // General options
+    //
+    cs = fConfig->GetConfigSet("Options");
+    if(cs!=0x0){
+        for(int i=0;i<cs->GetN();i++){
+            if(cs->GetConfigValue(i) != ""){
+                TtHFitter::OPTION[cs->GetConfigName(i)] = atof(cs->GetConfigValue(i).c_str());
+            }
+        }
+    }
+        
     //##########################################################
     //
     // FIT options
@@ -803,6 +833,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     //##########################################################
     int nSmp = 0;
     Sample *smp;
+    NormFactor *nf = 0x0;
     while(true){
         cs = fConfig->GetConfigSet("Sample",nSmp);
         if(cs==0x0) break;
@@ -857,13 +888,31 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             smp->SetFillColor(atoi(cs->Get("FillColor").c_str()));
         if(cs->Get("LineColor")!="")
             smp->SetLineColor(atoi(cs->Get("LineColor").c_str()));
-        if(cs->Get("NormFactor")!="")
-            smp->AddNormFactor(
-                Vectorize(cs->Get("NormFactor"),',')[0],
-                atof(Vectorize(cs->Get("NormFactor"),',')[1].c_str()),
-                atof(Vectorize(cs->Get("NormFactor"),',')[2].c_str()),
-                atof(Vectorize(cs->Get("NormFactor"),',')[3].c_str())
-            );
+        if(cs->Get("NormFactor")!=""){
+            // check if the normfactor is called just with the name or with full definition
+            if( Vectorize(cs->Get("NormFactor"),',').size()>1 ){
+                bool isConst = false;
+                if( Vectorize(cs->Get("NormFactor"),',').size()>4 && 
+                  (    Vectorize(cs->Get("NormFactor"),',')[4] == "TRUE" 
+                    || Vectorize(cs->Get("NormFactor"),',')[4] == "true" 
+                    || Vectorize(cs->Get("NormFactor"),',')[4] == "True" ) ) isConst = true;
+                nf = smp->AddNormFactor(
+                    Vectorize(cs->Get("NormFactor"),',')[0],
+                    atof(Vectorize(cs->Get("NormFactor"),',')[1].c_str()),
+                    atof(Vectorize(cs->Get("NormFactor"),',')[2].c_str()),
+                    atof(Vectorize(cs->Get("NormFactor"),',')[3].c_str()),
+                    isConst
+                );
+            }
+            else{
+                nf = smp->AddNormFactor( Vectorize(cs->Get("NormFactor"),',')[0] );
+            }
+            if( FindInStringVector(fNormFactorNames,nf->fName)<0 ){
+                fNormFactors.push_back( nf );
+                fNormFactorNames.push_back( nf->fName );
+                fNNorm++;
+            }
+        }
         if(cs->Get("NormalizedByTheory")!=""){
             param = cs->Get("NormalizedByTheory");
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -934,13 +983,78 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     
     //##########################################################
     //
+    // NORMFACTOR options
+    //
+    //##########################################################
+    int nNorm = 0;
+    NormFactor *norm;
+    Sample *sam;
+    
+    while(true){
+        cs = fConfig->GetConfigSet("NormFactor",nNorm);
+        if(cs==0x0) break;
+        nNorm++;
+        if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
+        string samples_str = cs->Get("Samples");
+        string regions_str = cs->Get("Regions");
+        string exclude_str = cs->Get("Exclude");
+        if(samples_str=="") samples_str = "all";
+        if(regions_str=="") regions_str = "all";
+        vector<string> samples = Vectorize(samples_str,',');
+        vector<string> regions = Vectorize(regions_str,',');
+        vector<string> exclude = Vectorize(exclude_str,',');
+        norm = new NormFactor(CheckName(cs->GetValue()));
+        if( FindInStringVector(fNormFactorNames,norm->fName)<0 ){
+            fNormFactors.push_back( norm );
+            fNormFactorNames.push_back( norm->fName );
+            fNNorm++;
+        }
+        else{
+            norm = fNormFactors[ FindInStringVector(fNormFactorNames,norm->fName) ];
+        }
+        if(cs->Get("NuisanceParameter")!=""){
+            norm->fNuisanceParameter = cs->Get("NuisanceParameter");
+            TtHFitter::NPMAP[norm->fName] = norm->fNuisanceParameter;
+        }
+        else{
+            norm->fNuisanceParameter = norm->fName;
+            TtHFitter::NPMAP[norm->fName] = norm->fName;
+        }
+        //
+        param = cs->Get("Constant");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param=="TRUE") norm->fConst = true;
+        }
+        param = cs->Get("Min"); if(param!=""){ norm->fMin = atof(param.c_str()); }
+        param = cs->Get("Max"); if(param!=""){ norm->fMax = atof(param.c_str()); }
+        param = cs->Get("Nominal"); if(param!=""){ norm->fNominal = atof(param.c_str()); }
+        //
+        // save list of 
+        if(regions[0]!="all") norm->fRegions = regions;
+        if(exclude[0]!="")    norm->fExclude = exclude;
+        // attach the syst to the proper samples
+        for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            sam = fSamples[i_smp];
+            if(sam->fType == Sample::DATA) continue;
+            if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+               && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+            ){
+                sam->AddNormFactor(norm);
+            }
+        }
+        // ...
+    }
+    
+    
+    //##########################################################
+    //
     // SYSTEMATICS options
     //
     //##########################################################
     int nSys = 0;
     Systematic *sys;
-    Sample *sam;
-
+//     Sample *sam;
 
     //Addition for StatOnly fit: dummy systematic for the significance computation and limit setting
     int typed=0;
@@ -960,7 +1074,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             }
         }
     } 
-
 
     while(true){
         cs = fConfig->GetConfigSet("Systematic",nSys);
@@ -1104,6 +1217,7 @@ void TtHFit::ReadNtuples(){
     string fullMCweight;
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
+    SampleHist *sh;
 
     //
     // Loop on regions and samples
@@ -1196,8 +1310,7 @@ void TtHFit::ReadNtuples(){
                         std::cout << " has a null/negative bin content (content = " << content << ") ! You should have a look at this !" << std::endl;
                         std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
                         h->SetBinContent(iBin,1e-06);
-//                         h->SetBinError(iBin,1e-03);  // adding also an uncertainty...
-                        h->SetBinError(iBin,1e-01);  // adding also an uncertainty...
+                        h->SetBinError(  iBin,1e-06);  // adding also a stat. uncertainty, a 100% one
                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
                     } else {
                         applyCorrection.insert( std::pair < int, bool > (iBin, false) );
@@ -1212,31 +1325,45 @@ void TtHFit::ReadNtuples(){
             }
             
             //Importing the histogram in TtHFitter
-            fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
+            sh = fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
             
-            // end here if data or GHOST
-//             if(fSamples[i_smp]->fType==Sample::DATA || fSamples[i_smp]->fType==Sample::GHOST) continue;
+            // end here if data or no systematics alowed (e.g. generally for GHOST)
             if(fSamples[i_smp]->fType==Sample::DATA || !fSamples[i_smp]->fUseSystematics) continue;
+            
+            //
+            //  -----------------------------------
+            //
+            // read norma factors
+            for(int i_norm=0;i_norm<fSamples[i_smp]->fNNorm;i_norm++){
+                NormFactor *nf = fSamples[i_smp]->fNormFactors[i_norm];
+                //
+                // eventually skip norm factor / region combination
+                if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( nf->fExclude.size()>0 && FindInStringVector(nf->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
+                if(TtHFitter::DEBUGLEVEL>0) cout << "Adding norm " << nf->fName << endl;
+                //
+                sh->AddNormFactor( nf );
+            }
             
             //
             //  -----------------------------------
             //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
+                Systematic * syst = fSamples[i_smp]->fSystematics[i_syst];
                 //
                 // eventually skip systematic / region combination
+                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                if( fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
-                if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
-                //
-                if(TtHFitter::DEBUGLEVEL>0) cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << endl;
+                if(TtHFitter::DEBUGLEVEL>0) cout << "Adding syst " << syst->fName << endl;
                 //
                 Region *reg = fRegions[i_ch];
                 Sample *smp = fSamples[i_smp];
-                Systematic *syst = smp->fSystematics[i_syst];
                 //
                 // if Overall only ...
-                if(fSamples[i_smp]->fSystematics[i_syst]->fType==Systematic::OVERALL){
+                if(syst->fType==Systematic::OVERALL){
                     SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
                     syh->fSystematic = syst;
                     continue;
@@ -1512,6 +1639,7 @@ void TtHFit::ReadHistograms(){
     TH1F* htmp = 0x0;
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
+    SampleHist *sh;
     //
     // loop on regions and samples
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -1539,9 +1667,8 @@ void TtHFit::ReadHistograms(){
             else                                          histoNames = ToVec( fHistoName );
             
             fullPaths = CreatePathsList( fHistoPaths, CombinePathSufs(fRegions[i_ch]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),
-//             fullPaths = CreatePathsList( fHistoPaths, fRegions[i_ch]->fHistoPathSuffs,
-                                        histoFiles, empty, // no histo file suffs for nominal (syst only)
-                                        histoNames, empty  // same for histo name
+                                         histoFiles, empty, // no histo file suffs for nominal (syst only)
+                                         histoNames, empty  // same for histo name
                                         );
                              
             htmp = 0x0;
@@ -1574,7 +1701,7 @@ void TtHFit::ReadHistograms(){
             }
             
             // Loop over all bins to check the presence of bins with <=0 content bins
-            std::map < int, bool > applyCorrection;
+            std::map < int, bool > applyCorrection; applyCorrection.clear();
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
                 for(unsigned int iBin = 1; iBin <= h->GetNbinsX(); ++iBin ){
                     double content = h->GetBinContent(iBin);
@@ -1584,7 +1711,7 @@ void TtHFit::ReadHistograms(){
                         std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
                         std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
                         h->SetBinContent(iBin,1e-06);
-                        h->SetBinError(iBin,1e-03);  // adding also an uncertainty...
+                        h->SetBinError(  iBin,1e-06);  // adding also a stat. uncertainty, a 100% one
                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
                     } else {
                         applyCorrection.insert( std::pair < int, bool > (iBin, false) );
@@ -1593,29 +1720,42 @@ void TtHFit::ReadHistograms(){
             }
             
             // Importing the histogram in TtHFitter
-            fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
-            
+            sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
 
-            // end here if data or GHOST
-//             if(fSamples[i_smp]->fType==Sample::DATA || fSamples[i_smp]->fType==Sample::GHOST) continue;
+            // end here if data or no systematics allowed (e.g. generally for GHOST samples)
             if(fSamples[i_smp]->fType==Sample::DATA || !fSamples[i_smp]->fUseSystematics) continue;
+            
+            //
+            //  -----------------------------------
+            //
+            // read norm factors
+            for(int i_norm=0;i_norm<fSamples[i_smp]->fNNorm;i_norm++){
+                NormFactor *nf = fSamples[i_smp]->fNormFactors[i_norm];
+                //
+                // eventually skip systematic / region combination
+                if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( nf->fExclude.size()>0 && FindInStringVector(nf->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding norm " << nf->fName << std::endl;
+                //
+                sh->AddNormFactor( nf );
+            }
             
             //
             //  -----------------------------------
             //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
+                Systematic *syst = fSamples[i_smp]->fSystematics[i_syst];
                 //
                 // eventually skip systematic / region combination
+                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                if( fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
-                if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
-                //
-                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding syst " << fSamples[i_smp]->fSystematics[i_syst]->fName << std::endl;
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding syst " << syst->fName << std::endl;
                 //
                 Region *reg = fRegions[i_ch];
                 Sample *smp = fSamples[i_smp];
-                Systematic *syst = smp->fSystematics[i_syst];
                 if(syst->fReferenceSample!="") smp = GetSample(syst->fReferenceSample);
 
                 //
@@ -1780,25 +1920,25 @@ void TtHFit::ReadHistograms(){
                 // 
                 // Histogram smoothing, Symmetrisation, Massaging...
                 //
-                SystematicHist *sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
-                if(!fRegions[i_ch]->fSkipSmoothing) sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
-                else                                sh -> fSmoothType = 0;
-                sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
-                sh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                if(!fRegions[i_ch]->fSkipSmoothing) syh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
+                else                                syh -> fSmoothType = 0;
+                syh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
+                syh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 
                 //
                 // Histograms checking
                 //
                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
-                    for(unsigned int iBin = 1; iBin <= fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist->GetNbinsX(); ++iBin ){
+                    for(unsigned int iBin = 1; iBin <= sh->fHist->GetNbinsX(); ++iBin ){
                         if( applyCorrection[iBin]){
-                            sh -> fHistUp   -> SetBinContent(iBin,1e-06);
-                            sh -> fHistDown -> SetBinContent(iBin,1e-06);
+                            syh -> fHistUp   -> SetBinContent(iBin,1e-06);
+                            syh -> fHistDown -> SetBinContent(iBin,1e-06);
                         }
                     }
                 }
-                HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
-                                            sh /*systematic*/,
+                HistoTools::CheckHistograms( sh->fHist /*nominal*/,
+                                            syh /*systematic*/,
                                             fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
                                             TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
             }
@@ -1816,6 +1956,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
     SystematicHist *syh;
     string regionName;
     string sampleName;
+    string normName;
     string systName;
     //
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
@@ -1845,10 +1986,24 @@ void TtHFit::ReadHistos(/*string fileName*/){
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "    Reading sample " << sampleName << std::endl;
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp],regionName+"_"+sampleName,fileName);
             sh = fRegions[i_ch]->GetSampleHist(sampleName);
-            for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){                
+            //
+            // norm factors
+            for(int i_norm=0;i_norm<fSamples[i_smp]->fNNorm;i_norm++){
+                //
+                // eventually skip norm factor / region combination
+                if( fSamples[i_smp]->fNormFactors[i_norm]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fNormFactors[i_norm]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( fSamples[i_smp]->fNormFactors[i_norm]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fNormFactors[i_norm]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
+                normName = fSamples[i_smp]->fNormFactors[i_norm]->fName;
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "      Reading norm " << normName << std::endl;
+                // norm only
+                sh->AddNormFactor(fSamples[i_smp]->fNormFactors[i_norm]);
+            }
+            //
+            // systematics
+            for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
                 //
                 // eventually skip systematic / region combination
-                //
                 if( fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
@@ -1933,29 +2088,55 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     std::vector<int> regionVec;   regionVec.clear();
     std::vector<int> divisionVec; divisionVec.clear();
-    if(fSummaryPlotRegions.size()==0){
-        for(int i_ch=0;i_ch<fNRegions;i_ch++){
-            if(!checkVR && fRegions[i_ch]->fRegionType!=Region::VALIDATION){
-                regionVec.push_back(i_ch);
-            } else if(checkVR && fRegions[i_ch]->fRegionType==Region::VALIDATION){
-                regionVec.push_back(i_ch);
+    //
+    if(checkVR){
+        if(fSummaryPlotValidationRegions.size()==0){
+            for(int i_ch=0;i_ch<fNRegions;i_ch++){
+                if(fRegions[i_ch]->fRegionType==Region::VALIDATION){
+                    regionVec.push_back(i_ch);
+                }
             }
         }
-    }
-    else{
-        for(int i_reg=0;i_reg<(int)fSummaryPlotRegions.size();i_reg++){
-            if(fSummaryPlotRegions[i_reg]=="|"){
-                divisionVec.push_back(regionVec.size());
-                continue;
-            }
-            for(int i_ch=0;i_ch<fNRegions;i_ch++){
-                if(fSummaryPlotRegions[i_reg]==fRegions[i_ch]->fName){
-                    regionVec.push_back(i_ch);
-                    break;
+        else{
+            for(int i_reg=0;i_reg<(int)fSummaryPlotValidationRegions.size();i_reg++){
+                if(fSummaryPlotValidationRegions[i_reg]=="|"){
+                    divisionVec.push_back(regionVec.size());
+                    continue;
+                }
+                for(int i_ch=0;i_ch<fNRegions;i_ch++){
+                    if(fSummaryPlotValidationRegions[i_reg]==fRegions[i_ch]->fName){
+                        regionVec.push_back(i_ch);
+                        break;
+                    }
                 }
             }
         }
     }
+    else{
+        if(fSummaryPlotRegions.size()==0){
+            for(int i_ch=0;i_ch<fNRegions;i_ch++){
+                if(fRegions[i_ch]->fRegionType!=Region::VALIDATION){
+                    regionVec.push_back(i_ch);
+                }
+            }
+        }
+        else{
+            for(int i_reg=0;i_reg<(int)fSummaryPlotRegions.size();i_reg++){
+                if(fSummaryPlotRegions[i_reg]=="|"){
+                    divisionVec.push_back(regionVec.size());
+                    continue;
+                }
+                for(int i_ch=0;i_ch<fNRegions;i_ch++){
+                    if(fSummaryPlotRegions[i_reg]==fRegions[i_ch]->fName){
+                        regionVec.push_back(i_ch);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    
     if(regionVec.size()==0) return 0;
     
     int Nbin = (int)regionVec.size();
@@ -2055,12 +2236,45 @@ TthPlot* TtHFit::DrawSummary(string opt){
         }
     } 
     //
-    TthPlot *p = new TthPlot(fName+"_summary",900,700);
-    p->fYmin = 1;
-    p->SetXaxis("",false);
-    p->AddLabel(fLabel);
-    if(isPostFit) p->AddLabel("Post-Fit");
-    else          p->AddLabel("Pre-Fit");
+    TthPlot *p;
+    //
+    // For 4-top-style plots
+    if(TtHFitter::OPTION["FourTopStyle"]>0){
+//         p = new TthPlot(fName+"_summary",900.*TtHFitter::OPTION["CanvasWidth"]/600.,TtHFitter::OPTION["CanvasHeight"]);
+        p = new TthPlot(fName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
+        p->fYmin = 1;
+        p->SetYmaxScale(3);
+        p->SetXaxis("",false);
+        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsSummary"];
+        if(!checkVR && fSummaryPlotLabels.size()>0){
+//             if(isPostFit) p->AddLabel("#font[52]{B-only fit}");
+            if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
+            else          p->AddLabel("#font[52]{Pre-fit}");
+        }
+        else if(checkVR && fSummaryPlotValidationLabels.size()>0){
+//                 if(isPostFit) p->AddLabel("#font[52]{B-only fit}");
+                if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
+                else          p->AddLabel("#font[52]{Pre-fit}");
+        }
+        else{
+            p->AddLabel(fLabel);
+//             if(isPostFit) p->AddLabel("#font[52]{B-only fit}");
+            if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
+            else          p->AddLabel("#font[52]{Pre-fit}");
+        }
+    }
+    //
+    // normal-/old-style plots
+    else{
+        p = new TthPlot(fName+"_summary",900,700);
+        p->fYmin = 1;
+        p->SetYmaxScale(2);
+        p->SetXaxis("",false);
+        p->AddLabel(fLabel);
+        if(isPostFit) p->AddLabel("Post-Fit");
+        else          p->AddLabel("Pre-fit");
+    }
+    //
     p->fATLASlabel = "Internal";
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
@@ -2137,6 +2351,48 @@ TthPlot* TtHFit::DrawSummary(string opt){
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
+    // add the norm factors
+    for(int i_norm=0;i_norm<fNNorm;i_norm++){
+        string normName = fNormFactors[i_norm]->fName;
+        systNames.push_back( normName );
+        for(int i_bin=1;i_bin<=Nbin;i_bin++){
+            // find the systematic in the region
+            int syst_idx = -1;
+            for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
+                if(normName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
+                    syst_idx = j_syst;
+                }
+            }
+            //
+            if(isPostFit){
+                if(syst_idx<0){
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit; 
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                }
+                else{
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx];
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx];
+                }
+            }
+            else{
+                if(syst_idx<0){
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot; 
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot;
+                }
+                else{
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx];
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx];
+                }
+            }
+            if(i_bin==1){
+                h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,normName.c_str()), Form("h_Tot_%s_Up_TMP",  normName.c_str()), Nbin,0,Nbin) );
+                h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",normName.c_str()), Form("h_Tot_%s_Down_TMP",normName.c_str()), Nbin,0,Nbin) );
+            }
+            h_up[fNSyst+i_norm]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+            h_down[fNSyst+i_norm]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+        }
+    }
+    //
     if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, systNames, fFitResults->fCorrMatrix );
     else           g_err = BuildTotError( h_tot, h_up, h_down, systNames );
     //
@@ -2156,11 +2412,49 @@ TthPlot* TtHFit::DrawSummary(string opt){
         line.SetLineColor(kBlack);
         line.SetLineWidth(2);
         line.DrawLine(divisionVec[0],((TH1F*)p->pad0->GetPrimitive("h_dummy"))->GetMinimum(),
-                      divisionVec[0],pow(((TH1F*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(),2./3.) );
-        if(fSummaryPlotLabels.size()>1){
+                      divisionVec[0],pow(((TH1F*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(),0.73) );
+        p->pad1->cd();
+        line.DrawLine(divisionVec[0],((TH1F*)p->pad1->GetPrimitive("h_dummy2"))->GetMinimum(),
+                      divisionVec[0],((TH1F*)p->pad1->GetPrimitive("h_dummy2"))->GetMaximum() );
+    }
+    //
+    p->pad0->cd();
+    if(!checkVR){
+        if(fSummaryPlotLabels.size()>0){
             TLatex tex;
             tex.SetNDC(0);
-            tex.DrawLatex(divisionVec[0]+0.25,sqrt(((TH1F*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum()),fSummaryPlotLabels[1].c_str());
+            tex.SetTextAlign(20);
+            //
+            for(int ii=0;ii<=(int)divisionVec.size();ii++){
+                if(fSummaryPlotLabels.size()<ii+1) break;
+                if(divisionVec.size()<ii) break;
+                float xmax = Nbin;
+                float xmin = 0;
+                if(divisionVec.size()>ii) xmax = divisionVec[ii];
+                if(ii>0) xmin = divisionVec[ii-1];
+                float xpos = xmin + 0.5*(xmax - xmin);
+                float ypos = pow(((TH1F*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(), 0.61 );
+                tex.DrawLatex(xpos,ypos,fSummaryPlotLabels[ii].c_str());
+            }
+        }
+    }
+    else{
+        if(fSummaryPlotValidationLabels.size()>0){
+            TLatex tex;
+            tex.SetNDC(0);
+            tex.SetTextAlign(20);
+            //
+            for(int ii=0;ii<=(int)divisionVec.size();ii++){
+                if(fSummaryPlotValidationLabels.size()<ii+1) break;
+                if(divisionVec.size()<ii) break;
+                float xmax = Nbin;
+                float xmin = 0;
+                if(divisionVec.size()>ii) xmax = divisionVec[ii];
+                if(ii>0) xmin = divisionVec[ii-1];
+                float xpos = xmin + 0.5*(xmax - xmin);
+                float ypos = pow(((TH1F*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(), 0.61 );
+                tex.DrawLatex(xpos,ypos,fSummaryPlotValidationLabels[ii].c_str());
+            }
         }
     }
     //
@@ -2373,6 +2667,85 @@ void TtHFit::BuildYieldTable(string opt){
             }
         }
         //
+        // KERIM
+        for(int i_norm=0;i_norm<fNNorm;i_norm++){
+            string normName = fNormFactors[i_norm]->fName;
+            systNames.push_back( normName );
+            for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+                sh = fRegions[i_bin-1]->GetSampleHist( name );
+                //
+                // find the normfactor in the region
+                int syst_idx = -1;
+                for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
+                    if(normName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
+                        syst_idx = j_syst;
+                    }
+                }
+                //
+                if(sh!=0x0){
+                    if(isPostFit){
+                        if(syst_idx<0){
+                            h_tmp_Up   = sh->fHist_postFit;
+                            h_tmp_Down = sh->fHist_postFit;
+                        }
+                        else{
+                            h_tmp_Up   = sh->GetSystematic(normName)->fHistUp_postFit;
+                            h_tmp_Down = sh->GetSystematic(normName)->fHistDown_postFit;
+                        }
+                    }
+                    else {
+                        if(syst_idx<0){
+                            h_tmp_Up   = sh->fHist;
+                            h_tmp_Down = sh->fHist;
+                        }
+                        else{
+                            h_tmp_Up   = sh->GetSystematic(normName)->fHistUp;
+                            h_tmp_Down = sh->GetSystematic(normName)->fHistDown;
+                        }
+                    }
+                }
+                else {
+                    h_tmp_Up   = new TH1F(Form("h_DUMMY_%s_up_%i",  normName.c_str(),i_bin-1),"h_dummy",1,0,1);
+                    h_tmp_Down = new TH1F(Form("h_DUMMY_%s_down_%i",normName.c_str(),i_bin-1),"h_dummy",1,0,1);
+                }
+                if(i_bin==1){
+                    h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),normName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),normName.c_str()), Nbin,0,Nbin) );
+                    h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),normName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),normName.c_str()), Nbin,0,Nbin) );
+                }
+                h_up[i_norm]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
+                h_down[i_norm]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                //
+                // eventually add any other samples with the same title
+                for(int j_smp=0;j_smp<fNSamples;j_smp++){
+                    sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( fSamples[j_smp]->fName );
+                    if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
+                        if(isPostFit){
+                            if(syst_idx<0){
+                                h_tmp_Up   = sh->fHist_postFit;
+                                h_tmp_Down = sh->fHist_postFit;
+                            }
+                            else{
+                                h_tmp_Up   = sh->GetSystematic(normName)->fHistUp_postFit;
+                                h_tmp_Down = sh->GetSystematic(normName)->fHistDown_postFit;
+                            }
+                        }
+                        else{
+                            if(syst_idx<0){
+                                h_tmp_Up   = sh->fHist;
+                                h_tmp_Down = sh->fHist;
+                            }
+                            else{
+                                h_tmp_Up   = sh->GetSystematic(normName)->fHistUp;
+                                h_tmp_Down = sh->GetSystematic(normName)->fHistDown;
+                            }
+                        }
+                        h_up[i_norm]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
+                        h_down[i_norm]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                    }
+                }
+            }
+        }
+        //////////////////////////////////////////////
         //
         if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, systNames, fFitResults->fCorrMatrix );
         else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, systNames );
@@ -2464,6 +2837,50 @@ void TtHFit::BuildYieldTable(string opt){
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
+    // add the norm factors
+    // KERIM
+    for(int i_norm=0;i_norm<fNNorm;i_norm++){
+        string normName = fNormFactors[i_norm]->fName;
+        systNames.push_back( normName );
+        for(int i_bin=1;i_bin<=Nbin;i_bin++){
+            // find the systematic in the region
+            int syst_idx = -1;
+            for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
+                if(normName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
+                    syst_idx = j_syst;
+                }
+            }
+            //
+            if(isPostFit){
+                if(syst_idx<0){
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit; 
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                }
+                else{
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx];
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx];
+                }
+            }
+            else{
+                if(syst_idx<0){
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot; 
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot;
+                }
+                else{
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx];
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx];
+                }
+            }
+            if(i_bin==1){
+                h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,normName.c_str()), Form("h_Tot_%s_Up_TMP",  normName.c_str()), Nbin,0,Nbin) );
+                h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",normName.c_str()), Form("h_Tot_%s_Down_TMP",normName.c_str()), Nbin,0,Nbin) );
+            }
+            h_up[fNSyst+i_norm]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+            h_down[fNSyst+i_norm]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+        }
+    }
+    // KERIM
+    //
     if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames, fFitResults->fCorrMatrix );
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames );
     //
@@ -2544,21 +2961,52 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     float Hp = 250; // height of one mini-plot, in pixels
     float Wp = 200; // width of one mini-plot, in pixels
     float H0 = 100; // height of the top label pad
+    if(TtHFitter::OPTION["FourTopStyle"]!=0) H0 = 75; // height of the top label pad
+    if(TtHFitter::OPTION["SignalRegionSize"]!=0){
+        Hp = TtHFitter::OPTION["SignalRegionSize"];
+        Wp = (200./250.)*TtHFitter::OPTION["SignalRegionSize"];
+    }
     float H = H0 + nRows*Hp; // tot height of the canvas
     float W = nCols*Wp; // tot width of the canvas
+    if(TtHFitter::OPTION["FourTopStyle"]!=0) W += 50.; // FIXME
     
     TCanvas *c = new TCanvas("c","c",W,H);
     TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
     pTop->Draw();
     pTop->cd();
-    ATLASLabel(0.1,0.7,(char*)"Internal");
-    myText(    0.1,0.4,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
-    myText(    0.1,0.1,1,Form("%s",fLabel.c_str()));
+    ATLASLabel(0.1/(W/200.),1.-0.3*(100./H0),(char*)"Simulation Internal");
+    myText(    0.1/(W/200.),1.-0.6*(100./H0),1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    if(fLabel!="-") myText(    0.1/(W/200.),1.-0.9*(100./H0),1,Form("%s",fLabel.c_str()));
+    
+    TLegend *leg = 0x0;
+    if(TtHFitter::OPTION["FourTopStyle"]!=0){
+      leg = new TLegend(0.35,1.-0.6*(100./H0),1,1.-0.3*(100./H0));
+      leg->SetNColumns(3);
+      leg->SetFillStyle(0.);
+      leg->SetBorderSize(0.);
+      leg->SetTextSize( gStyle->GetTextSize() );
+      leg->SetTextFont( gStyle->GetTextFont() );
+      leg->Draw();
+    }
     
     c->cd();
-    TPad *pBottom = new TPad("c1","c1",0,0,1,1-H0/H);
+    
+    TPad *pLeft = new TPad("c1","c1",0,0,0+(W-nCols*Wp)/W,1-H0/H);
+    pLeft->Draw();
+    pLeft->cd();
+    TLatex *tex0 = new TLatex();
+    tex0->SetNDC();
+    tex0->SetTextAngle(90);
+    tex0->SetTextAlign(23);
+    tex0->DrawLatex(0.5,0.5,"S / #sqrt{ B }");
+
+    c->cd();
+    
+//     TPad *pBottom = new TPad("c1","c1",0,0,1,1-H0/H);
+    TPad *pBottom = new TPad("c1","c1",0+(W-nCols*Wp)/W,0,1,1-H0/H);
     pBottom->Draw();
     pBottom->cd();
+    
     pBottom->Divide(nCols,nRows);
     int Nreg = nRows*nCols;
     if(Nreg>(int)regions.size()) Nreg = regions.size();
@@ -2597,20 +3045,29 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     //
     double yMax = 0;
     //
+    bool hasSR = false;
+    bool hasCR = false;
+    bool hasVR = false;
     for(int i=0;i<Nreg;i++){
         if(regions[i]==0x0) continue;
         pBottom->cd(i+1);
+        if(TtHFitter::OPTION["LogSignalRegionPlot"]) gPad->SetLogy();
         string label = regions[i]->fShortLabel;
         h[i] = new TH1F(Form("h[%d]",i),label.c_str(),3,xbins);
         h[i]->SetBinContent(2,S[i]/sqrt(B[i]));
-        h[i]->GetYaxis()->SetTitle("S / #sqrt{B}");
+        if(TtHFitter::OPTION["FourTopStyle"]==0) h[i]->GetYaxis()->SetTitle("S / #sqrt{B}");
         h[i]->GetYaxis()->CenterTitle();
         //     h[i]->GetYaxis()->SetTitleSize(0.14);
-        h[i]->GetYaxis()->SetLabelOffset(1.5*h[i]->GetYaxis()->GetLabelOffset());
-        h[i]->GetYaxis()->SetTitleOffset(9*nRows/4.);
-        //     h[i]->GetYaxis()->SetLabelSize(0.12);
+//         h[i]->GetYaxis()->SetLabelOffset(1.5*h[i]->GetYaxis()->GetLabelOffset());
+        h[i]->GetYaxis()->SetLabelOffset(1.5*h[i]->GetYaxis()->GetLabelOffset() / (Wp/200.));
+        h[i]->GetYaxis()->SetTitleOffset(9*nRows/4. );
+        if(Wp<200) h[i]->GetYaxis()->SetTitleOffset( h[i]->GetYaxis()->GetTitleOffset()*0.90 );
+        h[i]->GetYaxis()->SetLabelSize( h[i]->GetYaxis()->GetLabelSize() * (Wp/200.) );
         h[i]->GetXaxis()->SetTickLength(0);
-        h[i]->GetYaxis()->SetNdivisions(3);
+        if(TtHFitter::OPTION["LogSignalRegionPlot"]==0) h[i]->GetYaxis()->SetNdivisions(3);
+//         if(TtHFitter::OPTION["LogSignalRegionPlot"]==0) //h[i]->GetYaxis()->SetMaxDigits(3);
+        else //h[i]->GetYaxis()->SetNdivisions(2);
+          TGaxis::SetMaxDigits(5);
         yMax = TMath::Max(yMax,h[i]->GetMaximum());
         h[i]->GetXaxis()->SetLabelSize(0);
         h[i]->SetLineWidth(1);
@@ -2618,20 +3075,33 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         if(regions[i]->fRegionType==Region::SIGNAL)          h[i]->SetFillColor(kRed+1);
         else if(regions[i]->fRegionType==Region::VALIDATION) h[i]->SetFillColor(kGray);
         else                                                 h[i]->SetFillColor(kAzure-4);
+        if(leg!=0x0){
+            if(regions[i]->fRegionType==Region::CONTROL && !hasCR)    { leg->AddEntry(h[i],"Control Regions","f");    hasCR = true; }
+            if(regions[i]->fRegionType==Region::VALIDATION && !hasVR) { leg->AddEntry(h[i],"Validation Regions","f"); hasVR = true; }
+            if(regions[i]->fRegionType==Region::SIGNAL && !hasSR)     { leg->AddEntry(h[i],"Signal Regions","f");     hasSR = true; }
+        }
         h[i]->Draw();
         gPad->SetLeftMargin( gPad->GetLeftMargin()*2.4 );
         gPad->SetRightMargin(gPad->GetRightMargin()*0.1);
         gPad->SetTicky(0);
         gPad->RedrawAxis();
-        tex->DrawLatex(0.4,0.85,label.c_str());
+        tex->DrawLatex(0.42,0.85,label.c_str());
         float SoB = S[i]/B[i];
         string SB = Form("S/B = %.1f%%",(100.*SoB));
-        tex->DrawLatex(0.4,0.72,SB.c_str());
+        if(Wp<200) SB = Form("#scale[0.75]{S/B=}%.1f%%",(100.*SoB));
+        tex->DrawLatex(0.42,0.72,SB.c_str());
     }
     //
     for(int i=0;i<Nreg;i++){
         if(regions[i]==0x0) continue;
-        h[i]->SetMaximum(yMax*1.5);
+        if(TtHFitter::OPTION["LogSignalRegionPlot"]!=0){
+            h[i]->SetMaximum(yMax*200);
+            h[i]->SetMinimum(2e-4);
+        }
+        else{
+            h[i]->SetMaximum(yMax*1.5);
+            h[i]->SetMinimum(0.);
+        }
     }
     //
 //     c->SaveAs((fName+"/SignalRegions"+fSaveSuf+"."+fImageFormat).c_str());
@@ -2678,6 +3148,13 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
     float Hp = 250; // height of one mini-plot, in pixels
     float Wp = 250; // width of one mini-plot, in pixels
     float H0 = 100; // height of the top label pad
+    if(TtHFitter::OPTION["FourTopStyle"]>0) H0 = 75; // height of the top label pad
+    
+    if(TtHFitter::OPTION["PieChartSize"]!=0){
+        Hp = TtHFitter::OPTION["PieChartSize"];
+        Wp = TtHFitter::OPTION["PieChartSize"];
+    }
+    
     float H = H0 + nRows*Hp; // tot height of the canvas
     float W = nCols*Wp; // tot width of the canvas
     
@@ -2690,9 +3167,18 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
     TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
     pTop->Draw();
     pTop->cd();
-    ATLASLabel(0.05,0.7,(char*)"Internal");
-    myText(    0.05,0.4,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
-    myText(    0.05,0.1,1,Form("%s",fLabel.c_str()));
+    
+    if(TtHFitter::OPTION["FourTopStyle"]>0){
+        ATLASLabel(0.1/(W/200.),1.-0.3*(100./H0),(char*)"Simulation Internal");
+        myText(    0.1/(W/200.),1.-0.6*(100./H0),1,Form("#sqrt{s} = %s",fCmeLabel.c_str()));
+        if(fLabel!="-") myText(    0.1/(W/200.),1.-0.9*(100./H0),1,Form("%s",fLabel.c_str()));
+    }
+    else{
+        ATLASLabel(0.05 / (W/200),0.7,(char*)"Simulation Internal");
+//         myText(    0.05 / (W/200),0.4,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+        myText(    0.05 / (W/200),0.4,1,Form("#sqrt{s} = %s",fCmeLabel.c_str()));
+        if(fLabel!="-") myText(    0.05 / (W/200),0.1,1,Form("%s",fLabel.c_str()));
+    }
     
     c->cd();
     TPad *pBottom = new TPad("c1","c1",0,0,1,1-H0/H);
@@ -2779,21 +3265,40 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
     // Adding the legend in the top panel
     //
     pTop->cd();
-    TLegend *leg = new TLegend(0.7,0.1,0.95,0.90);
-    if(map_for_legend.size()>4){
-        leg -> SetNColumns(2);
+    TLegend *leg;
+    if(TtHFitter::OPTION["FourTopStyle"]>0){
+        leg = new TLegend(0.5,0.1,0.95,0.90);
+        leg -> SetNColumns(3);
     }
+    else{
+        leg = new TLegend(0.7,0.1,0.95,0.90);
+        if(map_for_legend.size()>4){
+            leg -> SetNColumns(2);
+        }
+    }
+    
     leg -> SetLineStyle(0);
     leg -> SetFillStyle(0);
     leg -> SetLineColor(0);
     leg -> SetBorderSize(0);
+    leg -> SetTextFont( gStyle->GetTextFont() );
+    leg -> SetTextSize( gStyle->GetTextSize() );
     
+    std::vector<std::string> legVec; legVec.clear();
     for ( const std::pair < std::string, int > legend_entry : map_for_legend ) {
-        TH1F *dummy = new TH1F( ("legend_entry_" + legend_entry.first).c_str(), "",1,0,1);
-        dummy -> SetFillColor(legend_entry.second);
+//         TH1F *dummy = new TH1F( ("legend_entry_" + legend_entry.first).c_str(), "",1,0,1);
+//         dummy -> SetFillColor(legend_entry.second);
+//         dummy -> SetLineColor(kBlack);
+//         dummy -> SetLineWidth(1);
+//         leg -> AddEntry(dummy,legend_entry.first.c_str(),"f");
+        legVec.push_back(legend_entry.first);
+    }
+    for(int i_leg=legVec.size()-1;i_leg>=0;i_leg--){      
+        TH1F *dummy = new TH1F( ("legend_entry_" + legVec[i_leg]).c_str(), "",1,0,1);
+        dummy -> SetFillColor(map_for_legend[legVec[i_leg]]);
         dummy -> SetLineColor(kBlack);
         dummy -> SetLineWidth(1);
-        leg -> AddEntry(dummy,legend_entry.first.c_str(),"f");
+        leg -> AddEntry(dummy,legVec[i_leg].c_str(),"f");
     }
     leg -> Draw();
     
@@ -2880,7 +3385,9 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     sample.AddNormFactor( h->fNormFactors[i_norm]->fName,
                                          h->fNormFactors[i_norm]->fNominal,
                                          h->fNormFactors[i_norm]->fMin,
-                                         h->fNormFactors[i_norm]->fMax  );
+                                         h->fNormFactors[i_norm]->fMax,
+                                         h->fNormFactors[i_norm]->fConst);
+                    if (h->fNormFactors[i_norm]->fConst) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
                 }
                 // systematics
                 if(!fStatOnly){

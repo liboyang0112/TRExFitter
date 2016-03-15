@@ -79,15 +79,12 @@ class TthPlot {
     
     float fYmin;
     float fBinWidth;
-    
     bool fIsNjet;
     bool fShowYields;
-    
     string fBinLabel[MAXbins];
-    
     float fLumiScale;
-    
     float fBlindingThreshold;
+    int fLegendNColumns;
 };
 
 // function to get asymmetric error bars for hists

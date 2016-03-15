@@ -22,10 +22,16 @@ Region::Region(string name){
     fHistoNBinsRebin = -1;
 
     string cName = "c_"+fName;
-    fPlotPreFit = new TthPlot(cName);
+    int canvasWidth = 600;
+    int canvasHeight = 700;
+    if(TtHFitter::OPTION["CanvasWidth"]!=0)  canvasWidth  = TtHFitter::OPTION["CanvasWidth"];
+    if(TtHFitter::OPTION["CanvasHeight"]!=0) canvasHeight = TtHFitter::OPTION["CanvasHeight"];
+    if(canvasWidth!=600 || canvasHeight!=700) fPlotPreFit = new TthPlot(cName,canvasWidth,canvasHeight);
+    else                                      fPlotPreFit = new TthPlot(cName);
     fPlotPreFit->fShowYields = TtHFitter::SHOWYIELDS;
     cName = "c_"+fName+"_postFit";
-    fPlotPostFit = new TthPlot(cName);
+    if(canvasWidth!=600 || canvasHeight!=700) fPlotPostFit = new TthPlot(cName,canvasWidth,canvasHeight);
+    else                                      fPlotPostFit = new TthPlot(cName);
     fPlotPostFit->fShowYields = TtHFitter::SHOWYIELDS;
     
     fSampleHists.clear();
@@ -383,10 +389,27 @@ void Region::BuildPreFitErrorHist(){
 TthPlot* Region::DrawPreFit(string opt){
     
     TthPlot *p = fPlotPreFit;
+    p->SetYmaxScale(1.8);
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
-    p->AddLabel(fFitLabel);
-    p->AddLabel(fLabel);
-    p->AddLabel("Pre-Fit");
+    //
+    // For 4-top-style plots
+    if(TtHFitter::OPTION["FourTopStyle"]>0){
+        if(fRegionType==CONTROL) p->AddLabel("#font[62]{Control Region}");
+        else if(fRegionType==SIGNAL) p->AddLabel("#font[62]{Signal Region}");
+        else if(fRegionType==VALIDATION) p->AddLabel("#font[62]{Validation Region}");
+        else p->AddLabel(fFitLabel);
+        p->AddLabel(fLabel);
+        p->AddLabel("#font[52]{Pre-fit}");
+        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumns"];
+    }
+    //
+    // old-style plots
+    else{
+        p->AddLabel(fFitLabel);
+        p->AddLabel(fLabel);
+        p->AddLabel("Pre-Fit");
+    }
+    //
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
@@ -415,6 +438,7 @@ TthPlot* Region::DrawPreFit(string opt){
         if(TtHFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
 //         if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h,title+" (norm)");
         if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h,title+"*");
+        if(TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(h,title+"*");
         if(TtHFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
         if(TtHFitter::SHOWSTACKSIG){
             if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
@@ -681,10 +705,27 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     
     TthPlot *p = fPlotPostFit;
+    p->SetYmaxScale(1.8);
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
-    p->AddLabel(fFitLabel);
-    p->AddLabel(fLabel);
-    p->AddLabel("Post-Fit");
+    //
+    // For 4-top-style plots
+    if(TtHFitter::OPTION["FourTopStyle"]>0){
+        if(fRegionType==CONTROL) p->AddLabel("#font[62]{Control Region}");
+        else if(fRegionType==SIGNAL) p->AddLabel("#font[62]{Signal Region}");
+        else if(fRegionType==VALIDATION) p->AddLabel("#font[62]{Validation Region}");
+        else p->AddLabel(fFitLabel);
+        p->AddLabel(fLabel);
+//         p->AddLabel("#font[52]{B-only fit}");
+        p->AddLabel("#font[52]{Post-fit}");
+        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumns"];
+    }
+    //
+    // old-style plots
+    else{
+        p->AddLabel(fFitLabel);
+        p->AddLabel(fLabel);
+        p->AddLabel("Post-Fit");
+    }
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
@@ -768,8 +809,12 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
-            nfName = fSampleHists[i]->fNormFactors[i_norm]->fName;
-            nfValue = fitRes->GetNuisParValue(nfName);
+            NormFactor *nf = fSampleHists[i]->fNormFactors[i_norm];
+            nfName = nf->fName;
+            if(nf->fConst) nfValue = nf->fNominal;
+            else           nfValue = fitRes->GetNuisParValue(nfName);
+//             if(nfValue==0) nfValue = 0.0001;  // FIXME
+            if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 0.0001;   // FIXME
             hSmpNew[i]->Scale(nfValue);
         }
     }
@@ -797,6 +842,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         if(TtHFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
 //         if(TtHFitter::SHOWNORMSIG)     p->AddNormSignal(hSigNew[i],title+" (norm)");
         if(TtHFitter::SHOWNORMSIG)     p->AddNormSignal(hSigNew[i],title+"*");
+        if(TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title+"*");
         if(TtHFitter::SHOWOVERLAYSIG)  p->AddOverSignal(hSigNew[i],title);
     }
     for(int i=0;i<fNBkg;i++){

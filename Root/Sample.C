@@ -149,8 +149,8 @@ void Sample::AddSystematic(Systematic* syst){
 
 //__________________________________________________________________________________
 //
-NormFactor* Sample::AddNormFactor(string name,float nominal,float min,float max){
-    fNormFactors.push_back(new NormFactor(name,nominal,min,max));
+NormFactor* Sample::AddNormFactor(string name,float nominal,float min,float max,bool isConst){
+    fNormFactors.push_back(new NormFactor(name,nominal,min,max,isConst));
     fNNorm ++;
     return fNormFactors[fNNorm-1];
 }

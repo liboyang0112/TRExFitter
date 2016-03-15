@@ -9,8 +9,9 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     c = new TCanvas(fName.c_str(),fName.c_str(),canvasWidth,canvasHeight);
     //
     pad0 = new TPad("pad0","pad0",0,0.20,1,1,0,0,0);
-    pad0->SetTickx(false);
-    pad0->SetTicky(false);
+//     pad0->SetTickx(false);
+//     pad0->SetTicky(false);
+    pad0->SetTicks(1,1);
     pad0->SetTopMargin(0.05);
     pad0->SetBottomMargin(0.1);
     pad0->SetLeftMargin(0.14);
@@ -19,14 +20,20 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     pad0->SetFillStyle(0);
     //
     pad1 = new TPad("pad1","pad1",0,0,1,0.28,0,0,0);
-    pad1->SetTickx(false);
-    pad1->SetTicky(false);
+//     pad1->SetTickx(false);
+//     pad1->SetTicky(false);
+    pad1->SetTicks(1,1);
     pad1->SetTopMargin(0.0);
     pad1->SetBottomMargin(0.37);
     pad1->SetLeftMargin(0.14);
     pad1->SetRightMargin(0.05);
     pad1->SetFrameBorderMode(0);
     pad1->SetFillStyle(0);
+    //
+    if(canvasWidth>canvasHeight){ // FIXME
+        pad0->SetLeftMargin(0.10);
+        pad1->SetLeftMargin(0.10);
+    }
     //
     pad1->Draw();
     pad0->Draw();
@@ -66,10 +73,9 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     fBkgNames.clear();
     
     fBinWidth = -1;
-    
     fLumiScale = 1.;
-    
     fBlindingThreshold = -1; // if <0, no blinding
+    fLegendNColumns = 0;
 }
 
 //_____________________________________________________________________________
@@ -281,6 +287,10 @@ void TthPlot::Draw(string options){
     pad0->cd();
     TH1* h_dummy = (TH1*)h_tot->Clone("h_dummy");
     h_dummy->Scale(0);
+    if(pad0->GetWw() > pad0->GetWh()){
+        h_dummy->GetYaxis()->SetTickLength(0.01);
+        h_dummy->GetXaxis()->SetTickLength(0.02);
+    }
     h_dummy->Draw("HIST");
     if(options.find("log")!=string::npos) pad0->SetLogy();
     
@@ -413,17 +423,25 @@ void TthPlot::Draw(string options){
         }
     }
     if(fBinLabel[1]!="") h_dummy->GetXaxis()->LabelsOption("d");
-    h_dummy->GetYaxis()->SetTitleOffset(2.3);
-    if(options.find("log")==string::npos){
-        h_dummy->SetMinimum(0);
-        if(hasData) h_dummy->SetMaximum(yMaxScale*TMath::Max(h_tot->GetMaximum(),h_data->GetMaximum()+GC_up(h_data->GetMaximum())));
-        else        h_dummy->SetMaximum(yMaxScale*h_tot->GetMaximum());
-    }
-    else{
-        h_dummy->SetMaximum(h_tot->GetMaximum()*pow(10,yMaxScale));
-        if(fYmin>0)  h_dummy->SetMinimum(fYmin);
-        else         h_dummy->SetMinimum(1.);
-    }
+//     h_dummy->GetYaxis()->SetTitleOffset(2.3);
+//     float offset = 2.3*(pad0->GetWw()/596.);
+    float offset = 2.3*(pad0->GetWh()/672.);
+//     if(pad0->GetWw() > pad0->GetWh()) offset *= 596./pad0->GetWw();
+    if(pad0->GetWw() > pad0->GetWh()) offset *= 0.8*596./pad0->GetWw();
+    cout << pad0->GetWw() << endl;
+    cout << pad0->GetWh() << endl;
+    h_dummy->GetYaxis()->SetTitleOffset( offset );
+    // MOVED DOWN
+//     if(options.find("log")==string::npos){
+//         h_dummy->SetMinimum(0);
+//         if(hasData) h_dummy->SetMaximum(yMaxScale*TMath::Max(h_tot->GetMaximum(),h_data->GetMaximum()+GC_up(h_data->GetMaximum())));
+//         else        h_dummy->SetMaximum(yMaxScale*h_tot->GetMaximum());
+//     }
+//     else{
+//         h_dummy->SetMaximum(h_tot->GetMaximum()*pow(10,yMaxScale));
+//         if(fYmin>0)  h_dummy->SetMinimum(fYmin);
+//         else         h_dummy->SetMinimum(1.);
+//     }
     
     //
     // Draw blinding markers
@@ -440,19 +458,33 @@ void TthPlot::Draw(string options){
     // Fix / redraw axis
     //
     pad0->RedrawAxis();
-    pad0->SetTickx();
-    pad0->SetTicky();
+//     pad0->SetTickx();
+//     pad0->SetTicky();
+    
+    float textHeight = 0.05*(672./pad0->GetWh());
     
     //
     // ATLAS labels
     //
-    if(fATLASlabel!="none") ATLASLabel(0.18,0.85+0.04,(char*)fATLASlabel.c_str());
-    myText(0.18,0.8+0.04,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
+//     if(fATLASlabel!="none") ATLASLabel(0.18,0.85+0.04,(char*)fATLASlabel.c_str());
+//     myText(0.18,0.8+0.04,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
+//     for(unsigned int i_lab=0;i_lab<fLabels.size();i_lab++){
+//         myText(0.18,0.8+0.04-(i_lab+1)*0.05,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
+//     }
+    float labelX = 0.18;
+    
+    if(pad0->GetWw() > pad0->GetWh()) labelX = 0.12;
+    
+    if(fATLASlabel!="none") ATLASLabel(labelX,0.84+0.04,(char*)fATLASlabel.c_str());
+    myText(labelX,0.84-textHeight+0.04,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
     for(unsigned int i_lab=0;i_lab<fLabels.size();i_lab++){
-        myText(0.18,0.8+0.04-(i_lab+1)*0.05,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
+        myText(labelX,0.84-textHeight+0.04-(i_lab+1)*textHeight,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
     }
     
     float legX1 = 1-0.41*(596./pad0->GetWw())-0.08;
+    if(TtHFitter::OPTION["FourTopStyle"]!=0){
+        legX1 = 1-0.5*(596./pad0->GetWw())-0.08;
+    }
     float legX2 = 0.94;
     float legXmid = legX1+0.5*(legX2-legX1);
     
@@ -495,6 +527,54 @@ void TthPlot::Draw(string options){
         leg->Draw();
         leg1->Draw();
     }
+    else if(fLegendNColumns==1){   //TtHFitter::OPTION["LegendNColumns"]==1){
+        int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
+        if(hasData) Nrows ++;
+        Nrows ++; // for "Uncertainty"
+        leg  = new TLegend(legXmid+0.1*(legX2-legXmid),0.92-Nrows*textHeight, legX2,0.92);
+        leg->SetFillStyle(0);
+        leg->SetBorderSize(0);
+        if(!TtHFitter::LEGENDLEFT) leg->SetTextAlign(32);
+        leg->SetTextFont(gStyle->GetTextFont());
+          leg->SetTextSize(gStyle->GetTextSize());
+        leg->SetMargin(0.18);
+        
+        //Draws data in the legend only is real data
+        if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
+        
+        //Signal and background legend
+        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+//         for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
+        for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"l");
+        for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"f");
+        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+        leg->AddEntry(g_tot,"Uncertainty","f");
+        leg->Draw();
+    }
+    else if(fLegendNColumns==3){ //TtHFitter::OPTION["LegendNColumns"]==3){
+        int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
+        if(hasData) Nrows ++;
+        Nrows ++; // for "Uncertainty"
+        leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+        leg->SetNColumns(3);
+        leg->SetFillStyle(0);
+        leg->SetBorderSize(0);
+        if(!TtHFitter::LEGENDLEFT) leg->SetTextAlign(32);
+        leg->SetTextFont(gStyle->GetTextFont());
+          leg->SetTextSize(gStyle->GetTextSize());
+        leg->SetMargin(0.20);
+        
+        //Draws data in the legend only is real data
+        if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
+        
+        //Signal and background legend
+        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+        for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
+        for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"f");
+        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+        leg->AddEntry(g_tot,"Uncertainty","f");
+        leg->Draw();
+    }
     else{
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
@@ -503,10 +583,9 @@ void TthPlot::Draw(string options){
         leg->SetNColumns(2);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
-        if(TtHFitter::LEGENDLEFT) leg->SetTextAlign(31);
-        else                      leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
-        leg->SetTextSize(gStyle->GetTextSize()*0.9);
+        if(c->GetWw() > c->GetWh()) leg->SetTextSize(gStyle->GetTextSize());
+        else                        leg->SetTextSize(gStyle->GetTextSize()*0.9);
         leg->SetMargin(0.22);
         
         //Draws data in the legend only is real data
@@ -514,7 +593,8 @@ void TthPlot::Draw(string options){
         
         //Signal and background legend
         for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
-        for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
+//         for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
+        for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"l");
         for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"f");
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
         leg->AddEntry(g_tot,"Uncertainty","f");
@@ -530,6 +610,7 @@ void TthPlot::Draw(string options){
     pad1->GetFrame()->SetY1(2);
     TH1* h_dummy2 = (TH1*)h_tot->Clone("h_dummy2");
     h_dummy2->Scale(0);
+    if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetTickLength(0.01);
     h_dummy2->Draw("HIST");
     h_dummy2->GetYaxis()->SetTitleOffset(1.*h_dummy->GetYaxis()->GetTitleOffset());
     
@@ -551,13 +632,14 @@ void TthPlot::Draw(string options){
     // Plots style
     //
     h_dummy2->SetTitle("Data/MC");
-    h_dummy2->GetYaxis()->CenterTitle();
-    h_dummy2->GetYaxis()->SetTitle("Data / Pred.");
+//     h_dummy2->GetYaxis()->CenterTitle();
+    h_dummy2->GetYaxis()->SetTitle("Data / Pred. ");
     h_dummy2->GetYaxis()->SetLabelSize(0.8*h_ratio->GetYaxis()->GetLabelSize());
-    h_dummy2->GetYaxis()->SetLabelOffset(0.02);
+    if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetLabelOffset(0.01);
+    else                              h_dummy2->GetYaxis()->SetLabelOffset(0.02);
     h_dummy2->GetYaxis()->SetNdivisions(504,false);
     gStyle->SetEndErrorSize(4.);
-    pad1 -> SetTicky();
+//     pad1 -> SetTicky();
     
     //
     // Compute Data/MC ratio
@@ -603,17 +685,24 @@ void TthPlot::Draw(string options){
         h_ratio->Draw("E0 same");
     }
     hline->Draw();
+    //
+    float y_ratio_min = 0.50;
+    float y_ratio_max = 1.50;
     if(options.find("prefit")!=string::npos){
-        h_dummy2->SetMinimum(0.00);
-        h_dummy2->SetMaximum(2.00);
+        y_ratio_min = 0.00;
+        y_ratio_max = 2.00;
     }
-    else{
-        h_dummy2->SetMinimum(0.50);
-        h_dummy2->SetMaximum(1.50);
-    }
-    
+    h_dummy2->SetMinimum(y_ratio_min);
+    h_dummy2->SetMaximum(y_ratio_max);
+    //
     h_dummy2->GetXaxis()->SetTitle(h_dummy->GetXaxis()->GetTitle());
-    h_dummy2->GetXaxis()->SetTitleOffset(5.);
+//     h_dummy2->GetXaxis()->SetTitleOffset(5.);
+//     h_dummy2->GetXaxis()->SetTitleOffset(5.*(pad0->GetWw()/596.));
+    // FIXME
+    h_dummy2->GetXaxis()->SetLabelSize( 0.9*h_dummy2->GetXaxis()->GetLabelSize() );
+    h_dummy2->GetXaxis()->SetTitleOffset(5.05*(pad0->GetWw()/596.));
+//     h_dummy2->GetXaxis()->SetTitleSize( h_dummy2->GetXaxis()->GetTitleSize() );
+    //
     h_dummy->GetXaxis()->SetTitle("");
     h_dummy->GetXaxis()->SetLabelSize(0);
     
@@ -637,13 +726,15 @@ void TthPlot::Draw(string options){
     if(fBinLabel[1]!="") h_dummy2->GetXaxis()->LabelsOption("d");
     h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
     if(customLabels && h_dummy->GetNbinsX()>10) h_dummy2->GetXaxis()->SetLabelSize(0.66*h_dummy2->GetXaxis()->GetLabelSize() );
+    if(customLabels) h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
     gPad->RedrawAxis();
     
     // to hide the upper limit (label) of the ratio plot
     TLine line(0.01,1,0.1,1);
     line.SetLineColor(kWhite);
-    line.SetLineWidth(20);
-    line.DrawLineNDC(0.07,1,0.135,1);
+    line.SetLineWidth(25);
+    if(pad0->GetWw() > pad0->GetWh()) line.DrawLineNDC(0.05,1,0.090,1);
+    else                              line.DrawLineNDC(0.07,1,0.135,1);
     
     //
     // Add arrows when the ratio is beyond the limits of the ratio plot
@@ -664,8 +755,10 @@ void TthPlot::Draw(string options){
         
         if (isUp!=0) {
             TArrow *arrow;
-            if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),1.45, h_ratio->GetXaxis()->GetBinCenter(i_bin),1.5,0.030,"|>");
-            else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),0.55, h_ratio->GetXaxis()->GetBinCenter(i_bin),0.5,0.030,"|>");
+//             if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),1.45, h_ratio->GetXaxis()->GetBinCenter(i_bin),1.5,0.030,"|>");
+//             else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),0.55, h_ratio->GetXaxis()->GetBinCenter(i_bin),0.5,0.030,"|>");
+            if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_max-0.05*(y_ratio_max-y_ratio_min), h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_max,0.030,"|>");
+            else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_min+0.05*(y_ratio_max-y_ratio_min), h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_min,0.030,"|>");
             arrow->SetFillColor(10);
             arrow->SetFillStyle(1001);
             arrow->SetLineColor(kBlue-7);
@@ -745,6 +838,45 @@ void TthPlot::Draw(string options){
             h_dummy->GetYaxis()->SetTitle(ytitle.c_str());
         }
     }
+
+    
+    // Fix y max
+    //
+    float yMax = 0.;
+    float y;
+    // take into account also total prediction uncertainty
+    for(int i_bin=1;i_bin<h_tot->GetNbinsX()+1;i_bin++){
+        y = h_tot->GetBinContent(i_bin)+g_tot->GetEYhigh()[i_bin-1];
+        if(y>yMax) yMax = y;
+        if(hasData){
+            y = h_data->GetBinContent(i_bin)+g_data->GetEYhigh()[i_bin-1];
+            if(y>yMax) yMax = y;
+        }
+    }
+    //
+    if(options.find("log")==string::npos){
+        h_dummy->SetMinimum(0);
+//         if(hasData) h_dummy->SetMaximum(yMaxScale*TMath::Max(h_tot->GetMaximum(),h_data->GetMaximum()+GC_up(h_data->GetMaximum())));
+//         else        h_dummy->SetMaximum(yMaxScale*h_tot->GetMaximum());
+        h_dummy->SetMaximum(yMaxScale*yMax);
+    }
+    else{
+        h_dummy->SetMaximum(yMax*pow(10,yMaxScale));
+        if(fYmin>0)  h_dummy->SetMinimum(fYmin);
+        else         h_dummy->SetMinimum(1.);
+    }  
+    
+    //
+    // eventually make y-axis labels smaller...
+    if(pad0->GetWw()<596. && h_dummy->GetMaximum()>10000){
+        h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.75 );
+    }
+    else if(pad0->GetWw()<596. && h_dummy->GetMaximum()>1000){
+        h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
+    }
+    
+    // FIXME
+    if(fNormSigNames.size()>0) myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
 }
 
 //_____________________________________________________________________________

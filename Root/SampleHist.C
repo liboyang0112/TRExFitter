@@ -55,9 +55,9 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
 //         if(sample->fSystematics[i_syst]->fType == Systematic::OVERALL)
 //             AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
 //     }
-    for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
-        AddNormFactor(sample->fNormFactors[i_norm]);
-    }
+//     for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
+//         AddNormFactor(sample->fNormFactors[i_norm]);
+//     }
 }
 
 //_____________________________________________________________________________
@@ -82,9 +82,9 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
 //         if(sample->fSystematics[i_syst]->fType == Systematic::OVERALL)
 //             AddOverallSyst(sample->fSystematics[i_syst]->fName,sample->fSystematics[i_syst]->fOverallUp,sample->fSystematics[i_syst]->fOverallDown);
 //     }
-    for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
-        AddNormFactor(sample->fNormFactors[i_norm]);
-    }
+//     for(int i_norm=0;i_norm<sample->fNNorm;i_norm++){
+//         AddNormFactor(sample->fNormFactors[i_norm]);
+//     }
 }
 
 //_____________________________________________________________________________

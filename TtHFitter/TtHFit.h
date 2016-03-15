@@ -9,6 +9,7 @@
 #include "TtHFitter/FitResults.h"
 #include "TtHFitter/Sample.h"
 #include "TtHFitter/Systematic.h"
+#include "TtHFitter/NormFactor.h" // KERIM
 #include "TtHFitter/Region.h"
 #include "TtHFitter/ConfigParser.h"
 
@@ -18,6 +19,7 @@
 class Region;
 class Sample;
 class Systematic;
+class NormFactor; // KERIM
 class ConfigParser;
 class RooDataSet;
 class RooWorkspace;
@@ -144,10 +146,14 @@ public:
     std::vector < Region* > fRegions;
     std::vector < Sample* > fSamples;
     std::vector < Systematic* > fSystematics;
+    std::vector < NormFactor* > fNormFactors;
+    std::vector < string > fSystematicNames;
+    std::vector < string > fNormFactorNames;
     
     int fNRegions;
     int fNSamples;
     int fNSyst;
+    int fNNorm;
     string fPOI;
     bool fUseStatErr;
     float fStatErrThres;
@@ -186,6 +192,8 @@ public:
     std::vector<string> fRegionsToPlot;
     std::vector<string> fSummaryPlotRegions;
     std::vector<string> fSummaryPlotLabels;
+    std::vector<string> fSummaryPlotValidationRegions;
+    std::vector<string> fSummaryPlotValidationLabels;
 
 //     bool fHistoCheckCrash;
     
