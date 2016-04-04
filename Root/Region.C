@@ -482,7 +482,8 @@ TthPlot* Region::DrawPreFit(string opt){
     //
     p->SetTotBkg((TH1*)fTot);
     p->SetTotBkgAsym(fErr);
-    p->fATLASlabel = "Internal";
+//     p->fATLASlabel = "Internal";
+    p->fATLASlabel = "Preliminary";
     if(fLogScale) opt += " log";
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     p->Draw(opt);
@@ -629,8 +630,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     double scaleUp = 0;
                     double scaleDown = 0;
                     if(yieldNominal!=0){
-                        scaleUp = (yieldUp/yieldNominal-1.)*(systErrUp-systValue);
-                        scaleDown = (yieldDown/yieldNominal-1.)*(systValue-systErrDown);
+//                         scaleUp = (yieldUp/yieldNominal-1.)*(systErrUp-systValue);
+//                         scaleDown = (yieldDown/yieldNominal-1.)*(systValue-systErrDown);
+                        scaleUp = (yieldUp/yieldNominal-1.)*systErrUp;  // FIX: need to check the effect on post-fit plots...
+                        scaleDown = (yieldDown/yieldNominal-1.)*(-systErrDown);  // FIX: need to check the effect on post-fit plots...
                     }
                     diffUp += scaleUp*yieldNominal_postFit;
                     diffDown += scaleDown*yieldNominal_postFit;
@@ -995,13 +998,24 @@ void Region::Print(){
 
 //__________________________________________________________________________________
 //
-void Region::PrintSystTable(){
+void Region::PrintSystTable(string opt){
+    bool isPostFit = false;
+    if(opt.find("post")!=string::npos){
+        isPostFit = true;
+    }
+    //
     ofstream out;
     ofstream texout;
     gSystem->mkdir(fFitName.c_str());
     gSystem->mkdir((fFitName+"/Tables").c_str());
-    out.open((fFitName+"/Tables/"+fName+"_syst.txt").c_str());
-    texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
+    if(isPostFit){
+        out.open((fFitName+"/Tables/"+fName+"_syst_postFit.txt").c_str());
+        texout.open((fFitName+"/Tables/"+fName+"_syst_postFit.tex").c_str());
+    }
+    else{
+        out.open((fFitName+"/Tables/"+fName+"_syst.txt").c_str());
+        texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
+    }
     Sample *s = 0x0;
     SampleHist *sh = 0x0;
     SystematicHist *syh = 0x0;
@@ -1092,10 +1106,20 @@ void Region::PrintSystTable(){
             }
 //             sh = GetSampleHist(fSamples[i_smp]->fName);
             else{
-                out << " | " << syh->fNormUp;
-                texout << setprecision(3) << " & " << syh->fNormUp;
-                out << " / " << syh->fNormDown;
-                texout << setprecision(3) << " / " << syh->fNormDown;
+                float normUp;
+                float normDown;
+                if(isPostFit){
+                    normUp   = (syh->fHistUp_postFit->Integral()   - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
+                    normDown = (syh->fHistDown_postFit->Integral() - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
+                }
+                else{
+                    normUp = syh->fNormUp;
+                    normDown = syh->fNormDown;
+                }
+                out << " | " << normUp;
+                texout << setprecision(3) << " & " << normUp;
+                out << " / " << normDown;
+                texout << setprecision(3) << " / " << normDown;
 //                 pt[i_smp]->AddText(Form("%.2f / %.2f",syh->fNormUp,syh->fNormDown) );
             }
 //             if(i_syst==(int)fSystNames.size()-1) pt[i_smp]->Draw("NB");

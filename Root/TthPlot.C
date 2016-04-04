@@ -678,7 +678,8 @@ void TthPlot::Draw(string options){
     // Now draws everything
     //
     TLine *hline = new TLine(h_dummy2->GetXaxis()->GetXmin(),1,h_dummy2->GetXaxis()->GetXmax(),1);
-    hline->SetLineColor(kRed);
+//     hline->SetLineColor(kRed);
+    hline->SetLineColor(kBlack);
     hline->SetLineWidth(2);
     hline->SetLineStyle(2);
     if(hasData){

@@ -7,6 +7,8 @@
 #ifndef _FittingTool_
 #define _FittingTool_
 
+#include "TtHFitter/Common.h"
+
 class RooFitResult;
 class TString;
 class RooAbsPdf;

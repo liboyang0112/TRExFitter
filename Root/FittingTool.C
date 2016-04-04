@@ -152,6 +152,10 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     const int maxRetries = 3;
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer(m_minimType);
     int strat = ROOT::Math::MinimizerOptions::DefaultStrategy();
+    if(TtHFitter::OPTION["FitStrategy"]!=0){
+        strat = TtHFitter::OPTION["FitStrategy"];
+        if(TtHFitter::OPTION["FitStrategy"]<0) strat = 0;
+    }
     int save_strat = strat;
     RooMinimizer minim(*nll);
     minim.setStrategy(strat);
@@ -182,7 +186,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
         
         //up the strategy
         bool FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>1.0);
-        if (FitIsNotGood && strat<2){
+        if (FitIsNotGood && strat < 2){
             cout << endl;
             cout << "   *******************************" << endl;
             cout << "   * Increasing Minuit strategy (was " << strat << ")" << endl;

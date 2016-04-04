@@ -136,6 +136,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->DrawSummary("log post");
         myFit->DrawSummary("log post valid");
         myFit->BuildYieldTable("post");
+        myFit->PrintSystTables("post");
         int nCols = 2;
         int nRows = 2;
         if(myFit->fNRegions>4){

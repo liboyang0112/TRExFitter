@@ -75,6 +75,7 @@ TtHFit::TtHFit(string name){
     
     fRankingMaxNP = 10;
     fRankingOnly = "all";
+    fAtlasLabel = "Internal";
     
     fStatOnly = false;
     fSystDataPlot_upFrame = false;
@@ -670,9 +671,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             }
         }
     }
-    param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = Vectorize(param,','); };
-    
-    param = cs->Get("UseMinos"); if( param != "" ){ fVarNameMinos = Vectorize(param,','); };
+    param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = Vectorize(param,','); }
+    param = cs->Get("UseMinos"); if( param != "" ){ fVarNameMinos = Vectorize(param,','); }
+    param = cs->Get("AtlasLabel"); if( param != "" ){ fAtlasLabel = param; }
     
     //##########################################################
     //
@@ -2275,7 +2276,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
         else          p->AddLabel("Pre-fit");
     }
     //
-    p->fATLASlabel = "Internal";
+//     p->fATLASlabel = "Internal";
+    p->fATLASlabel = fAtlasLabel;
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
@@ -2962,6 +2964,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     float Wp = 200; // width of one mini-plot, in pixels
     float H0 = 100; // height of the top label pad
     if(TtHFitter::OPTION["FourTopStyle"]!=0) H0 = 75; // height of the top label pad
+    if(TtHFitter::OPTION["FourTopStyle"]!=0) Hp = 200;
     if(TtHFitter::OPTION["SignalRegionSize"]!=0){
         Hp = TtHFitter::OPTION["SignalRegionSize"];
         Wp = (200./250.)*TtHFitter::OPTION["SignalRegionSize"];
@@ -2998,7 +3001,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     tex0->SetNDC();
     tex0->SetTextAngle(90);
     tex0->SetTextAlign(23);
-    tex0->DrawLatex(0.5,0.5,"S / #sqrt{ B }");
+    tex0->DrawLatex(0.4,0.5,"S / #sqrt{ B }");
 
     c->cd();
     
@@ -3052,6 +3055,10 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         if(regions[i]==0x0) continue;
         pBottom->cd(i+1);
         if(TtHFitter::OPTION["LogSignalRegionPlot"]) gPad->SetLogy();
+        if(TtHFitter::OPTION["FourTopStyle"]!=0){
+            gPad->SetLeftMargin(0.1);
+            gPad->SetRightMargin(0.);
+        }
         string label = regions[i]->fShortLabel;
         h[i] = new TH1F(Form("h[%d]",i),label.c_str(),3,xbins);
         h[i]->SetBinContent(2,S[i]/sqrt(B[i]));
@@ -3063,6 +3070,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         h[i]->GetYaxis()->SetTitleOffset(9*nRows/4. );
         if(Wp<200) h[i]->GetYaxis()->SetTitleOffset( h[i]->GetYaxis()->GetTitleOffset()*0.90 );
         h[i]->GetYaxis()->SetLabelSize( h[i]->GetYaxis()->GetLabelSize() * (Wp/200.) );
+        if(TtHFitter::OPTION["FourTopStyle"]!=0) h[i]->GetYaxis()->SetLabelSize( h[i]->GetYaxis()->GetLabelSize() * 1.1 );
         h[i]->GetXaxis()->SetTickLength(0);
         if(TtHFitter::OPTION["LogSignalRegionPlot"]==0) h[i]->GetYaxis()->SetNdivisions(3);
 //         if(TtHFitter::OPTION["LogSignalRegionPlot"]==0) //h[i]->GetYaxis()->SetMaxDigits(3);
@@ -3085,11 +3093,24 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         gPad->SetRightMargin(gPad->GetRightMargin()*0.1);
         gPad->SetTicky(0);
         gPad->RedrawAxis();
-        tex->DrawLatex(0.42,0.85,label.c_str());
+        if(TtHFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.85,label.c_str());
+        else                                     tex->DrawLatex(0.27,0.85,label.c_str());
         float SoB = S[i]/B[i];
-        string SB = Form("S/B = %.1f%%",(100.*SoB));
-        if(Wp<200) SB = Form("#scale[0.75]{S/B=}%.1f%%",(100.*SoB));
-        tex->DrawLatex(0.42,0.72,SB.c_str());
+        string SB = Form("%.1f%%",(100.*SoB));
+//         if(Wp<200) SB = Form("#scale[0.75]{S/B=}%.1f%%",(100.*SoB));
+        if(TtHFitter::OPTION["FourTopStyle"]!=0){
+            if( (100.*SoB)<0.1 ){
+//                 SB = Form("S/B = %.0e%%",(100.*SoB));
+                SB = Form("%.0e%%",SoB);
+                if(SB.find("0")!=string::npos)SB.replace(SB.find("0"), 1, "");
+                if(SB.find("e")!=string::npos) SB.replace(SB.find("e"), 1, "#scale[0.75]{#times}10^{");
+                if(SB.find("%")!=string::npos)SB.replace(SB.find("%"), 1, "}");
+//                 SB = Form("S/B = %.0e%%",(100.*SoB));
+            }
+        }
+        SB = "#scale[0.75]{S/B} = "+SB;
+        if(TtHFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.72,SB.c_str());
+        else                                     tex->DrawLatex(0.27,0.72,SB.c_str());
     }
     //
     for(int i=0;i<Nreg;i++){
@@ -4718,6 +4739,7 @@ void TtHFit::PlotNPRanking(){
     axis_up->Draw();
     axis_up->CenterTitle();
     axis_up->SetTitle("#Delta#mu");
+    if(SIZE==20) axis_up->SetTitleOffset(1.5);
     axis_up->SetTitleSize(   h_dummy->GetXaxis()->GetLabelSize() );
     axis_up->SetTitleFont(   gStyle->GetTextFont() );
     
@@ -4785,10 +4807,10 @@ void TtHFit::PlotNPRanking(){
 
 //____________________________________________________________________________________
 //
-void TtHFit::PrintSystTables(){
+void TtHFit::PrintSystTables(string opt){
     std::cout << "TtHFit::INFO: Printing syt tables" << std::endl;
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
-        fRegions[i_reg]->PrintSystTable();
+        fRegions[i_reg]->PrintSystTable(opt);
     }
 }
 

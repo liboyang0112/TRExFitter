@@ -135,7 +135,7 @@ public:
     void ProduceNPRanking(string NPnames="all");
     void PlotNPRanking();
     
-    void PrintSystTables();
+    void PrintSystTables(string opt="");
     
     // -------------------------
       
@@ -210,8 +210,8 @@ public:
     
     int fRankingMaxNP;
     std::string fRankingOnly;
-    
     std::string fImageFormat;
+    std::string fAtlasLabel;
     
     //
     // Fit caracteristics

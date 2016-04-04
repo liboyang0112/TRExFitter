@@ -1,3 +1,7 @@
+2016-04-03 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Post-fit syst tables added (created while running the p option)
+        * Post-fit uncertainty small fix (relevant with large pulls) - to check!
+
 2016-03-15 Michele Pinamonti <michele.pinamonti@gmail.com>
         * NormFactor usage extended: now is possible to define them in the same way as the Systematics, allowing to have more than one of them for each sample, to have them fixed, to have norm factors affecting more samples, etc... 
         * Post-fit norm factor propagation to tables and sumary plots fixed
