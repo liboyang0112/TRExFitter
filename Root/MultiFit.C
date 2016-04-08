@@ -476,8 +476,10 @@ void MultiFit::ComparePulls(){
             systName = Names[i_syst];
             if(centralMap[systName]!=0 || (errUpMap[systName]!=0 || errDownMap[systName]!=0)){
                 g[i_fit]->SetPoint(i_syst,centralMap[systName],i_syst+0.5+yshift[i_fit]);
-                g[i_fit]->SetPointEXhigh(i_syst,  errUpMap[systName]  <1 ?  errUpMap[systName]   : 1);
-                g[i_fit]->SetPointEXlow( i_syst, -errDownMap[systName]<1 ? -errDownMap[systName] : 1);
+//                 g[i_fit]->SetPointEXhigh(i_syst,  errUpMap[systName]  <1 ?  errUpMap[systName]   : 1);
+//                 g[i_fit]->SetPointEXlow( i_syst, -errDownMap[systName]<1 ? -errDownMap[systName] : 1);
+                g[i_fit]->SetPointEXhigh(i_syst,  errUpMap[systName]);
+                g[i_fit]->SetPointEXlow( i_syst, -errDownMap[systName]);
             }
             else{
                 g[i_fit]->SetPoint(i_syst,-10,-10);

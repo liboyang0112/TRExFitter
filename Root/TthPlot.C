@@ -376,6 +376,7 @@ void TthPlot::Draw(string options){
     if(h_normsig!=0x0){
         for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
             signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
+            std::cout << "--- Signal " << fNormSigNames[i_smp] << " scaled by " <<signalScale << std::endl;
             h_normsig[i_smp]->Scale(signalScale);
             h_normsig[i_smp]->SetLineColor(h_normsig[i_smp]->GetFillColor());
             h_normsig[i_smp]->SetFillColor(0);

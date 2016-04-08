@@ -610,6 +610,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fStatOnly = false;
         }
     }
+    param = cs->Get("InputFolder");    if( param != "" ){
+        fInputFolder = param;
+    }
     
     //
     // General options
@@ -1962,7 +1965,8 @@ void TtHFit::ReadHistos(/*string fileName*/){
     //
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
     if(singleOutputFile){
-        fileName = fName + "/Histograms/" + fName + "_histos.root";
+        if(fInputFolder!="") fileName = fInputFolder           + fName + "_histos.root";
+        else                 fileName = fName + "/Histograms/" + fName + "_histos.root";
         std::cout << "-----------------------------" << std::endl;
         std::cout << "Reading histograms from file " << fileName << " ..." << std::endl;
     }
@@ -1972,7 +1976,8 @@ void TtHFit::ReadHistos(/*string fileName*/){
         if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading region " << regionName << std::endl;
         //
         if(!singleOutputFile){
-            fileName = fName + "/Histograms/" + fName + "_" + regionName + "_histos.root";
+            if(fInputFolder!="") fileName = fInputFolder           + fName + "_" + regionName + "_histos.root";
+            else                 fileName = fName + "/Histograms/" + fName + "_" + regionName + "_histos.root";
             std::cout << "-----------------------------" << std::endl;
             std::cout << "Reading histograms from file " << fileName << " ..." << std::endl;
         }

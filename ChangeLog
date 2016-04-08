@@ -1,3 +1,7 @@
+2016-04-08 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * InputFolder option added, to use intermediate histograms stored in a directory other than <job-name>/Histograms/
+        * Fix in MultiFit::ComparePulls
+
 2016-04-03 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Post-fit syst tables added (created while running the p option)
         * Post-fit uncertainty small fix (relevant with large pulls) - to check!

@@ -482,8 +482,8 @@ TthPlot* Region::DrawPreFit(string opt){
     //
     p->SetTotBkg((TH1*)fTot);
     p->SetTotBkgAsym(fErr);
-//     p->fATLASlabel = "Internal";
-    p->fATLASlabel = "Preliminary";
+    p->fATLASlabel = "Internal";
+//     p->fATLASlabel = "Preliminary";
     if(fLogScale) opt += " log";
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     p->Draw(opt);
@@ -817,7 +817,9 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             if(nf->fConst) nfValue = nf->fNominal;
             else           nfValue = fitRes->GetNuisParValue(nfName);
 //             if(nfValue==0) nfValue = 0.0001;  // FIXME
-            if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 0.0001;   // FIXME
+//             if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 0.0001;   // FIXME
+//             if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 1;   // FIXME
+            if(nfName=="SigXsecOverSM") nfValue = 1;   // FIXME
             hSmpNew[i]->Scale(nfValue);
         }
     }

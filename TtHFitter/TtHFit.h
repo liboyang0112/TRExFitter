@@ -142,6 +142,7 @@ public:
     string fName;
     string fLabel;
     string fResultsFolder;
+    string fInputFolder;
     
     std::vector < Region* > fRegions;
     std::vector < Sample* > fSamples;
