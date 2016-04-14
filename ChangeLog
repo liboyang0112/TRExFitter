@@ -1,3 +1,7 @@
+2016-04-14 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * simple/minimal workspace combination method added to MultiFit (to test!)
+        * example added for usage of MultiFit
+        
 2016-04-08 Michele Pinamonti <michele.pinamonti@gmail.com>
         * InputFolder option added, to use intermediate histograms stored in a directory other than <job-name>/Histograms/
         * Fix in MultiFit::ComparePulls

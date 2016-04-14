@@ -4155,7 +4155,7 @@ void TtHFit::GetSignificance(){
     //
     const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
     TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
-    RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get(fName.c_str());
+    RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fName+fSuffix).c_str());
     TString outputName = f_origin->GetName();
     f_origin -> Close();
 
@@ -4172,7 +4172,7 @@ void TtHFit::GetSignificance(){
     //
     // Finally computing the significance
     //
-    string cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+"\",\""+fName+"/Significance\")'";
+    string cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
     gSystem->Exec(cmd.c_str());
 }
 

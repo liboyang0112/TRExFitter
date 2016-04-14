@@ -23,17 +23,6 @@
 void FitExample(string opt="h",string configFile="util/myFit.config",string options=""){
     SetAtlasStyle();
     
-    // multi-fit
-    bool isMultiFit      = opt.find("m")!=string::npos;    
-    if(isMultiFit){
-        MultiFit *myMultiFit = new MultiFit();
-        myMultiFit->ReadConfigFile(configFile,options);
-        if(myMultiFit->fComparePulls)  myMultiFit->ComparePulls();
-        if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI("SigXsecOverSM");
-        if(myMultiFit->fCompareLimits) myMultiFit->CompareLimit();
-        return;
-    }
-    
     // interpret opt
     bool readHistograms  = opt.find("h")!=string::npos;
     bool readNtuples     = opt.find("n")!=string::npos;
@@ -45,6 +34,34 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     bool drawPreFit      = opt.find("d")!=string::npos;
     bool drawPostFit     = opt.find("p")!=string::npos;
     bool drawSeparation  = opt.find("a")!=string::npos;
+    
+    // multi-fit
+    bool isMultiFit      = opt.find("m")!=string::npos;    
+    if(isMultiFit){
+        MultiFit *myMultiFit = new MultiFit();
+        myMultiFit->ReadConfigFile(configFile,options);
+        //
+        if(myMultiFit->fCombine){
+            if(createWorkspace){
+                myMultiFit->SaveCombinedWS();
+            }
+            if(doFit){
+                myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName );
+            }
+            if(doLimit){
+                myMultiFit->GetCombinedLimit( myMultiFit->fDataName );
+            }
+        }
+        //
+        if(myMultiFit->fCompare){
+            if(myMultiFit->fComparePulls)  myMultiFit->ComparePulls();
+            if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI("SigXsecOverSM");
+            if(myMultiFit->fCompareLimits) myMultiFit->CompareLimit();
+        }
+        return;
+    }
+    
+    // proceed if not multi-fit
     
     TtHFit *myFit = new TtHFit();
     myFit->ReadConfigFile(configFile,options);

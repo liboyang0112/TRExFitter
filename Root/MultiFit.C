@@ -1,6 +1,17 @@
 #include "TtHFitter/MultiFit.h"
 
 #include "TtHFitter/ConfigParser.h"
+#include "TtHFitter/FittingTool.h"
+
+//Roofit headers
+#include "RooSimultaneous.h"
+#include "RooDataSet.h"
+#include "RooCategory.h"
+#include "RooDataSet.h"
+#include "RooStats/ModelConfig.h"
+
+//HistFactory headers
+#include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
 
 // -------------------------------------------------------------------------------------------------
 // class MultiFit
@@ -17,10 +28,18 @@ MultiFit::MultiFit(string name){
     fConfig = new ConfigParser();
     fSaveSuf = "";
     fFitShowObserved.clear();
+    fPOI = "SigXsecOverSM";
+    fPOIMin = 0;
+    fPOIMax = 10;
     //
+    fCombine       = false;
+    fCompare       = false;
     fCompareLimits = true;
     fComparePOI    = true;
     fComparePulls  = true;
+    //
+    fDataName      = "obsData";
+    fFitType       = 1; // 1: S+B, 2: B-only
 }
 
 //__________________________________________________________________________________
@@ -49,12 +68,26 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("LumiLabel"); if( param != "")  fLumiLabel = param;
     param = cs->Get("CmeLabel");  if( param != "")  fCmeLabel  = param;
     param = cs->Get("SaveSuf");   if( param != "")  fSaveSuf   = param;
-    param = cs->Get("ShowObserved");   if( param != "" && param != "FALSE") fShowObserved = true;
+    param = cs->Get("ShowObserved");   if( param != "" && param != "FALSE" ) fShowObserved = true;
     param = cs->Get("LimitTitle"); if( param != "") fLimitTitle = param;
     if(fLimitTitle.find("95CL")!=string::npos) fLimitTitle.replace(fLimitTitle.find("95CL"),4,"95% CL");
-    param = cs->Get("CompareLimits"); if( param != "" && param != "TRUE")  fCompareLimits = false;
-    param = cs->Get("ComparePOI");    if( param != "" && param != "TRUE")  fComparePOI    = false;
-    param = cs->Get("ComparePulls");  if( param != "" && param != "TRUE")  fComparePulls  = false;
+    param = cs->Get("CompareLimits"); if( param != "" && param != "TRUE" )  fCompareLimits = false;
+    param = cs->Get("ComparePOI");    if( param != "" && param != "TRUE" )  fComparePOI    = false;
+    param = cs->Get("ComparePulls");  if( param != "" && param != "TRUE" )  fComparePulls  = false;
+    //
+    param = cs->Get("Combine"); if( param != "" && param != "FALSE" )  fCombine = true;
+    param = cs->Get("Compare"); if( param != "" && param != "FALSE" )  fCompare = true;
+    //
+    param = cs->Get("POIName");  if( param != "" ) fPOI = param;
+    param = cs->Get("POIRange"); if( param != "" && Vectorize(param,',').size()==2 ) {
+        fPOIMin = atof( Vectorize(param,',')[0].c_str() );
+        fPOIMax = atof( Vectorize(param,',')[1].c_str() );
+    }
+    param = cs->Get("DataName"); if( param != "" ) fDataName = param;
+    param = cs->Get("FitType");  if( param != "" ){
+        if(param=="SPLUSB") fFitType = 1;
+        if(param=="BONLY")  fFitType = 2;
+    }
     
     //
     // fits
@@ -69,6 +102,8 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         if(param!="" && options!="") fullOptions = options+";"+param;
         else if(param!="") fullOptions = param;
         else fullOptions = options;
+        // name
+        fFitNames.push_back(cs->GetValue());
         // label
         param = cs->Get("Label");
         string label = cs->GetValue();
@@ -104,6 +139,171 @@ void MultiFit::AddFitFromConfig(string configFile,string options,string label,st
 
 //__________________________________________________________________________________
 //
+RooWorkspace* MultiFit::CombineWS(){
+    cout << "...................................." << endl;
+    std::cout << "Combining workspaces..." << std::endl;
+    
+    std::vector < RooWorkspace* > vec_ws;
+    std::vector < std::string > vec_chName;
+    RooStats::HistFactory::Measurement *measurement = 0x0;
+    TFile *rootFileCombined = 0x0;
+    
+    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+        std::string fitName = fFitList[i_fit]->fName;
+        std::cout << "Adding Fit: " << fitName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
+        
+        RooStats::HistFactory::Measurement *meas;
+        std::string fileName = fitName + "/RooStats/" + fitName + "_combined_" + fitName + fFitSuffs[i_fit] + "_model.root";
+        std::cout << "Opening file " << fileName << std::endl;
+        TFile *rootFile = new TFile(fileName.c_str(),"read");
+        RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get("combined");
+        std::cout << "Getting " << fitName+fFitSuffs[i_fit] << std::endl;
+        meas = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fitName+fFitSuffs[i_fit]).c_str());
+        //
+        // import measurement if not there yet
+        if(!measurement){
+            measurement = meas;
+        }
+        //
+        // Combine combined workspaces directly
+        std::vector<RooStats::HistFactory::Channel> chVec = meas->GetChannels();
+        for(unsigned int i_ch=0;i_ch<chVec.size();i_ch++){
+            vec_ws.push_back(m_ws);
+            vec_chName.push_back(chVec[i_ch].GetName());
+        }
+        
+        // 
+        // Alternative way: combine the individual workspaces for the different chanenels
+        // Loop on all the regions in each fit
+//         for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
+//             Region *reg = fFitList[i_fit]->fRegions[i_reg];
+//             std::string fileName = fitName + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
+//             std::cout << "  Opening file " << fileName << std::endl;
+//             TFile *rootFile = new TFile(fileName.c_str(),"read");
+//             RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get(reg->fName.c_str());
+//             std::cout << "  Getting " << reg->fName << std::endl;
+//             vec_ws.push_back(m_ws);
+//             vec_chName.push_back(reg->fName);
+//         }
+        //
+    }
+    
+    //
+    // Create the HistoToWorkspaceFactoryFast object to perform safely the combination
+    //
+    if(!measurement){
+        std::cout << "<!> Error in MultiFit::CombineWS() : The measurement object has not been retrieved ! Please check." << std::endl;
+        return 0;
+    }
+    RooStats::HistFactory::HistoToWorkspaceFactoryFast factory(*measurement);
+    
+    // Creating the combined model
+    RooWorkspace* ws = factory.MakeCombinedModel( vec_chName, vec_ws );
+    
+    cout << "...................................." << endl;
+    
+    // Configure the workspace
+    RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
+    
+    return ws;
+}
+
+//__________________________________________________________________________________
+//
+void MultiFit::SaveCombinedWS(){
+    //
+    // Creating the rootfile
+    //
+    TFile *f = new TFile( (fName+"/ws_combined.root").c_str() , "recreate" );
+    //
+    // Creating the workspace
+    //
+    RooWorkspace *ws = CombineWS();
+    //
+    // Save the workspace
+    //
+    f->cd();
+    ws->Write("combWS");
+    f->Close();
+}
+
+//__________________________________________________________________________________
+//
+std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inputData){
+    TFile *f = new TFile((fName+"/ws_combined.root").c_str() );
+    RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
+    
+    std::map < std::string, double > result;
+    
+    /////////////////////////////////
+    //
+    // Function performing a fit in a given configuration.
+    //
+    /////////////////////////////////
+    
+    //
+    // Fit configuration (1: SPLUSB or 2: BONLY)
+    //
+    FittingTool *fitTool = new FittingTool();
+    if(fitType==2){
+        fitTool -> ValPOI(0.);
+        fitTool -> ConstPOI(true);
+    } else if(fitType==1){
+        fitTool -> ValPOI(1.);
+        fitTool -> ConstPOI(false);
+    }
+
+//     if(fVarNameMinos.size()>0){
+//       std::cout << "Setting the variables to use MINOS with" << std::endl;
+//       fitTool -> UseMinos(fVarNameMinos);
+//     }
+    
+    //
+    // Gets needed objects for the fit
+    //
+    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
+    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    
+    //
+    // Creates the data object
+    //
+    RooDataSet* data = 0;
+    if(inputData!=""){
+        data = (RooDataSet*)ws->data( inputData.c_str() );
+    } else {
+        std::cout << "In MultiFit::FitCombinedWS() function: you didn't specify inputData => will try with observed data !" << std::endl;
+        data = (RooDataSet*)ws->data("obsData");
+        if(!data){
+            std::cout << "In MultiFit::FitCombinedWS() function: observed data not present => will use with asimov data !" << std::endl;
+            data = (RooDataSet*)ws->data("asimovData");
+        }
+    }
+    
+    // Performs the fit
+    gSystem -> mkdir((fName+"/Fits/").c_str(),true);
+    fitTool -> MinimType("Minuit2");
+    fitTool -> FitPDF( mc, simPdf, data );
+    fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+".txt");
+    result = fitTool -> ExportFitResultInMap();
+    
+    return result;
+}
+//__________________________________________________________________________________
+//
+void MultiFit::GetCombinedLimit(string inputData){ // or asimovData
+    string wsFileName = fName+"/ws_combined.root";
+//     gSystem->Exec( ("mkdir ") );
+    string cmd;
+    cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
+    
+    //
+    // Finally computing the limit
+    //
+    gSystem->Exec(cmd.c_str());
+}
+
+//__________________________________________________________________________________
+//
 void MultiFit::ComparePOI(string POI){
     float xmax = 2;
     string process = fLabel;
@@ -117,6 +317,12 @@ void MultiFit::ComparePOI(string POI){
         names.push_back( fFitList[i_fit]->fName );
         titles.push_back( fFitLabels[i_fit] );
         suffs.push_back( fFitSuffs[i_fit] );
+    }
+    if(fCombine){
+        std::cout << "Adding Combined Fit" << std::endl;
+        names.push_back( fName );
+        titles.push_back( "Combined" );
+        suffs.push_back( "" );
     }
   
     int N = names.size();
@@ -136,30 +342,37 @@ void MultiFit::ComparePOI(string POI){
     NuisParameter *par;
     bool found = false;
     
+    bool isComb = false;
+    
     // get values
+    TtHFit *fit = 0x0;
     for(int i=0;i<N;i++){
+        if(fCombine && i==N-1) isComb = true;
+        //
+        if(!isComb) fit = fFitList[i];
 //         fFitList[i]->ReadFitResults(names[i]+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0"+suffs[i]+".txt");
-        fFitList[i]->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+".txt");
+        if(!isComb)       fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+".txt");
+        else              fit->ReadFitResults(fName+"/Fits/"+fName+".txt");
         found = false;
-        for(unsigned int j = 0; j<fFitList[i]->fFitResults->fNuisPar.size(); ++j){
-            par = fFitList[i]->fFitResults->fNuisPar[j];
+        for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
+            par = fit->fFitResults->fNuisPar[j];
             if(par->fName == POI){
-                g_central->SetPoint(i,par->fFitValue,i);
-                g_stat->SetPoint(i,par->fFitValue,i);
-                g_tot->SetPoint(i,par->fFitValue,i);
-                g_stat->SetPointError(i,0,0);
-                g_tot->SetPointError(i,par->fPostFitUp,0);
+                g_central->SetPoint(N-i-1,par->fFitValue,N-i-1);
+                g_stat->SetPoint(N-i-1,par->fFitValue,N-i-1);
+                g_tot->SetPoint(N-i-1,par->fFitValue,N-i-1);
+                g_stat->SetPointError(N-i-1,0,0);
+                g_tot->SetPointError(N-i-1,par->fPostFitUp,0);
                 if(par->fFitValue+par->fPostFitUp > xmax) xmax = par->fFitValue+par->fPostFitUp;
                 found = true;
                 break;
             }
         }
         if(!found){
-            g_central->SetPoint(i,-10,i);
-            g_stat->SetPoint(i,-10,i);
-            g_tot->SetPoint(i,-10,i);
-            g_stat->SetPointError(i,0,0);
-            g_tot->SetPointError(i,0,0);
+            g_central->SetPoint(N-i-1,-10,N-i-1);
+            g_stat->SetPoint(N-i-1,-10,N-i-1);
+            g_tot->SetPoint(N-i-1,-10,N-i-1);
+            g_stat->SetPointError(N-i-1,0,0);
+            g_tot->SetPointError(N-i-1,0,0);
         }
     }
     
@@ -175,7 +388,7 @@ void MultiFit::ComparePOI(string POI){
   
     xmax *= 2.5;
     
-    TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,0,xmax);
+    TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,fPOIMin,fPOIMax + (fPOIMax-fPOIMin));
     h_dummy->Draw();
     h_dummy->SetMinimum(ymin);
     h_dummy->SetMaximum(ymax);
@@ -187,14 +400,14 @@ void MultiFit::ComparePOI(string POI){
 //     tex->SetNDC();
 
     for(int i=0;i<N;i++){
-        h_dummy->GetYaxis()->SetBinLabel(i+1,titles[i].c_str());
+        h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
 //         myText(0.5,(1.*i)/(1.*N),kBlack,Form("#mu= %.1f",g_central->GetY()[i]));
 //                 tex->DrawLatex(0.5,(1.*i)/(1.*N),Form("#mu= %.1f",g_central->GetY()[i]));
-                tex->DrawLatex(0.5*xmax,i,Form("#mu= %.1f",g_central->GetX()[i]));
-                tex->DrawLatex(0.7*xmax,i,Form("^{+%.1f}",g_tot->GetErrorXhigh(i)));
-                tex->DrawLatex(0.7*xmax,i,Form("_{-%.1f}",g_tot->GetErrorXlow(i)));
-                tex->DrawLatex(0.85*xmax,i,Form("^{+%.1f}",g_stat->GetErrorXhigh(i)));
-                tex->DrawLatex(0.85*xmax,i,Form("_{-%.1f}",g_stat->GetErrorXlow(i)));
+                tex->DrawLatex(0.5*xmax,N-i-1,Form("#mu= %.1f",g_central->GetX()[N-i-1]));
+                tex->DrawLatex(0.7*xmax,N-i-1,Form("^{+%.1f}",g_tot->GetErrorXhigh(N-i-1)));
+                tex->DrawLatex(0.7*xmax,N-i-1,Form("_{-%.1f}",g_tot->GetErrorXlow(N-i-1)));
+                tex->DrawLatex(0.85*xmax,N-i-1,Form("^{+%.1f}",g_stat->GetErrorXhigh(N-i-1)));
+                tex->DrawLatex(0.85*xmax,N-i-1,Form("_{-%.1f}",g_stat->GetErrorXlow(N-i-1)));
     }
     
     g_tot->Draw("E same");
@@ -255,13 +468,19 @@ void MultiFit::CompareLimit(){
         titles.push_back( fFitLabels[i_fit] );
         suffs.push_back( fFitSuffs[i_fit] );
     }
+    if(fCombine){
+        std::cout << "Adding combined limit" << std::endl;
+        names.push_back( fName );
+        titles.push_back( "Combined" );
+        suffs.push_back( "" );
+    }
 
     // ---
     
     bool showObs = fShowObserved;
   
     int N = names.size();
-  
+    
     float ymin = -0.5;
     float ymax = N-0.5;
   
@@ -273,27 +492,36 @@ void MultiFit::CompareLimit(){
     TGraphAsymmErrors *g_2s = new TGraphAsymmErrors(N);
   
     int Ndiv = N+1;
-  
+    
     TFile *f;
     TH1* h;
   
     // get values
-    for(int i=0;i<N;i++){        
+    for(int i=0;i<N;i++){
         f = new TFile(Form("%s/Limits/%s.root",names[i].c_str(),(names[i]+suffs[i]).c_str()) );
         std::cout << "Reading file " << Form("%s/Limits/%s.root",names[i].c_str(),(names[i]+suffs[i]).c_str()) << std::endl;
         h = (TH1*)f->Get("limit");
         
         std::cout << " " << h->GetBinContent(1) << std::endl;
         
-        if(fFitShowObserved[i]) g_obs->SetPoint(i,h->GetBinContent(1),i);
-        else g_obs->SetPoint(i,-1,i);
-        g_exp->SetPoint(i,h->GetBinContent(2),i);
-        g_1s->SetPoint(i,h->GetBinContent(2),i);
-        g_2s->SetPoint(i,h->GetBinContent(2),i);
-        g_obs->SetPointError(i,0,0.5);
-        g_exp->SetPointError(i,0,0.5);
-        g_1s->SetPointError(i,h->GetBinContent(2)-h->GetBinContent(5),h->GetBinContent(4)-h->GetBinContent(2),0.5,0.5);
-        g_2s->SetPointError(i,h->GetBinContent(2)-h->GetBinContent(6),h->GetBinContent(3)-h->GetBinContent(2),0.5,0.5);
+//         if(fFitShowObserved[i]) g_obs->SetPoint(i,h->GetBinContent(1),i);
+//         else g_obs->SetPoint(i,-1,i);
+//         g_exp->SetPoint(i,h->GetBinContent(2),i);
+//         g_1s->SetPoint(i,h->GetBinContent(2),i);
+//         g_2s->SetPoint(i,h->GetBinContent(2),i);
+//         g_obs->SetPointError(i,0,0.5);
+//         g_exp->SetPointError(i,0,0.5);
+//         g_1s->SetPointError(i,h->GetBinContent(2)-h->GetBinContent(5),h->GetBinContent(4)-h->GetBinContent(2),0.5,0.5);
+//         g_2s->SetPointError(i,h->GetBinContent(2)-h->GetBinContent(6),h->GetBinContent(3)-h->GetBinContent(2),0.5,0.5);
+        if(fFitShowObserved[i]) g_obs->SetPoint(N-i-1,h->GetBinContent(1),N-i-1);
+        else g_obs->SetPoint(N-i-1,-1,N-i-1);
+        g_exp->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        g_1s->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        g_2s->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        g_obs->SetPointError(N-i-1,0,0.5);
+        g_exp->SetPointError(N-i-1,0,0.5);
+        g_1s->SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(5),h->GetBinContent(4)-h->GetBinContent(2),0.5,0.5);
+        g_2s->SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(6),h->GetBinContent(3)-h->GetBinContent(2),0.5,0.5);
         
         if(h->GetBinContent(1)>xmax) xmax = h->GetBinContent(1); 
         if(h->GetBinContent(2)>xmax) xmax = h->GetBinContent(2); 
@@ -329,7 +557,8 @@ void MultiFit::CompareLimit(){
     h_dummy->GetYaxis()->Set(N,ymin,ymax);
     h_dummy->GetYaxis()->SetNdivisions(Ndiv);
     for(int i=0;i<N;i++){
-        h_dummy->GetYaxis()->SetBinLabel(i+1,titles[i].c_str());
+//         h_dummy->GetYaxis()->SetBinLabel(i+1,titles[i].c_str());
+        h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
     }
     
     g_2s->Draw("E2 same");
@@ -388,11 +617,20 @@ void MultiFit::ComparePulls(){
     int style[] = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
     
     unsigned int N = fFitList.size();
+    if(fCombine) N++;
     
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        names.push_back( fFitList[i_fit]->fName );
-        titles.push_back( fFitLabels[i_fit] );
-        suffs.push_back( fFitSuffs[i_fit] );
+        if(fCombine && i_fit==N-1){
+            std::cout << "Adding Combined Fit" << std::endl;
+            names.push_back( fName );
+            titles.push_back( "Combined" );
+            suffs.push_back( "" );
+        }
+        else{
+            names.push_back( fFitList[i_fit]->fName );
+            titles.push_back( fFitLabels[i_fit] );
+            suffs.push_back( fFitSuffs[i_fit] );
+        }
         yshift.push_back( 0. - ydist*N/2. + ydist*i_fit );
     }
 
@@ -408,6 +646,7 @@ void MultiFit::ComparePulls(){
     std::vector< string > Titles; Titles.clear();
     string systName;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        if(fCombine && i_fit==N-1) break;
         for(unsigned int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
             systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
             if(FindInStringVector(Names,systName)<0){
@@ -421,6 +660,7 @@ void MultiFit::ComparePulls(){
     // read fit resutls
     NuisParameter *par;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        if(fCombine && i_fit==N-1) break;
 //         fFitList[i_fit]->ReadFitResults(names[i_fit]+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0"+suffs[i_fit]+".txt");      
         fFitList[i_fit]->ReadFitResults(names[i_fit]+"/Fits/"+names[i_fit]+suffs[i_fit]+".txt");      
     }
@@ -429,10 +669,13 @@ void MultiFit::ComparePulls(){
     std::vector<string> NamesNew; NamesNew.clear();
     std::vector<string> TitlesNew; TitlesNew.clear();
     for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
+        FitResults *fitRes;
         bool found = false;
         for(unsigned int i_fit=0;i_fit<N;i_fit++){
-            for(unsigned int j = 0; j<fFitList[i_fit]->fFitResults->fNuisPar.size(); ++j){
-                par = fFitList[i_fit]->fFitResults->fNuisPar[j];
+            if(fCombine && i_fit==N-1) break;
+            fitRes = fFitList[i_fit]->fFitResults;
+            for(unsigned int j = 0; j<fitRes->fNuisPar.size(); ++j){
+                par = fitRes->fNuisPar[j];
                 systName = par->fName;
                 if(systName==Names[i_syst]){
                     found = true;
@@ -462,8 +705,16 @@ void MultiFit::ComparePulls(){
         std::map<string,float> errUpMap;   errUpMap.clear();
         std::map<string,float> errDownMap; errDownMap.clear();
 //         fFitList[i_fit]->ReadFitResults(names[i_fit]+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0"+suffs[i_fit]+".txt");
-        for(unsigned int j = 0; j<fFitList[i_fit]->fFitResults->fNuisPar.size(); ++j){
-            par = fFitList[i_fit]->fFitResults->fNuisPar[j];
+        FitResults *fitRes;
+        if(fCombine && i_fit==N-1){
+            fitRes = new FitResults();
+            fitRes->ReadFromTXT(fName+"/Fits/"+fName+".txt");
+        }
+        else{
+            fitRes = fFitList[i_fit]->fFitResults;
+        }
+        for(unsigned int j = 0; j<fitRes->fNuisPar.size(); ++j){
+            par = fitRes->fNuisPar[j];
             systName = par->fName;
             centralMap[systName] = par->fFitValue;
             errUpMap[systName]   = par->fPostFitUp;
@@ -548,12 +799,14 @@ void MultiFit::ComparePulls(){
     h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
 
     TLegend *leg;
-    leg = new TLegend(0.01,0.97,0.99,0.99);
+//     leg = new TLegend(0.01,1.-0.03*(30./max),0.99,0.99);
+    leg = new TLegend(0.01,1.-0.03*(30./max),0.75,0.99);
     leg->SetTextSize(gStyle->GetTextSize());
     leg->SetTextFont(gStyle->GetTextFont());
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
-    leg->SetNColumns(4);
+//     leg->SetNColumns(4);
+    leg->SetNColumns(N);
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         leg->AddEntry(g[i_fit],titles[i_fit].c_str(),"lp");
     }
