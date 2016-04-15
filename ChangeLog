@@ -1,3 +1,6 @@
+2016-04-15 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * new option for systematics added (StoredName), which allows to specify a different name for storing in (and reading from) the .root files under Histograms/
+        
 2016-04-14 Michele Pinamonti <michele.pinamonti@gmail.com>
         * simple/minimal workspace combination method added to MultiFit (to test!)
         * example added for usage of MultiFit

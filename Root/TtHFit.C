@@ -1118,6 +1118,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(cs->Get("IsFreeParameter")!="" && cs->Get("IsFreeParameter")!="FALSE" && cs->Get("IsFreeParameter")!="False" && cs->Get("IsFreeParameter")!="false"){
             sys->fIsFreeParameter = true;
         }
+        // New: name to use when writing / reading the Histograms file
+        if(cs->Get("StoredName")!=""){
+            sys->fStoredName = cs->Get("StoredName");
+        }
         //
         bool hasUp   = false;
         bool hasDown = false;
@@ -1476,7 +1480,8 @@ void TtHFit::ReadNtuples(){
                         
                         //Importing histogram in TtHFitter
                         if(i_path==0){
-                            hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
+//                             hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
+                            hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
                         else hUp->Add(htmp);
                         htmp->~TH1F();
@@ -1573,7 +1578,8 @@ void TtHFit::ReadNtuples(){
                         
                         //Importing histogram in TtHFitter
                         if(i_path==0){
-                            hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
+//                             hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
+                            hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                             //                         hDown->SetName(Form("h_%s_%s_%sDown",reg->fName.c_str(),smp->fName.c_str(),syst->fName.c_str()));
                         }
                         else hDown->Add(htmp);
@@ -1837,7 +1843,8 @@ void TtHFit::ReadHistograms(){
                         hUp = (TH1F*)h->Clone();
                         hUp->Scale(1+syst->fOverallUp);
                     }
-                    hUp->SetName(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
+//                     hUp->SetName(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
+                    hUp->SetName(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                 }
                 
                 //
@@ -1915,7 +1922,8 @@ void TtHFit::ReadHistograms(){
                         hDown = (TH1F*)h->Clone();
                         hDown->Scale(1+syst->fOverallDown);
                     }
-                    hDown->SetName(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
+//                     hDown->SetName(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
+                    hDown->SetName(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                 }
                 
                 if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -2013,7 +2021,8 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 if( fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                systName = fSamples[i_smp]->fSystematics[i_syst]->fName;
+                systName              = fSamples[i_smp]->fSystematics[i_syst]->fName;
+                string systStoredName = fSamples[i_smp]->fSystematics[i_syst]->fStoredName; // if no StoredName specified in the config, this should be == fName
                 if(TtHFitter::DEBUGLEVEL>0) std::cout << "      Reading syst " << systName << std::endl;
                 // norm only
                 if(fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::OVERALL){
@@ -2023,11 +2032,11 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 // histo syst
                 else{
                     syh = sh->AddHistoSyst(systName,
-                                           Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systName.c_str()),   fileName,
-                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systName.c_str()), fileName);
+                                           Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()),   fileName,
+                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName);
                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
-                    syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",regionName.c_str(),sampleName.c_str(),systName.c_str());
-                    syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systName.c_str());
+                    syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
+                    syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                     syh->fFileNameShapeUp    = fileName;
                     syh->fFileNameShapeDown  = fileName;
                 }

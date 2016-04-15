@@ -11,6 +11,7 @@ Systematic::Systematic(string name,int type,float up,float down){
     fNuisanceParameter = name;
     fType = type;
     fCategory = "";
+    fStoredName = name;
     
     fSmoothType = 0;
     fSymmetrisationType = 0;

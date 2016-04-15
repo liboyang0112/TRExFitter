@@ -23,6 +23,7 @@ public:
     string fNuisanceParameter;
     string fTitle;
     string fCategory;
+    string fStoredName;
     int fType;
     int fSmoothType;
     int fSymmetrisationType;
