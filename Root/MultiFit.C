@@ -40,6 +40,8 @@ MultiFit::MultiFit(string name){
     //
     fDataName      = "obsData";
     fFitType       = 1; // 1: S+B, 2: B-only
+    //
+    fCombineChByCh = false;
 }
 
 //__________________________________________________________________________________
@@ -88,6 +90,8 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         if(param=="SPLUSB") fFitType = 1;
         if(param=="BONLY")  fFitType = 2;
     }
+    //
+    param = cs->Get("CombineChByCh"); if( param != "" && param != "FALSE" )  fCombineChByCh = true;
     
     //
     // fits
@@ -164,27 +168,32 @@ RooWorkspace* MultiFit::CombineWS(){
         if(!measurement){
             measurement = meas;
         }
-        //
-        // Combine combined workspaces directly
-        std::vector<RooStats::HistFactory::Channel> chVec = meas->GetChannels();
-        for(unsigned int i_ch=0;i_ch<chVec.size();i_ch++){
-            vec_ws.push_back(m_ws);
-            vec_chName.push_back(chVec[i_ch].GetName());
+        
+        if(!fCombineChByCh){
+            //
+            // Combine combined workspaces directly
+            std::vector<RooStats::HistFactory::Channel> chVec = meas->GetChannels();
+            for(unsigned int i_ch=0;i_ch<chVec.size();i_ch++){
+                vec_ws.push_back(m_ws);
+                vec_chName.push_back(chVec[i_ch].GetName());
+            }
         }
         
         // 
         // Alternative way: combine the individual workspaces for the different chanenels
         // Loop on all the regions in each fit
-//         for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
-//             Region *reg = fFitList[i_fit]->fRegions[i_reg];
-//             std::string fileName = fitName + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
-//             std::cout << "  Opening file " << fileName << std::endl;
-//             TFile *rootFile = new TFile(fileName.c_str(),"read");
-//             RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get(reg->fName.c_str());
-//             std::cout << "  Getting " << reg->fName << std::endl;
-//             vec_ws.push_back(m_ws);
-//             vec_chName.push_back(reg->fName);
-//         }
+        if(fCombineChByCh){
+            for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
+                Region *reg = fFitList[i_fit]->fRegions[i_reg];
+                std::string fileName = fitName + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
+                std::cout << "  Opening file " << fileName << std::endl;
+                TFile *rootFile = new TFile(fileName.c_str(),"read");
+                RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get(reg->fName.c_str());
+                std::cout << "  Getting " << reg->fName << std::endl;
+                vec_ws.push_back(m_ws);
+                vec_chName.push_back(reg->fName);
+            }
+        }
         //
     }
     
@@ -473,6 +482,7 @@ void MultiFit::CompareLimit(){
         names.push_back( fName );
         titles.push_back( "Combined" );
         suffs.push_back( "" );
+        if(fShowObserved) fFitShowObserved.push_back(true);
     }
 
     // ---

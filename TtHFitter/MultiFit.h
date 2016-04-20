@@ -56,6 +56,8 @@ public:
     
     string fDataName;
     int fFitType;
+    
+    bool fCombineChByCh;
 };
     
 #endif
