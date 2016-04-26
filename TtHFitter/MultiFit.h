@@ -14,7 +14,7 @@ public:
     ~MultiFit();
 
     void ReadConfigFile(string configFile,string options);
-    void AddFitFromConfig(string configFile,string options,string label,string loadSuf="");
+    void AddFitFromConfig(string configFile,string options,string label,string loadSuf="",string wsFile="");
     RooWorkspace* CombineWS();
     void SaveCombinedWS();
     std::map < std::string, double > FitCombinedWS( int fitType=1, string inputData="" );
@@ -28,6 +28,7 @@ public:
     std::vector< TtHFit* > fFitList;
     std::vector< string > fFitLabels;
     std::vector< string > fFitSuffs;
+    std::vector< string > fWsFiles;
     
     bool fCombine;
     bool fCompare;

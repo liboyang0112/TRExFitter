@@ -120,12 +120,16 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         string confFile = "";
         param = cs->Get("ConfigFile");
         if(param!="") confFile = param;
+        // workspace
+        string wsFile = "";
+        param = cs->Get("Workspace");
+        if(param!="") wsFile = param;
         // show obs
         param = cs->Get("ShowObserved");
         if(param=="FALSE") fFitShowObserved.push_back(false);
         else fFitShowObserved.push_back(true);
         //
-        AddFitFromConfig(confFile,fullOptions,label,loadSuf);
+        AddFitFromConfig(confFile,fullOptions,label,loadSuf,wsFile);
     }
     
     // make directory
@@ -134,11 +138,12 @@ void MultiFit::ReadConfigFile(string configFile,string options){
 
 //__________________________________________________________________________________
 //
-void MultiFit::AddFitFromConfig(string configFile,string options,string label,string loadSuf){
+void MultiFit::AddFitFromConfig(string configFile,string options,string label,string loadSuf,string wsFile){
     fFitList.push_back(new TtHFit());
     fFitList[fFitList.size()-1]->ReadConfigFile(configFile,options);
     fFitLabels.push_back(label);
     fFitSuffs.push_back(loadSuf);
+    fWsFiles.push_back(wsFile);
 }
 
 //__________________________________________________________________________________
@@ -158,6 +163,7 @@ RooWorkspace* MultiFit::CombineWS(){
         
         RooStats::HistFactory::Measurement *meas;
         std::string fileName = fitName + "/RooStats/" + fitName + "_combined_" + fitName + fFitSuffs[i_fit] + "_model.root";
+        if(fWsFiles[i_fit]!="") fileName = fWsFiles[i_fit];
         std::cout << "Opening file " << fileName << std::endl;
         TFile *rootFile = new TFile(fileName.c_str(),"read");
         RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get("combined");
