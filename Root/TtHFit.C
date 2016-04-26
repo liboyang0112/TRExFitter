@@ -3637,6 +3637,8 @@ void TtHFit::Fit(){
     //
     // Fills a vector of regions to consider for fit
     //
+    bool simpleData = true; // this becomes flase if some regions have data and others don't
+    int previousDataType = -1;
     std::vector < std:: string > regionsToFit;
     std::map < std::string, int > regionDataType;
     for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
@@ -3669,6 +3671,9 @@ void TtHFit::Fit(){
                 dataType = fRegions[i_ch] -> fRegionDataType;
             }
             regionDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
+            //
+            if(previousDataType>=0 && previousDataType!=(int)dataType) simpleData = false;
+            previousDataType = (int)dataType;
         }
     }
     
@@ -3678,9 +3683,16 @@ void TtHFit::Fit(){
     RooWorkspace* ws = PerformWorkspaceCombination( regionsToFit );
     
     //
-    // If needed, create a RooDataset object
+    // If needed (only if needed), create a RooDataset object
     //
-    RooDataSet* data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+    RooDataSet* data = 0x0;
+    if(simpleData){
+        if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
+        else                        data = (RooDataSet*)ws->data("asimovData");
+    }
+    else{
+        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+    }
     
     //
     // Calls the PerformFit() function to actually do the fit
@@ -3690,7 +3702,6 @@ void TtHFit::Fit(){
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
-
     if(fVarNameLH.size()>0){
       if (fVarNameLH[0]=="all"){
 	for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
@@ -4926,10 +4937,14 @@ void TtHFit::ComputeBining(int regIter){
       else if(fRegions[regIter]->fHistoNames.size()>0) histoNames = fRegions[regIter]->fHistoNames;
       else                                          histoNames = ToVec( fHistoName );
       
-      fullPaths = CreatePathsList( fHistoPaths, fRegions[regIter]->fHistoPathSuffs,
-				   histoFiles, empty, // no histo file suffs for nominal (syst only)
-				   histoNames, empty  // same for histo name
-				   );
+//       fullPaths = CreatePathsList( fHistoPaths, fRegions[regIter]->fHistoPathSuffs,
+// 				   histoFiles, empty, // no histo file suffs for nominal (syst only)
+// 				   histoNames, empty  // same for histo name
+// 				   );
+       fullPaths = CreatePathsList( fHistoPaths, CombinePathSufs(fRegions[regIter]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),//fRegions[regIter]->fHistoPathSuffs,              
+                                   histoFiles, empty, // no histo file suffs for nominal (syst only)                                                                                 
+                                   histoNames, empty  // same for histo name                                                                                                         
+                                   );
 
       for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
 	htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
