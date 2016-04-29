@@ -1,3 +1,11 @@
+2016-04-29 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Functionality added to re-run smoothing after input histograms are created (new option "b")
+        * Empty bin warnings now on only in debug mode
+        
+2016-04-26 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Fixed auto-binning for histo inputs (thanks Ian)
+        * Generation of Asimov within the fitter skipped if no data in any region (i.e. skipping DumpData method)
+        
 2016-04-15 Michele Pinamonti <michele.pinamonti@gmail.com>
         * new option for systematics added (StoredName), which allows to specify a different name for storing in (and reading from) the .root files under Histograms/
         

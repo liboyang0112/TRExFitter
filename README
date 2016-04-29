@@ -47,6 +47,7 @@ For instance, if you use the default file util/myFit.C, the available options ar
     p : draw post-fit plots
     a : draw separation plots
     r : draw ranking plot (see later)
+    b : re-run smoothing (in the future also rebinning)
 
 The argument <update> can be 0 or 1 and tells the tool whether the root file containing the histograms should be overwritten or updated.
 Use only for actions n and h.

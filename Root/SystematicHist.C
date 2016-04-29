@@ -16,6 +16,7 @@ SystematicHist::SystematicHist(string name){
     fSymmetrisationType = 0;
 
     fHistUp = 0x0;
+    fHistUp_orig = 0x0;
     fHistShapeUp = 0x0;
     fNormUp = 0;
     fFileNameUp = "";
@@ -24,6 +25,7 @@ SystematicHist::SystematicHist(string name){
     fHistoNameShapeUp = "";
 
     fHistDown = 0x0;
+    fHistDown_orig = 0x0;
     fHistShapeDown = 0x0;
     fNormDown = 0;
     fFileNameDown = "";
@@ -46,6 +48,8 @@ SystematicHist::~SystematicHist(){
 void SystematicHist::WriteToFile(){
     WriteHistToFile(fHistUp,fFileNameUp);
     WriteHistToFile(fHistDown,fFileNameDown);
+    WriteHistToFile(fHistUp_orig,fFileNameUp);
+    WriteHistToFile(fHistDown_orig,fFileNameDown);
     if(fIsShape){
         WriteHistToFile(fHistShapeUp,fFileNameShapeUp);
         WriteHistToFile(fHistShapeDown,fFileNameShapeDown);
@@ -57,9 +61,13 @@ void SystematicHist::WriteToFile(){
 //_____________________________________________________________________________
 //
 void SystematicHist::ReadFromFile(){
-    fHistUp = HistFromFile(fFileNameUp,fHistoNameUp);
+    fHistUp      = HistFromFile(fFileNameUp,fHistoNameUp);
+    fHistUp_orig = HistFromFile(fFileNameUp,fHistoNameUp+"_orig");
+    if(fHistUp_orig==0x0) fHistUp_orig = fHistUp;
     fHistShapeUp = HistFromFile(fFileNameShapeUp,fHistoNameShapeUp);
-    fHistDown = HistFromFile(fFileNameDown,fHistoNameDown);
+    fHistDown      = HistFromFile(fFileNameDown,fHistoNameDown);
+    fHistDown_orig = HistFromFile(fFileNameDown,fHistoNameDown+"_orig");
+    if(fHistDown_orig==0x0) fHistDown_orig = fHistDown;
     fHistShapeDown = HistFromFile(fFileNameShapeDown,fHistoNameShapeDown);
 }
 

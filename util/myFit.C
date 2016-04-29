@@ -26,6 +26,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     // interpret opt
     bool readHistograms  = opt.find("h")!=string::npos;
     bool readNtuples     = opt.find("n")!=string::npos;
+    bool rebinAndSmooth  = opt.find("b")!=string::npos; // new: separated from the input creation
     bool createWorkspace = opt.find("w")!=string::npos;
     bool doFit           = opt.find("f")!=string::npos;
     bool doRanking       = opt.find("r")!=string::npos;
@@ -55,7 +56,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         //
         if(myMultiFit->fCompare){
             if(myMultiFit->fComparePulls)  myMultiFit->ComparePulls();
-            if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI("SigXsecOverSM");
+            if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI(myMultiFit->fPOI);
             if(myMultiFit->fCompareLimits) myMultiFit->CompareLimit();
         }
         return;
@@ -81,7 +82,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     if(readHistograms){
         myFit->ReadHistograms();
         myFit->Print();
-        myFit->SmoothSystematics("all");
+        myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
 	if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
         myFit->WriteHistos();
@@ -89,13 +90,21 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     else if(readNtuples){
         myFit->ReadNtuples();
         myFit->Print();
-        myFit->SmoothSystematics("all");
+        myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
 	if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
         myFit->WriteHistos();
     }
     else{
-        if(drawPreFit || drawPostFit || createWorkspace || drawSeparation) myFit->ReadHistos();
+        if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->ReadHistos();
+    }
+    
+    // new
+    if(rebinAndSmooth){
+        myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
+        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
+        myFit->WriteHistos();
     }
 
     if(createWorkspace){

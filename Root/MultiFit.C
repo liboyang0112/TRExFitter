@@ -320,7 +320,12 @@ void MultiFit::GetCombinedLimit(string inputData){ // or asimovData
 //__________________________________________________________________________________
 //
 void MultiFit::ComparePOI(string POI){
+    float xmin = 0;
     float xmax = 2;
+    
+    xmax = fPOIMax + (fPOIMax-fPOIMin);
+    xmin = fPOIMin;
+
     string process = fLabel;
     
     // Fit titles
@@ -377,7 +382,7 @@ void MultiFit::ComparePOI(string POI){
                 g_tot->SetPoint(N-i-1,par->fFitValue,N-i-1);
                 g_stat->SetPointError(N-i-1,0,0);
                 g_tot->SetPointError(N-i-1,par->fPostFitUp,0);
-                if(par->fFitValue+par->fPostFitUp > xmax) xmax = par->fFitValue+par->fPostFitUp;
+//                 if(par->fFitValue+par->fPostFitUp > xmax) xmax = par->fFitValue+par->fPostFitUp;
                 found = true;
                 break;
             }
@@ -401,9 +406,9 @@ void MultiFit::ComparePOI(string POI){
     g_tot->SetMarkerSize(0);
     g_stat->SetMarkerSize(0);    
   
-    xmax *= 2.5;
+//     xmax *= 2.5;
     
-    TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,fPOIMin,fPOIMax + (fPOIMax-fPOIMin));
+    TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,xmin,xmax);
     h_dummy->Draw();
     h_dummy->SetMinimum(ymin);
     h_dummy->SetMaximum(ymax);
@@ -412,17 +417,17 @@ void MultiFit::ComparePOI(string POI){
     h_dummy->GetYaxis()->SetNdivisions(Ndiv);
     
     TLatex *tex = new TLatex();
-//     tex->SetNDC();
+//     tex->SetNDC(1);
 
     for(int i=0;i<N;i++){
         h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
 //         myText(0.5,(1.*i)/(1.*N),kBlack,Form("#mu= %.1f",g_central->GetY()[i]));
 //                 tex->DrawLatex(0.5,(1.*i)/(1.*N),Form("#mu= %.1f",g_central->GetY()[i]));
-                tex->DrawLatex(0.5*xmax,N-i-1,Form("#mu= %.1f",g_central->GetX()[N-i-1]));
-                tex->DrawLatex(0.7*xmax,N-i-1,Form("^{+%.1f}",g_tot->GetErrorXhigh(N-i-1)));
-                tex->DrawLatex(0.7*xmax,N-i-1,Form("_{-%.1f}",g_tot->GetErrorXlow(N-i-1)));
-                tex->DrawLatex(0.85*xmax,N-i-1,Form("^{+%.1f}",g_stat->GetErrorXhigh(N-i-1)));
-                tex->DrawLatex(0.85*xmax,N-i-1,Form("_{-%.1f}",g_stat->GetErrorXlow(N-i-1)));
+                tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form("#mu= %.1f",g_central->GetX()[N-i-1]));
+                tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form("^{+%.1f}",g_tot->GetErrorXhigh(N-i-1)));
+                tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_tot->GetErrorXlow(N-i-1)));
+                tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("^{+%.1f}",g_stat->GetErrorXhigh(N-i-1)));
+                tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_stat->GetErrorXlow(N-i-1)));
     }
     
     g_tot->Draw("E same");
@@ -455,8 +460,8 @@ void MultiFit::ComparePOI(string POI){
     leg->AddEntry(g_stat,"stat.","l");
     leg->Draw();
     
-    tex->DrawLatex((0.7-0.02)*xmax,N,"( tot )");
-    tex->DrawLatex((0.85-0.02)*xmax,N,"( stat )");
+    tex->DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N,"( tot )");
+    tex->DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N,"( stat )");
     
 //     myText(0.75,0.4,kBlack,"Stat. only");
     

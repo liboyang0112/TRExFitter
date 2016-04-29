@@ -71,8 +71,9 @@ TH1* HistFromFile(string fileName,string histoName){
     if(histoName=="") return 0x0;
     if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram  " << histoName << "  from file  " << fileName << "  ..." << endl;
     TFile *f = new TFile(fileName.c_str());
-    TH1 *h = (TH1*)f->Get(histoName.c_str())->Clone();
-    h->SetDirectory(0);
+    TH1 *h = 0x0;
+    if(f->Get(histoName.c_str())) h = (TH1*)f->Get(histoName.c_str())->Clone();
+    if(h!=0x0) h->SetDirectory(0);
     f->Close();
     delete f;
     return h;

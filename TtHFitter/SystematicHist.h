@@ -29,6 +29,7 @@ public:
   int fSymmetrisationType;
 
   TH1* fHistUp;
+  TH1* fHistUp_orig;
   TH1* fHistShapeUp;
   float fNormUp;
   string fFileNameUp;
@@ -39,6 +40,7 @@ public:
   TH1* fHistUp_postFit;
 
   TH1* fHistDown;
+  TH1* fHistDown_orig;
   TH1* fHistShapeDown;
   float fNormDown;
   string fFileNameDown;

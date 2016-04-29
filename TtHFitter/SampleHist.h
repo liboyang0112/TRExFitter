@@ -45,10 +45,15 @@ public:
   
   void SampleHistAdd(SampleHist* h);
   void CloneSampleHist(SampleHist* h, std::set<std::string> names);
+  
+//   void SmoothNominal(); // new
+//   void Rebin(); // new
 
   string fName;
   Sample *fSample;
   TH1 *fHist;
+  TH1 *fHist_orig;  // new
+  TH1 *fHist_regBin;  // new
   TH1 *fHist_postFit;
   string fFileName;
   string fHistoName;
