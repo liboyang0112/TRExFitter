@@ -1406,7 +1406,7 @@ void TtHFit::ReadNtuples(){
                 if(syst->fHasUpVariation){
                   
                     // Note: no need to change selection for systematics. If needed, can be done via weight (partially...)
-                    fullMCweight = 1.;
+                    fullMCweight = "1.";
                     if(fSamples[i_smp]->fNormalizedByTheory)  fullMCweight = fMCweight;
                     if(syst->fWeightUp!="")
                         fullMCweight += " * "+syst->fWeightUp;
@@ -1505,7 +1505,7 @@ void TtHFit::ReadNtuples(){
                 if(syst->fHasDownVariation){
                     
                     // Note: no need to change selection for systematics. If needed, can be done via weight (partially...)
-                    fullMCweight = 1.;
+                    fullMCweight = "1.";
                     if(fSamples[i_smp]->fNormalizedByTheory)  fullMCweight = fMCweight;
                     if(syst->fWeightDown!="")
                         fullMCweight += " * "+syst->fWeightDown;
