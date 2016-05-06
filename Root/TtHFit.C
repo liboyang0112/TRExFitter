@@ -1219,6 +1219,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
 //         }
 //         // ...
 
+        if(regions[0]!="all") sys->fRegions = regions;
+        if(exclude[0]!="")    sys->fExclude = exclude;
+        
         //
         // save list of...
         //
@@ -1226,8 +1229,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if ( decorrelate == "" ) {
             fSystematics.push_back( sys );
             fNSyst++;
-            if(regions[0]!="all") sys->fRegions = regions;
-            if(exclude[0]!="")    sys->fExclude = exclude;
             if(cs->Get("NuisanceParameter")!=""){
                 sys->fNuisanceParameter = cs->Get("NuisanceParameter");
                 TtHFitter::NPMAP[sys->fName] = sys->fNuisanceParameter;
@@ -1262,11 +1263,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 bool keepReg=false;
                 if ( regions[0]=="all" ) keepReg=true;
                 else {
-                    for ( int i_GoodReg=0; i_GoodReg<sizeof(regions)/sizeof(std::string); ++i_GoodReg ) {
+                    for ( int i_GoodReg=0; i_GoodReg < (int)regions.size(); ++i_GoodReg ) {
                         if ( regNames[i_reg]==regions[i_GoodReg] ) keepReg=true;
                     }
                 }
-                for ( int i_BadReg=0; i_BadReg<sizeof(exclude)/sizeof(std::string); ++i_BadReg ) {
+                for ( int i_BadReg=0; i_BadReg < (int)exclude.size(); ++i_BadReg ) {
                     if ( exclude[i_BadReg]==regNames[i_reg] ) keepReg=false;
                 }
 
