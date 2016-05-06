@@ -1318,8 +1318,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             // (this is really messy)
             for(int i_smp=0;i_smp<fNSamples;i_smp++){
                 sam = fSamples[i_smp];
+                if(sam->fType == Sample::DATA) continue;
                 bool keepSam=false;
-                if ( samples[0]=="all") keepSam=true;
+                if ( samples[0]=="all" ) keepSam=true;
                 else {
                     if ( find(samples.begin(), samples.end(), sam->fName)!=samples.end() ) keepSam=true;
                 }
@@ -1960,6 +1961,12 @@ void TtHFit::CorrectHistograms(){
             //
             // Histograms checking
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
+                Systematic * syst = smp->fSystematics[i_syst];
+                //
+                // eventually skip systematic / region combination
+                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                //
                 HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
                                             sh->GetSystematic( smp->fSystematics[i_syst]->fName ) /*systematic*/,
                                             fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
@@ -2190,13 +2197,13 @@ void TtHFit::ReadHistograms(){
                             htmp->~TH1F();
                         }
 //                     }
-                    // For Overall syst
+//                     // For Overall syst
 //                     else{
-//                         hUp = (TH1F*)h->Clone();
+//                         hUp = (TH1F*)h->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
 //                         hUp->Scale(1+syst->fOverallUp);
 //                     }
 //                     hUp->SetName(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
-//                     hUp->SetName(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
+//                     hUp->SetName();
                 }
                 
                 //
@@ -2274,7 +2281,7 @@ void TtHFit::ReadHistograms(){
 //                     }
 //                     // For Overall syst
 //                     else{
-//                         hDown = (TH1F*)h->Clone();
+//                         hDown = (TH1F*)h->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
 //                         hDown->Scale(1+syst->fOverallDown);
 //                     }
 //                     hDown->SetName(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
@@ -2386,6 +2393,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 }
                 // histo syst
                 else{
+                    cout << Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()) << endl;
                     syh = sh->AddHistoSyst(systName,
                                            Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()),   fileName,
                                            Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName);
