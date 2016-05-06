@@ -9,7 +9,7 @@
 #include "TtHFitter/FitResults.h"
 #include "TtHFitter/Sample.h"
 #include "TtHFitter/Systematic.h"
-#include "TtHFitter/NormFactor.h" // KERIM
+#include "TtHFitter/NormFactor.h"
 #include "TtHFitter/Region.h"
 #include "TtHFitter/ConfigParser.h"
 
@@ -19,7 +19,7 @@
 class Region;
 class Sample;
 class Systematic;
-class NormFactor; // KERIM
+class NormFactor;
 class ConfigParser;
 class RooDataSet;
 class RooWorkspace;
@@ -116,7 +116,7 @@ public:
     // fit etc...
     void Fit();
     RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue);
-    std::map < std::string, double > PerformFit( RooWorkspace *ws, std::vector < std::string > &regionsToFit, RooDataSet* inputData, FitType fitType=SPLUSB );
+    std::map < std::string, double > PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType=SPLUSB, bool save=false );
     RooWorkspace* PerformWorkspaceCombination( std::vector < std::string > &regionsToFit );
 
     void PlotFittedNP();
@@ -226,6 +226,7 @@ public:
     bool fFitIsBlind;
     vector<string> fVarNameLH;
     vector<string> fVarNameMinos;
+    std::string fWorkspaceFileName;
 
     //
     // Limit parameters

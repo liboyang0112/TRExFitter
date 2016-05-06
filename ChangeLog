@@ -1,3 +1,8 @@
+2016-05-06 Michele Pinamonti <michele.pinamonti@gmail.com>, Valerio Dao <valerio.dao@cern.ch>
+        * Systematic decorrelation options added (still to document)
+        * Bug fix for running from histograms
+        * Option added to run on an externally produced workspace (need to specify "WorkspaceFileName" in the config)
+        
 2016-04-29 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Functionality added to re-run smoothing after input histograms are created (new option "b")
         * Empty bin warnings now on only in debug mode

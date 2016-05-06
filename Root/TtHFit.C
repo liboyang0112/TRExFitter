@@ -97,6 +97,7 @@ TtHFit::TtHFit(string name){
     fFitIsBlind = false;
     fVarNameLH.clear();
     fVarNameMinos.clear();
+    fWorkspaceFileName = "";
     
     //
     // Limit type
@@ -613,6 +614,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("InputFolder");    if( param != "" ){
         fInputFolder = param;
     }
+    param = cs->Get("WorkspaceFileName");    if( param != "" ){
+        fWorkspaceFileName = param;
+    }
     
     //
     // General options
@@ -714,12 +718,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     //##########################################################
     int nReg = 0;
     Region *reg;
+    std::vector<std::string> regNames;
     while(true){
         cs = fConfig->GetConfigSet("Region",nReg);
         if(cs==0x0) break;
         nReg++;
         if(onlyRegions.size()>0 && FindInStringVector(onlyRegions,cs->GetValue())<0) continue;
         if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
+        regNames.push_back( CheckName(cs->GetValue()) ); //why the CheckName is needed?? A: cs->GetValue() might have leading/trailing spaces...
         reg = NewRegion(CheckName(cs->GetValue()));
         reg->SetVariableTitle(cs->Get("VariableTitle"));
         reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
@@ -1096,21 +1102,24 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         type = Systematic::HISTO;
         if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL")
             type = Systematic::OVERALL;
+        string decorrelate = cs->Get("Decorrelate");
         sys = new Systematic(CheckName(cs->GetValue()),type);
-        fSystematics.push_back( sys );
-        fNSyst++;
-        if(cs->Get("NuisanceParameter")!=""){
-            sys->fNuisanceParameter = cs->Get("NuisanceParameter");
-            TtHFitter::NPMAP[sys->fName] = sys->fNuisanceParameter;
-        }
-        else{
-            sys->fNuisanceParameter = sys->fName;
-            TtHFitter::NPMAP[sys->fName] = sys->fName;
-        }
-        if(cs->Get("Title")!=""){
-            sys->fTitle = cs->Get("Title");
-            TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
-        }
+        if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL") 
+            sys->fIsNormOnly=true;
+//         fSystematics.push_back( sys );
+//         fNSyst++;
+//         if(cs->Get("NuisanceParameter")!=""){
+//             sys->fNuisanceParameter = cs->Get("NuisanceParameter");
+//             TtHFitter::NPMAP[sys->fName] = sys->fNuisanceParameter;
+//         }
+//         else{
+//             sys->fNuisanceParameter = sys->fName;
+//             TtHFitter::NPMAP[sys->fName] = sys->fName;
+//         }
+//         if(cs->Get("Title")!=""){
+//             sys->fTitle = cs->Get("Title");
+//             TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
+//         }
         if(cs->Get("Category")!=""){
             sys->fCategory = cs->Get("Category");
         }
@@ -1192,22 +1201,234 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         param = cs->Get("DropShapeIn"); if(param!=""){
             sys->fDropShapeIn = Vectorize(param,',');
         }
+        
+//         //
+//         // save list of 
+//         if(regions[0]!="all") sys->fRegions = regions;
+//         if(exclude[0]!="")    sys->fExclude = exclude;
+//         // attach the syst to the proper samples
+//         for(int i_smp=0;i_smp<fNSamples;i_smp++){
+//             sam = fSamples[i_smp];
+//             if(sam->fType == Sample::DATA) continue;
+// 	    if(!sam->fUseSystematics) continue;
+//             if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+//                && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+//             ){
+//                 sam->AddSystematic(sys);
+//             }
+//         }
+//         // ...
+
         //
-        // save list of 
-        if(regions[0]!="all") sys->fRegions = regions;
-        if(exclude[0]!="")    sys->fExclude = exclude;
-        // attach the syst to the proper samples
-        for(int i_smp=0;i_smp<fNSamples;i_smp++){
-            sam = fSamples[i_smp];
-            if(sam->fType == Sample::DATA) continue;
-	    if(!sam->fUseSystematics) continue;
-            if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
-               && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
-            ){
-                sam->AddSystematic(sys);
+        // save list of...
+        //
+        // Default
+        if ( decorrelate == "" ) {
+            fSystematics.push_back( sys );
+            fNSyst++;
+            if(regions[0]!="all") sys->fRegions = regions;
+            if(exclude[0]!="")    sys->fExclude = exclude;
+            if(cs->Get("NuisanceParameter")!=""){
+                sys->fNuisanceParameter = cs->Get("NuisanceParameter");
+                TtHFitter::NPMAP[sys->fName] = sys->fNuisanceParameter;
+            }
+            else{
+                sys->fNuisanceParameter = sys->fName;
+                TtHFitter::NPMAP[sys->fName] = sys->fName;
+            }
+            if(cs->Get("Title")!=""){
+                sys->fTitle = cs->Get("Title");
+                TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
+            }
+            //
+            // attach the syst to the proper samples
+            for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                sam = fSamples[i_smp];
+                if(sam->fType == Sample::DATA) continue;
+                if(!sam->fUseSystematics) continue;
+                if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+                      && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+                ){
+                    sam->AddSystematic(sys);
+                }
             }
         }
-        // ...
+        //
+        // Decorrelate by region
+        else if (decorrelate == "REGION")  {
+            //
+            // looping over the regions
+            for(unsigned int i_reg=0; i_reg<regNames.size(); ++i_reg) {
+                bool keepReg=false;
+                if ( regions[0]=="all" ) keepReg=true;
+                else {
+                    for ( int i_GoodReg=0; i_GoodReg<sizeof(regions)/sizeof(std::string); ++i_GoodReg ) {
+                        if ( regNames[i_reg]==regions[i_GoodReg] ) keepReg=true;
+                    }
+                }
+                for ( int i_BadReg=0; i_BadReg<sizeof(exclude)/sizeof(std::string); ++i_BadReg ) {
+                    if ( exclude[i_BadReg]==regNames[i_reg] ) keepReg=false;
+                }
+
+                if (!keepReg) {
+                    std::cout << " IGNORING REGION: " << regNames[i_reg] << std::endl;
+                    continue;
+                }
+                std::cout << " --> KEEPING IT!!! " << regNames[i_reg] << std::endl;
+                //
+                // cloning the sys for each region 
+                Systematic* mySys= new Systematic(*sys);
+                mySys->fName=(mySys->fName)+"_"+regNames[i_reg];
+                std::vector<string> tmpReg;
+                tmpReg.push_back( regNames[i_reg] );
+                mySys->fRegions = tmpReg;
+                fSystematics.push_back( mySys );
+
+                if(cs->Get("NuisanceParameter")!=""){
+                    mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg];
+                    TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                }
+                else{
+                    mySys->fNuisanceParameter = mySys->fName;
+                    TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+                }
+                if(cs->Get("Title")!=""){
+                    mySys->fTitle = (sys->fTitle)+"_"+regNames[i_reg];
+                    TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+                }
+                fNSyst++;       
+                //
+                for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                    sam = fSamples[i_smp];
+                    if(sam->fType == Sample::DATA) continue;
+                    if(!sam->fUseSystematics) continue;
+                    if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+                          && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+                          ){
+                      sam->AddSystematic(mySys);
+                    }
+                } 
+            }
+            delete sys; 
+        }
+        //
+        // Decorrelate by Sample
+        else if (decorrelate == "SAMPLE")  {
+            //
+            // (this is really messy)
+            for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                sam = fSamples[i_smp];
+                bool keepSam=false;
+                if ( samples[0]=="all") keepSam=true;
+                else {
+                    if ( find(samples.begin(), samples.end(), sam->fName)!=samples.end() ) keepSam=true;
+                }
+                if ( find(exclude.begin(), exclude.end(), sam->fName)!=exclude.end() ) keepSam=false;
+                if (!keepSam) {
+                    std::cout << " IGNORING SAMPLE: " << sam->fName << std::endl;
+                    continue;
+                }
+                std::cout << " --> KEEPING SAMPLE: " << sam->fName << std::endl;
+                //
+                // cloning the sys for each region 
+                Systematic* mySys= new Systematic(*sys);
+                mySys->fName=(mySys->fName)+"_"+sam->fName;
+                fSystematics.push_back( mySys );
+                if(cs->Get("NuisanceParameter")!=""){
+                    mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+sam->fName;
+                    TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                }
+                else{
+                    mySys->fNuisanceParameter = mySys->fName;
+                    TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+                }
+                if(cs->Get("Title")!=""){
+                    mySys->fTitle = (sys->fTitle)+"_"+sam->fName;
+                    TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+                }
+                fNSyst++;       
+                sam->AddSystematic(mySys); 
+            }
+            delete sys;
+        }
+        //
+        // Decorrelate  shape and normalisation
+        else if (decorrelate == "SHAPEACC")  {
+            //
+            // cloning the sys  
+            Systematic* mySys1= new Systematic(*sys);
+            mySys1->fName=(mySys1->fName)+"_Acc";
+            fSystematics.push_back( mySys1 );
+            mySys1->fIsNormOnly=true;
+            if(cs->Get("NuisanceParameter")!=""){
+                mySys1->fNuisanceParameter = (sys->fNuisanceParameter)+"_Acc";
+                TtHFitter::NPMAP[mySys1->fName] = sys->fNuisanceParameter;
+            }
+            else{
+                mySys1->fNuisanceParameter = mySys1->fName;
+                TtHFitter::NPMAP[mySys1->fName] = mySys1->fName;
+            }
+            if(cs->Get("Title")!=""){
+                mySys1->fTitle = (sys->fTitle)+"_Acc";
+                TtHFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
+            }
+            fNSyst++;         
+            //
+            for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                sam = fSamples[i_smp];
+                if(sam->fType == Sample::DATA) continue;
+                if(!sam->fUseSystematics) continue;
+                if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+                      && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+                      ){
+                    sam->AddSystematic(mySys1);
+                }
+            } 
+            //
+            if ( sys->fType!=Systematic::OVERALL ) {
+                ///////// the other one
+                // cloning the sys  
+                Systematic* mySys2= new Systematic(*sys);
+                mySys2->fName=(mySys2->fName)+"_Shape";
+                mySys2->fIsNormOnly=false;
+                mySys2->fIsShapeOnly=true;
+                fSystematics.push_back( mySys2 );
+                //
+                if(cs->Get("NuisanceParameter")!=""){
+                    mySys2->fNuisanceParameter = (sys->fNuisanceParameter)+"_Shape";
+                    TtHFitter::NPMAP[mySys2->fName] = sys->fNuisanceParameter;
+                }
+                else{
+                    mySys2->fNuisanceParameter = mySys2->fName;
+                    TtHFitter::NPMAP[mySys2->fName] = mySys2->fName;
+                }
+                if(cs->Get("Title")!=""){
+                    mySys2->fTitle = (sys->fTitle)+"_Shape";
+                    TtHFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
+                }
+                fNSyst++;       
+                //
+                for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                    sam = fSamples[i_smp];
+                    if(sam->fType == Sample::DATA) continue;
+                    if(!sam->fUseSystematics) continue;
+                    if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+                          && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+                          ){
+                        sam->AddSystematic(mySys2);
+                    }
+                } 
+            } 
+            delete sys; 
+        }
+        //
+        // If not....
+        else {
+            std::cout << "decorrelate option: " << decorrelate  << "  not supported ... PLEASE USE ONLY: REGION, SAMPLE, SHAPEACC" <<  std::endl;
+            return;
+        } 
+        // end Valerio
+
     }
 }
 
@@ -1236,6 +1457,7 @@ void TtHFit::ReadNtuples(){
         if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch);
 
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading " << fSamples[i_smp]->fName << std::endl;
             //
             // eventually skip sample / region combination
             //
@@ -1404,7 +1626,6 @@ void TtHFit::ReadNtuples(){
                 //
                 hUp = 0x0;                
                 if(syst->fHasUpVariation){
-                  
                     // Note: no need to change selection for systematics. If needed, can be done via weight (partially...)
                     fullMCweight = "1.";
                     if(fSamples[i_smp]->fNormalizedByTheory)  fullMCweight = fMCweight;
@@ -1608,7 +1829,8 @@ void TtHFit::ReadNtuples(){
 //                 
 //                 //
 //                 // Histogram smoothing, Symmetrisation, Massaging...
-                SystematicHist *syh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+//                 SystematicHist *syh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
 //                 if(!fRegions[i_ch]->fSkipSmoothing) sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
 //                 else                                sh -> fSmoothType = 0;
 //                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
@@ -1761,14 +1983,17 @@ void TtHFit::ReadHistograms(){
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
     SampleHist *sh;
+    
     //
-    // loop on regions and samples
+    // Loop on regions and samples
+    //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        cout << "  Region " << fRegions[i_ch]->fName << " ..." << endl;
 
-      if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch); 
+        if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch); 
 
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Reading " << fSamples[i_smp]->fName << std::endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading " << fSamples[i_smp]->fName << std::endl;
             // 
             // eventually skip sample / region combination
             //
@@ -1796,9 +2021,7 @@ void TtHFit::ReadHistograms(){
             h = 0x0;
             
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-
-	        htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-                
+                htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                 //Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[i_ch]->fHistoBins){
                     TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
@@ -1806,7 +2029,8 @@ void TtHFit::ReadHistograms(){
                     htmp->~TH1F();
                     htmp = htmp2;
                     htmp->SetName(hname);
-                } else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
+                }
+                else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
                     htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                 }
                 
@@ -1818,30 +2042,35 @@ void TtHFit::ReadHistograms(){
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
                 htmp->~TH1F();
-                
             }
             
-            // Loop over all bins to check the presence of bins with <=0 content bins
-            std::map < int, bool > applyCorrection; applyCorrection.clear();
-            if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
-                for(unsigned int iBin = 1; iBin <= h->GetNbinsX(); ++iBin ){
-                    double content = h->GetBinContent(iBin);
-                    if( content<=0 ){
-                        std::cout << "WARNING: Checking your nominal histogram for sample " << fSamples[i_smp] -> fName;
-                        std::cout << " in region " << fRegions[i_ch]->fName << ", the bin " << iBin;
-                        std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
-                        std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
-                        h->SetBinContent(iBin,1e-06);
-                        h->SetBinError(  iBin,1e-06);  // adding also a stat. uncertainty, a 100% one
-                        applyCorrection.insert( std::pair < int, bool > (iBin, true) );
-                    } else {
-                        applyCorrection.insert( std::pair < int, bool > (iBin, false) );
-                    }
-                }
-            }
+            //
+            // Save the original histogram, then perform additional operations: rebin, fix empty bins, smooth...
+            TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
+            
+//             // Loop over all bins to check the presence of bins with <=0 content bins
+//             std::map < int, bool > applyCorrection; applyCorrection.clear();
+//             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
+//                 for(unsigned int iBin = 1; iBin <= h->GetNbinsX(); ++iBin ){
+//                     double content = h->GetBinContent(iBin);
+//                     if( content<=0 ){
+//                         std::cout << "WARNING: Checking your nominal histogram for sample " << fSamples[i_smp] -> fName;
+//                         std::cout << " in region " << fRegions[i_ch]->fName << ", the bin " << iBin;
+//                         std::cout << " has a null/negative been content (content = " << content << ") ! You should have a look at this !" << std::endl;
+//                         std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
+//                         h->SetBinContent(iBin,1e-06);
+//                         h->SetBinError(  iBin,1e-06);  // adding also a stat. uncertainty, a 100% one
+//                         applyCorrection.insert( std::pair < int, bool > (iBin, true) );
+//                     } else {
+//                         applyCorrection.insert( std::pair < int, bool > (iBin, false) );
+//                     }
+//                 }
+//             }
             
             // Importing the histogram in TtHFitter
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
+            sh->fHist_orig = h_orig;
+            sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
             // end here if data or no systematics allowed (e.g. generally for GHOST samples)
             if(fSamples[i_smp]->fType==Sample::DATA || !fSamples[i_smp]->fUseSystematics) continue;
@@ -1877,6 +2106,15 @@ void TtHFit::ReadHistograms(){
                 //
                 Region *reg = fRegions[i_ch];
                 Sample *smp = fSamples[i_smp];
+                //
+                // if Overall only ...
+                if(syst->fType==Systematic::OVERALL){
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
+                    syh->fSystematic = syst;
+                    continue;
+                }
+                // else ...
+                //
                 if(syst->fReferenceSample!="") smp = GetSample(syst->fReferenceSample);
 
                 //
@@ -1885,7 +2123,7 @@ void TtHFit::ReadHistograms(){
                 hUp = 0x0;
                 if(syst->fHasUpVariation){
                     // For histo syst:
-                    if(syst->fType==Systematic::HISTO){
+//                     if(syst->fType==Systematic::HISTO){
                         fullPaths.clear();
                         fullPaths = CreatePathsList(
                                                     // path
@@ -1944,18 +2182,21 @@ void TtHFit::ReadHistograms(){
                             }
                             
                             //Importing histogram in TtHFitter
-                            if(i_path==0) hUp = (TH1F*)htmp->Clone();
+//                             if(i_path==0) hUp = (TH1F*)htmp->Clone();
+                            if(i_path==0){
+                                hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
+                            }
                             else hUp->Add(htmp);
                             htmp->~TH1F();
                         }
-                    }
+//                     }
                     // For Overall syst
-                    else{
-                        hUp = (TH1F*)h->Clone();
-                        hUp->Scale(1+syst->fOverallUp);
-                    }
+//                     else{
+//                         hUp = (TH1F*)h->Clone();
+//                         hUp->Scale(1+syst->fOverallUp);
+//                     }
 //                     hUp->SetName(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
-                    hUp->SetName(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
+//                     hUp->SetName(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                 }
                 
                 //
@@ -1964,7 +2205,7 @@ void TtHFit::ReadHistograms(){
                 hDown = 0x0;
                 if(syst->fHasDownVariation){                      
                     // For histo syst:
-                    if(syst->fType==Systematic::HISTO){
+//                     if(syst->fType==Systematic::HISTO){
                         fullPaths.clear();
                         fullPaths = CreatePathsList(
                                                     // path
@@ -2023,47 +2264,50 @@ void TtHFit::ReadHistograms(){
                             }
                             
                             //Importing histogram in TtHFitter
-                            if(i_path==0) hDown = (TH1F*)htmp->Clone();
+//                             if(i_path==0) hDown = (TH1F*)htmp->Clone();
+                            if(i_path==0){
+                                hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
+                            }
                             else hDown->Add(htmp);
                             htmp->~TH1F();
                         }
-                    }
-                    // For Overall syst
-                    else{
-                        hDown = (TH1F*)h->Clone();
-                        hDown->Scale(1+syst->fOverallDown);
-                    }
+//                     }
+//                     // For Overall syst
+//                     else{
+//                         hDown = (TH1F*)h->Clone();
+//                         hDown->Scale(1+syst->fOverallDown);
+//                     }
 //                     hDown->SetName(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fName.c_str()));
-                    hDown->SetName(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
+//                     hDown->SetName(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                 }
                 
-                if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+//                 if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+//                 if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 
-                // 
-                // Histogram smoothing, Symmetrisation, Massaging...
-                //
+//                 // 
+//                 // Histogram smoothing, Symmetrisation, Massaging...
+//                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
-                if(!fRegions[i_ch]->fSkipSmoothing) syh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
-                else                                syh -> fSmoothType = 0;
-                syh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
-                syh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+//                 if(!fRegions[i_ch]->fSkipSmoothing) syh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
+//                 else                                syh -> fSmoothType = 0;
+//                 syh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
+//                 syh -> fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 
-                //
-                // Histograms checking
-                //
-                if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
-                    for(unsigned int iBin = 1; iBin <= sh->fHist->GetNbinsX(); ++iBin ){
-                        if( applyCorrection[iBin]){
-                            syh -> fHistUp   -> SetBinContent(iBin,1e-06);
-                            syh -> fHistDown -> SetBinContent(iBin,1e-06);
-                        }
-                    }
-                }
-                HistoTools::CheckHistograms( sh->fHist /*nominal*/,
-                                            syh /*systematic*/,
-                                            fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
-                                            TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
+//                 //
+//                 // Histograms checking
+//                 //
+//                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
+//                     for(unsigned int iBin = 1; iBin <= sh->fHist->GetNbinsX(); ++iBin ){
+//                         if( applyCorrection[iBin]){
+//                             syh -> fHistUp   -> SetBinContent(iBin,1e-06);
+//                             syh -> fHistDown -> SetBinContent(iBin,1e-06);
+//                         }
+//                     }
+//                 }
+//                 HistoTools::CheckHistograms( sh->fHist /*nominal*/,
+//                                             syh /*systematic*/,
+//                                             fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
+//                                             TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
             }
         }
     }
@@ -2796,7 +3040,6 @@ void TtHFit::BuildYieldTable(string opt){
             }
         }
         //
-        // KERIM
         for(int i_norm=0;i_norm<fNNorm;i_norm++){
             string normName = fNormFactors[i_norm]->fName;
             systNames.push_back( normName );
@@ -2967,7 +3210,6 @@ void TtHFit::BuildYieldTable(string opt){
         }
     }
     // add the norm factors
-    // KERIM
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         string normName = fNormFactors[i_norm]->fName;
         systNames.push_back( normName );
@@ -3008,7 +3250,6 @@ void TtHFit::BuildYieldTable(string opt){
             h_down[fNSyst+i_norm]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
-    // KERIM
     //
     if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames, fFitResults->fCorrMatrix );
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames );
@@ -3534,8 +3775,9 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     sample.AddNormFactor( h->fNormFactors[i_norm]->fName,
                                          h->fNormFactors[i_norm]->fNominal,
                                          h->fNormFactors[i_norm]->fMin,
-                                         h->fNormFactors[i_norm]->fMax,
-                                         h->fNormFactors[i_norm]->fConst);
+                                         h->fNormFactors[i_norm]->fMax);
+//                                          h->fNormFactors[i_norm]->fMax,
+//                                          h->fNormFactors[i_norm]->fConst);
                     if (h->fNormFactors[i_norm]->fConst) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
                 }
                 // systematics
@@ -3551,12 +3793,14 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                TMath::Abs(h->fSyst[i_syst]->fNormDown)>fThresholdSystPruning_Normalisation) ) ||
                             (fThresholdSystPruning_Normalisation==-1)
                           ){
-                            sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
-                                                1+h->fSyst[i_syst]->fNormDown,
-                                                1+h->fSyst[i_syst]->fNormUp   );
+                            if ( h->fSyst[i_syst]->fSystematic->fIsShapeOnly==false ) {
+                                sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
+                                                    1+h->fSyst[i_syst]->fNormDown,
+                                                    1+h->fSyst[i_syst]->fNormUp   );
+                            }
                         }
                         // eventually add shape part
-                        if( h->fSyst[i_syst]->fIsShape ){
+                        if( h->fSyst[i_syst]->fIsShape && h->fSyst[i_syst]->fSystematic->fIsNormOnly==false ){
                             bool hasShape = true;
                             if( FindInStringVector( h->fSyst[i_syst]->fSystematic->fDropShapeIn, fRegions[i_ch]->fName )>=0  ) hasShape = false;
                             if( FindInStringVector( h->fSyst[i_syst]->fSystematic->fDropShapeIn, fSamples[i_smp]->fName )>=0 ) hasShape = false;
@@ -3747,88 +3991,102 @@ void TtHFit::Fit(){
             break;
         }
     }
-    
-    //
-    // Fills a vector of regions to consider for fit
-    //
-    bool simpleData = true; // this becomes flase if some regions have data and others don't
-    int previousDataType = -1;
-    std::vector < std:: string > regionsToFit;
-    std::map < std::string, int > regionDataType;
-    for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-        bool isToFit = false;
- 
-        if ( fFitRegion == CRONLY ) {
-            if( fRegions[i_ch] -> fRegionType == Region::CONTROL ){
-                isToFit = true;
-            }
-        } else if ( fFitRegion == CRSR ){
-            if( fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL ){
-                isToFit = true;
-            }
-        }
-        if ( ! isToFit ){
-            for (unsigned int iReg = 0; iReg < fFitRegionsToFit.size(); ++iReg ){
-                if( fFitRegionsToFit[iReg] == fRegions[i_ch] -> fName ){
-                    isToFit = true;
-                    break;
-                }
-            }
-        }
-        
-        if(isToFit){
-            regionsToFit.push_back( fRegions[i_ch] -> fName );
-            Region::DataType dataType;
-            if(fFitIsBlind || !hasData){
-                dataType = Region::ASIMOVDATA;
-            } else {
-                dataType = fRegions[i_ch] -> fRegionDataType;
-            }
-            regionDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
-            //
-            if(previousDataType>=0 && previousDataType!=(int)dataType) simpleData = false;
-            previousDataType = (int)dataType;
-        }
-    }
-    
-    //
-    // Creating the combined model with the regions to fit only
-    //
-    RooWorkspace* ws = PerformWorkspaceCombination( regionsToFit );
-    
-    //
-    // If needed (only if needed), create a RooDataset object
-    //
+
     RooDataSet* data = 0x0;
-    if(simpleData){
+    RooWorkspace* ws = 0x0;
+
+    
+    //
+    // If there's a workspace specified, go on with simple fit, without looking for separate workspaces per region
+    //
+    if(fWorkspaceFileName!=""){
+        TFile *rootFile = new TFile(fWorkspaceFileName.c_str(),"read");
+        ws = (RooWorkspace*) rootFile->Get("combined");
+        if(!ws){
+            std::cout << "<!> Error in TtHFit::Fit: The workspace (\"combined\") cannot be found in file " << fWorkspaceFileName << ". Please check !" << std::endl;
+        }
         if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
         else                        data = (RooDataSet*)ws->data("asimovData");
+        PerformFit( ws, data, fFitType, true );
     }
     else{
-        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
-    }
+        //
+        // Fills a vector of regions to consider for fit
+        //
+        bool simpleData = true; // this becomes false if some regions have data and others don't
+        int previousDataType = -1;
+        std::vector < std:: string > regionsToFit;
+        std::map < std::string, int > regionDataType;
+        for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+            bool isToFit = false;
     
-    //
-    // Calls the PerformFit() function to actually do the fit
-    //
-    PerformFit( ws, regionsToFit, data);
+            if ( fFitRegion == CRONLY ) {
+                if( fRegions[i_ch] -> fRegionType == Region::CONTROL ){
+                    isToFit = true;
+                }
+            } else if ( fFitRegion == CRSR ){
+                if( fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL ){
+                    isToFit = true;
+                }
+            }
+            if ( ! isToFit ){
+                for (unsigned int iReg = 0; iReg < fFitRegionsToFit.size(); ++iReg ){
+                    if( fFitRegionsToFit[iReg] == fRegions[i_ch] -> fName ){
+                        isToFit = true;
+                        break;
+                    }
+                }
+            }
+            //
+            if(isToFit){
+                regionsToFit.push_back( fRegions[i_ch] -> fName );
+                Region::DataType dataType;
+                if(fFitIsBlind || !hasData){
+                    dataType = Region::ASIMOVDATA;
+                } else {
+                    dataType = fRegions[i_ch] -> fRegionDataType;
+                }
+                regionDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
+                //
+                if(previousDataType>=0 && previousDataType!=(int)dataType) simpleData = false;
+                previousDataType = (int)dataType;
+            }
+        }
+        //
+        // Creating the combined model with the regions to fit only
+        //
+        ws = PerformWorkspaceCombination( regionsToFit );
+        //
+        // If needed (only if needed), create a RooDataset object
+        //
+        if(simpleData){
+            if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
+            else                        data = (RooDataSet*)ws->data("asimovData");
+        }
+        else{
+            data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+        }
+        //
+        // Calls the PerformFit() function to actually do the fit
+        //
+        PerformFit( ws, data, fFitType, true);
+    }
 
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
     if(fVarNameLH.size()>0){
-      if (fVarNameLH[0]=="all"){
-	for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
-	  GetLikelihoodScan( ws, it->first, data);
-	}
-      } 
-      else{
-	for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-	  GetLikelihoodScan( ws, fVarNameLH[i], data);
-	}
-      }
+        if (fVarNameLH[0]=="all"){
+            for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
+                GetLikelihoodScan( ws, it->first, data);
+            }
+        } 
+        else{
+            for(unsigned int i=0; i<fVarNameLH.size(); ++i){
+                GetLikelihoodScan( ws, fVarNameLH[i], data);
+            }
+        }
     }
-
 }
 
 //__________________________________________________________________________________
@@ -3988,7 +4246,7 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
 
 //__________________________________________________________________________________
 //
-std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, std::vector < std::string > &regionsToFit, RooDataSet* inputData, FitType fitType ){
+std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType, bool save ){
     
     std::map < std::string, double > result;
     
@@ -4002,17 +4260,19 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, std::vect
     // Fit configuration (SPLUSB or BONLY)
     //
     FittingTool *fitTool = new FittingTool();
-    if(fFitType==BONLY || fitType==BONLY){
+//     if(fFitType==BONLY || fitType==BONLY){
+    if(fitType==BONLY){
         fitTool -> ValPOI(0.);
         fitTool -> ConstPOI(true);
-    } else if(fFitType==SPLUSB){
+//     } else if(fFitType==SPLUSB){
+    } else if(fitType==SPLUSB){
         fitTool -> ValPOI(1.);
         fitTool -> ConstPOI(false);
     }
 
     if(fVarNameMinos.size()>0){
-      std::cout << "Setting the variables to use MINOS with" << std::endl;
-      fitTool -> UseMinos(fVarNameMinos);
+        std::cout << "Setting the variables to use MINOS with" << std::endl;
+        fitTool -> UseMinos(fVarNameMinos);
     }
     
     //
@@ -4024,19 +4284,26 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, std::vect
     //
     // Creates the data object
     //
-    RooDataSet* data = 0;
+    RooDataSet* data = 0x0;
     if(inputData){
         data = inputData;
     } else {
         std::cout << "In TtHFit::PerformFit() function: you didn't provide inputData => will use the observed data !" << std::endl;
         data = (RooDataSet*)ws->data("obsData");
+        if(data==0x0){
+            std::cout << "In TtHFit::PerformFit() function: no observedData found => will use the Asimov data !" << std::endl;
+            data = (RooDataSet*)ws->data("asimovData");
+        }
     }
     
     // Performs the fit
-    gSystem -> mkdir((fName+"/Fits/").c_str(),true);
     fitTool -> MinimType("Minuit2");
     fitTool -> FitPDF( mc, simPdf, data );
-    if(fitType==FitType::SPLUSB)fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+".txt");
+//     if(fitType==FitType::SPLUSB) 
+    if(save){
+      gSystem -> mkdir((fName+"/Fits/").c_str(),true);
+      fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+".txt");
+    }
     result = fitTool -> ExportFitResultInMap();
     
     return result;
@@ -4159,69 +4426,81 @@ void TtHFit::GetLimit(){
         }
     }
     
+    string cmd;
+    
+    // 
+    // If a workspace file name is specified, do simple limit
     //
-    // Fills a vector of regions to consider for fit
-    //
-    std::vector < std:: string > regionsForFit;
-    std::vector < std::string > regionsForLimit;
-    std::map < std::string, int > regionsForFitDataType;
-    std::map < std::string, int > regionsForLimitDataType;
-    bool onlyUseRealData = true;
-    for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-        if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-        if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind ){
-            Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
-            regionsForFit.push_back( fRegions[i_ch] -> fName );
-            regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
-        }
-        regionsForLimit.push_back(fRegions[i_ch] -> fName);
-        regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (fLimitIsBlind || !hasData) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
-        if(fLimitIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
-            onlyUseRealData = false;
-        }
+    if(fWorkspaceFileName!=""){
+        string dataName = "obsData";
+        if(!hasData || fLimitIsBlind) dataName = "asimovData";
+        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
     }
     
-    std::map < std::string, double > npValues;
-    RooDataSet* data = 0;
-    
-    if(regionsForFit.size()>0 && !onlyUseRealData){
+    else{
         //
-        // Creates a combined workspace with the regions to be used *in the fit*
+        // Fills a vector of regions to consider for fit
         //
-        RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+        std::vector < std:: string > regionsForFit;
+        std::vector < std::string > regionsForLimit;
+        std::map < std::string, int > regionsForFitDataType;
+        std::map < std::string, int > regionsForLimitDataType;
+        bool onlyUseRealData = true;
+        for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+            if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
+            if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind ){
+                Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
+                regionsForFit.push_back( fRegions[i_ch] -> fName );
+                regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
+            }
+            regionsForLimit.push_back(fRegions[i_ch] -> fName);
+            regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (fLimitIsBlind || !hasData) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+            if(fLimitIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
+                onlyUseRealData = false;
+            }
+        }
+        
+        std::map < std::string, double > npValues;
+        RooDataSet* data = 0;
+        
+        if(regionsForFit.size()>0 && !onlyUseRealData){
+            //
+            // Creates a combined workspace with the regions to be used *in the fit*
+            //
+            RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+            
+            //
+            // Calls the PerformFit() function to actually do the fit
+            //
+            npValues = PerformFit( ws_forFit, data, FitType::BONLY);
+        }
         
         //
-        // Calls the PerformFit() function to actually do the fit
+        // Create the final asimov dataset for limit setting
         //
-        npValues = PerformFit( ws_forFit, regionsForFit, data, FitType::BONLY);
+        RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
+        data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
+        
+        //
+        // Gets the measurement object in the original combined workspace (created with the "w" command)
+        //
+        const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
+        TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
+        RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fName+fSuffix).c_str());
+        TString outputName = f_origin->GetName();
+        f_origin -> Close();
+        
+        //
+        // Creating the rootfile used as input for the limit setting :-)
+        //
+        outputName = outputName.ReplaceAll(".root","_forLimits.root");
+        TFile *f_clone = new TFile( outputName, "recreate" );
+        ws_forLimit -> import(*data,Rename("ttHFitterData"));
+        originalMeasurement -> Write();
+        ws_forLimit -> Write();
+        f_clone -> Close();
+        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
     }
-    
-    //
-    // Create the final asimov dataset for limit setting
-    //
-    RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
-    data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
-    
-    //
-    // Gets the measurement object in the original combined workspace (created with the "w" command)
-    //
-    const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
-    TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
-    RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fName+fSuffix).c_str());
-    TString outputName = f_origin->GetName();
-    f_origin -> Close();
-    
-    //
-    // Creating the rootfile used as input for the limit setting :-)
-    //
-    outputName = outputName.ReplaceAll(".root","_forLimits.root");
-    TFile *f_clone = new TFile( outputName, "recreate" );
-    ws_forLimit -> import(*data,Rename("ttHFitterData"));
-    originalMeasurement -> Write();
-    ws_forLimit -> Write();
-    f_clone -> Close();
-    string cmd;
-    cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
     
     //
     // Finally computing the limit
@@ -4242,71 +4521,85 @@ void TtHFit::GetSignificance(){
         }
     }
     
+    string cmd;
+    
+    // 
+    // If a workspace file name is specified, do simple significance
     //
-    // Fills a vector of regions to consider for fit
-    //
-    std::vector < std:: string > regionsForFit;
-    std::vector < std::string > regionsForSign;
-    std::map < std::string, int > regionsForFitDataType;
-    std::map < std::string, int > regionsForSignDataType;
-    bool onlyUseRealData = true;
-    for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-        if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-        if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
-            Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
-            regionsForFit.push_back( fRegions[i_ch] -> fName );
-            regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
-        }
-        regionsForSign.push_back(fRegions[i_ch] -> fName);
-        regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (!hasData || fLimitIsBlind) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
-        if(fLimitIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
-            onlyUseRealData = false;
-        }
+    if(fWorkspaceFileName!=""){
+        string dataName = "obsData";
+        if(!hasData || fFitIsBlind) dataName = "asimovData";
+        cmd = "root -l -b -q 'runSig.C(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
     }
     
-    std::map < std::string, double > npValues;
-    RooDataSet* data = 0;
-    if(regionsForFit.size()>0 && !onlyUseRealData){
+    else{
         //
-        // Creates a combined workspace with the regions to be used *in the fit*
+        // Fills a vector of regions to consider for fit
         //
-        RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+        std::vector < std:: string > regionsForFit;
+        std::vector < std::string > regionsForSign;
+        std::map < std::string, int > regionsForFitDataType;
+        std::map < std::string, int > regionsForSignDataType;
+        bool onlyUseRealData = true;
+        for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+            if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
+            if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
+                Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
+                regionsForFit.push_back( fRegions[i_ch] -> fName );
+                regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
+            }
+            regionsForSign.push_back(fRegions[i_ch] -> fName);
+            regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (!hasData || fLimitIsBlind) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+            if(fLimitIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
+                onlyUseRealData = false;
+            }
+        }
+        
+        std::map < std::string, double > npValues;
+        RooDataSet* data = 0;
+        if(regionsForFit.size()>0 && !onlyUseRealData){
+            //
+            // Creates a combined workspace with the regions to be used *in the fit*
+            //
+            RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+            
+            //
+            // Calls the PerformFit() function to actually do the fit
+            //
+            npValues = PerformFit( ws_forFit, data, FitType::BONLY);
+        }
         
         //
-        // Calls the PerformFit() function to actually do the fit
+        // Create the final asimov dataset for limit setting
         //
-        npValues = PerformFit( ws_forFit, regionsForFit, data, FitType::BONLY);
-    }
-    
-    //
-    // Create the final asimov dataset for limit setting
-    //
-    RooWorkspace* ws_forSignificance = PerformWorkspaceCombination( regionsForSign );
-    data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
-    
-    //
-    // Gets the measurement object in the original combined workspace (created with the "w" command)
-    //
-    const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
-    TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
-    RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fName+fSuffix).c_str());
-    TString outputName = f_origin->GetName();
-    f_origin -> Close();
+        RooWorkspace* ws_forSignificance = PerformWorkspaceCombination( regionsForSign );
+        data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
+        
+        //
+        // Gets the measurement object in the original combined workspace (created with the "w" command)
+        //
+        const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
+        TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
+        RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fName+fSuffix).c_str());
+        TString outputName = f_origin->GetName();
+        f_origin -> Close();
 
-    //
-    // Creating the rootfile used as input for the limit setting :-)
-    //
-    outputName = outputName.ReplaceAll(".root","_forSignificance.root");
-    TFile *f_clone = new TFile( outputName, "recreate" );
-    ws_forSignificance -> import(*data,Rename("ttHFitterData"));
-    originalMeasurement -> Write();
-    ws_forSignificance -> Write();
-    f_clone -> Close();
-    
-    //
-    // Finally computing the significance
-    //
-    string cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
+        //
+        // Creating the rootfile used as input for the limit setting :-)
+        //
+        outputName = outputName.ReplaceAll(".root","_forSignificance.root");
+        TFile *f_clone = new TFile( outputName, "recreate" );
+        ws_forSignificance -> import(*data,Rename("ttHFitterData"));
+        originalMeasurement -> Write();
+        ws_forSignificance -> Write();
+        f_clone -> Close();
+        
+        //
+        // Finally computing the significance
+        //
+        cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
+    }
+      
     gSystem->Exec(cmd.c_str());
 }
 
