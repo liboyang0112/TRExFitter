@@ -23,6 +23,8 @@ Systematic::Systematic(string name,int type,float up,float down){
     fHasDownVariation = true;
     //
     fIsFreeParameter = false;
+    fIsShapeOnly = false;
+    fIsNormOnly = false;
     //
     fReferenceSample = "";
     fKeepReferenceOverallVar = true;
@@ -64,6 +66,70 @@ Systematic::Systematic(string name,int type,float up,float down){
     fRegions.clear();
     fExclude.clear();
     fDropShapeIn.clear();
+}
+
+
+Systematic::Systematic(Systematic &sys) {
+    fName = sys.fName;
+    fTitle = sys.fTitle;
+    fNuisanceParameter = sys.fNuisanceParameter;
+    fType = sys.fType;
+    fCategory = sys.fCategory;
+    fStoredName = sys.fStoredName;
+    
+    fSmoothType = sys.fSmoothType;
+    fSymmetrisationType = sys.fSymmetrisationType;
+    //
+    fOverallUp = sys.fOverallUp;
+    fOverallDown = sys.fOverallDown;
+    //
+    fHasUpVariation = sys.fHasUpVariation;
+    fHasDownVariation = sys.fHasDownVariation;
+    //
+    fIsFreeParameter = sys.fIsFreeParameter;
+    fIsShapeOnly = sys.fIsShapeOnly;
+    fIsNormOnly = sys.fIsNormOnly;
+    //
+    fReferenceSample = sys.fReferenceSample;
+    fKeepReferenceOverallVar = sys.fKeepReferenceOverallVar;
+    //
+    fWeightUp = sys.fWeightUp;
+    fWeightSufUp = sys.fWeightSufUp;
+    fNtuplePathsUp = sys.fNtuplePathsUp;
+    fNtuplePathSufUp = sys.fNtuplePathSufUp;
+    fNtupleFilesUp = sys.fNtupleFilesUp;
+    fNtupleFileSufUp = sys.fNtupleFileSufUp;
+    fNtupleNamesUp = sys.fNtupleNamesUp;
+    fNtupleNameSufUp = sys.fNtupleNameSufUp;
+    //
+    fWeightDown = sys.fWeightDown;
+    fWeightSufDown = sys.fWeightSufDown;  
+    fNtuplePathsDown = sys.fNtuplePathsDown;
+    fNtuplePathSufDown = sys.fNtuplePathSufDown;
+    fNtupleFilesDown = sys.fNtupleFilesDown;
+    fNtupleFileSufDown = sys.fNtupleFileSufDown;
+    fNtupleNamesDown = sys.fNtupleNamesDown;
+    fNtupleNameSufDown = sys.fNtupleNameSufDown;
+    //
+    fIgnoreWeight = sys.fIgnoreWeight;
+    //
+    fHistoPathsUp = sys.fHistoPathsUp;
+    fHistoPathSufUp = sys.fHistoPathSufUp;
+    fHistoFilesUp = sys.fHistoFilesUp;
+    fHistoFileSufUp = sys.fHistoFileSufUp;
+    fHistoNamesUp = sys.fHistoNamesUp;
+    fHistoNameSufUp = sys.fHistoNameSufUp;
+    //
+    fHistoPathsDown = sys.fHistoPathsDown;
+    fHistoPathSufDown = sys.fHistoPathSufDown;
+    fHistoFilesDown = sys.fHistoFilesDown;
+    fHistoFileSufDown = sys.fHistoFileSufDown;
+    fHistoNamesDown = sys.fHistoNamesDown;
+    fHistoNameSufDown = sys.fHistoNameSufDown;
+    //
+    fRegions = sys.fRegions;
+    fExclude = sys.fExclude;
+    fDropShapeIn = sys.fDropShapeIn;
 }
 
 //_____________________________________________________________________________

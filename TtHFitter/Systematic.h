@@ -13,6 +13,7 @@ public:
     };
   
     Systematic(string name,int type=0,float up=0,float down=0);
+    Systematic( Systematic &sys);  // copy constructor
     ~Systematic();
 
     // -------
@@ -37,7 +38,9 @@ public:
     bool fHasDownVariation;
     
     bool fIsFreeParameter;
-    
+    bool fIsShapeOnly;    
+    bool fIsNormOnly;
+
     std::vector<string> fRegions;
     std::vector<string> fExclude;
     std::vector<string> fDropShapeIn;
