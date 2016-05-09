@@ -1,3 +1,6 @@
+2016-05-09 Michele Pinamonti <michele.pinamonti@gmail.com>, Valerio Dao <valerio.dao@cern.ch>
+        * Pruning functionality (and plot) improved
+
 2016-05-06 Michele Pinamonti <michele.pinamonti@gmail.com>, Valerio Dao <valerio.dao@cern.ch>
         * Systematic decorrelation options added (still to document)
         * Bug fix for running from histograms
