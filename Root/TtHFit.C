@@ -1827,8 +1827,8 @@ void TtHFit::ReadNtuples(){
 //                     if(hDown!=0x0) hDown->Multiply(h_correction);
 //                 }
 //                 
-//                 if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-//                 if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
 //                 
 //                 //
 //                 // Histogram smoothing, Symmetrisation, Massaging...
