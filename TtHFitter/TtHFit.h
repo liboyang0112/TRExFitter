@@ -52,7 +52,7 @@ public:
     ~TtHFit();
     
     void SetPOI(string name="SigXsecOverSM");
-    void SetStatErrorConfig(bool useIt=true, float thres=0.05, string fStatErrCons="Gaussian");
+    void SetStatErrorConfig(bool useIt=true, float thres=0.05, string cons="Gaussian");
     void SetLumiErr(float err);
     void SetLumi(const float lumi);
     void SetFitType(FitType type);

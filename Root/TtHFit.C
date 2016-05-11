@@ -528,9 +528,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         else                                                 SetStatErrorConfig( true,  atof(param.c_str()) );
     }
     else{
-//         SetStatErrorConfig( false, 0.0 );
-        SetStatErrorConfig( true, 0. );  // !! stat config default chenged !!
+        SetStatErrorConfig( true, 0. );
     }
+    param = cs->Get("MCstatConstraint");  if( param != "")  fStatErrCons = param;
     param = cs->Get("DebugLevel");        if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
     param = cs->Get("PlotOptions");       if( param != ""){
         vec = Vectorize(param,',');
@@ -4050,7 +4050,7 @@ void TtHFit::Fit(){
         //
         // Fills a vector of regions to consider for fit
         //
-        bool simpleData = true; // this becomes false if some regions have data and others don't
+//         bool simpleData = true; // this becomes false if some regions have data and others don't
         int previousDataType = -1;
         std::vector < std:: string > regionsToFit;
         std::map < std::string, int > regionDataType;
@@ -4085,7 +4085,7 @@ void TtHFit::Fit(){
                 }
                 regionDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
                 //
-                if(previousDataType>=0 && previousDataType!=(int)dataType) simpleData = false;
+//                 if(previousDataType>=0 && previousDataType!=(int)dataType) simpleData = false;
                 previousDataType = (int)dataType;
             }
         }
@@ -4096,13 +4096,13 @@ void TtHFit::Fit(){
         //
         // If needed (only if needed), create a RooDataset object
         //
-        if(simpleData){
-            if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
-            else                        data = (RooDataSet*)ws->data("asimovData");
-        }
-        else{
+//         if(simpleData){
+//             if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
+//             else                        data = (RooDataSet*)ws->data("asimovData");
+//         }
+//         else{
             data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
-        }
+//         }
         //
         // Calls the PerformFit() function to actually do the fit
         //
