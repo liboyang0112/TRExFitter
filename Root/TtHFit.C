@@ -3876,18 +3876,19 @@ void TtHFit::DrawPruningPlot(){
                             histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 0 );
                             //
                             // set to 1 if shape pruned away
-                            if( sh->GetSystematic(fSystematics[i_syst]->fName)->fIsShape && 
-                                fThresholdSystPruning_Shape>-1 && 
+                            if( !sh->GetSystematic(fSystematics[i_syst]->fName)->fIsShape ||  
+                                (fThresholdSystPruning_Shape>-1 && 
                               ( !HistoTools::HasShape(sh->fHist, sh->GetSystematic(fSystematics[i_syst]->fName),fThresholdSystPruning_Shape)
                                 || FindInStringVector( fSystematics[i_syst]->fDropShapeIn, fRegions[i_reg]->fName )>=0
                                 || FindInStringVector( fSystematics[i_syst]->fDropShapeIn, samplesVec[i_smp]->fName )>=0
-                                )
+                                ) )
                               ) {
                                 syh->fShapePruned = true;
                                 histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
                             }
                             float normUp=TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormUp);
                             float normDo=TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormDown);
+                            cout << normUp << " " << normDo << endl;
                             // set to 2 is normalization pruned away
                             if( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation ) {
                                 syh->fNormPruned = true;
