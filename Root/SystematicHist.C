@@ -14,6 +14,11 @@ SystematicHist::SystematicHist(string name){
     fIsShape = false;
     fSmoothType = 0;
     fSymmetrisationType = 0;
+    
+    fShapePruned = false;
+    fNormPruned  = false;
+    fBadShape    = false;
+    fBadNorm     = false;
 
     fHistUp = 0x0;
     fHistUp_orig = 0x0;

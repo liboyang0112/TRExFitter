@@ -3795,13 +3795,20 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                         if(TtHFitter::DEBUGLEVEL>0){
                             std::cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << std::endl;
                         }
-                        if ( h->fSyst[i_syst]->fSystematic->fIsShapeOnly==false ) {
+                        if ( !h->fSyst[i_syst]->fSystematic->fIsShapeOnly  &&
+                             !h->fSyst[i_syst]->fNormPruned  &&
+                             !h->fSyst[i_syst]->fBadNorm
+                           ) {
                             sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
                                                   1+h->fSyst[i_syst]->fNormDown,
                                                   1+h->fSyst[i_syst]->fNormUp   );
                         }
                         // eventually add shape part
-                        if( h->fSyst[i_syst]->fIsShape && h->fSyst[i_syst]->fSystematic->fIsNormOnly==false ){
+                        if ( h->fSyst[i_syst]->fIsShape  && 
+                             !h->fSyst[i_syst]->fSystematic->fIsNormOnly  &&
+                             !h->fSyst[i_syst]->fShapePruned  &&
+                             !h->fSyst[i_syst]->fBadShape
+                           ){
                             sample.AddHistoSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
                                                 h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning, h->fSyst[i_syst]->fFileNameShapeDown, "",
                                                 h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
@@ -3863,6 +3870,7 @@ void TtHFit::DrawPruningPlot(){
                 if(sh!=0x0){
                     for(int i_syst=0;i_syst<fNSyst;i_syst++){
                         if( sh->HasSyst(fSystematics[i_syst]->fName) ) {
+                            SystematicHist *syh = sh->GetSystematic(fSystematics[i_syst]->fName);
                             histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 0 );
                             //
                             // set to 1 if shape pruned away
@@ -3873,28 +3881,33 @@ void TtHFit::DrawPruningPlot(){
                                 || FindInStringVector( fSystematics[i_syst]->fDropShapeIn, samplesVec[i_smp]->fName )>=0
                                 )
                               ) {
-                                sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsNormOnly=true;
-                                histPrun[iReg]->AddBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
+//                                 sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsNormOnly=true;
+                                syh->fShapePruned = true;
+                                histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
                             }
                             float normUp=TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormUp);
                             float normDo=TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormDown);
                             // set to 2 is normalization pruned away
                             if( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation ) {
-                                sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsShapeOnly=true;
-                                histPrun[iReg]->AddBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
+//                                 sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsShapeOnly=true;
+                                syh->fNormPruned = true;
+                                if(syh->fShapePruned || fSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 3 );
+                                else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
                             }
                             //
                             // now check for crazy sys ....
                             if ( fThresholdSystLarge > -1 ) {	
                                 // first norm:
                                 if ( normUp>fThresholdSystLarge || normDo>fThresholdSystLarge ) {
-                                    sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsShapeOnly=true;
+//                                     sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsShapeOnly=true;
+                                    syh->fBadNorm = true;
                                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-2);
                                 }
                                 //
                                 // then shape
                                 if ( sh->GetSystematic(fSystematics[i_syst]->fName)->fIsShape && ( HistoTools::HasShape(sh->fHist, sh->GetSystematic(fSystematics[i_syst]->fName),fThresholdSystLarge) ) ) {
-                                  sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsNormOnly=true;
+//                                   sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsNormOnly=true;
+                                  syh->fBadShape = true;
                                   if ( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )==-2 ) {
                                       histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-4);
                                   }
@@ -3904,6 +3917,9 @@ void TtHFit::DrawPruningPlot(){
                               }
                           }
                       }
+                      //
+                      cout << histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) ) << endl;
+                      //
                   }
               }
           }
@@ -3950,7 +3966,7 @@ void TtHFit::DrawPruningPlot(){
         }
         histPrun[i_reg]->Draw("COL");
         histPrun[i_reg]->GetYaxis()->SetLabelOffset(0.03);
-        histPrun[i_reg]->GetXaxis()->SetLabelOffset(0.01);
+        histPrun[i_reg]->GetXaxis()->SetLabelOffset(0.05);
         gPad->SetTopMargin(0);
         gPad->SetBottomMargin(0);
         gPad->SetLeftMargin(0);
@@ -3961,7 +3977,7 @@ void TtHFit::DrawPruningPlot(){
         gPad->SetTickx(0);
         gPad->SetTicky(0);
         histPrun[i_reg]->SetMinimum(-4);
-        histPrun[i_reg]->SetMaximum(3);
+        histPrun[i_reg]->SetMaximum( 3.1);
         histPrun[i_reg]->GetYaxis()->SetTickLength(0);
         histPrun[i_reg]->GetXaxis()->SetTickLength(0);  
         gPad->SetGrid();

@@ -27,6 +27,11 @@ public:
   bool fIsShape;
   int fSmoothType;
   int fSymmetrisationType;
+  
+  bool fShapePruned;
+  bool fNormPruned;
+  bool fBadShape;
+  bool fBadNorm;
 
   TH1* fHistUp;
   TH1* fHistUp_orig;
