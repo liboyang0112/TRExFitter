@@ -1439,8 +1439,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
 //__________________________________________________________________________________
 // for each region, add a SampleHist for each Sample in the Fit, reading from ntuples
 void TtHFit::ReadNtuples(){
-    cout << "-------------------------------------------" << endl;
-    cout << "Reading ntuples..." << endl;
+    std::cout << "-------------------------------------------" << std::endl;
+    std::cout << "Reading ntuples..." << std::endl;
     TH1F* h = 0x0;
     TH1F* hUp = 0x0;
     TH1F* hDown = 0x0;
@@ -1455,7 +1455,7 @@ void TtHFit::ReadNtuples(){
     // Loop on regions and samples
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        cout << "  Region " << fRegions[i_ch]->fName << " ..." << endl;
+        std::cout << "  Region " << fRegions[i_ch]->fName << " ..." << std::endl;
 
         if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch);
 
@@ -1584,7 +1584,7 @@ void TtHFit::ReadNtuples(){
                 if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( nf->fExclude.size()>0 && FindInStringVector(nf->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                if(TtHFitter::DEBUGLEVEL>0) cout << "Adding norm " << nf->fName << endl;
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding norm " << nf->fName << std::endl;
                 //
                 sh->AddNormFactor( nf );
             }
@@ -1834,6 +1834,7 @@ void TtHFit::ReadNtuples(){
 //                 // Histogram smoothing, Symmetrisation, Massaging...
 //                 SystematicHist *syh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
 //                 if(!fRegions[i_ch]->fSkipSmoothing) sh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
 //                 else                                sh -> fSmoothType = 0;
 //                 sh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
@@ -1997,7 +1998,7 @@ void TtHFit::ReadHistograms(){
     // Loop on regions and samples
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        cout << "  Region " << fRegions[i_ch]->fName << " ..." << endl;
+        std::cout << "  Region " << fRegions[i_ch]->fName << " ..." << std::endl;
 
         if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch); 
 
@@ -2297,6 +2298,7 @@ void TtHFit::ReadHistograms(){
 //                 // Histogram smoothing, Symmetrisation, Massaging...
 //                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
 //                 if(!fRegions[i_ch]->fSkipSmoothing) syh -> fSmoothType = fSamples[i_smp]->fSystematics[i_syst] -> fSmoothType;
 //                 else                                syh -> fSmoothType = 0;
 //                 syh -> fSymmetrisationType = fSamples[i_smp]->fSystematics[i_syst] -> fSymmetrisationType;
@@ -2395,7 +2397,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 }
                 // histo syst
                 else{
-                    cout << Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()) << endl;
+//                     cout << Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()) << endl;
                     syh = sh->AddHistoSyst(systName,
                                            Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()),   fileName,
                                            Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName);
@@ -2577,7 +2579,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         }
         else if(fSamples[i_smp]->fType==Sample::BACKGROUND){
             h_bkg[Nbkg] = new TH1F(name.c_str(),title.c_str(), Nbin,0,Nbin);
-            if(TtHFitter::DEBUGLEVEL>0) cout << "Adding Bkg:    " << h_bkg[Nbkg]->GetTitle() << endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding Bkg:    " << h_bkg[Nbkg]->GetTitle() << std::endl;
             h_bkg[Nbkg]->SetLineColor(lineColor);
             h_bkg[Nbkg]->SetFillColor(fillColor);
             h_bkg[Nbkg]->SetLineWidth(lineWidth);
@@ -2858,8 +2860,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
 //__________________________________________________________________________________
 //
 void TtHFit::BuildYieldTable(string opt){
-    cout << "-------------------------------------------" << endl;
-    cout << "Building Yields Table..." << endl;
+    std::cout << "-------------------------------------------" << std::endl;
+    std::cout << "Building Yields Table..." << std::endl;
     bool isPostFit = opt.find("post")!=string::npos;
     ofstream out;
     ofstream texout;
@@ -3881,7 +3883,6 @@ void TtHFit::DrawPruningPlot(){
                                 || FindInStringVector( fSystematics[i_syst]->fDropShapeIn, samplesVec[i_smp]->fName )>=0
                                 )
                               ) {
-//                                 sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsNormOnly=true;
                                 syh->fShapePruned = true;
                                 histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
                             }
@@ -3889,7 +3890,6 @@ void TtHFit::DrawPruningPlot(){
                             float normDo=TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormDown);
                             // set to 2 is normalization pruned away
                             if( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation ) {
-//                                 sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsShapeOnly=true;
                                 syh->fNormPruned = true;
                                 if(syh->fShapePruned || fSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 3 );
                                 else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
@@ -3899,14 +3899,12 @@ void TtHFit::DrawPruningPlot(){
                             if ( fThresholdSystLarge > -1 ) {	
                                 // first norm:
                                 if ( normUp>fThresholdSystLarge || normDo>fThresholdSystLarge ) {
-//                                     sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsShapeOnly=true;
                                     syh->fBadNorm = true;
                                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-2);
                                 }
                                 //
                                 // then shape
                                 if ( sh->GetSystematic(fSystematics[i_syst]->fName)->fIsShape && ( HistoTools::HasShape(sh->fHist, sh->GetSystematic(fSystematics[i_syst]->fName),fThresholdSystLarge) ) ) {
-//                                   sh->GetSystematic(fSystematics[i_syst]->fName)->fSystematic->fIsNormOnly=true;
                                   syh->fBadShape = true;
                                   if ( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )==-2 ) {
                                       histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-4);
@@ -3917,9 +3915,6 @@ void TtHFit::DrawPruningPlot(){
                               }
                           }
                       }
-                      //
-                      cout << histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) ) << endl;
-                      //
                   }
               }
           }
