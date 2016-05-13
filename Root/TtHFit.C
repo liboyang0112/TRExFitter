@@ -1600,7 +1600,7 @@ void TtHFit::ReadNtuples(){
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                if(TtHFitter::DEBUGLEVEL>0) cout << "Adding syst " << syst->fName << endl;
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding syst " << syst->fName << std::endl;
                 //
                 Region *reg = fRegions[i_ch];
                 Sample *smp = fSamples[i_smp];
@@ -2397,7 +2397,6 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 }
                 // histo syst
                 else{
-//                     cout << Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()) << endl;
                     syh = sh->AddHistoSyst(systName,
                                            Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()),   fileName,
                                            Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName);
@@ -3888,7 +3887,6 @@ void TtHFit::DrawPruningPlot(){
                             }
                             float normUp=TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormUp);
                             float normDo=TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormDown);
-                            cout << normUp << " " << normDo << endl;
                             // set to 2 is normalization pruned away
                             if( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation ) {
                                 syh->fNormPruned = true;
@@ -3938,14 +3936,26 @@ void TtHFit::DrawPruningPlot(){
     TPad *pUp = new TPad("pUp","Pad High",0,(1.*loSize+mainHeight)/(upSize+mainHeight+loSize),1,1);
     pUp->Draw();
     c->cd();
-    TPad *pLo = new TPad("pLo","Pad Low",0,0,1,(1.*loSize)/(upSize+mainHeight+loSize));
-    pLo->Draw();
+//     TPad *pLo = new TPad("pLo","Pad Low",0,0,1,(1.*loSize)/(upSize+mainHeight+loSize));
     TPad *pReg[100];
     for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
         c->cd();
-        pReg[i_reg] = new TPad(Form("pReg[%d]",i_reg),"Pad Region", 
-                              (leftSize+1.*i_reg*(regionSize+separation))           /(leftSize+mainWidth),   (1.*loSize)           /(upSize+mainHeight+loSize), 
-                              (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) );
+//         pReg[i_reg] = new TPad(Form("pReg[%d]",i_reg),"Pad Region", 
+//                               (leftSize+1.*i_reg*(regionSize+separation))           /(leftSize+mainWidth),   (1.*loSize)           /(upSize+mainHeight+loSize), 
+//                               (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) );
+        if(i_reg==0){
+            pReg[i_reg] = new TPad(Form("pReg[%d]",i_reg),"Pad Region", 
+                                  0,   0, 
+                                  (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) );
+            pReg[i_reg]->SetLeftMargin( (1.*leftSize) / (1.*leftSize+regionSize) );
+        }
+        else{
+            pReg[i_reg] = new TPad(Form("pReg[%d]",i_reg),"Pad Region", 
+                                  (leftSize+1.*i_reg*(regionSize+separation))           /(leftSize+mainWidth),   0, 
+                                  (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) );
+            pReg[i_reg]->SetLeftMargin(0);
+        }
+        pReg[i_reg]->SetBottomMargin( (1.*loSize) / (1.*loSize+mainHeight) );
         pReg[i_reg]->Draw();
         pReg[i_reg]->cd();
         gPad->SetGridy();
@@ -3962,10 +3972,10 @@ void TtHFit::DrawPruningPlot(){
         }
         histPrun[i_reg]->Draw("COL");
         histPrun[i_reg]->GetYaxis()->SetLabelOffset(0.03);
-        histPrun[i_reg]->GetXaxis()->SetLabelOffset(0.05);
+//         histPrun[i_reg]->GetXaxis()->SetLabelOffset(0.05);
         gPad->SetTopMargin(0);
-        gPad->SetBottomMargin(0);
-        gPad->SetLeftMargin(0);
+//         gPad->SetBottomMargin(0);
+//         gPad->SetLeftMargin(0);
         gPad->SetRightMargin(0);
         histPrun[i_reg]->GetXaxis()->LabelsOption("v");
         histPrun[i_reg]->GetXaxis()->SetLabelSize( histPrun[i_reg]->GetXaxis()->GetLabelSize()*0.75 );
@@ -3977,15 +3987,22 @@ void TtHFit::DrawPruningPlot(){
         histPrun[i_reg]->GetYaxis()->SetTickLength(0);
         histPrun[i_reg]->GetXaxis()->SetTickLength(0);  
         gPad->SetGrid();
-        myText(    0.1,1.+(20./mainHeight) ,1,histPrun[i_reg]->GetTitle());
+//         myText(    0.1,1.+(20./mainHeight) ,1,histPrun[i_reg]->GetTitle());
+        //
+        pUp->cd();
+        myText((leftSize+1.*i_reg*(regionSize+separation))/(leftSize+mainWidth),0.1 ,1,histPrun[i_reg]->GetTitle());
     }
+    c->cd();
+    TPad *pLo = new TPad("pLo","Pad Low",0,0,(1.*leftSize)/(leftSize+mainWidth),(1.*loSize)/(upSize+mainHeight+loSize));
+    pLo->Draw();
     //
     c->cd();
     pUp->cd();
     myText(0.01,0.5,1,fLabel.c_str());
     //
     pLo->cd();
-    TLegend *leg = new TLegend(0.005,0,(1.*leftSize)/(leftSize+mainWidth),0.95);
+//     TLegend *leg = new TLegend(0.005,0,(1.*leftSize)/(leftSize+mainWidth),0.95);
+    TLegend *leg = new TLegend(0.005,0,0.95,0.95);
     TH1F* hGray   = new TH1F("hGray"  ,"hGray"  ,1,0,1);    hGray->SetFillColor(kGray);         hGray->SetLineWidth(0);
     TH1F* hYellow = new TH1F("hYellow","hYellow",1,0,1);    hYellow->SetFillColor(kYellow);     hYellow->SetLineWidth(0);
     TH1F* hOrange = new TH1F("hOrange","hOrange",1,0,1);    hOrange->SetFillColor(kOrange-3);   hOrange->SetLineWidth(0);
