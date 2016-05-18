@@ -41,6 +41,9 @@ Region::Region(string name){
     
     fIntCode_overall = 4;
     fIntCode_shape = 0;
+
+    fCorrVar1 = "";
+    fCorrVar2 = "";
     
     fFitName = "";
     fFitType = TtHFit::SPLUSB;
@@ -960,8 +963,10 @@ void Region::AddMCweight(string weight){
 
 //__________________________________________________________________________________
 //
-void Region::SetVariable(string variable,int nbin,float xmin,float xmax){
+void Region::SetVariable(string variable,int nbin,float xmin,float xmax,string corrVar1,string corrVar2){
     fVariable = variable;
+    fCorrVar1 = corrVar1;
+    fCorrVar2 = corrVar2;
     fNbins = nbin;
     fXmin = xmin;
     fXmax = xmax;

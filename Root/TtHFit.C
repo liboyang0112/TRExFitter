@@ -321,7 +321,7 @@ void TtHFit::WriteHistos(/*string fileName*/){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
             if(sh == 0x0){
-                if(TtHFitter::DEBUGLEVEL>0) std::cout << "SampleHist[" << i_smp << "] not there." << std::endl;
+	      if(TtHFitter::DEBUGLEVEL>0) std::cout << "SampleHist[" << i_smp << "] for sample " << fSamples[i_smp]->fName << " not there." << std::endl;
                 continue;
             }
             // set file and histo names for nominal
@@ -368,16 +368,7 @@ void TtHFit::DrawSystPlotsSumSamples(){
     bool empty=true;
     std::set<std::string> systNames;
     for(int i_regSmp=0; i_regSmp<fRegions[i_ch]->fNSamples; i_regSmp++){
-      for(int i_smSyst=0; i_smSyst<fSamples[i_regSmp]->fNSyst; i_smSyst++){
-	bool isNotInReg=true;
-	for(unsigned int i_systReg=0; i_systReg<fSamples[i_regSmp]->fSystematics[i_smSyst]->fRegions.size(); i_systReg++){
-	  if(fSamples[i_regSmp]->fSystematics[i_smSyst]->fRegions[i_systReg] == fRegions[i_ch]->fName){
-	    isNotInReg=false;
-	    break;
-	  }
-	}
-	if(fSamples[i_regSmp]->fSystematics[i_smSyst]->fRegions.size()!=0
-	   && isNotInReg ) continue;
+      for(int i_smSyst=0; i_smSyst<fRegions[i_ch]->fSampleHists[i_regSmp]->fNSyst; i_smSyst++){
 	systNames.insert(fRegions[i_ch]->fSampleHists[i_regSmp]->fSyst[i_smSyst]->fName);
       }
     }
@@ -753,7 +744,17 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
         else if(fInputType==1){
             vector<string> variable = Vectorize(cs->Get("Variable"),',');
-            reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
+	    vector<string> corrVar  = Vectorize(variable[0],'|');
+	    if(corrVar.size()==2){
+	      if(TtHFitter::DEBUGLEVEL>0) std::cout << "Have a correlation variable in reg " << regNames.back() << " : " 
+						    << corrVar[0] << " and " << corrVar[1] << std::endl;
+	      reg->SetVariable(  "corr_"+corrVar[0]+"_"+corrVar[1], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()), corrVar[0].c_str(), corrVar[1].c_str() );
+	    }
+	    else{ 
+	      if(TtHFitter::DEBUGLEVEL>0) std::cout << "Have a usual variable in reg " << regNames.back() << " : " 
+						    << variable[0] << " and size of corrVar=" << corrVar.size() << std::endl;
+	      reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
+	    }
             //
             if(cs->Get("Selection")!="") reg->AddSelection( cs->Get("Selection") );
             param = cs->Get("NtupleName"); if(param!="") { reg->fNtupleNames.clear(); reg->fNtupleNames.push_back(param); }
@@ -1458,6 +1459,14 @@ void TtHFit::ReadNtuples(){
         std::cout << "  Region " << fRegions[i_ch]->fName << " ..." << std::endl;
 
         if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch);
+	if(fRegions[i_ch]->fCorrVar1 != ""){
+	  if(fRegions[i_ch]->fCorrVar2 == "") {std::cout << "TtHFitter::WARNING : Only first correlation variable defined, do not read region : " 
+							 << fRegions[i_ch]->fName << std::endl; continue; }
+	  cout<<"calling the function"<<endl;
+	  defineVariable(i_ch);
+	}
+	else if(fRegions[i_ch]->fCorrVar2 != "") {std::cout << "TtHFitter::WARNING : Only second correlation variable defined, do not read region : " 
+							    << fRegions[i_ch]->fName << std::endl; continue; }
 
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading " << fSamples[i_smp]->fName << std::endl;
@@ -1638,7 +1647,7 @@ void TtHFit::ReadNtuples(){
                         fullMCweight += " * "+smp->fMCweight;
                     if(syst->fWeightSufUp!="")
                         fullMCweight += " * "+syst->fWeightSufUp;
-                    if(reg->fMCweight!="")
+                    if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
                         ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
@@ -1737,7 +1746,7 @@ void TtHFit::ReadNtuples(){
                         fullMCweight += " * " +smp->fMCweight;
                     if(syst->fWeightSufDown!="")
                         fullMCweight += " * "+syst->fWeightSufDown;
-                    if(reg->fMCweight!="")
+                    if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
                         ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
@@ -5301,7 +5310,8 @@ void TtHFit::PrintSystTables(string opt){
     }
 }
 
-
+//____________________________________________________________________________________
+//
 void TtHFit::ComputeBining(int regIter){
   //
   //Creating histograms to rebin
@@ -5661,4 +5671,104 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
   TString LHDir("LHoodPlots/");  
   system(TString("mkdir -vp ")+fName+"/"+LHDir);
   can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+fImageFormat );
+}
+
+//____________________________________________________________________________________
+//
+void TtHFit::defineVariable(int regIter){
+
+  TH1::StatOverflows(true);  //////  What is the defaut in root for this ???
+
+  if(TtHFitter::DEBUGLEVEL>0) std::cout << "//////// --------" << std::endl
+					<< "// DEBUG CORR VAR" << std::endl;
+
+  TH1* h1 = new TH1D("h1","h1",1,-2000.,1000.);
+  TH1* h2 = new TH1D("h2","h2",1,-2000.,1000.);
+  string fullSelection;
+  string fullMCweight;
+  vector<string> fullPaths;
+  vector<string> empty; empty.clear();
+
+  // copy of NtupleReading function.
+  for(int i_smp=0;i_smp<fNSamples;i_smp++){
+    if(TtHFitter::DEBUGLEVEL>0) std::cout<<"Processing sample : "<<fSamples[i_smp]->fName<<std::endl;
+    if(fSamples[i_smp]->fType==Sample::DATA) continue;
+    if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[regIter]->fName)<0 ) continue;
+    if(TtHFitter::DEBUGLEVEL>0) std::cout<<" -> is used in the considered region"<<std::endl;
+    fullSelection = "1";
+    if(!fSamples[i_smp]->fIgnoreSelection && fSelection!="" && fSelection!="1")
+      fullSelection += " && "+fSelection;
+    if(!fSamples[i_smp]->fIgnoreSelection && fRegions[regIter]->fSelection!="" && fRegions[regIter]->fSelection!="1")
+      fullSelection += " && "+fRegions[regIter]->fSelection;
+    if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
+      fullSelection += " && "+fSamples[i_smp]->fSelection;
+    //
+    if(!fSamples[i_smp]->fNormalizedByTheory){ // for data-driven bkg, use just the sample weight (FIXME)
+      fullMCweight = fSamples[i_smp]->fMCweight;
+    }
+    else{
+      fullMCweight = fMCweight + " * " + fSamples[i_smp]->fMCweight;
+      if(fRegions[regIter]->fMCweight!="") fullMCweight += " * " + fRegions[regIter]->fMCweight;
+    }
+    fullPaths.clear();
+    vector<string> NtupleNames;
+    for(unsigned int ns_ch=0; ns_ch<fRegions[regIter]->fNtupleNames.size(); ++ns_ch){
+      NtupleNames.push_back(fRegions[regIter]->fNtupleNames.at(ns_ch));
+    }
+    for(unsigned int ns_smp=0; ns_smp<fSamples[i_smp]->fNtupleNames.size(); ++ns_smp){
+      NtupleNames.push_back(fSamples[i_smp]->fNtupleNames.at(ns_smp));
+    }
+    vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
+						      fRegions[regIter]->fNtupleNameSuffs );
+    fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
+				 fRegions[regIter]->fNtuplePathSuffs,
+				 fSamples[i_smp]->fNtupleFiles.size()>0 ? fSamples[i_smp]->fNtupleFiles : ToVec(fNtupleFile), empty, // no ntuple file suffs for nominal (syst only)
+				 NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
+				 NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
+				 );
+            
+    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+
+      if(TtHFitter::DEBUGLEVEL>0) std::cout <<" -> Retriving : "<<Form("%s",fRegions[regIter]->fCorrVar1.c_str())
+					    <<" w/ weight "<<Form("(%s)*(%s)",fullMCweight.c_str(),fullSelection.c_str())
+					    <<" from "<< fullPaths[i_path].c_str() << std::endl;
+
+      TH1* htmp1 = new TH1D("htmp1","htmp1",1,-2000.,1000.);
+      TH1* htmp2 = new TH1D("htmp2","htmp2",1,-2000.,1000.);
+      TChain *t = new TChain();
+      t->Add(fullPaths[i_path].c_str());
+      t->Draw( Form("%s>>htmp1",fRegions[regIter]->fCorrVar1.c_str()), Form("(%s)*(%s)",fullMCweight.c_str(),fullSelection.c_str()), "goff");
+      t->Draw( Form("%s>>htmp2",fRegions[regIter]->fCorrVar2.c_str()), Form("(%s)*(%s)",fullMCweight.c_str(),fullSelection.c_str()), "goff");
+      t->~TChain();
+
+      if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp1 -> Scale(fLumi);
+      if(fSamples[i_smp]->fLumiScales.size()>i_path)  htmp1 -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+      else if(fSamples[i_smp]->fLumiScales.size()==1) htmp1 -> Scale(fSamples[i_smp]->fLumiScales[0]);
+
+      if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp2 -> Scale(fLumi);
+      if(fSamples[i_smp]->fLumiScales.size()>i_path)  htmp2 -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+      else if(fSamples[i_smp]->fLumiScales.size()==1) htmp2 -> Scale(fSamples[i_smp]->fLumiScales[0]);
+                
+      h1->Add(htmp1);
+      h2->Add(htmp2);
+      htmp1->~TH1();
+      htmp2->~TH1();
+    }
+
+  }
+
+  double mean1 = h1->GetMean();
+  double rms1 = h1->GetRMS();
+  double mean2 = h2->GetMean();
+  double rms2 = h2->GetRMS();
+
+  if(TtHFitter::DEBUGLEVEL>0) std::cout<<"the new variable : "<<Form("( ( (%s)-%f )*( (%s)-%f ) )/( %f * %f )",fRegions[regIter]->fCorrVar1.c_str(),mean1,fRegions[regIter]->fCorrVar2.c_str(),mean2,rms1,rms2)<<std::endl;
+
+  fRegions[regIter]->fVariable = Form("( ( (%s)-%f )*( (%s)-%f ) )/( %f * %f )",fRegions[regIter]->fCorrVar1.c_str(),mean1,fRegions[regIter]->fCorrVar2.c_str(),mean2,rms1,rms2);
+
+  TH1::StatOverflows(false);  //////  What is the defaut in root for this ???
+
+  delete h1;
+  delete h2;
+
 }

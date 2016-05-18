@@ -65,7 +65,7 @@ public:
     
     void AddSelection(string selection);
     void AddMCweight(string weight);
-    void SetVariable(string variable,int nbin,float xmin,float xmax);
+    void SetVariable(string variable,int nbin,float xmin,float xmax,string corrVar1="",string corrVar2="");
 
     void SetHistoName(string name); // name of the histogram to read (the same for each sample)
     void AddSystematic(Systematic *syst);
@@ -125,6 +125,8 @@ public:
     double fTransfoJpar2;
     double fTransfoJpar3;
     string fVariable;
+    string fCorrVar1;
+    string fCorrVar2;
     int fNbins;
     float fXmin, fXmax;
     string fSelection;

@@ -1,3 +1,8 @@
+2016-05-18 Thomas Calvet <calvet@cppm.in2p3.fr>
+        * Adding functionality to do correlation plot
+	* Small bug fix for NTuple reading
+	* Bug fix for SystDataPlots option
+        
 2016-05-11 Michele Pinamonti <michele.pinamonti@gmail.com>, Valerio Dao <valerio.dao@cern.ch>
         * Pruning functionality fixed
         

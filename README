@@ -154,6 +154,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       HistoName        -> only for option HIST, the histogram name to be used
       HistoPathSuff(s) -> only for option HIST, the path suffix (or suffixes, comma-separated) where to find the histogram files for this region
       Variable         -> only for option NTUP, the variable (or expression) inside the ntuple to plot
+      		          can define a variable as X|Y to do the correlation plot between X and Y
       Selection        -> only for option NTUP, the selection done on the ntuple for this region
       NtupleName       -> only for option NTUP, the name of the tree for this region
       NtuplePathSuff(s)-> only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region

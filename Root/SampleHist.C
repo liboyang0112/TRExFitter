@@ -12,6 +12,7 @@ SampleHist::SampleHist(){
     fSample = 0x0;
     //
     fHist = 0x0;
+    fHist_orig = 0x0;
     //
     fHist_postFit = 0x0;
     //
@@ -676,6 +677,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names){
 
   fName = h->fName;
   fHist = (TH1*)h->fHist->Clone();
+  fHist_orig = (TH1*)h->fHist_orig->Clone();
   fFileName = h->fFileName;
   fHistoName = h->fHistoName;
   fIsData = h->fIsData;
@@ -720,6 +722,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names){
 void SampleHist::SampleHistAdd(SampleHist* h){
 
   fHist->Add(h->fHist);
+  fHist_orig->Add(h->fHist_orig);
   for(int i_syst=0;i_syst<fNSyst;i_syst++){
     bool wasIn=false;
     for(int j_syst=0;j_syst<h->fNSyst;j_syst++){
