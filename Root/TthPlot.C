@@ -424,25 +424,9 @@ void TthPlot::Draw(string options){
         }
     }
     if(fBinLabel[1]!="") h_dummy->GetXaxis()->LabelsOption("d");
-//     h_dummy->GetYaxis()->SetTitleOffset(2.3);
-//     float offset = 2.3*(pad0->GetWw()/596.);
     float offset = 2.3*(pad0->GetWh()/672.);
-//     if(pad0->GetWw() > pad0->GetWh()) offset *= 596./pad0->GetWw();
     if(pad0->GetWw() > pad0->GetWh()) offset *= 0.8*596./pad0->GetWw();
-    cout << pad0->GetWw() << endl;
-    cout << pad0->GetWh() << endl;
     h_dummy->GetYaxis()->SetTitleOffset( offset );
-    // MOVED DOWN
-//     if(options.find("log")==string::npos){
-//         h_dummy->SetMinimum(0);
-//         if(hasData) h_dummy->SetMaximum(yMaxScale*TMath::Max(h_tot->GetMaximum(),h_data->GetMaximum()+GC_up(h_data->GetMaximum())));
-//         else        h_dummy->SetMaximum(yMaxScale*h_tot->GetMaximum());
-//     }
-//     else{
-//         h_dummy->SetMaximum(h_tot->GetMaximum()*pow(10,yMaxScale));
-//         if(fYmin>0)  h_dummy->SetMinimum(fYmin);
-//         else         h_dummy->SetMinimum(1.);
-//     }
     
     //
     // Draw blinding markers
@@ -459,19 +443,12 @@ void TthPlot::Draw(string options){
     // Fix / redraw axis
     //
     pad0->RedrawAxis();
-//     pad0->SetTickx();
-//     pad0->SetTicky();
     
     float textHeight = 0.05*(672./pad0->GetWh());
     
     //
     // ATLAS labels
     //
-//     if(fATLASlabel!="none") ATLASLabel(0.18,0.85+0.04,(char*)fATLASlabel.c_str());
-//     myText(0.18,0.8+0.04,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
-//     for(unsigned int i_lab=0;i_lab<fLabels.size();i_lab++){
-//         myText(0.18,0.8+0.04-(i_lab+1)*0.05,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
-//     }
     float labelX = 0.18;
     
     if(pad0->GetWw() > pad0->GetWh()) labelX = 0.12;

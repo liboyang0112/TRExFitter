@@ -1575,7 +1575,7 @@ void TtHFit::ReadNtuples(){
             
             
             // Importing the histogram in TtHFitter
-            sh = fRegions[i_ch]->SetSampleHist(fSamples[i_smp], h );
+            sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
             
@@ -1899,6 +1899,8 @@ void TtHFit::CorrectHistograms(){
             if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
             //
             SampleHist *sh = reg->GetSampleHist(smp->fName);
+            int fillcolor = sh->fHist->GetFillColor();
+            int linecolor = sh->fHist->GetLineColor();
             TH1* h_orig = (TH1*)sh->fHist_orig;
             TH1* h      = (TH1*)h_orig->Clone(sh->fHist->GetName());
             sh->fHist = h;
@@ -1984,6 +1986,10 @@ void TtHFit::CorrectHistograms(){
                                             fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
                                             TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
             }
+            
+            // set the fill color
+            sh->fHist->SetFillColor(fillcolor);
+            sh->fHist->SetLineColor(linecolor);
             
         } // end sample loop
     } // end region loop
@@ -2862,6 +2868,13 @@ TthPlot* TtHFit::DrawSummary(string opt){
         else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
     }
     //
+    for(int i_syst=0;i_syst<(int)h_up.size();i_syst++){
+        delete h_up[i_syst];
+        delete h_down[i_syst];
+    }
+    h_up.clear();
+    h_down.clear();
+    //
     return p;
 }
 
@@ -3313,6 +3326,14 @@ void TtHFit::BuildYieldTable(string opt){
         }
     }
     out << endl;
+    
+    //
+    for(int i_syst=0;i_syst<(int)h_up.size();i_syst++){
+        delete h_up[i_syst];
+        delete h_down[i_syst];
+    }
+    h_up.clear();
+    h_down.clear();
 }
 
 //__________________________________________________________________________________
@@ -3516,6 +3537,9 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
 //     c->SaveAs((fName+"/SignalRegions"+fSaveSuf+"."+fImageFormat).c_str());
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
         c->SaveAs((fName+"/SignalRegions"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    
+    // 
+    delete c;
 }
 
 //__________________________________________________________________________________
@@ -3718,6 +3742,9 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
         c->SaveAs((fName+"/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
     }
+    
+    // 
+    delete c;
 }
 
 //__________________________________________________________________________________
@@ -5299,6 +5326,9 @@ void TtHFit::PlotNPRanking(){
     
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
         c->SaveAs( (fName+"/Ranking"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+        
+    // 
+    delete c;
 }
 
 //____________________________________________________________________________________

@@ -152,6 +152,8 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     return fSampleHists[fNSamples-1];
 }
 
+//__________________________________________________________________________________
+//
 void Region::AddSample(Sample* sample){
     fSamples.push_back(sample);
     fNSamples++;
@@ -459,7 +461,7 @@ TthPlot* Region::DrawPreFit(string opt){
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
             h->Scale(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal);
-            std::cout << "Region::INFO: Scaling " << fBkg[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+             if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fBkg[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
         }
         p->AddBackground(h,title);
         if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
