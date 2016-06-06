@@ -70,9 +70,19 @@ TH1* HistFromFile(string fileName,string histoName){
     if(fileName=="") return 0x0;
     if(histoName=="") return 0x0;
     if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram  " << histoName << "  from file  " << fileName << "  ..." << endl;
-    TFile *f = new TFile(fileName.c_str());
     TH1 *h = 0x0;
-    if(f->Get(histoName.c_str())) h = (TH1*)f->Get(histoName.c_str())->Clone();
+    TFile *f = new TFile(fileName.c_str());
+    if(not f){
+        cout<<"cannot find input file '"<<fileName<<"'"<<endl;
+        return h;
+    }
+//     if(f->Get(histoName.c_str())) h = (TH1*)f->Get(histoName.c_str())->Clone();
+    h = static_cast<TH1*>(f->Get(histoName.c_str()));
+    if(not h){
+        cout<<"cannot find histogram '"<<histoName<<"' from input file '"<<fileName<<"'"<<endl;
+        return h;
+    }
+    h = static_cast<TH1*>(h->Clone());
     if(h!=0x0) h->SetDirectory(0);
     f->Close();
     delete f;
@@ -290,7 +300,8 @@ double convertStoD(string toConvert){
 
 //__________________________________________________________________________________
 // to smooth a nominal histogram, taking into account the statistical uncertinaty on each bin (note: no empty bins, please!!)
-TH1F* SmoothHistogram( TH1* h ){
+// TH1F* SmoothHistogram( TH1* h ){
+bool SmoothHistogram( TH1* h, int forceFlat ){
     int nbinsx = h->GetNbinsX();
     float xmin = h->GetBinLowEdge(1);
     float xmax = h->GetBinLowEdge(nbinsx)+h->GetBinWidth(nbinsx);
@@ -330,7 +341,7 @@ TH1F* SmoothHistogram( TH1* h ){
 //         if( TMath::Abs(h->GetBinContent(i_bin)-p0) > 2*h->GetBinError(i_bin) )
             isFlat = false;
     }
-    if(isFlat){
+    if( (forceFlat<0 && isFlat) || forceFlat>0){
         for(int i_bin=1;i_bin<=nbinsx;i_bin++){
             h->SetBinContent(i_bin,p0);
 //             h->SetBinError(i_bin,p0err);  // this creates problems...
@@ -342,8 +353,10 @@ TH1F* SmoothHistogram( TH1* h ){
     // make sure you didn't change the integral
     h->Scale(integral/h->Integral());
     //
-    TH1F* h_corr = (TH1F*)h->Clone("h_correction");
-    h_corr->Divide( h_orig );
-    return h_corr;
+//     TH1F* h_corr = (TH1F*)h->Clone("h_correction");
+//     h_corr->Divide( h_orig );
+//     return h_corr;
+    //
+    return isFlat;
 }
 

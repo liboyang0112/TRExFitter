@@ -208,6 +208,7 @@ public:
     string fLoadSuf;
     
     bool fUpdate;
+    bool fKeepPruning;
     
     float fBlindingThreshold;
     
@@ -225,6 +226,8 @@ public:
     std::map< std::string, double > fFitNPValues;
     double fFitPOIAsimov;
     bool fFitIsBlind;
+    bool fUseRnd;
+    float fRndRange;
     vector<string> fVarNameLH;
     vector<string> fVarNameMinos;
     std::string fWorkspaceFileName;

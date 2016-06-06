@@ -146,7 +146,7 @@ SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down){
+SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down, int pruned/*1: norm only, 2: shape only*/){
     SystematicHist *sh;
     // try if it's already there...
     sh = GetSystematic(name);
@@ -156,6 +156,9 @@ SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string
         fSyst.push_back(sh);
         fNSyst ++;
     }
+    //
+    bool normOnly  = (pruned==1);
+    bool shapeOnly = (pruned==2);
     //
     sh->fFileNameUp   = fileName_up;
     sh->fFileNameDown = fileName_down;
@@ -167,15 +170,30 @@ SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string
     sh->fHistDown_orig = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig");
     if(sh->fHistUp_orig  ==0x0) sh->fHistUp_orig   = sh->fHistUp;
     if(sh->fHistDown_orig==0x0) sh->fHistDown_orig = sh->fHistDown;
-    sh->fHistShapeUp   = (TH1*)sh->fHistUp  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
-    sh->fHistShapeDown = (TH1*)sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
-    sh->fHistShapeUp  ->Scale(fHist->Integral() / sh->fHistShapeUp  ->Integral());
-    sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
-    sh->fIsOverall = true;
-    sh->fIsShape   = true;
-    sh->fNormUp   = ( sh->fHistUp->Integral()   - fHist->Integral() ) / fHist->Integral();
-    sh->fNormDown = ( sh->fHistDown->Integral() - fHist->Integral() ) / fHist->Integral();
+    //
+    if(normOnly){
+        sh->fIsShape   = false;
+    }
+    else{
+        sh->fHistShapeUp   = (TH1*)sh->fHistUp  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
+        sh->fHistShapeDown = (TH1*)sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
+        sh->fHistShapeUp  ->Scale(fHist->Integral() / sh->fHistShapeUp  ->Integral());
+        sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
+        sh->fIsShape   = true;
+    }
+    //
+    if(shapeOnly){
+        sh->fIsOverall = false;
+        sh->fNormUp = 0;
+        sh->fNormDown = 0;
+    }
+    else{
+        sh->fNormUp   = ( sh->fHistUp->Integral()   - fHist->Integral() ) / fHist->Integral();
+        sh->fNormDown = ( sh->fHistDown->Integral() - fHist->Integral() ) / fHist->Integral();
+        sh->fIsOverall = true;
+    }
     if(sh->fNormUp == 0 && sh->fNormDown == 0) sh->fIsOverall = false;
+    //
     return sh;
 }
 

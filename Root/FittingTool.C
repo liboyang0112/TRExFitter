@@ -11,6 +11,7 @@
 #include "TFile.h"
 #include "TCanvas.h"
 #include "TH2.h"
+#include "TRandom3.h"
 
 //Roostats headers
 #include "RooStats/ModelConfig.h"
@@ -47,7 +48,9 @@ m_debug(false),
 m_constNP(""),
 m_constNPvalue(0.),
 m_RangePOI_up(100.),
-m_RangePOI_down(-10.)
+m_RangePOI_down(-10.),
+m_randomize(false),
+m_randomNP(0.1)
 {}
 
 //________________________________________________________________________
@@ -116,6 +119,8 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     //
     // Needed for Ranking plot
     //
+//     std::srand(time(NULL)); // THOMAS
+    gRandom->SetSeed(time(NULL)); // Michele
     RooRealVar* var = NULL;
     RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
     if(nuis){
@@ -126,6 +131,9 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
                 var->setVal(m_constNPvalue);
                 var->setConstant(1);
             } else if( np.find("alpha_")!=string::npos ){
+//                 if(m_randomize) var->setVal( m_randomNP*(1.-(std::rand()%21)/10.) ); // Thomas
+                if(m_randomize) var->setVal( m_randomNP*(gRandom->Uniform(2)-1.) ); // Michele
+                else 
                 var->setVal(0);
                 var->setConstant(0);
             }

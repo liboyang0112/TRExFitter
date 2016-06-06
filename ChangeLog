@@ -1,3 +1,11 @@
+2016-06-06 Michele Pinamonti <michele.pinamonti@gmail.com>, Thomas Calvet <calvet@cppm.in2p3.fr>
+        * Partial fix of weight systemtics on smmothed samples
+        * Option to add random initial values for the NP (usefull to help Asimov converging): use flag "SetRandomInitialNPval:" (e.g. set it to 0.1) 
+        
+2016-05-27 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Printout missing histogram (thanks t Davide Gerbaudo)
+        * KeepPruning flag in config file (allows to read Pruning.root file not to read already pruned systematics)
+        
 2016-05-18 Thomas Calvet <calvet@cppm.in2p3.fr>
         * Adding functionality to do correlation plot
 	* Small bug fix for NTuple reading

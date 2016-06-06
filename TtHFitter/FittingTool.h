@@ -32,6 +32,8 @@ public:
     //
     // Gettters and setters
     //
+    inline void SetDebug ( const int debug ){ m_debug = debug>0; }
+    
     inline void MinimType ( const TString &type ){ m_minimType = type; }
     inline TString GetMinimType(){ return m_minimType; }
     
@@ -46,6 +48,8 @@ public:
     
     inline void ConstPOI( const bool constant ) { m_constPOI = constant; }
     inline double GetConstPOI() { return m_constPOI; }
+    
+    inline void SetRandomNP( const double rndNP, const bool rndize ) { m_randomNP = rndNP; m_randomize = rndize; }
     
     inline void FixNP( const TString &np, const double value ) { m_constNP = np; m_constNPvalue = value; }
     
@@ -66,12 +70,12 @@ public:
 private:
     TString m_minimType;
     int m_minuitStatus, m_hessStatus;
-    double m_edm,m_valPOI;
+    double m_edm,m_valPOI,m_randomNP;
     double m_RangePOI_up,m_RangePOI_down;
     bool m_useMinos,m_constPOI;
     std::vector<std::string> m_varMinos;
     RooFitResult* m_fitResult;
-    bool m_debug;
+    bool m_debug,m_randomize;
     
     TString m_constNP;
     double m_constNPvalue;

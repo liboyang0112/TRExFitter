@@ -191,7 +191,8 @@ void FitResults::DrawPulls(string path, string category){
     float xmin = -2.9;
     float xmax = 2.9;
     float max = 0;
-    string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
+//     string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
+    string npToExclude[] = {"gamma_","stat_"};
     bool brazilian = true;
     bool grayLines = false;
     

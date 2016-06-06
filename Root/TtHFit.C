@@ -70,6 +70,7 @@ TtHFit::TtHFit(string name){
     fSuffix = "";
     
     fUpdate = false;
+    fKeepPruning = false;
     
     fBlindingThreshold = -1;
     
@@ -95,6 +96,8 @@ TtHFit::TtHFit(string name){
     fFitNPValues.clear();
     fFitPOIAsimov = 0;
     fFitIsBlind = false;
+    fUseRnd = false;
+    fRndRange = 0.1;
     fVarNameLH.clear();
     fVarNameMinos.clear();
     fWorkspaceFileName = "";
@@ -608,6 +611,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("WorkspaceFileName");    if( param != "" ){
         fWorkspaceFileName = param;
     }
+    param = cs->Get("KeepPruning");    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ) fKeepPruning = true;
+    }
     
     //
     // General options
@@ -672,6 +679,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = Vectorize(param,','); }
     param = cs->Get("UseMinos"); if( param != "" ){ fVarNameMinos = Vectorize(param,','); }
     param = cs->Get("AtlasLabel"); if( param != "" ){ fAtlasLabel = param; }
+    param = cs->Get("SetRandomInitialNPval");  if( param != ""){
+        fUseRnd = true;
+        fRndRange = atof(param.c_str());
+    }
     
     //##########################################################
     //
@@ -1934,8 +1945,13 @@ void TtHFit::CorrectHistograms(){
             //
             // Eventually smooth nominal histogram  (use with caution...)
             TH1* h_correction = 0x0;
+            bool isFlat = false;
             if(smp->fSmooth && !reg->fSkipSmoothing){
-                h_correction = SmoothHistogram( h );
+//                 h_correction = SmoothHistogram( h );
+                h_correction = (TH1*)h->Clone( Form("%s_corr",h->GetName()) );
+                TH1* h0 = (TH1*)h->Clone( Form("%s_orig0",h->GetName()) );
+                isFlat = SmoothHistogram( h );
+                h_correction->Divide( h0 );
             }
                 
             //
@@ -1958,8 +1974,8 @@ void TtHFit::CorrectHistograms(){
                 if(h_correction!=0x0 && fSamples[i_smp]->fSmooth){
 //                     if(hUp!=0x0  ) hUp  ->Multiply(h_correction);
 //                     if(hDown!=0x0) hDown->Multiply(h_correction);
-                    if(hUp!=0x0  ) SmoothHistogram( hUp   );
-                    if(hDown!=0x0) SmoothHistogram( hDown );
+                    if(hUp!=0x0  ) SmoothHistogram( hUp  , isFlat );
+                    if(hDown!=0x0) SmoothHistogram( hDown, isFlat );
                 }
                 
                 if(hUp==0x0)   hUp   = (TH1F*)sh->fHist->Clone( syh->fHistUp  ->GetName() );
@@ -2360,7 +2376,18 @@ void TtHFit::ReadHistos(/*string fileName*/){
         std::cout << "Reading histograms from file " << fileName << " ..." << std::endl;
     }
     //
+    vector< TH2F* > histPrun;
+    TFile *filePrun = 0x0;
+    if( fKeepPruning ){
+//         filePrun = new TFile( (fName+"/Pruning"+fSuffix+".root").c_str() );
+        filePrun = new TFile( (fName+"/Pruning.root").c_str() );
+        if(!filePrun) fKeepPruning = false;
+    }
+    //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        if( fKeepPruning ){
+            histPrun.push_back( (TH2F*)filePrun->Get( Form("h_prun_%s_toSave", fRegions[i_ch]->fName.c_str()) ) );
+        }
         regionName = fRegions[i_ch]->fName;
         if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading region " << regionName << std::endl;
         //
@@ -2404,24 +2431,49 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 //
                 systName              = fSamples[i_smp]->fSystematics[i_syst]->fName;
                 string systStoredName = fSamples[i_smp]->fSystematics[i_syst]->fStoredName; // if no StoredName specified in the config, this should be == fName
+                //
+                // eventually skip systematics if pruned
+                int xbin,ybin,bin;
+                int binContent = 0;
+                if( fKeepPruning && histPrun[i_ch]!=0x0 ){
+                    xbin = histPrun[i_ch]->GetXaxis()->FindBin( sampleName.c_str() ); // sample
+                    ybin = histPrun[i_ch]->GetYaxis()->FindBin( systName.c_str() ); // syst
+                    bin = histPrun[i_ch]->GetBin(xbin,ybin);
+                    binContent = histPrun[i_ch]->GetBinContent(bin);
+                    if( binContent <= -4 || binContent == -1 || binContent >= 3 ){
+                        std::cout << "SKIPPING systematic " << systName << std::endl;
+                        continue;
+                    }
+                    //{kBlack,6,kBlue, kGray, 8, kYellow, kOrange-3, kRed}
+                }
                 if(TtHFitter::DEBUGLEVEL>0) std::cout << "      Reading syst " << systName << std::endl;
                 // norm only
                 if(fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::OVERALL){
+                    if( fKeepPruning ){
+                        if( binContent == -2 || binContent == 2 ) continue;
+                    }
                     syh = sh->AddOverallSyst(systName,fSamples[i_smp]->fSystematics[i_syst]->fOverallUp,fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 }
                 // histo syst
                 else{
+                    int pruned = 0;
+                    if( fKeepPruning ){
+                        if(binContent==1 || binContent==-2) pruned = 1;
+                        if(binContent==2 || binContent==-3) pruned = 2;
+                    }
                     syh = sh->AddHistoSyst(systName,
                                            Form("%s_%s_%s_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()),   fileName,
-                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName);
-//                     syh->fHistUp_orig   = HistFromFile(fileName,Form("%s_%s_%s_Up_orig",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()));
-//                     syh->fHistDown_orig = HistFromFile(fileName,Form("%s_%s_%s_Down_orig",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()));
+                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                           pruned
+                                          );
                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
-                    syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
-                    syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
-                    syh->fFileNameShapeUp    = fileName;
-                    syh->fFileNameShapeDown  = fileName;
+//                     if(pruned!=2){
+                        syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
+                        syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
+                        syh->fFileNameShapeUp    = fileName;
+                        syh->fFileNameShapeDown  = fileName;
+//                     }
                 }
             }
         }
@@ -3817,7 +3869,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 // norm factors
                 for(int i_norm=0;i_norm<h->fNNorm;i_norm++){
                     if(TtHFitter::DEBUGLEVEL>0){
-                        std::cout << "    Adding NormFactor: " << h->fNormFactors[i_norm]->fName << std::endl;
+                        std::cout << "    Adding NormFactor: " << h->fNormFactors[i_norm]->fName << ", " << h->fNormFactors[i_norm]->fNominal << std::endl;
                     }
                     sample.AddNormFactor( h->fNormFactors[i_norm]->fName,
                                          h->fNormFactors[i_norm]->fNominal,
@@ -3880,7 +3932,15 @@ void TtHFit::DrawPruningPlot(){
         std::cout << "TtHFit::INFO: Stat only fit => No Pruning plot generated." << std::endl;
         return;
     }
+    //
+    ofstream out;
+    out.open((fName+"/PruningText.txt").c_str());
+    out << "-------///////                 ///////-------" << endl ;
+    out << "-------/////// IN PRUNING PLOT ///////-------" << endl ;
+    out << "-------///////                 ///////-------" << endl ;
+    //
     vector< TH2F* > histPrun;
+    vector< TH2F* > histPrun_toSave;
     int iReg = 0;
     int nSmp = 0;
     vector< Sample* > samplesVec;
@@ -3893,19 +3953,18 @@ void TtHFit::DrawPruningPlot(){
     //
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
         if(fRegions[i_reg]->fRegionType!=Region::VALIDATION){
-            histPrun.push_back( 
-                              new TH2F(Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),
-                                        fRegions[i_reg]->fShortLabel.c_str(),
-                                        nSmp,0,nSmp, fNSyst,0,fNSyst)
-                                );
+            out << "In Region : " << fRegions[i_reg]->fName << endl ;
+            histPrun.push_back( new TH2F(Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, fNSyst,0,fNSyst) );
             histPrun[histPrun.size()-1]->SetDirectory(0);
             for(int i_smp=0;i_smp<nSmp;i_smp++){
+                out << " -> In Sample : " << samplesVec[i_smp]->fName << endl ;
                 for(int i_syst=0;i_syst<fNSyst;i_syst++){
-                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), -1 );
+                   histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), -1 );
                 }
                 SampleHist *sh = fRegions[i_reg]->GetSampleHist(samplesVec[i_smp]->fName);
                 if(sh!=0x0){
                     for(int i_syst=0;i_syst<fNSyst;i_syst++){
+                        out << " --->>  " << fSystematics[i_syst]->fName << "     " ;
                         if( sh->HasSyst(fSystematics[i_syst]->fName) ) {
                             SystematicHist *syh = sh->GetSystematic(fSystematics[i_syst]->fName);
                             histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 0 );
@@ -3940,20 +3999,32 @@ void TtHFit::DrawPruningPlot(){
                                 //
                                 // then shape
                                 if ( sh->GetSystematic(fSystematics[i_syst]->fName)->fIsShape && ( HistoTools::HasShape(sh->fHist, sh->GetSystematic(fSystematics[i_syst]->fName),fThresholdSystLarge) ) ) {
-                                  syh->fBadShape = true;
-                                  if ( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )==-2 ) {
-                                      histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-4);
-                                  }
-                                  else {
-                                      histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-3);
-                                  }
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-          iReg++;
+                                    syh->fBadShape = true;
+                                    if ( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )==-2 ) {
+                                        histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-4);
+                                    }
+                                    else {
+                                        histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-3);
+                                    }
+                                }
+                            }
+                        }
+                        if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -1 ) out << " is not present" << endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 0 ) out << " is kept" << endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 1 ) out << " is norm only" << endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 2 ) out << " is shape only" << endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 3 ) out << " is dropped" << endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -2 ) out << " has bad norm" << endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -3 ) out << " has bad shape" << endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -4 ) out << " is bad" << endl;
+                    }
+                }
+            }
+            //
+            histPrun_toSave.push_back( (TH2F*)histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName())) );
+            histPrun_toSave[iReg]->SetDirectory(0);
+            //
+            iReg++;
         }
     }
     //
@@ -3996,15 +4067,17 @@ void TtHFit::DrawPruningPlot(){
         pReg[i_reg]->cd();
         gPad->SetGridy();
         for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsX();i_bin++){
-            histPrun[i_reg]->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fTitle.c_str());
+            histPrun[i_reg]       ->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fTitle.c_str());
+            histPrun_toSave[i_reg]->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fName.c_str());
         }
         for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsY();i_bin++){
             if(i_reg==0) {
-                histPrun[i_reg]->GetYaxis()->SetBinLabel(i_bin,TtHFitter::SYSTMAP[fSystematics[i_bin-1]->fName].c_str());
+                histPrun[i_reg]       ->GetYaxis()->SetBinLabel(i_bin,TtHFitter::SYSTMAP[fSystematics[i_bin-1]->fName].c_str());
             }
             else {
                 histPrun[i_reg]->GetYaxis()->SetBinLabel(i_bin,"");
             }
+            histPrun_toSave[i_reg]->GetYaxis()->SetBinLabel(i_bin,fSystematics[i_bin-1]->fName.c_str());
         }
         histPrun[i_reg]->Draw("COL");
         histPrun[i_reg]->GetYaxis()->SetLabelOffset(0.03);
@@ -4068,6 +4141,17 @@ void TtHFit::DrawPruningPlot(){
     //
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
         c->SaveAs( (fName+"/Pruning"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    
+    // 
+    // Save prunign hist for future usage
+    TFile *filePrun = new TFile( (fName+"/Pruning.root").c_str() );
+    if(!filePrun->IsOpen()){
+        filePrun = new TFile( (fName+"/Pruning.root").c_str(),"RECREATE" );
+//         filePrun = new TFile( (fName+"/Pruning"+fSuffix+".root").c_str(),"RECREATE" );
+        for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
+            histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
+        }
+    }
 }
 
 //__________________________________________________________________________________
@@ -4357,9 +4441,12 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         fitTool -> ConstPOI(true);
 //     } else if(fFitType==SPLUSB){
     } else if(fitType==SPLUSB){
-        fitTool -> ValPOI(1.);
+//         fitTool -> ValPOI(1.);
+//         fitTool -> ValPOI(0.);
+        fitTool -> ValPOI(fFitPOIAsimov);
         fitTool -> ConstPOI(false);
     }
+    fitTool -> SetRandomNP(fRndRange, fUseRnd);
 
     if(fVarNameMinos.size()>0){
         std::cout << "Setting the variables to use MINOS with" << std::endl;
@@ -4975,6 +5062,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     // Initialize the FittingTool object
     //
     FittingTool *fitTool = new FittingTool();
+    fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
     fitTool -> ValPOI(1.);
     fitTool -> ConstPOI(false);
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");

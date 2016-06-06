@@ -73,8 +73,8 @@ namespace TtHFitter{
 
 const int MAXregions = 100;
 const int MAXsamples = 100;
-const int MAXsyst = 200;
-const int MAXnorm = 3;
+const int MAXsyst = 500;
+const int MAXnorm = 10;
 
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight);
 TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight);
@@ -97,6 +97,7 @@ double GetSeparation( TH1F* S1, TH1F* B1 );
 TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
 double convertStoD(string toConvert);
 
-TH1F* SmoothHistogram( TH1* h );
+// TH1F* SmoothHistogram( TH1* h );
+bool SmoothHistogram( TH1* h, int forceFlat=-1 ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
 
 #endif

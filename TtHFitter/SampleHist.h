@@ -20,7 +20,7 @@ public:
   Sample* GetSample();
   SystematicHist* AddOverallSyst(string name,float up,float down);
   SystematicHist* AddHistoSyst(string name,TH1* h_up,TH1* h_down);
-  SystematicHist* AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down);
+  SystematicHist* AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down, int pruned=0);
   SystematicHist* GetSystematic(string systName);
   NormFactor* AddNormFactor(string name,float nominal, float min, float max);
   NormFactor* AddNormFactor(NormFactor *normFactor);
