@@ -22,13 +22,15 @@ public:
     
     void ComparePOI(string POI);
     void CompareLimit();
-    void ComparePulls();
+    void ComparePulls(string caterogy="");
 
     std::vector< string > fFitNames;
     std::vector< TtHFit* > fFitList;
     std::vector< string > fFitLabels;
     std::vector< string > fFitSuffs;
     std::vector< string > fWsFiles;
+    
+    std::vector< string > fNPCategories;
     
     bool fCombine;
     bool fCompare;

@@ -5448,6 +5448,7 @@ void TtHFit::ComputeBining(int regIter){
     //using NTuples
     if(fInputType==1){
       if(fSamples[i_smp]->fType==Sample::DATA) continue;
+      if(fSamples[i_smp]->fType==Sample::GHOST) continue;
       if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[regIter]->fName)<0 ) continue;
       fullSelection = "1";
       if(!fSamples[i_smp]->fIgnoreSelection && fSelection!="" && fSelection!="1")
@@ -5514,6 +5515,7 @@ void TtHFit::ComputeBining(int regIter){
     //Input with hists
     else if(fInputType == 0){
       if(fSamples[i_smp]->fType==Sample::DATA) continue;
+      if(fSamples[i_smp]->fType==Sample::GHOST) continue;
       
       //
       // build a list of histograms to read

@@ -42,6 +42,9 @@ MultiFit::MultiFit(string name){
     fFitType       = 1; // 1: S+B, 2: B-only
     //
     fCombineChByCh = false;
+    //
+    fNPCategories.clear();
+    fNPCategories.push_back("");
 }
 
 //__________________________________________________________________________________
@@ -92,6 +95,13 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     }
     //
     param = cs->Get("CombineChByCh"); if( param != "" && param != "FALSE" )  fCombineChByCh = true;
+    //
+    param = cs->Get("NPCategories"); if( param != "" ) {
+        vector<string> categ =   Vectorize(param,',');
+        for(unsigned int i_cat=0;i_cat<categ.size();i_cat++)
+          fNPCategories.push_back(categ[i_cat]);
+//       fNPCategories.insert(fNPCategories.end(),Vectorize(param,',').begin(),Vectorize(param,',').end());
+    }
     
     //
     // fits
@@ -267,6 +277,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         fitTool -> ValPOI(1.);
         fitTool -> ConstPOI(false);
     }
+    fitTool -> SetRandomNP(0.1, true);
 
 //     if(fVarNameMinos.size()>0){
 //       std::cout << "Setting the variables to use MINOS with" << std::endl;
@@ -465,7 +476,10 @@ void MultiFit::ComparePOI(string POI){
     
 //     myText(0.75,0.4,kBlack,"Stat. only");
     
-    c->SaveAs( (fName+"/POI.png").c_str() ); 
+//     c->SaveAs( (fName+"/POI.png").c_str() );
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
+        c->SaveAs( (fName+"/POI" + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    }
     delete c;
 }
 
@@ -617,13 +631,16 @@ void MultiFit::CompareLimit(){
     
 //     myText(0.75,0.4,kBlack,"Stat. only");
     
-    c->SaveAs( (fName+"/Limits.png").c_str() );
+//     c->SaveAs( (fName+"/Limits.png").c_str() );
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
+        c->SaveAs( (fName+"/Limits" + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    }
     delete c;
 }
 
 //__________________________________________________________________________________
 //
-void MultiFit::ComparePulls(){
+void MultiFit::ComparePulls(string category){
     float ydist = 0.2;
     
     // Fit titles
@@ -658,13 +675,15 @@ void MultiFit::ComparePulls(){
     float xmin = -2.9;
     float xmax = 2.9;
     float max = 0;
-    string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
+//     string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
+    string npToExclude[] = {"gamma_","stat_"};
     bool brazilian = true;
     bool grayLines = false;
     
     // create a list of Systematics
     std::vector< string > Names;  Names.clear();
     std::vector< string > Titles; Titles.clear();
+    std::vector< string > Categories; Categories.clear();
     string systName;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
@@ -673,6 +692,7 @@ void MultiFit::ComparePulls(){
             if(FindInStringVector(Names,systName)<0){
                 Names.push_back(systName);
                 Titles.push_back(fFitList[i_fit]->fSystematics[i_syst]->fTitle);
+                Categories.push_back(fFitList[i_fit]->fSystematics[i_syst]->fCategory);
             }
         }
     }
@@ -689,6 +709,7 @@ void MultiFit::ComparePulls(){
     // exclude unused systematics
     std::vector<string> NamesNew; NamesNew.clear();
     std::vector<string> TitlesNew; TitlesNew.clear();
+    std::vector<string> CategoriesNew; CategoriesNew.clear();
     for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
         FitResults *fitRes;
         bool found = false;
@@ -706,16 +727,21 @@ void MultiFit::ComparePulls(){
             if(found) break;
         }
         if(found){
-            NamesNew.push_back(Names[i_syst]);
-            TitlesNew.push_back(Titles[i_syst]);
+            if(category=="" || category==Categories[i_syst]){
+                NamesNew.push_back(Names[i_syst]);
+                TitlesNew.push_back(Titles[i_syst]);
+                CategoriesNew.push_back(Categories[i_syst]);
+            }
         }
     }
     Nsyst = NamesNew.size();
     Names.clear();
     Titles.clear();
+    Categories.clear();
     for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
         Names.push_back(NamesNew[i_syst]);
         Titles.push_back(TitlesNew[i_syst]);
+        Categories.push_back(Categories[i_syst]);
     }
     
     // fill stuff
@@ -834,7 +860,10 @@ void MultiFit::ComparePulls(){
     leg->Draw();
     
     gPad->RedrawAxis();
-    
-    c->SaveAs((fName+"/NuisPar_comp"+fSaveSuf+".png").c_str());
+
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
+        if(category=="") c->SaveAs((fName+"/NuisPar_comp"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        else             c->SaveAs((fName+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    }
     delete c;
 }

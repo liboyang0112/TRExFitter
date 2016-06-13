@@ -1,3 +1,9 @@
+2016-13-06 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Fixed autobin computation in presence of ghost samples
+
+2016-08-06 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Categories in MultiFit Pull plot: use NPCategories: in MultiFit config
+        
 2016-06-06 Michele Pinamonti <michele.pinamonti@gmail.com>, Thomas Calvet <calvet@cppm.in2p3.fr>
         * Partial fix of weight systemtics on smmothed samples
         * Option to add random initial values for the NP (usefull to help Asimov converging): use flag "SetRandomInitialNPval:" (e.g. set it to 0.1) 
