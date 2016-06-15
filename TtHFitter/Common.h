@@ -61,6 +61,7 @@ namespace TtHFitter{
     extern bool LEGENDLEFT;  // flag to show sample names on left aligned in the legend
     extern bool SYSTCONTROLPLOTS;
     extern bool SYSTDATAPLOT;
+    extern bool SYSTERRORBARS;
     extern bool SPLITHISTOFILES;
     extern bool HISTOCHECKCRASH;
     extern float CORRELATIONTHRESHOLD;

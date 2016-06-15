@@ -26,6 +26,7 @@ using namespace RooFit;
 //
 TtHFit::TtHFit(string name){
     fName = name;
+    fInputName = name;
     fLabel = "";
     fCmeLabel = "13 TeV";
     fLumiLabel = "3.2 fb^{-1}";
@@ -479,6 +480,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     //##########################################################
     cs = fConfig->GetConfigSet("Job");
     fName = CheckName(cs->GetValue());
+    fInputName = fName;
     param = cs->Get("Label");  if(param!="") fLabel = param;
                                else          fLabel = fName;
     SetPOI(CheckName(cs->Get("POI")));
@@ -545,13 +547,18 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("SystDataPlots");  if( param != "" ){
         if( param == "true" || param == "True" ||  param == "TRUE" ){
             TtHFitter::SYSTDATAPLOT = true;
-	    fSystDataPlot_upFrame=false;
+            fSystDataPlot_upFrame=false;
         } else if( param == "fillUpFrame" ){
             TtHFitter::SYSTDATAPLOT = true;
-	    fSystDataPlot_upFrame=true;
-	} else {
+            fSystDataPlot_upFrame=true;
+        } else {
             TtHFitter::SYSTDATAPLOT = false;
-	    fSystDataPlot_upFrame=false;
+            fSystDataPlot_upFrame=false;
+        }
+    }
+    param = cs->Get("SystErrorBars");  if( param != ""){
+        if( param == "true" || param == "True" ||  param == "TRUE" ){
+            TtHFitter::SYSTERRORBARS = true;
         }
     }
     param = cs->Get("CorrelationThreshold"); if( param != ""){
@@ -607,6 +614,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("InputFolder");    if( param != "" ){
         fInputFolder = param;
+    }
+    param = cs->Get("InputName");    if( param != "" ){
+        fInputName = param;
     }
     param = cs->Get("WorkspaceFileName");    if( param != "" ){
         fWorkspaceFileName = param;
@@ -2370,8 +2380,8 @@ void TtHFit::ReadHistos(/*string fileName*/){
     //
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
     if(singleOutputFile){
-        if(fInputFolder!="") fileName = fInputFolder           + fName + "_histos.root";
-        else                 fileName = fName + "/Histograms/" + fName + "_histos.root";
+        if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos.root";
+        else                 fileName = fName + "/Histograms/" + fInputName + "_histos.root";
         std::cout << "-----------------------------" << std::endl;
         std::cout << "Reading histograms from file " << fileName << " ..." << std::endl;
     }
@@ -2392,8 +2402,8 @@ void TtHFit::ReadHistos(/*string fileName*/){
         if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading region " << regionName << std::endl;
         //
         if(!singleOutputFile){
-            if(fInputFolder!="") fileName = fInputFolder           + fName + "_" + regionName + "_histos.root";
-            else                 fileName = fName + "/Histograms/" + fName + "_" + regionName + "_histos.root";
+            if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_" + regionName + "_histos.root";
+            else                 fileName = fName + "/Histograms/" + fInputName + "_" + regionName + "_histos.root";
             std::cout << "-----------------------------" << std::endl;
             std::cout << "Reading histograms from file " << fileName << " ..." << std::endl;
         }

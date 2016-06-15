@@ -513,9 +513,17 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 }
                 h_nominal -> Draw("e2same");
             }
-	    if((ratioON || bothPanels) && SumAndData ) h_dataCopy->Draw("same");
-            h_syst_down_orig->Draw("same HIST");
-            h_syst_up_orig->Draw("same HIST");
+            if((ratioON || bothPanels) && SumAndData ) h_dataCopy->Draw("same");
+            if(TtHFitter::SYSTERRORBARS){
+                h_syst_down_orig->SetMarkerSize(0);
+                h_syst_up_orig->SetMarkerSize(0);
+                h_syst_down_orig->Draw("same E");
+                h_syst_up_orig->Draw("same E");
+            }
+            else{
+                h_syst_down_orig->Draw("same HIST");
+                h_syst_up_orig->Draw("same HIST");
+            }
             h_syst_down->Draw("same HIST");
             h_syst_up->Draw("same HIST");
             

@@ -1,3 +1,7 @@
+2016-15-06 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Error bars in Syst plots
+        * InputName option added (to use histogram inputs with different name than the Job name)
+        
 2016-13-06 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Fixed autobin computation in presence of ghost samples
 

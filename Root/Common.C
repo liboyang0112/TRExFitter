@@ -12,6 +12,7 @@ bool TtHFitter::SHOWNORMSIG = false;
 bool TtHFitter::SHOWOVERLAYSIG = false;
 bool TtHFitter::LEGENDLEFT = false;
 bool TtHFitter::SYSTCONTROLPLOTS = false;
+bool TtHFitter::SYSTERRORBARS = false;
 bool TtHFitter::SYSTDATAPLOT = false;
 bool TtHFitter::SPLITHISTOFILES = false;
 bool TtHFitter::HISTOCHECKCRASH = true;
