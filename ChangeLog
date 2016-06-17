@@ -1,3 +1,6 @@
+2016-17-06 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Fix in "Variable" reading from config file (with ntuple inputs) to allow TTree::Draw special functions
+        
 2016-15-06 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Error bars in Syst plots
         * InputName option added (to use histogram inputs with different name than the Job name)
