@@ -127,7 +127,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
         TIterator* it2 = nuis->createIterator();
         while( (var = (RooRealVar*) it2->Next()) ){
             string np = var->GetName();
-            if( np == ("alpha_"+m_constNP) ){
+            if( np == ("alpha_"+m_constNP) || np == m_constNP ){
                 var->setVal(m_constNPvalue);
                 var->setConstant(1);
             } else if( np.find("alpha_")!=string::npos ){

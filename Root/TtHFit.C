@@ -1063,6 +1063,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
             if(param=="TRUE") norm->fConst = true;
         }
+        param = cs->Get("Title"); if(param!=""){
+            norm->fTitle = param;
+            TtHFitter::SYSTMAP[norm->fName] = norm->fTitle;
+        }
         param = cs->Get("Min"); if(param!=""){ norm->fMin = atof(param.c_str()); }
         param = cs->Get("Max"); if(param!=""){ norm->fMax = atof(param.c_str()); }
         param = cs->Get("Nominal"); if(param!=""){ norm->fNominal = atof(param.c_str()); }
@@ -4995,9 +4999,24 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     // List of systematics to check
     //
     std::vector< string > nuisPars;
+    std::vector< bool > isNF;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName || atoi(NPnames.c_str())==i_syst )
+        if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName || 
+            ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || NPnames.c_str()=="0") )
+            ){
             nuisPars.push_back( fSystematics[i_syst]->fName );
+            isNF.push_back( false );
+        }
+    }
+    for(int i_norm=0;i_norm<fNNorm;i_norm++){
+        if(fPOI==fNormFactors[i_norm]->fName) continue;
+        if(NPnames=="all" || NPnames==fNormFactors[i_norm]->fName || 
+//           atoi(NPnames.c_str())-fNSyst==i_norm ){ || 
+            ( atoi(NPnames.c_str())-fNSyst==i_norm && (atoi(NPnames.c_str())>0 || NPnames.c_str()=="0") )
+            ){
+            nuisPars.push_back( fNormFactors[i_norm]->fName );
+            isNF.push_back( true );
+        }
     }
     
     //
@@ -5080,6 +5099,11 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
     fitTool -> ValPOI(1.);
     fitTool -> ConstPOI(false);
+    if(fVarNameMinos.size()>0){
+        std::cout << "Setting the variables to use MINOS with" << std::endl;
+        fitTool -> UseMinos(fVarNameMinos);
+    }
+    
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     muhat = fFitResults -> GetNuisParValue( fPOI );
     //if(!hasData) muhat = 1.;  // FIXME -> Loic: Do we actually need that ?
@@ -5092,30 +5116,48 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         
+//         // FIXME
+//         up   *= 0.01;
+//         down *= 0.01;
+//         // FIXME
+        
         //Set the NP to its post-fit *up* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
         fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
-        
+        //
         //Set the NP to its post-fit *down* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
         fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+//         // FIXME
+//         muVarUp[ nuisPars[i] ]   = muhat + (muVarUp[ nuisPars[i] ]   - muhat)/0.01;
+//         muVarDown[ nuisPars[i] ] = muhat + (muVarDown[ nuisPars[i] ] - muhat)/0.01;
+//         // FIXME
         outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
         
-        //Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
-        ws->loadSnapshot("tmp_snapshot");
-        fitTool -> FixNP( nuisPars[i], central + 1. );
-        fitTool -> FitPDF( mc, simPdf, data );
-        muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
-        
-        //Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
-        ws->loadSnapshot("tmp_snapshot");
-        fitTool -> FixNP( nuisPars[i], central - 1. );
-        fitTool -> FitPDF( mc, simPdf, data );
-        muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        if(isNF[i]){
+            muVarNomUp[   nuisPars[i] ] = muhat;
+            muVarNomDown[ nuisPars[i] ] = muhat;
+        }
+        else{
+            //Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
+            ws->loadSnapshot("tmp_snapshot");
+            fitTool -> FixNP( nuisPars[i], central + 1. );
+//             fitTool -> FixNP( nuisPars[i], central + 0.01 );
+            fitTool -> FitPDF( mc, simPdf, data );
+            muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
+            //
+            //Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
+            ws->loadSnapshot("tmp_snapshot");
+            fitTool -> FixNP( nuisPars[i], central - 1. );
+//             fitTool -> FixNP( nuisPars[i], central - 0.1. );
+            fitTool -> FitPDF( mc, simPdf, data );
+            //
+            muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        }
         outName_file << muVarNomUp[nuisPars[i]]-muhat << "   " <<  muVarNomDown[nuisPars[i]]-muhat<< " "<<endl;
         
     }

@@ -1,5 +1,7 @@
 2016-17-06 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Fix in "Variable" reading from config file (with ntuple inputs) to allow TTree::Draw special functions
+        * Ranking plot including Normalisation Factors
+        * Normalisation Factor titles propagated into plots
         
 2016-15-06 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Error bars in Syst plots
