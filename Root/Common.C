@@ -20,6 +20,7 @@ float TtHFitter::CORRELATIONTHRESHOLD = -1;
 std::map <string,string> TtHFitter::SYSTMAP;
 std::map <string,string> TtHFitter::NPMAP;
 std::vector <string> TtHFitter::IMAGEFORMAT;
+int TtHFitter::NCPU = 1;
 //
 std::map <string,float> TtHFitter::OPTION;
 

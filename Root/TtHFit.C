@@ -693,6 +693,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         fUseRnd = true;
         fRndRange = atof(param.c_str());
     }
+    param = cs->Get("NumCPU"); if( param != "" ){ TtHFitter::NCPU = atoi( param.c_str()); }
     
     //##########################################################
     //
@@ -5805,7 +5806,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
   TF1* poly = new TF1("poly2","[0]+[1]*x+[2]*x*x",0,10);
   TCanvas* can = new TCanvas("NLLscan");
 
-  RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(10, RooFit::Hybrid));
+  RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
 
   TString tag("");
   RooAbsReal* pll = nll->createProfile(*var);

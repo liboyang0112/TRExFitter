@@ -1,3 +1,6 @@
+2016-19-06 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Multi-core fit implemented: use "NumCPU: <N>" under "Fit". Get <N> with grep -c ^processor /proc/cpuinfo
+        
 2016-17-06 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Fix in "Variable" reading from config file (with ntuple inputs) to allow TTree::Draw special functions
         * Ranking plot including Normalisation Factors

@@ -68,6 +68,7 @@ namespace TtHFitter{
     extern std::map< string,string > SYSTMAP;
     extern std::map< string,string > NPMAP;
     extern std::vector< string > IMAGEFORMAT;
+    extern int NCPU;
     //
     extern std::map< string, float > OPTION;
 };
