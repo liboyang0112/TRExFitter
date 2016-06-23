@@ -31,12 +31,14 @@ MultiFit::MultiFit(string name){
     fPOI = "SigXsecOverSM";
     fPOIMin = 0;
     fPOIMax = 10;
+    fPOIVal = 1;
     //
     fCombine       = false;
     fCompare       = false;
     fCompareLimits = true;
     fComparePOI    = true;
     fComparePulls  = true;
+    fPlotCombCorrMatrix  = false;
     //
     fDataName      = "obsData";
     fFitType       = 1; // 1: S+B, 2: B-only
@@ -45,6 +47,9 @@ MultiFit::MultiFit(string name){
     //
     fNPCategories.clear();
     fNPCategories.push_back("");
+    //
+    fRndRange = 0.1;
+    fUseRnd = false;
 }
 
 //__________________________________________________________________________________
@@ -79,6 +84,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("CompareLimits"); if( param != "" && param != "TRUE" )  fCompareLimits = false;
     param = cs->Get("ComparePOI");    if( param != "" && param != "TRUE" )  fComparePOI    = false;
     param = cs->Get("ComparePulls");  if( param != "" && param != "TRUE" )  fComparePulls  = false;
+    param = cs->Get("PlotCombCorrMatrix");  if( param == "TRUE" )     fPlotCombCorrMatrix  = true;
     //
     param = cs->Get("Combine"); if( param != "" && param != "FALSE" )  fCombine = true;
     param = cs->Get("Compare"); if( param != "" && param != "FALSE" )  fCompare = true;
@@ -88,6 +94,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         fPOIMin = atof( Vectorize(param,',')[0].c_str() );
         fPOIMax = atof( Vectorize(param,',')[1].c_str() );
     }
+    param = cs->Get("POIVal");   if( param != "" ) fPOIVal = atof(param.c_str());
     param = cs->Get("DataName"); if( param != "" ) fDataName = param;
     param = cs->Get("FitType");  if( param != "" ){
         if(param=="SPLUSB") fFitType = 1;
@@ -102,6 +109,11 @@ void MultiFit::ReadConfigFile(string configFile,string options){
           fNPCategories.push_back(categ[i_cat]);
 //       fNPCategories.insert(fNPCategories.end(),Vectorize(param,',').begin(),Vectorize(param,',').end());
     }
+    param = cs->Get("SetRandomInitialNPval");  if( param != ""){
+        fUseRnd = true;
+        fRndRange = atof(param.c_str());
+    }
+    param = cs->Get("NumCPU"); if( param != "" ){ TtHFitter::NCPU = atoi( param.c_str()); }
     
     //
     // fits
@@ -239,7 +251,7 @@ void MultiFit::SaveCombinedWS(){
     //
     // Creating the rootfile
     //
-    TFile *f = new TFile( (fName+"/ws_combined.root").c_str() , "recreate" );
+    TFile *f = new TFile( (fName+"/ws_combined"+fSaveSuf+".root").c_str() , "recreate" );
     //
     // Creating the workspace
     //
@@ -274,15 +286,27 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         fitTool -> ValPOI(0.);
         fitTool -> ConstPOI(true);
     } else if(fitType==1){
-        fitTool -> ValPOI(1.);
+        fitTool -> ValPOI(fPOIVal);
         fitTool -> ConstPOI(false);
     }
-    fitTool -> SetRandomNP(0.1, true);
+    if(fUseRnd) fitTool -> SetRandomNP(fRndRange, fUseRnd);
 
-//     if(fVarNameMinos.size()>0){
-//       std::cout << "Setting the variables to use MINOS with" << std::endl;
-//       fitTool -> UseMinos(fVarNameMinos);
-//     }
+    std::vector<std::string> vVarNameMinos; vVarNameMinos.clear();
+    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+        for(unsigned int i_minos=0;i_minos<fFitList[i_fit]->fVarNameMinos.size();i_minos++){
+            if(FindInStringVector(vVarNameMinos,fFitList[i_fit]->fVarNameMinos[i_minos])<0){
+                vVarNameMinos.push_back( fFitList[i_fit]->fVarNameMinos[i_minos] );
+            }
+        }
+    }
+    
+    if(vVarNameMinos.size()>0){
+        std::cout << "Setting the variables to use MINOS with:" << std::endl;
+        for(unsigned int i_minos=0;i_minos<vVarNameMinos.size();i_minos++){
+            std::cout << "  " << vVarNameMinos[i_minos] << std::endl;
+        }
+        fitTool -> UseMinos(vVarNameMinos);
+    }
     
     //
     // Gets needed objects for the fit
@@ -309,7 +333,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     gSystem -> mkdir((fName+"/Fits/").c_str(),true);
     fitTool -> MinimType("Minuit2");
     fitTool -> FitPDF( mc, simPdf, data );
-    fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+".txt");
+    fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+".txt");
     result = fitTool -> ExportFitResultInMap();
     
     return result;
@@ -320,7 +344,7 @@ void MultiFit::GetCombinedLimit(string inputData){ // or asimovData
     string wsFileName = fName+"/ws_combined.root";
 //     gSystem->Exec( ("mkdir ") );
     string cmd;
-    cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+"\",0.95)'";
+    cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
     
     //
     // Finally computing the limit
@@ -365,8 +389,8 @@ void MultiFit::ComparePOI(string POI){
     gStyle->SetEndErrorSize(6.);
     
     TGraph *g_central    = new TGraph(N);
-    TGraphErrors *g_stat = new TGraphErrors(N);
-    TGraphErrors *g_tot  = new TGraphErrors(N);
+    TGraphAsymmErrors *g_stat = new TGraphAsymmErrors(N);
+    TGraphAsymmErrors *g_tot  = new TGraphAsymmErrors(N);
     
     int Ndiv = N+1;
   
@@ -389,10 +413,20 @@ void MultiFit::ComparePOI(string POI){
             par = fit->fFitResults->fNuisPar[j];
             if(par->fName == POI){
                 g_central->SetPoint(N-i-1,par->fFitValue,N-i-1);
-                g_stat->SetPoint(N-i-1,par->fFitValue,N-i-1);
-                g_tot->SetPoint(N-i-1,par->fFitValue,N-i-1);
-                g_stat->SetPointError(N-i-1,0,0);
-                g_tot->SetPointError(N-i-1,par->fPostFitUp,0);
+                g_stat   ->SetPoint(N-i-1,par->fFitValue,N-i-1);
+                g_tot    ->SetPoint(N-i-1,par->fFitValue,N-i-1);
+                //
+                // temporary put the full uncertainty
+                g_stat->SetPointEXhigh(N-i-1,par->fPostFitUp);
+                g_stat->SetPointEXlow(N-i-1,-par->fPostFitDown);
+                g_stat->SetPointEYhigh(N-i-1,0);
+                g_stat->SetPointEYlow(N-i-1,0);
+                //
+                g_tot->SetPointEXhigh(N-i-1,par->fPostFitUp);
+                g_tot->SetPointEXlow(N-i-1,-par->fPostFitDown);
+                g_tot->SetPointEYhigh(N-i-1,0);
+                g_tot->SetPointEYlow(N-i-1,0);
+                //
 //                 if(par->fFitValue+par->fPostFitUp > xmax) xmax = par->fFitValue+par->fPostFitUp;
                 found = true;
                 break;
@@ -402,8 +436,28 @@ void MultiFit::ComparePOI(string POI){
             g_central->SetPoint(N-i-1,-10,N-i-1);
             g_stat->SetPoint(N-i-1,-10,N-i-1);
             g_tot->SetPoint(N-i-1,-10,N-i-1);
-            g_stat->SetPointError(N-i-1,0,0);
-            g_tot->SetPointError(N-i-1,0,0);
+            g_stat->SetPointError(N-i-1,0,0,0,0);
+            g_tot->SetPointError(N-i-1,0,0,0,0);
+        }
+    }
+    // stat error
+    for(int i=0;i<N;i++){
+        if(fCombine && i==N-1) isComb = true;
+        //
+        if(!isComb) fit = fFitList[i];
+        if(!isComb)       fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+"_statOnly.txt");
+        else              fit->ReadFitResults(fName+"/Fits/"+fName+"_statOnly.txt");
+        found = false;
+        for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
+            par = fit->fFitResults->fNuisPar[j];
+            if(par->fName == POI){
+                g_stat->SetPointEXhigh(N-i-1,par->fPostFitUp);
+                g_stat->SetPointEXlow(N-i-1,-par->fPostFitDown);
+                g_stat->SetPointEYhigh(N-i-1,0);
+                g_stat->SetPointEYlow(N-i-1,0);
+                found = true;
+                break;
+            }
         }
     }
     
@@ -478,7 +532,7 @@ void MultiFit::ComparePOI(string POI){
     
 //     c->SaveAs( (fName+"/POI.png").c_str() );
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs( (fName+"/POI" + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+        c->SaveAs( (fName+"/POI"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     delete c;
 }
@@ -755,7 +809,7 @@ void MultiFit::ComparePulls(string category){
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
-            fitRes->ReadFromTXT(fName+"/Fits/"+fName+".txt");
+            fitRes->ReadFromTXT(fName+"/Fits/"+fName+fSaveSuf+".txt");
         }
         else{
             fitRes = fFitList[i_fit]->fFitResults;
@@ -866,4 +920,20 @@ void MultiFit::ComparePulls(string category){
         else             c->SaveAs((fName+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
     }
     delete c;
+}
+
+//__________________________________________________________________________________
+//
+void MultiFit::PlotCombinedCorrelationMatrix(){
+    TtHFit *fit = fFitList[0];
+    if(fit->fStatOnly){
+        std::cout << "MultiFit::INFO: Stat only fit => No Correlation Matrix generated." << std::endl;
+        return;
+    }
+    //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
+    fit->ReadFitResults(fName+"/Fits/"+fName+".txt");
+    if(fit->fFitResults){
+        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+            fit->fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix_comb"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format],TtHFitter::CORRELATIONTHRESHOLD);
+    }
 }

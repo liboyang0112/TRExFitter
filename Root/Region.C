@@ -824,7 +824,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
 //             if(nfValue==0) nfValue = 0.0001;  // FIXME
 //             if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 0.0001;   // FIXME
 //             if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 1;   // FIXME
-            if(nfName=="SigXsecOverSM") nfValue = 1;   // FIXME
+//             if(nfName=="SigXsecOverSM") nfValue = 1;   // FIXME
             hSmpNew[i]->Scale(nfValue);
         }
     }

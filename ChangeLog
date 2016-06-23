@@ -1,3 +1,6 @@
+2016-23-06 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * more options in MultiFit
+        
 2016-19-06 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Multi-core fit implemented: use "NumCPU: <N>" under "Fit". Get <N> with grep -c ^processor /proc/cpuinfo
         

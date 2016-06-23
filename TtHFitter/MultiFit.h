@@ -23,6 +23,7 @@ public:
     void ComparePOI(string POI);
     void CompareLimit();
     void ComparePulls(string caterogy="");
+    void PlotCombinedCorrelationMatrix();
 
     std::vector< string > fFitNames;
     std::vector< TtHFit* > fFitList;
@@ -38,6 +39,7 @@ public:
     bool fCompareLimits;
     bool fComparePOI;
     bool fComparePulls;
+    bool fPlotCombCorrMatrix;
     
     string fName;
     string fLabel;
@@ -48,6 +50,10 @@ public:
     string fPOI;
     float fPOIMin;
     float fPOIMax;
+    float fPOIVal;
+    
+    bool fUseRnd;
+    float fRndRange;
     
     string fLumiLabel;
     string fCmeLabel;

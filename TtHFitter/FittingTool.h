@@ -17,6 +17,7 @@ class RooAbsData;
 #include <string>
 #include <map>
 #include "RooStats/ModelConfig.h"
+#include "TVirtualFitter.h"
 
 class FittingTool {
 

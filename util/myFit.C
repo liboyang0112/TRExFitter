@@ -61,6 +61,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
                     myMultiFit->ComparePulls(myMultiFit->fNPCategories[i_cat]);
                 }
             }
+            if(myMultiFit->fPlotCombCorrMatrix) myMultiFit->PlotCombinedCorrelationMatrix();
             if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI(myMultiFit->fPOI);
             if(myMultiFit->fCompareLimits) myMultiFit->CompareLimit();
         }

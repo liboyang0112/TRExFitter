@@ -107,9 +107,25 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
         return;
     }
     
-    poi -> setVal(m_valPOI);
     poi -> setConstant(m_constPOI);
     //poi -> setRange(m_RangePOI_down,m_RangePOI_up); // Commented by Loic to avoid overwriting user's setting in config file
+    
+    
+    //
+    // Create the likelihood based on fitpdf, fitData and the parameters
+    //
+//     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1) );
+    RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), 
+                                         RooFit::NumCPU(TtHFitter::NCPU,RooFit::Hybrid)
+//                                          ,RooFit::Extended(true)   // experimental
+                                        );
+    
+    poi -> setVal(m_valPOI);
+    std::cout << "Setting starting mu = " << m_valPOI << std::endl;
+    // randomize the POI
+    if(!m_constPOI && m_randomize){
+        poi->setVal( m_valPOI + m_randomNP*(gRandom->Uniform(2)-1.) );
+    }
     
     if(m_debug){
         std::cout << "   -> Constant POI : " << poi->isConstant() << std::endl;
@@ -117,10 +133,9 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     }
     
     //
-    // Needed for Ranking plot
+    // Needed for Ranking plot, but also to set random initial values for the NPs
     //
-//     std::srand(time(NULL)); // THOMAS
-    gRandom->SetSeed(time(NULL)); // Michele
+    gRandom->SetSeed(time(NULL));
     RooRealVar* var = NULL;
     RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
     if(nuis){
@@ -130,28 +145,27 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
             if( np == ("alpha_"+m_constNP) || np == m_constNP ){
                 var->setVal(m_constNPvalue);
                 var->setConstant(1);
-            } else if( np.find("alpha_")!=string::npos ){
-//                 if(m_randomize) var->setVal( m_randomNP*(1.-(std::rand()%21)/10.) ); // Thomas
-                if(m_randomize) var->setVal( m_randomNP*(gRandom->Uniform(2)-1.) ); // Michele
-                else 
-                var->setVal(0);
+            } else if( np.find("alpha_")!=string::npos ){   // for syst NP
+                if(m_randomize) var->setVal( m_randomNP*(gRandom->Uniform(2)-1.) );
+                else            var->setVal(0);
                 var->setConstant(0);
+            } else {  // for norm factors & gammas
+                if(m_randomize) var->setVal( 1 + m_randomNP*(gRandom->Uniform(2)-1.) );
+                else            var->setVal( 1 );
             }
         }
     }
-    
-    //
-    // Create the likelihood based on fitpdf, fitData and the parameters
-    //
-//     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1) );
-    RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), 
-                                         RooFit::NumCPU(TtHFitter::NCPU,RooFit::Hybrid) );
     
     const double nllval = nll->getVal();
     if(m_debug){
         std::cout << "   -> Initial value of the NLL = " << nllval << std::endl;
         constrainedParams->Print("v");
     }
+    
+    // 
+    // Desperate attempts
+//     TVirtualFitter::SetPrecision(1e-10); // default 1e-6
+//     TVirtualFitter::SetMaxIterations(100000);  // default 5000
     
     //
     //
@@ -171,6 +185,14 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     minim.setStrategy(strat);
     minim.setPrintLevel(1);
     minim.setEps(1);
+
+    // experimental
+//     minim.setEps(0.01);
+//     minim.setMaxIterations(500*200*10);
+//     minim.setMaxFunctionCalls(500*200*10);
+//     minim.setMaxIterations(500*200*10);
+//     minim.setMaxFunctionCalls(500*200*10);
+//     minim.setOffsetting(true);
     
     TStopwatch sw; sw.Start();
     

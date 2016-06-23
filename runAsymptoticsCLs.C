@@ -727,7 +727,8 @@ void doPredictiveFit(RooNLLVar* nll, double mu1, double mu2, double mu)
 RooNLLVar* createNLL(RooDataSet* _data)
 {
   RooArgSet nuis = *mc->GetNuisanceParameters();
-  RooNLLVar* nll = (RooNLLVar*)mc->GetPdf()->createNLL(*_data, Constrain(nuis));
+//   RooNLLVar* nll = (RooNLLVar*)mc->GetPdf()->createNLL(*_data, Constrain(nuis));
+  RooNLLVar* nll = (RooNLLVar*)mc->GetPdf()->createNLL(*_data, Constrain(nuis),RooFit::NumCPU(8,RooFit::Hybrid) );
   return nll;
 }
 

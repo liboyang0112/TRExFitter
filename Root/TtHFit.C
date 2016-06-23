@@ -436,6 +436,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fSuffix = optMap["Suffix"]; // used for input & output  plots, txt files & workspaces - NOT for histograms file
         if(optMap["Update"]!="" && optMap["Update"]!="FALSE")
             fUpdate = true;
+        if(optMap["StatOnly"]!="" && optMap["StatOnly"]!="FALSE")
+            fStatOnly = true;
         if(optMap["Ranking"]!="")
             fRankingOnly = optMap["Ranking"];
         if(optMap["Signal"]!="")
@@ -608,8 +610,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
             fStatOnly = true;
-        } else if ( param == "FALSE" ){
-            fStatOnly = false;
+//         } else if ( param == "FALSE" ){
+//             fStatOnly = false;
         }
     }
     param = cs->Get("InputFolder");    if( param != "" ){
@@ -3896,6 +3898,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                          h->fNormFactors[i_norm]->fMin,
                                          h->fNormFactors[i_norm]->fMax);
                     if (h->fNormFactors[i_norm]->fConst) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
+                    if (fStatOnly && h->fNormFactors[i_norm]->fName!=fPOI) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
                 }
                 // systematics
                 if(!fStatOnly){
