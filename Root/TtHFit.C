@@ -80,6 +80,8 @@ TtHFit::TtHFit(string name){
     fAtlasLabel = "Internal";
     
     fStatOnly = false;
+    fStatOnlyFit = false;
+    fFixNPforStatOnlyFit = false;
     fSystDataPlot_upFrame = false;
     
     fSummaryPlotRegions.clear();
@@ -87,6 +89,8 @@ TtHFit::TtHFit(string name){
     
     fSummaryPlotValidationRegions.clear();
     fSummaryPlotValidationLabels.clear();
+    
+    fFitResultsFile = "";
     
     //
     // Fit caracteristics
@@ -438,10 +442,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fUpdate = true;
         if(optMap["StatOnly"]!="" && optMap["StatOnly"]!="FALSE")
             fStatOnly = true;
+        if(optMap["StatOnlyFit"]!="" && optMap["StatOnlyFit"]!="FALSE")
+            fStatOnlyFit = true;
         if(optMap["Ranking"]!="")
             fRankingOnly = optMap["Ranking"];
         if(optMap["Signal"]!="")
             onlySignal = optMap["Signal"];
+        if(optMap["FitResults"]!="")
+            fFitResultsFile = optMap["FitResults"];
         //
         std::cout << "-------------------------------------------" << std::endl;
         std::cout << "Running options: " << std::endl;
@@ -614,6 +622,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
 //             fStatOnly = false;
         }
     }
+    param = cs->Get("FixNPforStatOnly");    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFixNPforStatOnlyFit = true;
+        }
+    }
     param = cs->Get("InputFolder");    if( param != "" ){
         fInputFolder = param;
     }
@@ -627,6 +641,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ) fKeepPruning = true;
     }
+    param = cs->Get("AtlasLabel"); if( param != "" ){ fAtlasLabel = param; }
     
     //
     // General options
@@ -690,12 +705,17 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = Vectorize(param,','); }
     param = cs->Get("UseMinos"); if( param != "" ){ fVarNameMinos = Vectorize(param,','); }
-    param = cs->Get("AtlasLabel"); if( param != "" ){ fAtlasLabel = param; }
     param = cs->Get("SetRandomInitialNPval");  if( param != ""){
         fUseRnd = true;
         fRndRange = atof(param.c_str());
     }
     param = cs->Get("NumCPU"); if( param != "" ){ TtHFitter::NCPU = atoi( param.c_str()); }
+    param = cs->Get("StatOnlyFit");    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fStatOnlyFit = true;
+        }
+    }
     
     //##########################################################
     //
@@ -744,6 +764,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         reg = NewRegion(CheckName(cs->GetValue()));
         reg->SetVariableTitle(cs->Get("VariableTitle"));
         reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
+        param = cs->Get("TexLabel"); if( param != "") reg->fTexLabel = param; 
         param = cs->Get("LumiLabel"); if( param != "") reg->fLumiLabel = param; 
         else reg->fLumiLabel = fLumiLabel;
         param = cs->Get("CmeLabel"); if( param != "") reg->fCmeLabel = param;
@@ -887,6 +908,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(onlySignal!="" && type==Sample::SIGNAL && cs->GetValue()!=onlySignal) continue;
         smp = NewSample(CheckName(cs->GetValue()),type);
         smp->SetTitle(cs->Get("Title"));
+        param = cs->Get("TexTitle"); if(param!="") smp->fTexTitle = param;
         param = cs->Get("Group"); if(param!="") smp->fGroup = param;
         if(fInputType==0){
             param = cs->Get("HistoFile"); if(param!="") smp->AddHistoFile( param );
@@ -2510,7 +2532,10 @@ void TtHFit::DrawAndSaveAll(string opt){
     gSystem->mkdir((fName+"/Plots").c_str());
     bool isPostFit = opt.find("post")!=string::npos;
     if(isPostFit){
-        ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
+        if(fFitResultsFile!="")
+            ReadFitResults(fFitResultsFile);
+        else
+            ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
@@ -3006,10 +3031,9 @@ void TtHFit::BuildYieldTable(string opt){
     texout << "\\documentclass[10pt]{article}" << endl;
     texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
     texout << "\\begin{document}" << endl;
-    //texout << "\\small" << endl;
+    texout << "\\\\" << endl;
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
-    //texout << "\\begin{tabular}{|c|c|c|c|c|c|c|c|}" << endl;
     texout << "\\begin{tabular}{|c" ;
     for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
     texout << "|c";      
@@ -3017,7 +3041,9 @@ void TtHFit::BuildYieldTable(string opt){
     texout << "|}" << endl;
     texout << "\\hline " << endl;
     for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
-        texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
+//         texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
+        if(fRegions[regionVec[i_bin-1]]->fTexLabel!="") texout << " & " << fRegions[regionVec[i_bin-1]]->fTexLabel ;
+        else                                            texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
     }
     texout << "\\\\" << endl;
     texout << "\\hline " << endl;
@@ -3231,25 +3257,34 @@ void TtHFit::BuildYieldTable(string opt){
     }
     
     //
-    // Print samples except data
+    // Print samples except ghosts, dat for blind fits, signal for B-only...
     //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if( fSamples[i_smp]->fType==Sample::DATA  ) continue;
         if( fSamples[i_smp]->fType==Sample::GHOST ) continue;
+        if( fSamples[i_smp]->fType==Sample::DATA  ) continue;
         if( fSamples[i_smp]->fType==Sample::SIGNAL && (fFitType==FitType::BONLY && isPostFit) ) continue;
         if(idxVec[i_smp]!=i_smp) continue;
         //
         // print values
         out << " | " << fSamples[i_smp]->fTitle << " | ";
-        texout << "  " << fSamples[i_smp]->fTitle << "  ";
+//         texout << "  " << fSamples[i_smp]->fTitle << "  ";
+        if(fSamples[i_smp]->fType==Sample::DATA) texout << "\\hline " << endl;
+        if(fSamples[i_smp]->fTexTitle!="") texout << "  " << fSamples[i_smp]->fTexTitle << "  ";
+        else                               texout << "  " << fSamples[i_smp]->fTitle << "  ";
         for(int i_bin=1;i_bin<=fNRegions;i_bin++){
             texout << " & ";
             out << h_smp[i_smp]->GetBinContent(i_bin);
-            texout << setprecision(3) << h_smp[i_smp]->GetBinContent(i_bin);
+//             texout << setprecision(3) << h_smp[i_smp]->GetBinContent(i_bin);
+            texout << "\\num[round-mode=figures,round-precision=3]{";
+            texout << h_smp[i_smp]->GetBinContent(i_bin);
+            texout << "}";
             out << " pm ";
             texout << " $\\pm$ ";
             out << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
-            texout << setprecision(3) << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
+//             texout << setprecision(3) << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
+            texout << "\\num[round-mode=figures,round-precision=3]{";
+            texout << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
+            texout << "}";
             out << " | ";
         }
         out << endl;
@@ -3362,20 +3397,51 @@ void TtHFit::BuildYieldTable(string opt){
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames );
     //
     out << " | Total | ";
+    texout << "\\hline " << endl;
     texout << "  Total ";
     for(int i_bin=1;i_bin<=fNRegions;i_bin++){
         texout << " & ";
         out << h_tot->GetBinContent(i_bin);
-        texout << setprecision(3) << h_tot->GetBinContent(i_bin);
+//         texout << setprecision(3) << h_tot->GetBinContent(i_bin);
+        texout << "\\num[round-mode=figures,round-precision=3]{";
+        texout << h_tot->GetBinContent(i_bin);
+        texout << "}";
         out << " pm ";
         texout << " $\\pm$ ";
-        out << g_err_tot->GetErrorYhigh(i_bin-1);
-        texout << setprecision(3) << g_err_tot->GetErrorYhigh(i_bin-1);
+        out << ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
+//         texout << setprecision(3) << g_err_tot->GetErrorYhigh(i_bin-1);
+        texout << "\\num[round-mode=figures,round-precision=3]{";
+        texout << ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
+        texout << "}";
         out << " | ";
     }
     out << endl;
     texout << " \\\\ ";
     texout << endl;
+    
+    //
+    // Print data
+    if( !fFitIsBlind ){
+        texout << "\\hline " << endl;
+        for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            if( fSamples[i_smp]->fType!=Sample::DATA  ) continue;
+            if(idxVec[i_smp]!=i_smp) continue;
+            //
+            // print values
+            out << " | " << fSamples[i_smp]->fTitle << " | ";
+            if(fSamples[i_smp]->fTexTitle!="") texout << "  " << fSamples[i_smp]->fTexTitle << "  ";
+            else                               texout << "  " << fSamples[i_smp]->fTitle << "  ";
+            for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+                texout << " & ";
+                out << h_smp[i_smp]->GetBinContent(i_bin);
+                texout << h_smp[i_smp]->GetBinContent(i_bin);
+                out << " | ";
+            }
+            out << endl;
+            texout << " \\\\ ";
+            texout << endl;
+        }
+    }
 
     texout << "\\hline " << endl;
     texout << "\\end{tabular} " << endl;
@@ -3898,7 +3964,8 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                          h->fNormFactors[i_norm]->fMin,
                                          h->fNormFactors[i_norm]->fMax);
                     if (h->fNormFactors[i_norm]->fConst) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
-                    if (fStatOnly && h->fNormFactors[i_norm]->fName!=fPOI) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
+                    if (fStatOnly && fFixNPforStatOnlyFit && h->fNormFactors[i_norm]->fName!=fPOI)
+                        meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
                 }
                 // systematics
                 if(!fStatOnly){
@@ -4317,14 +4384,14 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
 
     //Save the initial values of the NP
     ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
-    if (!fStatOnly){
-      ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
+    if (!(fStatOnly && fFitIsBlind)){
+        ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
     }
 
     //Be sure to take the initial values of the NP
     ws->loadSnapshot("InitialStateModelGlob");
     if (!fStatOnly){
-      ws->loadSnapshot("InitialStateModelNuis");
+        ws->loadSnapshot("InitialStateModelNuis");
     }
     
     //Creating a set
@@ -4357,14 +4424,14 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     
     //-- Nuisance parameters
     if (!fStatOnly){
-      RooRealVar* var(nullptr);
-      TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
-      while( (var = (RooRealVar*) npIterator->Next()) ){
-        std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
-        if( it_npValue != npValues.end() ){
-          var -> setVal(it_npValue -> second);
+        RooRealVar* var(nullptr);
+        TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
+        while( (var = (RooRealVar*) npIterator->Next()) ){
+          std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
+          if( it_npValue != npValues.end() ){
+            var -> setVal(it_npValue -> second);
+          }
         }
-      }
     }
     
     //Looping over regions
@@ -4436,7 +4503,7 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     
     ws->loadSnapshot("InitialStateModelGlob");
     if (!fStatOnly){
-      ws->loadSnapshot("InitialStateModelNuis");
+        ws->loadSnapshot("InitialStateModelNuis");
     }
     
     return asimovData;
@@ -4458,14 +4525,10 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     // Fit configuration (SPLUSB or BONLY)
     //
     FittingTool *fitTool = new FittingTool();
-//     if(fFitType==BONLY || fitType==BONLY){
     if(fitType==BONLY){
         fitTool -> ValPOI(0.);
         fitTool -> ConstPOI(true);
-//     } else if(fFitType==SPLUSB){
     } else if(fitType==SPLUSB){
-//         fitTool -> ValPOI(1.);
-//         fitTool -> ValPOI(0.);
         fitTool -> ValPOI(fFitPOIAsimov);
         fitTool -> ConstPOI(false);
     }
@@ -4497,13 +4560,31 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         }
     }
     
+    //
+    // For stat-only fit on data:
+    // - read fit resutls
+    // - fix all NP to fitted ones before fitting
+    if(fStatOnlyFit){
+        std::cout << "Fitting stat-only: reading fit results from full fit from file: " << std::endl;
+        std::cout << "  " << (fName+"/Fits/"+fName+fSuffix+".txt") << std::endl;
+        ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
+        std::vector<std::string> npNames;
+        std::vector<double> npValues;
+        for(unsigned int i_np=0;i_np<fFitResults->fNuisPar.size();i_np++){
+            if(!fFixNPforStatOnlyFit && FindInStringVector(fNormFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
+            npNames.push_back(  fFitResults->fNuisPar[i_np]->fName );
+            npValues.push_back( fFitResults->fNuisPar[i_np]->fFitValue );
+        }
+        fitTool -> FixNPs(npNames,npValues);
+    }
+    
     // Performs the fit
     fitTool -> MinimType("Minuit2");
     fitTool -> FitPDF( mc, simPdf, data );
-//     if(fitType==FitType::SPLUSB) 
     if(save){
-      gSystem -> mkdir((fName+"/Fits/").c_str(),true);
-      fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+".txt");
+        gSystem -> mkdir((fName+"/Fits/").c_str(),true);
+        if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+"_statOnly.txt");
+        else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+".txt");
     }
     result = fitTool -> ExportFitResultInMap();
     
@@ -4570,7 +4651,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
 //__________________________________________________________________________________
 //
 void TtHFit::PlotFittedNP(){
-    if(fStatOnly){
+    if(fStatOnly || fStatOnlyFit){
         std::cout << "TtHFit::INFO: Stat only fit => No NP Pull plots generated." << std::endl;
         return;
     }
@@ -4602,7 +4683,7 @@ void TtHFit::PlotFittedNP(){
 //__________________________________________________________________________________
 //
 void TtHFit::PlotCorrelationMatrix(){
-    if(fStatOnly){
+    if(fStatOnly || fStatOnlyFit){
         std::cout << "TtHFit::INFO: Stat only fit => No Correlation Matrix generated." << std::endl;
         return;
     }
@@ -4913,7 +4994,6 @@ void TtHFit::DrawAndSaveSeparationPlots(){
 
         std::string xaxis = fRegions[i_ch]->fVariableTitle;
 
-
         sig->GetYaxis()->SetTitle("Arbitrary units");
         sig->GetXaxis()->SetTitle(xaxis.c_str());
 
@@ -5015,7 +5095,6 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         if(fPOI==fNormFactors[i_norm]->fName) continue;
         if(NPnames=="all" || NPnames==fNormFactors[i_norm]->fName || 
-//           atoi(NPnames.c_str())-fNSyst==i_norm ){ || 
             ( atoi(NPnames.c_str())-fNSyst==i_norm && (atoi(NPnames.c_str())>0 || NPnames.c_str()=="0") )
             ){
             nuisPars.push_back( fNormFactors[i_norm]->fName );
@@ -5113,33 +5192,27 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     //if(!hasData) muhat = 1.;  // FIXME -> Loic: Do we actually need that ?
     
     for(unsigned int i=0;i<nuisPars.size();i++){
-        
-        //Getting the postfit values of the nuisance parameter
+        //
+        // Getting the postfit values of the nuisance parameter
         central = fFitResults -> GetNuisParValue(   nuisPars[i] );
         up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
         down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
-        
-//         // FIXME
-//         up   *= 0.01;
-//         down *= 0.01;
-//         // FIXME
-        
-        //Set the NP to its post-fit *up* variation and refit to get the fitted POI
+        //
+        // Set the NP to its post-fit *up* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
+        fitTool -> ResetFixedNP();
         fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
         //
-        //Set the NP to its post-fit *down* variation and refit to get the fitted POI
+        // Set the NP to its post-fit *down* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
+        fitTool -> ResetFixedNP();
         fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
-//         // FIXME
-//         muVarUp[ nuisPars[i] ]   = muhat + (muVarUp[ nuisPars[i] ]   - muhat)/0.01;
-//         muVarDown[ nuisPars[i] ] = muhat + (muVarDown[ nuisPars[i] ] - muhat)/0.01;
-//         // FIXME
+        //
         outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
         
         if(isNF[i]){
@@ -5147,17 +5220,17 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             muVarNomDown[ nuisPars[i] ] = muhat;
         }
         else{
-            //Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
+            // Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
+            fitTool -> ResetFixedNP();
             fitTool -> FixNP( nuisPars[i], central + 1. );
-//             fitTool -> FixNP( nuisPars[i], central + 0.01 );
             fitTool -> FitPDF( mc, simPdf, data );
             muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
             //
-            //Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
+            // Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
+            fitTool -> ResetFixedNP();
             fitTool -> FixNP( nuisPars[i], central - 1. );
-//             fitTool -> FixNP( nuisPars[i], central - 0.1. );
             fitTool -> FitPDF( mc, simPdf, data );
             //
             muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
@@ -5168,13 +5241,13 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     outName_file.close();
     ws->loadSnapshot("tmp_snapshot");
     
-    //
-    // Creating the rootfile
-    //
-    TFile *f_clone = new TFile( "ws_forRanking.root", "recreate" );
-    ws -> import(*data,Rename("ttHFitterData"));
-    ws -> Write();
-    f_clone -> Close();
+//     //
+//     // Creating the rootfile
+//     //
+//     TFile *f_clone = new TFile( "ws_forRanking.root", "recreate" );
+//     ws -> import(*data,Rename("ttHFitterData"));
+//     ws -> Write();
+//     f_clone -> Close();
 
 }
 

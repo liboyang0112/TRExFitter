@@ -16,6 +16,7 @@ class RooAbsData;
 
 #include <string>
 #include <map>
+#include <vector>
 #include "RooStats/ModelConfig.h"
 #include "TVirtualFitter.h"
 
@@ -52,7 +53,10 @@ public:
     
     inline void SetRandomNP( const double rndNP, const bool rndize ) { m_randomNP = rndNP; m_randomize = rndize; }
     
-    inline void FixNP( const TString &np, const double value ) { m_constNP = np; m_constNPvalue = value; }
+//     inline void FixNP( const TString &np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
+    inline void ResetFixedNP() { m_constNP.clear(); m_constNPvalue.clear(); };
+    inline void FixNP( std::string np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
+    inline void FixNPs( std::vector<std::string> nps, std::vector<double> values ) { m_constNP = nps; m_constNPvalue = values; }
     
     inline RooFitResult* GetFitResult() { return m_fitResult; }
 
@@ -78,8 +82,10 @@ private:
     RooFitResult* m_fitResult;
     bool m_debug,m_randomize;
     
-    TString m_constNP;
-    double m_constNPvalue;
+//     TString m_constNP;
+//     double m_constNPvalue;
+    std::vector<std::string> m_constNP;
+    std::vector<double> m_constNPvalue;
 };
 
 

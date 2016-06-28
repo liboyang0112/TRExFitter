@@ -146,6 +146,7 @@ public:
     string fResultsFolder;
     string fInputFolder;
     string fInputName;
+    string fFitResultsFile;
     
     std::vector < Region* > fRegions;
     std::vector < Sample* > fSamples;
@@ -192,14 +193,14 @@ public:
     bool fSystControlPlots;
     bool fSystDataPlot_upFrame;
     bool fStatOnly;
+    bool fStatOnlyFit;
+    bool fFixNPforStatOnlyFit;
     
     std::vector<string> fRegionsToPlot;
     std::vector<string> fSummaryPlotRegions;
     std::vector<string> fSummaryPlotLabels;
     std::vector<string> fSummaryPlotValidationRegions;
     std::vector<string> fSummaryPlotValidationLabels;
-
-//     bool fHistoCheckCrash;
     
     string fLumiLabel;
     string fCmeLabel;

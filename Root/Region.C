@@ -9,6 +9,7 @@
 Region::Region(string name){
     fName = name;
     fLabel = name;
+    fTexLabel = "";
     fShortLabel = name;
     fRegionType = CONTROL;
     fNBkg = 0;

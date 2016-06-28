@@ -45,13 +45,16 @@ m_varMinos(0),
 m_constPOI(false),
 m_fitResult(0),
 m_debug(false),
-m_constNP(""),
-m_constNPvalue(0.),
+// m_constNP(""),
+// m_constNPvalue(0.),
 m_RangePOI_up(100.),
 m_RangePOI_down(-10.),
 m_randomize(false),
 m_randomNP(0.1)
-{}
+{
+    m_constNP.clear();
+    m_constNPvalue.clear();
+}
 
 //________________________________________________________________________
 //
@@ -98,6 +101,16 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     //
     const RooArgSet* glbObs = model->GetGlobalObservables();
     
+    
+    //
+    // Create the likelihood based on fitpdf, fitData and the parameters
+    //
+//     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1) );
+    RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), 
+                                         RooFit::NumCPU(TtHFitter::NCPU,RooFit::Hybrid)
+//                                          ,RooFit::Extended(true)   // experimental
+                                        );
+    
     //
     // Getting the POI
     //
@@ -109,16 +122,6 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     
     poi -> setConstant(m_constPOI);
     //poi -> setRange(m_RangePOI_down,m_RangePOI_up); // Commented by Loic to avoid overwriting user's setting in config file
-    
-    
-    //
-    // Create the likelihood based on fitpdf, fitData and the parameters
-    //
-//     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1) );
-    RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), 
-                                         RooFit::NumCPU(TtHFitter::NCPU,RooFit::Hybrid)
-//                                          ,RooFit::Extended(true)   // experimental
-                                        );
     
     poi -> setVal(m_valPOI);
     std::cout << "Setting starting mu = " << m_valPOI << std::endl;
@@ -142,16 +145,29 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
         TIterator* it2 = nuis->createIterator();
         while( (var = (RooRealVar*) it2->Next()) ){
             string np = var->GetName();
-            if( np == ("alpha_"+m_constNP) || np == m_constNP ){
-                var->setVal(m_constNPvalue);
-                var->setConstant(1);
-            } else if( np.find("alpha_")!=string::npos ){   // for syst NP
-                if(m_randomize) var->setVal( m_randomNP*(gRandom->Uniform(2)-1.) );
-                else            var->setVal(0);
-                var->setConstant(0);
-            } else {  // for norm factors & gammas
-                if(m_randomize) var->setVal( 1 + m_randomNP*(gRandom->Uniform(2)-1.) );
-                else            var->setVal( 1 );
+//             if( np == ("alpha_"+m_constNP) || np == m_constNP ){
+//                 var->setVal(m_constNPvalue);
+//                 var->setConstant(1);
+            bool found = false;
+            // loop on the NP specified to as constant
+            for( unsigned int i_np = 0; i_np<m_constNP.size(); i_np++ ){
+                if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np] ){
+                    var->setVal(m_constNPvalue[i_np]);
+                    var->setConstant(1);
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                if( np.find("alpha_")!=string::npos ){   // for syst NP
+                    if(m_randomize) var->setVal( m_randomNP*(gRandom->Uniform(2)-1.) );
+                    else            var->setVal(0);
+                    var->setConstant(0);
+                }
+                else {  // for norm factors & gammas
+                    if(m_randomize) var->setVal( 1 + m_randomNP*(gRandom->Uniform(2)-1.) );
+                    else            var->setVal( 1 );
+                }
             }
         }
     }
@@ -186,8 +202,8 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     minim.setPrintLevel(1);
     minim.setEps(1);
 
-    // experimental
-//     minim.setEps(0.01);
+    // experimental - playing around fit minimisation precision
+//     minim.setEps(100);
 //     minim.setMaxIterations(500*200*10);
 //     minim.setMaxFunctionCalls(500*200*10);
 //     minim.setMaxIterations(500*200*10);

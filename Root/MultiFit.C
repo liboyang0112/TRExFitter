@@ -12,6 +12,11 @@
 
 //HistFactory headers
 #include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
+#include "RooStats/AsymptoticCalculator.h"
+
+using namespace std;
+using namespace RooFit;
+using namespace RooStats;
 
 // -------------------------------------------------------------------------------------------------
 // class MultiFit
@@ -23,8 +28,8 @@ MultiFit::MultiFit(string name){
     fName = name;
     fLabel = name;
     fShowObserved = false;
-    fLimitTitle = "95% CL limit on #sigma/#sigma_{SM}(t#bar{t}H) at m_{H}=125 GeV";
-    fPOITitle = "best fit #mu=#sigma^{t#bar{t}H}/#sigma^{t#bar{t}H}_{SM} for m_{H}=125 GeV";
+    fLimitTitle = "95% CL limit on #sigma/#sigma_{SM}(t#bar{t}H) at m_{H} = 125 GeV";
+    fPOITitle = "best fit #mu = #sigma^{t#bar{t}H}/#sigma^{t#bar{t}H}_{SM} for m_{H} = 125 GeV";
     fConfig = new ConfigParser();
     fSaveSuf = "";
     fFitShowObserved.clear();
@@ -39,6 +44,8 @@ MultiFit::MultiFit(string name){
     fComparePOI    = true;
     fComparePulls  = true;
     fPlotCombCorrMatrix  = false;
+    fStatOnly      = false;
+    fIncludeStatOnly = false;
     //
     fDataName      = "obsData";
     fFitType       = 1; // 1: S+B, 2: B-only
@@ -88,6 +95,9 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     //
     param = cs->Get("Combine"); if( param != "" && param != "FALSE" )  fCombine = true;
     param = cs->Get("Compare"); if( param != "" && param != "FALSE" )  fCompare = true;
+    //
+    param = cs->Get("StatOnly"); if( param != "" && param != "FALSE" )  fStatOnly = true;
+    param = cs->Get("IncludeStatOnly"); if( param != "" && param != "FALSE" )  fIncludeStatOnly = true;
     //
     param = cs->Get("POIName");  if( param != "" ) fPOI = param;
     param = cs->Get("POIRange"); if( param != "" && Vectorize(param,',').size()==2 ) {
@@ -267,7 +277,7 @@ void MultiFit::SaveCombinedWS(){
 //__________________________________________________________________________________
 //
 std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inputData){
-    TFile *f = new TFile((fName+"/ws_combined.root").c_str() );
+    TFile *f = new TFile((fName+"/ws_combined"+fSaveSuf+".root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
     
     std::map < std::string, double > result;
@@ -318,7 +328,11 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     // Creates the data object
     //
     RooDataSet* data = 0;
-    if(inputData!=""){
+    if(inputData=="asimovData"){
+        RooArgSet empty;// = RooArgSet();
+        data = (RooDataSet*)RooStats::AsymptoticCalculator::MakeAsimovData( (*mc), RooArgSet(ws->allVars()), (RooArgSet&)empty);
+    }
+    else if(inputData!=""){
         data = (RooDataSet*)ws->data( inputData.c_str() );
     } else {
         std::cout << "In MultiFit::FitCombinedWS() function: you didn't specify inputData => will try with observed data !" << std::endl;
@@ -332,16 +346,45 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     // Performs the fit
     gSystem -> mkdir((fName+"/Fits/").c_str(),true);
     fitTool -> MinimType("Minuit2");
+    
+    // Full fit
     fitTool -> FitPDF( mc, simPdf, data );
     fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+".txt");
     result = fitTool -> ExportFitResultInMap();
+    
+    // Stat-only fit:
+    // - read fit resutls
+    // - fix all NP to fitted ones before fitting
+    if(fIncludeStatOnly){
+        std::cout << "Fitting stat-only: reading fit results from full fit from file:" << std::endl;
+        std::cout << "  " << (fName+"/Fits/"+fName+fSaveSuf+".txt") << std::endl;
+        fFitList[0]->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+        std::vector<std::string> npNames;
+        std::vector<double> npValues;
+        for(unsigned int i_np=0;i_np<fFitList[0]->fFitResults->fNuisPar.size();i_np++){
+            bool isNF = false;
+            for(int i_fit=0;i_fit<fFitList.size();i_fit++){
+                if(!fFitList[i_fit]->fFixNPforStatOnlyFit && 
+                  FindInStringVector(fFitList[i_fit]->fNormFactorNames,fFitList[0]->fFitResults->fNuisPar[i_np]->fName)>=0){
+                    isNF = true;
+                    break;
+                }
+            }
+            if(isNF) continue;
+            npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
+            npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
+        }
+        fitTool -> FixNPs(npNames,npValues);
+        fitTool -> FitPDF( mc, simPdf, data );
+        fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
+    }
     
     return result;
 }
 //__________________________________________________________________________________
 //
 void MultiFit::GetCombinedLimit(string inputData){ // or asimovData
-    string wsFileName = fName+"/ws_combined.root";
+    string wsFileName = fName+"/ws_combined"+fSaveSuf+".root";
 //     gSystem->Exec( ("mkdir ") );
     string cmd;
     cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
@@ -403,11 +446,11 @@ void MultiFit::ComparePOI(string POI){
     TtHFit *fit = 0x0;
     for(int i=0;i<N;i++){
         if(fCombine && i==N-1) isComb = true;
+        else                   isComb = false;
         //
         if(!isComb) fit = fFitList[i];
-//         fFitList[i]->ReadFitResults(names[i]+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0"+suffs[i]+".txt");
         if(!isComb)       fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+".txt");
-        else              fit->ReadFitResults(fName+"/Fits/"+fName+".txt");
+        else              fit->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
         found = false;
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
             par = fit->fFitResults->fNuisPar[j];
@@ -427,7 +470,6 @@ void MultiFit::ComparePOI(string POI){
                 g_tot->SetPointEYhigh(N-i-1,0);
                 g_tot->SetPointEYlow(N-i-1,0);
                 //
-//                 if(par->fFitValue+par->fPostFitUp > xmax) xmax = par->fFitValue+par->fPostFitUp;
                 found = true;
                 break;
             }
@@ -443,10 +485,11 @@ void MultiFit::ComparePOI(string POI){
     // stat error
     for(int i=0;i<N;i++){
         if(fCombine && i==N-1) isComb = true;
+        else                   isComb = false;
         //
         if(!isComb) fit = fFitList[i];
         if(!isComb)       fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+"_statOnly.txt");
-        else              fit->ReadFitResults(fName+"/Fits/"+fName+"_statOnly.txt");
+        else              fit->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
         found = false;
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
             par = fit->fFitResults->fNuisPar[j];
@@ -461,9 +504,11 @@ void MultiFit::ComparePOI(string POI){
         }
     }
     
-    g_stat->SetLineWidth(2);
+//     g_stat->SetLineWidth(2);
+    g_tot->SetLineWidth(3.4);
+    g_stat->SetLineWidth(2.8);
     g_tot->SetLineWidth(3);
-    g_stat->SetLineColor(kGreen);
+    g_stat->SetLineColor(kGreen-8);
     g_tot->SetLineColor(kBlack);
     g_central->SetMarkerStyle(kFullCircle);
     g_central->SetMarkerColor(kRed);
@@ -488,21 +533,35 @@ void MultiFit::ComparePOI(string POI){
         h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
 //         myText(0.5,(1.*i)/(1.*N),kBlack,Form("#mu= %.1f",g_central->GetY()[i]));
 //                 tex->DrawLatex(0.5,(1.*i)/(1.*N),Form("#mu= %.1f",g_central->GetY()[i]));
-                tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form("#mu= %.1f",g_central->GetX()[N-i-1]));
+                tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form("#mu = %.1f",g_central->GetX()[N-i-1]));
                 tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form("^{+%.1f}",g_tot->GetErrorXhigh(N-i-1)));
                 tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_tot->GetErrorXlow(N-i-1)));
                 tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("^{+%.1f}",g_stat->GetErrorXhigh(N-i-1)));
                 tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_stat->GetErrorXlow(N-i-1)));
     }
+
+    TLine *l_0 = new TLine(0,-0.5,0,N-0.5);
+    l_0->SetLineWidth(2);
+    l_0->SetLineColor(kGray);
+    l_0->SetLineStyle(kDotted);
+    l_0->Draw("same");
+
+    TLine *l_SM = new TLine(1,-0.5,1,N-0.5);
+    l_SM->SetLineWidth(2);
+    l_SM->SetLineColor(kGray+1);
+    l_SM->Draw("same");
+    
+    if(fCombine){
+        TLine *l_h = new TLine(xmin,0.5,xmax,0.5);
+        l_h->SetLineWidth(2);
+        l_h->SetLineColor(kBlack);
+        l_h->SetLineStyle(kDashed);
+        l_h->Draw("same");
+    }
     
     g_tot->Draw("E same");
     g_stat->Draw("E same");
     g_central->Draw("P same");
-
-    TLine *l_SM = new TLine(1,-0.5,1,N-0.5);
-    l_SM->SetLineWidth(2);
-    l_SM->SetLineColor(kGray);
-    l_SM->Draw("same");
     
     c->RedrawAxis();
 
@@ -511,9 +570,12 @@ void MultiFit::ComparePOI(string POI){
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
     h_dummy->GetXaxis()->SetTitle(fPOITitle.c_str());
 
-    ATLASLabel(0.02,0.93,"    Internal",kBlack);
-    myText(0.35,0.93,kBlack,process.c_str());
-    myText(0.65,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+//     ATLASLabel(0.02,0.93,"    Internal",kBlack);
+//     myText(0.35,0.93,kBlack,process.c_str());
+//     myText(0.65,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    ATLASLabel(0.32,0.93," Internal",kBlack);
+    if(process!="") myText(0.60,0.93,kBlack,Form("%s, #sqrt{s} = %s, %s",process.c_str(),fCmeLabel.c_str(),fLumiLabel.c_str()));
+    else            myText(0.70,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     
     TLegend *leg;
     leg = new TLegend(0.35,0.775,0.7,0.9);
@@ -592,16 +654,6 @@ void MultiFit::CompareLimit(){
         h = (TH1*)f->Get("limit");
         
         std::cout << " " << h->GetBinContent(1) << std::endl;
-        
-//         if(fFitShowObserved[i]) g_obs->SetPoint(i,h->GetBinContent(1),i);
-//         else g_obs->SetPoint(i,-1,i);
-//         g_exp->SetPoint(i,h->GetBinContent(2),i);
-//         g_1s->SetPoint(i,h->GetBinContent(2),i);
-//         g_2s->SetPoint(i,h->GetBinContent(2),i);
-//         g_obs->SetPointError(i,0,0.5);
-//         g_exp->SetPointError(i,0,0.5);
-//         g_1s->SetPointError(i,h->GetBinContent(2)-h->GetBinContent(5),h->GetBinContent(4)-h->GetBinContent(2),0.5,0.5);
-//         g_2s->SetPointError(i,h->GetBinContent(2)-h->GetBinContent(6),h->GetBinContent(3)-h->GetBinContent(2),0.5,0.5);
         if(fFitShowObserved[i]) g_obs->SetPoint(N-i-1,h->GetBinContent(1),N-i-1);
         else g_obs->SetPoint(N-i-1,-1,N-i-1);
         g_exp->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
@@ -627,7 +679,6 @@ void MultiFit::CompareLimit(){
     g_1s->SetLineWidth(3);
     g_1s->SetLineStyle(2);
     g_2s->SetFillColor(kYellow);
-//     g_2s->SetLineColor(kYellow);
     g_2s->SetLineWidth(3);
     g_2s->SetLineStyle(2);
     
@@ -635,8 +686,6 @@ void MultiFit::CompareLimit(){
     g_1s->SetMarkerSize(0);
     g_exp->SetMarkerSize(0);
     g_obs->SetMarkerSize(0);
-  
-//     xmax *= 2;
     
     TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,0,xmax);
     h_dummy->Draw();
@@ -646,7 +695,6 @@ void MultiFit::CompareLimit(){
     h_dummy->GetYaxis()->Set(N,ymin,ymax);
     h_dummy->GetYaxis()->SetNdivisions(Ndiv);
     for(int i=0;i<N;i++){
-//         h_dummy->GetYaxis()->SetBinLabel(i+1,titles[i].c_str());
         h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
     }
     
@@ -667,9 +715,12 @@ void MultiFit::CompareLimit(){
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
     h_dummy->GetXaxis()->SetTitle(fLimitTitle.c_str());
 
-    ATLASLabel(0.02,0.93,"    Internal",kBlack);
-    myText(0.35,0.93,kBlack,process.c_str());
-    myText(0.65,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+//     ATLASLabel(0.02,0.93,"    Internal",kBlack);
+//     myText(0.35,0.93,kBlack,process.c_str());
+//     myText(0.65,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    ATLASLabel(0.32,0.93," Internal",kBlack);
+    if(process!="") myText(0.60,0.93,kBlack,Form("%s, #sqrt{s} = %s, %s",process.c_str(),fCmeLabel.c_str(),fLumiLabel.c_str()));
+    else            myText(0.70,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     
     TLegend *leg;
     if(showObs) leg = new TLegend(0.65,0.2,0.95,0.40);
@@ -685,7 +736,6 @@ void MultiFit::CompareLimit(){
     
 //     myText(0.75,0.4,kBlack,"Stat. only");
     
-//     c->SaveAs( (fName+"/Limits.png").c_str() );
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
         c->SaveAs( (fName+"/Limits" + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
     }

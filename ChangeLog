@@ -1,3 +1,9 @@
+2016-28-06 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * stat-only fit option added (NP fixed to nominal fit values, then data re-fitted): use Fit option fStatOnlyFit (even from copmmand line)
+        * fixed Asimov creation for combined fit (in MultiFit)
+        * runAsymptoticCLs made faster changing some default options (please change these options back to default in case you want more accurate results)
+        * better .tex yield tables, with the usage of \num and the possibility to specify TexLabel for Regions and TexTitle for samples
+        
 2016-23-06 Michele Pinamonti <michele.pinamonti@gmail.com>
         * more options in MultiFit
         

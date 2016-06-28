@@ -35,6 +35,8 @@ public:
     
     bool fCombine;
     bool fCompare;
+    bool fStatOnly;
+    bool fIncludeStatOnly;
     
     bool fCompareLimits;
     bool fComparePOI;

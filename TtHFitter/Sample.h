@@ -64,6 +64,7 @@ public:
     int fType;
     string fFitName;
     string fTitle;
+    string fTexTitle;
     string fGroup;
     int fFillColor;
     int fLineColor;

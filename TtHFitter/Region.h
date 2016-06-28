@@ -87,6 +87,7 @@ public:
     string fVariableTitle;
     string fLabel; // something like "e/µ + 6 j, >=4 b b"
     string fShortLabel; // something like "6j,3b"
+    string fTexLabel;
     string fFitName;
     RegionType fRegionType;
     DataType fRegionDataType;

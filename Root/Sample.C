@@ -8,6 +8,7 @@
 Sample::Sample(string name,int type){
     fName = name;
     fTitle = name;
+    fTexTitle = "";
     fGroup = "";
     fType = type;
     fFillColor = kWhite;
