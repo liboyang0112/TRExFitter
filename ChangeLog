@@ -1,4 +1,7 @@
 2016-06-29 Will Breaden Madden <w.bm@cern.ch>
+        * add run.sh, a simple example run script
+
+2016-06-29 Will Breaden Madden <w.bm@cern.ch>
         * minor tidy runAsymptoticCLs.C
 
 2016-28-06 Michele Pinamonti <michele.pinamonti@gmail.com>
