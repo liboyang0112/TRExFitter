@@ -619,7 +619,7 @@ double getLimit(RooNLLVar* nll, double initial_guess)
     cout << "qmu:            " << qmu << endl;
     cout << "qmuA0:          " << qmuA << endl;
     cout << "Precision:      " << direction*mu_guess*precision << endl;
-    cout << "Correction:    "  << (-corr<0?" ":"") << -corr << endl;
+    cout << "Correction:     " << (-corr<0?" ":"") << -corr << endl;
     cout << "New guess:      " << mu_guess << endl;
     cout << endl;
 

@@ -1,3 +1,6 @@
+2016-06-29 Will Breaden Madden <w.bm@cern.ch>
+        * minor tidy runAsymptoticCLs.C
+
 2016-28-06 Michele Pinamonti <michele.pinamonti@gmail.com>
         * stat-only fit option added (NP fixed to nominal fit values, then data re-fitted): use Fit option fStatOnlyFit (even from copmmand line)
         * fixed Asimov creation for combined fit (in MultiFit)
