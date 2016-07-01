@@ -77,7 +77,7 @@ public:
     // log
     void Print();
     
-    void PrintSystTable(string opt="");
+    void PrintSystTable(FitResults* fitRes,string opt="");
     
     // -------
     // Members

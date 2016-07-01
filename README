@@ -4,7 +4,7 @@ TtHFitter package
 Authors:
   Michele Pinamonti <michele.pinamonti@gmail.com>
   Loic Valery <loic.valery@cern.ch>
-Latest Update:   15 Feb 2016
+Latest Update:   01 Jul 2016
 Tag:             00-01-01
 
 
@@ -48,14 +48,12 @@ For instance, if you use the default file util/myFit.C, the available options ar
     a : draw separation plots
     r : draw ranking plot (see later)
     b : re-run smoothing (in the future also rebinning)
-
-The argument <update> can be 0 or 1 and tells the tool whether the root file containing the histograms should be overwritten or updated.
-Use only for actions n and h.
+    m : multi-fit (see later)
 
 New optional argument: <options>.
 It's a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form:
     "<option1>=<value1>,<value2>,...:<option2>=..."
-See the section "Command line options" above.
+See the section "Command line options" below.
     
 
 ---------
@@ -124,6 +122,16 @@ Here's a list of the inputs and options which can be specifed in the config file
       RankingMaxNP     -> max number of NP to show in ranking plot
       ImageFormat      -> png, pdf or eps
       StatOnly         -> the code ignores the MC stat uncertainties from all computations (limits, significances, fit, ...)
+      SystErrorBars    -> add stat error bars to syst variations in syst plots
+      SummaryPlotRegions -> list of regions to be shown in summary plot (useful to specify a custom order)
+      FixNPforStatOnly -> if set to TRUE, when running stat-only (with either of the two options) also the norm facotrs other than the POI are kept fixed
+      InputFolder      -> specify it to read fit input histograms from a different direcotry than <jobName>/Histograms/
+      InputName        -> specify it to read fit input histograms from files with different name than <jobName>_blabla.root
+      WorkspaceFileName -> if specified, an external ws can be used as input for fitting (not 100% supported)
+      KeepPruning      -> if set to TRUE, the first time the ws is created (option w) a Pruning.root file is created under <jobName>/ and used for future operations to skip pruned systematics (makes operations much faster in case many syst are pruned)
+      AtlasLabel       -> to specify Internal, Preliminary, etc...
+      CleanTables      -> if set to TRUE, a cleaned version of the tex tables is created (basically removing the "#") - to be expanded
+      SystCategoryTables -> if set to TRUE, additional syst tables with systematics grouped by category are created
 
     Fit:
       FitType          -> can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -134,6 +142,9 @@ Here's a list of the inputs and options which can be specifed in the config file
       NPValues         -> values of the nuisance parameters used to build the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
       doLHscan         -> coma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled
       UseMinos         -> coma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs
+      SetRandomInitialNPval -> useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits
+      NumCPU           -> specify the number of CPU to use for the minimization (default = 1)
+      StatOnlyFit      -> if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
 
     Limit:
       LimitType        -> can be ASYMPTOTIC or TOYS (the latter is not yet supported)
@@ -146,6 +157,7 @@ Here's a list of the inputs and options which can be specifed in the config file
     Region:
       VariableTitle    -> it's the label which will be displayed on the x-axis in the plots
       Label            -> it's the label which will be showed on the plots and specifies which region is shown
+      TexLabel         -> label for tex files
       ShortLabel       -> same as above, but a shorter version for plots with smaller available place
       LumiLabel        -> label for luminosity to be put on plots
       CmeLabel         -> label for center-of-mass energy to be put on plots
@@ -169,6 +181,7 @@ Here's a list of the inputs and options which can be specifed in the config file
     Sample:
       Type             -> can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace
       Title            -> title shown on the legends
+      TexTitle         -> title shown on tex tables
       Group            -> if specified, sample will be grouped with other samples with same group and this label will be used in plots
       HistoFile        -> valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path
       HistoName        -> valid only for option HIST; name of histogram to read
@@ -242,7 +255,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       OverallDown      -> for OVERALL systematic: the relative "down" shift (-0.1 means -10%)
       ReferenceSample  -> if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
 
-      
+
 ---------
 Command line options
 ---------
@@ -254,10 +267,71 @@ Currently the supported options are:
       Signal:      in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance)
       Exclude:     to exclude certain Regions / Samples / Systematics
       Suffix:      used for: plots, workspace, fit resutls, etc
-      Update:      if =TRUE, the output .root file is updated, otherwise is overwrote
+      Update:      if TRUE, the output .root file is updated, otherwise is overwrote
+      StatOnlyFit: if TRUE, the same as Fit, StatOnlyFit
 Note: the wild-card * is supported, but only as last character.
 Example:
       ./myFit.exe  n  config/ttH2015.config 'Regions=HThad_ge6jge4b;Exclude=BTag_*'
+
+
+---------
+Ranking Plot
+---------
+
+ - The ranking plot can be created in one go, with just the command line argument "r" (after having run the nominal fit fit "f").
+ - Since this can take too much time (and memory), for complicated fits it's better to run it in several steps:
+   by specifying the command-line option "Ranking=<name/index>"
+   one can produce the txt input for the ranking only for a specific line of the ranking, i.e. for a single NP (speficied either through its name or index).
+   Once all the needed txt files are created (e.g. in parallel throgh batch jobs) with the option "Ranking=plot" they are merged to create the final plot.
+ - Examples:
+     # this runs the ranking in one go
+     ./myFit.exe  r  <config>
+     #these commands will first create the inputs for the ranking one by one and then merge them in the plot
+     ./myFit.exe  r  <config> Ranking=Lumi
+     ./myFit.exe  r  <config> Ranking=JES1
+     ./myFit.exe  r  <config> Ranking=ttXsec
+     ./myFit.exe  r  <config> Ranking=plot
+
+
+---------
+Multi-Fit
+---------
+
+The Multi-Fit functionality can be sued to compare fit results or even to combine fit inputs from different configuration files / Jobs.
+ - To use it you need a dedicated config file, with a similar starucure as the usual ones. Example:
+    
+  ---
+  file: config/myTopWS_multifit.config
+  ---
+    MultiFit: "myTopWS_multifit"
+      Label: "My Lable"
+      Combine: FALSE
+      Compare: TRUE
+      CmeLabel: "13 TeV"
+      LumiLabel: "85 pb^{-1}"
+      ComparePOI: TRUE
+      ComparePulls: TRUE
+      CompareLimits: TRUE
+      POIRange: -10,30
+      DataName: "obsData"
+      CombineChByCh: TRUE
+      
+    Fit: "CR"
+      ConfigFile: config/myTopWS_CR.config
+      Label: "CR-only"
+      
+    Fit: "SR"
+      ConfigFile: config/myTopWS_SR.config
+      Label: "SR"
+  ---
+
+ - This config file can be run with the command line:
+    ./myFit  m  config/myTopWS_multifit.config
+  this will compare the fit resutls in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the flight).
+  
+ - To make a real combination, one needs to use the usual command options "w", "f" and "l" together with the flag "Combine: TRUE" in the config above. Example:
+    ./myFit  mwf  config/myTopWS_multifit.config
+  this will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
 
 ---------
@@ -267,6 +341,7 @@ Output Directories Structure
    * Inside this direcotry, at every step, some outputs are created, following the structure described above
    
    Plots/              -> contains the data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots
+   Tables/             -> contains the tables in txt and tex format
    RooStats/           -> contains the workspace(s) and the xmls
    Fits/               -> contains the output from fits
    Limits/             -> contains the outputs from the limit-setting code
@@ -275,4 +350,3 @@ Output Directories Structure
    Histograms/         -> contains the root file(s) with all the inputs
    LHoodPlots/         -> contains the likelihood scan with respect to the specified parameter
 
-   

@@ -1008,45 +1008,56 @@ void Region::Print(){
 
 //__________________________________________________________________________________
 //
-void Region::PrintSystTable(string opt){
-    bool isPostFit = false;
-    if(opt.find("post")!=string::npos){
-        isPostFit = true;
-    }
+void Region::PrintSystTable(FitResults *fitRes, string opt){
+    bool isPostFit  = false; if(opt.find("post")!=string::npos)     isPostFit  = true;
+    bool doClean    = false; if(opt.find("clean")!=string::npos)    doClean    = true;
+    bool doCategory = false; if(opt.find("category")!=string::npos) doCategory = true;
     //
     ofstream out;
     ofstream texout;
+    ofstream out_cat;
+    ofstream texout_cat;
     gSystem->mkdir(fFitName.c_str());
     gSystem->mkdir((fFitName+"/Tables").c_str());
     if(isPostFit){
         out.open((fFitName+"/Tables/"+fName+"_syst_postFit.txt").c_str());
         texout.open((fFitName+"/Tables/"+fName+"_syst_postFit.tex").c_str());
+        if(doCategory){
+            out_cat.open((fFitName+"/Tables/"+fName+"_syst_category_postFit.txt").c_str());
+            texout_cat.open((fFitName+"/Tables/"+fName+"_syst_category_postFit.tex").c_str());
+        }
     }
     else{
         out.open((fFitName+"/Tables/"+fName+"_syst.txt").c_str());
         texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
+        if(doCategory){
+            out_cat.open((fFitName+"/Tables/"+fName+"_syst_category.txt").c_str());
+            texout_cat.open((fFitName+"/Tables/"+fName+"_syst_category.tex").c_str());
+        }
     }
     Sample *s = 0x0;
     SampleHist *sh = 0x0;
     SystematicHist *syh = 0x0;
-    out << " | ";
     
+    
+    out << " | ";
     texout << "\\documentclass[10pt]{article}" << endl;
     texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
     texout << "\\begin{document}" << endl;
-    //texout << "\\small" << endl;
-    
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
-    //texout << "\\begin{tabular}{|c|c|c|c|c|c|c|c|}" << endl;
     texout << "\\begin{tabular}{|c" ;
-    for (int i =0; i<fSampleHists.size(); i++)
-      {
-    texout << "|c";      
-      }
-    texout << "|}" << endl;
 
-    texout << "\\hline " << endl;
+    if(doCategory){
+        out_cat << " | ";
+        texout_cat << "\\documentclass[10pt]{article}" << endl;
+        texout_cat << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
+        texout_cat << "\\begin{document}" << endl;
+        texout_cat << "\\begin{table}[htbp]" << endl;
+        texout_cat << "\\begin{center}" << endl;
+        texout_cat << "\\begin{tabular}{|c" ;
+    }
+
     
     float Ncol = 2.;
     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
@@ -1054,56 +1065,50 @@ void Region::PrintSystTable(string opt){
         s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
         if(s->fType==Sample::GHOST) continue;
+        texout << "|c";
+        if(doCategory) texout_cat << "|c";
         Ncol+=1;
     }
-    // plot a table with ROOT ;)
-    int width = (Ncol)*120;
-    int height = fSystNames.size()*25;
-    //
-//     TCanvas *c = new TCanvas("c","c",width,height);
-//     TPaveText *pt0;
-//     TPaveText *pt[MAXsamples];
-//     pt0 = new TPaveText(0,0,2./Ncol,1);
-//     pt0->SetTextSize(gStyle->GetTextSize());
-//     pt0->SetFillStyle(0);
+    texout << "|}" << endl;
+    texout << "\\hline " << endl;
+    if(doCategory){
+        texout_cat << "|}" << endl;
+        texout_cat << "\\hline " << endl;
+    }
     //
     float i_col = 1;
     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-//         pt[i_smp] = new TPaveText((i_col+1.)/Ncol,0,(i_col+2.)/Ncol,1); // ,"blNDC"
-//         pt[i_smp]->SetTextSize(gStyle->GetTextSize());
-//         pt[i_smp]->SetFillStyle(0);
         sh = fSampleHists[i_smp];
         s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
         if(s->fType==Sample::GHOST) continue;
-        out << "      | " << s->fTitle;
-        texout << "      & " << s->fTitle;
-//         pt[i_smp]->AddText(s->fTitle.c_str());
+        std::string title = s->fTitle;
+        if(s->fTexTitle!="") title = s->fTexTitle;
+        out << "      | " << title;
+        texout << "      & " << s->fTexTitle;
+        if(doCategory){
+            out_cat << "      | " << title;
+            texout_cat << "      & " << s->fTexTitle;
+        }
         i_col+=1;
     }
     out << " |" << endl;
     texout << " \\\\ " << endl;
     texout << "\\hline " << endl;
+    if(doCategory){
+        out_cat << " |" << endl;
+        texout_cat << " \\\\ " << endl;
+        texout_cat << "\\hline " << endl;
+    }
 
-//     pt0->AddText(" ");
-    //
-//     TPave *b[100];
-//     int i_gray = 0;
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
-//         if(i_syst%2==0) {
-//             b[i_gray] = new TPave(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst-1)/(fSystNames.size()+1.),0);
-//             b[i_gray]->SetFillColor(kGray);
-//             b[i_gray]->Draw("NB");
-//             i_gray++;
-//         }
-        //
-        if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") {out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]]; texout << "  " << TtHFitter::SYSTMAP[fSystNames[i_syst]];}
-        else                                           {out << " | " << fSystNames[i_syst]; texout << " " << fSystNames[i_syst];}
-//         if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") pt0->AddText(TtHFitter::SYSTMAP[fSystNames[i_syst]].c_str());
-//         else                                           pt0->AddText(fSystNames[i_syst].c_str());
-//         if(i_syst==0) pt0->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
+        if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") {
+          out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]]; texout << "  " << TtHFitter::SYSTMAP[fSystNames[i_syst]];
+        }
+        else {
+          out << " | " << fSystNames[i_syst]; texout << " " << fSystNames[i_syst];
+        }
         for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-//             if(i_syst==0) pt[i_smp]->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
             sh = fSampleHists[i_smp];
             s = sh->fSample;
             if(s->fType==Sample::DATA) continue;
@@ -1112,52 +1117,313 @@ void Region::PrintSystTable(string opt){
             if(syh==0x0){
                 out << " |    nan   ";
                 texout << " &    nan   ";
-//                 pt[i_smp]->AddText(" - ");
             }
-//             sh = GetSampleHist(fSamples[i_smp]->fName);
             else{
-                float normUp;
-                float normDown;
-                if(isPostFit){
-                    normUp   = (syh->fHistUp_postFit->Integral()   - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
-                    normDown = (syh->fHistDown_postFit->Integral() - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
-                }
-                else{
-                    normUp = syh->fNormUp;
-                    normDown = syh->fNormDown;
-                }
-                out << " | " << normUp;
-                texout << setprecision(3) << " & " << normUp;
-                out << " / " << normDown;
-                texout << setprecision(3) << " / " << normDown;
-//                 pt[i_smp]->AddText(Form("%.2f / %.2f",syh->fNormUp,syh->fNormDown) );
+              float normUp;
+              float normDown;
+              if(isPostFit){
+                normUp   = (syh->fHistUp_postFit->Integral()   - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
+                normDown = (syh->fHistDown_postFit->Integral() - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
+              }
+              else{
+                normUp = syh->fNormUp;
+                normDown = syh->fNormDown;
+              }
+
+              out << " | " << normUp;
+              texout << setprecision(3) << " & " << normUp;
+              out << " / " << normDown;
+              texout << setprecision(3) << " / " << normDown;
+              //                 pt[i_smp]->AddText(Form("%.2f / %.2f",syh->fNormUp,syh->fNormDown) );
             }
-//             if(i_syst==(int)fSystNames.size()-1) pt[i_smp]->Draw("NB");
         }
+
         out << " |" << endl;
         texout << " \\\\ " << endl;
-//         if(i_syst==(int)fSystNames.size()-1) pt0->Draw("NB");
+    }
+
+
+    if(doCategory){
+        //--- Systematic tables per category:
+        //--- Get systematic names per category and sample
+        std::set<std::string> category_names;
+        std::map<std::string, std::map<std::string, std::vector<std::string> > > category_syst_names;
+        for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
+            sh = fSampleHists[i_smp];
+            s = sh->fSample;
+            for(int i_samplesyst=0; i_samplesyst<(int)s->fSystematics.size();i_samplesyst++){
+                if(s->fType==Sample::DATA) continue;
+                if(s->fType==Sample::GHOST) continue;
+                std::string category = s->fSystematics[i_samplesyst]->fCategory;
+                if (category!=""){
+                    category_names.insert(category);
+                    std::vector<std::string> systePerSample;
+                    // Check for systematics existing not in all regions...
+                    if (std::find(fSystNames.begin(), fSystNames.end(), s->fSystematics.at(i_samplesyst)->fName)!=fSystNames.end()){
+                        category_syst_names[s->fName][category].push_back(s->fSystematics.at(i_samplesyst)->fName);
+                    }
+                }
+            }
+        }
+        //--- Loop over categories and samples, to get systematic effects using BuildTotError function
+        for (auto category : category_names){
+            out_cat << " | " << category; 
+            texout_cat << " " << category;
+            for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
+                sh = fSampleHists[i_smp];
+                s = sh->fSample;
+                if(s->fType==Sample::DATA) continue;
+                if(s->fType==Sample::GHOST) continue;
+
+                std::vector<TH1*> category_histo_up;
+                std::vector<TH1*> category_histo_down;
+                std::vector<std::string> sample_syste = category_syst_names[s->fName][category];
+                for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+                    if(!sh->HasSyst(fSystNames[i_syst]))
+                      continue;
+
+                    syh = sh->GetSystematic(fSystNames[i_syst]);
+                    if (std::find(sample_syste.begin(), sample_syste.end(), fSystNames.at(i_syst)) == sample_syste.end())
+                      continue;
+
+                    if(isPostFit){
+                        TH1 *h_up = (TH1*) syh->fHistUp_postFit;
+                        h_up->SetDirectory(0);
+                        TH1 *h_down = (TH1*) syh->fHistDown_postFit;
+                        h_down->SetDirectory(0);
+                        category_histo_up.push_back(h_up);
+                        category_histo_down.push_back(h_down);
+                    }
+                    else{
+                        TH1 *h_up = (TH1*) syh->fHistUp;
+                        h_up->SetDirectory(0);
+                        TH1 *h_down = (TH1*) syh->fHistDown;
+                        h_down->SetDirectory(0);
+                        category_histo_up.push_back(h_up);
+                        category_histo_down.push_back(h_down);
+                    }
+                }
+
+                TGraphAsymmErrors *g_err;
+                double err = 0.;
+                if (isPostFit){
+                    g_err = BuildTotError(sh->fHist_postFit, category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix);
+                    if (category_histo_up.size()>0 && sh->fHist_postFit->Integral()>0.){
+                        for (int ibin=1; ibin<sh->fHist_postFit->GetNbinsX()+1; ibin++){
+                            if (pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist_postFit->GetBinError(ibin), 2)>=0.){ // dummy check
+                                //Need to substract the statistical unc.
+                                err += (sqrt(pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist_postFit->GetBinError(ibin), 2)))/sh->fHist_postFit->Integral();
+                            }
+                        }
+                    }
+                }
+                else{
+                    g_err = BuildTotError(sh->fHist, category_histo_up, category_histo_down, category_syst_names[s->fName][category]);
+                    if (category_histo_up.size()>0 && sh->fHist->Integral()>0.){
+                        for (int ibin=1; ibin<sh->fHist->GetNbinsX()+1; ibin++){
+                            if (pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist->GetBinError(ibin), 2)>=0.){
+                                //Need to substract the statistical unc.
+                                err += (sqrt(pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist->GetBinError(ibin), 2)))/sh->fHist->Integral();
+                            }
+                        }
+                    }
+                }
+                out_cat << setprecision(3) << " | " << err;
+                texout_cat << setprecision(3) << " & " << err;
+            }
+            out_cat << " |" << endl;
+            texout_cat << " \\\\ " << endl;
+        }
     }
 
     texout << "\\hline " << endl;
-
     texout << "\\end{tabular} " << endl;
-    texout << "\\caption{Yields of the analysis} " << endl;
+    texout << "\\caption{Relative effect of each systematic on the yields.} " << endl;
     texout << "\\end{center} " << endl;
     texout << "\\end{table} " << endl;
     texout << "\\end{document}" << endl;
 
-    //TString shellcommand = "cat l3_syst.tex|sed -e \"s/\\#/ /g\" > truc.tex";
-    //texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
+    if(doCategory){
+        texout_cat << "\\hline " << endl;
+        texout_cat << "\\end{tabular} " << endl;
+        texout_cat << "\\caption{Realtive effect of each group of systematics on the yields.} " << endl;
+        texout_cat << "\\end{center} " << endl;
+        texout_cat << "\\end{table} " << endl;
+        texout_cat << "\\end{document}" << endl;
+    }
 
-    TString shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst.tex|sed -e \"s/\\#/ /g\" > "+fFitName+"/Tables/"+fName+"_syst_clean.tex";
-    //TString shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst.tex|sed -e \"s/t\\#bar\\{t\\}/t\\$\\bar\\{t\\}\\$/g\" > "+fFitName+"/Tables/"+fName+"_syst_truc.tex";
-    gSystem->Exec(shellcommand);
-    
-    //cat l3_syst.tex|sed -e "s/\#/ /g" > truc.tex
-    
-//     c->SaveAs((fFitName+"/Tables/"+fName+"_syst.pdf").c_str());
+    if(doClean){
+        std::string shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst";
+        if(isPostFit) shellcommand += "_postFit";
+        shellcommand += ".tex|sed -e \"s/\\#/ /g\" > ";
+        shellcommand += fFitName+"/Tables/"+fName+"_syst_clean.tex";
+        gSystem->Exec(shellcommand.c_str());
+        if(doCategory){
+            shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst";
+            shellcommand += "_category";
+            if(isPostFit) shellcommand += "_postFit";
+            shellcommand += ".tex|sed -e \"s/\\#/ /g\" > ";
+            shellcommand += fFitName+"/Tables/"+fName+"_syst";
+            shellcommand += "_category";
+            if(isPostFit) shellcommand += "_postFit";
+            shellcommand += "_clean.tex";
+            gSystem->Exec(shellcommand.c_str());
+        }
+    }
 }
+
+// //__________________________________________________________________________________
+// //
+// void Region::PrintSystTable(string opt){
+//     bool isPostFit = false;
+//     if(opt.find("post")!=string::npos){
+//         isPostFit = true;
+//     }
+//     //
+//     ofstream out;
+//     ofstream texout;
+//     gSystem->mkdir(fFitName.c_str());
+//     gSystem->mkdir((fFitName+"/Tables").c_str());
+//     if(isPostFit){
+//         out.open((fFitName+"/Tables/"+fName+"_syst_postFit.txt").c_str());
+//         texout.open((fFitName+"/Tables/"+fName+"_syst_postFit.tex").c_str());
+//     }
+//     else{
+//         out.open((fFitName+"/Tables/"+fName+"_syst.txt").c_str());
+//         texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
+//     }
+//     Sample *s = 0x0;
+//     SampleHist *sh = 0x0;
+//     SystematicHist *syh = 0x0;
+//     out << " | ";
+//     
+//     texout << "\\documentclass[10pt]{article}" << endl;
+//     texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
+//     texout << "\\begin{document}" << endl;
+//     //texout << "\\small" << endl;
+//     
+//     texout << "\\begin{table}[htbp]" << endl;
+//     texout << "\\begin{center}" << endl;
+//     //texout << "\\begin{tabular}{|c|c|c|c|c|c|c|c|}" << endl;
+//     texout << "\\begin{tabular}{|c" ;
+//     for (int i =0; i<fSampleHists.size(); i++)
+//       {
+//     texout << "|c";      
+//       }
+//     texout << "|}" << endl;
+// 
+//     texout << "\\hline " << endl;
+//     
+//     float Ncol = 2.;
+//     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
+//         sh = fSampleHists[i_smp];
+//         s = sh->fSample;
+//         if(s->fType==Sample::DATA) continue;
+//         if(s->fType==Sample::GHOST) continue;
+//         Ncol+=1;
+//     }
+//     // plot a table with ROOT ;)
+//     int width = (Ncol)*120;
+//     int height = fSystNames.size()*25;
+//     //
+// //     TCanvas *c = new TCanvas("c","c",width,height);
+// //     TPaveText *pt0;
+// //     TPaveText *pt[MAXsamples];
+// //     pt0 = new TPaveText(0,0,2./Ncol,1);
+// //     pt0->SetTextSize(gStyle->GetTextSize());
+// //     pt0->SetFillStyle(0);
+//     //
+//     float i_col = 1;
+//     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
+// //         pt[i_smp] = new TPaveText((i_col+1.)/Ncol,0,(i_col+2.)/Ncol,1); // ,"blNDC"
+// //         pt[i_smp]->SetTextSize(gStyle->GetTextSize());
+// //         pt[i_smp]->SetFillStyle(0);
+//         sh = fSampleHists[i_smp];
+//         s = sh->fSample;
+//         if(s->fType==Sample::DATA) continue;
+//         if(s->fType==Sample::GHOST) continue;
+//         out << "      | " << s->fTitle;
+//         texout << "      & " << s->fTitle;
+// //         pt[i_smp]->AddText(s->fTitle.c_str());
+//         i_col+=1;
+//     }
+//     out << " |" << endl;
+//     texout << " \\\\ " << endl;
+//     texout << "\\hline " << endl;
+// 
+// //     pt0->AddText(" ");
+//     //
+// //     TPave *b[100];
+// //     int i_gray = 0;
+//     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+// //         if(i_syst%2==0) {
+// //             b[i_gray] = new TPave(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst-1)/(fSystNames.size()+1.),0);
+// //             b[i_gray]->SetFillColor(kGray);
+// //             b[i_gray]->Draw("NB");
+// //             i_gray++;
+// //         }
+//         //
+//         if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") {out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]]; texout << "  " << TtHFitter::SYSTMAP[fSystNames[i_syst]];}
+//         else                                           {out << " | " << fSystNames[i_syst]; texout << " " << fSystNames[i_syst];}
+// //         if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") pt0->AddText(TtHFitter::SYSTMAP[fSystNames[i_syst]].c_str());
+// //         else                                           pt0->AddText(fSystNames[i_syst].c_str());
+// //         if(i_syst==0) pt0->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
+//         for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
+// //             if(i_syst==0) pt[i_smp]->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
+//             sh = fSampleHists[i_smp];
+//             s = sh->fSample;
+//             if(s->fType==Sample::DATA) continue;
+//             if(s->fType==Sample::GHOST) continue;
+//             syh = sh->GetSystematic(fSystNames[i_syst]);
+//             if(syh==0x0){
+//                 out << " |    nan   ";
+//                 texout << " &    nan   ";
+// //                 pt[i_smp]->AddText(" - ");
+//             }
+// //             sh = GetSampleHist(fSamples[i_smp]->fName);
+//             else{
+//                 float normUp;
+//                 float normDown;
+//                 if(isPostFit){
+//                     normUp   = (syh->fHistUp_postFit->Integral()   - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
+//                     normDown = (syh->fHistDown_postFit->Integral() - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
+//                 }
+//                 else{
+//                     normUp = syh->fNormUp;
+//                     normDown = syh->fNormDown;
+//                 }
+//                 out << " | " << normUp;
+//                 texout << setprecision(3) << " & " << normUp;
+//                 out << " / " << normDown;
+//                 texout << setprecision(3) << " / " << normDown;
+// //                 pt[i_smp]->AddText(Form("%.2f / %.2f",syh->fNormUp,syh->fNormDown) );
+//             }
+// //             if(i_syst==(int)fSystNames.size()-1) pt[i_smp]->Draw("NB");
+//         }
+//         out << " |" << endl;
+//         texout << " \\\\ " << endl;
+// //         if(i_syst==(int)fSystNames.size()-1) pt0->Draw("NB");
+//     }
+// 
+//     texout << "\\hline " << endl;
+// 
+//     texout << "\\end{tabular} " << endl;
+//     texout << "\\caption{Yields of the analysis} " << endl;
+//     texout << "\\end{center} " << endl;
+//     texout << "\\end{table} " << endl;
+//     texout << "\\end{document}" << endl;
+// 
+//     //TString shellcommand = "cat l3_syst.tex|sed -e \"s/\\#/ /g\" > truc.tex";
+//     //texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
+// 
+//     TString shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst.tex|sed -e \"s/\\#/ /g\" > "+fFitName+"/Tables/"+fName+"_syst_clean.tex";
+//     //TString shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst.tex|sed -e \"s/t\\#bar\\{t\\}/t\\$\\bar\\{t\\}\\$/g\" > "+fFitName+"/Tables/"+fName+"_syst_truc.tex";
+//     gSystem->Exec(shellcommand);
+//     
+//     //cat l3_syst.tex|sed -e "s/\#/ /g" > truc.tex
+//     
+// //     c->SaveAs((fFitName+"/Tables/"+fName+"_syst.pdf").c_str());
+// }
 
 // --------------- Functions --------------- //
 

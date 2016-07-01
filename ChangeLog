@@ -1,3 +1,9 @@
+2016-01-07 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * fixed yield tables (presence of norm factors was interfering with the sample-by-sample errors)
+        * syst tables by category added: use opton Job, SystCategoryTables: TRUE
+        * option in config for clean tables: use Job, CleanTables: TRUE
+        * safer selection string handling
+
 2016-06-29 Will Breaden Madden <w.bm@cern.ch>
         * add run.sh, a simple example run script
 

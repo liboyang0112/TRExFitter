@@ -240,6 +240,9 @@ public:
     LimitType fLimitType;
     bool fLimitIsBlind;
     double fLimitPOIAsimov;
+    
+    bool fCleanTables;
+    bool fSystCategoryTables;
 };
 
 #endif
