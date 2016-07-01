@@ -24,7 +24,7 @@
 ################################################################################
 
 name="TRexFitter run"
-version="2016-06-28T1731Z"
+version="2016-06-30T1444Z"
 
 if [ -z "${1}" ]; then
     run_name="ttHbb"
@@ -32,6 +32,7 @@ else
     run_name="${1}"
 fi
 
+main(){
 clear
 cat << 'EOF'
 _________________________________________________________________________________________________________
@@ -77,31 +78,132 @@ filename_fit_log=""${timestamp_run}"_fit_log.txt"
 filename_limit_log=""${timestamp_run}"_limit_log.txt"
 filename_significance_log=""${timestamp_run}"_significance_log.txt"
 
+executable="./myFit.exe"
+
 if [ ! -f "${filename_configuration}" ]; then
     echo -e "error: configuration "${filename_configuration}" not found\n"
     exit 1
 fi
 
+if [ ! -f "${executable}" ]; then
+    echo -e "error: executable "${executable}" not found\n"
+    exit 1
+fi
+
+print_line
+
 echo "run start $(date -u "+%Y-%m-%dT%H%M%S")Z"
 
-rm -rf "${run_name}"
+echo -e "\nlog files:\n"
+echo -e "- "${filename_histograms_log}""
+echo -e "- "${filename_prefit_plots_log}""
+echo -e "- "${filename_workspace_log}""
+echo -e "- "${filename_fit_log}""
+echo -e "- "${filename_limit_log}""
+echo -e "- "${filename_significance_log}"\n"
+
+if [ -d "${run_name}" ]; then
+    tmp_directory=""$(date -u "+%Y-%m-%dT%H%M%S")Z"_backup_"${run_name}""
+    echo -e "existing results found at directory "${run_name}" -- move to directory "${tmp_directory}"\n"
+    mv "${run_name}" "${tmp_directory}"
+fi
 
 echo "access input histograms $(date -u "+%Y-%m-%dT%H%M%S")Z"
-time ./myFit.exe h "${filename_configuration}" > >(tee "${filename_histograms_log}")
+time "${executable}" h "${filename_configuration}" > >(tee "${filename_histograms_log}")
 
 echo "draw pre-fit plots $(date -u "+%Y-%m-%dT%H%M%S")Z"
-time ./myFit.exe d "${filename_configuration}" > >(tee "${filename_prefit_plots_log}")
+time "${executable}" d "${filename_configuration}" > >(tee "${filename_prefit_plots_log}")
 
 echo "create the RooStats XMLs and workspace $(date -u "+%Y-%m-%dT%H%M%S")Z"
-time ./myFit.exe w "${filename_configuration}" > >(tee "${filename_workspace_log}")
+time "${executable}" w "${filename_configuration}" > >(tee "${filename_workspace_log}")
 
 echo "fit the workspace $(date -u "+%Y-%m-%dT%H%M%S")Z"
-time ./myFit.exe f "${filename_configuration}" > >(tee "${filename_fit_log}")
+time "${executable}" f "${filename_configuration}" > >(tee "${filename_fit_log}")
 
 echo "exclusion limit $(date -u "+%Y-%m-%dT%H%M%S")Z"
-time ./myFit.exe l "${filename_configuration}" > >(tee "${filename_limit_log}")
+time "${executable}" l "${filename_configuration}" > >(tee "${filename_limit_log}")
 
 echo "significance $(date -u "+%Y-%m-%dT%H%M%S")Z"
-time ./myFit.exe s "${filename_configuration}" > >(tee "${filename_significance_log}")
+time "${executable}" s "${filename_configuration}" > >(tee "${filename_significance_log}")
 
 echo "run stop $(date -u "+%Y-%m-%dT%H%M%S")Z"
+
+echo "run time: "${timestamp_run}"--$(date -u "+%Y-%m-%dT%H%M%S")Z"
+
+print_line
+}
+
+#¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´><(((º>
+print_line(){
+################################################################################
+if [ "${1}" = "--interrogate" ]; then
+IFS= read -d '' function_information << "EOF"
+This function prints one line on the terminal. It may be used for the purpose of
+terminal output legibility. This function initially determines the terminal
+width and then prints one line of _ characters.
+EOF
+return
+fi
+################################################################################
+    number_of_lines=1
+    terminal_width="$(return_terminal_dimension "width")"
+    number_of_characters_to_print=$(\
+        echo "${number_of_lines}*(${terminal_width})-1" | bc\
+    )
+    print_character "_" "${number_of_characters_to_print}"
+}
+ 
+#¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´><(((º>
+print_character(){
+################################################################################
+if [ "${1}" = "--interrogate" ]; then
+IFS= read -d '' function_information << "EOF"
+This function takes two arguments, the first being the character to print and
+the second being the number of times to print the character. This function
+prints the specified character a specified number of times without carriage
+returns.
+EOF
+return
+fi
+################################################################################
+    character="${1}"
+    number_of_times_to_print_character="${2}"
+    for (( \
+        current_print_number = 0; \
+        current_print_number<=${number_of_times_to_print_character}; \
+        current_print_number++ \
+        )); do
+        echo -n "${character}"
+    done
+}
+ 
+#¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´¯`·.¸¸.·´><(((º>
+return_terminal_dimension(){
+################################################################################
+if [ "${1}" = "--interrogate" ]; then
+IFS= read -d '' function_information << "EOF"
+This function takes one argument, the required dimension of the
+terminal. The required dimension then is returned. If no argument is
+specified, nothing is returned. The possible dimensions are as follows:
+- size:   the width and height of the terminal separated by a space (e.g. 24 80)
+- height: the height of the terminal (e.g. 24)
+- width:  the width of the terminal (e.g. 80)
+EOF
+return
+fi
+################################################################################
+    dimension="${1}"
+    if [ "${dimension}" = "size" ]; then
+        stty size
+    else
+        if [ "${dimension}" = "height" ]; then
+            stty size | cut -d" " -f1
+        else
+            if [ "${dimension}" = "width" ]; then
+                stty size | cut -d" " -f2
+            fi
+        fi
+    fi
+}
+
+main

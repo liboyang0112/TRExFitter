@@ -1,3 +1,6 @@
+2016-07-01 Will Breaden Madden <w.bm@cern.ch>
+        * refactor, make more robust and tidy output of run.sh example run script
+
 2016-01-07 Michele Pinamonti <michele.pinamonti@gmail.com>
         * fixed yield tables (presence of norm factors was interfering with the sample-by-sample errors)
         * syst tables by category added: use opton Job, SystCategoryTables: TRUE
