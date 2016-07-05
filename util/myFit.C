@@ -37,7 +37,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     bool drawSeparation  = opt.find("a")!=string::npos;
     
     // multi-fit
-    bool isMultiFit      = opt.find("m")!=string::npos;    
+    bool isMultiFit      = opt.find("m")!=string::npos;
     if(isMultiFit){
         MultiFit *myMultiFit = new MultiFit();
         myMultiFit->ReadConfigFile(configFile,options);
@@ -51,6 +51,10 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
             }
             if(doLimit){
                 myMultiFit->GetCombinedLimit( myMultiFit->fDataName );
+            }
+            if(doRanking){
+                if(myMultiFit->fRankingOnly!="plot")  myMultiFit->ProduceNPRanking( myMultiFit->fRankingOnly );
+                if(myMultiFit->fRankingOnly=="all" || myMultiFit->fRankingOnly=="plot")  myMultiFit->PlotNPRanking();
             }
         }
         //

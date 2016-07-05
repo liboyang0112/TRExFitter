@@ -1,3 +1,7 @@
+2016-04-07 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Adding ranking to MultiFit for combined fit
+        * Adding an option to order NP in MultiFit for PullPlot (NuisParListFile)
+        
 2016-03-07 Michele Pinamonti <michele.pinamonti@gmail.com>
         * tagging: 00-02-01
         

@@ -4585,6 +4585,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     // Performs the fit
     fitTool -> MinimType("Minuit2");
     fitTool -> FitPDF( mc, simPdf, data );
+//     fitTool -> FitPDF( mc, simPdf, data, true );   // for fast fit
     if(save){
         gSystem -> mkdir((fName+"/Fits/").c_str(),true);
         if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+"_statOnly.txt");
@@ -5186,10 +5187,12 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
     fitTool -> ValPOI(1.);
     fitTool -> ConstPOI(false);
-    if(fVarNameMinos.size()>0){
-        std::cout << "Setting the variables to use MINOS with" << std::endl;
-        fitTool -> UseMinos(fVarNameMinos);
-    }
+    // 
+    // no point is setting Minos for ranking...
+//     if(fVarNameMinos.size()>0){
+//         std::cout << "Setting the variables to use MINOS with" << std::endl;
+//         fitTool -> UseMinos(fVarNameMinos);
+//     }
     
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     muhat = fFitResults -> GetNuisParValue( fPOI );

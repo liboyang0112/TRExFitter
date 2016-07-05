@@ -24,6 +24,8 @@ public:
     void CompareLimit();
     void ComparePulls(string caterogy="");
     void PlotCombinedCorrelationMatrix();
+    void ProduceNPRanking(string NPnames="all");
+    void PlotNPRanking();
 
     std::vector< string > fFitNames;
     std::vector< TtHFit* > fFitList;
@@ -48,6 +50,7 @@ public:
     bool fShowObserved;
     string fLimitTitle;
     string fPOITitle;
+    string fRankingOnly;
     
     string fPOI;
     float fPOIMin;
@@ -69,6 +72,9 @@ public:
     int fFitType;
     
     bool fCombineChByCh;
+    bool fFastFit;
+    bool fFastFitForRanking;
+    string fNuisParListFile;
 };
     
 #endif

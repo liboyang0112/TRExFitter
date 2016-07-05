@@ -80,7 +80,7 @@ FittingTool::~FittingTool()
 
 //________________________________________________________________________
 //
-void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata ) {
+void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit ) {
     
     if(m_debug) std::cout << "-> Entering in FitPDF function" << std::endl;
     
@@ -170,6 +170,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
                 }
             }
         }
+        delete it2;
     }
     
     const double nllval = nll->getVal();
@@ -209,6 +210,18 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
 //     minim.setMaxIterations(500*200*10);
 //     minim.setMaxFunctionCalls(500*200*10);
 //     minim.setOffsetting(true);
+    
+    //
+    // fast fit - e.g. for ranking
+    if(fastFit){
+        minim.setEps(10);
+//         minim.setStrategy(0);
+        minim.setPrintLevel(0);
+//         minim.setMaxIterations(100*10);
+//         minim.setMaxFunctionCalls(100*10);
+//         minim.setMaxIterations(100*minim.getNPar());
+//         minim.setMaxFunctionCalls(100*minim.getNPar());
+    }
     
     TStopwatch sw; sw.Start();
     
@@ -291,45 +304,45 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
             r = minim.save();
             m_edm = r->edm();
         }
-        
 
-	if(m_useMinos){
-	  TIterator* it3 = model->GetNuisanceParameters()->createIterator();
-	  TIterator* it4 = model->GetParametersOfInterest()->createIterator();
-	  RooArgSet* SliceNPs = new RooArgSet( *(model->GetNuisanceParameters()) );
-	  SliceNPs->add(*(model->GetParametersOfInterest()));
-	  RooRealVar* var = NULL;
-	  RooRealVar* var2 = NULL;
-	  std::cout << "Size of variables for MINOS: " << m_varMinos.size() << std::endl;
-	  
-	  if (m_varMinos.at(0)!="all"){
-	    while( (var = (RooRealVar*) it3->Next()) ){
-	      TString vname=var->GetName();
-	      bool isthere=false;
-	      for (unsigned int m=0;m<m_varMinos.size();++m){
-		//std::cout << "MINOS var: " << m_varMinos.at(m) << std::endl;
-		if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
-		//cout << " --> NP: " << vname << endl;
-	      }
-	      if (!isthere) SliceNPs->remove(*var, true, true);
-	    }
-	    while( (var2 = (RooRealVar*) it4->Next()) ){
-	      TString vname=var2->GetName();
-	      bool isthere=false;
-	      for (unsigned int m=0;m<m_varMinos.size();++m){
-		//std::cout << "MINOS var: " << m_varMinos.at(m) << std::endl;
-		if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
-		//cout << " --> POI: " << vname << endl;
-	      }
-	      if (!isthere) SliceNPs->remove(*var2, true, true);
-	    }
-
-	    minim.minos(*SliceNPs);
-	  }
-	  else
-	    minim.minos();
-	  
-	}//end useMinos
+        if(m_useMinos){
+            TIterator* it3 = model->GetNuisanceParameters()->createIterator();
+            TIterator* it4 = model->GetParametersOfInterest()->createIterator();
+            RooArgSet* SliceNPs = new RooArgSet( *(model->GetNuisanceParameters()) );
+            SliceNPs->add(*(model->GetParametersOfInterest()));
+            RooRealVar* var = NULL;
+            RooRealVar* var2 = NULL;
+            std::cout << "Size of variables for MINOS: " << m_varMinos.size() << std::endl;
+            
+            if (m_varMinos.at(0)!="all"){
+                while( (var = (RooRealVar*) it3->Next()) ){
+                    TString vname=var->GetName();
+                    bool isthere=false;
+                    for (unsigned int m=0;m<m_varMinos.size();++m){
+                        //std::cout << "MINOS var: " << m_varMinos.at(m) << std::endl;
+                        if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+                        //cout << " --> NP: " << vname << endl;
+                    }
+                    if (!isthere) SliceNPs->remove(*var, true, true);
+                }
+                while( (var2 = (RooRealVar*) it4->Next()) ){
+                    TString vname=var2->GetName();
+                    bool isthere=false;
+                    for (unsigned int m=0;m<m_varMinos.size();++m){
+                        //std::cout << "MINOS var: " << m_varMinos.at(m) << std::endl;
+                        if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+                        //cout << " --> POI: " << vname << endl;
+                    }
+                    if (!isthere) SliceNPs->remove(*var2, true, true);
+                }
+                minim.minos(*SliceNPs);
+            }
+            else
+                minim.minos();
+            
+            delete it3;
+            delete it4;
+        }//end useMinos
         
         FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>1.0);
         if ( FitIsNotGood ) nrItr++;
@@ -370,6 +383,17 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     m_minuitStatus = status;
     m_fitResult = r;
 
+    //
+    // clean stuff
+    delete constrainedParams;
+    delete nll;
+//     delete poi;  // creates a crash
+//     poi->~RooRealVar();  // creates a crash
+    delete var;
+//     delete nuis;
+    nuis->~RooArgSet();
+//     delete glbObs;
+    glbObs->~RooArgSet();
 }
 
 //____________________________________________________________________________________

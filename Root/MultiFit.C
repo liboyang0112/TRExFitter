@@ -57,6 +57,11 @@ MultiFit::MultiFit(string name){
     //
     fRndRange = 0.1;
     fUseRnd = false;
+    //
+    fRankingOnly = "all";
+    fFastFit = false;
+    fFastFitForRanking = true;
+    fNuisParListFile = "";
 }
 
 //__________________________________________________________________________________
@@ -73,7 +78,21 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     string param;
     //
     // Read options (to skip stuff, or include only some regions, samples, systs...)
-    // ...
+    // Syntax: .. .. Regions=ge4jge2b:Exclude=singleTop,wjets
+    std::map< string,string > optMap; optMap.clear();
+    std::vector< string > optVec;
+    //
+    if(options!=""){
+        optVec = Vectorize(options,':');
+        for(unsigned int i_opt=0;i_opt<optVec.size();i_opt++){
+            std::vector< string > optPair;
+            optPair = Vectorize(optVec[i_opt],'=');
+            optMap[optPair[0]] = optPair[1];
+        }
+        //
+        if(optMap["Ranking"]!="")
+            fRankingOnly = optMap["Ranking"];
+    }
     
     //
     // set multi-fit
@@ -124,6 +143,10 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         fRndRange = atof(param.c_str());
     }
     param = cs->Get("NumCPU"); if( param != "" ){ TtHFitter::NCPU = atoi( param.c_str()); }
+    //
+    param = cs->Get("FastFit"); if( param == "TRUE" )  fFastFit = true;
+    param = cs->Get("FastFitForRanking"); if( param == "TRUE" )  fFastFitForRanking = true;
+    param = cs->Get("NuisParListFile"); if( param != "" )  fNuisParListFile = param;
     
     //
     // fits
@@ -348,7 +371,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     fitTool -> MinimType("Minuit2");
     
     // Full fit
-    fitTool -> FitPDF( mc, simPdf, data );
+    fitTool -> FitPDF( mc, simPdf, data, fFastFit );
     fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+".txt");
     result = fitTool -> ExportFitResultInMap();
     
@@ -838,6 +861,7 @@ void MultiFit::ComparePulls(string category){
             }
         }
     }
+    //
     Nsyst = NamesNew.size();
     Names.clear();
     Titles.clear();
@@ -845,8 +869,35 @@ void MultiFit::ComparePulls(string category){
     for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
         Names.push_back(NamesNew[i_syst]);
         Titles.push_back(TitlesNew[i_syst]);
-        Categories.push_back(Categories[i_syst]);
+        CategoriesNew.push_back(Categories[i_syst]);
     }
+    if(fNuisParListFile!=""){
+        //
+        // reorder NPs
+        Names.clear();
+        Titles.clear();
+        Categories.clear();
+        ifstream in;
+        in.open(fNuisParListFile.c_str());
+        while(true){
+            in >> systName;
+            if(!in.good()) break;
+            cout << "Looking for " << systName << "... ";
+            for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
+                if(NamesNew[i_syst]==systName){
+                    cout << "found";
+                    cout << ", title = " << TitlesNew[i_syst];
+                    Names.push_back(NamesNew[i_syst]);
+                    Titles.push_back(TitlesNew[i_syst]);
+                    Categories.push_back(CategoriesNew[i_syst]);
+                    break;
+                }
+            }
+            cout << endl;
+        }
+        in.close();
+    }
+    Nsyst = Names.size();
     
     // fill stuff
     std::vector< TGraphAsymmErrors* > g;
@@ -877,7 +928,8 @@ void MultiFit::ComparePulls(string category){
         for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
             systName = Names[i_syst];
             if(centralMap[systName]!=0 || (errUpMap[systName]!=0 || errDownMap[systName]!=0)){
-                g[i_fit]->SetPoint(i_syst,centralMap[systName],i_syst+0.5+yshift[i_fit]);
+//                 g[i_fit]->SetPoint(i_syst,centralMap[systName],i_syst+0.5+yshift[i_fit]);
+                g[i_fit]->SetPoint(i_syst,centralMap[systName],(Nsyst-i_syst-1)+0.5+yshift[i_fit]);
 //                 g[i_fit]->SetPointEXhigh(i_syst,  errUpMap[systName]  <1 ?  errUpMap[systName]   : 1);
 //                 g[i_fit]->SetPointEXlow( i_syst, -errDownMap[systName]<1 ? -errDownMap[systName] : 1);
                 g[i_fit]->SetPointEXhigh(i_syst,  errUpMap[systName]);
@@ -945,7 +997,8 @@ void MultiFit::ComparePulls(string category){
     TLatex *systs = new TLatex();
     systs->SetTextSize( systs->GetTextSize()*0.8 );
     for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
-        systs->DrawLatex(3.,i_syst+0.25,Titles[i_syst].c_str());
+//         systs->DrawLatex(3.,i_syst+0.25,Titles[i_syst].c_str());
+        systs->DrawLatex(3.,(Nsyst-i_syst-1)+0.25,Titles[i_syst].c_str());
     }
     h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
 
@@ -986,4 +1039,502 @@ void MultiFit::PlotCombinedCorrelationMatrix(){
         for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
             fit->fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix_comb"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format],TtHFitter::CORRELATIONTHRESHOLD);
     }
+}
+
+//____________________________________________________________________________________
+//
+void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
+
+    if(fFitType==2){
+        std::cerr << "\033[1;31m<!> ERROR in MultiFit::ProduceNPRanking(): For ranking plots, the SPLUSB FitType is needed.  \033[0m"<<std::endl;
+        return;
+    }
+
+    string inputData = fDataName;
+    unsigned int N = fFitList.size();
+    
+    // create a list of Systematics
+    std::vector< Systematic* > vSystematics;  vSystematics.clear();
+    std::vector< std::string > Names;  Names.clear();
+    string systName;
+    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+        for(unsigned int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
+            systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
+            if(FindInStringVector(Names,systName)<0){
+                Names.push_back(systName);
+                vSystematics.push_back(fFitList[i_fit]->fSystematics[i_syst]);
+            }
+        }
+    }
+    unsigned int Nsyst = Names.size();
+    
+    // create a list of norm factors
+    std::vector< NormFactor* > vNormFactors;  vNormFactors.clear();
+    std::vector< std::string > nfNames;  nfNames.clear();
+    string normName;
+    for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        for(unsigned int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
+            normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
+            if(FindInStringVector(nfNames,systName)<0){
+                nfNames.push_back(normName);
+                vNormFactors.push_back(fFitList[i_fit]->fNormFactors[i_norm]);
+            }
+        }
+    }
+    unsigned int Nnorm = nfNames.size();
+
+    //
+    // List of systematics to check
+    //
+    std::vector< string > nuisPars;
+    std::vector< bool > isNF;
+    for(int i_syst=0;i_syst<Nsyst;i_syst++){
+        if(NPnames=="all" || NPnames==vSystematics[i_syst]->fName || 
+            ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || NPnames.c_str()=="0") )
+            ){
+            nuisPars.push_back( vSystematics[i_syst]->fName );
+            isNF.push_back( false );
+        }
+    }
+    for(int i_norm=0;i_norm<Nnorm;i_norm++){
+        if(fPOI==vNormFactors[i_norm]->fName) continue;
+        if(NPnames=="all" || NPnames==vNormFactors[i_norm]->fName || 
+//           atoi(NPnames.c_str())-fNSyst==i_norm ){ || 
+            ( atoi(NPnames.c_str())-Nnorm==i_norm && (atoi(NPnames.c_str())>0 || NPnames.c_str()=="0") )
+            ){
+            nuisPars.push_back( vNormFactors[i_norm]->fName );
+            isNF.push_back( true );
+        }
+    }
+    
+    unsigned int Nnp = nuisPars.size();
+    
+    //
+    //Text files containing information necessary for drawing of ranking plot
+    //     string outName = fName+"/Fits/NPRanking"+fSaveSuf;
+    //
+//     string outName = fName+"/Fits/NPRanking"+fSuffix;
+    string outName = fName+"/Fits/NPRanking";
+    if(NPnames!="all") outName += "_"+NPnames;
+    outName += ".txt";
+    ofstream outName_file(outName.c_str());
+    //
+    float central;
+    float up;
+    float down;
+    float muhat;
+    std::map< string,float > muVarUp;
+    std::map< string,float > muVarDown;
+    std::map< string,float > muVarNomUp;
+    std::map< string,float > muVarNomDown;
+    
+    //
+    // Get the combined model
+    //
+    TFile *f = new TFile((fName+"/ws_combined.root").c_str() );
+    RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
+    
+    //
+    // Gets needed objects for the fit
+    //
+    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
+    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    
+    //
+    // Creates the data object
+    //
+    RooDataSet* data = 0;
+    if(inputData=="asimovData"){
+        RooArgSet empty;// = RooArgSet();
+        data = (RooDataSet*)RooStats::AsymptoticCalculator::MakeAsimovData( (*mc), RooArgSet(ws->allVars()), (RooArgSet&)empty);
+    }
+    else if(inputData!=""){
+        data = (RooDataSet*)ws->data( inputData.c_str() );
+    } else {
+        std::cout << "In MultiFit::ProduceNPRanking() function: you didn't specify inputData => will try with observed data !" << std::endl;
+        data = (RooDataSet*)ws->data("obsData");
+        if(!data){
+            std::cout << "In MultiFit::ProduceNPRanking() function: observed data not present => will use with asimov data !" << std::endl;
+            data = (RooDataSet*)ws->data("asimovData");
+        }
+    }
+    
+    //
+    // Create snapshot to keep inital values
+    //
+    ws -> saveSnapshot("tmp_snapshot", *mc->GetPdf()->getParameters(data));
+    
+    //
+    // Initialize the FittingTool object
+    //
+    FittingTool *fitTool = new FittingTool();
+    fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
+    fitTool -> ValPOI(1.);
+    fitTool -> ConstPOI(false);
+//     if(vVarNameMinos.size()>0){
+//         std::cout << "Setting the variables to use MINOS with" << std::endl;
+//         fitTool -> UseMinos(vVarNameMinos);
+//     }
+    
+    TtHFit *fit = fFitList[fFitList.size()-1];
+    fit->ReadFitResults(fName+"/Fits/"+fName+".txt");
+    
+//     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
+    muhat = fit->fFitResults -> GetNuisParValue( fPOI );
+    //if(!hasData) muhat = 1.;  // FIXME -> Loic: Do we actually need that ?
+    
+    for(unsigned int i=0;i<nuisPars.size();i++){
+        
+        //Getting the postfit values of the nuisance parameter
+        central = fit->fFitResults -> GetNuisParValue(   nuisPars[i] );
+        up      = fit->fFitResults -> GetNuisParErrUp(   nuisPars[i] );
+        down    = fit->fFitResults -> GetNuisParErrDown( nuisPars[i] );
+        outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
+        
+        //Set the NP to its post-fit *up* variation and refit to get the fitted POI
+        ws->loadSnapshot("tmp_snapshot");
+        fitTool -> ResetFixedNP();
+        fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+        fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
+        muVarUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        //
+        //Set the NP to its post-fit *down* variation and refit to get the fitted POI
+        ws->loadSnapshot("tmp_snapshot");
+        fitTool -> ResetFixedNP();
+        fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
+        fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
+        muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
+        
+        if(isNF[i]){
+            muVarNomUp[   nuisPars[i] ] = muhat;
+            muVarNomDown[ nuisPars[i] ] = muhat;
+        }
+        else{
+            //Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
+            ws->loadSnapshot("tmp_snapshot");
+            float prefitUp   =  1.;
+            float prefitDown = -1.;
+            fitTool -> ResetFixedNP();
+            fitTool -> FixNP( nuisPars[i], central + 1. );
+            fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
+            muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
+            //
+            //Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
+            ws->loadSnapshot("tmp_snapshot");
+            fitTool -> ResetFixedNP();
+            fitTool -> FixNP( nuisPars[i], central - 1. );
+            fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
+            //
+            muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        }
+        outName_file << muVarNomUp[nuisPars[i]]-muhat << "   " <<  muVarNomDown[nuisPars[i]]-muhat<< " "<<endl;
+        
+    }
+    outName_file.close();
+    ws->loadSnapshot("tmp_snapshot");
+}
+
+//____________________________________________________________________________________
+//
+void MultiFit::PlotNPRanking(){
+    //
+    string fileToRead = fName+"/Fits/NPRanking.txt";
+    //
+    // trick to merge the ranking outputs produced in parallel:
+    string cmd = " if [[ `ls "+fName+"/Fits/NPRanking_*` != \"\" ]] ; then";
+    cmd       += " if [[ `ls "+fName+"/Fits/NPRanking.txt` == \"\" ]] ; then";
+//     cmd       += " then rm "+fileToRead+" ; ";
+//     cmd       += " cat "+fName+"/Fits/NPRanking"+fLoadSuf+"_* > "+fileToRead+" ; ";
+    cmd       += " cat "+fName+"/Fits/NPRanking_* > "+fileToRead+" ; ";
+    cmd       += " fi ;";
+    cmd       += " fi ;";
+    gSystem->Exec(cmd.c_str());
+    //
+    int maxNP = fFitList[0]->fRankingMaxNP;
+    //
+    string paramname;
+    double nuiphat;
+    double nuiperrhi;
+    double nuiperrlo;
+    double PoiUp;
+    double PoiDown;
+    double PoiNomUp;
+    double PoiNomDown;
+    std::vector<string> parname;
+    std::vector<double> nuhat;
+    std::vector<double> nuerrhi;
+    std::vector<double> nuerrlo;
+    std::vector<double> poiup;
+    std::vector<double> poidown;
+    std::vector<double> poinomup;
+    std::vector<double> poinomdown;
+    std::vector<double> number;
+
+    ifstream fin( fileToRead.c_str() );
+    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+    if (paramname=="Luminosity"){
+        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+    }
+    while (!fin.eof()){
+        parname.push_back(paramname);
+        nuhat.push_back(nuiphat);
+        nuerrhi.push_back(nuiperrhi);
+        nuerrlo.push_back(nuiperrlo);
+        poiup.push_back(PoiUp);
+        poidown.push_back(PoiDown);
+        poinomup.push_back(PoiNomUp);
+        poinomdown.push_back(PoiNomDown);
+        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+        if (paramname=="Luminosity"){
+            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+        }
+    }
+
+    unsigned int SIZE = parname.size();
+    if(TtHFitter::DEBUGLEVEL>0) std::cout << "NP ordering..." << std::endl;
+    number.push_back(0.5);
+    for (unsigned int i=1;i<SIZE;i++){
+        number.push_back(i+0.5);
+        double sumi = 0.0;  
+        int index=-1;
+        sumi += TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) );
+        for (unsigned int j=1;j<=i;j++){
+            double sumii = 0.0;
+            sumii += TMath::Max( TMath::Abs(poiup[i-j]),TMath::Abs(poidown[i-j]) );
+            if (sumi<sumii){
+                if (index==-1){
+                    swap(poiup[i],poiup[i-j]);
+                    swap(poidown[i],poidown[i-j]);
+                    swap(poinomup[i],poinomup[i-j]);
+                    swap(poinomdown[i],poinomdown[i-j]);
+                    swap(nuhat[i],nuhat[i-j]);
+                    swap(nuerrhi[i],nuerrhi[i-j]);
+                    swap(nuerrlo[i],nuerrlo[i-j]);
+                    swap(parname[i],parname[i-j]);
+                    index=i-j;
+                }
+                else{
+                    swap(poiup[index],poiup[i-j]);
+                    swap(poidown[index],poidown[i-j]);
+                    swap(poinomup[index],poinomup[i-j]);
+                    swap(poinomdown[index],poinomdown[i-j]);
+                    swap(nuhat[index],nuhat[i-j]);
+                    swap(nuerrhi[index],nuerrhi[i-j]);
+                    swap(nuerrlo[index],nuerrlo[i-j]);
+                    swap(parname[index],parname[i-j]);
+                    index=i-j;
+                }
+            }
+            else{
+                break;
+            }
+        }
+    }
+    number.push_back(parname.size()-0.5);
+    
+    double poimax = 0;
+    for (int i=0;i<SIZE;i++) {
+        poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
+        poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poinomup[i]),TMath::Abs(poinomdown[i]) ));
+        nuerrlo[i] = TMath::Abs(nuerrlo[i]);
+    }
+    poimax *= 1.2;
+
+    for (int i=0;i<SIZE;i++) {
+        poiup[i]     *= (2./poimax);
+        poidown[i]   *= (2./poimax);
+        poinomup[i]  *= (2./poimax);
+        poinomdown[i]*= (2./poimax);
+    }
+
+    // Resttrict to the first N
+    if(SIZE>maxNP) SIZE = maxNP;
+  
+    // Graphical part - rewritten taking DrawPulls in TtHFitter
+    float lineHeight  =  30;
+    float offsetUp    =  60; // external
+    float offsetDown  =  60;
+    float offsetUp1   = 100; // internal
+    float offsetDown1 =  15;
+    int offset = offsetUp + offsetDown + offsetUp1 + offsetDown1;
+    int newHeight = offset + SIZE*lineHeight;
+    
+    float xmin = -2;
+    float xmax =  2;
+    float max  =  0;
+    
+    TGraphAsymmErrors *g = new TGraphAsymmErrors();
+    TGraphAsymmErrors *g1 = new TGraphAsymmErrors();
+    TGraphAsymmErrors *g2 = new TGraphAsymmErrors();
+    TGraphAsymmErrors *g1a = new TGraphAsymmErrors();
+    TGraphAsymmErrors *g2a = new TGraphAsymmErrors();
+    
+    int idx = 0;
+    std::vector< string > Names;
+    Names.clear();
+    string parTitle;
+    
+    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){        
+        g->SetPoint(      idx, nuhat[i],idx+0.5);
+        g->SetPointEXhigh(idx, nuerrhi[i]);
+        g->SetPointEXlow( idx, nuerrlo[i]);
+        
+        g1->SetPoint(      idx, 0.,idx+0.5);
+        g1->SetPointEXhigh(idx, poiup[i]);
+        g1->SetPointEXlow( idx, 0.);
+        g1->SetPointEYhigh(idx, 0.4);
+        g1->SetPointEYlow( idx, 0.4);
+        
+        g2->SetPoint(      idx, 0.,idx+0.5);
+        g2->SetPointEXhigh(idx, poidown[i]);
+        g2->SetPointEXlow( idx, 0.);
+        g2->SetPointEYhigh(idx, 0.4);
+        g2->SetPointEYlow( idx, 0.4);
+        
+        g1a->SetPoint(      idx, 0.,idx+0.5);
+        g1a->SetPointEXhigh(idx, poinomup[i]);
+        g1a->SetPointEXlow( idx, 0.);
+        g1a->SetPointEYhigh(idx, 0.4);
+        g1a->SetPointEYlow( idx, 0.4);
+        
+        g2a->SetPoint(      idx, 0.,idx+0.5);
+        g2a->SetPointEXhigh(idx, poinomdown[i]);
+        g2a->SetPointEXlow( idx, 0.);
+        g2a->SetPointEYhigh(idx, 0.4);
+        g2a->SetPointEYlow( idx, 0.4);
+        
+        parTitle = TtHFitter::SYSTMAP[ parname[i] ];
+        
+        Names.push_back(parTitle);
+        
+        idx ++;
+        if(idx > max)  max = idx;      
+    }
+
+    TCanvas *c = new TCanvas("c","c",600,newHeight);
+    c->SetTicks(0,0);
+    gPad->SetLeftMargin(0.4);
+    gPad->SetRightMargin(0.05);
+    gPad->SetTopMargin(1.*offsetUp/newHeight);
+    gPad->SetBottomMargin(1.*offsetDown/newHeight);
+    
+    TH1F *h_dummy = new TH1F("h_dummy","h_dummy",10,xmin,xmax);
+    h_dummy->SetMaximum( SIZE + offsetUp1/lineHeight   );
+    h_dummy->SetMinimum(      - offsetDown1/lineHeight );
+    h_dummy->SetLineWidth(0);
+    h_dummy->SetFillStyle(0);
+    h_dummy->SetLineColor(kWhite);
+    h_dummy->SetFillColor(kWhite);
+    h_dummy->GetYaxis()->SetLabelSize(0);
+    h_dummy->Draw();
+    h_dummy->GetYaxis()->SetNdivisions(0);
+    
+    g1->SetFillColor(kAzure-4);
+    g2->SetFillColor(kCyan);
+    g1->SetLineColor(g1->GetFillColor());
+    g2->SetLineColor(g2->GetFillColor());
+    
+    g1a->SetFillColor(kWhite);
+    g2a->SetFillColor(kWhite);
+    g1a->SetLineColor(kAzure-4);
+    g2a->SetLineColor(kCyan);
+    g1a->SetFillStyle(0);
+    g2a->SetFillStyle(0);
+    g1a->SetLineWidth(1);
+    g2a->SetLineWidth(1);
+    
+    g->SetLineWidth(2);
+    
+    g1a->Draw("5 same");
+    g2a->Draw("5 same");
+    g1->Draw("2 same");
+    g2->Draw("2 same");
+    g->Draw("p same");
+    
+    TLatex *systs = new TLatex();
+    systs->SetTextAlign(32);
+    systs->SetTextSize( systs->GetTextSize()*0.8 );
+    for(int i=0;i<max;i++){
+        systs->DrawLatex(xmin-0.1,i+0.5,Names[i].c_str());
+    }
+    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy->GetXaxis()->CenterTitle();
+    h_dummy->GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
+    h_dummy->GetXaxis()->SetTitleOffset(1.2);
+    
+    TGaxis *axis_up = new TGaxis( -2, SIZE + (offsetUp1)/lineHeight, 2, SIZE + (offsetUp1)/lineHeight, -poimax,poimax, 510, "-" );
+    axis_up->SetLabelOffset( 0.01 );
+    axis_up->SetLabelSize(   h_dummy->GetXaxis()->GetLabelSize() );
+    axis_up->SetLabelFont(   gStyle->GetTextFont() );
+    axis_up->Draw();
+    axis_up->CenterTitle();
+    axis_up->SetTitle("#Delta#mu");
+    if(SIZE==20) axis_up->SetTitleOffset(1.5);
+    axis_up->SetTitleSize(   h_dummy->GetXaxis()->GetLabelSize() );
+    axis_up->SetTitleFont(   gStyle->GetTextFont() );
+    
+    TPad *pad1 = new TPad("p1","Pad High",0,(newHeight-offsetUp-offsetUp1)/newHeight,0.4,1);
+    pad1->Draw();
+    
+    pad1->cd();
+    TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,"Pre-fit impact on #mu:");
+    leg1->SetFillStyle(0);
+    leg1->SetBorderSize(0);
+    leg1->SetMargin(0.33);
+    leg1->SetNColumns(2);
+    leg1->SetTextFont(gStyle->GetTextFont());
+    leg1->SetTextSize(gStyle->GetTextSize());
+    leg1->AddEntry(g1a,"#theta_{0}=+#Delta#theta","f");
+    leg1->AddEntry(g2a,"#theta_{0}=-#Delta#theta","f");
+    leg1->Draw();
+
+    TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,"Post-fit impact on #mu:");
+    leg2->SetFillStyle(0);
+    leg2->SetBorderSize(0);
+    leg2->SetMargin(0.33);
+    leg2->SetNColumns(2);
+    leg2->SetTextFont(gStyle->GetTextFont());
+    leg2->SetTextSize(gStyle->GetTextSize());
+    leg2->AddEntry(g1,"#theta_{0}=+#Delta#hat{#theta}","f");
+    leg2->AddEntry(g2,"#theta_{0}=-#Delta#hat{#theta}","f");
+    leg2->Draw();
+
+    TLegend *leg0 = new TLegend(0.02,0.1,1,0.25);
+    leg0->SetFillStyle(0);
+    leg0->SetBorderSize(0);
+    leg0->SetMargin(0.2);
+    leg0->SetTextFont(gStyle->GetTextFont());
+    leg0->SetTextSize(gStyle->GetTextSize());
+    leg0->AddEntry(g,"Nuis. Param. Pull","lp");
+    leg0->Draw();
+    
+    c->cd();
+    
+    TLine l0;
+    TLine l1;
+    TLine l2;
+    l0 = TLine(0,- offsetDown1/lineHeight,0,SIZE+0.5);// + offsetUp1/lineHeight);
+    l0.SetLineStyle(kDashed);
+    l0.SetLineColor(kBlack);
+    l0.Draw("same");
+    l1 = TLine(-1,- offsetDown1/lineHeight,-1,SIZE+0.5);// + offsetUp1/lineHeight);
+    l1.SetLineStyle(kDashed);
+    l1.SetLineColor(kBlack);
+    l1.Draw("same");
+    l2 = TLine(1,- offsetDown1/lineHeight,1,SIZE+0.5);// + offsetUp1/lineHeight);
+    l2.SetLineStyle(kDashed);
+    l2.SetLineColor(kBlack);
+    l2.Draw("same");
+    
+    ATLASLabelNew(0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.6*offsetUp1)/newHeight), (char*)"Internal", kBlack, gStyle->GetTextSize());
+    myText(       0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.3*offsetUp1)/newHeight), 1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    
+    gPad->RedrawAxis();
+    
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/Ranking."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+        
+    // 
+    delete c;
 }
