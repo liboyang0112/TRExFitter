@@ -183,6 +183,8 @@ public:
     float fBlindingThreshold;
     
     bool fSkipSmoothing;
+    
+    string fATLASlabel;
 };
 
 

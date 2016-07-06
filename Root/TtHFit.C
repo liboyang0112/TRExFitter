@@ -809,14 +809,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             }
             vector<string> corrVar  = Vectorize(variable[0],'|');
             if(corrVar.size()==2){
-              if(TtHFitter::DEBUGLEVEL>0) std::cout << "Have a correlation variable in reg " << regNames.back() << " : " 
-                                                    << corrVar[0] << " and " << corrVar[1] << std::endl;
-              reg->SetVariable(  "corr_"+corrVar[0]+"_"+corrVar[1], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()), corrVar[0].c_str(), corrVar[1].c_str() );
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Have a correlation variable in reg " << regNames.back() << " : " 
+                                                      << corrVar[0] << " and " << corrVar[1] << std::endl;
+                reg->SetVariable(  "corr_"+corrVar[0]+"_"+corrVar[1], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()), corrVar[0].c_str(), corrVar[1].c_str() );
             }
             else{ 
-              if(TtHFitter::DEBUGLEVEL>0) std::cout << "Have a usual variable in reg " << regNames.back() << " : " 
-                                                    << variable[0] << " and size of corrVar=" << corrVar.size() << std::endl;
-              reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Have a usual variable in reg " << regNames.back() << " : " 
+                                                      << variable[0] << " and size of corrVar=" << corrVar.size() << std::endl;
+                reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
             }
             //
             if(cs->Get("Selection")!="") reg->AddSelection( cs->Get("Selection") );
@@ -2552,6 +2552,7 @@ void TtHFit::DrawAndSaveAll(string opt){
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
+        fRegions[i_ch]->fATLASlabel = fAtlasLabel;
         if(isPostFit){
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);

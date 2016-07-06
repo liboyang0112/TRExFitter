@@ -170,7 +170,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
                 }
             }
         }
-        delete it2;
+//         delete it2;
     }
     
     const double nllval = nll->getVal();
@@ -340,8 +340,8 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
             else
                 minim.minos();
             
-            delete it3;
-            delete it4;
+//             delete it3;
+//             delete it4;
         }//end useMinos
         
         FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>1.0);
@@ -385,15 +385,15 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
 
     //
     // clean stuff
-    delete constrainedParams;
-    delete nll;
+//     delete constrainedParams;
+//     delete nll;
 //     delete poi;  // creates a crash
 //     poi->~RooRealVar();  // creates a crash
-    delete var;
+//     delete var;
 //     delete nuis;
-    nuis->~RooArgSet();
+//     nuis->~RooArgSet();
 //     delete glbObs;
-    glbObs->~RooArgSet();
+//     glbObs->~RooArgSet();
 }
 
 //____________________________________________________________________________________

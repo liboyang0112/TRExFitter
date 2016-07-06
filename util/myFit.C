@@ -69,6 +69,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
             if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI(myMultiFit->fPOI);
             if(myMultiFit->fCompareLimits) myMultiFit->CompareLimit();
         }
+        //
+        if(myMultiFit->fPlotSoverB)    myMultiFit->PlotSummarySoverB();
+        //
         return;
     }
     

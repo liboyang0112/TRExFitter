@@ -26,6 +26,11 @@ public:
     void PlotCombinedCorrelationMatrix();
     void ProduceNPRanking(string NPnames="all");
     void PlotNPRanking();
+    void PlotSummarySoverB();
+    
+    TH1F* Combine(std::vector<TH1F*>);
+    TH1F* OrderBins(TH1F* h,std::vector<float> vec);
+    TH1F* Rebin(TH1F* h,std::vector<float> vec, bool isData=true);
 
     std::vector< string > fFitNames;
     std::vector< TtHFit* > fFitList;
@@ -75,6 +80,9 @@ public:
     bool fFastFit;
     bool fFastFitForRanking;
     string fNuisParListFile;
-};
     
+    bool fPlotSoverB;
+    string fSignalTitle;
+};
+
 #endif

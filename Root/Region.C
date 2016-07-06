@@ -73,6 +73,8 @@ Region::Region(string name){
     fTransfoJpar1 = 0.;
     fTransfoJpar2 = 0.;
     fTransfoJpar3 = 0.;
+    
+    fATLASlabel = "Internal";
 }
 
 //__________________________________________________________________________________
@@ -488,8 +490,7 @@ TthPlot* Region::DrawPreFit(string opt){
     //
     p->SetTotBkg((TH1*)fTot);
     p->SetTotBkgAsym(fErr);
-    p->fATLASlabel = "Internal";
-//     p->fATLASlabel = "Preliminary";
+    p->fATLASlabel = fATLASlabel;
     if(fLogScale) opt += " log";
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     p->Draw(opt);
@@ -895,7 +896,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     //
     p->SetTotBkg(fTot_postFit);
     p->SetTotBkgAsym(fErr_postFit);
-    p->fATLASlabel = "Internal"; //FIXME
+    p->fATLASlabel = fATLASlabel;
     if(fLogScale) opt += " log";
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     p->Draw(opt);

@@ -62,6 +62,9 @@ MultiFit::MultiFit(string name){
     fFastFit = false;
     fFastFitForRanking = true;
     fNuisParListFile = "";
+    //
+    fPlotSoverB = false;
+    fSignalTitle = "t#bar{t}H";
 }
 
 //__________________________________________________________________________________
@@ -147,6 +150,9 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("FastFit"); if( param == "TRUE" )  fFastFit = true;
     param = cs->Get("FastFitForRanking"); if( param == "TRUE" )  fFastFitForRanking = true;
     param = cs->Get("NuisParListFile"); if( param != "" )  fNuisParListFile = param;
+    //
+    param = cs->Get("PlotSoverB"); if( param == "TRUE" )  fPlotSoverB = true;
+    param = cs->Get("SignalTitle"); if( param != "" )  fSignalTitle = param;
     
     //
     // fits
@@ -214,15 +220,15 @@ RooWorkspace* MultiFit::CombineWS(){
     
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         std::string fitName = fFitList[i_fit]->fName;
-        std::cout << "Adding Fit: " << fitName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding Fit: " << fitName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
         
         RooStats::HistFactory::Measurement *meas;
         std::string fileName = fitName + "/RooStats/" + fitName + "_combined_" + fitName + fFitSuffs[i_fit] + "_model.root";
         if(fWsFiles[i_fit]!="") fileName = fWsFiles[i_fit];
-        std::cout << "Opening file " << fileName << std::endl;
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "Opening file " << fileName << std::endl;
         TFile *rootFile = new TFile(fileName.c_str(),"read");
         RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get("combined");
-        std::cout << "Getting " << fitName+fFitSuffs[i_fit] << std::endl;
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "Getting " << fitName+fFitSuffs[i_fit] << std::endl;
         meas = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fitName+fFitSuffs[i_fit]).c_str());
         //
         // import measurement if not there yet
@@ -241,7 +247,7 @@ RooWorkspace* MultiFit::CombineWS(){
         }
         
         // 
-        // Alternative way: combine the individual workspaces for the different chanenels
+        // Alternative way: combine the individual workspaces for the different channels
         // Loop on all the regions in each fit
         if(fCombineChByCh){
             for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
@@ -596,7 +602,7 @@ void MultiFit::ComparePOI(string POI){
 //     ATLASLabel(0.02,0.93,"    Internal",kBlack);
 //     myText(0.35,0.93,kBlack,process.c_str());
 //     myText(0.65,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
-    ATLASLabel(0.32,0.93," Internal",kBlack);
+    ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
     if(process!="") myText(0.60,0.93,kBlack,Form("%s, #sqrt{s} = %s, %s",process.c_str(),fCmeLabel.c_str(),fLumiLabel.c_str()));
     else            myText(0.70,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     
@@ -741,7 +747,7 @@ void MultiFit::CompareLimit(){
 //     ATLASLabel(0.02,0.93,"    Internal",kBlack);
 //     myText(0.35,0.93,kBlack,process.c_str());
 //     myText(0.65,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
-    ATLASLabel(0.32,0.93," Internal",kBlack);
+    ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
     if(process!="") myText(0.60,0.93,kBlack,Form("%s, #sqrt{s} = %s, %s",process.c_str(),fCmeLabel.c_str(),fLumiLabel.c_str()));
     else            myText(0.70,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     
@@ -1044,6 +1050,8 @@ void MultiFit::PlotCombinedCorrelationMatrix(){
 //____________________________________________________________________________________
 //
 void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
+    std::cout << "...................................." << std::endl;
+    std::cout << "Producing Ranking..." << std::endl;
 
     if(fFitType==2){
         std::cerr << "\033[1;31m<!> ERROR in MultiFit::ProduceNPRanking(): For ranking plots, the SPLUSB FitType is needed.  \033[0m"<<std::endl;
@@ -1213,17 +1221,17 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         else{
             //Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
-            float prefitUp   =  1.;
-            float prefitDown = -1.;
+            float prefitUp   = 1.;
+            float prefitDown = 1.;
             fitTool -> ResetFixedNP();
-            fitTool -> FixNP( nuisPars[i], central + 1. );
+            fitTool -> FixNP( nuisPars[i], central + prefitUp );
             fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
             muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
             //
             //Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool -> ResetFixedNP();
-            fitTool -> FixNP( nuisPars[i], central - 1. );
+            fitTool -> FixNP( nuisPars[i], central - prefitDown );
             fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
             //
             muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
@@ -1238,6 +1246,8 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 //____________________________________________________________________________________
 //
 void MultiFit::PlotNPRanking(){
+    std::cout << "...................................." << std::endl;
+    std::cout << "Plotting Ranking..." << std::endl;
     //
     string fileToRead = fName+"/Fits/NPRanking.txt";
     //
@@ -1527,7 +1537,7 @@ void MultiFit::PlotNPRanking(){
     l2.SetLineColor(kBlack);
     l2.Draw("same");
     
-    ATLASLabelNew(0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.6*offsetUp1)/newHeight), (char*)"Internal", kBlack, gStyle->GetTextSize());
+    ATLASLabelNew(0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.6*offsetUp1)/newHeight), (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
     myText(       0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.3*offsetUp1)/newHeight), 1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     
     gPad->RedrawAxis();
@@ -1537,4 +1547,439 @@ void MultiFit::PlotNPRanking(){
         
     // 
     delete c;
+}
+
+
+
+//____________________________________________________________________________________
+//
+void MultiFit::PlotSummarySoverB(){
+    std::cout << "...................................." << std::endl;
+    std::cout << "Producing S/B plot..." << std::endl;
+    
+    fFitList[0]->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+    float muFit = fFitList[0]->fFitResults->GetNuisParValue(fPOI);
+    float muLimit = HistFromFile( fName+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
+//     float muFit = 1;
+//     float muLimit = 3.4;
+    
+    std::vector<string> fileNames; fileNames.clear();
+    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+        for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
+            if(fFitList[i_fit]->fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
+            fileNames.push_back(fFitList[i_fit]->fName+"/Histograms/"+fFitList[i_fit]->fRegions[i_reg]->fName+"_postFit.root");
+        }
+    }
+    int Nhist = (int)fileNames.size();
+
+    //
+    // create a list of all the samples
+    std::vector<string> sigList; sigList.clear();
+    std::vector<string> bkgList; bkgList.clear();
+    std::vector<string> dataList; dataList.clear();
+    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+        for(unsigned int i_smp=0;i_smp<fFitList[i_fit]->fSamples.size();i_smp++){
+            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::SIGNAL && FindInStringVector(sigList,fFitList[i_fit]->fSamples[i_smp]->fName)<0) 
+                sigList.push_back(fFitList[i_fit]->fSamples[i_smp]->fName);
+            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::BACKGROUND && FindInStringVector(bkgList,fFitList[i_fit]->fSamples[i_smp]->fName)<0) 
+                bkgList.push_back(fFitList[i_fit]->fSamples[i_smp]->fName);
+            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::DATA && FindInStringVector(dataList,fFitList[i_fit]->fSamples[i_smp]->fName)<0) 
+                dataList.push_back(fFitList[i_fit]->fSamples[i_smp]->fName);
+        }
+    }
+    //
+    // create a list of all the systematics
+    std::vector<string> systList; systList.clear();
+    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+        // actual systematics
+        for(unsigned int i_syst=0;i_syst<fFitList[i_fit]->fSystematics.size();i_syst++){
+            if(FindInStringVector(systList,fFitList[i_fit]->fSystematics[i_syst]->fName)<0) 
+                systList.push_back(fFitList[i_fit]->fSystematics[i_syst]->fName);
+        }
+        // norm factors
+        for(unsigned int i_norm=0;i_norm<fFitList[i_fit]->fNormFactors.size();i_norm++){
+            if(FindInStringVector(systList,fFitList[i_fit]->fNormFactors[i_norm]->fName)<0) 
+                systList.push_back(fFitList[i_fit]->fNormFactors[i_norm]->fName);
+        }
+    }
+    
+    int Nsyst = systList.size();
+    
+    std::vector<TFile*> file;
+    std::vector<TH1F* > h_sig;
+    std::vector<TH1F* > h_bkg;
+    std::vector<TH1F* > h_data;
+    std::vector<std::vector<TH1F*> > h_syst_up  (Nsyst,std::vector<TH1F*>(Nhist));
+    std::vector<std::vector<TH1F*> > h_syst_down(Nsyst,std::vector<TH1F*>(Nhist));
+
+    // get histos
+    for(int i_hist=0;i_hist<Nhist;i_hist++){
+        TH1F* h_tmp = 0x0;
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "Opening file " << fileNames[i_hist] << std::endl;
+        file.push_back(new TFile(fileNames[i_hist].c_str()));
+        //
+        // initialize null histogram pointers
+        h_sig.push_back(0x0);
+        h_bkg.push_back(0x0);
+        h_data.push_back(0x0);
+        for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
+            h_syst_up  [i_syst][i_hist] = 0x0;
+            h_syst_down[i_syst][i_hist] = 0x0;
+        }
+        //
+        for(unsigned int i_sig=0;i_sig<sigList.size();i_sig++){
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Getting histogram " << "h_"+sigList[i_sig]+"_postFit";
+            h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+sigList[i_sig]+"_postFit").c_str() );
+            if(h_tmp!=0x0){
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << " ... FOUND";
+                if(h_sig[i_hist]==0x0) h_sig[i_hist] = h_tmp;
+                else                   h_sig[i_hist]->Add(h_tmp);
+            }
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << std::endl;
+        }
+        for(unsigned int i_bkg=0;i_bkg<bkgList.size();i_bkg++){
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Getting histogram " << "h_"+bkgList[i_bkg]+"_postFit";
+            h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
+            if(h_tmp!=0x0){
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << " ... FOUND";
+                if(h_bkg[i_hist]==0x0) h_bkg[i_hist] = h_tmp;
+                else                   h_bkg[i_hist]->Add(h_tmp);
+            }
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << std::endl;
+            // syst variations
+            for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
+                // up
+                h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Up_postFit").c_str() );
+                if(h_tmp!=0x0){
+                    if(h_syst_up[i_syst][i_hist]==0x0)   h_syst_up[i_syst][i_hist] = h_tmp;
+                    else                                 h_syst_up[i_syst][i_hist]->Add(h_tmp);
+                }
+                // down
+                if(h_tmp!=0x0){
+                    h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Down_postFit").c_str() );
+                    if(h_syst_down[i_syst][i_hist]==0x0) h_syst_down[i_syst][i_hist] = h_tmp;
+                    else                                 h_syst_down[i_syst][i_hist]->Add(h_tmp);
+                }
+            }
+        }
+        for(unsigned int i_data=0;i_data<dataList.size();i_data++){
+            h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+dataList[i_data]).c_str() );
+            if(h_tmp!=0x0){
+                if(h_data[i_hist]==0x0) h_data[i_hist] = h_tmp;
+                else                    h_data[i_hist]->Add(h_tmp);
+            }
+        }
+        //
+        // Fix eventually empty histograms
+        if(h_sig[i_hist] ==0x0){
+            h_sig[i_hist]  = (TH1F*)h_bkg[i_hist]->Clone(Form("h_sig[%d]", i_hist));
+            h_sig[i_hist]->Scale(0.);
+        }
+        if(h_data[i_hist]==0x0){
+            h_data[i_hist] = (TH1F*)h_bkg[i_hist]->Clone(Form("h_data[%d]",i_hist));
+            h_data[i_hist]->Scale(0.);
+        }
+        for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
+            // up
+            if(h_syst_up[i_syst][i_hist]==0x0){
+                h_syst_up[i_syst][i_hist] = (TH1F*)h_bkg[i_hist]->Clone(Form("h_syst_up[%d][%d]", i_syst,i_hist));
+                h_syst_up[i_syst][i_hist]->Scale(0.);
+            }
+            else{
+                h_syst_up[i_syst][i_hist]->Add(h_bkg[i_hist],-1);
+            }
+            // down
+            if(h_syst_down[i_syst][i_hist]==0x0){
+                h_syst_down[i_syst][i_hist] = (TH1F*)h_bkg[i_hist]->Clone(Form("h_syst_down[%d][%d]", i_syst,i_hist));
+                h_syst_down[i_syst][i_hist]->Scale(0.);
+            }
+            else{
+                h_syst_down[i_syst][i_hist]->Add(h_bkg[i_hist],-1);
+            }
+        }
+    }
+    
+    // create combined histogram
+    TH1F* h_bkg_comb  = Combine(h_bkg);
+    TH1F* h_sig_comb  = Combine(h_sig);
+    TH1F* h_data_comb = Combine(h_data);
+
+    std::vector<TH1F*> h_syst_up_comb  (Nsyst);
+    std::vector<TH1F*> h_syst_down_comb(Nsyst);
+    for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
+        h_syst_up_comb  [i_syst] = Combine(h_syst_up  [i_syst]);
+        h_syst_down_comb[i_syst] = Combine(h_syst_down[i_syst]);
+    }
+    
+    int Nbins = h_bkg_comb->GetNbinsX();
+    
+    std::vector<float> SoverSqrtB;
+    float sig, bkg;
+
+    for(int i_bin=1;i_bin<=h_bkg_comb->GetNbinsX();i_bin++){
+        sig = h_sig_comb->GetBinContent(i_bin);
+        bkg = h_bkg_comb->GetBinContent(i_bin);
+        SoverSqrtB.push_back(sig/bkg);
+  //      SoverSqrtB.push_back(sig/sqrt(bkg));
+    }
+
+    TH1F* h_bkg_ord  = Rebin(h_bkg_comb,SoverSqrtB,false);
+    TH1F* h_sig_ord  = Rebin(h_sig_comb,SoverSqrtB,false);
+    TH1F* h_data_ord = Rebin(h_data_comb,SoverSqrtB);
+
+    std::vector<TH1F*> h_syst_up_ord  (Nsyst);
+    std::vector<TH1F*> h_syst_down_ord(Nsyst);
+    for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
+        h_syst_up_ord  [i_syst] = Rebin((TH1F*)(h_syst_up_comb  [i_syst]),SoverSqrtB,false);
+        h_syst_down_ord[i_syst] = Rebin((TH1F*)(h_syst_down_comb[i_syst]),SoverSqrtB,false);
+    }
+    
+    float errUp, errDown, err, err_tot;
+    float corr;
+    for(int i_bin=0;i_bin<h_bkg_ord->GetNbinsX()+2;i_bin++){
+        err_tot = h_bkg_ord->GetBinError(i_bin); // this should be the stat unc
+        errUp   = 0;
+        errDown = 0;
+        err = 0;
+        for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
+            for(unsigned int j_syst=0;j_syst<systList.size();j_syst++){
+                corr     = fFitList[0]->fFitResults->fCorrMatrix->GetCorrelation( systList[i_syst],systList[j_syst] );
+                errUp   += corr * h_syst_up_ord  [i_syst]->GetBinContent(i_bin) * h_syst_up_ord  [j_syst]->GetBinContent(i_bin);
+                errDown += corr * h_syst_down_ord[i_syst]->GetBinContent(i_bin) * h_syst_down_ord[j_syst]->GetBinContent(i_bin);
+            }
+        }
+        errUp   = sqrt(errUp);
+        errDown = sqrt(errDown);
+        err = TMath::Abs(errUp+errDown)/2.;
+        err_tot = sqrt(err_tot*err_tot + err*err);
+        h_bkg_ord->SetBinError(i_bin,err_tot);
+    }
+    
+    TCanvas *c = new TCanvas("c","c",600,600);
+    
+    TPad* pad0;
+    TPad* pad1;
+    pad0 = new TPad("pad0","pad0",0,0.28,1,1,0,0,0);
+    pad0->SetTicks(1,1);
+    pad0->SetTopMargin(0.05);
+    pad0->SetBottomMargin(0);
+    pad0->SetLeftMargin(0.14);
+    pad0->SetRightMargin(0.05);
+    pad0->SetFrameBorderMode(0);
+    //
+    pad1 = new TPad("pad1","pad1",0,0,1,0.28,0,0,0);
+    pad1->SetTicks(1,1);
+    pad1->SetTopMargin(0.0);
+    pad1->SetBottomMargin(0.37);
+    pad1->SetLeftMargin(0.14);
+    pad1->SetRightMargin(0.05);
+    pad1->SetFrameBorderMode(0);
+
+    pad1->Draw();
+    pad0->Draw();
+    pad0->cd();
+
+    h_sig_ord->SetLineColor(kRed);
+    h_sig_ord->SetFillColor(kRed);
+    
+    TH1F* h_sig_ord_lim = (TH1F*)h_sig_ord->Clone("h_sig_ord_lim");
+    h_sig_ord_lim->Scale(3.);
+    h_sig_ord_lim->SetFillColor(kOrange);
+    h_sig_ord_lim->SetLineColor(kOrange);
+    TH1F* h_sig_ord_lim_diff = (TH1F*)h_sig_ord_lim->Clone("h_sig_ord_lim_diff");
+    h_sig_ord_lim_diff->Add(h_sig_ord,-1);
+    
+    THStack *h_s = new THStack();
+    h_s->Add(h_bkg_ord);
+    h_s->Add(h_sig_ord);
+    h_s->Add(h_sig_ord_lim_diff);
+    h_data_ord->Draw("EX0");
+
+    h_s->Draw("HISTsame ][");
+    TH1F* h_err = (TH1F*)h_bkg_ord->Clone("h_err");
+    h_err->SetMarkerSize(0);
+    h_err->SetFillColor(kBlack);
+    h_err->SetFillStyle(3454);
+    h_err->SetLineWidth(0);
+    h_err->SetLineColor(kWhite);
+    h_err->Draw("E2same");
+    h_data_ord->Draw("EX0same");
+    h_data_ord->SetMaximum(20*h_data_ord->GetMaximum());
+    h_data_ord->SetMinimum(1.1);
+    h_data_ord->SetLineWidth(2);
+    h_data_ord->GetXaxis()->SetTitle("log_{10}(S/B)");
+  //  h_data_ord->GetXaxis()->SetTitle("log_{10}(S/#sqrt{B})");
+    h_data_ord->GetYaxis()->SetTitle("Events / 0.2");
+    h_data_ord->GetYaxis()->SetTitleOffset(2.);
+    h_data_ord->GetXaxis()->SetLabelSize(0);
+    h_data_ord->GetXaxis()->SetTitleSize(0);
+    
+    TLegend *leg = new TLegend(0.6,0.57,0.90,0.92);
+    leg->SetFillStyle(0);
+    leg->SetMargin(0.2);
+    leg->SetBorderSize(0);
+    leg->SetTextSize(gStyle->GetTextSize());
+    leg->AddEntry(h_data_ord,"Data","lep");
+    leg->AddEntry(h_sig_ord_lim,Form("%s (#mu_{95%% excl.}=%.1f)",fSignalTitle.c_str(),muLimit),"f");
+    leg->AddEntry(h_sig_ord,    Form("%s (#mu_{fit}=%.1f)"       ,fSignalTitle.c_str(),muFit),"f");
+    leg->AddEntry(h_bkg_ord,"Background","f");
+    leg->AddEntry(h_err,"Bkgd. Unc.","f");
+    leg->Draw();
+    
+    ATLASLabelNew(0.17,0.87, (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
+    myText(0.17,0.80,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()) );
+    if(fLabel!="") myText(0.17,0.18,kBlack,Form("%s Combined",fLabel.c_str()) );
+    else           myText(0.17,0.18,kBlack,"Combined");
+    std::string channels = "";
+    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+        if(i_fit!=0){
+            if(i_fit==fFitList.size()-1) channels += " and ";
+            else                         channels += ", ";
+        }
+        channels += fFitList[i_fit]->fLabel;
+    }
+    myText(0.17,0.13,kBlack,channels.c_str());
+    myText(0.17,0.05,kBlack,"Post-fit");
+    
+    pad0->RedrawAxis();
+    pad0->SetLogy();
+
+    pad1->cd();
+    pad1->GetFrame()->SetY1(2);
+    TH1F *h_ratio   = (TH1F*)h_data_ord->Clone("h_ratio");
+    TH1F *h_den     = (TH1F*)h_bkg_ord ->Clone("h_den");
+    for(int i_bin=0;i_bin<h_den->GetNbinsX()+2;i_bin++){
+        h_den->SetBinError(i_bin,0);
+    }
+
+    TH1F* h_stackSig = (TH1F*)h_sig_ord ->Clone("h_sig_ratio");
+    h_stackSig->Add(h_bkg_ord);
+    h_stackSig->Divide(h_den);
+    h_stackSig->SetFillColor(0);
+    h_stackSig->SetFillStyle(0);
+    h_stackSig->SetLineColor(kRed);
+    
+    TH1F* h_stackSigLim = (TH1F*)h_sig_ord_lim ->Clone("h_sig_lim_ratio");
+    h_stackSigLim->Add(h_bkg_ord);
+    h_stackSigLim->Divide(h_den);
+    h_stackSigLim->SetFillColor(0);
+    h_stackSigLim->SetFillStyle(0);
+    h_stackSigLim->SetLineStyle(kDashed);
+    h_stackSigLim->SetLineColor(kOrange+1);
+
+    TH1F *h_ratio2  = (TH1F*)h_err->Clone("h_ratio2");
+    h_ratio2->SetMarkerSize(0);
+    h_ratio->SetTitle("Data/MC");
+    h_ratio->GetYaxis()->SetTitle("Data / Bkgd.");
+    h_ratio->GetYaxis()->SetTitleSize(20);
+    h_ratio->GetYaxis()->SetTitleOffset(2.);
+    h_ratio->GetYaxis()->SetLabelSize(20); // 0.04
+    h_ratio ->Divide(h_den);
+    h_ratio2->Divide(h_den);
+    h_ratio->SetMarkerSize(1.2);
+    h_ratio->SetLineWidth(2);
+    gStyle->SetEndErrorSize(0.); // 4.
+    h_ratio->GetYaxis()->CenterTitle();
+    h_ratio->GetYaxis()->SetNdivisions(406);
+//     h_ratio->SetMinimum(0.56);
+//     h_ratio->SetMaximum(1.94);
+    h_ratio->SetMinimum(0.6);
+    h_ratio->SetMaximum(1.75);
+    h_ratio->GetXaxis()->SetTitle(h_data_ord->GetXaxis()->GetTitle());
+    h_ratio->GetXaxis()->SetTitleSize(20);
+    h_ratio->GetXaxis()->SetTitleOffset(4.);
+    h_ratio->GetXaxis()->SetLabelSize(20);
+    TLine* hline = new TLine(h_ratio->GetXaxis()->GetXmin(),1,h_ratio->GetXaxis()->GetXmax(),1);
+    h_ratio->Draw("E1");
+    h_ratio2->Draw("same E2");
+    hline->Draw();   
+    h_stackSig->Draw("same HIST ][");
+    h_stackSigLim->Draw("same HIST ][");
+    h_ratio->Draw("same E1");
+    
+    TLegend *leg2 = new TLegend(0.17,0.64,0.75,0.98);
+    leg2->SetFillStyle(0);
+    leg2->SetMargin(0.1);
+    leg2->SetBorderSize(0);
+    leg2->SetTextSize(gStyle->GetTextSize());
+    leg2->AddEntry(h_stackSigLim,Form("%s (#mu_{95%% excl.}=%.1f) + Bkgd.",fSignalTitle.c_str(),muLimit),"l");
+    leg2->AddEntry(h_stackSig,   Form("%s (#mu_{fit}=%.1f) + Bkgd."       ,fSignalTitle.c_str(),muFit)  ,"l");
+    leg2->Draw();
+    
+    pad0->RedrawAxis();
+    pad1->RedrawAxis();
+    
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/SoverB_postFit."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    
+    delete c;
+}
+
+//____________________________________________________________________________________
+//
+TH1F* MultiFit::Combine(vector<TH1F*> h){
+    int Nbins = 0;
+    int Nhist = h.size();
+    for(int i_hist=0;i_hist<Nhist;i_hist++){
+        if(h[i_hist]==0x0) std::cout << "WARNING: empty histgram " << i_hist << std::endl;
+        else Nbins += h[i_hist]->GetNbinsX();
+    }
+    TH1F* h_new = new TH1F(Form("%s_comb",h[0]->GetName()),Form("%s_comb",h[0]->GetTitle()),Nbins,0,Nbins);
+    int bin = 0;
+    for(int i_hist=0;i_hist<Nhist;i_hist++){
+        for(int i_bin=1;i_bin<=h[i_hist]->GetNbinsX();i_bin++){
+            bin++;
+            h_new->SetBinContent(bin,h[i_hist]->GetBinContent(i_bin));
+            h_new->SetBinError(bin,h[i_hist]->GetBinError(i_bin));
+        }
+    }
+    return h_new;
+}
+
+//____________________________________________________________________________________
+// order bins of h acording to a[] (increasing order)
+TH1F* MultiFit::OrderBins(TH1F* h,vector<float> vec){
+    map<float,int> binIndex;
+    int Nbins = h->GetNbinsX();
+    for(int i_bin=1;i_bin<=Nbins;i_bin++){
+        binIndex[vec[i_bin-1]] = i_bin;
+    }
+    sort(vec.begin(),vec.end());
+    TH1F *h_new = (TH1F*)h->Clone();
+    for(int i_bin=1;i_bin<=Nbins;i_bin++){
+        h_new->SetBinContent(i_bin,h->GetBinContent(binIndex[vec[i_bin-1]]));
+    }
+    return h_new;
+}
+
+//____________________________________________________________________________________
+// merge bins in bins of SoverSqrtB
+TH1F* MultiFit::Rebin(TH1F* h,vector<float> vec, bool isData){
+    TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),18,-4,-0.5);        
+    // works for l+jets
+    //15,-3.75,-0.6);       
+    h_new->Sumw2();
+    float xlow, xhigh;
+    // new way
+    for(int j_bin=1;j_bin<=h->GetNbinsX();j_bin++){
+        float value=TMath::Log10(vec[j_bin-1]);
+        if ( value<h_new->GetXaxis()->GetXmin() ) value=0.9999*h_new->GetXaxis()->GetXmin();
+        if ( value>h_new->GetXaxis()->GetXmax() ) {
+            double tmpvalue=1.0001*h_new->GetXaxis()->GetXmax();
+            cout << "turning: " << value << " in: " << tmpvalue << endl;
+            value=tmpvalue;
+        } 
+        int i_bin=h_new->FindBin(value);
+        h_new->SetBinContent(i_bin,h_new->GetBinContent(i_bin)+h->GetBinContent(j_bin));
+        if (!isData) {
+            h_new->SetBinError(i_bin,sqrt( pow(h_new->GetBinError(i_bin),2) + pow(h->GetBinError(j_bin),2) ) ); 
+        }
+    }
+    if (isData) {
+        for(int j_bin=1;j_bin<=h_new->GetNbinsX();j_bin++){
+            h_new->SetBinError(j_bin, sqrt(h_new->GetBinContent(j_bin) ) ); 
+        }
+    }
+    h_new->SetMinimum(1);
+    return h_new;
 }

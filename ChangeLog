@@ -1,3 +1,6 @@
+2016-06-07 Michele Pinamonti <michele.pinamonti@gmail.com>
+        * Adding log(S/B) summary plot (use flag PlotSoverB: TRUE in multi-fit congig file)  
+        
 2016-04-07 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Adding ranking to MultiFit for combined fit
         * Adding an option to order NP in MultiFit for PullPlot (NuisParListFile)
