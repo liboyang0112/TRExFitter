@@ -73,6 +73,7 @@ Region::Region(string name){
     fTransfoJpar1 = 0.;
     fTransfoJpar2 = 0.;
     fTransfoJpar3 = 0.;
+    fAutoBinBkgsInSig.clear();
     
     fATLASlabel = "Internal";
 }

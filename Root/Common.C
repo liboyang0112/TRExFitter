@@ -34,7 +34,8 @@ std::map <string,float> TtHFitter::OPTION;
 //
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight){
     TH1F* h = new TH1F("h","h",nbin,xmin,xmax);
-    if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram from  " << ntuple << "  ..." << endl;
+    if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram " << variable.c_str() << " from  " << ntuple << "  ..." << endl;
+    if(TtHFitter::DEBUGLEVEL>0) cout << "    with weight  " << Form("(%s)*(%s)",weight.c_str(),selection.c_str()) << "  ..." << endl;
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();
@@ -48,7 +49,8 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
 //
 TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight){
     TH1F* h = new TH1F("h","h",nbin,bins);
-    if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram from  " << ntuple << "  ..." << endl;
+    if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram  " << variable.c_str() << " from " << ntuple << "  ..." << endl;
+    if(TtHFitter::DEBUGLEVEL>0) cout << "    with weight  " << Form("(%s)*(%s)",weight.c_str(),selection.c_str()) << "  ..." << endl;
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();

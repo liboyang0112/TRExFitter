@@ -125,6 +125,7 @@ public:
     double fTransfoJpar1;
     double fTransfoJpar2;
     double fTransfoJpar3;
+    std::vector<string> fAutoBinBkgsInSig;
     string fVariable;
     string fCorrVar1;
     string fCorrVar2;

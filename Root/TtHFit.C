@@ -850,10 +850,20 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 if(vec_bins[1]=="TransfoD"){
                     reg -> fTransfoDzSig=convertStoD(vec_bins[2]);
                     reg -> fTransfoDzBkg=convertStoD(vec_bins[3]);
+		    if(vec_bins.size()>4){
+		      for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+			reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+		      }
+		    }
                 }
                 else if(vec_bins[1]=="TransfoF"){
                     reg -> fTransfoFzSig=convertStoD(vec_bins[2]);
                     reg -> fTransfoFzBkg=convertStoD(vec_bins[3]);
+		    if(vec_bins.size()>4){
+		      for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+			reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+		      }
+		    }
                 }
                 else if(vec_bins[1]=="TransfoJ"){
                     if(vec_bins.size() > 2) reg -> fTransfoJpar1=convertStoD(vec_bins[2]);
@@ -862,6 +872,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                     else reg -> fTransfoJpar2 = 1.;
                     if(vec_bins.size() > 4) reg -> fTransfoJpar3=convertStoD(vec_bins[4]);
                     else reg -> fTransfoJpar3 = 5.;
+		    if(vec_bins.size()>5){
+		      for(unsigned int i_Bkgs=4; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+			reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+		      }
+		    }
                 }
                 else{
                     std::cout<<" ERROR: Unknown transformation: "<<vec_bins[1]<<", try again" << std::endl;
@@ -5586,7 +5601,24 @@ void TtHFit::ComputeBining(int regIter){
     string fullMCweight;
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
+    bool bkgReg=false;
+    bool flatBkg=false;
+    if(fRegions[regIter]->fRegionType==Region::CONTROL) bkgReg=true;
+    if(bkgReg && fRegions[regIter]->fTransfoDzSig<1e-3) flatBkg=true;
     //
+    if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFit DEBUG::ComputeBinning: Will compute binning with the following options: ";
+
+    if(TtHFitter::DEBUGLEVEL>0 && (fRegions[regIter]->fTransfoDzSig>1e-3 || fRegions[regIter]->fTransfoDzBkg>1e-3) ) 
+      std::cout << " TransfoD - zSig=" << fRegions[regIter]->fTransfoDzSig << " - zBkg=" << fRegions[regIter]->fTransfoDzBkg;
+    if(TtHFitter::DEBUGLEVEL>0 && (fRegions[regIter]->fTransfoFzSig>1e-3 || fRegions[regIter]->fTransfoFzBkg>1e-3) ) 
+      std::cout << " TransfoF - zSig=" << fRegions[regIter]->fTransfoFzSig << " - zBkg=" << fRegions[regIter]->fTransfoFzBkg;
+    if(TtHFitter::DEBUGLEVEL>0 && (fRegions[regIter]->fTransfoJpar1>1e-3 || fRegions[regIter]->fTransfoJpar2>1e-3 || fRegions[regIter]->fTransfoJpar3>1e-3) ) 
+      std::cout << " TransfoJ - z1=" << fRegions[regIter]->fTransfoJpar1 << " - z2=" << fRegions[regIter]->fTransfoJpar2 << " - z3=" << fRegions[regIter]->fTransfoJpar3;
+
+    if(TtHFitter::DEBUGLEVEL>0 && bkgReg) std::cout << " - bkg reg";
+    else if(TtHFitter::DEBUGLEVEL>0) std::cout << " - sig reg";
+
+    if(TtHFitter::DEBUGLEVEL>0) std::cout << std::endl;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         //
         // using NTuples
@@ -5627,9 +5659,12 @@ void TtHFit::ComputeBining(int regIter){
                                         NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                         );
               for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+		  int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
+		  TtHFitter::SetDebugLevel(0);
                   htmp = HistFromNtuple( fullPaths[i_path],
                                         fRegions[regIter]->fVariable, 10000, fRegions[regIter]->fXmin, fRegions[regIter]->fXmax,
                                         fullSelection, fullMCweight);
+		  TtHFitter::SetDebugLevel(tmp_debugLevel);
                   //
                   // Pre-processing of histograms (rebinning, lumi scaling)
                   if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -5646,11 +5681,37 @@ void TtHFit::ComputeBining(int regIter){
                       else hsig->Add(htmp);
                   }
                   else{
-                      if(nDefBkg){
-                          hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-                          nDefBkg=false;
-                      }
-                      else hbkg->Add(htmp);
+		    if(bkgReg && !flatBkg){
+		      bool usedInSig=false;
+		      for(unsigned int i_bkgs=0; i_bkgs<fRegions[regIter]->fAutoBinBkgsInSig.size(); ++i_bkgs){
+			if(fSamples[i_smp]->fName==fRegions[regIter]->fAutoBinBkgsInSig[i_bkgs]){
+			  usedInSig=true;
+			  break;
+			}
+		      }
+		      if(usedInSig){
+			if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFit DEBUG::ComputeBinning: Using "<<fSamples[i_smp]->fName<<" as signal" << std::endl;
+			if(nDefSig){
+			  hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+			  nDefSig=false;
+			}
+			else hsig->Add(htmp);
+		      }
+		      else{
+			if(nDefBkg){
+			  hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+			  nDefBkg=false;
+			}
+			else hbkg->Add(htmp);
+		      }
+		    }
+		    else{
+		      if(nDefBkg){
+			hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+			nDefBkg=false;
+		      }
+		      else hbkg->Add(htmp);
+		    }
                   }
                   htmp->~TH1F();
               }
@@ -5677,7 +5738,10 @@ void TtHFit::ComputeBining(int regIter){
                                           );
               //
               for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+		  int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
+		  TtHFitter::SetDebugLevel(0);
                   htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+		  TtHFitter::SetDebugLevel(tmp_debugLevel);
                   //
                   // Pre-processing of histograms (rebinning, lumi scaling)
                   if(fRegions[regIter]->fHistoBins){
@@ -5705,11 +5769,37 @@ void TtHFit::ComputeBining(int regIter){
                   else hsig->Add(htmp);
               }
               else{
-                  if(nDefBkg){
-                      hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-                      nDefBkg=false;
-                  }
-                  else hbkg->Add(htmp);
+		if(bkgReg && !flatBkg){
+		  bool usedInSig=false;
+		  for(unsigned int i_bkgs=0; i_bkgs<fRegions[regIter]->fAutoBinBkgsInSig.size(); ++i_bkgs){
+		    if(fSamples[i_smp]->fName==fRegions[regIter]->fAutoBinBkgsInSig[i_bkgs]){
+		      usedInSig=true;
+		      break;
+		    }
+		  }
+		  if(usedInSig){
+		    if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFit DEBUG::ComputeBinning: Using "<<fSamples[i_smp]->fName<<" as signal" << std::endl;
+		    if(nDefSig){
+		      hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+		      nDefSig=false;
+		    }
+		    else hsig->Add(htmp);
+		  }
+		  else{
+		    if(nDefBkg){
+		      hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+		      nDefBkg=false;
+		    }
+		    else hbkg->Add(htmp);
+		  }
+		}
+		else{
+		  if(nDefBkg){
+		    hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+		    nDefBkg=false;
+		  }
+		  else hbkg->Add(htmp);
+		}
               }
               //
               htmp->~TH1F();
@@ -5834,6 +5924,12 @@ void TtHFit::ComputeBining(int regIter){
         bins[i] = hbkg->GetBinLowEdge(bins_vec[nBins-i-1]);
     }
     bins[nBins-1]=hbkg->GetBinLowEdge( hbkg->GetNbinsX() + 1 );
+    std::cout << "TtHFit::INFO: Your final binning from automatic binning function is:"  << std::endl;
+    std::cout << "TtHFit::INFO: -->> - ";
+    for(unsigned int i_bins=0; i_bins<bins_vec.size(); ++i_bins){
+      std::cout << bins[i_bins] << " - ";
+    }
+    std::cout << std::endl;
     //
     delete hsig;
     delete hbkg;

@@ -1,3 +1,6 @@
+2016-11-07 Thomas Calvet <calvet@cppm.in2p3.fr>
+        * Adding automatic binning for background: if shapes are wanted (i.e. Transfo F or D with sig parameter=0) need to specify with samples is used to replace signal (e.g. "AutoBin","TransfoD",paramSig,paramBkg,"smp1","smp2")
+        
 2016-06-07 Michele Pinamonti <michele.pinamonti@gmail.com>
         * Adding log(S/B) summary plot (use flag PlotSoverB: TRUE in multi-fit congig file)  
         
