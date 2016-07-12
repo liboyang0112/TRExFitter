@@ -32,6 +32,7 @@ options:
     -h, --help           display help message
     --version            display version and exit
     --runname=NAME       run name                 [default: ttHbb]
+    --executable=NAME    excutable name           [default: ./myFit.exe]
     --histograms=BOOL    run histograms           [default: true]
     --prefitplots=BOOL   run prefit plots         [default: true]
     --workspace=BOOL     run workspace            [default: true]
@@ -41,7 +42,7 @@ options:
 """
 
 name    = "TRexFitter run"
-version = "2016-07-12T1217Z"
+version = "2016-07-12T1427Z"
 logo =\
 '''
 _________________________________________________________________________________________________________
@@ -78,6 +79,7 @@ ________________________________________________________________________________
 
 import datetime
 import docopt
+import multiprocessing
 import os
 import subprocess
 import sys
@@ -86,12 +88,24 @@ import time
 def main(options):
 
     run_name         = options["--runname"]
+    executable       = options["--executable"]
     run_histograms   = string_to_bool(options["--histograms"])
     run_prefit_plots = string_to_bool(options["--prefitplots"])
     run_workspace    = string_to_bool(options["--workspace"])
     run_fit          = string_to_bool(options["--fit"])
     run_limit        = string_to_bool(options["--limit"])
     run_significance = string_to_bool(options["--significance"])
+
+    datetime_object_current_time_UTC = datetime.datetime.utcnow()
+
+    timestamp_run             = datetime_object_current_time_UTC.strftime("%Y-%m-%dT%H%M%SZ")
+    filename_configuration    = "config/{run_name}.config".format(run_name = run_name)
+    filename_histograms_log   = "{timestamp_run}_histograms_log.txt".format(timestamp_run = timestamp_run)
+    filename_prefit_plots_log = "{timestamp_run}_prefit_plots_log.txt".format(timestamp_run = timestamp_run)
+    filename_workspace_log    = "{timestamp_run}_workspace_log.txt".format(timestamp_run = timestamp_run)
+    filename_fit_log          = "{timestamp_run}_fit_log.txt".format(timestamp_run = timestamp_run)
+    filename_limit_log        = "{timestamp_run}_limit_log.txt".format(timestamp_run = timestamp_run)
+    filename_significance_log = "{timestamp_run}_significance_log.txt".format(timestamp_run = timestamp_run)
 
     print(logo)
 
@@ -101,7 +115,11 @@ def main(options):
         run_name = run_name
     ))
 
-    print("run options:")
+    print("run timestamp {timestamp}".format(
+        timestamp = timestamp_run
+    ))
+
+    print("\nrun options:")
     print("""
 - run histograms:   {run_histograms}
 - run prefit plots: {run_prefit_plots}
@@ -117,34 +135,35 @@ def main(options):
         run_significance = run_significance
     ))
 
-    datetime_object_current_time_UTC = datetime.datetime.utcnow()
-
-    timestamp_run             = datetime_object_current_time_UTC.strftime("%Y-%m-%dT%H%M%SZ")
-    filename_configuration    = "config/{run_name}.config".format(run_name = run_name)
-    filename_histograms_log   = "{timestamp_run}_histograms_log.txt".format(timestamp_run = timestamp_run)
-    filename_prefit_plots_log = "{timestamp_run}_prefit_plots_log.txt".format(timestamp_run = timestamp_run)
-    filename_workspace_log    = "{timestamp_run}_workspace_log.txt".format(timestamp_run = timestamp_run)
-    filename_fit_log          = "{timestamp_run}_fit_log.txt".format(timestamp_run = timestamp_run)
-    filename_limit_log        = "{timestamp_run}_limit_log.txt".format(timestamp_run = timestamp_run)
-    filename_significance_log = "{timestamp_run}_significance_log.txt".format(timestamp_run = timestamp_run)
-
-    executable                = "./myFit.exe"
+    # error check: configuration file existence
 
     if not os.path.isfile(filename_configuration):
-        print("error: configuration {filename} not found\n".format(
+        print("\nerror: configuration {filename} not found\n".format(
             filename = filename_configuration
         ))
         sys.exit()
 
+    # error check: executable existence
+
     if not os.path.isfile(executable):
-        print("error: executable {filename} not found\n".format(
+        print("\nerror: executable {filename} not found\n".format(
             filename = executable
         ))
         sys.exit()
 
-    print("run start {timestamp}".format(
-        timestamp = timestamp_run
-    ))
+    # error check: cores configuration
+
+    cores_number = multiprocessing.cpu_count()
+    configuration = [line.rstrip("\n") for line in open(filename_configuration)]
+    configuration_cores_number = None
+    for line in configuration:
+        if "NumCPU" in line:
+            configuration_cores_number = int(line.split(":")[1].strip())
+    if configuration_cores_number != multiprocessing.cpu_count():
+        print("\nwarning: number of cores specified in configuration ({configuration_cores_number}) != number of cores detected ({cores_number})".format(
+            configuration_cores_number = configuration_cores_number,
+            cores_number               = cores_number
+        ))
 
     print(
         """
@@ -180,6 +199,9 @@ log files:
         engage_command(command)
 
     command = ""
+    command = command + """
+echo "run start $(date -u "+%Y-%m-%dT%H%M%S")Z"
+"""
     if run_histograms == True:
         command = command + """
 echo "access input histograms $(date -u "+%Y-%m-%dT%H%M%S")Z"

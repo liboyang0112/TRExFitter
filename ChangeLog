@@ -1,418 +1,426 @@
 2016-07-12 Will Breaden Madden <w.bm@cern.ch>
-        * remove run.sh, a simple example run script
-        * add run.py, a less simple example run script
+    * run.py
+        * add warning comparison for cores configuration and cores detected
+        * add executable filename command line argument
+        * tidy
+    * ChangeLog
+        * remove tabs
+        * change eight-spaces to four-spaces
+
+2016-07-12 Will Breaden Madden <w.bm@cern.ch>
+    * remove run.sh, a simple example run script
+    * add run.py, a less simple example run script
 
 2016-11-07 Thomas Calvet <calvet@cppm.in2p3.fr>
-        * Adding automatic binning for background: if shapes are wanted (i.e. Transfo F or D with sig parameter=0) need to specify with samples is used to replace signal (e.g. "AutoBin","TransfoD",paramSig,paramBkg,"smp1","smp2")
-        
+    * Adding automatic binning for background: if shapes are wanted (i.e. Transfo F or D with sig parameter=0) need to specify with samples is used to replace signal (e.g. "AutoBin","TransfoD",paramSig,paramBkg,"smp1","smp2")
+    
 2016-06-07 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Adding log(S/B) summary plot (use flag PlotSoverB: TRUE in multi-fit congig file)  
-        
+    * Adding log(S/B) summary plot (use flag PlotSoverB: TRUE in multi-fit congig file)  
+    
 2016-04-07 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Adding ranking to MultiFit for combined fit
-        * Adding an option to order NP in MultiFit for PullPlot (NuisParListFile)
-        
+    * Adding ranking to MultiFit for combined fit
+    * Adding an option to order NP in MultiFit for PullPlot (NuisParListFile)
+
 2016-03-07 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * tagging: 00-02-01
-        
+    * tagging: 00-02-01
+
 2016-07-01 Will Breaden Madden <w.bm@cern.ch>
-        * refactor, make more robust and tidy output of run.sh example run script
-        
+    * refactor, make more robust and tidy output of run.sh example run script
+
 2016-01-07 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * fixed yield tables (presence of norm factors was interfering with the sample-by-sample errors)
-        * syst tables by category added: use opton Job, SystCategoryTables: TRUE
-        * option in config for clean tables: use Job, CleanTables: TRUE
-        * safer selection string handling
-        
+    * fixed yield tables (presence of norm factors was interfering with the sample-by-sample errors)
+    * syst tables by category added: use opton Job, SystCategoryTables: TRUE
+    * option in config for clean tables: use Job, CleanTables: TRUE
+    * safer selection string handling
+
 2016-06-29 Will Breaden Madden <w.bm@cern.ch>
-        * add run.sh, a simple example run script
-        
+    * add run.sh, a simple example run script
+
 2016-06-29 Will Breaden Madden <w.bm@cern.ch>
-        * minor tidy runAsymptoticCLs.C
-        
+    * minor tidy runAsymptoticCLs.C
+
 2016-28-06 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * stat-only fit option added (NP fixed to nominal fit values, then data re-fitted): use Fit option fStatOnlyFit (even from copmmand line)
-        * fixed Asimov creation for combined fit (in MultiFit)
-        * runAsymptoticCLs made faster changing some default options (please change these options back to default in case you want more accurate results)
-        * better .tex yield tables, with the usage of \num and the possibility to specify TexLabel for Regions and TexTitle for samples
-        
+    * stat-only fit option added (NP fixed to nominal fit values, then data re-fitted): use Fit option fStatOnlyFit (even from copmmand line)
+    * fixed Asimov creation for combined fit (in MultiFit)
+    * runAsymptoticCLs made faster changing some default options (please change these options back to default in case you want more accurate results)
+    * better .tex yield tables, with the usage of \num and the possibility to specify TexLabel for Regions and TexTitle for samples
+
 2016-23-06 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * more options in MultiFit
-        
+    * more options in MultiFit
+
 2016-19-06 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Multi-core fit implemented: use "NumCPU: <N>" under "Fit". Get <N> with grep -c ^processor /proc/cpuinfo
-        
+    * Multi-core fit implemented: use "NumCPU: <N>" under "Fit". Get <N> with grep -c ^processor /proc/cpuinfo
+
 2016-17-06 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Fix in "Variable" reading from config file (with ntuple inputs) to allow TTree::Draw special functions
-        * Ranking plot including Normalisation Factors
-        * Normalisation Factor titles propagated into plots
-        
+    * Fix in "Variable" reading from config file (with ntuple inputs) to allow TTree::Draw special functions
+    * Ranking plot including Normalisation Factors
+    * Normalisation Factor titles propagated into plots
+
 2016-15-06 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Error bars in Syst plots
-        * InputName option added (to use histogram inputs with different name than the Job name)
-        
+    * Error bars in Syst plots
+    * InputName option added (to use histogram inputs with different name than the Job name)
+
 2016-13-06 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Fixed autobin computation in presence of ghost samples
+    * Fixed autobin computation in presence of ghost samples
 
 2016-08-06 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Categories in MultiFit Pull plot: use NPCategories: in MultiFit config
-        
+    * Categories in MultiFit Pull plot: use NPCategories: in MultiFit config
+
 2016-06-06 Michele Pinamonti <michele.pinamonti@gmail.com>, Thomas Calvet <calvet@cppm.in2p3.fr>
-        * Partial fix of weight systemtics on smmothed samples
-        * Option to add random initial values for the NP (usefull to help Asimov converging): use flag "SetRandomInitialNPval:" (e.g. set it to 0.1) 
-        
+    * Partial fix of weight systemtics on smmothed samples
+    * Option to add random initial values for the NP (usefull to help Asimov converging): use flag "SetRandomInitialNPval:" (e.g. set it to 0.1) 
+
 2016-05-27 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Printout missing histogram (thanks t Davide Gerbaudo)
-        * KeepPruning flag in config file (allows to read Pruning.root file not to read already pruned systematics)
-        
+    * Printout missing histogram (thanks t Davide Gerbaudo)
+    * KeepPruning flag in config file (allows to read Pruning.root file not to read already pruned systematics)
+
 2016-05-18 Thomas Calvet <calvet@cppm.in2p3.fr>
-        * Adding functionality to do correlation plot
-	* Small bug fix for NTuple reading
-	* Bug fix for SystDataPlots option
-        
+    * Adding functionality to do correlation plot
+    * Small bug fix for NTuple reading
+    * Bug fix for SystDataPlots option
+
 2016-05-11 Michele Pinamonti <michele.pinamonti@gmail.com>, Valerio Dao <valerio.dao@cern.ch>
-        * Pruning functionality fixed
-        
+    * Pruning functionality fixed
+
 2016-05-09 Michele Pinamonti <michele.pinamonti@gmail.com>, Valerio Dao <valerio.dao@cern.ch>
-        * Pruning functionality (and plot) improved
+    * Pruning functionality (and plot) improved
 
 2016-05-06 Michele Pinamonti <michele.pinamonti@gmail.com>, Valerio Dao <valerio.dao@cern.ch>
-        * Systematic decorrelation options added (still to document)
-        * Bug fix for running from histograms
-        * Option added to run on an externally produced workspace (need to specify "WorkspaceFileName" in the config)
-        
+    * Systematic decorrelation options added (still to document)
+    * Bug fix for running from histograms
+    * Option added to run on an externally produced workspace (need to specify "WorkspaceFileName" in the config)
+
 2016-04-29 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Functionality added to re-run smoothing after input histograms are created (new option "b")
-        * Empty bin warnings now on only in debug mode
-        
+    * Functionality added to re-run smoothing after input histograms are created (new option "b")
+    * Empty bin warnings now on only in debug mode
+
 2016-04-26 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Fixed auto-binning for histo inputs (thanks Ian)
-        * Generation of Asimov within the fitter skipped if no data in any region (i.e. skipping DumpData method)
-        
+    * Fixed auto-binning for histo inputs (thanks Ian)
+    * Generation of Asimov within the fitter skipped if no data in any region (i.e. skipping DumpData method)
+
 2016-04-15 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * new option for systematics added (StoredName), which allows to specify a different name for storing in (and reading from) the .root files under Histograms/
-        
+    * new option for systematics added (StoredName), which allows to specify a different name for storing in (and reading from) the .root files under Histograms/
+
 2016-04-14 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * simple/minimal workspace combination method added to MultiFit (to test!)
-        * example added for usage of MultiFit
-        
+    * simple/minimal workspace combination method added to MultiFit (to test!)
+    * example added for usage of MultiFit
+
 2016-04-08 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * InputFolder option added, to use intermediate histograms stored in a directory other than <job-name>/Histograms/
-        * Fix in MultiFit::ComparePulls
+    * InputFolder option added, to use intermediate histograms stored in a directory other than <job-name>/Histograms/
+    * Fix in MultiFit::ComparePulls
 
 2016-04-03 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Post-fit syst tables added (created while running the p option)
-        * Post-fit uncertainty small fix (relevant with large pulls) - to check!
+    * Post-fit syst tables added (created while running the p option)
+    * Post-fit uncertainty small fix (relevant with large pulls) - to check!
 
 2016-03-15 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * NormFactor usage extended: now is possible to define them in the same way as the Systematics, allowing to have more than one of them for each sample, to have them fixed, to have norm factors affecting more samples, etc... 
-        * Post-fit norm factor propagation to tables and sumary plots fixed
-        * System for additional options (floats) added, for easy implementation of flags and options by users (see "Options:" in the README)
-        
+    * NormFactor usage extended: now is possible to define them in the same way as the Systematics, allowing to have more than one of them for each sample, to have them fixed, to have norm factors affecting more samples, etc... 
+    * Post-fit norm factor propagation to tables and sumary plots fixed
+    * System for additional options (floats) added, for easy implementation of flags and options by users (see "Options:" in the README)
+
 2016-03-03 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * MCstatThreshold default changed: now by default all gamma's are kept. To remove them completely (former default) use "MCstatThreshold: NONE" (reommended will be "MCstatThreshold: 0.01")
-        * Fix for fit and tables with systematics defined in certain regions only
-        * Fix plots when more samples with same title are declared (now summed together correctly)
-        
+    * MCstatThreshold default changed: now by default all gamma's are kept. To remove them completely (former default) use "MCstatThreshold: NONE" (reommended will be "MCstatThreshold: 0.01")
+    * Fix for fit and tables with systematics defined in certain regions only
+    * Fix plots when more samples with same title are declared (now summed together correctly)
+
 2016-02-29 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Fixed bug when declaring overall syst in some regions only (by doing so, many changes in SummaryPlot and YieldTables - need some testers!!)
-        * Nominal histo smoothing option added (unders "Sample", once can specify "  Smooth: TRUE")
-        
+    * Fixed bug when declaring overall syst in some regions only (by doing so, many changes in SummaryPlot and YieldTables - need some testers!!)
+    * Nominal histo smoothing option added (unders "Sample", once can specify "  Smooth: TRUE")
+
 2016-02-23 Tamara Vazquez Schroeder <tamara.vazquez.schroeder@cern.ch>
-        * Adding functionality to run MINOS over a specified set of parameters (UseMinos in config)
+    * Adding functionality to run MINOS over a specified set of parameters (UseMinos in config)
 
 2016-02-17 Loic Valery <lvalery@cern.ch>
-        * Fix crash when computing significance and using validation regions
+    * Fix crash when computing significance and using validation regions
 
 2016-02-15 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Added option to specify NuisanceParameter for each systematic -> allow correlated systematics
-        * Added option SkipSmoothing for Regions
-        * Added option to multiply and/or divide a sample by another sample (useful for corrections on the flight)
-        * Added option UseSystematics for Samples: by default is FALSE for ghost samples, true for other non-data samples
-        * Added HistoPath option for Sample, following Ian's suggestion (still to check and to add stuff for systematics!)
+    * Added option to specify NuisanceParameter for each systematic -> allow correlated systematics
+    * Added option SkipSmoothing for Regions
+    * Added option to multiply and/or divide a sample by another sample (useful for corrections on the flight)
+    * Added option UseSystematics for Samples: by default is FALSE for ghost samples, true for other non-data samples
+    * Added HistoPath option for Sample, following Ian's suggestion (still to check and to add stuff for systematics!)
 
 2016-01-22 Thomas Calvet <calvet@cppm.in2p3.fr>
-	* Adding new ploting functionnality
-	* Remove overflow and underflow usage in Auto-bin function
-	
+    * Adding new ploting functionnality
+    * Remove overflow and underflow usage in Auto-bin function
+
 2016-01-05 Loic Valery <lvalery@cern.ch>
-	* Fix inconsistency for integral to only take into account the range allowed by the user
-          (TTHFITTER-37)
+    * Fix inconsistency for integral to only take into account the range allowed by the user (TTHFITTER-37)
 
 2016-01-30 Loic Valery <lvalery@cern.ch>
-     	* Fix bug in ranking plot in TtHFit.C
+    * Fix bug in ranking plot in TtHFit.C
 
 2016-01-27 John Keller <jkeller@cern.ch>
-	* Adding New AutoBin algorithm "Transform J"
-	* Modify Auto-binning to be compatible with HIST input
-       
+    * Adding New AutoBin algorithm "Transform J"
+    * Modify Auto-binning to be compatible with HIST input
+
 2016-01-26 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Option added to swithc OFF MC for given sample
-        * Fix to HistoTools for one-sided systematics with symmatrisation & smoothing
-        
+    * Option added to swithc OFF MC for given sample
+    * Fix to HistoTools for one-sided systematics with symmatrisation & smoothing
+
 2016-01-22 Thomas Calvet <calvet@cppm.in2p3.fr>
-	* Adding possibility to profile several/all systematics (coma separated list/all)
-	* Adding protection to the likelihood scan in case the systematic has been removed in the pruning step
-	
+    * Adding possibility to profile several/all systematics (coma separated list/all)
+    * Adding protection to the likelihood scan in case the systematic has been removed in the pruning step
+
 2016-01-20 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Adding experimental option to remove constrain for some systematics -> use IsFreeParameter: TRUE (working only for fit, crashing for limits...)
-        * Implementing new options for histogram inputs: Region -> HistoPathSuff(s)
-        
-2016-01-11 Tamara Vazquez Schroeder <tamara.vazquez.schroeder@cern.ch>
-        * Fixing problems with OveralSystematic in case of correction for negative/null bins in the nom. histogram
+    * Adding experimental option to remove constrain for some systematics -> use IsFreeParameter: TRUE (working only for fit, crashing for limits...)
+    * Implementing new options for histogram inputs: Region -> HistoPathSuff(s)
 
 2016-01-11 Tamara Vazquez Schroeder <tamara.vazquez.schroeder@cern.ch>
-	* Adding likelihood scan option of POI or NP
+    * Fixing problems with OveralSystematic in case of correction for negative/null bins in the nom. histogram
+
+2016-01-11 Tamara Vazquez Schroeder <tamara.vazquez.schroeder@cern.ch>
+    * Adding likelihood scan option of POI or NP
 
 2016-01-09 Loic Valery <lvalery@cern.ch>
-        * Moved StatOnly flag from Fit to Job block
+    * Moved StatOnly flag from Fit to Job block
 
 2016-01-08 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Fixing problems with reference systematics & one-sided symmetrisation
-        * ConfigParser: spaces before % now allowed
-        
+    * Fixing problems with reference systematics & one-sided symmetrisation
+    * ConfigParser: spaces before % now allowed
+
 2016-01-08 Thomas Calvet <calvet@cppm.in2p3.fr>
-	* Modification if the Binning option is set, NTuple are directly turned in histograms with the specified binning (remove the rebin step to avoid edge problems).
-	* Adding AutoBin option for Binning (Binning: "AutoBin","TransfoD",1.,5.).
-	* Adding two transformation ("TransfoD","TransfoF") for binning. Each of them requires two parameters.
-	* Adding string to double conversion function, with exception protection (try-catch) and protection for incomplete convertion (52f8 -> 52 will crash). Used in the options added here, can be propagated to all conversions.
-	
+    * Modification if the Binning option is set, NTuple are directly turned in histograms with the specified binning (remove the rebin step to avoid edge problems).
+    * Adding AutoBin option for Binning (Binning: "AutoBin","TransfoD",1.,5.).
+    * Adding two transformation ("TransfoD","TransfoF") for binning. Each of them requires two parameters.
+    * Adding string to double conversion function, with exception protection (try-catch) and protection for incomplete convertion (52f8 -> 52 will crash). Used in the options added here, can be propagated to all conversions.
+
 2015-12-18 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Fixing signal draw options
-        * Updating documentation
-        * tex tables automatic creating added (by Marine)
-        * Svn-Tagging: 00-01-01
-        
+    * Fixing signal draw options
+    * Updating documentation
+    * tex tables automatic creating added (by Marine)
+    * Svn-Tagging: 00-01-01
+
 2015-12-16 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Option added to specify a list of regions where to apply each syst. See option Regions under Systematic (also Exclude should work - to exclude both for regions and sample)
-        * Added few optins for signal in plots (NOSIG, OVERSIG)
+    * Option added to specify a list of regions where to apply each syst. See option Regions under Systematic (also Exclude should work - to exclude both for regions and sample)
+    * Added few optins for signal in plots (NOSIG, OVERSIG)
 
 2015-12-11 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Command-line option "Signal" added: e.g.  ./myFit.exe  wl  config/myconfig.config  'Signal=signalA:Suffix=_A'
-        * Fixed limit when having a suffix
-        * MC stat uncertinaty in post-fit tables fixed
+    * Command-line option "Signal" added: e.g.  ./myFit.exe  wl  config/myconfig.config  'Signal=signalA:Suffix=_A'
+    * Fixed limit when having a suffix
+    * MC stat uncertinaty in post-fit tables fixed
 
 2015-12-10 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * ReferenceSample option fixed (relative overall normalization variation kept)
-        * Image format propagated to syst plots, and now possible to specify more than one (e.g. eps,png)
-        * PieChart plot fixed and moved to main output directory (as SignalRegions)
-        
+    * ReferenceSample option fixed (relative overall normalization variation kept)
+    * Image format propagated to syst plots, and now possible to specify more than one (e.g. eps,png)
+    * PieChart plot fixed and moved to main output directory (as SignalRegions)
+
 2015-12-06 Loic Valery <lvalery@cern.ch>
-        * Improve tables by automating the script -> Still to be improved for the $$
-        * Adding pie charts
+    * Improve tables by automating the script -> Still to be improved for the $$
+    * Adding pie charts
 
 2015-12-05 Loic Valery <lvalery@cern.ch>
-        * Remove useless fits from the limits computation (when everything uses data, no need to fit to get an Asimov)
-        * Fixing nans for the regions with 0 signal events bins 
+    * Remove useless fits from the limits computation (when everything uses data, no need to fit to get an Asimov)
+    * Fixing nans for the regions with 0 signal events bins 
 
 2015-12-04 Loic Valery <lvalery@cern.ch>
-        * Fixing the fully blinded limits to be compatible when no data sample is there
-        * Adding the limit configuraiton in all the example config files
+    * Fixing the fully blinded limits to be compatible when no data sample is there
+    * Adding the limit configuraiton in all the example config files
 
 2015-12-03 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * ReferenceSample option added for systematics (to derive syst relativly to a given sample)
-        * Type::GHOST added for Sample => sample not shown enywhere, but used for systs with ReferenceSample option
-        
+    * ReferenceSample option added for systematics (to derive syst relativly to a given sample)
+    * Type::GHOST added for Sample => sample not shown enywhere, but used for systs with ReferenceSample option
+
 2015-12-03 Calvet Thomas <calvet@cppm.in2p3.fr>
-	* Merging trunk with devbranch
-	
+    * Merging trunk with devbranch
+
 2015-12-02 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * IgnoreWeight option added for systematics (e.g. to avoid using pile-up weight for MC systematics)
-        * Data not shown if Region has ASIMOVDATA
-        * (thanks to Arthur) Fix Stat-only limit  and significance by adding a dummy NP
-        * Fix fully blind limit
-        
+    * IgnoreWeight option added for systematics (e.g. to avoid using pile-up weight for MC systematics)
+    * Data not shown if Region has ASIMOVDATA
+    * (thanks to Arthur) Fix Stat-only limit  and significance by adding a dummy NP
+    * Fix fully blind limit
+
 2015-12-01 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TtHFit, Region: Syst table output added: when running with option d, one table per region created
-        * signals scaled by nominal NormFactor when plotting pre-fit
-        
+    * TtHFit, Region: Syst table output added: when running with option d, one table per region created
+    * signals scaled by nominal NormFactor when plotting pre-fit
+
 2015-11-30 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * StatOnly flag added (to "Fit" for the moment - actually it affects also Limit... To fix)
-	
+    * StatOnly flag added (to "Fit" for the moment - actually it affects also Limit... To fix)
+
 2015-11-25 - Loic Valery <lvalery@cern.ch>
-        * Adding protection against initial numbers in names. Leads to crash if present (https://its.cern.ch/jira/browse/TTHFITTER-7)
-	
+    * Adding protection against initial numbers in names. Leads to crash if present (https://its.cern.ch/jira/browse/TTHFITTER-7)
+
 2015-11-25 Loic Valery <lvalery@cern.ch>
-        * Adding the partial blinding for fit, limits and significance
-	
+    * Adding the partial blinding for fit, limits and significance
+
 2015-11-24 Calvet Thomas <calvet@cppm.in2p3.fr>
-	* Update to trunk
-	* Add possibility to merge trees coming from same root file
-	* Add config example for navigation in root files
-	
+    * Update to trunk
+    * Add possibility to merge trees coming from same root file
+    * Add config example for navigation in root files
+
 2015-11-13 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Some functionalities added for individual sample scaling and to ignore selection
-        * README: updated
-        * config files moved to new config/ directory
-        
+    * Some functionalities added for individual sample scaling and to ignore selection
+    * README: updated
+    * config files moved to new config/ directory
+
 2015-11-11 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Fix by Arthur for more than one NtupleFiles (avoid problems when spaces are in between the ",")
-        * Fix by Thomas for crash on FittingTool with stat only
-        
+    * Fix by Arthur for more than one NtupleFiles (avoid problems when spaces are in between the ",")
+    * Fix by Thomas for crash on FittingTool with stat only
+
 2015-11-06 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Support for more than one Signal (still only 1 POI)
-        
+    * Support for more than one Signal (still only 1 POI)
+
 2015-11-05 Loic Valery <lvalery@cern.ch>
-        * Fixes POI range in fitting tool
-	
+    * Fixes POI range in fitting tool
+
 2015-10-28 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TtHFit: add protection for no syst case when entering pruning plotting method
-	
+    * TtHFit: add protection for no syst case when entering pruning plotting method
+
 2015-10-21 Thomas Calvet <calvet@cppm.in2p3.fr>
-	* TtHFit: adding new functionalities for navigation in single root file
-	* Common: small fix
-	
+    * TtHFit: adding new functionalities for navigation in single root file
+    * Common: small fix
+
 2015-10-22 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TtHFit: add possibiliy of Selection for Sample
-        
+    * TtHFit: add possibiliy of Selection for Sample
+
 2015-10-21 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TtHFit, Common, SampleHist: HistoCheckCrash flag moved to Common (TtHFitter::HISTOCHECKCRAS) -> correctly propagated to SampleHist
-        * TtHFit: Fit method: Asimov used if no data
-        * TtHFit: Fix: no smooth method called if no smooth and symmetrization set for syst
-        * HistoTools: if no crash, negative syst hist bins set to 1e-06
-        * Smone cleaning of outdated files
-        
+    * TtHFit, Common, SampleHist: HistoCheckCrash flag moved to Common (TtHFitter::HISTOCHECKCRAS) -> correctly propagated to SampleHist
+    * TtHFit: Fit method: Asimov used if no data
+    * TtHFit: Fix: no smooth method called if no smooth and symmetrization set for syst
+    * HistoTools: if no crash, negative syst hist bins set to 1e-06
+    * Smone cleaning of outdated files
+
 2015-10-20 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TtHFit: option added for outout image format
-        * New config file for default ttHbbLjet fit
-        
+    * TtHFit: option added for outout image format
+    * New config file for default ttHbbLjet fit
+
 2015-10-15 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TtHFit, Region, TthPlot: bin-blinding (as in tth bb lep analysis Run 2) implemented; use the option "BlindingThreshold: 0.02" under Fit in config
-        * TtHFit: NP ranking small fixes + parallelization (use inline option Ranking=<name/index of systematic> to run on for single NP - then merge at the plotting stage, with the option Ranking=plot)
-        * TtHFit: NP ranking plot method added (run with r argument with no "Ranking" option or with Ranking=plot option)
+    * TtHFit, Region, TthPlot: bin-blinding (as in tth bb lep analysis Run 2) implemented; use the option "BlindingThreshold: 0.02" under Fit in config
+    * TtHFit: NP ranking small fixes + parallelization (use inline option Ranking=<name/index of systematic> to run on for single NP - then merge at the plotting stage, with the option Ranking=plot)
+    * TtHFit: NP ranking plot method added (run with r argument with no "Ranking" option or with Ranking=plot option)
 
 2015-10-14 Arthur Chomont <arthur.chomont@cern.ch>
-        * TtHFit, FittingTool: NP Ranking ported to new Fitting routine
-        
+    * TtHFit, FittingTool: NP Ranking ported to new Fitting routine
+
 2015-10-09 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TtHFit, Sample: added option to include Samples only in some Regions (use Regions: and/or Exclude: in config file)
-        * Other small fixes
-        * TtHFit, SampleHist: OVERALL systs now saved with correct name as histograms in root file
-        * TtHFit: option added in order to write and read separated root files for different regions (faster and can be parallelized)
-        * TtHFit: Separation plot added (by Leonid Serkin)
-        * TtHFit, FittingTool: Ranking plot stuff partially ported to new Fitting routine
-        
+    * TtHFit, Sample: added option to include Samples only in some Regions (use Regions: and/or Exclude: in config file)
+    * Other small fixes
+    * TtHFit, SampleHist: OVERALL systs now saved with correct name as histograms in root file
+    * TtHFit: option added in order to write and read separated root files for different regions (faster and can be parallelized)
+    * TtHFit: Separation plot added (by Leonid Serkin)
+    * TtHFit, FittingTool: Ranking plot stuff partially ported to new Fitting routine
+
 2015-10-03 Loic Valery <lvalery@cern,ch>
-	* Improve style of systematics checks plots (and add the stat error information)
-  	* Adding more checks for null content after symmetrisation and smoothing
+    * Improve style of systematics checks plots (and add the stat error information)
+    * Adding more checks for null content after symmetrisation and smoothing
 
 2015-10-03 Loic Valery <lvalery@cern.ch>
-        * Changing setup for ROOT6 (required access to /cvmfs/)
-        * Cleaning Makefile and adapting it to ROOT6
-        * Adding class for fitting
-        * Propagates new class for fitting into TtHFit.C
-        * Change structure of CONFIG file to separate Job and Fit parts and propagate this to TtHFit.C
-        * Adding Category for systematics (splitting the pulls plots depending on categories)
-	* Changing structure of plot for systematics checks
+    * Changing setup for ROOT6 (required access to /cvmfs/)
+    * Cleaning Makefile and adapting it to ROOT6
+    * Adding class for fitting
+    * Propagates new class for fitting into TtHFit.C
+    * Change structure of CONFIG file to separate Job and Fit parts and propagate this to TtHFit.C
+    * Adding Category for systematics (splitting the pulls plots depending on categories)
+    * Changing structure of plot for systematics checks
 
 2015-10-02 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * FitCrossCheckForLimits.C, PlotRanking.C: ranking plot added (by Arthur), ranking plot drawing macro added
-        
+    * FitCrossCheckForLimits.C, PlotRanking.C: ranking plot added (by Arthur), ranking plot drawing macro added
+
 2015-09-15 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * MultiFit.C, MultiFit.h: added
+    * MultiFit.C, MultiFit.h: added
 
 2015-08-26 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * mainly TtHFit.C & myFit.C: command line argument added: a list of options. See README file for details.
-        
+    * mainly TtHFit.C & myFit.C: command line argument added: a list of options. See README file for details.
+
 2015-08-25 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TthPlot: norm. signal added to legend (to have norm sig, use the option "PlotOptions: "NORMSIG" ")
-        * TthPlot: variable bins divided by bin width / nominal bin width (as region option, specify "BinWidth: ...")
-        * TtHFit.C, Region.C, Sample.C/.h: added Sample::fGroup attribute, to be used to group samples in plots instead of using the same title
-        * TtHFit.C: NtuplePath can be specified for Samples in config file
+    * TthPlot: norm. signal added to legend (to have norm sig, use the option "PlotOptions: "NORMSIG" ")
+    * TthPlot: variable bins divided by bin width / nominal bin width (as region option, specify "BinWidth: ...")
+    * TtHFit.C, Region.C, Sample.C/.h: added Sample::fGroup attribute, to be used to group samples in plots instead of using the same title
+    * TtHFit.C: NtuplePath can be specified for Samples in config file
 
 2015-08-11 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TtHFit.C: Fixed NtupleNameUp and Down option
-        * All: Fixed NP names / titles in plots
-        * HistoTools.C: Fixed issue with one-sided syst symmetrization
-        * All: Fixed memory leak warnings
-        * Common.C/h: overflow/underflow merged to firts/last bin when creating hist from ntup (solving warning from HistoTools)
-        * TtHFit.C: Pruning plot added (created when the option "w" is used)
-        
+    * TtHFit.C: Fixed NtupleNameUp and Down option
+    * All: Fixed NP names / titles in plots
+    * HistoTools.C: Fixed issue with one-sided syst symmetrization
+    * All: Fixed memory leak warnings
+    * Common.C/h: overflow/underflow merged to firts/last bin when creating hist from ntup (solving warning from HistoTools)
+    * TtHFit.C: Pruning plot added (created when the option "w" is used)
+
 2015-07-24 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * All: added few options to config file
-        * TtHFit.C: rebinning added for ntuple inputs
-        
+    * All: added few options to config file
+    * TtHFit.C: rebinning added for ntuple inputs
+
 2015-07-03 Loic Valery <lvalery@cern.ch>
-        * Disentangle S+B fit and CRonly/SR+CR fits
+    * Disentangle S+B fit and CRonly/SR+CR fits
 
 2015-07-01 Loic Valery <lvalery@cern.ch>
-        * Change TthPlot to avoid nan problems when no data
-        * Some cleaning in TthPlot
-        * Fixed bug in post-fit NormFactor error propagation
+    * Change TthPlot to avoid nan problems when no data
+    * Some cleaning in TthPlot
+    * Fixed bug in post-fit NormFactor error propagation
 
 2015-06-24 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * All: Minor fixes
-        * Svn-Tagging: 00-00-02
-        
+    * All: Minor fixes
+    * Svn-Tagging: 00-00-02
+
 2015-06-23 Loic Valery <lvalery@cern.ch>
-        * Changing HistoChecks and preceeds it by corrections for null bins and weird systematics
-        * Fix text color problems in HistoChecks
+    * Changing HistoChecks and preceeds it by corrections for null bins and weird systematics
+    * Fix text color problems in HistoChecks
 
 2015-06-18 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * All: Fix various warnings and printout reduced in case DEBUGLEVEL is set to 0
-        * Svn-Tagging: 00-00-01
-        
+    * All: Fix various warnings and printout reduced in case DEBUGLEVEL is set to 0
+    * Svn-Tagging: 00-00-01
+
 2015-06-15 Loic Valery <lvalery@cern.ch>
-  	* Root/TtHFit.C: Adding the check of the histograms
-	* Root/SampleHist.C: Adding post-smoothing check of the histograms
+    * Root/TtHFit.C: Adding the check of the histograms
+    * Root/SampleHist.C: Adding post-smoothing check of the histograms
 
 2015-06-12 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Root/TtHFit.C: table code fixed
-        * Root/TtHFit.C, Root/FitResults.C: systematic pulls plot code moved to FitResults.C
-        
+    * Root/TtHFit.C: table code fixed
+    * Root/TtHFit.C, Root/FitResults.C: systematic pulls plot code moved to FitResults.C
+
 2015-05-27 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Root/TtHFit.C, TtHFitter/TtHFit.h, util/myFit.C: CorrelationMatrix drawing command moved to myFit.C
-        * Root/TtHFit.C: signal regions plot fixed (this time really)
+    * Root/TtHFit.C, TtHFitter/TtHFit.h, util/myFit.C: CorrelationMatrix drawing command moved to myFit.C
+    * Root/TtHFit.C: signal regions plot fixed (this time really)
 
 2015-05-26 Loic Valery <lvalery@cern.ch>
-        * CorrelationMatrix.C: implement duumping of correlation matrix in Plots/ folder
+    * CorrelationMatrix.C: implement duumping of correlation matrix in Plots/ folder
 
 2015-05-25 Loic Valery <lvalery@cern.ch>
-        * myFit.C: fixing the order of commands (smoothing done before writing the histos in the file)
-        * Region.C: fix on the central values (consistent with Roostats) -- still work to do on the systematics
-        * Common.C/.h: moving the variable for dumping systematic control plots in Common
+    * myFit.C: fixing the order of commands (smoothing done before writing the histos in the file)
+    * Region.C: fix on the central values (consistent with Roostats) -- still work to do on the systematics
+    * Common.C/.h: moving the variable for dumping systematic control plots in Common
 
 2015-05-22 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * general: cahnged organization of the output: now all the files created by a fit are inside a single directory, with a sub-directory structure
-        * TtHFit.C: re-introduced SmoothSystematics
-        * TtHFit.C, myFit.C: smoothing and syst-plots commands moved to myFit.C (option for saving syst-plots moved as well)
-        * tableToLatex.sh: example script added to turn txt tables into latex format
-        * TtHFit.C: Fixed signal-regions plot
+    * general: cahnged organization of the output: now all the files created by a fit are inside a single directory, with a sub-directory structure
+    * TtHFit.C: re-introduced SmoothSystematics
+    * TtHFit.C, myFit.C: smoothing and syst-plots commands moved to myFit.C (option for saving syst-plots moved as well)
+    * tableToLatex.sh: example script added to turn txt tables into latex format
+    * TtHFit.C: Fixed signal-regions plot
 
 2015-05-20 Loic Valery <lvalery@cern.ch>
-        * TtHFit.C: fix mem leaks, remove unused function (SmoothSystematics), change some histograms names to avoid warning messages
-        * TtHFit.h: propagates function suppression
-        * TtHFit.C: adding an option in the config file to avoid dumping syst control histograms
-        * SampleHist.C: fix bug in the propagation of the normalisation systematic uncertainties
+    * TtHFit.C: fix mem leaks, remove unused function (SmoothSystematics), change some histograms names to avoid warning messages
+    * TtHFit.h: propagates function suppression
+    * TtHFit.C: adding an option in the config file to avoid dumping syst control histograms
+    * SampleHist.C: fix bug in the propagation of the normalisation systematic uncertainties
 
 2015-05-14 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TtHFit.C: pre and post fit yield tables added
-        * TtHFit.C, runSig.C: significance calculation added
-        * TtHFit.C: limit and significance output stored in proper file sin proper directories
-        * TthPlot.C: plotting style improved (no numbers in the legend, ability to merge small samples...)
-        * TtHFit.C, Region.C: root file outptuts added for pre- and post-fit plots (summary as well)
-        * util/myFit.C: options added for the parser
-        * PlotLimits.C: macro added to plot limits (still not interfaced with the main code)
-        * Versioning: 1.3
-        
+    * TtHFit.C: pre and post fit yield tables added
+    * TtHFit.C, runSig.C: significance calculation added
+    * TtHFit.C: limit and significance output stored in proper file sin proper directories
+    * TthPlot.C: plotting style improved (no numbers in the legend, ability to merge small samples...)
+    * TtHFit.C, Region.C: root file outptuts added for pre- and post-fit plots (summary as well)
+    * util/myFit.C: options added for the parser
+    * PlotLimits.C: macro added to plot limits (still not interfaced with the main code)
+    * Versioning: 1.3
+
 2015-04-30 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * TtHFit.C, Region.C: modified to better handle post-fit plots
-        * TtHFit.C: post-fit summary plot added
-        * util/myFit.C, TtHFit.C: config parser stuff moved to TtHFit.C
-        * Many other small changes and cosmetic fixes to code and plots
-        * Versioning: 1.2
-        
+    * TtHFit.C, Region.C: modified to better handle post-fit plots
+    * TtHFit.C: post-fit summary plot added
+    * util/myFit.C, TtHFit.C: config parser stuff moved to TtHFit.C
+    * Many other small changes and cosmetic fixes to code and plots
+    * Versioning: 1.2
+
 2015-04-09 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Makefile: changed in order to accept as argument the main code to use (any .C inside utils/)
-        * Configuration file system added
-        * util/myFit.config: added
-        * util/myFit.C: changed in order to read util/myFit.config
-        * Region.C: Option added to have different constrains on Overall and Histo systs (at the moment both have interpCode=4, which seems to perform better - to check)
-        * Versioning: 1.1
+    * Makefile: changed in order to accept as argument the main code to use (any .C inside utils/)
+    * Configuration file system added
+    * util/myFit.config: added
+    * util/myFit.C: changed in order to read util/myFit.config
+    * Region.C: Option added to have different constrains on Overall and Histo systs (at the moment both have interpCode=4, which seems to perform better - to check)
+    * Versioning: 1.1
 
 2015-03-13 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Makefile: added
-        * util/myFit.C: added (compiled version of FitExample_fromHist.C)
-        
+    * Makefile: added
+    * util/myFit.C: added (compiled version of FitExample_fromHist.C)
+
 2015-03-04 Michele Pinamonti <michele.pinamonti@gmail.com>
-        * Start versioning: 1.0
+    * Start versioning: 1.0
