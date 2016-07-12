@@ -1,3 +1,7 @@
+2016-07-12 Will Breaden Madden <w.bm@cern.ch>
+        * remove run.sh, a simple example run script
+        * add run.py, a less simple example run script
+
 2016-11-07 Thomas Calvet <calvet@cppm.in2p3.fr>
         * Adding automatic binning for background: if shapes are wanted (i.e. Transfo F or D with sig parameter=0) need to specify with samples is used to replace signal (e.g. "AutoBin","TransfoD",paramSig,paramBkg,"smp1","smp2")
         
