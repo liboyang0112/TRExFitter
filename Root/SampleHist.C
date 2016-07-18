@@ -290,6 +290,15 @@ void SampleHist::ReadFromFile(){
 //_____________________________________________________________________________
 //
 void SampleHist::FixEmptyBins(){
+    float yield = fHist->Integral();
+    vector<float> yieldUp;
+    vector<float> yieldDown;
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        SystematicHist* syh = fSyst[i_syst];
+        yieldUp.push_back(syh->fHistUp->Integral());
+        yieldDown.push_back(syh->fHistDown->Integral());
+    }
+    //
     for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
         if(fHist->GetBinContent(i_bin)<=0){
             if(TtHFitter::DEBUGLEVEL>0){
@@ -305,6 +314,18 @@ void SampleHist::FixEmptyBins(){
                 syh -> fHistDown -> SetBinContent(i_bin,1e-06);
             }
         }
+    }
+    // keep the original overall Normalisation
+    if(fHist->Integral()!=yield) fHist->Scale(yield/fHist->Integral());
+    if(fHist->Integral()<0){
+        for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+            fHist->SetBinContent(i_bin,1e-6);
+        }
+    }
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        SystematicHist* syh = fSyst[i_syst];
+        if(syh->fHistUp  ->Integral()!=yieldUp[i_syst]  ) syh->fHistUp  ->Scale(yieldUp[i_syst]  /syh->fHistUp  ->Integral());
+        if(syh->fHistDown->Integral()!=yieldDown[i_syst]) syh->fHistDown->Scale(yieldDown[i_syst]/syh->fHistDown->Integral());
     }
 }
 
