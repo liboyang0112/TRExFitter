@@ -83,6 +83,8 @@ public:
     
     bool fPlotSoverB;
     string fSignalTitle;
+    
+    std::string fFitResultsFile;
 };
 
 #endif

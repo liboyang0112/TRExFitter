@@ -1,3 +1,6 @@
+2016-07-18 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Nominal smoothing modified: removed the functionality which sets histograms to constant in some cases (creating issues)
+
 2016-07-12 Will Breaden Madden <w.bm@cern.ch>
     * run.py
         * add warning comparison for cores configuration and cores detected

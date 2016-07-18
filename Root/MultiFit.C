@@ -65,6 +65,8 @@ MultiFit::MultiFit(string name){
     //
     fPlotSoverB = false;
     fSignalTitle = "t#bar{t}H";
+    //
+    fFitResultsFile = "";
 }
 
 //__________________________________________________________________________________
@@ -153,6 +155,8 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     //
     param = cs->Get("PlotSoverB"); if( param == "TRUE" )  fPlotSoverB = true;
     param = cs->Get("SignalTitle"); if( param != "" )  fSignalTitle = param;
+    //
+    param = cs->Get("FitResultsFile"); if( param != "" )  fFitResultsFile = param;
     
     //
     // fits
@@ -330,6 +334,19 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     }
     if(fUseRnd) fitTool -> SetRandomNP(fRndRange, fUseRnd);
 
+    //
+    // Fit starting from custom point
+    if(fFitResultsFile!=""){
+        fFitList[0]->ReadFitResults(fFitResultsFile);
+        std::vector<std::string> npNames;
+        std::vector<double> npValues;
+        for(unsigned int i_np=0;i_np<fFitList[0]->fFitResults->fNuisPar.size();i_np++){
+            npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
+            npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
+        }
+        fitTool -> SetNPs( npNames,npValues );
+    }
+    
     std::vector<std::string> vVarNameMinos; vVarNameMinos.clear();
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         for(unsigned int i_minos=0;i_minos<fFitList[i_fit]->fVarNameMinos.size();i_minos++){

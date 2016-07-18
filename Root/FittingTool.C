@@ -149,7 +149,8 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
 //                 var->setVal(m_constNPvalue);
 //                 var->setConstant(1);
             bool found = false;
-            // loop on the NP specified to as constant
+            //
+            // loop on the NP specified to be constant
             for( unsigned int i_np = 0; i_np<m_constNP.size(); i_np++ ){
                 if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np] ){
                     var->setVal(m_constNPvalue[i_np]);
@@ -158,6 +159,18 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
                     break;
                 }
             }
+            //
+            // loop on the NP specified to have custom starting value
+            for( unsigned int i_np = 0; i_np<m_initialNP.size(); i_np++ ){
+                if( np == ("alpha_"+m_initialNP[i_np]) || np == m_initialNP[i_np] ){
+//                     var->setVal(m_initialNPvalue[i_np]);
+                    var->setVal(m_initialNPvalue[i_np]/2.);
+                    std::cout << " ---> Setting " << m_initialNP[i_np] << " to " << m_initialNPvalue[i_np] << std::endl;
+                    found = true;
+                    break;
+                }
+            }
+            //
             if(!found){
                 if( np.find("alpha_")!=string::npos ){   // for syst NP
                     if(m_randomize) var->setVal( m_randomNP*(gRandom->Uniform(2)-1.) );

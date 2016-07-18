@@ -316,7 +316,6 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
     TH1* h0;
     int Nmax = 5;
     for(int i=0;i<Nmax;i++){
-//         cout << "SMOOTH " << i << endl;
         h0 = (TH1*)h->Clone("h0");
         h->Smooth();
         bool changesApplied = false;
@@ -340,19 +339,19 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
     float p0 = f_fit->GetParameter(0);
     float p0err = f_fit->GetParError(0);
     bool isFlat = true;
-    for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-        if( TMath::Abs(h->GetBinContent(i_bin)-p0) > h->GetBinError(i_bin) )
-//         if( TMath::Abs(h->GetBinContent(i_bin)-p0) > 2*h->GetBinError(i_bin) )
-            isFlat = false;
-    }
-    if( (forceFlat<0 && isFlat) || forceFlat>0){
-        for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-            h->SetBinContent(i_bin,p0);
-//             h->SetBinError(i_bin,p0err);  // this creates problems...
-            h->SetBinError(i_bin,p0);
-        }
-//         cout << "IS FLAT" << endl;
-    }
+//     for(int i_bin=1;i_bin<=nbinsx;i_bin++){
+//         if( TMath::Abs(h->GetBinContent(i_bin)-p0) > h->GetBinError(i_bin) )
+// //         if( TMath::Abs(h->GetBinContent(i_bin)-p0) > 2*h->GetBinError(i_bin) )
+//             isFlat = false;
+//     }
+//     if( (forceFlat<0 && isFlat) || forceFlat>0){
+//         for(int i_bin=1;i_bin<=nbinsx;i_bin++){
+//             h->SetBinContent(i_bin,p0);
+// //             h->SetBinError(i_bin,p0err);  // this creates problems...
+//             h->SetBinError(i_bin,p0);
+//         }
+//     }
+    isFlat = false; // FIXME
     //
     // make sure you didn't change the integral
     h->Scale(integral/h->Integral());

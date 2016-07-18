@@ -57,6 +57,7 @@ public:
     inline void ResetFixedNP() { m_constNP.clear(); m_constNPvalue.clear(); };
     inline void FixNP( std::string np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
     inline void FixNPs( std::vector<std::string> nps, std::vector<double> values ) { m_constNP = nps; m_constNPvalue = values; }
+    inline void SetNPs( std::vector<std::string> nps, std::vector<double> values ) { m_initialNP = nps; m_initialNPvalue = values; }
     
     inline RooFitResult* GetFitResult() { return m_fitResult; }
 
@@ -86,6 +87,8 @@ private:
 //     double m_constNPvalue;
     std::vector<std::string> m_constNP;
     std::vector<double> m_constNPvalue;
+    std::vector<std::string> m_initialNP;
+    std::vector<double> m_initialNPvalue;
 };
 
 
