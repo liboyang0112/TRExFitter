@@ -28,6 +28,8 @@ public:
     map<string,int> fNuisParIdx;
     map<string,bool> fNuisParIsThere;
     
+    vector<string> fNuisParToHide; // NPs to hide
+    
     std::vector < NuisParameter* > fNuisPar;
     CorrelationMatrix *fCorrMatrix;
     

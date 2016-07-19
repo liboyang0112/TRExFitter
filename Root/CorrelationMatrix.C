@@ -95,6 +95,7 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
             }
         }
         if(skip) continue;
+        if( FindInStringVector(fNuisParToHide,iSystName)>=0 ) continue;
         vec_NP.push_back(iSystName);
     }
     N = vec_NP.size();

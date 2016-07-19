@@ -207,6 +207,7 @@ void FitResults::DrawPulls(string path, string category){
         par = fNuisPar[i];
         
         if( category != "all" && category != par->fCategory ) continue;
+        if( FindInStringVector(fNuisParToHide,par->fName)>=0 ) continue;
         
         bool skip = false;
         for(int ii=0; ii<sizeof(npToExclude)/sizeof(string); ii++){
@@ -293,6 +294,7 @@ void FitResults::DrawPulls(string path, string category){
 //
 void FitResults::DrawCorrelationMatrix(string path, const double corrMin){
     if(fCorrMatrix){
+        fCorrMatrix->fNuisParToHide = fNuisParToHide;
         fCorrMatrix->Draw(path, corrMin);
     }
 }

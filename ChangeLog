@@ -1,3 +1,9 @@
+2016-07-19 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixed procedure to set to 1e-6 the negative bins: now it preserves the original yield (setting it to flat 1e-6 in case it's negative)
+    * Added option to hide a NP from pull and correlation matrix plots
+    * Added Category for NormFactors
+    * Added config option for Suffix (before only from command line)
+    
 2016-07-18 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Nominal smoothing modified: removed the functionality which sets histograms to constant in some cases (creating issues)
 

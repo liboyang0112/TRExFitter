@@ -105,6 +105,7 @@ TtHFit::TtHFit(string name){
     fRndRange = 0.1;
     fVarNameLH.clear();
     fVarNameMinos.clear();
+    fVarNameHide.clear();
     fWorkspaceFileName = "";
     
     //
@@ -655,6 +656,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ) fSystCategoryTables = true;
     }
+    param = cs->Get("Suffix"); if( param != "" ){
+        fSuffix = param;
+    }
+    param = cs->Get("HideNP"); if( param != "" ){
+        fVarNameHide = Vectorize(param,',');
+    }
     
     //
     // General options
@@ -1110,11 +1117,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             norm->fNuisanceParameter = norm->fName;
             TtHFitter::NPMAP[norm->fName] = norm->fName;
         }
-        //
         param = cs->Get("Constant");
         if(param!=""){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
             if(param=="TRUE") norm->fConst = true;
+        }
+        param = cs->Get("Category");
+        if(param!=""){
+            norm->fCategory = param;
         }
         param = cs->Get("Title"); if(param!=""){
             norm->fTitle = param;
@@ -4696,6 +4706,7 @@ void TtHFit::PlotFittedNP(){
     //
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     if(fFitResults){
+        fFitResults->fNuisParToHide = fVarNameHide;
         std::set < std::string > npCategories;
         for(unsigned int i=0;i<fSystematics.size();i++){
             npCategories.insert(fSystematics[i]->fCategory);
@@ -4726,6 +4737,7 @@ void TtHFit::PlotCorrelationMatrix(){
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     if(fFitResults){
+        fFitResults->fNuisParToHide = fVarNameHide;
         for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
             fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],TtHFitter::CORRELATIONTHRESHOLD);
     }
@@ -4938,6 +4950,12 @@ void TtHFit::ReadFitResults(string fileName){
             if(fSystematics[j]->fName == fFitResults->fNuisPar[i]->fName){
                 fFitResults->fNuisPar[i]->fTitle = fSystematics[j]->fTitle;
                 fFitResults->fNuisPar[i]->fCategory = fSystematics[j]->fCategory;
+            }
+        }
+        for(unsigned int j=0;j<fNormFactors.size();j++){
+            if(fNormFactors[j]->fName == fFitResults->fNuisPar[i]->fName){
+                fFitResults->fNuisPar[i]->fTitle = fNormFactors[j]->fTitle;
+                fFitResults->fNuisPar[i]->fCategory = fNormFactors[j]->fCategory;
             }
         }
     }

@@ -23,6 +23,7 @@ public:
     vector<string> fNuisParNames;
     map<string,int> fNuisParIdx;
     map<string,bool> fNuisParIsThere;
+    vector<string> fNuisParToHide;
     float fMatrix[MAXsyst][MAXsyst];
 };
 

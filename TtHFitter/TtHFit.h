@@ -232,6 +232,7 @@ public:
     float fRndRange;
     vector<string> fVarNameLH;
     vector<string> fVarNameMinos;
+    vector<string> fVarNameHide;
     std::string fWorkspaceFileName;
 
     //
