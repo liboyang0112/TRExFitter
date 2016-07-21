@@ -44,6 +44,7 @@ public:
     std::vector<string> fRegions;
     std::vector<string> fExclude;
     std::vector<string> fDropShapeIn;
+    std::vector<string> fDropNormIn;
     
     // from ntuples - up
     string fWeightUp;

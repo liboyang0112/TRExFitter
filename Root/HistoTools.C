@@ -711,6 +711,11 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         //
         // 4.b) Checks that the systematics are not crazy (too large ratio, nan returned, ...)
         //
+        // Fix by Francesco Peri
+        contentNom   = nom->GetBinContent(iBin);
+        contentUp    = sh->fHistUp->GetBinContent(iBin);
+        contentDown  = sh->fHistDown->GetBinContent(iBin);
+        //
         double ratioUp   = 0.;
         double ratioDown = 0.;
         if(contentNom != 0 ){

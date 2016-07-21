@@ -85,6 +85,7 @@ public:
     
     string fName;
     string fVariableTitle;
+    string fYTitle;
     string fLabel; // something like "e/µ + 6 j, >=4 b b"
     string fShortLabel; // something like "6j,3b"
     string fTexLabel;
@@ -101,6 +102,7 @@ public:
     int fNSamples;
     std::vector < SampleHist* > fSampleHists;
     std::vector < Sample* > fSamples;
+    float fYmaxScale;
     
     // to draw
     THStack *fStack;

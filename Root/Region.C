@@ -21,6 +21,8 @@ Region::Region(string name){
     fUseStatErr = false;
     fHistoBins = 0;
     fHistoNBinsRebin = -1;
+    fYTitle = "";
+    fYmaxScale = 0;
 
     string cName = "c_"+fName;
     int canvasWidth = 600;
@@ -398,8 +400,10 @@ void Region::BuildPreFitErrorHist(){
 TthPlot* Region::DrawPreFit(string opt){
     
     TthPlot *p = fPlotPreFit;
-    p->SetYmaxScale(1.8);
+    if(fYmaxScale==0) p->SetYmaxScale(1.8);
+    else              p->SetYmaxScale(fYmaxScale);
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
+    if(fYTitle!="") p->SetYaxis(fYTitle);
     //
     // For 4-top-style plots
     if(TtHFitter::OPTION["FourTopStyle"]>0){
@@ -417,6 +421,7 @@ TthPlot* Region::DrawPreFit(string opt){
         p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         p->AddLabel("Pre-Fit");
+        if(TtHFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TtHFitter::OPTION["LegendNColumns"];
     }
     //
     p->SetLumi(fLumiLabel);
@@ -445,9 +450,14 @@ TthPlot* Region::DrawPreFit(string opt){
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
         }
         if(TtHFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
-//         if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h,title+" (norm)");
-        if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h,title+"*");
-        if(TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(h,title+"*");
+        if(TtHFitter::SHOWNORMSIG){
+            if( (TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
+             || !TtHFitter::OPTION["NormSigSRonly"] )
+                p->AddNormSignal(h,title);
+        }
+        else{
+            if(TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(h,title);
+        }
         if(TtHFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
         if(TtHFitter::SHOWSTACKSIG){
             if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
@@ -716,8 +726,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     
     TthPlot *p = fPlotPostFit;
-    p->SetYmaxScale(1.8);
+    if(fYmaxScale==0) p->SetYmaxScale(1.8);
+    else              p->SetYmaxScale(fYmaxScale);
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
+    if(fYTitle!="") p->SetYaxis(fYTitle);
     //
     // For 4-top-style plots
     if(TtHFitter::OPTION["FourTopStyle"]>0){
@@ -736,6 +748,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         p->AddLabel("Post-Fit");
+        if(TtHFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TtHFitter::OPTION["LegendNColumns"];
     }
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
@@ -853,9 +866,16 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
         if(TtHFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
-//         if(TtHFitter::SHOWNORMSIG)     p->AddNormSignal(hSigNew[i],title+" (norm)");
-        if(TtHFitter::SHOWNORMSIG)     p->AddNormSignal(hSigNew[i],title+"*");
-        if(TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title+"*");
+//         if(TtHFitter::SHOWNORMSIG)     p->AddNormSignal(hSigNew[i],title);
+//         if(TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
+        if(TtHFitter::SHOWNORMSIG){
+            if( (TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
+             || !TtHFitter::OPTION["NormSigSRonly"] )
+                p->AddNormSignal(hSigNew[i],title);
+        }
+        else{
+            if(TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
+        }
         if(TtHFitter::SHOWOVERLAYSIG)  p->AddOverSignal(hSigNew[i],title);
     }
     for(int i=0;i<fNBkg;i++){
@@ -1086,11 +1106,11 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
         if(s->fType==Sample::GHOST) continue;
         std::string title = s->fTitle;
         if(s->fTexTitle!="") title = s->fTexTitle;
-        out << "      | " << title;
-        texout << "      & " << s->fTexTitle;
+        out << "      | " << s->fTitle;
+        texout << "      & " << title;
         if(doCategory){
-            out_cat << "      | " << title;
-            texout_cat << "      & " << s->fTexTitle;
+            out_cat << "      | " << s->fTitle;
+            texout_cat << "      & " << title;
         }
         i_col+=1;
     }
@@ -1104,12 +1124,15 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     }
 
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
-        if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") {
-          out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]]; texout << "  " << TtHFitter::SYSTMAP[fSystNames[i_syst]];
+        if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]];
+        else                                           out << " | " << fSystNames[i_syst];
+        if(TtHFitter::SYSTTEX[fSystNames[i_syst]]!="")      texout << "  " << TtHFitter::SYSTTEX[fSystNames[i_syst]];
+        else if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!=""){
+            string fixedTitle = TtHFitter::SYSTMAP[fSystNames[i_syst]];
+            fixedTitle = ReplaceString(fixedTitle,"#geq","$\\geq$");
+            texout << "  " << fixedTitle;
         }
-        else {
-          out << " | " << fSystNames[i_syst]; texout << " " << fSystNames[i_syst];
-        }
+        else                                                texout << " " << fSystNames[i_syst];
         for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
             sh = fSampleHists[i_smp];
             s = sh->fSample;

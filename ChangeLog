@@ -1,3 +1,9 @@
+2016-07-21 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixed stat uncertainty for nominal smoothing
+    * Added ttHbb ICHEP CONF note style options
+    * Added option to skip normalisation (so shape only) for systematics (in some regions or for samples only, or everywhere, with "all")
+    * Added plot comparing norm factors in MultiFit
+    
 2016-07-19 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixed procedure to set to 1e-6 the negative bins: now it preserves the original yield (setting it to flat 1e-6 in case it's negative)
     * Added option to hide a NP from pull and correlation matrix plots

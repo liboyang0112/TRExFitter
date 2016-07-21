@@ -23,6 +23,7 @@ public:
     void ComparePOI(string POI);
     void CompareLimit();
     void ComparePulls(string caterogy="");
+    void CompareNormFactors(string category="");
     void PlotCombinedCorrelationMatrix();
     void ProduceNPRanking(string NPnames="all");
     void PlotNPRanking();

@@ -10,6 +10,9 @@ bool TtHFitter::SHOWYIELDS = false;
 bool TtHFitter::SHOWSTACKSIG = true;
 bool TtHFitter::SHOWNORMSIG = false;
 bool TtHFitter::SHOWOVERLAYSIG = false;
+bool TtHFitter::SHOWSTACKSIG_SUMMARY = true;
+bool TtHFitter::SHOWNORMSIG_SUMMARY = false;
+bool TtHFitter::SHOWOVERLAYSIG_SUMMARY = false;
 bool TtHFitter::LEGENDLEFT = false;
 bool TtHFitter::SYSTCONTROLPLOTS = false;
 bool TtHFitter::SYSTERRORBARS = false;
@@ -18,6 +21,7 @@ bool TtHFitter::SPLITHISTOFILES = false;
 bool TtHFitter::HISTOCHECKCRASH = true;
 float TtHFitter::CORRELATIONTHRESHOLD = -1;
 std::map <string,string> TtHFitter::SYSTMAP;
+std::map <string,string> TtHFitter::SYSTTEX;
 std::map <string,string> TtHFitter::NPMAP;
 std::vector <string> TtHFitter::IMAGEFORMAT;
 int TtHFitter::NCPU = 1;
@@ -327,6 +331,8 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
             }
             else{
                 changesApplied = true;
+                h->SetBinError(i_bin,
+                               sqrt( pow(h0->GetBinError(i_bin),2) + pow(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin),2) ) );
             }
         }
         if(!changesApplied) break;

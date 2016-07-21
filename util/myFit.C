@@ -59,10 +59,12 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         }
         //
         if(myMultiFit->fCompare){
-//             if(myMultiFit->fComparePulls)  myMultiFit->ComparePulls();
             if(myMultiFit->fComparePulls){
                 for(unsigned int i_cat=0;i_cat<myMultiFit->fNPCategories.size();i_cat++){
                     myMultiFit->ComparePulls(myMultiFit->fNPCategories[i_cat]);
+                }
+                for(unsigned int i_cat=0;i_cat<myMultiFit->fNPCategories.size();i_cat++){
+                    myMultiFit->CompareNormFactors(myMultiFit->fNPCategories[i_cat]);
                 }
             }
             if(myMultiFit->fPlotCombCorrMatrix) myMultiFit->PlotCombinedCorrelationMatrix();

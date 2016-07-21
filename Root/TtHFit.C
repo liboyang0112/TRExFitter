@@ -551,6 +551,18 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TtHFitter::LEGENDLEFT     = true;
         // ...
     }
+    param = cs->Get("PlotOptionsSummary");       if( param != ""){
+        vec = Vectorize(param,',');
+        if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TtHFitter::SHOWSTACKSIG_SUMMARY   = false;
+        if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG_SUMMARY    = true;
+        if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG_SUMMARY = true;
+    }
+    else{
+        TtHFitter::SHOWSTACKSIG_SUMMARY   = TtHFitter::SHOWSTACKSIG    ;
+        TtHFitter::SHOWNORMSIG_SUMMARY    = TtHFitter::SHOWNORMSIG     ;
+        TtHFitter::SHOWOVERLAYSIG_SUMMARY = TtHFitter::SHOWOVERLAYSIG  ;
+    }
+    //
     param = cs->Get("SystControlPlots");  if( param != ""){
         if( param == "true" || param == "True" ||  param == "TRUE" ){
             TtHFitter::SYSTCONTROLPLOTS = true;
@@ -784,6 +796,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         reg = NewRegion(CheckName(cs->GetValue()));
         reg->SetVariableTitle(cs->Get("VariableTitle"));
         reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
+        param = cs->Get("YaxisTitle"); if( param != "") reg->fYTitle = param; 
+        param = cs->Get("YmaxScale"); if(param!="") reg->fYmaxScale = atof(param.c_str());
         param = cs->Get("TexLabel"); if( param != "") reg->fTexLabel = param; 
         param = cs->Get("LumiLabel"); if( param != "") reg->fLumiLabel = param; 
         else reg->fLumiLabel = fLumiLabel;
@@ -1130,6 +1144,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             norm->fTitle = param;
             TtHFitter::SYSTMAP[norm->fName] = norm->fTitle;
         }
+        param = cs->Get("TexTitle"); if(param!=""){
+            TtHFitter::SYSTTEX[norm->fName] = param;
+        }
         param = cs->Get("Min"); if(param!=""){ norm->fMin = atof(param.c_str()); }
         param = cs->Get("Max"); if(param!=""){ norm->fMax = atof(param.c_str()); }
         param = cs->Get("Nominal"); if(param!=""){ norm->fNominal = atof(param.c_str()); }
@@ -1295,6 +1312,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         param = cs->Get("DropShapeIn"); if(param!=""){
             sys->fDropShapeIn = Vectorize(param,',');
         }
+        param = cs->Get("DropNorm"); if(param!=""){
+            sys->fDropNormIn = Vectorize(param,',');
+        }
         
 //         //
 //         // save list of 
@@ -1334,6 +1354,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             if(cs->Get("Title")!=""){
                 sys->fTitle = cs->Get("Title");
                 TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
+            }
+            param = cs->Get("TexTitle"); if(param!=""){
+                TtHFitter::SYSTTEX[sys->fName] = param;
             }
             //
             // attach the syst to the proper samples
@@ -2799,6 +2822,17 @@ TthPlot* TtHFit::DrawSummary(string opt){
             else          p->AddLabel("#font[52]{Pre-fit}");
         }
     }
+    // TThbb style
+    else if(TtHFitter::OPTION["TtHbbStyle"]>0){
+        p = new TthPlot(fName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
+        p->fYmin = 1;
+        p->SetYmaxScale(3);
+        p->SetXaxis("",false);
+        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsSummary"];
+        p->AddLabel(fLabel);
+        if(isPostFit) p->AddLabel("Post-Fit");
+        else          p->AddLabel("Pre-fit");
+    }
     //
     // normal-/old-style plots
     else{
@@ -2811,7 +2845,6 @@ TthPlot* TtHFit::DrawSummary(string opt){
         else          p->AddLabel("Pre-fit");
     }
     //
-//     p->fATLASlabel = "Internal";
     p->fATLASlabel = fAtlasLabel;
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
@@ -2820,9 +2853,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
     for(int i=0;i<Nsig;i++){
-        if(TtHFitter::SHOWSTACKSIG)   p->AddSignal(    h_sig[i],h_sig[i]->GetTitle());
-        if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h_sig[i],((string)h_sig[i]->GetTitle())+"*");
-        if(TtHFitter::SHOWOVERLAYSIG) p->AddOverSignal(h_sig[i],(h_sig[i]->GetTitle()));
+        if(TtHFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig[i],h_sig[i]->GetTitle());
+//         if(TtHFitter::SHOWNORMSIG)    p->AddNormSignal(h_sig[i],((string)h_sig[i]->GetTitle())+"*");
+        if(TtHFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i],((string)h_sig[i]->GetTitle()));
+        if(TtHFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i],(h_sig[i]->GetTitle()));
     }
     for(int i=0;i<Nbkg;i++){
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
@@ -3870,7 +3904,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
     //
     pTop->cd();
     TLegend *leg;
-    if(TtHFitter::OPTION["FourTopStyle"]>0){
+    if(TtHFitter::OPTION["FourTopStyle"]>0 || TtHFitter::OPTION["TtHbbStyle"]>0){
         leg = new TLegend(0.5,0.1,0.95,0.90);
         leg -> SetNColumns(3);
     }
@@ -4103,7 +4137,11 @@ void TtHFit::DrawPruningPlot(){
                             float normUp=TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormUp);
                             float normDo=TMath::Abs(sh->GetSystematic(fSystematics[i_syst]->fName)->fNormDown);
                             // set to 2 is normalization pruned away
-                            if( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation ) {
+                            if(    FindInStringVector( fSystematics[i_syst]->fDropNormIn, fRegions[i_reg]->fName )>=0
+                                || FindInStringVector( fSystematics[i_syst]->fDropNormIn, samplesVec[i_smp]->fName )>=0
+                                || FindInStringVector( fSystematics[i_syst]->fDropNormIn, "all" )>=0
+                                || ( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation )
+                                ) {
                                 syh->fNormPruned = true;
                                 if(syh->fShapePruned || fSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 3 );
                                 else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
@@ -5169,6 +5207,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     float up;
     float down;
     float muhat;
+    float dMuUp, dMuDown;
     std::map< string,float > muVarUp;
     std::map< string,float > muVarDown;
     std::map< string,float > muVarNomUp;
@@ -5255,6 +5294,12 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         //
+        // Experimental: reduce the range of ranking
+        if(TtHFitter::OPTION["ReduceRanking"]!=0){
+            up   *= TtHFitter::OPTION["ReduceRanking"];
+            down *= TtHFitter::OPTION["ReduceRanking"];
+        }
+        //
         // Set the NP to its post-fit *up* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
         fitTool -> ResetFixedNP();
@@ -5269,29 +5314,56 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         fitTool -> FitPDF( mc, simPdf, data );
         muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
         //
-        outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
+        dMuUp   = muVarUp[nuisPars[i]]-muhat;
+        dMuDown = muVarDown[nuisPars[i]]-muhat;
+        //
+        // Experimental: reduce the range of ranking
+        if(TtHFitter::OPTION["ReduceRanking"]!=0){
+            dMuUp   /= TtHFitter::OPTION["ReduceRanking"];
+            dMuDown /= TtHFitter::OPTION["ReduceRanking"];
+        }
+        //
+        outName_file << dMuUp << "   " << dMuDown << "  ";
         
         if(isNF[i]){
             muVarNomUp[   nuisPars[i] ] = muhat;
             muVarNomDown[ nuisPars[i] ] = muhat;
         }
         else{
+            up   = 1.;
+            down = 1.;
+            //
+            // Experimental: reduce the range of ranking
+            if(TtHFitter::OPTION["ReduceRanking"]!=0){
+                up   *= TtHFitter::OPTION["ReduceRanking"];
+                down *= TtHFitter::OPTION["ReduceRanking"];
+            }
+            //
             // Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool -> ResetFixedNP();
-            fitTool -> FixNP( nuisPars[i], central + 1. );
+            fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
             fitTool -> FitPDF( mc, simPdf, data );
             muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
             //
             // Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool -> ResetFixedNP();
-            fitTool -> FixNP( nuisPars[i], central - 1. );
+            fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
             fitTool -> FitPDF( mc, simPdf, data );
             //
             muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
         }
-        outName_file << muVarNomUp[nuisPars[i]]-muhat << "   " <<  muVarNomDown[nuisPars[i]]-muhat<< " "<<endl;
+        dMuUp   = muVarNomUp[nuisPars[i]]-muhat;
+        dMuDown = muVarNomDown[nuisPars[i]]-muhat;
+        //
+        // Experimental: reduce the range of ranking
+        if(TtHFitter::OPTION["ReduceRanking"]!=0){
+            dMuUp   /= TtHFitter::OPTION["ReduceRanking"];
+            dMuDown /= TtHFitter::OPTION["ReduceRanking"];
+        }
+        //
+       outName_file << dMuUp << "   " << dMuDown << " "<<endl;
         
     }
     outName_file.close();

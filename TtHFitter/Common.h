@@ -58,6 +58,9 @@ namespace TtHFitter{
     extern bool SHOWSTACKSIG;  // flag to show signal or not
     extern bool SHOWNORMSIG;  // flag to show normalized signal or not
     extern bool SHOWOVERLAYSIG;  // flag to show overlayed signal or not
+    extern bool SHOWSTACKSIG_SUMMARY;  // flag to show signal or not in Summary Plot
+    extern bool SHOWNORMSIG_SUMMARY;  // flag to show normalized signal or not in Summary Plot
+    extern bool SHOWOVERLAYSIG_SUMMARY;  // flag to show overlayed signal or not in Summary Plot
     extern bool LEGENDLEFT;  // flag to show sample names on left aligned in the legend
     extern bool SYSTCONTROLPLOTS;
     extern bool SYSTDATAPLOT;
@@ -66,6 +69,7 @@ namespace TtHFitter{
     extern bool HISTOCHECKCRASH;
     extern float CORRELATIONTHRESHOLD;
     extern std::map< string,string > SYSTMAP;
+    extern std::map< string,string > SYSTTEX;
     extern std::map< string,string > NPMAP;
     extern std::vector< string > IMAGEFORMAT;
     extern int NCPU;

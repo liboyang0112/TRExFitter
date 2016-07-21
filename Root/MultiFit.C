@@ -586,15 +586,16 @@ void MultiFit::ComparePOI(string POI){
                 tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_stat->GetErrorXlow(N-i-1)));
     }
 
-    TLine *l_0 = new TLine(0,-0.5,0,N-0.5);
-    l_0->SetLineWidth(2);
-    l_0->SetLineColor(kGray);
-    l_0->SetLineStyle(kDotted);
-    l_0->Draw("same");
+//     TLine *l_0 = new TLine(0,-0.5,0,N-0.5);
+//     l_0->SetLineWidth(2);
+//     l_0->SetLineColor(kGray);
+//     l_0->SetLineStyle(kDotted);
+//     l_0->Draw("same");
 
     TLine *l_SM = new TLine(1,-0.5,1,N-0.5);
     l_SM->SetLineWidth(2);
-    l_SM->SetLineColor(kGray+1);
+//     l_SM->SetLineColor(kGray+1);
+    l_SM->SetLineColor(kGray);
     l_SM->Draw("same");
     
     if(fCombine){
@@ -633,8 +634,10 @@ void MultiFit::ComparePOI(string POI){
     leg->AddEntry(g_stat,"stat.","l");
     leg->Draw();
     
-    tex->DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N,"( tot )");
-    tex->DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N,"( stat )");
+//     tex->DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N,"( tot )");
+//     tex->DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N,"( stat )");
+    tex->DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N-0.4,"( tot )");
+    tex->DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N-0.4,"( stat )");
     
 //     myText(0.75,0.4,kBlack,"Stat. only");
     
@@ -1044,6 +1047,258 @@ void MultiFit::ComparePulls(string category){
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
         if(category=="") c->SaveAs((fName+"/NuisPar_comp"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
         else             c->SaveAs((fName+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    }
+    delete c;
+}
+
+//__________________________________________________________________________________
+//
+void MultiFit::CompareNormFactors(string category){
+    float ydist = 0.2;
+    
+    // Fit titles
+    vector<string> names;  names.clear();
+    vector<string> suffs;  suffs.clear();
+    vector<string> titles; titles.clear();
+    vector<float>  yshift; yshift.clear();
+//     vector<int>    color;  color.clear();
+//     vector<int>    style;  style.clear();
+    
+    int color[] = {kBlack,kRed,kBlue,kViolet};
+    int style[] = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
+    
+    unsigned int N = fFitList.size();
+    if(fCombine) N++;
+    
+    for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        if(fCombine && i_fit==N-1){
+            std::cout << "Adding Combined Fit" << std::endl;
+            names.push_back( fName );
+            titles.push_back( "Combined" );
+            suffs.push_back( "" );
+        }
+        else{
+            names.push_back( fFitList[i_fit]->fName );
+            titles.push_back( fFitLabels[i_fit] );
+            suffs.push_back( fFitSuffs[i_fit] );
+        }
+//         yshift.push_back( 0. - ydist*N/2. + ydist*i_fit );
+        yshift.push_back( 0. - ydist*N/2. + ydist*(N-i_fit-1) );
+    }
+
+    float xmin = -1;
+    float xmax = 10;
+    float max = 0;
+//     string npToExclude[] = {"gamma_","stat_"};
+//     bool brazilian = true;
+//     bool grayLines = false;
+    
+    // create a list of Norm Factors
+    std::vector< string > Names;  Names.clear();
+    std::vector< string > Titles; Titles.clear();
+    std::vector< string > Categories; Categories.clear();
+    string normName;
+    for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        if(fCombine && i_fit==N-1) break;
+        for(unsigned int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
+            normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
+            if(normName==fPOI) continue;
+            if(FindInStringVector(Names,normName)<0){
+                Names.push_back(normName);
+                Titles.push_back(fFitList[i_fit]->fNormFactors[i_norm]->fTitle);
+                Categories.push_back(fFitList[i_fit]->fNormFactors[i_norm]->fCategory);
+            }
+        }
+    }
+    unsigned int Nnorm = Names.size();
+    
+    // read fit resutls
+    NuisParameter *par;
+    for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        if(fCombine && i_fit==N-1) break;
+        fFitList[i_fit]->ReadFitResults(names[i_fit]+"/Fits/"+names[i_fit]+suffs[i_fit]+".txt");      
+    }
+    
+    // exclude norm factors
+    std::vector<string> NamesNew; NamesNew.clear();
+    std::vector<string> TitlesNew; TitlesNew.clear();
+    std::vector<string> CategoriesNew; CategoriesNew.clear();
+    for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
+        FitResults *fitRes;
+        bool found = false;
+        for(unsigned int i_fit=0;i_fit<N;i_fit++){
+            if(fCombine && i_fit==N-1) break;
+            fitRes = fFitList[i_fit]->fFitResults;
+            for(unsigned int j = 0; j<fitRes->fNuisPar.size(); ++j){
+                par = fitRes->fNuisPar[j];
+                normName = par->fName;
+                if(normName==Names[i_norm]){
+                    found = true;
+                    break;
+                }
+            }
+            if(found) break;
+        }
+        if(found){
+            if(category=="" || category==Categories[i_norm]){
+                NamesNew.push_back(Names[i_norm]);
+                TitlesNew.push_back(Titles[i_norm]);
+                CategoriesNew.push_back(Categories[i_norm]);
+            }
+        }
+    }
+    //
+    Nnorm = NamesNew.size();
+    Names.clear();
+    Titles.clear();
+    Categories.clear();
+    for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
+        Names.push_back(NamesNew[i_norm]);
+        Titles.push_back(TitlesNew[i_norm]);
+        CategoriesNew.push_back(Categories[i_norm]);
+    }
+    if(fNuisParListFile!=""){
+        //
+        // reorder NPs
+        Names.clear();
+        Titles.clear();
+        Categories.clear();
+        ifstream in;
+        in.open(fNuisParListFile.c_str());
+        while(true){
+            in >> normName;
+            if(!in.good()) break;
+            cout << "Looking for " << normName << "... ";
+            for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
+                if(NamesNew[i_norm]==normName){
+                    cout << "found";
+                    cout << ", title = " << TitlesNew[i_norm];
+                    Names.push_back(NamesNew[i_norm]);
+                    Titles.push_back(TitlesNew[i_norm]);
+                    Categories.push_back(CategoriesNew[i_norm]);
+                    break;
+                }
+            }
+            cout << endl;
+        }
+        in.close();
+    }
+    Nnorm = Names.size();
+    
+    // fill stuff
+    std::vector< TGraphAsymmErrors* > g;
+    for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        // create maps for NP's
+        std::map<string,float> centralMap; centralMap.clear();
+        std::map<string,float> errUpMap;   errUpMap.clear();
+        std::map<string,float> errDownMap; errDownMap.clear();
+//         fFitList[i_fit]->ReadFitResults(names[i_fit]+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0"+suffs[i_fit]+".txt");
+        FitResults *fitRes;
+        if(fCombine && i_fit==N-1){
+            fitRes = new FitResults();
+            fitRes->ReadFromTXT(fName+"/Fits/"+fName+fSaveSuf+".txt");
+        }
+        else{
+            fitRes = fFitList[i_fit]->fFitResults;
+        }
+        for(unsigned int j = 0; j<fitRes->fNuisPar.size(); ++j){
+            par = fitRes->fNuisPar[j];
+            normName = par->fName;
+            centralMap[normName] = par->fFitValue;
+            errUpMap[normName]   = par->fPostFitUp;
+            errDownMap[normName] = par->fPostFitDown;
+        }
+        //
+        // create the graphs
+        g.push_back( new TGraphAsymmErrors(Nnorm) );
+        for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
+            normName = Names[i_norm];
+            if(centralMap[normName]!=0 || (errUpMap[normName]!=0 || errDownMap[normName]!=0)){
+                g[i_fit]->SetPoint(i_norm,centralMap[normName],(Nnorm-i_norm-1)+0.5+yshift[i_fit]);
+                g[i_fit]->SetPointEXhigh(i_norm,  errUpMap[normName]);
+                g[i_fit]->SetPointEXlow( i_norm, -errDownMap[normName]);
+            }
+            else{
+                g[i_fit]->SetPoint(i_norm,-10,-10);
+                g[i_fit]->SetPointEXhigh(i_norm, 0);
+                g[i_fit]->SetPointEXlow( i_norm, 0);
+            }
+        }
+    }
+    
+    max = Nnorm;
+    
+    int lineHeight = 50;
+//     int lineHeight = 20;
+//     int offsetUp = 10;
+    int offsetUp = 50;
+    int offsetDown = 40;
+    int offset = offsetUp + offsetDown;
+    int newHeight = offset + max*lineHeight;
+//     TCanvas *c = new TCanvas("c","c",600,newHeight);
+    TCanvas *c = new TCanvas("c","c",800,newHeight);
+    c->SetTicks(1,0);
+    gPad->SetLeftMargin(0.2/(8./6.));
+    gPad->SetRightMargin(0.02);
+    gPad->SetTopMargin(1.*offsetUp/newHeight);
+    gPad->SetBottomMargin(1.*offsetDown/newHeight);
+    
+    TH1F *h_dummy = new TH1F("h_dummy","h_dummy",10,xmin,xmax);
+    h_dummy->SetMaximum(max);
+    h_dummy->SetLineWidth(0);
+    h_dummy->SetFillStyle(0);
+    h_dummy->SetLineColor(kWhite);
+    h_dummy->SetFillColor(kWhite);
+    h_dummy->SetMinimum(0.);
+    h_dummy->GetYaxis()->SetLabelSize(0);
+    h_dummy->Draw();
+    h_dummy->GetYaxis()->SetNdivisions(0);
+
+    TLine l1;
+    l1 = TLine(1,0,1,max);
+//     l1.SetLineStyle(7);
+    l1.SetLineColor(kGray);
+    l1.Draw("same");
+    
+    for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        g[i_fit]->SetLineColor(color[i_fit]);
+        g[i_fit]->SetMarkerColor(color[i_fit]);
+        g[i_fit]->SetMarkerStyle(style[i_fit]);  
+        g[i_fit]->Draw("P same");
+    }
+    
+    TLatex *norms = new TLatex();
+    norms->SetTextSize( norms->GetTextSize()*0.8 );
+    for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
+        norms->DrawLatex(xmin-0.15*(xmax-xmin),(Nnorm-i_norm-1)+0.25,Titles[i_norm].c_str());
+    }
+    TLatex *values = new TLatex();
+    values->SetTextSize( values->GetTextSize()*0.8 );
+    for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
+        for(int i_fit=0;i_fit<N;i_fit++){
+            values->DrawLatex((xmin+(xmax-xmin)*(0.45+i_fit*0.55/N)),(Nnorm-i_norm-1)+0.25,
+                              Form("%.2f^{+%.2f}_{-%.2f}",g[i_fit]->GetX()[i_norm],g[i_fit]->GetErrorXhigh(i_norm),g[i_fit]->GetErrorXlow(i_norm)));
+        }
+    }
+    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+
+    TLegend *leg;
+    leg = new TLegend(0.45,1.-0.02*(30./max),0.98,0.99);
+    leg->SetTextSize(gStyle->GetTextSize());
+    leg->SetTextFont(gStyle->GetTextFont());
+    leg->SetFillStyle(0);
+    leg->SetBorderSize(0);
+    leg->SetNColumns(N);
+    for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        leg->AddEntry(g[i_fit],titles[i_fit].c_str(),"lp");
+    }
+    leg->Draw();
+    
+    gPad->RedrawAxis();
+
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
+        if(category=="") c->SaveAs((fName+"/NormFactors_comp"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        else             c->SaveAs((fName+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
     }
     delete c;
 }
@@ -1821,7 +2076,8 @@ void MultiFit::PlotSummarySoverB(){
     h_err->SetLineColor(kWhite);
     h_err->Draw("E2same");
     h_data_ord->Draw("EX0same");
-    h_data_ord->SetMaximum(20*h_data_ord->GetMaximum());
+//     h_data_ord->SetMaximum(20*h_data_ord->GetMaximum());
+    h_data_ord->SetMaximum(100*h_data_ord->GetMaximum());
     h_data_ord->SetMinimum(1.1);
     h_data_ord->SetLineWidth(2);
     h_data_ord->GetXaxis()->SetTitle("log_{10}(S/B)");
@@ -1901,7 +2157,8 @@ void MultiFit::PlotSummarySoverB(){
 //     h_ratio->SetMinimum(0.56);
 //     h_ratio->SetMaximum(1.94);
     h_ratio->SetMinimum(0.6);
-    h_ratio->SetMaximum(1.75);
+//     h_ratio->SetMaximum(1.75);
+    h_ratio->SetMaximum(1.9);
     h_ratio->GetXaxis()->SetTitle(h_data_ord->GetXaxis()->GetTitle());
     h_ratio->GetXaxis()->SetTitleSize(20);
     h_ratio->GetXaxis()->SetTitleOffset(4.);
@@ -1972,7 +2229,9 @@ TH1F* MultiFit::OrderBins(TH1F* h,vector<float> vec){
 //____________________________________________________________________________________
 // merge bins in bins of SoverSqrtB
 TH1F* MultiFit::Rebin(TH1F* h,vector<float> vec, bool isData){
-    TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),18,-4,-0.5);        
+//     TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),18,-4,-0.5);
+    TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),17,-3.8,-0.5);
+//     TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),19,-3.8,-0.1);
     // works for l+jets
     //15,-3.75,-0.6);       
     h_new->Sumw2();

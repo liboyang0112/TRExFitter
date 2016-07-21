@@ -424,7 +424,8 @@ void TthPlot::Draw(string options){
         }
     }
     if(fBinLabel[1]!="") h_dummy->GetXaxis()->LabelsOption("d");
-    float offset = 2.3*(pad0->GetWh()/672.);
+//     float offset = 2.3*(pad0->GetWh()/672.);
+    float offset = 2.4*(pad0->GetWh()/672.);
     if(pad0->GetWw() > pad0->GetWh()) offset *= 0.8*596./pad0->GetWw();
     h_dummy->GetYaxis()->SetTitleOffset( offset );
     
@@ -445,6 +446,7 @@ void TthPlot::Draw(string options){
     pad0->RedrawAxis();
     
     float textHeight = 0.05*(672./pad0->GetWh());
+//     if(TtHFitter::OPTION["TtHbbStyle"]>0) textHeight *= 0.85;
     
     //
     // ATLAS labels
@@ -460,7 +462,7 @@ void TthPlot::Draw(string options){
     }
     
     float legX1 = 1-0.41*(596./pad0->GetWw())-0.08;
-    if(TtHFitter::OPTION["FourTopStyle"]!=0){
+    if(TtHFitter::OPTION["FourTopStyle"]!=0 || TtHFitter::OPTION["TtHbbStyle"]!=0){
         legX1 = 1-0.5*(596./pad0->GetWw())-0.08;
     }
     float legX2 = 0.94;
@@ -500,7 +502,8 @@ void TthPlot::Draw(string options){
         }
         leg->AddEntry((TObject*)0,"Total","");
         leg1->AddEntry((TObject*)0,Form("%.1f",h_tot->Integral()),"");
-        leg->AddEntry(g_tot,"Uncertainty","f");
+        if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
+        else leg->AddEntry(g_tot,"Uncertainty","f");
         leg1->AddEntry((TObject*)0," ","");
         leg->Draw();
         leg1->Draw();
@@ -509,13 +512,18 @@ void TthPlot::Draw(string options){
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
-        leg  = new TLegend(legXmid+0.1*(legX2-legXmid),0.92-Nrows*textHeight, legX2,0.92);
+        if(TtHFitter::OPTION["TtHbbStyle"]>0)
+            leg  = new TLegend(legXmid+0.1*(legX2-legXmid),0.92-Nrows*textHeight*0.8, legX2,0.92);
+        else
+            leg  = new TLegend(legXmid+0.1*(legX2-legXmid),0.92-Nrows*textHeight, legX2,0.92);
         leg->SetFillStyle(0);
-        leg->SetBorderSize(0);
+        leg->SetBorderSize(0);        if(TtHFitter::OPTION["TtHbbStyle"]>0)
+
         if(!TtHFitter::LEGENDLEFT) leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
           leg->SetTextSize(gStyle->GetTextSize());
-        leg->SetMargin(0.18);
+//         leg->SetMargin(0.18);
+        leg->SetMargin(0.22);
         
         //Draws data in the legend only is real data
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
@@ -523,17 +531,27 @@ void TthPlot::Draw(string options){
         //Signal and background legend
         for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
 //         for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
-        for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"l");
-        for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"f");
+        if(TtHFitter::OPTION["TtHbbStyle"]==0){
+            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
+            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+        }
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
-        leg->AddEntry(g_tot,"Uncertainty","f");
+        if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
+        else leg->AddEntry(g_tot,"Uncertainty","f");
+        if(TtHFitter::OPTION["TtHbbStyle"]!=0){
+            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm.)").c_str(),"l");
+            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+        }
         leg->Draw();
     }
     else if(fLegendNColumns==3){ //TtHFitter::OPTION["LegendNColumns"]==3){
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
-        leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+        if(TtHFitter::OPTION["TtHbbStyle"]>0)
+            leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+        else
+            leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
         leg->SetNColumns(3);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
@@ -547,17 +565,28 @@ void TthPlot::Draw(string options){
         
         //Signal and background legend
         for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
-        for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
-        for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"f");
+        if(TtHFitter::OPTION["TtHbbStyle"]==0){
+            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
+            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+        }
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
-        leg->AddEntry(g_tot,"Uncertainty","f");
+        if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
+        else leg->AddEntry(g_tot,"Uncertainty","f");
+        if(TtHFitter::OPTION["TtHbbStyle"]!=0){
+            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
+            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+        }
         leg->Draw();
     }
     else{
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
-        leg  = new TLegend(legX1,0.93-((Nrows+1)/2)*0.05, legX2,0.93);
+        if(TtHFitter::OPTION["TtHbbStyle"]>0) legX1 = 0.43; // FIXME
+        if(TtHFitter::OPTION["TtHbbStyle"]>0)
+            leg  = new TLegend(legX1,0.8-((Nrows+1)/2)*0.05, legX2,0.8);
+        else
+            leg  = new TLegend(legX1,0.93-((Nrows+1)/2)*0.05, legX2,0.93);
         leg->SetNColumns(2);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
@@ -571,14 +600,21 @@ void TthPlot::Draw(string options){
         
         //Signal and background legend
         for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
-//         for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
-        for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"l");
-        for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"f");
+        if(TtHFitter::OPTION["TtHbbStyle"]==0){
+            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
+            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+        }
         for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
-        leg->AddEntry(g_tot,"Uncertainty","f");
+        if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
+        else leg->AddEntry(g_tot,"Uncertainty","f");
+        if(TtHFitter::OPTION["TtHbbStyle"]!=0){
+            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
+            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+        }
         leg->Draw();
         
-        if(fNormSigNames.size()>0) myText(legX1,0.93-((Nrows+1)/2)*0.05 - 0.05,  1,"*: normalised to total Bkg.");
+        if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
+            myText(legX1,0.93-((Nrows+1)/2)*0.05 - 0.05,  1,"*: normalised to total Bkg.");
     }
     
     //
@@ -855,7 +891,8 @@ void TthPlot::Draw(string options){
     }
     
     // FIXME
-    if(fNormSigNames.size()>0) myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
+    if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
+        myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
 }
 
 //_____________________________________________________________________________
