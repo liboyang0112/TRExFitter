@@ -318,6 +318,8 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
     //
     // if not flat, go on with the smoothing
     TH1* h0;
+//     TH1* h00;
+//     h00 = (TH1*)h->Clone("h00");
     int Nmax = 5;
     for(int i=0;i<Nmax;i++){
         h0 = (TH1*)h->Clone("h0");
@@ -327,23 +329,25 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
 //             if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > h0->GetBinError(i_bin) ){
             if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > 2*h0->GetBinError(i_bin) ){
                 h->SetBinContent(i_bin,h0->GetBinContent(i_bin));
-                h->SetBinError(i_bin,h0->GetBinError(i_bin));
+//                 h->SetBinError(i_bin,h0->GetBinError(i_bin));
             }
             else{
                 changesApplied = true;
-                h->SetBinError(i_bin,
-                               sqrt( pow(h0->GetBinError(i_bin),2) + pow(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin),2) ) );
+//                 h->SetBinError(i_bin,
+//                                sqrt( pow(h0->GetBinError(i_bin),2) + pow(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin),2) ) );
+//                 h->SetBinError(i_bin, h0->GetBinError(i_bin) );
             }
         }
         if(!changesApplied) break;
         h0->~TH1();
     }
+    
     //
     // try to see if it's consistent with being flat
-    TF1 *f_fit = new TF1("f_fit","[0]+0*x",xmin,xmax);
-    h->Fit("f_fit","R0Q");
-    float p0 = f_fit->GetParameter(0);
-    float p0err = f_fit->GetParError(0);
+//     TF1 *f_fit = new TF1("f_fit","[0]+0*x",xmin,xmax);
+//     h->Fit("f_fit","R0Q");
+//     float p0 = f_fit->GetParameter(0);
+//     float p0err = f_fit->GetParError(0);
     bool isFlat = true;
 //     for(int i_bin=1;i_bin<=nbinsx;i_bin++){
 //         if( TMath::Abs(h->GetBinContent(i_bin)-p0) > h->GetBinError(i_bin) )
@@ -365,6 +369,16 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
 //     TH1F* h_corr = (TH1F*)h->Clone("h_correction");
 //     h_corr->Divide( h_orig );
 //     return h_corr;
+    //
+    // fix stat error
+    for(int i_bin=1;i_bin<=nbinsx;i_bin++){
+//         if(h->GetBinContent(i_bin)!=h00->GetBinContent(i_bin)){
+//                 h->SetBinError(i_bin,0);
+//                 h->SetBinError(i_bin, h_orig->GetBinError(i_bin) );
+                h->SetBinError(i_bin,
+                               sqrt( pow(h_orig->GetBinError(i_bin),2) + pow(h->GetBinContent(i_bin) - h_orig->GetBinContent(i_bin),2) ) );
+//         }
+    }
     //
     return isFlat;
 }

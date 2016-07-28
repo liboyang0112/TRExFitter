@@ -86,6 +86,9 @@ public:
     string fSignalTitle;
     
     std::string fFitResultsFile;
+    std::string fBonlySuffix;
+    
+    bool fShowSystForPOI;
 };
 
 #endif

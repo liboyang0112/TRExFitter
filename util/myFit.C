@@ -63,9 +63,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
                 for(unsigned int i_cat=0;i_cat<myMultiFit->fNPCategories.size();i_cat++){
                     myMultiFit->ComparePulls(myMultiFit->fNPCategories[i_cat]);
                 }
-                for(unsigned int i_cat=0;i_cat<myMultiFit->fNPCategories.size();i_cat++){
-                    myMultiFit->CompareNormFactors(myMultiFit->fNPCategories[i_cat]);
-                }
+                myMultiFit->CompareNormFactors("");
             }
             if(myMultiFit->fPlotCombCorrMatrix) myMultiFit->PlotCombinedCorrelationMatrix();
             if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI(myMultiFit->fPOI);
@@ -99,7 +97,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-	if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
+        if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
         myFit->WriteHistos();
     }
     else if(readNtuples){
@@ -107,7 +105,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-	if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
+        if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
         myFit->WriteHistos();
     }
     else{
@@ -159,6 +157,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
             myFit->DrawSummary("logvalid");
         }
         myFit->BuildYieldTable();
+        for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
+            myFit->BuildYieldTable("",myFit->fRegionGroups[i_gr]);
+        }
         myFit->PrintSystTables();
         int nCols = 2;
         int nRows = 2;
@@ -177,6 +178,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->DrawSummary("log post");
         myFit->DrawSummary("log post valid");
         myFit->BuildYieldTable("post");
+        for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
+            myFit->BuildYieldTable("post",myFit->fRegionGroups[i_gr]);
+        }
         myFit->PrintSystTables("post");
         int nCols = 2;
         int nRows = 2;

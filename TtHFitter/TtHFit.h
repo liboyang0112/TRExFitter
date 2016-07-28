@@ -28,6 +28,7 @@ class TtHFit {
 public:
     
     enum FitType {
+        UNDEFINED = 0,
         SPLUSB = 1,
         BONLY = 2
     };
@@ -100,7 +101,7 @@ public:
     void DrawAndSaveSeparationPlots();
     
     TthPlot* DrawSummary(string opt="");
-    void BuildYieldTable(string opt="");
+    void BuildYieldTable(string opt="",string group="");
     
     // regions examples:
     // ...
@@ -244,6 +245,8 @@ public:
     
     bool fCleanTables;
     bool fSystCategoryTables;
+    
+    std::vector< std::string > fRegionGroups;
 };
 
 #endif

@@ -1,3 +1,8 @@
+2016-07-28 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Nominal smoothing stat uncertainty fixed
+    * Few additional options for MultiFit
+    * Small fixes toward ICHEP
+    
 2016-07-21 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixed stat uncertainty for nominal smoothing
     * Added ttHbb ICHEP CONF note style options

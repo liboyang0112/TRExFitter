@@ -108,6 +108,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
 //     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1) );
     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), 
                                          RooFit::NumCPU(TtHFitter::NCPU,RooFit::Hybrid)
+//                                          ,RooFit::Optimize(2)
 //                                          ,RooFit::Extended(true)   // experimental
                                         );
     
@@ -152,7 +153,9 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
             //
             // loop on the NP specified to be constant
             for( unsigned int i_np = 0; i_np<m_constNP.size(); i_np++ ){
-                if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np] ){
+                if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np]
+                    || np == ("gamma_"+m_constNP[i_np])
+                ){
                     var->setVal(m_constNPvalue[i_np]);
                     var->setConstant(1);
                     found = true;
@@ -227,8 +230,8 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     //
     // fast fit - e.g. for ranking
     if(fastFit){
-        minim.setEps(10);
-//         minim.setStrategy(0);
+        minim.setStrategy(0);  // to be the same as ttH comb
+//         minim.setEps(0.1);  // to balance and not to have crazy results...
         minim.setPrintLevel(0);
 //         minim.setMaxIterations(100*10);
 //         minim.setMaxFunctionCalls(100*10);

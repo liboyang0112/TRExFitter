@@ -78,6 +78,9 @@ Region::Region(string name){
     fAutoBinBkgsInSig.clear();
     
     fATLASlabel = "Internal";
+    
+    fSuffix = "";
+    fGroup = "";
 }
 
 //__________________________________________________________________________________
@@ -943,8 +946,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     //
     // Save in a root file...
     //
-    cout << "Writing file " << fFitName+"/Histograms/"+fName+"_postFit.root" << endl;
-    TFile *f = new TFile((fFitName+"/Histograms/"+fName+"_postFit.root").c_str(),"RECREATE");
+    cout << "Writing file " << fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root" << endl;
+    TFile *f = new TFile((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE");
     fErr_postFit->Write("",TObject::kOverwrite);
     fTot_postFit->Write("",TObject::kOverwrite);
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
@@ -1042,19 +1045,19 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     gSystem->mkdir(fFitName.c_str());
     gSystem->mkdir((fFitName+"/Tables").c_str());
     if(isPostFit){
-        out.open((fFitName+"/Tables/"+fName+"_syst_postFit.txt").c_str());
-        texout.open((fFitName+"/Tables/"+fName+"_syst_postFit.tex").c_str());
+        out.open((fFitName+"/Tables/"+fName+fSuffix+"_syst_postFit.txt").c_str());
+        texout.open((fFitName+"/Tables/"+fName+fSuffix+"_syst_postFit.tex").c_str());
         if(doCategory){
-            out_cat.open((fFitName+"/Tables/"+fName+"_syst_category_postFit.txt").c_str());
-            texout_cat.open((fFitName+"/Tables/"+fName+"_syst_category_postFit.tex").c_str());
+            out_cat.open((fFitName+"/Tables/"+fName+fSuffix+"_syst_category_postFit.txt").c_str());
+            texout_cat.open((fFitName+"/Tables/"+fName+fSuffix+"_syst_category_postFit.tex").c_str());
         }
     }
     else{
-        out.open((fFitName+"/Tables/"+fName+"_syst.txt").c_str());
-        texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
+        out.open((fFitName+"/Tables/"+fName+fSuffix+"_syst.txt").c_str());
+        texout.open((fFitName+"/Tables/"+fName+fSuffix+"_syst.tex").c_str());
         if(doCategory){
-            out_cat.open((fFitName+"/Tables/"+fName+"_syst_category.txt").c_str());
-            texout_cat.open((fFitName+"/Tables/"+fName+"_syst_category.tex").c_str());
+            out_cat.open((fFitName+"/Tables/"+fName+fSuffix+"_syst_category.txt").c_str());
+            texout_cat.open((fFitName+"/Tables/"+fName+fSuffix+"_syst_category.tex").c_str());
         }
     }
     Sample *s = 0x0;
@@ -1278,17 +1281,17 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     }
 
     if(doClean){
-        std::string shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst";
+        std::string shellcommand = "cat "+fFitName+"/Tables/"+fName+fSuffix+"_syst";
         if(isPostFit) shellcommand += "_postFit";
         shellcommand += ".tex|sed -e \"s/\\#/ /g\" > ";
-        shellcommand += fFitName+"/Tables/"+fName+"_syst_clean.tex";
+        shellcommand += fFitName+"/Tables/"+fName+fSuffix+"_syst_clean.tex";
         gSystem->Exec(shellcommand.c_str());
         if(doCategory){
-            shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst";
+            shellcommand = "cat "+fFitName+"/Tables/"+fName+fSuffix+"_syst";
             shellcommand += "_category";
             if(isPostFit) shellcommand += "_postFit";
             shellcommand += ".tex|sed -e \"s/\\#/ /g\" > ";
-            shellcommand += fFitName+"/Tables/"+fName+"_syst";
+            shellcommand += fFitName+"/Tables/"+fName+fSuffix+"_syst";
             shellcommand += "_category";
             if(isPostFit) shellcommand += "_postFit";
             shellcommand += "_clean.tex";

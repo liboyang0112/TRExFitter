@@ -95,7 +95,7 @@ TtHFit::TtHFit(string name){
     //
     // Fit caracteristics
     //
-    fFitType = SPLUSB;
+    fFitType = UNDEFINED;
     fFitRegion = CRSR;
     fFitRegionsToFit.clear();
     fFitNPValues.clear();
@@ -130,6 +130,8 @@ TtHFit::TtHFit(string name){
 
     fCleanTables = false;
     fSystCategoryTables = false;
+    
+    fRegionGroups.clear();
 }
 
 //__________________________________________________________________________________
@@ -232,6 +234,7 @@ Region* TtHFit::NewRegion(string name){
     fRegions.push_back(new Region(name));
     //
     fRegions[fNRegions]->fFitName = fName;
+    fRegions[fNRegions]->fSuffix = fSuffix;
     fRegions[fNRegions]->fFitLabel = fLabel;
     fRegions[fNRegions]->fFitType = fFitType;
     fRegions[fNRegions]->fPOI = fPOI;
@@ -306,7 +309,9 @@ void TtHFit::WriteHistos(/*string fileName*/){
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
-        fileName = fName + "/Histograms/" + fName + "_histos"+fSuffix+".root";
+//         fileName = fName + "/Histograms/" + fName + "_histos"+fSuffix+".root";
+        if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos.root";
+        else                 fileName = fName + "/Histograms/" + fInputName + "_histos.root";
         std::cout << "-------------------------------------------" << std::endl;
         std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
         if(recreate){
@@ -320,7 +325,9 @@ void TtHFit::WriteHistos(/*string fileName*/){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         //
         if(!singleOutputFile){
-            fileName = fName + "/Histograms/" + fName + "_" + fRegions[i_ch]->fName + "_histos"+fSuffix+".root";
+//             fileName = fName + "/Histograms/" + fName + "_" + fRegions[i_ch]->fName + "_histos"+fSuffix+".root";
+            if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_" + fRegions[i_ch]->fName + "_histos.root";
+            else                 fileName = fName + "/Histograms/" + fInputName + "_" + fRegions[i_ch]->fName + "_histos.root";
             std::cout << "-------------------------------------------" << std::endl;
             std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
             if(recreate){
@@ -454,6 +461,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             onlySignal = optMap["Signal"];
         if(optMap["FitResults"]!="")
             fFitResultsFile = optMap["FitResults"];
+        if(optMap["FitType"]!=""){
+            if(optMap["FitType"]=="SPLUSB") SetFitType(SPLUSB);
+            if(optMap["FitType"]=="BONLY")  SetFitType(BONLY);
+        }
         //
         std::cout << "-------------------------------------------" << std::endl;
         std::cout << "Running options: " << std::endl;
@@ -674,6 +685,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("HideNP"); if( param != "" ){
         fVarNameHide = Vectorize(param,',');
     }
+    param = cs->Get("RegionGroups"); if( param != "" ) {
+        vector<string> groups =   Vectorize(param,',');
+        for(unsigned int i_gr=0;i_gr<groups.size();i_gr++)
+        fRegionGroups.push_back(groups[i_gr]);
+    }
     
     //
     // General options
@@ -693,7 +709,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     //
     //##########################################################
     cs = fConfig->GetConfigSet("Fit");
-    param = cs->Get("FitType");    if( param != "" ){
+    param = cs->Get("FitType");    if( param != "" && fFitType == UNDEFINED ){
         if( param == "SPLUSB" )
             SetFitType(TtHFit::SPLUSB);
         else if( param == "BONLY" )
@@ -702,6 +718,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             std::cerr << "Unknown FitType argument : " << cs->Get("FitType") << std::endl;
             return;
         }
+    }
+    else if( fFitType == UNDEFINED ){
+        std::cout << "TtHFit::INFO : Setting default fit Type SPLUSB" << std::endl;
+        SetFitType(TtHFit::SPLUSB);
     }
     param = cs->Get("FitRegion");    if( param != "" ){
         if( param == "CRONLY" )
@@ -808,6 +828,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             if(param=="TRUE") reg->fLogScale = true;
             if(param=="FALSE") reg->fLogScale = false;
         }
+        param = cs->Get("Group"); if( param != "") reg->fGroup = param;
         if(fInputType==0){
             param = cs->Get("HistoFile"); if(param!="") reg->fHistoFiles.push_back( param );
             param = cs->Get("HistoName"); if(param!="") reg->SetHistoName( param );
@@ -2828,6 +2849,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         p->fYmin = 1;
         p->SetYmaxScale(3);
         p->SetXaxis("",false);
+        p->SetYaxis("Events / bin");
         p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsSummary"];
         p->AddLabel(fLabel);
         if(isPostFit) p->AddLabel("Post-Fit");
@@ -3052,7 +3074,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
 
 //__________________________________________________________________________________
 //
-void TtHFit::BuildYieldTable(string opt){
+void TtHFit::BuildYieldTable(string opt,string group){
     std::cout << "-------------------------------------------" << std::endl;
     std::cout << "Building Yields Table..." << std::endl;
     bool isPostFit = opt.find("post")!=string::npos;
@@ -3060,13 +3082,16 @@ void TtHFit::BuildYieldTable(string opt){
     ofstream texout;
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Tables").c_str());
+    string suffix = "";
+    if(group!="") suffix += "_"+group;
+    suffix += fSuffix;
     if(!isPostFit){
-        out.open(   (fName+"/Tables/Yields"+fSuffix+".txt").c_str());
-        texout.open((fName+"/Tables/Yields"+fSuffix+".tex").c_str());
+        out.open(   (fName+"/Tables/Yields"+suffix+".txt").c_str());
+        texout.open((fName+"/Tables/Yields"+suffix+".tex").c_str());
     }
     else{
-        out.open(   (fName+"/Tables/Yields_postFit"+fSuffix+".txt").c_str());
-        texout.open((fName+"/Tables/Yields_postFit"+fSuffix+".tex").c_str());
+        out.open(   (fName+"/Tables/Yields_postFit"+suffix+".txt").c_str());
+        texout.open((fName+"/Tables/Yields_postFit"+suffix+".tex").c_str());
     }
     // build one bin per region
     TH1F* h_smp[MAXsamples];
@@ -3088,6 +3113,7 @@ void TtHFit::BuildYieldTable(string opt){
     std::vector<int> regionVec; regionVec.clear();
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
 //         if(!checkVR && fRegions[i_ch]->fRegionType!=Region::VALIDATION){
+            if(group!="" && fRegions[i_ch]->fGroup!=group) continue;
             regionVec.push_back(i_ch);
 //         } else if(checkVR && fRegions[i_ch]->fRegionType==Region::VALIDATION){
 //             regionVec.push_back(i_ch);
@@ -3134,7 +3160,7 @@ void TtHFit::BuildYieldTable(string opt){
         }
         else{
             idxVec.push_back(i_smp);
-            h_smp[idxVec[i_smp]] = new TH1F(("h_"+name).c_str(),title.c_str(), fNRegions,0,fNRegions);
+            h_smp[idxVec[i_smp]] = new TH1F(("h_"+name).c_str(),title.c_str(), Nbin,0,Nbin);
         }
         for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
             sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
@@ -3170,8 +3196,8 @@ void TtHFit::BuildYieldTable(string opt){
         for(int i_syst=0;i_syst<fNSyst;i_syst++){
             string systName = fSystematics[i_syst]->fName;
             systNames.push_back( systName );
-            for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-                sh = fRegions[i_bin-1]->GetSampleHist( name );
+            for(int i_bin=1;i_bin<=Nbin;i_bin++){
+                sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 //
                 // find the systematic in the region
                 int syst_idx = -1;
@@ -3250,8 +3276,8 @@ void TtHFit::BuildYieldTable(string opt){
             for(int i_norm=0;i_norm<fNNorm;i_norm++){
                 string normName = fNormFactors[i_norm]->fName;
                 systNames.push_back( normName );
-                for(int i_bin=1;i_bin<=fNRegions;i_bin++){
-                    sh = fRegions[i_bin-1]->GetSampleHist( name );
+                for(int i_bin=1;i_bin<=Nbin;i_bin++){
+                    sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                     //
                     // find the normfactor in the region
                     int syst_idx = -1;
@@ -3346,7 +3372,7 @@ void TtHFit::BuildYieldTable(string opt){
         if(fSamples[i_smp]->fType==Sample::DATA) texout << "\\hline " << endl;
         if(fSamples[i_smp]->fTexTitle!="") texout << "  " << fSamples[i_smp]->fTexTitle << "  ";
         else                               texout << "  " << fSamples[i_smp]->fTitle << "  ";
-        for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+        for(int i_bin=1;i_bin<=Nbin;i_bin++){
             texout << " & ";
             out << h_smp[i_smp]->GetBinContent(i_bin);
 //             texout << setprecision(3) << h_smp[i_smp]->GetBinContent(i_bin);
@@ -3474,7 +3500,7 @@ void TtHFit::BuildYieldTable(string opt){
     out << " | Total | ";
     texout << "\\hline " << endl;
     texout << "  Total ";
-    for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+    for(int i_bin=1;i_bin<=Nbin;i_bin++){
         texout << " & ";
         out << h_tot->GetBinContent(i_bin);
 //         texout << setprecision(3) << h_tot->GetBinContent(i_bin);
@@ -3506,7 +3532,7 @@ void TtHFit::BuildYieldTable(string opt){
             out << " | " << fSamples[i_smp]->fTitle << " | ";
             if(fSamples[i_smp]->fTexTitle!="") texout << "  " << fSamples[i_smp]->fTexTitle << "  ";
             else                               texout << "  " << fSamples[i_smp]->fTitle << "  ";
-            for(int i_bin=1;i_bin<=fNRegions;i_bin++){
+            for(int i_bin=1;i_bin<=Nbin;i_bin++){
                 texout << " & ";
                 out << h_smp[i_smp]->GetBinContent(i_bin);
                 texout << h_smp[i_smp]->GetBinContent(i_bin);
@@ -3533,9 +3559,9 @@ void TtHFit::BuildYieldTable(string opt){
     h_down.clear();
     
     if(fCleanTables){
-        std::string shellcommand = "cat "+fName+"/Tables/Yields.tex|sed -e \"s/\\#/ /g\" > "+fName+"/Tables/Yields";
+        std::string shellcommand = "cat "+fName+"/Tables/Yields"+suffix+".tex|sed -e \"s/\\#/ /g\" > "+fName+"/Tables/Yields";
         if(isPostFit) shellcommand += "_postFit";
-        shellcommand += "_clean.tex";
+        shellcommand += suffix+"_clean.tex";
         gSystem->Exec(shellcommand.c_str());
     }
 }
@@ -4328,7 +4354,6 @@ void TtHFit::Fit(){
     RooDataSet* data = 0x0;
     RooWorkspace* ws = 0x0;
 
-    
     //
     // If there's a workspace specified, go on with simple fit, without looking for separate workspaces per region
     //

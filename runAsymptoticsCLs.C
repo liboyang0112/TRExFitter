@@ -122,7 +122,7 @@ bool profileNegativeAtZero = 0; // (recommendation = 0) profile asimov for negat
 //other configuration
 string defaultMinimizer    = "Minuit2";     // or "Minuit"
 int defaultPrintLevel      = -1;            // Minuit print level
-int defaultStrategy        = 0; //1             // Minimization strategy. 0-2. 0 = fastest, least robust. 2 = slowest, most robust
+int defaultStrategy        = 1; //1             // Minimization strategy. 0-2. 0 = fastest, least robust. 2 = slowest, most robust
 bool killBelowFatal        = 1;             // In case you want to suppress RooFit warnings further, set to 1
 bool doBlind               = 0;             // in case your analysis is blinded
 bool conditionalExpected   = 1 && !doBlind; // Profiling mode for Asimov data: 0 = conditional MLEs, 1 = nominal MLEs
@@ -728,7 +728,8 @@ RooNLLVar* createNLL(RooDataSet* _data)
 {
   RooArgSet nuis = *mc->GetNuisanceParameters();
 //   RooNLLVar* nll = (RooNLLVar*)mc->GetPdf()->createNLL(*_data, Constrain(nuis));
-  RooNLLVar* nll = (RooNLLVar*)mc->GetPdf()->createNLL(*_data, Constrain(nuis),RooFit::NumCPU(numCPU,RooFit::Hybrid) );
+//   RooNLLVar* nll = (RooNLLVar*)mc->GetPdf()->createNLL(*_data, Constrain(nuis),RooFit::NumCPU(numCPU,RooFit::Hybrid) );
+  RooNLLVar* nll = (RooNLLVar*)mc->GetPdf()->createNLL(*_data, Constrain(nuis),RooFit::Offset(1),RooFit::NumCPU(numCPU,RooFit::Hybrid) );
   return nll;
 }
 

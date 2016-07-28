@@ -188,6 +188,9 @@ public:
     bool fSkipSmoothing;
     
     string fATLASlabel;
+    string fSuffix;
+    
+    string fGroup; // used to split yield tables
 };
 
 

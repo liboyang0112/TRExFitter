@@ -33,7 +33,7 @@ MultiFit::MultiFit(string name){
     fConfig = new ConfigParser();
     fSaveSuf = "";
     fFitShowObserved.clear();
-    fPOI = "SigXsecOverSM";
+    fPOI = "";
     fPOIMin = 0;
     fPOIMax = 10;
     fPOIVal = 1;
@@ -67,6 +67,8 @@ MultiFit::MultiFit(string name){
     fSignalTitle = "t#bar{t}H";
     //
     fFitResultsFile = "";
+    fBonlySuffix = "";
+    fShowSystForPOI = false;
 }
 
 //__________________________________________________________________________________
@@ -152,11 +154,12 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("FastFit"); if( param == "TRUE" )  fFastFit = true;
     param = cs->Get("FastFitForRanking"); if( param == "TRUE" )  fFastFitForRanking = true;
     param = cs->Get("NuisParListFile"); if( param != "" )  fNuisParListFile = param;
-    //
-    param = cs->Get("PlotSoverB"); if( param == "TRUE" )  fPlotSoverB = true;
-    param = cs->Get("SignalTitle"); if( param != "" )  fSignalTitle = param;
-    //
+    param = cs->Get("PlotSoverB");     if( param == "TRUE" )  fPlotSoverB = true;
+    param = cs->Get("SignalTitle");    if( param != "" )  fSignalTitle = param;
     param = cs->Get("FitResultsFile"); if( param != "" )  fFitResultsFile = param;
+    param = cs->Get("BonlySuffix");    if( param != "" )  fBonlySuffix    = param;
+    //
+    param = cs->Get("ShowSystForPOI"); if( param != "" && param != "FALSE" )  fShowSystForPOI = true;
     
     //
     // fits
@@ -195,6 +198,9 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         else fFitShowObserved.push_back(true);
         //
         AddFitFromConfig(confFile,fullOptions,label,loadSuf,wsFile);
+        //
+        param = cs->Get("FitResultsFile"); if( param != "" )  fFitList[fFitList.size()-1]->fFitResultsFile = param;
+        param = cs->Get("POIName"); if( param != "" )  fFitList[fFitList.size()-1]->fPOI = param;
     }
     
     // make directory
@@ -451,7 +457,7 @@ void MultiFit::ComparePOI(string POI){
     xmin = fPOIMin;
 
     string process = fLabel;
-    
+        
     // Fit titles
     vector<string> names;
     vector<string> suffs;
@@ -495,12 +501,20 @@ void MultiFit::ComparePOI(string POI){
         else                   isComb = false;
         //
         if(!isComb) fit = fFitList[i];
-        if(!isComb)       fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+".txt");
-        else              fit->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+//         if(!isComb)       fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+".txt");
+//         else              fit->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+        if(!isComb){
+            if(fit->fFitResultsFile=="") fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+".txt");
+            else                         fit->ReadFitResults(fit->fFitResultsFile);
+        }
+        else{
+            if(fFitResultsFile=="") fit->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+            else                    fit->ReadFitResults(fFitResultsFile);
+        }
         found = false;
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
             par = fit->fFitResults->fNuisPar[j];
-            if(par->fName == POI){
+            if( (POI!="" && par->fName == POI) || (POI=="" && par->fName == fit->fPOI) ){  // to be able to show 2-mu plot
                 g_central->SetPoint(N-i-1,par->fFitValue,N-i-1);
                 g_stat   ->SetPoint(N-i-1,par->fFitValue,N-i-1);
                 g_tot    ->SetPoint(N-i-1,par->fFitValue,N-i-1);
@@ -539,7 +553,9 @@ void MultiFit::ComparePOI(string POI){
         found = false;
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
             par = fit->fFitResults->fNuisPar[j];
-            if(par->fName == POI){
+//             if(par->fName == POI){
+//             if(par->fName == fit->fPOI){  // to be able to show 2-mu plot
+            if( (POI!="" && par->fName == POI) || (POI=="" && par->fName == fit->fPOI) ){  // to be able to show 2-mu plot
                 g_stat->SetPointEXhigh(N-i-1,par->fPostFitUp);
                 g_stat->SetPointEXlow(N-i-1,-par->fPostFitDown);
                 g_stat->SetPointEYhigh(N-i-1,0);
@@ -579,11 +595,29 @@ void MultiFit::ComparePOI(string POI){
         h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
 //         myText(0.5,(1.*i)/(1.*N),kBlack,Form("#mu= %.1f",g_central->GetY()[i]));
 //                 tex->DrawLatex(0.5,(1.*i)/(1.*N),Form("#mu= %.1f",g_central->GetY()[i]));
-                tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form("#mu = %.1f",g_central->GetX()[N-i-1]));
-                tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form("^{+%.1f}",g_tot->GetErrorXhigh(N-i-1)));
-                tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_tot->GetErrorXlow(N-i-1)));
-                tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("^{+%.1f}",g_stat->GetErrorXhigh(N-i-1)));
-                tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_stat->GetErrorXlow(N-i-1)));
+        if(fShowSystForPOI){
+            tex->SetTextSize(gStyle->GetTextSize()*1.2);
+//             tex->SetTextAlign(31);
+//             tex->SetTextFont(82);
+            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form("#font[62]{%.1f}",g_central->GetX()[N-i-1]));
+            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form("#font[62]{^{+%.1f}}",g_tot->GetErrorXhigh(N-i-1)));
+            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form("#font[62]{_{ -%.1f}}",g_tot->GetErrorXlow(N-i-1)));
+            tex->DrawLatex(xmin+0.69*(xmax-xmin),N-i-1,"(");
+            tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form("#font[42]{^{+%.1f}}",g_stat->GetErrorXhigh(N-i-1)));
+            tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form("#font[42]{_{ -%.1f}}",g_stat->GetErrorXlow(N-i-1)));
+            tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form("#font[42]{^{+%.1f}}",
+                sqrt( pow(g_tot->GetErrorXhigh(N-i-1),2) - pow(g_stat->GetErrorXhigh(N-i-1),2) ) ) );
+            tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form("#font[42]{_{ -%.1f}}",
+                sqrt( pow(g_tot->GetErrorXlow(N-i-1) ,2) - pow(g_stat->GetErrorXlow(N-i-1) ,2) ) ) );
+            tex->DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
+        }
+        else{
+            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form("#mu = %.1f",g_central->GetX()[N-i-1]));
+            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form("^{+%.1f}",g_tot->GetErrorXhigh(N-i-1)));
+            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_tot->GetErrorXlow(N-i-1)));
+            tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("^{+%.1f}",g_stat->GetErrorXhigh(N-i-1)));
+            tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_stat->GetErrorXlow(N-i-1)));
+        }
     }
 
 //     TLine *l_0 = new TLine(0,-0.5,0,N-0.5);
@@ -609,13 +643,14 @@ void MultiFit::ComparePOI(string POI){
     g_tot->Draw("E same");
     g_stat->Draw("E same");
     g_central->Draw("P same");
-    
-    c->RedrawAxis();
 
     gPad->SetLeftMargin( 2*gPad->GetLeftMargin() );
     gPad->SetBottomMargin( 1.15*gPad->GetBottomMargin() );
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
     h_dummy->GetXaxis()->SetTitle(fPOITitle.c_str());
+    h_dummy->GetYaxis()->SetTickSize(0);
+    
+    c->RedrawAxis();
 
 //     ATLASLabel(0.02,0.93,"    Internal",kBlack);
 //     myText(0.35,0.93,kBlack,process.c_str());
@@ -636,8 +671,17 @@ void MultiFit::ComparePOI(string POI){
     
 //     tex->DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N,"( tot )");
 //     tex->DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N,"( stat )");
-    tex->DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N-0.4,"( tot )");
-    tex->DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N-0.4,"( stat )");
+    if(fShowSystForPOI){
+        tex->DrawLatex(xmin+0.6*(xmax-xmin),N-0.4,"#font[62]{tot}");
+        tex->DrawLatex(xmin+0.69*(xmax-xmin),N-0.4,"(");
+        tex->DrawLatex(xmin+0.72*(xmax-xmin),N-0.4,"stat");
+        tex->DrawLatex(xmin+0.83*(xmax-xmin),N-0.4,"syst");
+        tex->DrawLatex(xmin+0.94*(xmax-xmin),N-0.4,")");
+    }
+    else{
+        tex->DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N-0.4,"( tot )");
+        tex->DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N-0.4,"( stat )");
+    }
     
 //     myText(0.75,0.4,kBlack,"Stat. only");
     
@@ -1614,25 +1658,27 @@ void MultiFit::PlotNPRanking(){
         }
     }
     number.push_back(parname.size()-0.5);
+
+    // Resttrict to the first N
+    if(SIZE>maxNP) SIZE = maxNP;
     
     double poimax = 0;
-    for (int i=0;i<SIZE;i++) {
+//     for (int i=0;i<SIZE;i++) {
+    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poinomup[i]),TMath::Abs(poinomdown[i]) ));
         nuerrlo[i] = TMath::Abs(nuerrlo[i]);
     }
     poimax *= 1.2;
 
-    for (int i=0;i<SIZE;i++) {
+//     for (int i=0;i<SIZE;i++) {
+    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
         poiup[i]     *= (2./poimax);
         poidown[i]   *= (2./poimax);
         poinomup[i]  *= (2./poimax);
         poinomdown[i]*= (2./poimax);
     }
-
-    // Resttrict to the first N
-    if(SIZE>maxNP) SIZE = maxNP;
-  
+    
     // Graphical part - rewritten taking DrawPulls in TtHFitter
     float lineHeight  =  30;
     float offsetUp    =  60; // external
@@ -1657,7 +1703,7 @@ void MultiFit::PlotNPRanking(){
     Names.clear();
     string parTitle;
     
-    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){        
+    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
         g->SetPoint(      idx, nuhat[i],idx+0.5);
         g->SetPointEXhigh(idx, nuerrhi[i]);
         g->SetPointEXlow( idx, nuerrlo[i]);
@@ -1711,6 +1757,9 @@ void MultiFit::PlotNPRanking(){
     h_dummy->GetYaxis()->SetLabelSize(0);
     h_dummy->Draw();
     h_dummy->GetYaxis()->SetNdivisions(0);
+    for(int i_bin=0;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
+        h_dummy->SetBinContent(i_bin,-10);
+    }
     
     g1->SetFillColor(kAzure-4);
     g2->SetFillColor(kCyan);
@@ -1829,6 +1878,9 @@ void MultiFit::PlotSummarySoverB(){
     std::cout << "...................................." << std::endl;
     std::cout << "Producing S/B plot..." << std::endl;
     
+    bool includeBonly = false;
+    if(fBonlySuffix!="") includeBonly = true;
+    
     fFitList[0]->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
     float muFit = fFitList[0]->fFitResults->GetNuisParValue(fPOI);
     float muLimit = HistFromFile( fName+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
@@ -1836,10 +1888,13 @@ void MultiFit::PlotSummarySoverB(){
 //     float muLimit = 3.4;
     
     std::vector<string> fileNames; fileNames.clear();
+    std::vector<string> fileNamesBonly; fileNamesBonly.clear();
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
             if(fFitList[i_fit]->fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
             fileNames.push_back(fFitList[i_fit]->fName+"/Histograms/"+fFitList[i_fit]->fRegions[i_reg]->fName+"_postFit.root");
+            if(includeBonly)
+                fileNamesBonly.push_back(fFitList[i_fit]->fName+"/Histograms/"+fFitList[i_fit]->fRegions[i_reg]->fName+fBonlySuffix+"_postFit.root");
         }
     }
     int Nhist = (int)fileNames.size();
@@ -1878,8 +1933,10 @@ void MultiFit::PlotSummarySoverB(){
     int Nsyst = systList.size();
     
     std::vector<TFile*> file;
+    std::vector<TFile*> fileBonly;
     std::vector<TH1F* > h_sig;
     std::vector<TH1F* > h_bkg;
+    std::vector<TH1F* > h_bkgBonly;
     std::vector<TH1F* > h_data;
     std::vector<std::vector<TH1F*> > h_syst_up  (Nsyst,std::vector<TH1F*>(Nhist));
     std::vector<std::vector<TH1F*> > h_syst_down(Nsyst,std::vector<TH1F*>(Nhist));
@@ -1887,12 +1944,18 @@ void MultiFit::PlotSummarySoverB(){
     // get histos
     for(int i_hist=0;i_hist<Nhist;i_hist++){
         TH1F* h_tmp = 0x0;
+        TH1F* h_tmpBonly = 0x0;
         if(TtHFitter::DEBUGLEVEL>0) std::cout << "Opening file " << fileNames[i_hist] << std::endl;
         file.push_back(new TFile(fileNames[i_hist].c_str()));
+        if(includeBonly){
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Opening file " << fileNamesBonly[i_hist] << std::endl;
+            fileBonly.push_back(new TFile(fileNamesBonly[i_hist].c_str()));
+        }
         //
         // initialize null histogram pointers
         h_sig.push_back(0x0);
         h_bkg.push_back(0x0);
+        h_bkgBonly.push_back(0x0);
         h_data.push_back(0x0);
         for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
             h_syst_up  [i_syst][i_hist] = 0x0;
@@ -1912,10 +1975,16 @@ void MultiFit::PlotSummarySoverB(){
         for(unsigned int i_bkg=0;i_bkg<bkgList.size();i_bkg++){
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Getting histogram " << "h_"+bkgList[i_bkg]+"_postFit";
             h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
+            if(includeBonly) h_tmpBonly = (TH1F*)fileBonly[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
             if(h_tmp!=0x0){
                 if(TtHFitter::DEBUGLEVEL>0) std::cout << " ... FOUND";
                 if(h_bkg[i_hist]==0x0) h_bkg[i_hist] = h_tmp;
                 else                   h_bkg[i_hist]->Add(h_tmp);
+            }
+            if(h_tmpBonly!=0x0){
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << " ... B-only FOUND";
+                if(h_bkgBonly[i_hist]==0x0) h_bkgBonly[i_hist] = h_tmpBonly;
+                else                        h_bkgBonly[i_hist]->Add(h_tmpBonly);
             }
             if(TtHFitter::DEBUGLEVEL>0) std::cout << std::endl;
             // syst variations
@@ -1973,6 +2042,7 @@ void MultiFit::PlotSummarySoverB(){
     
     // create combined histogram
     TH1F* h_bkg_comb  = Combine(h_bkg);
+    TH1F* h_bkgBonly_comb = 0x0; if(includeBonly) h_bkgBonly_comb = Combine(h_bkgBonly);
     TH1F* h_sig_comb  = Combine(h_sig);
     TH1F* h_data_comb = Combine(h_data);
 
@@ -1996,6 +2066,7 @@ void MultiFit::PlotSummarySoverB(){
     }
 
     TH1F* h_bkg_ord  = Rebin(h_bkg_comb,SoverSqrtB,false);
+    TH1F* h_bkgBonly_ord = 0x0; if(includeBonly) h_bkgBonly_ord = Rebin(h_bkgBonly_comb,SoverSqrtB,false);
     TH1F* h_sig_ord  = Rebin(h_sig_comb,SoverSqrtB,false);
     TH1F* h_data_ord = Rebin(h_data_comb,SoverSqrtB);
 
@@ -2055,7 +2126,7 @@ void MultiFit::PlotSummarySoverB(){
     h_sig_ord->SetFillColor(kRed);
     
     TH1F* h_sig_ord_lim = (TH1F*)h_sig_ord->Clone("h_sig_ord_lim");
-    h_sig_ord_lim->Scale(3.);
+    h_sig_ord_lim->Scale(muLimit/muFit);
     h_sig_ord_lim->SetFillColor(kOrange);
     h_sig_ord_lim->SetLineColor(kOrange);
     TH1F* h_sig_ord_lim_diff = (TH1F*)h_sig_ord_lim->Clone("h_sig_ord_lim_diff");
@@ -2076,9 +2147,11 @@ void MultiFit::PlotSummarySoverB(){
     h_err->SetLineColor(kWhite);
     h_err->Draw("E2same");
     h_data_ord->Draw("EX0same");
-//     h_data_ord->SetMaximum(20*h_data_ord->GetMaximum());
-    h_data_ord->SetMaximum(100*h_data_ord->GetMaximum());
-    h_data_ord->SetMinimum(1.1);
+    h_data_ord->SetMaximum(20*h_data_ord->GetMaximum());
+//     h_data_ord->SetMaximum(100*h_data_ord->GetMaximum());
+//     h_data_ord->SetMaximum(30*h_data_ord->GetMaximum());
+//     h_data_ord->SetMinimum(1.1);
+    h_data_ord->SetMinimum(50);
     h_data_ord->SetLineWidth(2);
     h_data_ord->GetXaxis()->SetTitle("log_{10}(S/B)");
   //  h_data_ord->GetXaxis()->SetTitle("log_{10}(S/#sqrt{B})");
@@ -2087,7 +2160,15 @@ void MultiFit::PlotSummarySoverB(){
     h_data_ord->GetXaxis()->SetLabelSize(0);
     h_data_ord->GetXaxis()->SetTitleSize(0);
     
-    TLegend *leg = new TLegend(0.6,0.57,0.90,0.92);
+    if(includeBonly){
+        h_bkgBonly_ord->SetLineColor(kBlack);
+        h_bkgBonly_ord->SetLineStyle(kDashed);
+        h_bkgBonly_ord->Draw("HISTsame ][");
+    }
+    
+    TLegend *leg;
+    if(includeBonly) leg = new TLegend(0.6,0.50,0.90,0.92);
+    else             leg = new TLegend(0.6,0.57,0.90,0.92);
     leg->SetFillStyle(0);
     leg->SetMargin(0.2);
     leg->SetBorderSize(0);
@@ -2097,6 +2178,7 @@ void MultiFit::PlotSummarySoverB(){
     leg->AddEntry(h_sig_ord,    Form("%s (#mu_{fit}=%.1f)"       ,fSignalTitle.c_str(),muFit),"f");
     leg->AddEntry(h_bkg_ord,"Background","f");
     leg->AddEntry(h_err,"Bkgd. Unc.","f");
+    if(includeBonly) leg->AddEntry(h_bkgBonly_ord,"Bkgd. (#mu=0)","l");
     leg->Draw();
     
     ATLASLabelNew(0.17,0.87, (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
@@ -2123,6 +2205,17 @@ void MultiFit::PlotSummarySoverB(){
     TH1F *h_den     = (TH1F*)h_bkg_ord ->Clone("h_den");
     for(int i_bin=0;i_bin<h_den->GetNbinsX()+2;i_bin++){
         h_den->SetBinError(i_bin,0);
+    }
+    
+    TH1F *h_ratioBonly = 0x0;
+    TH1F *h_denBonly   = 0x0;
+    if(includeBonly){
+//         h_ratioBonly = (TH1F*)h_data_ord->Clone("h_ratioBonly");
+//         h_ratioBonly->Divide(h_bkgBonly_ord);
+        h_ratioBonly = (TH1F*)h_bkgBonly_ord->Clone("h_ratioBonly");
+        h_ratioBonly->Divide(h_den);
+        h_ratioBonly->SetLineStyle(kDashed);
+        h_ratioBonly->SetLineColor(kBlack);
     }
 
     TH1F* h_stackSig = (TH1F*)h_sig_ord ->Clone("h_sig_ratio");
@@ -2157,8 +2250,8 @@ void MultiFit::PlotSummarySoverB(){
 //     h_ratio->SetMinimum(0.56);
 //     h_ratio->SetMaximum(1.94);
     h_ratio->SetMinimum(0.6);
-//     h_ratio->SetMaximum(1.75);
-    h_ratio->SetMaximum(1.9);
+    h_ratio->SetMaximum(1.75);
+//     h_ratio->SetMaximum(1.9);
     h_ratio->GetXaxis()->SetTitle(h_data_ord->GetXaxis()->GetTitle());
     h_ratio->GetXaxis()->SetTitleSize(20);
     h_ratio->GetXaxis()->SetTitleOffset(4.);
@@ -2171,6 +2264,8 @@ void MultiFit::PlotSummarySoverB(){
     h_stackSigLim->Draw("same HIST ][");
     h_ratio->Draw("same E1");
     
+    if(includeBonly) h_ratioBonly->Draw("same HIST ][");
+    
     TLegend *leg2 = new TLegend(0.17,0.64,0.75,0.98);
     leg2->SetFillStyle(0);
     leg2->SetMargin(0.1);
@@ -2179,6 +2274,17 @@ void MultiFit::PlotSummarySoverB(){
     leg2->AddEntry(h_stackSigLim,Form("%s (#mu_{95%% excl.}=%.1f) + Bkgd.",fSignalTitle.c_str(),muLimit),"l");
     leg2->AddEntry(h_stackSig,   Form("%s (#mu_{fit}=%.1f) + Bkgd."       ,fSignalTitle.c_str(),muFit)  ,"l");
     leg2->Draw();
+
+    if(includeBonly){
+        TLegend *leg3 = new TLegend(0.17,0.4,0.75,0.5);
+        leg3->SetFillStyle(0);
+        leg3->SetMargin(0.1);
+        leg3->SetBorderSize(0);
+        leg3->SetTextSize(gStyle->GetTextSize());
+        leg3->AddEntry(h_ratioBonly,"Bkgd. (from Bkgd-only fit)","l");
+        leg3->Draw();
+    }
+
     
     pad0->RedrawAxis();
     pad1->RedrawAxis();
@@ -2231,7 +2337,7 @@ TH1F* MultiFit::OrderBins(TH1F* h,vector<float> vec){
 TH1F* MultiFit::Rebin(TH1F* h,vector<float> vec, bool isData){
 //     TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),18,-4,-0.5);
     TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),17,-3.8,-0.5);
-//     TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),19,-3.8,-0.1);
+//     TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),18,-3.8,-0.3);
     // works for l+jets
     //15,-3.75,-0.6);       
     h_new->Sumw2();
