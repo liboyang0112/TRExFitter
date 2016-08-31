@@ -216,6 +216,7 @@ public:
     float fBlindingThreshold;
     
     int fRankingMaxNP;
+    float fReduceNPforRanking;
     std::string fRankingOnly;
     std::string fImageFormat;
     std::string fAtlasLabel;

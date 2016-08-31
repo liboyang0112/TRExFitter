@@ -76,6 +76,7 @@ TtHFit::TtHFit(string name){
     fBlindingThreshold = -1;
     
     fRankingMaxNP = 10;
+    fReduceNPforRanking = 0.;
     fRankingOnly = "all";
     fAtlasLabel = "Internal";
     
@@ -636,6 +637,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("RankingMaxNP");  if( param != ""){
         fRankingMaxNP = atoi(param.c_str());
+    }
+    param = cs->Get("ReduceNPforRanking");  if( param != ""){
+        fReduceNPforRanking = atof(param.c_str());
     }
     param = cs->Get("ImageFormat");  if( param != ""){
         fImageFormat = Vectorize(param,',')[0];
@@ -5378,6 +5382,10 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             fitTool -> FitPDF( mc, simPdf, data );
             //
             muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+            if(fReduceNPforRanking!=0){
+                muVarNomUp[ nuisPars[i] ]   = muhat + (muVarNomUp[ nuisPars[i] ]   - muhat)/fReduceNPforRanking;
+                muVarNomDown[ nuisPars[i] ] = muhat + (muVarNomDown[ nuisPars[i] ] - muhat)/fReduceNPforRanking;
+            }
         }
         dMuUp   = muVarNomUp[nuisPars[i]]-muhat;
         dMuDown = muVarNomDown[nuisPars[i]]-muhat;

@@ -1,3 +1,6 @@
+2016-08-31 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixed bug causing crash when drawing regions with 0 data events
+
 2016-07-28 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Nominal smoothing stat uncertainty fixed
     * Few additional options for MultiFit

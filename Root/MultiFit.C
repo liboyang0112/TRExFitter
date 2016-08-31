@@ -488,7 +488,7 @@ void MultiFit::ComparePOI(string POI){
     TGraphAsymmErrors *g_tot  = new TGraphAsymmErrors(N);
     
     int Ndiv = N+1;
-  
+    
     NuisParameter *par;
     bool found = false;
     

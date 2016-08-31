@@ -863,9 +863,11 @@ void TthPlot::Draw(string options){
     for(int i_bin=1;i_bin<h_tot->GetNbinsX()+1;i_bin++){
         y = h_tot->GetBinContent(i_bin)+g_tot->GetEYhigh()[i_bin-1];
         if(y>yMax) yMax = y;
-        if(hasData){
-            y = h_data->GetBinContent(i_bin)+g_data->GetEYhigh()[i_bin-1];
-            if(y>yMax) yMax = y;
+        if(hasData && h_data!=0x0 && g_data!=0x0){
+            if(h_data->Integral()>0){
+                y = h_data->GetBinContent(i_bin)+g_data->GetEYhigh()[i_bin-1];
+                if(y>yMax) yMax = y;
+            }
         }
     }
     //
