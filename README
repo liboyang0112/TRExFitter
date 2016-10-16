@@ -120,6 +120,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       SplitHistoFiles  -> set this to true to have histogram files split by region (useful with many regions and/or run in parallel)
       BlindingThreshold-> bins with S/B > this number will be blinded
       RankingMaxNP     -> max number of NP to show in ranking plot
+      RankingPlot      -> NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots.
       ImageFormat      -> png, pdf or eps
       StatOnly         -> the code ignores the MC stat uncertainties from all computations (limits, significances, fit, ...)
       SystErrorBars    -> add stat error bars to syst variations in syst plots

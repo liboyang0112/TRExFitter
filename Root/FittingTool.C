@@ -45,6 +45,7 @@ m_varMinos(0),
 m_constPOI(false),
 m_fitResult(0),
 m_debug(false),
+m_noGammas(false),
 // m_constNP(""),
 // m_constNPvalue(0.),
 m_RangePOI_up(100.),
@@ -71,6 +72,7 @@ FittingTool::FittingTool( const FittingTool &q ){
     m_debug         = q.m_debug;
     m_RangePOI_up   = q.m_RangePOI_up;
     m_RangePOI_down = q.m_RangePOI_down;
+    m_noGammas      = q.m_noGammas;
 }
 
 //________________________________________________________________________
@@ -156,12 +158,18 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
                 if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np]
                     || np == ("gamma_"+m_constNP[i_np])
                 ){
-                    var->setVal(m_constNPvalue[i_np]);
+		  if(m_debug) cout << "setting to constant : " << np <<" at value " << m_constNPvalue[i_np] << endl;
+		    var->setVal(m_constNPvalue[i_np]);
                     var->setConstant(1);
                     found = true;
                     break;
                 }
             }
+	    if(np.find("gamma_stat")!=string::npos && m_noGammas){
+	      if(m_debug) cout << "setting to constant : " << np <<" at value " << var->getVal() << endl;
+	      var->setConstant(1);
+	      found = true;
+	    }
             //
             // loop on the NP specified to have custom starting value
             for( unsigned int i_np = 0; i_np<m_initialNP.size(); i_np++ ){

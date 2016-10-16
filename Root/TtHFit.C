@@ -78,6 +78,7 @@ TtHFit::TtHFit(string name){
     fRankingMaxNP = 10;
     fReduceNPforRanking = 0.;
     fRankingOnly = "all";
+    fRankingPlot = "Merge";
     fAtlasLabel = "Internal";
     
     fStatOnly = false;
@@ -637,6 +638,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("RankingMaxNP");  if( param != ""){
         fRankingMaxNP = atoi(param.c_str());
+    }
+    param = cs->Get("RankingPlot");  if( param != ""){
+        fRankingPlot = param;
     }
     param = cs->Get("ReduceNPforRanking");  if( param != ""){
         fReduceNPforRanking = atof(param.c_str());
@@ -4630,6 +4634,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         fitTool -> ConstPOI(false);
     }
     fitTool -> SetRandomNP(fRndRange, fUseRnd);
+    if(fStatOnly) fitTool -> NoGammas();
     
     //
     // Fit starting from custom point
@@ -5291,6 +5296,30 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
     RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
     RooDataSet* data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+
+    // Loop on NPs to find gammas and add to the list to be ranked
+    if(NPnames=="all" || NPnames.find("gamma_stat")!=string::npos){
+      RooRealVar* var = NULL;
+      RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
+      if(nuis){
+        TIterator* it2 = nuis->createIterator();
+        while( (var = (RooRealVar*) it2->Next()) ){
+	  string np = var->GetName();
+	  if(NPnames!="all"){ 
+	    if(np==NPnames){
+	      nuisPars.push_back(ReplaceString(np,"gamma_",""));
+	      isNF.push_back( true );
+	      break;
+	    }
+	  }
+	  else if(np.find("gamma_stat")!=string::npos){
+	    nuisPars.push_back(np);
+	    isNF.push_back( true );
+	  }
+        }
+	// delete it2;
+      }
+    }
     
     //
     // Create snapshot to keep inital values
@@ -5304,6 +5333,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
     fitTool -> ValPOI(1.);
     fitTool -> ConstPOI(false);
+    if(fStatOnly) fitTool -> NoGammas();
     // 
     // no point is setting Minos for ranking...
 //     if(fVarNameMinos.size()>0){
@@ -5321,6 +5351,14 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         central = fFitResults -> GetNuisParValue(   nuisPars[i] );
         up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
         down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
+	//// Thomas : We should be careful with changing naming convention compared to RooFit !!
+	// TtHFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
+	// Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
+	if( (NPnames=="all" && nuisPars[i].find("_bin_")!=string::npos)
+	    || NPnames.find("gamma_stat")!=string::npos){
+	  string tmpNuispar=nuisPars[i];
+	  nuisPars[i]="gamma_"+tmpNuispar;
+	}
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         //
         // Experimental: reduce the range of ranking
@@ -5358,7 +5396,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             muVarNomUp[   nuisPars[i] ] = muhat;
             muVarNomDown[ nuisPars[i] ] = muhat;
         }
-        else{
+	else{
             up   = 1.;
             down = 1.;
             //
@@ -5414,7 +5452,16 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 
 //____________________________________________________________________________________
 //
-void TtHFit::PlotNPRanking(){
+void TtHFit::PlotNPRankingManager(){
+  if(fRankingPlot=="Merge"  || fRankingPlot=="all") PlotNPRanking(true,true);
+  if(fRankingPlot=="Systs"  || fRankingPlot=="all") PlotNPRanking(true,false);
+  if(fRankingPlot=="Gammas" || fRankingPlot=="all") PlotNPRanking(false,true);
+
+}
+
+//____________________________________________________________________________________
+//
+void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     //
     string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
     //
@@ -5452,6 +5499,20 @@ void TtHFit::PlotNPRanking(){
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     }
     while (!fin.eof()){
+        if(paramname.find("gamma")!=string::npos && !flagGammas){
+	  fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+	  if (paramname=="Luminosity"){
+	    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+	  }
+	  continue;
+	}
+	if(paramname.find("gamma")==string::npos && !flagSysts){
+	  fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+	  if (paramname=="Luminosity"){
+	    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+	  }
+	  continue;
+	}
         parname.push_back(paramname);
         nuhat.push_back(nuiphat);
         nuerrhi.push_back(nuiperrhi);
@@ -5579,7 +5640,13 @@ void TtHFit::PlotNPRanking(){
         g2a->SetPointEYhigh(idx, 0.4);
         g2a->SetPointEYlow( idx, 0.4);
         
-        parTitle = TtHFitter::SYSTMAP[ parname[i] ];
+	if(parname[i].find("gamma")!=string::npos){
+	  string tmpTitle=parname[i];
+	  tmpTitle=ReplaceString(tmpTitle,"gamma_stat_","");
+	  tmpTitle=ReplaceString(tmpTitle,"_"," ");
+	  parTitle="#gamma ("+tmpTitle+")";
+	}
+        else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
         
         Names.push_back(parTitle);
         
@@ -5707,9 +5774,23 @@ void TtHFit::PlotNPRanking(){
     
     gPad->RedrawAxis();
     
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+    if(flagGammas && flagSysts){
+      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
         c->SaveAs( (fName+"/Ranking"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
-        
+    }
+    else if(flagGammas){
+      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/RankingGammas"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    }
+    else if(flagSysts){
+      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/RankingSysts"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    }
+    else{
+      std::cout << "WARNING::TtHFitter:Your ranking plot felt in unknown category :s" << endl;
+      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/RankingUnknown"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    }
     // 
     delete c;
 }

@@ -51,6 +51,8 @@ public:
     inline void ConstPOI( const bool constant ) { m_constPOI = constant; }
     inline double GetConstPOI() { return m_constPOI; }
     
+    inline double NoGammas() { m_noGammas=true; }
+
     inline void SetRandomNP( const double rndNP, const bool rndize ) { m_randomNP = rndNP; m_randomize = rndize; }
     
 //     inline void FixNP( const TString &np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
@@ -79,6 +81,7 @@ private:
     double m_edm,m_valPOI,m_randomNP;
     double m_RangePOI_up,m_RangePOI_down;
     bool m_useMinos,m_constPOI;
+    bool m_noGammas;
     std::vector<std::string> m_varMinos;
     RooFitResult* m_fitResult;
     bool m_debug,m_randomize;

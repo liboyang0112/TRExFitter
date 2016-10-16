@@ -136,7 +136,8 @@ public:
     Sample* GetSample(string name);
     
     void ProduceNPRanking(string NPnames="all");
-    void PlotNPRanking();
+    void PlotNPRanking(bool flagSysts=true, bool flagGammas=true);
+    void PlotNPRankingManager();
     
     void PrintSystTables(string opt="");
     
@@ -218,6 +219,7 @@ public:
     int fRankingMaxNP;
     float fReduceNPforRanking;
     std::string fRankingOnly;
+    std::string fRankingPlot;
     std::string fImageFormat;
     std::string fAtlasLabel;
     

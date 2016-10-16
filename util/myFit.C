@@ -134,7 +134,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     }
     if(doRanking){
         if(myFit->fRankingOnly!="plot")  myFit->ProduceNPRanking( myFit->fRankingOnly );
-        if(myFit->fRankingOnly=="all" || myFit->fRankingOnly=="plot")  myFit->PlotNPRanking();
+        if(myFit->fRankingOnly=="all" || myFit->fRankingOnly=="plot")  myFit->PlotNPRankingManager();
     }
     
     if(doLimit){
