@@ -1,4 +1,7 @@
 2016-11-07 Thomas Calvet <calvet@cppm.in2p3.fr>
+    * Fix automatic binning for histo inputs with Julian's correction
+    
+2016-11-07 Thomas Calvet <calvet@cppm.in2p3.fr>
     * Adding gammas in the ranking. Can choose the plot style, see README "RankingPlot" option for Job
     * Fixed "StatOnly: TRUE" now correctly exclude MC stat when fitting (not added for limit and sig yet)
     

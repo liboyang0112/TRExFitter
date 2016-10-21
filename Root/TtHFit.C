@@ -5934,7 +5934,7 @@ void TtHFit::ComputeBining(int regIter){
                   }
                   htmp->~TH1F();
               }
-          }
+	  }
           //
           // Input with hists
           else if(fInputType == 0){
@@ -5950,12 +5950,12 @@ void TtHFit::ComputeBining(int regIter){
               else                                          histoFiles = ToVec( fHistoFile );
               if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
               else if(fRegions[regIter]->fHistoNames.size()>0) histoNames = fRegions[regIter]->fHistoNames;
-              else fullPaths = CreatePathsList( fHistoPaths, CombinePathSufs(
-                                          fRegions[regIter]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),
-                                          histoFiles, empty, // no histo file suffs for nominal (syst only)                                                                                 
-                                          histoNames, empty  // same for histo name                                                                                                         
-                                          );
-              //
+              else                                          histoNames = ToVec( fHistoName );
+	      fullPaths = CreatePathsList( fHistoPaths, CombinePathSufs(fRegions[regIter]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),
+	      				   histoFiles, empty, // no histo file suffs for nominal (syst only)
+	      				   histoNames, empty  // same for histo name
+	      				   );
+              
               for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
 		  int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
 		  TtHFitter::SetDebugLevel(0);
@@ -6023,7 +6023,7 @@ void TtHFit::ComputeBining(int regIter){
               //
               htmp->~TH1F();
             }
-        }
+	 }
     }
     //
     //computing new bins
