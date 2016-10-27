@@ -4,6 +4,11 @@ stages:
     - compile
     - cleanup
 
+before_script:
+   - yum -y install make
+   - ls
+   - which make
+
 compile:
     stage: compile
     tags:
