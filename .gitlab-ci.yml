@@ -5,9 +5,7 @@ stages:
     - cleanup
 
 before_script:
-   - yum -y install man
-   - yum -y install gcc
-   - yum -y install make
+   - yum -y install man gcc make
    - ls
    - which make
 
@@ -16,16 +14,14 @@ compile:
     tags:
       - cvmfs
     script:
-      - whoami
-      - set +e
       - source setup.sh
-      - root -l -b -q
       - make clean
       - make > make.log 2>&1
       - make clean
     artifacts:
       paths:
         - make.log
+        - myFit.exe
 
 #
 # myjob:
