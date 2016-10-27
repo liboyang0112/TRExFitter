@@ -356,6 +356,7 @@ Output Directories Structure
 
 TtHFitter package authors
 -----------------
-Contacts
+Contacts:
+
 * Michele Pinamonti <michele.pinamonti@gmail.com>
 * Loic Valery <loic.valery@cern.ch>
