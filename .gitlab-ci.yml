@@ -3,6 +3,8 @@ image: docker.cern.ch/linuxsupport/cc7-base:latest
 stages:
     - prepare
     - hstep
+    - wstep
+    - flsstep
     - cleanup
 
 before_script:
@@ -12,6 +14,7 @@ before_script:
    - which root
    - which make
    - ls
+   - ls ExampleInputs
 
 compile:
     stage: prepare
@@ -42,6 +45,61 @@ hstep:
       - cvmfs
     script:
       - ./myFit.exe h config/myFit.config
+      - ls
+      - ls FitExample
+    artifacts:
+      paths:
+        - FitExample
+
+wstep:
+    stage: wstep
+    tags:
+      - cvmfs
+    script:
+      - ./myFit.exe w config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/RooStats/
+    artifacts:
+      paths:
+        - FitExample
+
+fstep:
+    stage: flsstep
+    tags:
+      - cvmfs
+    script:
+      - ./myFit.exe f config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Fits/
+      - cat FitExample/Fits/
+    artifacts:
+      paths:
+        - FitExample
+
+lstep:
+    stage: flsstep
+    tags:
+      - cvmfs
+    script:
+      - ./myFit.exe l config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Limits/
+    artifacts:
+      paths:
+        - FitExample
+
+sstep:
+    stage: flsstep
+    tags:
+      - cvmfs
+    script:
+      - ./myFit.exe s config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Significance/
     artifacts:
       paths:
         - FitExample
