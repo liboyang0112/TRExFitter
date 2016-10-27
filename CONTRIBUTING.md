@@ -1,6 +1,6 @@
 # Just show me the commands
 
-For a quick svn-git translation table, see the 
+For a quick svn-git translation table, see the
 [git-svn crash course](https://git.wiki.kernel.org/index.php/GitSvnCrashCourse)
 
 # How to contribute
@@ -39,7 +39,7 @@ still commit them to your local repository)
 ```bash
 mkdir TRexFitter
 cd TRexFitter
-git clone ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git 
+git clone ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git
 ```
 
 ### Commit changes to your local repository and push them to github:
