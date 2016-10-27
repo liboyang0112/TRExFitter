@@ -20,7 +20,6 @@ compile:
     script:
       - make clean
       - make > make.log 2>&1
-      - make clean
     artifacts:
       paths:
         - make.log
