@@ -93,50 +93,49 @@ NB: note the *blank* line between the objects!!)
     * Job:
        * Label: it's the label which will be showed on the plots
        * POI: the name of the parameter of interest; this should correspond to a NormFactor defined below
-      ReadFrom         -> can be HIST or NTUP; default is HIST
-      HistoPath        -> valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stored
-      NtuplePath(s)    -> valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
-      MCweight         -> only for option NTUP; string defining the weight (for MC samples only)
-      Selection        -> only for option NTUP; string defining the selection
-      NtupleName       -> default name of the tree
-      Lumi             -> value to scale all the "NormalizedByTheory" samples
-      LumiScale        -> additional value to scale 'after' histogram creation (for fast scaling) IMPORTANT: use it only if you know what you are doing!!
-      SystPruningShape -> Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
-      SystPruningNorm  -> Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
-      SystLarge        -> all systematics above this threshold will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%)
-      IntCodeOverall   -> interpolation code used for the normalization component of systematics (should match the one used in RooStats)
-      IntCodeShape     -> interpolation code used for the shape component of systematics (should match the one used in RooStats)
-      MCstatThreshold  -> if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
-      DebugLevel       -> 0 or 1
-      PlotOptions      -> a set os options for plotting:
-        YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
-        NORMSIG : add normlised signal to plots
-        NOSIG: don't show signal in stack
-        OVERSIG: overlay signal (not normalised)
-      SystControlPlots -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
-      SystDataPlots    -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.
-      		          Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame.
-      CorrelationThreshold -> Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05->5%)
-      SignalRegionsPlot-> list of regions to put in SignalRegionsPlot; use "EMPTY" to put an empty entry, "ENDL" to specify end of line
-      HistoChecks      -> NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem
-      LumiLabel        -> label for luminosity to be put on plots
-      CmeLabel         -> label for center-of-mass energy to be put on plots
-      SplitHistoFiles  -> set this to true to have histogram files split by region (useful with many regions and/or run in parallel)
-      BlindingThreshold-> bins with S/B > this number will be blinded
-      RankingMaxNP     -> max number of NP to show in ranking plot
-      RankingPlot      -> NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots.
-      ImageFormat      -> png, pdf or eps
-      StatOnly         -> the code ignores the MC stat uncertainties from all computations (limits, significances, fit, ...)
-      SystErrorBars    -> add stat error bars to syst variations in syst plots
-      SummaryPlotRegions -> list of regions to be shown in summary plot (useful to specify a custom order)
-      FixNPforStatOnly -> if set to TRUE, when running stat-only (with either of the two options) also the norm facotrs other than the POI are kept fixed
-      InputFolder      -> specify it to read fit input histograms from a different direcotry than <jobName>/Histograms/
-      InputName        -> specify it to read fit input histograms from files with different name than <jobName>_blabla.root
-      WorkspaceFileName -> if specified, an external ws can be used as input for fitting (not 100% supported)
-      KeepPruning      -> if set to TRUE, the first time the ws is created (option w) a Pruning.root file is created under <jobName>/ and used for future operations to skip pruned systematics (makes operations much faster in case many syst are pruned)
-      AtlasLabel       -> to specify Internal, Preliminary, etc...
-      CleanTables      -> if set to TRUE, a cleaned version of the tex tables is created (basically removing the "#") - to be expanded
-      SystCategoryTables -> if set to TRUE, additional syst tables with systematics grouped by category are created
+       * ReadFrom         -> can be HIST or NTUP; default is HIST
+       * HistoPath        -> valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stored
+       * NtuplePath(s)    -> valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
+       * MCweight         -> only for option NTUP; string defining the weight (for MC samples only)
+       * Selection        -> only for option NTUP; string defining the selection
+       * NtupleName       -> default name of the tree
+       * Lumi             -> value to scale all the "NormalizedByTheory" samples
+       * LumiScale        -> additional value to scale 'after' histogram creation (for fast scaling) IMPORTANT: use it only if you know what you are doing!!
+       * SystPruningShape -> Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
+       * SystPruningNorm  -> Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
+       * SystLarge        -> all systematics above this threshold will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%)
+       * IntCodeOverall   -> interpolation code used for the normalization component of systematics (should match the one used in RooStats)
+       * IntCodeShape     -> interpolation code used for the shape component of systematics (should match the one used in RooStats)
+       * MCstatThreshold  -> if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
+       * DebugLevel       -> 0 or 1
+       * PlotOptions      -> a set os options for plotting:
+         * YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
+         * NORMSIG : add normlised signal to plots
+         * NOSIG: don't show signal in stack
+         * OVERSIG: overlay signal (not normalised)
+       * SystControlPlots -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
+       * SystDataPlots    -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame.
+       * CorrelationThreshold -> Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05->5%)
+       * SignalRegionsPlot-> list of regions to put in SignalRegionsPlot; use "EMPTY" to put an empty entry, "ENDL" to specify end of line
+       * HistoChecks      -> NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem
+       * LumiLabel        -> label for luminosity to be put on plots
+       * CmeLabel         -> label for center-of-mass energy to be put on plots
+       * SplitHistoFiles  -> set this to true to have histogram files split by region (useful with many regions and/or run in parallel)
+       * BlindingThreshold-> bins with S/B > this number will be blinded
+       * RankingMaxNP     -> max number of NP to show in ranking plot
+       * RankingPlot      -> NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots.
+       * ImageFormat      -> png, pdf or eps
+       * StatOnly         -> the code ignores the MC stat uncertainties from all computations (limits, significances, fit, ...)
+       * SystErrorBars    -> add stat error bars to syst variations in syst plots
+       * SummaryPlotRegions -> list of regions to be shown in summary plot (useful to specify a custom order)
+       * FixNPforStatOnly -> if set to TRUE, when running stat-only (with either of the two options) also the norm facotrs other than the POI are kept fixed
+       * InputFolder      -> specify it to read fit input histograms from a different direcotry than <jobName>/Histograms/
+       * InputName        -> specify it to read fit input histograms from files with different name than <jobName>_blabla.root
+       * WorkspaceFileName -> if specified, an external ws can be used as input for fitting (not 100% supported)
+       * KeepPruning      -> if set to TRUE, the first time the ws is created (option w) a Pruning.root file is created under <jobName>/ and used for future operations to skip pruned systematics (makes operations much faster in case many syst are pruned)
+       * AtlasLabel       -> to specify Internal, Preliminary, etc...
+       * CleanTables      -> if set to TRUE, a cleaned version of the tex tables is created (basically removing the "#") - to be expanded
+       * SystCategoryTables -> if set to TRUE, additional syst tables with systematics grouped by category are created
 
     Fit:
       FitType          -> can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -151,7 +150,7 @@ NB: note the *blank* line between the objects!!)
       NumCPU           -> specify the number of CPU to use for the minimization (default = 1)
       StatOnlyFit      -> if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
 
-    Limit:
+    * Limit:
       LimitType        -> can be ASYMPTOTIC or TOYS (the latter is not yet supported)
       LimitBlind       -> can be TRUE or FALSE (TRUE means that ALL regions are blinded)
       POIAsimov        -> value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
