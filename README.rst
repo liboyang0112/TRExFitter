@@ -1,73 +1,76 @@
------------------
-TtHFitter package
------------------
-Authors:
-  Michele Pinamonti <michele.pinamonti@gmail.com>
-  Loic Valery <loic.valery@cern.ch>
-Latest Update:   01 Jul 2016
-Tag:             00-01-01
-
-
+Getting the code
 ---------
+To get the code, use the following command::
+
+  git clone ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git
+
 Setup
 ---------
-To setup just use the script:
-    source setup.sh
+To setup just use the script::
+
+  source setup.sh
+
 (should work on any machine with access to afs - provided that nothing else is set-up previously)
 
-To compile:
-    make
+To compile::
+
+  make
+
 (this will take as main code the file util/myFit.C)
-or specify a custom main file as argument:
-    make  util/myNewCustomFit.C
-   
-      
+
+or specify a custom main file as argument::
+
+  make  util/myNewCustomFit.C
+
+
+How to
 ---------
-How to   
----------
-To run the code, after compiling (see "Setup"), use the command:
+To run the code, after compiling (see "Setup"), use the command::
+
     ./myFit.exe  <action(s)>  [<config file>]  [<update>]  [<options>]
 
 The configuration file (<config file>) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
 By default the file  config/myFit.config  is loaded.
 See the section "Config File" for more details.
-As examples give a look at  config/myFit.config  or  config/ttH2015.config .
-Most of the times the only file the user has to modify to get his fit is the configuration file. 
+As examples give a look at  ``config/myFit.config``  or  ``config/ttH2015.config`` .
+Most of the times the only file the user has to modify to get his fit is the configuration file.
 
-The only mandatory argument, <action(s)>, tells to the TtHFitter which operation(s) to perform. 
-The possible operations are defined in the main file (e.g. util/myFit.C). 
+The only mandatory argument, <action(s)>, tells to the TtHFitter which operation(s) to perform.
+The possible operations are defined in the main file (e.g. util/myFit.C).
 For instance, if you use the default file util/myFit.C, the available options are:
-    h : read input histograms (valid only if the proper option is spefified in the config file)
-    n : read input ntuples (valid only if the proper option is spefified in the config file)
-    w : create the RooStats xmls and workspace
-    f : fit the workspace
-    l : calculate exclusion limit
-    s : calculate significance
-    d : draw pre-fit plots
-    p : draw post-fit plots
-    a : draw separation plots
-    r : draw ranking plot (see later)
-    b : re-run smoothing (in the future also rebinning)
-    m : multi-fit (see later)
+* h : read input histograms (valid only if the proper option is spefified in the config file)
+* n : read input ntuples (valid only if the proper option is spefified in the config file)
+* w : create the RooStats xmls and workspace
+* f : fit the workspace
+* l : calculate exclusion limit
+* s : calculate significance
+* d : draw pre-fit plots
+* p : draw post-fit plots
+* a : draw separation plots
+* r : draw ranking plot (see later)
+* b : re-run smoothing (in the future also rebinning)
+* m : multi-fit (see later)
 
 New optional argument: <options>.
-It's a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form:
-    "<option1>=<value1>,<value2>,...:<option2>=..."
-See the section "Command line options" below.
-    
+It's a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form::
 
+    "<option1>=<value1>,<value2>,...:<option2>=..."
+
+See the section "Command line options" below.
+
+
+Config File
 ---------
-Config File   
----------
+
 Here's a list of the inputs and options which can be specifed in the config file:
 
- - The structure of the file shoudl be the following:
+ - The structure of the file should be the following::
 
      <ObjectType>: <ObjectName>
        <ObjectProperty>: <Value>
        <ObjectProperty>: <Value>
        ...
-     
+
      <ObjectType>: <ObjectName>
        <ObjectProperty>: <Value>
        <ObjectProperty>: <Value>
@@ -75,15 +78,15 @@ Here's a list of the inputs and options which can be specifed in the config file
 
      ...
 
-    (NB: note the blank line between the objects!!)
-    
+(NB: note the blank line between the objects!!)
+
  - The file should contain:
      * exactly one object of type "Fit"
      * at least one object of type "Sample"
      * at least one object of type "Region"
      * any number of objects of type "Systematic" (even 0 should be ok)
    Each object should have unique <ObjectName>.
-      
+
  - Then, for each object type, here's a PARTIAL list of properties to be speficied:
 
     Job:
@@ -151,10 +154,10 @@ Here's a list of the inputs and options which can be specifed in the config file
       LimitType        -> can be ASYMPTOTIC or TOYS (the latter is not yet supported)
       LimitBlind       -> can be TRUE or FALSE (TRUE means that ALL regions are blinded)
       POIAsimov        -> value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
-      
+
     Options:           (additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code)
       ...
-      
+
     Region:
       VariableTitle    -> it's the label which will be displayed on the x-axis in the plots
       Label            -> it's the label which will be showed on the plots and specifies which region is shown
@@ -204,7 +207,7 @@ Here's a list of the inputs and options which can be specifed in the config file
       UseMCstat        -> if set to FALSE, makes the fitter ignore the stat uncertainty for this sample
       MultiplyBy       -> if specified, each sample hist is multiplied bin-by-bin by another sample hist, in each of the regions
       DivideBy         -> if specified, each sample hist is divided bin-by-bin by another sample hist, in each of the regions
-      
+
     NormFactor:
       Samples          -> comma-separated list of samples on which to apply the norm factor
       Regions          -> comma-separated list of regions where to apply the norm factor
@@ -213,8 +216,8 @@ Here's a list of the inputs and options which can be specifed in the config file
       Nominal          -> nominal value
       Min              -> min value
       Max              -> max value
-      Constant         -> set to TRUE to have a fixed norm factor 
-      
+      Constant         -> set to TRUE to have a fixed norm factor
+
     Systematic:
       Samples          -> comma-separated list of samples on which to apply the systematic
       Regions          -> comma-separated list of regions where to apply the systematic
@@ -258,7 +261,6 @@ Here's a list of the inputs and options which can be specifed in the config file
       ReferenceSample  -> if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
 
 
----------
 Command line options
 ---------
 
@@ -272,11 +274,11 @@ Currently the supported options are:
       Update:      if TRUE, the output .root file is updated, otherwise is overwrote
       StatOnlyFit: if TRUE, the same as Fit, StatOnlyFit
 Note: the wild-card * is supported, but only as last character.
-Example:
+Example::
+
       ./myFit.exe  n  config/ttH2015.config 'Regions=HThad_ge6jge4b;Exclude=BTag_*'
 
 
----------
 Ranking Plot
 ---------
 
@@ -295,13 +297,12 @@ Ranking Plot
      ./myFit.exe  r  <config> Ranking=plot
 
 
----------
 Multi-Fit
 ---------
 
 The Multi-Fit functionality can be sued to compare fit results or even to combine fit inputs from different configuration files / Jobs.
- - To use it you need a dedicated config file, with a similar starucure as the usual ones. Example:
-    
+ - To use it you need a dedicated config file, with a similar starucure as the usual ones. Example::
+
   ---
   file: config/myTopWS_multifit.config
   ---
@@ -317,31 +318,34 @@ The Multi-Fit functionality can be sued to compare fit results or even to combin
       POIRange: -10,30
       DataName: "obsData"
       CombineChByCh: TRUE
-      
+
     Fit: "CR"
       ConfigFile: config/myTopWS_CR.config
       Label: "CR-only"
-      
+
     Fit: "SR"
       ConfigFile: config/myTopWS_SR.config
       Label: "SR"
   ---
 
- - This config file can be run with the command line:
+ - This config file can be run with the command line::
+
     ./myFit  m  config/myTopWS_multifit.config
+
   this will compare the fit resutls in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the flight).
-  
- - To make a real combination, one needs to use the usual command options "w", "f" and "l" together with the flag "Combine: TRUE" in the config above. Example:
+
+ - To make a real combination, one needs to use the usual command options "w", "f" and "l" together with the flag "Combine: TRUE" in the config above. Example::
+
     ./myFit  mwf  config/myTopWS_multifit.config
+
   this will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
 
----------
 Output Directories Structure
 ---------
    * For each TtHFit objetc, a diretory is created, with the same name as the Fit Name
    * Inside this direcotry, at every step, some outputs are created, following the structure described above
-   
+
    Plots/              -> contains the data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots
    Tables/             -> contains the tables in txt and tex format
    RooStats/           -> contains the workspace(s) and the xmls
@@ -352,3 +356,9 @@ Output Directories Structure
    Histograms/         -> contains the root file(s) with all the inputs
    LHoodPlots/         -> contains the likelihood scan with respect to the specified parameter
 
+
+TtHFitter package
+-----------------
+Authors:
+   Michele Pinamonti <michele.pinamonti@gmail.com>
+   Loic Valery <loic.valery@cern.ch>
