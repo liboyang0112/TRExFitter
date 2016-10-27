@@ -1,26 +1,54 @@
-image: docker.cern.ch/linuxsupport/cc7-base:latest
-
-stages:
-    - build
-    - cleanup
-
+# cf. http://linux.web.cern.ch/linux/docs/kerberos-access.shtml
+# KRB_USERNAME and KRB_PASSWORD are set as 'secret variable'
+# in the project settings
 before_script:
-   - yum -y install make
-   - ls
-   - which make
+   - yum -y groupinstall "Development Tools"
+   - yum -y install libSM libX11 libXext libXpm libXft
+#   - yum -y install libSM libX11 libXrender libSM libICE libXext libGLU
 
-build:
-    stage: build
-    tags:
-      - cvmfs
-    script:
-      - source setup.sh
-      - whoami
-      - make > make.log 2>&1
-      - make clean
-    artifacts:
-      paths:
-        - make.log
+myjob:
+  image: docker.cern.ch/linuxsupport/cc7-base:latest
+  tags:
+  - cvmfs
+  script:
+  - whoami
+  - set +e
+  - ls /cvmfs/atlas.cern.ch/
+  - export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+  - ls -l ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+  - source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+  - lsetup 'rcsetup Base,2.3.50'
+  - which root
+  - which python
+  - root-config --version
+  - rc make_skeleton TestPackage
+  - rc find_packages
+  - rc compile
+  - ls -l
+  
+# image: docker.cern.ch/linuxsupport/cc7-base:latest
+#
+# stages:
+#     - build
+#     - cleanup
+#
+# before_script:
+#    - yum -y install make
+#    - ls
+#    - which make
+#
+# build:
+#     stage: build
+#     tags:
+#       - cvmfs
+#     script:
+#       - source setup.sh
+#       - whoami
+#       - make > make.log 2>&1
+#       - make clean
+#     artifacts:
+#       paths:
+#         - make.log
 
 
 #
