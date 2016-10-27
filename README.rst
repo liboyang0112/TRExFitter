@@ -340,19 +340,19 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
 
 Output Directories Structure
 ---------
-   * For each TtHFit objetc, a diretory is created, with the same name as the Fit Name
-   * Inside this direcotry, at every step, some outputs are created, following the structure described above
 
-   Plots/              : contains the data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots
-   Tables/             : contains the tables in txt and tex format
-   RooStats/           : contains the workspace(s) and the xmls
-   Fits/               : contains the output from fits
-   Limits/             : contains the outputs from the limit-setting code
-   Significance/       : contains the outputs from the significance code
-   Systematics/        : contains the plots for the syst variations
-   Histograms/         : contains the root file(s) with all the inputs
-   LHoodPlots/         : contains the likelihood scan with respect to the specified parameter
+* For each TtHFit objetc, a diretory is created, with the same name as the Fit Name
+* Inside this direcotry, at every step, some outputs are created, following the structure described above
 
+   * Plots/              : contains the data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots
+   * Tables/             : contains the tables in txt and tex format
+   * RooStats/           : contains the workspace(s) and the xmls
+   * Fits/               : contains the output from fits
+   * Limits/             : contains the outputs from the limit-setting code
+   * Significance/       : contains the outputs from the significance code
+   * Systematics/        : contains the plots for the syst variations
+   * Histograms/         : contains the root file(s) with all the inputs
+   * LHoodPlots/         : contains the likelihood scan with respect to the specified parameter
 
 TtHFitter package authors
 -----------------
