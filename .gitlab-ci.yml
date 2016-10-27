@@ -5,7 +5,7 @@ stages:
     - cleanup
 
 before_script:
-   - yum -y groupinstall "Development Tools"
+   - yum -y install gcc
    - yum -y install make
    - ls
    - which make
