@@ -357,8 +357,7 @@ Output Directories Structure
    LHoodPlots/         -> contains the likelihood scan with respect to the specified parameter
 
 
-TtHFitter package
+TtHFitter package authors
 -----------------
-Authors:
    Michele Pinamonti <michele.pinamonti@gmail.com>
    Loic Valery <loic.valery@cern.ch>
