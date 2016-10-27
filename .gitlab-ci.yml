@@ -1,14 +1,10 @@
 image: docker.cern.ch/linuxsupport/cc7-base:latest
 
-
 stages:
     - build
     - cleanup
 
 before_script:
-   - yum -y groupinstall "Development Tools"
-   - yum -y install libSM libX11 libXext libXpm libXft
-   - source setup.sh
    - yum -y install make
    - ls
    - which make
