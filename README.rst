@@ -39,8 +39,9 @@ The only mandatory argument, <action(s)>, tells to the TtHFitter which operation
 The possible operations are defined in the main file (e.g. util/myFit.C).
 For instance, if you use the default file `util/myFit.C`, the available options are:
 
-  * h : read input histograms (valid only if the proper option is spefified in the config file)
-  * n : read input ntuples (valid only if the proper option is spefified in the config file)
+* h : read input histograms (valid only if the proper option is spefified in the config file)
+* n : read input ntuples (valid only if the proper option is spefified in the config file)
+
   * w : create the RooStats xmls and workspace
   * f : fit the workspace
   * l : calculate exclusion limit
