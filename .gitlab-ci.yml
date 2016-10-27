@@ -9,6 +9,8 @@ compile:
     tags:
       - cvmfs
     script:
+      - whoami
+      - set +e
       - source setup.sh
       - root -l -b -q
       - make > make.log 2>&1
@@ -17,7 +19,7 @@ compile:
       paths:
         - make.log
 
-# 
+#
 # myjob:
 #   tags:
 #   - cvmfs
