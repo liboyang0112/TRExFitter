@@ -282,12 +282,12 @@ Example::
 Ranking Plot
 ---------
 
- - The ranking plot can be created in one go, with just the command line argument "r" (after having run the nominal fit fit "f").
- - Since this can take too much time (and memory), for complicated fits it's better to run it in several steps:
-   by specifying the command-line option "Ranking=<name/index>"
-   one can produce the txt input for the ranking only for a specific line of the ranking, i.e. for a single NP (speficied either through its name or index).
-   Once all the needed txt files are created (e.g. in parallel throgh batch jobs) with the option "Ranking=plot" they are merged to create the final plot.
- - Examples:
+- The ranking plot can be created in one go, with just the command line argument "r" (after having run the nominal fit fit "f").
+- Since this can take too much time (and memory), for complicated fits it's better to run it in several steps:
+   by specifying the command-line option "Ranking=<name/index>", one can produce the txt input for the ranking only for a specific line of the ranking, i.e. for a single NP (speficied either through its name or index). Once all the needed txt files are created (e.g. in parallel through batch jobs) with the option "Ranking=plot" they are merged to create the final plot.
+
+- Examples::
+
      # this runs the ranking in one go
      ./myFit.exe  r  <config>
      #these commands will first create the inputs for the ranking one by one and then merge them in the plot
