@@ -1,16 +1,30 @@
-# cf. http://linux.web.cern.ch/linux/docs/kerberos-access.shtml
-# KRB_USERNAME and KRB_PASSWORD are set as 'secret variable'
-# in the project settings
-
 image: docker.cern.ch/linuxsupport/cc7-base:latest
 
-myjob:
-  tags:
-  - cvmfs
-  script:
-  - whoami
-  - set +e
-  - source setup.sh
+stages:
+    - compile
+    - cleanup
+
+compile:
+    stage: compile
+    tags:
+      - cvmfs
+    script:
+      - source setup.sh
+      - root -l -b -q
+      - make > make.log 2>&1
+      - make clean
+    artifacts:
+      paths:
+        - make.log
+
+# 
+# myjob:
+#   tags:
+#   - cvmfs
+#   script:
+#   - whoami
+#   - set +e
+#   - source setup.sh
 
 
 # image: docker.cern.ch/linuxsupport/cc7-base:latest
