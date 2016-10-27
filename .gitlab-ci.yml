@@ -10,18 +10,7 @@ myjob:
   script:
   - whoami
   - set +e
-  - ls /cvmfs/atlas.cern.ch/
-  - export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-  - ls -l ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-  - source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-  - lsetup 'rcsetup Base,2.3.50'
-  - which root
-  - which python
-  - root-config --version
-  - rc make_skeleton TestPackage
-  - rc find_packages
-  - rc compile
-  - ls -l
+  - source setup.sh
 
 # image: docker.cern.ch/linuxsupport/cc7-base:latest
 #
