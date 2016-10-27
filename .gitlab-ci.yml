@@ -15,12 +15,6 @@ before_script:
   - which make
   - which root
 
-
-root_setup:
-    stage: build
-    script:
-      - time root -l -b -q
-
 build_job:
     stage: build
     script:
@@ -29,3 +23,8 @@ build_job:
     artifacts:
       paths:
         - make.log
+
+test_stat:
+    stage: test
+    script:
+      - root -l -b -q 
