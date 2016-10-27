@@ -301,7 +301,8 @@ Multi-Fit
 ---------
 
 The Multi-Fit functionality can be used to compare fit results or even to combine fit inputs from different configuration files / Jobs.
- - To use it you need a dedicated config file, with a similar structure as the usual ones. Example::
+
+- To use it you need a dedicated config file, with a similar structure as the usual ones. Example::
 
     MultiFit: "myTopWS_multifit"
       Label: "My Label"
@@ -324,13 +325,13 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
       ConfigFile: config/myTopWS_SR.config
       Label: "SR"
 
- - This config file can be run with the command line::
+- This config file can be run with the command line::
 
     ./myFit  m  config/myTopWS_multifit.config
 
   this will compare the fit resutls in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the flight).
 
- - To make a real combination, one needs to use the usual command options "w", "f" and "l" together with the flag "Combine: TRUE" in the config above. Example::
+- To make a real combination, one needs to use the usual command options "w", "f" and "l" together with the flag "Combine: TRUE" in the config above. Example::
 
     ./myFit  mwf  config/myTopWS_multifit.config
 
