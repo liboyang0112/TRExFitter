@@ -7,23 +7,24 @@ stages:
 
 before_script:
    - yum -y install man gcc make
-   - ls
-   - which make
    - set +e
    - source setup.sh
+   - which root
+   - which make
+   - ls
 
-compile:
-    stage: prepare
-    tags:
-      - cvmfs
-    script:
-      - make clean
-      - make > make.log 2>&1
-      - make clean
-    artifacts:
-      paths:
-        - make.log
-        - myFit.exe
+# compile:
+#     stage: prepare
+#     tags:
+#       - cvmfs
+#     script:
+#       - make clean
+#       - make > make.log 2>&1
+#       - make clean
+#     artifacts:
+#       paths:
+#         - make.log
+#         - myFit.exe
 
 input_prod:
     stage: prepare
