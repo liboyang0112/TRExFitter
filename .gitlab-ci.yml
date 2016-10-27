@@ -19,7 +19,7 @@ before_script:
 root_setup:
     stage: build
     script:
-      - root -l -b -q
+      - time root -l -b -q
 
 build_job:
     stage: build
