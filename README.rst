@@ -4,7 +4,7 @@ To get the code, use the following command::
 
   git clone ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git
   
-To get a specific tag, do the following:
+To get a specific tag, do the following::
 
   cd TRExFitter && git checkout <tag number> && cd -
 
