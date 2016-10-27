@@ -89,6 +89,7 @@ NB: note the *blank* line between the objects!!)
 
 Note that, each object should have unique <ObjectName>.
 
+
 - Then, for each object type, here's a PARTIAL list of properties to be specified:
 
   * Job:
@@ -110,10 +111,10 @@ Note that, each object should have unique <ObjectName>.
      * MCstatThreshold  -> if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
      * DebugLevel       -> 0 or 1
      * PlotOptions      -> a set os options for plotting:
-       * YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
-       * NORMSIG : add normlised signal to plots
-       * NOSIG: don't show signal in stack
-       * OVERSIG: overlay signal (not normalised)
+        * YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
+        * NORMSIG : add normlised signal to plots
+        * NOSIG: don't show signal in stack
+        * OVERSIG: overlay signal (not normalised)
      * SystControlPlots -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
      * SystDataPlots    -> if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame.
      * CorrelationThreshold -> Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05->5%)
