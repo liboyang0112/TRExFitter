@@ -10,7 +10,8 @@ myjob:
   script:
   - whoami
   - set +e
-  - source setup.sh
+  - source /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/user/atlasLocalSetup.sh
+  - localSetupROOT 6.02.12-x86_64-slc6-gcc48-opt
 
 # image: docker.cern.ch/linuxsupport/cc7-base:latest
 #
