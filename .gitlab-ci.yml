@@ -8,7 +8,6 @@ before_script:
    - yum -y install make
    - ls
    - which make
-   - which root
 
 build:
     stage: build
