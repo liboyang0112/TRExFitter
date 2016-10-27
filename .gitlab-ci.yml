@@ -2,8 +2,9 @@
 # KRB_USERNAME and KRB_PASSWORD are set as 'secret variable'
 # in the project settings
 
+image: docker.cern.ch/linuxsupport/cc7-base:latest
+
 myjob:
-  image: docker.cern.ch/linuxsupport/cc7-base:latest
   tags:
   - cvmfs
   script:
