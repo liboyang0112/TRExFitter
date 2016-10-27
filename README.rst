@@ -65,7 +65,7 @@ Config File
 
 Here's a list of the inputs and options which can be specifed in the config file:
 
- - The structure of the file should be the following::
+- The structure of the file should be the following::
 
      <ObjectType>: <ObjectName>
        <ObjectProperty>: <Value>
@@ -81,14 +81,14 @@ Here's a list of the inputs and options which can be specifed in the config file
 
 NB: note the *blank* line between the objects!!)
 
- - The file should contain:
+- The file should contain:
      * exactly one object of type "Fit"
      * at least one object of type "Sample"
      * at least one object of type "Region"
      * any number of objects of type "Systematic" (even 0 should be ok)
    Each object should have unique <ObjectName>.
 
- - Then, for each object type, here's a PARTIAL list of properties to be specified:
+- Then, for each object type, here's a PARTIAL list of properties to be specified:
 
     * Job:
        * Label: it's the label which will be showed on the plots
