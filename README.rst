@@ -300,14 +300,11 @@ Ranking Plot
 Multi-Fit
 ---------
 
-The Multi-Fit functionality can be sued to compare fit results or even to combine fit inputs from different configuration files / Jobs.
- - To use it you need a dedicated config file, with a similar starucure as the usual ones. Example::
+The Multi-Fit functionality can be used to compare fit results or even to combine fit inputs from different configuration files / Jobs.
+ - To use it you need a dedicated config file, with a similar structure as the usual ones. Example::
 
-  ---
-  file: config/myTopWS_multifit.config
-  ---
     MultiFit: "myTopWS_multifit"
-      Label: "My Lable"
+      Label: "My Label"
       Combine: FALSE
       Compare: TRUE
       CmeLabel: "13 TeV"
@@ -326,7 +323,6 @@ The Multi-Fit functionality can be sued to compare fit results or even to combin
     Fit: "SR"
       ConfigFile: config/myTopWS_SR.config
       Label: "SR"
-  ---
 
  - This config file can be run with the command line::
 
