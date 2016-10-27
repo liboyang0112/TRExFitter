@@ -1,63 +1,29 @@
-image: mazurov/cern-root
+image: docker.cern.ch/linuxsupport/cc7-base:latest
+tags:
+  - cvmfs
+
+script:
+  - whoami
 
 # stages is used to defined build stages that can be used by jobs. The ordering
 # of elements in stages defines the ordering of builds' execution:
 #       - builds of the same stage are run in parallel
 #       - builds of the next stage are run after success
-stages:
-    - build
-    - hstep
-    - wstep
-    - fstep
-    - lstep
-    - cleanup
-
-before_script:
-  - yum -y install make
-  - ls
-  - which make
-  - which root
-
-build_job:
-    stage: build
-    script:
-      - make > make.log 2>&1
-      - time root -l -b -q CreateHistograms.C
-      - make clean
-    artifacts:
-      paths:
-        - make.log
-        - myFit.exe
-        - ExampleInputs
-
-stat_h:
-    stage: hstep
-    script:
-      - ./myFit.exe h config/myFit.config
-    artifacts:
-      paths:
-        - FitExample
-
-stat_w:
-    stage: wstep
-    script:
-      - ./myFit.exe w config/myFit.config
-    artifacts:
-      paths:
-        - FitExample
-
-stat_f:
-    stage: fstep
-    script:
-      - ./myFit.exe f config/myFit.config
-    artifacts:
-      paths:
-        - FitExample
-
-stat_l:
-    stage: lstep
-    script:
-      - ./myFit.exe l config/myFit.config
-    artifacts:
-      paths:
-        - FitExample
+# stages:
+#     - build
+#     - cleanup
+#
+# before_script:
+#   - yum -y install make
+#   - ls
+#   - which make
+#   - which root
+#
+# build_job:
+#     stage: build
+#     script:
+#       - make > make.log 2>&1
+#       - make clean
+#     artifacts:
+#       paths:
+#         - make.log
