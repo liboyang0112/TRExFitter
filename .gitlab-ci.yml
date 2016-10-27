@@ -13,28 +13,28 @@ before_script:
    - which make
    - ls
 
-# compile:
-#     stage: prepare
-#     tags:
-#       - cvmfs
-#     script:
-#       - make clean
-#       - make > make.log 2>&1
-#       - make clean
-#     artifacts:
-#       paths:
-#         - make.log
-#         - myFit.exe
-
-input_prod:
+compile:
     stage: prepare
     tags:
       - cvmfs
     script:
-      - root -l -b -q CreateHistograms.C
+      - make clean
+      - make > make.log 2>&1
+      - make clean
     artifacts:
       paths:
-        - ExampleInputs
+        - make.log
+        - myFit.exe
+
+# input_prod:
+#     stage: prepare
+#     tags:
+#       - cvmfs
+#     script:
+#       - root -l -b -q CreateHistograms.C
+#     artifacts:
+#       paths:
+#         - ExampleInputs
 
 hstep:
     stage: hstep
