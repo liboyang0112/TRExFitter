@@ -41,17 +41,16 @@ For instance, if you use the default file `util/myFit.C`, the available options 
 
 * h : read input histograms (valid only if the proper option is spefified in the config file)
 * n : read input ntuples (valid only if the proper option is spefified in the config file)
-
-  * w : create the RooStats xmls and workspace
-  * f : fit the workspace
-  * l : calculate exclusion limit
-  * s : calculate significance
-  * d : draw pre-fit plots
-  * p : draw post-fit plots
-  * a : draw separation plots
-  * r : draw ranking plot (see later)
-  * b : re-run smoothing (in the future also rebinning)
-  * m : multi-fit (see later)
+* w : create the RooStats xmls and workspace
+* f : fit the workspace
+* l : calculate exclusion limit
+* s : calculate significance
+* d : draw pre-fit plots
+* p : draw post-fit plots
+* a : draw separation plots
+* r : draw ranking plot (see later)
+* b : re-run smoothing (in the future also rebinning)
+* m : multi-fit (see later)
 
 New optional argument: <options>.
 It's a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form::
