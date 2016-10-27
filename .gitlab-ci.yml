@@ -15,6 +15,12 @@ before_script:
   - which make
   - which root
 
+
+root_setup:
+    stage: build
+    script:
+      - root -l -b -q
+
 build_job:
     stage: build
     script:
