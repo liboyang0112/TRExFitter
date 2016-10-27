@@ -110,7 +110,7 @@ Note that, each object should have unique <ObjectName>.
      * IntCodeShape     -> interpolation code used for the shape component of systematics (should match the one used in RooStats)
      * MCstatThreshold  -> if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
      * DebugLevel       -> 0 or 1
-     * PlotOptions      -> a set os options for plotting:
+     * PlotOptions      -> a set of options for plotting:
         * YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
         * NORMSIG : add normlised signal to plots
         * NOSIG: don't show signal in stack
@@ -139,7 +139,7 @@ Note that, each object should have unique <ObjectName>.
      * CleanTables      -> if set to TRUE, a cleaned version of the tex tables is created (basically removing the "#") - to be expanded
      * SystCategoryTables -> if set to TRUE, additional syst tables with systematics grouped by category are created
 
-   * Fit:
+  * Fit:
      * FitType          -> can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
      * FitRegion        -> can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions. You can also specify a coma-separated list of regions to use in the fit
      * FitBlind         -> specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind.
@@ -151,16 +151,16 @@ Note that, each object should have unique <ObjectName>.
      * NumCPU           -> specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      -> if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
 
-   * Limit:
+  * Limit:
      * LimitType        -> can be ASYMPTOTIC or TOYS (the latter is not yet supported)
      * LimitBlind       -> can be TRUE or FALSE (TRUE means that ALL regions are blinded)
      * POIAsimov        -> value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
 
-   * Options:
+  * Options:
      * additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code)
       ...
 
-   * Region:
+  * Region:
      * VariableTitle    -> it's the label which will be displayed on the x-axis in the plots
      * Label            -> it's the label which will be showed on the plots and specifies which region is shown
      * TexLabel         -> label for tex files
@@ -183,7 +183,7 @@ Note that, each object should have unique <ObjectName>.
      * Type             -> can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
      * DataType         -> ASIMOV or DATA. Is asimov is set, the limits and significances are computed without taking into acount the data in these region, but a projection of the fit performed in the regions with DATA
 
-   * Sample:
+  * Sample:
      * Type             -> can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace
      * Title            -> title shown on the legends
      * TexTitle         -> title shown on tex tables
@@ -208,7 +208,7 @@ Note that, each object should have unique <ObjectName>.
      * MultiplyBy       -> if specified, each sample hist is multiplied bin-by-bin by another sample hist, in each of the regions
      * DivideBy         -> if specified, each sample hist is divided bin-by-bin by another sample hist, in each of the regions
 
-   * NormFactor:
+  * NormFactor:
      * Samples          -> comma-separated list of samples on which to apply the norm factor
      * Regions          -> comma-separated list of regions where to apply the norm factor
      * Exclude          -> comma-separated list of samples/regions to exclude
@@ -218,7 +218,7 @@ Note that, each object should have unique <ObjectName>.
      * Max              -> max value
      * Constant         -> set to TRUE to have a fixed norm factor
 
-   * Systematic:
+  * Systematic:
      * Samples          -> comma-separated list of samples on which to apply the systematic
      * Regions          -> comma-separated list of regions where to apply the systematic
      * Exclude          -> comma-separated list of samples/regions to exclude
