@@ -1,7 +1,8 @@
 image: docker.cern.ch/linuxsupport/cc7-base:latest
 
 stages:
-    - compile
+    - prepare
+    - hstep
     - cleanup
 
 before_script:
@@ -12,7 +13,7 @@ before_script:
    - source setup.sh
 
 compile:
-    stage: compile
+    stage: prepare
     tags:
       - cvmfs
     script:
@@ -23,6 +24,26 @@ compile:
       paths:
         - make.log
         - myFit.exe
+
+input_prod:
+    stage: prepare
+    tags:
+      - cvmfs
+    script:
+      - root -l -b -q CreateHistograms.C
+    artifacts:
+      paths:
+        - ExampleInputs
+
+hstep:
+    stage: hstep
+    tags:
+      - cvmfs
+    script:
+      - ./myFit.exe h config/myFit.config
+    artifacts:
+      paths:
+        - FitExample
 
 #
 # myjob:
