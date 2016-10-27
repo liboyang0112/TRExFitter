@@ -6,7 +6,10 @@ image: mazurov/cern-root
 #       - builds of the next stage are run after success
 stages:
     - build
-    - test
+    - hstep
+    - wstep
+    - fstep
+    - lstep
     - cleanup
 
 before_script:
@@ -19,12 +22,42 @@ build_job:
     stage: build
     script:
       - make > make.log 2>&1
+      - time root -l -b -q CreateHistograms.C
       - make clean
     artifacts:
       paths:
         - make.log
+        - myFit.exe
+        - ExampleInputs
 
-test_stat:
-    stage: test
+stat_h:
+    stage: hstep
     script:
-      - root -l -b -q 
+      - ./myFit.exe h config/myFit.config
+    artifacts:
+      paths:
+        - FitExample
+
+stat_w:
+    stage: wstep
+    script:
+      - ./myFit.exe w config/myFit.config
+    artifacts:
+      paths:
+        - FitExample
+
+stat_f:
+    stage: fstep
+    script:
+      - ./myFit.exe f config/myFit.config
+    artifacts:
+      paths:
+        - FitExample
+
+stat_l:
+    stage: lstep
+    script:
+      - ./myFit.exe l config/myFit.config
+    artifacts:
+      paths:
+        - FitExample
