@@ -1,18 +1,49 @@
 image: docker.cern.ch/linuxsupport/cc7-base:latest
-tags:
-  - cvmfs
 
-script:
-  - whoami
 
-# stages is used to defined build stages that can be used by jobs. The ordering
-# of elements in stages defines the ordering of builds' execution:
-#       - builds of the same stage are run in parallel
-#       - builds of the next stage are run after success
-# stages:
-#     - build
-#     - cleanup
+stages:
+    - build
+    - cleanup
+
+before_script:
+   - yum -y groupinstall "Development Tools"
+   - yum -y install libSM libX11 libXext libXpm libXft
+   - source setup.sh
+   - yum -y install make
+   - ls
+   - which make
+   - which root
+
+build:
+    stage: build
+    tags:
+      - cvmfs
+    script:
+      - whoami
+      - make > make.log 2>&1
+      - make clean
+    artifacts:
+      paths:
+        - make.log
+
+
 #
+# image: docker.cern.ch/linuxsupport/cc7-base:latest
+#
+# tags:
+#   - cvmfs
+#
+# script:
+#   - whoami
+#
+# # stages is used to defined build stages that can be used by jobs. The ordering
+# # of elements in stages defines the ordering of builds' execution:
+# #       - builds of the same stage are run in parallel
+# #       - builds of the next stage are run after success
+# # stages:
+# #     - build
+# #     - cleanup
+# #
 # before_script:
 #   - yum -y install make
 #   - ls
