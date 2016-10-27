@@ -5,6 +5,7 @@ stages:
     - cleanup
 
 before_script:
+   - yum install man
    - yum -y install gcc
    - yum -y install make
    - ls
