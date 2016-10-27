@@ -1,10 +1,6 @@
 # cf. http://linux.web.cern.ch/linux/docs/kerberos-access.shtml
 # KRB_USERNAME and KRB_PASSWORD are set as 'secret variable'
 # in the project settings
-before_script:
-   - yum -y groupinstall "Development Tools"
-   - yum -y install libSM libX11 libXext libXpm libXft
-#   - yum -y install libSM libX11 libXrender libSM libICE libXext libGLU
 
 myjob:
   image: docker.cern.ch/linuxsupport/cc7-base:latest
@@ -25,7 +21,7 @@ myjob:
   - rc find_packages
   - rc compile
   - ls -l
-  
+
 # image: docker.cern.ch/linuxsupport/cc7-base:latest
 #
 # stages:
