@@ -91,7 +91,7 @@ Note that, each object should have unique <ObjectName>.
 
 - Then, for each object type, here's a PARTIAL list of properties to be specified:
 
-   * Job:
+  * Job:
       * Label: it's the label which will be showed on the plots
       * POI: the name of the parameter of interest; this should correspond to a NormFactor defined below
       * ReadFrom         -> can be HIST or NTUP; default is HIST
