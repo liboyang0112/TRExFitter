@@ -10,7 +10,6 @@ myjob:
   script:
   - whoami
   - set +e
-  - ls /cvmfs/atlas.cern.ch/
   - export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
   - ls -l ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
   - source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
