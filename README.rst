@@ -37,19 +37,20 @@ Most of the times the only file the user has to modify to get his fit is the con
 
 The only mandatory argument, <action(s)>, tells to the TtHFitter which operation(s) to perform.
 The possible operations are defined in the main file (e.g. util/myFit.C).
-For instance, if you use the default file util/myFit.C, the available options are:
-* h : read input histograms (valid only if the proper option is spefified in the config file)
-* n : read input ntuples (valid only if the proper option is spefified in the config file)
-* w : create the RooStats xmls and workspace
-* f : fit the workspace
-* l : calculate exclusion limit
-* s : calculate significance
-* d : draw pre-fit plots
-* p : draw post-fit plots
-* a : draw separation plots
-* r : draw ranking plot (see later)
-* b : re-run smoothing (in the future also rebinning)
-* m : multi-fit (see later)
+For instance, if you use the default file `util/myFit.C`, the available options are:
+
+  * h : read input histograms (valid only if the proper option is spefified in the config file)
+  * n : read input ntuples (valid only if the proper option is spefified in the config file)
+  * w : create the RooStats xmls and workspace
+  * f : fit the workspace
+  * l : calculate exclusion limit
+  * s : calculate significance
+  * d : draw pre-fit plots
+  * p : draw post-fit plots
+  * a : draw separation plots
+  * r : draw ranking plot (see later)
+  * b : re-run smoothing (in the future also rebinning)
+  * m : multi-fit (see later)
 
 New optional argument: <options>.
 It's a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form::
@@ -78,7 +79,7 @@ Here's a list of the inputs and options which can be specifed in the config file
 
      ...
 
-(NB: note the blank line between the objects!!)
+NB: note the *blank* line between the objects!!)
 
  - The file should contain:
      * exactly one object of type "Fit"
@@ -87,11 +88,11 @@ Here's a list of the inputs and options which can be specifed in the config file
      * any number of objects of type "Systematic" (even 0 should be ok)
    Each object should have unique <ObjectName>.
 
- - Then, for each object type, here's a PARTIAL list of properties to be speficied:
+ - Then, for each object type, here's a PARTIAL list of properties to be specified:
 
-    Job:
-      Label            -> it's the label which will be showed on the plots
-      POI              -> the name of the parameter of interest; this should correspond to a NormFactor defined below
+    * Job:
+       * Label: it's the label which will be showed on the plots
+       * POI: the name of the parameter of interest; this should correspond to a NormFactor defined below
       ReadFrom         -> can be HIST or NTUP; default is HIST
       HistoPath        -> valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stored
       NtuplePath(s)    -> valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
