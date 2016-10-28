@@ -8,6 +8,7 @@ stages:
    - hstep
    - wstep
    - flsstep
+   - draw
    - cleanup
 
 ##
@@ -119,3 +120,33 @@ sstep:
     artifacts:
       paths:
         - FitExample
+
+##
+## "draw" step: performs the prefit plots
+##    Artifact: keeps the Plots folder
+##
+draw_prefit:
+    stage: draw
+    script:
+      - ./myFit.exe d config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Plots/
+    artifacts:
+      paths:
+        - FitExample/Plots/
+
+##
+## "draw" step: performs the postfit plots
+##    Artifact: keeps the Plots folder
+##
+draw_prefit:
+    stage: draw
+    script:
+      - ./myFit.exe p config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Plots/
+    artifacts:
+      paths:
+        - FitExample/Plots/
