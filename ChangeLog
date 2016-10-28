@@ -1,3 +1,7 @@
+2016-10-27 Loic Valery <lvalery@cern.ch>
+    * Slight change in the setup for the automatic build in Git
+    * Adding lots of Git stuff in the package (README.rst, .gitignore, ...)
+
 2016-11-07 Thomas Calvet <calvet@cppm.in2p3.fr>
     * Fix automatic binning for histo inputs with Julian's correction
     
