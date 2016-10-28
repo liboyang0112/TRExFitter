@@ -1,25 +1,152 @@
-image: mazurov/cern-root
+image: lukasheinrich/recast_cvmfs_assisted
 
-# stages is used to defined build stages that can be used by jobs. The ordering
-# of elements in stages defines the ordering of builds' execution:
-#       - builds of the same stage are run in parallel
-#       - builds of the next stage are run after success
+##
+## Various steps to be followed by the build
+##
 stages:
-    - build
-    - test
-    - cleanup
+   - build
+   - hstep
+   - wstep
+   - flsstep
+   - draw
+   - cleanup
 
+##
+## Common setup for all jobs
+##
 before_script:
-  - yum -y install make
-  - ls
-  - which make
-  - which root
+  - set +e
+  - source setup.sh #sources the setup IN the TREXfitter package (consistent with user's setup)
+  - root -l -b -q
 
-build_job:
+##
+## "Prepare" step: first compiles the code
+##    Artifact: keeps the log file of the compilation
+##
+compile:
+   stage: build
+   script:
+     - make clean #make sure we don't have residual compilation results
+     - make > make.log 2>&1 #dump the log files
+   artifacts:
+     paths:
+       - make.log
+       - myFit.exe
+
+##
+## "Prepare" step: in parallel, dumps the inputs of the test
+##    Artifact: keeps the ExampleInputs folder
+##
+input_prod:
     stage: build
     script:
-      - make > make.log 2>&1
-      - make clean
+      - root -l -b -q CreateHistograms.C
+      - ls -lrth ExampleInputs
     artifacts:
       paths:
-        - make.log
+        - ExampleInputs
+
+##
+## "Hstep" step: produces the TRExFitter
+##    Artifact: keeps the FitExample folder
+##
+histograms:
+    stage: hstep
+    script:
+      - ./myFit.exe h config/myFit.config
+      - ls
+      - ls FitExample/Histograms/
+    artifacts:
+      paths:
+        - FitExample
+
+##
+## "Wsetp" step: produces the workspace
+##    Artifact: keeps the FitExample folder
+##
+workspace:
+    stage: wstep
+    script:
+      - ./myFit.exe w config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/RooStats/
+    artifacts:
+      paths:
+        - FitExample
+
+##
+## "flsstep" step: performs the fit
+##    Artifact: keeps the FitExample folder
+##
+fit:
+    stage: flsstep
+    script:
+      - ./myFit.exe f config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Fits/
+      - cat FitExample/Fits/*.txt
+    artifacts:
+      paths:
+        - FitExample
+
+##
+## "flsstep" step: compute the limits
+##    Artifact: keeps the FitExample folder
+##
+limit:
+    stage: flsstep
+    script:
+      - ./myFit.exe l config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Limits/
+    artifacts:
+      paths:
+        - FitExample
+
+##
+## "flsstep" step: compute the significance
+##    Artifact: keeps the FitExample folder
+##
+significance:
+    stage: flsstep
+    script:
+      - ./myFit.exe s config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Significance/
+    artifacts:
+      paths:
+        - FitExample
+
+##
+## "draw" step: performs the prefit plots
+##    Artifact: keeps the Plots folder
+##
+draw_prefit:
+    stage: draw
+    script:
+      - ./myFit.exe d config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Plots/
+    artifacts:
+      paths:
+        - FitExample/Plots/
+
+##
+## "draw" step: performs the postfit plots
+##    Artifact: keeps the Plots folder
+##
+draw_postfit:
+    stage: draw
+    script:
+      - ./myFit.exe p config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Plots/
+    artifacts:
+      paths:
+        - FitExample/Plots/

@@ -1,7 +1,6 @@
 # Setup ROOT and gcc
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
-setupATLAS --quiet
+source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
 localSetupROOT 6.02.12-x86_64-slc6-gcc48-opt --quiet
 
 if [ "${ROOTSYS}" == "" ]; then
