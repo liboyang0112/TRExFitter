@@ -1,45 +1,63 @@
 image: docker.cern.ch/linuxsupport/cc7-base:latest
 
+##
+## The sequence of tests to be done
+##
 stages:
-    - prepare
-    - hstep
-    - wstep
-    - flsstep
-    - cleanup
+   - prepare
+   - hstep
+   - wstep
+   - flsstep
+   - cleanup
 
+##
+## Common setup to be done for ALL jobs
+##
 before_script:
-   - yum -y groupinstall "Development Tools"
-   - yum -y install libSM libX11 libXext libXpm libXft man
+   - yum -y groupinstall "Development Tools" #install libraries and tools needed (gcc, make, ...)
+   - yum -y install libSM libX11 libXext libXpm libXft man #more modules to be used
    - set +e
-   - source setup.sh
-   - which root
-   - which make
-   - root -l -b -q
-   - ls
-   - ls ExampleInputs
+   - source setup.sh #sources the setup IN the TREXfitter package (consistent with user's setup)
+   - which root #checks root exists
+   - which make #checks make exists
+   - root -l -b -q #checks root works
+   - ls #checks the content of the folder
 
+##
+## "Prepare" step: first compiles the code
+##    Artifact: keeps the log file of the compilation
+##
 compile:
-    stage: prepare
-    tags:
-      - cvmfs
-    script:
-      - make clean
-      - make > make.log 2>&1
-    artifacts:
-      paths:
-        - make.log
-        - myFit.exe
+   stage: prepare
+   tags:
+     - cvmfs #explicitly asks the runner to have access to cvmfs
+   script:
+     - make clean #make sure we don't have residual compilation results
+     - make > make.log 2>&1 #dump the log files
+   artifacts:
+     paths:
+       - make.log
+       - myFit.exe
 
+##
+## "Prepare" step: in parallel, dumps the inputs of the test
+##    Artifact: keeps the ExampleInputs folder
+##
 input_prod:
     stage: prepare
     tags:
       - cvmfs
     script:
       - root -l -b -q CreateHistograms.C
+      - ls -lrth ExampleInputs
     artifacts:
       paths:
         - ExampleInputs
 
+##
+## "Hstep" step: produces the TRExFitter
+##    Artifact: keeps the FitExample folder
+##
 hstep:
     stage: hstep
     tags:
@@ -52,6 +70,10 @@ hstep:
       paths:
         - FitExample
 
+##
+## "Wsetp" step: produces the workspace
+##    Artifact: keeps the FitExample folder
+##
 wstep:
     stage: wstep
     tags:
@@ -65,6 +87,10 @@ wstep:
       paths:
         - FitExample
 
+##
+## "flsstep" step: performs the fit
+##    Artifact: keeps the FitExample folder
+##
 fstep:
     stage: flsstep
     tags:
@@ -74,11 +100,15 @@ fstep:
       - ls
       - ls FitExample
       - ls FitExample/Fits/
-      - cat FitExample/Fits/
+      - cat FitExample/Fits/*.txt
     artifacts:
       paths:
         - FitExample
 
+##
+## "flsstep" step: compute the limits
+##    Artifact: keeps the FitExample folder
+##
 lstep:
     stage: flsstep
     tags:
@@ -92,6 +122,10 @@ lstep:
       paths:
         - FitExample
 
+##
+## "flsstep" step: compute the significance
+##    Artifact: keeps the FitExample folder
+##
 sstep:
     stage: flsstep
     tags:
