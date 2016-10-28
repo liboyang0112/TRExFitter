@@ -1,4 +1,8 @@
-|Build Status|
+Build status
+---------
+.. image:: https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg 
+   :target: https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master
+
 
 Getting the code
 ---------
