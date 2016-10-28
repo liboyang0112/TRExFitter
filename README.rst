@@ -1,3 +1,5 @@
+|Build Status|
+
 Getting the code
 ---------
 To get the code, use the following command::
