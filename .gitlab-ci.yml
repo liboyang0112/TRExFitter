@@ -4,82 +4,83 @@
 before_script:
    - yum -y groupinstall "Development Tools"
    - yum -y install libSM libX11 libXext libXpm libXft
-#   - yum -y install libSM libX11 libXrender libSM libICE libXext libGLU
-
-myjob:
-  image: docker.cern.ch/linuxsupport/cc7-base:latest
-  tags:
-  - cvmfs
-  script:
-  - whoami
-  - set +e
-  - ls /cvmfs/atlas.cern.ch/
-  - export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-  - ls -l ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-  - source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-  - lsetup 'rcsetup Base,2.3.50'
-  - root -l -b -q
-  - which root
-  - which python
-  - root-config --version
-  - rc make_skeleton TestPackage
-  - rc find_packages
-  - rc compile
-  - ls -l
-
-
-# image: docker.cern.ch/linuxsupport/cc7-base:latest
 #
-# stages:
-#     - prepare
-#     - hstep
-#     # - wstep
-#     # - flsstep
-#     - cleanup
-#
-# before_script:
-#    - yum -y install man gcc make
-#    - set +e
-#    - source setup.sh
-#    - which root
-#    - which make
-#    - ls
-#    - ls ExampleInputs
-#
-# compile:
-#     stage: prepare
-#     tags:
-#       - cvmfs
-#     script:
-#       - make clean
-#       - make > make.log 2>&1
-#     artifacts:
-#       paths:
-#         - make.log
-#         - myFit.exe
+# myjob:
+#   image: docker.cern.ch/linuxsupport/cc7-base:latest
+#   tags:
+#   - cvmfs
+#   script:
+#   - whoami
+#   - set +e
+#   - ls /cvmfs/atlas.cern.ch/
+#   - export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+#   - ls -l ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+#   - source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+#   - lsetup 'rcsetup Base,2.3.50'
+#   - root -l -b -q
+#   - which root
+#   - which python
+#   - root-config --version
+#   - rc make_skeleton TestPackage
+#   - rc find_packages
+#   - rc compile
+#   - ls -l
 
-# input_prod:
-#     stage: prepare
-#     tags:
-#       - cvmfs
-#     script:
-#       - root -l -b -q CreateHistograms.C
-#     artifacts:
-#       paths:
-#         - ExampleInputs
 
-#
-# hstep:
-#     stage: hstep
-#     tags:
-#       - cvmfs
-#     script:
-#       - ./myFit.exe h config/myFit.config
-#       - ls
-#       - ls FitExample
-#     artifacts:
-#       paths:
-#         - FitExample
+image: docker.cern.ch/linuxsupport/cc7-base:latest
+
+stages:
+    - prepare
+    - hstep
+    # - wstep
+    # - flsstep
+    - cleanup
+
+before_script:
+   - yum -y groupinstall "Development Tools"
+   - yum -y install libSM libX11 libXext libXpm libXft
+   - set +e
+   - source setup.sh
+   - which root
+   - which make
+   - root -l -b -q
+   - ls
+   - ls ExampleInputs
+
+compile:
+    stage: prepare
+    tags:
+      - cvmfs
+    script:
+      - make clean
+      - make > make.log 2>&1
+    artifacts:
+      paths:
+        - make.log
+        - myFit.exe
+
+input_prod:
+    stage: prepare
+    tags:
+      - cvmfs
+    script:
+      - root -l -b -q CreateHistograms.C
+    artifacts:
+      paths:
+        - ExampleInputs
+
+
+hstep:
+    stage: hstep
+    tags:
+      - cvmfs
+    script:
+      - ./myFit.exe h config/myFit.config
+      - ls
+      - ls FitExample
+    artifacts:
+      paths:
+        - FitExample
 #
 # wstep:
 #     stage: wstep
@@ -133,7 +134,7 @@ myjob:
 #     artifacts:
 #       paths:
 #         - FitExample
-
+#
 #
 # myjob:
 #   tags:
