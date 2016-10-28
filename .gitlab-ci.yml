@@ -1,8 +1,14 @@
 image: lukasheinrich/recast_cvmfs_assisted
 
+# stages:
+#   - build
+#   - test
 stages:
-  - build
-  - test
+   - prepare
+   - hstep
+   - wstep
+   - flsstep
+   - cleanup
 
 before_script:
   - set +e
@@ -13,6 +19,108 @@ build:
   stage: build
   script:
     - echo "toto"
+
+##
+## "Prepare" step: first compiles the code
+##    Artifact: keeps the log file of the compilation
+##
+compile:
+   stage: prepare
+   script:
+     - make clean #make sure we don't have residual compilation results
+     - make > make.log 2>&1 #dump the log files
+   artifacts:
+     paths:
+       - make.log
+       - myFit.exe
+
+##
+## "Prepare" step: in parallel, dumps the inputs of the test
+##    Artifact: keeps the ExampleInputs folder
+##
+input_prod:
+    stage: prepare
+    script:
+      - root -l -b -q CreateHistograms.C
+      - ls -lrth ExampleInputs
+    artifacts:
+      paths:
+        - ExampleInputs
+
+##
+## "Hstep" step: produces the TRExFitter
+##    Artifact: keeps the FitExample folder
+##
+hstep:
+    stage: hstep
+    script:
+      - ./myFit.exe h config/myFit.config
+      - ls
+      - ls FitExample/Histograms/
+    artifacts:
+      paths:
+        - FitExample
+
+##
+## "Wsetp" step: produces the workspace
+##    Artifact: keeps the FitExample folder
+##
+wstep:
+    stage: wstep
+    script:
+      - ./myFit.exe w config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/RooStats/
+    artifacts:
+      paths:
+        - FitExample
+
+##
+## "flsstep" step: performs the fit
+##    Artifact: keeps the FitExample folder
+##
+fstep:
+    stage: flsstep
+    script:
+      - ./myFit.exe f config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Fits/
+      - cat FitExample/Fits/*.txt
+    artifacts:
+      paths:
+        - FitExample
+
+##
+## "flsstep" step: compute the limits
+##    Artifact: keeps the FitExample folder
+##
+lstep:
+    stage: flsstep
+    script:
+      - ./myFit.exe l config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Limits/
+    artifacts:
+      paths:
+        - FitExample
+
+##
+## "flsstep" step: compute the significance
+##    Artifact: keeps the FitExample folder
+##
+sstep:
+    stage: flsstep
+    script:
+      - ./myFit.exe s config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Significance/
+    artifacts:
+      paths:
+        - FitExample
 
 # image: docker.cern.ch/linuxsupport/cc7-base:latest
 #
