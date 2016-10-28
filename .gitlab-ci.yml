@@ -1,44 +1,15 @@
-# cf. http://linux.web.cern.ch/linux/docs/kerberos-access.shtml
-# KRB_USERNAME and KRB_PASSWORD are set as 'secret variable'
-# in the project settings
-before_script:
-   - yum -y groupinstall "Development Tools"
-   - yum -y install libSM libX11 libXext libXpm libXft
-#
-# myjob:
-#   image: docker.cern.ch/linuxsupport/cc7-base:latest
-#   tags:
-#   - cvmfs
-#   script:
-#   - whoami
-#   - set +e
-#   - ls /cvmfs/atlas.cern.ch/
-#   - export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-#   - ls -l ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-#   - source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-#   - lsetup 'rcsetup Base,2.3.50'
-#   - root -l -b -q
-#   - which root
-#   - which python
-#   - root-config --version
-#   - rc make_skeleton TestPackage
-#   - rc find_packages
-#   - rc compile
-#   - ls -l
-
-
 image: docker.cern.ch/linuxsupport/cc7-base:latest
 
 stages:
     - prepare
     - hstep
-    # - wstep
-    # - flsstep
+    - wstep
+    - flsstep
     - cleanup
 
 before_script:
    - yum -y groupinstall "Development Tools"
-   - yum -y install libSM libX11 libXext libXpm libXft
+   - yum -y install libSM libX11 libXext libXpm libXft man
    - set +e
    - source setup.sh
    - which root
@@ -69,7 +40,6 @@ input_prod:
       paths:
         - ExampleInputs
 
-
 hstep:
     stage: hstep
     tags:
@@ -77,127 +47,60 @@ hstep:
     script:
       - ./myFit.exe h config/myFit.config
       - ls
-      - ls FitExample
+      - ls FitExample/Histograms/
     artifacts:
       paths:
         - FitExample
-#
-# wstep:
-#     stage: wstep
-#     tags:
-#       - cvmfs
-#     script:
-#       - ./myFit.exe w config/myFit.config
-#       - ls
-#       - ls FitExample
-#       - ls FitExample/RooStats/
-#     artifacts:
-#       paths:
-#         - FitExample
-#
-# fstep:
-#     stage: flsstep
-#     tags:
-#       - cvmfs
-#     script:
-#       - ./myFit.exe f config/myFit.config
-#       - ls
-#       - ls FitExample
-#       - ls FitExample/Fits/
-#       - cat FitExample/Fits/
-#     artifacts:
-#       paths:
-#         - FitExample
-#
-# lstep:
-#     stage: flsstep
-#     tags:
-#       - cvmfs
-#     script:
-#       - ./myFit.exe l config/myFit.config
-#       - ls
-#       - ls FitExample
-#       - ls FitExample/Limits/
-#     artifacts:
-#       paths:
-#         - FitExample
-#
-# sstep:
-#     stage: flsstep
-#     tags:
-#       - cvmfs
-#     script:
-#       - ./myFit.exe s config/myFit.config
-#       - ls
-#       - ls FitExample
-#       - ls FitExample/Significance/
-#     artifacts:
-#       paths:
-#         - FitExample
-#
-#
-# myjob:
-#   tags:
-#   - cvmfs
-#   script:
-#   - whoami
-#   - set +e
-#   - source setup.sh
 
+wstep:
+    stage: wstep
+    tags:
+      - cvmfs
+    script:
+      - ./myFit.exe w config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/RooStats/
+    artifacts:
+      paths:
+        - FitExample
 
-# image: docker.cern.ch/linuxsupport/cc7-base:latest
-#
-# stages:
-#     - build
-#     - cleanup
-#
-# before_script:
-#    - yum -y install make
-#    - ls
-#    - which make
-#
-# build:
-#     stage: build
-#     tags:
-#       - cvmfs
-#     script:
-#       - source setup.sh
-#       - whoami
-#       - make > make.log 2>&1
-#       - make clean
-#     artifacts:
-#       paths:
-#         - make.log
+fstep:
+    stage: flsstep
+    tags:
+      - cvmfs
+    script:
+      - ./myFit.exe f config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Fits/
+      - cat FitExample/Fits/
+    artifacts:
+      paths:
+        - FitExample
 
+lstep:
+    stage: flsstep
+    tags:
+      - cvmfs
+    script:
+      - ./myFit.exe l config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Limits/
+    artifacts:
+      paths:
+        - FitExample
 
-#
-# image: docker.cern.ch/linuxsupport/cc7-base:latest
-#
-# tags:
-#   - cvmfs
-#
-# script:
-#   - whoami
-#
-# # stages is used to defined build stages that can be used by jobs. The ordering
-# # of elements in stages defines the ordering of builds' execution:
-# #       - builds of the same stage are run in parallel
-# #       - builds of the next stage are run after success
-# # stages:
-# #     - build
-# #     - cleanup
-# #
-# before_script:
-#   - yum -y install make
-#   - ls
-#   - which make
-#   - which root
-#
-# build_job:
-#     stage: build
-#     script:
-#       - make > make.log 2>&1
-#       - make clean
-#     artifacts:
-#       paths:
-#         - make.log
+sstep:
+    stage: flsstep
+    tags:
+      - cvmfs
+    script:
+      - ./myFit.exe s config/myFit.config
+      - ls
+      - ls FitExample
+      - ls FitExample/Significance/
+    artifacts:
+      paths:
+        - FitExample
