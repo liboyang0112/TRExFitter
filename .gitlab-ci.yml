@@ -5,13 +5,14 @@ stages:
   - test
 
 before_script:
-   - source setup.sh #sources the setup IN the TREXfitter package (consistent with user's setup)
-   - root -l -b -q
+  - set +e
+  - source setup.sh #sources the setup IN the TREXfitter package (consistent with user's setup)
+  - root -l -b -q
 
 build:
   stage: build
   script:
-    -echo "toto" 
+    - echo "toto"
 
 # image: docker.cern.ch/linuxsupport/cc7-base:latest
 #
