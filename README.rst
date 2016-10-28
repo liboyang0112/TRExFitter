@@ -1,7 +1,3 @@
-Build status
----------
-[![build status](https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg)](https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master)
-
 Getting the code
 ---------
 To get the code, use the following command::
