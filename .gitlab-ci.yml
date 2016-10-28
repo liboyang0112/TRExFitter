@@ -4,7 +4,7 @@ image: lukasheinrich/recast_cvmfs_assisted
 ## Various steps to be followed by the build
 ##
 stages:
-   - prepare
+   - build
    - hstep
    - wstep
    - flsstep
@@ -23,7 +23,7 @@ before_script:
 ##    Artifact: keeps the log file of the compilation
 ##
 compile:
-   stage: prepare
+   stage: build
    script:
      - make clean #make sure we don't have residual compilation results
      - make > make.log 2>&1 #dump the log files
@@ -37,7 +37,7 @@ compile:
 ##    Artifact: keeps the ExampleInputs folder
 ##
 input_prod:
-    stage: prepare
+    stage: build
     script:
       - root -l -b -q CreateHistograms.C
       - ls -lrth ExampleInputs
