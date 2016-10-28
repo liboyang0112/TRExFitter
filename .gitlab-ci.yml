@@ -18,6 +18,7 @@ myjob:
   - ls -l ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
   - source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
   - lsetup 'rcsetup Base,2.3.50'
+  - root -l -b -q
   - which root
   - which python
   - root-config --version
