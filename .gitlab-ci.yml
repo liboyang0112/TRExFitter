@@ -50,7 +50,7 @@ input_prod:
 ## "Hstep" step: produces the TRExFitter
 ##    Artifact: keeps the FitExample folder
 ##
-hstep:
+histograms:
     stage: hstep
     script:
       - ./myFit.exe h config/myFit.config
@@ -64,7 +64,7 @@ hstep:
 ## "Wsetp" step: produces the workspace
 ##    Artifact: keeps the FitExample folder
 ##
-wstep:
+workspace:
     stage: wstep
     script:
       - ./myFit.exe w config/myFit.config
@@ -79,7 +79,7 @@ wstep:
 ## "flsstep" step: performs the fit
 ##    Artifact: keeps the FitExample folder
 ##
-fstep:
+fit:
     stage: flsstep
     script:
       - ./myFit.exe f config/myFit.config
@@ -95,7 +95,7 @@ fstep:
 ## "flsstep" step: compute the limits
 ##    Artifact: keeps the FitExample folder
 ##
-lstep:
+limit:
     stage: flsstep
     script:
       - ./myFit.exe l config/myFit.config
@@ -110,7 +110,7 @@ lstep:
 ## "flsstep" step: compute the significance
 ##    Artifact: keeps the FitExample folder
 ##
-sstep:
+significance:
     stage: flsstep
     script:
       - ./myFit.exe s config/myFit.config
@@ -140,7 +140,7 @@ draw_prefit:
 ## "draw" step: performs the postfit plots
 ##    Artifact: keeps the Plots folder
 ##
-draw_prefit:
+draw_postfit:
     stage: draw
     script:
       - ./myFit.exe p config/myFit.config
