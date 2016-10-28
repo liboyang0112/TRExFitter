@@ -1,9 +1,13 @@
+Build status
+---------
+[![build status](https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg)](https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master)
+
 Getting the code
 ---------
 To get the code, use the following command::
 
   git clone ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git
-  
+
 To get a specific tag, do the following::
 
   cd TRExFitter && git checkout <tag number> && cd -
