@@ -14,11 +14,11 @@ before_script:
   - set +e
   - source setup.sh #sources the setup IN the TREXfitter package (consistent with user's setup)
   - root -l -b -q
-
-build:
-  stage: build
-  script:
-    - echo "toto"
+# 
+# build:
+#   stage: build
+#   script:
+#     - echo "toto"
 
 ##
 ## "Prepare" step: first compiles the code
