@@ -1,0 +1,29 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+
+Applying ATLAS style settings...
+
+Reading config file config/myFit.config
+-----------------------------
+Reading histograms from file FitExample/Histograms/FitExample_histos.root ...
+------------------------------------------------------
+Reading fit results from file FitExample/Fits/FitExample.txt
+Found 12 systematics.
+Building post-fit plot for region SR_1 ...
+Writing file FitExample/Histograms/SR_1_postFit.root
+Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been created
+Building post-fit plot for region SR_2 ...
+Writing file FitExample/Histograms/SR_2_postFit.root
+Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
+-------------------------------------------
+Building Summary Plot...
+Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
+-------------------------------------------
+Building Summary Plot...
+-------------------------------------------
+Building Yields Table...
+TtHFit::INFO: Printing syt tables
+Info in <TCanvas::Print>: png file FitExample/PieChart_postFit.png has been created

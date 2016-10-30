@@ -1,0 +1,5 @@
+ |       | Signal Region 1 | Signal Region 2 | 
+ | Background | 310 pm 34.6049 | 310 pm 27.8792 | 
+ | Signal | 5.2 pm 2.28142 | 5.2 pm 2.28142 | 
+ | Total | 315.2 pm 34.7103 | 315.2 pm 28.0099 | 
+ | Data 2015 | 319 | 319 | 

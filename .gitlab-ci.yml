@@ -67,10 +67,12 @@ histograms:
 workspace:
     stage: wstep
     script:
-      - ./myFit.exe w config/myFit.config
+      - ./myFit.exe w config/myFit.config >& LOG_w
       - ls
       - ls FitExample
       - ls FitExample/RooStats/
+      - set -e
+      - source test/scripts/check_step_w.sh
     artifacts:
       paths:
         - FitExample
