@@ -146,6 +146,7 @@ draw_prefit:
       - ls FitExample
       - ls FitExample/Plots/
       - source test/scripts/check_step_d.sh
+      - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
         - FitExample/Plots/
@@ -163,6 +164,7 @@ draw_postfit:
       - ls FitExample
       - ls FitExample/Plots/
       - source test/scripts/check_step_p.sh
+      - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
         - FitExample/Plots/
