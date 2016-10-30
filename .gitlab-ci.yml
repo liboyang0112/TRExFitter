@@ -69,9 +69,9 @@ workspace:
     script:
       - ./myFit.exe w config/myFit.config >& LOG_w
       - ls
+      - set -e
       - ls FitExample
       - ls FitExample/RooStats/
-      - set -e
       - source test/scripts/check_step_w.sh
     artifacts:
       paths:
@@ -84,11 +84,13 @@ workspace:
 fit:
     stage: flsstep
     script:
-      - ./myFit.exe f config/myFit.config
+      - ./myFit.exe f config/myFit.config >& LOG_f
       - ls
+      - set -e
       - ls FitExample
       - ls FitExample/Fits/
       - cat FitExample/Fits/*.txt
+      - source test/scripts/check_step_f.sh
     artifacts:
       paths:
         - FitExample
@@ -100,10 +102,12 @@ fit:
 limit:
     stage: flsstep
     script:
-      - ./myFit.exe l config/myFit.config
+      - ./myFit.exe l config/myFit.config >& LOG_l
       - ls
+      - set -e
       - ls FitExample
       - ls FitExample/Limits/
+      - source test/scripts/check_step_l.sh
     artifacts:
       paths:
         - FitExample
@@ -115,10 +119,12 @@ limit:
 significance:
     stage: flsstep
     script:
-      - ./myFit.exe s config/myFit.config
+      - ./myFit.exe s config/myFit.config >& LOG_s
       - ls
+      - set -e
       - ls FitExample
       - ls FitExample/Significance/
+      - source test/scripts/check_step_s.sh
     artifacts:
       paths:
         - FitExample
@@ -130,10 +136,12 @@ significance:
 draw_prefit:
     stage: draw
     script:
-      - ./myFit.exe d config/myFit.config
+      - ./myFit.exe d config/myFit.config >& LOG_d
       - ls
+      - set -e
       - ls FitExample
       - ls FitExample/Plots/
+      - source test/scripts/check_step_d.sh
     artifacts:
       paths:
         - FitExample/Plots/
@@ -145,10 +153,12 @@ draw_prefit:
 draw_postfit:
     stage: draw
     script:
-      - ./myFit.exe p config/myFit.config
+      - ./myFit.exe p config/myFit.config >& LOG_p
       - ls
+      - set -e
       - ls FitExample
       - ls FitExample/Plots/
+      - source test/scripts/check_step_p.sh  
     artifacts:
       paths:
         - FitExample/Plots/
