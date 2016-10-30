@@ -73,6 +73,7 @@ workspace:
       - ls FitExample
       - ls FitExample/RooStats/
       - source test/scripts/check_step_w.sh
+      - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
         - FitExample
@@ -91,6 +92,7 @@ fit:
       - ls FitExample/Fits/
       - cat FitExample/Fits/*.txt
       - source test/scripts/check_step_f.sh
+      - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
         - FitExample
@@ -108,6 +110,7 @@ limit:
       - ls FitExample
       - ls FitExample/Limits/
       - source test/scripts/check_step_l.sh
+      - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
         - FitExample
@@ -125,6 +128,7 @@ significance:
       - ls FitExample
       - ls FitExample/Significance/
       - source test/scripts/check_step_s.sh
+      - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
         - FitExample
@@ -158,7 +162,7 @@ draw_postfit:
       - set -e
       - ls FitExample
       - ls FitExample/Plots/
-      - source test/scripts/check_step_p.sh  
+      - source test/scripts/check_step_p.sh
     artifacts:
       paths:
         - FitExample/Plots/
