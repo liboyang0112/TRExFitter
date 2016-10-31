@@ -198,35 +198,25 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
 
 Processing runAsymptoticsCLs.C+("FitExample/RooStats/FitExample_combined_FitExample_model_forLimits.root","combined","ModelConfig","ttHFitterData","asimovData_0","./FitExample/Limits/","FitExample",0.95)...
-Info in <TUnixSystem::ACLiC>: creating shared library /afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs_C.so
 In file included from input_line_12:9:
-/afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:697:15: warning: equality comparison with extraneous parentheses [-Wparentheses-equality]
   while ((var == (RooRealVar*)itr->Next()))
           ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
-/afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:697:15: note: remove extraneous parentheses around the comparison to silence this warning
   while ((var == (RooRealVar*)itr->Next()))
          ~    ^                          ~
-/afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:697:15: note: use '=' to turn this equality comparison into an assignment
   while ((var == (RooRealVar*)itr->Next()))
               ^~
               =
-/afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:705:15: warning: equality comparison with extraneous parentheses [-Wparentheses-equality]
   while ((var == (RooRealVar*)itr->Next()))
           ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
-/afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:705:15: note: remove extraneous parentheses around the comparison to silence this warning
   while ((var == (RooRealVar*)itr->Next()))
          ~    ^                          ~
-/afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:705:15: note: use '=' to turn this equality comparison into an assignment
   while ((var == (RooRealVar*)itr->Next()))
               ^~
               =
-/afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:712:15: warning: equality comparison with extraneous parentheses [-Wparentheses-equality]
   while ((var == (RooRealVar*)itr->Next()))
           ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
-/afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:712:15: note: remove extraneous parentheses around the comparison to silence this warning
   while ((var == (RooRealVar*)itr->Next()))
          ~    ^                          ~
-/afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:712:15: note: use '=' to turn this equality comparison into an assignment
   while ((var == (RooRealVar*)itr->Next()))
               ^~
               =
@@ -238,14 +228,10 @@ In file included from input_line_12:9:
 In file included from /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsTestStatistic.h:20:0,
                  from /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsOptTestStatistic.h:20,
                  from /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooNLLVar.h:19,
-                 from /afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:95,
-                 from /afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/runAsymptoticsCLs_C_ACLiC_dict.cxx:41:
 /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsReal.h: In function ‘void doPredictiveFit(RooNLLVar*, double, double, double)’:
 /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsReal.h:67:60: warning: ‘var’ may be used uninitialized in this function [-Wmaybe-uninitialized]
      return (_fast && !_inhibitDirty) ? _value : getValV(set) ; 
                                                             ^
-In file included from /afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/runAsymptoticsCLs_C_ACLiC_dict.cxx:41:0:
-/afs/cern.ch/user/l/lvalery/TRExFitter/TRExFitter/./runAsymptoticsCLs.C:694:15: note: ‘var’ was declared here
    RooRealVar* var;
                ^
    INFO: In dommap (/var/build/jenkins/workspace/lcg_release/BUILDTYPE/Release/COMPILER/gcc49/LABEL/slc6-physical/build/projects/ROOT-6.04.14/src/ROOT/6.04.14/roofit/roofitcore/src/BidirMMapPipe.cxx, line 422): anonymous mmapping works, excellent!
@@ -548,4 +534,4 @@ Median:   4.42381
 Observed: 3.00355
 
 Finished with 26 calls to minimize(nll)
-Real time 0:00:03, CP time 0.920
+Real time 0:00:01, CP time 1.110
