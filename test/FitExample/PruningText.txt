@@ -1,0 +1,29 @@
+-------///////                 ///////-------
+-------/////// IN PRUNING PLOT ///////-------
+-------///////                 ///////-------
+In Region : SR_1
+ -> In Sample : Bkg1
+ --->>  JES      is kept
+ --->>  Bkg1Xsec      is norm only
+ --->>  Bkg2Xsec      is not present
+ -> In Sample : Bkg2
+ --->>  JES      is not present
+ --->>  Bkg1Xsec      is not present
+ --->>  Bkg2Xsec      is norm only
+ -> In Sample : Signal
+ --->>  JES      is kept
+ --->>  Bkg1Xsec      is not present
+ --->>  Bkg2Xsec      is not present
+In Region : SR_2
+ -> In Sample : Bkg1
+ --->>  JES      is kept
+ --->>  Bkg1Xsec      is not present
+ --->>  Bkg2Xsec      is not present
+ -> In Sample : Bkg2
+ --->>  JES      is not present
+ --->>  Bkg1Xsec      is not present
+ --->>  Bkg2Xsec      is norm only
+ -> In Sample : Signal
+ --->>  JES      is kept
+ --->>  Bkg1Xsec      is not present
+ --->>  Bkg2Xsec      is not present
