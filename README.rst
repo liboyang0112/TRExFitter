@@ -165,6 +165,7 @@ Note that, each object should have unique <ObjectName>.
      * LimitType        : can be ASYMPTOTIC or TOYS (the latter is not yet supported)
      * LimitBlind       : can be TRUE or FALSE (TRUE means that ALL regions are blinded)
      * POIAsimov        : value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
+     * SignalInjection  : if set to TRUE, expected signal with signal injection is evaluated
 
   * Options:
      * additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...

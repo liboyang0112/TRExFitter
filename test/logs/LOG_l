@@ -198,11 +198,42 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
 
 Processing runAsymptoticsCLs.C+("FitExample/RooStats/FitExample_combined_FitExample_model_forLimits.root","combined","ModelConfig","ttHFitterData","asimovData_0","./FitExample/Limits/","FitExample",0.95)...
+In file included from input_line_12:9:
+  while ((var == (RooRealVar*)itr->Next()))
+          ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+  while ((var == (RooRealVar*)itr->Next()))
+         ~    ^                          ~
+  while ((var == (RooRealVar*)itr->Next()))
+              ^~
+              =
+  while ((var == (RooRealVar*)itr->Next()))
+          ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+  while ((var == (RooRealVar*)itr->Next()))
+         ~    ^                          ~
+  while ((var == (RooRealVar*)itr->Next()))
+              ^~
+              =
+  while ((var == (RooRealVar*)itr->Next()))
+          ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+  while ((var == (RooRealVar*)itr->Next()))
+         ~    ^                          ~
+  while ((var == (RooRealVar*)itr->Next()))
+              ^~
+              =
 
 [1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
                 Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
                 All rights reserved, please read http://roofit.sourceforge.net/license.txt
 
+In file included from /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsTestStatistic.h:20:0,
+                 from /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsOptTestStatistic.h:20,
+                 from /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooNLLVar.h:19,
+/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsReal.h: In function ‘void doPredictiveFit(RooNLLVar*, double, double, double)’:
+/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsReal.h:67:60: warning: ‘var’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+     return (_fast && !_inhibitDirty) ? _value : getValV(set) ; 
+                                                            ^
+   RooRealVar* var;
+               ^
    INFO: In dommap (/var/build/jenkins/workspace/lcg_release/BUILDTYPE/Release/COMPILER/gcc49/LABEL/slc6-physical/build/projects/ROOT-6.04.14/src/ROOT/6.04.14/roofit/roofitcore/src/BidirMMapPipe.cxx, line 422): anonymous mmapping works, excellent!
 Creating asimov data at mu = 0, profiling at mu = 0
 ------------------------
@@ -553,6 +584,5 @@ Correct bands
 Median:   4.42313
 Observed: 3.01094
 
-mkdir: directory `./FitExample/Limits/' creata
 Finished with 32 calls to minimize(nll)
-Real time 0:00:02, CP time 1.460
+Real time 0:00:02, CP time 1.470
