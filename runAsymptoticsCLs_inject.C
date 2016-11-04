@@ -127,14 +127,14 @@ bool killBelowFatal        = 1;             // In case you want to suppress RooF
 bool doBlind               = 0;             // in case your analysis is blinded
 bool conditionalExpected   = 1 && !doBlind; // Profiling mode for Asimov data: 0 = conditional MLEs, 1 = nominal MLEs
 bool doTilde               = 1;             // bound mu at zero if true and do the \tilde{q}_{mu} asymptotics
-bool doExp                 = 0;             // compute expected limit
+bool doExp                 = 1;             // compute expected limit
 bool doInj                 = 1;             // compute signal injection limit
-bool doObs                 = 0 && !doBlind; // compute observed limit
-double precision           = 0.01; // 0.005         // % precision in mu that defines iterative cutoff
+bool doObs                 = 1 && !doBlind; // compute observed limit
+double precision           = 0.005; // 0.005         // % precision in mu that defines iterative cutoff
 bool verbose               = 0;             // 1 = very spammy
-bool usePredictiveFit      = 1; // 0            // experimental, extrapolate best fit nuisance parameters based on previous fit results
-bool extrapolateSigma      = 1; // 0            // experimantal, extrapolate sigma based on previous fits
-int maxRetries             = 2; //3             // number of minimize(fcn) retries before giving up
+bool usePredictiveFit      = 0; // 0            // experimental, extrapolate best fit nuisance parameters based on previous fit results
+bool extrapolateSigma      = 0; // 0            // experimantal, extrapolate sigma based on previous fits
+int maxRetries             = 3; //3             // number of minimize(fcn) retries before giving up
 int numCPU                 = 8;             // added by Michele
 
 
