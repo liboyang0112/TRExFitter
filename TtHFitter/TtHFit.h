@@ -245,6 +245,7 @@ public:
     LimitType fLimitType;
     bool fLimitIsBlind;
     double fLimitPOIAsimov;
+    bool fSignalInjection;
     
     bool fCleanTables;
     bool fSystCategoryTables;

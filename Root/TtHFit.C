@@ -116,6 +116,7 @@ TtHFit::TtHFit(string name){
     fLimitType = ASYMPTOTIC;
     fLimitIsBlind = false;
     fLimitPOIAsimov = 0;
+    fSignalInjection = false;
     
     fImageFormat = "png";
     TtHFitter::IMAGEFORMAT.clear();
@@ -803,7 +804,15 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 fLimitIsBlind = false;
             }
         }
-        param = cs->Get("POIAsimov");  if( param != "" ){ fLimitPOIAsimov = atof(param.c_str()); };
+        param = cs->Get("POIAsimov");  if( param != "" ){ fLimitPOIAsimov = atof(param.c_str()); }
+        param = cs->Get("SignalInjection");  if( param != "" ){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param == "TRUE" ){
+                fSignalInjection = true;
+            } else if ( param == "FALSE" ){
+                fSignalInjection = false;
+            }
+        }
     }
 
     //##########################################################
@@ -4836,7 +4845,11 @@ void TtHFit::GetLimit(){
     if(fWorkspaceFileName!=""){
         string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
-        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+        if(fSignalInjection)
+            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+        else
+            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+
     }
     
     else{
@@ -4901,7 +4914,10 @@ void TtHFit::GetLimit(){
         originalMeasurement -> Write();
         ws_forLimit -> Write();
         f_clone -> Close();
-        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+        if(fSignalInjection)
+            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+        else
+            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
     }
     
     //

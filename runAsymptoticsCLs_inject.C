@@ -128,6 +128,7 @@ bool doBlind               = 0;             // in case your analysis is blinded
 bool conditionalExpected   = 1 && !doBlind; // Profiling mode for Asimov data: 0 = conditional MLEs, 1 = nominal MLEs
 bool doTilde               = 1;             // bound mu at zero if true and do the \tilde{q}_{mu} asymptotics
 bool doExp                 = 1;             // compute expected limit
+bool doInj                 = 1;             // compute signal injection limit
 bool doObs                 = 1 && !doBlind; // compute observed limit
 double precision           = 0.005; // 0.005         // % precision in mu that defines iterative cutoff
 bool verbose               = 0;             // 1 = very spammy
@@ -150,6 +151,7 @@ ModelConfig* mc = NULL;
 RooDataSet* data = NULL;
 RooRealVar* firstPOI = NULL;
 RooNLLVar* asimov_0_nll = NULL;
+RooNLLVar* asimov_1_nll = NULL;
 RooNLLVar* obs_nll = NULL;
 int nrMinimize=0;
 int direction=1;
@@ -159,7 +161,7 @@ double target_CLs=0.05;
 
 
 //main
-void runAsymptoticsCLs(const char* infile,
+void runAsymptoticsCLs_inject(const char* infile,
 		       const char* workspaceName,
 		       const char* modelConfigName,
 		       const char* dataName,
@@ -169,7 +171,7 @@ void runAsymptoticsCLs(const char* infile,
 		       double CL);
 
  //for backwards compatibility
-void runAsymptoticsCLs(const char* infile,
+void runAsymptoticsCLs_inject(const char* infile,
 		       const char* workspaceName = "combWS",
 		       const char* modelConfigName = "ModelConfig",
 		       const char* dataName = "combData",
@@ -210,7 +212,7 @@ RooDataSet* makeAsimovData(bool doConditional, RooNLLVar* conditioning_nll, doub
 
 
 
-void runAsymptoticsCLs(const char* infile,
+void runAsymptoticsCLs_inject(const char* infile,
 		       const char* workspaceName,
 		       const char* modelConfigName,
 		       const char* dataName,
@@ -230,12 +232,12 @@ void runAsymptoticsCLs(const char* infile,
   conditionalSnapshot = ""; // warningless compile
   nominalSnapshot = "";     // warningless compile
 
-  runAsymptoticsCLs(infile, workspaceName, modelConfigName, dataName, asimovDataName, folder, smass.str(), CL);
+  runAsymptoticsCLs_inject(infile, workspaceName, modelConfigName, dataName, asimovDataName, folder, smass.str(), CL);
 }
 
 
 
-void runAsymptoticsCLs(const char* infile,
+void runAsymptoticsCLs_inject(const char* infile,
 		       const char* workspaceName,
 		       const char* modelConfigName,
 		       const char* dataName,
@@ -285,6 +287,7 @@ void runAsymptoticsCLs(const char* infile,
   w->saveSnapshot("nominalNuis",*mc->GetNuisanceParameters());
 
   global_status=0;
+  
   RooDataSet* asimovData_0 = (RooDataSet*)w->data(asimovDataName);
   if (!asimovData_0)
   {
@@ -293,6 +296,13 @@ void runAsymptoticsCLs(const char* infile,
     //asimovData_0 = makeAsimovData2((conditionalExpected ? obs_nll : (RooNLLVar*)NULL), 0., 0.);
   }
   int asimov0_status=global_status;
+  
+  RooDataSet* asimovData_1 = (RooDataSet*)w->data(asimovDataName);
+  if (!asimovData_1)
+  {
+    asimovData_1 = makeAsimovData(conditionalExpected, obs_nll, 1);
+  }
+  int asimov1_status=global_status;
   
   asimov_0_nll = createNLL(asimovData_0);//(RooNLLVar*)pdf->createNLL(*asimovData_0);
   map_snapshots[asimov_0_nll] = "conditionalGlobs_0";
@@ -304,12 +314,27 @@ void runAsymptoticsCLs(const char* infile,
   w->loadSnapshot("conditionalGlobs_0");
   map_nll_muhat[asimov_0_nll] = asimov_0_nll->getVal();
 
+  asimov_1_nll = createNLL(asimovData_1);//(RooNLLVar*)pdf->createNLL(*asimovData_0);
+  map_snapshots[asimov_1_nll] = "conditionalGlobs_0";
+  map_data_nll[asimovData_1] = asimov_1_nll;
+  setMu(1);
+  map_muhat[asimov_1_nll] = 1;
+  saveSnapshot(asimov_1_nll, 1);
+  w->loadSnapshot("conditionalNuis_1");
+  w->loadSnapshot("conditionalGlobs_1");
+  map_nll_muhat[asimov_1_nll] = asimov_1_nll->getVal();
+
   
   target_CLs=1-CL;
 
   
+  w->loadSnapshot("conditionalNuis_0");
   double med_limit = doExp ? getLimit(asimov_0_nll, 1.0) : 1.0;
   int med_status=global_status;
+  
+  w->loadSnapshot("conditionalNuis_1");
+  double inj_limit = doInj ? getLimit(asimov_1_nll, 1.0) : 1.0;
+  int inj_status=global_status;
 
   double sigma = med_limit/sqrt(3.84); // pretty close
   double mu_up_p2_approx = sigma*(ROOT::Math::gaussian_quantile(1 - target_CLs*ROOT::Math::gaussian_cdf( 2), 1) + 2);
@@ -429,6 +454,7 @@ void runAsymptoticsCLs(const char* infile,
 
   cout << "Median:   " << med_limit << endl;
   cout << "Observed: " << obs_limit << endl;
+  cout << "Injected: " << inj_limit << endl;
   cout << endl;
 
 
@@ -437,10 +463,11 @@ void runAsymptoticsCLs(const char* infile,
   
   stringstream fileName;
 //   fileName << "root-files/" << folder << "/" << mass << ".root";
-  fileName << folder << "/" << mass << ".root";
+//   fileName << folder << "/" << mass << ".root";
+  fileName << folder << "/" << mass << "_injection.root";
   TFile fout(fileName.str().c_str(),"recreate");
 
-  TH1D* h_lim = new TH1D("limit","limit",7,0,7);
+  TH1D* h_lim = new TH1D("limit","limit",8,0,8);
   h_lim->SetBinContent(1, obs_limit);
   h_lim->SetBinContent(2, med_limit);
   h_lim->SetBinContent(3, mu_up_p2);
@@ -455,16 +482,18 @@ void runAsymptoticsCLs(const char* infile,
   h_lim->GetXaxis()->SetBinLabel(4, "+1sigma");
   h_lim->GetXaxis()->SetBinLabel(5, "-1sigma");
   h_lim->GetXaxis()->SetBinLabel(6, "-2sigma");
-  h_lim->GetXaxis()->SetBinLabel(7, "Global status"); // do something with this later
+  h_lim->GetXaxis()->SetBinLabel(7, "Injected");
+  h_lim->GetXaxis()->SetBinLabel(8, "Global status"); // do something with this later
 
-  TH1D* h_lim_old = new TH1D("limit_old","limit_old",7,0,7); // include also old approximation of bands
+  TH1D* h_lim_old = new TH1D("limit_old","limit_old",8,0,8); // include also old approximation of bands
   h_lim_old->SetBinContent(1, obs_limit);
   h_lim_old->SetBinContent(2, med_limit);
   h_lim_old->SetBinContent(3, mu_up_p2_approx);
   h_lim_old->SetBinContent(4, mu_up_p1_approx);
   h_lim_old->SetBinContent(5, mu_up_n1_approx);
   h_lim_old->SetBinContent(6, mu_up_n2_approx);
-  h_lim_old->SetBinContent(7, global_status);
+  h_lim_old->SetBinContent(7, inj_limit);
+  h_lim_old->SetBinContent(8, global_status);
 
   h_lim_old->GetXaxis()->SetBinLabel(1, "Observed");
   h_lim_old->GetXaxis()->SetBinLabel(2, "Expected");
@@ -472,7 +501,8 @@ void runAsymptoticsCLs(const char* infile,
   h_lim_old->GetXaxis()->SetBinLabel(4, "+1sigma");
   h_lim_old->GetXaxis()->SetBinLabel(5, "-1sigma");
   h_lim_old->GetXaxis()->SetBinLabel(6, "-2sigma");
-  h_lim_old->GetXaxis()->SetBinLabel(7, "Global status"); 
+  h_lim_old->GetXaxis()->SetBinLabel(7, "Injected");
+  h_lim_old->GetXaxis()->SetBinLabel(8, "Global status"); 
 
   fout.Write();
   fout.Close();
