@@ -42,21 +42,21 @@ cd TRexFitter
 git clone ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git
 ```
 
-### Commit changes to your local repository and push them to github:
+### Commit changes to your local repository and push them to gitlab:
 ```bash
 cd TRexFitter
 git status # start from a clean state, up-to-date with the origin
 git pull   # make sure you are up to date
 git checkout -b some-project  # put your work on a branch
-git commit some.txt file.txt  # commit files and prompt editor for commit message
-git push origin some-project  # push your changes to github
+git commit -m "your commit message" some.txt file.txt  # commit files and prompt editor for commit message
+git push origin some-project  # push your changes to gitlab
 ```
 Notes:
 - feature development should generally always occur on a dedicated
   branch, rather than on the master branch
 - try to pick a branch name that is short and describes what you are
   trying to do
-- when you have made enough progress, push to github, then issue a
+- when you have made enough progress, push to gitlab, then issue a
   pull request (green button), and start discussing the proposed
   changes
 - recommendations about commit messages. Follow Linus' guidelines: one
