@@ -59,7 +59,7 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
         h_normsig[i_smp] = 0x0;
         h_oversig[i_smp] = 0x0;
     }
-    
+
     //
     fIsNjet = false;
     fShowYields = false;
@@ -71,7 +71,7 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     fNormSigNames.clear();
     fOverSigNames.clear();
     fBkgNames.clear();
-    
+
     fBinWidth = -1;
     fLumiScale = 1.;
     fBlindingThreshold = -1; // if <0, no blinding
@@ -271,7 +271,7 @@ void TthPlot::SetChi2KS(float chi2,float ks){
 //_____________________________________________________________________________
 //
 void TthPlot::Draw(string options){
-    
+
     /////////////////////////
     //
     // Main function of the class
@@ -279,7 +279,7 @@ void TthPlot::Draw(string options){
     //   It takes the data, background, signal to perform the full comparison (stack, ratio plot, ...)
     //
     /////////////////////////
-    
+
     //
     // Draws an empty histogram to reserve the upper pad and set style
     //
@@ -293,9 +293,9 @@ void TthPlot::Draw(string options){
     }
     h_dummy->Draw("HIST");
     if(options.find("log")!=string::npos) pad0->SetLogy();
-    
+
     if(g_tot==0x0) g_tot = new TGraphAsymmErrors(h_tot);
-    
+
     //
     // Eventually blind bins
     //
@@ -316,7 +316,7 @@ void TthPlot::Draw(string options){
             std::cout << " Blidning not possible. Skipped." << std::endl;
         }
     }
-    
+
     //
     // Determines if the data is real (and computes the poisson uncertainty) or not
     //
@@ -337,7 +337,7 @@ void TthPlot::Draw(string options){
         h_data->SetTitle("Asimov Data");
         g_data = new TGraphAsymmErrors(h_data);
     }
-    
+
     //
     // Add Bkg's to the stack
     //
@@ -345,7 +345,7 @@ void TthPlot::Draw(string options){
         h_bkg[i_smp]->SetLineWidth(1);
         h_stack->Add(h_bkg[i_smp]);
     }
-    
+
     //
     // Eventually add Signal(s)
     //
@@ -353,12 +353,12 @@ void TthPlot::Draw(string options){
         h_signal[i_smp]->SetLineWidth(1);
         h_stack->Add(h_signal[i_smp]);
     }
-    
+
     //
     // Draw
     //
     h_stack->Draw("HIST same");
-    
+
     //
     // Total error bands style setting
     //
@@ -368,12 +368,12 @@ void TthPlot::Draw(string options){
     g_tot->SetLineWidth(0);
     g_tot->SetMarkerSize(0);
     g_tot->Draw("sameE2");
-    
+
     //
     // Draw a normalized signal distribution
     //
     double signalScale = 1.;
-    if(h_normsig!=0x0){
+    //if(h_normsig!=0x0){
         for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
             signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
             std::cout << "--- Signal " << fNormSigNames[i_smp] << " scaled by " <<signalScale << std::endl;
@@ -385,12 +385,12 @@ void TthPlot::Draw(string options){
             h_normsig[i_smp]->SetLineWidth(2);
             h_normsig[i_smp]->Draw("HISTsame");
         }
-    }
-    
+    //}
+
     //
     // Draw a overlayed signal distribution
     //
-    if(h_oversig!=0x0){
+    //if(h_oversig!=0x0){
         for(int i_smp=fOverSigNames.size()-1;i_smp>=0;i_smp--){
             h_oversig[i_smp]->SetLineColor(h_oversig[i_smp]->GetFillColor());
             h_oversig[i_smp]->SetFillColor(0);
@@ -399,13 +399,13 @@ void TthPlot::Draw(string options){
             h_oversig[i_smp]->SetLineWidth(2);
             h_oversig[i_smp]->Draw("HISTsame");
         }
-    }
-    
+    //}
+
     //
     // Draw data (if it is real data of course)
     //
     if(hasData) g_data->Draw("Ep1 same");
-    
+
     //
     // Axes labelling and style
     //
@@ -428,7 +428,7 @@ void TthPlot::Draw(string options){
     float offset = 2.4*(pad0->GetWh()/672.);
     if(pad0->GetWw() > pad0->GetWh()) offset *= 0.8*596./pad0->GetWw();
     h_dummy->GetYaxis()->SetTitleOffset( offset );
-    
+
     //
     // Draw blinding markers
     //
@@ -439,35 +439,35 @@ void TthPlot::Draw(string options){
         h_blinding->Scale(h_dummy->GetMaximum());
         h_blinding->Draw("same HIST");
     }
-    
+
     //
     // Fix / redraw axis
     //
     pad0->RedrawAxis();
-    
+
     float textHeight = 0.05*(672./pad0->GetWh());
 //     if(TtHFitter::OPTION["TtHbbStyle"]>0) textHeight *= 0.85;
-    
+
     //
     // ATLAS labels
     //
     float labelX = 0.18;
-    
+
     if(pad0->GetWw() > pad0->GetWh()) labelX = 0.12;
-    
+
     if(fATLASlabel!="none") ATLASLabel(labelX,0.84+0.04,(char*)fATLASlabel.c_str());
     myText(labelX,0.84-textHeight+0.04,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
     for(unsigned int i_lab=0;i_lab<fLabels.size();i_lab++){
         myText(labelX,0.84-textHeight+0.04-(i_lab+1)*textHeight,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
     }
-    
+
     float legX1 = 1-0.41*(596./pad0->GetWw())-0.08;
     if(TtHFitter::OPTION["FourTopStyle"]!=0 || TtHFitter::OPTION["TtHbbStyle"]!=0){
         legX1 = 1-0.5*(596./pad0->GetWw())-0.08;
     }
     float legX2 = 0.94;
     float legXmid = legX1+0.5*(legX2-legX1);
-    
+
     if(fShowYields){
         legXmid = legX1+0.6*(legX2-legX1);
         leg  = new TLegend(legX1,0.93-(fBkgNames.size()+fSigNames.size()+2)*0.05, legXmid,0.93);
@@ -485,12 +485,12 @@ void TthPlot::Draw(string options){
         leg1->SetTextFont(gStyle->GetTextFont());
         leg1->SetTextSize(gStyle->GetTextSize()*0.9);
         leg1->SetMargin(0.);
-        
+
         if(hasData){//only add data in the legend if real data are here
             leg->AddEntry(h_data,data_name.c_str(),"lep");
             leg1->AddEntry((TObject*)0,Form("%.1f",h_data->Integral()),"");
         }
-        
+
         //Signal and background legends
         for(int i_smp=0;i_smp<fSigNames.size();i_smp++){
             leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
@@ -524,10 +524,10 @@ void TthPlot::Draw(string options){
           leg->SetTextSize(gStyle->GetTextSize());
 //         leg->SetMargin(0.18);
         leg->SetMargin(0.22);
-        
+
         //Draws data in the legend only is real data
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
-        
+
         //Signal and background legend
         for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
 //         for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
@@ -559,10 +559,10 @@ void TthPlot::Draw(string options){
         leg->SetTextFont(gStyle->GetTextFont());
           leg->SetTextSize(gStyle->GetTextSize());
         leg->SetMargin(0.20);
-        
+
         //Draws data in the legend only is real data
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
-        
+
         //Signal and background legend
         for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]==0){
@@ -594,10 +594,10 @@ void TthPlot::Draw(string options){
         if(c->GetWw() > c->GetWh()) leg->SetTextSize(gStyle->GetTextSize());
         else                        leg->SetTextSize(gStyle->GetTextSize()*0.9);
         leg->SetMargin(0.22);
-        
+
         //Draws data in the legend only is real data
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
-        
+
         //Signal and background legend
         for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]==0){
@@ -612,11 +612,11 @@ void TthPlot::Draw(string options){
             for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
         leg->Draw();
-        
+
         if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
             myText(legX1,0.93-((Nrows+1)/2)*0.05 - 0.05,  1,"*: normalised to total Bkg.");
     }
-    
+
     //
     // Ratio pad: drawing dummy histogram
     //
@@ -627,21 +627,21 @@ void TthPlot::Draw(string options){
     if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetTickLength(0.01);
     h_dummy2->Draw("HIST");
     h_dummy2->GetYaxis()->SetTitleOffset(1.*h_dummy->GetYaxis()->GetTitleOffset());
-    
+
     //
     // Initialising the ratios
     //    h_ratio: is the real Data/MC ratio
     //    h_ratio2: is a MC/MC ratio to plot the uncertainty band
     //
     TH1* h_ratio = (TH1*)h_data->Clone("h_ratio");
-    
+
     TH1 *h_ratio2 = (TH1*)h_tot->Clone("h_ratio2");
     TH1 *h_tot_nosyst = (TH1*)h_tot->Clone("h_tot_nosyst");
     for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
         h_tot_nosyst->SetBinError(i_bin,0);
     }
     TGraphAsymmErrors *g_ratio2 = (TGraphAsymmErrors*)g_tot->Clone("g_ratio2");
-    
+
     //
     // Plots style
     //
@@ -654,7 +654,7 @@ void TthPlot::Draw(string options){
     h_dummy2->GetYaxis()->SetNdivisions(504,false);
     gStyle->SetEndErrorSize(4.);
 //     pad1 -> SetTicky();
-    
+
     //
     // Compute Data/MC ratio
     //
@@ -676,7 +676,7 @@ void TthPlot::Draw(string options){
             g_ratio->SetPointEYlow(  i_bin-1,g_data->GetErrorYlow(i_bin-1) /h_tot->GetBinContent(i_bin) );
         }
     }
-    
+
     //
     // Compute the MC/MC ratio (for uncertainty band in the bottom pad)
     //
@@ -720,9 +720,9 @@ void TthPlot::Draw(string options){
     //
     h_dummy->GetXaxis()->SetTitle("");
     h_dummy->GetXaxis()->SetLabelSize(0);
-    
+
     g_ratio2->Draw("sameE2");
-    
+
     bool customLabels = false;
     for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
         if(((string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!=""){
@@ -730,44 +730,44 @@ void TthPlot::Draw(string options){
             customLabels = true;
         }
     }
-    
+
     //
     // Marke blinded bins in ratio pad as  well
     //
     if(h_blinding!=0x0){
         h_blinding->Draw("HIST same");
     }
-    
+
     if(fBinLabel[1]!="") h_dummy2->GetXaxis()->LabelsOption("d");
     h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
     if(customLabels && h_dummy->GetNbinsX()>10) h_dummy2->GetXaxis()->SetLabelSize(0.66*h_dummy2->GetXaxis()->GetLabelSize() );
     if(customLabels) h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
     gPad->RedrawAxis();
-    
+
     // to hide the upper limit (label) of the ratio plot
     TLine line(0.01,1,0.1,1);
     line.SetLineColor(kWhite);
     line.SetLineWidth(25);
     if(pad0->GetWw() > pad0->GetWh()) line.DrawLineNDC(0.05,1,0.090,1);
     else                              line.DrawLineNDC(0.07,1,0.135,1);
-    
+
     //
     // Add arrows when the ratio is beyond the limits of the ratio plot
     //
     for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
-        
+
         if (i_bin==0 || i_bin>h_tot_nosyst->GetNbinsX()) continue; //skip under/overflow bins
-        
+
         float val=h_ratio->GetBinContent(i_bin);
-        
+
         double maxRange = h_dummy2->GetMaximum();
         double minRange = h_dummy2->GetMinimum();
-        
+
         int isUp=0; //1==up, 0==nothing, -1==down
         if ( val<minRange ) isUp=-1;
         else if (val>maxRange ) isUp=1;
         if (val==0) isUp=0;
-        
+
         if (isUp!=0) {
             TArrow *arrow;
 //             if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),1.45, h_ratio->GetXaxis()->GetBinCenter(i_bin),1.5,0.030,"|>");
@@ -815,7 +815,7 @@ void TthPlot::Draw(string options){
         }
     }
     // ---
-    
+
     pad1->cd();
     TLatex *KSlab = new TLatex();
     KSlab->SetNDC(1);
@@ -829,14 +829,14 @@ void TthPlot::Draw(string options){
         KSlab->DrawLatex(0.15,0.9,Form("#chi^{2} prob = %.2f,   KS prob = %.2f",Chi2prob,KSprob));
     //
     pad0->cd();
-    
-    // 
+
+    //
     // Set bin width and eventually divide larger bins by this bin width
     if(fBinWidth>0){
-        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)      SetHistBinWidth(h_signal[i_smp], fBinWidth);  
+        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)      SetHistBinWidth(h_signal[i_smp], fBinWidth);
         for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++)  SetHistBinWidth(h_normsig[i_smp],fBinWidth);
         for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++)  SetHistBinWidth(h_oversig[i_smp],fBinWidth);
-        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)      SetHistBinWidth(h_bkg[i_smp],    fBinWidth);  
+        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)      SetHistBinWidth(h_bkg[i_smp],    fBinWidth);
         //
         if(h_tot) SetHistBinWidth(h_tot,fBinWidth);
         if(g_tot) SetGraphBinWidth(g_tot,fBinWidth);
@@ -854,7 +854,7 @@ void TthPlot::Draw(string options){
         }
     }
 
-    
+
     // Fix y max
     //
     float yMax = 0.;
@@ -881,8 +881,8 @@ void TthPlot::Draw(string options){
         h_dummy->SetMaximum(yMax*pow(10,yMaxScale));
         if(fYmin>0)  h_dummy->SetMinimum(fYmin);
         else         h_dummy->SetMinimum(1.);
-    }  
-    
+    }
+
     //
     // eventually make y-axis labels smaller...
     if(pad0->GetWw()<596. && h_dummy->GetMaximum()>10000){
@@ -891,7 +891,7 @@ void TthPlot::Draw(string options){
     else if(pad0->GetWw()<596. && h_dummy->GetMaximum()>1000){
         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
     }
-    
+
     // FIXME
     if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
         myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
