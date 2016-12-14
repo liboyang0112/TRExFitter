@@ -76,6 +76,9 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     fLumiScale = 1.;
     fBlindingThreshold = -1; // if <0, no blinding
     fLegendNColumns = 0;
+    
+    fYmin = 0;
+    fYmax = 0;
 }
 
 //_____________________________________________________________________________
@@ -872,13 +875,14 @@ void TthPlot::Draw(string options){
     }
     //
     if(options.find("log")==string::npos){
-        h_dummy->SetMinimum(0);
-//         if(hasData) h_dummy->SetMaximum(yMaxScale*TMath::Max(h_tot->GetMaximum(),h_data->GetMaximum()+GC_up(h_data->GetMaximum())));
-//         else        h_dummy->SetMaximum(yMaxScale*h_tot->GetMaximum());
-        h_dummy->SetMaximum(yMaxScale*yMax);
+        if(fYmax!=0) h_dummy->SetMaximum(fYmax);
+        else         h_dummy->SetMaximum(yMaxScale*yMax);
+        if(fYmin>0)  h_dummy->SetMinimum(fYmin);
+        else         h_dummy->SetMinimum(0.);
     }
     else{
-        h_dummy->SetMaximum(yMax*pow(10,yMaxScale));
+        if(fYmax!=0) h_dummy->SetMaximum(fYmax);
+        else         h_dummy->SetMaximum(yMax*pow(10,yMaxScale));
         if(fYmin>0)  h_dummy->SetMinimum(fYmin);
         else         h_dummy->SetMinimum(1.);
     }

@@ -103,6 +103,8 @@ public:
     std::vector < SampleHist* > fSampleHists;
     std::vector < Sample* > fSamples;
     float fYmaxScale;
+    float fYmin;
+    float fYmax;
     
     // to draw
     THStack *fStack;

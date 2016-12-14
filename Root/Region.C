@@ -405,6 +405,8 @@ TthPlot* Region::DrawPreFit(string opt){
     TthPlot *p = fPlotPreFit;
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
     else              p->SetYmaxScale(fYmaxScale);
+    if(fYmax!=0) p->fYmax = fYmax;
+    if(fYmin!=0) p->fYmin = fYmin;
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
     if(fYTitle!="") p->SetYaxis(fYTitle);
     //
@@ -731,6 +733,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     TthPlot *p = fPlotPostFit;
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
     else              p->SetYmaxScale(fYmaxScale);
+    if(fYmax!=0) p->fYmax = fYmax;
+    if(fYmin!=0) p->fYmin = fYmin;
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
     if(fYTitle!="") p->SetYaxis(fYTitle);
     //

@@ -148,6 +148,8 @@ Note that, each object should have unique <ObjectName>.
      * AtlasLabel       : to specify Internal, Preliminary, etc...
      * CleanTables      : if set to TRUE, a cleaned version of the tex tables is created (basically removing the "#") - to be expanded
      * SystCategoryTables : if set to TRUE, additional syst tables with systematics grouped by category are created
+     * SummaryPlotYmax  : if set, it will force the summary plot to use this value as max y-maxis value
+     * SummaryPlotYmin  : if set, it will force the summary plot to use this value as min y-maxis value
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -191,6 +193,8 @@ Note that, each object should have unique <ObjectName>.
      * BinWidth         : if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number
      * Type             : can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
      * DataType         : ASIMOV or DATA. Is asimov is set, the limits and significances are computed without taking into acount the data in these region, but a projection of the fit performed in the regions with DATA
+     * Ymax             : if set, it will force the plot to use this value as max y-maxis value
+     * Ymin             : if set, it will force the plot to use this value as min y-maxis value
 
   * Sample:
      * Type             : can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace

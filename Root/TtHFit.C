@@ -92,6 +92,9 @@ TtHFit::TtHFit(string name){
     fSummaryPlotValidationRegions.clear();
     fSummaryPlotValidationLabels.clear();
 
+    fYmin = 0;
+    fYmax = 0;
+
     fFitResultsFile = "";
 
     //
@@ -619,6 +622,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("SummaryPlotValidationLabels");  if(param != ""){
         fSummaryPlotValidationLabels = Vectorize(param,',');
     }
+    param = cs->Get("SummaryPlotYmin");  if(param != "") fYmin = atof(param.c_str());
+    param = cs->Get("SummaryPlotYmax");  if(param != "") fYmax = atof(param.c_str());
     param = cs->Get("HistoChecks");  if(param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "NOCRASH" ){
@@ -834,9 +839,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         reg->SetVariableTitle(cs->Get("VariableTitle"));
         reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
         param = cs->Get("YaxisTitle"); if( param != "") reg->fYTitle = param;
-        param = cs->Get("YmaxScale"); if(param!="") reg->fYmaxScale = atof(param.c_str());
-        param = cs->Get("TexLabel"); if( param != "") reg->fTexLabel = param;
-        param = cs->Get("LumiLabel"); if( param != "") reg->fLumiLabel = param;
+        param = cs->Get("YmaxScale");  if(param!="") reg->fYmaxScale = atof(param.c_str());
+        param = cs->Get("Ymin");       if(param!="") reg->fYmin = atof(param.c_str());
+        param = cs->Get("Ymax");       if(param!="") reg->fYmax = atof(param.c_str());
+        param = cs->Get("TexLabel");   if( param != "") reg->fTexLabel = param;
+        param = cs->Get("LumiLabel");  if( param != "") reg->fLumiLabel = param;
         else reg->fLumiLabel = fLumiLabel;
         param = cs->Get("CmeLabel"); if( param != "") reg->fCmeLabel = param;
         else reg->fCmeLabel = fCmeLabel;
@@ -2839,8 +2846,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
     if(TtHFitter::OPTION["FourTopStyle"]>0){
 //         p = new TthPlot(fName+"_summary",900.*TtHFitter::OPTION["CanvasWidth"]/600.,TtHFitter::OPTION["CanvasHeight"]);
         p = new TthPlot(fName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
-        p->fYmin = 1;
-        p->SetYmaxScale(3);
+        if(fYmin!=0) p->fYmin = fYmin;
+        else         p->fYmin = 1;
+        if(fYmax!=0) p->fYmax = fYmax;
+        else         p->SetYmaxScale(3);
         p->SetXaxis("",false);
         p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsSummary"];
         if(!checkVR && fSummaryPlotLabels.size()>0){
@@ -2863,8 +2872,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
     // TThbb style
     else if(TtHFitter::OPTION["TtHbbStyle"]>0){
         p = new TthPlot(fName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
-        p->fYmin = 1;
-        p->SetYmaxScale(3);
+        if(fYmin!=0) p->fYmin = fYmin;
+        else         p->fYmin = 1;
+        if(fYmax!=0) p->fYmax = fYmax;
+        else         p->SetYmaxScale(3);
         p->SetXaxis("",false);
         p->SetYaxis("Events / bin");
         p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsSummary"];
@@ -2876,8 +2887,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
     // normal-/old-style plots
     else{
         p = new TthPlot(fName+"_summary",900,700);
-        p->fYmin = 1;
-        p->SetYmaxScale(2);
+        if(fYmin!=0) p->fYmin = fYmin;
+        else         p->fYmin = 1;
+        if(fYmax!=0) p->fYmax = fYmax;
+        else         p->SetYmaxScale(2);
         p->SetXaxis("",false);
         p->AddLabel(fLabel);
         if(isPostFit) p->AddLabel("Post-Fit");

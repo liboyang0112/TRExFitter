@@ -77,6 +77,7 @@ class TthPlot {
     float Chi2prob;
     float KSprob;
     
+    float fYmax;
     float fYmin;
     float fBinWidth;
     bool fIsNjet;

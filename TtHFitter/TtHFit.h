@@ -204,6 +204,9 @@ public:
     std::vector<string> fSummaryPlotValidationRegions;
     std::vector<string> fSummaryPlotValidationLabels;
     
+    float fYmin;
+    float fYmax;
+    
     string fLumiLabel;
     string fCmeLabel;
     
