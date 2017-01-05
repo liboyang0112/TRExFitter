@@ -560,7 +560,7 @@ bool HistoTools::HasShape(TH1* hnom, SystematicHist* sh, float threshold){
     
     //If at least one bin is the shape histogram is larger than the threshold, keep the uncertainty
     bool hasShape = false;
-    for (unsigned int iBin = 1; iBin < hnom->GetNbinsX(); ++iBin) {
+    for (unsigned int iBin = 1; iBin <= hnom->GetNbinsX(); ++iBin) {
         double nom = hnom->GetBinContent(iBin);
         double up = sh->fHistShapeUp->GetBinContent(iBin);
         double down = sh->fHistShapeDown->GetBinContent(iBin);
