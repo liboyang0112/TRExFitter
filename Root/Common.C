@@ -122,8 +122,8 @@ void MergeUnderOverFlow(TH1* h){
 
 //__________________________________________________________________________________
 //
-vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs, 
-                                vector<string> files, vector<string> fileSufs, 
+vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs,
+                                vector<string> files, vector<string> fileSufs,
                                 vector<string> names, vector<string> nameSufs){
     // turn the empty vectors into vectors containing one "" entry
     if(paths.size()==0) paths.push_back("");
@@ -291,7 +291,7 @@ TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
 
 double convertStoD(string toConvert){
   double converted;
-  std::string::size_type pos; 
+  std::string::size_type pos;
   try{
     converted = std::stod(toConvert, &pos);
     if(pos != toConvert.size()){
@@ -341,7 +341,7 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
         if(!changesApplied) break;
         h0->~TH1();
     }
-    
+
     //
     // try to see if it's consistent with being flat
 //     TF1 *f_fit = new TF1("f_fit","[0]+0*x",xmin,xmax);
@@ -364,7 +364,10 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
     isFlat = false; // FIXME
     //
     // make sure you didn't change the integral
-    h->Scale(integral/h->Integral());
+    if(h->Integral()>0){
+        h->Scale(integral/h->Integral());
+    }
+
     //
 //     TH1F* h_corr = (TH1F*)h->Clone("h_correction");
 //     h_corr->Divide( h_orig );
@@ -382,4 +385,3 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
     //
     return isFlat;
 }
-
