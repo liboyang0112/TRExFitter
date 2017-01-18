@@ -2034,11 +2034,13 @@ void TtHFit::ReadNtuples(){
 //             if(fSamples[i_smp]->fDivideBy!=""){
 //                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
 //                 SampleHist *smph1 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
+//                 if(TtHFitter::DEBUGLEVEL>0) cout << "TtHFit::INFO: Dividing sample " << smph1->fSample->fName << " by sample " << smph0->fSample->fName << endl;
 //                 smph1->Divide(smph0);
 //             }
 //             if(fSamples[i_smp]->fMultiplyBy!=""){
-//                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
+//                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fMultiplyBy);
 //                 SampleHist *smph1 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
+//                 if(TtHFitter::DEBUGLEVEL>0) cout << "TtHFit::INFO: Multiplying sample " << smph1->fSample->fName << " by sample " << smph0->fSample->fName << endl;
 //                 smph1->Multiply(smph0);
 //             }
         }
@@ -2065,6 +2067,19 @@ void TtHFit::CorrectHistograms(){
             TH1* h_orig = (TH1*)sh->fHist_orig;
             TH1* h      = (TH1*)h_orig->Clone(sh->fHist->GetName());
             sh->fHist = h;
+
+            // ---> NEED TO MOVE TO READNTUPLES? -- FIXME
+            // Division & Multiplication by other samples
+            if(fSamples[i_smp]->fDivideBy!=""){
+                std::cout << "INFO: dividing by sample " << fSamples[i_smp]->fDivideBy << std::endl;
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
+                sh->Divide(smph0);
+            }
+            if(fSamples[i_smp]->fMultiplyBy!=""){
+                std::cout << "INFO: multiplying by sample " << fSamples[i_smp]->fMultiplyBy << std::endl;
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fMultiplyBy);
+                sh->Multiply(smph0);
+            }
 
             //
             // Systematics
@@ -2920,9 +2935,14 @@ TthPlot* TtHFit::DrawSummary(string opt){
     h_tot = new TH1F("h_Tot_summary","h_Tot_summary", Nbin,0,Nbin);
 
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
-        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot_postFit->Integral() );
-        else          h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot->Integral() );
-        h_tot->SetBinError( i_bin,0 );
+//         if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot_postFit->Integral() );
+//         else          h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot->Integral() );
+//         h_tot->SetBinError( i_bin,0 );
+        double mc_stat_err;
+        int nbins = fRegions[regionVec[i_bin-1]]->fTot->GetNbinsX();
+        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot_postFit->IntegralAndError(1,nbins,mc_stat_err) );
+        else          h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot->IntegralAndError(1,nbins,mc_stat_err) );
+        h_tot->SetBinError( i_bin,mc_stat_err );
     }
 
     //

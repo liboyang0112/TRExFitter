@@ -1,3 +1,8 @@
+2017-01-18 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Setup script back to a working version TTFITTER-98
+    * Fixed missing MC stat error in summary plot TTFITTER-99
+    * options Sample->DivideBy and MultiplyBy now operational
+    
 2016-12-14 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Added configurable y axis tange per region
     
