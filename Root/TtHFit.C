@@ -2939,9 +2939,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
 //         else          h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot->Integral() );
 //         h_tot->SetBinError( i_bin,0 );
         double mc_stat_err;
-        int nbins = fRegions[regionVec[i_bin-1]]->fTot->GetNbinsX();
-        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot_postFit->IntegralAndError(1,nbins,mc_stat_err) );
-        else          h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot->IntegralAndError(1,nbins,mc_stat_err) );
+        if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot_postFit->IntegralAndError(1,fRegions[regionVec[i_bin-1]]->fTot_postFit->GetNbinsX(),mc_stat_err) );
+        else          h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot->IntegralAndError(1,fRegions[regionVec[i_bin-1]]->fTot->GetNbinsX(),mc_stat_err) );
         h_tot->SetBinError( i_bin,mc_stat_err );
     }
 
@@ -4216,8 +4215,7 @@ void TtHFit::DrawPruningPlot(){
                             if(    FindInStringVector( fSystematics[i_syst]->fDropNormIn, fRegions[i_reg]->fName )>=0
                                 || FindInStringVector( fSystematics[i_syst]->fDropNormIn, samplesVec[i_smp]->fName )>=0
                                 || FindInStringVector( fSystematics[i_syst]->fDropNormIn, "all" )>=0
-                                || ( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation )
-                                || ( normUp!=normUp || normDo!=normDo )
+                                || ( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation && (normUp!=normUp || normDo!=normDo) )
                                 ) {
                                 syh->fNormPruned = true;
                                 if(syh->fShapePruned || fSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 3 );
