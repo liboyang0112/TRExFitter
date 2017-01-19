@@ -50,6 +50,7 @@ git pull   # make sure you are up to date
 git checkout -b some-project  # put your work on a branch
 git commit -m "your commit message" some.txt file.txt  # commit files and prompt editor for commit message
 git push origin some-project  # push your changes to gitlab
+git checkout master  # to go back to the origin, to be able to synchronise with it again
 ```
 Notes:
 - feature development should generally always occur on a dedicated
