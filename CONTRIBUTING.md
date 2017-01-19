@@ -97,3 +97,5 @@ Fixes TTHFITTER-102
 Such messages can be put in the commit messages or in the merge request message.
 
 This action is only performed when the users branch has been merged to the master. 
+**It is strongly recommended to use this feature as much as possible to make easier 
+the tracking of the various changes.**
