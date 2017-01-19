@@ -1,3 +1,7 @@
+2017-01-19 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Post-fit summary plot bug fixed
+    * Pruning.root warning removed TTHFITTER-100
+    
 2017-01-18 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Setup script back to a working version TTFITTER-98
     * Fixed missing MC stat error in summary plot TTFITTER-99

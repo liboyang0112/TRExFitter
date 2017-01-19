@@ -4377,8 +4377,15 @@ void TtHFit::DrawPruningPlot(){
 
     //
     // Save prunign hist for future usage
-    TFile *filePrun = new TFile( (fName+"/Pruning.root").c_str() );
-    if(!filePrun->IsOpen()){
+    TFile *filePrun;
+    // - checking if Pruning.root exists
+    // if yes
+    if(!gSystem->AccessPathName( (fName+"/Pruning.root").c_str() )){
+        // ...
+        filePrun = new TFile( (fName+"/Pruning.root").c_str() );
+    }
+    else{
+//     if(!filePrun->IsOpen()){
         filePrun = new TFile( (fName+"/Pruning.root").c_str(),"RECREATE" );
 //         filePrun = new TFile( (fName+"/Pruning"+fSuffix+".root").c_str(),"RECREATE" );
         for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
