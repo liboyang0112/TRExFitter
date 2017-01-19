@@ -28,7 +28,6 @@ git config --global user.name "First Last"
 git config --global user.email "first.last@cern.ch"
 git config --global color.ui auto
 git config --global core.editor "emacs -nw"
-
 ```
 
 You might have to require us to add you as a developer before you can
@@ -77,3 +76,24 @@ Notes:
 [a simple git branching model](https://gist.github.com/jbenet/ee6c9ac48068889b0912)
 or
 [a detailed description of the feature-branch](https://www.atlassian.com/git/workflows#!workflow-feature-branch).
+
+# Keeping track of the changes
+This project is linked to the [TRExFitter JIRA project](https://its.cern.ch/jira/projects/TTHFITTER). You can 
+interact with the JIRA project by quoting the ticket ID in your commit messages or merge requests message.
+
+```bash
+git commit -m "Working on TTHFITTER-102 - Fixing some pointer initialisation"
+```
+
+This will automatically create a comment on the corresponding JIRA ticket. Some keywords
+are also usable to close the JIRA ticket when needed. Those keywords are:
+
+```bash
+Closes TTHFITTER-102
+Resolves TTHFITTER-102
+Fixes TTHFITTER-102
+```
+
+Such messages can be put in the commit messages or in the merge request message.
+
+This action is only performed when the users branch has been merged to the master. 
