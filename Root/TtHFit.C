@@ -4215,7 +4215,8 @@ void TtHFit::DrawPruningPlot(){
                             if(    FindInStringVector( fSystematics[i_syst]->fDropNormIn, fRegions[i_reg]->fName )>=0
                                 || FindInStringVector( fSystematics[i_syst]->fDropNormIn, samplesVec[i_smp]->fName )>=0
                                 || FindInStringVector( fSystematics[i_syst]->fDropNormIn, "all" )>=0
-                                || ( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation && (normUp!=normUp || normDo!=normDo) )
+                                || ( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation )
+                                || (normUp!=normUp || normDo!=normDo)
                                 ) {
                                 syh->fNormPruned = true;
                                 if(syh->fShapePruned || fSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 3 );
