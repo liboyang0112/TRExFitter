@@ -1,5 +1,5 @@
-2017-01-26 Michele Pinamonti <michele.pinamonti@gmail.com>
-    * Fixing y axis range issues
+2017-01-31 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing y axis range issues + few small cosmetics
     
 2017-01-19 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Post-fit summary plot bug fixed
