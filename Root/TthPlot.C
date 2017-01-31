@@ -848,7 +848,10 @@ void TthPlot::Draw(string options){
         // try to guess y axis label...
         if(ytitle=="Events"){
             if(xtitle.find("GeV")!=string::npos){
-                ytitle = Form("Events / %.0f GeV",fBinWidth);
+                if((int)fBinWidth==fBinWidth) ytitle = Form("Events / %.0f GeV",fBinWidth);
+		else if((int)(fBinWidth*10)==(fBinWidth*10)) ytitle = Form("Events / %.1f GeV",fBinWidth);
+		else if((int)(fBinWidth*100)==(fBinWidth*100)) ytitle = Form("Events / %.2f GeV",fBinWidth);
+		// ...
             }
             else{
                 ytitle = Form("Events / %.2f",fBinWidth);
@@ -857,14 +860,14 @@ void TthPlot::Draw(string options){
         }
     }
 
-
     // Fix y max
     //
     float yMax = 0.;
     float y;
     // take into account also total prediction uncertainty
     for(int i_bin=1;i_bin<h_tot->GetNbinsX()+1;i_bin++){
-        y = h_tot->GetBinContent(i_bin)+g_tot->GetEYhigh()[i_bin-1];
+//         y = h_tot->GetBinContent(i_bin)+g_tot->GetEYhigh()[i_bin-1]; // creating problems
+        y = h_tot->GetBinContent(i_bin);
         if(y>yMax) yMax = y;
         if(hasData && h_data!=0x0 && g_data!=0x0){
             if(h_data->Integral()>0){
