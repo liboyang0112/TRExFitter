@@ -23,6 +23,7 @@ Region::Region(string name){
     fHistoNBinsRebin = -1;
     fYTitle = "";
     fYmaxScale = 0;
+    fYmax = 0;
 
     string cName = "c_"+fName;
     int canvasWidth = 600;
