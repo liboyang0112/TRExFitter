@@ -26,6 +26,8 @@ using namespace RooStats;
 MultiFit::MultiFit(string name){
     fFitList.clear();
     fName = name;
+    fDir = "";
+    fOutDir = "";
     fLabel = name;
     fShowObserved = false;
     fLimitTitle = "95% CL limit on #sigma/#sigma_{SM}(t#bar{t}H) at m_{H} = 125 GeV";
@@ -106,6 +108,16 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     // set multi-fit
     cs = fConfig->GetConfigSet("MultiFit");
     fName = cs->GetValue();
+    param = cs->Get("OutputDir");
+    if(param !=""){
+      fDir = param;
+      if(fDir.back() != '/') fDir += '/';
+      fOutDir = fDir + fName;
+      gSystem->mkdir(fName.c_str(), true);
+    }
+    else{
+      fOutDir = "./" + fName;
+    }
     param = cs->Get("Label");
     if(param!="") fLabel = param;
     else          fLabel = fName;
@@ -208,7 +220,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     }
 
     // make directory
-    gSystem->mkdir(fName.c_str());
+    gSystem->mkdir(fOutDir.c_str());
 }
 
 //__________________________________________________________________________________
@@ -304,7 +316,7 @@ void MultiFit::SaveCombinedWS(){
     //
     // Creating the rootfile
     //
-    TFile *f = new TFile( (fName+"/ws_combined"+fSaveSuf+".root").c_str() , "recreate" );
+    TFile *f = new TFile( (fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() , "recreate" );
     //
     // Creating the workspace
     //
@@ -320,7 +332,7 @@ void MultiFit::SaveCombinedWS(){
 //__________________________________________________________________________________
 //
 std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inputData){
-    TFile *f = new TFile((fName+"/ws_combined"+fSaveSuf+".root").c_str() );
+    TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
 
     std::map < std::string, double > result;
@@ -400,12 +412,12 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     }
 
     // Performs the fit
-    gSystem -> mkdir((fName+"/Fits/").c_str(),true);
+    gSystem -> mkdir((fOutDir+"/Fits/").c_str(),true);
     fitTool -> MinimType("Minuit2");
 
     // Full fit
     fitTool -> FitPDF( mc, simPdf, data, fFastFit );
-    fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+".txt");
+    fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     result = fitTool -> ExportFitResultInMap();
 
     // Stat-only fit:
@@ -413,8 +425,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     // - fix all NP to fitted ones before fitting
     if(fIncludeStatOnly){
         std::cout << "Fitting stat-only: reading fit results from full fit from file:" << std::endl;
-        std::cout << "  " << (fName+"/Fits/"+fName+fSaveSuf+".txt") << std::endl;
-        fFitList[0]->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+        std::cout << "  " << (fOutDir+"/Fits/"+fName+fSaveSuf+".txt") << std::endl;
+        fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
         std::vector<std::string> npNames;
         std::vector<double> npValues;
         for(unsigned int i_np=0;i_np<fFitList[0]->fFitResults->fNuisPar.size();i_np++){
@@ -432,7 +444,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         }
         fitTool -> FixNPs(npNames,npValues);
         fitTool -> FitPDF( mc, simPdf, data );
-        fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
+        fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
     }
 
     return result;
@@ -440,10 +452,10 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
 //__________________________________________________________________________________
 //
 void MultiFit::GetCombinedLimit(string inputData){ // or asimovData
-    string wsFileName = fName+"/ws_combined"+fSaveSuf+".root";
+    string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
 //     gSystem->Exec( ("mkdir ") );
     string cmd;
-    cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
+    cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
 
     //
     // Finally computing the limit
@@ -512,7 +524,7 @@ void MultiFit::ComparePOI(string POI){
             else                         fit->ReadFitResults(fit->fFitResultsFile);
         }
         else{
-            if(fFitResultsFile=="") fit->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+            if(fFitResultsFile=="") fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
             else                    fit->ReadFitResults(fFitResultsFile);
         }
         found = false;
@@ -553,7 +565,7 @@ void MultiFit::ComparePOI(string POI){
         //
         if(!isComb) fit = fFitList[i];
         if(!isComb)       fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+"_statOnly.txt");
-        else              fit->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
+        else              fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
         found = false;
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
             par = fit->fFitResults->fNuisPar[j];
@@ -691,7 +703,7 @@ void MultiFit::ComparePOI(string POI){
 
 //     c->SaveAs( (fName+"/POI.png").c_str() );
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs( (fName+"/POI"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+        c->SaveAs( (fOutDir+"/POI"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     delete c;
 }
@@ -834,7 +846,7 @@ void MultiFit::CompareLimit(){
 //     myText(0.75,0.4,kBlack,"Stat. only");
 
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs( (fName+"/Limits" + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+        c->SaveAs( (fOutDir+"/Limits" + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     delete c;
 }
@@ -984,7 +996,7 @@ void MultiFit::ComparePulls(string category){
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
-            fitRes->ReadFromTXT(fName+"/Fits/"+fName+fSaveSuf+".txt");
+            fitRes->ReadFromTXT(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
         }
         else{
             fitRes = fFitList[i_fit]->fFitResults;
@@ -1093,8 +1105,8 @@ void MultiFit::ComparePulls(string category){
     gPad->RedrawAxis();
 
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c->SaveAs((fName+"/NuisPar_comp"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c->SaveAs((fName+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        if(category=="") c->SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        else             c->SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
     }
     delete c;
 }
@@ -1244,7 +1256,7 @@ void MultiFit::CompareNormFactors(string category){
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
-            fitRes->ReadFromTXT(fName+"/Fits/"+fName+fSaveSuf+".txt");
+            fitRes->ReadFromTXT(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
         }
         else{
             fitRes = fFitList[i_fit]->fFitResults;
@@ -1345,8 +1357,8 @@ void MultiFit::CompareNormFactors(string category){
     gPad->RedrawAxis();
 
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c->SaveAs((fName+"/NormFactors_comp"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c->SaveAs((fName+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        if(category=="") c->SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        else             c->SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
     }
     delete c;
 }
@@ -1360,10 +1372,10 @@ void MultiFit::PlotCombinedCorrelationMatrix(){
         return;
     }
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
-    fit->ReadFitResults(fName+"/Fits/"+fName+".txt");
+    fit->ReadFitResults(fOutDir+"/Fits/"+fName+".txt");
     if(fit->fFitResults){
         for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-            fit->fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix_comb"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format],TtHFitter::CORRELATIONTHRESHOLD);
+            fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format],TtHFitter::CORRELATIONTHRESHOLD);
     }
 }
 
@@ -1442,7 +1454,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     //     string outName = fName+"/Fits/NPRanking"+fSaveSuf;
     //
 //     string outName = fName+"/Fits/NPRanking"+fSuffix;
-    string outName = fName+"/Fits/NPRanking";
+    string outName = fOutDir+"/Fits/NPRanking";
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
     ofstream outName_file(outName.c_str());
@@ -1459,7 +1471,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     //
     // Get the combined model
     //
-    TFile *f = new TFile((fName+"/ws_combined.root").c_str() );
+    TFile *f = new TFile((fOutDir+"/ws_combined.root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
 
     //
@@ -1505,7 +1517,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 //     }
 
     TtHFit *fit = fFitList[fFitList.size()-1];
-    fit->ReadFitResults(fName+"/Fits/"+fName+".txt");
+    fit->ReadFitResults(fOutDir+"/Fits/"+fName+".txt");
 
 //     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     muhat = fit->fFitResults -> GetNuisParValue( fPOI );
@@ -1569,11 +1581,11 @@ void MultiFit::PlotNPRanking(){
     std::cout << "...................................." << std::endl;
     std::cout << "Plotting Ranking..." << std::endl;
     //
-    string fileToRead = fName+"/Fits/NPRanking.txt";
+    string fileToRead = fOutDir+"/Fits/NPRanking.txt";
     //
     // trick to merge the ranking outputs produced in parallel:
-    string cmd = " if [[ `ls "+fName+"/Fits/NPRanking_*` != \"\" ]] ; then";
-    cmd       += " if [[ `ls "+fName+"/Fits/NPRanking.txt` == \"\" ]] ; then";
+    string cmd = " if [[ `ls "+fOutDir+"/Fits/NPRanking_*` != \"\" ]] ; then";
+    cmd       += " if [[ `ls "+fOutDir+"/Fits/NPRanking.txt` == \"\" ]] ; then";
 //     cmd       += " then rm "+fileToRead+" ; ";
 //     cmd       += " cat "+fName+"/Fits/NPRanking"+fLoadSuf+"_* > "+fileToRead+" ; ";
     cmd       += " cat "+fName+"/Fits/NPRanking_* > "+fileToRead+" ; ";
@@ -1868,7 +1880,7 @@ void MultiFit::PlotNPRanking(){
     gPad->RedrawAxis();
 
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/Ranking."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+        c->SaveAs( (fOutDir+"/Ranking."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
 
     //
     delete c;
@@ -1885,9 +1897,9 @@ void MultiFit::PlotSummarySoverB(){
     bool includeBonly = false;
     if(fBonlySuffix!="") includeBonly = true;
 
-    fFitList[0]->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
+    fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     float muFit = fFitList[0]->fFitResults->GetNuisParValue(fPOI);
-    float muLimit = HistFromFile( fName+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
+    float muLimit = HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
 //     float muFit = 1;
 //     float muLimit = 3.4;
 
@@ -2294,7 +2306,7 @@ void MultiFit::PlotSummarySoverB(){
     pad1->RedrawAxis();
 
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/SoverB_postFit."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+        c->SaveAs( (fOutDir+"/SoverB_postFit."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
 
     delete c;
 }

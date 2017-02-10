@@ -197,7 +197,7 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
 
-Processing runAsymptoticsCLs.C+("FitExample/RooStats/FitExample_combined_FitExample_model_forLimits.root","combined","ModelConfig","ttHFitterData","asimovData_0","./FitExample/Limits/","FitExample",0.95)...
+Processing runAsymptoticsCLs.C+("FitExample/RooStats/FitExample_combined_FitExample_model_forLimits.root","combined","ModelConfig","ttHFitterData","asimovData_0","FitExample/Limits/","FitExample",0.95)...
 In file included from input_line_12:9:
   while ((var == (RooRealVar*)itr->Next()))
           ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -144,6 +144,7 @@ public:
     // -------------------------
       
     string fName;
+    string fDir;
     string fLabel;
     string fResultsFolder;
     string fInputFolder;
