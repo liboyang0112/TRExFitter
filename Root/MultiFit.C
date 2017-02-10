@@ -56,6 +56,7 @@ MultiFit::MultiFit(string name){
     fNPCategories.push_back("");
     //
     fRndRange = 0.1;
+    fRndSeed = -999;
     fUseRnd = false;
     //
     fRankingOnly = "all";
@@ -148,6 +149,9 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("SetRandomInitialNPval");  if( param != ""){
         fUseRnd = true;
         fRndRange = atof(param.c_str());
+    }
+    param = cs->Get("SetRandomInitialNPvalSeed"); if( param != ""){
+      fRndSeed = atol(param.c_str());
     }
     param = cs->Get("NumCPU"); if( param != "" ){ TtHFitter::NCPU = atoi( param.c_str()); }
     //
@@ -338,7 +342,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         fitTool -> ValPOI(fPOIVal);
         fitTool -> ConstPOI(false);
     }
-    if(fUseRnd) fitTool -> SetRandomNP(fRndRange, fUseRnd);
+    if(fUseRnd) fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
 
     //
     // Fit starting from custom point

@@ -141,7 +141,12 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     //
     // Needed for Ranking plot, but also to set random initial values for the NPs
     //
-    gRandom->SetSeed(time(NULL));
+    if(m_randSeed == -999){
+      gRandom->SetSeed(time(NULL));
+    }
+    else{
+      gRandom->SetSeed(m_randSeed);
+    }
     RooRealVar* var = NULL;
     RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
     if(nuis){

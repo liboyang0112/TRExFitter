@@ -65,7 +65,8 @@ public:
     
     bool fUseRnd;
     float fRndRange;
-    
+    long int fRndSeed;
+
     string fLumiLabel;
     string fCmeLabel;
     
