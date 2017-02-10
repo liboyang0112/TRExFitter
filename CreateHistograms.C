@@ -1,3 +1,8 @@
+#include "TRandom.h"
+#include "TFile.h"
+#include "TH1F.h"
+#include "TSystem.h"
+
 void CreateHistograms(){
   
   gSystem->mkdir("ExampleInputs");
