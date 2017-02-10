@@ -4886,9 +4886,9 @@ void TtHFit::GetLimit(){
         string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
         if(fSignalInjection)
-            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
         else
-            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
 
     }
 
@@ -4955,9 +4955,9 @@ void TtHFit::GetLimit(){
         ws_forLimit -> Write();
         f_clone -> Close();
         if(fSignalInjection)
-            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
         else
-            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
+            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
     }
 
     //
