@@ -520,8 +520,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     fName = CheckName(cs->GetValue());
     fInputName = fName;
 
-    fDir = CheckName(cs->Get("OutputDir"));
-    if(fDir !=""){
+    param = cs->Get("OutputDir");
+    if(param != ""){
+      fDir = param;
       if(fDir.back() != '/') fDir += '/';
       fName = fDir + fName;
       gSystem->mkdir(fName.c_str(), true);

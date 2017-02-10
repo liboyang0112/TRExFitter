@@ -107,8 +107,9 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     // set multi-fit
     cs = fConfig->GetConfigSet("MultiFit");
     fName = cs->GetValue();
-    fDir = cs->Get("OutputDir");
-    if(fDir !=""){
+    param = cs->Get("OutputDir");
+    if(param !=""){
+      fDir = param;
       if(fDir.back() != '/') fDir += '/';
       fOutDir = fDir + fName;
       gSystem->mkdir(fName.c_str(), true);
