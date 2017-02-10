@@ -2695,7 +2695,7 @@ void TtHFit::DrawAndSaveAll(string opt){
 TthPlot* TtHFit::DrawSummary(string opt){
     std::cout << "-------------------------------------------" << std::endl;
     std::cout << "Building Summary Plot..." << std::endl;
-    gSystem->mkdir(fName.c_str());
+    gSystem->mkdir(fName.c_str(),true);
     const bool isPostFit = opt.find("post")!=string::npos;
     const bool checkVR = opt.find("valid")!=string::npos;
     // build one bin per region
@@ -2874,7 +2874,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     // For 4-top-style plots
     if(TtHFitter::OPTION["FourTopStyle"]>0){
 //         p = new TthPlot(fName+"_summary",900.*TtHFitter::OPTION["CanvasWidth"]/600.,TtHFitter::OPTION["CanvasHeight"]);
-        p = new TthPlot(fName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
+        p = new TthPlot(fInputName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
@@ -2900,7 +2900,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     }
     // TThbb style
     else if(TtHFitter::OPTION["TtHbbStyle"]>0){
-        p = new TthPlot(fName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
+        p = new TthPlot(fInputName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
@@ -2915,7 +2915,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     //
     // normal-/old-style plots
     else{
-        p = new TthPlot(fName+"_summary",900,700);
+        p = new TthPlot(fInputName+"_summary",900,700);
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
@@ -3143,7 +3143,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     bool isPostFit = opt.find("post")!=string::npos;
     ofstream out;
     ofstream texout;
-    gSystem->mkdir(fName.c_str());
+    gSystem->mkdir(fName.c_str(),true);
     gSystem->mkdir((fName+"/Tables").c_str());
     string suffix = "";
     if(group!="") suffix += "_"+group;
@@ -3661,7 +3661,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
 //__________________________________________________________________________________
 //
 void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > &regions){
-    gSystem->mkdir(fName.c_str());
+  gSystem->mkdir(fName.c_str(), true);
     float Hp = 250; // height of one mini-plot, in pixels
     float Wp = 200; // width of one mini-plot, in pixels
     float H0 = 100; // height of the top label pad
@@ -5108,7 +5108,7 @@ void TtHFit::ReadFitResults(string fileName){
 void TtHFit::Print(){
     std::cout << endl;
     std::cout << "-------------------------------------------" << endl;
-    std::cout << "  TtHFit: " << fName << endl;
+    std::cout << "  TtHFit: " << fInputName << endl;
     std::cout << "      NtuplePaths ="; for(int i=0;i<(int)fNtuplePaths.size();i++) std::cout << " " << fNtuplePaths[i] << std::endl;
     std::cout << "      NtupleName  =";   std::cout << " " << fNtupleName << std::endl;
     std::cout << "      MCweight    =";   std::cout << " " << fMCweight   << std::endl;

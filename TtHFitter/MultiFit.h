@@ -52,6 +52,8 @@ public:
     bool fPlotCombCorrMatrix;
     
     string fName;
+    string fDir;
+    string fOutDir;
     string fLabel;
     bool fShowObserved;
     string fLimitTitle;
