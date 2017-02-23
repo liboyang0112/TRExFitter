@@ -1245,6 +1245,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         sysd = new Systematic("Dummy",typed);
         sysd->fOverallUp   = 0.;
         sysd->fOverallDown = -0.;
+        sysd->fScaleUp   = 1.;
+        sysd->fScaleDown   = 1.;
         fSystematics.push_back( sysd );
         TtHFitter::SYSTMAP[sysd->fName] = "Dummy";
         fNSyst++;
@@ -1361,6 +1363,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             sys->fOverallUp   = atof( cs->Get("OverallUp").c_str() );
             sys->fOverallDown = atof( cs->Get("OverallDown").c_str() );
         }
+	if(cs->Get("ScaleUp")!="")   sys->fScaleUp     = atof( cs->Get("ScaleUp").c_str() );
+	if(cs->Get("ScaleDown")!="") sys->fScaleDown   = atof( cs->Get("ScaleDown").c_str() );
         // this to obtain syst variation relatively to given sample
         param = cs->Get("ReferenceSample"); if(param!="") sys->fReferenceSample = param;
         param = cs->Get("KeepReferenceOverallVar");
@@ -1792,7 +1796,7 @@ void TtHFit::ReadNtuples(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
                     syh->fSystematic = syst;
                     continue;
                 }
@@ -2330,7 +2334,7 @@ void TtHFit::ReadHistograms(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
                     syh->fSystematic = syst;
                     continue;
                 }
@@ -2632,7 +2636,9 @@ void TtHFit::ReadHistos(/*string fileName*/){
                     if( fKeepPruning ){
                         if( binContent == -2 || binContent == 2 ) continue;
                     }
-                    syh = sh->AddOverallSyst(systName,fSamples[i_smp]->fSystematics[i_syst]->fOverallUp,fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
+                    syh = sh->AddOverallSyst(systName,
+					     fSamples[i_smp]->fSystematics[i_syst]->fOverallUp*fSamples[i_smp]->fSystematics[i_syst]->fScaleUp,
+					     fSamples[i_smp]->fSystematics[i_syst]->fOverallDown*fSamples[i_smp]->fSystematics[i_syst]->fScaleDown);
                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 }
                 // histo syst

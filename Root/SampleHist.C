@@ -659,7 +659,8 @@ void SampleHist::SmoothSyst(string syst,bool force){
             HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
                                             h_nominal,//nominal histogram
                                             fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown,//original histograms
-                                            h_syst_up, h_syst_down //modified histograms
+                                            h_syst_up, h_syst_down, //modified histograms
+                                            fSyst[i_syst]->fSystematic->fScaleUp,fSyst[i_syst]->fSystematic->fScaleDown // scale factors
                                          );
         }
 

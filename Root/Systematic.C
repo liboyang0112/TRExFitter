@@ -19,6 +19,9 @@ Systematic::Systematic(string name,int type,float up,float down){
     fOverallUp = up;
     fOverallDown = down;
     //
+    fScaleUp   = 1.;
+    fScaleDown   = 1.;
+    //
     fHasUpVariation = true;
     fHasDownVariation = true;
     //

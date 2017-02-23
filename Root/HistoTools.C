@@ -44,7 +44,7 @@ TH1F* HistoTools::TranformHistogramBinning(TH1* originalHist){
 //_________________________________________________________________________
 //
 void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown){
+                                    TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown){
     //
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
     //
@@ -64,12 +64,12 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
     // if one-sided & symmetrization asked, do smoothing first and symmetrization after
     if( histOps % 10 == SYMMETRIZEONESIDED ){
         SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown);
-        SymmetrizeHistograms(histOps,hNom,modifiedUp,modifiedDown,modifiedUp,modifiedDown);
+        SymmetrizeHistograms(histOps,hNom,modifiedUp,modifiedDown,modifiedUp,modifiedDown,scaleUp,scaleDown);
     }
 
     // otherwise, first symmetrization and then smoothing
     else{
-        SymmetrizeHistograms(histOps,hNom,originUp,originDown,modifiedUp,modifiedDown);
+        SymmetrizeHistograms(histOps,hNom,originUp,originDown,modifiedUp,modifiedDown,scaleUp,scaleDown);
         SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown);
     }
 }
@@ -77,7 +77,7 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
 //_________________________________________________________________________
 //
 void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown){
+                                    TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown){
     //##################################################
     //
     // FIRST STEP: SYMMETRISATION
@@ -117,6 +117,8 @@ void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, T
         modifiedUp = originUp;
         modifiedDown = originDown;
     }
+    Scale(modifiedDown, hNom, scaleDown);
+    Scale(modifiedUp, hNom, scaleUp);
     modifiedDown -> SetName(originDown->GetName());
     modifiedUp   -> SetName(originUp->GetName());
 }
@@ -254,6 +256,31 @@ TH1F* HistoTools::SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom) {
     delete nom;
 
     return tmp1;
+}
+
+//_________________________________________________________________________
+//
+void HistoTools::Scale(TH1* h_syst, TH1* h_nominal, float factor){
+
+    //Sanity check
+    if(!h_syst || !h_nominal) return;
+
+    //Just to be sure, set sumw2() on histograms
+    if(!h_nominal->GetSumw2())h_nominal -> Sumw2();
+    if(!h_syst->GetSumw2())h_syst -> Sumw2();
+
+    //scale difference to nominal
+    h_syst -> Add(h_nominal,-1);
+    h_syst -> Scale(factor);
+    h_syst -> Add(h_nominal,1);
+
+    //Another sanity check: search for negative bins
+    for( unsigned int iBin = 1; iBin <= h_syst -> GetNbinsX(); ++iBin ){
+        double content = h_syst -> GetBinContent(iBin);
+        if(content < 0){
+            h_syst -> SetBinContent(iBin, 0.);
+        }
+    }
 }
 
 //_________________________________________________________________________
