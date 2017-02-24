@@ -21,8 +21,8 @@ namespace HistoTools {
     
     TH1F* TranformHistogramBinning(TH1* originalHist);
     
-    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown);
-    void SymmetrizeHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown);
+    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
+    void SymmetrizeHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
     void SmoothHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown);
     
     //Symmetrisation functions
@@ -30,6 +30,8 @@ namespace HistoTools {
     TH1F* InvertShift(TH1* h_syst, TH1* h_nominal);
     float Separation(TH1* h1,TH1* h2);
     TH1F* SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom);
+
+    void Scale(TH1* h_syst, TH1* h_nominal, float factor);
     
     //Smoothing uilities
     int rebin_getMaxVar(TH1* hnom,TH1* hsyst, double tolerance);

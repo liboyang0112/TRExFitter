@@ -34,6 +34,9 @@ public:
     float fOverallUp;
     float fOverallDown;
     
+    float fScaleUp;
+    float fScaleDown;
+
     bool fHasUpVariation;
     bool fHasDownVariation;
     

@@ -271,6 +271,8 @@ Note that, each object should have unique <ObjectName>.
      * Smoothing        : smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
      * OverallUp        : for OVERALL systematic: the relative "up" shift (0.1 means +10%)
      * OverallDown      : for OVERALL systematic: the relative "down" shift (-0.1 means -10%)
+     * ScaleUp          : for OVERALL and HISTO systematic: scale difference between "up" and nominal by a factor
+     * ScaleDown        : for OVERALL and HISTO systematic: scale difference between "down" and nominal by a factor
      * ReferenceSample  : if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
 
 
