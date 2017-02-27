@@ -53,7 +53,7 @@ public:
 
     inline void NoGammas() { m_noGammas=true; }
 
-    inline void SetRandomNP( const double rndNP, const bool rndize ) { m_randomNP = rndNP; m_randomize = rndize; }
+    inline void SetRandomNP( const double rndNP, const bool rndize, const long int rndSeed=-999 ) { m_randomNP = rndNP; m_randomize = rndize; m_randSeed = rndSeed; }
 
 //     inline void FixNP( const TString &np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
     inline void ResetFixedNP() { m_constNP.clear(); m_constNPvalue.clear(); };
@@ -79,6 +79,7 @@ private:
     TString m_minimType;
     int m_minuitStatus, m_hessStatus;
     double m_edm,m_valPOI,m_randomNP;
+    long int m_randSeed;
     double m_RangePOI_up,m_RangePOI_down;
     bool m_useMinos,m_constPOI;
     bool m_noGammas;

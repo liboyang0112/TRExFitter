@@ -111,6 +111,7 @@ TtHFit::TtHFit(string name){
     fFitIsBlind = false;
     fUseRnd = false;
     fRndRange = 0.1;
+    fRndSeed = -999;
     fVarNameLH.clear();
     fVarNameMinos.clear();
     fVarNameHide.clear();
@@ -789,6 +790,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("SetRandomInitialNPval");  if( param != ""){
         fUseRnd = true;
         fRndRange = atof(param.c_str());
+    }
+    param = cs->Get("SetRandomInitialNPvalSeed"); if( param != ""){
+      fRndSeed = atol(param.c_str());
     }
     param = cs->Get("NumCPU"); if( param != "" ){ TtHFitter::NCPU = atoi( param.c_str()); }
     param = cs->Get("StatOnlyFit");    if( param != "" ){
@@ -4703,7 +4707,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         fitTool -> ValPOI(fFitPOIAsimov);
         fitTool -> ConstPOI(false);
     }
-    fitTool -> SetRandomNP(fRndRange, fUseRnd);
+    fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
     if(fStatOnly) fitTool -> NoGammas();
 
     //

@@ -238,6 +238,7 @@ public:
     bool fFitIsBlind;
     bool fUseRnd;
     float fRndRange;
+    long int fRndSeed;
     vector<string> fVarNameLH;
     vector<string> fVarNameMinos;
     vector<string> fVarNameHide;
