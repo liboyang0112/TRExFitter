@@ -245,11 +245,12 @@ RooWorkspace* MultiFit::CombineWS(){
     TFile *rootFileCombined = 0x0;
 
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        std::string fitName = fFitList[i_fit]->fName;
-        if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding Fit: " << fitName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
+        std::string fitName = fFitList[i_fit]->fInputName;
+        std::string fitDir = fFitList[i_fit]->fName;
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding Fit: " << fitName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << fitDir << std::endl;
 
         RooStats::HistFactory::Measurement *meas;
-        std::string fileName = fitName + "/RooStats/" + fitName + "_combined_" + fitName + fFitSuffs[i_fit] + "_model.root";
+        std::string fileName = fitDir + "/RooStats/" + fitName + "_combined_" + fitName + fFitSuffs[i_fit] + "_model.root";
         if(fWsFiles[i_fit]!="") fileName = fWsFiles[i_fit];
         if(TtHFitter::DEBUGLEVEL>0) std::cout << "Opening file " << fileName << std::endl;
         TFile *rootFile = new TFile(fileName.c_str(),"read");
@@ -278,7 +279,7 @@ RooWorkspace* MultiFit::CombineWS(){
         if(fCombineChByCh){
             for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
                 Region *reg = fFitList[i_fit]->fRegions[i_reg];
-                std::string fileName = fitName + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
+                std::string fileName = fitDir + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
                 std::cout << "  Opening file " << fileName << std::endl;
                 TFile *rootFile = new TFile(fileName.c_str(),"read");
                 RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get(reg->fName.c_str());
@@ -476,17 +477,20 @@ void MultiFit::ComparePOI(string POI){
 
     // Fit titles
     vector<string> names;
+    vector<string> dirs;
     vector<string> suffs;
     vector<string> titles;
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        std::cout << "Adding Fit: " << fFitList[i_fit]->fName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
-        names.push_back( fFitList[i_fit]->fName );
+        std::cout << "Adding Fit: " << fFitList[i_fit]->fInputName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
+        names.push_back( fFitList[i_fit]->fInputName );
+        dirs.push_back( fFitList[i_fit]->fName );
         titles.push_back( fFitLabels[i_fit] );
         suffs.push_back( fFitSuffs[i_fit] );
     }
     if(fCombine){
         std::cout << "Adding Combined Fit" << std::endl;
         names.push_back( fName );
+        dirs.push_back( fOutDir );
         titles.push_back( "Combined" );
         suffs.push_back( "" );
     }
@@ -520,7 +524,7 @@ void MultiFit::ComparePOI(string POI){
 //         if(!isComb)       fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+".txt");
 //         else              fit->ReadFitResults(fName+"/Fits/"+fName+fSaveSuf+".txt");
         if(!isComb){
-            if(fit->fFitResultsFile=="") fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+".txt");
+            if(fit->fFitResultsFile=="") fit->ReadFitResults(dirs[i]+"/Fits/"+names[i]+suffs[i]+".txt");
             else                         fit->ReadFitResults(fit->fFitResultsFile);
         }
         else{
@@ -564,7 +568,7 @@ void MultiFit::ComparePOI(string POI){
         else                   isComb = false;
         //
         if(!isComb) fit = fFitList[i];
-        if(!isComb)       fit->ReadFitResults(names[i]+"/Fits/"+names[i]+suffs[i]+"_statOnly.txt");
+        if(!isComb)       fit->ReadFitResults(dirs[i]+"/Fits/"+names[i]+suffs[i]+"_statOnly.txt");
         else              fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
         found = false;
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
@@ -722,8 +726,8 @@ void MultiFit::CompareLimit(){
     vector<string> suffs;
     vector<string> titles;
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        std::cout << "Adding Fit: " << fFitList[i_fit]->fName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
-        names.push_back( fFitList[i_fit]->fName );
+        std::cout << "Adding Fit: " << fFitList[i_fit]->fInputName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
+        names.push_back( fFitList[i_fit]->fInputName );
         titles.push_back( fFitLabels[i_fit] );
         suffs.push_back( fFitSuffs[i_fit] );
     }
@@ -857,14 +861,15 @@ void MultiFit::ComparePulls(string category){
     float ydist = 0.2;
 
     // Fit titles
+    vector<string> dirs;   dirs.clear();
     vector<string> names;  names.clear();
     vector<string> suffs;  suffs.clear();
     vector<string> titles; titles.clear();
     vector<float>  yshift; yshift.clear();
 //     vector<int>    color;  color.clear();
 //     vector<int>    style;  style.clear();
-
     int color[] = {kBlack,kRed,kBlue,kViolet};
+
     int style[] = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
 
     unsigned int N = fFitList.size();
@@ -873,12 +878,14 @@ void MultiFit::ComparePulls(string category){
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1){
             std::cout << "Adding Combined Fit" << std::endl;
+	    dirs.push_back( fOutDir );
             names.push_back( fName );
             titles.push_back( "Combined" );
             suffs.push_back( "" );
         }
         else{
-            names.push_back( fFitList[i_fit]->fName );
+	    dirs.push_back( fFitList[i_fit]->fName );
+            names.push_back( fFitList[i_fit]->fInputName );
             titles.push_back( fFitLabels[i_fit] );
             suffs.push_back( fFitSuffs[i_fit] );
         }
@@ -916,7 +923,7 @@ void MultiFit::ComparePulls(string category){
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
 //         fFitList[i_fit]->ReadFitResults(names[i_fit]+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0"+suffs[i_fit]+".txt");
-        fFitList[i_fit]->ReadFitResults(names[i_fit]+"/Fits/"+names[i_fit]+suffs[i_fit]+".txt");
+        fFitList[i_fit]->ReadFitResults(dirs[i_fit]+"/Fits/"+names[i_fit]+suffs[i_fit]+".txt");
     }
 
     // exclude unused systematics
@@ -1117,6 +1124,7 @@ void MultiFit::CompareNormFactors(string category){
     float ydist = 0.2;
 
     // Fit titles
+    vector<string> dirs;  dirs.clear();
     vector<string> names;  names.clear();
     vector<string> suffs;  suffs.clear();
     vector<string> titles; titles.clear();
@@ -1133,12 +1141,14 @@ void MultiFit::CompareNormFactors(string category){
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1){
             std::cout << "Adding Combined Fit" << std::endl;
+	    dirs.push_back( fOutDir );
             names.push_back( fName );
             titles.push_back( "Combined" );
             suffs.push_back( "" );
         }
         else{
-            names.push_back( fFitList[i_fit]->fName );
+	    dirs.push_back( fFitList[i_fit]->fName );
+            names.push_back( fFitList[i_fit]->fInputName );
             titles.push_back( fFitLabels[i_fit] );
             suffs.push_back( fFitSuffs[i_fit] );
         }
@@ -1176,7 +1186,7 @@ void MultiFit::CompareNormFactors(string category){
     NuisParameter *par;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
-        fFitList[i_fit]->ReadFitResults(names[i_fit]+"/Fits/"+names[i_fit]+suffs[i_fit]+".txt");
+        fFitList[i_fit]->ReadFitResults(dirs[i_fit]+"/Fits/"+names[i_fit]+suffs[i_fit]+".txt");
     }
 
     // exclude norm factors
