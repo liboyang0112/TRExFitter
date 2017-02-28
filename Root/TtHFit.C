@@ -2921,7 +2921,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsSummary"];
         p->AddLabel(fLabel);
         if(isPostFit) p->AddLabel("Post-Fit");
-        else          p->AddLabel("Pre-fit");
+        else          p->AddLabel("Pre-Fit");
     }
     //
     // normal-/old-style plots
@@ -2933,8 +2933,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
         else         p->SetYmaxScale(2);
         p->SetXaxis("",false);
         p->AddLabel(fLabel);
-        if(isPostFit) p->AddLabel("Post-Fit");
-        else          p->AddLabel("Pre-fit");
+        if(TtHFitter::OPTION["NoPrePostFit"]==0){
+            if(isPostFit) p->AddLabel("Post-Fit");
+            else          p->AddLabel("Pre-Fit");
+        }
     }
     //
     p->fATLASlabel = fAtlasLabel;

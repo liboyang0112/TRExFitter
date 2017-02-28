@@ -899,9 +899,8 @@ void TthPlot::Draw(string options){
         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
     }
 
-    // FIXME
-    if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
-        myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
+//     if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
+//         myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
 }
 
 //_____________________________________________________________________________

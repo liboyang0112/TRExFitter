@@ -426,7 +426,7 @@ TthPlot* Region::DrawPreFit(string opt){
     else{
         p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
-        p->AddLabel("Pre-Fit");
+        if(TtHFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Pre-Fit");
         if(TtHFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TtHFitter::OPTION["LegendNColumns"];
     }
     //
@@ -755,7 +755,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     else{
         p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
-        p->AddLabel("Post-Fit");
+        if(TtHFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Post-Fit");
         if(TtHFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TtHFitter::OPTION["LegendNColumns"];
     }
     p->SetLumi(fLumiLabel);
