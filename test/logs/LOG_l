@@ -199,13 +199,12 @@ TtHFit::INFO: Activating binned likelihood attribute for SR_2_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
 
-Processing runAsymptoticsCLs.C+("FitExample/RooStats/FitExample_combined_FitExample_model_forLimits.root","combined","ModelConfig","ttHFitterData","asimovData_0","./FitExample/Limits/","FitExample",0.95)...
+Processing runAsymptoticsCLs.C+("FitExample/RooStats/FitExample_combined_FitExample_model_forLimits.root","combined","ModelConfig","ttHFitterData","asimovData_0","FitExample/Limits/","FitExample",0.95)...
 
 [1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
                 Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
                 All rights reserved, please read http://roofit.sourceforge.net/license.txt
 
-Error in <TCling::RegisterModule>: cannot find dictionary module runAsymptoticsCLs_C_ACLiC_dict_rdict.pcm
    INFO: In dommap (/var/build/jenkins/workspace/lcg_release/BUILDTYPE/Release/COMPILER/gcc49/LABEL/slc6-physical/build/projects/ROOT-6.04.14/src/ROOT/6.04.14/roofit/roofitcore/src/BidirMMapPipe.cxx, line 422): anonymous mmapping works, excellent!
 Creating asimov data at mu = 0, profiling at mu = 0
 ------------------------
@@ -539,6 +538,5 @@ Correct bands
 Median:   4.42313
 Observed: 3.00558
 
-mkdir: directory `./FitExample/Limits/' creata
 Finished with 30 calls to minimize(nll)
-Real time 0:00:02, CP time 1.460
+Real time 0:00:02, CP time 1.420
