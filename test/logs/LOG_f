@@ -1,3 +1,4 @@
+
 [1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
                 Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
                 All rights reserved, please read http://roofit.sourceforge.net/license.txt
@@ -240,6 +241,7 @@ gamma_stat_SR_2_bin_0	  = 1.00083	 +/-  0.0292755	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02482	 +/-  0.0469882	(limited)
 gamma_stat_SR_2_bin_2	  = 0.98714	 +/-  0.0852498	(limited)
 gamma_stat_SR_2_bin_3	  = 0.942788	 +/-  0.126312	(limited)
+Info in <Minuit2>: Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 
 
 
@@ -248,7 +250,7 @@ gamma_stat_SR_2_bin_3	  = 0.942788	 +/-  0.126312	(limited)
             - minuit status 0
             - hess status 0
             - Edm = 0.000734978
- -- Real time 0:00:00, CP time 0.170
+ -- Real time 0:00:00, CP time 0.190
 ***********************************************************
 
 
