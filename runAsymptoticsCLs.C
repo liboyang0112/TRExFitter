@@ -691,10 +691,10 @@ void doPredictiveFit(RooNLLVar* nll, double mu1, double mu2, double mu)
   double* theta_mu2 = new double[nrNuis];
 
   TIterator* itr = nuis->createIterator();
-  RooRealVar* var;
+  RooRealVar* var = 0;
   int counter = 0;
   loadSnapshot(nll, mu1);
-  while ((var == (RooRealVar*)itr->Next()))
+  while (var == (RooRealVar*)itr->Next())
   {
     theta_mu1[counter++] = var->getVal();
   }
@@ -702,14 +702,14 @@ void doPredictiveFit(RooNLLVar* nll, double mu1, double mu2, double mu)
   itr->Reset();
   counter = 0;
   loadSnapshot(nll, mu2);
-  while ((var == (RooRealVar*)itr->Next()))
+  while (var == (RooRealVar*)itr->Next())
   {
     theta_mu2[counter++] = var->getVal();
   }
 
   itr->Reset();
   counter = 0;
-  while ((var == (RooRealVar*)itr->Next()))
+  while (var == (RooRealVar*)itr->Next())
   {
     double m = (theta_mu2[counter] - theta_mu1[counter])/(mu2-mu1);
     double b = theta_mu2[counter] - m*mu2;
