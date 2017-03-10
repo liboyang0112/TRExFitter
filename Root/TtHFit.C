@@ -10,14 +10,13 @@
 #include "RooDataSet.h"
 #include "RooCategory.h"
 #include "RooDataSet.h"
+#include "RooRealSumPdf.h"
 
 //HistFactory headers
 #include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
 
 //Corresponding header
 #include "TtHFitter/TtHFit.h"
-
-#include "TFormula.h"
 
 using namespace RooFit;
 
@@ -27,7 +26,6 @@ using namespace RooFit;
 //__________________________________________________________________________________
 //
 TtHFit::TtHFit(string name){
-    fDir = "";
     fName = name;
     fInputName = name;
     fLabel = "";
@@ -111,7 +109,6 @@ TtHFit::TtHFit(string name){
     fFitIsBlind = false;
     fUseRnd = false;
     fRndRange = 0.1;
-    fRndSeed = -999;
     fVarNameLH.clear();
     fVarNameMinos.clear();
     fVarNameHide.clear();
@@ -142,9 +139,6 @@ TtHFit::TtHFit(string name){
     fSystCategoryTables = false;
 
     fRegionGroups.clear();
-
-    // Increase the limit for formula evaluations
-    ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
 }
 
 //__________________________________________________________________________________
@@ -314,7 +308,7 @@ void TtHFit::SmoothSystematics(string syst){
 // create new root file with all the histograms
 void TtHFit::WriteHistos(/*string fileName*/){
     bool recreate = !fUpdate;
-    gSystem->mkdir( fName.c_str());
+    gSystem->mkdir( fName.c_str() );
     gSystem->mkdir( (fName + "/Histograms/").c_str() );
     string fileName = "";
     TDirectory *dir = gDirectory;
@@ -322,7 +316,7 @@ void TtHFit::WriteHistos(/*string fileName*/){
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
-      //         fileName = fName + "/Histograms/" + fName + "_histos"+fSuffix+".root";
+//         fileName = fName + "/Histograms/" + fName + "_histos"+fSuffix+".root";
         if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos.root";
         else                 fileName = fName + "/Histograms/" + fInputName + "_histos.root";
         std::cout << "-------------------------------------------" << std::endl;
@@ -517,17 +511,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     //
     //##########################################################
     cs = fConfig->GetConfigSet("Job");
-
     fName = CheckName(cs->GetValue());
     fInputName = fName;
-
-    param = cs->Get("OutputDir");
-    if(param != ""){
-      fDir = param;
-      if(fDir.back() != '/') fDir += '/';
-      fName = fDir + fName;
-      gSystem->mkdir(fName.c_str(), true);
-    }
     param = cs->Get("Label");  if(param!="") fLabel = param;
                                else          fLabel = fName;
     SetPOI(CheckName(cs->Get("POI")));
@@ -790,9 +775,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("SetRandomInitialNPval");  if( param != ""){
         fUseRnd = true;
         fRndRange = atof(param.c_str());
-    }
-    param = cs->Get("SetRandomInitialNPvalSeed"); if( param != ""){
-      fRndSeed = atol(param.c_str());
     }
     param = cs->Get("NumCPU"); if( param != "" ){ TtHFitter::NCPU = atoi( param.c_str()); }
     param = cs->Get("StatOnlyFit");    if( param != "" ){
@@ -1249,8 +1231,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         sysd = new Systematic("Dummy",typed);
         sysd->fOverallUp   = 0.;
         sysd->fOverallDown = -0.;
-        sysd->fScaleUp   = 1.;
-        sysd->fScaleDown   = 1.;
         fSystematics.push_back( sysd );
         TtHFitter::SYSTMAP[sysd->fName] = "Dummy";
         fNSyst++;
@@ -1367,8 +1347,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             sys->fOverallUp   = atof( cs->Get("OverallUp").c_str() );
             sys->fOverallDown = atof( cs->Get("OverallDown").c_str() );
         }
-	if(cs->Get("ScaleUp")!="")   sys->fScaleUp     = atof( cs->Get("ScaleUp").c_str() );
-	if(cs->Get("ScaleDown")!="") sys->fScaleDown   = atof( cs->Get("ScaleDown").c_str() );
         // this to obtain syst variation relatively to given sample
         param = cs->Get("ReferenceSample"); if(param!="") sys->fReferenceSample = param;
         param = cs->Get("KeepReferenceOverallVar");
@@ -1800,7 +1778,7 @@ void TtHFit::ReadNtuples(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
                     syh->fSystematic = syst;
                     continue;
                 }
@@ -2338,7 +2316,7 @@ void TtHFit::ReadHistograms(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
                     syh->fSystematic = syst;
                     continue;
                 }
@@ -2640,9 +2618,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
                     if( fKeepPruning ){
                         if( binContent == -2 || binContent == 2 ) continue;
                     }
-                    syh = sh->AddOverallSyst(systName,
-					     fSamples[i_smp]->fSystematics[i_syst]->fOverallUp*fSamples[i_smp]->fSystematics[i_syst]->fScaleUp,
-					     fSamples[i_smp]->fSystematics[i_syst]->fOverallDown*fSamples[i_smp]->fSystematics[i_syst]->fScaleDown);
+                    syh = sh->AddOverallSyst(systName,fSamples[i_smp]->fSystematics[i_syst]->fOverallUp,fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 }
                 // histo syst
@@ -2681,7 +2657,7 @@ void TtHFit::DrawAndSaveAll(string opt){
         if(fFitResultsFile!="")
             ReadFitResults(fFitResultsFile);
         else
-            ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
+            ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
@@ -2706,7 +2682,7 @@ void TtHFit::DrawAndSaveAll(string opt){
 TthPlot* TtHFit::DrawSummary(string opt){
     std::cout << "-------------------------------------------" << std::endl;
     std::cout << "Building Summary Plot..." << std::endl;
-    gSystem->mkdir(fName.c_str(),true);
+    gSystem->mkdir(fName.c_str());
     const bool isPostFit = opt.find("post")!=string::npos;
     const bool checkVR = opt.find("valid")!=string::npos;
     // build one bin per region
@@ -2885,7 +2861,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     // For 4-top-style plots
     if(TtHFitter::OPTION["FourTopStyle"]>0){
 //         p = new TthPlot(fName+"_summary",900.*TtHFitter::OPTION["CanvasWidth"]/600.,TtHFitter::OPTION["CanvasHeight"]);
-        p = new TthPlot(fInputName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
+        p = new TthPlot(fName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
@@ -2911,7 +2887,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     }
     // TThbb style
     else if(TtHFitter::OPTION["TtHbbStyle"]>0){
-        p = new TthPlot(fInputName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
+        p = new TthPlot(fName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
@@ -2921,22 +2897,20 @@ TthPlot* TtHFit::DrawSummary(string opt){
         p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsSummary"];
         p->AddLabel(fLabel);
         if(isPostFit) p->AddLabel("Post-Fit");
-        else          p->AddLabel("Pre-Fit");
+        else          p->AddLabel("Pre-fit");
     }
     //
     // normal-/old-style plots
     else{
-        p = new TthPlot(fInputName+"_summary",900,700);
+        p = new TthPlot(fName+"_summary",900,700);
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
         else         p->SetYmaxScale(2);
         p->SetXaxis("",false);
         p->AddLabel(fLabel);
-        if(TtHFitter::OPTION["NoPrePostFit"]==0){
-            if(isPostFit) p->AddLabel("Post-Fit");
-            else          p->AddLabel("Pre-Fit");
-        }
+        if(isPostFit) p->AddLabel("Post-Fit");
+        else          p->AddLabel("Pre-fit");
     }
     //
     p->fATLASlabel = fAtlasLabel;
@@ -3156,7 +3130,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     bool isPostFit = opt.find("post")!=string::npos;
     ofstream out;
     ofstream texout;
-    gSystem->mkdir(fName.c_str(),true);
+    gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Tables").c_str());
     string suffix = "";
     if(group!="") suffix += "_"+group;
@@ -3633,7 +3607,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     }
     h_up.clear();
     h_down.clear();
- 
+
     if(fCleanTables){
         std::string shellcommand = "cat "+fName+"/Tables/Yields"+suffix+".tex|sed -e \"s/\\#/ /g\" > "+fName+"/Tables/Yields";
         if(isPostFit) shellcommand += "_postFit";
@@ -3674,7 +3648,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
 //__________________________________________________________________________________
 //
 void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > &regions){
-  gSystem->mkdir(fName.c_str(), true);
+    gSystem->mkdir(fName.c_str());
     float Hp = 250; // height of one mini-plot, in pixels
     float Wp = 200; // width of one mini-plot, in pixels
     float H0 = 100; // height of the top label pad
@@ -4070,8 +4044,8 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         std::cout << "Exporting to RooStats..." << std::endl;
     }
 
-    RooStats::HistFactory::Measurement meas((fInputName+fSuffix).c_str(), (fInputName+fSuffix).c_str());
-    meas.SetOutputFilePrefix((fName+"/RooStats/"+fInputName).c_str());
+    RooStats::HistFactory::Measurement meas((fName+fSuffix).c_str(), (fName+fSuffix).c_str());
+    meas.SetOutputFilePrefix((fName+"/RooStats/"+fName).c_str());
     meas.SetExportOnly(exportOnly);
     meas.SetPOI(fPOI.c_str());
     meas.SetLumi(fLumiScale);
@@ -4570,6 +4544,16 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     if (!fStatOnly){
         ws->loadSnapshot("InitialStateModelNuis");
     }
+    
+    //Setting binned likelihood option
+    RooFIter rfiter = ws->components().fwdIterator();
+    RooAbsArg* arg;
+    while ((arg = rfiter.next())) {
+        if (arg->IsA() == RooRealSumPdf::Class()) {
+            arg->setAttribute("BinnedLikelihood");
+            cout << "TtHFit::INFO: Activating binned likelihood attribute for " << arg->GetName() << endl;
+        }
+    }
 
     //Creating a set
     const char* weightName="weightVar";
@@ -4709,7 +4693,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         fitTool -> ValPOI(fFitPOIAsimov);
         fitTool -> ConstPOI(false);
     }
-    fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
+    fitTool -> SetRandomNP(fRndRange, fUseRnd);
     if(fStatOnly) fitTool -> NoGammas();
 
     //
@@ -4759,8 +4743,8 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     // - fix all NP to fitted ones before fitting
     if(fStatOnlyFit){
         std::cout << "Fitting stat-only: reading fit results from full fit from file: " << std::endl;
-        std::cout << "  " << (fName+"/Fits/"+fInputName+fSuffix+".txt") << std::endl;
-        ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
+        std::cout << "  " << (fName+"/Fits/"+fName+fSuffix+".txt") << std::endl;
+        ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
         std::vector<std::string> npNames;
         std::vector<double> npValues;
         for(unsigned int i_np=0;i_np<fFitResults->fNuisPar.size();i_np++){
@@ -4777,8 +4761,8 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
 //     fitTool -> FitPDF( mc, simPdf, data, true );   // for fast fit
     if(save){
         gSystem -> mkdir((fName+"/Fits/").c_str(),true);
-        if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt");
-        else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+".txt");
+        if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+"_statOnly.txt");
+        else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fName+fSuffix+".txt");
     }
     result = fitTool -> ExportFitResultInMap();
 
@@ -4797,8 +4781,8 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
     RooStats::HistFactory::Measurement *measurement = 0;
     //
     // Take the measurement from the combined workspace, to be sure to have all the systematics (even the ones which are not there in the first region)
-    TFile *rootFileCombined = new TFile( (fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read");
-    if(rootFileCombined!=0x0) measurement = (RooStats::HistFactory::Measurement*) rootFileCombined -> Get( (fInputName+fSuffix).c_str());
+    TFile *rootFileCombined = new TFile( (fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root").c_str(),"read");
+    if(rootFileCombined!=0x0) measurement = (RooStats::HistFactory::Measurement*) rootFileCombined -> Get( (fName+fSuffix).c_str());
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         bool isToFit = false;
@@ -4809,7 +4793,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
             }
         }
         if(isToFit){
-            std::string fileName = fName+"/RooStats/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
+            std::string fileName = fName+"/RooStats/"+fName+"_"+fRegions[i_ch]->fName+"_"+fName+fSuffix+"_model.root";
             TFile *rootFile = new TFile(fileName.c_str(),"read");
             RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get((fRegions[i_ch]->fName).c_str());
             if(!m_ws){
@@ -4819,7 +4803,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
             vec_chName.push_back(fRegions[i_ch] -> fName);
             // if failed to get the measurement from the combined ws, take it from the first region
             if(!measurement){
-                measurement = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fInputName+fSuffix).c_str());
+                measurement = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fName+fSuffix).c_str());
             }
         }
     }
@@ -4852,7 +4836,7 @@ void TtHFit::PlotFittedNP(){
     //
     // plot the NP fit pull plot
     //
-    ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
+    ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     if(fFitResults){
         fFitResults->fNuisParToHide = fVarNameHide;
         std::set < std::string > npCategories;
@@ -4883,7 +4867,7 @@ void TtHFit::PlotCorrelationMatrix(){
         return;
     }
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
-    ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
+    ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     if(fFitResults){
         fFitResults->fNuisParToHide = fVarNameHide;
         for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
@@ -4913,9 +4897,9 @@ void TtHFit::GetLimit(){
         string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
         if(fSignalInjection)
-            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
+            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
         else
-            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
+            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
 
     }
 
@@ -4966,9 +4950,9 @@ void TtHFit::GetLimit(){
         //
         // Gets the measurement object in the original combined workspace (created with the "w" command)
         //
-        const std::string originalCombinedFile = fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root";
+        const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
         TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
-        RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fInputName+fSuffix).c_str());
+        RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fName+fSuffix).c_str());
         TString outputName = f_origin->GetName();
         f_origin -> Close();
 
@@ -4982,9 +4966,9 @@ void TtHFit::GetLimit(){
         ws_forLimit -> Write();
         f_clone -> Close();
         if(fSignalInjection)
-            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
+            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
         else
-            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
+            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\"./"+fName+"/Limits/\",\""+fName+fSuffix+"\",0.95)'";
     }
 
     //
@@ -5063,9 +5047,9 @@ void TtHFit::GetSignificance(){
         //
         // Gets the measurement object in the original combined workspace (created with the "w" command)
         //
-        const std::string originalCombinedFile = fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root";
+        const std::string originalCombinedFile = fName+"/RooStats/"+fName+"_combined_"+fName+fSuffix+"_model.root";
         TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
-        RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fInputName + fSuffix).c_str());
+        RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fName+fSuffix).c_str());
         TString outputName = f_origin->GetName();
         f_origin -> Close();
 
@@ -5121,7 +5105,7 @@ void TtHFit::ReadFitResults(string fileName){
 void TtHFit::Print(){
     std::cout << endl;
     std::cout << "-------------------------------------------" << endl;
-    std::cout << "  TtHFit: " << fInputName << endl;
+    std::cout << "  TtHFit: " << fName << endl;
     std::cout << "      NtuplePaths ="; for(int i=0;i<(int)fNtuplePaths.size();i++) std::cout << " " << fNtuplePaths[i] << std::endl;
     std::cout << "      NtupleName  =";   std::cout << " " << fNtupleName << std::endl;
     std::cout << "      MCweight    =";   std::cout << " " << fMCweight   << std::endl;
@@ -5424,7 +5408,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 //         fitTool -> UseMinos(fVarNameMinos);
 //     }
 
-    ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
+    ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     muhat = fFitResults -> GetNuisParValue( fPOI );
     //if(!hasData) muhat = 1.;  // FIXME -> Loic: Do we actually need that ?
 

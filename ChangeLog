@@ -1,3 +1,7 @@
+2017-03-09 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * IMPORTANT: Binned likelihood option added, which might fix fit instabilities (thanks Daiki)
+    * Adding small options: no ratio plot (thanks Robert Wolff) and others
+    
 2017-02-28 Michele Pinamonti <michele.pinamonti@gmail.com>
     * various merge requests + few small cosmetics
     
