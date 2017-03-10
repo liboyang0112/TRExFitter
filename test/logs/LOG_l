@@ -539,6 +539,5 @@ Correct bands
 Median:   4.42313
 Observed: 3.00558
 
-mkdir: directory `./FitExample/Limits/' creata
 Finished with 30 calls to minimize(nll)
-Real time 0:00:02, CP time 1.460
+Real time 0:00:02, CP time 1.440
