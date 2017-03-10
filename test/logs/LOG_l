@@ -205,7 +205,6 @@ Processing runAsymptoticsCLs.C+("FitExample/RooStats/FitExample_combined_FitExam
                 Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
                 All rights reserved, please read http://roofit.sourceforge.net/license.txt
 
-Error in <TCling::RegisterModule>: cannot find dictionary module runAsymptoticsCLs_C_ACLiC_dict_rdict.pcm
    INFO: In dommap (/var/build/jenkins/workspace/lcg_release/BUILDTYPE/Release/COMPILER/gcc49/LABEL/slc6-physical/build/projects/ROOT-6.04.14/src/ROOT/6.04.14/roofit/roofitcore/src/BidirMMapPipe.cxx, line 422): anonymous mmapping works, excellent!
 Creating asimov data at mu = 0, profiling at mu = 0
 ------------------------
@@ -540,4 +539,4 @@ Median:   4.42313
 Observed: 3.00558
 
 Finished with 30 calls to minimize(nll)
-Real time 0:00:02, CP time 1.510
+Real time 0:00:02, CP time 1.420
