@@ -1,4 +1,3 @@
-
 [1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
                 Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
                 All rights reserved, please read http://roofit.sourceforge.net/license.txt
@@ -194,19 +193,17 @@ Nuisance Parameters:     RooArgSet:: = (alpha_Bkg1Xsec,alpha_Bkg2Xsec,alpha_JES,
 Global Observables:      RooArgSet:: = (nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
 PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 56.2
 
+TtHFit::INFO: Activating binned likelihood attribute for SR_1_model
+TtHFit::INFO: Activating binned likelihood attribute for SR_2_model
 [#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
 [#1] INFO:Minization --  Including the following contraint terms in minimization: (alpha_JESConstraint,alpha_Bkg1XsecConstraint,alpha_Bkg2XsecConstraint,gamma_stat_SR_1_bin_0_constraint,gamma_stat_SR_1_bin_1_constraint,gamma_stat_SR_1_bin_2_constraint,gamma_stat_SR_1_bin_3_constraint,gamma_stat_SR_2_bin_0_constraint,gamma_stat_SR_2_bin_1_constraint,gamma_stat_SR_2_bin_2_constraint,gamma_stat_SR_2_bin_3_constraint)
 [#1] INFO:Minization -- The following global observables have been defined: (nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
 RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4 dataset entries)
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
 [#1] INFO:Fitting -- RooAbsTestStatistic::initSimMode: created 2 slave calculators.
 Setting starting mu = 0
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
-[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to -1341.3
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
-[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to -1341.3
+[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.163
+[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.163
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 
 
@@ -220,18 +217,18 @@ MnSeedGenerator: Initial state:   - FCN =  -10.03014606086 Edm =      1.82092 NC
 VariableMetric: start iterating until Edm is < 0.001
 VariableMetric: Initial state   - FCN =  -10.03014606086 Edm =      1.82092 NCalls =     49
 VariableMetric: Iteration #   0 - FCN =  -10.03014606086 Edm =      1.82092 NCalls =     49
-VariableMetric: Iteration #   1 - FCN =  -11.22256733404 Edm =      0.40417 NCalls =     77
-VariableMetric: Iteration #   2 - FCN =  -11.49344833945 Edm =    0.0580457 NCalls =    103
-VariableMetric: Iteration #   3 - FCN =  -11.61277067782 Edm =    0.0306794 NCalls =    129
-VariableMetric: Iteration #   4 - FCN =  -11.65775632546 Edm =   0.00402245 NCalls =    155
-VariableMetric: Iteration #   5 - FCN =  -11.66421888515 Edm =  0.000568867 NCalls =    181
-VariableMetric: After Hessian   - FCN =  -11.66421888515 Edm =  0.000735153 NCalls =    296
-VariableMetric: Iteration #   6 - FCN =  -11.66421888515 Edm =  0.000735153 NCalls =    296
+VariableMetric: Iteration #   1 - FCN =  -11.22256735113 Edm =      0.40417 NCalls =     77
+VariableMetric: Iteration #   2 - FCN =  -11.49344835144 Edm =    0.0580457 NCalls =    103
+VariableMetric: Iteration #   3 - FCN =  -11.61277068696 Edm =    0.0306794 NCalls =    129
+VariableMetric: Iteration #   4 - FCN =  -11.65775632811 Edm =   0.00402244 NCalls =    155
+VariableMetric: Iteration #   5 - FCN =  -11.66421888572 Edm =  0.000568867 NCalls =    181
+VariableMetric: After Hessian   - FCN =  -11.66421888572 Edm =  0.000735152 NCalls =    296
+VariableMetric: Iteration #   6 - FCN =  -11.66421888572 Edm =  0.000735152 NCalls =    296
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -11.6642188851490189
-Edm   = 0.000735153181901868785
+FVAL  = -11.6642188857187392
+Edm   = 0.00073515245342560705
 Nfcn  = 296
-SigXsecOverSM	  = 0.000390497	 +/-  0.93871	(limited)
+SigXsecOverSM	  = 0.000390496	 +/-  0.93871	(limited)
 alpha_Bkg1Xsec	  = 0.265595	 +/-  0.700852	(limited)
 alpha_Bkg2Xsec	  = 0.0332161	 +/-  0.647314	(limited)
 alpha_JES	  = 0.0710477	 +/-  0.330594	(limited)
@@ -243,7 +240,6 @@ gamma_stat_SR_2_bin_0	  = 1.00083	 +/-  0.0292755	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02482	 +/-  0.0469882	(limited)
 gamma_stat_SR_2_bin_2	  = 0.98714	 +/-  0.0852498	(limited)
 gamma_stat_SR_2_bin_3	  = 0.942788	 +/-  0.126312	(limited)
-Info in <Minuit2>: Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 
 
 
@@ -251,8 +247,8 @@ Info in <Minuit2>: Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
          FIT FINALIZED SUCCESSFULLY : 
             - minuit status 0
             - hess status 0
-            - Edm = 0.000734983
- -- Real time 0:00:00, CP time 0.140
+            - Edm = 0.000734978
+ -- Real time 0:00:00, CP time 0.170
 ***********************************************************
 
 
