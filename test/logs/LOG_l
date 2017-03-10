@@ -194,46 +194,18 @@ Nuisance Parameters:     RooArgSet:: = (alpha_Bkg1Xsec,alpha_Bkg2Xsec,alpha_JES,
 Global Observables:      RooArgSet:: = (nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
 PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 56.2
 
+TtHFit::INFO: Activating binned likelihood attribute for SR_1_model
+TtHFit::INFO: Activating binned likelihood attribute for SR_2_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
 
-Processing runAsymptoticsCLs.C+("FitExample/RooStats/FitExample_combined_FitExample_model_forLimits.root","combined","ModelConfig","ttHFitterData","asimovData_0","FitExample/Limits/","FitExample",0.95)...
-In file included from input_line_12:9:
-  while ((var == (RooRealVar*)itr->Next()))
-          ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
-  while ((var == (RooRealVar*)itr->Next()))
-         ~    ^                          ~
-  while ((var == (RooRealVar*)itr->Next()))
-              ^~
-              =
-  while ((var == (RooRealVar*)itr->Next()))
-          ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
-  while ((var == (RooRealVar*)itr->Next()))
-         ~    ^                          ~
-  while ((var == (RooRealVar*)itr->Next()))
-              ^~
-              =
-  while ((var == (RooRealVar*)itr->Next()))
-          ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
-  while ((var == (RooRealVar*)itr->Next()))
-         ~    ^                          ~
-  while ((var == (RooRealVar*)itr->Next()))
-              ^~
-              =
+Processing runAsymptoticsCLs.C+("FitExample/RooStats/FitExample_combined_FitExample_model_forLimits.root","combined","ModelConfig","ttHFitterData","asimovData_0","./FitExample/Limits/","FitExample",0.95)...
 
 [1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
                 Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
                 All rights reserved, please read http://roofit.sourceforge.net/license.txt
 
-In file included from /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsTestStatistic.h:20:0,
-                 from /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsOptTestStatistic.h:20,
-                 from /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooNLLVar.h:19,
-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsReal.h: In function ‘void doPredictiveFit(RooNLLVar*, double, double, double)’:
-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/root/6.04.14-x86_64-slc6-gcc49-opt/include/RooAbsReal.h:67:60: warning: ‘var’ may be used uninitialized in this function [-Wmaybe-uninitialized]
-     return (_fast && !_inhibitDirty) ? _value : getValV(set) ; 
-                                                            ^
-   RooRealVar* var;
-               ^
+Error in <TCling::RegisterModule>: cannot find dictionary module runAsymptoticsCLs_C_ACLiC_dict_rdict.pcm
    INFO: In dommap (/var/build/jenkins/workspace/lcg_release/BUILDTYPE/Release/COMPILER/gcc49/LABEL/slc6-physical/build/projects/ROOT-6.04.14/src/ROOT/6.04.14/roofit/roofitcore/src/BidirMMapPipe.cxx, line 422): anonymous mmapping works, excellent!
 Creating asimov data at mu = 0, profiling at mu = 0
 ------------------------
@@ -279,7 +251,7 @@ qmu95:          3.88504
 qmu:            3.75718
 qmuA0:          3.75718
 Precision:      0.0220816
-Correction:     0.0507967
+Correction:     0.0507985
 New guess:      4.41632
 
 ----------------------
@@ -291,12 +263,12 @@ Sigma(mu,0):    2.25567
 muhat:          0
 pmu:            0.0251221
 1-pb:           0.5
-CLs:            0.0502443
+CLs:            0.0502442
 qmu95:          3.84561
 qmu:            3.83329
 qmuA0:          3.83329
 Precision:      0.0221157
-Correction:     0.00681246
+Correction:     0.00681269
 New guess:      4.42313
 
 Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.42313
@@ -310,9 +282,9 @@ Sigma(mu,0):    2.26229
 muhat:          0
 qmu95:          4.01686
 qmu:            3.98192
-pmu:            0.0229956
+pmu:            0.0229955
 1-pb:           0.497921
-CLs:            0.0458008
+CLs:            0.0458007
 
 ----------------------
 Starting iteration 0 of nll_simPdf_asimovData_0_with_constr
@@ -328,26 +300,26 @@ qmu95:          4.01791
 qmu:            4.00086
 qmuA0:          4.00086
 Precision:      0.022636
-Correction:     0.00106464
-New guess:      4.52719
+Correction:     0.00106608
+New guess:      4.5272
 
-Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.52719
+Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.5272
 Finished in 1 iterations.
 
 
 Found N * sigma = 2 * 2.2636
-Creating asimov data at mu = 4.52719, profiling at mu = 4.52719
+Creating asimov data at mu = 4.5272, profiling at mu = 4.5272
 ------------------------
 Getting limit for nll: nll_simPdf_asimovData_4.5272_with_constr
 Initial guess:  8.73814
 Sigma(obs):     2.5322
 Sigma(mu,0):    2.5322
-muhat:          4.52719
+muhat:          4.5272
 qmu95:          2.76556
 qmu:            10.683
-pmu:            0.000540626
+pmu:            0.000540624
 1-pb:           0.427664
-CLs:            0.000944595
+CLs:            0.000944592
 
 ----------------------
 Starting iteration 0 of nll_simPdf_asimovData_4.5272_with_constr
@@ -355,8 +327,8 @@ NLL:            nll_simPdf_asimovData_4.5272_with_constr
 Previous guess: 8.73814
 Sigma(obs):     2.93661
 Sigma(mu,0):    2.56673
-muhat:          4.52719
-pmu:            0.0757937
+muhat:          4.5272
+pmu:            0.0757938
 1-pb:           0.0243943
 CLs:            0.0776889
 qmu95:          2.77234
@@ -364,15 +336,15 @@ qmu:            2.0562
 qmuA0:          11.5898
 Precision:      0.0469556
 Correction:     0.652978
-New guess:      9.39111
+New guess:      9.39112
 
 ----------------------
 Starting iteration 1 of nll_simPdf_asimovData_4.5272_with_constr
 NLL:            nll_simPdf_asimovData_4.5272_with_constr
-Previous guess: 9.39111
+Previous guess: 9.39112
 Sigma(obs):     2.99228
 Sigma(mu,0):    2.61595
-muhat:          4.52719
+muhat:          4.5272
 pmu:            0.052029
 1-pb:           0.0247387
 CLs:            0.0533488
@@ -381,22 +353,22 @@ qmu:            2.64222
 qmuA0:          12.8877
 Precision:      0.0474313
 Correction:     0.0951384
-New guess:      9.48625
+New guess:      9.48626
 
 ----------------------
 Starting iteration 2 of nll_simPdf_asimovData_4.5272_with_constr
 NLL:            nll_simPdf_asimovData_4.5272_with_constr
-Previous guess: 9.48625
+Previous guess: 9.48626
 Sigma(obs):     3.00021
 Sigma(mu,0):    2.62317
-muhat:          4.52719
+muhat:          4.5272
 pmu:            0.0491751
-1-pb:           0.0247986
+1-pb:           0.0247985
 CLs:            0.0504255
 qmu95:          2.74602
 qmu:            2.7321
 qmuA0:          13.0778
-Precision:      0.0474992
+Precision:      0.0474993
 Correction:     0.0135954
 New guess:      9.49985
 
@@ -413,7 +385,7 @@ qmu95:          1
 qmu:            1.14091
 pmu:            0.142211
 1-pb:           0.527988
-CLs:            0.301287
+CLs:            0.301286
 
 ----------------------
 Starting iteration 0 of nll_simPdf_asimovData_0_with_constr
@@ -422,14 +394,14 @@ Previous guess: 2.11367
 Sigma(obs):     2.10345
 Sigma(mu,0):    2.10345
 muhat:          0
-pmu:            0.157483
+pmu:            0.157482
 1-pb:           0.5
 CLs:            0.314965
 qmu95:          0.99
 qmu:            1.00974
 qmuA0:          1.00974
 Precision:      0.0105196
-Correction:      -0.00974333
+Correction:      -0.00974339
 New guess:      2.10393
 
 Found limit for nll nll_simPdf_asimovData_0_with_constr: 2.10393
@@ -506,69 +478,52 @@ Finished in 3 iterations.
 
 ------------------------
 Getting limit for nll: nll_simPdf_ttHFitterData_with_constr
-Initial guess:  1.9858
+Initial guess:  2.70304
 Sigma(obs):     2.25578
 Sigma(mu,0):    2.25578
-muhat:          -6.06438
-qmu95:          5.50676
-qmu:            3.84474
-pmu:            0.00434664
-1-pb:           0.959383
-CLs:            0.107015
+muhat:          -3.47092
+qmu95:          5.1259
+qmu:            3.84475
+pmu:            0.0137825
+1-pb:           0.842588
+CLs:            0.0875565
 
 ----------------------
 Starting iteration 0 of nll_simPdf_ttHFitterData_with_constr
 NLL:            nll_simPdf_ttHFitterData_with_constr
-Previous guess: 1.9858
-Sigma(obs):     3.1137
-Sigma(mu,0):    2.09572
-muhat:          -6.06438
-pmu:            0.0227886
-1-pb:           0.85354
-CLs:            0.155596
-qmu95:          5.43427
-qmu:            2.891
-qmuA0:          0.897854
-Precision:      0.0151935
-Correction:     1.0529
-New guess:      3.0387
+Previous guess: 2.70304
+Sigma(obs):     2.48014
+Sigma(mu,0):    2.14148
+muhat:          -3.47092
+pmu:            0.0104431
+1-pb:           0.852636
+CLs:            0.0708662
+qmu95:          5.03797
+qmu:            4.23836
+qmuA0:          1.59322
+Precision:      0.0149644
+Correction:     0.289838
+New guess:      2.99288
 
 ----------------------
 Starting iteration 1 of nll_simPdf_ttHFitterData_with_constr
 NLL:            nll_simPdf_ttHFitterData_with_constr
-Previous guess: 3.0387
-Sigma(obs):     3.06348
-Sigma(mu,0):    2.16347
-muhat:          -6.06438
-pmu:            0.00713235
-1-pb:           0.852216
-CLs:            0.0482618
-qmu95:          4.82914
-qmu:            4.91101
-qmuA0:          1.97275
-Precision:      0.0150528
-Correction:      -0.0281406
-New guess:      3.01056
+Previous guess: 2.99288
+Sigma(obs):     2.48436
+Sigma(mu,0):    2.16063
+muhat:          -3.47092
+pmu:            0.00751805
+1-pb:           0.852294
+CLs:            0.0508988
+qmu95:          4.85861
+qmu:            4.81744
+qmuA0:          1.91874
+Precision:      0.0150279
+Correction:     0.0127078
+New guess:      3.00558
 
-----------------------
-Starting iteration 2 of nll_simPdf_ttHFitterData_with_constr
-NLL:            nll_simPdf_ttHFitterData_with_constr
-Previous guess: 3.01056
-Sigma(obs):     3.0643
-Sigma(mu,0):    2.16176
-muhat:          -6.06438
-pmu:            0.00736368
-1-pb:           0.852306
-CLs:            0.0498578
-qmu95:          4.84731
-qmu:            4.85389
-qmuA0:          1.93944
-Precision:      0.0150547
-Correction:     0.000385376
-New guess:      3.01094
-
-Found limit for nll nll_simPdf_ttHFitterData_with_constr: 3.01094
-Finished in 3 iterations.
+Found limit for nll nll_simPdf_ttHFitterData_with_constr: 3.00558
+Finished in 2 iterations.
 
 Guess for bands
 +2sigma:  8.25218
@@ -582,7 +537,8 @@ Correct bands
 -1sigma:  3.18711
 -2sigma:  2.37401
 Median:   4.42313
-Observed: 3.01094
+Observed: 3.00558
 
-Finished with 32 calls to minimize(nll)
-Real time 0:00:02, CP time 1.470
+mkdir: directory `./FitExample/Limits/' creata
+Finished with 30 calls to minimize(nll)
+Real time 0:00:02, CP time 1.460
