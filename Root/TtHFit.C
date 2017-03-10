@@ -10,6 +10,7 @@
 #include "RooDataSet.h"
 #include "RooCategory.h"
 #include "RooDataSet.h"
+#include "RooRealSumPdf.h"
 
 //HistFactory headers
 #include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
@@ -4569,6 +4570,16 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     ws->loadSnapshot("InitialStateModelGlob");
     if (!fStatOnly){
         ws->loadSnapshot("InitialStateModelNuis");
+    }
+
+    //Setting binned likelihood option
+    RooFIter rfiter = ws->components().fwdIterator();
+    RooAbsArg* arg;
+    while ((arg = rfiter.next())) {
+        if (arg->IsA() == RooRealSumPdf::Class()) {
+            arg->setAttribute("BinnedLikelihood");
+            cout << "TtHFit::INFO: Activating binned likelihood attribute for " << arg->GetName() << endl;
+        }
     }
 
     //Creating a set
