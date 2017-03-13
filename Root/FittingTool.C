@@ -114,6 +114,17 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
 //                                          ,RooFit::Extended(true)   // experimental
                                         );
     
+
+    //
+    // Needed for Ranking plot, but also to set random initial values for the NPs
+    //
+    if(m_randSeed == -999){
+      gRandom->SetSeed(time(NULL));
+    }
+    else{
+      gRandom->SetSeed(m_randSeed);
+    }
+
     //
     // Getting the POI
     //
@@ -138,15 +149,6 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
         std::cout << "   -> Value of POI : " << poi->getVal()     << std::endl;
     }
     
-    //
-    // Needed for Ranking plot, but also to set random initial values for the NPs
-    //
-    if(m_randSeed == -999){
-      gRandom->SetSeed(time(NULL));
-    }
-    else{
-      gRandom->SetSeed(m_randSeed);
-    }
     RooRealVar* var = NULL;
     RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
     if(nuis){
