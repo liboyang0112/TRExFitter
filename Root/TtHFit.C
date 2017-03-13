@@ -676,8 +676,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
             fStatOnly = true;
-//         } else if ( param == "FALSE" ){
-//             fStatOnly = false;
         }
     }
     param = cs->Get("FixNPforStatOnly");    if( param != "" ){
@@ -1506,6 +1504,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             for(int i_smp=0;i_smp<fNSamples;i_smp++){
                 sam = fSamples[i_smp];
                 if(sam->fType == Sample::DATA) continue;
+                if(sam->fType == Sample::GHOST) continue;
                 bool keepSam=false;
                 if ( samples[0]=="all" ) keepSam=true;
                 else {
@@ -1617,7 +1616,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             return;
         }
         // end Valerio
-
+    }
+    //
+    // -- Post config-reading actions ---
+    //
+    // if StatOnly, also sets to OFF the MC stat
+    if(fStatOnly){
+        std::cout << "TtHFit::INFO: StatOnly option is setting to OFF the MC-stat (gammas) as well.\nTo keep them on use the command line option 'Systematics=NONE' or comment out all Systematics in config file." << std::endl;
+        SetStatErrorConfig( false, 0. );
     }
 }
 
@@ -4721,7 +4727,10 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         fitTool -> ConstPOI(false);
     }
     fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
-    if(fStatOnly) fitTool -> NoGammas();
+    if(fStatOnly){
+      fitTool -> NoGammas();
+      fitTool -> NoSystematics();
+    }
 
     //
     // Fit starting from custom point
@@ -5427,7 +5436,10 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
     fitTool -> ValPOI(1.);
     fitTool -> ConstPOI(false);
-    if(fStatOnly) fitTool -> NoGammas();
+    if(fStatOnly){
+      fitTool -> NoGammas();
+      fitTool -> NoSystematics();
+    }
     //
     // no point is setting Minos for ranking...
 //     if(fVarNameMinos.size()>0){

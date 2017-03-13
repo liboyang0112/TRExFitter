@@ -46,6 +46,8 @@ m_constPOI(false),
 m_fitResult(0),
 m_debug(false),
 m_noGammas(false),
+m_noSystematics(false),
+m_noNormFactors(false),
 // m_constNP(""),
 // m_constNPvalue(0.),
 m_RangePOI_up(100.),
@@ -73,6 +75,8 @@ FittingTool::FittingTool( const FittingTool &q ){
     m_RangePOI_up   = q.m_RangePOI_up;
     m_RangePOI_down = q.m_RangePOI_down;
     m_noGammas      = q.m_noGammas;
+    m_noSystematics = q.m_noSystematics;
+    m_noNormFactors = q.m_noNormFactors;
 }
 
 //________________________________________________________________________
@@ -160,29 +164,44 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
 //                 var->setConstant(1);
             bool found = false;
             //
+            // first check if all systs, norm and gammas should be set to constant
+            if(np.find("gamma_stat")!=string::npos && m_noGammas){
+                if(m_debug) cout << "setting to constant : " << np <<" at value " << var->getVal() << endl;
+                var->setConstant(1);
+                found = true;
+            }
+            else if(np.find("alpha_")!=string::npos && m_noSystematics){
+                if(m_debug) cout << "setting to constant : " << np <<" at value " << var->getVal() << endl;
+                var->setConstant( 1 );
+//                 var->setVal( 0 );
+                found = true;
+            }
+            else if(m_noNormFactors){
+                if(m_debug) cout << "setting to constant : " << np <<" at value " << var->getVal() << endl;
+                var->setConstant( 1 );
+//                 var->setVal( 1 );
+                found = true;
+            }
+            if(found) continue;
+            //
             // loop on the NP specified to be constant
             for( unsigned int i_np = 0; i_np<m_constNP.size(); i_np++ ){
                 if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np]
                     || np == ("gamma_"+m_constNP[i_np])
                 ){
-		  if(m_debug) cout << "setting to constant : " << np <<" at value " << m_constNPvalue[i_np] << endl;
-		    var->setVal(m_constNPvalue[i_np]);
+                    if(m_debug) cout << "setting to constant : " << np <<" at value " << m_constNPvalue[i_np] << endl;
+                    var->setVal(m_constNPvalue[i_np]);
                     var->setConstant(1);
                     found = true;
                     break;
                 }
             }
-	    if(np.find("gamma_stat")!=string::npos && m_noGammas){
-	      if(m_debug) cout << "setting to constant : " << np <<" at value " << var->getVal() << endl;
-	      var->setConstant(1);
-	      found = true;
-	    }
             //
             // loop on the NP specified to have custom starting value
             for( unsigned int i_np = 0; i_np<m_initialNP.size(); i_np++ ){
                 if( np == ("alpha_"+m_initialNP[i_np]) || np == m_initialNP[i_np] ){
-//                     var->setVal(m_initialNPvalue[i_np]);
-                    var->setVal(m_initialNPvalue[i_np]/2.);
+                    var->setVal(m_initialNPvalue[i_np]);
+//                     var->setVal(m_initialNPvalue[i_np]/2.); // why was it like this?
                     std::cout << " ---> Setting " << m_initialNP[i_np] << " to " << m_initialNPvalue[i_np] << std::endl;
                     found = true;
                     break;

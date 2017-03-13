@@ -137,7 +137,7 @@ Note that, each object should have unique <ObjectName>.
      * RankingMaxNP     : max number of NP to show in ranking plot
      * RankingPlot      : NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots.
      * ImageFormat      : png, pdf or eps
-     * StatOnly         : the code ignores the MC stat uncertainties from all computations (limits, significances, fit, ...)
+     * StatOnly         : the code ignores systematics and MC stat uncertainties from all computations (limits, significances, fit, ...); need to re-reate ws in case of limit and sigificance
      * SystErrorBars    : add stat error bars to syst variations in syst plots
      * SummaryPlotRegions : list of regions to be shown in summary plot (useful to specify a custom order)
      * FixNPforStatOnly : if set to TRUE, when running stat-only (with either of the two options) also the norm facotrs other than the POI are kept fixed
@@ -288,12 +288,12 @@ Currently the supported options are:
 * Exclude:     to exclude certain Regions / Samples / Systematics
 * Suffix:      used for: plots, workspace, fit resutls, etc
 * Update:      if TRUE, the output .root file is updated, otherwise is overwrote
-* StatOnlyFit: if TRUE, the same as Fit, StatOnlyFit
+* StatOnlyFit: if TRUE, the same as Fit->StatOnlyFit
 
 Note: the wild-card * is supported, but only as last character.
 Example::
 
-      ./myFit.exe  n  config/ttH2015.config 'Regions=HThad_ge6jge4b;Exclude=BTag_*'
+     ./myFit.exe  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
 
 
 Ranking Plot
@@ -330,6 +330,7 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
       ComparePOI: TRUE
       ComparePulls: TRUE
       CompareLimits: TRUE
+      POIName: "SigXsecOverSM"
       POIRange: -10,30
       DataName: "obsData"
       CombineChByCh: TRUE
