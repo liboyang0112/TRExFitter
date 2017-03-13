@@ -1,6 +1,11 @@
 2017-03-13 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixing decorrelation by sample an ghost samples. Closes TTHFITTER-107
     * Fixing large stat err for zero content. Closes TTHFITTER-105
+    * Fixing StatOnly flag (closes TTHFITTER-102):
+       * if StatOnly set to TRUE, no gammas anywhere
+       * need to be done before workspace creation in order to work with the limit / significance (l, s)
+       * can be done from command line
+       * does not need to re-create ws in case of fit (f)
 
 2017-03-09 Michele Pinamonti <michele.pinamonti@gmail.com>
     * IMPORTANT: Binned likelihood option added, which might fix fit instabilities (thanks Daiki)

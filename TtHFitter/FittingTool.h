@@ -51,7 +51,9 @@ public:
     inline void ConstPOI( const bool constant ) { m_constPOI = constant; }
     inline double GetConstPOI() { return m_constPOI; }
 
-    inline void NoGammas() { m_noGammas=true; }
+    inline void NoGammas()      { m_noGammas=true;      }
+    inline void NoSystematics() { m_noSystematics=true; }
+    inline void NoNormFators()  { m_noNormFactors=true; }
 
     inline void SetRandomNP( const double rndNP, const bool rndize, const long int rndSeed=-999 ) { m_randomNP = rndNP; m_randomize = rndize; m_randSeed = rndSeed; }
 
@@ -82,7 +84,7 @@ private:
     long int m_randSeed;
     double m_RangePOI_up,m_RangePOI_down;
     bool m_useMinos,m_constPOI;
-    bool m_noGammas;
+    bool m_noGammas,m_noSystematics,m_noNormFactors;
     std::vector<std::string> m_varMinos;
     RooFitResult* m_fitResult;
     bool m_debug,m_randomize;
