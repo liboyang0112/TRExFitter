@@ -306,7 +306,8 @@ void SampleHist::FixEmptyBins(){
                 std::cout << "WARNING: Checking your nominal histogram " << fHist->GetName();
                 std::cout << ", the bin " << i_bin;
                 std::cout << " has a null/negative bin content (content = " << fHist->GetBinContent(i_bin) << ") ! You should have a look at this !" << std::endl;
-                std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
+//                 std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
+                std::cout << "    --> For now setting this bin to 1e-06 pm 1e-06!!! " << std::endl;
             }
             fHist->SetBinContent(i_bin,1e-6);
             for(int i_syst=0;i_syst<fNSyst;i_syst++){
@@ -321,6 +322,7 @@ void SampleHist::FixEmptyBins(){
     if(fHist->Integral()<0){
         for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
             fHist->SetBinContent(i_bin,1e-6);
+            fHist->SetBinError(i_bin,1e-6);
         }
     }
     for(int i_syst=0;i_syst<fNSyst;i_syst++){

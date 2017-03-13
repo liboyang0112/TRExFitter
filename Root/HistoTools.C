@@ -700,8 +700,10 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
             if(causeCrash){
                 abort();
             } else {
-                std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): I set the bin content to 1e-05 ! Please check !\033[0m" << std::endl;
+//                 std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): I set the bin content to 1e-05 ! Please check !\033[0m" << std::endl;
+                std:: cerr << "\033[1;33m<!> WARNING in HistoTools::CheckHistograms(): I set the bin content to 1e-05 pm 1e-06 ! Please check !\033[0m" << std::endl;
                 nom -> SetBinContent(iBin,1e-05);
+                nom -> SetBinError(iBin, 1e-06);
             }
         }
     }

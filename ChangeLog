@@ -1,3 +1,7 @@
+2017-03-13 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing decorrelation by sample an ghost samples. Closes TTHFITTER-107
+    * Fixing large stat err for zero content. Closes TTHFITTER-105
+
 2017-03-09 Michele Pinamonti <michele.pinamonti@gmail.com>
     * IMPORTANT: Binned likelihood option added, which might fix fit instabilities (thanks Daiki)
     * Adding small options: no ratio plot (thanks Robert Wolff) and others
