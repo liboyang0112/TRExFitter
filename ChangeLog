@@ -1,5 +1,8 @@
+2017-03-20 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Tagging: TtHFitter-00-03-07
+    
 2017-03-13 Michele Pinamonti <michele.pinamonti@gmail.com>
-    * Fixing decorrelation by sample an ghost samples. Closes TTHFITTER-107
+    * Fixing decorrelation by sample and ghost samples. Closes TTHFITTER-107
     * Fixing large stat err for zero content. Closes TTHFITTER-105
     * Fixing StatOnly flag (closes TTHFITTER-102):
        * if StatOnly set to TRUE, no gammas anywhere
