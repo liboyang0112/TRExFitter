@@ -250,7 +250,7 @@ Info in <Minuit2>: Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
             - minuit status 0
             - hess status 0
             - Edm = 0.000734978
- -- Real time 0:00:00, CP time 0.180
+ -- Real time 0:00:00, CP time 0.210
 ***********************************************************
 
 
@@ -259,6 +259,8 @@ Info in <Minuit2>: Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 Reading fit results from file FitExample/Fits/FitExample.txt
 Found 12 systematics.
 Info in <TCanvas::Print>: png file FitExample/NuisPar.png has been created
+Info in <TCanvas::Print>: png file FitExample/Gammas.png has been created
+Info in <TCanvas::Print>: png file FitExample/NormFactors.png has been created
 Info in <TCanvas::Print>: png file FitExample/NuisPar_Instrumental.png has been created
 Info in <TCanvas::Print>: png file FitExample/NuisPar_t_bar_t__uncertainty.png has been created
 ------------------------------------------------------
