@@ -1,3 +1,8 @@
+2017-04-11 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing crash when producing SystDataPlots
+    * Fixing ranges of normalisation factor and gamma plots 
+    * adding combined significance
+    
 2017-03-20 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Tagging: TtHFitter-00-03-07
     

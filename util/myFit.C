@@ -52,6 +52,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
             if(doLimit){
                 myMultiFit->GetCombinedLimit( myMultiFit->fDataName );
             }
+            if(doSignificance){
+                myMultiFit->GetCombinedSignificance( myMultiFit->fDataName );
+            }
             if(doRanking){
                 if(myMultiFit->fRankingOnly!="plot")  myMultiFit->ProduceNPRanking( myMultiFit->fRankingOnly );
                 if(myMultiFit->fRankingOnly=="all" || myMultiFit->fRankingOnly=="plot")  myMultiFit->PlotNPRanking();
