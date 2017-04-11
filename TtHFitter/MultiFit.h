@@ -19,6 +19,7 @@ public:
     void SaveCombinedWS();
     std::map < std::string, double > FitCombinedWS( int fitType=1, string inputData="" );
     void GetCombinedLimit(string inputData="obsData"); // or asimovData    
+    void GetCombinedSignificance(string inputData="obsData"); // or asimovData    
     
     void ComparePOI(string POI);
     void CompareLimit();

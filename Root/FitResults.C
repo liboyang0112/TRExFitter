@@ -222,8 +222,11 @@ void FitResults::DrawNormFactors( const string &path, const std::vector < NormFa
       selected_norm_factors.push_back(nuis);
       if(2*selected_norm_factors.size() > max)  max = 2*selected_norm_factors.size();
     }
-    xmax *= (xmax<0 ? 0.5 : 1.5)*2;
+//     xmax *= (xmax<0 ? 0.5 : 1.5)*2;
+    xmax *= (xmax<0 ? 0.5 : 1.5);
     xmin *= (xmin>0 ? 0.5 : 1.5);
+    if(xmin>0) xmin = 0.;
+    xmax += (xmax-xmin)*0.25;
 
     int lineHeight = 40;
     int offsetUp = 40;
@@ -300,8 +303,10 @@ void FitResults::DrawGammaPulls( const string &path ){
         idx ++;
         if(idx > max)  max = idx;
     }
-    xmax *= (1.5-(xmax<0));
-    xmin *= (0.5+(xmin<0));
+//     xmax *= (1.5-(xmax<0));
+//     xmin *= (0.5+(xmin<0));
+    xmax *= (1.2-(xmax<0));
+    xmin *= (0.8+(xmin<0));
 
     int lineHeight = 20;
     int offsetUp = 40;
