@@ -1,13 +1,13 @@
 #include "TtHFitter/Common.h"
 
-#ifndef __NormFactor__
-#define __NormFactor__
+#ifndef __ShapeFactor__
+#define __ShapeFactor__
 
-class NormFactor{
+class ShapeFactor{
 public:
-  NormFactor();
-  NormFactor(string name, float nominal=1, float min=0, float max=10, bool isConst=false);
-  ~NormFactor();
+  ShapeFactor();
+  ShapeFactor(string name, float nominal=1, float min=0, float max=10, bool isConst=false);
+  ~ShapeFactor();
   void Set(string name, float nominal=1, float min=0, float max=10, bool isConst=false);
 
   void Print();

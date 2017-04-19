@@ -138,6 +138,10 @@ TtHFit::TtHFit(string name){
     fNormFactors.clear();
     fNormFactorNames.clear();
     fNNorm = 0;
+    //
+    fShapeFactors.clear();
+    fShapeFactorNames.clear();
+    fNShape = 0;
 
     fCleanTables = false;
     fSystCategoryTables = false;
@@ -1007,6 +1011,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     int nSmp = 0;
     Sample *smp;
     NormFactor *nf = 0x0;
+    ShapeFactor *sf = 0x0;
     while(true){
         cs = fConfig->GetConfigSet("Sample",nSmp);
         if(cs==0x0) break;
@@ -1085,6 +1090,31 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 fNormFactors.push_back( nf );
                 fNormFactorNames.push_back( nf->fName );
                 fNNorm++;
+            }
+        }
+        if(cs->Get("ShapeFactor")!=""){
+            // check if the shapefactor is called just with the name or with full definition
+            if( Vectorize(cs->Get("ShapeFactor"),',').size()>1 ){
+                bool isConst = false;
+                if( Vectorize(cs->Get("ShapeFactor"),',').size()>4 &&
+                  (    Vectorize(cs->Get("ShapeFactor"),',')[4] == "TRUE"
+                    || Vectorize(cs->Get("ShapeFactor"),',')[4] == "true"
+                    || Vectorize(cs->Get("ShapeFactor"),',')[4] == "True" ) ) isConst = true;
+                sf = smp->AddShapeFactor(
+                    Vectorize(cs->Get("ShapeFactor"),',')[0],
+                    atof(Vectorize(cs->Get("ShapeFactor"),',')[1].c_str()),
+                    atof(Vectorize(cs->Get("ShapeFactor"),',')[2].c_str()),
+                    atof(Vectorize(cs->Get("ShapeFactor"),',')[3].c_str()),
+                    isConst
+                );
+            }
+            else{
+                sf = smp->AddShapeFactor( Vectorize(cs->Get("ShapeFactor"),',')[0] );
+            }
+            if( FindInStringVector(fShapeFactorNames,sf->fName)<0 ){
+                fShapeFactors.push_back( sf );
+                fShapeFactorNames.push_back( sf->fName );
+                fNShape++;
             }
         }
         if(cs->Get("NormalizedByTheory")!=""){
@@ -1225,6 +1255,81 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
             ){
                 sam->AddNormFactor(norm);
+            }
+        }
+        // ...
+    }
+
+    //##########################################################
+    //
+    // ShapeFactor options
+    //
+    //##########################################################
+    int nShape = 0;
+    ShapeFactor *shape;
+    //    Sample *sam;
+
+    while(true){
+        cs = fConfig->GetConfigSet("ShapeFactor",nShape);
+        if(cs==0x0) break;
+        nShape++;
+        if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
+        string samples_str = cs->Get("Samples");
+        string regions_str = cs->Get("Regions");
+        string exclude_str = cs->Get("Exclude");
+        if(samples_str=="") samples_str = "all";
+        if(regions_str=="") regions_str = "all";
+        vector<string> samples = Vectorize(samples_str,',');
+        vector<string> regions = Vectorize(regions_str,',');
+        vector<string> exclude = Vectorize(exclude_str,',');
+        shape = new ShapeFactor(CheckName(cs->GetValue()));
+        if( FindInStringVector(fShapeFactorNames,shape->fName)<0 ){
+            fShapeFactors.push_back( shape );
+            fShapeFactorNames.push_back( shape->fName );
+            fNShape++;
+        }
+        else{
+            shape = fShapeFactors[ FindInStringVector(fShapeFactorNames,shape->fName) ];
+        }
+        if(cs->Get("NuisanceParameter")!=""){
+            shape->fNuisanceParameter = cs->Get("NuisanceParameter");
+            TtHFitter::NPMAP[shape->fName] = shape->fNuisanceParameter;
+        }
+        else{
+            shape->fNuisanceParameter = shape->fName;
+            TtHFitter::NPMAP[shape->fName] = shape->fName;
+        }
+        param = cs->Get("Constant");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param=="TRUE") shape->fConst = true;
+        }
+        param = cs->Get("Category");
+        if(param!=""){
+            shape->fCategory = param;
+        }
+        param = cs->Get("Title"); if(param!=""){
+            shape->fTitle = param;
+            TtHFitter::SYSTMAP[shape->fName] = shape->fTitle;
+        }
+        param = cs->Get("TexTitle"); if(param!=""){
+            TtHFitter::SYSTTEX[shape->fName] = param;
+        }
+        param = cs->Get("Min"); if(param!=""){ shape->fMin = atof(param.c_str()); }
+        param = cs->Get("Max"); if(param!=""){ shape->fMax = atof(param.c_str()); }
+        param = cs->Get("Nominal"); if(param!=""){ shape->fNominal = atof(param.c_str()); }
+        //
+        // save list of
+        if(regions[0]!="all") shape->fRegions = regions;
+        if(exclude[0]!="")    shape->fExclude = exclude;
+        // attach the syst to the proper samples
+        for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            sam = fSamples[i_smp];
+            if(sam->fType == Sample::DATA) continue;
+            if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+               && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+            ){
+                sam->AddShapeFactor(shape);
             }
         }
         // ...
@@ -1792,6 +1897,22 @@ void TtHFit::ReadNtuples(){
             //
             //  -----------------------------------
             //
+            // read shape factors
+            for(int i_shape=0;i_shape<fSamples[i_smp]->fNShape;i_shape++){
+                ShapeFactor *sf = fSamples[i_smp]->fShapeFactors[i_shape];
+                //
+                // eventually skip shape factor / region combination
+                if( sf->fRegions.size()>0 && FindInStringVector(sf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( sf->fExclude.size()>0 && FindInStringVector(sf->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding shape " << sf->fName << std::endl;
+                //
+                sh->AddShapeFactor( sf );
+            }
+
+            //
+            //  -----------------------------------
+            //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
                 Systematic * syst = fSamples[i_smp]->fSystematics[i_syst];
@@ -2330,6 +2451,22 @@ void TtHFit::ReadHistograms(){
             //
             //  -----------------------------------
             //
+            // read shape factors
+            for(int i_shape=0;i_shape<fSamples[i_smp]->fNShape;i_shape++){
+                ShapeFactor *sf = fSamples[i_smp]->fShapeFactors[i_shape];
+                //
+                // eventually skip systematic / region combination
+                if( sf->fRegions.size()>0 && FindInStringVector(sf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( sf->fExclude.size()>0 && FindInStringVector(sf->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding shape " << sf->fName << std::endl;
+                //
+                sh->AddShapeFactor( sf );
+            }
+
+            //
+            //  -----------------------------------
+            //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
                 Systematic *syst = fSamples[i_smp]->fSystematics[i_syst];
@@ -2561,6 +2698,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
     string regionName;
     string sampleName;
     string normName;
+    string shapeName;
     string systName;
     //
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
@@ -2615,6 +2753,19 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 if(TtHFitter::DEBUGLEVEL>0) std::cout << "      Reading norm " << normName << std::endl;
                 // norm only
                 sh->AddNormFactor(fSamples[i_smp]->fNormFactors[i_norm]);
+            }
+            //
+            // shape factors
+            for(int i_shape=0;i_shape<fSamples[i_smp]->fNShape;i_shape++){
+                //
+                // eventually skip shape factor / region combination
+                if( fSamples[i_smp]->fShapeFactors[i_shape]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fShapeFactors[i_shape]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( fSamples[i_smp]->fShapeFactors[i_shape]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fShapeFactors[i_shape]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
+                shapeName = fSamples[i_smp]->fShapeFactors[i_shape]->fName;
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "      Reading shape " << shapeName << std::endl;
+                // shape only
+                sh->AddShapeFactor(fSamples[i_smp]->fShapeFactors[i_shape]);
             }
             //
             // systematics
@@ -2826,6 +2977,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                     else           h = sh->fHist;
                     //
                     if(!isPostFit){
+		      // FIXME SF shape should not affect this?
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
@@ -2857,6 +3009,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                     else           h = sh->fHist;
                     //
                     if(!isPostFit){
+		      // FIXME SF shape should not affect this?
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
@@ -3027,6 +3180,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
+    // FIXME SF does not affect this?
     // add the norm factors
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         string normName = fNormFactors[i_norm]->fName;
@@ -3354,6 +3508,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 }
             }
         }
+	// FIXME SF does not affect this?
         //
         // Only for post-fit, loop on norm factors as well
         if(isPostFit){
@@ -3536,6 +3691,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
+    // FIXME SF does not affect this ?
     // add the norm factors
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         string normName = fNormFactors[i_norm]->fName;
@@ -4140,6 +4296,16 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     if (h->fNormFactors[i_norm]->fConst) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
                     if (fStatOnly && fFixNPforStatOnlyFit && h->fNormFactors[i_norm]->fName!=fPOI)
                         meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
+                }
+                // shape factors
+                for(int i_shape=0;i_shape<h->fNShape;i_shape++){
+                    if(TtHFitter::DEBUGLEVEL>0){
+                        std::cout << "    Adding ShapeFactor: " << h->fShapeFactors[i_shape]->fName << ", " << h->fShapeFactors[i_shape]->fNominal << std::endl;
+                    }
+                    sample.AddShapeFactor( h->fShapeFactors[i_shape]->fName );
+                    if (h->fShapeFactors[i_shape]->fConst) meas.AddConstantParam( h->fShapeFactors[i_shape]->fName );
+                    if (fStatOnly && fFixNPforStatOnlyFit && h->fShapeFactors[i_shape]->fName!=fPOI)
+                        meas.AddConstantParam( h->fShapeFactors[i_shape]->fName );
                 }
                 // systematics
                 if(!fStatOnly){
@@ -4786,6 +4952,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         std::vector<double> npValues;
         for(unsigned int i_np=0;i_np<fFitResults->fNuisPar.size();i_np++){
             if(!fFixNPforStatOnlyFit && FindInStringVector(fNormFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
+            if(!fFixNPforStatOnlyFit && FindInStringVector(fShapeFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
             npNames.push_back(  fFitResults->fNuisPar[i_np]->fName );
             npValues.push_back( fFitResults->fNuisPar[i_np]->fFitValue );
         }
@@ -5134,6 +5301,13 @@ void TtHFit::ReadFitResults(string fileName){
                 fFitResults->fNuisPar[i]->fCategory = fNormFactors[j]->fCategory;
             }
         }
+	// FIXME SF probably there are several NPs associated to it ?
+        for(unsigned int j=0;j<fShapeFactors.size();j++){
+            if(fShapeFactors[j]->fName == fFitResults->fNuisPar[i]->fName){
+                fFitResults->fNuisPar[i]->fTitle = fShapeFactors[j]->fTitle;
+                fFitResults->fNuisPar[i]->fCategory = fShapeFactors[j]->fCategory;
+            }
+        }
     }
 }
 
@@ -5331,7 +5505,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             isNF.push_back( true );
         }
     }
-
+    // FIXME SF add shape factor
     //
     //Text files containing information necessary for drawing of ranking plot
     //     string outName = fName+"/Fits/NPRanking"+fSaveSuf;

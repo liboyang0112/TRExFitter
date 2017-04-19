@@ -156,9 +156,11 @@ public:
     std::vector<string> fHistoNameSuffs;
     
     int fNSyst;
-    std::vector < Systematic* > fSystematics;
+    std::vector < Systematic* >  fSystematics;
     int fNNorm;
-    std::vector < NormFactor* > fNormFactors;
+    std::vector < NormFactor* >  fNormFactors;
+    int fNShape;
+    std::vector < ShapeFactor* > fShapeFactors;
     
     // plot objects
     TthPlot *fPlotPreFit;

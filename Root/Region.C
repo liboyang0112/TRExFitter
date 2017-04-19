@@ -15,6 +15,8 @@ Region::Region(string name){
     fNBkg = 0;
     fNSig = 0;
     fNSyst = 0;
+    fNNorm = 0;
+    fNShape = 0;
     fHasData = false;
     fHasSig = false;
     fNSamples = 0;
@@ -42,6 +44,7 @@ Region::Region(string name){
     fSamples.clear();
     fSystematics.clear();
     fNormFactors.clear();
+    fShapeFactors.clear();
     
     fIntCode_overall = 4;
     fIntCode_shape = 0;
@@ -562,6 +565,17 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 systIsThere[systName] = true;
             }
         }
+
+        //
+        // Shape factors
+        //
+        for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
+            systName = fSampleHists[i]->fShapeFactors[i_shape]->fName;
+            if(!systIsThere[systName]){
+                fSystNames.push_back(systName);
+                systIsThere[systName] = true;
+            }
+        }
         
         //
         // Systematics
@@ -638,7 +652,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 }
                 
                 //
-                // Systematics treatment
+                // Systematics treatment  // FIXME SF is it like ShapeFactor
                 //
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
                     hUp   = sh->fHistUp;
@@ -853,6 +867,11 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         }
     }
     
+    
+    //  // FIXME SF
+    // 2)b) Scale all samples by shape factors factors
+    //
+
     //
     // 3) Add the new Sig and Bkg to plot
     //

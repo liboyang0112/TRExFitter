@@ -25,9 +25,13 @@ public:
   NormFactor* AddNormFactor(string name,float nominal, float min, float max);
   NormFactor* AddNormFactor(NormFactor *normFactor);
   NormFactor* GetNormFactor(string name);
+  ShapeFactor* AddShapeFactor(string name,float nominal, float min, float max);
+  ShapeFactor* AddShapeFactor(ShapeFactor *shapeFactor);
+  ShapeFactor* GetShapeFactor(string name);
 
   bool HasSyst(string name);
   bool HasNorm(string name);
+  bool HasShape(string name);
   
   void WriteToFile();
   void ReadFromFile();
@@ -64,6 +68,8 @@ public:
   std::vector < SystematicHist* > fSyst;
   int fNNorm;
   std::vector < NormFactor* > fNormFactors;
+  int fNShape;
+  std::vector < ShapeFactor* > fShapeFactors;
   
   // other useful info
   string fFitName;
