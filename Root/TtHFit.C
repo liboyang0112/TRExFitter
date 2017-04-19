@@ -3211,24 +3211,25 @@ void TtHFit::BuildYieldTable(string opt,string group){
     }
     out << endl;
     texout << "\\documentclass[10pt]{article}" << endl;
+    texout << "\\usepackage{booktabs}" << endl;
     texout << "\\usepackage{siunitx}" << endl;
     texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
     texout << "\\begin{document}" << endl;
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
-    texout << "\\begin{tabular}{|c" ;
+    texout << "\\begin{tabular}{l" ;
     for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
-        texout << "|c";
+        texout << "c";
     }
-    texout << "|}" << endl;
-    texout << "\\hline " << endl;
+    texout << "}" << endl;
+    texout << "\\toprule " << endl;
     for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
 //         texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
         if(fRegions[regionVec[i_bin-1]]->fTexLabel!="") texout << " & " << fRegions[regionVec[i_bin-1]]->fTexLabel ;
         else                                            texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
     }
     texout << "\\\\" << endl;
-    texout << "\\hline " << endl;
+    texout << "\\midrule " << endl;
     //
     std::vector< string > titleVec;
     std::vector< int > idxVec;
@@ -3581,7 +3582,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames );
     //
     out << " | Total | ";
-    texout << "\\hline " << endl;
+    texout << "\\midrule " << endl;
     texout << "  Total ";
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         texout << " & ";
@@ -3606,7 +3607,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     //
     // Print data
     if( !fFitIsBlind ){
-        texout << "\\hline " << endl;
+        texout << "\\midrule " << endl;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if( fSamples[i_smp]->fType!=Sample::DATA  ) continue;
             if(idxVec[i_smp]!=i_smp) continue;
@@ -3627,7 +3628,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
         }
     }
 
-    texout << "\\hline " << endl;
+    texout << "\\bottomrule " << endl;
     texout << "\\end{tabular} " << endl;
     texout << "\\caption{Yields of the analysis} " << endl;
     texout << "\\end{center} " << endl;
@@ -3699,7 +3700,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
     pTop->Draw();
     pTop->cd();
-    ATLASLabel(0.1/(W/200.),1.-0.3*(100./H0),(char*)"Simulation Internal");
+    ATLASLabel(0.1/(W/200.),1.-0.3*(100./H0),fAtlasLabel.c_str());
     myText(    0.1/(W/200.),1.-0.6*(100./H0),1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(fLabel!="-") myText(    0.1/(W/200.),1.-0.9*(100./H0),1,Form("%s",fLabel.c_str()));
 
@@ -3915,12 +3916,12 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
     pTop->cd();
 
     if(TtHFitter::OPTION["FourTopStyle"]>0){
-        ATLASLabel(0.1/(W/200.),1.-0.3*(100./H0),(char*)"Simulation Internal");
+        ATLASLabel(0.1/(W/200.),1.-0.3*(100./H0),fAtlasLabel.c_str());
         myText(    0.1/(W/200.),1.-0.6*(100./H0),1,Form("#sqrt{s} = %s",fCmeLabel.c_str()));
         if(fLabel!="-") myText(    0.1/(W/200.),1.-0.9*(100./H0),1,Form("%s",fLabel.c_str()));
     }
     else{
-        ATLASLabel(0.05 / (W/200),0.7,(char*)"Simulation Internal");
+        ATLASLabel(0.05 / (W/200),0.7,fAtlasLabel.c_str());
 //         myText(    0.05 / (W/200),0.4,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
         myText(    0.05 / (W/200),0.4,1,Form("#sqrt{s} = %s",fCmeLabel.c_str()));
         if(fLabel!="-") myText(    0.05 / (W/200),0.1,1,Form("%s",fLabel.c_str()));
@@ -5215,7 +5216,7 @@ void TtHFit::DrawAndSaveSeparationPlots(){
         legend3->SetTextFont(42);
         legend3->SetTextSize(0.043);
         legend3->AddEntry(bkg, "Total background" , "l");
-        legend3->AddEntry(sig, "t#bar{t}H (m_{H} = 125 GeV)" , "l");
+        legend3->AddEntry(sig, "Signal" , "l");
         legend3->SetFillColor(0) ;
         legend3->SetLineColor(0) ;
         legend3->SetFillStyle(0) ;
@@ -5260,14 +5261,14 @@ void TtHFit::DrawAndSaveSeparationPlots(){
         ls.SetTextSize(0.03);
         ls.SetTextColor(kBlack);
         ls.SetTextFont(42);
-        ls.DrawLatex(0.20,0.73,identS.c_str());
+        // ls.DrawLatex(0.20,0.73,identS.c_str());
 
         TLatex ls2;
         ls2.SetNDC();
         ls2.SetTextSize(0.03);
         ls2.SetTextColor(kBlack);
         ls2.SetTextFont(62);
-        ls2.DrawLatex(0.20,0.78,"Single lepton");
+        // ls2.DrawLatex(0.20,0.78,"Single lepton");
 
         std::string cme = fRegions[i_ch]->fCmeLabel;
         std::string lumi = fRegions[i_ch]->fLumiLabel;
@@ -5279,7 +5280,7 @@ void TtHFit::DrawAndSaveSeparationPlots(){
         ls3.SetTextFont(42);
         ls3.DrawLatex(0.20,0.83, Form("#sqrt{s} = %s, %s", cme.c_str(), lumi.c_str()));
 
-        ATLASLabelNew(0.20, 0.90,(char*)" Internal Simulation",kBlack, 0.03);
+        ATLASLabelNew(0.20, 0.90,fAtlasLabel.c_str(),kBlack, 0.03);
 
         TLatex ls4;
         ls4.SetNDC();
@@ -5875,7 +5876,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     l2.SetLineColor(kBlack);
     l2.Draw("same");
 
-    ATLASLabelNew(0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.6*offsetUp1)/newHeight), (char*)"Internal", kBlack, gStyle->GetTextSize());
+    ATLASLabelNew(0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.6*offsetUp1)/newHeight), fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
     myText(       0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.3*offsetUp1)/newHeight), 1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
 
     gPad->RedrawAxis();
