@@ -232,7 +232,7 @@ NormFactor* SampleHist::AddNormFactor(string name,float nominal, float min, floa
 //_____________________________________________________________________________
 //
 ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
-    ShapeFactor *shape = GetShapeFactor(ShapeFactor->fName);
+    ShapeFactor *shape = GetShapeFactor(shapeFactor->fName);
     if(shape==0x0){
         fShapeFactors.push_back(shapeFactor);
         fNShape ++;
@@ -247,7 +247,7 @@ ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
 //
 ShapeFactor* SampleHist::AddShapeFactor(string name,float nominal, float min, float max){
     ShapeFactor *shape = GetShapeFactor(name);
-    if(norm==0x0){
+    if(shape==0x0){
         fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max));
         fNShape ++;
     }
