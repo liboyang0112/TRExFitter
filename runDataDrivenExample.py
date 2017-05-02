@@ -1,7 +1,7 @@
 from os import system,getcwd
 
 
-fitExe = 'util/myFit.exe'
+fitExe = './myFit.exe'
 configFile = 'config/dataDriven.config'
 
 print '####################### start read input histograms ###############################'
