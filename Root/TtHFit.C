@@ -2977,7 +2977,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                     else           h = sh->fHist;
                     //
                     if(!isPostFit){
-		      // FIXME SF shape should not affect this?
+		      // FIXME SF 
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
@@ -3009,7 +3009,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                     else           h = sh->fHist;
                     //
                     if(!isPostFit){
-		      // FIXME SF shape should not affect this?
+		      // FIXME SF 
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
@@ -3180,7 +3180,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
-    // FIXME SF does not affect this?
+    // FIXME SF 
     // add the norm factors
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         string normName = fNormFactors[i_norm]->fName;
@@ -3508,7 +3508,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 }
             }
         }
-	// FIXME SF does not affect this?
+	// FIXME SF 
         //
         // Only for post-fit, loop on norm factors as well
         if(isPostFit){
@@ -3691,7 +3691,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
             h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
-    // FIXME SF does not affect this ?
+    // FIXME SF 
     // add the norm factors
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         string normName = fNormFactors[i_norm]->fName;
