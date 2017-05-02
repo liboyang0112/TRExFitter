@@ -21,7 +21,7 @@ CXXFLAGS   += -I${ROOTSYS}/include -L${ROOTSYS}/lib
 %.o: %.C
 	g++ -c $(CXXFLAGS) -o $@ $<
 
-all: bucketFit.exe     # this is the default executable
+all: myFit.exe     # this is the default executable
 
 %.exe: util/%.o $(OBJS) 
 	echo $@
