@@ -1,4 +1,4 @@
-from os import system,getcwd
+from os import system
 
 
 fitExe = './myFit.exe'
