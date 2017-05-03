@@ -306,7 +306,7 @@ bool SampleHist::HasNorm(string name){
 
 //_____________________________________________________________________________
 //
-bool SampleHist::HasShape(string name){
+bool SampleHist::HasShapeFactor(string name){
     for(int i_shape=0;i_shape<fNShape;i_shape++){
         if(fShapeFactors[i_shape]->fName == name) return true;
     }

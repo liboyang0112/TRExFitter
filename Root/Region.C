@@ -548,6 +548,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     TH1* hDown = 0x0;
     string systName = "";
     SystematicHist *sh = 0x0;
+    string systNameSF = "";
+    int iBinSF = 0;
     
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
@@ -569,12 +571,20 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         //
         // Shape factors
         //
+	// extract number of bins
         for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
-            systName = fSampleHists[i]->fShapeFactors[i_shape]->fName;
-            if(!systIsThere[systName]){
-                fSystNames.push_back(systName);
-                systIsThere[systName] = true;
+	  systName = fSampleHists[i]->fShapeFactors[i_shape]->fName;
+	  // FIXME assumes fTot is alredy created
+	  for(int i_bin = 1; i_bin < 3; i_bin++){	  
+	  iBinSF = i_bin - 1;		    
+	  systNameSF = systName + "_bin_" + std::to_string(iBinSF);
+	  // the shape factor naming used i_bin - 1 for the first bin
+	    // add it as one syst per bin
+            if(!systIsThere[systNameSF]){
+	      fSystNames.push_back(systNameSF);
+	      systIsThere[systNameSF] = true;
             }
+	  }
         }
         
         //
@@ -610,10 +620,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             // Get fit result
             //
             systName    = fSystNames[i_syst];
-            systValue   = fitRes->GetNuisParValue(systName);
-            systErrUp   = fitRes->GetNuisParErrUp(systName);
-            systErrDown = fitRes->GetNuisParErrDown(systName);
-            
+	    systValue   = fitRes->GetNuisParValue(systName);
+	    systErrUp   = fitRes->GetNuisParErrUp(systName);
+	    systErrDown = fitRes->GetNuisParErrDown(systName);
+
             if(TtHFitter::DEBUGLEVEL>0) cout << "      alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
             
             //
@@ -650,9 +660,31 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     diffUp   += yieldNominal*systErrUp;
                     diffDown += yieldNominal*systErrDown;
                 }
-                
-                //
-                // Systematics treatment  // FIXME SF is it like ShapeFactor
+                // FIXME SF  ShapeFactor have to get NP per bin
+		// get the shape factor name without bin index
+ 		int posTmp = systName.find("_bin_");
+		systNameSF = systName.substr(0, posTmp);
+		// get the shape factor bin as integer
+		iBinSF = std::atoi(systName.substr(posTmp + 5).c_str()) + 1;
+		// FIXME could still be a problem with pruning?
+		if(fSampleHists[i]->HasShapeFactor(systNameSF) && iBinSF == i_bin){
+		  diffUp   += yieldNominal*systErrUp;
+		  diffDown += yieldNominal*systErrDown;
+		}
+		// this doesn't work because there should be one systematic variation histogram present for each entry in the correlation matrix
+//                 if(fSampleHists[i]->HasShapeFactor(systName)){
+// 		    iBinSF = i_bin - 1;		    
+// 		    systNameSF = systName + "_bin_" + std::to_string(iBinSF);
+// 		    // get the NP for the shape factors, there is one per bin
+// 		    systValue   = fitRes->GetNuisParValue(systNameSF);
+// 		    systErrUp   = fitRes->GetNuisParErrUp(systNameSF);
+// 		    systErrDown = fitRes->GetNuisParErrDown(systNameSF);
+// 		    diffUp   += yieldNominal*systErrUp;
+// 		    diffDown += yieldNominal*systErrDown;
+// 		  }
+		
+		  //
+                // Systematics treatment 
                 //
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
                     hUp   = sh->fHistUp;
@@ -872,6 +904,34 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     // 2)b) Scale all samples by shape factors factors
     //
 
+    string sfName;
+    string sfNameBin;
+    float sfValue;
+    double binContentSFNew = 0;
+    int iBinSF = 0;
+    for(int i=0;i<fNSamples;i++){
+      if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+      if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+      for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
+	ShapeFactor *sf = fSampleHists[i]->fShapeFactors[i_shape];
+	sfName = sf->fName;
+	// loop over bins
+	// there should be a NP per bin in the fit file
+	// already checked by GetNuisParValue()
+	// the shape factor naming used i_bin - 1 for the first bin
+	for(int i_bin = 1; i_bin <= hSmpNew[i]->GetNbinsX(); i_bin++){
+	  iBinSF = i_bin - 1;
+	  sfNameBin = sfName + "_bin_" + std::to_string(iBinSF);
+	  if(sf->fConst) sfValue = sf->fNominal; // FIXME SF nominal should also be applied on pre-fit too
+	  else           sfValue = fitRes->GetNuisParValue(sfNameBin);
+	  // scale bin content by shape factor
+	  binContentSFNew = hSmpNew[i]->GetBinContent(i_bin) * sfValue;
+	  // Setting to new value
+	  hSmpNew[i]->SetBinContent(i_bin, binContentSFNew);
+	}
+      }
+    }
+    
     //
     // 3) Add the new Sig and Bkg to plot
     //

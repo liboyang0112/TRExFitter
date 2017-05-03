@@ -31,7 +31,7 @@ public:
 
   bool HasSyst(string name);
   bool HasNorm(string name);
-  bool HasShape(string name);
+  bool HasShapeFactor(string name);
   
   void WriteToFile();
   void ReadFromFile();

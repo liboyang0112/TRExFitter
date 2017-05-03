@@ -1,6 +1,6 @@
 import ROOT
 
-def makeHistograms(yCR1, yCR2, ySR1, ySR2, statUncertainty=0.15):
+def makeHistograms(yCR1, yCR2, ySR1, ySR2, statUncertainty=0.02):
     statU = statUncertainty
     # control region
     histCR = ROOT.TH1F("xCR", "xCR", 2, 0, 2)
@@ -54,7 +54,7 @@ def makeDataDrivenNoSig(exampleDir='exampleDataDriven'):
     makeSample('hist_bkg1', 10, 10, 20, 70, exDir=exampleDir)
     # bkg2 data-driven
     # assume that extrapolation
-    makeSample('hist_bkg2', 138, 55, 70, 30, exDir=exampleDir)
+    makeSample('hist_bkg2', 138, 55, 77, 30, exDir=exampleDir)
     
 
 
