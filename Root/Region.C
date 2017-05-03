@@ -572,13 +572,16 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         // Shape factors
         //
 	// extract number of bins
+	TH1* hSFTmp;
+	for(int i=0;i<fNSamples;i++){
+	  if(i > 0) break;
+	  hSFTmp = (TH1*)fSampleHists[i]->fHist->Clone();
+	}
         for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
 	  systName = fSampleHists[i]->fShapeFactors[i_shape]->fName;
-	  // FIXME assumes fTot is alredy created
-	  for(int i_bin = 1; i_bin < 3; i_bin++){	  
-	  iBinSF = i_bin - 1;		    
-	  systNameSF = systName + "_bin_" + std::to_string(iBinSF);
-	  // the shape factor naming used i_bin - 1 for the first bin
+	  for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){	  
+	    systNameSF = systName + "_bin_" + std::to_string(i_bin);
+	    // the shape factor naming used i_bin - 1 for the first bin
 	    // add it as one syst per bin
             if(!systIsThere[systNameSF]){
 	      fSystNames.push_back(systNameSF);
@@ -586,6 +589,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             }
 	  }
         }
+	hSFTmp->~TH1();
         
         //
         // Systematics
