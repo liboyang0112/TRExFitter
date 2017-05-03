@@ -359,8 +359,9 @@ void HistoTools::Smooth_maxVariations(TH1* hsyst, TH1* hnom, int nbins){
     }
     hsyst->Multiply(hnom);
     hsyst->Add(hnom);
-    hsyst->Scale(systIntegral/hsyst->Integral());
-
+    if(hsyst->Integral()!=0){
+      hsyst->Scale(systIntegral/hsyst->Integral());
+    }
     // Checks if any bin with < 0 content exists
     for(int i=1;i<=hsyst->GetNbinsX();i++){
         double content = hsyst->GetBinContent( i );

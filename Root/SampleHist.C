@@ -306,10 +306,10 @@ void SampleHist::FixEmptyBins(){
                 std::cout << "WARNING: Checking your nominal histogram " << fHist->GetName();
                 std::cout << ", the bin " << i_bin;
                 std::cout << " has a null/negative bin content (content = " << fHist->GetBinContent(i_bin) << ") ! You should have a look at this !" << std::endl;
-//                 std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
                 std::cout << "    --> For now setting this bin to 1e-06 pm 1e-06!!! " << std::endl;
             }
             fHist->SetBinContent(i_bin,1e-6);
+            fHist->SetBinError(i_bin,1e-6);
             for(int i_syst=0;i_syst<fNSyst;i_syst++){
                 SystematicHist* syh = fSyst[i_syst];
                 syh -> fHistUp   -> SetBinContent(i_bin,1e-06);
@@ -437,7 +437,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
             h_syst_up_orig = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
             h_syst_down_orig = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
-//             if(FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, "all" )>=0 || 
+//             if(FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, "all" )>=0 ||
 //                FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, fRegionName )>=0){ // FIXME
 //                h_syst_up->Scale(h_nominal->Integral()/h_syst_up->Integral());
 //                h_syst_down->Scale(h_nominal->Integral()/h_syst_down->Integral());
