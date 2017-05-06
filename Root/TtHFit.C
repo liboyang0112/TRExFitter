@@ -6453,6 +6453,8 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
   RooRealVar* var = NULL;
   TString vname = "";
   bool foundSyst = false;
+  Double_t minVal = -3;
+  Double_t maxVal =  3;
 
   if (isPoI){
     TIterator* it = mc->GetParametersOfInterest()->createIterator();
@@ -6483,7 +6485,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
   TString tag("");
   RooAbsReal* pll = nll->createProfile(*var);
 //   RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(-1.5,3.5));
-  RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(-3.,3.));
+  RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(minVal, maxVal));
   pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TtHFitter::NCPU));
   RooCurve* curve = frameLH->getCurve();
   curve->Draw();
@@ -6495,8 +6497,8 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
 //     minVal = val - 2; if(minVal<0) { minVal = 0; }
 //     maxVal = val + 2;
 //   }
-  Double_t minVal = -3.;
-  Double_t maxVal =  3.;
+  //Double_t minVal = -3.;
+  //Double_t maxVal =  3.;
   frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
 
   // fit function
@@ -6512,7 +6514,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
   // y axis
   //frameLH->updateYAxis(minVal,maxVal,"");
 //   frameLH->GetYaxis()->SetRangeUser(minVal,5.0);
-  frameLH->GetYaxis()->SetRangeUser(0,5.0);
+  //frameLH->GetYaxis()->SetRangeUser(0,5.0);
   frameLH->GetYaxis()->SetTitle("#Delta [-Log(L)]");
   if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
 
@@ -6526,7 +6528,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
   frameLH->Draw();
 //   latex->Draw("same");
 
-  TLine *l1s = new TLine(-3.,0.5,3.,0.5);
+  TLine *l1s = new TLine(minVal,0.5,maxVal,0.5);
   l1s->SetLineStyle(kDotted);
   l1s->Draw();
 
