@@ -624,10 +624,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             // Get fit result
             //
             systName    = fSystNames[i_syst];
-	    systValue   = fitRes->GetNuisParValue(systName);
-	    systErrUp   = fitRes->GetNuisParErrUp(systName);
-	    systErrDown = fitRes->GetNuisParErrDown(systName);
-
+            systValue   = fitRes->GetNuisParValue(systName);
+            systErrUp   = fitRes->GetNuisParErrUp(systName);
+            systErrDown = fitRes->GetNuisParErrDown(systName);
+            
             if(TtHFitter::DEBUGLEVEL>0) cout << "      alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
             
             //

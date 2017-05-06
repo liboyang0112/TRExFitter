@@ -5047,8 +5047,11 @@ void TtHFit::PlotFittedNP(){
         for(unsigned int i=0;i<fSystematics.size();i++){
             npCategories.insert(fSystematics[i]->fCategory);
         }
-        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-            fFitResults->DrawPulls(fName+"/NuisPar"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],"all");
+        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
+          fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],"all",fNormFactors);
+          fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]);
+          fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],fNormFactors);
+        }
         if(npCategories.size()>1){
             for( const std::string cat : npCategories ){
                 std::string cat_for_name = cat;
@@ -5056,8 +5059,9 @@ void TtHFit::PlotFittedNP(){
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '#', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
-                for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-                    fFitResults->DrawPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],cat);
+                for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
+                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],cat,fNormFactors);
+                }
             }
         }
     }

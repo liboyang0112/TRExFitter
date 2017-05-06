@@ -47,7 +47,7 @@ void ATLASLabelOld(Double_t x,Double_t y,bool Preliminary,Color_t color)
 }
 
 
-void ATLASLabelNew(Double_t x,Double_t y, const char* text, Color_t color, float text_size)
+void ATLASLabelNew(Double_t x,Double_t y, char* text, Color_t color, float text_size)
 {
 
   TLatex l;

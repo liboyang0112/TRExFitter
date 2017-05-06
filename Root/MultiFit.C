@@ -452,9 +452,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
 }
 //__________________________________________________________________________________
 //
-void MultiFit::GetCombinedLimit(string inputData){ // or asimovData
+void MultiFit::GetCombinedLimit(string inputData){
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
-//     gSystem->Exec( ("mkdir ") );
     string cmd;
     cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
 
@@ -463,7 +462,18 @@ void MultiFit::GetCombinedLimit(string inputData){ // or asimovData
     //
     gSystem->Exec(cmd.c_str());
 }
+//__________________________________________________________________________________
+//
+void MultiFit::GetCombinedSignificance(string inputData){
+    string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
+    string cmd;
+    cmd = "root -l -b -q 'runSig.C(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSaveSuf+"\",\""+fOutDir+"/Significance\")'";
 
+    //
+    // Finally computing the significance
+    //
+    gSystem->Exec(cmd.c_str());
+}
 //__________________________________________________________________________________
 //
 void MultiFit::ComparePOI(string POI){
@@ -735,7 +745,8 @@ void MultiFit::CompareLimit(){
         std::cout << "Adding combined limit" << std::endl;
         names.push_back( fName );
         titles.push_back( "Combined" );
-        suffs.push_back( "" );
+//         suffs.push_back( "" );
+        suffs.push_back( fSaveSuf );
         if(fShowObserved) fFitShowObserved.push_back(true);
     }
 
@@ -850,7 +861,8 @@ void MultiFit::CompareLimit(){
 //     myText(0.75,0.4,kBlack,"Stat. only");
 
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs( (fOutDir+"/Limits" + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+//         c->SaveAs( (fOutDir+"/Limits" + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+        c->SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     delete c;
 }

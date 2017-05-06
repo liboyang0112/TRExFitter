@@ -156,7 +156,7 @@ public:
     std::vector<string> fHistoNameSuffs;
     
     int fNSyst;
-    std::vector < Systematic* >  fSystematics;
+    std::vector < Systematic* > fSystematics;
     int fNNorm;
     std::vector < NormFactor* >  fNormFactors;
     int fNShape;

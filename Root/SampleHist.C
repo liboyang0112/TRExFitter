@@ -495,13 +495,13 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
             h_syst_up_orig = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
             h_syst_down_orig = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
-            if(FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, "all" )>=0 || 
-               FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, fRegionName )>=0){
-                h_syst_up->Scale(h_nominal->Integral()/h_syst_up->Integral());
-                h_syst_down->Scale(h_nominal->Integral()/h_syst_down->Integral());
-                h_syst_up_orig->Scale(h_nominal->Integral()/h_syst_up_orig->Integral());
-                h_syst_down_orig->Scale(h_nominal->Integral()/h_syst_down_orig->Integral());
-            }
+//             if(FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, "all" )>=0 || 
+//                FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, fRegionName )>=0){ // FIXME
+//                h_syst_up->Scale(h_nominal->Integral()/h_syst_up->Integral());
+//                h_syst_down->Scale(h_nominal->Integral()/h_syst_down->Integral());
+//                h_syst_up_orig->Scale(h_nominal->Integral()/h_syst_up_orig->Integral());
+//                h_syst_down_orig->Scale(h_nominal->Integral()/h_syst_down_orig->Integral());
+//             }
             h_syst_up->SetLineColor(kRed);
             h_syst_up->SetLineWidth(2);
             h_syst_up->SetLineStyle(1);
