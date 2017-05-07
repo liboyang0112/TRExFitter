@@ -3365,25 +3365,24 @@ void TtHFit::BuildYieldTable(string opt,string group){
     }
     out << endl;
     texout << "\\documentclass[10pt]{article}" << endl;
-    texout << "\\usepackage{booktabs}" << endl;
     texout << "\\usepackage{siunitx}" << endl;
     texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
     texout << "\\begin{document}" << endl;
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
-    texout << "\\begin{tabular}{l" ;
+    texout << "\\begin{tabular}{|c" ;
     for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
-        texout << "c";
+        texout << "|c";
     }
-    texout << "}" << endl;
-    texout << "\\toprule " << endl;
+    texout << "|}" << endl;
+    texout << "\\hline " << endl;
     for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
 //         texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
         if(fRegions[regionVec[i_bin-1]]->fTexLabel!="") texout << " & " << fRegions[regionVec[i_bin-1]]->fTexLabel ;
         else                                            texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
     }
     texout << "\\\\" << endl;
-    texout << "\\midrule " << endl;
+    texout << "\\hline " << endl;
     //
     std::vector< string > titleVec;
     std::vector< int > idxVec;
@@ -3738,7 +3737,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames );
     //
     out << " | Total | ";
-    texout << "\\midrule " << endl;
+    texout << "\\hline " << endl;
     texout << "  Total ";
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         texout << " & ";
@@ -3763,7 +3762,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     //
     // Print data
     if( !fFitIsBlind ){
-        texout << "\\midrule " << endl;
+        texout << "\\hline " << endl;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if( fSamples[i_smp]->fType!=Sample::DATA  ) continue;
             if(idxVec[i_smp]!=i_smp) continue;
@@ -3784,7 +3783,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
         }
     }
 
-    texout << "\\bottomrule " << endl;
+    texout << "\\hline " << endl;
     texout << "\\end{tabular} " << endl;
     texout << "\\caption{Yields of the analysis} " << endl;
     texout << "\\end{center} " << endl;
@@ -3797,7 +3796,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     }
     h_up.clear();
     h_down.clear();
- 
+
     if(fCleanTables){
         std::string shellcommand = "cat "+fName+"/Tables/Yields"+suffix+".tex|sed -e \"s/\\#/ /g\" > "+fName+"/Tables/Yields";
         if(isPostFit) shellcommand += "_postFit";

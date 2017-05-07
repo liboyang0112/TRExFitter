@@ -1156,21 +1156,19 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     out << " | ";
     texout << "\\documentclass[10pt]{article}" << endl;
     texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
-    texout << "\\usepackage{booktabs}" << endl;
     texout << "\\begin{document}" << endl;
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
-    texout << "\\begin{tabular}{l" ;
+    texout << "\\begin{tabular}{|c" ;
 
     if(doCategory){
         out_cat << " | ";
         texout_cat << "\\documentclass[10pt]{article}" << endl;
         texout_cat << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
-	texout_cat << "\\usepackage{booktabs}" << endl;
-	texout_cat << "\\begin{document}" << endl;
+        texout_cat << "\\begin{document}" << endl;
         texout_cat << "\\begin{table}[htbp]" << endl;
         texout_cat << "\\begin{center}" << endl;
-        texout_cat << "\\begin{tabular}{l" ;
+        texout_cat << "\\begin{tabular}{|c" ;
     }
 
     
@@ -1180,15 +1178,15 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
         s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
         if(s->fType==Sample::GHOST) continue;
-        texout << "c";
+        texout << "|c";
         if(doCategory) texout_cat << "|c";
         Ncol+=1;
     }
-    texout << "}" << endl;
-    texout << "\\toprule " << endl;
+    texout << "|}" << endl;
+    texout << "\\hline " << endl;
     if(doCategory){
-        texout_cat << "}" << endl;
-        texout_cat << "\\toprule " << endl;
+        texout_cat << "|}" << endl;
+        texout_cat << "\\hline " << endl;
     }
     //
     float i_col = 1;
@@ -1209,11 +1207,11 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     }
     out << " |" << endl;
     texout << " \\\\ " << endl;
-    texout << "\\midrule " << endl;
+    texout << "\\hline " << endl;
     if(doCategory){
         out_cat << " |" << endl;
         texout_cat << " \\\\ " << endl;
-        texout_cat << "\\midrule " << endl;
+        texout_cat << "\\hline " << endl;
     }
 
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
@@ -1248,10 +1246,10 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
                 normDown = syh->fNormDown;
               }
 
-              out << " | " << 100*normUp;
-              texout << setprecision(3) << " & " << 100*normUp;
-              //out << " / " << normDown;
-              //texout << setprecision(3) << " / " << normDown;
+              out << " | " << normUp;
+              texout << setprecision(3) << " & " << normUp;
+              out << " / " << normDown;
+              texout << setprecision(3) << " / " << normDown;
               //                 pt[i_smp]->AddText(Form("%.2f / %.2f",syh->fNormUp,syh->fNormDown) );
             }
         }
@@ -1346,15 +1344,15 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
                         }
                     }
                 }
-                out_cat << setprecision(3) << " | " << 100*err;
-                texout_cat << setprecision(3) << " & " << 100*err;
+                out_cat << setprecision(3) << " | " << err;
+                texout_cat << setprecision(3) << " & " << err;
             }
             out_cat << " |" << endl;
             texout_cat << " \\\\ " << endl;
         }
     }
 
-    texout << "\\bottomrule " << endl;
+    texout << "\\hline " << endl;
     texout << "\\end{tabular} " << endl;
     texout << "\\caption{Relative effect of each systematic on the yields.} " << endl;
     texout << "\\end{center} " << endl;
@@ -1362,7 +1360,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     texout << "\\end{document}" << endl;
 
     if(doCategory){
-        texout_cat << "\\bottomrule " << endl;
+        texout_cat << "\\hline " << endl;
         texout_cat << "\\end{tabular} " << endl;
         texout_cat << "\\caption{Realtive effect of each group of systematics on the yields.} " << endl;
         texout_cat << "\\end{center} " << endl;
