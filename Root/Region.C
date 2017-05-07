@@ -551,15 +551,15 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     string systNameSF = "";
     int iBinSF = 0;
     
-    for(int i=0;i<fNSamples;i++){
-        if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
-        if(fSampleHists[i]->fSample->fType == Sample::GHOST) continue;
+    for(int i_sample=0;i_sample<fNSamples;i_sample++){
+        if(fSampleHists[i_sample]->fSample->fType == Sample::DATA) continue;
+        if(fSampleHists[i_sample]->fSample->fType == Sample::GHOST) continue;
         
         //
         // Norm factors
         //
-        for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
-            systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
+        for(int i_norm=0;i_norm<fSampleHists[i_sample]->fNNorm;i_norm++){
+            systName = fSampleHists[i_sample]->fNormFactors[i_norm]->fName;
             // skip POI if B-only fit FIXME
             if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
             if(!systIsThere[systName]){
@@ -568,17 +568,16 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             }
         }
 
-        //
+        // FIXME SF
         // Shape factors
         //
 	// extract number of bins
 	TH1* hSFTmp;
-	for(int i=0;i<fNSamples;i++){
-	  if(i > 0) break;
-	  hSFTmp = (TH1*)fSampleHists[i]->fHist->Clone();
-	}
-        for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
-	  systName = fSampleHists[i]->fShapeFactors[i_shape]->fName;
+	hSFTmp = (TH1*)fSampleHists[i_sample]->fHist->Clone();
+	// loop over shape factors
+        for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
+	  systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
+	  // add syst name for each bin
 	  for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){	  
 	    systNameSF = systName + "_bin_" + std::to_string(i_bin);
 	    // the shape factor naming used i_bin - 1 for the first bin
@@ -594,8 +593,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         //
         // Systematics
         //
-        for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
-            systName = fSampleHists[i]->fSyst[i_syst]->fName;
+        for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
+            systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -664,16 +663,19 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     diffUp   += yieldNominal*systErrUp;
                     diffDown += yieldNominal*systErrDown;
                 }
+		
                 // FIXME SF  ShapeFactor have to get NP per bin
 		// get the shape factor name without bin index
  		int posTmp = systName.find("_bin_");
-		systNameSF = systName.substr(0, posTmp);
-		// get the shape factor bin as integer
-		iBinSF = std::atoi(systName.substr(posTmp + 5).c_str()) + 1;
-		// FIXME could still be a problem with pruning?
-		if(fSampleHists[i]->HasShapeFactor(systNameSF) && iBinSF == i_bin){
-		  diffUp   += yieldNominal*systErrUp;
-		  diffDown += yieldNominal*systErrDown;
+		if(posTmp != std::string::npos){
+		  systNameSF = systName.substr(0, posTmp);
+		  // get the shape factor bin as integer
+		  iBinSF = std::atoi(systName.substr(posTmp + 5).c_str()) + 1;
+		  // FIXME could still be a problem with pruning?
+		  if(fSampleHists[i]->HasShapeFactor(systNameSF) && iBinSF == i_bin){
+		    diffUp   += yieldNominal*systErrUp;
+		    diffDown += yieldNominal*systErrDown;
+		  }
 		}
 		// this doesn't work because there should be one systematic variation histogram present for each entry in the correlation matrix
 //                 if(fSampleHists[i]->HasShapeFactor(systName)){
