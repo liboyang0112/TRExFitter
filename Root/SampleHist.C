@@ -357,10 +357,10 @@ void SampleHist::FixEmptyBins(){
                 std::cout << "WARNING: Checking your nominal histogram " << fHist->GetName();
                 std::cout << ", the bin " << i_bin;
                 std::cout << " has a null/negative bin content (content = " << fHist->GetBinContent(i_bin) << ") ! You should have a look at this !" << std::endl;
-//                 std::cout << "    --> For now setting this bin to 1e-06 !!! " << std::endl;
                 std::cout << "    --> For now setting this bin to 1e-06 pm 1e-06!!! " << std::endl;
             }
             fHist->SetBinContent(i_bin,1e-6);
+            fHist->SetBinError(i_bin,1e-6);
             for(int i_syst=0;i_syst<fNSyst;i_syst++){
                 SystematicHist* syh = fSyst[i_syst];
                 syh -> fHistUp   -> SetBinContent(i_bin,1e-06);
@@ -369,12 +369,13 @@ void SampleHist::FixEmptyBins(){
         }
     }
     // keep the original overall Normalisation
-    if(fHist->Integral()!=yield) fHist->Scale(yield/fHist->Integral());
     if(fHist->Integral()<0){
-        for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-            fHist->SetBinContent(i_bin,1e-6);
-            fHist->SetBinError(i_bin,1e-6);
-        }
+      for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+        fHist->SetBinContent(i_bin,1e-6);
+        fHist->SetBinError(i_bin,1e-6);
+      }
+    } else if(fHist->Integral()!=yield){
+      fHist->Scale(yield/fHist->Integral());
     }
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         SystematicHist* syh = fSyst[i_syst];
@@ -495,7 +496,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
             h_syst_up_orig = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
             h_syst_down_orig = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
-//             if(FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, "all" )>=0 || 
+//             if(FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, "all" )>=0 ||
 //                FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, fRegionName )>=0){ // FIXME
 //                h_syst_up->Scale(h_nominal->Integral()/h_syst_up->Integral());
 //                h_syst_down->Scale(h_nominal->Integral()/h_syst_down->Integral());
@@ -708,10 +709,10 @@ void SampleHist::SmoothSyst(string syst,bool force){
 
         if(syst!="all" && fSyst[i_syst]->fName.find(syst)==string::npos) continue;
 
-//         h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
-//         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
-        h_syst_up = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
-        h_syst_down = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
+        h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
+        h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
+        // h_syst_up = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
+        // h_syst_down = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
 
         if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
             fSyst[i_syst]->fHistUp_orig = h_syst_up;
@@ -755,9 +756,9 @@ void SampleHist::SmoothSyst(string syst,bool force){
         // Save stuff
         //
 //         fSyst[i_syst]->fHistUp_orig = (TH1*)fSyst[i_syst]->fHistUp->Clone();
-        fSyst[i_syst]->fHistUp = (TH1*)h_syst_up->Clone();
+        fSyst[i_syst]->fHistUp = (TH1*)h_syst_up->Clone(fSyst[i_syst]->fHistUp->GetName());
 //         fSyst[i_syst]->fHistDown_orig = (TH1*)fSyst[i_syst]->fHistDown->Clone();
-        fSyst[i_syst]->fHistDown = (TH1*)h_syst_down->Clone();
+        fSyst[i_syst]->fHistDown = (TH1*)h_syst_down->Clone(fSyst[i_syst]->fHistUp->GetName());
 
         //
         // Perform a check of the output histograms (check for 0 bins and other pathologic behaviours)

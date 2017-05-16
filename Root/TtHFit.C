@@ -1436,8 +1436,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 if(cs->Get("NtuplePathDown")!="")    { sys->fNtuplePathsDown.push_back( cs->Get("NtuplePathsDown")); hasDown = true; }
                 if(cs->Get("NtuplePathSufUp")!="")   { sys->fNtuplePathSufUp   = cs->Get("NtuplePathSufUp");         hasUp = true; }
                 if(cs->Get("NtuplePathSufDown")!="") { sys->fNtuplePathSufDown = cs->Get("NtuplePathSufDown");       hasDown = true; }
-                if(cs->Get("NtupleFileUp")!="")      { sys->fNtupleFilesUp  .push_back(cs->Get("NtupleFileUp"));     hasUp = true; }
-                if(cs->Get("NtupleFileDown")!="")    { sys->fNtupleFilesDown.push_back( cs->Get("NtupleFileDown"));  hasDown = true; }
+                if(cs->Get("NtupleFilesUp")!="")     { sys->fNtupleFilesUp     = Vectorize(cs->Get("NtupleFilesUp"), ',');     hasUp = true; }
+                if(cs->Get("NtupleFilesDown")!="")   { sys->fNtupleFilesDown   = Vectorize(cs->Get("NtupleFilesDown"), ',');  hasDown = true; }
                 if(cs->Get("NtupleFileSufUp")!="")   { sys->fNtupleFileSufUp   = cs->Get("NtupleFileSufUp");         hasUp = true; }
                 if(cs->Get("NtupleFileSufDown")!="") { sys->fNtupleFileSufDown = cs->Get("NtupleFileSufDown");       hasDown = true; }
                 if(cs->Get("NtupleNameUp")!="")      { sys->fNtupleNamesUp  .push_back(cs->Get("NtupleNameUp"));     hasUp = true; }
