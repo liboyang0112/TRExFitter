@@ -212,8 +212,7 @@ public:
     string fCmeLabel;
     
     string fSuffix;
-    string fSaveSuf;
-    string fLoadSuf;
+    string fSaveSuffix;
     
     bool fUpdate;
     bool fKeepPruning;
