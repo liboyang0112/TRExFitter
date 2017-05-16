@@ -568,7 +568,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             }
         }
 
-        // FIXME SF
         // Shape factors
         //
 	// extract number of bins
@@ -664,7 +663,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     diffDown += yieldNominal*systErrDown;
                 }
 		
-                // FIXME SF  ShapeFactor have to get NP per bin
+                // ShapeFactor have to get NP per bin
 		// get the shape factor name without bin index
  		int posTmp = systName.find("_bin_");
 		if(posTmp != std::string::npos){
@@ -677,17 +676,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 		    diffDown += yieldNominal*systErrDown;
 		  }
 		}
-		// this doesn't work because there should be one systematic variation histogram present for each entry in the correlation matrix
-//                 if(fSampleHists[i]->HasShapeFactor(systName)){
-// 		    iBinSF = i_bin - 1;		    
-// 		    systNameSF = systName + "_bin_" + std::to_string(iBinSF);
-// 		    // get the NP for the shape factors, there is one per bin
-// 		    systValue   = fitRes->GetNuisParValue(systNameSF);
-// 		    systErrUp   = fitRes->GetNuisParErrUp(systNameSF);
-// 		    systErrDown = fitRes->GetNuisParErrDown(systNameSF);
-// 		    diffUp   += yieldNominal*systErrUp;
-// 		    diffDown += yieldNominal*systErrDown;
-// 		  }
 		
 		  //
                 // Systematics treatment 
@@ -906,7 +894,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     }
     
     
-    //  // FIXME SF
+    //
     // 2)b) Scale all samples by shape factors factors
     //
 
@@ -928,7 +916,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
 	for(int i_bin = 1; i_bin <= hSmpNew[i]->GetNbinsX(); i_bin++){
 	  iBinSF = i_bin - 1;
 	  sfNameBin = sfName + "_bin_" + std::to_string(iBinSF);
-	  if(sf->fConst) sfValue = sf->fNominal; // FIXME SF nominal should also be applied on pre-fit too
+	  if(sf->fConst) sfValue = sf->fNominal; 
 	  else           sfValue = fitRes->GetNuisParValue(sfNameBin);
 	  // scale bin content by shape factor
 	  binContentSFNew = hSmpNew[i]->GetBinContent(i_bin) * sfValue;
