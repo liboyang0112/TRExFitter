@@ -73,6 +73,7 @@ TtHFit::TtHFit(string name){
     fInputType = HIST;
 
     fSuffix = "";
+    fSaveSuffix = "";
 
     fUpdate = false;
     fKeepPruning = false;
@@ -323,9 +324,8 @@ void TtHFit::WriteHistos(/*string fileName*/){
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
-      //         fileName = fName + "/Histograms/" + fName + "_histos"+fSuffix+".root";
-        if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos.root";
-        else                 fileName = fName + "/Histograms/" + fInputName + "_histos.root";
+        if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos" + fSaveSuffix + ".root";
+        else                 fileName = fName + "/Histograms/" + fInputName + "_histos" + fSaveSuffix + ".root";
         std::cout << "-------------------------------------------" << std::endl;
         std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
         if(recreate){
@@ -339,9 +339,8 @@ void TtHFit::WriteHistos(/*string fileName*/){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         //
         if(!singleOutputFile){
-//             fileName = fName + "/Histograms/" + fName + "_" + fRegions[i_ch]->fName + "_histos"+fSuffix+".root";
-            if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_" + fRegions[i_ch]->fName + "_histos.root";
-            else                 fileName = fName + "/Histograms/" + fInputName + "_" + fRegions[i_ch]->fName + "_histos.root";
+            if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
+            else                 fileName = fName + "/Histograms/" + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
             std::cout << "-------------------------------------------" << std::endl;
             std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
             if(recreate){
@@ -463,6 +462,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             toExclude = Vectorize(optMap["Exclude"],',');
         if(optMap["Suffix"]!="")
             fSuffix = optMap["Suffix"]; // used for input & output  plots, txt files & workspaces - NOT for histograms file
+        if(optMap["SaveSuffix"]!="")
+            fSaveSuffix = optMap["SaveSuffix"]; // ... and this one for histograms file
         if(optMap["Update"]!="" && optMap["Update"]!="FALSE")
             fUpdate = true;
         if(optMap["StatOnly"]!="" && optMap["StatOnly"]!="FALSE")
@@ -710,6 +711,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("Suffix"); if( param != "" ){
         fSuffix = param;
+    }
+    param = cs->Get("SaveSuffix"); if( param != "" ){
+        fSaveSuffix = param;
     }
     param = cs->Get("HideNP"); if( param != "" ){
         fVarNameHide = Vectorize(param,',');
@@ -3847,7 +3851,6 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         }
     }
     //
-//     c->SaveAs((fName+"/SignalRegions"+fSaveSuf+"."+fImageFormat).c_str());
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
         c->SaveAs((fName+"/SignalRegions"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
 
@@ -5337,7 +5340,6 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 
     //
     //Text files containing information necessary for drawing of ranking plot
-    //     string outName = fName+"/Fits/NPRanking"+fSaveSuf;
     //
     string outName = fName+"/Fits/NPRanking"+fSuffix;
     if(NPnames!="all") outName += "_"+NPnames;
@@ -5578,7 +5580,6 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     // trick to merge the ranking outputs produced in parallel:
     string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; ";
     cmd       += " then rm "+fileToRead+" ; ";
-//     cmd       += " cat "+fName+"/Fits/NPRanking"+fLoadSuf+"_* > "+fileToRead+" ; ";
     cmd       += " cat "+fName+"/Fits/NPRanking"+fSuffix+"_* > "+fileToRead+" ; ";
     cmd       += " fi ;";
     gSystem->Exec(cmd.c_str());

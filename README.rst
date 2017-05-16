@@ -287,6 +287,7 @@ Currently the supported options are:
 * Signal:      in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance)
 * Exclude:     to exclude certain Regions / Samples / Systematics
 * Suffix:      used for: plots, workspace, fit resutls, etc
+* SaveSuffix:  used for: saving histograms with a suffux (to be merged / renamed later)
 * Update:      if TRUE, the output .root file is updated, otherwise is overwrote
 * StatOnlyFit: if TRUE, the same as Fit->StatOnlyFit
 
