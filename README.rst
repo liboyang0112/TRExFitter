@@ -380,15 +380,14 @@ Output Directories Structure
 ShapeFactor example
 -------------------
 
-* The following scripts create example histograms in `exampleDataDriven` directory and execute  `myFit.exe` using `config/dataDriven.config`
-* The example contains a control region and signal region with two bins. The shape of one of the background samples is estimated using the ShapeFactor 
+* The following scripts create example histograms in :code:`exampleDataDriven` directory and execute  :code:`myFit.exe` using :code:`config/dataDriven.config`
+* The example contains a control region and signal region with two bins. The shape of one of the background samples is estimated using the ShapeFactor::
 
-```
-python makeDataDriven.py
-python runDataDrivenExample.py
-```
+    python makeDataDriven.py
+    python runDataDrivenExample.py
 
-The results are in `JobDataDriven`
+
+The results are in :code:`JobDataDriven`
 
 
 TtHFitter package authors
