@@ -1,3 +1,13 @@
+2017-05-18 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Changin histo creation procedure: root files created before creating histogrmas (closes TTHFITTER-121)
+    * fixing crash on yield table creatio (closes TTHFITTER-118)
+    * fixing warnings in significance and limit with signal injection (significance affects log files - had to be re-created)
+    
+2017-04-11 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing crash when producing SystDataPlots
+    * Fixing ranges of normalisation factor and gamma plots 
+    * adding combined significance
+    
 2017-04-11 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixing crash when producing SystDataPlots
     * Fixing ranges of normalisation factor and gamma plots 

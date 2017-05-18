@@ -87,6 +87,7 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
 TH1* HistFromFile(string fullName);
 TH1* HistFromFile(string fileName,string histoName);
 void WriteHistToFile(TH1* h,string fileName,string option="UPDATE");
+void WriteHistToFile(TH1* h,TFile *f);
 void MergeUnderOverFlow(TH1* h);
 std::vector<string> CreatePathsList( std::vector<string> paths, std::vector<string> pathSufs,
                                     std::vector<string> files, std::vector<string> fileSufs,

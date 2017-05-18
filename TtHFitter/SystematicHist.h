@@ -9,7 +9,7 @@ public:
   SystematicHist(string name);
   ~SystematicHist();
 
-  void WriteToFile();
+  void WriteToFile(TFile *f=0x0);
   void ReadFromFile();
   bool IsShape();
   

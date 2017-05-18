@@ -252,7 +252,7 @@ void runSig(const char* inFileName,
     if (doUncap && mu->getVal() < 0) obs_q0 = -obs_q0;
 
     sign = int(obs_q0 == 0 ? 0 : obs_q0 / fabs(obs_q0));
-    if (!doUncap && (obs_q0 < 0 && obs_q0 > -0.1 || mu->getVal() < 0.001)) obs_sig = 0; 
+    if (!doUncap && ((obs_q0 < 0 && obs_q0 > -0.1) || mu->getVal() < 0.001)) obs_sig = 0; 
     else obs_sig = sign*sqrt(fabs(obs_q0));
   }
 

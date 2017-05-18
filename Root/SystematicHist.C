@@ -50,16 +50,30 @@ SystematicHist::~SystematicHist(){
 
 //_____________________________________________________________________________
 //
-void SystematicHist::WriteToFile(){
-    WriteHistToFile(fHistUp,fFileNameUp);
-    WriteHistToFile(fHistDown,fFileNameDown);
-    WriteHistToFile(fHistUp_orig,fFileNameUp);
-    WriteHistToFile(fHistDown_orig,fFileNameDown);
-    if(fIsShape){
-        WriteHistToFile(fHistShapeUp,fFileNameShapeUp);
-        WriteHistToFile(fHistShapeDown,fFileNameShapeDown);
-        WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),fFileNameShapeUp);
-        WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),fFileNameShapeDown);
+void SystematicHist::WriteToFile(TFile *f){
+    if(f==0x0){
+        WriteHistToFile(fHistUp,fFileNameUp);
+        WriteHistToFile(fHistDown,fFileNameDown);
+        WriteHistToFile(fHistUp_orig,fFileNameUp);
+        WriteHistToFile(fHistDown_orig,fFileNameDown);
+        if(fIsShape){
+            WriteHistToFile(fHistShapeUp,fFileNameShapeUp);
+            WriteHistToFile(fHistShapeDown,fFileNameShapeDown);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),fFileNameShapeUp);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),fFileNameShapeDown);
+        }
+    }
+    else{
+        WriteHistToFile(fHistUp,f);
+        WriteHistToFile(fHistDown,f);
+        WriteHistToFile(fHistUp_orig,f);
+        WriteHistToFile(fHistDown_orig,f);
+        if(fIsShape){
+            WriteHistToFile(fHistShapeUp,f);
+            WriteHistToFile(fHistShapeDown,f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),f);
+        }
     }
 }
 
