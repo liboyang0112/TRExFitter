@@ -279,6 +279,7 @@ RooWorkspace* MultiFit::CombineWS(){
         if(fCombineChByCh){
             for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
                 Region *reg = fFitList[i_fit]->fRegions[i_reg];
+                if(reg->fRegionType==Region::VALIDATION) continue;
                 std::string fileName = fitDir + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
                 std::cout << "  Opening file " << fileName << std::endl;
                 TFile *rootFile = new TFile(fileName.c_str(),"read");

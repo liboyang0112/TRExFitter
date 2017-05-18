@@ -28,3 +28,6 @@ all: myFit.exe     # this is the default executable
 	g++ $(CXXFLAGS) -o $@ $(patsubst %.exe,%.o,util/$@) $(OBJS) $(LDFLAGS)
 clean:
 	rm -rf *.exe *.o Root/*.o util/*.o
+
+hupdate:
+	g++ $(CXXFLAGS) -o hupdate hupdate.C $(ROOTCFLAGS) $(LDFLAGS)
