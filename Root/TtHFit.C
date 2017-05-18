@@ -312,43 +312,49 @@ void TtHFit::SmoothSystematics(string syst){
     }
 }
 
+//
+// Try to split root file creation and histogram wiriting
 //__________________________________________________________________________________
-// create new root file with all the histograms
-void TtHFit::WriteHistos(/*string fileName*/){
+// create new root file(s)
+void TtHFit::CreateRootFiles(){
     bool recreate = !fUpdate;
     gSystem->mkdir( fName.c_str());
     gSystem->mkdir( (fName + "/Histograms/").c_str() );
     string fileName = "";
-    TDirectory *dir = gDirectory;
-    TFile *f;
     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
         if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos" + fSaveSuffix + ".root";
         else                 fileName = fName + "/Histograms/" + fInputName + "_histos" + fSaveSuffix + ".root";
         std::cout << "-------------------------------------------" << std::endl;
-        std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
-        if(recreate){
-            f = new TFile(fileName.c_str(),"RECREATE");
-            f->~TFile();
-            dir->cd();
-        }
+        std::cout << "Creating/updating file " << fileName << " ..." << std::endl;
+        if(recreate) fFiles.push_back(new TFile(fileName.c_str(),"RECREATE"));
+        else         fFiles.push_back(new TFile(fileName.c_str(),"UPDATE"));
     }
-    //
-    SampleHist* sh;
-    for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        //
-        if(!singleOutputFile){
+    else{
+        for(int i_ch=0;i_ch<fNRegions;i_ch++){
             if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
             else                 fileName = fName + "/Histograms/" + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
             std::cout << "-------------------------------------------" << std::endl;
-            std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
-            if(recreate){
-                f = new TFile(fileName.c_str(),"RECREATE");
-                f->~TFile();
-                dir->cd();
-            }
+            std::cout << "Creating/updating file " << fileName << " ..." << std::endl;
+            if(recreate) fFiles.push_back(new TFile(fileName.c_str(),"RECREATE"));
+            else         fFiles.push_back(new TFile(fileName.c_str(),"UPDATE"));
         }
+    }
+}
+
+//__________________________________________________________________________________
+// fill files with all the histograms
+void TtHFit::WriteHistos(){
+    bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
+    SampleHist* sh;
+    string fileName = "";
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        //
+        if(singleOutputFile) fileName = fFiles[0]   ->GetName();
+        else                 fileName = fFiles[i_ch]->GetName();
+        std::cout << "-------------------------------------------" << std::endl;
+        std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
         //
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
@@ -361,22 +367,89 @@ void TtHFit::WriteHistos(/*string fileName*/){
             sh->fFileName = fileName;
             // set file and histo names for systematics
             for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
-                sh->fSyst[i_syst]->fFileNameUp = fileName;
-                sh->fSyst[i_syst]->fHistoNameUp = sh->fSyst[i_syst]->fHistUp->GetName();
-                sh->fSyst[i_syst]->fFileNameDown = fileName;
+                sh->fSyst[i_syst]->fFileNameUp    = fileName;
+                sh->fSyst[i_syst]->fHistoNameUp   = sh->fSyst[i_syst]->fHistUp->GetName();
+                sh->fSyst[i_syst]->fFileNameDown  = fileName;
                 sh->fSyst[i_syst]->fHistoNameDown = sh->fSyst[i_syst]->fHistDown->GetName();
                 if(sh->fSyst[i_syst]->fIsShape){
-                    sh->fSyst[i_syst]->fFileNameShapeUp = fileName;
-                    sh->fSyst[i_syst]->fHistoNameShapeUp = sh->fSyst[i_syst]->fHistShapeUp->GetName();
-                    sh->fSyst[i_syst]->fFileNameShapeDown = fileName;
+                    sh->fSyst[i_syst]->fFileNameShapeUp    = fileName;
+                    sh->fSyst[i_syst]->fHistoNameShapeUp   = sh->fSyst[i_syst]->fHistShapeUp->GetName();
+                    sh->fSyst[i_syst]->fFileNameShapeDown  = fileName;
                     sh->fSyst[i_syst]->fHistoNameShapeDown = sh->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
-            sh->WriteToFile();
+            if(singleOutputFile) sh->WriteToFile(fFiles[0]);
+            else                 sh->WriteToFile(fFiles[i_ch]);
         }
     }
     std::cout << "-------------------------------------------" << endl;
 }
+
+// //__________________________________________________________________________________
+// // create new root file with all the histograms
+// void TtHFit::WriteHistos(/*string fileName*/){
+//     bool recreate = !fUpdate;
+//     gSystem->mkdir( fName.c_str());
+//     gSystem->mkdir( (fName + "/Histograms/").c_str() );
+//     string fileName = "";
+//     TDirectory *dir = gDirectory;
+//     TFile *f;
+//     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
+//     //
+//     if(singleOutputFile){
+//         if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos" + fSaveSuffix + ".root";
+//         else                 fileName = fName + "/Histograms/" + fInputName + "_histos" + fSaveSuffix + ".root";
+//         std::cout << "-------------------------------------------" << std::endl;
+//         std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
+//         if(recreate){
+//             f = new TFile(fileName.c_str(),"RECREATE");
+//             f->~TFile();
+//             dir->cd();
+//         }
+//     }
+//     //
+//     SampleHist* sh;
+//     for(int i_ch=0;i_ch<fNRegions;i_ch++){
+//         //
+//         if(!singleOutputFile){
+//             if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
+//             else                 fileName = fName + "/Histograms/" + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
+//             std::cout << "-------------------------------------------" << std::endl;
+//             std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
+//             if(recreate){
+//                 f = new TFile(fileName.c_str(),"RECREATE");
+//                 f->~TFile();
+//                 dir->cd();
+//             }
+//         }
+//         //
+//         for(int i_smp=0;i_smp<fNSamples;i_smp++){
+//             sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
+//             if(sh == 0x0){
+//               if(TtHFitter::DEBUGLEVEL>0) std::cout << "SampleHist[" << i_smp << "] for sample " << fSamples[i_smp]->fName << " not there." << std::endl;
+//                 continue;
+//             }
+//             // set file and histo names for nominal
+//             sh->fHistoName = sh->fHist->GetName();
+//             sh->fFileName = fileName;
+//             // set file and histo names for systematics
+//             for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+//                 sh->fSyst[i_syst]->fFileNameUp = fileName;
+//                 sh->fSyst[i_syst]->fHistoNameUp = sh->fSyst[i_syst]->fHistUp->GetName();
+//                 sh->fSyst[i_syst]->fFileNameDown = fileName;
+//                 sh->fSyst[i_syst]->fHistoNameDown = sh->fSyst[i_syst]->fHistDown->GetName();
+//                 if(sh->fSyst[i_syst]->fIsShape){
+//                     sh->fSyst[i_syst]->fFileNameShapeUp = fileName;
+//                     sh->fSyst[i_syst]->fHistoNameShapeUp = sh->fSyst[i_syst]->fHistShapeUp->GetName();
+//                     sh->fSyst[i_syst]->fFileNameShapeDown = fileName;
+//                     sh->fSyst[i_syst]->fHistoNameShapeDown = sh->fSyst[i_syst]->fHistShapeDown->GetName();
+//                 }
+//             }
+//             sh->WriteToFile();
+//         }
+//     }
+//     std::cout << "-------------------------------------------" << endl;
+// }
 
 //__________________________________________________________________________________
 // Draw syst plots
@@ -1653,6 +1726,8 @@ void TtHFit::ReadNtuples(){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         std::cout << "  Region " << fRegions[i_ch]->fName << " ..." << std::endl;
 
+        if(TtHFitter::SPLITHISTOFILES) fFiles[i_ch]->cd();
+        
         if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch);
         if(fRegions[i_ch]->fCorrVar1 != ""){
           if(fRegions[i_ch]->fCorrVar2 == "") {std::cout << "TtHFitter::WARNING : Only first correlation variable defined, do not read region : "
@@ -2230,6 +2305,8 @@ void TtHFit::ReadHistograms(){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         std::cout << "  Region " << fRegions[i_ch]->fName << " ..." << std::endl;
 
+        if(TtHFitter::SPLITHISTOFILES) fFiles[i_ch]->cd();
+        
         if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch);
 
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -3330,6 +3407,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 // eventually add any other samples with the same title
                 for(int j_smp=0;j_smp<fNSamples;j_smp++){
                     sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( fSamples[j_smp]->fName );
+                    if(sh==0x0) continue;
                     if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                         if(isPostFit){
                             if(syst_idx<0){

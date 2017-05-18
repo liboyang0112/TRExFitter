@@ -264,12 +264,18 @@ bool SampleHist::HasNorm(string name){
 
 //_____________________________________________________________________________
 //
-void SampleHist::WriteToFile(){
-    if(fHist_orig!=0x0)   WriteHistToFile(fHist_orig,  fFileName);
-    if(fHist!=0x0)        WriteHistToFile(fHist,       fFileName);
+void SampleHist::WriteToFile(TFile *f){
+    if(f==0x0){
+        if(fHist_orig!=0x0)   WriteHistToFile(fHist_orig,  fFileName);
+        if(fHist!=0x0)        WriteHistToFile(fHist,       fFileName);
+    }
+    else{
+        if(fHist_orig!=0x0)   WriteHistToFile(fHist_orig,  f);
+        if(fHist!=0x0)        WriteHistToFile(fHist,       f);
+    }
     // create the regular binning histogram
     fHist_regBin = HistoTools::TranformHistogramBinning(fHist);
-    if(fHist_regBin!=0x0) WriteHistToFile(fHist_regBin,fFileName);
+    if(fHist_regBin!=0x0) WriteHistToFile(fHist_regBin,f);
     //
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         // make sure they all have the correct name!
@@ -277,7 +283,8 @@ void SampleHist::WriteToFile(){
         fSyst[i_syst]->fHistDown->SetName( Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
         fSyst[i_syst]->fHistUp_orig  ->SetName( Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
         fSyst[i_syst]->fHistDown_orig->SetName( Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
-        fSyst[i_syst]->WriteToFile();
+        if(f==0x0) fSyst[i_syst]->WriteToFile();
+        else       fSyst[i_syst]->WriteToFile(f);
     }
 }
 

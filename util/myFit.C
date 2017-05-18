@@ -96,6 +96,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     // -------------------------------------------------------
 
     if(readHistograms){
+        myFit->CreateRootFiles();
         myFit->ReadHistograms();
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
@@ -104,6 +105,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->WriteHistos();
     }
     else if(readNtuples){
+        myFit->CreateRootFiles();
         myFit->ReadNtuples();
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
