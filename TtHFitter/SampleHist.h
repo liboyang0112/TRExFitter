@@ -29,7 +29,7 @@ public:
   bool HasSyst(string name);
   bool HasNorm(string name);
   
-  void WriteToFile();
+  void WriteToFile(TFile *f=0x0);
   void ReadFromFile();
   
   void FixEmptyBins();
