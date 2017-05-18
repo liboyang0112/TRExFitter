@@ -14,3 +14,6 @@ fi
 
 # Michele
 alias macro="root -l -b -q"
+
+# Giancarlo
+export PATH=$PATH:`pwd`

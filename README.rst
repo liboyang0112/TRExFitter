@@ -287,7 +287,7 @@ Currently the supported options are:
 * Signal:      in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance)
 * Exclude:     to exclude certain Regions / Samples / Systematics
 * Suffix:      used for: plots, workspace, fit resutls, etc
-* SaveSuffix:  used for: saving histograms with a suffux (to be merged / renamed later)
+* SaveSuffix:  used for: saving histograms with a suffux (to be merged / renamed later, see last section on hupdate)
 * Update:      if TRUE, the output .root file is updated, otherwise is overwrote
 * StatOnlyFit: if TRUE, the same as Fit->StatOnlyFit
 
@@ -355,6 +355,26 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
     ./myFit  mwf  config/myTopWS_multifit.config
 
   this will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
+
+
+Input File Merging with hupdate
+---------
+
+- A macro hupdate is included in order to mimic hadd functionality but without adding histograms if they have the same name
+- This is useful for running different systematics in different steps (like different batch jobs) and then merging results afterward
+- One needs to compile the hupdate macro before being able to use it::
+
+    make hupdate
+
+- Example usage, combined with the usage of SaveSuffix::
+
+    make hupdate
+    ./myFit.exe n config/ttH2015.config Systematics=BTag_B_NP1:SaveSuffix=_BTag_B_NP1
+    ./myFit.exe n config/ttH2015.config Exclude=BTag_B_NP1:SaveSuffix=_rest
+    ./hupdate ttH2015/Histograms/ttH2015_HThad_4j2b_histos.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_rest.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_BTag_B_NP1.root
+    ./hupdate ttH2015/Histograms/ttH2015_HThad_5j3b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos_BTag_B_NP1.root
+    ./hupdate ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_BTag_B_NP1.root
+    ./myFit.exe dwf config/ttH2015.config
 
 
 Output Directories Structure
