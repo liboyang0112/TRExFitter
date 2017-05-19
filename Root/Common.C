@@ -109,6 +109,15 @@ void WriteHistToFile(TH1* h,string fileName,string option){
 
 //__________________________________________________________________________________
 //
+void WriteHistToFile(TH1* h,TFile *f){
+    TDirectory *dir = gDirectory;
+    f->cd();
+    h->Write("",TObject::kOverwrite);
+    dir->cd();
+}
+
+//__________________________________________________________________________________
+//
 void MergeUnderOverFlow(TH1* h){
     int nbins = h->GetNbinsX();
     h->AddBinContent( 1, h->GetBinContent(0) ); // merge first bin with underflow bin

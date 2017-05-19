@@ -81,7 +81,8 @@ public:
     void SmoothSystematics(string syst="all");
     
     // create new root file with all the histograms
-    void WriteHistos(/*string fileName=""*/);
+    void CreateRootFiles();
+    void WriteHistos();
     
     void DrawSystPlots();
     void DrawSystPlotsSumSamples();
@@ -150,6 +151,8 @@ public:
     string fInputFolder;
     string fInputName;
     string fFitResultsFile;
+    
+    std::vector < TFile* > fFiles;
     
     std::vector < Region* > fRegions;
     std::vector < Sample* > fSamples;
