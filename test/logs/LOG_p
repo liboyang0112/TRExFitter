@@ -13,15 +13,9 @@ Reading histograms from file FitExample/Histograms/FitExample_histos.root ...
 Reading fit results from file FitExample/Fits/FitExample.txt
 Found 12 systematics.
 Building post-fit plot for region SR_1 ...
--1
-0
-0
 Writing file FitExample/Histograms/SR_1_postFit.root
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been created
 Building post-fit plot for region SR_2 ...
--1
-0
-0
 Writing file FitExample/Histograms/SR_2_postFit.root
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
 -------------------------------------------

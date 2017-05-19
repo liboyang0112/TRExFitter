@@ -150,6 +150,11 @@ TtHFit::TtHFit(string name){
     
     fKeepPrefitBlindedBins = false;
     fBlindedBins = 0x0;
+    
+    fRatioYmax = 2.;
+    fRatioYmin = 0.;
+    fRatioYmaxPostFit = 2.;
+    fRatioYminPostFit = 0.;
 }
 
 //__________________________________________________________________________________
@@ -261,6 +266,10 @@ Region* TtHFit::NewRegion(string name){
     fRegions[fNRegions]->fLumiScale = fLumiScale;
     fRegions[fNRegions]->fBlindingThreshold = fBlindingThreshold;
     fRegions[fNRegions]->fKeepPrefitBlindedBins = fKeepPrefitBlindedBins;
+    fRegions[fNRegions]->fRatioYmax = fRatioYmax;
+    fRegions[fNRegions]->fRatioYmin = fRatioYmin;
+    fRegions[fNRegions]->fRatioYmaxPostFit = fRatioYmaxPostFit;
+    fRegions[fNRegions]->fRatioYminPostFit = fRatioYminPostFit;
     //
     fNRegions ++;
     return fRegions[fNRegions-1];
@@ -719,6 +728,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("SummaryPlotYmin");  if(param != "") fYmin = atof(param.c_str());
     param = cs->Get("SummaryPlotYmax");  if(param != "") fYmax = atof(param.c_str());
+    param = cs->Get("RatioYmin");  if(param != "") { fRatioYmin = atof(param.c_str()); fRatioYminPostFit = fRatioYmin; }
+    param = cs->Get("RatioYmax");  if(param != "") { fRatioYmax = atof(param.c_str()); fRatioYmaxPostFit = fRatioYmax; }  
+    param = cs->Get("RatioYminPostFit");  if(param != "") fRatioYminPostFit = atof(param.c_str());
+    param = cs->Get("RatioYmaxPostFit");  if(param != "") fRatioYmaxPostFit = atof(param.c_str());    
     param = cs->Get("HistoChecks");  if(param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "NOCRASH" ){
@@ -945,6 +958,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         param = cs->Get("YmaxScale");  if(param!="") reg->fYmaxScale = atof(param.c_str());
         param = cs->Get("Ymin");       if(param!="") reg->fYmin = atof(param.c_str());
         param = cs->Get("Ymax");       if(param!="") reg->fYmax = atof(param.c_str());
+        param = cs->Get("RatioYmin");  if(param!="") { reg->fRatioYmin = atof(param.c_str()); reg->fRatioYminPostFit = reg->fRatioYmin; }
+        param = cs->Get("RatioYmax");  if(param!="") { reg->fRatioYmax = atof(param.c_str()); reg->fRatioYmaxPostFit = reg->fRatioYmax; }
+        param = cs->Get("RatioYminPostFit");  if(param!="") reg->fRatioYminPostFit = atof(param.c_str());
+        param = cs->Get("RatioYmaxPostFit");  if(param!="") reg->fRatioYmaxPostFit = atof(param.c_str());
         param = cs->Get("TexLabel");   if( param != "") reg->fTexLabel = param;
         param = cs->Get("LumiLabel");  if( param != "") reg->fLumiLabel = param;
         else reg->fLumiLabel = fLumiLabel;
@@ -3035,6 +3052,11 @@ TthPlot* TtHFit::DrawSummary(string opt){
         }
     }
     //
+    if(isPostFit) p->fRatioYmax = fRatioYmaxPostFit;
+    else          p->fRatioYmax = fRatioYmax;
+    if(isPostFit) p->fRatioYmin = fRatioYminPostFit;
+    else          p->fRatioYmin = fRatioYmin;
+    //
     p->fATLASlabel = fAtlasLabel;
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
@@ -3500,29 +3522,31 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     // eventually add any other samples with the same title
                     for(int j_smp=0;j_smp<fNSamples;j_smp++){
                         sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( fSamples[j_smp]->fName );
-                        if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
-                            if(isPostFit){
-                                if(syst_idx<0){
-                                    h_tmp_Up   = sh->fHist_postFit;
-                                    h_tmp_Down = sh->fHist_postFit;
+                        if(sh!=0){
+                            if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
+                                if(isPostFit){
+                                    if(syst_idx<0){
+                                        h_tmp_Up   = sh->fHist_postFit;
+                                        h_tmp_Down = sh->fHist_postFit;
+                                    }
+                                    else{
+                                        h_tmp_Up   = sh->GetSystematic(normName)->fHistUp_postFit;
+                                        h_tmp_Down = sh->GetSystematic(normName)->fHistDown_postFit;
+                                    }
                                 }
                                 else{
-                                    h_tmp_Up   = sh->GetSystematic(normName)->fHistUp_postFit;
-                                    h_tmp_Down = sh->GetSystematic(normName)->fHistDown_postFit;
+                                    if(syst_idx<0){
+                                        h_tmp_Up   = sh->fHist;
+                                        h_tmp_Down = sh->fHist;
+                                    }
+                                    else{
+                                        h_tmp_Up   = sh->GetSystematic(normName)->fHistUp;
+                                        h_tmp_Down = sh->GetSystematic(normName)->fHistDown;
+                                    }
                                 }
+                                h_up[i_norm+fNSyst]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
+                                h_down[i_norm+fNSyst]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
                             }
-                            else{
-                                if(syst_idx<0){
-                                    h_tmp_Up   = sh->fHist;
-                                    h_tmp_Down = sh->fHist;
-                                }
-                                else{
-                                    h_tmp_Up   = sh->GetSystematic(normName)->fHistUp;
-                                    h_tmp_Down = sh->GetSystematic(normName)->fHistDown;
-                                }
-                            }
-                            h_up[i_norm+fNSyst]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-                            h_down[i_norm+fNSyst]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
                         }
                     }
                 }

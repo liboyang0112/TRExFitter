@@ -1,5 +1,6 @@
 2017-05-19 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixing bin blinding visualisation and add possibility to keep pre-fit blinding in post -fit (fixes TTHFITTER-123)
+    * Add configurable y range for ratio plots (fixes TTHFITTER-124)
     
 2017-05-18 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Changing histo creation procedure: root files created before creating histogrmas (closes TTHFITTER-121)

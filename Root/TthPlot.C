@@ -79,6 +79,8 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     
     fYmin = 0;
     fYmax = 0;
+    fRatioYmin = 0.;
+    fRatioYmax = 2.;
     
     h_blinding = 0x0;
 }
@@ -713,14 +715,8 @@ void TthPlot::Draw(string options){
     }
     hline->Draw();
     //
-    float y_ratio_min = 0.50;
-    float y_ratio_max = 1.50;
-    if(options.find("prefit")!=string::npos){
-        y_ratio_min = 0.00;
-        y_ratio_max = 2.00;
-    }
-    h_dummy2->SetMinimum(y_ratio_min);
-    h_dummy2->SetMaximum(y_ratio_max);
+    h_dummy2->SetMinimum(fRatioYmin);
+    h_dummy2->SetMaximum(fRatioYmax);
     //
     h_dummy2->GetXaxis()->SetTitle(h_dummy->GetXaxis()->GetTitle());
 //     h_dummy2->GetXaxis()->SetTitleOffset(5.);
@@ -786,8 +782,8 @@ void TthPlot::Draw(string options){
             TArrow *arrow;
 //             if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),1.45, h_ratio->GetXaxis()->GetBinCenter(i_bin),1.5,0.030,"|>");
 //             else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),0.55, h_ratio->GetXaxis()->GetBinCenter(i_bin),0.5,0.030,"|>");
-            if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_max-0.05*(y_ratio_max-y_ratio_min), h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_max,0.030,"|>");
-            else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_min+0.05*(y_ratio_max-y_ratio_min), h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_min,0.030,"|>");
+            if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax-0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax,0.030,"|>");
+            else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin+0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin,0.030,"|>");
             arrow->SetFillColor(10);
             arrow->SetFillStyle(1001);
             arrow->SetLineColor(kBlue-7);
