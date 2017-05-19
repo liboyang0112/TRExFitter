@@ -275,7 +275,7 @@ double GetSeparation( TH1F* S1, TH1F* B1 ) {
 // - the code kills this kind of bins in data
 // - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
 TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
-  TH1F* h_blind = (TH1F*)h_data->Clone();
+  TH1F* h_blind = (TH1F*)h_data->Clone("h_blind");
   for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
     if( h_sig->GetBinContent(i_bin) / h_bkg->GetBinContent(i_bin) > threshold ){
       std::cout << "Common::INFO: Blinding bin n." << i_bin << std::endl;
@@ -287,6 +287,17 @@ TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
     }
   }
   return h_blind;
+}
+
+//__________________________________________________________________________________
+// This one to blind according to a given histogram containing already info on bins to blind
+void BlindDataHisto( TH1* h_data, TH1* h_blind ) {
+  for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
+    if(h_blind->GetBinContent(i_bin)!=0){
+      std::cout << "Common::INFO: Blinding bin n." << i_bin << std::endl;
+      h_data->SetBinContent(i_bin,0.);
+    }
+  }
 }
 
 double convertStoD(string toConvert){

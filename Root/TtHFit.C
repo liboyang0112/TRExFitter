@@ -147,6 +147,9 @@ TtHFit::TtHFit(string name){
 
     // Increase the limit for formula evaluations
     ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
+    
+    fKeepPrefitBlindedBins = false;
+    fBlindedBins = 0x0;
 }
 
 //__________________________________________________________________________________
@@ -257,6 +260,7 @@ Region* TtHFit::NewRegion(string name){
     fRegions[fNRegions]->fIntCode_shape   = fIntCode_shape;
     fRegions[fNRegions]->fLumiScale = fLumiScale;
     fRegions[fNRegions]->fBlindingThreshold = fBlindingThreshold;
+    fRegions[fNRegions]->fKeepPrefitBlindedBins = fKeepPrefitBlindedBins;
     //
     fNRegions ++;
     return fRegions[fNRegions-1];
@@ -722,6 +726,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         vector<string> groups =   Vectorize(param,',');
         for(unsigned int i_gr=0;i_gr<groups.size();i_gr++)
         fRegionGroups.push_back(groups[i_gr]);
+    }
+    param = cs->Get("KeepPrefitBlindedBins");    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ) fKeepPrefitBlindedBins = true;
     }
 
     //
@@ -2701,7 +2709,7 @@ void TtHFit::DrawAndSaveAll(string opt){
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
             for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-            p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
+                p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
@@ -2954,7 +2962,10 @@ TthPlot* TtHFit::DrawSummary(string opt){
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
-    if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
+    if(fBlindingThreshold>=0){
+        p->SetBinBlinding(true,fBlindingThreshold);
+        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins);
+    }
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
     for(int i=0;i<Nsig;i++){
@@ -3083,6 +3094,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
     p->Draw(opt);
+    if(!isPostFit) fBlindedBins = p->h_blinding;
     //
     if(divisionVec.size()>0){
         p->pad0->cd();

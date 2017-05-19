@@ -134,6 +134,7 @@ Note that, each object should have unique <ObjectName>.
      * CmeLabel         : label for center-of-mass energy to be put on plots
      * SplitHistoFiles  : set this to true to have histogram files split by region (useful with many regions and/or run in parallel)
      * BlindingThreshold: bins with S/B > this number will be blinded
+     * KeepPrefitBlindedBins : if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" opiton) pre-fit blinding is kept in post-fit plots 
      * RankingMaxNP     : max number of NP to show in ranking plot
      * RankingPlot      : NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots.
      * ImageFormat      : png, pdf or eps

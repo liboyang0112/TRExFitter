@@ -101,6 +101,7 @@ int FindInStringVector(std::vector<string> v, string s);
 double GetSeparation( TH1F* S1, TH1F* B1 );
 
 TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
+void BlindDataHisto( TH1* h_data, TH1* h_blind );
 double convertStoD(string toConvert);
 
 // TH1F* SmoothHistogram( TH1* h );
