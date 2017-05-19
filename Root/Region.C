@@ -82,6 +82,9 @@ Region::Region(string name){
     
     fSuffix = "";
     fGroup = "";
+    
+    fBlindedBins = 0x0;
+    fKeepPrefitBlindedBins = false;
 }
 
 //__________________________________________________________________________________
@@ -511,6 +514,7 @@ TthPlot* Region::DrawPreFit(string opt){
     if(fLogScale) opt += " log";
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     p->Draw(opt);
+    fBlindedBins = p->h_blinding;
     return p;
 }
 
@@ -761,7 +765,6 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
-    if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
     
     //
     // 0) Create a new hist for each sample
@@ -928,6 +931,18 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->fATLASlabel = fATLASlabel;
     if(fLogScale) opt += " log";
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
+    
+    //
+    // blinding bins
+    //
+    std::cout << fBlindingThreshold << std::endl;
+    std::cout << fKeepPrefitBlindedBins << std::endl;
+    std::cout << fBlindedBins << std::endl;
+    if(fBlindingThreshold>=0){
+        p->SetBinBlinding(true,fBlindingThreshold);
+        if(fKeepPrefitBlindedBins && fBlindedBins!=0x0) p->SetBinBlinding(true,fBlindedBins);
+    }
+    
     p->Draw(opt);
     
     //

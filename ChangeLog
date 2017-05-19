@@ -1,5 +1,8 @@
+2017-05-19 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing bin blinding visualisation and add possibility to keep pre-fit blinding in post -fit (fixes TTHFITTER-123)
+    
 2017-05-18 Michele Pinamonti <michele.pinamonti@gmail.com>
-    * Changin histo creation procedure: root files created before creating histogrmas (closes TTHFITTER-121)
+    * Changing histo creation procedure: root files created before creating histogrmas (closes TTHFITTER-121)
     * fixing crash on yield table creatio (closes TTHFITTER-118)
     * fixing warnings in significance and limit with signal injection (significance affects log files - had to be re-created)
     * fixing problem with validation regions and multi-fit (fixes TTHFITTER-122)
@@ -7,11 +10,6 @@
     
 2017-05-17 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Added SaveSuffix option (working on TTHFITTER-122)
-    
-2017-04-11 Michele Pinamonti <michele.pinamonti@gmail.com>
-    * Fixing crash when producing SystDataPlots
-    * Fixing ranges of normalisation factor and gamma plots 
-    * adding combined significance
     
 2017-04-11 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixing crash when producing SystDataPlots

@@ -40,7 +40,8 @@ class TthPlot {
     
     TCanvas* GetCanvas();
     
-    void SetBinBlinding(bool on=true,float threshold=0.02);
+    void SetBinBlinding(bool on,float threshold=0.02);
+    void SetBinBlinding(bool on,TH1F*h_blind);
 
 //   private:
     string fName;

@@ -193,6 +193,9 @@ public:
     string fSuffix;
     
     string fGroup; // used to split yield tables
+    
+    TH1F* fBlindedBins;
+    bool fKeepPrefitBlindedBins;
 };
 
 

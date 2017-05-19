@@ -258,6 +258,9 @@ public:
     bool fSystCategoryTables;
     
     std::vector< std::string > fRegionGroups;
+    
+    bool fKeepPrefitBlindedBins;
+    TH1F* fBlindedBins;
 };
 
 #endif
