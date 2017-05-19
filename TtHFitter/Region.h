@@ -105,6 +105,10 @@ public:
     float fYmaxScale;
     float fYmin;
     float fYmax;
+    float fRatioYmin;
+    float fRatioYmax;
+    float fRatioYminPostFit;
+    float fRatioYmaxPostFit;
     
     // to draw
     THStack *fStack;

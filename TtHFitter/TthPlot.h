@@ -80,6 +80,8 @@ class TthPlot {
     
     float fYmax;
     float fYmin;
+    float fRatioYmax;
+    float fRatioYmin;
     float fBinWidth;
     bool fIsNjet;
     bool fShowYields;

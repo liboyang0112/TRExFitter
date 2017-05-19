@@ -24,6 +24,10 @@ Region::Region(string name){
     fYTitle = "";
     fYmaxScale = 0;
     fYmax = 0;
+    fRatioYmax = 2.;
+    fRatioYmin = 0;
+    fRatioYmaxPostFit = 1.5;
+    fRatioYminPostFit = 0.5;
 
     string cName = "c_"+fName;
     int canvasWidth = 600;
@@ -411,6 +415,8 @@ TthPlot* Region::DrawPreFit(string opt){
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;
     if(fYmin!=0) p->fYmin = fYmin;
+    p->fRatioYmax = fRatioYmax;
+    p->fRatioYmin = fRatioYmin;
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
     if(fYTitle!="") p->SetYaxis(fYTitle);
     //
@@ -740,6 +746,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;
     if(fYmin!=0) p->fYmin = fYmin;
+    p->fRatioYmax = fRatioYmaxPostFit;
+    p->fRatioYmin = fRatioYminPostFit;
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
     if(fYTitle!="") p->SetYaxis(fYTitle);
     //
@@ -935,9 +943,6 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     //
     // blinding bins
     //
-    std::cout << fBlindingThreshold << std::endl;
-    std::cout << fKeepPrefitBlindedBins << std::endl;
-    std::cout << fBlindedBins << std::endl;
     if(fBlindingThreshold>=0){
         p->SetBinBlinding(true,fBlindingThreshold);
         if(fKeepPrefitBlindedBins && fBlindedBins!=0x0) p->SetBinBlinding(true,fBlindedBins);

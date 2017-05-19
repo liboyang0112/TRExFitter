@@ -210,6 +210,10 @@ public:
     
     float fYmin;
     float fYmax;
+    float fRatioYmin;
+    float fRatioYmax;    
+    float fRatioYminPostFit;
+    float fRatioYmaxPostFit;
     
     string fLumiLabel;
     string fCmeLabel;

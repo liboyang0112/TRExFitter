@@ -151,6 +151,10 @@ Note that, each object should have unique <ObjectName>.
      * SystCategoryTables : if set to TRUE, additional syst tables with systematics grouped by category are created
      * SummaryPlotYmax  : if set, it will force the summary plot to use this value as max y-maxis value
      * SummaryPlotYmin  : if set, it will force the summary plot to use this value as min y-maxis value
+     * RatioYmax        : if set, it will specify a the max of the range of the ratio plots
+     * RatioYmin        : if set, it will specify a the min of the range of the ratio plots 
+     * RatioYmaxPostFit : if set, it will specify a the max of the range of the ratio plots, for post-fit only
+     * RatioYminPostFit : if set, it will specify a the min of the range of the ratio plots, for post-fit only 
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -196,6 +200,10 @@ Note that, each object should have unique <ObjectName>.
      * DataType         : ASIMOV or DATA. Is asimov is set, the limits and significances are computed without taking into acount the data in these region, but a projection of the fit performed in the regions with DATA
      * Ymax             : if set, it will force the plot to use this value as max y-maxis value
      * Ymin             : if set, it will force the plot to use this value as min y-maxis value
+     * RatioYmax        : if set, it will specify a the max of the range of the ratio plot for this region only
+     * RatioYmin        : if set, it will specify a the min of the range of the ratio plot for this region only 
+     * RatioYmaxPostFit : if set, it will specify a the max of the range of the ratio plot for this region only, for post-fit only
+     * RatioYminPostFit : if set, it will specify a the min of the range of the ratio plot for this region only, for post-fit only 
 
   * Sample:
      * Type             : can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace
