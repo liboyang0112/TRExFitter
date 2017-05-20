@@ -146,7 +146,6 @@ TtHFit::TtHFit(string name){
     fRegionGroups.clear();
 
     // Increase the limit for formula evaluations
-    ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
     
     fKeepPrefitBlindedBins = false;
     fBlindedBins = 0x0;
@@ -157,6 +156,10 @@ TtHFit::TtHFit(string name){
     fRatioYminPostFit = 0.5;
     
     fCustomAsimov = false;
+
+    //ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
+
+
 }
 
 //__________________________________________________________________________________
