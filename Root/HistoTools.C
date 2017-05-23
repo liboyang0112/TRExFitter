@@ -651,6 +651,7 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         return isGood;
       }
     }
+    else return false;
 
     //
     // 2) Checks the binning is the same for the three histograms

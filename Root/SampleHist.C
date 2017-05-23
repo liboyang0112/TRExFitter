@@ -105,7 +105,7 @@ SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
 //     syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
     syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
     syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
-    syh->fHistUp->Scale(1.+up);
+    syh->fHistUp  ->Scale(1.+up);
     syh->fHistDown->Scale(1.+down);
     syh->fHistUp_orig   = (TH1*)syh->fHistUp  ->Clone(Form("%s_orig",syh->fHistUp  ->GetName()));
     syh->fHistDown_orig = (TH1*)syh->fHistDown->Clone(Form("%s_orig",syh->fHistDown->GetName()));
@@ -169,8 +169,8 @@ SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string
     sh->fHistDown = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown);
     sh->fHistUp_orig   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp  +"_orig");
     sh->fHistDown_orig = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig");
-    if(sh->fHistUp_orig  ==0x0) sh->fHistUp_orig   = sh->fHistUp;
-    if(sh->fHistDown_orig==0x0) sh->fHistDown_orig = sh->fHistDown;
+    if(sh->fHistUp_orig  ==0x0) sh->fHistUp_orig   = (TH1F*)sh->fHistUp->Clone(  Form("%s_orig",sh->fHistUp->GetName()  ));
+    if(sh->fHistDown_orig==0x0) sh->fHistDown_orig = (TH1F*)sh->fHistDown->Clone(Form("%s_orig",sh->fHistDown->GetName()));
     //
     if(normOnly){
         sh->fIsShape   = false;
@@ -185,7 +185,7 @@ SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string
     //
     if(shapeOnly){
         sh->fIsOverall = false;
-        sh->fNormUp = 0;
+        sh->fNormUp   = 0;
         sh->fNormDown = 0;
     }
     else{
@@ -298,6 +298,8 @@ void SampleHist::ReadFromFile(){
 //_____________________________________________________________________________
 //
 void SampleHist::FixEmptyBins(){
+    //
+    // store yields (nominal and systs)
     float yield = fHist->Integral();
     vector<float> yieldUp;
     vector<float> yieldDown;
@@ -307,31 +309,54 @@ void SampleHist::FixEmptyBins(){
         yieldDown.push_back(syh->fHistDown->Integral());
     }
     //
+    // store minimum stat unc for non-zero bins
+    float minStat = -1;
     for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-        if(fHist->GetBinContent(i_bin)<=0){
+        float content = fHist->GetBinContent(i_bin);
+        float error   = fHist->GetBinError(  i_bin);
+        if(content>0 && error>0){
+            if(minStat<0 || error<minStat) minStat = error;
+        }
+    }
+    //
+    // loop o bins looking for negatives or zeros
+    for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+        float content = fHist->GetBinContent(i_bin);
+        float error   = fHist->GetBinError(  i_bin);
+        if(content<=0){
             if(TtHFitter::DEBUGLEVEL>0){
                 std::cout << "WARNING: Checking your nominal histogram " << fHist->GetName();
                 std::cout << ", the bin " << i_bin;
-                std::cout << " has a null/negative bin content (content = " << fHist->GetBinContent(i_bin) << ") ! You should have a look at this !" << std::endl;
-                std::cout << "    --> For now setting this bin to 1e-06 pm 1e-06!!! " << std::endl;
+                std::cout << " has a null/negative bin content (content = " << content << ") ! You should have a look at this !" << std::endl;
+                std::cout << "    --> For now setting this bin to 1e-06";
+                std::cout << " +/- 1e-06!!! " << std::endl;
             }
+            // set nominal to 10^-6
             fHist->SetBinContent(i_bin,1e-6);
-            fHist->SetBinError(i_bin,1e-6);
+            // if error defined, use it
+            if(error>0)        fHist -> SetBinError(i_bin, error);
+            // if not, if there was at least one bin with meaningful error, use the smallest
+            else if(minStat>0) fHist -> SetBinError(i_bin, minStat);
+            // if not, give up and assign a meaningless error ;)
+            else               fHist -> SetBinError(i_bin, 1e-06);
+            // loop on systematics and set them accordingly
             for(int i_syst=0;i_syst<fNSyst;i_syst++){
                 SystematicHist* syh = fSyst[i_syst];
-                syh -> fHistUp   -> SetBinContent(i_bin,1e-06);
-                syh -> fHistDown -> SetBinContent(i_bin,1e-06);
+                if(syh->fHistUp  ->GetBinContent(i_bin)<=0) syh->fHistUp  ->SetBinContent(i_bin,1e-06);
+                if(syh->fHistDown->GetBinContent(i_bin)<=0) syh->fHistDown->SetBinContent(i_bin,1e-06);
             }
         }
     }
-    // keep the original overall Normalisation
+    // set to 0 if negative overall
     if(fHist->Integral()<0){
-      for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-        fHist->SetBinContent(i_bin,1e-6);
-        fHist->SetBinError(i_bin,1e-6);
-      }
-    } else if(fHist->Integral()!=yield){
-      fHist->Scale(yield/fHist->Integral());
+        for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+            fHist->SetBinContent(i_bin,1e-6);
+            fHist->SetBinError(i_bin,1e-6);
+        }
+    }
+    // keep the original overall Normalisation
+    else if(fHist->Integral()!=yield){
+        fHist->Scale(yield/fHist->Integral());
     }
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         SystematicHist* syh = fSyst[i_syst];
@@ -525,7 +550,8 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 h_1->GetYaxis()->SetTitle("Number of events");
                 h_1->SetMinimum(1e-05);
                 h_1->SetMaximum( ymax*1.3 );
-            } else {
+            }
+            else {
                 h_1->GetYaxis()->SetTitle("#frac{Syst.-Nom.}{Nom.} [%]");
                 h_1->GetYaxis()->SetTitleOffset(1.6);
                 h_1->GetXaxis()->SetTitleOffset(3.);
@@ -535,14 +561,27 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_1->GetXaxis()->SetTitle(fVariableTitle.c_str());
 
             h_1->Draw("HIST");
+            if(TtHFitter::SYSTERRORBARS){
+                h_syst_down_orig->SetMarkerSize(0);
+                h_syst_up_orig->SetMarkerSize(0);
+                h_syst_down_orig->DrawCopy("same E");
+                h_syst_up_orig->DrawCopy("same E");
+            }
+            else{
+                h_syst_down_orig->DrawCopy("same HIST");
+                h_syst_up_orig->DrawCopy("same HIST");
+            }
+            h_syst_down->DrawCopy("same HIST");
+            h_syst_up->DrawCopy("same HIST");
             if(!ratioON){
                 h_nominal->DrawCopy("same HIST");
                 h_nominal->SetFillStyle(3005);
                 h_nominal->SetFillColor(kBlue);
                 h_nominal->SetMarkerSize(0);
-                h_nominal->Draw("e2same");
+                h_nominal->DrawCopy("e2same");
                 h_nominal_orig->DrawCopy("same HIST");
-            } else {
+            }
+            else {
                 h_nominal -> SetFillStyle(3005);
                 h_nominal -> SetFillColor(kBlue);
                 h_nominal -> SetMarkerSize(0);
@@ -550,21 +589,9 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                     h_nominal -> SetBinError( i, h_nominal -> GetBinError( i ) * 100. / h_nominal -> GetBinContent( i ) );
                     h_nominal -> SetBinContent( i, 0 );
                 }
-                h_nominal -> Draw("e2same");
+                h_nominal -> DrawCopy("e2same");
             }
             if((ratioON || bothPanels) && SumAndData ) h_dataCopy->Draw("same");
-            if(TtHFitter::SYSTERRORBARS){
-                h_syst_down_orig->SetMarkerSize(0);
-                h_syst_up_orig->SetMarkerSize(0);
-                h_syst_down_orig->Draw("same E");
-                h_syst_up_orig->Draw("same E");
-            }
-            else{
-                h_syst_down_orig->Draw("same HIST");
-                h_syst_up_orig->Draw("same HIST");
-            }
-            h_syst_down->Draw("same HIST");
-            h_syst_up->Draw("same HIST");
 
             if(!ratioON){
                 // Creates a legend for the plot
@@ -664,8 +691,9 @@ void SampleHist::SmoothSyst(string syst,bool force){
         // h_syst_down = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
 
         if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
-            fSyst[i_syst]->fHistUp_orig = h_syst_up;
-            fSyst[i_syst]->fHistDown_orig = h_syst_down;
+        // Michele: why these lines?
+//             fSyst[i_syst]->fHistUp_orig = h_syst_up;
+//             fSyst[i_syst]->fHistDown_orig = h_syst_down;
             continue;
         }
 

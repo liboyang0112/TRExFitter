@@ -328,35 +328,30 @@ double convertStoD(string toConvert){
 
 //__________________________________________________________________________________
 // to smooth a nominal histogram, taking into account the statistical uncertinaty on each bin (note: no empty bins, please!!)
-// TH1F* SmoothHistogram( TH1* h ){
 bool SmoothHistogram( TH1* h, int forceFlat ){
     int nbinsx = h->GetNbinsX();
     float xmin = h->GetBinLowEdge(1);
     float xmax = h->GetBinLowEdge(nbinsx)+h->GetBinWidth(nbinsx);
-    float integral = h->Integral();
+    double error;
+    float integral = h->IntegralAndError(1,h->GetNbinsX(),error);
     TH1* h_orig = (TH1*)h->Clone("h_orig");
     //
     // if not flat, go on with the smoothing
     TH1* h0;
-//     TH1* h00;
-//     h00 = (TH1*)h->Clone("h00");
     int Nmax = 5;
     for(int i=0;i<Nmax;i++){
         h0 = (TH1*)h->Clone("h0");
         h->Smooth();
         bool changesApplied = false;
         for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-//             if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > h0->GetBinError(i_bin) ){
             if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > 2*h0->GetBinError(i_bin) ){
                 h->SetBinContent(i_bin,h0->GetBinContent(i_bin));
-//                 h->SetBinError(i_bin,h0->GetBinError(i_bin));
             }
             else{
                 changesApplied = true;
-//                 h->SetBinError(i_bin,
-//                                sqrt( pow(h0->GetBinError(i_bin),2) + pow(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin),2) ) );
-//                 h->SetBinError(i_bin, h0->GetBinError(i_bin) );
             }
+            // bring bins < 1e-6 to 1e-06
+            if(h->GetBinContent(i_bin)<1e-06) h->SetBinContent(i_bin,1e-06);
         }
         if(!changesApplied) break;
         h0->~TH1();
@@ -377,7 +372,6 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
 //     if( (forceFlat<0 && isFlat) || forceFlat>0){
 //         for(int i_bin=1;i_bin<=nbinsx;i_bin++){
 //             h->SetBinContent(i_bin,p0);
-// //             h->SetBinError(i_bin,p0err);  // this creates problems...
 //             h->SetBinError(i_bin,p0);
 //         }
 //     }
@@ -387,20 +381,13 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
     if(h->Integral()>0){
         h->Scale(integral/h->Integral());
     }
-
     //
-//     TH1F* h_corr = (TH1F*)h->Clone("h_correction");
-//     h_corr->Divide( h_orig );
-//     return h_corr;
-    //
-    // fix stat error
+    // fix stat error so that the total stat error is unchanged, and it's distributed among all bins
     for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-//         if(h->GetBinContent(i_bin)!=h00->GetBinContent(i_bin)){
-//                 h->SetBinError(i_bin,0);
-//                 h->SetBinError(i_bin, h_orig->GetBinError(i_bin) );
-                h->SetBinError(i_bin,
-                               sqrt( pow(h_orig->GetBinError(i_bin),2) + pow(h->GetBinContent(i_bin) - h_orig->GetBinContent(i_bin),2) ) );
-//         }
+        float N = integral;
+        float E = error;
+        float n = h->GetBinContent(i_bin);
+        h->SetBinError(i_bin,E*sqrt(n)/sqrt(N));
     }
     //
     return isFlat;

@@ -1,3 +1,8 @@
+2017-05-23 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Putting back the option NtupleFileUp/Down for backward compatibilty (was superseeded by NtupleFilesUp/Down)
+    * Fixing nominal smoothig
+    * Polishing
+    
 2017-05-19 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixing bin blinding visualisation and add possibility to keep pre-fit blinding in post -fit (fixes TTHFITTER-123)
     * Add configurable y range for ratio plots (fixes TTHFITTER-124)

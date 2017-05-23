@@ -226,9 +226,10 @@ Note that, each object should have unique <ObjectName>.
      * Exclude          : set this to exclude the sample in some regions
      * LumiScale(s)     : set this to scale the sample by a number; if more numbers are set, use a different one for each file / name / path...
      * IgnoreSelection  : if set, selection from Job and Region will be ignored
-     * UseMCstat    : if set to FALSE, makes the fitter ignore the stat uncertainty for this sample
+     * UseMCstat        : if set to FALSE, makes the fitter ignore the stat uncertainty for this sample
      * MultiplyBy       : if specified, each sample hist is multiplied bin-by-bin by another sample hist, in each of the regions
      * DivideBy         : if specified, each sample hist is divided bin-by-bin by another sample hist, in each of the regions
+     * Smooth           : if set to TRUE, the nominal histograms are smoothed (based on TH1::Smooth but taking into account the original stat uncertainty) 
 
   * NormFactor:
      * Samples          : comma-separated list of samples on which to apply the norm factor
@@ -263,8 +264,8 @@ Note that, each object should have unique <ObjectName>.
      * NtuplePathsDown  : only for option NTUP, for HISTO systematic: ntuple file path for systematic down variation
      * NtuplePathSufUp  : only for option NTUP, for HISTO systematic: suffix of the ntuple file paths for systematic up variation
      * NtuplePathSufDown: only for option NTUP, for HISTO systematic: suffix of the ntuple file paths for systematic down variation
-     * NtupleFilesUp    : only for option NTUP, for HISTO systematic: ntuple file name for systematic up variation
-     * NtupleFilesDown  : only for option NTUP, for HISTO systematic: ntuple file name for systematic down variation
+     * NtupleFile(s)Up  : only for option NTUP, for HISTO systematic: ntuple file name for systematic up variation
+     * NtupleFile(s)Down: only for option NTUP, for HISTO systematic: ntuple file name for systematic down variation
      * NtupleFileSufUp  : only for option NTUP, for HISTO systematic: suffix of the ntuple file names for systematic up variation
      * NtupleFileSufDown: only for option NTUP, for HISTO systematic: suffix of the ntuple file names for systematic down variation
      * NtupleNamesUp    : only for option NTUP, for HISTO systematic: ntuple name for systematic up variation
