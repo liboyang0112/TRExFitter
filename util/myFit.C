@@ -100,18 +100,18 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->ReadHistograms();
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
-        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
         myFit->WriteHistos();
+        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
     else if(readNtuples){
         myFit->CreateRootFiles();
         myFit->ReadNtuples();
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
-        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
         myFit->WriteHistos();
+        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
     else{
         if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->ReadHistos();
@@ -119,6 +119,10 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     
     // new
     if(rebinAndSmooth){
+        bool udpate = myFit->fUpdate;
+        myFit->fUpdate = true;
+        myFit->CreateRootFiles();  // ?
+        myFit->fUpdate = udpate;
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
