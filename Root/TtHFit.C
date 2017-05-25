@@ -2250,7 +2250,7 @@ void TtHFit::CorrectHistograms(){
                     SystematicHist *syh = sh->GetSystematic(fSystematics[i_sys]->fName);
                     if(syh==0x0) continue;
                     if(TtHFitter::DEBUGLEVEL>0){
-                        std::cout << "  Normalising syst " << fSystematics[i_sys]->fName << " for sample " << fSamples[i_ch]->fName;
+                        std::cout << "  Normalising syst " << fSystematics[i_sys]->fName << " for sample " << fSamples[i_smp]->fName;
                         std::cout << "\t scaling by " << yieldNominal/yieldUp << " (up), " << yieldNominal/yieldDown << " (down)" << std::endl;
                     }
                     syh->fHistUp  ->Scale(yieldNominal/yieldUp);
