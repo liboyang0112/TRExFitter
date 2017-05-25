@@ -284,6 +284,7 @@ Note that, each object should have unique <ObjectName>.
      * ScaleUp          : for OVERALL and HISTO systematic: scale difference between "up" and nominal by a factor
      * ScaleDown        : for OVERALL and HISTO systematic: scale difference between "down" and nominal by a factor
      * ReferenceSample  : if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
+     * KeepNormForSamples: list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
 
 
 Command line options

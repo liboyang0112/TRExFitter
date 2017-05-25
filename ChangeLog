@@ -1,3 +1,8 @@
+2017-05-25 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing bug affecting production of pre and post fit at once in certain conditions (fixes TTHFITTER-126)
+    * Option added to systematic in order to keep it shape only for certain samples / sum of samples (needed for c-tagging calibration plots, option KeepNormForSamples)
+    * Fixing separation plot cosmetics (fixes TTHFITTER-125)
+
 2017-05-23 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Putting back the option NtupleFileUp/Down for backward compatibilty (was superseeded by NtupleFilesUp/Down)
     * Fixing nominal smoothig

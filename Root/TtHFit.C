@@ -1474,6 +1474,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         param = cs->Get("DropNorm"); if(param!=""){
             sys->fDropNormIn = Vectorize(param,',');
         }
+        param = cs->Get("KeepNormForSamples"); if(param!=""){
+            sys->fKeepNormForSamples = Vectorize(param,',');
+        }
         //
         if(regions[0]!="all") sys->fRegions = regions;
         if(exclude[0]!="")    sys->fExclude = exclude;
@@ -2209,12 +2212,53 @@ void TtHFit::CorrectHistograms(){
             // set the fill color
             sh->fHist->SetFillColor(fillcolor);
             sh->fHist->SetLineColor(linecolor);
-
         } // end sample loop
+        //
     } // end region loop
     //
     // Smooth systematics
     SmoothSystematics("all");
+    //
+    // NEW: artifificially set all systematics not to affect overall normalisation for sample or set of samples
+    // (the form should be KeepNormForSamples: ttlight+ttc+ttb,wjets
+    //
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        Region *reg = fRegions[i_ch];
+        for(int i_sys=0;i_sys<fNSyst;i_sys++){
+            if(fSystematics[i_sys]->fKeepNormForSamples.size()==0) continue;
+            for(int ii=0;ii<fSystematics[i_sys]->fKeepNormForSamples.size();ii++){
+                std::vector<std::string> subSamples = Vectorize(fSystematics[i_sys]->fKeepNormForSamples[ii],'+');
+                // get nominal yield and syst yields for this sum of samples
+                float yieldNominal = 0.;
+                float yieldUp = 0.;
+                float yieldDown = 0.;
+                for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                    if(FindInStringVector(subSamples,fSamples[i_smp]->fName)<0) continue;
+                    SampleHist *sh = reg->GetSampleHist(fSamples[i_smp]->fName);
+                    if(sh==0x0) continue;
+                    SystematicHist *syh = sh->GetSystematic(fSystematics[i_sys]->fName);
+                    if(syh==0x0) continue;
+                    yieldNominal += sh ->fHist    ->Integral();
+                    yieldUp      += syh->fHistUp  ->Integral();
+                    yieldDown    += syh->fHistDown->Integral();
+                }
+                // scale each syst variation
+                for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                    if(FindInStringVector(subSamples,fSamples[i_smp]->fName)<0) continue;
+                    SampleHist *sh = reg->GetSampleHist(fSamples[i_smp]->fName);
+                    if(sh==0x0) continue;
+                    SystematicHist *syh = sh->GetSystematic(fSystematics[i_sys]->fName);
+                    if(syh==0x0) continue;
+                    if(TtHFitter::DEBUGLEVEL>0){
+                        std::cout << "  Normalising syst " << fSystematics[i_sys]->fName << " for sample " << fSamples[i_ch]->fName;
+                        std::cout << "\t scaling by " << yieldNominal/yieldUp << " (up), " << yieldNominal/yieldDown << " (down)" << std::endl;
+                    }
+                    syh->fHistUp  ->Scale(yieldNominal/yieldUp);
+                    syh->fHistDown->Scale(yieldNominal/yieldDown);
+                }
+            }
+        }
+    }
 }
 
 //__________________________________________________________________________________
@@ -2227,7 +2271,7 @@ void TtHFit::ReadHistograms(){
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
     SampleHist *sh;
-
+ 
     //
     // Loop on regions and samples
     //
@@ -2756,8 +2800,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
             for(int i_bin=1;(int)i_bin<=regionVec.size();i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=0x0){
-                    if(isPostFit)  h = sh->fHist_postFit;
-                    else           h = sh->fHist;
+                    if(isPostFit)  h = (TH1F*)sh->fHist_postFit->Clone(); // Michele
+                    else           h = (TH1F*)sh->fHist->Clone(); // Michele
                     //
                     if(!isPostFit){
                         // scale it according to NormFactors
@@ -2787,8 +2831,8 @@ TthPlot* TtHFit::DrawSummary(string opt){
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=0x0){
-                    if(isPostFit)  h = sh->fHist_postFit;
-                    else           h = sh->fHist;
+                    if(isPostFit)  h = (TH1F*)sh->fHist_postFit->Clone(); // Michele
+                    else           h = (TH1F*)sh->fHist->Clone(); // Michele
                     //
                     if(!isPostFit){
                         // scale it according to NormFactors
@@ -5134,7 +5178,6 @@ void TtHFit::DrawAndSaveSeparationPlots(){
 
         if(fRegions[i_ch]->fNSig==0){
             std::cout << "ERROR::TtHFit::DrawAndSaveSeparationPlots: No Signal Found" << std::endl;
-//             return;
             continue;
         }
 
@@ -5155,13 +5198,17 @@ void TtHFit::DrawAndSaveSeparationPlots(){
         bkg->SetFillStyle( 0 );
         bkg->SetLineStyle( 1 );
 
-        TLegend *legend3=new TLegend(0.48,0.72,0.94,0.87);
-        legend3->SetTextFont(42);
-        legend3->SetTextSize(0.043);
+//         TLegend *legend3=new TLegend(0.48,0.72,0.94,0.87);
+        TLegend *legend3=new TLegend(0.55,0.77,0.94,0.87);
+//         legend3->SetTextFont(42);
+//         legend3->SetTextSize(0.043);
+        legend3->SetTextFont(gStyle->GetTextFont());
+        legend3->SetTextSize(gStyle->GetTextSize());
         legend3->AddEntry(bkg, "Total background" , "l");
-        legend3->AddEntry(sig, "t#bar{t}H (m_{H} = 125 GeV)" , "l");
-        legend3->SetFillColor(0) ;
-        legend3->SetLineColor(0) ;
+//         legend3->AddEntry(sig, "t#bar{t}H (m_{H} = 125 GeV)" , "l");
+        legend3->AddEntry(sig, fRegions[i_ch]->fSig[0]->fSample->fTitle.c_str() , "l");
+//         legend3->SetFillColor(0) ;
+//         legend3->SetLineColor(0) ;
         legend3->SetFillStyle(0) ;
         legend3->SetBorderSize(0);
 
@@ -5198,42 +5245,48 @@ void TtHFit::DrawAndSaveSeparationPlots(){
 
         legend3->Draw("same");
 
-        std::string identS = fRegions[i_ch]->fLabel;
-        TLatex ls;
-        ls.SetNDC();
-        ls.SetTextSize(0.03);
-        ls.SetTextColor(kBlack);
-        ls.SetTextFont(42);
-        ls.DrawLatex(0.20,0.73,identS.c_str());
+//         std::string identS = fRegions[i_ch]->fLabel;
+//         TLatex ls;
+//         ls.SetNDC();
+//         ls.SetTextSize(0.03);
+//         ls.SetTextColor(kBlack);
+//         ls.SetTextFont(42);
+//         ls.DrawLatex(0.20,0.73,identS.c_str());
 
-        TLatex ls2;
-        ls2.SetNDC();
-        ls2.SetTextSize(0.03);
-        ls2.SetTextColor(kBlack);
-        ls2.SetTextFont(62);
-        ls2.DrawLatex(0.20,0.78,"Single lepton");
+//         TLatex ls2;
+//         ls2.SetNDC();
+//         ls2.SetTextSize(0.03);
+//         ls2.SetTextColor(kBlack);
+//         ls2.SetTextFont(62);
+// //         ls2.DrawLatex(0.20,0.78,"Single lepton");
+//         ls2.DrawLatex(0.20,0.78,fLabel.c_str());
+        myText(0.20,0.78,1,fLabel.c_str());
+        myText(0.20,0.73,1,fRegions[i_ch]->fLabel.c_str());
 
         std::string cme = fRegions[i_ch]->fCmeLabel;
         std::string lumi = fRegions[i_ch]->fLumiLabel;
 
-        TLatex ls3;
-        ls3.SetNDC();
-        ls3.SetTextSize(0.03);
-        ls3.SetTextColor(kBlack);
-        ls3.SetTextFont(42);
-        ls3.DrawLatex(0.20,0.83, Form("#sqrt{s} = %s, %s", cme.c_str(), lumi.c_str()));
+//         TLatex ls3;
+//         ls3.SetNDC();
+//         ls3.SetTextSize(0.03);
+//         ls3.SetTextColor(kBlack);
+//         ls3.SetTextFont(42);
+//         ls3.DrawLatex(0.20,0.83, Form("#sqrt{s} = %s, %s", cme.c_str(), lumi.c_str()));
+        myText(0.20,0.83,1,Form("#sqrt{s} = %s, %s", cme.c_str(), lumi.c_str()));
 
-        ATLASLabelNew(0.20, 0.90,(char*)" Internal Simulation",kBlack, 0.03);
-
-        TLatex ls4;
-        ls4.SetNDC();
-        ls4.SetTextSize(0.03);
-        ls4.SetTextColor(kBlack);
-        ls4.SetTextFont(42);
+//         ATLASLabelNew(0.20, 0.90,(char*)" Internal Simulation",kBlack, 0.03);
+        if(fAtlasLabel!="none") ATLASLabelNew(0.20,0.84+0.04,(char*)(fAtlasLabel+"  Simulation").c_str(), kBlack, gStyle->GetTextSize());
+        
+//         TLatex ls4;
+//         ls4.SetNDC();
+//         ls4.SetTextSize(0.03);
+//         ls4.SetTextColor(kBlack);
+//         ls4.SetTextFont(42);
         ostringstream SEP;
         SEP.precision(3);
         SEP << "Separation: " << GetSeparation(sig,bkg)*100 << "%";
-        ls4.DrawLatex(0.20, 0.69, SEP.str().c_str());
+//         ls4.DrawLatex(0.20, 0.69, SEP.str().c_str());
+        myText(0.55,0.73,1,SEP.str().c_str());
 
         for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
             dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());

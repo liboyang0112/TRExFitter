@@ -48,6 +48,7 @@ public:
     std::vector<string> fExclude;
     std::vector<string> fDropShapeIn;
     std::vector<string> fDropNormIn;
+    std::vector<string> fKeepNormForSamples;
     
     // from ntuples - up
     string fWeightUp;
