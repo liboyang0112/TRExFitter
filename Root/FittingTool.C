@@ -220,7 +220,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
                 }
             }
         }
-//         delete it2;
+        if(it2) delete it2;
     }
     
     const double nllval = nll->getVal();
@@ -390,8 +390,9 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
             else
                 minim.minos();
             
-//             delete it3;
-//             delete it4;
+            if(SliceNPs) delete SliceNPs;
+            if(it3) delete it3;
+            if(it4) delete it4;
         }//end useMinos
         
         FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>1.0);
@@ -431,18 +432,20 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     cout << endl;
     
     m_minuitStatus = status;
-    m_fitResult = r;
+//     m_fitResult = r;
+    m_fitResult = (RooFitResult*)r->Clone();
+    delete r;
 
     //
     // clean stuff
-//     delete constrainedParams;
-//     delete nll;
+//     if(constrainedParams) delete constrainedParams;
+    if(nll) delete nll;
 //     delete poi;  // creates a crash
 //     poi->~RooRealVar();  // creates a crash
 //     delete var;
 //     delete nuis;
 //     nuis->~RooArgSet();
-//     delete glbObs;
+//     if(glbObs) delete glbObs;
 //     glbObs->~RooArgSet();
 }
 
@@ -476,6 +479,7 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName )
         
         nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
     }
+    if(param) delete param;
     
     //
     // Correlation matrix
@@ -513,5 +517,6 @@ std::map < std::string, double > FittingTool::ExportFitResultInMap(){
         double pull  = var->getVal() / 1.0 ;
         result.insert( std::pair < std::string, double >(varname, pull) );
     }
+    if(param) delete param;
     return result;
 }

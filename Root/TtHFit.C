@@ -1817,7 +1817,7 @@ void TtHFit::ReadNtuples(){
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
-            // end here if data or no systematics alowed (e.g. generally for GHOST)
+            // end here if data or no systematics allowed (e.g. generally for GHOST)
             if(fSamples[i_smp]->fType==Sample::DATA || !fSamples[i_smp]->fUseSystematics) continue;
 
             //
@@ -3678,6 +3678,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     float H = H0 + nRows*Hp; // tot height of the canvas
     float W = nCols*Wp; // tot width of the canvas
     if(TtHFitter::OPTION["FourTopStyle"]!=0) W += 50.; // FIXME
+    else W += 0.1; // to fix eps format (why is this needed?)
 
     TCanvas *c = new TCanvas("c","c",W,H);
     TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
