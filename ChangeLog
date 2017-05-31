@@ -1,3 +1,10 @@
+2017-05-31 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing y-axis range (closes TTHFITTER-64)
+
+2017-05-29 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Finally fixed the bug preventing S/B plots to show-up in eps format (fixes TTHFITTER-128)
+    * Partially fixing memory leak in ranking (progressing on TTHFITTER-112)
+    
 2017-05-25 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixing bug affecting production of pre and post fit at once in certain conditions (fixes TTHFITTER-126)
     * Option added to systematic in order to keep it shape only for certain samples / sum of samples (needed for c-tagging calibration plots, option KeepNormForSamples)
