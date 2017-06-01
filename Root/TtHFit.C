@@ -151,10 +151,10 @@ TtHFit::TtHFit(string name){
     fKeepPrefitBlindedBins = false;
     fBlindedBins = 0x0;
     
-    fRatioYmax = 2.;
-    fRatioYmin = 0.;
-    fRatioYmaxPostFit = 2.;
-    fRatioYminPostFit = 0.;
+    fRatioYmax = 1.5;
+    fRatioYmin = 0.5;
+    fRatioYmaxPostFit = 1.5;
+    fRatioYminPostFit = 0.5;
 }
 
 //__________________________________________________________________________________
@@ -3736,10 +3736,9 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         S[i] = 0.;
         B[i] = 0.;
         if(regions[i]==0x0) continue;
-        if(regions[i]->fNSig > 0){
-            if(regions[i]->fSig[0]!=0x0 && regions[i]->fSig[0]->fHist!=0x0)
-                S[i] = regions[i]->fSig[0]->fHist->Integral();
-        }
+        for(int i_sig=0;i_sig<regions[i]->fNSig;i_sig++)
+            if(regions[i]->fSig[i_sig]!=0x0)
+                S[i] += regions[i]->fSig[i_sig]->fHist->Integral();
         for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
             if(regions[i]->fBkg[i_bkg]!=0x0)
                 B[i] += regions[i]->fBkg[i_bkg]->fHist->Integral();
