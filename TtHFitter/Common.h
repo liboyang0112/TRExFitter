@@ -82,6 +82,7 @@ const int MAXsamples = 100;
 const int MAXsyst = 500;
 const int MAXnorm = 10;
 
+TFile* GetFile(string fileName);
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight);
 TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight);
 TH1* HistFromFile(string fullName);
