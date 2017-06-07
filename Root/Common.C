@@ -66,6 +66,20 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
 
 //__________________________________________________________________________________
 //
+TFile* GetFile(string fileName){
+  static std::map<string,TFile*> map_TFiles;
+  
+  auto it = map_TFiles.find(fileName);
+  if(it != map_TFiles.end()) return it->second;
+  else {
+    TFile *f = new TFile(fileName.c_str());
+    map_TFiles.insert(std::pair<string,TFile*>(fileName,f));
+    return f;
+  }
+}
+
+//__________________________________________________________________________________
+//
 TH1* HistFromFile(string fullName){
     string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
     string histoName = fullName.substr(fullName.find_last_of(".")+6,string::npos);
@@ -79,7 +93,7 @@ TH1* HistFromFile(string fileName,string histoName){
     if(histoName=="") return 0x0;
     if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram  " << histoName << "  from file  " << fileName << "  ..." << endl;
     TH1 *h = 0x0;
-    TFile *f = new TFile(fileName.c_str());
+    TFile *f = GetFile(fileName);
     if(not f){
         cout<<"cannot find input file '"<<fileName<<"'"<<endl;
         return h;
@@ -92,8 +106,6 @@ TH1* HistFromFile(string fileName,string histoName){
     }
     h = static_cast<TH1*>(h->Clone());
     if(h!=0x0) h->SetDirectory(0);
-    f->Close();
-    delete f;
     return h;
 }
 
