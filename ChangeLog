@@ -1,6 +1,7 @@
 2017-06-08 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Implemented Custom Asimov (closes TTHFITTER-132)
     * Started to implement SHAPE systematics (working on TTHFITTER-120)
+    * Implementing DropBins option (closes TTHFITTER-133)
     
 2017-06-01 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Taking sum of signals for SignalRegions plot (closes TTHFITTER-130)

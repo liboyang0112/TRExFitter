@@ -404,3 +404,13 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
     //
     return isFlat;
 }
+
+TH1* DropBins(TH1* h,std::vector<int> v){
+    TH1* h_new = (TH1*)h->Clone(h->GetName());
+    for(int i_bin=1;i_bin<=h_new->GetNbinsX();i_bin++){
+        if(find(v.begin(),v.end(),i_bin-1)!=v.end()){
+            h->SetBinContent(i_bin,0.);
+            h->SetBinError(i_bin,0.);
+        }
+    }
+}

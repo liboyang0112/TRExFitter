@@ -89,6 +89,8 @@ Region::Region(string name){
     
     fBlindedBins = 0x0;
     fKeepPrefitBlindedBins = false;
+    
+    fDropBins.clear();
 }
 
 //__________________________________________________________________________________
