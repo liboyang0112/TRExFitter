@@ -155,6 +155,8 @@ TtHFit::TtHFit(string name){
     fRatioYmin = 0.5;
     fRatioYmaxPostFit = 1.5;
     fRatioYminPostFit = 0.5;
+    
+    fCustomAsimov = false;
 }
 
 //__________________________________________________________________________________
@@ -817,7 +819,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ) fKeepPrefitBlindedBins = true;
     }
-
+    param = cs->Get("CustomAsimov");    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ) fCustomAsimov = true;
+    }
+    
     //
     // General options
     //
@@ -1254,6 +1260,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
             if(param == "TRUE") smp->fSmooth = true;
         }
+        // AsimovReplacementFor
+        param = cs->Get("AsimovReplacementFor");
+        if(param!="") smp->fAsimovReplacementFor = param;
         // ...
     }
 
@@ -1381,6 +1390,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         type = Systematic::HISTO;
         if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL")
             type = Systematic::OVERALL;
+        if(cs->Get("Type")=="shape" || cs->Get("Type")=="SHAPE")
+            type = Systematic::SHAPE;
         string decorrelate = cs->Get("Decorrelate");
         sys = new Systematic(CheckName(cs->GetValue()),type);
         TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
@@ -1400,7 +1411,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         //
         bool hasUp   = false;
         bool hasDown = false;
-        if(type==Systematic::HISTO){
+        if(type==Systematic::HISTO || type==Systematic::SHAPE){
             if(fInputType==0){
                 if(cs->Get("HistoPathUp")!="")      { sys->fHistoPathsUp  .push_back(cs->Get("HistoPathUp"));   hasUp   = true; }
                 if(cs->Get("HistoPathDown")!="")    { sys->fHistoPathsDown.push_back(cs->Get("HistoPathDown")); hasDown = true; }
@@ -2258,6 +2269,13 @@ void TtHFit::CorrectHistograms(){
                 }
             }
         }
+    }
+    
+    //
+    // For data: restore original data sample (needed if CustomAsimov was created previously)
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        Region *reg = fRegions[i_ch];
+        reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
     }
 }
 
@@ -4044,6 +4062,28 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
 }
 
 //__________________________________________________________________________________
+// called before w in case of CustomAsimov
+void TtHFit::CreateCustomAsimov(){
+    if(!fCustomAsimov) return;
+    // create a new data sample taking the nominal S and B
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        Region *reg = fRegions[i_ch];
+        reg->fData->fHist->Scale(0.);
+        std::vector<std::string> smpToExclude; smpToExclude.clear();
+        for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            SampleHist* h = reg->GetSampleHist(fSamples[i_smp]->fName);
+            if( h==0 ) continue;
+            if( h->fSample->fType==Sample::DATA ) continue;
+            if( h->fSample->fType==Sample::GHOST && h->fSample->fAsimovReplacementFor=="") continue;
+            if( h->fSample->fAsimovReplacementFor!="" ) smpToExclude.push_back(h->fSample->fAsimovReplacementFor);
+            if( FindInStringVector( smpToExclude,fSamples[i_smp]->fName )>=0 ) continue;
+            reg->fData->fHist->Add(h->fHist);
+        }
+        reg->fData->fHist->Sumw2(false);
+    }
+}
+
+//__________________________________________________________________________________
 // turn to RooStat::HistFactory
 void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 
@@ -4130,23 +4170,32 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                         if(TtHFitter::DEBUGLEVEL>0){
                             std::cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << std::endl;
                         }
-                        if ( !h->fSyst[i_syst]->fSystematic->fIsShapeOnly  &&
-                             !h->fSyst[i_syst]->fNormPruned  &&
-                             !h->fSyst[i_syst]->fBadNorm
-                           ) {
-                            sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
-                                                  1+h->fSyst[i_syst]->fNormDown,
-                                                  1+h->fSyst[i_syst]->fNormUp   );
+                        if ( h->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
+                            sample.AddShapeSys( ("shape_"+h->fSyst[i_syst]->fSystematic->fNuisanceParameter+"_"+fRegions[i_ch]->fName),
+//                                                 RooStats::HistFactory::Constraint::Gaussian,
+                                                RooStats::HistFactory::Constraint::Poisson,
+//                                                 h->fSyst[i_syst]->fHistoNameUp+suffix_regularBinning, h->fSyst[i_syst]->fFileNameUp, "");
+                                                (h->fSyst[i_syst]->fHistoNameUp+"_Var"+suffix_regularBinning), h->fSyst[i_syst]->fFileNameUp, "");
                         }
-                        // eventually add shape part
-                        if ( h->fSyst[i_syst]->fIsShape  &&
-                             !h->fSyst[i_syst]->fSystematic->fIsNormOnly  &&
-                             !h->fSyst[i_syst]->fShapePruned  &&
-                             !h->fSyst[i_syst]->fBadShape
-                           ){
-                            sample.AddHistoSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
-                                                h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning, h->fSyst[i_syst]->fFileNameShapeDown, "",
-                                                h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
+                        else{
+                            if ( !h->fSyst[i_syst]->fSystematic->fIsShapeOnly  &&
+                                !h->fSyst[i_syst]->fNormPruned  &&
+                                !h->fSyst[i_syst]->fBadNorm
+                              ) {
+                                sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
+                                                      1+h->fSyst[i_syst]->fNormDown,
+                                                      1+h->fSyst[i_syst]->fNormUp   );
+                            }
+                            // eventually add shape part
+                            if ( h->fSyst[i_syst]->fIsShape  &&
+                                !h->fSyst[i_syst]->fSystematic->fIsNormOnly  &&
+                                !h->fSyst[i_syst]->fShapePruned  &&
+                                !h->fSyst[i_syst]->fBadShape
+                              ){
+                                sample.AddHistoSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
+                                                    h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning, h->fSyst[i_syst]->fFileNameShapeDown, "",
+                                                    h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
+                            }
                         }
                     }
                 }
@@ -5314,6 +5363,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName ||
             ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0 ) )
             ){
+	    if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
             nuisPars.push_back( fSystematics[i_syst]->fName );
             isNF.push_back( false );
         }
@@ -5397,26 +5447,33 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     RooDataSet* data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
 
     // Loop on NPs to find gammas and add to the list to be ranked
-    if(NPnames=="all" || NPnames.find("gamma_stat")!=string::npos){
+//     if(NPnames=="all" || NPnames.find("gamma_stat")!=string::npos){
+    if(NPnames=="all" || NPnames.find("gamma")!=string::npos){
       RooRealVar* var = NULL;
       RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
       if(nuis){
         TIterator* it2 = nuis->createIterator();
         while( (var = (RooRealVar*) it2->Next()) ){
 	  string np = var->GetName();
-	  if(NPnames!="all"){
-	    if(np==NPnames){
-	      nuisPars.push_back(ReplaceString(np,"gamma_",""));
-	      isNF.push_back( true );
-	      break;
-	    }
-	  }
-	  else if(np.find("gamma_stat")!=string::npos){
-	    nuisPars.push_back(np);
+	  if(np.find("gamma")!=string::npos){
+// 	    if(np==NPnames || NPnames=="all") nuisPars.push_back(np);
+	    if(np==NPnames || NPnames=="all") nuisPars.push_back(ReplaceString(np,"gamma_",""));
 	    isNF.push_back( true );
+	    if(NPnames!="all") break;
 	  }
+	  
+// 	  if(NPnames!="all"){
+// 	    if(np==NPnames){
+// 	      nuisPars.push_back(ReplaceString(np,"gamma_",""));
+// 	      isNF.push_back( true );
+// 	      break;
+// 	    }
+// 	  }
+// 	  else if(np.find("gamma_stat")!=string::npos){
+// 	    nuisPars.push_back(np);
+// 	    isNF.push_back( true );
+// 	  }
         }
-	// delete it2;
       }
     }
 

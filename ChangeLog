@@ -1,4 +1,8 @@
-2017-05-01 Michele Pinamonti <michele.pinamonti@gmail.com>
+2017-06-08 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Implemented Custom Asimov (closes TTHFITTER-132)
+    * Started to implement SHAPE systematics (working on TTHFITTER-120)
+    
+2017-06-01 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Taking sum of signals for SignalRegions plot (closes TTHFITTER-130)
     * setting default ratio y min to 0.5 an max to 1.5
     

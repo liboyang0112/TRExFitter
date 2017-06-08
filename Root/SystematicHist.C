@@ -62,6 +62,10 @@ void SystematicHist::WriteToFile(TFile *f){
             WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),fFileNameShapeUp);
             WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),fFileNameShapeDown);
         }
+        if(fSystematic->fType==Systematic::SHAPE){
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp),fFileNameUp);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown),fFileNameDown);
+        }
     }
     else{
         WriteHistToFile(fHistUp,f);
@@ -73,6 +77,10 @@ void SystematicHist::WriteToFile(TFile *f){
             WriteHistToFile(fHistShapeDown,f);
             WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),f);
             WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),f);
+        }
+        if(fSystematic->fType==Systematic::SHAPE){
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp),f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown),f);
         }
     }
 }

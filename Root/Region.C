@@ -612,6 +612,15 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             
             if(TtHFitter::DEBUGLEVEL>0) cout << "      alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
             
+            // this to include (prefit) error from SHAPE syst
+            if(fSampleHists[i]->GetSystematic(systName)){
+                if(fSampleHists[i]->GetSystematic(systName)->fSystematic->fType==Systematic::SHAPE){
+                    systValue   = 0;
+                    systErrUp   = 1;
+                    systErrDown = -1;
+                }
+            }
+            
             //
             // Get SystematicHist
             //
@@ -713,8 +722,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
                 yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);
-                diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit;
-                diffDown += sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit;
+                if(!sh) continue;
+                if(sh->fHistUp_postFit)   diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit;
+                if(sh->fHistDown_postFit) diffDown += sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit;
             }
             // add the proper bin content to the variation hists
             fTotUp_postFit[i_syst]  ->AddBinContent( i_bin, diffUp   );
@@ -805,7 +815,13 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             double multNorm = 1.;
             for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
                 systName = fSampleHists[i]->fSyst[i_syst]->fName;
-                systValue = fitRes->GetNuisParValue(systName);
+//                 systValue = fitRes->GetNuisParValue(systName);
+                
+                if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE)
+//                     systValue   = 0;
+                    continue;
+                else
+                    systValue = fitRes->GetNuisParValue(systName);
                 
                 //
                 // Normalisation component: use the exponential interpolation and the multiplicative combination
