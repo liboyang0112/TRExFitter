@@ -109,4 +109,6 @@ double convertStoD(string toConvert);
 // TH1F* SmoothHistogram( TH1* h );
 bool SmoothHistogram( TH1* h, int forceFlat=-1 ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
 
+TH1* DropBins(TH1* h,std::vector<int> v);
+
 #endif

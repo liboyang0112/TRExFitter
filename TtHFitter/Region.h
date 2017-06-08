@@ -200,6 +200,8 @@ public:
     
     TH1F* fBlindedBins;
     bool fKeepPrefitBlindedBins;
+    
+    std::vector<int> fDropBins;
 };
 
 

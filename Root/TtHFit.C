@@ -1105,6 +1105,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
             if(param=="TRUE")  reg->fSkipSmoothing = true;
         }
+        param = cs->Get("DropBins");
+        if( param != "" ){
+            reg->fDropBins.clear();
+            std::vector<std::string> s = Vectorize( param,',' );
+            for(int i=0;i<(int)s.size();i++){
+                reg->fDropBins.push_back(atoi(s[i].c_str()));
+            }
+        }
     }
 
     //##########################################################
@@ -2276,6 +2284,32 @@ void TtHFit::CorrectHistograms(){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         Region *reg = fRegions[i_ch];
         reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
+    }
+    
+    //
+    // Drop bins
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        Region *reg = fRegions[i_ch];
+        if(reg->fDropBins.size()!=0){
+            for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                Sample *smp = fSamples[i_smp];
+                // eventually skip sample / region combination
+                if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
+                SampleHist *sh = reg->GetSampleHist(smp->fName);
+                if(sh==0x0) continue;
+                DropBins(sh->fHist,reg->fDropBins);
+                for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
+                    Systematic *syst = smp->fSystematics[i_syst];
+                    // eventually skip systematic / region combination
+                    if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
+                    if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                    SystematicHist *syh = sh->GetSystematic( syst->fName );
+                    if(syh==0x0) continue;
+                    DropBins(syh->fHistUp,reg->fDropBins);
+                    DropBins(syh->fHistDown,reg->fDropBins);
+                }
+            }
+        }
     }
 }
 
