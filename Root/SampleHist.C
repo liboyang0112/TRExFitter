@@ -285,6 +285,15 @@ void SampleHist::WriteToFile(TFile *f){
         fSyst[i_syst]->fHistDown_orig->SetName( Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
         if(f==0x0) fSyst[i_syst]->WriteToFile();
         else       fSyst[i_syst]->WriteToFile(f);
+        // for shape hist, save also the syst(up)-nominal (to feed HistFactory)
+        if(fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
+            TH1* hVar = HistoTools::TranformHistogramBinning(
+              (TH1*)fSyst[i_syst]->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()))
+            );
+            hVar->Add(fHist_regBin,-1);
+            if(f==0x0) WriteHistToFile(hVar,fFileName);
+            else       WriteHistToFile(hVar,f);
+        }
     }
 }
 

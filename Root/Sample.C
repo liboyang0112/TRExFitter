@@ -45,6 +45,8 @@ Sample::Sample(string name,int type){
     //
     fNormFactors.clear();
     fSystematics.clear();
+    
+    fAsimovReplacementFor = "";
 }
     
 //__________________________________________________________________________________

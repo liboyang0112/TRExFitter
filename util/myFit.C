@@ -100,6 +100,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->ReadHistograms();
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
+        myFit->CreateCustomAsimov();
         myFit->WriteHistos();
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
@@ -109,6 +110,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->ReadNtuples();
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
+        myFit->CreateCustomAsimov();
         myFit->WriteHistos();
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
@@ -124,6 +126,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->CreateRootFiles();  // ?
         myFit->fUpdate = udpate;
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
+        myFit->CreateCustomAsimov();
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
         myFit->WriteHistos();

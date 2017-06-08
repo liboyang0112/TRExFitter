@@ -102,6 +102,8 @@ public:
     std::vector < Systematic* > fSystematics;
     int fNNorm;
     std::vector < NormFactor* > fNormFactors;
+    
+    std::string fAsimovReplacementFor;
 };
 
 #endif
