@@ -4,6 +4,7 @@
 #include "TPad.h"
 #include "TPie.h"
 #include "TF1.h"
+#include "TRandom3.h"
 
 #include "TtHFitter/TthPlot.h"
 #include "TtHFitter/FitResults.h"
@@ -269,6 +270,8 @@ public:
     TH1F* fBlindedBins;
     
     bool fCustomAsimov;
+    
+    int fRandomPOISeed;
 };
 
 #endif
