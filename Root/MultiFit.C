@@ -113,7 +113,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
       fDir = param;
       if(fDir.back() != '/') fDir += '/';
       fOutDir = fDir + fName;
-      gSystem->mkdir(fName.c_str(), true);
+      gSystem->mkdir(fOutDir.c_str(), true);
     }
     else{
       fOutDir = "./" + fName;
