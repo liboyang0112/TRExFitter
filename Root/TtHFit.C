@@ -158,6 +158,7 @@ TtHFit::TtHFit(string name){
     
     fCustomAsimov = false;
     fRandomPOISeed = -1;
+    fTableOptions = "STANDALONE";
 }
 
 //__________________________________________________________________________________
@@ -685,6 +686,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         TtHFitter::SHOWSTACKSIG_SUMMARY   = TtHFitter::SHOWSTACKSIG    ;
         TtHFitter::SHOWNORMSIG_SUMMARY    = TtHFitter::SHOWNORMSIG     ;
         TtHFitter::SHOWOVERLAYSIG_SUMMARY = TtHFitter::SHOWOVERLAYSIG  ;
+    }
+    param = cs->Get("TableOptions");       if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        fTableOptions = param;
     }
     //
     param = cs->Get("SystControlPlots");  if( param != ""){
@@ -3263,12 +3268,20 @@ void TtHFit::BuildYieldTable(string opt,string group){
         out << fRegions[regionVec[i_bin-1]]->fLabel << " | ";
     }
     out << endl;
-    texout << "\\documentclass[10pt]{article}" << endl;
-    texout << "\\usepackage{siunitx}" << endl;
-    texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
-    texout << "\\begin{document}" << endl;
+    if(fTableOptions.find("STANDALONE")!=string::npos){
+        texout << "\\documentclass[10pt]{article}" << endl;
+        texout << "\\usepackage{siunitx}" << endl;
+        texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
+        texout << "\\begin{document}" << endl;
+    }
+    if(fTableOptions.find("LANDSCAPE")!=string::npos){
+        texout << "\\begin{landscape}" << endl;        
+    }
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
+    if(fTableOptions.find("FOOTNOTESIZE")!=string::npos){
+        texout << "\\footnotesize" << endl;        
+    }
     texout << "\\begin{tabular}{|c" ;
     for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
         texout << "|c";
@@ -3684,7 +3697,12 @@ void TtHFit::BuildYieldTable(string opt,string group){
     texout << "\\caption{Yields of the analysis} " << endl;
     texout << "\\end{center} " << endl;
     texout << "\\end{table} " << endl;
-    texout << "\\end{document}" << endl;
+    if(fTableOptions.find("LANDSCAPE")!=string::npos){
+        texout << "\\end{landscape}" << endl;        
+    }
+    if(fTableOptions.find("STANDALONE")!=string::npos){
+        texout << "\\end{document}" << endl;
+    }
     //
     for(int i_syst=0;i_syst<(int)h_up.size();i_syst++){
         delete h_up[i_syst];

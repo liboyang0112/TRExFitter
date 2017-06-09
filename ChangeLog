@@ -1,5 +1,6 @@
 2017-06-09 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Implemented random POI scaling (closes TTHFITTER-134)
+    * fixes
     
 2017-06-08 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Implemented Custom Asimov (closes TTHFITTER-132)
