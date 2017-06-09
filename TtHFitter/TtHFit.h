@@ -272,6 +272,8 @@ public:
     bool fCustomAsimov;
     
     int fRandomPOISeed;
+    
+    std::string fTableOptions;
 };
 
 #endif

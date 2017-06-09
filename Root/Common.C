@@ -27,6 +27,7 @@ std::vector <string> TtHFitter::IMAGEFORMAT;
 int TtHFitter::NCPU = 1;
 //
 std::map <string,float> TtHFitter::OPTION;
+std::map<string,TFile*> TtHFitter::TFILEMAP;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -67,15 +68,13 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
 //__________________________________________________________________________________
 //
 TFile* GetFile(string fileName){
-  static std::map<string,TFile*> map_TFiles;
-  
-  auto it = map_TFiles.find(fileName);
-  if(it != map_TFiles.end()) return it->second;
-  else {
-    TFile *f = new TFile(fileName.c_str());
-    map_TFiles.insert(std::pair<string,TFile*>(fileName,f));
-    return f;
-  }
+    auto it = TtHFitter::TFILEMAP.find(fileName);
+    if(it != TtHFitter::TFILEMAP.end()) return it->second;
+    else {
+        TFile *f = new TFile(fileName.c_str());
+        TtHFitter::TFILEMAP.insert(std::pair<string,TFile*>(fileName,f));
+        return f;
+    }
 }
 
 //__________________________________________________________________________________
