@@ -156,7 +156,8 @@ Note that, each object should have unique <ObjectName>.
      * RatioYmaxPostFit : if set, it will specify a the max of the range of the ratio plots, for post-fit only
      * RatioYminPostFit : if set, it will specify a the min of the range of the ratio plots, for post-fit only 
      * CustomAsimov     : if set to TRUE, an Asimov data set is created and used instead of data (useful with the Sample->AsimovReplacementFor option, see below)
-
+     * RandomPOISeed    : if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated statrging from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number)
+     
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
      * FitRegion        : can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions. You can also specify a coma-separated list of regions to use in the fit

@@ -157,6 +157,7 @@ TtHFit::TtHFit(string name){
     fRatioYminPostFit = 0.5;
     
     fCustomAsimov = false;
+    fRandomPOISeed = -1;
 }
 
 //__________________________________________________________________________________
@@ -822,6 +823,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("CustomAsimov");    if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ) fCustomAsimov = true;
+    }
+    param = cs->Get("RandomPOISeed");   if( param != "" ){
+        int seed = atoi(param.c_str());
+        if(seed>=0) fRandomPOISeed = seed;
     }
     
     //
@@ -2722,6 +2727,17 @@ void TtHFit::DrawAndSaveAll(string opt){
             ReadFitResults(fFitResultsFile);
         else
             ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
+        // scale signal by random number used in the ws creation
+        if(fRandomPOISeed>=0){
+            gRandom->SetSeed(fRandomPOISeed); float rnd = 1./pow(gRandom->Uniform(0,2),2);
+            if(fFitResults->fNuisParIsThere[fPOI]){
+                if(TtHFitter::DEBUGLEVEL>0)  std::cout << "Scaling POI " << fPOI << " by the secret random number XXX..." << std::endl;
+                NuisParameter* np = fFitResults->fNuisPar[fFitResults->fNuisParIdx[fPOI]];
+                np->fFitValue*=rnd;
+                np->fPostFitUp*=rnd;
+                np->fPostFitDown*=rnd;
+            }
+        }
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
@@ -4196,6 +4212,17 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     if (h->fNormFactors[i_norm]->fConst) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
                     if (fStatOnly && fFixNPforStatOnlyFit && h->fNormFactors[i_norm]->fName!=fPOI)
                         meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
+                    // radom POI tricK: if this norm factor is te POI, add another (fixed) norm factor equal to a random number generated from the given seed
+                    if (fRandomPOISeed>=0){
+                        if ( h->fNormFactors[i_norm]->fName == fPOI ){
+                            if(TtHFitter::DEBUGLEVEL>0){
+                                std::cout << "    Scaling POI by random secret number XXX ;)" << std::endl;
+                            }
+                            gRandom->SetSeed(fRandomPOISeed); float rnd = 1./pow(gRandom->Uniform(0,2),2);
+                            sample.AddNormFactor( "POIScale",rnd,rnd-1,rnd+1);
+                            meas.AddConstantParam( "POIScale" );
+                        }
+                    }
                 }
                 // systematics
                 if(!fStatOnly){
