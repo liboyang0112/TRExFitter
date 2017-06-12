@@ -125,6 +125,10 @@ Note that, each object should have unique <ObjectName>.
         * NORMSIG : add normlised signal to plots
         * NOSIG: don't show signal in stack
         * OVERSIG: overlay signal (not normalised)
+     * TableOptions      : a set of options for tables (yield tables only for the moment):
+        * STANDALONE : default! If not set, no "\begin{document}"
+        * FOOTNOTESIZE : -> \footnotesize
+        * LANDSCAPE : -> \begin{landscape}
      * SystControlPlots : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
      * SystDataPlots    : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame.
      * CorrelationThreshold : Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05:5%)
