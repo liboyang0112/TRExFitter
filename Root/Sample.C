@@ -46,7 +46,7 @@ Sample::Sample(string name,int type){
     fNormFactors.clear();
     fSystematics.clear();
     
-    fAsimovReplacementFor = "";
+    fAsimovReplacementFor = std::make_pair("","");
 }
     
 //__________________________________________________________________________________

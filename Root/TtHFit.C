@@ -156,7 +156,7 @@ TtHFit::TtHFit(string name){
     fRatioYmaxPostFit = 1.5;
     fRatioYminPostFit = 0.5;
     
-    fCustomAsimov = false;
+    fCustomAsimov = "";
     fRandomPOISeed = -1;
     fTableOptions = "STANDALONE";
 }
@@ -324,6 +324,10 @@ void TtHFit::SmoothSystematics(string syst){
     std::cout << "Smoothing and/or Symmetrising Systematic Variations ..." << std::endl;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
+//             if(fRegions[i_ch]->fSampleHists[i_smp]==0x0) continue;
+//             if(fRegions[i_ch]->fSampleHists[i_smp]->fSample!=0x0){
+//                 if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::DATA) continue;
+//             }
             fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(syst);
         }
     }
@@ -826,8 +830,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if( param == "TRUE" ) fKeepPrefitBlindedBins = true;
     }
     param = cs->Get("CustomAsimov");    if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fCustomAsimov = true;
+//         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+//         if( param == "TRUE" ) fCustomAsimov = true;
+        fCustomAsimov = param;
     }
     param = cs->Get("RandomPOISeed");   if( param != "" ){
         int seed = atoi(param.c_str());
@@ -1280,8 +1285,23 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
         // AsimovReplacementFor
         param = cs->Get("AsimovReplacementFor");
-        if(param!="") smp->fAsimovReplacementFor = param;
+        if(param!=""){
+            if(Vectorize(param,',').size()>1){
+                smp->fAsimovReplacementFor.first  = Vectorize(param,',')[0];
+                smp->fAsimovReplacementFor.second = Vectorize(param,',')[1];
+            }
+        }
         // ...
+    }
+    //
+    // build new samples if AsimovReplacementFor are specified
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fAsimovReplacementFor.first!=""){
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Creating sample " << fSamples[i_smp]->fAsimovReplacementFor.first << std::endl;
+            Sample *ca = NewSample("customAsimov_"+fSamples[i_smp]->fAsimovReplacementFor.first,Sample::GHOST);
+            ca->SetTitle("Pseudo-Data ("+fSamples[i_smp]->fAsimovReplacementFor.first+")");
+            ca->fUseSystematics = false;
+        }
     }
 
     //##########################################################
@@ -2290,10 +2310,12 @@ void TtHFit::CorrectHistograms(){
     }
     
     //
-    // For data: restore original data sample (needed if CustomAsimov was created previously)
+    // For data: restore original data sample (needed if bins were dropped previously)
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         Region *reg = fRegions[i_ch];
-        reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
+        if(reg->fData!=0x0){
+            if(reg->fData->fHist_orig!=0x0) reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
+        }
     }
     
     //
@@ -2315,8 +2337,10 @@ void TtHFit::CorrectHistograms(){
                     if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
                     SystematicHist *syh = sh->GetSystematic( syst->fName );
                     if(syh==0x0) continue;
-                    DropBins(syh->fHistUp,reg->fDropBins);
+                    DropBins(syh->fHistUp,  reg->fDropBins);
                     DropBins(syh->fHistDown,reg->fDropBins);
+                    if(syh->fHistShapeUp)   DropBins(syh->fHistShapeUp,  reg->fDropBins);
+                    if(syh->fHistShapeDown) DropBins(syh->fHistShapeDown,reg->fDropBins);
                 }
             }
         }
@@ -2642,7 +2666,8 @@ void TtHFit::ReadHistos(/*string fileName*/){
             //
             // eventually skip sample / region combination
             //
-            if( FindInStringVector(fSamples[i_smp]->fRegions,regionName)<0 ) continue;
+//             if( FindInStringVector(fSamples[i_smp]->fRegions,regionName)<0 ) continue;
+            if( FindInStringVector(fSamples[i_smp]->fRegions,regionName)<0 && fSamples[i_smp]->fName.find("customAsimov_")==std::string::npos ) continue;
             //
             sampleName = fSamples[i_smp]->fName;
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "    Reading sample " << sampleName << std::endl;
@@ -4132,22 +4157,36 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
 //__________________________________________________________________________________
 // called before w in case of CustomAsimov
 void TtHFit::CreateCustomAsimov(){
-    if(!fCustomAsimov) return;
-    // create a new data sample taking the nominal S and B
-    for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        Region *reg = fRegions[i_ch];
-        reg->fData->fHist->Scale(0.);
-        std::vector<std::string> smpToExclude; smpToExclude.clear();
-        for(int i_smp=0;i_smp<fNSamples;i_smp++){
-            SampleHist* h = reg->GetSampleHist(fSamples[i_smp]->fName);
-            if( h==0 ) continue;
-            if( h->fSample->fType==Sample::DATA ) continue;
-            if( h->fSample->fType==Sample::GHOST && h->fSample->fAsimovReplacementFor=="") continue;
-            if( h->fSample->fAsimovReplacementFor!="" ) smpToExclude.push_back(h->fSample->fAsimovReplacementFor);
-            if( FindInStringVector( smpToExclude,fSamples[i_smp]->fName )>=0 ) continue;
-            reg->fData->fHist->Add(h->fHist);
+    // get a list of all CustomAsimov to create
+    std::vector<std::string> customAsimovList;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fAsimovReplacementFor.first!="" && FindInStringVector(customAsimovList,fSamples[i_smp]->fAsimovReplacementFor.first)<0)
+            customAsimovList.push_back(fSamples[i_smp]->fAsimovReplacementFor.first);
+    }
+    //
+    // fill a different CustomAsimov data-set for each element in the list
+    for(auto customAsimov : customAsimovList){
+        Sample *ca = GetSample("customAsimov_"+customAsimov);
+        // create a new data sample taking the nominal S and B
+        for(int i_ch=0;i_ch<fNRegions;i_ch++){
+            Region *reg = fRegions[i_ch];
+            SampleHist *cash = reg->SetSampleHist(ca,(TH1*)reg->fData->fHist->Clone());
+            cash->fHist->Scale(0.);
+            //
+            std::vector<std::string> smpToExclude; smpToExclude.clear();
+            for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                SampleHist* h = reg->GetSampleHist(fSamples[i_smp]->fName);
+                if( h==0 ) continue;
+                if( h->fSample->fType==Sample::DATA ) continue;
+                if( h->fSample->fType==Sample::GHOST ){
+                    if( h->fSample->fAsimovReplacementFor.first!=customAsimov ) continue;
+                    if( h->fSample->fAsimovReplacementFor.second!="" ) smpToExclude.push_back(h->fSample->fAsimovReplacementFor.second);
+                }
+                if( FindInStringVector( smpToExclude,fSamples[i_smp]->fName )>=0 ) continue;
+                cash->fHist->Add(h->fHist);
+            }
+            cash->fHist->Sumw2(false);
         }
-        reg->fData->fHist->Sumw2(false);
     }
 }
 
@@ -4197,7 +4236,20 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 break;
             }
         }
-        if(hasData){
+        if(fCustomAsimov!=""){
+            std::string name = "customAsimov_"+fCustomAsimov;
+            SampleHist* cash = fRegions[i_ch]->GetSampleHist(name);
+            if(cash==0x0){
+                std::cerr << "TtHFit::ToRooStat::ERROR: no Custom Asimov " << fCustomAsimov << " available. Taking regular Asimov." << std::endl;
+            }
+            else{
+                if(TtHFitter::DEBUGLEVEL>0){
+                    std::cout << "  Adding Custom-Asimov Data: " << cash->fHist->GetName() << std::endl;
+                }
+                chan.SetData(cash->fHistoName+suffix_regularBinning, cash->fFileName);
+            }
+        }
+        else if(hasData){
             if(TtHFitter::DEBUGLEVEL>0){
                 std::cout << "  Adding Data: " << fRegions[i_ch]->fData->fHist->GetName() << std::endl;
             }

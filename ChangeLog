@@ -1,3 +1,8 @@
+2017-06-12 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fix of DropBins functionality
+    * Fix of post-fit plots crash
+    * Extension of CustomAsimov functionality (see README)
+    
 2017-06-09 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Implemented random POI scaling (closes TTHFITTER-134)
     * fixes

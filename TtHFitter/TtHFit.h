@@ -269,7 +269,7 @@ public:
     bool fKeepPrefitBlindedBins;
     TH1F* fBlindedBins;
     
-    bool fCustomAsimov;
+    std::string fCustomAsimov;
     
     int fRandomPOISeed;
     

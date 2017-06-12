@@ -103,7 +103,7 @@ public:
     int fNNorm;
     std::vector < NormFactor* > fNormFactors;
     
-    std::string fAsimovReplacementFor;
+    std::pair<std::string,std::string> fAsimovReplacementFor;
 };
 
 #endif
