@@ -616,10 +616,12 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             
             // this to include (prefit) error from SHAPE syst
             if(fSampleHists[i]->GetSystematic(systName)){
-                if(fSampleHists[i]->GetSystematic(systName)->fSystematic->fType==Systematic::SHAPE){
-                    systValue   = 0;
-                    systErrUp   = 1;
-                    systErrDown = -1;
+                if(fSampleHists[i]->GetSystematic(systName)->fSystematic!=0x0){
+                    if(fSampleHists[i]->GetSystematic(systName)->fSystematic->fType==Systematic::SHAPE){
+                        systValue   = 0;
+                        systErrUp   = 1;
+                        systErrDown = -1;
+                    }
                 }
             }
             

@@ -125,6 +125,10 @@ Note that, each object should have unique <ObjectName>.
         * NORMSIG : add normlised signal to plots
         * NOSIG: don't show signal in stack
         * OVERSIG: overlay signal (not normalised)
+     * TableOptions      : a set of options for tables (yield tables only for the moment):
+        * STANDALONE : default! If not set, no "\begin{document}"
+        * FOOTNOTESIZE : -> \footnotesize
+        * LANDSCAPE : -> \begin{landscape}
      * SystControlPlots : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
      * SystDataPlots    : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame.
      * CorrelationThreshold : Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05:5%)
@@ -155,7 +159,7 @@ Note that, each object should have unique <ObjectName>.
      * RatioYmin        : if set, it will specify a the min of the range of the ratio plots 
      * RatioYmaxPostFit : if set, it will specify a the max of the range of the ratio plots, for post-fit only
      * RatioYminPostFit : if set, it will specify a the min of the range of the ratio plots, for post-fit only 
-     * CustomAsimov     : if set to TRUE, an Asimov data set is created and used instead of data (useful with the Sample->AsimovReplacementFor option, see below)
+     * CustomAsimov     : if set, the workspace will be created with an AsimovData built according to Sample->AsimovReplacementFor option (see below) instead of data
      * RandomPOISeed    : if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated statrging from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number)
      
   * Fit:
@@ -233,7 +237,7 @@ Note that, each object should have unique <ObjectName>.
      * MultiplyBy       : if specified, each sample hist is multiplied bin-by-bin by another sample hist, in each of the regions
      * DivideBy         : if specified, each sample hist is divided bin-by-bin by another sample hist, in each of the regions
      * Smooth           : if set to TRUE, the nominal histograms are smoothed (based on TH1::Smooth but taking into account the original stat uncertainty) 
-     * AsimovReplacementFor: only for GHOST samples; if set to a sample name, this new GHOST sample will be used instead of that sample for the CustomAsimov data-set creation
+     * AsimovReplacementFor: only for GHOST samples; if set, the creation of cutsom Asimov data-set(s) is triggered; use as 'AsimovReplacementFor: "dataset","sample"', where "dataset" is the name of a custom Asimov dataset one wants to create (the same name will have to be set under Job->CustomAsimov in order to use it) and "sample" is the sample this GHOST sample will superseed
 
   * NormFactor:
      * Samples          : comma-separated list of samples on which to apply the norm factor
