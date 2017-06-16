@@ -39,6 +39,7 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
     fHist = (TH1*)hist->Clone(Form("h_%s",fName.c_str()));
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
+    fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
     //
     fHist_postFit = 0x0;
     //
@@ -59,8 +60,8 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
     fSample = sample;
     fHist = HistFromFile(fileName,histoName);
     fHist_orig = HistFromFile(fileName,histoName+"_orig");
-    //if(fHist_orig==0x0) fHist_orig = (TH1*)fHist->Clone(Form("%_orig",fHist->GetName()));
-    if(fHist_orig==0x0) fHist_orig = (TH1*)fHist->Clone( (TString)fHist->GetName() + "_orig" );
+    if(fHist_orig==0x0) fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
+//     if(fHist_orig==0x0) fHist_orig = (TH1*)fHist->Clone( (TString)fHist->GetName() + "_orig" );
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);

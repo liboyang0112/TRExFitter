@@ -4,6 +4,7 @@
 #include "TPad.h"
 #include "TPie.h"
 #include "TF1.h"
+#include "TRandom3.h"
 
 #include "TtHFitter/TthPlot.h"
 #include "TtHFitter/FitResults.h"
@@ -268,7 +269,11 @@ public:
     bool fKeepPrefitBlindedBins;
     TH1F* fBlindedBins;
     
-    bool fCustomAsimov;
+    std::string fCustomAsimov;
+    
+    int fRandomPOISeed;
+    
+    std::string fTableOptions;
 };
 
 #endif

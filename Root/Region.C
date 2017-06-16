@@ -616,10 +616,12 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             
             // this to include (prefit) error from SHAPE syst
             if(fSampleHists[i]->GetSystematic(systName)){
-                if(fSampleHists[i]->GetSystematic(systName)->fSystematic->fType==Systematic::SHAPE){
-                    systValue   = 0;
-                    systErrUp   = 1;
-                    systErrDown = -1;
+                if(fSampleHists[i]->GetSystematic(systName)->fSystematic!=0x0){
+                    if(fSampleHists[i]->GetSystematic(systName)->fSystematic->fType==Systematic::SHAPE){
+                        systValue   = 0;
+                        systErrUp   = 1;
+                        systErrDown = -1;
+                    }
                 }
             }
             
@@ -817,11 +819,12 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             double multNorm = 1.;
             for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
                 systName = fSampleHists[i]->fSyst[i_syst]->fName;
-//                 systValue = fitRes->GetNuisParValue(systName);
-                
-                if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE)
-//                     systValue   = 0;
-                    continue;
+                if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0){
+                    if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE)
+                        continue;
+                    else
+                        systValue = fitRes->GetNuisParValue(systName);
+                }
                 else
                     systValue = fitRes->GetNuisParValue(systName);
                 

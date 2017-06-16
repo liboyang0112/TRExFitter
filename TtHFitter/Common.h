@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <utility>
 #include <map>
 
 // ROOT stuff
@@ -75,6 +76,7 @@ namespace TtHFitter{
     extern int NCPU;
     //
     extern std::map< string, float > OPTION;
+    extern std::map<string,TFile*> TFILEMAP;
 };
 
 const int MAXregions = 100;
