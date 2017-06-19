@@ -42,6 +42,7 @@ public:
   
   void Divide(  SampleHist* sh);
   void Multiply(SampleHist* sh);
+  void Add(     SampleHist* sh,float scale=1.);
   
   void SampleHistAdd(SampleHist* h);
   void CloneSampleHist(SampleHist* h, std::set<std::string> names);

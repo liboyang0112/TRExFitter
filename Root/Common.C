@@ -46,7 +46,8 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
     h->Sumw2();
     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
     MergeUnderOverFlow(h);
-    t->~TChain();
+//     t->~TChain();
+    delete t;
     return h;
 }
 
@@ -61,7 +62,8 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
     h->Sumw2();
     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
     MergeUnderOverFlow(h);
-    t->~TChain();
+//     t->~TChain();
+    delete t;
     return h;
 }
 
@@ -348,10 +350,9 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
     TH1* h_orig = (TH1*)h->Clone("h_orig");
     //
     // if not flat, go on with the smoothing
-    TH1* h0;
     int Nmax = 5;
     for(int i=0;i<Nmax;i++){
-        h0 = (TH1*)h->Clone("h0");
+        TH1* h0 = (TH1*)h->Clone("h0");
         h->Smooth();
         bool changesApplied = false;
         for(int i_bin=1;i_bin<=nbinsx;i_bin++){
@@ -365,7 +366,8 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
             if(h->GetBinContent(i_bin)<1e-06) h->SetBinContent(i_bin,1e-06);
         }
         if(!changesApplied) break;
-        h0->~TH1();
+//         h0->~TH1();
+        delete h0;
     }
 
     //

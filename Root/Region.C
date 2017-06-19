@@ -861,6 +861,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         fSampleHists[i]->fHist_postFit = hSmpNew[i];
         hNew->~TH1();
     }
+    delete hNew;
     
     //
     // 2) Scale all samples by norm factors

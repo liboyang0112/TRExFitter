@@ -1277,6 +1277,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         // divide and multiply by another sample
         smp->fDivideBy   = cs->Get("DivideBy");
         smp->fMultiplyBy = cs->Get("MultiplyBy");
+        // add/subtract
+        smp->fSubtractSample = cs->Get("SubtractSample");
+        smp->fAddSample      = cs->Get("AddSample");
         // allow smoothing of nominal histogram?
         param = cs->Get("Smooth");
         if(param!=""){
@@ -2141,19 +2144,6 @@ void TtHFit::CorrectHistograms(){
             TH1* h      = (TH1*)h_orig->Clone(sh->fHist->GetName());
             sh->fHist = h;
 
-            // ---> NEED TO MOVE TO READNTUPLES? -- FIXME
-            // Division & Multiplication by other samples
-            if(fSamples[i_smp]->fDivideBy!=""){
-                std::cout << "INFO: dividing by sample " << fSamples[i_smp]->fDivideBy << std::endl;
-                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
-                sh->Divide(smph0);
-            }
-            if(fSamples[i_smp]->fMultiplyBy!=""){
-                std::cout << "INFO: multiplying by sample " << fSamples[i_smp]->fMultiplyBy << std::endl;
-                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fMultiplyBy);
-                sh->Multiply(smph0);
-            }
-
             //
             // Systematics
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
@@ -2181,6 +2171,30 @@ void TtHFit::CorrectHistograms(){
                 TH1* hDown = (TH1*)hDown_orig->Clone( syh->fHistDown->GetName() );
                 syh->fHistUp   = hUp;
                 syh->fHistDown = hDown;
+            }
+
+            // ---> NEED TO MOVE TO READNTUPLES? -- FIXME
+            // Subtraction / Addition of sample
+            if(fSamples[i_smp]->fSubtractSample!=""){
+                std::cout << "INFO: subtarcting sample " << fSamples[i_smp]->fSubtractSample << std::endl;
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fSubtractSample);
+                sh->Add(smph0,-1);
+            }
+            if(fSamples[i_smp]->fAddSample!=""){
+                std::cout << "INFO: subtarcting sample " << fSamples[i_smp]->fAddSample << std::endl;
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fAddSample);
+                sh->Add(smph0);
+            }
+            // Division & Multiplication by other samples
+            if(fSamples[i_smp]->fDivideBy!=""){
+                std::cout << "INFO: dividing by sample " << fSamples[i_smp]->fDivideBy << std::endl;
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
+                sh->Divide(smph0);
+            }
+            if(fSamples[i_smp]->fMultiplyBy!=""){
+                std::cout << "INFO: multiplying by sample " << fSamples[i_smp]->fMultiplyBy << std::endl;
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fMultiplyBy);
+                sh->Multiply(smph0);
             }
 
             //
@@ -2314,7 +2328,7 @@ void TtHFit::CorrectHistograms(){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         Region *reg = fRegions[i_ch];
         if(reg->fData!=0x0){
-            if(reg->fData->fHist_orig!=0x0) reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
+            if(reg->fData->fHist_orig!=0x0 && reg->fData->fHist!=0x0) reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
         }
     }
     
@@ -2401,7 +2415,8 @@ void TtHFit::ReadHistograms(){
                     TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
                     const char *hname = htmp->GetName();
                     htmp->~TH1F();
-                    htmp = htmp2;
+                    htmp = (TH1F*)htmp2->Clone();
+                    delete htmp2;
                     htmp->SetName(hname);
                 }
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
@@ -2505,7 +2520,8 @@ void TtHFit::ReadHistograms(){
                             TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
                             htmp->~TH1F();
-                            htmp = htmp2;
+                            htmp = (TH1F*)htmp2->Clone();
+                            delete htmp2;
                             htmp->SetName(hname);
                         }
                         else if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
@@ -2574,7 +2590,8 @@ void TtHFit::ReadHistograms(){
                             TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
                             htmp->~TH1F();
-                            htmp = htmp2;
+                            htmp = (TH1F*)htmp2->Clone();
+                            delete htmp2;
                             htmp->SetName(hname);
                         }
                         else if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
@@ -2646,6 +2663,46 @@ void TtHFit::ReadHistos(/*string fileName*/){
 //         filePrun = new TFile( (fName+"/Pruning"+fSuffix+".root").c_str() );
         filePrun = new TFile( (fName+"/Pruning.root").c_str() );
         if(!filePrun) fKeepPruning = false;
+    }
+    //
+    // when we multply/divide by or subtract/add other samples, need to add systematics on the other samples
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fDivideBy!=""){
+            Sample* smp = GetSample(fSamples[i_smp]->fDivideBy);
+            for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
+                std::string systName = smp->fSystematics[i_syst]->fName;
+                if(!fSamples[i_smp]->HasSystematic(systName)){
+                    fSamples[i_smp]->AddSystematic(smp->fSystematics[i_syst]);
+                }
+            }
+        }
+        if(fSamples[i_smp]->fMultiplyBy!=""){
+            Sample* smp = GetSample(fSamples[i_smp]->fMultiplyBy);
+            for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
+                std::string systName = smp->fSystematics[i_syst]->fName;
+                if(!fSamples[i_smp]->HasSystematic(systName)){
+                    fSamples[i_smp]->AddSystematic(smp->fSystematics[i_syst]);
+                }
+            }
+        }
+        if(fSamples[i_smp]->fSubtractSample!=""){
+            Sample* smp = GetSample(fSamples[i_smp]->fSubtractSample);
+            for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
+                std::string systName = smp->fSystematics[i_syst]->fName;
+                if(!fSamples[i_smp]->HasSystematic(systName)){
+                    fSamples[i_smp]->AddSystematic(smp->fSystematics[i_syst]);
+                }
+            }
+        }
+        if(fSamples[i_smp]->fAddSample!=""){
+            Sample* smp = GetSample(fSamples[i_smp]->fAddSample);
+            for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
+                std::string systName = smp->fSystematics[i_syst]->fName;
+                if(!fSamples[i_smp]->HasSystematic(systName)){
+                    fSamples[i_smp]->AddSystematic(smp->fSystematics[i_syst]);
+                }
+            }
+        }
     }
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -2742,6 +2799,21 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 }
             }
         }
+    }
+}
+
+//__________________________________________________________________________________
+//
+void TtHFit::CloseInputFiles(){
+    //
+    // Close all input files
+    for(auto it : TtHFitter::TFILEMAP){
+        TDirectory *dir = gDirectory;
+        TFile *f = it.second;
+        if(f!=0x0)
+        dir->cd();
+        f->Close();
+        delete f;
     }
 }
 
@@ -4882,6 +4954,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     // Fit configuration (SPLUSB or BONLY)
     //
     FittingTool *fitTool = new FittingTool();
+    fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
     if(fitType==BONLY){
         fitTool -> ValPOI(0.);
         fitTool -> ConstPOI(true);
@@ -6167,12 +6240,12 @@ void TtHFit::ComputeBining(int regIter){
                                         NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                         );
               for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-		  int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
-		  TtHFitter::SetDebugLevel(0);
+                  int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
+                  TtHFitter::SetDebugLevel(0);
                   htmp = HistFromNtuple( fullPaths[i_path],
                                         fRegions[regIter]->fVariable, 10000, fRegions[regIter]->fXmin, fRegions[regIter]->fXmax,
                                         fullSelection, fullMCweight);
-		  TtHFitter::SetDebugLevel(tmp_debugLevel);
+                  TtHFitter::SetDebugLevel(tmp_debugLevel);
                   //
                   // Pre-processing of histograms (rebinning, lumi scaling)
                   if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -6189,130 +6262,131 @@ void TtHFit::ComputeBining(int regIter){
                       else hsig->Add(htmp);
                   }
                   else{
-		    if(bkgReg && !flatBkg){
-		      bool usedInSig=false;
-		      for(unsigned int i_bkgs=0; i_bkgs<fRegions[regIter]->fAutoBinBkgsInSig.size(); ++i_bkgs){
-			if(fSamples[i_smp]->fName==fRegions[regIter]->fAutoBinBkgsInSig[i_bkgs]){
-			  usedInSig=true;
-			  break;
-			}
-		      }
-		      if(usedInSig){
-			if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFit DEBUG::ComputeBinning: Using "<<fSamples[i_smp]->fName<<" as signal" << std::endl;
-			if(nDefSig){
-			  hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-			  nDefSig=false;
-			}
-			else hsig->Add(htmp);
-		      }
-		      else{
-			if(nDefBkg){
-			  hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-			  nDefBkg=false;
-			}
-			else hbkg->Add(htmp);
-		      }
-		    }
-		    else{
-		      if(nDefBkg){
-			hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-			nDefBkg=false;
-		      }
-		      else hbkg->Add(htmp);
-		    }
-                  }
-                  htmp->~TH1F();
-              }
-	  }
-          //
-          // Input with hists
-          else if(fInputType == 0){
-              if(fSamples[i_smp]->fType==Sample::DATA) continue;
-              if(fSamples[i_smp]->fType==Sample::GHOST) continue;
-              //
-              // build a list of histograms to read
-              fullPaths.clear();
-              std::vector<string> histoFiles;
-              std::vector<string> histoNames;
-              if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
-              else if(fRegions[regIter]->fHistoFiles.size()>0) histoFiles = fRegions[regIter]->fHistoFiles;
-              else                                          histoFiles = ToVec( fHistoFile );
-              if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
-              else if(fRegions[regIter]->fHistoNames.size()>0) histoNames = fRegions[regIter]->fHistoNames;
-              else                                          histoNames = ToVec( fHistoName );
-	      fullPaths = CreatePathsList( fHistoPaths, CombinePathSufs(fRegions[regIter]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),
-	      				   histoFiles, empty, // no histo file suffs for nominal (syst only)
-	      				   histoNames, empty  // same for histo name
-	      				   );
-
-              for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
-		  int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
-		  TtHFitter::SetDebugLevel(0);
-                  htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-		  TtHFitter::SetDebugLevel(tmp_debugLevel);
-                  //
-                  // Pre-processing of histograms (rebinning, lumi scaling)
-                  if(fRegions[regIter]->fHistoBins){
-                      TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin,"htmp2",fRegions[regIter]->fHistoBins));
-                      const char *hname = htmp->GetName();
-                      htmp->~TH1F();
-                      htmp = htmp2;
-                      htmp->SetName(hname);
-                  }
-                  else if(fRegions[regIter]->fHistoNBinsRebin != -1) {
-                      htmp = (TH1F*)(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin));
-                  }
-              //
-              if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
-              //
-              if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
-              else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
-              //
-              // apply histogram to signal or background
-              if(fSamples[i_smp]->fType==Sample::SIGNAL){
-                  if(nDefSig){
-                      hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-                      nDefSig=false;
-                  }
-                  else hsig->Add(htmp);
-              }
-              else{
-		if(bkgReg && !flatBkg){
-		  bool usedInSig=false;
-		  for(unsigned int i_bkgs=0; i_bkgs<fRegions[regIter]->fAutoBinBkgsInSig.size(); ++i_bkgs){
-		    if(fSamples[i_smp]->fName==fRegions[regIter]->fAutoBinBkgsInSig[i_bkgs]){
-		      usedInSig=true;
-		      break;
-		    }
-		  }
-		  if(usedInSig){
-		    if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFit DEBUG::ComputeBinning: Using "<<fSamples[i_smp]->fName<<" as signal" << std::endl;
-		    if(nDefSig){
-		      hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-		      nDefSig=false;
-		    }
-		    else hsig->Add(htmp);
-		  }
-		  else{
-		    if(nDefBkg){
-		      hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-		      nDefBkg=false;
-		    }
-		    else hbkg->Add(htmp);
-		  }
-		}
-		else{
-		  if(nDefBkg){
-		    hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-		    nDefBkg=false;
-		  }
-		  else hbkg->Add(htmp);
-		}
-              }
-              //
-              htmp->~TH1F();
+                      if(bkgReg && !flatBkg){
+                          bool usedInSig=false;
+                          for(unsigned int i_bkgs=0; i_bkgs<fRegions[regIter]->fAutoBinBkgsInSig.size(); ++i_bkgs){
+                              if(fSamples[i_smp]->fName==fRegions[regIter]->fAutoBinBkgsInSig[i_bkgs]){
+                                  usedInSig=true;
+                                  break;
+                              }
+                        }
+                        if(usedInSig){
+                            if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFit DEBUG::ComputeBinning: Using "<<fSamples[i_smp]->fName<<" as signal" << std::endl;
+                            if(nDefSig){
+                                hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+                                nDefSig=false;
+                            }
+                            else hsig->Add(htmp);
+                        }
+                        else{
+                            if(nDefBkg){
+                              hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+                              nDefBkg=false;
+                            }
+                            else hbkg->Add(htmp);
+                        }
+                    }
+                    else{
+                        if(nDefBkg){
+                            hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+                            nDefBkg=false;
+                        }
+                        else hbkg->Add(htmp);
+                    }
+                }
+                htmp->~TH1F();
             }
-	 }
+        }
+        //
+        // Input with hists
+        else if(fInputType == 0){
+            if(fSamples[i_smp]->fType==Sample::DATA) continue;
+            if(fSamples[i_smp]->fType==Sample::GHOST) continue;
+            //
+            // build a list of histograms to read
+            fullPaths.clear();
+            std::vector<string> histoFiles;
+            std::vector<string> histoNames;
+            if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
+            else if(fRegions[regIter]->fHistoFiles.size()>0) histoFiles = fRegions[regIter]->fHistoFiles;
+            else                                          histoFiles = ToVec( fHistoFile );
+            if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
+            else if(fRegions[regIter]->fHistoNames.size()>0) histoNames = fRegions[regIter]->fHistoNames;
+            else                                          histoNames = ToVec( fHistoName );
+            fullPaths = CreatePathsList( fHistoPaths, CombinePathSufs(fRegions[regIter]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),
+                        histoFiles, empty, // no histo file suffs for nominal (syst only)
+                        histoNames, empty  // same for histo name
+                        );
+
+            for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
+                TtHFitter::SetDebugLevel(0);
+                htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                TtHFitter::SetDebugLevel(tmp_debugLevel);
+                //
+                // Pre-processing of histograms (rebinning, lumi scaling)
+                if(fRegions[regIter]->fHistoBins){
+                    TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin,"htmp2",fRegions[regIter]->fHistoBins));
+                    const char *hname = htmp->GetName();
+                    htmp->~TH1F();
+                    htmp = (TH1F*)htmp2->Clone();
+                    delete htmp2;
+                    htmp->SetName(hname);
+                }
+                else if(fRegions[regIter]->fHistoNBinsRebin != -1) {
+                    htmp = (TH1F*)(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin));
+                }
+            //
+            if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+            //
+            if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+            else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
+            //
+            // apply histogram to signal or background
+            if(fSamples[i_smp]->fType==Sample::SIGNAL){
+                if(nDefSig){
+                    hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+                    nDefSig=false;
+                }
+                else hsig->Add(htmp);
+            }
+            else{
+            if(bkgReg && !flatBkg){
+                bool usedInSig=false;
+                for(unsigned int i_bkgs=0; i_bkgs<fRegions[regIter]->fAutoBinBkgsInSig.size(); ++i_bkgs){
+                    if(fSamples[i_smp]->fName==fRegions[regIter]->fAutoBinBkgsInSig[i_bkgs]){
+                        usedInSig=true;
+                        break;
+                    }
+                }
+                if(usedInSig){
+                    if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFit DEBUG::ComputeBinning: Using "<<fSamples[i_smp]->fName<<" as signal" << std::endl;
+                    if(nDefSig){
+                        hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+                        nDefSig=false;
+                    }
+                    else hsig->Add(htmp);
+                }
+                else{
+                    if(nDefBkg){
+                        hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+                        nDefBkg=false;
+                    }
+                    else hbkg->Add(htmp);
+                }
+            }
+            else{
+                if(nDefBkg){
+                    hbkg = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+                    nDefBkg=false;
+                }
+                else hbkg->Add(htmp);
+            }
+          }
+          //
+          htmp->~TH1F();
+        }
+      }
     }
     //
     //computing new bins
@@ -6441,6 +6515,7 @@ void TtHFit::ComputeBining(int regIter){
     //
     delete hsig;
     delete hbkg;
+    delete htmp;
     fRegions[regIter]->SetBinning(nBins-1, bins);
     delete[] bins;
 }
@@ -6606,7 +6681,8 @@ void TtHFit::defineVariable(int regIter){
             t->Add(fullPaths[i_path].c_str());
             t->Draw( Form("%s>>htmp1",fRegions[regIter]->fCorrVar1.c_str()), Form("(%s)*(%s)",fullMCweight.c_str(),fullSelection.c_str()), "goff");
             t->Draw( Form("%s>>htmp2",fRegions[regIter]->fCorrVar2.c_str()), Form("(%s)*(%s)",fullMCweight.c_str(),fullSelection.c_str()), "goff");
-            t->~TChain();
+//             t->~TChain();
+            delete t;
             //
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp1 -> Scale(fLumi);
             if(fSamples[i_smp]->fLumiScales.size()>i_path)  htmp1 -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
@@ -6618,8 +6694,10 @@ void TtHFit::defineVariable(int regIter){
             //
             h1->Add(htmp1);
             h2->Add(htmp2);
-            htmp1->~TH1();
-            htmp2->~TH1();
+//             htmp1->~TH1();
+//             htmp2->~TH1();
+            delete htmp1;
+            delete htmp2;
         }
     }
 
