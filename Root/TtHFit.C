@@ -1430,6 +1430,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             type = Systematic::OVERALL;
         if(cs->Get("Type")=="shape" || cs->Get("Type")=="SHAPE")
             type = Systematic::SHAPE;
+        if(cs->Get("Type")=="stat" || cs->Get("Type")=="STAT") {
+            type = Systematic::STAT;
+        }
         string decorrelate = cs->Get("Decorrelate");
         sys = new Systematic(CheckName(cs->GetValue()),type);
         TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
@@ -1533,7 +1536,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         // save list of...
         //
         // Default
-        if ( decorrelate == "" ) {
+        if ( decorrelate == "" && type != Systematic::STAT) {
             fSystematics.push_back( sys );
             fNSyst++;
             if(cs->Get("NuisanceParameter")!=""){
@@ -1566,7 +1569,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
         //
         // Decorrelate by region
-        else if (decorrelate == "REGION")  {
+        else if (decorrelate == "REGION" || type == Systematic::STAT)  {
             //
             // looping over the regions
             for(unsigned int i_reg=0; i_reg<regNames.size(); ++i_reg) {
@@ -1586,39 +1589,78 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                     continue;
                 }
                 std::cout << " --> KEEPING IT!!! " << regNames[i_reg] << std::endl;
-                //
-                // cloning the sys for each region
-                Systematic* mySys= new Systematic(*sys);
-                mySys->fName=(mySys->fName)+"_"+regNames[i_reg];
-                std::vector<string> tmpReg;
-                tmpReg.push_back( regNames[i_reg] );
-                mySys->fRegions = tmpReg;
-                fSystematics.push_back( mySys );
 
-                if(cs->Get("NuisanceParameter")!=""){
-                    mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg];
-                    TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
-                }
-                else{
-                    mySys->fNuisanceParameter = mySys->fName;
-                    TtHFitter::NPMAP[mySys->fName] = mySys->fName;
-                }
-                if(cs->Get("Title")!=""){
-                    mySys->fTitle = (sys->fTitle)+"_"+regNames[i_reg];
-                    TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
-                }
-                fNSyst++;
-                //
-                for(int i_smp=0;i_smp<fNSamples;i_smp++){
-                    sam = fSamples[i_smp];
-                    if(sam->fType == Sample::DATA) continue;
-                    if(!sam->fUseSystematics) continue;
-                    if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
-                          && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
-                          ){
-                      sam->AddSystematic(mySys);
+                if (type == Systematic::STAT) {
+                    std::cout << regNames[i_reg] << " " << GetRegion(regNames[i_reg])->fNbins << std::endl;
+                    // decorrelate by bin
+                    for (int i_bin = 1; i_bin <= GetRegion(regNames[i_reg])->fNbins; i_bin++) {
+                        Systematic* mySys= new Systematic(*sys);
+                        mySys->fName=(mySys->fName)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
+                        std::vector<string> tmpReg;
+                        tmpReg.push_back( regNames[i_reg] );
+                        mySys->fRegions = tmpReg;
+                        std::vector<int> tmpBin;
+                        tmpBin.push_back( i_bin );
+                        mySys->fBins = tmpBin;
+                        fSystematics.push_back( mySys );
+                        if(cs->Get("NuisanceParameter")!=""){
+                            mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
+                            TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                        } else {
+                            mySys->fNuisanceParameter = mySys->fName;
+                            TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+                        }
+                        if(cs->Get("Title")!=""){
+                            mySys->fTitle = (sys->fTitle)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
+                            TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+                        }
+                        fNSyst++;
+                        for (int i_smp=0;i_smp<fNSamples;i_smp++){
+                            sam = fSamples[i_smp];
+                            if(sam->fType == Sample::DATA) continue;
+                            if(!sam->fUseSystematics) continue;
+                            if((samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+                                && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+                                ){
+                                sam->AddSystematic(mySys);
+                            }
+                        }
                     }
-                }
+                } else {
+                    //
+                    // cloning the sys for each region
+                    Systematic* mySys= new Systematic(*sys);
+                    mySys->fName=(mySys->fName)+"_"+regNames[i_reg];
+                    std::vector<string> tmpReg;
+                    tmpReg.push_back( regNames[i_reg] );
+                    mySys->fRegions = tmpReg;
+                    fSystematics.push_back( mySys );
+
+                    if(cs->Get("NuisanceParameter")!=""){
+                        mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg];
+                        TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                    }
+                    else{
+                        mySys->fNuisanceParameter = mySys->fName;
+                        TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+                    }
+                    if(cs->Get("Title")!=""){
+                        mySys->fTitle = (sys->fTitle)+"_"+regNames[i_reg];
+                        TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+                    }
+                    fNSyst++;
+                    //
+                    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                        sam = fSamples[i_smp];
+                        if(sam->fType == Sample::DATA) continue;
+                        if(!sam->fUseSystematics) continue;
+                        if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+                              && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+                              ){
+                          sam->AddSystematic(mySys);
+                        }
+                    }
+		}
             }
             delete sys;
         }
@@ -1906,6 +1948,12 @@ void TtHFit::ReadNtuples(){
                     SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
                     syh->fSystematic = syst;
                     continue;
+                }
+                // if Stat uncertainty on MC sample
+                if(syst->fType == Systematic::STAT){
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fBins[0]);
+		    syh->fSystematic = syst;
+		    continue;
                 }
                 // else ...
                 //
@@ -2467,6 +2515,12 @@ void TtHFit::ReadHistograms(){
                     syh->fSystematic = syst;
                     continue;
                 }
+                // if Stat uncertainty on MC sample
+                if(syst->fType == Systematic::STAT){
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fBins[0]);
+		    syh->fSystematic = syst;
+		    continue;
+                }
                 // else ...
                 //
                 if(syst->fReferenceSample!="") smp = GetSample(syst->fReferenceSample);
@@ -2729,14 +2783,21 @@ void TtHFit::ReadHistos(/*string fileName*/){
                         if(binContent==1 || binContent==-2) pruned = 1;
                         if(binContent==2 || binContent==-3) pruned = 2;
                     }
-                    syh = sh->AddHistoSyst(systName,
-                                           Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                           pruned
-                                          );
+                    if (fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::STAT){
+                        syh = sh->AddStatSyst(systName, fSamples[i_smp]->fSystematics[i_syst]->fBins[0]);
+                        syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                        syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systName.c_str());
+                        syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systName.c_str());
+                    } else {
+                        syh = sh->AddHistoSyst(systName,
+                                               Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                               Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                               pruned
+                                              );
+                        syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
+                        syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
+                    }
                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
-                    syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
-                    syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                     syh->fFileNameShapeUp    = fileName;
                     syh->fFileNameShapeDown  = fileName;
                 }
@@ -5509,6 +5570,8 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         }
     }
 
+    std::cout << "DEBUG7 "; for (auto i : nuisPars) std::cout << i << " "; std::cout << nuisPars.size() << std::endl;
+
     //
     //Text files containing information necessary for drawing of ranking plot
     //
@@ -5588,11 +5651,12 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 	  string np = var->GetName();
 	  if(np.find("gamma")!=string::npos){
 // 	    if(np==NPnames || NPnames=="all") nuisPars.push_back(np);
-	    if(np==NPnames || NPnames=="all") nuisPars.push_back(ReplaceString(np,"gamma_",""));
-	    isNF.push_back( true );
-	    if(NPnames!="all") break;
+	    if(np==NPnames || NPnames=="all") {
+	      nuisPars.push_back(ReplaceString(np,"gamma_",""));
+              isNF.push_back( true );
+              if(NPnames!="all") break;
+	    }
 	  }
-	  
 // 	  if(NPnames!="all"){
 // 	    if(np==NPnames){
 // 	      nuisPars.push_back(ReplaceString(np,"gamma_",""));

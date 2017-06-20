@@ -119,6 +119,36 @@ SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
 
 //_____________________________________________________________________________
 //
+SystematicHist* SampleHist::AddStatSyst(string name, int i_bin) {
+    SystematicHist *syh;
+    syh = GetSystematic(name);
+    // ... and if not create a new one
+    if(syh==0x0){
+        syh = new SystematicHist(name);
+        fSyst.push_back(syh);
+        fNSyst ++;
+    }
+    syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistShapeUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Shape_Up",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistShapeDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Shape_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistShapeUp  ->SetBinContent(i_bin,fHist->GetBinContent(i_bin) + fHist->GetBinError(i_bin));
+    syh->fHistShapeDown->SetBinContent(i_bin,fHist->GetBinContent(i_bin) - fHist->GetBinError(i_bin));
+    syh->fHistUp   ->SetBinContent(i_bin,fHist->GetBinContent(i_bin) + fHist->GetBinError(i_bin));
+    syh->fHistDown->SetBinContent(i_bin,fHist->GetBinContent(i_bin) - fHist->GetBinError(i_bin));
+    syh->fHistUp_orig   = (TH1*)syh->fHistUp  ->Clone(Form("%s_orig",syh->fHistUp  ->GetName()));
+    syh->fHistDown_orig = (TH1*)syh->fHistDown->Clone(Form("%s_orig",syh->fHistDown->GetName()));
+    syh->fHistShapeUp  ->Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());
+    syh->fHistShapeDown->Scale(fHist->Integral() / syh->fHistShapeDown->Integral());
+    syh->fIsOverall = true;
+    syh->fIsShape   = true;
+    syh->fNormUp   = ( syh->fHistUp->Integral()   - fHist->Integral() ) / fHist->Integral();
+    syh->fNormDown = ( syh->fHistDown->Integral() - fHist->Integral() ) / fHist->Integral();
+    return syh;
+}
+
+//_____________________________________________________________________________
+//
 SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
     SystematicHist *syh;
     // try if it's already there...

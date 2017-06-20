@@ -9,7 +9,8 @@ public:
     enum SystType{
         OVERALL, // 0
         SHAPE, // 1
-        HISTO // 2
+        HISTO, // 2
+        STAT // 3
     };
   
     Systematic(string name,int type=0,float up=0,float down=0);
@@ -49,6 +50,7 @@ public:
     std::vector<string> fDropShapeIn;
     std::vector<string> fDropNormIn;
     std::vector<string> fKeepNormForSamples;
+    std::vector<int> fBins;
     
     // from ntuples - up
     string fWeightUp;
