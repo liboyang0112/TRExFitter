@@ -210,6 +210,8 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     //    myFit->ListOfBestSeparationVariables(); // for the future list of best separation variables
     //    myFit->ListOfBestDataMCVariables();     // for the future list of best data-mc agreement variables based on KS test
     }
+    
+    if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->CloseInputFiles();
   
 }
 

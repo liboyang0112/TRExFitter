@@ -25,7 +25,7 @@ public:
         GHOST // 3
     };
     
-    Sample(string name,int type=0);
+    Sample(std::string name,int type=0);
     ~Sample();
     
     // -------
@@ -33,69 +33,73 @@ public:
     // -------
 
     // comsetics
-    void SetTitle(string title);
+    void SetTitle(std::string title);
     void SetFillColor(int color);
     void SetLineColor(int color);
     void NormalizedByTheory(const bool norm);
     
     // read from ntupes
-    void AddNtuplePath(string path);
-    void AddNtupleFile(string file);
-    void AddNtupleName(string name);
-    void SetMCweight(string weight);
-    void SetSelection(string selection);
+    void AddNtuplePath(std::string path);
+    void AddNtupleFile(std::string file);
+    void AddNtupleName(std::string name);
+    void SetMCweight(std::string weight);
+    void SetSelection(std::string selection);
 
     // read from histos
-    void AddHistoPath(string path);
-    void AddHistoFile(string file);
-    void AddHistoName(string name);
+    void AddHistoPath(std::string path);
+    void AddHistoFile(std::string file);
+    void AddHistoName(std::string name);
     
     // norm factors and systs
     void AddNormFactor(NormFactor *factor);
     void AddSystematic(Systematic *syst);
-    NormFactor* AddNormFactor(string name,float nominal=1,float min=0,float max=10,bool isConst=false);
-    Systematic* AddSystematic(string name,int type=0,float up=0,float down=0);
-
+    NormFactor* AddNormFactor(std::string name,float nominal=1,float min=0,float max=10,bool isConst=false);
+    Systematic* AddSystematic(std::string name,int type=0,float up=0,float down=0);
+    bool HasNormFactor(std::string name);
+    bool HasSystematic(std::string name);
+    
     // -------
     // Members
     // -------
 
-    string fName;
+    std::string fName;
     int fType;
-    string fFitName;
-    string fTitle;
-    string fTexTitle;
-    string fGroup;
+    std::string fFitName;
+    std::string fTitle;
+    std::string fTexTitle;
+    std::string fGroup;
     int fFillColor;
     int fLineColor;
     bool fNormalizedByTheory;
-    std::vector<string> fRegions;
+    std::vector<std::string> fRegions;
     std::vector<float> fLumiScales;
     bool fIgnoreSelection;
     bool fUseMCStat;
     bool fUseSystematics;
-    string fDivideBy;
-    string fMultiplyBy;
+    std::string fDivideBy;
+    std::string fMultiplyBy;
+    std::string fSubtractSample;
+    std::string fAddSample;
     bool fSmooth;
     
     // to read from ntuples
-    string fSelection;
-    string fMCweight;
-    std::vector<string> fNtuplePaths;
-    std::vector<string> fNtuplePathSuffs;
-    std::vector<string> fNtupleFiles;
-    std::vector<string> fNtupleFileSuffs;
-    std::vector<string> fNtupleNames;
-    std::vector<string> fNtupleNameSuffs;
+    std::string fSelection;
+    std::string fMCweight;
+    std::vector<std::string> fNtuplePaths;
+    std::vector<std::string> fNtuplePathSuffs;
+    std::vector<std::string> fNtupleFiles;
+    std::vector<std::string> fNtupleFileSuffs;
+    std::vector<std::string> fNtupleNames;
+    std::vector<std::string> fNtupleNameSuffs;
     
     // to read from histograms
     // <path>/<file>.root/<name>
-    std::vector<string> fHistoPaths;
-    std::vector<string> fHistoPathSuffs;
-    std::vector<string> fHistoFiles;
-    std::vector<string> fHistoFileSuffs;
-    std::vector<string> fHistoNames;
-    std::vector<string> fHistoNameSuffs;
+    std::vector<std::string> fHistoPaths;
+    std::vector<std::string> fHistoPathSuffs;
+    std::vector<std::string> fHistoFiles;
+    std::vector<std::string> fHistoFileSuffs;
+    std::vector<std::string> fHistoNames;
+    std::vector<std::string> fHistoNameSuffs;
 
     // systematics & norm.factors
     int fNSyst;

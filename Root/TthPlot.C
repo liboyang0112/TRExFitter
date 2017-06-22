@@ -938,7 +938,7 @@ void TthPlot::WriteToFile(string name){
     }
     here->cd();
     f->Close();
-    f->~TFile();
+//     f->~TFile();
     delete f;
 }
 

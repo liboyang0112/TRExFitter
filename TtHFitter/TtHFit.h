@@ -95,6 +95,7 @@ public:
     void ReadNtuples();
     void ReadHistograms();
     void ReadHistos(/*string fileName=""*/);
+    void CloseInputFiles();
     void CorrectHistograms();
     
     void DrawAndSaveAll(string opt="");
