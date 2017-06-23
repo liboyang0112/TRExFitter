@@ -1,3 +1,10 @@
+2017-06-23 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fix memory issue when too many histograms are readed from file (calling "TH1::AddDirectory(kFALSE);" if no writing is involved)
+    * goodness of fit added - need flag GetGoodnessOfFit set to TRUE under Fit
+    * PreSmoothing for systematics added (can be combined or not with normal smoothing)
+    * Various fixes on multiplication/division of sampes and propagation of systematics in this case
+    * Various small fixes
+    
 2017-06-12 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fix of DropBins functionality
     * Fix of post-fit plots crash

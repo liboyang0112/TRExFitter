@@ -238,10 +238,26 @@ int FindInStringVector(std::vector< string > v, string s){
             idx = (int)i;
             break;
         }
+//         // if there is a "*"...
+//         int wildcard_pos = s.find("*");
+//         if(wildcard_pos!=string::npos){
+//             int foo = s1.find(s.substr(0,wildcard_pos)), bar = s1.find(s.substr(wildcard_pos+1));
+//             if(foo!=string::npos && bar!=string::npos)
+//                 idx = (int)i;
+//                 break;
+//         }
         // if last character is "*"...
         if(s1[s1.size()-1]=='*'){
             s2 = s1.substr(0,s1.size()-1);
-            if(s.find(s2)!=string::npos){
+            if(s.find(s2)!=string::npos && s2[0]==s[0]){
+                idx = (int)i;
+                break;
+            }
+        }
+        // if first character is "*"...
+        if(s1[0]=='*'){
+            s2 = s1.substr(1,s1.size());
+            if(s.find(s2)!=string::npos && s2[s2.size()-1]==s[s.size()-1]){
                 idx = (int)i;
                 break;
             }
@@ -341,7 +357,7 @@ double convertStoD(string toConvert){
 
 //__________________________________________________________________________________
 // to smooth a nominal histogram, taking into account the statistical uncertinaty on each bin (note: no empty bins, please!!)
-bool SmoothHistogram( TH1* h, int forceFlat ){
+bool SmoothHistogram( TH1* h, int forceFlat, float nsigma ){
     int nbinsx = h->GetNbinsX();
     float xmin = h->GetBinLowEdge(1);
     float xmax = h->GetBinLowEdge(nbinsx)+h->GetBinWidth(nbinsx);
@@ -356,7 +372,8 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
         h->Smooth();
         bool changesApplied = false;
         for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-            if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > 2*h0->GetBinError(i_bin) ){
+            if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > nsigma*h0->GetBinError(i_bin) ){
+//             if( TMath::Abs(h->GetBinContent(i_bin) - h_orig->GetBinContent(i_bin)) > nsigma*h_orig->GetBinError(i_bin) ){ // this should be better...
                 h->SetBinContent(i_bin,h0->GetBinContent(i_bin));
             }
             else{
