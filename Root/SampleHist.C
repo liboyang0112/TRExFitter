@@ -699,6 +699,46 @@ void SampleHist::SmoothSyst(string syst,bool force){
         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
         // h_syst_up = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
         // h_syst_down = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
+        
+        if(fSyst[i_syst]->fSystematic->fPreSmoothing){
+            TH1* h_tmp_up   = h_syst_up!=0x0   ? (TH1*)h_syst_up  ->Clone() : 0x0;
+            TH1* h_tmp_down = h_syst_down!=0x0 ? (TH1*)h_syst_down->Clone() : 0x0;
+            if(h_tmp_up!=0x0 || h_tmp_down!=0x0){
+                TH1* h_tmp_nominal = (TH1*)h_nominal  ->Clone();
+                for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++){
+                    h_tmp_nominal->GetBinError(i_bin,0);
+                }
+                if(h_tmp_up!=0x0){
+                    float tmp_nom_up = h_tmp_up->Integral();
+                    h_tmp_up->Add(h_tmp_nominal,-1);
+                    h_tmp_up->Divide(h_tmp_nominal);
+                    for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_up->AddBinContent(i_bin, 100.);
+//                     SmoothHistogram(h_tmp_up,-1,3);
+                    h_tmp_up->Smooth();
+                    for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_up->AddBinContent(i_bin,-100.);
+                    h_tmp_up->Multiply(h_tmp_nominal);
+                    h_tmp_up->Add(h_tmp_nominal, 1);
+                    h_tmp_up->Scale(tmp_nom_up/h_tmp_up->Integral());
+                    h_syst_up = (TH1*)h_tmp_up->Clone();
+                }
+                if(h_tmp_down!=0x0){
+                    float tmp_nom_down = h_tmp_down->Integral();
+                    h_tmp_down->Add(h_tmp_nominal,-1);
+                    h_tmp_up->Divide(h_tmp_nominal);
+                    for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_down->AddBinContent(i_bin, 100.);
+                    h_tmp_down->Smooth();
+//                     SmoothHistogram(h_tmp_down,-1,3);
+                    for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_down->AddBinContent(i_bin,-100.);
+                    h_tmp_up->Multiply(h_tmp_nominal);
+                    h_tmp_down->Add(h_tmp_nominal, 1);
+                    h_tmp_down->Scale(tmp_nom_down/h_tmp_down->Integral());
+                    h_syst_down = (TH1*)h_tmp_down->Clone();
+                }
+                delete h_tmp_nominal;
+            }
+            delete h_tmp_up;
+            delete h_tmp_down;
+        }
 
         if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
         // Michele: why these lines?
@@ -858,7 +898,7 @@ void SampleHist::Divide(SampleHist *sh){
             fSyst[i_syst]->Divide( syh );
         }
     }
-    // loop on all the systematics the the other SampleHist, and see if some of them are NOT in this
+    // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         string systName = sh->fSyst[i_syst]->fName;
@@ -869,6 +909,8 @@ void SampleHist::Divide(SampleHist *sh){
             hUp  ->Divide( sh->fSyst[i_syst]->fHistUp   );
             hDown->Divide( sh->fSyst[i_syst]->fHistDown );
             syh = AddHistoSyst(systName,hUp,hDown);
+            syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
+            syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
             fSample->AddSystematic(sh->fSyst[i_syst]->fSystematic);
             delete hUp;
@@ -894,7 +936,7 @@ void SampleHist::Multiply(SampleHist *sh){
             fSyst[i_syst]->Multiply( syh );
         }
     }
-    // loop on all the systematics the the other SampleHist, and see if some of them are NOT in this
+    // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         string systName = sh->fSyst[i_syst]->fName;
@@ -905,6 +947,8 @@ void SampleHist::Multiply(SampleHist *sh){
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp   );
             hDown->Multiply( sh->fSyst[i_syst]->fHistDown );
             syh = AddHistoSyst(systName,hUp,hDown);
+            syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
+            syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
             fSample->AddSystematic(sh->fSyst[i_syst]->fSystematic);
             delete hUp;
@@ -943,6 +987,8 @@ void SampleHist::Add(SampleHist *sh,float scale){
             hUp  ->Add( sh->fSyst[i_syst]->fHistUp  ,scale );
             hDown->Add( sh->fSyst[i_syst]->fHistDown,scale );
             syh = AddHistoSyst(systName,hUp,hDown);
+            syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
+            syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
             fSample->AddSystematic(sh->fSyst[i_syst]->fSystematic);
             delete hUp;

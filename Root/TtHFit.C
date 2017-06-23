@@ -159,6 +159,8 @@ TtHFit::TtHFit(string name){
     fCustomAsimov = "";
     fRandomPOISeed = -1;
     fTableOptions = "STANDALONE";
+    
+    fGetGoodnessOfFit = false;
 }
 
 //__________________________________________________________________________________
@@ -919,6 +921,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fStatOnlyFit = true;
         }
     }
+    param = cs->Get("GetGoodnessOfFit");   if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fGetGoodnessOfFit = true;
+        }
+    }
 
     //##########################################################
     //
@@ -1116,7 +1124,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 std::cout << "<!> DataType is not recognised: " << param << std::endl;
             }
         }
-        param = cs->Get("SkipSmoothig"); if( param != "" ){
+        param = cs->Get("SkipSmoothing"); if( param != "" ){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
             if(param=="TRUE")  reg->fSkipSmoothing = true;
         }
@@ -1255,8 +1263,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         // to skip global & region selection for this sample
         param = cs->Get("IgnoreSelection");
         if(param!=""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "TRUE") smp->fIgnoreSelection = true;
+            std::string param1 = param;
+            std::transform(param1.begin(), param1.end(), param1.begin(), ::toupper);
+            if(param1 == "TRUE") smp->fIgnoreSelection = "TRUE";
+            else if(param1 == "FALSE") smp->fIgnoreSelection = "FALSE";
+            else smp->fIgnoreSelection = param;
         }
         // to skip MC stat uncertainty for this sample
         param = cs->Get("UseMCstat");
@@ -1504,14 +1515,19 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             if(cs->Get("Smoothing")!=""){
                 sys->fSmoothType = atoi(cs->Get("Smoothing").c_str());
             }
+            param = cs->Get("PreSmoothing");
+            if(param!=""){
+                std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+                if(param=="TRUE") sys->fPreSmoothing = true;
+            }
             // ...
         }
         else if(type==Systematic::OVERALL){
             sys->fOverallUp   = atof( cs->Get("OverallUp").c_str() );
             sys->fOverallDown = atof( cs->Get("OverallDown").c_str() );
         }
-	if(cs->Get("ScaleUp")!="")   sys->fScaleUp     = atof( cs->Get("ScaleUp").c_str() );
-	if(cs->Get("ScaleDown")!="") sys->fScaleDown   = atof( cs->Get("ScaleDown").c_str() );
+        if(cs->Get("ScaleUp")!="")   sys->fScaleUp     = atof( cs->Get("ScaleUp").c_str() );
+        if(cs->Get("ScaleDown")!="") sys->fScaleDown   = atof( cs->Get("ScaleDown").c_str() );
         // this to obtain syst variation relatively to given sample
         param = cs->Get("ReferenceSample"); if(param!="") sys->fReferenceSample = param;
         param = cs->Get("KeepReferenceOverallVar");
@@ -1802,12 +1818,14 @@ void TtHFit::ReadNtuples(){
             // set selection and weight
             fullSelection = "1";
             //             fSelection + " && " + fRegions[i_ch]->fSelection;
-            if(!fSamples[i_smp]->fIgnoreSelection && fSelection!="" && fSelection!="1")
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                 fullSelection += " && ("+fSelection+")";
-            if(!fSamples[i_smp]->fIgnoreSelection && fRegions[i_ch]->fSelection!="" && fRegions[i_ch]->fSelection!="1")
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fRegions[i_ch]->fSelection!="" && fRegions[i_ch]->fSelection!="1")
                 fullSelection += " && ("+fRegions[i_ch]->fSelection+")";
             if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
                 fullSelection += " && ("+fSamples[i_smp]->fSelection+")";
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSamples[i_smp]->fIgnoreSelection!="FALSE" && fSamples[i_smp]->fIgnoreSelection!="")
+                fullSelection = ReplaceString(fullSelection,fSamples[i_smp]->fIgnoreSelection,"1");
             //
             if(fSamples[i_smp]->fType==Sample::DATA) fullMCweight = "1";
             else if(!fSamples[i_smp]->fNormalizedByTheory){ // for data-driven bkg, use just the sample weight (FIXME)
@@ -1916,12 +1934,14 @@ void TtHFit::ReadNtuples(){
                 //
                 // set selection
                 fullSelection = "1";
-                if(!smp->fIgnoreSelection && fSelection!="" && fSelection!="1")
+                if(smp->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                     fullSelection += " && ("+fSelection+")";
-                if(!smp->fIgnoreSelection && reg->fSelection!="" && reg->fSelection!="1")
+                if(smp->fIgnoreSelection!="TRUE" && reg->fSelection!="" && reg->fSelection!="1")
                     fullSelection += " && ("+reg->fSelection+")";
                 if(smp->fSelection!="" && smp->fSelection!="1")
                     fullSelection += " && ("+smp->fSelection+")";
+                if(smp->fIgnoreSelection!="TRUE" && smp->fIgnoreSelection!="FALSE" && smp->fIgnoreSelection!="")
+                    fullSelection = ReplaceString(fullSelection,smp->fIgnoreSelection,"1");
                 //
                 // Up
                 //
@@ -2176,25 +2196,25 @@ void TtHFit::CorrectHistograms(){
             // ---> NEED TO MOVE TO READNTUPLES? -- FIXME
             // Subtraction / Addition of sample
             if(fSamples[i_smp]->fSubtractSample!=""){
-                std::cout << "INFO: subtarcting sample " << fSamples[i_smp]->fSubtractSample << std::endl;
+                std::cout << "INFO: subtracting sample " << fSamples[i_smp]->fSubtractSample << std::endl;
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fSubtractSample);
                 sh->Add(smph0,-1);
             }
             if(fSamples[i_smp]->fAddSample!=""){
-                std::cout << "INFO: subtarcting sample " << fSamples[i_smp]->fAddSample << std::endl;
+                std::cout << "INFO: adding sample " << fSamples[i_smp]->fAddSample << std::endl;
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fAddSample);
                 sh->Add(smph0);
             }
             // Division & Multiplication by other samples
-            if(fSamples[i_smp]->fDivideBy!=""){
-                std::cout << "INFO: dividing by sample " << fSamples[i_smp]->fDivideBy << std::endl;
-                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
-                sh->Divide(smph0);
-            }
             if(fSamples[i_smp]->fMultiplyBy!=""){
                 std::cout << "INFO: multiplying by sample " << fSamples[i_smp]->fMultiplyBy << std::endl;
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fMultiplyBy);
                 sh->Multiply(smph0);
+            }
+            if(fSamples[i_smp]->fDivideBy!=""){
+                std::cout << "INFO: dividing by sample " << fSamples[i_smp]->fDivideBy << std::endl;
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
+                sh->Divide(smph0);
             }
 
             //
@@ -2325,10 +2345,20 @@ void TtHFit::CorrectHistograms(){
     
     //
     // For data: restore original data sample (needed if bins were dropped previously)
-    for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        Region *reg = fRegions[i_ch];
-        if(reg->fData!=0x0){
-            if(reg->fData->fHist_orig!=0x0 && reg->fData->fHist!=0x0) reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
+    //Checks if a data sample exists
+    bool hasData = false;
+    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(fSamples[i_smp]->fType==Sample::DATA){
+            hasData = true;
+            break;
+        }
+    }
+    if(hasData){
+        for(int i_ch=0;i_ch<fNRegions;i_ch++){
+            Region *reg = fRegions[i_ch];
+            if(reg->fData!=0x0){
+                if(reg->fData->fHist_orig!=0x0 && reg->fData->fHist!=0x0) reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
+            }
         }
     }
     
@@ -2844,6 +2874,21 @@ void TtHFit::DrawAndSaveAll(string opt){
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
         fRegions[i_ch]->fATLASlabel = fAtlasLabel;
+        //
+        if(fCustomAsimov!=""){
+            std::string name = "customAsimov_"+fCustomAsimov;
+            SampleHist* cash = fRegions[i_ch]->GetSampleHist(name);
+            if(cash==0x0){
+                std::cerr << "TtHFit::DrawAndSaveAll::ERROR: no Custom Asimov " << fCustomAsimov << " available. Taking regular Asimov." << std::endl;
+            }
+            else{
+                if(TtHFitter::DEBUGLEVEL>0){
+                    std::cout << "  Adding Custom-Asimov Data: " << cash->fHist->GetName() << std::endl;
+                }
+                fRegions[i_ch]->fData = cash;
+            }
+        }
+        //
         if(isPostFit){
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
@@ -3141,15 +3186,27 @@ TthPlot* TtHFit::DrawSummary(string opt){
     TH1* h_tmp_Up;
     TH1* h_tmp_Down;
     std::vector<string> systNames;
+    std::vector<string> npNames;
     systNames.clear();
+    npNames.clear();
+    int i_np = -1;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         string systName = fSystematics[i_syst]->fName;
+        string systNuisPar = systName;
         systNames.push_back( systName );
+        if(fSystematics[i_syst]!=0x0)
+            systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
+        if(FindInStringVector(npNames,systNuisPar)<0){
+            npNames.push_back(systNuisPar);
+            i_np++;
+        }
+        else
+            continue;
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             // find the systematic in the region
             int syst_idx = -1;
             for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
-                if(systName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
+                if(systNuisPar==TtHFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
                     syst_idx = j_syst;
                 }
             }
@@ -3178,8 +3235,28 @@ TthPlot* TtHFit::DrawSummary(string opt){
                 h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,systName.c_str()), Form("h_Tot_%s_Up_TMP",  systName.c_str()), Nbin,0,Nbin) );
                 h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",systName.c_str()), Form("h_Tot_%s_Down_TMP",systName.c_str()), Nbin,0,Nbin) );
             }
-            h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
-            h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+            h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+            h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+            //
+            // look for other syst with the same np
+            for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
+                if(j_syst==syst_idx) continue;
+                if(systNuisPar==TtHFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
+                    TH1* h_tmp = 0x0;
+                    if(isPostFit){
+                        h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst];
+                        h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[j_syst];
+                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                    }
+                    else{
+                        h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[j_syst];
+                        h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[j_syst];
+                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot;
+                    }
+                    h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral()-h_tmp->Integral() );
+                    h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral()-h_tmp->Integral() );
+                }
+            }
         }
     }
     // add the norm factors
@@ -3219,13 +3296,15 @@ TthPlot* TtHFit::DrawSummary(string opt){
                 h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,normName.c_str()), Form("h_Tot_%s_Up_TMP",  normName.c_str()), Nbin,0,Nbin) );
                 h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",normName.c_str()), Form("h_Tot_%s_Down_TMP",normName.c_str()), Nbin,0,Nbin) );
             }
-            h_up[fNSyst+i_norm]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
-            h_down[fNSyst+i_norm]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+//             h_up[fNSyst+i_norm]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+//             h_down[fNSyst+i_norm]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+            h_up[i_np+1+i_norm]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+            h_down[i_np+1+i_norm]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
     //
-    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, systNames, fFitResults->fCorrMatrix );
-    else           g_err = BuildTotError( h_tot, h_up, h_down, systNames );
+    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix );
+    else           g_err = BuildTotError( h_tot, h_up, h_down, npNames );
     //
     p->SetTotBkg(h_tot);
     p->SetTotBkgAsym(g_err);
@@ -5027,9 +5106,39 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         fitTool -> FixNPs(npNames,npValues);
     }
 
+    //
+    // Get linitial ikelihood value from Asimov
+    float nll0 = 0.;
+    if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
+    
+    //
+    // Get number of degrees of freedom
+    // - number of bins
+    int ndof = inputData->numEntries();
+    // - minus number of free & non-constant parameters
+    int nNF = 0;
+    for(int i_nf=0;i_nf<fNNorm;i_nf++){
+        if(fNormFactors[i_nf]->fConst) continue;
+        if(fFitType==BONLY && fPOI==fNormFactors[i_nf]->fName) continue;
+        nNF++;
+    }
+    ndof -= nNF;
+    
+//     RooArgSet* nuis = (RooArgSet*) mc->GetPdf()->getParameters(*data);
+// //     RooArgSet* syst = (RooArgSet*) mc->GetPdf()->getAllConstraints(mc->GetObservables(),*nuis);
+// //     RooArgSet* syst = (RooArgSet*) mc->GetConstraintParameters();
+//     RooStats::RemoveConstantParameters(nuis);
+// //     if(syst) RooStats::RemoveConstantParameters(syst);
+//     cerr << ndof << endl;
+//     cerr << nuis->getSize() << endl;
+// //     if(syst) cerr << syst->getSize() << endl;
+//     cerr << syst << endl;
+//     ndof -= (nuis->getSize()-syst->getSize());
+//     cerr << ndof << endl;
+    
     // Performs the fit
     fitTool -> MinimType("Minuit2");
-    fitTool -> FitPDF( mc, simPdf, data );
+    float nll = fitTool -> FitPDF( mc, simPdf, data );
 //     fitTool -> FitPDF( mc, simPdf, data, true );   // for fast fit
     if(save){
         gSystem -> mkdir((fName+"/Fits/").c_str(),true);
@@ -5038,6 +5147,23 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     }
     result = fitTool -> ExportFitResultInMap();
 
+    //
+    // Goodness of fit
+    if(fGetGoodnessOfFit){
+        cout << "----------------------- -------------------------- -----------------------" << endl;
+        cout << "----------------------- GOODNESS OF FIT EVALUATION -----------------------" << endl;
+        cout << "  NLL0        = " << nll0 << endl;
+        cout << "  NLL         = " << nll  << endl;
+        cout << "  ndof        = " << ndof << endl;
+        float deltaNLL = nll-nll0;
+        cout << "  dNLL        = " << deltaNLL << endl;
+        cout << "  2dNLL/nof   = " << 2.*deltaNLL/ndof << endl;
+        double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
+        cout << "  probability = " << prob << endl;
+        cout << "----------------------- -------------------------- -----------------------" << endl;
+        cout << "----------------------- -------------------------- -----------------------" << endl;
+    }
+    
     return result;
 }
 
@@ -5653,19 +5779,18 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     // Loop on NPs to find gammas and add to the list to be ranked
 //     if(NPnames=="all" || NPnames.find("gamma_stat")!=string::npos){
     if(NPnames=="all" || NPnames.find("gamma")!=string::npos){
-      RooRealVar* var = NULL;
-      RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
-      if(nuis){
-        TIterator* it2 = nuis->createIterator();
-        while( (var = (RooRealVar*) it2->Next()) ){
-	  string np = var->GetName();
-	  if(np.find("gamma")!=string::npos){
-// 	    if(np==NPnames || NPnames=="all") nuisPars.push_back(np);
-	    if(np==NPnames || NPnames=="all") nuisPars.push_back(ReplaceString(np,"gamma_",""));
-	    isNF.push_back( true );
-	    if(NPnames!="all") break;
-	  }
-	  
+        RooRealVar* var = NULL;
+        RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
+        if(nuis){
+            TIterator* it2 = nuis->createIterator();
+            while( (var = (RooRealVar*) it2->Next()) ){
+                string np = var->GetName();
+                if(np.find("gamma")!=string::npos){
+            // 	    if(np==NPnames || NPnames=="all") nuisPars.push_back(np);
+                    if(np==NPnames || NPnames=="all") nuisPars.push_back(ReplaceString(np,"gamma_",""));
+                    isNF.push_back( true );
+                    if(NPnames!="all") break;
+                }
 // 	  if(NPnames!="all"){
 // 	    if(np==NPnames){
 // 	      nuisPars.push_back(ReplaceString(np,"gamma_",""));
@@ -5677,8 +5802,8 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 // 	    nuisPars.push_back(np);
 // 	    isNF.push_back( true );
 // 	  }
+            }
         }
-      }
     }
 
     //
@@ -6168,6 +6293,50 @@ void TtHFit::PrintSystTables(string opt){
     }
 }
 
+
+//____________________________________________________________________________________
+// this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
+void TtHFit::MergeSystematics(){
+    // loop on systematics, see if any of them has name != nuisance
+    for(auto syst : fSystematics){
+        if(syst->fName!=syst->fNuisanceParameter){
+            // if so, loop on other systematics to find one with name = nuisance parameter
+            for(auto syst1 : fSystematics){
+                if(syst->fName==syst1->fName) continue;
+                if(!(syst->fNuisanceParameter==syst1->fName && syst1->fNuisanceParameter==syst1->fName)) continue;
+                // now merge all SystematicHist in all regions
+                for(auto reg : fRegions){
+                    for(auto sh : reg->fSampleHists){
+                        SystematicHist *syh  = sh->GetSystematic(syst ->fName);
+                        SystematicHist *syh1 = sh->GetSystematic(syst1->fName);
+                        if(syh!=0x0 && syh1!=0x0){
+                            // FIXME...
+                            // the issue here is that to combine uncertainties one has to act differently depenind on the fact that the different sources come from a multiplication/division or not...
+                            if(sh->fSample->fMultiplyBy!="" && sh->fSample->fDivideBy!=""){
+                                syh1 ->Multiply(syh);
+                                syh1 ->Divide(sh->fHist);
+                            }
+                            else{
+                                syh1 ->Add(syh);
+                                syh1 ->Add(sh->fHist,-1);
+                            }
+                            syh->fHistUp   = (TH1*)sh->fHist->Clone(syh->fHistUp  ->GetName());
+                            syh->fHistDown = (TH1*)sh->fHist->Clone(syh->fHistDown->GetName());
+                            syh->fHistShapeUp   = (TH1*)sh->fHist->Clone(syh->fHistShapeUp  ->GetName());
+                            syh->fHistShapeDown = (TH1*)sh->fHist->Clone(syh->fHistShapeDown->GetName());
+                            syh->fNormUp   = 0.;
+                            syh->fNormDown = 0.;
+                            syh->fNormPruned  = true;
+                            syh->fShapePruned = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 //____________________________________________________________________________________
 //
 void TtHFit::ComputeBining(int regIter){
@@ -6208,12 +6377,14 @@ void TtHFit::ComputeBining(int regIter){
             if(fSamples[i_smp]->fType==Sample::GHOST) continue;
             if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[regIter]->fName)<0 ) continue;
             fullSelection = "1";
-            if(!fSamples[i_smp]->fIgnoreSelection && fSelection!="" && fSelection!="1")
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                 fullSelection += " && ("+fSelection+")";
-            if(!fSamples[i_smp]->fIgnoreSelection && fRegions[regIter]->fSelection!="" && fRegions[regIter]->fSelection!="1")
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fRegions[regIter]->fSelection!="" && fRegions[regIter]->fSelection!="1")
                 fullSelection += " && ("+fRegions[regIter]->fSelection+")";
             if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
                 fullSelection += " && ("+fSamples[i_smp]->fSelection+")";
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSamples[i_smp]->fIgnoreSelection!="FALSE" && fSamples[i_smp]->fIgnoreSelection!="")
+                fullSelection = ReplaceString(fullSelection,fSamples[i_smp]->fIgnoreSelection,"1");
             if(!fSamples[i_smp]->fNormalizedByTheory){
                 fullMCweight = fSamples[i_smp]->fMCweight;
             }
@@ -6640,12 +6811,14 @@ void TtHFit::defineVariable(int regIter){
         if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[regIter]->fName)<0 ) continue;
         if(TtHFitter::DEBUGLEVEL>0) std::cout<<" -> is used in the considered region"<<std::endl;
         fullSelection = "1";
-        if(!fSamples[i_smp]->fIgnoreSelection && fSelection!="" && fSelection!="1")
+        if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
             fullSelection += " && ("+fSelection+")";
-        if(!fSamples[i_smp]->fIgnoreSelection && fRegions[regIter]->fSelection!="" && fRegions[regIter]->fSelection!="1")
+        if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fRegions[regIter]->fSelection!="" && fRegions[regIter]->fSelection!="1")
             fullSelection += " && ("+fRegions[regIter]->fSelection+")";
         if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
             fullSelection += " && ("+fSamples[i_smp]->fSelection+")";
+        if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSamples[i_smp]->fIgnoreSelection!="FALSE" && fSamples[i_smp]->fIgnoreSelection!="")
+            fullSelection = ReplaceString(fullSelection,fSamples[i_smp]->fIgnoreSelection,"1");
         //
         if(!fSamples[i_smp]->fNormalizedByTheory){ // for data-driven bkg, use just the sample weight (FIXME)
             fullMCweight = fSamples[i_smp]->fMCweight;

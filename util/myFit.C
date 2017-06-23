@@ -36,6 +36,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     bool drawPostFit     = opt.find("p")!=string::npos;
     bool drawSeparation  = opt.find("a")!=string::npos;
     
+    if(!readHistograms && !readNtuples && !rebinAndSmooth)
+        TH1::AddDirectory(kFALSE); // FIXME: it would be nice to have a solution which works always
+    
     // multi-fit
     bool isMultiFit      = opt.find("m")!=string::npos;
     if(isMultiFit){
@@ -101,6 +104,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
         myFit->CreateCustomAsimov();
+        myFit->MergeSystematics();
         myFit->WriteHistos();
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
@@ -111,6 +115,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
         myFit->CreateCustomAsimov();
+        myFit->MergeSystematics();
         myFit->WriteHistos();
         if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
@@ -127,9 +132,10 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->fUpdate = udpate;
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
         myFit->CreateCustomAsimov();
-        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
+        myFit->MergeSystematics();
         myFit->WriteHistos();
+        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
 
     if(createWorkspace){

@@ -15,6 +15,7 @@ Systematic::Systematic(string name,int type,float up,float down){
     
     fSmoothType = 0;
     fSymmetrisationType = 0;
+    fPreSmoothing = false;
     //
     fOverallUp = up;
     fOverallDown = down;

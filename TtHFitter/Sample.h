@@ -73,7 +73,7 @@ public:
     bool fNormalizedByTheory;
     std::vector<std::string> fRegions;
     std::vector<float> fLumiScales;
-    bool fIgnoreSelection;
+    std::string fIgnoreSelection;
     bool fUseMCStat;
     bool fUseSystematics;
     std::string fDivideBy;

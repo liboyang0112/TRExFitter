@@ -146,6 +146,8 @@ public:
     
     void PrintSystTables(string opt="");
     
+    void MergeSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
+    
     // -------------------------
       
     string fName;
@@ -275,6 +277,8 @@ public:
     int fRandomPOISeed;
     
     std::string fTableOptions;
+    
+    bool fGetGoodnessOfFit;
 };
 
 #endif

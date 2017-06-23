@@ -18,7 +18,7 @@ Sample::Sample(string name,int type){
     fNormalizedByTheory = true;
     fRegions.clear();
     fLumiScales.clear();
-    fIgnoreSelection = false;
+    fIgnoreSelection = "";
     fUseMCStat = true;
     fUseSystematics = true;
     fDivideBy = "";

@@ -29,9 +29,6 @@
 
 using namespace std;
 
-const bool debug = false;
-
-
 //________________________________________________________________________
 //
 FittingTool::FittingTool():
@@ -86,7 +83,7 @@ FittingTool::~FittingTool()
 
 //________________________________________________________________________
 //
-void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit ) {
+float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit ) {
     
     if(m_debug) std::cout << "-> Entering in FitPDF function" << std::endl;
     
@@ -113,6 +110,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     //
 //     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1) );
     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), 
+//     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(0), 
                                          RooFit::NumCPU(TtHFitter::NCPU,RooFit::Hybrid)
 //                                          ,RooFit::Optimize(2)
 //                                          ,RooFit::Extended(true)   // experimental
@@ -135,7 +133,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     RooRealVar * poi = (RooRealVar*) model->GetParametersOfInterest()->first();
     if(!poi){
         std::cout << "<!> In FittingTool::FitPDF(): Cannot find the parameter of interest !" << std::endl;
-        return;
+        return 0;
     }
     
     poi -> setConstant(m_constPOI);
@@ -223,11 +221,20 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
         if(it2) delete it2;
     }
     
-    const double nllval = nll->getVal();
+    double nllval = nll->getVal();
+//     double nLLatMLE = 0.;//m_fitResult->minNll();
+//     double nlloffset = nll->getVal() - nLLatMLE;
+    
     if(m_debug){
         std::cout << "   -> Initial value of the NLL = " << nllval << std::endl;
+//         std::cout << "   -> Initial value of offset  = " << nlloffset << std::endl;
+//         std::cout << "   -> Initial NLL - offset     = " << nllval-nlloffset << std::endl;
         constrainedParams->Print("v");
     }
+    
+    //
+    // return here if specified not to perform the fit
+    if(noFit) return nllval;
     
     // 
     // Desperate attempts
@@ -411,7 +418,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
             cout << endl;
             m_minuitStatus = status;
             m_fitResult = 0;
-            return;
+            return 0;
         }
         
     }
@@ -439,6 +446,30 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
     //
     // clean stuff
 //     if(constrainedParams) delete constrainedParams;
+    
+    nllval = 0;
+//     nLLatMLE = 0;
+//     nlloffset = 0;
+    if(nll) nllval = nll->getVal();
+//     if(m_fitResult) nLLatMLE = m_fitResult->minNll();
+//     if(nll) nlloffset = nll->getVal() - nLLatMLE;
+    
+//     RooArgList poiList; 
+//     poiList.addClone(fNullParams); // make a clone list 
+//     Double_t deltaNLL = std::max( nLLatCondMLE-nLLatMLE, 0.);
+//     RemoveConstantParameters(poiList);
+//     int ndf = poiList.getSize();
+//     Double_t pvalue = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndf);
+    
+    if(m_debug){
+//         RemoveConstantParameters(poiList);
+//         int ndof = poiList.getSize();
+        int ndof = 1;
+        std::cout << "   -> Final value of the NLL = " << nllval << std::endl;
+//         std::cout << "   -> Final value of offset  = " << nlloffset << std::endl;
+//         std::cout << "   -> Final NLL - offset     = " << nllval-nlloffset << std::endl;
+//         std::cout << "   -> Goodness of fit (NLL/ndof) = " << nllval/ndof << std::endl;
+    }
     if(nll) delete nll;
 //     delete poi;  // creates a crash
 //     poi->~RooRealVar();  // creates a crash
@@ -447,6 +478,7 @@ void FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAb
 //     nuis->~RooArgSet();
 //     if(glbObs) delete glbObs;
 //     glbObs->~RooArgSet();
+    return nllval;
 }
 
 //____________________________________________________________________________________
