@@ -5108,7 +5108,8 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
 
     //
     // Get linitial ikelihood value from Asimov
-    float nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
+    float nll0 = 0.;
+    if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
     
     //
     // Get number of degrees of freedom
