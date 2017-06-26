@@ -31,13 +31,30 @@ TH1F* HistoTools::TranformHistogramBinning(TH1* originalHist){
     // In RooStats, input histogram variable binning is not supported => convert to a constant binning
     // by creating an histogram with the same number of bins but with constant binning between 0 and 1
     //
+//     const unsigned int nBins = originalHist -> GetNbinsX();
+//     TH1F *hFinal = new TH1F(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBins,0,1);
+//     hFinal -> SetDirectory(0);
+//     for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
+//         hFinal -> SetBinContent(iBin,originalHist->GetBinContent(iBin));
+//         hFinal -> SetBinError(iBin,originalHist->GetBinError(iBin));
+//     }
+    // Updated:
+    // - now in case some bins are exactly 0 (due to bin drop functionality), they are ignored for the regBin histos
     const unsigned int nBins = originalHist -> GetNbinsX();
-    TH1F *hFinal = new TH1F(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBins,0,1);
-    hFinal -> SetDirectory(0);
+    unsigned int nBinsNew = 0;
     for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
-        hFinal -> SetBinContent(iBin,originalHist->GetBinContent(iBin));
-        hFinal -> SetBinError(iBin,originalHist->GetBinError(iBin));
+        if(originalHist->GetBinContent(iBin)!=0) nBinsNew++;
     }
+    TH1F *hFinal = new TH1F(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBinsNew,0,1);
+    hFinal -> SetDirectory(0);
+    unsigned int iBinNew = 1;
+    for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
+        if(originalHist->GetBinContent(iBin)==0) continue;
+        hFinal -> SetBinContent(iBinNew,originalHist->GetBinContent(iBin));
+        hFinal -> SetBinError(iBinNew,originalHist->GetBinError(iBin));
+        iBinNew++;
+    }
+    //
     return hFinal;
 }
 
@@ -651,6 +668,7 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         return isGood;
       }
     }
+    else return false;
 
     //
     // 2) Checks the binning is the same for the three histograms

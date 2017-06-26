@@ -50,16 +50,38 @@ SystematicHist::~SystematicHist(){
 
 //_____________________________________________________________________________
 //
-void SystematicHist::WriteToFile(){
-    WriteHistToFile(fHistUp,fFileNameUp);
-    WriteHistToFile(fHistDown,fFileNameDown);
-    WriteHistToFile(fHistUp_orig,fFileNameUp);
-    WriteHistToFile(fHistDown_orig,fFileNameDown);
-    if(fIsShape){
-        WriteHistToFile(fHistShapeUp,fFileNameShapeUp);
-        WriteHistToFile(fHistShapeDown,fFileNameShapeDown);
-        WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),fFileNameShapeUp);
-        WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),fFileNameShapeDown);
+void SystematicHist::WriteToFile(TFile *f){
+    if(f==0x0){
+        WriteHistToFile(fHistUp,fFileNameUp);
+        WriteHistToFile(fHistDown,fFileNameDown);
+        WriteHistToFile(fHistUp_orig,fFileNameUp);
+        WriteHistToFile(fHistDown_orig,fFileNameDown);
+        if(fIsShape){
+            WriteHistToFile(fHistShapeUp,fFileNameShapeUp);
+            WriteHistToFile(fHistShapeDown,fFileNameShapeDown);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),fFileNameShapeUp);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),fFileNameShapeDown);
+        }
+        if(fSystematic->fType==Systematic::SHAPE){
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp),fFileNameUp);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown),fFileNameDown);
+        }
+    }
+    else{
+        WriteHistToFile(fHistUp,f);
+        WriteHistToFile(fHistDown,f);
+        WriteHistToFile(fHistUp_orig,f);
+        WriteHistToFile(fHistDown_orig,f);
+        if(fIsShape){
+            WriteHistToFile(fHistShapeUp,f);
+            WriteHistToFile(fHistShapeDown,f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),f);
+        }
+        if(fSystematic->fType==Systematic::SHAPE){
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp),f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown),f);
+        }
     }
 }
 
@@ -94,13 +116,10 @@ void SystematicHist::Print(){
 //_____________________________________________________________________________
 //
 void SystematicHist::Divide(TH1 *h){
-//     TH1* h = (TH1*)sh->fHist->Clone("h_tmp");
-//     for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
     fHistUp->Divide(h);
     fHistShapeUp->Divide(h);
     fHistDown->Divide(h);
     fHistShapeDown->Divide(h);
-//     delete h;
 }
 
 //_____________________________________________________________________________
@@ -115,13 +134,10 @@ void SystematicHist::Divide(SystematicHist *syh){
 //_____________________________________________________________________________
 //
 void SystematicHist::Multiply(TH1 *h){
-//     TH1* h = (TH1*)sh->fHist->Clone("h_tmp");
-//     for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
     fHistUp->Multiply(h);
     fHistShapeUp->Multiply(h);
     fHistDown->Multiply(h);
     fHistShapeDown->Multiply(h);
-//     delete h;
 }
 
 //_____________________________________________________________________________
@@ -131,4 +147,22 @@ void SystematicHist::Multiply(SystematicHist *syh){
     fHistShapeUp->Multiply(  syh->fHistShapeUp);
     fHistDown->Multiply(     syh->fHistDown);
     fHistShapeDown->Multiply(syh->fHistShapeDown);
+}
+
+//_____________________________________________________________________________
+//
+void SystematicHist::Add(TH1 *h,float scale){
+    fHistUp->Add(h,scale);
+    fHistShapeUp->Add(h,scale);
+    fHistDown->Add(h,scale);
+    fHistShapeDown->Add(h,scale);
+}
+
+//_____________________________________________________________________________
+//
+void SystematicHist::Add(SystematicHist *syh,float scale){
+    fHistUp->Add(       syh->fHistUp,scale);
+    fHistShapeUp->Add(  syh->fHistShapeUp,scale);
+    fHistDown->Add(     syh->fHistDown,scale);
+    fHistShapeDown->Add(syh->fHistShapeDown,scale);
 }

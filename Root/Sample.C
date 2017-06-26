@@ -19,7 +19,7 @@ Sample::Sample(string name,int type){
     fNormalizedByTheory = true;
     fRegions.clear();
     fLumiScales.clear();
-    fIgnoreSelection = false;
+    fIgnoreSelection = "";
     fUseMCStat = true;
     fUseSystematics = true;
     fDivideBy = "";
@@ -47,6 +47,8 @@ Sample::Sample(string name,int type){
     fNormFactors.clear();
     fShapeFactors.clear();
     fSystematics.clear();
+    
+    fAsimovReplacementFor = std::make_pair("","");
 }
     
 //__________________________________________________________________________________
@@ -160,6 +162,24 @@ void Sample::AddShapeFactor(ShapeFactor* shapeFactor){
 void Sample::AddSystematic(Systematic* syst){
     fSystematics.push_back(syst);
     fNSyst++;
+}
+
+//__________________________________________________________________________________
+//
+bool Sample::HasNormFactor(std::string name){
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(fSystematics[i_syst]->fName==name) return true;
+    }
+    return false;
+}
+
+//__________________________________________________________________________________
+//
+bool Sample::HasSystematic(std::string name){
+    for(int i_norm=0;i_norm<fNNorm;i_norm++){
+        if(fNormFactors[i_norm]->fName==name) return true;
+    }
+    return false;
 }
 
 //__________________________________________________________________________________

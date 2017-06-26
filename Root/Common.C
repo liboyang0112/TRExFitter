@@ -27,6 +27,7 @@ std::vector <string> TtHFitter::IMAGEFORMAT;
 int TtHFitter::NCPU = 1;
 //
 std::map <string,float> TtHFitter::OPTION;
+std::map<string,TFile*> TtHFitter::TFILEMAP;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -45,7 +46,8 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
     h->Sumw2();
     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
     MergeUnderOverFlow(h);
-    t->~TChain();
+//     t->~TChain();
+    delete t;
     return h;
 }
 
@@ -60,8 +62,21 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
     h->Sumw2();
     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
     MergeUnderOverFlow(h);
-    t->~TChain();
+//     t->~TChain();
+    delete t;
     return h;
+}
+
+//__________________________________________________________________________________
+//
+TFile* GetFile(string fileName){
+    auto it = TtHFitter::TFILEMAP.find(fileName);
+    if(it != TtHFitter::TFILEMAP.end()) return it->second;
+    else {
+        TFile *f = new TFile(fileName.c_str());
+        TtHFitter::TFILEMAP.insert(std::pair<string,TFile*>(fileName,f));
+        return f;
+    }
 }
 
 //__________________________________________________________________________________
@@ -79,7 +94,7 @@ TH1* HistFromFile(string fileName,string histoName){
     if(histoName=="") return 0x0;
     if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram  " << histoName << "  from file  " << fileName << "  ..." << endl;
     TH1 *h = 0x0;
-    TFile *f = new TFile(fileName.c_str());
+    TFile *f = GetFile(fileName);
     if(not f){
         cout<<"cannot find input file '"<<fileName<<"'"<<endl;
         return h;
@@ -92,8 +107,6 @@ TH1* HistFromFile(string fileName,string histoName){
     }
     h = static_cast<TH1*>(h->Clone());
     if(h!=0x0) h->SetDirectory(0);
-    f->Close();
-    delete f;
     return h;
 }
 
@@ -104,6 +117,15 @@ void WriteHistToFile(TH1* h,string fileName,string option){
     TFile *f = new TFile(fileName.c_str(),option.c_str());
     h->Write("",TObject::kOverwrite);
     delete f;
+    dir->cd();
+}
+
+//__________________________________________________________________________________
+//
+void WriteHistToFile(TH1* h,TFile *f){
+    TDirectory *dir = gDirectory;
+    f->cd();
+    h->Write("",TObject::kOverwrite);
     dir->cd();
 }
 
@@ -216,10 +238,26 @@ int FindInStringVector(std::vector< string > v, string s){
             idx = (int)i;
             break;
         }
+//         // if there is a "*"...
+//         int wildcard_pos = s.find("*");
+//         if(wildcard_pos!=string::npos){
+//             int foo = s1.find(s.substr(0,wildcard_pos)), bar = s1.find(s.substr(wildcard_pos+1));
+//             if(foo!=string::npos && bar!=string::npos)
+//                 idx = (int)i;
+//                 break;
+//         }
         // if last character is "*"...
         if(s1[s1.size()-1]=='*'){
             s2 = s1.substr(0,s1.size()-1);
-            if(s.find(s2)!=string::npos){
+            if(s.find(s2)!=string::npos && s2[0]==s[0]){
+                idx = (int)i;
+                break;
+            }
+        }
+        // if first character is "*"...
+        if(s1[0]=='*'){
+            s2 = s1.substr(1,s1.size());
+            if(s.find(s2)!=string::npos && s2[s2.size()-1]==s[s.size()-1]){
                 idx = (int)i;
                 break;
             }
@@ -275,7 +313,7 @@ double GetSeparation( TH1F* S1, TH1F* B1 ) {
 // - the code kills this kind of bins in data
 // - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
 TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
-  TH1F* h_blind = (TH1F*)h_data->Clone();
+  TH1F* h_blind = (TH1F*)h_data->Clone("h_blind");
   for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
     if( h_sig->GetBinContent(i_bin) / h_bkg->GetBinContent(i_bin) > threshold ){
       std::cout << "Common::INFO: Blinding bin n." << i_bin << std::endl;
@@ -287,6 +325,17 @@ TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
     }
   }
   return h_blind;
+}
+
+//__________________________________________________________________________________
+// This one to blind according to a given histogram containing already info on bins to blind
+void BlindDataHisto( TH1* h_data, TH1* h_blind ) {
+  for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
+    if(h_blind->GetBinContent(i_bin)!=0){
+      std::cout << "Common::INFO: Blinding bin n." << i_bin << std::endl;
+      h_data->SetBinContent(i_bin,0.);
+    }
+  }
 }
 
 double convertStoD(string toConvert){
@@ -308,38 +357,34 @@ double convertStoD(string toConvert){
 
 //__________________________________________________________________________________
 // to smooth a nominal histogram, taking into account the statistical uncertinaty on each bin (note: no empty bins, please!!)
-// TH1F* SmoothHistogram( TH1* h ){
-bool SmoothHistogram( TH1* h, int forceFlat ){
+bool SmoothHistogram( TH1* h, int forceFlat, float nsigma ){
     int nbinsx = h->GetNbinsX();
     float xmin = h->GetBinLowEdge(1);
     float xmax = h->GetBinLowEdge(nbinsx)+h->GetBinWidth(nbinsx);
-    float integral = h->Integral();
+    double error;
+    float integral = h->IntegralAndError(1,h->GetNbinsX(),error);
     TH1* h_orig = (TH1*)h->Clone("h_orig");
     //
     // if not flat, go on with the smoothing
-    TH1* h0;
-//     TH1* h00;
-//     h00 = (TH1*)h->Clone("h00");
     int Nmax = 5;
     for(int i=0;i<Nmax;i++){
-        h0 = (TH1*)h->Clone("h0");
+        TH1* h0 = (TH1*)h->Clone("h0");
         h->Smooth();
         bool changesApplied = false;
         for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-//             if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > h0->GetBinError(i_bin) ){
-            if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > 2*h0->GetBinError(i_bin) ){
+            if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > nsigma*h0->GetBinError(i_bin) ){
+//             if( TMath::Abs(h->GetBinContent(i_bin) - h_orig->GetBinContent(i_bin)) > nsigma*h_orig->GetBinError(i_bin) ){ // this should be better...
                 h->SetBinContent(i_bin,h0->GetBinContent(i_bin));
-//                 h->SetBinError(i_bin,h0->GetBinError(i_bin));
             }
             else{
                 changesApplied = true;
-//                 h->SetBinError(i_bin,
-//                                sqrt( pow(h0->GetBinError(i_bin),2) + pow(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin),2) ) );
-//                 h->SetBinError(i_bin, h0->GetBinError(i_bin) );
             }
+            // bring bins < 1e-6 to 1e-06
+            if(h->GetBinContent(i_bin)<1e-06) h->SetBinContent(i_bin,1e-06);
         }
         if(!changesApplied) break;
-        h0->~TH1();
+//         h0->~TH1();
+        delete h0;
     }
 
     //
@@ -357,7 +402,6 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
 //     if( (forceFlat<0 && isFlat) || forceFlat>0){
 //         for(int i_bin=1;i_bin<=nbinsx;i_bin++){
 //             h->SetBinContent(i_bin,p0);
-// //             h->SetBinError(i_bin,p0err);  // this creates problems...
 //             h->SetBinError(i_bin,p0);
 //         }
 //     }
@@ -367,21 +411,24 @@ bool SmoothHistogram( TH1* h, int forceFlat ){
     if(h->Integral()>0){
         h->Scale(integral/h->Integral());
     }
-
     //
-//     TH1F* h_corr = (TH1F*)h->Clone("h_correction");
-//     h_corr->Divide( h_orig );
-//     return h_corr;
-    //
-    // fix stat error
+    // fix stat error so that the total stat error is unchanged, and it's distributed among all bins
     for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-//         if(h->GetBinContent(i_bin)!=h00->GetBinContent(i_bin)){
-//                 h->SetBinError(i_bin,0);
-//                 h->SetBinError(i_bin, h_orig->GetBinError(i_bin) );
-                h->SetBinError(i_bin,
-                               sqrt( pow(h_orig->GetBinError(i_bin),2) + pow(h->GetBinContent(i_bin) - h_orig->GetBinContent(i_bin),2) ) );
-//         }
+        float N = integral;
+        float E = error;
+        float n = h->GetBinContent(i_bin);
+        h->SetBinError(i_bin,E*sqrt(n)/sqrt(N));
     }
     //
     return isFlat;
+}
+
+TH1* DropBins(TH1* h,std::vector<int> v){
+    TH1* h_new = (TH1*)h->Clone(h->GetName());
+    for(int i_bin=1;i_bin<=h_new->GetNbinsX();i_bin++){
+        if(find(v.begin(),v.end(),i_bin-1)!=v.end()){
+            h->SetBinContent(i_bin,0.);
+            h->SetBinError(i_bin,0.);
+        }
+    }
 }

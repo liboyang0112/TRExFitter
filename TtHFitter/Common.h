@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <utility>
 #include <map>
 
 // ROOT stuff
@@ -40,6 +41,7 @@
 // RooStats stuff
 #include "RooStats/HistFactory/Measurement.h"
 #include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
+#include "RooStats/RooStatsUtils.h"
 
 // ATLAS stuff
 #include "AtlasStyle.h"
@@ -75,6 +77,7 @@ namespace TtHFitter{
     extern int NCPU;
     //
     extern std::map< string, float > OPTION;
+    extern std::map<string,TFile*> TFILEMAP;
 };
 
 const int MAXregions = 100;
@@ -82,11 +85,13 @@ const int MAXsamples = 100;
 const int MAXsyst = 500;
 const int MAXnorm = 10;
 
+TFile* GetFile(string fileName);
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight);
 TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight);
 TH1* HistFromFile(string fullName);
 TH1* HistFromFile(string fileName,string histoName);
 void WriteHistToFile(TH1* h,string fileName,string option="UPDATE");
+void WriteHistToFile(TH1* h,TFile *f);
 void MergeUnderOverFlow(TH1* h);
 std::vector<string> CreatePathsList( std::vector<string> paths, std::vector<string> pathSufs,
                                     std::vector<string> files, std::vector<string> fileSufs,
@@ -101,9 +106,12 @@ int FindInStringVector(std::vector<string> v, string s);
 double GetSeparation( TH1F* S1, TH1F* B1 );
 
 TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
+void BlindDataHisto( TH1* h_data, TH1* h_blind );
 double convertStoD(string toConvert);
 
 // TH1F* SmoothHistogram( TH1* h );
-bool SmoothHistogram( TH1* h, int forceFlat=-1 ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
+bool SmoothHistogram( TH1* h, int forceFlat=-1, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
+
+TH1* DropBins(TH1* h,std::vector<int> v);
 
 #endif

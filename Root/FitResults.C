@@ -289,7 +289,7 @@ void FitResults::DrawGammaPulls( const string &path ){
 
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
         par = fNuisPar[i];
-        if ( par->fName.find("stat_") == std::string::npos ) continue;
+        if ( par->fName.find("stat_") == std::string::npos && par->fName.find("shape_") == std::string::npos ) continue;
         g->SetPoint(idx,par->fFitValue,idx+0.5);
         g->SetPointEXhigh(idx, par->fPostFitUp);
         g->SetPointEXlow( idx,-par->fPostFitDown);
@@ -298,6 +298,7 @@ void FitResults::DrawGammaPulls( const string &path ){
 
         std::string clean_name = par->fTitle;
         clean_name = ReplaceString( clean_name, "stat_", "#gamma " );
+        clean_name = ReplaceString( clean_name, "shape_", "#gamma " );
         clean_name = ReplaceString( clean_name, "_", " " );
         Names.push_back(clean_name);
         idx ++;
@@ -358,7 +359,7 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
     float xmax = 2.9;
     float max = 0;
 //     string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
-    string npToExclude[] = {"gamma_","stat_"};
+    string npToExclude[] = {"gamma_","stat_","shape_"};
     bool brazilian = true;
     bool grayLines = false;
 

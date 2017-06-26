@@ -36,6 +36,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     bool drawPostFit     = opt.find("p")!=string::npos;
     bool drawSeparation  = opt.find("a")!=string::npos;
     
+    if(!readHistograms && !readNtuples && !rebinAndSmooth)
+        TH1::AddDirectory(kFALSE); // FIXME: it would be nice to have a solution which works always
+    
     // multi-fit
     bool isMultiFit      = opt.find("m")!=string::npos;
     if(isMultiFit){
@@ -96,20 +99,26 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     // -------------------------------------------------------
 
     if(readHistograms){
+        myFit->CreateRootFiles();
         myFit->ReadHistograms();
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
-        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
+        myFit->CreateCustomAsimov();
+        myFit->MergeSystematics();
         myFit->WriteHistos();
+        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
     else if(readNtuples){
+        myFit->CreateRootFiles();
         myFit->ReadNtuples();
         myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
-        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
+        myFit->CreateCustomAsimov();
+        myFit->MergeSystematics();
         myFit->WriteHistos();
+        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
     else{
         if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->ReadHistos();
@@ -117,10 +126,16 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     
     // new
     if(rebinAndSmooth){
+        bool udpate = myFit->fUpdate;
+        myFit->fUpdate = true;
+        myFit->CreateRootFiles();  // ?
+        myFit->fUpdate = udpate;
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
-        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        if(TtHFitter::SYSTDATAPLOT) myFit->DrawSystPlotsSumSamples();
+        myFit->CreateCustomAsimov();
+        myFit->MergeSystematics();
         myFit->WriteHistos();
+        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
 
     if(createWorkspace){
@@ -201,6 +216,8 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     //    myFit->ListOfBestSeparationVariables(); // for the future list of best separation variables
     //    myFit->ListOfBestDataMCVariables();     // for the future list of best data-mc agreement variables based on KS test
     }
+    
+    if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->CloseInputFiles();
   
 }
 

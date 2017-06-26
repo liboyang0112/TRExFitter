@@ -79,6 +79,10 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     
     fYmin = 0;
     fYmax = 0;
+    fRatioYmin = 0.;
+    fRatioYmax = 2.;
+    
+    h_blinding = 0x0;
 }
 
 //_____________________________________________________________________________
@@ -302,15 +306,19 @@ void TthPlot::Draw(string options){
     //
     // Eventually blind bins
     //
-    h_blinding = 0x0;
     if(fBlindingThreshold>=0){
         if(h_data!=0x0 && fSigNames.size()>0 && h_tot!=0x0){
-            h_blinding = BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold );
-            // if more than one signal:
-            if(fSigNames.size()>1){
-                for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
-                    h_blinding->Add( BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold ) );
-                    h_blinding->Scale(2.);
+            if(h_blinding!=0x0){
+                BlindDataHisto( h_data,h_blinding );
+            }
+            else{
+                h_blinding = BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold );
+                // if more than one signal:
+                if(fSigNames.size()>1){
+                    for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
+                        h_blinding->Add( BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold ) );
+                        h_blinding->Scale(2.);
+                    }
                 }
             }
         }
@@ -410,6 +418,20 @@ void TthPlot::Draw(string options){
     if(hasData) g_data->Draw("Ep1 same");
 
     //
+    // Draw blinding markers
+    //
+    TH1F* h_blind = 0x0;
+    if(h_blinding!=0x0){
+        h_blind = (TH1F*)h_blinding->Clone("h_blind");
+        h_blind->SetLineWidth(0);
+        h_blind->SetLineColor(kGray);
+        h_blind->SetFillColor(kGray);
+        h_blind->SetFillStyle(3345);
+//         h_blinding->SetFillColorAlpha(kWhite,0.75);
+        h_blind->Draw("same HIST");
+    }
+
+    //
     // Axes labelling and style
     //
     h_dummy->GetXaxis()->SetTitle(xtitle.c_str());
@@ -431,17 +453,6 @@ void TthPlot::Draw(string options){
     float offset = 2.4*(pad0->GetWh()/672.);
     if(pad0->GetWw() > pad0->GetWh()) offset *= 0.8*596./pad0->GetWw();
     h_dummy->GetYaxis()->SetTitleOffset( offset );
-
-    //
-    // Draw blinding markers
-    //
-    if(h_blinding!=0x0){
-        h_blinding->SetLineWidth(0);
-        h_blinding->SetLineColor(kWhite);
-        h_blinding->SetFillColorAlpha(kWhite,0.75);
-        h_blinding->Scale(h_dummy->GetMaximum());
-        h_blinding->Draw("same HIST");
-    }
 
     //
     // Fix / redraw axis
@@ -636,7 +647,14 @@ void TthPlot::Draw(string options){
     //    h_ratio: is the real Data/MC ratio
     //    h_ratio2: is a MC/MC ratio to plot the uncertainty band
     //
-    TH1* h_ratio = (TH1*)h_data->Clone("h_ratio");
+    TH1* h_ratio = 0x0;
+    if(TtHFitter::OPTION["SoverBinRatio"]){
+        if(fSigNames.size()>0) h_ratio = (TH1*)h_signal[0]->Clone("h_ratio");
+        else if(fNormSigNames.size()>0) h_ratio = (TH1*)h_normsig[0]->Clone("h_ratio");
+        else if(fOverSigNames.size()>0) h_ratio = (TH1*)h_oversig[0]->Clone("h_ratio");
+        else                   h_ratio = (TH1*)h_tot      ->Clone("h_ratio");
+    }
+    else                                   h_ratio = (TH1*)h_data->Clone("h_ratio");
 
     TH1 *h_ratio2 = (TH1*)h_tot->Clone("h_ratio2");
     TH1 *h_tot_nosyst = (TH1*)h_tot->Clone("h_tot_nosyst");
@@ -650,7 +668,8 @@ void TthPlot::Draw(string options){
     //
     h_dummy2->SetTitle("Data/MC");
 //     h_dummy2->GetYaxis()->CenterTitle();
-    h_dummy2->GetYaxis()->SetTitle("Data / Pred. ");
+    if(TtHFitter::OPTION["SoverBinRatio"]) h_dummy2->GetYaxis()->SetTitle("S / B");
+    else                                   h_dummy2->GetYaxis()->SetTitle("Data / Pred. ");
     h_dummy2->GetYaxis()->SetLabelSize(0.8*h_ratio->GetYaxis()->GetLabelSize());
     if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetLabelOffset(0.01);
     else                              h_dummy2->GetYaxis()->SetLabelOffset(0.02);
@@ -699,19 +718,18 @@ void TthPlot::Draw(string options){
     hline->SetLineColor(kBlack);
     hline->SetLineWidth(2);
     hline->SetLineStyle(2);
-    if(hasData){
+    if(TtHFitter::OPTION["SoverBinRatio"]){
+        h_ratio->SetFillStyle(0);
+        h_ratio->SetLineColor(h_ratio->GetLineColor());
+        h_ratio->Draw("HIST same");
+    }
+    else if(hasData){
         h_ratio->Draw("E0 same");
     }
     hline->Draw();
     //
-    float y_ratio_min = 0.50;
-    float y_ratio_max = 1.50;
-    if(options.find("prefit")!=string::npos){
-        y_ratio_min = 0.00;
-        y_ratio_max = 2.00;
-    }
-    h_dummy2->SetMinimum(y_ratio_min);
-    h_dummy2->SetMaximum(y_ratio_max);
+    h_dummy2->SetMinimum(fRatioYmin);
+    h_dummy2->SetMaximum(fRatioYmax);
     //
     h_dummy2->GetXaxis()->SetTitle(h_dummy->GetXaxis()->GetTitle());
 //     h_dummy2->GetXaxis()->SetTitleOffset(5.);
@@ -735,10 +753,12 @@ void TthPlot::Draw(string options){
     }
 
     //
-    // Marke blinded bins in ratio pad as  well
+    // Mark blinded bins in ratio pad as  well
     //
-    if(h_blinding!=0x0){
-        h_blinding->Draw("HIST same");
+    if(h_blind!=0x0){
+        TH1F* h_blindratio = (TH1F*)h_blind->Clone("h_blindratio");
+        h_blindratio->Scale(2.);
+        h_blindratio->Draw("HIST same");
     }
 
     if(fBinLabel[1]!="") h_dummy2->GetXaxis()->LabelsOption("d");
@@ -775,8 +795,8 @@ void TthPlot::Draw(string options){
             TArrow *arrow;
 //             if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),1.45, h_ratio->GetXaxis()->GetBinCenter(i_bin),1.5,0.030,"|>");
 //             else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),0.55, h_ratio->GetXaxis()->GetBinCenter(i_bin),0.5,0.030,"|>");
-            if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_max-0.05*(y_ratio_max-y_ratio_min), h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_max,0.030,"|>");
-            else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_min+0.05*(y_ratio_max-y_ratio_min), h_ratio->GetXaxis()->GetBinCenter(i_bin),y_ratio_min,0.030,"|>");
+            if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax-0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax,0.030,"|>");
+            else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin+0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin,0.030,"|>");
             arrow->SetFillColor(10);
             arrow->SetFillStyle(1001);
             arrow->SetLineColor(kBlue-7);
@@ -849,9 +869,9 @@ void TthPlot::Draw(string options){
         if(ytitle=="Events"){
             if(xtitle.find("GeV")!=string::npos){
                 if((int)fBinWidth==fBinWidth) ytitle = Form("Events / %.0f GeV",fBinWidth);
-		else if((int)(fBinWidth*10)==(fBinWidth*10)) ytitle = Form("Events / %.1f GeV",fBinWidth);
-		else if((int)(fBinWidth*100)==(fBinWidth*100)) ytitle = Form("Events / %.2f GeV",fBinWidth);
-		// ...
+                else if((int)(fBinWidth*10)==(fBinWidth*10)) ytitle = Form("Events / %.1f GeV",fBinWidth);
+                else if((int)(fBinWidth*100)==(fBinWidth*100)) ytitle = Form("Events / %.2f GeV",fBinWidth);
+                // ...
             }
             else{
                 ytitle = Form("Events / %.2f",fBinWidth);
@@ -870,7 +890,7 @@ void TthPlot::Draw(string options){
         y = h_tot->GetBinContent(i_bin);
         if(y>yMax) yMax = y;
         if(hasData && h_data!=0x0 && g_data!=0x0){
-            if(h_data->Integral()>0){
+            if(h_data->Integral()>0 && h_data->GetBinContent(i_bin)>0 && g_data->GetY()[i_bin-1]>0 && g_data->GetEYhigh()[i_bin-1]>0){
                 y = h_data->GetBinContent(i_bin)+g_data->GetEYhigh()[i_bin-1];
                 if(y>yMax) yMax = y;
             }
@@ -889,6 +909,10 @@ void TthPlot::Draw(string options){
         if(fYmin>0)  h_dummy->SetMinimum(fYmin);
         else         h_dummy->SetMinimum(1.);
     }
+    
+    if(h_blind!=0x0){
+        h_blind->Scale(h_dummy->GetMaximum());
+    }
 
     //
     // eventually make y-axis labels smaller...
@@ -898,7 +922,7 @@ void TthPlot::Draw(string options){
     else if(pad0->GetWw()<596. && h_dummy->GetMaximum()>1000){
         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
     }
-
+    
 //     if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
 //         myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
 }
@@ -927,7 +951,7 @@ void TthPlot::WriteToFile(string name){
     }
     here->cd();
     f->Close();
-    f->~TFile();
+//     f->~TFile();
     delete f;
 }
 
@@ -943,6 +967,18 @@ void TthPlot::SetBinBlinding(bool on,float threshold){
     fBlindingThreshold = threshold;
     if(!on) fBlindingThreshold = -1;
     std::cout << "TthPlot::INFO: Setting blinding threshold = " << fBlindingThreshold << std::endl;
+}
+
+//_____________________________________________________________________________
+//
+void TthPlot::SetBinBlinding(bool on,TH1F* h_blind){
+    h_blinding = h_blind;
+    if(!on) fBlindingThreshold = -1;
+    std::cout << "TthPlot::INFO: Setting blinding bins:";
+    for(int i_bin=1;i_bin<h_blinding->GetNbinsX()+1;i_bin++){
+        std::cout << " " << h_blinding->GetBinContent(i_bin);
+    }
+    std::cout << std::endl;
 }
 
 

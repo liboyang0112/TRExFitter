@@ -27,6 +27,7 @@ public:
     string fStoredName;
     int fType;
     int fSmoothType;
+    bool fPreSmoothing;
     int fSymmetrisationType;
     string fReferenceSample;
     bool fKeepReferenceOverallVar;
@@ -48,6 +49,7 @@ public:
     std::vector<string> fExclude;
     std::vector<string> fDropShapeIn;
     std::vector<string> fDropNormIn;
+    std::vector<string> fKeepNormForSamples;
     
     // from ntuples - up
     string fWeightUp;

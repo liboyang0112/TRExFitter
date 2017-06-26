@@ -4,6 +4,7 @@
 #include "TPad.h"
 #include "TPie.h"
 #include "TF1.h"
+#include "TRandom3.h"
 
 #include "TtHFitter/TthPlot.h"
 #include "TtHFitter/FitResults.h"
@@ -83,7 +84,8 @@ public:
     void SmoothSystematics(string syst="all");
     
     // create new root file with all the histograms
-    void WriteHistos(/*string fileName=""*/);
+    void CreateRootFiles();
+    void WriteHistos();
     
     void DrawSystPlots();
     void DrawSystPlotsSumSamples();
@@ -95,6 +97,7 @@ public:
     void ReadNtuples();
     void ReadHistograms();
     void ReadHistos(/*string fileName=""*/);
+    void CloseInputFiles();
     void CorrectHistograms();
     
     void DrawAndSaveAll(string opt="");
@@ -111,6 +114,8 @@ public:
     void DrawSignalRegionsPlot(int nRows,int nCols, std::vector < Region* > &regions);
     void DrawPieChartPlot(const std::string &opt="", int nCols=0,int nRows=0);
     void DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions);
+    
+    void CreateCustomAsimov();
     
     // turn to RooStat::HistFactory
     void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
@@ -143,6 +148,8 @@ public:
     
     void PrintSystTables(string opt="");
     
+    void MergeSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
+    
     // -------------------------
       
     string fName;
@@ -152,6 +159,8 @@ public:
     string fInputFolder;
     string fInputName;
     string fFitResultsFile;
+    
+    std::vector < TFile* > fFiles;
     
     std::vector < Region* > fRegions;
     std::vector < Sample* > fSamples;
@@ -212,13 +221,16 @@ public:
     
     float fYmin;
     float fYmax;
+    float fRatioYmin;
+    float fRatioYmax;    
+    float fRatioYminPostFit;
+    float fRatioYmaxPostFit;
     
     string fLumiLabel;
     string fCmeLabel;
     
     string fSuffix;
-    string fSaveSuf;
-    string fLoadSuf;
+    string fSaveSuffix;
     
     bool fUpdate;
     bool fKeepPruning;
@@ -261,6 +273,17 @@ public:
     bool fSystCategoryTables;
     
     std::vector< std::string > fRegionGroups;
+    
+    bool fKeepPrefitBlindedBins;
+    TH1F* fBlindedBins;
+    
+    std::string fCustomAsimov;
+    
+    int fRandomPOISeed;
+    
+    std::string fTableOptions;
+    
+    bool fGetGoodnessOfFit;
 };
 
 #endif

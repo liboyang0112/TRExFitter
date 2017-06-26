@@ -105,6 +105,10 @@ public:
     float fYmaxScale;
     float fYmin;
     float fYmax;
+    float fRatioYmin;
+    float fRatioYmax;
+    float fRatioYminPostFit;
+    float fRatioYmaxPostFit;
     
     // to draw
     THStack *fStack;
@@ -195,6 +199,11 @@ public:
     string fSuffix;
     
     string fGroup; // used to split yield tables
+    
+    TH1F* fBlindedBins;
+    bool fKeepPrefitBlindedBins;
+    
+    std::vector<int> fDropBins;
 };
 
 

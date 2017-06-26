@@ -9,7 +9,7 @@ public:
   SystematicHist(string name);
   ~SystematicHist();
 
-  void WriteToFile();
+  void WriteToFile(TFile *f=0x0);
   void ReadFromFile();
   bool IsShape();
   
@@ -19,6 +19,8 @@ public:
   void Divide(SystematicHist *syh);
   void Multiply(TH1* h);
   void Multiply(SystematicHist *syh);
+  void Add(TH1* h,float scale=1.);
+  void Add(SystematicHist *syh,float scale=1.);
   
   string fName;
   Systematic *fSystematic;

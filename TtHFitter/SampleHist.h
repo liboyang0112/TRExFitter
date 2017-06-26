@@ -33,7 +33,7 @@ public:
   bool HasNorm(string name);
   bool HasShapeFactor(string name);
   
-  void WriteToFile();
+  void WriteToFile(TFile *f=0x0);
   void ReadFromFile();
   
   void FixEmptyBins();
@@ -46,6 +46,7 @@ public:
   
   void Divide(  SampleHist* sh);
   void Multiply(SampleHist* sh);
+  void Add(     SampleHist* sh,float scale=1.);
   
   void SampleHistAdd(SampleHist* h);
   void CloneSampleHist(SampleHist* h, std::set<std::string> names);

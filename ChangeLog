@@ -1,3 +1,59 @@
+2017-06-23 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fix memory issue when too many histograms are readed from file (calling "TH1::AddDirectory(kFALSE);" if no writing is involved)
+    * goodness of fit added - need flag GetGoodnessOfFit set to TRUE under Fit
+    * PreSmoothing for systematics added (can be combined or not with normal smoothing)
+    * Various fixes on multiplication/division of sampes and propagation of systematics in this case
+    * Various small fixes
+    
+2017-06-12 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fix of DropBins functionality
+    * Fix of post-fit plots crash
+    * Extension of CustomAsimov functionality (see README)
+    
+2017-06-09 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Implemented random POI scaling (closes TTHFITTER-134)
+    * fixes
+    
+2017-06-08 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Implemented Custom Asimov (closes TTHFITTER-132)
+    * Started to implement SHAPE systematics (working on TTHFITTER-120)
+    * Implementing DropBins option (closes TTHFITTER-133)
+    
+2017-06-01 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Taking sum of signals for SignalRegions plot (closes TTHFITTER-130)
+    * setting default ratio y min to 0.5 an max to 1.5
+    
+2017-05-31 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing y-axis range (closes TTHFITTER-64)
+
+2017-05-29 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Finally fixed the bug preventing S/B plots to show-up in eps format (fixes TTHFITTER-128)
+    * Partially fixing memory leak in ranking (progressing on TTHFITTER-112)
+    
+2017-05-25 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing bug affecting production of pre and post fit at once in certain conditions (fixes TTHFITTER-126)
+    * Option added to systematic in order to keep it shape only for certain samples / sum of samples (needed for c-tagging calibration plots, option KeepNormForSamples)
+    * Fixing separation plot cosmetics (fixes TTHFITTER-125)
+
+2017-05-23 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Putting back the option NtupleFileUp/Down for backward compatibilty (was superseeded by NtupleFilesUp/Down)
+    * Fixing nominal smoothig
+    * Polishing
+    
+2017-05-19 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing bin blinding visualisation and add possibility to keep pre-fit blinding in post -fit (fixes TTHFITTER-123)
+    * Add configurable y range for ratio plots (fixes TTHFITTER-124)
+    
+2017-05-18 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Changing histo creation procedure: root files created before creating histogrmas (closes TTHFITTER-121)
+    * fixing crash on yield table creatio (closes TTHFITTER-118)
+    * fixing warnings in significance and limit with signal injection (significance affects log files - had to be re-created)
+    * fixing problem with validation regions and multi-fit (fixes TTHFITTER-122)
+    * adding script hupdate (closes TTHFITTER-119)
+    
+2017-05-17 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Added SaveSuffix option (working on TTHFITTER-122)
+    
 2017-04-11 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixing crash when producing SystDataPlots
     * Fixing ranges of normalisation factor and gamma plots 

@@ -26,6 +26,10 @@ Region::Region(string name){
     fYTitle = "";
     fYmaxScale = 0;
     fYmax = 0;
+    fRatioYmax = 2.;
+    fRatioYmin = 0;
+    fRatioYmaxPostFit = 1.5;
+    fRatioYminPostFit = 0.5;
 
     string cName = "c_"+fName;
     int canvasWidth = 600;
@@ -85,6 +89,11 @@ Region::Region(string name){
     
     fSuffix = "";
     fGroup = "";
+    
+    fBlindedBins = 0x0;
+    fKeepPrefitBlindedBins = false;
+    
+    fDropBins.clear();
 }
 
 //__________________________________________________________________________________
@@ -411,6 +420,8 @@ TthPlot* Region::DrawPreFit(string opt){
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;
     if(fYmin!=0) p->fYmin = fYmin;
+    p->fRatioYmax = fRatioYmax;
+    p->fRatioYmin = fRatioYmin;
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
     if(fYTitle!="") p->SetYaxis(fYTitle);
     //
@@ -514,6 +525,7 @@ TthPlot* Region::DrawPreFit(string opt){
     if(fLogScale) opt += " log";
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     p->Draw(opt);
+    fBlindedBins = p->h_blinding;
     return p;
 }
 
@@ -627,6 +639,17 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             systErrDown = fitRes->GetNuisParErrDown(systName);
             
             if(TtHFitter::DEBUGLEVEL>0) cout << "      alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
+            
+            // this to include (prefit) error from SHAPE syst
+            if(fSampleHists[i]->GetSystematic(systName)){
+                if(fSampleHists[i]->GetSystematic(systName)->fSystematic!=0x0){
+                    if(fSampleHists[i]->GetSystematic(systName)->fSystematic->fType==Systematic::SHAPE){
+                        systValue   = 0;
+                        systErrUp   = 1;
+                        systErrDown = -1;
+                    }
+                }
+            }
             
             //
             // Get SystematicHist
@@ -743,8 +766,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
                 yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);
-                diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit;
-                diffDown += sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit;
+                if(!sh) continue;
+                if(sh->fHistUp_postFit)   diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit;
+                if(sh->fHistDown_postFit) diffDown += sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit;
             }
             // add the proper bin content to the variation hists
             fTotUp_postFit[i_syst]  ->AddBinContent( i_bin, diffUp   );
@@ -776,6 +800,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;
     if(fYmin!=0) p->fYmin = fYmin;
+    p->fRatioYmax = fRatioYmaxPostFit;
+    p->fRatioYmin = fRatioYminPostFit;
     p->SetXaxis(fVariableTitle,fVariableTitle.find("Number")!=string::npos);
     if(fYTitle!="") p->SetYaxis(fYTitle);
     //
@@ -801,7 +827,6 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
-    if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
     
     //
     // 0) Create a new hist for each sample
@@ -834,7 +859,14 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             double multNorm = 1.;
             for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
                 systName = fSampleHists[i]->fSyst[i_syst]->fName;
-                systValue = fitRes->GetNuisParValue(systName);
+                if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0){
+                    if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE)
+                        continue;
+                    else
+                        systValue = fitRes->GetNuisParValue(systName);
+                }
+                else
+                    systValue = fitRes->GetNuisParValue(systName);
                 
                 //
                 // Normalisation component: use the exponential interpolation and the multiplicative combination
@@ -869,6 +901,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         fSampleHists[i]->fHist_postFit = hSmpNew[i];
         hNew->~TH1();
     }
+    delete hNew;
     
     //
     // 2) Scale all samples by norm factors
@@ -1001,6 +1034,15 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->fATLASlabel = fATLASlabel;
     if(fLogScale) opt += " log";
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
+    
+    //
+    // blinding bins
+    //
+    if(fBlindingThreshold>=0){
+        p->SetBinBlinding(true,fBlindingThreshold);
+        if(fKeepPrefitBlindedBins && fBlindedBins!=0x0) p->SetBinBlinding(true,fBlindedBins);
+    }
+    
     p->Draw(opt);
     
     //
