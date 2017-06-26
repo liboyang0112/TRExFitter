@@ -45,6 +45,7 @@ m_debug(false),
 m_noGammas(false),
 m_noSystematics(false),
 m_noNormFactors(false),
+m_noShapeFactors(false),
 // m_constNP(""),
 // m_constNPvalue(0.),
 m_RangePOI_up(100.),
@@ -59,21 +60,22 @@ m_randomNP(0.1)
 //________________________________________________________________________
 //
 FittingTool::FittingTool( const FittingTool &q ){
-    m_minimType     = q.m_minimType;
-    m_minuitStatus  = q.m_minuitStatus;
-    m_hessStatus    = q.m_hessStatus;
-    m_edm           = q.m_edm;
-    m_valPOI        = q.m_valPOI;
-    m_useMinos      = q.m_useMinos;
-    m_varMinos      = q.m_varMinos;
-    m_constPOI      = q.m_constPOI;
-    m_fitResult     = q.m_fitResult;
-    m_debug         = q.m_debug;
-    m_RangePOI_up   = q.m_RangePOI_up;
-    m_RangePOI_down = q.m_RangePOI_down;
-    m_noGammas      = q.m_noGammas;
-    m_noSystematics = q.m_noSystematics;
-    m_noNormFactors = q.m_noNormFactors;
+    m_minimType      = q.m_minimType;
+    m_minuitStatus   = q.m_minuitStatus;
+    m_hessStatus     = q.m_hessStatus;
+    m_edm            = q.m_edm;
+    m_valPOI         = q.m_valPOI;
+    m_useMinos       = q.m_useMinos;
+    m_varMinos       = q.m_varMinos;
+    m_constPOI       = q.m_constPOI;
+    m_fitResult      = q.m_fitResult;
+    m_debug          = q.m_debug;
+    m_RangePOI_up    = q.m_RangePOI_up;
+    m_RangePOI_down  = q.m_RangePOI_down;
+    m_noGammas       = q.m_noGammas;
+    m_noSystematics  = q.m_noSystematics;
+    m_noNormFactors  = q.m_noNormFactors;
+    m_noShapeFactors = q.m_noShapeFactors;
 }
 
 //________________________________________________________________________
@@ -180,6 +182,13 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 //                 var->setVal( 1 );
                 found = true;
             }
+	    // FIXME SF
+//             else if(m_noShapeFactors){
+//                 if(m_debug) cout << "setting to constant : " << np <<" at value " << var->getVal() << endl;
+//                 var->setConstant( 1 );
+// //                 var->setVal( 1 );
+//                 found = true;
+//             }
             if(found) continue;
             //
             // loop on the NP specified to be constant

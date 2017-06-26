@@ -21,6 +21,7 @@ SampleHist::SampleHist(){
     fFitName = "";
     fNSyst = 0;
     fNNorm = 0;
+    fNShape = 0;
     fRegionName = "Region";
     fRegionLabel = "Region";
     fVariableTitle = "Variable";
@@ -48,6 +49,7 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
     fFitName = "";
     fNSyst = 0;
     fNNorm = 0;
+    fNShape = 0;
     fRegionName = "Region";
     fRegionLabel = "Region";
     fVariableTitle = "Variable";
@@ -71,6 +73,7 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
     fHist_postFit = 0x0;
     fNSyst = 0;
     fNNorm = 0;
+    fNShape = 0;
     fRegionName = "Region";
     fVariableTitle = "Variable";
     fSystSmoothed = false;
@@ -229,6 +232,36 @@ NormFactor* SampleHist::AddNormFactor(string name,float nominal, float min, floa
 
 //_____________________________________________________________________________
 //
+ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
+    ShapeFactor *shape = GetShapeFactor(shapeFactor->fName);
+    if(shape==0x0){
+        fShapeFactors.push_back(shapeFactor);
+        fNShape ++;
+    }
+    else{
+        shape = shapeFactor;
+    }
+    return shape;
+}
+
+//_____________________________________________________________________________
+//
+ShapeFactor* SampleHist::AddShapeFactor(string name,float nominal, float min, float max){
+    ShapeFactor *shape = GetShapeFactor(name);
+    if(shape==0x0){
+        fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max));
+        fNShape ++;
+    }
+    else{
+        shape = new ShapeFactor(name,nominal,min,max);;
+    }
+    return shape;
+}
+
+//_____________________________________________________________________________
+
+
+//
 SystematicHist* SampleHist::GetSystematic(string systName){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(systName == fSyst[i_syst]->fName) return fSyst[i_syst];
@@ -247,6 +280,15 @@ NormFactor* SampleHist::GetNormFactor(string name){
 
 //_____________________________________________________________________________
 //
+ShapeFactor* SampleHist::GetShapeFactor(string name){
+    for(int i_syst=0;i_syst<fNShape;i_syst++){
+        if(name == fShapeFactors[i_syst]->fName) return fShapeFactors[i_syst];
+    }
+    return 0x0;
+}
+
+//_____________________________________________________________________________
+//
 bool SampleHist::HasSyst(string name){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(fSyst[i_syst]->fName == name) return true;
@@ -259,6 +301,15 @@ bool SampleHist::HasSyst(string name){
 bool SampleHist::HasNorm(string name){
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         if(fNormFactors[i_norm]->fName == name) return true;
+    }
+    return false;
+}
+
+//_____________________________________________________________________________
+//
+bool SampleHist::HasShapeFactor(string name){
+    for(int i_shape=0;i_shape<fNShape;i_shape++){
+        if(fShapeFactors[i_shape]->fName == name) return true;
     }
     return false;
 }
@@ -390,6 +441,13 @@ void SampleHist::Print(){
         cout << "        NormFactor(s): ";
         for(int i_norm=0;i_norm<fNNorm;i_norm++){
             cout << " " << fNormFactors[i_norm]->fName;
+        }
+        cout << endl;
+    }
+    if(fNShape>0){
+        cout << "        ShapeFactor(s): ";
+        for(int i_shape=0;i_shape<fNShape;i_shape++){
+            cout << " " << fShapeFactors[i_shape]->fName;
         }
         cout << endl;
     }

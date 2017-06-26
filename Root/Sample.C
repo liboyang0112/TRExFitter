@@ -15,6 +15,7 @@ Sample::Sample(string name,int type){
     fLineColor = kBlack;
     fNSyst = 0;
     fNNorm = 0;
+    fNShape = 0;
     fNormalizedByTheory = true;
     fRegions.clear();
     fLumiScales.clear();
@@ -44,6 +45,7 @@ Sample::Sample(string name,int type){
     fHistoNameSuffs.clear();
     //
     fNormFactors.clear();
+    fShapeFactors.clear();
     fSystematics.clear();
     
     fAsimovReplacementFor = std::make_pair("","");
@@ -55,6 +57,11 @@ Sample::~Sample(){
     for(unsigned int i=0;i<fNormFactors.size();++i){
         if(fNormFactors[i]){
             delete fNormFactors[i];
+        }
+    }
+    for(unsigned int i=0;i<fShapeFactors.size();++i){
+        if(fShapeFactors[i]){
+            delete fShapeFactors[i];
         }
     }
     for(unsigned int i=0;i<fSystematics.size();++i){
@@ -144,6 +151,13 @@ void Sample::AddNormFactor(NormFactor* normFactor){
 }
 
 //__________________________________________________________________________________
+// 
+void Sample::AddShapeFactor(ShapeFactor* shapeFactor){
+    fShapeFactors.push_back(shapeFactor);
+    fNShape ++;
+}
+
+//__________________________________________________________________________________
 //
 void Sample::AddSystematic(Systematic* syst){
     fSystematics.push_back(syst);
@@ -174,6 +188,14 @@ NormFactor* Sample::AddNormFactor(string name,float nominal,float min,float max,
     fNormFactors.push_back(new NormFactor(name,nominal,min,max,isConst));
     fNNorm ++;
     return fNormFactors[fNNorm-1];
+}
+
+//__________________________________________________________________________________
+//
+ShapeFactor* Sample::AddShapeFactor(string name,float nominal,float min,float max,bool isConst){
+    fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max,isConst));
+    fNShape ++;
+    return fShapeFactors[fNShape-1];
 }
 
 //__________________________________________________________________________________
