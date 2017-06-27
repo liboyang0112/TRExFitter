@@ -41,6 +41,7 @@
 // RooStats stuff
 #include "RooStats/HistFactory/Measurement.h"
 #include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
+#include "RooStats/RooStatsUtils.h"
 
 // ATLAS stuff
 #include "AtlasStyle.h"
@@ -109,7 +110,7 @@ void BlindDataHisto( TH1* h_data, TH1* h_blind );
 double convertStoD(string toConvert);
 
 // TH1F* SmoothHistogram( TH1* h );
-bool SmoothHistogram( TH1* h, int forceFlat=-1 ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
+bool SmoothHistogram( TH1* h, int forceFlat=-1, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
 
 TH1* DropBins(TH1* h,std::vector<int> v);
 

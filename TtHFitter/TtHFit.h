@@ -11,6 +11,7 @@
 #include "TtHFitter/Sample.h"
 #include "TtHFitter/Systematic.h"
 #include "TtHFitter/NormFactor.h"
+#include "TtHFitter/ShapeFactor.h"
 #include "TtHFitter/Region.h"
 #include "TtHFitter/ConfigParser.h"
 
@@ -21,6 +22,7 @@ class Region;
 class Sample;
 class Systematic;
 class NormFactor;
+class ShapeFactor;
 class ConfigParser;
 class RooDataSet;
 class RooWorkspace;
@@ -95,6 +97,7 @@ public:
     void ReadNtuples();
     void ReadHistograms();
     void ReadHistos(/*string fileName=""*/);
+    void CloseInputFiles();
     void CorrectHistograms();
     
     void DrawAndSaveAll(string opt="");
@@ -145,6 +148,8 @@ public:
     
     void PrintSystTables(string opt="");
     
+    void MergeSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
+    
     // -------------------------
       
     string fName;
@@ -161,13 +166,16 @@ public:
     std::vector < Sample* > fSamples;
     std::vector < Systematic* > fSystematics;
     std::vector < NormFactor* > fNormFactors;
+    std::vector < ShapeFactor* > fShapeFactors;
     std::vector < string > fSystematicNames;
     std::vector < string > fNormFactorNames;
+    std::vector < string > fShapeFactorNames;
     
     int fNRegions;
     int fNSamples;
     int fNSyst;
     int fNNorm;
+    int fNShape;
     string fPOI;
     bool fUseStatErr;
     float fStatErrThres;
@@ -274,6 +282,8 @@ public:
     int fRandomPOISeed;
     
     std::string fTableOptions;
+    
+    bool fGetGoodnessOfFit;
 };
 
 #endif
