@@ -123,6 +123,7 @@ SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
 //_____________________________________________________________________________
 //
 SystematicHist* SampleHist::AddStatSyst(string name, int i_bin) {
+    int bin = i_bin+1; // counting of bins in Root starts with 1, in TRExFitter with 0
     SystematicHist *syh;
     syh = GetSystematic(name);
     // ... and if not create a new one
@@ -135,10 +136,10 @@ SystematicHist* SampleHist::AddStatSyst(string name, int i_bin) {
     syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
     syh->fHistShapeUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Shape_Up",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
     syh->fHistShapeDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Shape_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
-    syh->fHistShapeUp  ->SetBinContent(i_bin,fHist->GetBinContent(i_bin) + fHist->GetBinError(i_bin));
-    syh->fHistShapeDown->SetBinContent(i_bin,fHist->GetBinContent(i_bin) - fHist->GetBinError(i_bin));
-    syh->fHistUp   ->SetBinContent(i_bin,fHist->GetBinContent(i_bin) + fHist->GetBinError(i_bin));
-    syh->fHistDown->SetBinContent(i_bin,fHist->GetBinContent(i_bin) - fHist->GetBinError(i_bin));
+    syh->fHistShapeUp  ->SetBinContent(bin,fHist->GetBinContent(bin) + fHist->GetBinError(bin));
+    syh->fHistShapeDown->SetBinContent(bin,fHist->GetBinContent(bin) - fHist->GetBinError(bin));
+    syh->fHistUp   ->SetBinContent(bin,fHist->GetBinContent(bin) + fHist->GetBinError(bin));
+    syh->fHistDown->SetBinContent(bin,fHist->GetBinContent(bin) - fHist->GetBinError(bin));
     syh->fHistUp_orig   = (TH1*)syh->fHistUp  ->Clone(Form("%s_orig",syh->fHistUp  ->GetName()));
     syh->fHistDown_orig = (TH1*)syh->fHistDown->Clone(Form("%s_orig",syh->fHistDown->GetName()));
     syh->fHistShapeUp  ->Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());

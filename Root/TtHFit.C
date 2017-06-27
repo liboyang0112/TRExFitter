@@ -1717,7 +1717,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 if (type == Systematic::STAT) {
                     std::cout << regNames[i_reg] << " " << GetRegion(regNames[i_reg])->fNbins << std::endl;
                     // decorrelate by bin
-                    for (int i_bin = 1; i_bin <= GetRegion(regNames[i_reg])->fNbins; i_bin++) {
+                    for (int i_bin = 0; i_bin < GetRegion(regNames[i_reg])->fNbins; i_bin++) {
                         Systematic* mySys= new Systematic(*sys);
                         mySys->fName=(mySys->fName)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
                         std::vector<string> tmpReg;
