@@ -28,6 +28,7 @@ public:
     string fStoredName;
     int fType;
     int fSmoothType;
+    bool fPreSmoothing;
     int fSymmetrisationType;
     string fReferenceSample;
     bool fKeepReferenceOverallVar;

@@ -173,7 +173,8 @@ Note that, each object should have unique <ObjectName>.
      * SetRandomInitialNPval : useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits
      * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
-
+     * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
+     
   * Limit:
      * LimitType        : can be ASYMPTOTIC or TOYS (the latter is not yet supported)
      * LimitBlind       : can be TRUE or FALSE (TRUE means that ALL regions are blinded)
@@ -249,6 +250,11 @@ Note that, each object should have unique <ObjectName>.
      * Max              : max value
      * Constant         : set to TRUE to have a fixed norm factor
 
+  * ShapeFactor:
+     * Samples          : comma-separated list of samples on which to apply the shape factor
+     * Regions          : comma-separated list of regions where to apply the shape factor
+     * Title            : title of the shape factor
+
   * Systematic:
      * Samples          : comma-separated list of samples on which to apply the systematic
      * Regions          : comma-separated list of regions where to apply the systematic
@@ -293,7 +299,8 @@ Note that, each object should have unique <ObjectName>.
      * ScaleDown        : for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor
      * ReferenceSample  : if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
      * KeepNormForSamples: list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
-
+     * PreSmoothing     : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
+     
 
 Command line options
 ---------
@@ -411,6 +418,19 @@ Output Directories Structure
   * Systematics/        : contains the plots for the syst variations
   * Histograms/         : contains the root file(s) with all the inputs
   * LHoodPlots/         : contains the likelihood scan with respect to the specified parameter
+
+ShapeFactor example
+-------------------
+
+* The following scripts create example histograms in :code:`exampleDataDriven` directory and execute  :code:`myFit.exe` using :code:`config/dataDriven.config`
+* The example contains a control region and signal region with two bins. The shape of one of the background samples is estimated using the ShapeFactor::
+
+    python makeDataDriven.py
+    python runDataDrivenExample.py
+
+
+The results are in :code:`JobDataDriven`
+
 
 TtHFitter package authors
 -----------------

@@ -647,7 +647,14 @@ void TthPlot::Draw(string options){
     //    h_ratio: is the real Data/MC ratio
     //    h_ratio2: is a MC/MC ratio to plot the uncertainty band
     //
-    TH1* h_ratio = (TH1*)h_data->Clone("h_ratio");
+    TH1* h_ratio = 0x0;
+    if(TtHFitter::OPTION["SoverBinRatio"]){
+        if(fSigNames.size()>0) h_ratio = (TH1*)h_signal[0]->Clone("h_ratio");
+        else if(fNormSigNames.size()>0) h_ratio = (TH1*)h_normsig[0]->Clone("h_ratio");
+        else if(fOverSigNames.size()>0) h_ratio = (TH1*)h_oversig[0]->Clone("h_ratio");
+        else                   h_ratio = (TH1*)h_tot      ->Clone("h_ratio");
+    }
+    else                                   h_ratio = (TH1*)h_data->Clone("h_ratio");
 
     TH1 *h_ratio2 = (TH1*)h_tot->Clone("h_ratio2");
     TH1 *h_tot_nosyst = (TH1*)h_tot->Clone("h_tot_nosyst");
@@ -661,7 +668,8 @@ void TthPlot::Draw(string options){
     //
     h_dummy2->SetTitle("Data/MC");
 //     h_dummy2->GetYaxis()->CenterTitle();
-    h_dummy2->GetYaxis()->SetTitle("Data / Pred. ");
+    if(TtHFitter::OPTION["SoverBinRatio"]) h_dummy2->GetYaxis()->SetTitle("S / B");
+    else                                   h_dummy2->GetYaxis()->SetTitle("Data / Pred. ");
     h_dummy2->GetYaxis()->SetLabelSize(0.8*h_ratio->GetYaxis()->GetLabelSize());
     if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetLabelOffset(0.01);
     else                              h_dummy2->GetYaxis()->SetLabelOffset(0.02);
@@ -710,7 +718,12 @@ void TthPlot::Draw(string options){
     hline->SetLineColor(kBlack);
     hline->SetLineWidth(2);
     hline->SetLineStyle(2);
-    if(hasData){
+    if(TtHFitter::OPTION["SoverBinRatio"]){
+        h_ratio->SetFillStyle(0);
+        h_ratio->SetLineColor(h_ratio->GetLineColor());
+        h_ratio->Draw("HIST same");
+    }
+    else if(hasData){
         h_ratio->Draw("E0 same");
     }
     hline->Draw();
@@ -740,7 +753,7 @@ void TthPlot::Draw(string options){
     }
 
     //
-    // Marke blinded bins in ratio pad as  well
+    // Mark blinded bins in ratio pad as  well
     //
     if(h_blind!=0x0){
         TH1F* h_blindratio = (TH1F*)h_blind->Clone("h_blindratio");
@@ -856,9 +869,9 @@ void TthPlot::Draw(string options){
         if(ytitle=="Events"){
             if(xtitle.find("GeV")!=string::npos){
                 if((int)fBinWidth==fBinWidth) ytitle = Form("Events / %.0f GeV",fBinWidth);
-		else if((int)(fBinWidth*10)==(fBinWidth*10)) ytitle = Form("Events / %.1f GeV",fBinWidth);
-		else if((int)(fBinWidth*100)==(fBinWidth*100)) ytitle = Form("Events / %.2f GeV",fBinWidth);
-		// ...
+                else if((int)(fBinWidth*10)==(fBinWidth*10)) ytitle = Form("Events / %.1f GeV",fBinWidth);
+                else if((int)(fBinWidth*100)==(fBinWidth*100)) ytitle = Form("Events / %.2f GeV",fBinWidth);
+                // ...
             }
             else{
                 ytitle = Form("Events / %.2f",fBinWidth);
@@ -938,7 +951,7 @@ void TthPlot::WriteToFile(string name){
     }
     here->cd();
     f->Close();
-    f->~TFile();
+//     f->~TFile();
     delete f;
 }
 

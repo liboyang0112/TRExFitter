@@ -116,13 +116,10 @@ void SystematicHist::Print(){
 //_____________________________________________________________________________
 //
 void SystematicHist::Divide(TH1 *h){
-//     TH1* h = (TH1*)sh->fHist->Clone("h_tmp");
-//     for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
     fHistUp->Divide(h);
     fHistShapeUp->Divide(h);
     fHistDown->Divide(h);
     fHistShapeDown->Divide(h);
-//     delete h;
 }
 
 //_____________________________________________________________________________
@@ -137,13 +134,10 @@ void SystematicHist::Divide(SystematicHist *syh){
 //_____________________________________________________________________________
 //
 void SystematicHist::Multiply(TH1 *h){
-//     TH1* h = (TH1*)sh->fHist->Clone("h_tmp");
-//     for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
     fHistUp->Multiply(h);
     fHistShapeUp->Multiply(h);
     fHistDown->Multiply(h);
     fHistShapeDown->Multiply(h);
-//     delete h;
 }
 
 //_____________________________________________________________________________
@@ -153,4 +147,22 @@ void SystematicHist::Multiply(SystematicHist *syh){
     fHistShapeUp->Multiply(  syh->fHistShapeUp);
     fHistDown->Multiply(     syh->fHistDown);
     fHistShapeDown->Multiply(syh->fHistShapeDown);
+}
+
+//_____________________________________________________________________________
+//
+void SystematicHist::Add(TH1 *h,float scale){
+    fHistUp->Add(h,scale);
+    fHistShapeUp->Add(h,scale);
+    fHistDown->Add(h,scale);
+    fHistShapeDown->Add(h,scale);
+}
+
+//_____________________________________________________________________________
+//
+void SystematicHist::Add(SystematicHist *syh,float scale){
+    fHistUp->Add(       syh->fHistUp,scale);
+    fHistShapeUp->Add(  syh->fHistShapeUp,scale);
+    fHistDown->Add(     syh->fHistDown,scale);
+    fHistShapeDown->Add(syh->fHistShapeDown,scale);
 }
