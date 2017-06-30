@@ -1,3 +1,6 @@
+2017-06-30 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Working on TTHFITTER-137, extended chi2 test for pre-/post-fit plots added
+    
 2017-06-28 Michele Pinamonti <michele.pinamonti@gmail.com>
     * MergeSystematics moved before syst symmetrisation
     * Fixes TTHFITTER-135

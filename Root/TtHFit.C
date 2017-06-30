@@ -165,6 +165,7 @@ TtHFit::TtHFit(string name){
     fTableOptions = "STANDALONE";
     
     fGetGoodnessOfFit = false;
+    fGetChi2 = false;
 }
 
 //__________________________________________________________________________________
@@ -844,6 +845,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         int seed = atoi(param.c_str());
         if(seed>=0) fRandomPOISeed = seed;
     }
+    param = cs->Get("GetChi2");   if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fGetChi2 = true;
+        }
+    }
     
     //
     // General options
@@ -985,6 +992,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
         regNames.push_back( CheckName(cs->GetValue()) ); //why the CheckName is needed?? A: cs->GetValue() might have leading/trailing spaces...
         reg = NewRegion(CheckName(cs->GetValue()));
+        reg->fGetChi2 = fGetChi2;
         reg->SetVariableTitle(cs->Get("VariableTitle"));
         reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
         param = cs->Get("YaxisTitle"); if( param != "") reg->fYTitle = param;

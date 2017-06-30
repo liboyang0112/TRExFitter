@@ -284,6 +284,7 @@ public:
     std::string fTableOptions;
     
     bool fGetGoodnessOfFit;
+    bool fGetChi2;
 };
 
 #endif

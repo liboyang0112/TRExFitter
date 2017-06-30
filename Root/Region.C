@@ -1,6 +1,8 @@
 #include <iomanip>
 #include "TtHFitter/Region.h"
 
+#include "TMatrixD.h"
+
 // -------------------------------------------------------------------------------------------------
 // class Region
 
@@ -92,6 +94,7 @@ Region::Region(string name){
     
     fBlindedBins = 0x0;
     fKeepPrefitBlindedBins = false;
+    fGetChi2 = false;
     
     fDropBins.clear();
 }
@@ -404,11 +407,31 @@ void Region::BuildPreFitErrorHist(){
         h_up.  push_back( fTotUp[i_syst]   );
         h_down.push_back( fTotDown[i_syst] );
     }
-//     fErr = BuildTotError( fTot, h_up, h_down, fSystNames );
     fErr = BuildTotError( fTot, h_up, h_down, fNpNames );
     fErr->SetName("g_totErr");
-    
     // at this point fTot and fErr should be ready
+    
+    //
+    // Goodness of pre-fit
+    if(fGetChi2){
+        // remove blinded bins
+        TH1* h_data = (TH1*)fData->fHist->Clone();
+        if(fBlindedBins!=0x0){
+            for(int i_bin=1;i_bin<=h_data->GetNbinsX();i_bin++){
+                if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
+                if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
+            }
+        }
+        std::pair<double,int> res = GetChi2Test( h_data, fTot, h_up, h_down, fNpNames );
+        cout << "----------------------- ---------------------------- -----------------------" << endl;
+        cout << "----------------------- PRE-FIT AGREEMENT EVALUATION -----------------------" << endl;
+        cout << "--- REGION " << fName << ":" << endl;
+        cout << "  chi2        = " << res.first << endl;
+        cout << "  ndof        = " << res.second << endl;
+        cout << "  probability = " << ROOT::Math::chisquared_cdf_c( res.first, res.second) << endl;
+        cout << "----------------------- ----------------------------- -----------------------" << endl;
+        cout << "----------------------- ----------------------------- -----------------------" << endl;
+    }
 }
 
 //__________________________________________________________________________________
@@ -511,6 +534,10 @@ TthPlot* Region::DrawPreFit(string opt){
         }
     }
     
+    p->SetTotBkg((TH1*)fTot);
+    if(fBinWidth>0) p->SetBinWidth(fBinWidth);
+    fBlindedBins = p->h_blinding;
+    
     //
     // Computes the uncertainty bands arround the h_tot histogram
     //
@@ -519,13 +546,10 @@ TthPlot* Region::DrawPreFit(string opt){
     //
     // Sets the last ingredients in the TthPlot object
     //
-    p->SetTotBkg((TH1*)fTot);
     p->SetTotBkgAsym(fErr);
     p->fATLASlabel = fATLASlabel;
     if(fLogScale) opt += " log";
-    if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     p->Draw(opt);
-    fBlindedBins = p->h_blinding;
     return p;
 }
 
@@ -789,6 +813,29 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     fErr_postFit = BuildTotError( fTot_postFit, h_up, h_down, fSystNames, fitRes->fCorrMatrix );
     fErr_postFit->SetName("g_totErr_postFit");
     // at this point fTot and fErr _postFit should be ready
+    
+    //
+    // Goodness of post-fit
+    if(fGetChi2){
+        // remove blinded bins
+        TH1* h_data = (TH1*)fData->fHist->Clone();
+        if(fBlindedBins!=0x0){
+            for(int i_bin=1;i_bin<=h_data->GetNbinsX();i_bin++){
+                if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
+                if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
+            }
+        }
+        std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, h_down, fSystNames, fitRes->fCorrMatrix );
+        cout << "----------------------- ----------------------------- -----------------------" << endl;
+        cout << "----------------------- POST-FIT AGREEMENT EVALUATION -----------------------" << endl;
+        cout << "--- REGION " << fName << ":" << endl;
+        cout << "  chi2        = " << res.first << endl;
+        cout << "  ndof        = " << res.second << endl;
+        cout << "  probability = " << ROOT::Math::chisquared_cdf_c( res.first, res.second) << endl;
+        cout << "----------------------- ----------------------------- -----------------------" << endl;
+        cout << "----------------------- ----------------------------- -----------------------" << endl;
+    }
+    
 }
 
 //__________________________________________________________________________________
@@ -1021,18 +1068,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         }
     }
     
-    //
-    // Build error band
-    //
-    BuildPostFitErrorHist(fitRes);
-    
-    //
-    // 5) Finishes configuration of TthPlot objects
-    //
     p->SetTotBkg(fTot_postFit);
-    p->SetTotBkgAsym(fErr_postFit);
-    p->fATLASlabel = fATLASlabel;
-    if(fLogScale) opt += " log";
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     
     //
@@ -1042,6 +1078,18 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         p->SetBinBlinding(true,fBlindingThreshold);
         if(fKeepPrefitBlindedBins && fBlindedBins!=0x0) p->SetBinBlinding(true,fBlindedBins);
     }
+    
+    //
+    // Build error band
+    //
+    BuildPostFitErrorHist(fitRes);
+    
+    //
+    // 5) Finishes configuration of TthPlot objects
+    //
+    p->SetTotBkgAsym(fErr_postFit);
+    p->fATLASlabel = fATLASlabel;
+    if(fLogScale) opt += " log";
     
     p->Draw(opt);
     
@@ -1641,6 +1689,81 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
     if(deltaN!=deltaN) deltaN = 1;  // to avoid nan
     if(deltaN<=0) deltaN = 0; //protection against negative values (can happen for linear extrapolation)
     return deltaN;
+}
+
+//--------------- ~ ---------------
+
+// function to get pre/post-fit agreement
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
+    unsigned int nbins = h_nominal->GetNbinsX();
+    unsigned int nsyst = fSystNames.size();
+    int ndf = 0;
+    for(unsigned int i=0;i<nbins;i++){
+        double ydata_i = h_data->GetBinContent(i+1);
+        if(ydata_i<0) continue; // skip dropped / blinded bins
+        ndf ++;
+    }
+    TMatrixD C(ndf,ndf);
+    //
+    int ibin = 0;
+    int jbin = 0;
+    for(unsigned int i=0;i<nbins;i++){
+        double ydata_i = h_data->GetBinContent(i+1);
+        if(ydata_i<0) continue; // skip dropped / blinded bins
+        double ynom_i = h_nominal->GetBinContent(i+1);
+        jbin = 0;
+        for(unsigned int j=0;j<nbins;j++){
+            double sum = 0.;
+            double ydata_j = h_data->GetBinContent(j+1);
+            if(ydata_j<0) continue; // skip dropped / blinded bins
+            double ynom_j = h_nominal->GetBinContent(j+1);
+            for(unsigned int n=0;n<nsyst;n++){
+                double ysyst_i_n = h_up[n]->GetBinContent(i+1);
+                double ysyst_j_n = h_up[n]->GetBinContent(j+1);
+                for(unsigned int m=0;m<nsyst;m++){
+                    double ysyst_i_m = h_up[m]->GetBinContent(i+1);
+                    double ysyst_j_m = h_up[m]->GetBinContent(j+1);
+                    // more than Bill's suggestion: add correlation between systematics!!
+                    double corr = 0.;
+                    if(n==m) corr = 1.;
+                    else if(matrix!=0x0) corr = matrix->GetCorrelation(fSystNames[n],fSystNames[m]);
+                    else continue;
+                    sum += (ysyst_i_n-ynom_i) * corr * (ysyst_j_m-ynom_j);
+                }
+            }
+            if(i==j && ynom_i>0) sum += ynom_i;  // add stat uncertainty to diagonal
+            if(i==j && ynom_i>0) sum += pow(h_nominal->GetBinError(i+1),2); // add MC stat as well
+            C[ibin][jbin] = sum;
+            jbin++;
+        }
+        ibin++;
+    }
+    //
+    if(TtHFitter::DEBUGLEVEL) C.Print();
+    //
+    // Invert the matrix
+    C.Invert();
+    if(TtHFitter::DEBUGLEVEL) C.Print();
+    //
+    double chi2 = 0.;
+    ibin = 0;
+    jbin = 0;
+    for(unsigned int i=0;i<nbins;i++){
+        double ydata_i = h_data->GetBinContent(i+1);
+        if(ydata_i<0) continue; // skip dropped / blinded bins
+        double ynom_i = h_nominal->GetBinContent(i+1);
+        jbin = 0;
+        for(unsigned int j=0;j<nbins;j++){
+            double ydata_j = h_data->GetBinContent(j+1);
+            if(ydata_j<0) continue; // skip dropped / blinded bins
+            double ynom_j = h_nominal->GetBinContent(j+1);
+            chi2 += (ydata_i - ynom_i)*C[ibin][jbin]*(ydata_j-ynom_j);
+            jbin++;
+        }
+        ibin++;
+    }
+    //
+    return std::make_pair(chi2,ndf);
 }
 
 //--------------- ~ ---------------
