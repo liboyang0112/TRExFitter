@@ -246,8 +246,16 @@ int FindInStringVector(std::vector< string > v, string s){
 //                 idx = (int)i;
 //                 break;
 //         }
+        // if both first and last character are "*"...
+        if(s1[0]=='*' && s1[s1.size()-1]=='*'){
+            s2 = s1.substr(1,s1.size()-1);
+            if(s.find(s2)!=string::npos){
+                idx = (int)i;
+                break;
+            }
+        }
         // if last character is "*"...
-        if(s1[s1.size()-1]=='*'){
+        else if(s1[s1.size()-1]=='*'){
             s2 = s1.substr(0,s1.size()-1);
             if(s.find(s2)!=string::npos && s2[0]==s[0]){
                 idx = (int)i;
@@ -255,7 +263,7 @@ int FindInStringVector(std::vector< string > v, string s){
             }
         }
         // if first character is "*"...
-        if(s1[0]=='*'){
+        else if(s1[0]=='*'){
             s2 = s1.substr(1,s1.size());
             if(s.find(s2)!=string::npos && s2[s2.size()-1]==s[s.size()-1]){
                 idx = (int)i;
@@ -427,7 +435,7 @@ TH1* DropBins(TH1* h,std::vector<int> v){
     TH1* h_new = (TH1*)h->Clone(h->GetName());
     for(int i_bin=1;i_bin<=h_new->GetNbinsX();i_bin++){
         if(find(v.begin(),v.end(),i_bin-1)!=v.end()){
-            h->SetBinContent(i_bin,0.);
+            h->SetBinContent(i_bin,-1.);
             h->SetBinError(i_bin,0.);
         }
     }

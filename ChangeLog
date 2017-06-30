@@ -1,3 +1,7 @@
+2017-06-28 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * MergeSystematics moved before syst symmetrisation
+    * Fixes TTHFITTER-135
+    
 2017-06-23 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fix memory issue when too many histograms are readed from file (calling "TH1::AddDirectory(kFALSE);" if no writing is involved)
     * goodness of fit added - need flag GetGoodnessOfFit set to TRUE under Fit
