@@ -33,6 +33,8 @@ Systematic::Systematic(string name,int type,float up,float down){
     fReferenceSample = "";
     fKeepReferenceOverallVar = true;
     //
+    fSubtractRefSampleVar = false;
+    //
     fWeightUp = "";
     fWeightSufUp = "";
     fNtuplePathsUp.clear();
@@ -97,6 +99,8 @@ Systematic::Systematic(Systematic &sys) {
     //
     fReferenceSample = sys.fReferenceSample;
     fKeepReferenceOverallVar = sys.fKeepReferenceOverallVar;
+    //
+    fSubtractRefSampleVar = sys.fSubtractRefSampleVar;
     //
     fWeightUp = sys.fWeightUp;
     fWeightSufUp = sys.fWeightSufUp;

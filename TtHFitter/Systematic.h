@@ -31,6 +31,8 @@ public:
     int fSymmetrisationType;
     string fReferenceSample;
     bool fKeepReferenceOverallVar;
+
+    bool fSubtractRefSampleVar;
       
     float fOverallUp;
     float fOverallDown;
