@@ -60,6 +60,7 @@ namespace TtHFitter{
     extern bool SHOWSTACKSIG;  // flag to show signal or not
     extern bool SHOWNORMSIG;  // flag to show normalized signal or not
     extern bool SHOWOVERLAYSIG;  // flag to show overlayed signal or not
+    extern bool SHOWCHI2;
     extern bool SHOWSTACKSIG_SUMMARY;  // flag to show signal or not in Summary Plot
     extern bool SHOWNORMSIG_SUMMARY;  // flag to show normalized signal or not in Summary Plot
     extern bool SHOWOVERLAYSIG_SUMMARY;  // flag to show overlayed signal or not in Summary Plot

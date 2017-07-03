@@ -685,6 +685,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG    = true;
         if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG = true;
         if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TtHFitter::LEGENDLEFT     = true;
+        if( std::find(vec.begin(), vec.end(), "CHI2")   !=vec.end() )  TtHFitter::SHOWCHI2       = true;
         // ...
     }
     param = cs->Get("PlotOptionsSummary");       if( param != ""){
@@ -1593,18 +1594,22 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 // ...
             }
             else if(fInputType==1){
-                if(cs->Get("NtuplePathUp")!="")      { sys->fNtuplePathsUp  .push_back(cs->Get("NtuplePathsUp"));    hasUp   = true; }
-                if(cs->Get("NtuplePathDown")!="")    { sys->fNtuplePathsDown.push_back(cs->Get("NtuplePathsDown"));  hasDown = true; }
+                if(cs->Get("NtuplePathUp")!="")      { sys->fNtuplePathsUp  .push_back(cs->Get("NtuplePathUp"));    hasUp   = true; }
+                if(cs->Get("NtuplePathDown")!="")    { sys->fNtuplePathsDown.push_back(cs->Get("NtuplePathDown"));  hasDown = true; }
+                if(cs->Get("NtuplePathsUp")!="")     { sys->fNtuplePathsUp   = Vectorize(cs->Get("NtuplePathsUp")  ,',');  hasUp   = true; }
+                if(cs->Get("NtuplePathsDown")!="")   { sys->fNtuplePathsDown = Vectorize(cs->Get("NtuplePathsDown"),',');  hasDown = true; }
                 if(cs->Get("NtuplePathSufUp")!="")   { sys->fNtuplePathSufUp   = cs->Get("NtuplePathSufUp");         hasUp   = true; }
                 if(cs->Get("NtuplePathSufDown")!="") { sys->fNtuplePathSufDown = cs->Get("NtuplePathSufDown");       hasDown = true; }
                 if(cs->Get("NtupleFileUp")!="")      { sys->fNtupleFilesUp   .push_back(cs->Get("NtupleFileUp"));    hasUp   = true; }
                 if(cs->Get("NtupleFileDown")!="")    { sys->fNtupleFilesDown .push_back(cs->Get("NtupleFileDown"));  hasDown = true; }
-                if(cs->Get("NtupleFilesUp")!="")     { sys->fNtupleFilesUp     = Vectorize(cs->Get("NtupleFilesUp"), ',');    hasUp   = true; }
-                if(cs->Get("NtupleFilesDown")!="")   { sys->fNtupleFilesDown   = Vectorize(cs->Get("NtupleFilesDown"), ',');  hasDown = true; }
+                if(cs->Get("NtupleFilesUp")!="")     { sys->fNtupleFilesUp     = Vectorize(cs->Get("NtupleFilesUp"),  ',');  hasUp   = true; }
+                if(cs->Get("NtupleFilesDown")!="")   { sys->fNtupleFilesDown   = Vectorize(cs->Get("NtupleFilesDown"),',');  hasDown = true; }
                 if(cs->Get("NtupleFileSufUp")!="")   { sys->fNtupleFileSufUp   = cs->Get("NtupleFileSufUp");         hasUp   = true; }
                 if(cs->Get("NtupleFileSufDown")!="") { sys->fNtupleFileSufDown = cs->Get("NtupleFileSufDown");       hasDown = true; }
                 if(cs->Get("NtupleNameUp")!="")      { sys->fNtupleNamesUp  .push_back(cs->Get("NtupleNameUp"));     hasUp   = true; }
                 if(cs->Get("NtupleNameDown")!="")    { sys->fNtupleNamesDown.push_back( cs->Get("NtupleNameDown"));  hasDown = true; }
+                if(cs->Get("NtupleNamesUp")!="")     { sys->fNtupleNamesUp     = Vectorize(cs->Get("NtupleNamesUp"),  ','); hasUp   = true; }
+                if(cs->Get("NtupleNamesDown")!="")   { sys->fNtupleNamesDown   = Vectorize(cs->Get("NtupleNamesDown"),','); hasDown = true; }
                 if(cs->Get("NtupleNameSufUp")!="")   { sys->fNtupleNameSufUp   = cs->Get("NtupleNameSufUp");         hasUp   = true; }
                 if(cs->Get("NtupleNameSufDown")!="") { sys->fNtupleNameSufDown = cs->Get("NtupleNameSufDown");       hasDown = true; }
                 if(cs->Get("WeightUp")!="")          { sys->fWeightUp      = cs->Get("WeightUp");                    hasUp   = true; }
@@ -4472,6 +4477,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
 //__________________________________________________________________________________
 // called before w in case of CustomAsimov
 void TtHFit::CreateCustomAsimov(){
+cout << "Running CreateCustomAsimov" << endl;
     // get a list of all CustomAsimov to create
     std::vector<std::string> customAsimovList;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -4481,6 +4487,7 @@ void TtHFit::CreateCustomAsimov(){
     //
     // fill a different CustomAsimov data-set for each element in the list
     for(auto customAsimov : customAsimovList){
+cout << customAsimov << endl;
         Sample *ca = GetSample("customAsimov_"+customAsimov);
         // create a new data sample taking the nominal S and B
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -4498,7 +4505,15 @@ void TtHFit::CreateCustomAsimov(){
                     if( h->fSample->fAsimovReplacementFor.second!="" ) smpToExclude.push_back(h->fSample->fAsimovReplacementFor.second);
                 }
                 if( FindInStringVector( smpToExclude,fSamples[i_smp]->fName )>=0 ) continue;
-                cash->fHist->Add(h->fHist);
+                //
+                // bug-fix: change normalisation factors to nominal value!
+                float factor = 1.;
+                for(auto norm : fSamples[i_smp]->fNormFactors){
+                    cout << "setting norm factor to " << norm->fNominal << endl;
+                    factor *= norm->fNominal;
+                }
+                //
+                cash->fHist->Add(h->fHist,factor);
             }
             cash->fHist->Sumw2(false);
         }
@@ -5643,7 +5658,7 @@ void TtHFit::GetSignificance(){
         //
         // Finally computing the significance
         //
-        cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
+        cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fInputName+fSuffix+"\",\""+fName+"/Significance\")'";
     }
 
     gSystem->Exec(cmd.c_str());

@@ -1,3 +1,9 @@
+2017-07-03 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * RooStats::UseNLLOffset(true) added (as per e-mail reommending it)
+    * Add NtupleNamesUp/Down and NtuplePathsUp/Down options for systematics in config
+    * Fixes TTHFITTER-136 (proper usage of OutDir by significance evaluation and multi-fit limit comparison)
+    * adding option to print chi2 and prob on the plots
+    
 2017-06-30 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Working on TTHFITTER-137, extended chi2 test for pre-/post-fit plots added
     

@@ -733,20 +733,22 @@ void MultiFit::CompareLimit(){
     // ---
 
     // Fit titles
-    vector<string> names;
-    vector<string> suffs;
-    vector<string> titles;
+    vector<string> dirs;   dirs.clear();
+    vector<string> names;  names.clear();
+    vector<string> suffs;  suffs.clear();
+    vector<string> titles; titles.clear();
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         std::cout << "Adding Fit: " << fFitList[i_fit]->fInputName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
+        dirs.push_back( fFitList[i_fit]->fName );
         names.push_back( fFitList[i_fit]->fInputName );
         titles.push_back( fFitLabels[i_fit] );
         suffs.push_back( fFitSuffs[i_fit] );
     }
     if(fCombine){
         std::cout << "Adding combined limit" << std::endl;
+        dirs.push_back( fOutDir );
         names.push_back( fName );
         titles.push_back( "Combined" );
-//         suffs.push_back( "" );
         suffs.push_back( fSaveSuf );
         if(fShowObserved) fFitShowObserved.push_back(true);
     }
@@ -774,8 +776,8 @@ void MultiFit::CompareLimit(){
 
     // get values
     for(int i=0;i<N;i++){
-        f = new TFile(Form("%s/Limits/%s.root",names[i].c_str(),(names[i]+suffs[i]).c_str()) );
-        std::cout << "Reading file " << Form("%s/Limits/%s.root",names[i].c_str(),(names[i]+suffs[i]).c_str()) << std::endl;
+        f = new TFile(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
+        std::cout << "Reading file " << Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) << std::endl;
         h = (TH1*)f->Get("limit");
 
         std::cout << " " << h->GetBinContent(1) << std::endl;
@@ -891,13 +893,13 @@ void MultiFit::ComparePulls(string category){
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1){
             std::cout << "Adding Combined Fit" << std::endl;
-	    dirs.push_back( fOutDir );
+            dirs.push_back( fOutDir );
             names.push_back( fName );
             titles.push_back( "Combined" );
             suffs.push_back( "" );
         }
         else{
-	    dirs.push_back( fFitList[i_fit]->fName );
+            dirs.push_back( fFitList[i_fit]->fName );
             names.push_back( fFitList[i_fit]->fInputName );
             titles.push_back( fFitLabels[i_fit] );
             suffs.push_back( fFitSuffs[i_fit] );
