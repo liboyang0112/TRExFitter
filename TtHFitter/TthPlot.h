@@ -33,6 +33,7 @@ class TthPlot {
     void SetTotBkg(TH1* h);
 
     void SetChi2KS(float chi2prob,float ksprob=-1,float chi2val=-1,int ndf=-1);
+    void BlindData();
     
     void Draw(string options="");
     void SaveAs(string name);

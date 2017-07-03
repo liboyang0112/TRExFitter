@@ -281,6 +281,35 @@ void TthPlot::SetChi2KS(float chi2prob,float ksprob,float chi2val,int ndf){
 
 //_____________________________________________________________________________
 //
+void TthPlot::BlindData(){
+    //
+    // Eventually blind bins
+    //
+    if(fBlindingThreshold>=0){
+        if(h_data!=0x0 && fSigNames.size()>0 && h_tot!=0x0){
+            if(h_blinding!=0x0){
+                BlindDataHisto( h_data,h_blinding );
+            }
+            else{
+                h_blinding = BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold );
+                // if more than one signal:
+                if(fSigNames.size()>1){
+                    for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
+                        h_blinding->Add( BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold ) );
+                        h_blinding->Scale(2.);
+                    }
+                }
+            }
+        }
+        else{
+            std::cout << "TthPlot::WARNING: Either h_data (" << h_data << "), h_signal (" << h_signal << ") or h_tot (" << h_tot << ") not defined.";
+            std::cout << " Blidning not possible. Skipped." << std::endl;
+        }
+    }
+}
+
+//_____________________________________________________________________________
+//
 void TthPlot::Draw(string options){
 
     /////////////////////////
@@ -306,31 +335,6 @@ void TthPlot::Draw(string options){
     if(options.find("log")!=string::npos) pad0->SetLogy();
 
     if(g_tot==0x0) g_tot = new TGraphAsymmErrors(h_tot);
-
-    //
-    // Eventually blind bins
-    //
-    if(fBlindingThreshold>=0){
-        if(h_data!=0x0 && fSigNames.size()>0 && h_tot!=0x0){
-            if(h_blinding!=0x0){
-                BlindDataHisto( h_data,h_blinding );
-            }
-            else{
-                h_blinding = BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold );
-                // if more than one signal:
-                if(fSigNames.size()>1){
-                    for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
-                        h_blinding->Add( BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold ) );
-                        h_blinding->Scale(2.);
-                    }
-                }
-            }
-        }
-        else{
-            std::cout << "TthPlot::WARNING: Either h_data (" << h_data << "), h_signal (" << h_signal << ") or h_tot (" << h_tot << ") not defined.";
-            std::cout << " Blidning not possible. Skipped." << std::endl;
-        }
-    }
 
     //
     // Determines if the data is real (and computes the poisson uncertainty) or not
