@@ -303,6 +303,7 @@ Note that, each object should have unique <ObjectName>.
      * ReferenceSample  : if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
      * KeepNormForSamples: list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing     : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
+     * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearily subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
      
 
 Command line options
