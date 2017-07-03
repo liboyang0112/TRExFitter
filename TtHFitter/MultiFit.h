@@ -65,6 +65,7 @@ public:
     float fPOIMin;
     float fPOIMax;
     float fPOIVal;
+    string fPOIPrecision;
     
     bool fUseRnd;
     float fRndRange;
