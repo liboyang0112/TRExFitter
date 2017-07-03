@@ -23,6 +23,8 @@
 void FitExample(string opt="h",string configFile="util/myFit.config",string options=""){
     SetAtlasStyle();
     
+    RooStats::UseNLLOffset(true);
+    
     // interpret opt
     bool readHistograms  = opt.find("h")!=string::npos;
     bool readNtuples     = opt.find("n")!=string::npos;

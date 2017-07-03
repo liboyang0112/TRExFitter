@@ -205,6 +205,10 @@ public:
     bool fGetChi2;
     
     std::vector<int> fDropBins;
+    
+    float fChi2val;
+    int fNDF;
+    float fChi2prob;
 };
 
 

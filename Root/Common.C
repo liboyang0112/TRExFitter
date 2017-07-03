@@ -10,6 +10,7 @@ bool TtHFitter::SHOWYIELDS = false;
 bool TtHFitter::SHOWSTACKSIG = true;
 bool TtHFitter::SHOWNORMSIG = false;
 bool TtHFitter::SHOWOVERLAYSIG = false;
+bool TtHFitter::SHOWCHI2 = false;
 bool TtHFitter::SHOWSTACKSIG_SUMMARY = true;
 bool TtHFitter::SHOWNORMSIG_SUMMARY = false;
 bool TtHFitter::SHOWOVERLAYSIG_SUMMARY = false;

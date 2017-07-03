@@ -97,6 +97,10 @@ Region::Region(string name){
     fGetChi2 = false;
     
     fDropBins.clear();
+    
+    fChi2val = -1;
+    fNDF = -1;
+    fChi2prob = -1;
 }
 
 //__________________________________________________________________________________
@@ -423,12 +427,15 @@ void Region::BuildPreFitErrorHist(){
             }
         }
         std::pair<double,int> res = GetChi2Test( h_data, fTot, h_up, h_down, fNpNames );
-        cout << "----------------------- ---------------------------- -----------------------" << endl;
+        fChi2val = res.first;
+        fNDF = res.second;
+        fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
+        cout << "----------------------- ----------------------------- -----------------------" << endl;
         cout << "----------------------- PRE-FIT AGREEMENT EVALUATION -----------------------" << endl;
         cout << "--- REGION " << fName << ":" << endl;
-        cout << "  chi2        = " << res.first << endl;
-        cout << "  ndof        = " << res.second << endl;
-        cout << "  probability = " << ROOT::Math::chisquared_cdf_c( res.first, res.second) << endl;
+        cout << "  chi2        = " << fChi2val << endl;
+        cout << "  ndof        = " << fNDF << endl;
+        cout << "  probability = " << fChi2prob << endl;
         cout << "----------------------- ----------------------------- -----------------------" << endl;
         cout << "----------------------- ----------------------------- -----------------------" << endl;
     }
@@ -542,6 +549,11 @@ TthPlot* Region::DrawPreFit(string opt){
     // Computes the uncertainty bands arround the h_tot histogram
     //
     BuildPreFitErrorHist();
+    
+    //
+    // Print chi2 info
+    //
+    if(fGetChi2 && TtHFitter::SHOWCHI2)  p->SetChi2KS(fChi2prob,-1,fChi2val,fNDF);
     
     //
     // Sets the last ingredients in the TthPlot object
@@ -826,12 +838,15 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             }
         }
         std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, h_down, fSystNames, fitRes->fCorrMatrix );
+        fChi2val = res.first;
+        fNDF = res.second;
+        fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
         cout << "----------------------- ----------------------------- -----------------------" << endl;
         cout << "----------------------- POST-FIT AGREEMENT EVALUATION -----------------------" << endl;
         cout << "--- REGION " << fName << ":" << endl;
-        cout << "  chi2        = " << res.first << endl;
-        cout << "  ndof        = " << res.second << endl;
-        cout << "  probability = " << ROOT::Math::chisquared_cdf_c( res.first, res.second) << endl;
+        cout << "  chi2        = " << fChi2val << endl;
+        cout << "  ndof        = " << fNDF << endl;
+        cout << "  probability = " << fChi2prob << endl;
         cout << "----------------------- ----------------------------- -----------------------" << endl;
         cout << "----------------------- ----------------------------- -----------------------" << endl;
     }
@@ -1083,6 +1098,11 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     // Build error band
     //
     BuildPostFitErrorHist(fitRes);
+    
+    //
+    // Print chi2 info
+    //
+    if(fGetChi2 && TtHFitter::SHOWCHI2)  p->SetChi2KS(fChi2prob,-1,fChi2val,fNDF);
     
     //
     // 5) Finishes configuration of TthPlot objects
