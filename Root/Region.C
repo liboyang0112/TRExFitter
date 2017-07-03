@@ -542,6 +542,7 @@ TthPlot* Region::DrawPreFit(string opt){
     }
     
     p->SetTotBkg((TH1*)fTot);
+    p->BlindData();
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     fBlindedBins = p->h_blinding;
     
@@ -1093,6 +1094,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         p->SetBinBlinding(true,fBlindingThreshold);
         if(fKeepPrefitBlindedBins && fBlindedBins!=0x0) p->SetBinBlinding(true,fBlindedBins);
     }
+    p->BlindData();
     
     //
     // Build error band
