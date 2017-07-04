@@ -48,6 +48,8 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     fCME = "8 TeV";
     fATLASlabel = "none";
     yMaxScale = 2.;
+    Chi2val = -1;
+    NDF = -1;
     Chi2prob = -1;
     KSprob = -1;
     //
@@ -270,9 +272,40 @@ void TthPlot::SetTotBkgAsym(TGraphAsymmErrors* g){
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetChi2KS(float chi2,float ks){
-    Chi2prob = chi2;
-    KSprob = ks;
+void TthPlot::SetChi2KS(float chi2prob,float ksprob,float chi2val,int ndf){
+    Chi2prob = chi2prob;
+    KSprob = ksprob;
+    Chi2val = chi2val;
+    NDF = ndf;
+}
+
+//_____________________________________________________________________________
+//
+void TthPlot::BlindData(){
+    //
+    // Eventually blind bins
+    //
+    if(fBlindingThreshold>=0){
+        if(h_data!=0x0 && fSigNames.size()>0 && h_tot!=0x0){
+            if(h_blinding!=0x0){
+                BlindDataHisto( h_data,h_blinding );
+            }
+            else{
+                h_blinding = BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold );
+                // if more than one signal:
+                if(fSigNames.size()>1){
+                    for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
+                        h_blinding->Add( BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold ) );
+                        h_blinding->Scale(2.);
+                    }
+                }
+            }
+        }
+        else{
+            std::cout << "TthPlot::WARNING: Either h_data (" << h_data << "), h_signal (" << h_signal << ") or h_tot (" << h_tot << ") not defined.";
+            std::cout << " Blidning not possible. Skipped." << std::endl;
+        }
+    }
 }
 
 //_____________________________________________________________________________
@@ -302,31 +335,6 @@ void TthPlot::Draw(string options){
     if(options.find("log")!=string::npos) pad0->SetLogy();
 
     if(g_tot==0x0) g_tot = new TGraphAsymmErrors(h_tot);
-
-    //
-    // Eventually blind bins
-    //
-    if(fBlindingThreshold>=0){
-        if(h_data!=0x0 && fSigNames.size()>0 && h_tot!=0x0){
-            if(h_blinding!=0x0){
-                BlindDataHisto( h_data,h_blinding );
-            }
-            else{
-                h_blinding = BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold );
-                // if more than one signal:
-                if(fSigNames.size()>1){
-                    for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
-                        h_blinding->Add( BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold ) );
-                        h_blinding->Scale(2.);
-                    }
-                }
-            }
-        }
-        else{
-            std::cout << "TthPlot::WARNING: Either h_data (" << h_data << "), h_signal (" << h_signal << ") or h_tot (" << h_tot << ") not defined.";
-            std::cout << " Blidning not possible. Skipped." << std::endl;
-        }
-    }
 
     //
     // Determines if the data is real (and computes the poisson uncertainty) or not
@@ -844,12 +852,12 @@ void TthPlot::Draw(string options){
     KSlab->SetNDC(1);
     KSlab->SetTextFont(42);
     KSlab->SetTextSize(0.1);
-    //  if(KSprob!=0)
-    //    KSlab->DrawLatex(0.6,0.9,Form("KS = %.2f",KSprob));
-    //  if(KStest == "chi2")
-    //    KSlab->DrawLatex(0.6,0.9,Form("#chi^{2} = %.2f",Chi2));
-    if(KSprob >= 0 && Chi2prob >= 0)
-        KSlab->DrawLatex(0.15,0.9,Form("#chi^{2} prob = %.2f,   KS prob = %.2f",Chi2prob,KSprob));
+    std::string kslab = "";
+    if(Chi2val >= 0)  kslab += Form("   #chi^{2}/ndf = %.1f",Chi2val);
+    if(NDF >= 0)      kslab += Form(" / %d",NDF);
+    if(Chi2prob >= 0) kslab += Form("  #chi^{2}prob = %.2f",Chi2prob);
+    if(KSprob >= 0)   kslab += Form("  KS prob = %.2f",KSprob);
+    KSlab->DrawLatex(0.15,0.9,kslab.c_str());
     //
     pad0->cd();
 

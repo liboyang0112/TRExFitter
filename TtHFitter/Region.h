@@ -202,8 +202,13 @@ public:
     
     TH1F* fBlindedBins;
     bool fKeepPrefitBlindedBins;
+    bool fGetChi2;
     
     std::vector<int> fDropBins;
+    
+    float fChi2val;
+    int fNDF;
+    float fChi2prob;
 };
 
 
@@ -214,5 +219,7 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode=4);
 
 // To build the total error band
 TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > systNames, CorrelationMatrix *matrix=0x0 );
+
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > fSystNames, CorrelationMatrix *matrix=0x0 );
 
 #endif

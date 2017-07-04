@@ -165,6 +165,7 @@ TtHFit::TtHFit(string name){
     fTableOptions = "STANDALONE";
     
     fGetGoodnessOfFit = false;
+    fGetChi2 = false;
 }
 
 //__________________________________________________________________________________
@@ -684,6 +685,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG    = true;
         if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG = true;
         if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TtHFitter::LEGENDLEFT     = true;
+        if( std::find(vec.begin(), vec.end(), "CHI2")   !=vec.end() )  TtHFitter::SHOWCHI2       = true;
         // ...
     }
     param = cs->Get("PlotOptionsSummary");       if( param != ""){
@@ -844,6 +846,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         int seed = atoi(param.c_str());
         if(seed>=0) fRandomPOISeed = seed;
     }
+    param = cs->Get("GetChi2");   if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fGetChi2 = true;
+        }
+    }
     
     //
     // General options
@@ -985,6 +993,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
         regNames.push_back( CheckName(cs->GetValue()) ); //why the CheckName is needed?? A: cs->GetValue() might have leading/trailing spaces...
         reg = NewRegion(CheckName(cs->GetValue()));
+        reg->fGetChi2 = fGetChi2;
         reg->SetVariableTitle(cs->Get("VariableTitle"));
         reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
         param = cs->Get("YaxisTitle"); if( param != "") reg->fYTitle = param;
@@ -1588,18 +1597,22 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 // ...
             }
             else if(fInputType==1){
-                if(cs->Get("NtuplePathUp")!="")      { sys->fNtuplePathsUp  .push_back(cs->Get("NtuplePathsUp"));    hasUp   = true; }
-                if(cs->Get("NtuplePathDown")!="")    { sys->fNtuplePathsDown.push_back(cs->Get("NtuplePathsDown"));  hasDown = true; }
+                if(cs->Get("NtuplePathUp")!="")      { sys->fNtuplePathsUp  .push_back(cs->Get("NtuplePathUp"));    hasUp   = true; }
+                if(cs->Get("NtuplePathDown")!="")    { sys->fNtuplePathsDown.push_back(cs->Get("NtuplePathDown"));  hasDown = true; }
+                if(cs->Get("NtuplePathsUp")!="")     { sys->fNtuplePathsUp   = Vectorize(cs->Get("NtuplePathsUp")  ,',');  hasUp   = true; }
+                if(cs->Get("NtuplePathsDown")!="")   { sys->fNtuplePathsDown = Vectorize(cs->Get("NtuplePathsDown"),',');  hasDown = true; }
                 if(cs->Get("NtuplePathSufUp")!="")   { sys->fNtuplePathSufUp   = cs->Get("NtuplePathSufUp");         hasUp   = true; }
                 if(cs->Get("NtuplePathSufDown")!="") { sys->fNtuplePathSufDown = cs->Get("NtuplePathSufDown");       hasDown = true; }
                 if(cs->Get("NtupleFileUp")!="")      { sys->fNtupleFilesUp   .push_back(cs->Get("NtupleFileUp"));    hasUp   = true; }
                 if(cs->Get("NtupleFileDown")!="")    { sys->fNtupleFilesDown .push_back(cs->Get("NtupleFileDown"));  hasDown = true; }
-                if(cs->Get("NtupleFilesUp")!="")     { sys->fNtupleFilesUp     = Vectorize(cs->Get("NtupleFilesUp"), ',');    hasUp   = true; }
-                if(cs->Get("NtupleFilesDown")!="")   { sys->fNtupleFilesDown   = Vectorize(cs->Get("NtupleFilesDown"), ',');  hasDown = true; }
+                if(cs->Get("NtupleFilesUp")!="")     { sys->fNtupleFilesUp     = Vectorize(cs->Get("NtupleFilesUp"),  ',');  hasUp   = true; }
+                if(cs->Get("NtupleFilesDown")!="")   { sys->fNtupleFilesDown   = Vectorize(cs->Get("NtupleFilesDown"),',');  hasDown = true; }
                 if(cs->Get("NtupleFileSufUp")!="")   { sys->fNtupleFileSufUp   = cs->Get("NtupleFileSufUp");         hasUp   = true; }
                 if(cs->Get("NtupleFileSufDown")!="") { sys->fNtupleFileSufDown = cs->Get("NtupleFileSufDown");       hasDown = true; }
                 if(cs->Get("NtupleNameUp")!="")      { sys->fNtupleNamesUp  .push_back(cs->Get("NtupleNameUp"));     hasUp   = true; }
                 if(cs->Get("NtupleNameDown")!="")    { sys->fNtupleNamesDown.push_back( cs->Get("NtupleNameDown"));  hasDown = true; }
+                if(cs->Get("NtupleNamesUp")!="")     { sys->fNtupleNamesUp     = Vectorize(cs->Get("NtupleNamesUp"),  ','); hasUp   = true; }
+                if(cs->Get("NtupleNamesDown")!="")   { sys->fNtupleNamesDown   = Vectorize(cs->Get("NtupleNamesDown"),','); hasDown = true; }
                 if(cs->Get("NtupleNameSufUp")!="")   { sys->fNtupleNameSufUp   = cs->Get("NtupleNameSufUp");         hasUp   = true; }
                 if(cs->Get("NtupleNameSufDown")!="") { sys->fNtupleNameSufDown = cs->Get("NtupleNameSufDown");       hasDown = true; }
                 if(cs->Get("WeightUp")!="")          { sys->fWeightUp      = cs->Get("WeightUp");                    hasUp   = true; }
@@ -1682,7 +1695,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             // attach the syst to the proper samples
             for(int i_smp=0;i_smp<fNSamples;i_smp++){
                 sam = fSamples[i_smp];
-                if(sam->fType == Sample::DATA) continue;
+//                 if(sam->fType == Sample::DATA) continue;
+                // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
+                if(sam->fType == Sample::DATA){
+                  if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
+                    sam->AddSystematic(sys);
+                  }
+                  else continue;
+                }
                 if(!sam->fUseSystematics) continue;
                 if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
                       && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
@@ -1759,7 +1779,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                     tmpReg.push_back( regNames[i_reg] );
                     mySys->fRegions = tmpReg;
                     fSystematics.push_back( mySys );
-
                     if(cs->Get("NuisanceParameter")!=""){
                         mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg];
                         TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
@@ -1776,7 +1795,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                     //
                     for(int i_smp=0;i_smp<fNSamples;i_smp++){
                         sam = fSamples[i_smp];
-                        if(sam->fType == Sample::DATA) continue;
+                        // if(sam->fType == Sample::DATA) continue;
+                        // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
+                        if(sam->fType == Sample::DATA){
+                          if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
+                            sam->AddSystematic(mySys);
+                          }
+                          else continue;
+                        }
                         if(!sam->fUseSystematics) continue;
                         if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
                               && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
@@ -1795,7 +1821,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             // (this is really messy)
             for(int i_smp=0;i_smp<fNSamples;i_smp++){
                 sam = fSamples[i_smp];
-                if(sam->fType == Sample::DATA) continue;
+//                 if(sam->fType == Sample::DATA) continue;
+                // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
+                if(sam->fType == Sample::DATA){
+                  if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
+                    sam->AddSystematic(sys);
+                  }
+                  else continue;
+                }
                 if(sam->fType == Sample::GHOST) continue;
                 bool keepSam=false;
                 if ( samples[0]=="all" ) keepSam=true;
@@ -1855,7 +1888,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             //
             for(int i_smp=0;i_smp<fNSamples;i_smp++){
                 sam = fSamples[i_smp];
-                if(sam->fType == Sample::DATA) continue;
+//                 if(sam->fType == Sample::DATA) continue;
+                // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
+                if(sam->fType == Sample::DATA){
+                  if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
+                    sam->AddSystematic(mySys1);
+                  }
+                  else continue;
+                }
                 if(!sam->fUseSystematics) continue;
                 if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
                       && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
@@ -1905,6 +1945,13 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             std::cout << "decorrelate option: " << decorrelate  << "  not supported ... PLEASE USE ONLY: REGION, SAMPLE, SHAPEACC" <<  std::endl;
             return;
         }
+        // New: for systeamtics which also vary Data (e.g. JER with Full NPs)
+        // This will subtract linearly the relative variation on Data from each relative variation on MC
+        param = cs->Get("SubtractRefSampleVar");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "TRUE" ) sys->fSubtractRefSampleVar = true;// default is false
+        }
     }
     //
     // -- Post config-reading actions ---
@@ -1952,8 +1999,233 @@ void TtHFit::ReadNtuples(){
             std::cout << "TtHFitter::WARNING : Only second correlation variable defined, do not read region : " << fRegions[i_ch]->fName << std::endl;
             continue;
         }
-        //
+
+        // first loop on Data samples
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            if(fSamples[i_smp]->fType!=Sample::DATA) continue;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading DATA sample " << fSamples[i_smp]->fName << std::endl;
+            //
+            // eventually skip sample / region combination
+            //
+            if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[i_ch]->fName)<0 ) continue;
+            //
+            // read nominal
+            //
+            // set selection and weight
+            fullSelection = "1";
+            //             fSelection + " && " + fRegions[i_ch]->fSelection;
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
+                fullSelection += " && ("+fSelection+")";
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fRegions[i_ch]->fSelection!="" && fRegions[i_ch]->fSelection!="1")
+                fullSelection += " && ("+fRegions[i_ch]->fSelection+")";
+            if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
+                fullSelection += " && ("+fSamples[i_smp]->fSelection+")";
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSamples[i_smp]->fIgnoreSelection!="FALSE" && fSamples[i_smp]->fIgnoreSelection!="")
+                fullSelection = ReplaceString(fullSelection,fSamples[i_smp]->fIgnoreSelection,"1");
+            //
+            fullMCweight = "1";
+            //
+            // build a list of ntuples to read
+            fullPaths.clear();
+            vector<string> NtupleNames;
+            for(unsigned int ns_ch=0; ns_ch<fRegions[i_ch]->fNtupleNames.size(); ++ns_ch){
+                NtupleNames.push_back(fRegions[i_ch]->fNtupleNames.at(ns_ch));
+            }
+            for(unsigned int ns_smp=0; ns_smp<fSamples[i_smp]->fNtupleNames.size(); ++ns_smp){
+                NtupleNames.push_back(fSamples[i_smp]->fNtupleNames.at(ns_smp));
+            }
+            vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
+                                                             fRegions[i_ch]->fNtupleNameSuffs );
+            fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
+                                         fRegions[i_ch]->fNtuplePathSuffs,
+                                         fSamples[i_smp]->fNtupleFiles.size()>0 ? fSamples[i_smp]->fNtupleFiles : ToVec(fNtupleFile), empty, // no ntuple file suffs for nominal (syst only)
+                                         NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
+                                         NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
+                                         );
+            htmp = 0x0;
+            h = 0x0;
+            for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                if(fRegions[i_ch]->fHistoBins){
+                    htmp = HistFromNtupleBinArr( fullPaths[i_path],
+                                                 fRegions[i_ch]->fVariable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
+                                                 fullSelection, fullMCweight);
+                }
+                else{
+                    htmp = HistFromNtuple( fullPaths[i_path],
+                                           fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
+                                           fullSelection, fullMCweight);
+                    //Pre-processing of histograms (rebinning, lumi scaling)
+                    if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                }
+                //
+                if(fSamples[i_smp]->fLumiScales.size()>i_path)  htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+                else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
+                //
+                if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+                else h->Add(htmp);
+                htmp->~TH1F();
+            }
+            //
+            // Save the original histogram
+            TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
+            //
+            // Importing the histogram in TtHFitter
+            sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
+            sh->fHist_orig = h_orig;
+            sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
+            
+            // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
+            // so we need to get its systematics first
+            for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
+                Systematic * syst = fSamples[i_smp]->fSystematics[i_syst];
+                // only relevant for systs that have this sample as reference
+                if (!syst->fSubtractRefSampleVar || syst->fReferenceSample != fSamples[i_smp]->fName) continue;
+
+                //
+                // eventually skip systematic / region combination
+                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding DATA syst " << syst->fName << std::endl;
+                //
+                Region *reg = fRegions[i_ch];
+                Sample *smp = fSamples[i_smp];
+                //
+                // set selection
+                fullSelection = "1";
+                if(smp->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
+                    fullSelection += " && ("+fSelection+")";
+                if(smp->fIgnoreSelection!="TRUE" && reg->fSelection!="" && reg->fSelection!="1")
+                    fullSelection += " && ("+reg->fSelection+")";
+                if(smp->fSelection!="" && smp->fSelection!="1")
+                    fullSelection += " && ("+smp->fSelection+")";
+                if(smp->fIgnoreSelection!="TRUE" && smp->fIgnoreSelection!="FALSE" && smp->fIgnoreSelection!="")
+                    fullSelection = ReplaceString(fullSelection,smp->fIgnoreSelection,"1");
+
+                //
+                // Up
+                //
+                hUp = 0x0;
+                if(syst->fHasUpVariation){
+                    fullMCweight = "1.";
+                    fullPaths.clear();
+                    vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ), reg->fNtupleNameSuffs );
+                    vector<string> NtuplePaths       = fNtuplePaths;
+                      if(smp->fNtuplePaths.size()>0)    NtuplePaths = smp->fNtuplePaths;
+                      if(syst->fNtuplePathsUp.size()>0) NtuplePaths = syst->fNtuplePathsUp;
+                    vector<string> NtuplePathSuffs   = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufUp ) );
+                    //
+                    fullPaths = CreatePathsList(
+                                                // path
+                                                NtuplePaths,
+                                                // path suf
+                                                NtuplePathSuffs,
+                                                // file
+                                                syst->fNtupleFilesUp.size()==0 ?
+                                                ( smp->fNtupleFiles.size()>0 ? smp->fNtupleFiles : ToVec(fNtupleFile) ) :
+                                                syst->fNtupleFilesUp ,
+                                                // file suf
+                                                syst->fNtupleFileSufUp=="" ?
+                                                empty :
+                                                ToVec( syst->fNtupleFileSufUp ),
+                                                // name
+                                                syst->fNtupleNamesUp.size()==0 ?
+                                                ( smp->fNtupleNames.size()==0 ? ToVec( fNtupleName ) : smp->fNtupleNames ) :
+                                                syst->fNtupleNamesUp,
+                                                // name suf
+                                                NtupleNameSuffsUp.size()>0 ? NtupleNameSuffsUp : empty
+                                                );
+                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                        if(reg->fHistoBins){
+                            htmp = HistFromNtupleBinArr( fullPaths[i_path],
+                                                        reg->fVariable, reg->fHistoNBinsRebin, reg->fHistoBins,
+                                                        fullSelection, fullMCweight);
+                        }
+                        else{
+                            htmp = HistFromNtuple( fullPaths[i_path],
+                                                  reg->fVariable, reg->fNbins, reg->fXmin, reg->fXmax,
+                                                  fullSelection, fullMCweight);
+                            // Pre-processing of histograms (rebinning, lumi scaling)
+                            if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                        }
+                        //
+                        // Importing histogram in TtHFitter
+                        if(i_path==0){
+                            hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
+                        }
+                        else hUp->Add(htmp);
+                        htmp->~TH1F();
+                    }
+                }
+                //
+                // Down
+                //
+                hDown = 0x0;
+                if(syst->fHasDownVariation){
+                    fullMCweight = "1.";
+                    fullPaths.clear();
+                    vector<string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDown ), reg->fNtupleNameSuffs );
+                    vector<string> NtuplePaths          = fNtuplePaths;
+                      if(smp->fNtuplePaths.size()>0)      NtuplePaths = smp->fNtuplePaths;
+                      if(syst->fNtuplePathsDown.size()>0) NtuplePaths = syst->fNtuplePathsDown;
+                    vector<string> NtuplePathSuffs      = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufDown ) );
+                    //
+                    fullPaths = CreatePathsList(
+                                                // path
+                                                NtuplePaths,
+                                                // path suf
+                                                NtuplePathSuffs,
+                                                // file
+                                                syst->fNtupleFilesDown.size()==0 ?
+                                                ( smp->fNtupleFiles.size()>0 ? smp->fNtupleFiles : ToVec(fNtupleFile) ) :
+                                                syst->fNtupleFilesDown ,
+                                                // file suf
+                                                syst->fNtupleFileSufDown=="" ?
+                                                empty :
+                                                ToVec( syst->fNtupleFileSufDown ),
+                                                // name
+                                                syst->fNtupleNamesDown.size()==0 ?
+                                                ( smp->fNtupleNames.size()==0 ? ToVec( fNtupleName ) : smp->fNtupleNames ) :
+                                                syst->fNtupleNamesDown,
+                                                // name suf
+                                                NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
+                                                );
+                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                        if(reg->fHistoBins){
+                            htmp = HistFromNtupleBinArr( fullPaths[i_path],
+                                                        reg->fVariable, reg->fHistoNBinsRebin, reg->fHistoBins,
+                                                        fullSelection, fullMCweight);
+                        }
+                        else{
+                            htmp = HistFromNtuple( fullPaths[i_path],
+                                                  reg->fVariable, reg->fNbins, reg->fXmin, reg->fXmax,
+                                                  fullSelection, fullMCweight);
+                            // Pre-processing of histograms (rebinning, lumi scaling)
+                            if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                        }
+                        //
+                        if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
+                        else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
+                        //
+                        // Importing histogram in TtHFitter
+                        if(i_path==0){
+                            hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
+                        }
+                        else hDown->Add(htmp);
+                        htmp->~TH1F();
+                    }
+                }
+                //
+                if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                //
+                SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+            }
+        }
+        // Then loop again on non-data samples
+        for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            if(fSamples[i_smp]->fType==Sample::DATA) continue;
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading " << fSamples[i_smp]->fName << std::endl;
             //
             // eventually skip sample / region combination
@@ -1974,8 +2246,7 @@ void TtHFit::ReadNtuples(){
             if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSamples[i_smp]->fIgnoreSelection!="FALSE" && fSamples[i_smp]->fIgnoreSelection!="")
                 fullSelection = ReplaceString(fullSelection,fSamples[i_smp]->fIgnoreSelection,"1");
             //
-            if(fSamples[i_smp]->fType==Sample::DATA) fullMCweight = "1";
-            else if(!fSamples[i_smp]->fNormalizedByTheory){ // for data-driven bkg, use just the sample weight (FIXME)
+            if(!fSamples[i_smp]->fNormalizedByTheory){ // for data-driven bkg, use just the sample weight (FIXME)
                 fullMCweight = fSamples[i_smp]->fMCweight;
             }
             else{
@@ -2016,7 +2287,7 @@ void TtHFit::ReadNtuples(){
                     if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
                 }
                 //
-                if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
+                if(fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
                 //
                 if(fSamples[i_smp]->fLumiScales.size()>i_path)  htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
                 else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
@@ -2034,8 +2305,8 @@ void TtHFit::ReadNtuples(){
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
-            // end here if data or no systematics allowed (e.g. generally for GHOST)
-            if(fSamples[i_smp]->fType==Sample::DATA || !fSamples[i_smp]->fUseSystematics) continue;
+            // end here if no systematics allowed (e.g. generally for GHOST)
+            if(!fSamples[i_smp]->fUseSystematics) continue;
 
             //
             //  -----------------------------------
@@ -2182,7 +2453,7 @@ void TtHFit::ReadNtuples(){
                         //
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
-                        if(syst->fReferenceSample!=""){
+                        if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -2195,6 +2466,25 @@ void TtHFit::ReadNtuples(){
                             htmp->Multiply( hnom );
                             float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
                             if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) htmp->Scale( relVar / newVar );
+                        }
+                        // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
+                        else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+                            TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
+                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                            // Protection added: fix empty bins before starting to divide and multiply
+                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
+                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
+                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
+                            
+                            // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
+                            TH1* href_up_Tmp = (TH1*)href_up->Clone(Form("%s_Tmp", href_up->GetName()));
+                            href_up_Tmp->Divide(href);
+                            href_up_Tmp->Multiply(hnom);
+                            htmp->Add(hnom);
+                            htmp->Add(href_up_Tmp,-1);
+                            
+                            delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
                         // Importing histogram in TtHFitter
@@ -2276,7 +2566,7 @@ void TtHFit::ReadNtuples(){
                         //
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
-                        if(syst->fReferenceSample!=""){
+                        if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -2289,6 +2579,25 @@ void TtHFit::ReadNtuples(){
                             htmp->Multiply( hnom );
                             float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
                             if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
+                        }
+                        // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
+                        else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+                            TH1* href_down = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistDown;
+                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                            // Protection added: fix empty bins before starting to divide and multiply
+                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
+                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
+                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
+                            
+                            // Formula: UpHisto = [1+(down-nom)/nom-(DataDown-Data)/Data]*nom = down+nom+DataDown/Data*nom
+                            TH1* href_down_Tmp = (TH1*) href_down->Clone(Form("%s_Tmp", href_down->GetName()));
+                            href_down_Tmp->Divide(href);
+                            href_down_Tmp->Multiply(hnom);
+                            htmp->Add(hnom);
+                            htmp->Add(href_down_Tmp,-1);
+                            
+                            delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
                         // Importing histogram in TtHFitter
@@ -2580,8 +2889,195 @@ void TtHFit::ReadHistograms(){
         if(TtHFitter::SPLITHISTOFILES) fFiles[i_ch]->cd();
         //
         if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch);
-        //
+        // first we must read the DATA samples
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            if(fSamples[i_smp]->fType!=Sample::DATA) continue;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading DATA sample " << fSamples[i_smp]->fName << std::endl;
+            //
+            // eventually skip sample / region combination
+            //
+            if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[i_ch]->fName)<0 ) continue;
+            //
+            // read nominal
+            //
+            // build a list of histograms to read
+            fullPaths.clear();
+            std::vector<string> histoFiles;
+            std::vector<string> histoNames;
+            if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
+            else if(fRegions[i_ch]->fHistoFiles.size()>0) histoFiles = fRegions[i_ch]->fHistoFiles;
+            else                                          histoFiles = ToVec( fHistoFile );
+            if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
+            else if(fRegions[i_ch]->fHistoNames.size()>0) histoNames = fRegions[i_ch]->fHistoNames;
+            else                                          histoNames = ToVec( fHistoName );
+
+            fullPaths = CreatePathsList( fHistoPaths, CombinePathSufs(fRegions[i_ch]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),
+                                         histoFiles, empty, // no histo file suffs for nominal (syst only)
+                                         histoNames, empty  // same for histo name
+                                        );
+            htmp = 0x0;
+            h = 0x0;
+            for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                //Pre-processing of histograms (rebinning, lumi scaling)
+                if(fRegions[i_ch]->fHistoBins){
+                    TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
+                    const char *hname = htmp->GetName();
+                    htmp->~TH1F();
+                    htmp = (TH1F*)htmp2->Clone();
+                    delete htmp2;
+                    htmp->SetName(hname);
+                }
+                else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
+                    htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                }
+                if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+                else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
+
+                if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
+                else h->Add(htmp);
+                htmp->~TH1F();
+            }
+            //
+            // Save the original histogram
+            TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
+            //
+            // Importing the histogram in TtHFitter
+            sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
+            sh->fHist_orig = h_orig;
+            sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
+            
+            
+            // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
+            for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
+                Systematic *syst = fSamples[i_smp]->fSystematics[i_syst];
+                // only relevant for systs that have this sample as reference
+                if (!syst->fSubtractRefSampleVar || syst->fReferenceSample != fSamples[i_smp]->fName) continue;
+
+                //
+                // eventually skip systematic / region combination
+                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                //
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding syst " << syst->fName << std::endl;
+                //
+                Region *reg = fRegions[i_ch];
+                Sample *smp = fSamples[i_smp];
+                //
+                // Up
+                //
+                hUp = 0x0;
+                if(syst->fHasUpVariation){
+                    fullPaths.clear();
+                    fullPaths = CreatePathsList(
+                                                // path
+                                                fHistoPaths,
+                                                // path suf
+                                                CombinePathSufs(reg->fHistoPathSuffs,syst->fHistoPathsUp ),
+                                                // file
+                                                syst->fHistoFilesUp.size()==0 ?
+                                                histoFiles :
+                                                syst->fHistoFilesUp ,
+                                                // file suf
+                                                syst->fHistoFileSufUp=="" ?
+                                                empty :
+                                                ToVec( syst->fHistoFileSufUp ),
+                                                // name
+                                                syst->fHistoNamesUp.size()==0 ?
+                                                histoNames :
+                                                syst->fHistoNamesUp,
+                                                // name suf
+                                                syst->fHistoNameSufUp=="" ?
+                                                empty :
+                                                ToVec( syst->fHistoNameSufUp )
+                                                );
+                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                        htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                        // Pre-processing of histograms (rebinning, lumi scaling)
+                        if(reg->fHistoBins){
+                            TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
+                            const char *hname = htmp->GetName();
+                            htmp->~TH1F();
+                            htmp = (TH1F*)htmp2->Clone();
+                            delete htmp2;
+                            htmp->SetName(hname);
+                        }
+                        else if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                        //
+                        if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
+                        else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
+                        // Importing histogram in TtHFitter
+                        if(i_path==0){
+                            hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
+                        }
+                        else hUp->Add(htmp);
+                        htmp->~TH1F();
+                    }
+                }
+                //
+                // Down
+                //
+                hDown = 0x0;
+                if(syst->fHasDownVariation){
+                    fullPaths.clear();
+                    fullPaths = CreatePathsList(
+                                                // path
+                                                fHistoPaths,
+                                                // path suf
+                                                CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDown ),
+                                                // file
+                                                syst->fHistoFilesDown.size()==0 ?
+                                                histoFiles :
+                                                syst->fHistoFilesDown ,
+                                                // file suf
+                                                syst->fHistoFileSufDown=="" ?
+                                                empty :
+                                                ToVec( syst->fHistoFileSufDown ),
+                                                // name
+                                                syst->fHistoNamesDown.size()==0 ?
+                                                histoNames :
+                                                syst->fHistoNamesDown,
+                                                // name suf
+                                                syst->fHistoNameSufDown=="" ?
+                                                empty :
+                                                ToVec( syst->fHistoNameSufDown )
+                                                );
+                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                        htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
+                        // Pre-processing of histograms (rebinning, lumi scaling)
+                        if(reg->fHistoBins){
+                            TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
+                            const char *hname = htmp->GetName();
+                            htmp->~TH1F();
+                            htmp = (TH1F*)htmp2->Clone();
+                            delete htmp2;
+                            htmp->SetName(hname);
+                        }
+                        else if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                        //
+                        if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
+                        else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
+                        //
+                        // Importing histogram in TtHFitter
+                        if(i_path==0){
+                            hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
+                        }
+                        else hDown->Add(htmp);
+                        htmp->~TH1F();
+                    }
+                }
+                //
+                if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                //
+                SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+            }
+        }
+
+        // then we can read the other samples
+        for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            if(fSamples[i_smp]->fType==Sample::DATA) continue;
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading " << fSamples[i_smp]->fName << std::endl;
             //
             // eventually skip sample / region combination
@@ -2640,8 +3136,8 @@ void TtHFit::ReadHistograms(){
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
-            // end here if data or no systematics allowed (e.g. generally for GHOST samples)
-            if(fSamples[i_smp]->fType==Sample::DATA || !fSamples[i_smp]->fUseSystematics) continue;
+            // end here no systematics allowed (e.g. generally for GHOST samples)
+            if (!fSamples[i_smp]->fUseSystematics) continue;
 
             //
             //  -----------------------------------
@@ -2753,7 +3249,7 @@ void TtHFit::ReadHistograms(){
                         //
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
-                        if(syst->fReferenceSample!=""){
+                        if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -2766,6 +3262,25 @@ void TtHFit::ReadHistograms(){
                             htmp->Multiply( hnom );
                             float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
                             if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
+                        }
+                        // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
+                        else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+                            TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
+                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                            // Protection added: fix empty bins before starting to divide and multiply
+                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
+                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
+                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
+                            
+                            // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
+                            TH1* href_up_Tmp = (TH1*) href_up->Clone(Form("%s_Tmp", href_up->GetName()));
+                            href_up_Tmp->Divide(href);
+                            href_up_Tmp->Multiply(hnom);
+                            htmp->Add(hnom);
+                            htmp->Add(href_up_Tmp,-1);
+                            
+                            delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
                         // Importing histogram in TtHFitter
@@ -2823,7 +3338,7 @@ void TtHFit::ReadHistograms(){
                         //
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
-                        if(syst->fReferenceSample!=""){
+                        if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -2836,6 +3351,25 @@ void TtHFit::ReadHistograms(){
                             htmp->Multiply( hnom );
                             float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
                             if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
+                        }
+                        // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
+                        else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+                            TH1* href_down = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistDown;
+                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                            // Protection added: fix empty bins before starting to divide and multiply
+                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
+                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
+                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
+                            
+                            // Formula: UpHisto = [1+(down-nom)/nom-(DataDown-Data)/Data]*nom = down+nom+DataDown/Data*nom
+                            TH1* href_down_Tmp = (TH1*) href_down->Clone(Form("%s_Tmp", href_down->GetName()));
+                            href_down_Tmp->Divide(href);
+                            href_down_Tmp->Multiply(hnom);
+                            htmp->Add(hnom);
+                            htmp->Add(href_down_Tmp,-1);
+                            
+                            delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
                         // Importing histogram in TtHFitter
@@ -4525,6 +5059,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
 //__________________________________________________________________________________
 // called before w in case of CustomAsimov
 void TtHFit::CreateCustomAsimov(){
+cout << "Running CreateCustomAsimov" << endl;
     // get a list of all CustomAsimov to create
     std::vector<std::string> customAsimovList;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -4534,6 +5069,7 @@ void TtHFit::CreateCustomAsimov(){
     //
     // fill a different CustomAsimov data-set for each element in the list
     for(auto customAsimov : customAsimovList){
+cout << customAsimov << endl;
         Sample *ca = GetSample("customAsimov_"+customAsimov);
         // create a new data sample taking the nominal S and B
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -4551,7 +5087,15 @@ void TtHFit::CreateCustomAsimov(){
                     if( h->fSample->fAsimovReplacementFor.second!="" ) smpToExclude.push_back(h->fSample->fAsimovReplacementFor.second);
                 }
                 if( FindInStringVector( smpToExclude,fSamples[i_smp]->fName )>=0 ) continue;
-                cash->fHist->Add(h->fHist);
+                //
+                // bug-fix: change normalisation factors to nominal value!
+                float factor = 1.;
+                for(auto norm : fSamples[i_smp]->fNormFactors){
+                    cout << "setting norm factor to " << norm->fNominal << endl;
+                    factor *= norm->fNominal;
+                }
+                //
+                cash->fHist->Add(h->fHist,factor);
             }
             cash->fHist->Sumw2(false);
         }
@@ -5696,7 +6240,7 @@ void TtHFit::GetSignificance(){
         //
         // Finally computing the significance
         //
-        cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
+        cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fInputName+fSuffix+"\",\""+fName+"/Significance\")'";
     }
 
     gSystem->Exec(cmd.c_str());

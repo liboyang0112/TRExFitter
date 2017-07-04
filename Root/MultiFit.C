@@ -39,6 +39,7 @@ MultiFit::MultiFit(string name){
     fPOIMin = 0;
     fPOIMax = 10;
     fPOIVal = 1;
+    fPOIPrecision = 1;
     //
     fCombine       = false;
     fCompare       = false;
@@ -113,7 +114,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
       fDir = param;
       if(fDir.back() != '/') fDir += '/';
       fOutDir = fDir + fName;
-      gSystem->mkdir(fName.c_str(), true);
+      gSystem->mkdir(fOutDir.c_str(), true);
     }
     else{
       fOutDir = "./" + fName;
@@ -144,6 +145,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         fPOIMax = atof( Vectorize(param,',')[1].c_str() );
     }
     param = cs->Get("POIVal");   if( param != "" ) fPOIVal = atof(param.c_str());
+    param = cs->Get("POIPrecision");   if( param != "" ) fPOIPrecision = param.c_str();
     param = cs->Get("DataName"); if( param != "" ) fDataName = param;
     param = cs->Get("FitType");  if( param != "" ){
         if(param=="SPLUSB") fFitType = 1;
@@ -630,24 +632,24 @@ void MultiFit::ComparePOI(string POI){
             tex->SetTextSize(gStyle->GetTextSize()*1.2);
 //             tex->SetTextAlign(31);
 //             tex->SetTextFont(82);
-            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form("#font[62]{%.1f}",g_central->GetX()[N-i-1]));
-            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form("#font[62]{^{+%.1f}}",g_tot->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form("#font[62]{_{ -%.1f}}",g_tot->GetErrorXlow(N-i-1)));
+            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#font[62]{%." + fPOIPrecision + "f}").c_str(),g_central->GetX()[N-i-1]));
+            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{+%." + fPOIPrecision + "f}}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
+            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{ -%." + fPOIPrecision + "f}}").c_str(),g_tot->GetErrorXlow(N-i-1)));
             tex->DrawLatex(xmin+0.69*(xmax-xmin),N-i-1,"(");
-            tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form("#font[42]{^{+%.1f}}",g_stat->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form("#font[42]{_{ -%.1f}}",g_stat->GetErrorXlow(N-i-1)));
-            tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form("#font[42]{^{+%.1f}}",
+	    tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{+%." + fPOIPrecision + "f}}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
+	    tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{ -%." + fPOIPrecision + "f}}").c_str(),g_stat->GetErrorXlow(N-i-1)));
+            tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{+%." + fPOIPrecision + "f}}").c_str(),
                 sqrt( pow(g_tot->GetErrorXhigh(N-i-1),2) - pow(g_stat->GetErrorXhigh(N-i-1),2) ) ) );
-            tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form("#font[42]{_{ -%.1f}}",
+            tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{ -%." + fPOIPrecision + "f}}").c_str(),
                 sqrt( pow(g_tot->GetErrorXlow(N-i-1) ,2) - pow(g_stat->GetErrorXlow(N-i-1) ,2) ) ) );
             tex->DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
         }
         else{
-            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form("#mu = %.1f",g_central->GetX()[N-i-1]));
-            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form("^{+%.1f}",g_tot->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_tot->GetErrorXlow(N-i-1)));
-            tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("^{+%.1f}",g_stat->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form("_{-%.1f}",g_stat->GetErrorXlow(N-i-1)));
+	  tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#mu = %." + fPOIPrecision + "f").c_str(),g_central->GetX()[N-i-1]));
+	  tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{+%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
+	  tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{-%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXlow(N-i-1)));
+	  tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{+%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
+	  tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{-%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXlow(N-i-1)));
         }
     }
 
@@ -733,20 +735,22 @@ void MultiFit::CompareLimit(){
     // ---
 
     // Fit titles
-    vector<string> names;
-    vector<string> suffs;
-    vector<string> titles;
+    vector<string> dirs;   dirs.clear();
+    vector<string> names;  names.clear();
+    vector<string> suffs;  suffs.clear();
+    vector<string> titles; titles.clear();
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         std::cout << "Adding Fit: " << fFitList[i_fit]->fInputName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
+        dirs.push_back( fFitList[i_fit]->fName );
         names.push_back( fFitList[i_fit]->fInputName );
         titles.push_back( fFitLabels[i_fit] );
         suffs.push_back( fFitSuffs[i_fit] );
     }
     if(fCombine){
         std::cout << "Adding combined limit" << std::endl;
+        dirs.push_back( fOutDir );
         names.push_back( fName );
         titles.push_back( "Combined" );
-//         suffs.push_back( "" );
         suffs.push_back( fSaveSuf );
         if(fShowObserved) fFitShowObserved.push_back(true);
     }
@@ -774,8 +778,8 @@ void MultiFit::CompareLimit(){
 
     // get values
     for(int i=0;i<N;i++){
-        f = new TFile(Form("%s/Limits/%s.root",names[i].c_str(),(names[i]+suffs[i]).c_str()) );
-        std::cout << "Reading file " << Form("%s/Limits/%s.root",names[i].c_str(),(names[i]+suffs[i]).c_str()) << std::endl;
+        f = new TFile(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
+        std::cout << "Reading file " << Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) << std::endl;
         h = (TH1*)f->Get("limit");
 
         std::cout << " " << h->GetBinContent(1) << std::endl;
@@ -891,13 +895,13 @@ void MultiFit::ComparePulls(string category){
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1){
             std::cout << "Adding Combined Fit" << std::endl;
-	    dirs.push_back( fOutDir );
+            dirs.push_back( fOutDir );
             names.push_back( fName );
             titles.push_back( "Combined" );
             suffs.push_back( "" );
         }
         else{
-	    dirs.push_back( fFitList[i_fit]->fName );
+            dirs.push_back( fFitList[i_fit]->fName );
             names.push_back( fFitList[i_fit]->fInputName );
             titles.push_back( fFitLabels[i_fit] );
             suffs.push_back( fFitSuffs[i_fit] );

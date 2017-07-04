@@ -1,3 +1,17 @@
+2017-07-03 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * RooStats::UseNLLOffset(true) added (as per e-mail reommending it)
+    * Add NtupleNamesUp/Down and NtuplePathsUp/Down options for systematics in config
+    * Fixes TTHFITTER-136 (proper usage of OutDir by significance evaluation and multi-fit limit comparison)
+    * adding option to print chi2 and prob on the plots
+    * Fix bug for on bind bliding propagation (to chi2 and post-fit plots)
+    
+2017-06-30 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Working on TTHFITTER-137, extended chi2 test for pre-/post-fit plots added
+    
+2017-06-28 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * MergeSystematics moved before syst symmetrisation
+    * Fixes TTHFITTER-135
+    
 2017-06-23 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fix memory issue when too many histograms are readed from file (calling "TH1::AddDirectory(kFALSE);" if no writing is involved)
     * goodness of fit added - need flag GetGoodnessOfFit set to TRUE under Fit

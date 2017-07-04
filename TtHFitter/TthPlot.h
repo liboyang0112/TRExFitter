@@ -32,7 +32,8 @@ class TthPlot {
     void SetTotBkgAsym(TGraphAsymmErrors* g);
     void SetTotBkg(TH1* h);
 
-    void SetChi2KS(float chi2,float ks);
+    void SetChi2KS(float chi2prob,float ksprob=-1,float chi2val=-1,int ndf=-1);
+    void BlindData();
     
     void Draw(string options="");
     void SaveAs(string name);
@@ -75,6 +76,8 @@ class TthPlot {
     string fCME;
     string fATLASlabel;
     float yMaxScale;
+    int NDF;
+    float Chi2val;
     float Chi2prob;
     float KSprob;
     

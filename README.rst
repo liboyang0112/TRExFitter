@@ -125,6 +125,7 @@ Note that, each object should have unique <ObjectName>.
         * NORMSIG : add normlised signal to plots
         * NOSIG: don't show signal in stack
         * OVERSIG: overlay signal (not normalised)
+        * CHI2: the chi2/ndf and chi2 prob will be printed on each plot, provided that the option GetChi2 is set
      * TableOptions      : a set of options for tables (yield tables only for the moment):
         * STANDALONE : default! If not set, no "\begin{document}"
         * FOOTNOTESIZE : -> \footnotesize
@@ -148,6 +149,7 @@ Note that, each object should have unique <ObjectName>.
      * FixNPforStatOnly : if set to TRUE, when running stat-only (with either of the two options) also the norm facotrs other than the POI are kept fixed
      * InputFolder      : specify it to read fit input histograms from a different direcotry than <jobName>/Histograms/
      * InputName        : specify it to read fit input histograms from files with different name than <jobName>_blabla.root
+     * OutputDir        : specify it to write everything in a different direcotry than <jobName>
      * WorkspaceFileName : if specified, an external ws can be used as input for fitting (not 100% supported)
      * KeepPruning      : if set to TRUE, the first time the ws is created (option w) a Pruning.root file is created under <jobName>/ and used for future operations to skip pruned systematics (makes operations much faster in case many syst are pruned)
      * AtlasLabel       : to specify Internal, Preliminary, etc...
@@ -161,6 +163,7 @@ Note that, each object should have unique <ObjectName>.
      * RatioYminPostFit : if set, it will specify a the min of the range of the ratio plots, for post-fit only 
      * CustomAsimov     : if set, the workspace will be created with an AsimovData built according to Sample->AsimovReplacementFor option (see below) instead of data
      * RandomPOISeed    : if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated statrging from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number)
+     * GetChi2          : if set to TRUE, for pre- and post-fit plots the extended chi2 test is done, and results are printed on the screen for each plot when running d and/or p
      
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -274,16 +277,16 @@ Note that, each object should have unique <ObjectName>.
      * HistoNameDown    : only for option HIST, for HISTO or SHAPE systematic: histogram name for systematic down variation
      * HistoNameSufUp   : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram names for systematic up variation
      * HistoNameSufDown : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram names for systematic down variation
-     * NtuplePathsUp    : only for option NTUP, for HISTO or SHAPE systematic: ntuple file path for systematic up variation
-     * NtuplePathsDown  : only for option NTUP, for HISTO or SHAPE systematic: ntuple file path for systematic down variation
+     * NtuplePath(s)Up  : only for option NTUP, for HISTO or SHAPE systematic: ntuple file path(s) for systematic up variation
+     * NtuplePath(s)Down: only for option NTUP, for HISTO or SHAPE systematic: ntuple file path(s) for systematic down variation
      * NtuplePathSufUp  : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file paths for systematic up variation
      * NtuplePathSufDown: only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file paths for systematic down variation
-     * NtupleFile(s)Up  : only for option NTUP, for HISTO or SHAPE systematic: ntuple file name for systematic up variation
-     * NtupleFile(s)Down: only for option NTUP, for HISTO or SHAPE systematic: ntuple file name for systematic down variation
+     * NtupleFile(s)Up  : only for option NTUP, for HISTO or SHAPE systematic: ntuple file name(s) for systematic up variation
+     * NtupleFile(s)Down: only for option NTUP, for HISTO or SHAPE systematic: ntuple file name(s) for systematic down variation
      * NtupleFileSufUp  : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file names for systematic up variation
      * NtupleFileSufDown: only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file names for systematic down variation
-     * NtupleNamesUp    : only for option NTUP, for HISTO or SHAPE systematic: ntuple name for systematic up variation
-     * NtupleNamesDown  : only for option NTUP, for HISTO or SHAPE systematic: ntuple name for systematic down variation
+     * NtupleName(s)Up  : only for option NTUP, for HISTO or SHAPE systematic: ntuple name(s) for systematic up variation
+     * NtupleName(s)Down: only for option NTUP, for HISTO or SHAPE systematic: ntuple name(s) for systematic down variation
      * NtupleNameSufUp  : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic up variation
      * NtupleNameSufDown: only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic down variation
      * WeightUp         : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic up variation
@@ -300,6 +303,7 @@ Note that, each object should have unique <ObjectName>.
      * ReferenceSample  : if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
      * KeepNormForSamples: list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing     : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
+     * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearily subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
      
 
 Command line options
