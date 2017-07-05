@@ -251,6 +251,7 @@ public:
     FitRegion fFitRegion;
     std::vector< std::string > fFitRegionsToFit;
     std::map< std::string, double > fFitNPValues;
+    std::map< std::string, double > fFitFixedNPs;
     double fFitPOIAsimov;
     bool fFitIsBlind;
     bool fUseRnd;
