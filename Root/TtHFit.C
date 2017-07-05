@@ -6509,8 +6509,6 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         }
     }
 
-    std::cout << "DEBUG7 "; for (auto i : nuisPars) std::cout << i << " "; std::cout << nuisPars.size() << std::endl;
-
     //
     //Text files containing information necessary for drawing of ranking plot
     //
