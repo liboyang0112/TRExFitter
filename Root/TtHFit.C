@@ -917,6 +917,16 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             }
         }
     }
+    param = cs->Get("FixNPs");    if( param != "" ){
+        std::vector < std::string > temp_fixedNPs = Vectorize(param,',');
+        for(unsigned int iNP = 0; iNP < temp_fixedNPs.size(); ++iNP){
+            std::vector < std::string > fixed_nps = Vectorize(temp_fixedNPs[iNP],':');
+            if(fixed_nps.size()==2){
+//                 std::cout<<"===>> "<<__LINE__<<"  "<<fixed_nps[0]<<"  "<<fixed_nps[1].c_str()<<std::endl;
+                fFitFixedNPs.insert( std::pair < std::string, double >( fixed_nps[0], atof(fixed_nps[1].c_str()) ) );
+            }
+        }
+    }
     param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = Vectorize(param,','); }
     param = cs->Get("UseMinos"); if( param != "" ){ fVarNameMinos = Vectorize(param,','); }
     param = cs->Get("SetRandomInitialNPval");  if( param != ""){
@@ -3765,7 +3775,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                     else           h = (TH1F*)sh->fHist->Clone(); // Michele
                     //
                     if(!isPostFit){
-		      // FIXME SF 
+                        // FIXME SF 
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
@@ -3797,7 +3807,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
                     else           h = (TH1F*)sh->fHist->Clone(); // Michele
                     //
                     if(!isPostFit){
-		      // FIXME SF 
+                        // FIXME SF 
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
@@ -4056,6 +4066,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
     else           g_err = BuildTotError( h_tot, h_up, h_down, npNames );
     //
     p->SetTotBkg(h_tot);
+    p->BlindData();
     p->SetTotBkgAsym(g_err);
     //
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
@@ -5878,8 +5889,19 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         fitTool -> FixNPs(npNames,npValues);
     }
 
+    // FixNP -- Roger
+    if(fFitFixedNPs.size()>0){
+        std::vector<std::string> npNames;
+        std::vector<double> npValues;
+        for(auto nuisParToFix : fFitFixedNPs){
+            npNames.push_back( nuisParToFix.first );
+            npValues.push_back( nuisParToFix.second );
+        }
+        fitTool -> FixNPs(npNames,npValues);
+    }
+
     //
-    // Get linitial ikelihood value from Asimov
+    // Get initial ikelihood value from Asimov
     float nll0 = 0.;
     if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
     

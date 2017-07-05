@@ -171,6 +171,7 @@ Note that, each object should have unique <ObjectName>.
      * FitBlind         : specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind.
      * POIAsimov        : value of the parameter of interest in the AsimovDataset used in the fit
      * NPValues         : values of the nuisance parameters used to build the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
+     * FixNPs           : values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
      * doLHscan         : coma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled
      * UseMinos         : coma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs
      * SetRandomInitialNPval : useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits
