@@ -39,7 +39,7 @@ MultiFit::MultiFit(string name){
     fPOIMin = 0;
     fPOIMax = 10;
     fPOIVal = 1;
-    fPOIPrecision = 1;
+    fPOIPrecision = "1";
     //
     fCombine       = false;
     fCompare       = false;
