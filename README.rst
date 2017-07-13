@@ -200,6 +200,7 @@ Note that, each object should have unique <ObjectName>.
      * HistoName        : only for option HIST, the histogram name to be used
      * HistoPathSuff(s) : only for option HIST, the path suffix (or suffixes, comma-separated) where to find the histogram files for this region
      * Variable         : only for option NTUP, the variable (or expression) inside the ntuple to plot can define a variable as X|Y to do the correlation plot between X and Y
+     * VariableForSample: only for option NTUP, allows to set exceptions for Variable. This is a very useful feature when using TRF only in some samples. Comma-separated list of sample:variable (e.g. wjets:met_met/1e3,zjets:Mbbb/1e).
      * Selection        : only for option NTUP, the selection done on the ntuple for this region
      * NtupleName       : only for option NTUP, the name of the tree for this region
      * NtuplePathSuff(s): only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region

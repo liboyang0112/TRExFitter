@@ -922,7 +922,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         for(unsigned int iNP = 0; iNP < temp_fixedNPs.size(); ++iNP){
             std::vector < std::string > fixed_nps = Vectorize(temp_fixedNPs[iNP],':');
             if(fixed_nps.size()==2){
-//                 std::cout<<"===>> "<<__LINE__<<"  "<<fixed_nps[0]<<"  "<<fixed_nps[1].c_str()<<std::endl;
                 fFitFixedNPs.insert( std::pair < std::string, double >( fixed_nps[0], atof(fixed_nps[1].c_str()) ) );
             }
         }
@@ -1055,6 +1054,16 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 if(TtHFitter::DEBUGLEVEL>0) std::cout << "Have a usual variable in reg " << regNames.back() << " : "
                                                       << variable[0] << " and size of corrVar=" << corrVar.size() << std::endl;
                 reg->SetVariable(  variable[0], atoi(variable[1].c_str()), atof(variable[2].c_str()), atof(variable[3].c_str()) );
+            }
+            //
+            param = cs->Get("VariableForSample");    if( param != "" ){
+                std::vector < std::string > temp_samplesAndVars = Vectorize(param,',');
+                for(unsigned int ivar = 0; ivar < temp_samplesAndVars.size(); ++ivar){
+                  std::vector < std::string > vars = Vectorize(temp_samplesAndVars[ivar],':');
+                    if(vars.size()==2){
+                        reg->SetAlternativeVariable(vars[1], vars[0]);
+                    }
+                }
             }
             //
             if(cs->Get("Selection")!="") reg->AddSelection( cs->Get("Selection") );
@@ -1994,6 +2003,15 @@ void TtHFit::ReadNtuples(){
             //
             fullMCweight = "1";
             //
+            //Check whether to use an alternative variable (e.g. in TRF) or not
+            std::string variable;
+            if (fRegions[i_ch]->UseAlternativeVariable(fSamples[i_smp]->fName)){
+              variable = fRegions[i_ch]->fAlternativeVariables[fSamples[i_smp]->fName];
+            }
+            else{
+              variable = fRegions[i_ch]->fVariable;
+            }
+            //
             // build a list of ntuples to read
             fullPaths.clear();
             vector<string> NtupleNames;
@@ -2016,12 +2034,12 @@ void TtHFit::ReadNtuples(){
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                 if(fRegions[i_ch]->fHistoBins){
                     htmp = HistFromNtupleBinArr( fullPaths[i_path],
-                                                 fRegions[i_ch]->fVariable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
+                                                 variable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
                                                  fullSelection, fullMCweight);
                 }
                 else{
                     htmp = HistFromNtuple( fullPaths[i_path],
-                                           fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
+                                           variable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
                                            fullSelection, fullMCweight);
                     //Pre-processing of histograms (rebinning, lumi scaling)
                     if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
@@ -2107,12 +2125,12 @@ void TtHFit::ReadNtuples(){
                     for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
-                                                        reg->fVariable, reg->fHistoNBinsRebin, reg->fHistoBins,
+                                                        variable, reg->fHistoNBinsRebin, reg->fHistoBins,
                                                         fullSelection, fullMCweight);
                         }
                         else{
                             htmp = HistFromNtuple( fullPaths[i_path],
-                                                  reg->fVariable, reg->fNbins, reg->fXmin, reg->fXmax,
+                                                  variable, reg->fNbins, reg->fXmin, reg->fXmax,
                                                   fullSelection, fullMCweight);
                             // Pre-processing of histograms (rebinning, lumi scaling)
                             if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
@@ -2162,12 +2180,12 @@ void TtHFit::ReadNtuples(){
                     for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
-                                                        reg->fVariable, reg->fHistoNBinsRebin, reg->fHistoBins,
+                                                        variable, reg->fHistoNBinsRebin, reg->fHistoBins,
                                                         fullSelection, fullMCweight);
                         }
                         else{
                             htmp = HistFromNtuple( fullPaths[i_path],
-                                                  reg->fVariable, reg->fNbins, reg->fXmin, reg->fXmax,
+                                                  variable, reg->fNbins, reg->fXmin, reg->fXmax,
                                                   fullSelection, fullMCweight);
                             // Pre-processing of histograms (rebinning, lumi scaling)
                             if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
@@ -2223,6 +2241,15 @@ void TtHFit::ReadNtuples(){
                 if(fRegions[i_ch]->fMCweight!="") fullMCweight += " * " + fRegions[i_ch]->fMCweight;
             }
             //
+            //Check whether to use an alternative variable (e.g. in TRF) or not
+            std::string variable;
+            if (fRegions[i_ch]->UseAlternativeVariable(fSamples[i_smp]->fName)){
+              variable = fRegions[i_ch]->fAlternativeVariables[fSamples[i_smp]->fName];
+            }
+            else{
+              variable = fRegions[i_ch]->fVariable;
+            }
+            //
             // build a list of ntuples to read
             fullPaths.clear();
             vector<string> NtupleNames;
@@ -2245,12 +2272,12 @@ void TtHFit::ReadNtuples(){
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                 if(fRegions[i_ch]->fHistoBins){
                     htmp = HistFromNtupleBinArr( fullPaths[i_path],
-                                                 fRegions[i_ch]->fVariable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
+                                                 variable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
                                                  fullSelection, fullMCweight);
                 }
                 else{
                     htmp = HistFromNtuple( fullPaths[i_path],
-                                           fRegions[i_ch]->fVariable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
+                                           variable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
                                            fullSelection, fullMCweight);
                     //Pre-processing of histograms (rebinning, lumi scaling)
                     if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
@@ -2399,12 +2426,12 @@ void TtHFit::ReadNtuples(){
                     for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
-                                                        reg->fVariable, reg->fHistoNBinsRebin, reg->fHistoBins,
+                                                        variable, reg->fHistoNBinsRebin, reg->fHistoBins,
                                                         fullSelection, fullMCweight);
                         }
                         else{
                             htmp = HistFromNtuple( fullPaths[i_path],
-                                                  reg->fVariable, reg->fNbins, reg->fXmin, reg->fXmax,
+                                                  variable, reg->fNbins, reg->fXmin, reg->fXmax,
                                                   fullSelection, fullMCweight);
                             // Pre-processing of histograms (rebinning, lumi scaling)
                             if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
@@ -2512,12 +2539,12 @@ void TtHFit::ReadNtuples(){
                     for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
-                                                        reg->fVariable, reg->fHistoNBinsRebin, reg->fHistoBins,
+                                                        variable, reg->fHistoNBinsRebin, reg->fHistoBins,
                                                         fullSelection, fullMCweight);
                         }
                         else{
                             htmp = HistFromNtuple( fullPaths[i_path],
-                                                  reg->fVariable, reg->fNbins, reg->fXmin, reg->fXmax,
+                                                  variable, reg->fNbins, reg->fXmin, reg->fXmax,
                                                   fullSelection, fullMCweight);
                             // Pre-processing of histograms (rebinning, lumi scaling)
                             if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
