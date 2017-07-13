@@ -49,6 +49,7 @@ public:
 
     std::vector<string> fRegions;
     std::vector<string> fExclude;
+    std::vector<std::vector<std::string> > fExcludeRegionSample;
     std::vector<string> fDropShapeIn;
     std::vector<string> fDropNormIn;
     std::vector<string> fKeepNormForSamples;

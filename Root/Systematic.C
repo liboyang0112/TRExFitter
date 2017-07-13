@@ -71,6 +71,7 @@ Systematic::Systematic(string name,int type,float up,float down){
     //
     fRegions.clear();
     fExclude.clear();
+    fExcludeRegionSample.clear();
     fDropShapeIn.clear();
     fDropNormIn.clear();
 }
@@ -138,6 +139,7 @@ Systematic::Systematic(Systematic &sys) {
     //
     fRegions = sys.fRegions;
     fExclude = sys.fExclude;
+    fExcludeRegionSample = sys.fExcludeRegionSample;
     fDropShapeIn = sys.fDropShapeIn;
     fDropNormIn = sys.fDropNormIn;
 }

@@ -1567,11 +1567,13 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         string samples_str = cs->Get("Samples");
         string regions_str = cs->Get("Regions");
         string exclude_str = cs->Get("Exclude");
+        string excludeRegionSample_str = cs->Get("ExcludeRegionSample");
         if(samples_str=="") samples_str = "all";
         if(regions_str=="") regions_str = "all";
         vector<string> samples = Vectorize(samples_str,',');
         vector<string> regions = Vectorize(regions_str,',');
         vector<string> exclude = Vectorize(exclude_str,',');
+        vector<string> excludeRegionSample = Vectorize(excludeRegionSample_str,',');
         type = Systematic::HISTO;
         if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL")
             type = Systematic::OVERALL;
@@ -1685,6 +1687,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         //
         if(regions[0]!="all") sys->fRegions = regions;
         if(exclude[0]!="")    sys->fExclude = exclude;
+        for (unsigned int iERS=0; iERS<excludeRegionSample.size(); iERS++){
+          vector<string> pair_ERS = Vectorize(excludeRegionSample.at(iERS),':');
+          if (pair_ERS.size()==2){
+            sys->fExcludeRegionSample.push_back(pair_ERS);
+          }
+        }
         //
         // save list of...
         //
@@ -2072,6 +2080,7 @@ void TtHFit::ReadNtuples(){
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
                 if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding DATA syst " << syst->fName << std::endl;
                 //
@@ -2346,6 +2355,7 @@ void TtHFit::ReadNtuples(){
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
                 if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding syst " << syst->fName << std::endl;
                 //
@@ -2640,6 +2650,7 @@ void TtHFit::CorrectHistograms(){
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
                 // get the original syst histograms & reset the syst histograms
                 SystematicHist *syh = sh->GetSystematic( syst->fName );
@@ -2712,6 +2723,7 @@ void TtHFit::CorrectHistograms(){
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
                 SystematicHist *syh = sh->GetSystematic( syst->fName );
                 if(syh==0x0) continue;
@@ -2752,6 +2764,7 @@ void TtHFit::CorrectHistograms(){
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 if( sh->GetSystematic( smp->fSystematics[i_syst]->fName )==0x0 ) continue;
                 //
                 HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
@@ -2847,6 +2860,7 @@ void TtHFit::CorrectHistograms(){
                     // eventually skip systematic / region combination
                     if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
                     if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                    if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                     SystematicHist *syh = sh->GetSystematic( syst->fName );
                     if(syh==0x0) continue;
                     DropBins(syh->fHistUp,  reg->fDropBins);
@@ -2948,6 +2962,7 @@ void TtHFit::ReadHistograms(){
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
                 if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding syst " << syst->fName << std::endl;
                 //
@@ -3171,6 +3186,7 @@ void TtHFit::ReadHistograms(){
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
                 if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding syst " << syst->fName << std::endl;
                 //
@@ -3503,6 +3519,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 // eventually skip systematic / region combination
                 if( fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
+                if( fSamples[i_smp]->fSystematics[i_syst]->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(fSamples[i_smp]->fSystematics[i_syst]->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
                 systName              = fSamples[i_smp]->fSystematics[i_syst]->fName;
                 string systStoredName = fSamples[i_smp]->fSystematics[i_syst]->fStoredName; // if no StoredName specified in the config, this should be == fName
