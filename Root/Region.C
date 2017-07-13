@@ -51,6 +51,8 @@ Region::Region(string name){
     fSystematics.clear();
     fNormFactors.clear();
     fShapeFactors.clear();
+
+    fAlternativeVariables.clear();
     
     fIntCode_overall = 4;
     fIntCode_shape = 0;
@@ -1188,6 +1190,22 @@ void Region::SetVariable(string variable,int nbin,float xmin,float xmax,string c
     fNbins = nbin;
     fXmin = xmin;
     fXmax = xmax;
+}
+
+//__________________________________________________________________________________
+//
+void Region::SetAlternativeVariable(string variable,string sample){
+    fAlternativeVariables[sample] = variable;
+}
+
+
+//__________________________________________________________________________________
+//
+bool Region::UseAlternativeVariable(string sample){
+    if (fAlternativeVariables.find(sample)==fAlternativeVariables.end())
+      return false;
+    else
+      return true;
 }
 
 //__________________________________________________________________________________
