@@ -1,3 +1,6 @@
+2017-07-17 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * stat-only option for chi2
+    
 2017-07-05 Michele Pinamonti <michele.pinamonti@gmail.com>
     * merge with FixNP by Roger (fixes TTHFITTER-141)
     * fix bug blinding in summary plots
