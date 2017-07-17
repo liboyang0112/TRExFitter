@@ -460,3 +460,16 @@ TH1* DropBins(TH1* h,std::vector<int> v){
         }
     }
 }
+
+float CorrectIntegral(TH1* h,float *err){
+    float integral = 0.;
+    float error = 0.;
+    for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
+        if(h->GetBinContent(i_bin)<0) continue;
+        integral+=h->GetBinContent(i_bin);
+        if(h->GetBinError(i_bin)<=0) continue;
+        error += pow(h->GetBinError(i_bin),1);
+    }
+    if(err!=0) *err = sqrt(error);
+    return integral;
+}

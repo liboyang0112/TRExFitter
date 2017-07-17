@@ -562,10 +562,14 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_syst_down_orig->SetLineStyle(2);
             h_syst_down_orig->SetFillStyle(0);
 
-            yield_nominal = h_nominal->Integral();
-            yield_syst_up = h_syst_up->Integral();
-            yield_syst_down = h_syst_down->Integral();
-            if(SumAndData) yield_data = h_dataCopy->Integral();
+//             yield_nominal = h_nominal->Integral();
+//             yield_syst_up = h_syst_up->Integral();
+//             yield_syst_down = h_syst_down->Integral();
+//             if(SumAndData) yield_data = h_dataCopy->Integral();
+            yield_nominal = CorrectIntegral(h_nominal);
+            yield_syst_up = CorrectIntegral(h_syst_up);
+            yield_syst_down = CorrectIntegral(h_syst_down);
+            if(SumAndData) yield_data = CorrectIntegral(h_dataCopy);
 
             // draw Relative difference
             h_1->Scale(0);
