@@ -277,6 +277,25 @@ int FindInStringVector(std::vector< string > v, string s){
 
 //__________________________________________________________________________________
 //
+int FindInStringVectorOfVectors(std::vector< std::vector<string> > v, string s, string ss){
+    int idx = -1;
+    string s1;
+    string s11;
+    string s2;
+    string s21;
+    for(unsigned int i=0;i<v.size();i++){
+        s1 = v[i][0];
+        s2 = v[i][1];
+        if(s1==s && s2==ss){
+            idx = (int)i;
+            break;
+        }
+    }
+    return idx;
+}
+
+//__________________________________________________________________________________
+//
 double GetSeparation( TH1F* S1, TH1F* B1 ) {
   // taken from TMVA!!!
   TH1F* S=new TH1F(*S1);

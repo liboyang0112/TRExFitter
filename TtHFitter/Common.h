@@ -104,6 +104,7 @@ string ReplaceString(string subject, const string& search,
                      const string& replace);
 
 int FindInStringVector(std::vector<string> v, string s);
+int FindInStringVectorOfVectors(std::vector<std::vector<string> > v, string s, string ss);
 double GetSeparation( TH1F* S1, TH1F* B1 );
 
 TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
