@@ -115,4 +115,6 @@ bool SmoothHistogram( TH1* h, int forceFlat=-1, float nsigma=2. ); // forceFlat:
 
 TH1* DropBins(TH1* h,std::vector<int> v);
 
+float CorrectIntegral(TH1* h,float *err=0);
+
 #endif
