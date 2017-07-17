@@ -165,7 +165,7 @@ TtHFit::TtHFit(string name){
     fTableOptions = "STANDALONE";
     
     fGetGoodnessOfFit = false;
-    fGetChi2 = false;
+    fGetChi2 = 0; // 0: no, 1: stat-only, 2: with syst
 }
 
 //__________________________________________________________________________________
@@ -846,10 +846,16 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         int seed = atoi(param.c_str());
         if(seed>=0) fRandomPOISeed = seed;
     }
-    param = cs->Get("GetChi2");   if( param != "" ){
+    param = cs->Get("GetChi2");   if( param != "" ){ // can be TRUE, SYST+STAT, STAT-ONLY... (if it contains STAT and no SYST => stat-only, ptherwise stat+syst)
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
-            fGetChi2 = true;
+            fGetChi2 = 2;
+        }
+        if( param.find("SYST")!=std::string::npos ){
+            fGetChi2 = 2;
+        }
+        else if( param.find("STAT")!=std::string::npos ){
+            fGetChi2 = 1;
         }
     }
     

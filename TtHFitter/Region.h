@@ -205,7 +205,7 @@ public:
     
     TH1F* fBlindedBins;
     bool fKeepPrefitBlindedBins;
-    bool fGetChi2;
+    int fGetChi2;
     
     std::vector<int> fDropBins;
     
