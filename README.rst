@@ -119,6 +119,7 @@ Note that, each object should have unique <ObjectName>.
      * IntCodeOverall   : interpolation code used for the normalization component of systematics (should match the one used in RooStats)
      * IntCodeShape     : interpolation code used for the shape component of systematics (should match the one used in RooStats)
      * MCstatThreshold  : if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
+     * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'Gaussian' (default) or 'Poisson'
      * DebugLevel       : 0 or 1
      * PlotOptions      : a set of options for plotting:
         * YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
