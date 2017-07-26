@@ -966,10 +966,18 @@ void SampleHist::Divide(SampleHist *sh){
         string systName = sh->fSyst[i_syst]->fName;
         SystematicHist *syh = GetSystematic( systName );
         if(syh==0x0){
-            TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
-            TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
-            hUp  ->Divide( sh->fSyst[i_syst]->fHistUp   );
-            hDown->Divide( sh->fSyst[i_syst]->fHistDown );
+            TH1* hUp   = (TH1*)fHist->Clone("h_tmp_up"  );
+            TH1* hDown = (TH1*)fHist->Clone("h_tmp_down");
+            hUp  ->Divide(   sh->fHist );
+            hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp  );
+            hUp  ->Scale(-1);
+            hUp  ->Add(fHist,2);
+            //
+            hDown->Divide(   sh->fHist );
+            hDown->Multiply( sh->fSyst[i_syst]->fHistDown);
+            hDown->Scale(-1);
+            hDown->Add(fHist,2);
+            //
             syh = AddHistoSyst(systName,hUp,hDown);
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());

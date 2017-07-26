@@ -81,6 +81,7 @@ public:
     
     string fDataName;
     int fFitType;
+    bool fSignalInjection;
     
     bool fCombineChByCh;
     bool fFastFit;
