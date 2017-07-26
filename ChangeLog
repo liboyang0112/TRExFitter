@@ -1,3 +1,8 @@
+2017-07-26 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing error propagation when dividing samples
+    * Fixes TTHFITTER-149
+    * added signal injection option in MultiFit (for limit)
+    
 2017-07-17 Michele Pinamonti <michele.pinamonti@gmail.com>
     * stat-only option for chi2
     

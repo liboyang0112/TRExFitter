@@ -167,13 +167,13 @@ Note that, each object should have unique <ObjectName>.
      
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
-     * FitRegion        : can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions. You can also specify a coma-separated list of regions to use in the fit
+     * FitRegion        : can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions. You can also specify a comma-separated list of regions to use in the fit
      * FitBlind         : specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind.
      * POIAsimov        : value of the parameter of interest in the AsimovDataset used in the fit
-     * NPValues         : values of the nuisance parameters used to build the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
+     * NPValues         : values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
      * FixNPs           : values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
-     * doLHscan         : coma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled
-     * UseMinos         : coma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs
+     * doLHscan         : comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled
+     * UseMinos         : comma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs
      * SetRandomInitialNPval : useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits
      * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
@@ -206,7 +206,7 @@ Note that, each object should have unique <ObjectName>.
      * NtuplePathSuff(s): only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region
      * MCweight         : only for option NTUP, the additional weight sed in this region (for MC samples only)
      * Rebin            : if specified, the histograms will be rebinned merging N bins together, where N is the argument (int)
-     * Binning          : if specified, the histograms will be rebinned according to the new binning specifed, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions ro define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a coma separated list of backgrounds to use instead of signal to compute the binning.
+     * Binning          : if specified, the histograms will be rebinned according to the new binning specifed, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions ro define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning.
      * BinWidth         : if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number
      * Type             : can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
      * DataType         : ASIMOV or DATA. Is asimov is set, the limits and significances are computed without taking into acount the data in these region, but a projection of the fit performed in the regions with DATA

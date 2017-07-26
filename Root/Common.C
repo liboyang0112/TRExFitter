@@ -45,7 +45,9 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();
-    t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
+//     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
+    TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
+    t->Draw(drawVariable, drawWeight, "goff");
     MergeUnderOverFlow(h);
 //     t->~TChain();
     delete t;
@@ -61,7 +63,9 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();
-    t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
+//     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
+    TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
+    t->Draw(drawVariable, drawWeight, "goff");
     MergeUnderOverFlow(h);
 //     t->~TChain();
     delete t;

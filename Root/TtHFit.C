@@ -2061,6 +2061,15 @@ void TtHFit::ReadNtuples(){
                 //
                 if(fSamples[i_smp]->fLumiScales.size()>i_path)  htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
                 else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
+                // scale stat uncertainty if sample is data-driven!
+                if(!fSamples[i_smp]->fNormalizedByTheory){
+                    float scale = 1.;
+                    if(fSamples[i_smp]->fLumiScales.size()>i_path)  scale = fSamples[i_smp]->fLumiScales[i_path];
+                    else if(fSamples[i_smp]->fLumiScales.size()==1) scale = fSamples[i_smp]->fLumiScales[0];
+                    for(int i_bin=1;i_bin<=htmp->GetNbinsX();i_bin++){
+                        htmp->SetBinError( i_bin, htmp->GetBinError( i_bin ) / sqrt(scale) );
+                    }
+                }
                 //
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
@@ -5060,7 +5069,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
 //__________________________________________________________________________________
 // called before w in case of CustomAsimov
 void TtHFit::CreateCustomAsimov(){
-cout << "Running CreateCustomAsimov" << endl;
+    cout << "Running CreateCustomAsimov" << endl;
     // get a list of all CustomAsimov to create
     std::vector<std::string> customAsimovList;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -5070,7 +5079,7 @@ cout << "Running CreateCustomAsimov" << endl;
     //
     // fill a different CustomAsimov data-set for each element in the list
     for(auto customAsimov : customAsimovList){
-cout << customAsimov << endl;
+        cout << customAsimov << endl;
         Sample *ca = GetSample("customAsimov_"+customAsimov);
         // create a new data sample taking the nominal S and B
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -5263,7 +5272,8 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     }
     // Experimental: turn off constraints for given systematics
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(fSystematics[i_syst]->fIsFreeParameter) meas.AddNoSyst(fSystematics[i_syst]->fName.c_str());
+//         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddNoSyst(fSystematics[i_syst]->fName.c_str());
+        if(fSystematics[i_syst]->fIsFreeParameter) meas.AddUniformSyst(fSystematics[i_syst]->fName.c_str());
     }
     //
     meas.PrintXML((fName+"/RooStats/").c_str());
@@ -7102,15 +7112,42 @@ void TtHFit::MergeSystematics(){
                         SystematicHist *syh1 = sh->GetSystematic(syst1->fName);
                         if(syh!=0x0 && syh1!=0x0){
                             // FIXME...
-                            // the issue here is that to combine uncertainties one has to act differently depenind on the fact that the different sources come from a multiplication/division or not...
-                            if(sh->fSample->fMultiplyBy!="" && sh->fSample->fDivideBy!=""){
-                                syh1 ->Multiply(syh);
-                                syh1 ->Divide(sh->fHist);
-                            }
-                            else{
+                            // the issue here is that to combine uncertainties one has to act differently depending on the fact that the different sources come from a multiplication/division or not...
+//                             if(sh->fSample->fMultiplyBy!="" && sh->fSample->fDivideBy!=""){
+//                                 syh1 ->Multiply(syh);
+//                                 syh1 ->Divide(sh->fHist);
+//                             }
+//                             else{
                                 syh1 ->Add(syh);
                                 syh1 ->Add(sh->fHist,-1);
-                            }
+//                             }
+//                             //
+//                             // up variation
+//                             TH1* htmpUp   = (TH1*)syh->fHistUp->Clone();
+//                             htmpUp->Add(sh->fHist,-1);
+//                             htmpUp->Divide(sh->fHist);
+//                             TH1* htmpUp1   = (TH1*)syh1->fHistUp->Clone();
+//                             htmpUp1->Add(sh->fHist,-1);
+//                             htmpUp1->Divide(sh->fHist);
+//                             htmpUp->Add(htmpUp1);
+//                             htmpUp->Multiply(sh->fHist);
+//                             htmpUp->Add(sh->fHist);
+//                             syh1->fHistUp = (TH1*)htmpUp->Clone();
+//                             delete htmpUp;
+//                             // down variation
+//                             TH1* htmpDown   = (TH1*)syh->fHistDown->Clone();
+//                             htmpDown->Add(sh->fHist,-1);
+//                             htmpDown->Divide(sh->fHist);
+//                             TH1* htmpDown1   = (TH1*)syh1->fHistDown->Clone();
+//                             htmpDown1->Add(sh->fHist,-1);
+//                             htmpDown1->Divide(sh->fHist);
+//                             htmpDown->Add(htmpDown1);
+//                             htmpDown->Multiply(sh->fHist);
+//                             htmpDown->Add(sh->fHist);
+//                             syh1->fHistDown = (TH1*)htmpDown->Clone();
+//                             delete htmpDown;
+                            //
+                            // set to zero the other syst
                             syh->fHistUp   = (TH1*)sh->fHist->Clone(syh->fHistUp  ->GetName());
                             syh->fHistDown = (TH1*)sh->fHist->Clone(syh->fHistDown->GetName());
                             syh->fHistShapeUp   = (TH1*)sh->fHist->Clone(syh->fHistShapeUp  ->GetName());
