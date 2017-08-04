@@ -45,7 +45,9 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();
-    t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
+//     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
+    TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
+    t->Draw(drawVariable, drawWeight, "goff");
     MergeUnderOverFlow(h);
 //     t->~TChain();
     delete t;
@@ -61,7 +63,9 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();
-    t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
+//     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
+    TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
+    t->Draw(drawVariable, drawWeight, "goff");
     MergeUnderOverFlow(h);
 //     t->~TChain();
     delete t;
@@ -277,6 +281,25 @@ int FindInStringVector(std::vector< string > v, string s){
 
 //__________________________________________________________________________________
 //
+int FindInStringVectorOfVectors(std::vector< std::vector<string> > v, string s, string ss){
+    int idx = -1;
+    string s1;
+    string s11;
+    string s2;
+    string s21;
+    for(unsigned int i=0;i<v.size();i++){
+        s1 = v[i][0];
+        s2 = v[i][1];
+        if(s1==s && s2==ss){
+            idx = (int)i;
+            break;
+        }
+    }
+    return idx;
+}
+
+//__________________________________________________________________________________
+//
 double GetSeparation( TH1F* S1, TH1F* B1 ) {
   // taken from TMVA!!!
   TH1F* S=new TH1F(*S1);
@@ -440,4 +463,17 @@ TH1* DropBins(TH1* h,std::vector<int> v){
             h->SetBinError(i_bin,0.);
         }
     }
+}
+
+float CorrectIntegral(TH1* h,float *err){
+    float integral = 0.;
+    float error = 0.;
+    for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
+        if(h->GetBinContent(i_bin)<0) continue;
+        integral+=h->GetBinContent(i_bin);
+        if(h->GetBinError(i_bin)<=0) continue;
+        error += pow(h->GetBinError(i_bin),1);
+    }
+    if(err!=0) *err = sqrt(error);
+    return integral;
 }

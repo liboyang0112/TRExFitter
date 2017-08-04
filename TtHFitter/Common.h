@@ -104,6 +104,7 @@ string ReplaceString(string subject, const string& search,
                      const string& replace);
 
 int FindInStringVector(std::vector<string> v, string s);
+int FindInStringVectorOfVectors(std::vector<std::vector<string> > v, string s, string ss);
 double GetSeparation( TH1F* S1, TH1F* B1 );
 
 TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
@@ -114,5 +115,7 @@ double convertStoD(string toConvert);
 bool SmoothHistogram( TH1* h, int forceFlat=-1, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
 
 TH1* DropBins(TH1* h,std::vector<int> v);
+
+float CorrectIntegral(TH1* h,float *err=0);
 
 #endif
