@@ -843,7 +843,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
             }
         }
-        if(fGetChi2==1) fNpNames.clear();
+        if(fGetChi2==1) fSystNames.clear();
         std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, h_down, fSystNames, fitRes->fCorrMatrix );
         fChi2val = res.first;
         fNDF = res.second;
