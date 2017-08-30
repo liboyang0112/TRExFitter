@@ -4277,9 +4277,23 @@ void TtHFit::BuildYieldTable(string opt,string group){
         TH1* h_tmp_Down;
         std::vector<string> systNames;
         systNames.clear();
-        for(int i_syst=0;i_syst<fNSyst;i_syst++){
-            string systName = fSystematics[i_syst]->fName;
-            systNames.push_back( systName );
+
+	 for(int i_syst=0;i_syst<fNSyst;i_syst++){
+	   string systName1 = fSystematics[i_syst]->fName;
+	    int dummy_syst=0;
+	    if (systNames.size()>0){
+	      for (int i_syst2=0;i_syst2<systNames.size()-1;i_syst2++){
+		if (systName1==systNames[i_syst2]) {
+		  dummy_syst=1;
+		}
+	      }
+	    }
+	    if (dummy_syst==1) continue;
+            systNames.push_back( systName1 );
+	 }
+	 int systNames_len=systNames.size()-1;
+	 for(int i_syst=0;i_syst<systNames.size()-1;i_syst++){
+	   string systName = systNames[i_syst];
             for(int i_bin=1;i_bin<=Nbin;i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 //
@@ -4359,8 +4373,10 @@ void TtHFit::BuildYieldTable(string opt,string group){
         //
         // Only for post-fit, loop on norm factors as well
         if(isPostFit){
-            for(int i_norm=0;i_norm<fNNorm;i_norm++){
+	  std::cout<<"Size of syst vector "<<systNames_len<<std::endl;
+            for(int i_norm=0;i_norm<fNNorm;i_norm++){	      
                 string normName = fNormFactors[i_norm]->fName;
+		std::cout<<normName<<std::endl;
                 systNames.push_back( normName );
                 for(int i_bin=1;i_bin<=Nbin;i_bin++){
                     sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
@@ -4370,6 +4386,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
                         if(normName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
                             syst_idx = j_syst;
+			    std::cout<<"The norm factor has been found and is "<<normName<<std::endl;
                         }
                     }
                     //
@@ -4380,8 +4397,11 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                 h_tmp_Down = sh->fHist_postFit;
                             }
                             else{
+			      std::cout<<"The norm factor has been found again and is "<<normName<<std::endl;
                                 h_tmp_Up   = sh->GetSystematic(normName)->fHistUp_postFit;
                                 h_tmp_Down = sh->GetSystematic(normName)->fHistDown_postFit;
+				std::cout<<" with up value of "<<h_tmp_Up->Integral(1,h_tmp_Up->GetNbinsX())<<std::endl;
+				std::cout<<" with down value of "<<h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX())<<std::endl;
                             }
                         }
                         else {
@@ -4403,8 +4423,14 @@ void TtHFit::BuildYieldTable(string opt,string group){
                         h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),normName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),normName.c_str()), Nbin,0,Nbin) );
                         h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),normName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),normName.c_str()), Nbin,0,Nbin) );
                     }
-                    h_up[i_norm+fNSyst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
-                    h_down[i_norm+fNSyst]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+		    std::cout<<"name of norm factor "<<fNormFactors[i_norm]->fName<<" and index in the file "<<i_norm+systNames_len<<std::endl;
+                    h_up[i_norm+systNames_len]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
+		    h_down[i_norm+systNames_len]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+		    std::cout<<" with up value again of "<<h_up[i_norm+systNames_len]->GetBinContent( i_bin)<<std::endl;
+		    std::cout<<" with down value again of "<<h_down[i_norm+systNames_len]->GetBinContent( i_bin)<<std::endl;
+		    //h_up[i_norm+fNSyst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
+                    //h_down[i_norm+fNSyst]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+
                     //
                     // eventually add any other samples with the same title
                     for(int j_smp=0;j_smp<fNSamples;j_smp++){
@@ -4431,8 +4457,12 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                         h_tmp_Down = sh->GetSystematic(normName)->fHistDown;
                                     }
                                 }
-                                h_up[i_norm+fNSyst]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-                                h_down[i_norm+fNSyst]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                                h_up[i_norm+systNames_len]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
+                                h_down[i_norm+systNames_len]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+				std::cout<<" with up value again third of "<<h_up[i_norm+systNames_len]->GetBinContent( i_bin)<<std::endl;
+				std::cout<<" with down value again third of "<<h_down[i_norm+systNames_len]->GetBinContent( i_bin)<<std::endl;
+                                //h_up[i_norm+fNSyst]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
+                                //h_down[i_norm+fNSyst]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
                             }
                         }
                     }
@@ -4442,6 +4472,10 @@ void TtHFit::BuildYieldTable(string opt,string group){
         //
         if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, systNames, fFitResults->fCorrMatrix );
         else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, systNames );
+	if(isPostFit){
+	  std::cout<<fSamples[i_smp]->fTitle<<"  "<<g_err[i_smp]->GetErrorYhigh(0)<<std::endl;
+	  std::cout<<fSamples[i_smp]->fTitle<<"  "<<g_err[i_smp]->GetErrorYlow(0)<<std::endl;
+	}
     }
     //
     // Print samples except ghosts, data for blind fits, signal for B-only...
