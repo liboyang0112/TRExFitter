@@ -596,10 +596,14 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_syst_down_orig->SetLineStyle(2);
             h_syst_down_orig->SetFillStyle(0);
 
-            yield_nominal = h_nominal->Integral();
-            yield_syst_up = h_syst_up->Integral();
-            yield_syst_down = h_syst_down->Integral();
-            if(SumAndData) yield_data = h_dataCopy->Integral();
+//             yield_nominal = h_nominal->Integral();
+//             yield_syst_up = h_syst_up->Integral();
+//             yield_syst_down = h_syst_down->Integral();
+//             if(SumAndData) yield_data = h_dataCopy->Integral();
+            yield_nominal = CorrectIntegral(h_nominal);
+            yield_syst_up = CorrectIntegral(h_syst_up);
+            yield_syst_down = CorrectIntegral(h_syst_down);
+            if(SumAndData) yield_data = CorrectIntegral(h_dataCopy);
 
             // draw Relative difference
             h_1->Scale(0);
@@ -996,10 +1000,18 @@ void SampleHist::Divide(SampleHist *sh){
         string systName = sh->fSyst[i_syst]->fName;
         SystematicHist *syh = GetSystematic( systName );
         if(syh==0x0){
-            TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
-            TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
-            hUp  ->Divide( sh->fSyst[i_syst]->fHistUp   );
-            hDown->Divide( sh->fSyst[i_syst]->fHistDown );
+            TH1* hUp   = (TH1*)fHist->Clone("h_tmp_up"  );
+            TH1* hDown = (TH1*)fHist->Clone("h_tmp_down");
+            hUp  ->Divide(   sh->fHist );
+            hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp  );
+            hUp  ->Scale(-1);
+            hUp  ->Add(fHist,2);
+            //
+            hDown->Divide(   sh->fHist );
+            hDown->Multiply( sh->fSyst[i_syst]->fHistDown);
+            hDown->Scale(-1);
+            hDown->Add(fHist,2);
+            //
             syh = AddHistoSyst(systName,hUp,hDown);
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());

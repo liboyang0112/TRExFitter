@@ -66,6 +66,8 @@ public:
     void AddSelection(string selection);
     void AddMCweight(string weight);
     void SetVariable(string variable,int nbin,float xmin,float xmax,string corrVar1="",string corrVar2="");
+    void SetAlternativeVariable(string variable,string sample);
+    bool UseAlternativeVariable(string sample);
 
     void SetHistoName(string name); // name of the histogram to read (the same for each sample)
     void AddSystematic(Systematic *syst);
@@ -135,6 +137,7 @@ public:
     double fTransfoJpar3;
     std::vector<string> fAutoBinBkgsInSig;
     string fVariable;
+    std::map<std::string, std::string> fAlternativeVariables;
     string fCorrVar1;
     string fCorrVar2;
     int fNbins;
@@ -202,7 +205,7 @@ public:
     
     TH1F* fBlindedBins;
     bool fKeepPrefitBlindedBins;
-    bool fGetChi2;
+    int fGetChi2;
     
     std::vector<int> fDropBins;
     

@@ -52,6 +52,7 @@ MultiFit::MultiFit(string name){
     //
     fDataName      = "obsData";
     fFitType       = 1; // 1: S+B, 2: B-only
+    fSignalInjection = false;
     //
     fCombineChByCh = false;
     //
@@ -151,6 +152,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         if(param=="SPLUSB") fFitType = 1;
         if(param=="BONLY")  fFitType = 2;
     }
+    param = cs->Get("SignalInjection");  if( param != "" && param != "FALSE" ) fSignalInjection = true;
     //
     param = cs->Get("CombineChByCh"); if( param != "" && param != "FALSE" )  fCombineChByCh = true;
     //
@@ -458,8 +460,10 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
 void MultiFit::GetCombinedLimit(string inputData){
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
     string cmd;
-    cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
-
+    if(fSignalInjection)
+        cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
+    else
+        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
     //
     // Finally computing the limit
     //
@@ -768,6 +772,7 @@ void MultiFit::CompareLimit(){
 
     TGraphErrors *g_obs = new TGraphErrors(N);
     TGraphErrors *g_exp = new TGraphErrors(N);
+    TGraphErrors *g_inj = new TGraphErrors(N);
     TGraphAsymmErrors *g_1s = new TGraphAsymmErrors(N);
     TGraphAsymmErrors *g_2s = new TGraphAsymmErrors(N);
 
@@ -775,21 +780,31 @@ void MultiFit::CompareLimit(){
 
     TFile *f;
     TH1* h;
+    TH1* h_old;
 
     // get values
     for(int i=0;i<N;i++){
-        f = new TFile(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
-        std::cout << "Reading file " << Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) << std::endl;
+        if(fSignalInjection){
+            f = new TFile(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
+            std::cout << "Reading file " << Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) << std::endl;
+        }
+        else{
+            f = new TFile(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
+            std::cout << "Reading file " << Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) << std::endl;
+        }
         h = (TH1*)f->Get("limit");
+        if(fSignalInjection) h_old = (TH1*)f->Get("limit_old");
 
         std::cout << " " << h->GetBinContent(1) << std::endl;
         if(fFitShowObserved[i]) g_obs->SetPoint(N-i-1,h->GetBinContent(1),N-i-1);
         else g_obs->SetPoint(N-i-1,-1,N-i-1);
         g_exp->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        if(fSignalInjection) g_inj->SetPoint(N-i-1,h_old->GetBinContent(7),N-i-1);
         g_1s->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
         g_2s->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
         g_obs->SetPointError(N-i-1,0,0.5);
         g_exp->SetPointError(N-i-1,0,0.5);
+        g_inj->SetPointError(N-i-1,0,0.5);
         g_1s->SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(5),h->GetBinContent(4)-h->GetBinContent(2),0.5,0.5);
         g_2s->SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(6),h->GetBinContent(3)-h->GetBinContent(2),0.5,0.5);
 
@@ -804,6 +819,9 @@ void MultiFit::CompareLimit(){
     g_obs->SetLineWidth(3);
     g_exp->SetLineWidth(3);
     g_exp->SetLineStyle(2);
+    g_inj->SetLineWidth(3);
+    g_inj->SetLineStyle(2);
+    g_inj->SetLineColor(kRed);
     g_1s->SetFillColor(kGreen);
     g_1s->SetLineWidth(3);
     g_1s->SetLineStyle(2);
@@ -815,6 +833,7 @@ void MultiFit::CompareLimit(){
     g_1s->SetMarkerSize(0);
     g_exp->SetMarkerSize(0);
     g_obs->SetMarkerSize(0);
+    g_inj->SetMarkerSize(0);
 
     TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,0,xmax);
     h_dummy->Draw();
@@ -831,6 +850,7 @@ void MultiFit::CompareLimit(){
     g_1s->Draw("E2 same");
     g_exp->Draw("E same");
     if(showObs) g_obs->Draw("E same");
+    if(fSignalInjection) g_inj->Draw("E same");
 
     TLine *l_SM = new TLine(1,-0.5,1,N-0.5);
     l_SM->SetLineWidth(2);
@@ -861,6 +881,7 @@ void MultiFit::CompareLimit(){
     leg->AddEntry(g_1s,"Expected #pm 1#sigma","lf");
     leg->AddEntry(g_2s,"Expected #pm 2#sigma","lf");
     if(showObs) leg->AddEntry(g_obs,"Observed","l");
+    if(fSignalInjection) leg->AddEntry(g_inj,"Expected (#mu=1)","l");
     leg->Draw();
 
 //     myText(0.75,0.4,kBlack,"Stat. only");

@@ -51,6 +51,8 @@ Region::Region(string name){
     fSystematics.clear();
     fNormFactors.clear();
     fShapeFactors.clear();
+
+    fAlternativeVariables.clear();
     
     fIntCode_overall = 4;
     fIntCode_shape = 0;
@@ -94,7 +96,7 @@ Region::Region(string name){
     
     fBlindedBins = 0x0;
     fKeepPrefitBlindedBins = false;
-    fGetChi2 = false;
+    fGetChi2 = 0;
     
     fDropBins.clear();
     
@@ -426,12 +428,15 @@ void Region::BuildPreFitErrorHist(){
                 if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
             }
         }
+        if(fGetChi2==1) fNpNames.clear();
         std::pair<double,int> res = GetChi2Test( h_data, fTot, h_up, h_down, fNpNames );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
-        cout << "----------------------- ----------------------------- -----------------------" << endl;
+        cout << "----------------------- ---------------------------- -----------------------" << endl;
         cout << "----------------------- PRE-FIT AGREEMENT EVALUATION -----------------------" << endl;
+        if(fGetChi2==1)
+        cout << "----------------------- -------- STAT-ONLY --------- -----------------------" << endl;
         cout << "--- REGION " << fName << ":" << endl;
         cout << "  chi2        = " << fChi2val << endl;
         cout << "  ndof        = " << fNDF << endl;
@@ -838,12 +843,15 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
             }
         }
+        if(fGetChi2==1) fNpNames.clear();
         std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, h_down, fSystNames, fitRes->fCorrMatrix );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
         cout << "----------------------- ----------------------------- -----------------------" << endl;
         cout << "----------------------- POST-FIT AGREEMENT EVALUATION -----------------------" << endl;
+        if(fGetChi2==1)
+        cout << "----------------------- --------- STAT-ONLY --------- -----------------------" << endl;
         cout << "--- REGION " << fName << ":" << endl;
         cout << "  chi2        = " << fChi2val << endl;
         cout << "  ndof        = " << fNDF << endl;
@@ -1188,6 +1196,22 @@ void Region::SetVariable(string variable,int nbin,float xmin,float xmax,string c
     fNbins = nbin;
     fXmin = xmin;
     fXmax = xmax;
+}
+
+//__________________________________________________________________________________
+//
+void Region::SetAlternativeVariable(string variable,string sample){
+    fAlternativeVariables[sample] = variable;
+}
+
+
+//__________________________________________________________________________________
+//
+bool Region::UseAlternativeVariable(string sample){
+    if (fAlternativeVariables.find(sample)==fAlternativeVariables.end())
+      return false;
+    else
+      return true;
 }
 
 //__________________________________________________________________________________
