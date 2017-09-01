@@ -4291,8 +4291,8 @@ void TtHFit::BuildYieldTable(string opt,string group){
 	    if (dummy_syst==1) continue;
             systNames.push_back( systName1 );
 	 }
-	 int systNames_len=systNames.size()-1;
-	 for(int i_syst=0;i_syst<systNames.size()-1;i_syst++){
+	 int systNames_len=systNames.size();
+	 for(int i_syst=0;i_syst<systNames.size();i_syst++){
 	   string systName = systNames[i_syst];
             for(int i_bin=1;i_bin<=Nbin;i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
