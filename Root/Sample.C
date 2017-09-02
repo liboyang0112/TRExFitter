@@ -166,7 +166,7 @@ void Sample::AddSystematic(Systematic* syst){
 
 //__________________________________________________________________________________
 //
-bool Sample::HasNormFactor(std::string name){
+bool Sample::HasSystematic(std::string name){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(fSystematics[i_syst]->fName==name) return true;
     }
@@ -175,7 +175,7 @@ bool Sample::HasNormFactor(std::string name){
 
 //__________________________________________________________________________________
 //
-bool Sample::HasSystematic(std::string name){
+bool Sample::HasNormFactor(std::string name){
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         if(fNormFactors[i_norm]->fName==name) return true;
     }
