@@ -1837,8 +1837,13 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         double err =h_nominal->GetBinError(i_bin);
         
         // - loop on the syst, two by two, to include the correlations
-        for(unsigned int i_syst=0;i_syst<fSystNames.size();i_syst++){
+        std::vector<string> systNames_unique;
+	for(unsigned int i_syst=0;i_syst<fSystNames.size();i_syst++){
+            if (std::find(systNames_unique.begin(), systNames_unique.end(), fSystNames[i_syst]) == systNames_unique.end())
+            systNames_unique.push_back(fSystNames[i_syst]);
+                else continue;
             for(unsigned int j_syst=0;j_syst<fSystNames.size();j_syst++){
+                if (fSystNames[i_syst]==fSystNames[j_syst] && i_syst!=j_syst) continue;
                 if(matrix!=0x0){
                     corr = matrix->GetCorrelation(fSystNames[i_syst],fSystNames[j_syst]);
                 } else {
