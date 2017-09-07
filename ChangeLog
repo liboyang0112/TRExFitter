@@ -1,3 +1,10 @@
+2017-09-07 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixed runAsymptoticCLs accoding to TTHFITTER-117
+    * Fixed chi2 computation in case of constant norm factors, according to TTHFITTER-153
+    
+2017-08-16 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * MultiFit fFastFitForRanking bug fixed (it was set to true, no way to change it from the multi-fit config)
+    
 2017-07-26 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixing error propagation when dividing samples
     * Fixes TTHFITTER-149

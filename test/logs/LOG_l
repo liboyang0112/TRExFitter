@@ -477,52 +477,103 @@ Finished in 3 iterations.
 
 ------------------------
 Getting limit for nll: nll_simPdf_ttHFitterData_with_constr
-Initial guess:  2.70304
-Sigma(obs):     2.25578
-Sigma(mu,0):    2.25578
-muhat:          -3.47092
-qmu95:          5.1259
-qmu:            3.84475
-pmu:            0.0137825
-1-pb:           0.842588
-CLs:            0.0875565
+Initial guess:  4.4235
+Sigma(obs):     2.25577
+Sigma(mu,0):    2.25577
+muhat:          0.000255944
+qmu95:          3.83933
+qmu:            3.84477
+pmu:            0.0249506
+1-pb:           0.499935
+CLs:            0.0498948
 
 ----------------------
 Starting iteration 0 of nll_simPdf_ttHFitterData_with_constr
 NLL:            nll_simPdf_ttHFitterData_with_constr
-Previous guess: 2.70304
-Sigma(obs):     2.48014
-Sigma(mu,0):    2.14148
-muhat:          -3.47092
-pmu:            0.0104431
-1-pb:           0.852636
-CLs:            0.0708662
-qmu95:          5.03797
-qmu:            4.23836
-qmuA0:          1.59322
-Precision:      0.0149644
-Correction:     0.289838
-New guess:      2.99288
+Previous guess: 4.4235
+Sigma(obs):     1.57306
+Sigma(mu,0):    2.25617
+muhat:          0.000255944
+pmu:            0.00136477
+1-pb:           0.849908
+CLs:            0.00909288
+qmu95:          3.84004
+qmu:            7.9066
+qmuA0:          3.84404
+Precision:      0.0170023
+Correction:      -1.02303
+New guess:      3.40047
 
 ----------------------
 Starting iteration 1 of nll_simPdf_ttHFitterData_with_constr
 NLL:            nll_simPdf_ttHFitterData_with_constr
-Previous guess: 2.99288
-Sigma(obs):     2.48436
-Sigma(mu,0):    2.16063
-muhat:          -3.47092
-pmu:            0.00751805
-1-pb:           0.852294
-CLs:            0.0508988
-qmu95:          4.85861
-qmu:            4.81744
-qmuA0:          1.91874
-Precision:      0.0150279
-Correction:     0.0127078
-New guess:      3.00558
+Previous guess: 3.40047
+Sigma(obs):     1.42912
+Sigma(mu,0):    2.18718
+muhat:          0.000255944
+pmu:            0.00469029
+1-pb:           0.851558
+CLs:            0.0315967
+qmu95:          4.58889
+qmu:            5.66076
+qmuA0:          2.41717
+Precision:      0.0156435
+Correction:      -0.271773
+New guess:      3.12869
 
-Found limit for nll nll_simPdf_ttHFitterData_with_constr: 3.00558
-Finished in 2 iterations.
+----------------------
+Starting iteration 2 of nll_simPdf_ttHFitterData_with_constr
+NLL:            nll_simPdf_ttHFitterData_with_constr
+Previous guess: 3.12869
+Sigma(obs):     1.38598
+Sigma(mu,0):    2.16942
+muhat:          0.000255944
+pmu:            0.00643218
+1-pb:           0.852063
+CLs:            0.0434793
+qmu95:          4.77091
+qmu:            5.09496
+qmuA0:          2.07988
+Precision:      0.015234
+Correction:      -0.0818982
+New guess:      3.0468
+
+----------------------
+Starting iteration 3 of nll_simPdf_ttHFitterData_with_constr
+NLL:            nll_simPdf_ttHFitterData_with_constr
+Previous guess: 3.0468
+Sigma(obs):     1.3726
+Sigma(mu,0):    2.164
+muhat:          0.000255944
+pmu:            0.00707444
+1-pb:           0.852107
+CLs:            0.0478348
+qmu95:          4.82393
+qmu:            4.92638
+qmuA0:          1.98232
+Precision:      0.0150905
+Correction:      -0.0286871
+New guess:      3.01811
+
+----------------------
+Starting iteration 4 of nll_simPdf_ttHFitterData_with_constr
+NLL:            nll_simPdf_ttHFitterData_with_constr
+Previous guess: 3.01811
+Sigma(obs):     1.36781
+Sigma(mu,0):    2.16221
+muhat:          0.000255944
+pmu:            0.00731017
+1-pb:           0.852175
+CLs:            0.0494515
+qmu95:          4.84243
+qmu:            4.86794
+qmuA0:          1.94837
+Precision:      0.0150453
+Correction:      -0.00904078
+New guess:      3.00907
+
+Found limit for nll nll_simPdf_ttHFitterData_with_constr: 3.00907
+Finished in 5 iterations.
 
 Guess for bands
 +2sigma:  8.25218
@@ -536,8 +587,7 @@ Correct bands
 -1sigma:  3.18711
 -2sigma:  2.37401
 Median:   4.42313
-Observed: 3.00558
+Observed: 3.00907
 
-mkdir: created directory `FitExample/Limits/'
-Finished with 30 calls to minimize(nll)
-Real time 0:00:02, CP time 1.580
+Finished with 35 calls to minimize(nll)
+Real time 0:00:02, CP time 1.500
