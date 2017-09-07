@@ -616,6 +616,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             systName = fSampleHists[i_sample]->fNormFactors[i_norm]->fName;
             // skip POI if B-only fit FIXME
             if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
+            if(fSampleHists[i_sample]->fNormFactors[i_norm]->fConst) continue;            
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;

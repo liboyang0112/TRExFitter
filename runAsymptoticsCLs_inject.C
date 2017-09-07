@@ -157,8 +157,9 @@ int nrMinimize=0;
 int direction=1;
 int global_status=0;
 double target_CLs=0.05;
-
-
+// range of firstPOI from ModelConfig mc
+double firstPOIMax = 0;
+double firstPOIMin = 0;
 
 //main
 void runAsymptoticsCLs_inject(const char* infile,
@@ -271,6 +272,13 @@ void runAsymptoticsCLs_inject(const char* infile,
     return;
   }
   firstPOI = (RooRealVar*)mc->GetParametersOfInterest()->first();
+  firstPOIMax = firstPOI->getMax();
+  firstPOIMin = firstPOI->getMin();
+  if(verbose) {
+    cout << "runAsymptoticsCLs: get min and max of firstPOI " << endl;
+    cout << "firstPOIMin " << firstPOIMin << endl;
+    cout << "firstPOIMax " << firstPOIMax << endl;
+  }
 
   data = (RooDataSet*)w->data(dataName);
   if (!data)
@@ -413,6 +421,7 @@ void runAsymptoticsCLs_inject(const char* infile,
   }
 
   w->loadSnapshot("conditionalNuis_0");
+  firstPOI->setRange(firstPOIMin, firstPOIMax);
   double obs_limit = doObs ? getLimit(obs_nll, med_limit) : 0;
   int obs_status=global_status;
 
