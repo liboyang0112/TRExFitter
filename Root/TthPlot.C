@@ -390,7 +390,7 @@ void TthPlot::Draw(string options){
     //
     h_stack->Draw("HIST same");
 
-    if( TtHFitter::PREFITONPOSTFIT ) {
+    if( TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit ) {
       h_tot_bkg_prefit->SetFillColor(0);
       h_tot_bkg_prefit->SetLineStyle(kDashed);
       h_tot_bkg_prefit->SetLineColor(kBlue);
