@@ -866,7 +866,12 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 //__________________________________________________________________________________
 //
 TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
-    
+
+  if(TtHFitter::PREFITONPOSTFIT){
+    if(not fPlotPreFit->h_tot) DrawPreFit(opt);
+    fPlotPostFit->h_tot_bkg_prefit = (TH1*)fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit");
+  }
+  
     TthPlot *p = fPlotPostFit;
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
     else              p->SetYmaxScale(fYmaxScale);
@@ -1149,6 +1154,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     TFile *f = new TFile((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE");
     fErr_postFit->Write("",TObject::kOverwrite);
     fTot_postFit->Write("",TObject::kOverwrite);
+    if( fPlotPostFit->h_tot_bkg_prefit)
+      fPlotPostFit->h_tot_bkg_prefit->Write("",TObject::kOverwrite);
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
         if(fTotUp_postFit[i_syst])   fTotUp_postFit[i_syst]  ->Write("",TObject::kOverwrite);
         if(fTotDown_postFit[i_syst]) fTotDown_postFit[i_syst]->Write("",TObject::kOverwrite);
