@@ -591,7 +591,7 @@ void TthPlot::Draw(string options){
             for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
         
-        if(TtHFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
         
         leg->Draw();
     }
@@ -628,7 +628,7 @@ void TthPlot::Draw(string options){
             for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
 
-        if(TtHFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
         
         leg->Draw();
     }
@@ -666,7 +666,7 @@ void TthPlot::Draw(string options){
             for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
 
-        if(TtHFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
         
         leg->Draw();
 
