@@ -19,6 +19,7 @@ public:
   TH1* GetHist();
   Sample* GetSample();
   SystematicHist* AddOverallSyst(string name,float up,float down);
+  SystematicHist* AddStatSyst(string name,int i_bin);
   SystematicHist* AddHistoSyst(string name,TH1* h_up,TH1* h_down);
   SystematicHist* AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down, int pruned=0);
   SystematicHist* GetSystematic(string systName);

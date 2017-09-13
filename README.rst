@@ -267,7 +267,7 @@ Note that, each object should have unique <ObjectName>.
      * Regions             : comma-separated list of regions where to apply the systematic
      * Exclude             : comma-separated list of samples/regions to exclude
      * ExcludeRegionSample : comma-separated list of region:sample to exclude
-     * Type                : can be HISTO, OVERALL or SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin)
+     * Type                : can be HISTO, OVERALL, SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin) or STAT (this refers to auto-creation of one systematic from stat uncertainty for each bin of corresponding region)
      * Title               : title of the systematic (will be shown in plots)
      * Category            : major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
      * HistoPathUp         : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation
