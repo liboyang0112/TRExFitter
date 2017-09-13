@@ -105,7 +105,7 @@ public:
     // separation plots
     void DrawAndSaveSeparationPlots();
     
-    TthPlot* DrawSummary(string opt="");
+    TthPlot* DrawSummary(string opt="", TthPlot* = 0);
     void BuildYieldTable(string opt="",string group="");
     
     // regions examples:

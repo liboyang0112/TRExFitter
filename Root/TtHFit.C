@@ -3725,7 +3725,7 @@ void TtHFit::DrawAndSaveAll(string opt){
 
 //__________________________________________________________________________________
 //
-TthPlot* TtHFit::DrawSummary(string opt){
+TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
     std::cout << "-------------------------------------------" << std::endl;
     std::cout << "Building Summary Plot..." << std::endl;
     gSystem->mkdir(fName.c_str(),true);
@@ -3987,10 +3987,7 @@ TthPlot* TtHFit::DrawSummary(string opt){
 
 
     if( TtHFitter::PREFITONPOSTFIT and isPostFit) {
-      string prefit_opt(opt);
-      prefit_opt = ReplaceString(prefit_opt,"post","");
-      cout<<"calling DrawSummary with opt "<<prefit_opt<<" from postfit"<<endl;
-      p->h_tot_bkg_prefit = (TH1*)DrawSummary(prefit_opt)->GetTotBkg()->Clone("h_tot_bkg_prefit");
+      p->h_tot_bkg_prefit = (TH1*)prefit_plot->GetTotBkg()->Clone("h_tot_bkg_prefit");
     }
     
     //

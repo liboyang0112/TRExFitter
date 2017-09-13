@@ -164,17 +164,24 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     if(doSignificance){
         myFit->GetSignificance();
     }
+
+    TthPlot* prefit_plot = 0;
+    TthPlot* prefit_plot_valid = 0;
+    if( drawPostFit and TtHFitter::PREFITONPOSTFIT ) {
+      drawPreFit = true;
+      //DrawSummary depends on DrawAndSaveAll to have been executed first. so might as well do the whole drawprefit block to avoid duplication
+    }
     
     if(drawPreFit){
         if(TtHFitter::OPTION["PrefitRatioMax"]==2){
             myFit->DrawAndSaveAll("prefit");
-            myFit->DrawSummary("log prefit");
-            myFit->DrawSummary("log valid prefit");
+            prefit_plot       = myFit->DrawSummary("log prefit");
+            prefit_plot_valid = myFit->DrawSummary("log valid prefit");
         }
         else{
             myFit->DrawAndSaveAll();
-            myFit->DrawSummary("log");
-            myFit->DrawSummary("logvalid");
+            prefit_plot       = myFit->DrawSummary("log");
+            prefit_plot_valid = myFit->DrawSummary("logvalid");
         }
         myFit->BuildYieldTable();
         for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
@@ -195,8 +202,8 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     
     if(drawPostFit){
         myFit->DrawAndSaveAll("post");
-        myFit->DrawSummary("log post");
-        myFit->DrawSummary("log post valid");
+        myFit->DrawSummary("log post",      prefit_plot);
+        myFit->DrawSummary("log post valid",prefit_plot_valid);
         myFit->BuildYieldTable("post");
         for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
             myFit->BuildYieldTable("post",myFit->fRegionGroups[i_gr]);

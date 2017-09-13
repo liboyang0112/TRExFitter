@@ -868,7 +868,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
 
   if(TtHFitter::PREFITONPOSTFIT){
-    if(not fPlotPreFit->h_tot) DrawPreFit(opt);
     fPlotPostFit->h_tot_bkg_prefit = (TH1*)fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit");
   }
   
