@@ -3922,6 +3922,14 @@ TthPlot* TtHFit::DrawSummary(string opt){
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
     }
 
+
+    if( TtHFitter::PREFITONPOSTFIT and isPostFit) {
+      string prefit_opt(opt);
+      prefit_opt = ReplaceString(prefit_opt,"post","");
+      cout<<"calling DrawSummary with opt "<<prefit_opt<<" from postfit"<<endl;
+      p->h_tot_bkg_prefit = (TH1*)DrawSummary(prefit_opt)->GetTotBkg()->Clone("h_tot_bkg_prefit");
+    }
+    
     //
     // Build tot
     //
