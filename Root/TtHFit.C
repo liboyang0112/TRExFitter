@@ -2463,10 +2463,10 @@ void TtHFit::ReadNtuples(){
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
-                        ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
-                        ReplaceString(fullMCweight,"*  *","*");
-                        ReplaceString(fullMCweight,"* *","*");
-                        ReplaceString(fullMCweight,"**","*");
+                        fullMCweight = ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
+                        fullMCweight = ReplaceString(fullMCweight,"*  *","*");
+                        fullMCweight = ReplaceString(fullMCweight,"* *","*");
+                        fullMCweight = ReplaceString(fullMCweight,"**","*");
                     }
                     if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Syst Up full weight: " << fullMCweight << std::endl;
                     //
@@ -2577,10 +2577,10 @@ void TtHFit::ReadNtuples(){
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
-                        ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
-                        ReplaceString(fullMCweight,"*  *","*");
-                        ReplaceString(fullMCweight,"* *","*");
-                        ReplaceString(fullMCweight,"**","*");
+                        fullMCweight = ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
+                        fullMCweight = ReplaceString(fullMCweight,"*  *","*");
+                        fullMCweight = ReplaceString(fullMCweight,"* *","*");
+                        fullMCweight = ReplaceString(fullMCweight,"**","*");
                     }
                     //
                     fullPaths.clear();

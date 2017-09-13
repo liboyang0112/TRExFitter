@@ -1,3 +1,6 @@
+2017-09-13 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixes TTHFITTER-152
+    
 2017-09-07 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixed runAsymptoticCLs accoding to TTHFITTER-117
     * Fixed chi2 computation in case of constant norm factors, according to TTHFITTER-153
