@@ -548,7 +548,7 @@ void TthPlot::Draw(string options){
         else leg->AddEntry(g_tot,"Uncertainty","f");
         leg1->AddEntry((TObject*)0," ","");
 
-        if(TtHFitter::PREFITONPOSTFIT) {
+        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) {
           leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
           leg1->AddEntry((TObject*)0," ","");
         }
