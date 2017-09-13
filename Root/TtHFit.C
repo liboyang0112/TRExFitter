@@ -3646,6 +3646,7 @@ void TtHFit::DrawAndSaveAll(string opt){
         }
         //
         if(isPostFit){
+            gSystem->mkdir( (fName + "/Histograms/").c_str() );
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
             for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
