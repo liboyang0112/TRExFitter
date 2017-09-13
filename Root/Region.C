@@ -1149,6 +1149,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     //
     // Save in a root file...
     //
+    gSystem->mkdir((fFitName+"/Histograms").c_str());
     cout << "Writing file " << fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root" << endl;
     TFile *f = new TFile((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE");
     fErr_postFit->Write("",TObject::kOverwrite);
