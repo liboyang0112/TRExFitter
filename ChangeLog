@@ -1,3 +1,6 @@
+2017-09-14 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing Systematic option ScaleUp/Down, so that one can specify different scaling for each region, and the scaling is re/un-done in the b step
+    
 2017-09-13 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixes TTHFITTER-152
     

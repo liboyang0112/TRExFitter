@@ -37,6 +37,9 @@ SystematicHist::SystematicHist(string name){
     fHistoNameDown = "";
     fFileNameShapeDown = "";
     fHistoNameShapeDown = "";
+    
+    fScaleUp   = 1.;
+    fScaleDown = 1.;
 }
 
 //_____________________________________________________________________________
