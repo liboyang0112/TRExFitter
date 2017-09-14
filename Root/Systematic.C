@@ -17,11 +17,14 @@ Systematic::Systematic(string name,int type,float up,float down){
     fSymmetrisationType = 0;
     fPreSmoothing = false;
     //
-    fOverallUp = up;
+    fOverallUp   = up;
     fOverallDown = down;
     //
     fScaleUp   = 1.;
-    fScaleDown   = 1.;
+    fScaleDown = 1.;
+    //
+    fScaleUpRegions  .clear();
+    fScaleDownRegions.clear();
     //
     fHasUpVariation = true;
     fHasDownVariation = true;

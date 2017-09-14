@@ -56,6 +56,9 @@ public:
   string fHistoNameShapeDown;
   TH1* fHistDown_original;
   TH1* fHistDown_postFit;
+  
+  float fScaleUp;
+  float fScaleDown;
 }; 
 
 #endif

@@ -550,7 +550,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             if(ratioON) pad1->cd();
             else pad0 -> cd();
 
-	    if(SumAndData) h_dataCopy = (TH1*)h_data->Clone();
+            if(SumAndData) h_dataCopy = (TH1*)h_data->Clone();
             h_nominal = (TH1*)fHist->Clone("h_nominal");
             h_nominal->SetLineColor(kBlack);
             h_nominal->SetLineWidth(2);
@@ -837,6 +837,8 @@ void SampleHist::SmoothSyst(string syst,bool force){
         }
 
         if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
+            HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
+            HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
         // Michele: why these lines?
 //             fSyst[i_syst]->fHistUp_orig = h_syst_up;
 //             fSyst[i_syst]->fHistDown_orig = h_syst_down;
@@ -851,8 +853,15 @@ void SampleHist::SmoothSyst(string syst,bool force){
                                             h_nominal,//nominal histogram
                                             fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown,//original histograms
                                             h_syst_up, h_syst_down, //modified histograms
-                                            fSyst[i_syst]->fSystematic->fScaleUp,fSyst[i_syst]->fSystematic->fScaleDown // scale factors
+//                                             fSyst[i_syst]->fSystematic->fScaleUp,fSyst[i_syst]->fSystematic->fScaleDown // scale factors
+                                            fSyst[i_syst]->fScaleUp,fSyst[i_syst]->fScaleDown // scale factors
                                          );
+        }
+        // 
+        // need to ad these lines to make sure overall only systematics get scaled as well
+        else{
+            HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
+            HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
         }
 
         //
@@ -893,7 +902,7 @@ void SampleHist::SmoothSyst(string syst,bool force){
         // Normalisation component first
         //
         if(h_nominal->Integral()!=0){
-            fSyst[i_syst]->fNormUp = fSyst[i_syst]->fHistUp->Integral()/h_nominal->Integral() - 1.;
+            fSyst[i_syst]->fNormUp   = fSyst[i_syst]->fHistUp  ->Integral()/h_nominal->Integral() - 1.;
             fSyst[i_syst]->fNormDown = fSyst[i_syst]->fHistDown->Integral()/h_nominal->Integral() - 1.;
         } else {
             std::cerr << "<!> In SampleHist::SmoothSyst(): A nominal histogram with 0 intergral has been found. Please check ! " << std::endl;
@@ -902,9 +911,9 @@ void SampleHist::SmoothSyst(string syst,bool force){
 
         if(fSyst[i_syst]->fIsShape){
             // update shape hists as well
-            fSyst[i_syst]->fHistShapeUp = (TH1*)h_syst_up->Clone(fSyst[i_syst]->fHistShapeUp->GetName());
+            fSyst[i_syst]->fHistShapeUp   = (TH1*)h_syst_up  ->Clone(fSyst[i_syst]->fHistShapeUp  ->GetName());
             fSyst[i_syst]->fHistShapeDown = (TH1*)h_syst_down->Clone(fSyst[i_syst]->fHistShapeDown->GetName());
-            fSyst[i_syst]->fHistShapeUp->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeUp->Integral());
+            fSyst[i_syst]->fHistShapeUp  ->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeUp  ->Integral());
             fSyst[i_syst]->fHistShapeDown->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeDown->Integral());
         }
     }
