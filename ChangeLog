@@ -1,3 +1,6 @@
+2017-09-18  David Hohn  <david.hohn@cern.ch>
+    * Add Support for drawing sum of prefit bkg on postfit plots
+
 2017-09-13 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixes TTHFITTER-152
     
