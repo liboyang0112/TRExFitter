@@ -85,6 +85,8 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     fRatioYmax = 2.;
     
     h_blinding = 0x0;
+    
+    h_tot_bkg_prefit = 0x0;
 }
 
 //_____________________________________________________________________________
@@ -310,6 +312,16 @@ void TthPlot::BlindData(){
 
 //_____________________________________________________________________________
 //
+TH1* TthPlot::GetTotBkg() const{
+  TH1* h = (TH1*)h_tot->Clone("h_tot_bkg");
+  for (int i=0; i<fSigNames.size(); ++i) {
+    h->Add( h_signal[i], -1);
+  }
+  return h;
+}
+
+//_____________________________________________________________________________
+//
 void TthPlot::Draw(string options){
 
     /////////////////////////
@@ -378,6 +390,14 @@ void TthPlot::Draw(string options){
     //
     h_stack->Draw("HIST same");
 
+    if( TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit ) {
+      h_tot_bkg_prefit->SetFillColor(0);
+      h_tot_bkg_prefit->SetLineStyle(kDashed);
+      h_tot_bkg_prefit->SetLineColor(kBlue);
+      h_tot_bkg_prefit->SetLineWidth(2);
+      h_tot_bkg_prefit->Draw("HIST same");
+    }
+    
     //
     // Total error bands style setting
     //
@@ -527,6 +547,12 @@ void TthPlot::Draw(string options){
         if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
         else leg->AddEntry(g_tot,"Uncertainty","f");
         leg1->AddEntry((TObject*)0," ","");
+
+        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) {
+          leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+          leg1->AddEntry((TObject*)0," ","");
+        }
+        
         leg->Draw();
         leg1->Draw();
     }
@@ -564,6 +590,9 @@ void TthPlot::Draw(string options){
             for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm.)").c_str(),"l");
             for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
+        
+        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        
         leg->Draw();
     }
     else if(fLegendNColumns==3){ //TtHFitter::OPTION["LegendNColumns"]==3){
@@ -598,6 +627,9 @@ void TthPlot::Draw(string options){
             for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
             for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
+
+        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        
         leg->Draw();
     }
     else{
@@ -633,6 +665,9 @@ void TthPlot::Draw(string options){
             for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
             for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
+
+        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        
         leg->Draw();
 
         if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
@@ -1065,3 +1100,4 @@ void SetGraphBinWidth(TGraphAsymmErrors* g,float width){
         }
     }
 }
+

@@ -686,6 +686,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG = true;
         if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TtHFitter::LEGENDLEFT     = true;
         if( std::find(vec.begin(), vec.end(), "CHI2")   !=vec.end() )  TtHFitter::SHOWCHI2       = true;
+        if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
         // ...
     }
     param = cs->Get("PlotOptionsSummary");       if( param != ""){
@@ -3800,6 +3801,7 @@ void TtHFit::DrawAndSaveAll(string opt){
         }
         //
         if(isPostFit){
+            gSystem->mkdir( (fName + "/Histograms/").c_str() );
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
             for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
@@ -3816,7 +3818,7 @@ void TtHFit::DrawAndSaveAll(string opt){
 
 //__________________________________________________________________________________
 //
-TthPlot* TtHFit::DrawSummary(string opt){
+TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
     std::cout << "-------------------------------------------" << std::endl;
     std::cout << "Building Summary Plot..." << std::endl;
     gSystem->mkdir(fName.c_str(),true);
@@ -4076,6 +4078,11 @@ TthPlot* TtHFit::DrawSummary(string opt){
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
     }
 
+
+    if( TtHFitter::PREFITONPOSTFIT and isPostFit) {
+      p->h_tot_bkg_prefit = (TH1*)prefit_plot->GetTotBkg()->Clone("h_tot_bkg_prefit");
+    }
+    
     //
     // Build tot
     //

@@ -181,6 +181,11 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     //
     param = cs->Get("ShowSystForPOI"); if( param != "" && param != "FALSE" )  fShowSystForPOI = true;
 
+    param = cs->Get("PlotOptions");    if( param != ""){
+      auto vec = Vectorize(param,',');
+      if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
+        // ...
+    }
     //
     // fits
     int nFit = 0;
@@ -2001,6 +2006,7 @@ void MultiFit::PlotSummarySoverB(){
     std::vector<TH1F* > h_sig;
     std::vector<TH1F* > h_bkg;
     std::vector<TH1F* > h_bkgBonly;
+    std::vector<TH1F* > h_tot_bkg_prefit;
     std::vector<TH1F* > h_data;
     std::vector<std::vector<TH1F*> > h_syst_up  (Nsyst,std::vector<TH1F*>(Nhist));
     std::vector<std::vector<TH1F*> > h_syst_down(Nsyst,std::vector<TH1F*>(Nhist));
@@ -2020,6 +2026,7 @@ void MultiFit::PlotSummarySoverB(){
         h_sig.push_back(0x0);
         h_bkg.push_back(0x0);
         h_bkgBonly.push_back(0x0);
+        h_tot_bkg_prefit.push_back(0x0);
         h_data.push_back(0x0);
         for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
             h_syst_up  [i_syst][i_hist] = 0x0;
@@ -2074,6 +2081,10 @@ void MultiFit::PlotSummarySoverB(){
                 else                    h_data[i_hist]->Add(h_tmp);
             }
         }
+
+        if(TtHFitter::PREFITONPOSTFIT)
+          h_tot_bkg_prefit[i_hist] = (TH1F*)file[i_hist]->Get("h_tot_bkg_prefit");         
+        
         //
         // Fix eventually empty histograms
         if(h_sig[i_hist] ==0x0){
@@ -2109,6 +2120,9 @@ void MultiFit::PlotSummarySoverB(){
     TH1F* h_bkgBonly_comb = 0x0; if(includeBonly) h_bkgBonly_comb = Combine(h_bkgBonly);
     TH1F* h_sig_comb  = Combine(h_sig);
     TH1F* h_data_comb = Combine(h_data);
+    TH1F* h_tot_bkg_prefit_comb = 0x0;
+    if(TtHFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_comb = Combine(h_tot_bkg_prefit);
+      
 
     std::vector<TH1F*> h_syst_up_comb  (Nsyst);
     std::vector<TH1F*> h_syst_down_comb(Nsyst);
@@ -2133,7 +2147,9 @@ void MultiFit::PlotSummarySoverB(){
     TH1F* h_bkgBonly_ord = 0x0; if(includeBonly) h_bkgBonly_ord = Rebin(h_bkgBonly_comb,SoverSqrtB,false);
     TH1F* h_sig_ord  = Rebin(h_sig_comb,SoverSqrtB,false);
     TH1F* h_data_ord = Rebin(h_data_comb,SoverSqrtB);
-
+    TH1F* h_tot_bkg_prefit_ord = 0x0;
+    if(TtHFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_ord = Rebin(h_tot_bkg_prefit_comb,SoverSqrtB,false);
+    
     std::vector<TH1F*> h_syst_up_ord  (Nsyst);
     std::vector<TH1F*> h_syst_down_ord(Nsyst);
     for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
@@ -2230,6 +2246,12 @@ void MultiFit::PlotSummarySoverB(){
         h_bkgBonly_ord->Draw("HISTsame ][");
     }
 
+    if(TtHFitter::PREFITONPOSTFIT) {
+      h_tot_bkg_prefit_ord->SetLineColor(kBlue);
+      h_tot_bkg_prefit_ord->SetLineStyle(kDashed);
+      h_tot_bkg_prefit_ord->Draw("HISTsame ][");
+    }
+
     TLegend *leg;
     if(includeBonly) leg = new TLegend(0.6,0.50,0.90,0.92);
     else             leg = new TLegend(0.6,0.57,0.90,0.92);
@@ -2243,6 +2265,7 @@ void MultiFit::PlotSummarySoverB(){
     leg->AddEntry(h_bkg_ord,"Background","f");
     leg->AddEntry(h_err,"Bkgd. Unc.","f");
     if(includeBonly) leg->AddEntry(h_bkgBonly_ord,"Bkgd. (#mu=0)","l");
+    if(TtHFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit_comb,"Pre-Fit Bkgd.","l");
     leg->Draw();
 
     ATLASLabelNew(0.17,0.87, (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
@@ -2258,7 +2281,7 @@ void MultiFit::PlotSummarySoverB(){
         channels += fFitList[i_fit]->fLabel;
     }
     myText(0.17,0.13,kBlack,channels.c_str());
-    myText(0.17,0.05,kBlack,"Post-fit");
+    myText(0.17,0.05,kBlack,"Post-Fit");
 
     pad0->RedrawAxis();
     pad0->SetLogy();

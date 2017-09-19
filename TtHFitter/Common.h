@@ -65,6 +65,7 @@ namespace TtHFitter{
     extern bool SHOWNORMSIG_SUMMARY;  // flag to show normalized signal or not in Summary Plot
     extern bool SHOWOVERLAYSIG_SUMMARY;  // flag to show overlayed signal or not in Summary Plot
     extern bool LEGENDLEFT;  // flag to show sample names on left aligned in the legend
+    extern bool PREFITONPOSTFIT;  // flag to show prefit background as dashed line on postfit plots
     extern bool SYSTCONTROLPLOTS;
     extern bool SYSTDATAPLOT;
     extern bool SYSTERRORBARS;

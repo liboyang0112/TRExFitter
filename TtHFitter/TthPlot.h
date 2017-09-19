@@ -43,7 +43,7 @@ class TthPlot {
     
     void SetBinBlinding(bool on,float threshold=0.02);
     void SetBinBlinding(bool on,TH1F*h_blind);
-
+  
 //   private:
     string fName;
     TH1* h_data;
@@ -57,6 +57,7 @@ class TthPlot {
     TH1* h_tot;
     TGraphAsymmErrors* g_tot;
     TH1F* h_blinding;
+    TH1* h_tot_bkg_prefit;
 
     TCanvas* c;
     TLegend* leg;
@@ -92,6 +93,11 @@ class TthPlot {
     float fLumiScale;
     float fBlindingThreshold;
     int fLegendNColumns;
+
+public:
+  const TH1* GetTotal() const { return h_tot; };
+  TH1* GetTotBkg() const;
+  
 };
 
 // function to get asymmetric error bars for hists
