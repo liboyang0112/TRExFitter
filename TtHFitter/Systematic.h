@@ -40,6 +40,9 @@ public:
     
     float fScaleUp;
     float fScaleDown;
+    
+    std::map<std::string,float> fScaleUpRegions;
+    std::map<std::string,float> fScaleDownRegions;
 
     bool fHasUpVariation;
     bool fHasDownVariation;

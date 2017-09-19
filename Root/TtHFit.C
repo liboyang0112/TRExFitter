@@ -1104,20 +1104,20 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 if(vec_bins[1]=="TransfoD"){
                     reg -> fTransfoDzSig=convertStoD(vec_bins[2]);
                     reg -> fTransfoDzBkg=convertStoD(vec_bins[3]);
-		    if(vec_bins.size()>4){
-		      for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
-			reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
-		      }
-		    }
+            if(vec_bins.size()>4){
+              for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+              }
+            }
                 }
                 else if(vec_bins[1]=="TransfoF"){
                     reg -> fTransfoFzSig=convertStoD(vec_bins[2]);
                     reg -> fTransfoFzBkg=convertStoD(vec_bins[3]);
-		    if(vec_bins.size()>4){
-		      for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
-			reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
-		      }
-		    }
+            if(vec_bins.size()>4){
+              for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+              }
+            }
                 }
                 else if(vec_bins[1]=="TransfoJ"){
                     if(vec_bins.size() > 2) reg -> fTransfoJpar1=convertStoD(vec_bins[2]);
@@ -1126,11 +1126,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                     else reg -> fTransfoJpar2 = 1.;
                     if(vec_bins.size() > 4) reg -> fTransfoJpar3=convertStoD(vec_bins[4]);
                     else reg -> fTransfoJpar3 = 5.;
-		    if(vec_bins.size()>5){
-		      for(unsigned int i_Bkgs=4; i_Bkgs<vec_bins.size(); ++i_Bkgs){
-			reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
-		      }
-		    }
+            if(vec_bins.size()>5){
+              for(unsigned int i_Bkgs=4; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+              }
+            }
                 }
                 else{
                     std::cout<<" ERROR: Unknown transformation: "<<vec_bins[1]<<", try again" << std::endl;
@@ -1552,7 +1552,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         sysd = new Systematic("Dummy",typed);
         sysd->fOverallUp   = 0.;
         sysd->fOverallDown = -0.;
-        sysd->fScaleUp   = 1.;
+        sysd->fScaleUp     = 1.;
         sysd->fScaleDown   = 1.;
         fSystematics.push_back( sysd );
         TtHFitter::SYSTMAP[sysd->fName] = "Dummy";
@@ -1586,9 +1586,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             type = Systematic::OVERALL;
         if(cs->Get("Type")=="shape" || cs->Get("Type")=="SHAPE")
             type = Systematic::SHAPE;
-        if(cs->Get("Type")=="stat" || cs->Get("Type")=="STAT") {
-            type = Systematic::STAT;
-        }
         string decorrelate = cs->Get("Decorrelate");
         sys = new Systematic(CheckName(cs->GetValue()),type);
         TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
@@ -1675,8 +1672,36 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             sys->fOverallUp   = atof( cs->Get("OverallUp").c_str() );
             sys->fOverallDown = atof( cs->Get("OverallDown").c_str() );
         }
-        if(cs->Get("ScaleUp")!="")   sys->fScaleUp     = atof( cs->Get("ScaleUp").c_str() );
-        if(cs->Get("ScaleDown")!="") sys->fScaleDown   = atof( cs->Get("ScaleDown").c_str() );
+        param = cs->Get("ScaleUp"); if(param!="")   {
+            std::vector < std::string > temp_vec = Vectorize(param,',');
+            if(temp_vec.size()==1 && Vectorize(temp_vec[0],':').size()==1){
+                sys->fScaleUp = atof(param.c_str());
+            }
+            else{
+                for(unsigned int i_reg = 0; i_reg < temp_vec.size(); i_reg++){
+                    std::vector < std::string > reg_value = Vectorize(temp_vec[i_reg],':');
+                    if(reg_value.size()==2){
+                        sys->fScaleUpRegions.insert( std::pair < std::string, float >( reg_value[0], atof(reg_value[1].c_str()) ) );
+                    }
+                }
+            }
+        }
+        param = cs->Get("ScaleDown"); if(param!="")   {
+            std::vector < std::string > temp_vec = Vectorize(param,',');
+            if(temp_vec.size()==1 && Vectorize(temp_vec[0],':').size()==1){
+                sys->fScaleDown = atof(param.c_str());
+            }
+            else{
+                for(unsigned int i_reg = 0; i_reg < temp_vec.size(); i_reg++){
+                    std::vector < std::string > reg_value = Vectorize(temp_vec[i_reg],':');
+                    if(reg_value.size()==2){
+                        sys->fScaleDownRegions.insert( std::pair < std::string, float >( reg_value[0], atof(reg_value[1].c_str()) ) );
+                    }
+                }
+            }
+        }
+//         if(cs->Get("ScaleUp")  !="") sys->fScaleUp     = atof( cs->Get("ScaleUp")  .c_str() );
+//         if(cs->Get("ScaleDown")!="") sys->fScaleDown   = atof( cs->Get("ScaleDown").c_str() );
         // this to obtain syst variation relatively to given sample
         param = cs->Get("ReferenceSample"); if(param!="") sys->fReferenceSample = param;
         param = cs->Get("KeepReferenceOverallVar");
@@ -1707,7 +1732,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         // save list of...
         //
         // Default
-        if ( decorrelate == "" && type != Systematic::STAT) {
+        if ( decorrelate == "" ) {
             fSystematics.push_back( sys );
             fNSyst++;
             if(cs->Get("NuisanceParameter")!=""){
@@ -1747,7 +1772,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
         //
         // Decorrelate by region
-        else if (decorrelate == "REGION" || type == Systematic::STAT)  {
+        else if (decorrelate == "REGION")  {
             //
             // looping over the regions
             for(unsigned int i_reg=0; i_reg<regNames.size(); ++i_reg) {
@@ -1767,86 +1792,46 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                     continue;
                 }
                 std::cout << " --> KEEPING IT!!! " << regNames[i_reg] << std::endl;
+                //
+                // cloning the sys for each region
+                Systematic* mySys= new Systematic(*sys);
+                mySys->fName=(mySys->fName)+"_"+regNames[i_reg];
+                std::vector<string> tmpReg;
+                tmpReg.push_back( regNames[i_reg] );
+                mySys->fRegions = tmpReg;
+                fSystematics.push_back( mySys );
 
-                if (type == Systematic::STAT) {
-                  Region* reg = GetRegion(regNames[i_reg]);
-                  unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
-                    std::cout << regNames[i_reg] << " " << nbins << std::endl;
-                    // decorrelate by bin
-                    for (int i_bin = 0; i_bin < nbins; i_bin++) {
-                        Systematic* mySys= new Systematic(*sys);
-                        mySys->fName=(mySys->fName)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
-                        std::vector<string> tmpReg;
-                        tmpReg.push_back( regNames[i_reg] );
-                        mySys->fRegions = tmpReg;
-                        std::vector<int> tmpBin;
-                        tmpBin.push_back( i_bin );
-                        mySys->fBins = tmpBin;
-                        fSystematics.push_back( mySys );
-                        if(cs->Get("NuisanceParameter")!=""){
-                            mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
-                            TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
-                        } else {
-                            mySys->fNuisanceParameter = mySys->fName;
-                            TtHFitter::NPMAP[mySys->fName] = mySys->fName;
-                        }
-                        if(cs->Get("Title")!=""){
-                            mySys->fTitle = (sys->fTitle)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
-                            TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
-                        }
-                        fNSyst++;
-                        for (int i_smp=0;i_smp<fNSamples;i_smp++){
-                            sam = fSamples[i_smp];
-                            if(sam->fType == Sample::DATA) continue;
-                            if(!sam->fUseSystematics) continue;
-                            if((samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
-                                && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
-                                ){
-                                sam->AddSystematic(mySys);
-                            }
-                        }
+                if(cs->Get("NuisanceParameter")!=""){
+                    mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg];
+                    TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                }
+                else{
+                    mySys->fNuisanceParameter = mySys->fName;
+                    TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+                }
+                if(cs->Get("Title")!=""){
+                    mySys->fTitle = (sys->fTitle)+"_"+regNames[i_reg];
+                    TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+                }
+                fNSyst++;
+                //
+                for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                    sam = fSamples[i_smp];
+//                     if(sam->fType == Sample::DATA) continue;
+                    // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
+                    if(sam->fType == Sample::DATA){
+                      if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
+                        sam->AddSystematic(mySys);
+                      }
+                      else continue;
                     }
-                } else {
-                    //
-                    // cloning the sys for each region
-                    Systematic* mySys= new Systematic(*sys);
-                    mySys->fName=(mySys->fName)+"_"+regNames[i_reg];
-                    std::vector<string> tmpReg;
-                    tmpReg.push_back( regNames[i_reg] );
-                    mySys->fRegions = tmpReg;
-                    fSystematics.push_back( mySys );
-                    if(cs->Get("NuisanceParameter")!=""){
-                        mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg];
-                        TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                    if(!sam->fUseSystematics) continue;
+                    if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+                          && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+                          ){
+                      sam->AddSystematic(mySys);
                     }
-                    else{
-                        mySys->fNuisanceParameter = mySys->fName;
-                        TtHFitter::NPMAP[mySys->fName] = mySys->fName;
-                    }
-                    if(cs->Get("Title")!=""){
-                        mySys->fTitle = (sys->fTitle)+"_"+regNames[i_reg];
-                        TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
-                    }
-                    fNSyst++;
-                    //
-                    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-                        sam = fSamples[i_smp];
-                        // if(sam->fType == Sample::DATA) continue;
-                        // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
-                        if(sam->fType == Sample::DATA){
-                          if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
-                            sam->AddSystematic(mySys);
-                          }
-                          else continue;
-                        }
-                        if(!sam->fUseSystematics) continue;
-                        if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
-                              && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
-                              ){
-                          sam->AddSystematic(mySys);
-                        }
-                    }
-		}
+                }
             }
             delete sys;
         }
@@ -2276,6 +2261,14 @@ void TtHFit::ReadNtuples(){
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0)
+                        syh->fScaleUp *= fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName];
+                syh->fScaleDown = fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName]!=0)
+                        syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName];
             }
         }
         // Then loop again on non-data samples
@@ -2423,15 +2416,18 @@ void TtHFit::ReadNtuples(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
+//                     SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
                     syh->fSystematic = syst;
+                    syh->fScaleUp = syst->fScaleUp;
+                    if(syst->fScaleUpRegions.size()!=0)
+                        if(syst->fScaleUpRegions[reg->fName]!=0)
+                            syh->fScaleUp *= syst->fScaleUpRegions[reg->fName];
+                    syh->fScaleDown = syst->fScaleDown;
+                    if(syst->fScaleDownRegions.size()!=0)
+                        if(syst->fScaleDownRegions[reg->fName]!=0)
+                            syh->fScaleDown *= syst->fScaleDownRegions[reg->fName];
                     continue;
-                }
-                // if Stat uncertainty on MC sample
-                if(syst->fType == Systematic::STAT){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fBins[0]);
-		    syh->fSystematic = syst;
-		    continue;
                 }
                 // else ...
                 //
@@ -2464,10 +2460,10 @@ void TtHFit::ReadNtuples(){
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
-                        fullMCweight = ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
-                        fullMCweight = ReplaceString(fullMCweight,"*  *","*");
-                        fullMCweight = ReplaceString(fullMCweight,"* *","*");
-                        fullMCweight = ReplaceString(fullMCweight,"**","*");
+                        ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
+                        ReplaceString(fullMCweight,"*  *","*");
+                        ReplaceString(fullMCweight,"* *","*");
+                        ReplaceString(fullMCweight,"**","*");
                     }
                     if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Syst Up full weight: " << fullMCweight << std::endl;
                     //
@@ -2578,10 +2574,10 @@ void TtHFit::ReadNtuples(){
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
-                        fullMCweight = ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
-                        fullMCweight = ReplaceString(fullMCweight,"*  *","*");
-                        fullMCweight = ReplaceString(fullMCweight,"* *","*");
-                        fullMCweight = ReplaceString(fullMCweight,"**","*");
+                        ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
+                        ReplaceString(fullMCweight,"*  *","*");
+                        ReplaceString(fullMCweight,"* *","*");
+                        ReplaceString(fullMCweight,"**","*");
                     }
                     //
                     fullPaths.clear();
@@ -2679,6 +2675,14 @@ void TtHFit::ReadNtuples(){
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0)
+                        syh->fScaleUp *= fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName];
+                syh->fScaleDown = fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName]!=0)
+                        syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName];
             }
             // END SYST LOOP
             //
@@ -2847,6 +2851,57 @@ void TtHFit::CorrectHistograms(){
     //
     // Smooth systematics
     SmoothSystematics("all");
+    
+//     // NEW: scale systematics according to ScaleUp and ScaleDown
+//     for(int i_ch=0;i_ch<fNRegions;i_ch++){
+//         Region *reg = fRegions[i_ch];
+//         //
+//         for(int i_smp=0;i_smp<fNSamples;i_smp++){
+//             Sample *smp = fSamples[i_smp];
+//             //
+//             // eventually skip sample / region combination
+//             if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
+//             //
+//             SampleHist *sh = reg->GetSampleHist(smp->fName);
+//             if(sh==0x0) continue;
+//             //
+//             // Systematics
+//             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
+//                 Systematic *syst = smp->fSystematics[i_syst];
+//                 if(syst==0x0) continue;
+//                 //
+//                 // eventually skip systematic / region combination
+//                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
+//                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+//                 if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
+//                 //
+//                 SystematicHist *syh = sh->GetSystematic( syst->fName );
+//                 if(syh==0x0) continue;
+//                 //
+//                 if(syh->fScaleUp!=1.){
+//                     TH1* h_tmp = (TH1*)syh->fHistUp->Clone();
+//                     h_tmp->Add(sh->fHist,-1);
+//                     h_tmp->Scale(syh->fScaleUp);
+//                     h_tmp->Add(sh->fHist);
+//                     syh->fHistUp = h_tmp;
+//                     cout << syh->fNormUp << " ";
+//                     syh->fNormUp *= syh->fScaleUp;
+//                     cout << syh->fNormUp << endl;
+//                 }
+//                 //
+//                 if(syh->fScaleDown!=1.){
+//                     TH1* h_tmp = (TH1*)syh->fHistDown->Clone();
+//                     h_tmp->Add(sh->fHist,-1);
+//                     h_tmp->Scale(syh->fScaleDown);
+//                     h_tmp->Add(sh->fHist);
+//                     syh->fHistDown = h_tmp;
+//                     syh->fNormDown *= syh->fScaleDown;
+//                 }
+//             }            
+//         }
+//     }
+    
+    
     //
     // NEW: artifificially set all systematics not to affect overall normalisation for sample or set of samples
     // (the form should be KeepNormForSamples: ttlight+ttc+ttb,wjets
@@ -3142,6 +3197,14 @@ void TtHFit::ReadHistograms(){
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0)
+                        syh->fScaleUp *= fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName];
+                syh->fScaleDown = fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName]!=0)
+                        syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName];
             }
         }
 
@@ -3260,15 +3323,18 @@ void TtHFit::ReadHistograms(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
+//                     SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
                     syh->fSystematic = syst;
+                    syh->fScaleUp = syst->fScaleUp;
+                    if(syst->fScaleUpRegions.size()!=0)
+                        if(syst->fScaleUpRegions[reg->fName]!=0)
+                            syh->fScaleUp *= syst->fScaleUpRegions[reg->fName];
+                    syh->fScaleDown = syst->fScaleDown;
+                    if(syst->fScaleDownRegions.size()!=0)
+                        if(syst->fScaleDownRegions[reg->fName]!=0)
+                            syh->fScaleDown *= syst->fScaleDownRegions[reg->fName];
                     continue;
-                }
-                // if Stat uncertainty on MC sample
-                if(syst->fType == Systematic::STAT){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fBins[0]);
-		    syh->fSystematic = syst;
-		    continue;
                 }
                 // else ...
                 //
@@ -3457,6 +3523,14 @@ void TtHFit::ReadHistograms(){
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0)
+                        syh->fScaleUp *= fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName];
+                syh->fScaleDown = fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName]!=0)
+                        syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName];
             }
         }
     }
@@ -3616,9 +3690,20 @@ void TtHFit::ReadHistos(/*string fileName*/){
                         if( binContent == -2 || binContent == 2 ) continue;
                     }
                     syh = sh->AddOverallSyst(systName,
-					     fSamples[i_smp]->fSystematics[i_syst]->fOverallUp*fSamples[i_smp]  ->fSystematics[i_syst]->fScaleUp,
-					     fSamples[i_smp]->fSystematics[i_syst]->fOverallDown*fSamples[i_smp]->fSystematics[i_syst]->fScaleDown);
-                    syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+//                          fSamples[i_smp]->fSystematics[i_syst]->fOverallUp*fSamples[i_smp]  ->fSystematics[i_syst]->fScaleUp,
+//                          fSamples[i_smp]->fSystematics[i_syst]->fOverallDown*fSamples[i_smp]->fSystematics[i_syst]->fScaleDown);
+                         fSamples[i_smp]->fSystematics[i_syst]->fOverallUp,
+                         fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
+//                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+//                     syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
+//                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
+//                         if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName]!=0){
+//                             syh->fScaleUp *= fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName];
+//                         }
+//                     syh->fScaleDown = fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
+//                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
+//                         if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[regionName]!=0)
+//                             syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[regionName];
                 }
                 // histo syst
                 else{
@@ -3627,23 +3712,31 @@ void TtHFit::ReadHistos(/*string fileName*/){
                         if(binContent==1 || binContent==-2) pruned = 1;
                         if(binContent==2 || binContent==-3) pruned = 2;
                     }
-                    if (fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::STAT){
-                        syh = sh->AddStatSyst(systName, fSamples[i_smp]->fSystematics[i_syst]->fBins[0]);
-                        syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
-                        syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systName.c_str());
-                        syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systName.c_str());
-                    } else {
-                        syh = sh->AddHistoSyst(systName,
-                                               Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                               Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                               pruned
-                                              );
-                        syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
-                        syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
+                    syh = sh->AddHistoSyst(systName,
+                                           Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                           pruned
+                                          );
+                }
+                // for both
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
+                syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
+                syh->fFileNameShapeUp    = fileName;
+                syh->fFileNameShapeDown  = fileName;
+                syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName]!=0){
+                        syh->fScaleUp *= fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName];
                     }
-                    syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
-                    syh->fFileNameShapeUp    = fileName;
-                    syh->fFileNameShapeDown  = fileName;
+                syh->fScaleDown = fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[regionName]!=0)
+                        syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[regionName];
+                //
+                if(fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::OVERALL){
+                    syh->fNormUp   *= syh->fScaleUp;
+                    syh->fNormDown *= syh->fScaleDown;
                 }
             }
         }
@@ -4424,7 +4517,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 }
             }
         }
-	// FIXME SF 
+    // FIXME SF 
         //
         // Only for post-fit, loop on norm factors as well
         if(isPostFit){
@@ -5314,6 +5407,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                 !h->fSyst[i_syst]->fNormPruned  &&
                                 !h->fSyst[i_syst]->fBadNorm
                               ) {
+                                if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter=="ttXsec") cout << h->fSyst[i_syst]->fNormUp << endl;
                                 sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
                                                       1+h->fSyst[i_syst]->fNormDown,
                                                       1+h->fSyst[i_syst]->fNormUp   );
@@ -6362,7 +6456,7 @@ void TtHFit::ReadFitResults(string fileName){
                 fFitResults->fNuisPar[i]->fCategory = fNormFactors[j]->fCategory;
             }
         }
-	// FIXME SF probably there are several NPs associated to it 
+    // FIXME SF probably there are several NPs associated to it 
         for(unsigned int j=0;j<fShapeFactors.size();j++){
             if(fShapeFactors[j]->fName == fFitResults->fNuisPar[i]->fName){
                 fFitResults->fNuisPar[i]->fTitle = fShapeFactors[j]->fTitle;
@@ -6563,7 +6657,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName ||
             ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0 ) )
             ){
-	    if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
+        if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
             nuisPars.push_back( fSystematics[i_syst]->fName );
             isNF.push_back( false );
         }
@@ -6656,22 +6750,22 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             while( (var = (RooRealVar*) it2->Next()) ){
                 string np = var->GetName();
                 if(np.find("gamma")!=string::npos){
-            // 	    if(np==NPnames || NPnames=="all") nuisPars.push_back(np);
+            //         if(np==NPnames || NPnames=="all") nuisPars.push_back(np);
                     if(np==NPnames || NPnames=="all") nuisPars.push_back(ReplaceString(np,"gamma_",""));
                     isNF.push_back( true );
                     if(NPnames!="all") break;
                 }
-// 	  if(NPnames!="all"){
-// 	    if(np==NPnames){
-// 	      nuisPars.push_back(ReplaceString(np,"gamma_",""));
-// 	      isNF.push_back( true );
-// 	      break;
-// 	    }
-// 	  }
-// 	  else if(np.find("gamma_stat")!=string::npos){
-// 	    nuisPars.push_back(np);
-// 	    isNF.push_back( true );
-// 	  }
+//       if(NPnames!="all"){
+//         if(np==NPnames){
+//           nuisPars.push_back(ReplaceString(np,"gamma_",""));
+//           isNF.push_back( true );
+//           break;
+//         }
+//       }
+//       else if(np.find("gamma_stat")!=string::npos){
+//         nuisPars.push_back(np);
+//         isNF.push_back( true );
+//       }
             }
         }
     }
@@ -6709,14 +6803,14 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         central = fFitResults -> GetNuisParValue(   nuisPars[i] );
         up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
         down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
-	//// Thomas : We should be careful with changing naming convention compared to RooFit !!
-	// TtHFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
-	// Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
-	if( (NPnames=="all" && nuisPars[i].find("_bin_")!=string::npos)
-	    || NPnames.find("gamma_stat")!=string::npos){
-	  string tmpNuispar=nuisPars[i];
-	  nuisPars[i]="gamma_"+tmpNuispar;
-	}
+    //// Thomas : We should be careful with changing naming convention compared to RooFit !!
+    // TtHFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
+    // Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
+    if( (NPnames=="all" && nuisPars[i].find("_bin_")!=string::npos)
+        || NPnames.find("gamma_stat")!=string::npos){
+      string tmpNuispar=nuisPars[i];
+      nuisPars[i]="gamma_"+tmpNuispar;
+    }
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         //
         // Experimental: reduce the range of ranking
@@ -6754,7 +6848,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             muVarNomUp[   nuisPars[i] ] = muhat;
             muVarNomDown[ nuisPars[i] ] = muhat;
         }
-	else{
+    else{
             up   = 1.;
             down = 1.;
             //
@@ -6857,19 +6951,19 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     }
     while (!fin.eof()){
         if(paramname.find("gamma")!=string::npos && !flagGammas){
-	  fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-	  if (paramname=="Luminosity"){
-	    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-	  }
-	  continue;
-	}
-	if(paramname.find("gamma")==string::npos && !flagSysts){
-	  fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-	  if (paramname=="Luminosity"){
-	    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-	  }
-	  continue;
-	}
+      fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+      if (paramname=="Luminosity"){
+        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+      }
+      continue;
+    }
+    if(paramname.find("gamma")==string::npos && !flagSysts){
+      fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+      if (paramname=="Luminosity"){
+        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+      }
+      continue;
+    }
         parname.push_back(paramname);
         nuhat.push_back(nuiphat);
         nuerrhi.push_back(nuiperrhi);
@@ -6997,12 +7091,12 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         g2a->SetPointEYhigh(idx, 0.4);
         g2a->SetPointEYlow( idx, 0.4);
 
-	if(parname[i].find("gamma")!=string::npos){
-	  string tmpTitle=parname[i];
-	  tmpTitle=ReplaceString(tmpTitle,"gamma_stat_","");
-	  tmpTitle=ReplaceString(tmpTitle,"_"," ");
-	  parTitle="#gamma ("+tmpTitle+")";
-	}
+    if(parname[i].find("gamma")!=string::npos){
+      string tmpTitle=parname[i];
+      tmpTitle=ReplaceString(tmpTitle,"gamma_stat_","");
+      tmpTitle=ReplaceString(tmpTitle,"_"," ");
+      parTitle="#gamma ("+tmpTitle+")";
+    }
         else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
 
         Names.push_back(parTitle);

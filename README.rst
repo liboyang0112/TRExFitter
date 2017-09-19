@@ -303,8 +303,8 @@ Note that, each object should have unique <ObjectName>.
      * Smoothing           : smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
      * OverallUp           : for OVERALL systematic: the relative "up" shift (0.1 means +10%)
      * OverallDown         : for OVERALL systematic: the relative "down" shift (-0.1 means -10%)
-     * ScaleUp             : for OVERALL, HISTO or SHAPE systematic: scale difference between "up" and nominal by a factor
-     * ScaleDown           : for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor
+     * ScaleUp             : for OVERALL, HISTO or SHAPE systematic: scale difference between "up" and nominal by a factor, or different factors for different regions (with teh syntax "region1:1.2,region2:0.9"
+     * ScaleDown           : for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor, or different factors for different regions (with teh syntax "region1:1.2,region2:0.9"
      * ReferenceSample     : if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
      * KeepNormForSamples  : list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
