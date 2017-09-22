@@ -1354,8 +1354,22 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         smp->fDivideBy   = cs->Get("DivideBy");
         smp->fMultiplyBy = cs->Get("MultiplyBy");
         // add/subtract
-        smp->fSubtractSample = cs->Get("SubtractSample");
-        smp->fAddSample      = cs->Get("AddSample");
+        param = cs->Get("SubtractSample");
+        if(param!=""){
+            smp->fSubtractSamples.push_back(param);
+        }
+        param = cs->Get("SubtractSamples");
+        if(param!=""){
+            smp->fSubtractSamples = Vectorize(param,',');
+        }
+        param = cs->Get("AddSample");
+        if(param!=""){
+            smp->fAddSamples.push_back(param);
+        }
+        param = cs->Get("AddSamples");
+        if(param!=""){
+            smp->fAddSamples = Vectorize(param,',');
+        }
         // allow smoothing of nominal histogram?
         param = cs->Get("Smooth");
         if(param!=""){
@@ -2743,14 +2757,16 @@ void TtHFit::CorrectHistograms(){
 
             // ---> NEED TO MOVE TO READNTUPLES? -- FIXME
             // Subtraction / Addition of sample
-            if(fSamples[i_smp]->fSubtractSample!=""){
-                std::cout << "INFO: subtracting sample " << fSamples[i_smp]->fSubtractSample << std::endl;
-                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fSubtractSample);
+//             if(fSamples[i_smp]->fSubtractSample!=""){
+            for(auto sample : fSamples[i_smp]->fSubtractSamples){
+                std::cout << "INFO: subtracting sample " << sample << std::endl;
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(sample);
                 sh->Add(smph0,-1);
             }
-            if(fSamples[i_smp]->fAddSample!=""){
-                std::cout << "INFO: adding sample " << fSamples[i_smp]->fAddSample << std::endl;
-                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fAddSample);
+//             if(fSamples[i_smp]->fAddSample!=""){
+            for(auto sample : fSamples[i_smp]->fAddSamples){
+                std::cout << "INFO: adding sample " << sample << std::endl;
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(sample);
                 sh->Add(smph0);
             }
             // Division & Multiplication by other samples
@@ -3586,8 +3602,9 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 }
             }
         }
-        if(fSamples[i_smp]->fSubtractSample!=""){
-            Sample* smp = GetSample(fSamples[i_smp]->fSubtractSample);
+//         if(fSamples[i_smp]->fSubtractSample!=""){
+        for(auto sample : fSamples[i_smp]->fSubtractSamples){
+            Sample* smp = GetSample(sample);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
                 std::string systName = smp->fSystematics[i_syst]->fName;
                 if(!fSamples[i_smp]->HasSystematic(systName)){
@@ -3595,8 +3612,9 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 }
             }
         }
-        if(fSamples[i_smp]->fAddSample!=""){
-            Sample* smp = GetSample(fSamples[i_smp]->fAddSample);
+//         if(fSamples[i_smp]->fAddSample!=""){
+        for(auto sample : fSamples[i_smp]->fAddSamples){
+            Sample* smp = GetSample(sample);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
                 std::string systName = smp->fSystematics[i_syst]->fName;
                 if(!fSamples[i_smp]->HasSystematic(systName)){

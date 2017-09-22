@@ -1,3 +1,6 @@
+2017-09-22 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Allow multiple samples to be added with AddSamples, SubtractSamples
+    
 2017-09-18  David Hohn  <david.hohn@cern.ch>
     * Add Support for drawing sum of prefit bkg on postfit plots
 
