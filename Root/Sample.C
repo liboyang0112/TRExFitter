@@ -48,6 +48,9 @@ Sample::Sample(string name,int type){
     fShapeFactors.clear();
     fSystematics.clear();
     
+    fSubtractSamples.clear();
+    fAddSamples.clear();
+    
     fAsimovReplacementFor = std::make_pair("","");
 }
     

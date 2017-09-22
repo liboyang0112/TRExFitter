@@ -120,52 +120,52 @@ void SystematicHist::Print(){
 //
 void SystematicHist::Divide(TH1 *h){
     fHistUp->Divide(h);
-    fHistShapeUp->Divide(h);
+    if(fHistShapeUp!=0x0)   fHistShapeUp->Divide(h);
     fHistDown->Divide(h);
-    fHistShapeDown->Divide(h);
+    if(fHistShapeDown!=0x0) fHistShapeDown->Divide(h);
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Divide(SystematicHist *syh){
     fHistUp->Divide(       syh->fHistUp);
-    fHistShapeUp->Divide(  syh->fHistShapeUp);
+    if(fHistShapeUp!=0x0)   fHistShapeUp->Divide(  syh->fHistShapeUp);
     fHistDown->Divide(     syh->fHistDown);
-    fHistShapeDown->Divide(syh->fHistShapeDown);
+    if(fHistShapeDown!=0x0) fHistShapeDown->Divide(syh->fHistShapeDown);
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Multiply(TH1 *h){
     fHistUp->Multiply(h);
-    fHistShapeUp->Multiply(h);
+    if(fHistShapeUp!=0x0)   fHistShapeUp->Multiply(h);
     fHistDown->Multiply(h);
-    fHistShapeDown->Multiply(h);
+    if(fHistShapeDown!=0x0) fHistShapeDown->Multiply(h);
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Multiply(SystematicHist *syh){
     fHistUp->Multiply(       syh->fHistUp);
-    fHistShapeUp->Multiply(  syh->fHistShapeUp);
+    if(fHistShapeUp!=0x0)   fHistShapeUp->Multiply(  syh->fHistShapeUp);
     fHistDown->Multiply(     syh->fHistDown);
-    fHistShapeDown->Multiply(syh->fHistShapeDown);
+    if(fHistShapeDown!=0x0) fHistShapeDown->Multiply(syh->fHistShapeDown);
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Add(TH1 *h,float scale){
     fHistUp->Add(h,scale);
-    fHistShapeUp->Add(h,scale);
+    if(fHistShapeUp!=0x0)   fHistShapeUp->Add(h,scale);
     fHistDown->Add(h,scale);
-    fHistShapeDown->Add(h,scale);
+    if(fHistShapeDown!=0x0) fHistShapeDown->Add(h,scale);
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Add(SystematicHist *syh,float scale){
     fHistUp->Add(       syh->fHistUp,scale);
-    fHistShapeUp->Add(  syh->fHistShapeUp,scale);
+    if(fHistShapeUp!=0x0)   fHistShapeUp->Add(  syh->fHistShapeUp,scale);
     fHistDown->Add(     syh->fHistDown,scale);
-    fHistShapeDown->Add(syh->fHistShapeDown,scale);
+    if(fHistShapeDown!=0x0) fHistShapeDown->Add(syh->fHistShapeDown,scale);
 }

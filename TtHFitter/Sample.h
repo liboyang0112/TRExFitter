@@ -81,8 +81,8 @@ public:
     bool fUseSystematics;
     std::string fDivideBy;
     std::string fMultiplyBy;
-    std::string fSubtractSample;
-    std::string fAddSample;
+    std::vector<std::string> fSubtractSamples;
+    std::vector<std::string> fAddSamples;
     bool fSmooth;
     
     // to read from ntuples

@@ -839,9 +839,6 @@ void SampleHist::SmoothSyst(string syst,bool force){
         if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
             HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
             HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
-        // Michele: why these lines?
-//             fSyst[i_syst]->fHistUp_orig = h_syst_up;
-//             fSyst[i_syst]->fHistDown_orig = h_syst_down;
             continue;
         }
 
