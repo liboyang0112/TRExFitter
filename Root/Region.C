@@ -99,6 +99,8 @@ Region::Region(string name){
     fGetChi2 = 0;
     
     fDropBins.clear();
+
+    fBinLabels.clear();
     
     fChi2val = -1;
     fNDF = -1;
@@ -200,7 +202,7 @@ void Region::AddSystematic(Systematic *syst){
 //__________________________________________________________________________________
 //
 void Region::SetBinning(int N, double *bins){
-    fHistoNBinsRebin = N;
+    fNbins = fHistoNBinsRebin = N;
     fHistoBins = new double[N+1];
     for(unsigned int i=0; i<=N; ++i) fHistoBins[i] = bins[i];    
 }
@@ -208,7 +210,7 @@ void Region::SetBinning(int N, double *bins){
 //__________________________________________________________________________________
 //
 void Region::Rebin(int N){
-    fHistoNBinsRebin = N;
+    fNbins = fHistoNBinsRebin = N;
 }
 
 //__________________________________________________________________________________
@@ -483,6 +485,12 @@ TthPlot* Region::DrawPreFit(string opt){
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
     if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
+
+    if(fBinLabels.size() and fBinLabels.size()==fNbins) {
+      for(int i_bin=0; i_bin<fNbins; i_bin++) {
+        p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
+      }
+    }
     
     //
     // build h_tot
@@ -903,6 +911,12 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
+
+    if(fBinLabels.size() and fBinLabels.size()==fNbins) {
+      for(int i_bin=0; i_bin<fNbins; i_bin++) {
+        p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
+      }
+    }
     
     //
     // 0) Create a new hist for each sample

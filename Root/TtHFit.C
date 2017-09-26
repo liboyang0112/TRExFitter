@@ -1175,6 +1175,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 reg->fDropBins.push_back(atoi(s[i].c_str()));
             }
         }
+        param = cs->Get("BinLabels");
+        if( param != "" ){
+            reg->fBinLabels.clear();
+            std::vector<std::string> vec_string = Vectorize( param,',' );
+            for(std::string s: vec_string) {
+              reg->fBinLabels.push_back(s);
+            }
+        }
     }
 
     //##########################################################

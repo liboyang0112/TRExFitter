@@ -208,6 +208,8 @@ public:
     int fGetChi2;
     
     std::vector<int> fDropBins;
+
+    std::vector<std::string> fBinLabels;
     
     float fChi2val;
     int fNDF;
