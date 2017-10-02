@@ -210,6 +210,7 @@ Note that, each object should have unique <ObjectName>.
      * Rebin            : if specified, the histograms will be rebinned merging N bins together, where N is the argument (int)
      * Binning          : if specified, the histograms will be rebinned according to the new binning specifed, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions ro define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning.
      * BinWidth         : if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number
+     * BinLabels        : if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins)
      * Type             : can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
      * DataType         : ASIMOV or DATA. Is asimov is set, the limits and significances are computed without taking into acount the data in these region, but a projection of the fit performed in the regions with DATA
      * Ymax             : if set, it will force the plot to use this value as max y-maxis value
