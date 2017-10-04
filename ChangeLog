@@ -3,6 +3,7 @@
     * Fixes to multi-fit for comparisons
     * Fix to SHAPE systematic (now shoudl finally work fine)
     * Starting to work on option SeparateGammas for individual samples (not yet fully working)
+    * Fixes TTHFITTER-157
     
 2017-10-02 David Hohn <dhohn@cern.ch
     * custom bin labels for Regions (useful for e.g. for lepton flavours)
