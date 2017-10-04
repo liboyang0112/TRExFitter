@@ -103,6 +103,7 @@ NOTE: The script runs significantly faster when compiled
 #include "RooCategory.h"
 #include "RooSimultaneous.h"
 #include "RooProduct.h"
+#include "RooRealSumPdf.h"
 
 #include <map>
 #include <iostream>
@@ -263,6 +264,13 @@ void runAsymptoticsCLs_inject(const char* infile,
   {
     cout << "ERROR::Workspace: " << workspaceName << " doesn't exist!" << endl;
     return;
+  }
+  RooFIter rfiter = w->components().fwdIterator();
+  RooAbsArg* arg;
+  while ((arg = rfiter.next())) {
+    if (arg->IsA() == RooRealSumPdf::Class()) {
+      arg->setAttribute("BinnedLikelihood");
+    }
   }
 
   mc = (ModelConfig*)w->obj(modelConfigName);

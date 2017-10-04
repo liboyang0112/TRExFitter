@@ -103,6 +103,7 @@ NOTE: The script runs significantly faster when compiled
 #include "RooCategory.h"
 #include "RooSimultaneous.h"
 #include "RooProduct.h"
+#include "RooRealSumPdf.h"
 
 #include <map>
 #include <iostream>
