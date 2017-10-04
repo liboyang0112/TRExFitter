@@ -338,7 +338,7 @@ void Region::BuildPreFitErrorHist(){
                 sh->fHistUp   = (TH1*)fSampleHists[i]->fHist->Clone(Form("%s_%s_Up",  fSampleHists[i]->fHist->GetName(),systName.c_str()));
                 sh->fHistDown = (TH1*)fSampleHists[i]->fHist->Clone(Form("%s_%s_Down",fSampleHists[i]->fHist->GetName(),systName.c_str()));
             }
-            
+            //
             // - loop on bins
             for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
                 if(TtHFitter::DEBUGLEVEL>0) cout << "        Bin " << i_bin << ":  ";// << endl;
@@ -363,7 +363,6 @@ void Region::BuildPreFitErrorHist(){
         }
     }
     
-    
     // at this point all the sample-by-sample pre-fit variation histograms should be filled
     //
     // Now build the total prediction variations, for each systematic
@@ -380,6 +379,13 @@ void Region::BuildPreFitErrorHist(){
             diffDown = 0.;
             // - loop on samples
             for(int i=0;i<fNSamples;i++){
+                //
+                // scale according to NormFactors
+                float scale = 1.;
+                for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
+                    scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
+                }
+                //
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
                 if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
@@ -390,6 +396,8 @@ void Region::BuildPreFitErrorHist(){
                 yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);
                 diffUp   += sh->fHistUp  ->GetBinContent(i_bin) - yieldNominal;
                 diffDown += sh->fHistDown->GetBinContent(i_bin) - yieldNominal;
+                diffUp   *= scale;
+                diffDown *= scale;
             }
             // add the proper bin content to the variation hists
             fTotUp[i_syst]  ->AddBinContent( i_bin, diffUp   );
@@ -541,7 +549,7 @@ TthPlot* Region::DrawPreFit(string opt){
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
             h->Scale(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal);
-             if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fBkg[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fBkg[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
         }
         p->AddBackground(h,title);
         if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
