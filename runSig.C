@@ -21,6 +21,7 @@ to choose which mu value to profile observed data at before generating expected
 #include "RooRealVar.h"
 #include "RooSimultaneous.h"
 #include "RooCategory.h"
+#include "RooRealSumPdf.h"
 
 #include "Math/MinimizerOptions.h"
 
@@ -77,6 +78,14 @@ void runSig(const char* inFileName,
     cout << "ERROR::Workspace: " << wsName << " doesn't exist!" << endl;
     return;
   }
+  RooFIter rfiter = ws->components().fwdIterator();
+  RooAbsArg* arg;
+  while ((arg = rfiter.next())) {
+    if (arg->IsA() == RooRealSumPdf::Class()) {
+      arg->setAttribute("BinnedLikelihood");
+    }
+  }
+  
   ModelConfig* mc = (ModelConfig*)ws->obj(modelConfigName);
   if (!mc)
   {
