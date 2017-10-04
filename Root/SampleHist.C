@@ -363,6 +363,22 @@ void SampleHist::WriteToFile(TFile *f){
     fHist_regBin = HistoTools::TranformHistogramBinning(fHist);
     if(fHist_regBin!=0x0) WriteHistToFile(fHist_regBin,f);
     //
+    // save separate gammas as histograms
+    if(fSample->fSeparateGammas){
+        TH1 *htemp = (TH1*)fHist->Clone();
+        for(int i_bin=1;i_bin<=htemp->GetNbinsX();i_bin++){
+            htemp->AddBinContent(i_bin,htemp->GetBinError(i_bin));
+        }
+//         std::string systName = "gamma_stat_sample_"+fSample->fName+"_region_"+fRegionName;
+        std::string systName = "stat_"+fSample->fName;
+        Systematic *gamma = new Systematic(systName,Systematic::SHAPE);
+//         Systematic *gamma = NewSystematic(systName);
+//         gamma->fType = Systematic::STAT;
+        std::cout << "adding separate gammas as SHAPE systematic " << systName << std::endl;
+        SystematicHist *syh = AddHistoSyst(systName,htemp,fHist);
+        syh->fSystematic = gamma;
+    }
+    //
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         // make sure they all have the correct name!
         fSyst[i_syst]->fHistUp  ->SetName( Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
@@ -377,6 +393,11 @@ void SampleHist::WriteToFile(TFile *f){
               (TH1*)fSyst[i_syst]->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()))
             );
             hVar->Add(fHist_regBin,-1);
+            hVar->Divide(fHist_regBin);
+            // no negative bins here!
+            for(int i_bin=1;i_bin<=hVar->GetNbinsX();i_bin++){
+                if(hVar->GetBinContent(i_bin)<0) hVar->SetBinContent(i_bin,-1.*hVar->GetBinContent(i_bin));
+            }
             if(f==0x0) WriteHistToFile(hVar,fFileName);
             else       WriteHistToFile(hVar,f);
         }

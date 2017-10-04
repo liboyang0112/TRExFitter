@@ -129,6 +129,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("ShowObserved");   if( param != "" && param != "FALSE" ) fShowObserved = true;
     param = cs->Get("LimitTitle"); if( param != "") fLimitTitle = param;
     if(fLimitTitle.find("95CL")!=string::npos) fLimitTitle.replace(fLimitTitle.find("95CL"),4,"95% CL");
+    param = cs->Get("POITitle"); if( param != "") fPOITitle = param;
     param = cs->Get("CompareLimits"); if( param != "" && param != "TRUE" )  fCompareLimits = false;
     param = cs->Get("ComparePOI");    if( param != "" && param != "TRUE" )  fComparePOI    = false;
     param = cs->Get("ComparePulls");  if( param != "" && param != "TRUE" )  fComparePulls  = false;
@@ -226,6 +227,8 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         //
         param = cs->Get("FitResultsFile"); if( param != "" )  fFitList[fFitList.size()-1]->fFitResultsFile = param;
         param = cs->Get("POIName"); if( param != "" )  fFitList[fFitList.size()-1]->fPOI = param;
+        param = cs->Get("Directory"); if( param != "" )  fFitList[fFitList.size()-1]->fName = param;
+        param = cs->Get("InputName"); if( param != "" )  fFitList[fFitList.size()-1]->fInputName = param;
     }
 
     // make directory
@@ -611,14 +614,41 @@ void MultiFit::ComparePOI(string POI){
 //     g_stat->SetLineWidth(2);
     g_tot->SetLineWidth(3);
     g_stat->SetLineWidth(3);
+    g_stat->SetMarkerStyle(kOpenCircle);
     g_tot->SetLineWidth(3);
-    g_stat->SetLineColor(kGreen-8);
-    g_tot->SetLineColor(kBlack);
-    g_central->SetMarkerStyle(kFullCircle);
-    g_central->SetMarkerColor(kRed);
-    g_central->SetMarkerSize(1.5);
+    g_tot->SetMarkerStyle(kOpenCircle);
+    if(TtHFitter::OPTION["FourTopStyle"]){
+        g_tot->SetLineColor(kAzure);
+        g_tot->SetFillColor(kAzure);
+        g_stat->SetLineColor(kCyan);
+        g_stat->SetFillColor(kCyan);
+        g_stat->SetMarkerStyle(kFullCircle);
+        g_stat->SetMarkerColor(kAzure);
+        g_stat->SetMarkerSize(1.5);
+        //
+        for(int i=0;i<N;i++){
+            g_tot->SetPointEYlow(i,0.02);
+            g_tot->SetPointEYhigh(i,0.02);
+            g_stat->SetPointEYlow(i,0.04);
+            g_stat->SetPointEYhigh(i,0.04);
+        }
+    }
+    else{
+        g_stat->SetLineColor(kGreen-8);
+        g_stat->SetMarkerSize(0);
+        g_tot->SetLineColor(kBlack);
+    }
+    if(TtHFitter::OPTION["FourTopStyle"]){
+        g_central->SetMarkerColor(kWhite);
+        g_central->SetMarkerStyle(kFullCircle);
+        g_central->SetMarkerSize(1.);
+    }
+    else{
+        g_central->SetMarkerStyle(kFullCircle);
+        g_central->SetMarkerColor(kRed);
+        g_central->SetMarkerSize(1.5);
+    }
     g_tot->SetMarkerSize(0);
-    g_stat->SetMarkerSize(0);
 
 //     xmax *= 2.5;
 
@@ -682,9 +712,16 @@ void MultiFit::ComparePOI(string POI){
         l_h->Draw("same");
     }
 
-    g_tot->Draw("E same");
-    g_stat->Draw("E same");
-    g_central->Draw("P same");
+    if(TtHFitter::OPTION["FourTopStyle"]){
+        g_tot->Draw("E2 same");
+        g_stat->Draw("PE2 same");
+        g_central->Draw("P same");
+    }
+    else{
+        g_tot->Draw("E same");
+        g_stat->Draw("E same");
+        g_central->Draw("P same");
+    }
 
     gPad->SetLeftMargin( 2*gPad->GetLeftMargin() );
     gPad->SetBottomMargin( 1.15*gPad->GetBottomMargin() );

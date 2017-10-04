@@ -1104,20 +1104,20 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 if(vec_bins[1]=="TransfoD"){
                     reg -> fTransfoDzSig=convertStoD(vec_bins[2]);
                     reg -> fTransfoDzBkg=convertStoD(vec_bins[3]);
-            if(vec_bins.size()>4){
-              for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
-            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
-              }
-            }
+		    if(vec_bins.size()>4){
+		      for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+			reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+		      }
+		    }
                 }
                 else if(vec_bins[1]=="TransfoF"){
                     reg -> fTransfoFzSig=convertStoD(vec_bins[2]);
                     reg -> fTransfoFzBkg=convertStoD(vec_bins[3]);
-            if(vec_bins.size()>4){
-              for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
-            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
-              }
-            }
+		    if(vec_bins.size()>4){
+		      for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+			reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+		      }
+		    }
                 }
                 else if(vec_bins[1]=="TransfoJ"){
                     if(vec_bins.size() > 2) reg -> fTransfoJpar1=convertStoD(vec_bins[2]);
@@ -1126,11 +1126,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                     else reg -> fTransfoJpar2 = 1.;
                     if(vec_bins.size() > 4) reg -> fTransfoJpar3=convertStoD(vec_bins[4]);
                     else reg -> fTransfoJpar3 = 5.;
-            if(vec_bins.size()>5){
-              for(unsigned int i_Bkgs=4; i_Bkgs<vec_bins.size(); ++i_Bkgs){
-            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
-              }
-            }
+		    if(vec_bins.size()>5){
+		      for(unsigned int i_Bkgs=4; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+			reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+		      }
+		    }
                 }
                 else{
                     std::cout<<" ERROR: Unknown transformation: "<<vec_bins[1]<<", try again" << std::endl;
@@ -1392,6 +1392,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 smp->fAsimovReplacementFor.second = Vectorize(param,',')[1];
             }
         }
+        // separate gammas
+        param = cs->Get("SeparateGammas");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "TRUE") smp->fSeparateGammas = true;
+        }
         // ...
     }
     //
@@ -1574,7 +1580,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         sysd = new Systematic("Dummy",typed);
         sysd->fOverallUp   = 0.;
         sysd->fOverallDown = -0.;
-        sysd->fScaleUp     = 1.;
+        sysd->fScaleUp   = 1.;
         sysd->fScaleDown   = 1.;
         fSystematics.push_back( sysd );
         TtHFitter::SYSTMAP[sysd->fName] = "Dummy";
@@ -1608,6 +1614,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             type = Systematic::OVERALL;
         if(cs->Get("Type")=="shape" || cs->Get("Type")=="SHAPE")
             type = Systematic::SHAPE;
+        if(cs->Get("Type")=="stat" || cs->Get("Type")=="STAT") {
+            type = Systematic::STAT;
+        }
         string decorrelate = cs->Get("Decorrelate");
         sys = new Systematic(CheckName(cs->GetValue()),type);
         TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
@@ -1754,7 +1763,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         // save list of...
         //
         // Default
-        if ( decorrelate == "" ) {
+        if ( decorrelate == "" && type != Systematic::STAT) {
             fSystematics.push_back( sys );
             fNSyst++;
             if(cs->Get("NuisanceParameter")!=""){
@@ -1794,7 +1803,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         }
         //
         // Decorrelate by region
-        else if (decorrelate == "REGION")  {
+        else if (decorrelate == "REGION" || type == Systematic::STAT)  {
             //
             // looping over the regions
             for(unsigned int i_reg=0; i_reg<regNames.size(); ++i_reg) {
@@ -1814,44 +1823,84 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                     continue;
                 }
                 std::cout << " --> KEEPING IT!!! " << regNames[i_reg] << std::endl;
-                //
-                // cloning the sys for each region
-                Systematic* mySys= new Systematic(*sys);
-                mySys->fName=(mySys->fName)+"_"+regNames[i_reg];
-                std::vector<string> tmpReg;
-                tmpReg.push_back( regNames[i_reg] );
-                mySys->fRegions = tmpReg;
-                fSystematics.push_back( mySys );
 
-                if(cs->Get("NuisanceParameter")!=""){
-                    mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg];
-                    TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
-                }
-                else{
-                    mySys->fNuisanceParameter = mySys->fName;
-                    TtHFitter::NPMAP[mySys->fName] = mySys->fName;
-                }
-                if(cs->Get("Title")!=""){
-                    mySys->fTitle = (sys->fTitle)+"_"+regNames[i_reg];
-                    TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
-                }
-                fNSyst++;
-                //
-                for(int i_smp=0;i_smp<fNSamples;i_smp++){
-                    sam = fSamples[i_smp];
-//                     if(sam->fType == Sample::DATA) continue;
-                    // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
-                    if(sam->fType == Sample::DATA){
-                      if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
-                        sam->AddSystematic(mySys);
-                      }
-                      else continue;
+                if (type == Systematic::STAT) {
+                  Region* reg = GetRegion(regNames[i_reg]);
+                  unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
+                    std::cout << regNames[i_reg] << " " << nbins << std::endl;
+                    // decorrelate by bin
+                    for (int i_bin = 0; i_bin < nbins; i_bin++) {
+                        Systematic* mySys= new Systematic(*sys);
+                        mySys->fName=(mySys->fName)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
+                        std::vector<string> tmpReg;
+                        tmpReg.push_back( regNames[i_reg] );
+                        mySys->fRegions = tmpReg;
+                        std::vector<int> tmpBin;
+                        tmpBin.push_back( i_bin );
+                        mySys->fBins = tmpBin;
+                        fSystematics.push_back( mySys );
+                        if(cs->Get("NuisanceParameter")!=""){
+                            mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
+                            TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                        } else {
+                            mySys->fNuisanceParameter = mySys->fName;
+                            TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+                        }
+                        if(cs->Get("Title")!=""){
+                            mySys->fTitle = (sys->fTitle)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
+                            TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+                        }
+                        fNSyst++;
+                        for (int i_smp=0;i_smp<fNSamples;i_smp++){
+                            sam = fSamples[i_smp];
+                            if(sam->fType == Sample::DATA) continue;
+                            if(!sam->fUseSystematics) continue;
+                            if((samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+                                && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+                                ){
+                                sam->AddSystematic(mySys);
+                            }
+                        }
                     }
-                    if(!sam->fUseSystematics) continue;
-                    if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
-                          && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
-                          ){
-                      sam->AddSystematic(mySys);
+                } else {
+                    //
+                    // cloning the sys for each region
+                    Systematic* mySys= new Systematic(*sys);
+                    mySys->fName=(mySys->fName)+"_"+regNames[i_reg];
+                    std::vector<string> tmpReg;
+                    tmpReg.push_back( regNames[i_reg] );
+                    mySys->fRegions = tmpReg;
+                    fSystematics.push_back( mySys );
+                    if(cs->Get("NuisanceParameter")!=""){
+                        mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+regNames[i_reg];
+                        TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                    }
+                    else{
+                        mySys->fNuisanceParameter = mySys->fName;
+                        TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+                    }
+                    if(cs->Get("Title")!=""){
+                        mySys->fTitle = (sys->fTitle)+"_"+regNames[i_reg];
+                        TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+                    }
+                    fNSyst++;
+                    //
+                    for(int i_smp=0;i_smp<fNSamples;i_smp++){
+                        sam = fSamples[i_smp];
+                        // if(sam->fType == Sample::DATA) continue;
+                        // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
+                        if(sam->fType == Sample::DATA){
+                          if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
+                            sam->AddSystematic(mySys);
+                          }
+                          else continue;
+                        }
+                        if(!sam->fUseSystematics) continue;
+                        if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+                              && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+                              ){
+                          sam->AddSystematic(mySys);
+                        }
                     }
                 }
             }
@@ -2449,6 +2498,12 @@ void TtHFit::ReadNtuples(){
                     if(syst->fScaleDownRegions.size()!=0)
                         if(syst->fScaleDownRegions[reg->fName]!=0)
                             syh->fScaleDown *= syst->fScaleDownRegions[reg->fName];
+                    continue;
+                }
+                // if Stat uncertainty on MC sample
+                if(syst->fType == Systematic::STAT){
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fBins[0]);
+                    syh->fSystematic = syst;
                     continue;
                 }
                 // else ...
@@ -3658,6 +3713,25 @@ void TtHFit::ReadHistos(/*string fileName*/){
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp],regionName+"_"+sampleName,fileName);
             sh = fRegions[i_ch]->GetSampleHist(sampleName);
             //
+            // separate gammas -> Add systematic
+            if(fSamples[i_smp]->fSeparateGammas){
+//                 std::string systName = "gamma_stat_sample_"+fSamples[i_smp]->fName+"_region_"+fRegions[i_ch]->fName;
+                std::string systName = "stat_"+fSamples[i_smp]->fName;
+//                         Systematic *gamma = new Systematic(systName,Systematic::STAT);
+                Systematic *gamma = NewSystematic(systName);
+                gamma->fType = Systematic::SHAPE;
+                gamma->fRegions.clear(); gamma->fRegions.push_back(fRegions[i_ch]->fName);
+//                 gamma->fSamples.clear(); gamma->fSamples.push_back(fSamples[i_smp]->fName);
+                std::string systStoredName = systName;
+//                 fSamples[i_smp]->AddS
+                SystematicHist *syh = sh->AddHistoSyst(systName,
+                                                        Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                                        Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                                        0
+                                                        );
+                syh->fSystematic = gamma;
+            }
+            //
             // norm factors
             for(int i_norm=0;i_norm<fSamples[i_smp]->fNNorm;i_norm++){
                 //
@@ -3738,18 +3812,18 @@ void TtHFit::ReadHistos(/*string fileName*/){
                         if(binContent==1 || binContent==-2) pruned = 1;
                         if(binContent==2 || binContent==-3) pruned = 2;
                     }
-                    syh = sh->AddHistoSyst(systName,
-                                           Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                           pruned
-                                          );
-                }
+                        syh = sh->AddHistoSyst(systName,
+                                               Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                               Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                               pruned
+                                              );
+                    }
                 // for both
-                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                    syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
-                syh->fFileNameShapeUp    = fileName;
-                syh->fFileNameShapeDown  = fileName;
+                    syh->fFileNameShapeUp    = fileName;
+                    syh->fFileNameShapeDown  = fileName;
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName]!=0){
@@ -4543,7 +4617,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 }
             }
         }
-    // FIXME SF 
+	// FIXME SF 
         //
         // Only for post-fit, loop on norm factors as well
         if(isPostFit){
@@ -6482,7 +6556,7 @@ void TtHFit::ReadFitResults(string fileName){
                 fFitResults->fNuisPar[i]->fCategory = fNormFactors[j]->fCategory;
             }
         }
-    // FIXME SF probably there are several NPs associated to it 
+	// FIXME SF probably there are several NPs associated to it 
         for(unsigned int j=0;j<fShapeFactors.size();j++){
             if(fShapeFactors[j]->fName == fFitResults->fNuisPar[i]->fName){
                 fFitResults->fNuisPar[i]->fTitle = fShapeFactors[j]->fTitle;
@@ -6683,7 +6757,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName ||
             ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0 ) )
             ){
-        if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
+	    if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
             nuisPars.push_back( fSystematics[i_syst]->fName );
             isNF.push_back( false );
         }
@@ -6776,22 +6850,22 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             while( (var = (RooRealVar*) it2->Next()) ){
                 string np = var->GetName();
                 if(np.find("gamma")!=string::npos){
-            //         if(np==NPnames || NPnames=="all") nuisPars.push_back(np);
+            // 	    if(np==NPnames || NPnames=="all") nuisPars.push_back(np);
                     if(np==NPnames || NPnames=="all") nuisPars.push_back(ReplaceString(np,"gamma_",""));
                     isNF.push_back( true );
                     if(NPnames!="all") break;
                 }
-//       if(NPnames!="all"){
-//         if(np==NPnames){
-//           nuisPars.push_back(ReplaceString(np,"gamma_",""));
-//           isNF.push_back( true );
-//           break;
-//         }
-//       }
-//       else if(np.find("gamma_stat")!=string::npos){
-//         nuisPars.push_back(np);
-//         isNF.push_back( true );
-//       }
+// 	  if(NPnames!="all"){
+// 	    if(np==NPnames){
+// 	      nuisPars.push_back(ReplaceString(np,"gamma_",""));
+// 	      isNF.push_back( true );
+// 	      break;
+// 	    }
+// 	  }
+// 	  else if(np.find("gamma_stat")!=string::npos){
+// 	    nuisPars.push_back(np);
+// 	    isNF.push_back( true );
+// 	  }
             }
         }
     }
@@ -6829,14 +6903,14 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         central = fFitResults -> GetNuisParValue(   nuisPars[i] );
         up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
         down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
-    //// Thomas : We should be careful with changing naming convention compared to RooFit !!
-    // TtHFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
-    // Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
-    if( (NPnames=="all" && nuisPars[i].find("_bin_")!=string::npos)
-        || NPnames.find("gamma_stat")!=string::npos){
-      string tmpNuispar=nuisPars[i];
-      nuisPars[i]="gamma_"+tmpNuispar;
-    }
+	//// Thomas : We should be careful with changing naming convention compared to RooFit !!
+	// TtHFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
+	// Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
+	if( (NPnames=="all" && nuisPars[i].find("_bin_")!=string::npos)
+	    || NPnames.find("gamma_stat")!=string::npos){
+	  string tmpNuispar=nuisPars[i];
+	  nuisPars[i]="gamma_"+tmpNuispar;
+	}
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         //
         // Experimental: reduce the range of ranking
@@ -6874,7 +6948,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             muVarNomUp[   nuisPars[i] ] = muhat;
             muVarNomDown[ nuisPars[i] ] = muhat;
         }
-    else{
+	else{
             up   = 1.;
             down = 1.;
             //
@@ -6977,19 +7051,19 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     }
     while (!fin.eof()){
         if(paramname.find("gamma")!=string::npos && !flagGammas){
-      fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-      if (paramname=="Luminosity"){
-        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-      }
-      continue;
-    }
-    if(paramname.find("gamma")==string::npos && !flagSysts){
-      fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-      if (paramname=="Luminosity"){
-        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-      }
-      continue;
-    }
+	  fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+	  if (paramname=="Luminosity"){
+	    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+	  }
+	  continue;
+	}
+	if(paramname.find("gamma")==string::npos && !flagSysts){
+	  fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+	  if (paramname=="Luminosity"){
+	    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+	  }
+	  continue;
+	}
         parname.push_back(paramname);
         nuhat.push_back(nuiphat);
         nuerrhi.push_back(nuiperrhi);
@@ -7117,12 +7191,12 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         g2a->SetPointEYhigh(idx, 0.4);
         g2a->SetPointEYlow( idx, 0.4);
 
-    if(parname[i].find("gamma")!=string::npos){
-      string tmpTitle=parname[i];
-      tmpTitle=ReplaceString(tmpTitle,"gamma_stat_","");
-      tmpTitle=ReplaceString(tmpTitle,"_"," ");
-      parTitle="#gamma ("+tmpTitle+")";
-    }
+	if(parname[i].find("gamma")!=string::npos){
+	  string tmpTitle=parname[i];
+	  tmpTitle=ReplaceString(tmpTitle,"gamma_stat_","");
+	  tmpTitle=ReplaceString(tmpTitle,"_"," ");
+	  parTitle="#gamma ("+tmpTitle+")";
+	}
         else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
 
         Names.push_back(parTitle);
