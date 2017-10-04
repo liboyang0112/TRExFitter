@@ -39,6 +39,8 @@ public:
     std::vector< string > fFitLabels;
     std::vector< string > fFitSuffs;
     std::vector< string > fWsFiles;
+    std::vector< string > fDirectory;
+    std::vector< string > fInputName;
     
     std::vector< string > fNPCategories;
     
