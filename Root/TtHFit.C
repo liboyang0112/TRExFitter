@@ -3742,10 +3742,13 @@ void TtHFit::ReadHistos(/*string fileName*/){
                     Systematic *gamma = 0x0;
                     if(FindInStringVector(fSystematicNames,systName)>=0) gamma = fSystematics[FindInStringVector(fSystematicNames,systName)];  //GetSystematic(systName);
                     if(gamma==0x0) gamma = NewSystematic(systName);
+                    if(TtHFitter::DEBUGLEVEL>0) std::cout << "adding separate gammas as SHAPE systematic " << systName << std::endl;
                     gamma->fType = Systematic::SHAPE;
                     gamma->fRegions.clear();
                     gamma->fRegions.push_back(fRegions[i_ch]->fName);
                     syh->fSystematic = gamma;
+                    gamma->fNuisanceParameter = gamma->fName;
+                    TtHFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
                 }
             }
             //

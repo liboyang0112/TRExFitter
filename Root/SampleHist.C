@@ -379,16 +379,22 @@ void SampleHist::WriteToFile(TFile *f){
     //
     // save separate gammas as histograms
     if(fSample->fSeparateGammas){
-        TH1 *htemp = (TH1*)fHist->Clone();
-        for(int i_bin=1;i_bin<=htemp->GetNbinsX();i_bin++){
-            htemp->AddBinContent(i_bin,htemp->GetBinError(i_bin));
+        TH1 *htempUp   = (TH1*)fHist->Clone();
+        TH1 *htempDown = (TH1*)fHist->Clone();
+        for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+            htempUp  ->AddBinContent(i_bin, 1.*fHist->GetBinError(i_bin));
+            htempDown->AddBinContent(i_bin,-1.*fHist->GetBinError(i_bin));
         }
         std::string systName = "stat_"+fSample->fName;
         Systematic *gamma = 0x0;
         if(GetSystematic(systName)) gamma = GetSystematic(systName)->fSystematic;  //GetSystematic(systName);
         if(gamma==0x0) gamma = new Systematic(systName,Systematic::SHAPE);
         if(TtHFitter::DEBUGLEVEL>0) std::cout << "adding separate gammas as SHAPE systematic " << systName << std::endl;
-        SystematicHist *syh = AddHistoSyst(systName,htemp,fHist);
+        gamma->fRegions.clear();
+        gamma->fRegions.push_back(fRegionName);
+        SystematicHist *syh = AddHistoSyst(systName,htempUp,htempDown);
+        gamma->fNuisanceParameter = gamma->fName;
+        TtHFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
         syh->fSystematic = gamma;
     }
     //
