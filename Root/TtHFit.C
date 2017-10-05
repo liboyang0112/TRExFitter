@@ -395,6 +395,8 @@ void TtHFit::WriteHistos(){
             sh->fFileName = fileName;
             // set file and histo names for systematics
             for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+                if(sh->fSyst[i_syst]->fHistUp  ==0x0) continue;
+                if(sh->fSyst[i_syst]->fHistDown==0x0) continue;
                 sh->fSyst[i_syst]->fFileNameUp    = fileName;
                 sh->fSyst[i_syst]->fHistoNameUp   = sh->fSyst[i_syst]->fHistUp->GetName();
                 sh->fSyst[i_syst]->fFileNameDown  = fileName;
@@ -1396,7 +1398,20 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         param = cs->Get("SeparateGammas");
         if(param!=""){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "TRUE") smp->fSeparateGammas = true;
+            if(param == "TRUE"){
+                smp->fSeparateGammas = true;
+                if(cs->Get("UseMCstat")=="") smp->fUseMCStat = false; // remove the usual gammas for this sample (only if no UseMCstat is specified!!)
+            }
+        }
+        // in the form    CorrelateGammasInRegions: SR1:SR2,CR1:CR2:CR3
+        param = cs->Get("CorrelateGammasInRegions");
+        if(param!=""){
+            std::vector<std::string> sets = Vectorize(param,',');
+            for(auto set : sets){
+                std::vector<std::string> regions = Vectorize(set,':');
+                std::cout << "Correlating gammas for this sample in regions " << set << std::endl;
+                smp->fCorrelateGammasInRegions.push_back(regions);
+            }
         }
         // ...
     }
@@ -3665,7 +3680,6 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 }
             }
         }
-//         if(fSamples[i_smp]->fSubtractSample!=""){
         for(auto sample : fSamples[i_smp]->fSubtractSamples){
             Sample* smp = GetSample(sample);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
@@ -3675,7 +3689,6 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 }
             }
         }
-//         if(fSamples[i_smp]->fAddSample!=""){
         for(auto sample : fSamples[i_smp]->fAddSamples){
             Sample* smp = GetSample(sample);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
@@ -3705,7 +3718,6 @@ void TtHFit::ReadHistos(/*string fileName*/){
             //
             // eventually skip sample / region combination
             //
-//             if( FindInStringVector(fSamples[i_smp]->fRegions,regionName)<0 ) continue;
             if( FindInStringVector(fSamples[i_smp]->fRegions,regionName)<0 && fSamples[i_smp]->fName.find("customAsimov_")==std::string::npos ) continue;
             //
             sampleName = fSamples[i_smp]->fName;
@@ -3715,21 +3727,26 @@ void TtHFit::ReadHistos(/*string fileName*/){
             //
             // separate gammas -> Add systematic
             if(fSamples[i_smp]->fSeparateGammas){
-//                 std::string systName = "gamma_stat_sample_"+fSamples[i_smp]->fName+"_region_"+fRegions[i_ch]->fName;
                 std::string systName = "stat_"+fSamples[i_smp]->fName;
-//                         Systematic *gamma = new Systematic(systName,Systematic::STAT);
-                Systematic *gamma = NewSystematic(systName);
-                gamma->fType = Systematic::SHAPE;
-                gamma->fRegions.clear(); gamma->fRegions.push_back(fRegions[i_ch]->fName);
-//                 gamma->fSamples.clear(); gamma->fSamples.push_back(fSamples[i_smp]->fName);
                 std::string systStoredName = systName;
-//                 fSamples[i_smp]->AddS
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "adding separate gammas as SHAPE systematic " << systName << std::endl;
                 SystematicHist *syh = sh->AddHistoSyst(systName,
                                                         Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                         Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                         0
                                                         );
-                syh->fSystematic = gamma;
+                if(syh==0x0){
+                    std::cout << "TtHFit::WARNING: no histogram found for separate gamma, but may be you will create it right now." << std::endl;
+                }
+                else{
+                    Systematic *gamma = 0x0;
+                    if(FindInStringVector(fSystematicNames,systName)>=0) gamma = fSystematics[FindInStringVector(fSystematicNames,systName)];  //GetSystematic(systName);
+                    if(gamma==0x0) gamma = NewSystematic(systName);
+                    gamma->fType = Systematic::SHAPE;
+                    gamma->fRegions.clear();
+                    gamma->fRegions.push_back(fRegions[i_ch]->fName);
+                    syh->fSystematic = gamma;
+                }
             }
             //
             // norm factors
@@ -5496,11 +5513,24 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                             std::cout << "    Adding Systematic: " << h->fSyst[i_syst]->fName << std::endl;
                         }
                         if ( h->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
-                            sample.AddShapeSys( ("shape_"+h->fSyst[i_syst]->fSystematic->fNuisanceParameter+"_"+fRegions[i_ch]->fName),
-//                                                 RooStats::HistFactory::Constraint::Gaussian,
-                                                RooStats::HistFactory::Constraint::Poisson,
-//                                                 h->fSyst[i_syst]->fHistoNameUp+suffix_regularBinning, h->fSyst[i_syst]->fFileNameUp, "");
-                                                (h->fSyst[i_syst]->fHistoNameUp+"_Var"+suffix_regularBinning), h->fSyst[i_syst]->fFileNameUp, "");
+                            std::string npName = "shape_";
+                            npName += h->fSyst[i_syst]->fSystematic->fNuisanceParameter+"_";
+                            std::string regionName = fRegions[i_ch]->fName;
+                            if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter.find("stat_")!=string::npos){
+                                // see if there are regions to correlate with others
+                                for(auto set : h->fSample->fCorrelateGammasInRegions){
+                                    for(int i_reg=0;i_reg<set.size();i_reg++){
+                                        if(i_reg!=0 && regionName==set[i_reg]){
+                                            regionName = set[0];
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            npName += regionName;
+                            sample.AddShapeSys( npName, RooStats::HistFactory::Constraint::Poisson,
+                                                (h->fSyst[i_syst]->fHistoNameUp+"_Var"+suffix_regularBinning),
+                                                h->fSyst[i_syst]->fFileNameUp, "");
                         }
                         else{
                             if ( !h->fSyst[i_syst]->fSystematic->fIsShapeOnly  &&
