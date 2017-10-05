@@ -115,6 +115,7 @@ public:
     std::pair<std::string,std::string> fAsimovReplacementFor;
     
     bool fSeparateGammas;
+    std::vector<std::vector<std::string>> fCorrelateGammasInRegions;
 };
 
 #endif

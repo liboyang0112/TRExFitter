@@ -1,3 +1,7 @@
+2017-10-05 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * README updated (still need to fix / add few things)
+    * options added to use separate gammas for some samples and to even correlate gammas across regions (if they come from the same events in data in the case of a data-driven estimation, or in the case of TRF for MC)
+
 2017-10-04 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Four-top style for multi-fit POI
     * Fixes to multi-fit for comparisons

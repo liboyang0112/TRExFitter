@@ -228,13 +228,15 @@ Note that, each object should have unique <ObjectName>.
      * Group            : if specified, sample will be grouped with other samples with same group and this label will be used in plots
      * HistoFile        : valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path
      * HistoName        : valid only for option HIST; name of histogram to read
-     * NtuplePath       : valid only for option HIST; it's the path where the input root files containing the histograms are stored
+     * HistoPath        : valid only for option HIST; it's the path where the input root files containing the histograms are stored
      * NtupleFile(s)    : valid only for option NTUP; it's the file name(s) where the input ntuples are stored
-     * NtupleName       : valid only for option NTUP; name of tree to read
+     * NtupleName(s)    : valid only for option NTUP; name(s) of tree to read
      * NtuplePath(s)    : valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
+     * NtupleNameSuff(s): valid only for option NTUP; suffix(es) for the name of tree to read
      * FillColor        : histogram fill color (not valid for data)
      * LineColor        : histogram line color
      * NormFactor       : NormalisationFactor (free parameter in the fit); in the format <name>,nominal,min,max
+     * ShapeFactor      : ShapeFactor added
      * NormalizedByTheory: set it to false for data-driven backgrounds (MCweight, Lumi and LumiScale from Job and Region will be ignored)
      * MCweight         : only for option NTUP, the additional weight sed in this sample (for all types of samples!! Not only MC)
      * Selection        : valid only for option NTUP; additional selection for this region
@@ -243,10 +245,15 @@ Note that, each object should have unique <ObjectName>.
      * LumiScale(s)     : set this to scale the sample by a number; if more numbers are set, use a different one for each file / name / path...
      * IgnoreSelection  : if set, selection from Job and Region will be ignored
      * UseMCstat        : if set to FALSE, makes the fitter ignore the stat uncertainty for this sample
+     * UseSystematics   : has to be set to TRUE to allow systematics on the GHOST samples
      * MultiplyBy       : if specified, each sample hist is multiplied bin-by-bin by another sample hist, in each of the regions
      * DivideBy         : if specified, each sample hist is divided bin-by-bin by another sample hist, in each of the regions
+     * AddSample(s)     : if specified, each sample hist gets added bin-by-bin another sample hist, in each of the regions
+     * SubtractSample(s): if specified, each sample hist gets subtracted bin-by-bin another sample hist, in each of the regions
      * Smooth           : if set to TRUE, the nominal histograms are smoothed (based on TH1::Smooth but taking into account the original stat uncertainty) 
      * AsimovReplacementFor: only for GHOST samples; if set, the creation of cutsom Asimov data-set(s) is triggered; use as 'AsimovReplacementFor: "dataset","sample"', where "dataset" is the name of a custom Asimov dataset one wants to create (the same name will have to be set under Job->CustomAsimov in order to use it) and "sample" is the sample this GHOST sample will superseed
+     * SeparateGammas   : if set to TRUE, the sample will not contribute to the overall gamma factors for MC stat, but a separate set of them will be added for this sample (through the SHAPE systematic technology)
+     * CorrelateGammasInRegions: to be used only together with SeparateGammas; can be used to correlate MC stat across regions; example: "SR1:SR2,CR1:CR2:CR3" will use the same NP for the MC stat in each bin of SR1 and SR2 and in each bin of CR1, CR2 and CR3
 
   * NormFactor:
      * Samples          : comma-separated list of samples on which to apply the norm factor
@@ -270,6 +277,9 @@ Note that, each object should have unique <ObjectName>.
      * ExcludeRegionSample : comma-separated list of region:sample to exclude
      * Type                : can be HISTO, OVERALL, SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin) or STAT (this refers to auto-creation of one systematic from stat uncertainty for each bin of corresponding region)
      * Title               : title of the systematic (will be shown in plots)
+     * StoredName          : if specified, will be used to read and write histograms in the root files under Hostograms/ intead of the syst name; useful to decorrelate without re-creating histograms
+     * NuisancaParameter   : if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics
+     * IsFreeParameter     : if set to TRUE, the constraint will be a flat one instead of gaussian (use with caution)
      * Category            : major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
      * HistoPathUp         : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation
      * HistoPathDown       : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation
@@ -307,6 +317,8 @@ Note that, each object should have unique <ObjectName>.
      * ScaleUp             : for OVERALL, HISTO or SHAPE systematic: scale difference between "up" and nominal by a factor, or different factors for different regions (with teh syntax "region1:1.2,region2:0.9"
      * ScaleDown           : for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor, or different factors for different regions (with teh syntax "region1:1.2,region2:0.9"
      * ReferenceSample     : if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
+     * DropShapeIn         : specify regions where you want the smoothing / pruning to be forced to drop the shape and keep only norm
+     * DropNorm            : the same as the previous one, but to drop the norm and keep only the shape
      * KeepNormForSamples  : list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
      * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearily subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
