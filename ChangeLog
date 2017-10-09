@@ -1,3 +1,6 @@
+2017-10-09 Loic Valery <lvalery@cern.ch>
+    * Adding BinnedLikelihood property to runAsymptotics and runSig
+
 2017-09-22 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Allow multiple samples to be added with AddSamples, SubtractSamples
     
