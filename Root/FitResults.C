@@ -299,6 +299,7 @@ void FitResults::DrawGammaPulls( const string &path ){
         std::string clean_name = par->fTitle;
         clean_name = ReplaceString( clean_name, "stat_", "#gamma " );
         clean_name = ReplaceString( clean_name, "shape_", "#gamma " );
+        clean_name = ReplaceString( clean_name, "#gamma #gamma ", "#gamma " );
         clean_name = ReplaceString( clean_name, "_", " " );
         Names.push_back(clean_name);
         idx ++;

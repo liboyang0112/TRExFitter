@@ -52,6 +52,9 @@ Sample::Sample(string name,int type){
     fAddSamples.clear();
     
     fAsimovReplacementFor = std::make_pair("","");
+    
+    fSeparateGammas = false;
+    fCorrelateGammasInRegions.clear();
 }
     
 //__________________________________________________________________________________

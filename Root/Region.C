@@ -99,6 +99,8 @@ Region::Region(string name){
     fGetChi2 = 0;
     
     fDropBins.clear();
+
+    fBinLabels.clear();
     
     fChi2val = -1;
     fNDF = -1;
@@ -200,7 +202,7 @@ void Region::AddSystematic(Systematic *syst){
 //__________________________________________________________________________________
 //
 void Region::SetBinning(int N, double *bins){
-    fHistoNBinsRebin = N;
+    fNbins = fHistoNBinsRebin = N;
     fHistoBins = new double[N+1];
     for(unsigned int i=0; i<=N; ++i) fHistoBins[i] = bins[i];    
 }
@@ -208,7 +210,7 @@ void Region::SetBinning(int N, double *bins){
 //__________________________________________________________________________________
 //
 void Region::Rebin(int N){
-    fHistoNBinsRebin = N;
+    fNbins = fHistoNBinsRebin = N;
 }
 
 //__________________________________________________________________________________
@@ -264,6 +266,7 @@ void Region::BuildPreFitErrorHist(){
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType == Sample::GHOST) continue;
+        if(fSampleHists[i]->fSample->fType == Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
         
         // NOTE: probably we don't need NormFactors here, as they don't introduce prefit uncertainty...
 //         //
@@ -314,6 +317,7 @@ void Region::BuildPreFitErrorHist(){
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
         
         if(TtHFitter::DEBUGLEVEL>0) cout << "  Sample: " << fSampleHists[i]->fName << endl;
         
@@ -334,7 +338,7 @@ void Region::BuildPreFitErrorHist(){
                 sh->fHistUp   = (TH1*)fSampleHists[i]->fHist->Clone(Form("%s_%s_Up",  fSampleHists[i]->fHist->GetName(),systName.c_str()));
                 sh->fHistDown = (TH1*)fSampleHists[i]->fHist->Clone(Form("%s_%s_Down",fSampleHists[i]->fHist->GetName(),systName.c_str()));
             }
-            
+            //
             // - loop on bins
             for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
                 if(TtHFitter::DEBUGLEVEL>0) cout << "        Bin " << i_bin << ":  ";// << endl;
@@ -359,7 +363,6 @@ void Region::BuildPreFitErrorHist(){
         }
     }
     
-    
     // at this point all the sample-by-sample pre-fit variation histograms should be filled
     //
     // Now build the total prediction variations, for each systematic
@@ -376,15 +379,25 @@ void Region::BuildPreFitErrorHist(){
             diffDown = 0.;
             // - loop on samples
             for(int i=0;i<fNSamples;i++){
+                //
+                // scale according to NormFactors
+                float scale = 1.;
+                for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
+                    scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
+                }
+                //
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
                 if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
                 // get SystematicHist
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
                 yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);
                 diffUp   += sh->fHistUp  ->GetBinContent(i_bin) - yieldNominal;
                 diffDown += sh->fHistDown->GetBinContent(i_bin) - yieldNominal;
+                diffUp   *= scale;
+                diffDown *= scale;
             }
             // add the proper bin content to the variation hists
             fTotUp[i_syst]  ->AddBinContent( i_bin, diffUp   );
@@ -483,6 +496,12 @@ TthPlot* Region::DrawPreFit(string opt){
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
     if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
+
+    if(fBinLabels.size() and fBinLabels.size()==fNbins) {
+      for(int i_bin=0; i_bin<fNbins; i_bin++) {
+        p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
+      }
+    }
     
     //
     // build h_tot
@@ -530,7 +549,7 @@ TthPlot* Region::DrawPreFit(string opt){
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
             h->Scale(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal);
-             if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fBkg[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fBkg[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
         }
         p->AddBackground(h,title);
         if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
@@ -608,6 +627,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     for(int i_sample=0;i_sample<fNSamples;i_sample++){
         if(fSampleHists[i_sample]->fSample->fType == Sample::DATA) continue;
         if(fSampleHists[i_sample]->fSample->fType == Sample::GHOST) continue;
+        if(fSampleHists[i_sample]->fSample->fType == Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
         
         //
         // Norm factors
@@ -625,24 +645,24 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 
         // Shape factors
         //
-	// extract number of bins
-	TH1* hSFTmp;
-	hSFTmp = (TH1*)fSampleHists[i_sample]->fHist->Clone();
-	// loop over shape factors
-        for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
-	  systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
-	  // add syst name for each bin
-	  for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){	  
-	    systNameSF = systName + "_bin_" + std::to_string(i_bin);
-	    // the shape factor naming used i_bin - 1 for the first bin
-	    // add it as one syst per bin
-            if(!systIsThere[systNameSF]){
-	      fSystNames.push_back(systNameSF);
-	      systIsThere[systNameSF] = true;
+        // extract number of bins
+        TH1* hSFTmp;
+        hSFTmp = (TH1*)fSampleHists[i_sample]->fHist->Clone();
+        // loop over shape factors
+            for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
+          systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
+          // add syst name for each bin
+          for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){	  
+            systNameSF = systName + "_bin_" + std::to_string(i_bin);
+            // the shape factor naming used i_bin - 1 for the first bin
+            // add it as one syst per bin
+                if(!systIsThere[systNameSF]){
+              fSystNames.push_back(systNameSF);
+              systIsThere[systNameSF] = true;
+                }
+          }
             }
-	  }
-        }
-	hSFTmp->~TH1();
+        hSFTmp->~TH1();
         
         //
         // Systematics
@@ -728,22 +748,22 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     diffUp   += yieldNominal*systErrUp;
                     diffDown += yieldNominal*systErrDown;
                 }
-		
+                
                 // ShapeFactor have to get NP per bin
-		// get the shape factor name without bin index
- 		int posTmp = systName.find("_bin_");
-		if(posTmp != std::string::npos){
-		  systNameSF = systName.substr(0, posTmp);
-		  // get the shape factor bin as integer
-		  iBinSF = std::atoi(systName.substr(posTmp + 5).c_str()) + 1;
-		  // FIXME could still be a problem with pruning?
-		  if(fSampleHists[i]->HasShapeFactor(systNameSF) && iBinSF == i_bin){
-		    diffUp   += yieldNominal*systErrUp;
-		    diffDown += yieldNominal*systErrDown;
-		  }
-		}
-		
-		  //
+                // get the shape factor name without bin index
+                int posTmp = systName.find("_bin_");
+                if(posTmp != std::string::npos){
+                  systNameSF = systName.substr(0, posTmp);
+                  // get the shape factor bin as integer
+                  iBinSF = std::atoi(systName.substr(posTmp + 5).c_str()) + 1;
+                  // FIXME could still be a problem with pruning?
+                  if(fSampleHists[i]->HasShapeFactor(systNameSF) && iBinSF == i_bin){
+                    diffUp   += yieldNominal*systErrUp;
+                    diffDown += yieldNominal*systErrDown;
+                  }
+                }
+                
+                //
                 // Systematics treatment 
                 //
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
@@ -803,6 +823,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
                 if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
                 // skip signal if Bkg only
                 if(fFitType==TtHFit::BONLY && fSampleHists[i]->fSample->fType==Sample::SIGNAL) continue;
                 // get SystematicHist
@@ -903,6 +924,12 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
+
+    if(fBinLabels.size() and fBinLabels.size()==fNbins) {
+      for(int i_bin=0; i_bin<fNbins; i_bin++) {
+        p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
+      }
+    }
     
     //
     // 0) Create a new hist for each sample

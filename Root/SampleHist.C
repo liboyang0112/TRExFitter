@@ -157,6 +157,11 @@ SystematicHist* SampleHist::AddStatSyst(string name, int i_bin) {
 //_____________________________________________________________________________
 //
 SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
+  
+    // before doing anything else, check if the sampleHist can be created
+    if(h_up  ==0x0) return 0x0;
+    if(h_down==0x0) return 0x0;
+  
     SystematicHist *syh;
     // try if it's already there...
     syh = GetSystematic(name);
@@ -186,6 +191,13 @@ SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
 //_____________________________________________________________________________
 //
 SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down, int pruned/*1: norm only, 2: shape only*/){
+  
+    // before doing anything else, check if the sampleHist can be created
+    TH1* hUp   = HistFromFile(fileName_up,  histoName_up);
+    TH1* hDown = HistFromFile(fileName_down,histoName_down);
+    if(hUp  ==0x0) return 0x0;
+    if(hDown==0x0) return 0x0;
+    
     SystematicHist *sh;
     // try if it's already there...
     sh = GetSystematic(name);
@@ -207,6 +219,8 @@ SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string
     sh->fHistDown = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown);
     sh->fHistUp_orig   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp  +"_orig");
     sh->fHistDown_orig = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig");
+    if(sh->fHistUp   == 0x0) return 0x0;
+    if(sh->fHistDown == 0x0) return 0x0;
     if(sh->fHistUp_orig  ==0x0) sh->fHistUp_orig   = (TH1F*)sh->fHistUp->Clone(  Form("%s_orig",sh->fHistUp->GetName()  ));
     if(sh->fHistDown_orig==0x0) sh->fHistDown_orig = (TH1F*)sh->fHistDown->Clone(Form("%s_orig",sh->fHistDown->GetName()));
     //
@@ -363,6 +377,27 @@ void SampleHist::WriteToFile(TFile *f){
     fHist_regBin = HistoTools::TranformHistogramBinning(fHist);
     if(fHist_regBin!=0x0) WriteHistToFile(fHist_regBin,f);
     //
+    // save separate gammas as histograms
+    if(fSample->fSeparateGammas){
+        TH1 *htempUp   = (TH1*)fHist->Clone();
+        TH1 *htempDown = (TH1*)fHist->Clone();
+        for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+            htempUp  ->AddBinContent(i_bin, 1.*fHist->GetBinError(i_bin));
+            htempDown->AddBinContent(i_bin,-1.*fHist->GetBinError(i_bin));
+        }
+        std::string systName = "stat_"+fSample->fName;
+        Systematic *gamma = 0x0;
+        if(GetSystematic(systName)) gamma = GetSystematic(systName)->fSystematic;  //GetSystematic(systName);
+        if(gamma==0x0) gamma = new Systematic(systName,Systematic::SHAPE);
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "adding separate gammas as SHAPE systematic " << systName << std::endl;
+        gamma->fRegions.clear();
+        gamma->fRegions.push_back(fRegionName);
+        SystematicHist *syh = AddHistoSyst(systName,htempUp,htempDown);
+        gamma->fNuisanceParameter = gamma->fName;
+        TtHFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
+        syh->fSystematic = gamma;
+    }
+    //
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         // make sure they all have the correct name!
         fSyst[i_syst]->fHistUp  ->SetName( Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
@@ -377,6 +412,11 @@ void SampleHist::WriteToFile(TFile *f){
               (TH1*)fSyst[i_syst]->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()))
             );
             hVar->Add(fHist_regBin,-1);
+            hVar->Divide(fHist_regBin);
+            // no negative bins here!
+            for(int i_bin=1;i_bin<=hVar->GetNbinsX();i_bin++){
+                if(hVar->GetBinContent(i_bin)<0) hVar->SetBinContent(i_bin,-1.*hVar->GetBinContent(i_bin));
+            }
             if(f==0x0) WriteHistToFile(hVar,fFileName);
             else       WriteHistToFile(hVar,f);
         }
@@ -400,6 +440,9 @@ void SampleHist::FixEmptyBins(){
     vector<float> yieldDown;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         SystematicHist* syh = fSyst[i_syst];
+        if(syh==0x0) continue;
+        if(syh->fHistUp  ==0x0) continue;
+        if(syh->fHistDown==0x0) continue;
         yieldUp.push_back(syh->fHistUp->Integral());
         yieldDown.push_back(syh->fHistDown->Integral());
     }
@@ -791,6 +834,10 @@ void SampleHist::SmoothSyst(string syst,bool force){
 
         if(syst!="all" && fSyst[i_syst]->fName.find(syst)==string::npos) continue;
 
+        if(fSyst[i_syst]->fHistUp  ==0x0) continue;
+        if(fSyst[i_syst]->fHistDown==0x0) continue;
+        if(fSyst[i_syst]->fSystematic==0x0) continue;
+        
         h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
         // h_syst_up = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
