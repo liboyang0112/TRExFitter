@@ -1746,6 +1746,14 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 }
             }
         }
+        // a new way of defining systematics, just comparing directly with GHOST samples
+        // --> this can be used only if this systematic is applied to a single sample
+        param = cs->Get("SampleUp"); if(param!="")   {
+            sys->fSampleUp = param;
+        }
+        param = cs->Get("SampleDown"); if(param!="")   {
+            sys->fSampleDown = param;
+        }
 //         if(cs->Get("ScaleUp")  !="") sys->fScaleUp     = atof( cs->Get("ScaleUp")  .c_str() );
 //         if(cs->Get("ScaleDown")!="") sys->fScaleDown   = atof( cs->Get("ScaleDown").c_str() );
         // this to obtain syst variation relatively to given sample
@@ -2815,6 +2823,7 @@ void TtHFit::CorrectHistograms(){
                 //
                 // get the original syst histograms & reset the syst histograms
                 SystematicHist *syh = sh->GetSystematic( syst->fName );
+                //
                 if(syh==0x0) continue;
                 TH1* hUp_orig   = syh->fHistUp_orig;
                 TH1* hDown_orig = syh->fHistDown_orig;
@@ -2835,13 +2844,11 @@ void TtHFit::CorrectHistograms(){
 
             // ---> NEED TO MOVE TO READNTUPLES? -- FIXME
             // Subtraction / Addition of sample
-//             if(fSamples[i_smp]->fSubtractSample!=""){
             for(auto sample : fSamples[i_smp]->fSubtractSamples){
                 std::cout << "INFO: subtracting sample " << sample << std::endl;
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(sample);
                 sh->Add(smph0,-1);
             }
-//             if(fSamples[i_smp]->fAddSample!=""){
             for(auto sample : fSamples[i_smp]->fAddSamples){
                 std::cout << "INFO: adding sample " << sample << std::endl;
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(sample);
@@ -2859,6 +2866,28 @@ void TtHFit::CorrectHistograms(){
                 sh->Divide(smph0);
             }
 
+            //
+            // For SampleUp / SampleDown
+            for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
+                Systematic * syst = smp->fSystematics[i_syst];
+                //
+                // eventually skip systematic / region combination
+                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
+                //
+                // get the original syst histograms & reset the syst histograms
+                SystematicHist *syh = sh->GetSystematic( syst->fName );
+                //
+                // if syst defined with SampleUp / SampleDown
+                if( syst->fSampleUp != "" || syst->fSampleDown != "" ){
+                    TH1 *h_up   = syst->fSampleUp  !="" ? reg->GetSampleHist(syst->fSampleUp)  ->fHist : sh->fHist;
+                    TH1 *h_down = syst->fSampleDown!="" ? reg->GetSampleHist(syst->fSampleDown)->fHist : sh->fHist;
+                    syh = sh->AddHistoSyst(syst->fName,h_up,h_down);
+                    syh->fSystematic = syst;
+                }
+            }
+            
             //
             // Fix empty bins
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
