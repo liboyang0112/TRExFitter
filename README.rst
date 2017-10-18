@@ -305,6 +305,8 @@ Note that, each object should have unique <ObjectName>.
      * NtupleName(s)Down   : only for option NTUP, for HISTO or SHAPE systematic: ntuple name(s) for systematic down variation
      * NtupleNameSufUp     : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic up variation
      * NtupleNameSufDown   : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic down variation
+     * SampleUp            : if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only
+     * SampleDown          : if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only
      * WeightUp            : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic up variation
      * WeightDown          : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic down variation
      * WeightSufUp         : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation

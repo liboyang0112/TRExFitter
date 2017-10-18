@@ -1,3 +1,6 @@
+2017-10-18 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Added systematic options SampleUp, SampleDown
+
 2017-10-09 Loic Valery <lvalery@cern.ch>
     * Adding BinnedLikelihood property to runAsymptotics and runSig
 
