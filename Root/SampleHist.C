@@ -1123,7 +1123,6 @@ void SampleHist::Add(SampleHist *sh,float scale){
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         string systName = fSyst[i_syst]->fName;
-        cout << systName << endl;
         SystematicHist *syh = sh->GetSystematic( systName );
         if(syh==0x0){
             fSyst[i_syst]->Add( sh->fHist, scale );
@@ -1136,7 +1135,6 @@ void SampleHist::Add(SampleHist *sh,float scale){
     // if so, add a new SystematicHist
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         string systName = sh->fSyst[i_syst]->fName;
-        cout << " " << systName << endl;
         SystematicHist *syh = GetSystematic( systName );
         if(syh==0x0){
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );

@@ -96,6 +96,11 @@ public:
     string fHistoFileSufDown;
     std::vector<string> fHistoNamesDown;
     string fHistoNameSufDown;
+    
+    //
+    std::string fSampleUp;
+    std::string fSampleDown;
+
 };
 
 #endif
