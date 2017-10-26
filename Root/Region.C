@@ -1706,8 +1706,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
 
 float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
     // protection against negative values
-    //   if(Ip<0)  Ip  = 0.00001*Iz;
-    //   if(Imi<0) Imi = 0.00001*Iz;
+    if(Ip<0)  Ip  = 0.00001*Iz;
+    if(Imi<0) Imi = 0.00001*Iz;
     
     float deltaN = 0.;
     if(alpha>0)      deltaN = Ip;
