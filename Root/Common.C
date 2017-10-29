@@ -478,3 +478,15 @@ float CorrectIntegral(TH1* h,float *err){
     if(err!=0) *err = sqrt(error);
     return integral;
 }
+
+void CloseFiles( const std::set < std::string> &files_names ){
+    for( const auto &fullName : files_names ){
+        std::string file = fullName.substr(0,fullName.find_last_of(".")+5);
+        auto it = TtHFitter::TFILEMAP.find(file);
+        if(it != TtHFitter::TFILEMAP.end()){
+            //the file exists. Let's close it, and delete the pointer
+            it->second->Close();
+            TtHFitter::TFILEMAP.erase(file);
+        }
+    }
+}

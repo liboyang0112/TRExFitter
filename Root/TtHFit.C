@@ -3332,6 +3332,7 @@ void TtHFit::ReadHistograms(){
         }
 
         // then we can read the other samples
+        std::set < std::string > files_names;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if(fSamples[i_smp]->fType==Sample::DATA) continue;
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Reading " << fSamples[i_smp]->fName << std::endl;
@@ -3360,6 +3361,7 @@ void TtHFit::ReadHistograms(){
             htmp = 0x0;
             h = 0x0;
             for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                files_names.insert(fullPaths[i_path]);
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                 //Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[i_ch]->fHistoBins){
@@ -3386,6 +3388,7 @@ void TtHFit::ReadHistograms(){
             //
             // Save the original histogram
             TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
+
             //
             // Importing the histogram in TtHFitter
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
@@ -3491,6 +3494,7 @@ void TtHFit::ReadHistograms(){
                                                 ToVec( syst->fHistoNameSufUp )
                                                 );
                     for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                        files_names.insert(fullPaths[i_path]);
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
@@ -3580,6 +3584,7 @@ void TtHFit::ReadHistograms(){
                                                 ToVec( syst->fHistoNameSufDown )
                                                 );
                     for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                        files_names.insert(fullPaths[i_path]);
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
@@ -3655,6 +3660,9 @@ void TtHFit::ReadHistograms(){
                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName]!=0)
                         syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName];
             }
+            //closing the files for this sample
+            CloseFiles( files_names );
+            files_names.clear();
         }
     }
     delete htmp;

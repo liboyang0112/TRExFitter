@@ -22,6 +22,7 @@
 
 void FitExample(string opt="h",string configFile="util/myFit.config",string options=""){
     SetAtlasStyle();
+    TH1::AddDirectory(kFALSE);
     
     RooStats::UseNLLOffset(true);
     

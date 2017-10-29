@@ -7,6 +7,7 @@
 #include <vector>
 #include <utility>
 #include <map>
+#include <set>
 
 // ROOT stuff
 #include "TArrow.h"
@@ -118,5 +119,7 @@ bool SmoothHistogram( TH1* h, int forceFlat=-1, float nsigma=2. ); // forceFlat:
 TH1* DropBins(TH1* h,std::vector<int> v);
 
 float CorrectIntegral(TH1* h,float *err=0);
+
+void CloseFiles( const std::set<std::string> &set);
 
 #endif
