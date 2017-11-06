@@ -22,7 +22,6 @@
 
 void FitExample(string opt="h",string configFile="util/myFit.config",string options=""){
     SetAtlasStyle();
-    TH1::AddDirectory(kFALSE);
     
     RooStats::UseNLLOffset(true);
     
@@ -39,8 +38,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     bool drawPostFit     = opt.find("p")!=string::npos;
     bool drawSeparation  = opt.find("a")!=string::npos;
     
-    if(!readHistograms && !readNtuples && !rebinAndSmooth)
+    if(!readNtuples && !rebinAndSmooth){
         TH1::AddDirectory(kFALSE); // FIXME: it would be nice to have a solution which works always
+    }
     
     // multi-fit
     bool isMultiFit      = opt.find("m")!=string::npos;
