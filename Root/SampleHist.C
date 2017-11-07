@@ -842,7 +842,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
 
 //_____________________________________________________________________________
 //
-void SampleHist::SmoothSyst(string syst,bool force){
+void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
     if(fSystSmoothed && !force) return;
     TH1* h_nominal = (TH1*)fHist->Clone("h_nominal");
     TH1* h_syst_up;
@@ -915,8 +915,7 @@ void SampleHist::SmoothSyst(string syst,bool force){
                                             h_nominal,//nominal histogram
                                             fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown,//original histograms
                                             h_syst_up, h_syst_down, //modified histograms
-//                                             fSyst[i_syst]->fSystematic->fScaleUp,fSyst[i_syst]->fSystematic->fScaleDown // scale factors
-                                            fSyst[i_syst]->fScaleUp,fSyst[i_syst]->fScaleDown // scale factors
+                                            TtresSmoothing // alternative smoothing
                                          );
         }
         // 

@@ -43,7 +43,7 @@ public:
   
   void Rebin(int ngroup = 2, const Double_t* xbins = 0);
   void DrawSystPlot( const string &syst="all", TH1* h_data=0x0, bool SumAndData=false, bool bothPanels=false );
-  void SmoothSyst(string syst="all",bool force=false);
+  void SmoothSyst(string syst="all",bool force=false, bool TtresSmoothing = false);
   
   void Divide(  SampleHist* sh);
   void Multiply(SampleHist* sh);

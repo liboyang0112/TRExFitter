@@ -1,4 +1,5 @@
 #include "TtHFitter/Common.h"
+#include "TtHFitter/HistoTools.h"
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -386,6 +387,42 @@ double convertStoD(string toConvert){
     exit(1);
   }
   return converted;
+}
+
+struct BinNom {
+  double N;
+  double dN2;
+  double edge;
+  BinNom(double _N, double _dN2, double _edge) { N = _N; dN2 = _dN2; edge = _edge; }
+};
+
+bool systFluctuationNominal(std::vector<BinNom> &hist) {
+  auto dM = [](const BinNom &b) { return sqrt(b.dN2); };
+  auto dMoverN = [dM](const BinNom &b) {
+    double N = b.N;
+    if (N == 0) N = 1e-16;
+    return dM(b)/N;
+  };
+  auto N = [](const BinNom &b) {
+    return b.N;
+  };
+  int Nbins = hist.size();
+  for (int k = 1; k < Nbins; ++k) {
+    double variation_prev = fabs(N(hist[k]) - N(hist[k-1]));
+    double err = max(dM(hist[k]), dM(hist[k-1]));
+    if (variation_prev < err) return true;
+  }
+  return false;
+}
+
+bool SmoothHistogramTtres( TH1* h) {
+  double origIntegral = h->Integral();
+
+  h->Smooth(2);
+
+  if(h->Integral()!=0){
+    h->Scale(origIntegral/h->Integral());
+  }
 }
 
 //__________________________________________________________________________________

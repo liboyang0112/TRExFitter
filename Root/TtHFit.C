@@ -28,6 +28,7 @@ using namespace RooFit;
 //__________________________________________________________________________________
 //
 TtHFit::TtHFit(string name){
+    fTtresSmoothing = false;
     fDir = "";
     fName = name;
     fInputName = name;
@@ -335,7 +336,7 @@ void TtHFit::SmoothSystematics(string syst){
 //             if(fRegions[i_ch]->fSampleHists[i_smp]->fSample!=0x0){
 //                 if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::DATA) continue;
 //             }
-            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(syst);
+            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(syst, false, fTtresSmoothing);
         }
     }
 }
@@ -666,6 +667,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         std::cout << "\033[1;33m<!> WARNING: \"LumiScale\" is only done for quick tests since it is inefficient. To normalize all the samples to the luminosity, use \"Lumi\" instead.\033[0m" << std::endl;
         fLumiScale = atof(param.c_str());
     }
+    param = cs->Get("TtresSmoothing");    if( param != "")  if( param == "true" || param == "True" ||  param == "TRUE" ) fTtresSmoothing         = true;
     param = cs->Get("SystPruningShape");  if( param != "")  fThresholdSystPruning_Shape         = atof(param.c_str());
     param = cs->Get("SystPruningNorm");   if( param != "")  fThresholdSystPruning_Normalisation = atof(param.c_str());
     param = cs->Get("SystLarge");         if( param != "")  fThresholdSystLarge = atof(param.c_str());
@@ -2902,7 +2904,12 @@ void TtHFit::CorrectHistograms(){
 //                 h_correction = SmoothHistogram( h );
                 h_correction = (TH1*)h->Clone( Form("%s_corr",h->GetName()) );
                 TH1* h0 = (TH1*)h->Clone( Form("%s_orig0",h->GetName()) );
-                isFlat = SmoothHistogram( h );
+		if (fTtresSmoothing) {
+                  isFlat = false;
+		  SmoothHistogramTtres( h );
+		} else {
+                  isFlat = SmoothHistogram( h );
+		}
                 h_correction->Divide( h0 );
             }
 
