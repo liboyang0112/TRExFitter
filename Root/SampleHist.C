@@ -915,6 +915,7 @@ void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
                                             h_nominal,//nominal histogram
                                             fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown,//original histograms
                                             h_syst_up, h_syst_down, //modified histograms
+                                            fSyst[i_syst]->fScaleUp,fSyst[i_syst]->fScaleDown, // scale factors
                                             TtresSmoothing // alternative smoothing
                                          );
         }
