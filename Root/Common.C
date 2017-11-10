@@ -1,4 +1,5 @@
 #include "TtHFitter/Common.h"
+#include "TtHFitter/HistoTools.h"
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -388,6 +389,42 @@ double convertStoD(string toConvert){
   return converted;
 }
 
+struct BinNom {
+  double N;
+  double dN2;
+  double edge;
+  BinNom(double _N, double _dN2, double _edge) { N = _N; dN2 = _dN2; edge = _edge; }
+};
+
+bool systFluctuationNominal(std::vector<BinNom> &hist) {
+  auto dM = [](const BinNom &b) { return sqrt(b.dN2); };
+  auto dMoverN = [dM](const BinNom &b) {
+    double N = b.N;
+    if (N == 0) N = 1e-16;
+    return dM(b)/N;
+  };
+  auto N = [](const BinNom &b) {
+    return b.N;
+  };
+  int Nbins = hist.size();
+  for (int k = 1; k < Nbins; ++k) {
+    double variation_prev = fabs(N(hist[k]) - N(hist[k-1]));
+    double err = max(dM(hist[k]), dM(hist[k-1]));
+    if (variation_prev < err) return true;
+  }
+  return false;
+}
+
+bool SmoothHistogramTtres( TH1* h) {
+  double origIntegral = h->Integral();
+
+  h->Smooth(2);
+
+  if(h->Integral()!=0){
+    h->Scale(origIntegral/h->Integral());
+  }
+}
+
 //__________________________________________________________________________________
 // to smooth a nominal histogram, taking into account the statistical uncertinaty on each bin (note: no empty bins, please!!)
 bool SmoothHistogram( TH1* h, int forceFlat, float nsigma ){
@@ -477,4 +514,16 @@ float CorrectIntegral(TH1* h,float *err){
     }
     if(err!=0) *err = sqrt(error);
     return integral;
+}
+
+void CloseFiles( const std::set < std::string> &files_names ){
+    for( const auto &fullName : files_names ){
+        std::string file = fullName.substr(0,fullName.find_last_of(".")+5);
+        auto it = TtHFitter::TFILEMAP.find(file);
+        if(it != TtHFitter::TFILEMAP.end()){
+            //the file exists. Let's close it, and delete the pointer
+            it->second->Close();
+            TtHFitter::TFILEMAP.erase(file);
+        }
+    }
 }

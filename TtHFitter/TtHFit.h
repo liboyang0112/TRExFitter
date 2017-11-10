@@ -286,6 +286,8 @@ public:
     
     bool fGetGoodnessOfFit;
     int fGetChi2;
+
+    bool fTtresSmoothing;
 };
 
 #endif

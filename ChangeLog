@@ -1,3 +1,7 @@
+2017-10-29 - Loic Valery <lvalery@cern.ch>
+    * Fix issue for systematics leading to > 100% change (in Region.C)
+    * Fix mem leak when reading histograms
+
 2017-10-18 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Added systematic options SampleUp, SampleDown
 
