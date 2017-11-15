@@ -1,6 +1,8 @@
 #ifndef __Region__
 #define __Region__
 
+#include <map>
+
 #include "TFile.h"
 #include "TH1.h"
 #include "THStack.h"
@@ -223,6 +225,8 @@ public:
 
 // for post-fit plots
 float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode=4);
+std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_errUp, float alpha_errDown, float Iz, float Ip, float Imi, int intCode);
+
 
 // To build the total error band
 TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > systNames, CorrelationMatrix *matrix=0x0 );
