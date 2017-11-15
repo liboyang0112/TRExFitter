@@ -499,12 +499,16 @@ void SampleHist::FixEmptyBins(){
             }
             // set nominal to 10^-6
             fHist->SetBinContent(i_bin,1e-6);
-            // if error defined, use it
-            if(error>0)        fHist -> SetBinError(i_bin, error);
-            // if not, if there was at least one bin with meaningful error, use the smallest
-            else if(minStat>0) fHist -> SetBinError(i_bin, minStat);
-            // if not, give up and assign a meaningless error ;)
-            else               fHist -> SetBinError(i_bin, 1e-06);
+            if(!TtHFitter::GUESSMCSTATERROR){
+                fHist -> SetBinError(i_bin, 1e-06);
+            } else {
+                // if error defined, use it
+                if(error>0)        fHist -> SetBinError(i_bin, error);
+                // if not, if there was at least one bin with meaningful error, use the smallest
+                else if(minStat>0) fHist -> SetBinError(i_bin, minStat);
+                // if not, give up and assign a meaningless error ;)
+                else               fHist -> SetBinError(i_bin, 1e-06);
+            }
             // loop on systematics and set them accordingly
             for(int i_syst=0;i_syst<fNSyst;i_syst++){
                 SystematicHist* syh = fSyst[i_syst];

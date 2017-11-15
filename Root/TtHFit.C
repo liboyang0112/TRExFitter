@@ -736,6 +736,13 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             TtHFitter::SYSTERRORBARS = true;
         }
     }
+    param = cs->Get("GuessMCStatEmptyBins");  if( param != ""){
+        if( param == "true" || param == "True" ||  param == "TRUE" ){
+            TtHFitter::GUESSMCSTATERROR = true;
+        } else {
+            TtHFitter::GUESSMCSTATERROR = false;
+        }
+    }
     param = cs->Get("CorrelationThreshold"); if( param != ""){
         TtHFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
     }
