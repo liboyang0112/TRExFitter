@@ -179,12 +179,12 @@ SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
     syh->fHistShapeUp   = (TH1*)h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
     syh->fHistShapeDown = (TH1*)h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
     if(syh->fHistShapeUp  ->Integral() > 0. ){
-        syh->fHistShapeUp  -> Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());
+    syh->fHistShapeUp  ->Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());
     } else {
         syh->fHistShapeUp  -> Scale(0.);
     }
     if(syh->fHistShapeDown  ->Integral() > 0. ){
-        syh->fHistShapeDown -> Scale(fHist->Integral() / syh->fHistShapeDown->Integral());
+    syh->fHistShapeDown->Scale(fHist->Integral() / syh->fHistShapeDown->Integral());
     } else {
         syh->fHistShapeDown  ->Scale(0.);
     }
@@ -240,13 +240,13 @@ SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string
         sh->fHistShapeUp   = (TH1*)sh->fHistUp  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
         sh->fHistShapeDown = (TH1*)sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
         if(sh->fHistShapeUp  ->Integral() > 0. ){
-            sh->fHistShapeUp  -> Scale(fHist->Integral() / sh->fHistShapeUp  ->Integral());
+        sh->fHistShapeUp  ->Scale(fHist->Integral() / sh->fHistShapeUp  ->Integral());
         } else {
             sh->fHistShapeUp  -> Scale(0.);
         }
 
         if(sh->fHistShapeDown  ->Integral() > 0. ){
-            sh->fHistShapeDown -> Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
+        sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
         } else {
             sh->fHistShapeDown  ->Scale(0.);
         }
@@ -331,6 +331,16 @@ ShapeFactor* SampleHist::AddShapeFactor(string name,float nominal, float min, fl
 SystematicHist* SampleHist::GetSystematic(string systName){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(systName == fSyst[i_syst]->fName) return fSyst[i_syst];
+    }
+    return 0x0;
+}
+
+
+
+//
+SystematicHist* SampleHist::GetSystFromNP(string NuisParName){
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(NuisParName == fSyst[i_syst]->fSystematic->fNuisanceParameter) return fSyst[i_syst];
     }
     return 0x0;
 }
@@ -976,13 +986,13 @@ void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
             fSyst[i_syst]->fHistShapeUp   = (TH1*)h_syst_up  ->Clone(fSyst[i_syst]->fHistShapeUp  ->GetName());
             fSyst[i_syst]->fHistShapeDown = (TH1*)h_syst_down->Clone(fSyst[i_syst]->fHistShapeDown->GetName());
             if(fSyst[i_syst]->fHistShapeUp  ->Integral()>0){
-                fSyst[i_syst]->fHistShapeUp  ->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeUp  ->Integral());
+            fSyst[i_syst]->fHistShapeUp  ->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeUp  ->Integral());
             } else {
                 fSyst[i_syst]->fHistShapeUp  ->Scale(0.);
             }
 
             if(fSyst[i_syst]->fHistShapeDown->Integral() > 0.){
-                fSyst[i_syst]->fHistShapeDown->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeDown->Integral());
+            fSyst[i_syst]->fHistShapeDown->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeDown->Integral());
             } else {
                 fSyst[i_syst]->fHistShapeDown->Scale(0.);
             }
@@ -1065,21 +1075,32 @@ void SampleHist::Divide(SampleHist *sh){
     fHist->Divide( sh->fHist );
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(!fSample->fUseSystematics) break;
         string systName = fSyst[i_syst]->fName;
-        SystematicHist *syh = sh->GetSystematic( systName );
+//        SystematicHist *syh = sh->GetSystematic( systName );
+        string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){
             fSyst[i_syst]->Divide( sh->fHist );
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " not present in  "<< sh->fName;
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Using its nominal. " << std::endl;
         }
         else{
             fSyst[i_syst]->Divide( syh );
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " present in  "<< sh->fName;
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Properly computing with that. " << std::endl;
         }
     }
     // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
-    for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+        if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
-        SystematicHist *syh = GetSystematic( systName );
+//        SystematicHist *syh = GetSystematic( systName );
+        string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==0x0){
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Adding syst "<< systName << " to sample "<< fName << std::endl;
             TH1* hUp   = (TH1*)fHist->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)fHist->Clone("h_tmp_down");
             hUp  ->Divide(   sh->fHist );
@@ -1100,7 +1121,7 @@ void SampleHist::Divide(SampleHist *sh){
             delete hUp;
             delete hDown;
         }
-    }
+      }
     delete hOrig;
 }
 
@@ -1111,21 +1132,32 @@ void SampleHist::Multiply(SampleHist *sh){
     fHist->Multiply( sh->fHist );
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(!fSample->fUseSystematics) break;
         string systName = fSyst[i_syst]->fName;
-        SystematicHist *syh = sh->GetSystematic( systName );
+//        SystematicHist *syh = sh->GetSystematic( systName );
+        string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){
             fSyst[i_syst]->Multiply( sh->fHist );
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " not present in  "<< sh->fName;
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Using its nominal. " << std::endl;
         }
         else{
             fSyst[i_syst]->Multiply( syh );
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " present in  "<< sh->fName;
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Properly computing with that. " << std::endl;
         }
     }
     // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
-    for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+        if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
-        SystematicHist *syh = GetSystematic( systName );
+//        SystematicHist *syh = GetSystematic( systName );
+        string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==0x0){
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Adding syst "<< systName << " to sample "<< fName << std::endl;
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp   );
@@ -1138,7 +1170,7 @@ void SampleHist::Multiply(SampleHist *sh){
             delete hUp;
             delete hDown;
         }
-    }
+      }
     delete hOrig;
 }
 
@@ -1149,21 +1181,32 @@ void SampleHist::Add(SampleHist *sh,float scale){
     fHist->Add( sh->fHist, scale );
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(!fSample->fUseSystematics) break;
         string systName = fSyst[i_syst]->fName;
-        SystematicHist *syh = sh->GetSystematic( systName );
+//        SystematicHist *syh = sh->GetSystematic( systName );
+        string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){
             fSyst[i_syst]->Add( sh->fHist, scale );
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " not present in  "<< sh->fName;
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Using its nominal. " << std::endl;
         }
         else{
             fSyst[i_syst]->Add( syh, scale );
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " present in  "<< sh->fName;
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Properly computing with that. " << std::endl;
         }
     }
     // loop on all the systematics the the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
-    for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+        if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
-        SystematicHist *syh = GetSystematic( systName );
+//        SystematicHist *syh = GetSystematic( systName );
+        string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==0x0){
+            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Adding syst "<< systName << " to sample "<< fName << std::endl;
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
             hUp  ->Add( sh->fSyst[i_syst]->fHistUp  ,scale );
@@ -1176,6 +1219,6 @@ void SampleHist::Add(SampleHist *sh,float scale){
             delete hUp;
             delete hDown;
         }
-    }
+      }
     delete hOrig;
 }

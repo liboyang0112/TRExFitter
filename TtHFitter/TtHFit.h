@@ -180,6 +180,7 @@ public:
     bool fUseStatErr;
     float fStatErrThres;
     string fStatErrCons;
+    bool fUseGammaPulls;
     
     float fLumi;
     float fLumiScale;

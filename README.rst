@@ -167,6 +167,7 @@ Note that, each object should have unique <ObjectName>.
      * RandomPOISeed    : if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated statrging from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number)
      * GetChi2          : if set to TRUE (or STAT+SYST), for pre- and post-fit plots the extended chi2 test is done, and results are printed on the screen for each plot when running d and/or p; can be set to STAT (or STAT-ONLY) for stat-only chi2
      * TtresSmoothing   : if set to TRUE, the systematic uncertainty smoothing will use the ttbar resonances convention for the smoothing. The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal or 400 to treat it as uncorrelated with the nominal.
+     * UseGammaPulls    : if set to TRUE, the fit results in terms of gamma parameter pulls, constraints and correlations are propagated to the post-fit plots, when possible (i.e. not for validation plots of course)
      
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -207,7 +208,7 @@ Note that, each object should have unique <ObjectName>.
      * Selection        : only for option NTUP, the selection done on the ntuple for this region
      * NtupleName       : only for option NTUP, the name of the tree for this region
      * NtuplePathSuff(s): only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region
-     * MCweight         : only for option NTUP, the additional weight sed in this region (for MC samples only)
+     * MCweight         : only for option NTUP, the additional weight used in this region (for MC samples only)
      * Rebin            : if specified, the histograms will be rebinned merging N bins together, where N is the argument (int)
      * Binning          : if specified, the histograms will be rebinned according to the new binning specifed, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions ro define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning.
      * BinWidth         : if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number

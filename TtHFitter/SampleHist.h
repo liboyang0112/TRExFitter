@@ -23,6 +23,7 @@ public:
   SystematicHist* AddHistoSyst(string name,TH1* h_up,TH1* h_down);
   SystematicHist* AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down, int pruned=0);
   SystematicHist* GetSystematic(string systName);
+  SystematicHist* GetSystFromNP(string NuisParName);
   NormFactor* AddNormFactor(string name,float nominal, float min, float max);
   NormFactor* AddNormFactor(NormFactor *normFactor);
   NormFactor* GetNormFactor(string name);

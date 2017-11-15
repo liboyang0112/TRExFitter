@@ -43,6 +43,7 @@ TtHFit::TtHFit(string name){
     fPOI = "";
     fUseStatErr = false;
     fStatErrThres = 0.05;
+    fUseGammaPulls = false;
 
     fLumi = 1.;
     fLumiErr = 0.000001;
@@ -680,7 +681,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     else{
         SetStatErrorConfig( true, 0. );
     }
-    param = cs->Get("MCstatConstraint");  if( param != "")  fStatErrCons = param;
+    param = cs->Get("MCstatConstraint");  if( param != "")  fStatErrCons   = param;
+    param = cs->Get("UseGammaPulls");     if( param != "")  fUseGammaPulls = param!="FALSE";
     param = cs->Get("DebugLevel");        if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
     param = cs->Get("PlotOptions");       if( param != ""){
         vec = Vectorize(param,',');
@@ -691,6 +693,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TtHFitter::LEGENDLEFT     = true;
         if( std::find(vec.begin(), vec.end(), "CHI2")   !=vec.end() )  TtHFitter::SHOWCHI2       = true;
         if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
+        if( std::find(vec.begin(), vec.end(), "POISSONIZE")        !=vec.end() )  TtHFitter::POISSONIZE     = true;
         // ...
     }
     param = cs->Get("PlotOptionsSummary");       if( param != ""){
@@ -1158,6 +1161,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             if( param=="VALIDATION" )  reg -> SetRegionType(Region::VALIDATION);
             if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
         }
+        if(reg -> fRegionType != Region::VALIDATION) reg->fUseGammaPulls = fUseGammaPulls;
         if(cs->Get("DataType")!=""){
             param = cs->Get("DataType");
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -2562,11 +2566,13 @@ void TtHFit::ReadNtuples(){
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
-                        ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
-                        ReplaceString(fullMCweight,"*  *","*");
-                        ReplaceString(fullMCweight,"* *","*");
-                        ReplaceString(fullMCweight,"**","*");
+                        fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
+                        fullMCweight=ReplaceString(fullMCweight,"*  *","*");
+                        fullMCweight=ReplaceString(fullMCweight,"* *","*");
+                        fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
+                    if(syst->fWeightSufUp!="")
+                        fullMCweight += " * "+syst->fWeightSufUp;
                     if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Syst Up full weight: " << fullMCweight << std::endl;
                     //
                     fullPaths.clear();
@@ -2676,11 +2682,13 @@ void TtHFit::ReadNtuples(){
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
-                        ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
-                        ReplaceString(fullMCweight,"*  *","*");
-                        ReplaceString(fullMCweight,"* *","*");
-                        ReplaceString(fullMCweight,"**","*");
+                        fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
+                        fullMCweight=ReplaceString(fullMCweight,"*  *","*");
+                        fullMCweight=ReplaceString(fullMCweight,"* *","*");
+                        fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
+                    if(syst->fWeightSufDown!="")
+                        fullMCweight += " * "+syst->fWeightSufDown;
                     //
                     fullPaths.clear();
                     vector<string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDown ), reg->fNtupleNameSuffs );
@@ -2847,25 +2855,25 @@ void TtHFit::CorrectHistograms(){
             // ---> NEED TO MOVE TO READNTUPLES? -- FIXME
             // Subtraction / Addition of sample
             for(auto sample : fSamples[i_smp]->fSubtractSamples){
-                std::cout << "INFO: subtracting sample " << sample << std::endl;
+                std::cout << "INFO: subtracting sample " << sample << " from sample "<< fSamples[i_smp]->fName << std::endl;
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(sample);
-                sh->Add(smph0,-1);
+                if(smph0!=0x0) sh->Add(smph0,-1);
             }
             for(auto sample : fSamples[i_smp]->fAddSamples){
-                std::cout << "INFO: adding sample " << sample << std::endl;
+                std::cout << "INFO: adding sample " << sample << " to sample "<< fSamples[i_smp]->fName << std::endl;
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(sample);
-                sh->Add(smph0);
+                if(smph0!=0x0) sh->Add(smph0);
             }
             // Division & Multiplication by other samples
             if(fSamples[i_smp]->fMultiplyBy!=""){
-                std::cout << "INFO: multiplying by sample " << fSamples[i_smp]->fMultiplyBy << std::endl;
+                std::cout << "INFO: multiplying "<< fSamples[i_smp]->fName  << " by sample " << fSamples[i_smp]->fMultiplyBy << std::endl;
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fMultiplyBy);
-                sh->Multiply(smph0);
+                if(smph0!=0x0) sh->Multiply(smph0);
             }
             if(fSamples[i_smp]->fDivideBy!=""){
-                std::cout << "INFO: dividing by sample " << fSamples[i_smp]->fDivideBy << std::endl;
+                std::cout << "INFO: dividing "<< fSamples[i_smp]->fName  << "by sample " << fSamples[i_smp]->fDivideBy << " from sample "<< fSamples[i_smp]->fName << std::endl;
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
-                sh->Divide(smph0);
+                if(smph0!=0x0) sh->Divide(smph0);
             }
 
             //
@@ -2904,12 +2912,12 @@ void TtHFit::CorrectHistograms(){
 //                 h_correction = SmoothHistogram( h );
                 h_correction = (TH1*)h->Clone( Form("%s_corr",h->GetName()) );
                 TH1* h0 = (TH1*)h->Clone( Form("%s_orig0",h->GetName()) );
-		if (fTtresSmoothing) {
+                if (fTtresSmoothing) {
                   isFlat = false;
-		  SmoothHistogramTtres( h );
-		} else {
-                  isFlat = SmoothHistogram( h );
-		}
+                  SmoothHistogramTtres( h );
+                } else {
+                isFlat = SmoothHistogram( h );
+                }
                 h_correction->Divide( h0 );
             }
 
@@ -3089,6 +3097,24 @@ void TtHFit::CorrectHistograms(){
             Region *reg = fRegions[i_ch];
             if(reg->fData!=0x0){
                 if(reg->fData->fHist_orig!=0x0 && reg->fData->fHist!=0x0) reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
+            }
+        }
+    }
+    
+    // 
+    // Poissonize data
+    if(hasData && TtHFitter::OPTION["PoissonizeData"]!=0){
+        for(int i_ch=0;i_ch<fNRegions;i_ch++){
+            Region *reg = fRegions[i_ch];
+            if(reg->fData!=0x0){
+                if(reg->fData->fHist!=0x0){
+                    TH1 *hdata = reg->fData->fHist;
+                    if(TtHFitter::OPTION["PoissonizeData"]>0) gRandom->SetSeed(TtHFitter::OPTION["PoissonizeData"]);
+                    for(int i_bin=1;i_bin<=hdata->GetNbinsX();i_bin++){
+                        hdata->SetBinContent(i_bin,gRandom->Poisson( hdata->GetBinContent(i_bin) ));
+                        hdata->SetBinError(i_bin,sqrt(hdata->GetBinContent(i_bin)));
+                    }
+                }
             }
         }
     }
@@ -3395,7 +3421,6 @@ void TtHFit::ReadHistograms(){
             //
             // Save the original histogram
             TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
-
             //
             // Importing the histogram in TtHFitter
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
@@ -3706,6 +3731,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
     //
     // when we multply/divide by or subtract/add other samples, need to add systematics on the other samples
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
+        if(!fSamples[i_smp]->fUseSystematics) continue;
         if(fSamples[i_smp]->fDivideBy!=""){
             Sample* smp = GetSample(fSamples[i_smp]->fDivideBy);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
@@ -3881,6 +3907,10 @@ void TtHFit::ReadHistos(/*string fileName*/){
                                                Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                pruned
                                               );
+                        if(syh==0x0){
+                            if(TtHFitter::DEBUGLEVEL>0)  std::cout << "TtHFit::ReadHistos::WARNING: no syst histo found for syst " << systName << ", sample " << sampleName << ", region " << regionName << std::endl;
+                            continue;
+                        }
                     }
                 // for both
                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
@@ -3929,6 +3959,7 @@ void TtHFit::DrawAndSaveAll(string opt){
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
     bool isPostFit = opt.find("post")!=string::npos;
+    if(TtHFitter::POISSONIZE) opt += " poissonize";
     if(isPostFit){
         if(fFitResultsFile!="")
             ReadFitResults(fFitResultsFile);
@@ -3988,6 +4019,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
     gSystem->mkdir(fName.c_str(),true);
     const bool isPostFit = opt.find("post")!=string::npos;
     const bool checkVR = opt.find("valid")!=string::npos;
+    if(TtHFitter::POISSONIZE) opt += " poissonize";
     // build one bin per region
     TH1F* h_data = 0;
     TH1F* h_sig[MAXsamples];
@@ -4582,8 +4614,10 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     h0 = sh->fHist;
                 float tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
                 h_smp[idxVec[i_smp]]->AddBinContent( i_bin,h0->IntegralAndError(1,h0->GetNbinsX(),intErr) );
-                if(!fUseStatErr || !sh->fSample->fUseMCStat) h_smp[idxVec[i_smp]]->SetBinError(i_bin,0.);
-                else                                         h_smp[idxVec[i_smp]]->SetBinError(i_bin, sqrt( pow(tmpErr,2) + pow(intErr,2) ) );
+                if(fUseGammaPulls || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
+                    h_smp[idxVec[i_smp]]->SetBinError(i_bin,0.);
+                else
+                    h_smp[idxVec[i_smp]]->SetBinError(i_bin, sqrt( pow(tmpErr,2) + pow(intErr,2) ) );
             }
         }
         titleVec.push_back(title);
@@ -7445,8 +7479,12 @@ void TtHFit::MergeSystematics(){
             for(auto syst1 : fSystematics){
                 if(syst->fName==syst1->fName) continue;
                 if(!(syst->fNuisanceParameter==syst1->fName && syst1->fNuisanceParameter==syst1->fName)) continue;
-                // now merge all SystematicHist in all regions
+                // now merge all SystematicHist in all regions                
+                if (TtHFitter::DEBUGLEVEL>1) {
+                     std::cout << "Found NP(syst) "<< syst->fNuisanceParameter << "(" << syst->fName<< ") = to syst name "<< syst1->fName << std::endl;
+                }
                 for(auto reg : fRegions){
+                    if (TtHFitter::DEBUGLEVEL>1) std::cout << std::endl << "Region: "<< reg->fName <<std::endl;
                     for(auto sh : reg->fSampleHists){
                         SystematicHist *syh  = sh->GetSystematic(syst ->fName);
                         SystematicHist *syh1 = sh->GetSystematic(syst1->fName);
@@ -7460,6 +7498,10 @@ void TtHFit::MergeSystematics(){
 //                             else{
                                 syh1 ->Add(syh);
                                 syh1 ->Add(sh->fHist,-1);
+                                if (TtHFitter::DEBUGLEVEL>1) {
+                                     std::cout << ">> Adding syst of "<<syh->fName<< " to "<< syh1->fName << "." << std::endl;
+                                     std::cout << ">> Setting to 0 all Up/Down of "<< syh->fName << ". "<< std::endl;
+                                }
 //                             }
 //                             //
 //                             // up variation
