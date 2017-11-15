@@ -1,3 +1,6 @@
+2017-11-15 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Gamma pulls propagated to post-fit plots (fixes TTHFITTER-163)
+    
 2017-10-29 - Loic Valery <lvalery@cern.ch>
     * Fix issue for systematics leading to > 100% change (in Region.C)
     * Fix mem leak when reading histograms

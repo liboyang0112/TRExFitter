@@ -356,7 +356,8 @@ void TthPlot::Draw(string options){
         h_data->SetMarkerSize(1.4);
         h_data->SetLineWidth(2);
         // build asym data
-        g_data = poissonize(h_data);
+        if(options.find("poiss")!=string::npos) g_data = poissonize(h_data);
+        else                                    g_data = new TGraphAsymmErrors(h_data);
         g_data->SetMarkerSize(h_data->GetMarkerSize());
         g_data->SetMarkerColor(h_data->GetMarkerColor());
         g_data->SetMarkerStyle(h_data->GetMarkerStyle());

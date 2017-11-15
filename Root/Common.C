@@ -17,6 +17,7 @@ bool TtHFitter::SHOWNORMSIG_SUMMARY = false;
 bool TtHFitter::SHOWOVERLAYSIG_SUMMARY = false;
 bool TtHFitter::LEGENDLEFT = false;
 bool TtHFitter::PREFITONPOSTFIT = false;
+bool TtHFitter::POISSONIZE = false;
 bool TtHFitter::SYSTCONTROLPLOTS = false;
 bool TtHFitter::SYSTERRORBARS = false;
 bool TtHFitter::SYSTDATAPLOT = false;

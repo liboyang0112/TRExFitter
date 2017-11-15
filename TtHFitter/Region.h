@@ -214,6 +214,8 @@ public:
     float fChi2val;
     int fNDF;
     float fChi2prob;
+    
+    bool fUseGammaPulls;
 };
 
 

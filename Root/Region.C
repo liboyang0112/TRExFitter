@@ -105,6 +105,8 @@ Region::Region(string name){
     fChi2val = -1;
     fNDF = -1;
     fChi2prob = -1;
+    
+    fUseGammaPulls = false;
 }
 
 //__________________________________________________________________________________
@@ -515,7 +517,7 @@ TthPlot* Region::DrawPreFit(string opt){
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
         h = (TH1*)fSig[i]->fHist->Clone();
         // set to 0 uncertainty in each bin if MCstat set to FALSE
-        if(!fSig[i]->fSample->fUseMCStat){
+        if(!fSig[i]->fSample->fUseMCStat && !fSig[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
         }
         // scale it according to NormFactors
@@ -543,7 +545,7 @@ TthPlot* Region::DrawPreFit(string opt){
         if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
         h = (TH1*)fBkg[i]->fHist->Clone();
         // set to 0 uncertainty in each bin if MCstat set to FALSE
-        if(!fBkg[i]->fSample->fUseMCStat){
+        if(!fBkg[i]->fSample->fUseMCStat && !fBkg[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
         }
         // scale it according to NormFactors
@@ -649,19 +651,19 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         TH1* hSFTmp;
         hSFTmp = (TH1*)fSampleHists[i_sample]->fHist->Clone();
         // loop over shape factors
-            for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
-          systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
-          // add syst name for each bin
-          for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){	  
-            systNameSF = systName + "_bin_" + std::to_string(i_bin);
-            // the shape factor naming used i_bin - 1 for the first bin
-            // add it as one syst per bin
+        for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
+            systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
+            // add syst name for each bin
+            for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){	  
+                systNameSF = systName + "_bin_" + std::to_string(i_bin);
+                // the shape factor naming used i_bin - 1 for the first bin
+                // add it as one syst per bin
                 if(!systIsThere[systNameSF]){
-              fSystNames.push_back(systNameSF);
-              systIsThere[systNameSF] = true;
+                    fSystNames.push_back(systNameSF);
+                    systIsThere[systNameSF] = true;
                 }
-          }
             }
+        }
         hSFTmp->~TH1();
         
         //
@@ -672,6 +674,21 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
+            }
+        }
+        
+        //
+        // Gammas
+        //
+        if(fUseGammaPulls && (fSampleHists[i_sample]->fSample->fUseMCStat || fSampleHists[i_sample]->fSample->fSeparateGammas)){
+            for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
+                std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
+                if(fSampleHists[i_sample]->fSample->fSeparateGammas)
+                            gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i_sample]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
+                if(!systIsThere[gammaName]){
+                    fSystNames.push_back(gammaName);
+                    systIsThere[gammaName] = true;
+                }
             }
         }
     }
@@ -743,26 +760,40 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
                 
-                // if it's a norm-factor ==> FIXME
-                if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
-                    diffUp   += yieldNominal*systErrUp;
-                    diffDown += yieldNominal*systErrDown;
-                }
-                
-                // ShapeFactor have to get NP per bin
-                // get the shape factor name without bin index
                 int posTmp = systName.find("_bin_");
-                if(posTmp != std::string::npos){
-                  systNameSF = systName.substr(0, posTmp);
-                  // get the shape factor bin as integer
-                  iBinSF = std::atoi(systName.substr(posTmp + 5).c_str()) + 1;
-                  // FIXME could still be a problem with pruning?
-                  if(fSampleHists[i]->HasShapeFactor(systNameSF) && iBinSF == i_bin){
+                std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
+                //
+                // if it's a gamma
+                if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas){
+                    diffUp   += yieldNominal_postFit*systErrUp;
+                    diffDown += yieldNominal_postFit*systErrDown;
+                }
+                //
+                // if it's a specific-sample gamma
+                gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
+                if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fSeparateGammas){
+                    diffUp   += yieldNominal_postFit*systErrUp;
+                    diffDown += yieldNominal_postFit*systErrDown;
+                }
+                //
+                // if it's a norm factor
+                else if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
                     diffUp   += yieldNominal*systErrUp;
                     diffDown += yieldNominal*systErrDown;
-                  }
                 }
-                
+                //
+                // ShapeFactor have to get NP per bin
+                else if(posTmp != std::string::npos){
+                    // get the shape factor name without bin index
+                    systNameSF = systName.substr(0, posTmp);
+                    // get the shape factor bin as integer
+                    iBinSF = std::atoi(systName.substr(posTmp + 5).c_str()) + 1;
+                    // FIXME could still be a problem with pruning?
+                    if(fSampleHists[i]->HasShapeFactor(systNameSF) && iBinSF == i_bin){
+                        diffUp   += yieldNominal*systErrUp;
+                        diffDown += yieldNominal*systErrDown;
+                    }
+                }
                 //
                 // Systematics treatment 
                 //
@@ -888,9 +919,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 //
 TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
 
-  if(TtHFitter::PREFITONPOSTFIT){
-    fPlotPostFit->h_tot_bkg_prefit = (TH1*)fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit");
-  }
+    if(TtHFitter::PREFITONPOSTFIT){
+        fPlotPostFit->h_tot_bkg_prefit = (TH1*)fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit");
+    }
   
     TthPlot *p = fPlotPostFit;
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
@@ -938,7 +969,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     for(int i=0;i<fNSamples;i++){
         hSmpNew[i] = (TH1*)fSampleHists[i]->fHist->Clone();
         // set to 0 uncertainty in each bin if MCstat set to FALSE
-        if(!fSampleHists[i]->fSample->fUseMCStat){
+        if(!fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<hSmpNew[i]->GetNbinsX()+2;i_bin++) hSmpNew[i]->SetBinError(i_bin,0.);
         }
     }
@@ -995,6 +1026,20 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             //
             double binContentNew = binContent0*multNorm*(multShape+1.);
             
+            // 
+            // gammas
+            if(fUseGammaPulls && (fSampleHists[i]->fSample->fUseMCStat || fSampleHists[i]->fSample->fSeparateGammas)){
+                // find the gamma for this bin of this distribution in the fit results
+                std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
+                if(fSampleHists[i]->fSample->fSeparateGammas)
+                            gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Looking for gamma " << gammaName << std::endl;
+                float gammaValue = fitRes->GetNuisParValue(gammaName);
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "  -->  pull = " << gammaValue << std::endl;
+                // linear effect
+                if(gammaValue>0) binContentNew *= gammaValue;
+            }
+            
             //
             // Setting to new values
             //
@@ -1040,26 +1085,26 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     double binContentSFNew = 0;
     int iBinSF = 0;
     for(int i=0;i<fNSamples;i++){
-      if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
-      if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-      for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
-	ShapeFactor *sf = fSampleHists[i]->fShapeFactors[i_shape];
-	sfName = sf->fName;
-	// loop over bins
-	// there should be a NP per bin in the fit file
-	// already checked by GetNuisParValue()
-	// the shape factor naming used i_bin - 1 for the first bin
-	for(int i_bin = 1; i_bin <= hSmpNew[i]->GetNbinsX(); i_bin++){
-	  iBinSF = i_bin - 1;
-	  sfNameBin = sfName + "_bin_" + std::to_string(iBinSF);
-	  if(sf->fConst) sfValue = sf->fNominal; 
-	  else           sfValue = fitRes->GetNuisParValue(sfNameBin);
-	  // scale bin content by shape factor
-	  binContentSFNew = hSmpNew[i]->GetBinContent(i_bin) * sfValue;
-	  // Setting to new value
-	  hSmpNew[i]->SetBinContent(i_bin, binContentSFNew);
-	}
-      }
+        if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+        for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
+            ShapeFactor *sf = fSampleHists[i]->fShapeFactors[i_shape];
+            sfName = sf->fName;
+            // loop over bins
+            // there should be a NP per bin in the fit file
+            // already checked by GetNuisParValue()
+            // the shape factor naming used i_bin - 1 for the first bin
+            for(int i_bin = 1; i_bin <= hSmpNew[i]->GetNbinsX(); i_bin++){
+                iBinSF = i_bin - 1;
+                sfNameBin = sfName + "_bin_" + std::to_string(iBinSF);
+                if(sf->fConst) sfValue = sf->fNominal; 
+                else           sfValue = fitRes->GetNuisParValue(sfNameBin);
+                // scale bin content by shape factor
+                binContentSFNew = hSmpNew[i]->GetBinContent(i_bin) * sfValue;
+                // Setting to new value
+                hSmpNew[i]->SetBinContent(i_bin, binContentSFNew);
+            }
+        }
     }
     
     //
@@ -1118,7 +1163,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     //
     // MCstat set to 0 if disabled
     //
-    if(!fUseStatErr){
+//     if(!fUseStatErr || (fUseGammaPulls && fSampleHists[i]->fSample->fUseMCStat)){
+    if(!fUseStatErr || fUseGammaPulls){
         for(int i_bin=1;i_bin<=fTot_postFit->GetNbinsX();i_bin++){
             fTot_postFit->SetBinError(i_bin,0);
         }
@@ -1873,7 +1919,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         
         // - loop on the syst, two by two, to include the correlations
         std::vector<string> systNames_unique;
-	for(unsigned int i_syst=0;i_syst<fSystNames.size();i_syst++){
+        for(unsigned int i_syst=0;i_syst<fSystNames.size();i_syst++){
             if (std::find(systNames_unique.begin(), systNames_unique.end(), fSystNames[i_syst]) == systNames_unique.end())
             systNames_unique.push_back(fSystNames[i_syst]);
                 else continue;
