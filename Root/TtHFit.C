@@ -4621,7 +4621,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     h0 = sh->fHist;
                 float tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
                 h_smp[idxVec[i_smp]]->AddBinContent( i_bin,h0->IntegralAndError(1,h0->GetNbinsX(),intErr) );
-                if(fUseGammaPulls || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
+                if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
                     h_smp[idxVec[i_smp]]->SetBinError(i_bin,0.);
                 else
                     h_smp[idxVec[i_smp]]->SetBinError(i_bin, sqrt( pow(tmpErr,2) + pow(intErr,2) ) );
