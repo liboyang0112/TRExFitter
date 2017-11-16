@@ -1,0 +1,56 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+
+Applying ATLAS style settings...
+
+Reading config file config/myFit.config
+-------------------------------------------
+Creating/updating file FitExample/Histograms/FitExample_histos.root ...
+  Region SR_1 ...
+  Region SR_2 ...
+
+-------------------------------------------
+  TtHFit: FitExample
+      NtuplePaths =      NtupleName  = 
+      MCweight    = 1
+      Selection   = 1
+      HistoPaths  = ExampleInputs
+      HistoName   = 
+    Region: SR_1
+      Sample: Data	SR_1_Data
+      Sample: Bkg1	SR_1_Bkg1
+        Systematics:    JES Bkg1Xsec
+      Sample: Bkg2	SR_1_Bkg2
+        Systematics:    Bkg2Xsec
+      Sample: Signal	SR_1_Signal
+        Systematics:    JES
+        NormFactor(s):  SigXsecOverSM
+    Region: SR_2
+      Sample: Data	SR_2_Data
+      Sample: Bkg1	SR_2_Bkg1
+        Systematics:    JES
+      Sample: Bkg2	SR_2_Bkg2
+        Systematics:    Bkg2Xsec
+      Sample: Signal	SR_2_Signal
+        Systematics:    JES
+        NormFactor(s):  SigXsecOverSM
+
+-------------------------------------------
+-------------------------------------------
+Smoothing and/or Symmetrising Systematic Variations ...
+Running CreateCustomAsimov
+-------------------------------------------
+Writing histograms to file FitExample/Histograms/FitExample_histos.root ...
+-------------------------------------------
+Writing histograms to file FitExample/Histograms/FitExample_histos.root ...
+-------------------------------------------
+Info in <TCanvas::Print>: png file FitExample/Systematics/JES/SR_1_Bkg1.png has been created
+Info in <TCanvas::Print>: png file FitExample/Systematics/Bkg1Xsec/SR_1_Bkg1.png has been created
+Info in <TCanvas::Print>: png file FitExample/Systematics/Bkg2Xsec/SR_1_Bkg2.png has been created
+Info in <TCanvas::Print>: png file FitExample/Systematics/JES/SR_1_Signal.png has been created
+Info in <TCanvas::Print>: png file FitExample/Systematics/JES/SR_2_Bkg1.png has been created
+Info in <TCanvas::Print>: png file FitExample/Systematics/Bkg2Xsec/SR_2_Bkg2.png has been created
+Info in <TCanvas::Print>: png file FitExample/Systematics/JES/SR_2_Signal.png has been created

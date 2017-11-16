@@ -179,14 +179,14 @@ SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
     syh->fHistShapeUp   = (TH1*)h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
     syh->fHistShapeDown = (TH1*)h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
     if(syh->fHistShapeUp  ->Integral() > 0. ){
-    syh->fHistShapeUp  ->Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());
+        syh->fHistShapeUp  ->Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());
     } else {
-        syh->fHistShapeUp  -> Scale(0.);
+        syh->fHistShapeUp  = (TH1*)fHist->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
     }
     if(syh->fHistShapeDown  ->Integral() > 0. ){
-    syh->fHistShapeDown->Scale(fHist->Integral() / syh->fHistShapeDown->Integral());
+        syh->fHistShapeDown->Scale(fHist->Integral() / syh->fHistShapeDown->Integral());
     } else {
-        syh->fHistShapeDown  ->Scale(0.);
+        syh->fHistShapeDown  = (TH1*)fHist->Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),name.c_str()));
     }
 
     syh->fIsOverall = true;
@@ -240,15 +240,15 @@ SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string
         sh->fHistShapeUp   = (TH1*)sh->fHistUp  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
         sh->fHistShapeDown = (TH1*)sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
         if(sh->fHistShapeUp  ->Integral() > 0. ){
-        sh->fHistShapeUp  ->Scale(fHist->Integral() / sh->fHistShapeUp  ->Integral());
+            sh->fHistShapeUp  -> Scale(fHist->Integral() / sh->fHistShapeUp  ->Integral());
         } else {
-            sh->fHistShapeUp  -> Scale(0.);
+            sh->fHistShapeUp = (TH1*)fHist -> Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
         }
 
         if(sh->fHistShapeDown  ->Integral() > 0. ){
-        sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
+            sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
         } else {
-            sh->fHistShapeDown  ->Scale(0.);
+            sh->fHistShapeDown = (TH1*)fHist -> Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),name.c_str()));
         }
         sh->fIsShape   = true;
     }
@@ -499,12 +499,16 @@ void SampleHist::FixEmptyBins(){
             }
             // set nominal to 10^-6
             fHist->SetBinContent(i_bin,1e-6);
-            // if error defined, use it
-            if(error>0)        fHist -> SetBinError(i_bin, error);
-            // if not, if there was at least one bin with meaningful error, use the smallest
-            else if(minStat>0) fHist -> SetBinError(i_bin, minStat);
-            // if not, give up and assign a meaningless error ;)
-            else               fHist -> SetBinError(i_bin, 1e-06);
+            if(!TtHFitter::GUESSMCSTATERROR){
+                fHist -> SetBinError(i_bin, 1e-06);
+            } else {
+                // if error defined, use it
+                if(error>0)        fHist -> SetBinError(i_bin, error);
+                // if not, if there was at least one bin with meaningful error, use the smallest
+                else if(minStat>0) fHist -> SetBinError(i_bin, minStat);
+                // if not, give up and assign a meaningless error ;)
+                else               fHist -> SetBinError(i_bin, 1e-06);
+            }
             // loop on systematics and set them accordingly
             for(int i_syst=0;i_syst<fNSyst;i_syst++){
                 SystematicHist* syh = fSyst[i_syst];
@@ -986,15 +990,15 @@ void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
             fSyst[i_syst]->fHistShapeUp   = (TH1*)h_syst_up  ->Clone(fSyst[i_syst]->fHistShapeUp  ->GetName());
             fSyst[i_syst]->fHistShapeDown = (TH1*)h_syst_down->Clone(fSyst[i_syst]->fHistShapeDown->GetName());
             if(fSyst[i_syst]->fHistShapeUp  ->Integral()>0){
-            fSyst[i_syst]->fHistShapeUp  ->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeUp  ->Integral());
+                fSyst[i_syst]->fHistShapeUp  ->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeUp  ->Integral());
             } else {
-                fSyst[i_syst]->fHistShapeUp  ->Scale(0.);
+                fSyst[i_syst]->fHistShapeUp  = (TH1*)fHist ->Clone(fSyst[i_syst]->fHistShapeUp  ->GetName());
             }
 
             if(fSyst[i_syst]->fHistShapeDown->Integral() > 0.){
-            fSyst[i_syst]->fHistShapeDown->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeDown->Integral());
+                fSyst[i_syst]->fHistShapeDown->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeDown->Integral());
             } else {
-                fSyst[i_syst]->fHistShapeDown->Scale(0.);
+                fSyst[i_syst]->fHistShapeDown  = (TH1*)fHist ->Clone(fSyst[i_syst]->fHistShapeDown  ->GetName());
             }
         }
     }

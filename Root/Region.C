@@ -808,16 +808,39 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     //
                     // Compute updated relative syst. variations (linear scaling)
                     //
-                    double scaleUp = 0;
-                    double scaleDown = 0;
+                    float scaleUp = 0;
+                    float scaleDown = 0;
                     if(yieldNominal!=0){
-//                         scaleUp = (yieldUp/yieldNominal-1.)*(systErrUp-systValue);
-//                         scaleDown = (yieldDown/yieldNominal-1.)*(systValue-systErrDown);
-                        scaleUp = (yieldUp/yieldNominal-1.)*systErrUp;  // FIX: need to check the effect on post-fit plots...
-                        scaleDown = (yieldDown/yieldNominal-1.)*(-systErrDown);  // FIX: need to check the effect on post-fit plots...
+                        //Normalisation component
+                        double overall_up = 0.;
+                        double overall_down = 0.;
+                        if(sh->fIsOverall){
+                            std::map < int, double > res_norm = GetDeltaNForUncertainties( systValue, systErrUp, systErrDown, 
+                                                                                        yieldNominal, 
+                                                                                        yieldNominal*(sh->fNormUp+1.), 
+                                                                                        yieldNominal*(sh->fNormDown+1.), 
+                                                                                        fIntCode_overall);
+                            overall_up = (res_norm[1]-res_norm[-1])*yieldNominal/2.;
+                            overall_down = (res_norm[1]-res_norm[-1])*yieldNominal/2;
+                        }
+                        //Shape component
+                        double shape_up = 0.;
+                        double shape_down = 0.;
+                        if(sh->fIsShape){
+                            std::map < int, double > res_shape = GetDeltaNForUncertainties( systValue, systErrUp, systErrDown, 
+                                                                                        yieldNominal, 
+                                                                                        sh->fHistShapeUp->GetBinContent(i_bin), 
+                                                                                        sh->fHistShapeDown->GetBinContent(i_bin), 
+                                                                                        fIntCode_shape);
+                            shape_up = (res_shape[1]-res_shape[-1])*yieldNominal/2.;
+                            shape_down = (res_shape[1]-res_shape[-1])*yieldNominal/2.;
+                        }
+                        scaleUp = overall_up + shape_up;
+                        scaleDown = overall_down + shape_down;
+
                     }
-                    diffUp += scaleUp*yieldNominal_postFit;
-                    diffDown += scaleDown*yieldNominal_postFit;
+                    diffUp += scaleUp;
+                    diffDown -= scaleDown;
                 }
                 
                 if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
@@ -1752,14 +1775,14 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
 
 float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
     // protection against negative values
-    if(Ip<0)  Ip  = 0.00001*Iz;
-    if(Imi<0) Imi = 0.00001*Iz;
+    if(Ip<=0)  Ip  = 0.00000001*Iz;
+    if(Imi<=0) Imi = 0.00000001*Iz;
     
     float deltaN = 0.;
     if(alpha>0)      deltaN = Ip;
     else if(alpha<0) deltaN = Imi;
-    else             return 1.;
-    
+    else             return 1.; 
+
     if(intCode==4){
         
         //////////////////////////////////////////////////////////////
@@ -1815,8 +1838,19 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
     
     if(deltaN!=deltaN) deltaN = 1;  // to avoid nan
     if(deltaN<=0) deltaN = 0; //protection against negative values (can happen for linear extrapolation)
+
     return deltaN;
 }
+
+//___________________________________________________________
+//
+std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_errUp, float alpha_errDown, float Iz, float Ip, float Imi, int intCode){
+    double nominal = GetDeltaN(alpha, Iz, Ip, Imi, intCode);
+    double up = GetDeltaN(alpha+alpha_errUp, Iz, Ip, Imi, intCode);
+    double down = GetDeltaN(alpha+alpha_errDown, Iz, Ip, Imi, intCode);
+    return {{-1,down},{0,nominal},{1,up}};
+}
+
 
 //--------------- ~ ---------------
 
