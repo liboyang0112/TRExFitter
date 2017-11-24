@@ -27,7 +27,8 @@ public:
     void CompareNormFactors(string category="");
     void PlotCombinedCorrelationMatrix();
     void ProduceNPRanking(string NPnames="all");
-    void PlotNPRanking();
+    void PlotNPRankingManager();
+    void PlotNPRanking(bool flagSysts=true, bool flagGammas=false);
     void PlotSummarySoverB();
     
     TH1F* Combine(std::vector<TH1F*>);
@@ -68,6 +69,7 @@ public:
     float fPOIMax;
     float fPOIVal;
     string fPOIPrecision;
+    float fLimitMax;
     
     bool fUseRnd;
     float fRndRange;
