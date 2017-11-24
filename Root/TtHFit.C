@@ -585,6 +585,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             if(optMap["FitType"]=="SPLUSB") SetFitType(SPLUSB);
             if(optMap["FitType"]=="BONLY")  SetFitType(BONLY);
         }
+        if(optMap["LumiScale"]!="")
+            fLumiScale = atof(optMap["LumiScale"].c_str());
         //
         std::cout << "-------------------------------------------" << std::endl;
         std::cout << "Running options: " << std::endl;
@@ -6873,9 +6875,9 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     std::vector< bool > isNF;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName ||
-            ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0 ) )
+            ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
             ){
-	    if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
+            if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
             nuisPars.push_back( fSystematics[i_syst]->fName );
             isNF.push_back( false );
         }
@@ -6891,7 +6893,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     }
 
     //
-    //Text files containing information necessary for drawing of ranking plot
+    // Text files containing information necessary for drawing of ranking plot
     //
     string outName = fName+"/Fits/NPRanking"+fSuffix;
     if(NPnames!="all") outName += "_"+NPnames;
@@ -6959,31 +6961,24 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     RooDataSet* data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
 
     // Loop on NPs to find gammas and add to the list to be ranked
-//     if(NPnames=="all" || NPnames.find("gamma_stat")!=string::npos){
-    if(NPnames=="all" || NPnames.find("gamma")!=string::npos){
+    if(NPnames=="all" || NPnames.find("gamma")!=string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
         RooRealVar* var = NULL;
         RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
         if(nuis){
             TIterator* it2 = nuis->createIterator();
+            int i_gamma = 0;
             while( (var = (RooRealVar*) it2->Next()) ){
                 string np = var->GetName();
                 if(np.find("gamma")!=string::npos){
-            // 	    if(np==NPnames || NPnames=="all") nuisPars.push_back(np);
-                    if(np==NPnames || NPnames=="all") nuisPars.push_back(ReplaceString(np,"gamma_",""));
-                    isNF.push_back( true );
-                    if(NPnames!="all") break;
+                    // add the nuisance parameter to the list nuisPars if it's there in the ws
+                    // remove "gamma"...
+                    if(np==NPnames || (atoi(NPnames.c_str())-fNSyst-fNNorm==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
+                        nuisPars.push_back(ReplaceString(np,"gamma_",""));
+                        isNF.push_back( true );
+                        if(NPnames!="all") break;
+                    }
+                    i_gamma++;
                 }
-// 	  if(NPnames!="all"){
-// 	    if(np==NPnames){
-// 	      nuisPars.push_back(ReplaceString(np,"gamma_",""));
-// 	      isNF.push_back( true );
-// 	      break;
-// 	    }
-// 	  }
-// 	  else if(np.find("gamma_stat")!=string::npos){
-// 	    nuisPars.push_back(np);
-// 	    isNF.push_back( true );
-// 	  }
             }
         }
     }
@@ -7001,19 +6996,12 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     fitTool -> ValPOI(1.);
     fitTool -> ConstPOI(false);
     if(fStatOnly){
-      fitTool -> NoGammas();
-      fitTool -> NoSystematics();
+        fitTool -> NoGammas();
+        fitTool -> NoSystematics();
     }
-    //
-    // no point is setting Minos for ranking...
-//     if(fVarNameMinos.size()>0){
-//         std::cout << "Setting the variables to use MINOS with" << std::endl;
-//         fitTool -> UseMinos(fVarNameMinos);
-//     }
 
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
     muhat = fFitResults -> GetNuisParValue( fPOI );
-    //if(!hasData) muhat = 1.;  // FIXME -> Loic: Do we actually need that ?
 
     for(unsigned int i=0;i<nuisPars.size();i++){
         //
@@ -7021,14 +7009,12 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         central = fFitResults -> GetNuisParValue(   nuisPars[i] );
         up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
         down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
-	//// Thomas : We should be careful with changing naming convention compared to RooFit !!
-	// TtHFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
-	// Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
-	if( (NPnames=="all" && nuisPars[i].find("_bin_")!=string::npos)
-	    || NPnames.find("gamma_stat")!=string::npos){
-	  string tmpNuispar=nuisPars[i];
-	  nuisPars[i]="gamma_"+tmpNuispar;
-	}
+        //// Thomas : We should be careful with changing naming convention compared to RooFit !!
+        // TtHFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
+        // Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
+        if( (nuisPars[i].find("_bin_")!=string::npos) ){
+            nuisPars[i] = "gamma_" + nuisPars[i];
+        }
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         //
         // Experimental: reduce the range of ranking
@@ -7066,7 +7052,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             muVarNomUp[   nuisPars[i] ] = muhat;
             muVarNomDown[ nuisPars[i] ] = muhat;
         }
-	else{
+        else{
             up   = 1.;
             down = 1.;
             //
@@ -7126,7 +7112,6 @@ void TtHFit::PlotNPRankingManager(){
   if(fRankingPlot=="Merge"  || fRankingPlot=="all") PlotNPRanking(true,true);
   if(fRankingPlot=="Systs"  || fRankingPlot=="all") PlotNPRanking(true,false);
   if(fRankingPlot=="Gammas" || fRankingPlot=="all") PlotNPRanking(false,true);
-
 }
 
 //____________________________________________________________________________________
@@ -7136,9 +7121,12 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
     //
     // trick to merge the ranking outputs produced in parallel:
-    string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; ";
-    cmd       += " then rm "+fileToRead+" ; ";
-    cmd       += " cat "+fName+"/Fits/NPRanking"+fSuffix+"_* > "+fileToRead+" ; ";
+    string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; then";
+    cmd       += " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+".txt` == \"\" ]] ; then";
+//     cmd       += " then rm "+fileToRead+" ; ";
+//     cmd       += " cat "+fName+"/Fits/NPRanking"+fLoadSuf+"_* > "+fileToRead+" ; ";
+    cmd       += " cat "+fName+"/Fits/NPRanking_* > "+fileToRead+" ; ";
+    cmd       += " fi ;";
     cmd       += " fi ;";
     gSystem->Exec(cmd.c_str());
     //
@@ -7164,24 +7152,24 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 
     ifstream fin( fileToRead.c_str() );
     fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-    if (paramname=="Luminosity"){
-        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-    }
+//     if (paramname=="Luminosity"){
+//         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+//     }
     while (!fin.eof()){
         if(paramname.find("gamma")!=string::npos && !flagGammas){
-	  fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-	  if (paramname=="Luminosity"){
-	    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-	  }
-	  continue;
-	}
-	if(paramname.find("gamma")==string::npos && !flagSysts){
-	  fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-	  if (paramname=="Luminosity"){
-	    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-	  }
-	  continue;
-	}
+            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+//             if (paramname=="Luminosity"){
+//                 fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+//             }
+            continue;
+        }
+        if(paramname.find("gamma")==string::npos && !flagSysts){
+            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+//             if (paramname=="Luminosity"){
+//                 fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+//             }
+            continue;
+        }
         parname.push_back(paramname);
         nuhat.push_back(nuiphat);
         nuerrhi.push_back(nuiperrhi);
@@ -7191,9 +7179,9 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         poinomup.push_back(PoiNomUp);
         poinomdown.push_back(PoiNomDown);
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-        if (paramname=="Luminosity"){
-            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-        }
+//         if (paramname=="Luminosity"){
+//             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+//         }
     }
 
     unsigned int SIZE = parname.size();
@@ -7238,6 +7226,9 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     }
     number.push_back(parname.size()-0.5);
 
+    // Resttrict to the first N
+    if(SIZE>maxNP) SIZE = maxNP;
+
     double poimax = 0;
     for (int i=0;i<SIZE;i++) {
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
@@ -7252,9 +7243,6 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         poinomup[i]  *= (2./poimax);
         poinomdown[i]*= (2./poimax);
     }
-
-    // Resttrict to the first N
-    if(SIZE>maxNP) SIZE = maxNP;
 
     // Graphical part - rewritten taking DrawPulls in TtHFitter
     float lineHeight  =  30;
@@ -7281,9 +7269,11 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     string parTitle;
 
     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
-        g->SetPoint(      idx, nuhat[i],idx+0.5);
-        g->SetPointEXhigh(idx, nuerrhi[i]);
-        g->SetPointEXlow( idx, nuerrlo[i]);
+//         if(isNF[i]) g->SetPoint(idx, nuhat[i]-1,idx+0.5);
+//         else        
+        g->SetPoint(idx, nuhat[i],  idx+0.5);
+        g->SetPointEXhigh(      idx, nuerrhi[i]);
+        g->SetPointEXlow(       idx, nuerrlo[i]);
 
         g1->SetPoint(      idx, 0.,idx+0.5);
         g1->SetPointEXhigh(idx, poiup[i]);
@@ -7309,12 +7299,30 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         g2a->SetPointEYhigh(idx, 0.4);
         g2a->SetPointEYlow( idx, 0.4);
 
-	if(parname[i].find("gamma")!=string::npos){
-	  string tmpTitle=parname[i];
-	  tmpTitle=ReplaceString(tmpTitle,"gamma_stat_","");
-	  tmpTitle=ReplaceString(tmpTitle,"_"," ");
-	  parTitle="#gamma ("+tmpTitle+")";
-	}
+        if(parname[i].find("gamma")!=string::npos){
+//               gamma_stat_HThad_ge6jge4b_bin_2
+            // get name of the region
+            std::vector<std::string> tmpVec = Vectorize(parname[i],'_');
+            int nWords = tmpVec.size();
+            std::string regName = tmpVec[2];
+            for(int i_word=3;i_word<nWords-2;i_word++){
+                regName += tmpVec[i_word];
+            }
+            // find the short label of this region
+            std::string regTitle = regName;
+            for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+                if(fRegions[i_ch]->fName==regName){
+                    regTitle = fRegions[i_ch]->fShortLabel;
+                    break;
+                }
+            }
+            // build the title of the nuis par
+            parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1];
+//             string tmpTitle=parname[i];
+//             tmpTitle=ReplaceString(tmpTitle,"gamma_stat_","");
+//             tmpTitle=ReplaceString(tmpTitle,"_"," ");
+//             parTitle="#gamma ("+tmpTitle+")";
+        }
         else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
 
         Names.push_back(parTitle);
@@ -7340,6 +7348,9 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     h_dummy->GetYaxis()->SetLabelSize(0);
     h_dummy->Draw();
     h_dummy->GetYaxis()->SetNdivisions(0);
+    for(int i_bin=0;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
+        h_dummy->SetBinContent(i_bin,-10);
+    }
 
     g1->SetFillColor(kAzure-4);
     g2->SetFillColor(kCyan);
@@ -7392,23 +7403,29 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,"Pre-fit impact on #mu:");
     leg1->SetFillStyle(0);
     leg1->SetBorderSize(0);
-    leg1->SetMargin(0.33);
+//     leg1->SetMargin(0.33);
+    leg1->SetMargin(0.25);
     leg1->SetNColumns(2);
     leg1->SetTextFont(gStyle->GetTextFont());
     leg1->SetTextSize(gStyle->GetTextSize());
-    leg1->AddEntry(g1a,"#theta_{0}=+#Delta#theta","f");
-    leg1->AddEntry(g2a,"#theta_{0}=-#Delta#theta","f");
+//     leg1->AddEntry(g1a,"#theta_{0}=+#Delta#theta","f");
+//     leg1->AddEntry(g2a,"#theta_{0}=-#Delta#theta","f");
+    leg1->AddEntry(g1a,"#theta = #hat{#theta}+#Delta#theta","f");
+    leg1->AddEntry(g2a,"#theta = #hat{#theta}-#Delta#theta","f");
     leg1->Draw();
 
     TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,"Post-fit impact on #mu:");
     leg2->SetFillStyle(0);
     leg2->SetBorderSize(0);
-    leg2->SetMargin(0.33);
+//     leg2->SetMargin(0.33);
+    leg2->SetMargin(0.25);
     leg2->SetNColumns(2);
     leg2->SetTextFont(gStyle->GetTextFont());
     leg2->SetTextSize(gStyle->GetTextSize());
-    leg2->AddEntry(g1,"#theta_{0}=+#Delta#hat{#theta}","f");
-    leg2->AddEntry(g2,"#theta_{0}=-#Delta#hat{#theta}","f");
+//     leg2->AddEntry(g1,"#theta_{0}=+#Delta#hat{#theta}","f");
+//     leg2->AddEntry(g2,"#theta_{0}=-#Delta#hat{#theta}","f");
+    leg2->AddEntry(g1,"#theta = #hat{#theta}+#Delta#hat{#theta}","f");
+    leg2->AddEntry(g2,"#theta = #hat{#theta}-#Delta#hat{#theta}","f");
     leg2->Draw();
 
     TLegend *leg0 = new TLegend(0.02,0.1,1,0.25);

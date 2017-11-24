@@ -40,6 +40,7 @@ MultiFit::MultiFit(string name){
     fPOIMax = 10;
     fPOIVal = 1;
     fPOIPrecision = "1";
+    fLimitMax = 0;
     //
     fCombine       = false;
     fCompare       = false;
@@ -85,6 +86,7 @@ MultiFit::~MultiFit(){
 //__________________________________________________________________________________
 //
 void MultiFit::ReadConfigFile(string configFile,string options){
+    std::string globalSuffix = "";
     fConfig->ReadFile(configFile);
     ConfigSet *cs; // to store stuff later
     string param;
@@ -104,6 +106,9 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         //
         if(optMap["Ranking"]!="")
             fRankingOnly = optMap["Ranking"];
+        //
+        if(optMap["Suffix"]!="")
+            globalSuffix = optMap["Suffix"];
     }
 
     //
@@ -126,6 +131,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("LumiLabel"); if( param != "")  fLumiLabel = param;
     param = cs->Get("CmeLabel");  if( param != "")  fCmeLabel  = param;
     param = cs->Get("SaveSuf");   if( param != "")  fSaveSuf   = param;
+    else                                            fSaveSuf   = globalSuffix;
     param = cs->Get("ShowObserved");   if( param != "" && param != "FALSE" ) fShowObserved = true;
     param = cs->Get("LimitTitle"); if( param != "") fLimitTitle = param;
     if(fLimitTitle.find("95CL")!=string::npos) fLimitTitle.replace(fLimitTitle.find("95CL"),4,"95% CL");
@@ -145,6 +151,9 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("POIRange"); if( param != "" && Vectorize(param,',').size()==2 ) {
         fPOIMin = atof( Vectorize(param,',')[0].c_str() );
         fPOIMax = atof( Vectorize(param,',')[1].c_str() );
+    }
+    param = cs->Get("LimitMax"); if( param != "" ) {
+        fLimitMax = atof( param.c_str() );
     }
     param = cs->Get("POIVal");   if( param != "" ) fPOIVal = atof(param.c_str());
     param = cs->Get("POIPrecision");   if( param != "" ) fPOIPrecision = param.c_str();
@@ -210,6 +219,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         param = cs->Get("LoadSuf");
         string loadSuf = "";
         if(param!="") loadSuf = param;
+        else          loadSuf = globalSuffix;
         // config file
         string confFile = "";
         param = cs->Get("ConfigFile");
@@ -877,6 +887,8 @@ void MultiFit::CompareLimit(){
     g_obs->SetMarkerSize(0);
     g_inj->SetMarkerSize(0);
 
+    if(fLimitMax!=0) xmax = fLimitMax;
+    
     TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,0,xmax);
     h_dummy->Draw();
     h_dummy->SetMinimum(ymin);
@@ -1537,12 +1549,10 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         }
     }
 
-    unsigned int Nnp = nuisPars.size();
-
     //
-    //Text files containing information necessary for drawing of ranking plot
-    //     string outName = fName+"/Fits/NPRanking"+fSaveSuf;
+    // Text files containing information necessary for drawing of ranking plot
     //
+//     string outName = fName+"/Fits/NPRanking"+fSaveSuf;
 //     string outName = fName+"/Fits/NPRanking"+fSuffix;
     string outName = fOutDir+"/Fits/NPRanking";
     if(NPnames!="all") outName += "_"+NPnames;
@@ -1588,6 +1598,29 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             data = (RooDataSet*)ws->data("asimovData");
         }
     }
+    
+    // Loop on NPs to find gammas and add to the list to be ranked
+    if(NPnames=="all" || NPnames.find("gamma")!=string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
+        RooRealVar* var = NULL;
+        RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
+        if(nuis){
+            TIterator* it2 = nuis->createIterator();
+            int i_gamma = 0;
+            while( (var = (RooRealVar*) it2->Next()) ){
+                string np = var->GetName();
+                if(np.find("gamma")!=string::npos){
+                    // add the nuisance parameter to the list nuisPars if it's there in the ws
+                    // remove "gamma"...
+                    if(np==NPnames || (atoi(NPnames.c_str())-Nsyst-Nnorm==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
+                        nuisPars.push_back(ReplaceString(np,"gamma_",""));
+                        isNF.push_back( true );
+                        if(NPnames!="all") break;
+                    }
+                    i_gamma++;
+                }
+            }
+        }
+    }
 
     //
     // Create snapshot to keep inital values
@@ -1601,17 +1634,10 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
     fitTool -> ValPOI(1.);
     fitTool -> ConstPOI(false);
-//     if(vVarNameMinos.size()>0){
-//         std::cout << "Setting the variables to use MINOS with" << std::endl;
-//         fitTool -> UseMinos(vVarNameMinos);
-//     }
 
     TtHFit *fit = fFitList[fFitList.size()-1];
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+".txt");
-
-//     ReadFitResults(fName+"/Fits/"+fName+fSuffix+".txt");
     muhat = fit->fFitResults -> GetNuisParValue( fPOI );
-    //if(!hasData) muhat = 1.;  // FIXME -> Loic: Do we actually need that ?
 
     for(unsigned int i=0;i<nuisPars.size();i++){
 
@@ -1619,6 +1645,10 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         central = fit->fFitResults -> GetNuisParValue(   nuisPars[i] );
         up      = fit->fFitResults -> GetNuisParErrUp(   nuisPars[i] );
         down    = fit->fFitResults -> GetNuisParErrDown( nuisPars[i] );
+        // for gammas
+        if( (NPnames=="all" && nuisPars[i].find("_bin_")!=string::npos) ){
+            nuisPars[i] = "gamma_" + nuisPars[i];
+        }
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
 
         //Set the NP to its post-fit *up* variation and refit to get the fitted POI
@@ -1667,7 +1697,15 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 
 //____________________________________________________________________________________
 //
-void MultiFit::PlotNPRanking(){
+void MultiFit::PlotNPRankingManager(){
+  if(fFitList[0]->fRankingPlot=="Merge"  || fFitList[0]->fRankingPlot=="all") PlotNPRanking(true,true);
+  if(fFitList[0]->fRankingPlot=="Systs"  || fFitList[0]->fRankingPlot=="all") PlotNPRanking(true,false);
+  if(fFitList[0]->fRankingPlot=="Gammas" || fFitList[0]->fRankingPlot=="all") PlotNPRanking(false,true);
+}
+
+//____________________________________________________________________________________
+//
+void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     std::cout << "...................................." << std::endl;
     std::cout << "Plotting Ranking..." << std::endl;
     //
@@ -1705,9 +1743,9 @@ void MultiFit::PlotNPRanking(){
 
     ifstream fin( fileToRead.c_str() );
     fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-    if (paramname=="Luminosity"){
-        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-    }
+//     if (paramname=="Luminosity"){
+//         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+//     }
     while (!fin.eof()){
         parname.push_back(paramname);
         nuhat.push_back(nuiphat);
@@ -1718,9 +1756,9 @@ void MultiFit::PlotNPRanking(){
         poinomup.push_back(PoiNomUp);
         poinomdown.push_back(PoiNomDown);
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-        if (paramname=="Luminosity"){
-            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-        }
+//         if (paramname=="Luminosity"){
+//             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+//         }
     }
 
     unsigned int SIZE = parname.size();
@@ -1769,16 +1807,16 @@ void MultiFit::PlotNPRanking(){
     if(SIZE>maxNP) SIZE = maxNP;
 
     double poimax = 0;
-//     for (int i=0;i<SIZE;i++) {
-    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
+    for (int i=0;i<SIZE;i++) {
+//     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poinomup[i]),TMath::Abs(poinomdown[i]) ));
         nuerrlo[i] = TMath::Abs(nuerrlo[i]);
     }
     poimax *= 1.2;
 
-//     for (int i=0;i<SIZE;i++) {
-    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
+    for (int i=0;i<SIZE;i++) {
+//     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
         poiup[i]     *= (2./poimax);
         poidown[i]   *= (2./poimax);
         poinomup[i]  *= (2./poimax);
@@ -1810,9 +1848,11 @@ void MultiFit::PlotNPRanking(){
     string parTitle;
 
     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
-        g->SetPoint(      idx, nuhat[i],idx+0.5);
-        g->SetPointEXhigh(idx, nuerrhi[i]);
-        g->SetPointEXlow( idx, nuerrlo[i]);
+//         if(isNF[i]) g->SetPoint(idx, nuhat[i]-1,idx+0.5);
+//         else        
+        g->SetPoint(idx, nuhat[i],  idx+0.5);
+        g->SetPointEXhigh(      idx, nuerrhi[i]);
+        g->SetPointEXlow(       idx, nuerrlo[i]);
 
         g1->SetPoint(      idx, 0.,idx+0.5);
         g1->SetPointEXhigh(idx, poiup[i]);
@@ -1837,8 +1877,28 @@ void MultiFit::PlotNPRanking(){
         g2a->SetPointEXlow( idx, 0.);
         g2a->SetPointEYhigh(idx, 0.4);
         g2a->SetPointEYlow( idx, 0.4);
-
-        parTitle = TtHFitter::SYSTMAP[ parname[i] ];
+        if(parname[i].find("gamma")!=string::npos){
+            // get name of the region
+            std::vector<std::string> tmpVec = Vectorize(parname[i],'_');
+            int nWords = tmpVec.size();
+            std::string regName = tmpVec[2];
+            for(int i_word=3;i_word<nWords-2;i_word++){
+                regName += tmpVec[i_word];
+            }
+            // find the short label of this region
+            std::string regTitle = regName;
+            for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+                for( unsigned int i_ch = 0; i_ch < fFitList[i_fit]->fNRegions; i_ch++ ){
+                    if(fFitList[i_fit]->fRegions[i_ch]->fName==regName){
+                        regTitle = fFitList[i_fit]->fRegions[i_ch]->fShortLabel;
+                        break;
+                    }
+                }
+            }
+            // build the title of the nuis par
+            parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1];
+        }
+        else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
 
         Names.push_back(parTitle);
 
@@ -1918,23 +1978,29 @@ void MultiFit::PlotNPRanking(){
     TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,"Pre-fit impact on #mu:");
     leg1->SetFillStyle(0);
     leg1->SetBorderSize(0);
-    leg1->SetMargin(0.33);
+//     leg1->SetMargin(0.33);
+    leg1->SetMargin(0.25);
     leg1->SetNColumns(2);
     leg1->SetTextFont(gStyle->GetTextFont());
     leg1->SetTextSize(gStyle->GetTextSize());
-    leg1->AddEntry(g1a,"#theta_{0}=+#Delta#theta","f");
-    leg1->AddEntry(g2a,"#theta_{0}=-#Delta#theta","f");
+//     leg1->AddEntry(g1a,"#theta_{0}=+#Delta#theta","f");
+//     leg1->AddEntry(g2a,"#theta_{0}=-#Delta#theta","f");
+    leg1->AddEntry(g1a,"#theta = #hat{#theta}+#Delta#theta","f");
+    leg1->AddEntry(g2a,"#theta = #hat{#theta}-#Delta#theta","f");
     leg1->Draw();
 
     TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,"Post-fit impact on #mu:");
     leg2->SetFillStyle(0);
     leg2->SetBorderSize(0);
-    leg2->SetMargin(0.33);
+//     leg2->SetMargin(0.33);
+    leg2->SetMargin(0.25);
     leg2->SetNColumns(2);
     leg2->SetTextFont(gStyle->GetTextFont());
     leg2->SetTextSize(gStyle->GetTextSize());
-    leg2->AddEntry(g1,"#theta_{0}=+#Delta#hat{#theta}","f");
-    leg2->AddEntry(g2,"#theta_{0}=-#Delta#hat{#theta}","f");
+//     leg2->AddEntry(g1,"#theta_{0}=+#Delta#hat{#theta}","f");
+//     leg2->AddEntry(g2,"#theta_{0}=-#Delta#hat{#theta}","f");
+    leg2->AddEntry(g1,"#theta = #hat{#theta}+#Delta#hat{#theta}","f");
+    leg2->AddEntry(g2,"#theta = #hat{#theta}-#Delta#hat{#theta}","f");
     leg2->Draw();
 
     TLegend *leg0 = new TLegend(0.02,0.1,1,0.25);
@@ -1969,9 +2035,23 @@ void MultiFit::PlotNPRanking(){
 
     gPad->RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+    if(flagGammas && flagSysts){
+      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
         c->SaveAs( (fOutDir+"/Ranking."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
-
+    }
+    else if(flagGammas){
+      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fOutDir+"/RankingGammas."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    }
+    else if(flagSysts){
+      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fOutDir+"/RankingSysts."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    }
+    else{
+      std::cout << "WARNING::TtHFitter:Your ranking plot felt in unknown category :s" << endl;
+      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fOutDir+"/RankingUnknown."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    }
     //
     delete c;
 }
