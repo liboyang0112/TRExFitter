@@ -1743,9 +1743,10 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 
     ifstream fin( fileToRead.c_str() );
     fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//     if (paramname=="Luminosity"){
-//         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//     }
+    if (paramname=="Luminosity"){
+        std::cerr << "MultiFit::PlotNPRanking::WARNING: Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"" << std::endl;
+        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+    }
     while (!fin.eof()){
         parname.push_back(paramname);
         nuhat.push_back(nuiphat);
@@ -1756,9 +1757,10 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         poinomup.push_back(PoiNomUp);
         poinomdown.push_back(PoiNomDown);
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//         if (paramname=="Luminosity"){
-//             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//         }
+        if (paramname=="Luminosity"){
+            std::cerr << "MultiFit::PlotNPRanking::WARNING: Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"" << std::endl;
+            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+        }
     }
 
     unsigned int SIZE = parname.size();
@@ -1803,9 +1805,6 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     }
     number.push_back(parname.size()-0.5);
 
-    // Resttrict to the first N
-    if(SIZE>maxNP) SIZE = maxNP;
-
     double poimax = 0;
     for (int i=0;i<SIZE;i++) {
 //     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
@@ -1822,6 +1821,9 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         poinomup[i]  *= (2./poimax);
         poinomdown[i]*= (2./poimax);
     }
+
+    // Resttrict to the first N
+    if(SIZE>maxNP) SIZE = maxNP;
 
     // Graphical part - rewritten taking DrawPulls in TtHFitter
     float lineHeight  =  30;
