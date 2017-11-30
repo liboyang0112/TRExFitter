@@ -7152,22 +7152,25 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 
     ifstream fin( fileToRead.c_str() );
     fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//     if (paramname=="Luminosity"){
-//         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//     }
+    if (paramname=="Luminosity"){
+        std::cerr << "TtHFit::WARNING: Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"" << std::endl;
+        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+    }
     while (!fin.eof()){
         if(paramname.find("gamma")!=string::npos && !flagGammas){
             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//             if (paramname=="Luminosity"){
-//                 fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//             }
+            if (paramname=="Luminosity"){
+                std::cerr << "TtHFit::PlotNPRanking::WARNING: Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"" << std::endl;
+                fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+            }
             continue;
         }
         if(paramname.find("gamma")==string::npos && !flagSysts){
             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//             if (paramname=="Luminosity"){
-//                 fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//             }
+            if (paramname=="Luminosity"){
+                std::cerr << "TtHFit::PlotNPRanking::WARNING: Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"" << std::endl;
+                fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+            }
             continue;
         }
         parname.push_back(paramname);
@@ -7179,9 +7182,10 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         poinomup.push_back(PoiNomUp);
         poinomdown.push_back(PoiNomDown);
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//         if (paramname=="Luminosity"){
-//             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-//         }
+        if (paramname=="Luminosity"){
+            std::cerr << "TtHFit::PlotNPRanking::WARNING: Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"" << std::endl;
+            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+        }
     }
 
     unsigned int SIZE = parname.size();
@@ -7226,9 +7230,6 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     }
     number.push_back(parname.size()-0.5);
 
-    // Resttrict to the first N
-    if(SIZE>maxNP) SIZE = maxNP;
-
     double poimax = 0;
     for (int i=0;i<SIZE;i++) {
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
@@ -7243,6 +7244,9 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         poinomup[i]  *= (2./poimax);
         poinomdown[i]*= (2./poimax);
     }
+
+    // Restrict to the first N
+    if(SIZE>maxNP) SIZE = maxNP;
 
     // Graphical part - rewritten taking DrawPulls in TtHFitter
     float lineHeight  =  30;
