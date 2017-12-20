@@ -696,6 +696,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if( std::find(vec.begin(), vec.end(), "CHI2")   !=vec.end() )  TtHFitter::SHOWCHI2       = true;
         if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
         if( std::find(vec.begin(), vec.end(), "POISSONIZE")        !=vec.end() )  TtHFitter::POISSONIZE     = true;
+        if( std::find(vec.begin(), vec.end(), "REMOVEXERRORS")     !=vec.end() )  TtHFitter::REMOVEXERRORS  = true;
         // ...
     }
     param = cs->Get("PlotOptionsSummary");       if( param != ""){

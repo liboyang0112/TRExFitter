@@ -73,6 +73,7 @@ namespace TtHFitter{
     extern bool SYSTERRORBARS;
     extern bool SPLITHISTOFILES;
     extern bool HISTOCHECKCRASH;
+    extern bool REMOVEXERRORS;
     extern float CORRELATIONTHRESHOLD;
     extern std::map< string,string > SYSTMAP;
     extern std::map< string,string > SYSTTEX;
