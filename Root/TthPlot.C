@@ -773,7 +773,7 @@ void TthPlot::Draw(string options){
         h_ratio->Draw("HIST same");
     }
     else if(hasData){
-        g_ratio->Draw("pe");
+        g_ratio->Draw("pe0");
     }
     hline->Draw();
     //
