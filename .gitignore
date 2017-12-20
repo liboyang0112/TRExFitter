@@ -3,3 +3,4 @@ ExampleInputs
 myFit.exe*
 *_C*
 .DS_Store
+*.o

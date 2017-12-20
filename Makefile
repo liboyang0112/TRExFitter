@@ -9,23 +9,21 @@ CXXFLAGS  += $(shell root-config --cflags)
 LDFLAGS    = $(ROOTLIB)
 LDFLAGS   += -lHistFactory -lRooStats -lRooFit -lRooFitCore
 
-OBJS := $(wildcard Root/*.C)
-OBJS      += AtlasStyle.C AtlasUtils.C AtlasLabels.C
+SOURCE := util/myFit.C
+SOURCE += $(wildcard Root/*.C)
+SOURCE += AtlasStyle.C AtlasUtils.C AtlasLabels.C
 
-# external stuff
-# can use RootCore, but keep like this to make it portable
-# OBJS += ../TopDataPreparation/Root/SampleXsection.o
-# CXXFLAGS += -I../RootCoreBin/include
-CXXFLAGS   += -I${ROOTSYS}/include -L${ROOTSYS}/lib
+OBJS := $(SOURCE:.C=.o)
 
 %.o: %.C
 	g++ -c $(CXXFLAGS) -o $@ $<
 
 all: myFit.exe     # this is the default executable
 
-%.exe: util/%.o $(OBJS) 
-	echo $@
-	g++ $(CXXFLAGS) -o $@ $(patsubst %.exe,%.o,util/$@) $(OBJS) $(LDFLAGS)
+myFit.exe: $(OBJS)
+	@echo "Linking ..."
+	g++ $^ -o myFit.exe $(LDFLAGS)
+
 clean:
 	rm -rf *.exe *.o Root/*.o util/*.o
 
