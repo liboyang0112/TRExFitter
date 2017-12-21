@@ -128,6 +128,7 @@ Note that, each object should have unique <ObjectName>.
         * OVERSIG: overlay signal (not normalised)
         * CHI2: the chi2/ndf and chi2 prob will be printed on each plot, provided that the option GetChi2 is set
         * PREFITONPOSTFIT: draw a dashed line on the postfit plot that indicates the sum of prefit background
+        * NOXERR: removes the horizontal error bars on the data and the ratio plots
      * TableOptions      : a set of options for tables (yield tables only for the moment):
         * STANDALONE : default! If not set, no "\begin{document}"
         * FOOTNOTESIZE : -> \footnotesize

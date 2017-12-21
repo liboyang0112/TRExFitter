@@ -730,8 +730,13 @@ void TthPlot::Draw(string options){
     h_ratio->SetMarkerColor(kBlack);
     h_ratio->SetLineWidth(2);
     TGraphAsymmErrors *g_ratio = histToGraph(h_ratio);
+    g_ratio -> SetMarkerStyle(h_ratio->GetMarkerStyle());
     for(int i_bin=1;i_bin<=h_ratio->GetNbinsX();i_bin++){
         //For the ratio plot, the error is just to illustrate the "poisson uncertainty on the data"
+        if(TtHFitter::REMOVEXERRORS){
+            g_ratio->SetPointEXhigh( i_bin-1, 0. );
+            g_ratio->SetPointEXlow(  i_bin-1, 0. );
+        }
         if(h_data->GetBinContent(i_bin)<1 || h_ratio->GetBinContent(i_bin)<0.001){
             g_ratio->SetPointEYhigh( i_bin-1,0 );
             g_ratio->SetPointEYlow(  i_bin-1,0 );
@@ -768,7 +773,7 @@ void TthPlot::Draw(string options){
         h_ratio->Draw("HIST same");
     }
     else if(hasData){
-        h_ratio->Draw("E0 same");
+        g_ratio->Draw("pe0");
     }
     hline->Draw();
     //
@@ -1048,7 +1053,11 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
     int hBinCounter = 1;
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
         double content = (gr->GetY())[i];
-        gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
+        if(!TtHFitter::REMOVEXERRORS){
+            gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
+        } else {
+            gr->SetPointError(i,0,0,GC_down(content),GC_up(content));            
+        }
         //     if(content==0){
         if(content<0.1){ // FIXME
             gr->RemovePoint(i);
@@ -1064,7 +1073,11 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
 TGraphAsymmErrors* histToGraph(TH1* h){
     TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
-        gr->SetPointError(i,0.499*h->GetBinWidth(i+1),0.5*h->GetBinWidth(i+1),0,0);
+        if(!TtHFitter::REMOVEXERRORS){
+            gr->SetPointError(i,0.499*h->GetBinWidth(i+1),0.5*h->GetBinWidth(i+1),0,0);
+        } else {
+            gr->SetPointError(i,0,0,0,0);          
+        }
     }
     gr->SetMarkerStyle(h->GetMarkerStyle());
     gr->SetMarkerSize(h->GetMarkerSize());

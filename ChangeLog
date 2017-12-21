@@ -1,3 +1,10 @@
+2017-12-20 Loic Valery <lvalery@cern.ch>
+    * Update the Makefile with Knut's proposal
+
+2017-12-20 Loic Valery <lvalery@cern.ch>
+    * Fix some issue with the norma factors in prefit plots 
+    * Adding an option to remove the X error bars on data and ratio plots
+
 2017-11-30 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fix for fanking plot (working on TTHFITTER-164)
     

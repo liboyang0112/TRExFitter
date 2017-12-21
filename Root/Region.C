@@ -396,10 +396,8 @@ void Region::BuildPreFitErrorHist(){
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
                 yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);
-                diffUp   += sh->fHistUp  ->GetBinContent(i_bin) - yieldNominal;
-                diffDown += sh->fHistDown->GetBinContent(i_bin) - yieldNominal;
-                diffUp   *= scale;
-                diffDown *= scale;
+                diffUp   += (sh->fHistUp  ->GetBinContent(i_bin) - yieldNominal)*scale;
+                diffDown += (sh->fHistDown->GetBinContent(i_bin) - yieldNominal)*scale;
             }
             // add the proper bin content to the variation hists
             fTotUp[i_syst]  ->AddBinContent( i_bin, diffUp   );
