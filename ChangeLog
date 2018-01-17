@@ -1,3 +1,16 @@
+2018-01-17 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixes post-fit uncertainty band issues with norm factors fitted away from 1
+    * Fixes post-fit uncertainty band issues with gammas (if UseGammaPulls is used)
+    * Fixes post-fit uncertainty band issues with systematics with NuisanceParameter != Name
+    * Fixes TTHFITTER-165: now ranking plot takes NuisanceParameter as as input, not syst Name
+    * Fixes TTHFITTER-155
+    * Fixes TTHFITTER-109
+    * Code now aborts if ranking plot is running with a B-only fit
+    * Added flags to enable/disable under/over-flow bins for both HIST and NTUP inputs (keeping default as it is)
+    * Added flags to enable/disable summary plots, tables, signal region plots and pie-chart plots
+    * Added the functionaliy (experimental) to draw merged plots of all bins of all regions (with flag DoMergePlot)
+    * Newer version of ROOT
+    
 2017-12-20 Loic Valery <lvalery@cern.ch>
     * Update the Makefile with Knut's proposal
 

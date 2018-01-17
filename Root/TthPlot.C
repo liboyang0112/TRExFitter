@@ -155,6 +155,8 @@ void TthPlot::SetBinWidth(float width){
 //
 void TthPlot::SetData(TH1* h,string name){
     h_data = (TH1*)h->Clone();
+    // if no name is given, take the histogram title
+    if(name=="") name = h->GetTitle();
     data_name = name;
 }
 
@@ -165,6 +167,8 @@ void TthPlot::AddSignal(TH1* h,string name){
 //     if(std::find(fSigNames.begin(),fSigNames.end(),name)!=fSigNames.end()){
 //         h_signal[fSigNames.size()-1]->Add(h,fLumiScale);
 //     }
+    // if no name is given, take the histogram title
+    if(name=="") name = h->GetTitle();
     int idx = std::find(fSigNames.begin(),fSigNames.end(),name) - fSigNames.begin();
     if(idx<fSigNames.size()){
         h_signal[idx]->Add(h,fLumiScale);
@@ -183,6 +187,8 @@ void TthPlot::AddNormSignal(TH1* h,string name){
 //     if(std::find(fNormSigNames.begin(),fNormSigNames.end(),name)!=fNormSigNames.end()){
 //         h_normsig[fNormSigNames.size()-1]->Add(h,fLumiScale);
 //     }
+    // if no name is given, take the histogram title
+    if(name=="") name = h->GetTitle();
     int idx = std::find(fNormSigNames.begin(),fNormSigNames.end(),name) - fNormSigNames.begin();
     if(idx<fNormSigNames.size()){
         h_normsig[idx]->Add(h,fLumiScale);
@@ -201,6 +207,8 @@ void TthPlot::AddOverSignal(TH1* h,string name){
 //     if(std::find(fOverSigNames.begin(),fOverSigNames.end(),name)!=fOverSigNames.end()){
 //         h_oversig[fOverSigNames.size()-1]->Add(h,fLumiScale);
 //     }
+    // if no name is given, take the histogram title
+    if(name=="") name = h->GetTitle();
     int idx = std::find(fOverSigNames.begin(),fOverSigNames.end(),name) - fOverSigNames.begin();
     if(idx<fOverSigNames.size()){
         h_oversig[idx]->Add(h,fLumiScale);
@@ -231,6 +239,8 @@ void TthPlot::AddBackground(TH1* h,string name){
 //     if(idx>=0){
 //         h_bkg[idx]->Add(h,fLumiScale);
 //     }
+    // if no name is given, take the histogram title
+    if(name=="") name = h->GetTitle();
     //
     int idx = std::find(fBkgNames.begin(),fBkgNames.end(),name) - fBkgNames.begin();
     if(idx<fBkgNames.size()){
@@ -600,17 +610,58 @@ void TthPlot::Draw(string options){
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
-        if(TtHFitter::OPTION["TtHbbStyle"]>0)
-            leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
-        else
-            leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+//         if(TtHFitter::OPTION["TtHbbStyle"]>0)
+//             leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+//         else if(TtHFitter::OPTION["FourTopStyle"]>0)
+//             leg  = new TLegend(0.6,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+//         else
+//             leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+        legX1 = legX2 - 3*(legX2-legXmid+0.1*(legX2-legXmid));
+        leg = new TLegend(legX1,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
         leg->SetNColumns(3);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
         if(!TtHFitter::LEGENDLEFT) leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
-          leg->SetTextSize(gStyle->GetTextSize());
+        leg->SetTextSize(gStyle->GetTextSize());
         leg->SetMargin(0.20);
+
+        //Draws data in the legend only is real data
+        if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
+
+        //Signal and background legend
+        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+        if(TtHFitter::OPTION["TtHbbStyle"]==0){
+            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
+            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+        }
+        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+        if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
+        else leg->AddEntry(g_tot,"Uncertainty","f");
+        if(TtHFitter::OPTION["TtHbbStyle"]!=0){
+            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
+            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+        }
+
+        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        
+        leg->Draw();
+    }
+    else if(fLegendNColumns==4){
+        int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
+        if(hasData) Nrows ++;
+        Nrows ++; // for "Uncertainty"
+        if(TtHFitter::OPTION["TtHbbStyle"]>0)
+            leg  = new TLegend(0.5,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+        else
+            leg  = new TLegend(0.5,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+        leg->SetNColumns(4);
+        leg->SetFillStyle(0);
+        leg->SetBorderSize(0);
+        if(!TtHFitter::LEGENDLEFT) leg->SetTextAlign(32);
+        leg->SetTextFont(gStyle->GetTextFont());
+        leg->SetTextSize(gStyle->GetTextSize());
+        leg->SetMargin(0.18);
 
         //Draws data in the legend only is real data
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
@@ -819,9 +870,11 @@ void TthPlot::Draw(string options){
     // to hide the upper limit (label) of the ratio plot
     TLine line(0.01,1,0.1,1);
     line.SetLineColor(kWhite);
+//     line.SetLineColor(kRed);
     line.SetLineWidth(25);
-    if(pad0->GetWw() > pad0->GetWh()) line.DrawLineNDC(0.05,1,0.090,1);
-    else                              line.DrawLineNDC(0.07,1,0.135,1);
+    if(pad0->GetWw() >= 2*pad0->GetWh())   line.DrawLineNDC(0.06,1,0.100,1);
+    else if(pad0->GetWw() > pad0->GetWh()) line.DrawLineNDC(0.05,1,0.088,1);
+    else                                   line.DrawLineNDC(0.07,1,0.135,1);
 
     //
     // Add arrows when the ratio is beyond the limits of the ratio plot
@@ -844,8 +897,10 @@ void TthPlot::Draw(string options){
             TArrow *arrow;
 //             if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),1.45, h_ratio->GetXaxis()->GetBinCenter(i_bin),1.5,0.030,"|>");
 //             else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),0.55, h_ratio->GetXaxis()->GetBinCenter(i_bin),0.5,0.030,"|>");
-            if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax-0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax,0.030,"|>");
-            else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin+0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin,0.030,"|>");
+//             if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax-0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax,0.030,"|>");
+//             else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin+0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin,0.030,"|>");
+            if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax-0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax,0.030/(pad0->GetWw()/596.),"|>");
+            else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin+0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin,0.030/(pad0->GetWw()/596.),"|>");
             arrow->SetFillColor(10);
             arrow->SetFillStyle(1001);
             arrow->SetLineColor(kBlue-7);
@@ -1054,7 +1109,7 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
         double content = (gr->GetY())[i];
         if(!TtHFitter::REMOVEXERRORS){
-            gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
+        gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
         } else {
             gr->SetPointError(i,0,0,GC_down(content),GC_up(content));            
         }
@@ -1065,6 +1120,10 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
         }
         hBinCounter++;
     }
+    gr->SetMarkerSize(h->GetMarkerSize());
+    gr->SetMarkerColor(h->GetMarkerColor());
+    gr->SetMarkerStyle(h->GetMarkerStyle());
+    gr->SetLineWidth(h->GetLineWidth());
     return gr;
 }
 
@@ -1074,7 +1133,7 @@ TGraphAsymmErrors* histToGraph(TH1* h){
     TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
         if(!TtHFitter::REMOVEXERRORS){
-            gr->SetPointError(i,0.499*h->GetBinWidth(i+1),0.5*h->GetBinWidth(i+1),0,0);
+        gr->SetPointError(i,0.499*h->GetBinWidth(i+1),0.5*h->GetBinWidth(i+1),0,0);
         } else {
             gr->SetPointError(i,0,0,0,0);          
         }

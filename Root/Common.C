@@ -26,6 +26,7 @@ bool TtHFitter::HISTOCHECKCRASH = true;
 bool TtHFitter::GUESSMCSTATERROR = true;
 bool TtHFitter::REMOVEXERRORS = false;
 float TtHFitter::CORRELATIONTHRESHOLD = -1;
+bool TtHFitter::MERGEUNDEROVERFLOW = false;
 std::map <string,string> TtHFitter::SYSTMAP;
 std::map <string,string> TtHFitter::SYSTTEX;
 std::map <string,string> TtHFitter::NPMAP;
@@ -50,11 +51,9 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();
-//     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
     t->Draw(drawVariable, drawWeight, "goff");
-    MergeUnderOverFlow(h);
-//     t->~TChain();
+    if(TtHFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     delete t;
     return h;
 }
@@ -68,11 +67,9 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();
-//     t->Draw( Form("%s>>h",variable.c_str()), Form("(%s)*(%s)",weight.c_str(),selection.c_str()), "goff");
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
     t->Draw(drawVariable, drawWeight, "goff");
-    MergeUnderOverFlow(h);
-//     t->~TChain();
+    if(TtHFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     delete t;
     return h;
 }
@@ -109,7 +106,6 @@ TH1* HistFromFile(string fileName,string histoName){
         cout<<"cannot find input file '"<<fileName<<"'"<<endl;
         return h;
     }
-//     if(f->Get(histoName.c_str())) h = (TH1*)f->Get(histoName.c_str())->Clone();
     h = static_cast<TH1*>(f->Get(histoName.c_str()));
     if(not h){
         cout<<"cannot find histogram '"<<histoName<<"' from input file '"<<fileName<<"'"<<endl;
@@ -117,6 +113,7 @@ TH1* HistFromFile(string fileName,string histoName){
     }
     h = static_cast<TH1*>(h->Clone());
     if(h!=0x0) h->SetDirectory(0);
+    if(TtHFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     return h;
 }
 
@@ -529,4 +526,50 @@ void CloseFiles( const std::set < std::string> &files_names ){
             TtHFitter::TFILEMAP.erase(file);
         }
     }
+}
+
+TH1F* MergeHistograms(vector<TH1*> hVec){
+  if(hVec.size()==0) return 0x0;
+  if(hVec[0]==0x0) return 0x0;
+  // get total number of bins
+  int Nbins = 0;
+  for(auto h : hVec){
+    Nbins += h->GetNbinsX();
+  }
+  // build array of bin edges
+  float bins[Nbins];
+  // coutner
+  int k_bin = 0;
+  // first edge from first histogram
+  bins[0] = hVec[0]->GetXaxis()->GetBinLowEdge(1);
+  k_bin ++;
+  // define the offset, which will be increased by the last bin UpEdge of a histogram at the end of the loop on its bins
+  float offset = 0;
+  //
+  for(auto h : hVec){
+    for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
+      bins[k_bin] = h->GetXaxis()->GetBinUpEdge(i_bin) + offset;
+      if(i_bin==h->GetNbinsX()) offset += h->GetXaxis()->GetBinUpEdge(i_bin)-h->GetXaxis()->GetBinLowEdge(1);
+      k_bin ++;
+    }
+  }
+  // create the new histogram  
+  TH1F *hOut = new TH1F("h_merge","h_merge",Nbins,bins);
+  hOut->SetTitle(hVec[0]->GetTitle());
+  hOut->SetLineColor(hVec[0]->GetLineColor());
+  hOut->SetLineStyle(hVec[0]->GetLineStyle());
+  hOut->SetLineWidth(hVec[0]->GetLineWidth());
+  hOut->SetFillColor(hVec[0]->GetFillColor());
+  hOut->SetFillStyle(hVec[0]->GetFillStyle());
+  // fill it
+  k_bin = 1;
+  for(auto h : hVec){
+    for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
+      hOut->SetBinContent(k_bin,h->GetBinContent(i_bin));
+      hOut->SetBinError(k_bin,h->GetBinError(i_bin));
+      k_bin ++;
+    }
+  }
+  // return
+  return hOut;
 }
