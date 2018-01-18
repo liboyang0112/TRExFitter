@@ -4830,7 +4830,8 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
             a->SetLabelFont(gStyle->GetTextFont());
             a->SetLabelSize(gStyle->GetTextSize());
             a->SetNdivisions(805);
-            a->ChangeLabel(1,-1,-1,-1,-1,-1," ");
+            // the following lines require newer version of ROOT
+//             a->ChangeLabel(1,-1,-1,-1,-1,-1," ");
             a->Draw();
         }
         i_yaxis ++;
@@ -4867,9 +4868,10 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
         ga->SetTitleOffset(h_dummy2->GetXaxis()->GetTitleOffset()*0.45);
         ga->SetTitleSize(gStyle->GetTextSize());
         ga->SetTitleFont(gStyle->GetTextFont());
-        if(i_reg<regions.size()-1){
-            ga->ChangeLabel(-1,-1,-1,-1,-1,-1," "); // shut up the last label ;)
-        }
+        // the following lines require newer version of ROOT
+//         if(i_reg<regions.size()-1){
+//             ga->ChangeLabel(-1,-1,-1,-1,-1,-1," "); // shut up the last label ;)
+//         }
         i_reg ++;
     }
     //

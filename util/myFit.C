@@ -177,7 +177,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     if(drawPreFit){
         if(TtHFitter::OPTION["PrefitRatioMax"]==2){
             myFit->DrawAndSaveAll("prefit");
-            if(myFit->fDoMergePlot) myFit->DrawMergedPlot(myFit->fRegions,"prefit");
+            if(myFit->fDoMergedPlot) myFit->DrawMergedPlot(myFit->fRegions,"prefit");
             if(myFit->fDoSummaryPlot){
                 prefit_plot       = myFit->DrawSummary("log prefit");
                 prefit_plot_valid = myFit->DrawSummary("log valid prefit");
@@ -185,7 +185,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         }
         else{
             myFit->DrawAndSaveAll();
-            if(myFit->fDoMergePlot) myFit->DrawMergedPlot(myFit->fRegions,"");
+            if(myFit->fDoMergedPlot) myFit->DrawMergedPlot(myFit->fRegions,"");
             if(myFit->fDoSummaryPlot){
                 prefit_plot       = myFit->DrawSummary("log");
                 prefit_plot_valid = myFit->DrawSummary("log valid");
@@ -212,7 +212,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     
     if(drawPostFit){
         myFit->DrawAndSaveAll("post");
-        if(myFit->fDoMergePlot) myFit->DrawMergedPlot(myFit->fRegions,"post");
+        if(myFit->fDoMergedPlot) myFit->DrawMergedPlot(myFit->fRegions,"post");
         if(myFit->fDoSummaryPlot){
             myFit->DrawSummary("log post",      prefit_plot);
             myFit->DrawSummary("log post valid",prefit_plot_valid);
