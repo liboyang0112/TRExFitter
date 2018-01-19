@@ -177,19 +177,27 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
     if(drawPreFit){
         if(TtHFitter::OPTION["PrefitRatioMax"]==2){
             myFit->DrawAndSaveAll("prefit");
-            prefit_plot       = myFit->DrawSummary("log prefit");
-            prefit_plot_valid = myFit->DrawSummary("log valid prefit");
+            if(myFit->fDoMergedPlot) myFit->DrawMergedPlot(myFit->fRegions,"prefit");
+            if(myFit->fDoSummaryPlot){
+                prefit_plot       = myFit->DrawSummary("log prefit");
+                prefit_plot_valid = myFit->DrawSummary("log valid prefit");
+            }
         }
         else{
             myFit->DrawAndSaveAll();
-            prefit_plot       = myFit->DrawSummary("log");
-            prefit_plot_valid = myFit->DrawSummary("logvalid");
+            if(myFit->fDoMergedPlot) myFit->DrawMergedPlot(myFit->fRegions,"");
+            if(myFit->fDoSummaryPlot){
+                prefit_plot       = myFit->DrawSummary("log");
+                prefit_plot_valid = myFit->DrawSummary("log valid");
+            }
         }
-        myFit->BuildYieldTable();
-        for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
-            myFit->BuildYieldTable("",myFit->fRegionGroups[i_gr]);
+        if(myFit->fDoTables){
+            myFit->BuildYieldTable();
+            for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
+                myFit->BuildYieldTable("",myFit->fRegionGroups[i_gr]);
+            }
+            myFit->PrintSystTables();
         }
-        myFit->PrintSystTables();
         int nCols = 2;
         int nRows = 2;
         if(myFit->fNRegions>4){
@@ -198,19 +206,24 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
             nRows = (int)sqrt(myFit->fNRegions);
             if(nCols*nRows < myFit->fNRegions) nRows++;
         }
-        myFit->DrawSignalRegionsPlot(nCols,nRows);
-        myFit->DrawPieChartPlot("pre",nCols,nRows);
+        if(myFit->fDoSignalRegionsPlot) myFit->DrawSignalRegionsPlot(nCols,nRows);
+        if(myFit->fDoPieChartPlot)      myFit->DrawPieChartPlot("pre",nCols,nRows);
     }
     
     if(drawPostFit){
         myFit->DrawAndSaveAll("post");
-        myFit->DrawSummary("log post",      prefit_plot);
-        myFit->DrawSummary("log post valid",prefit_plot_valid);
-        myFit->BuildYieldTable("post");
-        for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
-            myFit->BuildYieldTable("post",myFit->fRegionGroups[i_gr]);
+        if(myFit->fDoMergedPlot) myFit->DrawMergedPlot(myFit->fRegions,"post");
+        if(myFit->fDoSummaryPlot){
+            myFit->DrawSummary("log post",      prefit_plot);
+            myFit->DrawSummary("log post valid",prefit_plot_valid);
         }
-        myFit->PrintSystTables("post");
+        if(myFit->fDoTables){
+            myFit->BuildYieldTable("post");
+            for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
+                myFit->BuildYieldTable("post",myFit->fRegionGroups[i_gr]);
+            }
+            myFit->PrintSystTables("post");
+        }
         int nCols = 2;
         int nRows = 2;
         if(myFit->fNRegions>4){
@@ -219,7 +232,7 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
             nRows = (int)sqrt(myFit->fNRegions);
             if(nCols*nRows < myFit->fNRegions) nRows++;
         }
-        myFit->DrawPieChartPlot("post",nCols,nRows);
+        if(myFit->fDoPieChartPlot)      myFit->DrawPieChartPlot("post",nCols,nRows);
     }
 
     if(drawSeparation){

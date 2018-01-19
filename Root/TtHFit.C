@@ -103,6 +103,12 @@ TtHFit::TtHFit(string name){
     fYmax = 0;
 
     fFitResultsFile = "";
+    
+    fDoSummaryPlot = true;
+    fDoMergedPlot = false;
+    fDoTables = true;
+    fDoSignalRegionsPlot = true;
+    fDoPieChartPlot = true;
 
     //
     // Fit caracteristics
@@ -641,13 +647,22 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                                else          fLabel = fName;
     SetPOI(CheckName(cs->Get("POI")));
     param = cs->Get("ReadFrom");
+    std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+    if(      param=="HIST" || param=="HISTOGRAMS")  fInputType = 0;
+    else if( param=="NTUP" || param=="NTUPLES" )    fInputType = 1;
+    else{
+        std::cerr << "ERROR: Invalid \"ReadFrom\" argument. Options: \"HIST\", \"NTUP\"" << std::endl;
+        return;
+    }
+    // set default MERGEUNDEROVERFLOW
+    if(fInputType==0)      TtHFitter::MERGEUNDEROVERFLOW = false;
+    else if(fInputType==1) TtHFitter::MERGEUNDEROVERFLOW = true;
+    param = cs->Get("MergeUnderOverFlow");    if(param!=""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param=="HIST" || param=="HISTOGRAMS")  fInputType = 0;
-        else if( param=="NTUP" || param=="NTUPLES" )    fInputType = 1;
-        else{
-            std::cerr << "ERROR: Invalid \"ReadFrom\" argument. Options: \"HIST\", \"NTUP\"" << std::endl;
-            return;
-        }
+        if(      param == "TRUE" )  TtHFitter::MERGEUNDEROVERFLOW = true;
+        else if( param == "FALSE" ) TtHFitter::MERGEUNDEROVERFLOW = false;
+    }
+    //
     if(fInputType==0){
         AddHistoPath( cs->Get("HistoPath") );
     }
@@ -875,6 +890,31 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         else if( param.find("STAT")!=std::string::npos ){
             fGetChi2 = 1;
         }
+    }
+    param = cs->Get("DoSummaryPlot");   if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if(      param == "TRUE" )  fDoSummaryPlot = true;
+        else if( param == "FALSE" ) fDoSummaryPlot = false;
+    }
+    param = cs->Get("DoMergedPlot");   if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if(      param == "TRUE" )  fDoMergedPlot = true;
+        else if( param == "FALSE" ) fDoMergedPlot = false;
+    }
+    param = cs->Get("DoTables");   if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if(      param == "TRUE" )  fDoTables = true;
+        else if( param == "FALSE" ) fDoTables = false;
+    }
+    param = cs->Get("DoSignalRegionsPlot");   if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if(      param == "TRUE" )  fDoSignalRegionsPlot = true;
+        else if( param == "FALSE" ) fDoSignalRegionsPlot = false;
+    }
+    param = cs->Get("DoPieChartPlot");   if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if(      param == "TRUE" )  fDoPieChartPlot = true;
+        else if( param == "FALSE" ) fDoPieChartPlot = false;
     }
     
     //
@@ -2092,6 +2132,15 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         std::cout << "TtHFit::INFO: StatOnly option is setting to OFF the MC-stat (gammas) as well.\nTo keep them on use the command line option 'Systematics=NONE' or comment out all Systematics in config file." << std::endl;
         SetStatErrorConfig( false, 0. );
     }
+    // add nuisance parameter - systematic title correspondence
+    for(auto syst : fSystematics){
+        if(sys->fNuisanceParameter!=sys->fName) TtHFitter::SYSTMAP[sys->fNuisanceParameter] = sys->fTitle;
+    }
+    // add nuisance parameter - norm-factor title correspondence & fix nuisance parameter
+    for(auto norm : fNormFactors){
+        if(TtHFitter::NPMAP[norm->fName]=="") TtHFitter::NPMAP[norm->fName] = norm->fName;
+        if(norm->fNuisanceParameter!=norm->fName) TtHFitter::SYSTMAP[norm->fNuisanceParameter] = norm->fTitle;
+    }
 }
 
 
@@ -3049,6 +3098,28 @@ void TtHFit::CorrectHistograms(){
 //         }
 //     }
     
+    // drop normalisation part of systematic according to fDropNormIn
+    for(auto reg : fRegions){
+        for(auto sh : reg->fSampleHists){
+            if(sh->fHist==0x0) continue;
+            for(auto syst : fSystematics){
+                if(  FindInStringVector(syst->fDropNormIn, reg->fName)>=0
+                  || FindInStringVector(syst->fDropNormIn, sh->fSample->fName)>=0
+                  || FindInStringVector(syst->fDropNormIn, "all")>=0
+                  ){
+                    SystematicHist* syh = sh->GetSystematic(syst->fName);
+                    if(syh==0x0) continue;
+                    if(sh->fHist->Integral()!=0){
+                        if(TtHFitter::DEBUGLEVEL>0){
+                            std::cout << "  Normalising syst " << syst->fName << " for sample " << sh->fSample->fName << std::endl;
+                        }
+                        if(syh->fHistUp  !=0x0) syh->fHistUp  ->Scale(sh->fHist->Integral()/syh->fHistUp  ->Integral());
+                        if(syh->fHistDown!=0x0) syh->fHistDown->Scale(sh->fHist->Integral()/syh->fHistDown->Integral());
+                    }
+                }
+            }
+        }
+    }
     
     //
     // NEW: artifificially set all systematics not to affect overall normalisation for sample or set of samples
@@ -4151,6 +4222,9 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
                     integral = 0.;
                     intErr = 0.;
                 }
+                // this becuase MC stat is taken into account by the gammas
+                if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
+                    intErr = 0.;
                 h_sig[Nsig]->SetBinContent( i_bin,integral );
                 h_sig[Nsig]->SetBinError( i_bin,intErr );
             }
@@ -4183,6 +4257,9 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
                     integral = 0.;
                     intErr = 0.;
                 }
+                // this becuase MC stat is taken into account by the gammas
+                if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
+                    intErr = 0.;
                 h_bkg[Nbkg]->SetBinContent( i_bin,integral );
                 h_bkg[Nbkg]->SetBinError( i_bin,intErr );
             }
@@ -4315,6 +4392,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
     systNames.clear();
     npNames.clear();
     int i_np = -1;
+    // actual systematics
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         string systName = fSystematics[i_syst]->fName;
         string systNuisPar = systName;
@@ -4384,10 +4462,91 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
             }
         }
     }
-    // FIXME SF 
+    // add the gammas (only if post-fit)
+    if(isPostFit && fUseGammaPulls){
+        // loop on regions
+        for(int i_ch=1;i_ch<=Nbin;i_ch++){
+            Region *region = fRegions[regionVec[i_ch-1]];
+            if(region==0x0) continue;
+            if(region->fTot==0x0) continue;
+            // loop on bins
+            for(int i_bin=1;i_bin<=region->fTot->GetNbinsX();i_bin++){
+                // set gamma name
+                string gammaName = Form("stat_%s_bin_%d",region->fName.c_str(),i_bin-1);
+                if(FindInStringVector(npNames,gammaName)<0){
+                    npNames.push_back(gammaName);
+                    i_np++;
+                }
+                else
+                    continue;
+                systNames.push_back( gammaName );
+                // find the systematic in the region
+                int syst_idx = -1;
+                for(int j_syst=0;j_syst<(int)region->fSystNames.size();j_syst++){
+                    if(gammaName==region->fSystNames[j_syst]){
+                        syst_idx = j_syst;
+                    }
+                }
+                if(syst_idx<0){
+                    h_tmp_Up   = region->fTot_postFit;
+                    h_tmp_Down = region->fTot_postFit;
+                }
+                else{
+                    h_tmp_Up   = region->fTotUp_postFit[syst_idx];
+                    h_tmp_Down = region->fTotDown_postFit[syst_idx];
+                }
+                if(i_bin==1){
+                    h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
+                    h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
+                }
+                h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+                h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+                //
+                // now sample-specific gammas
+                for(auto sample : fSamples){
+                    if(!sample->fSeparateGammas) continue;
+                    gammaName = Form("shape_stat_%s_%s_bin_%d",sample->fName.c_str(),region->fName.c_str(),i_bin-1);
+                    if(FindInStringVector(npNames,gammaName)<0){
+                        npNames.push_back(gammaName);
+                        i_np++;
+                    }
+                    else
+                        continue;
+                    systNames.push_back( gammaName );
+                    // find the systematic in the region
+                    int syst_idx = -1;
+                    for(int j_syst=0;j_syst<(int)region->fSystNames.size();j_syst++){
+                        if(gammaName==region->fSystNames[j_syst]){
+                            syst_idx = j_syst;
+                        }
+                    }
+                    if(syst_idx<0){
+                        h_tmp_Up   = region->fTot_postFit;
+                        h_tmp_Down = region->fTot_postFit;
+                    }
+                    else{
+                        h_tmp_Up   = region->fTotUp_postFit[syst_idx];
+                        h_tmp_Down = region->fTotDown_postFit[syst_idx];
+                    }
+                    if(i_bin==1){
+                        h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
+                        h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
+                    }
+                    h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+                    h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+                }
+            }
+        }
+    }
     // add the norm factors
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         string normName = fNormFactors[i_norm]->fName;
+        if(FindInStringVector(npNames,normName)<0){
+            npNames.push_back(normName);
+            i_np++;
+        }
+        else
+            continue;
         systNames.push_back( normName );
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             // find the systematic in the region
@@ -4422,10 +4581,8 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
                 h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,normName.c_str()), Form("h_Tot_%s_Up_TMP",  normName.c_str()), Nbin,0,Nbin) );
                 h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",normName.c_str()), Form("h_Tot_%s_Down_TMP",normName.c_str()), Nbin,0,Nbin) );
             }
-//             h_up[fNSyst+i_norm]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
-//             h_down[fNSyst+i_norm]->SetBinContent( i_bin,h_tmp_Down->Integral() );
-            h_up[i_np+1+i_norm]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
-            h_down[i_np+1+i_norm]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+            h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+            h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
     //
@@ -4515,6 +4672,240 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
     h_down.clear();
     //
     return p;
+}
+
+//__________________________________________________________________________________
+//
+void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
+    bool isPostFit = false;
+    if(opt.find("post")!=string::npos) isPostFit = true;
+    // start with total prediction, which should be always there
+    // build a vector of histograms
+    int i_ch = 0;
+    vector<TH1*> hTotVec;
+    vector<float> edges;
+    vector<TGaxis*> xaxis;
+    vector<TGaxis*> yaxis;
+    //
+    float ymax0 = -1; // ymax0 is the max y of the first region
+    float ymax  = -1;
+    float ymaxTmp = -1;
+    for(auto region : regions){
+        TH1* h_tmp  = 0x0;
+        if(isPostFit) h_tmp = (TH1*)region->fTot_postFit->Clone();
+        else          h_tmp = (TH1*)region->fTot->Clone();
+        TH1* h_data = 0x0;
+        if(region->fData!=0x0) h_data = (TH1*)region->fData->fHist->Clone();
+        //
+        for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
+            if(isPostFit) h_tmp->SetBinError( i_bin,region->fErr_postFit->GetErrorY(i_bin-1) );
+            else          h_tmp->SetBinError( i_bin,region->fErr->GetErrorY(i_bin-1) );
+        }
+        // find max y (don't rely on GetMaximum, since it could have been modified
+        ymaxTmp = 0;
+        for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
+            if(h_tmp->GetBinContent(i_bin)>ymaxTmp) ymaxTmp = h_tmp->GetBinContent(i_bin);
+            if(h_data!=0x0)
+                if(h_data->GetBinContent(i_bin)+h_data->GetBinError(i_bin)>ymaxTmp) ymaxTmp = h_data->GetBinContent(i_bin)+h_data->GetBinError(i_bin);
+        }
+        h_tmp->SetMaximum(ymaxTmp);
+        // set max for first hist
+        if(ymax0<0){
+            ymax0 = ymaxTmp;
+            ymax  = 0.66*ymax0;
+        }
+        hTotVec.push_back(h_tmp);
+//         if(i_ch<regions.size()-1){
+            if(i_ch>0) edges.push_back(h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX())-h_tmp->GetXaxis()->GetBinLowEdge(1) + edges[i_ch-1]);
+            else       edges.push_back(h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()));
+//         }
+        // get xaxes
+        if(i_ch>0) xaxis.push_back(new TGaxis(edges[i_ch-1],                      0,edges[i_ch],0, h_tmp->GetXaxis()->GetBinLowEdge(1),h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()) ,510,"+"));
+        else       xaxis.push_back(new TGaxis(h_tmp->GetXaxis()->GetBinLowEdge(1),0,edges[i_ch],0, h_tmp->GetXaxis()->GetBinLowEdge(1),h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()) ,510,"+"));
+//         else       xaxis.push_back(new TGaxis(0,0,edges[i_ch],0, h_tmp->GetXaxis()->GetBinLowEdge(1),h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()) ,510,"+"));
+        // get yaxes
+        if(i_ch>0) yaxis.push_back(new TGaxis(edges[i_ch-1],                      0,edges[i_ch-1],                      ymax, 0,ymaxTmp, 510,"-"));
+        else       yaxis.push_back(new TGaxis(h_tmp->GetXaxis()->GetBinLowEdge(1),0,h_tmp->GetXaxis()->GetBinLowEdge(1),ymax, 0,ymaxTmp, 510,"-"));
+        i_ch ++;
+    }
+    // then proceed with data, singnal and bkg
+    vector<TH1*> hDataVec;
+    vector<vector<TH1*>> hSignalVec;
+    vector<vector<TH1*>> hBackgroundVec;
+    for(auto sample : fSamples){
+        if(sample->fType==Sample::GHOST) continue;
+        vector<TH1*> tmpVec;
+        i_ch = 0;
+        for(auto region : regions){
+            TH1* h_tmp = 0x0;
+            for(auto sampleHist : region->fSampleHists){
+                if(sampleHist->fSample->fName == sample->fName){
+                    if(isPostFit && sample->fType!=Sample::DATA){
+                        if(sampleHist->fHist_postFit!=0x0) h_tmp = (TH1*)sampleHist->fHist_postFit->Clone();
+                    }
+                    else{
+                        if(sampleHist->fHist!=0x0)         h_tmp = (TH1*)sampleHist->fHist->Clone();
+                    }
+                    break;
+                }
+            }
+            // if the sample was not in the region...
+            if(h_tmp==0x0){
+                h_tmp = (TH1*)hTotVec[i_ch]->Clone();
+                h_tmp->Scale(0);
+            }
+            //
+            if(sample->fType==Sample::DATA){
+//                 h_tmp->Sumw2();
+                for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
+                    h_tmp->SetBinError(i_bin,sqrt(h_tmp->GetBinContent(i_bin)));
+                }
+            }
+            if(sample->fGroup!="") h_tmp->SetTitle(sample->fGroup.c_str());
+            else                   h_tmp->SetTitle(sample->fTitle.c_str());
+            tmpVec.push_back(h_tmp);
+            //
+            i_ch ++;
+        }
+        if(sample->fType==Sample::DATA)            hDataVec = tmpVec;
+        else if(sample->fType==Sample::SIGNAL)     hSignalVec.push_back(tmpVec);
+        else if(sample->fType==Sample::BACKGROUND) hBackgroundVec.push_back(tmpVec);
+    }
+    //
+    // scale them (but the first region
+    for(int i_ch=1;i_ch<regions.size();i_ch++){
+        float scale = ymax/hTotVec[i_ch]->GetMaximum();
+        hTotVec[i_ch]->Scale( scale );
+        hDataVec[i_ch]->Scale( scale );
+        for(auto hVec : hSignalVec)     hVec[i_ch]->Scale( scale );
+        for(auto hVec : hBackgroundVec) hVec[i_ch]->Scale( scale );
+    }
+    // merge them
+//     TH1* h_tot  = MergeHistograms(hTotVec);
+//     TH1* h_data = MergeHistograms(hDataVec);
+    // ... here need to do the same for all othe histograms
+    //
+    // Plot them
+    TthPlot *p;
+    // For 4-top-style plots
+    if(TtHFitter::OPTION["FourTopStyle"]>0){
+        p = new TthPlot(fInputName+"_merge",TtHFitter::OPTION["CanvasWidthMerge"],TtHFitter::OPTION["CanvasHeight"]);
+        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsMerge"];
+    }
+    if(!p) return;
+    //
+    p->SetData(MergeHistograms(hDataVec),"");
+    for(int i_sig=0;i_sig<hSignalVec.size();i_sig++)     p->AddSignal(    MergeHistograms(hSignalVec[i_sig])    ,"");
+    for(int i_bkg=0;i_bkg<hBackgroundVec.size();i_bkg++) p->AddBackground(MergeHistograms(hBackgroundVec[i_bkg]),"");
+    p->SetTotBkg(MergeHistograms(hTotVec));
+    //
+    p->SetCME(fCmeLabel);
+//     p->SetXaxis();
+    p->SetLumi(fLumiLabel);
+    p->fATLASlabel = fAtlasLabel;
+    
+    p->fYmax = 1.25*ymax0;
+    p->Draw(opt);
+    //
+    // manipulate canvas / pad
+    //
+    // dahsed line in ratio
+    p->pad1->cd();
+    vector<TLine*> l;
+    for(auto edge : edges){
+        TLine *l_tmp = new TLine(edge,0,edge,2);
+        l_tmp->SetLineStyle(kDashed);
+        l_tmp->Draw("same");
+        l.push_back(l_tmp);        
+    }
+    //
+    // (dahsed) line in main pad
+    p->pad0->cd();
+    for(auto edge : edges){
+        TLine *l_tmp = new TLine(edge,0,edge,1.25*ymax);
+        if(TtHFitter::OPTION["MergeScaleY"]!=0) l_tmp->SetLineStyle(kDashed);
+        l_tmp->Draw("same");
+    }
+    //
+    // y-axis
+    p->pad0->cd();
+    int i_yaxis = 0;
+    for(auto a : yaxis){
+        if(i_yaxis>0){
+            a->SetLabelFont(gStyle->GetTextFont());
+            a->SetLabelSize(gStyle->GetTextSize());
+            a->SetNdivisions(805);
+            // the following lines require newer version of ROOT
+//             a->ChangeLabel(1,-1,-1,-1,-1,-1," ");
+            a->Draw();
+        }
+        i_yaxis ++;
+    }
+    //
+    // x-axis
+    p->pad0->cd();
+    p->pad0->SetTickx(0);
+    p->pad0->SetTicky(0);
+    TH1* h_dummy = (TH1*)p->pad0->GetPrimitive("h_dummy");
+    h_dummy->GetXaxis()->SetLabelSize(0);
+    h_dummy->GetXaxis()->SetTickLength(0);
+    p->pad0->RedrawAxis();
+    for(auto a : xaxis){
+        a->SetLabelFont(gStyle->GetTextFont());
+        a->SetLabelSize(gStyle->GetTextSize());
+        a->SetNdivisions(805);
+        ((TGaxis*)(a->DrawClone()))->SetLabelSize(0);
+    }
+    // ratio
+    p->pad1->cd();
+    p->pad1->SetTickx(0);
+    TH1* h_dummy2 = (TH1*)p->pad1->GetPrimitive("h_dummy2");
+    h_dummy2->GetXaxis()->SetLabelSize(0);
+    h_dummy2->GetXaxis()->SetTickLength(0);
+    p->pad1->RedrawAxis();
+    int i_reg = 0;
+    for(auto a : xaxis){
+        a->SetLabelFont(gStyle->GetTextFont());
+        a->SetLabelSize(gStyle->GetTextSize());
+        a->SetNdivisions(805);
+        TGaxis *ga = (TGaxis*)a->DrawClone();
+        ga->SetTitle(regions[i_reg]->fVariableTitle.c_str());
+        ga->SetTitleOffset(h_dummy2->GetXaxis()->GetTitleOffset()*0.45);
+        ga->SetTitleSize(gStyle->GetTextSize());
+        ga->SetTitleFont(gStyle->GetTextFont());
+        // the following lines require newer version of ROOT
+//         if(i_reg<regions.size()-1){
+//             ga->ChangeLabel(-1,-1,-1,-1,-1,-1," "); // shut up the last label ;)
+//         }
+        i_reg ++;
+    }
+    //
+    // additional labels
+    p->pad0->cd();
+    TLatex *tex = new TLatex();
+    tex->SetTextSize(gStyle->GetTextSize());
+    tex->SetTextFont(gStyle->GetTextFont());
+    float xlabel = 0;
+    for(int i_ch=0;i_ch<regions.size();i_ch++){
+        tex->SetNDC(0);
+        tex->DrawLatex(edges[i_ch],1.15*ymax,("#kern[-1]{"+regions[i_ch]->fLabel+"   }").c_str());
+//         if(i_ch==0) xlabel += (edges[i_ch]-h_dummy->GetXaxis()->GetBinLowEdge(1))/(h_dummy->GetXaxis()->GetBinUpEdge(h_dummy->GetNbinsX())-h_dummy->GetXaxis()->GetBinLowEdge(1));
+//         else        xlabel += (edges[i_ch]-edges[i_ch-1])/(h_dummy->GetXaxis()->GetBinUpEdge(h_dummy->GetNbinsX())-h_dummy->GetXaxis()->GetBinLowEdge(1));
+//         myText(xlabel-0.05,0.7,1,("#kern[-1]{"+regions[i_ch]->fLabel+"}").c_str());
+    }
+    //
+    tex->SetNDC(1);
+    tex->DrawLatex(0.33,0.88,fLabel.c_str());
+    float textHeight = 0.05*(672./p->pad0->GetWh());
+    if(isPostFit) tex->DrawLatex(0.33,0.88-textHeight,"Post-fit");
+    else          tex->DrawLatex(0.33,0.88-textHeight,"Pre-fit");
+    
+    // 
+    // save image
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
+        if(isPostFit) p->SaveAs((fName+"/Plots/Merge_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        else          p->SaveAs((fName+"/Plots/Merge"        +fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    }
 }
 
 //__________________________________________________________________________________
@@ -4634,6 +5025,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     }
     //
     // add tot uncertainty on each sample
+    int i_np = -1;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
 //         if(!fSamples[i_smp]->fUseSystematics) continue;
@@ -4646,10 +5038,18 @@ void TtHFit::BuildYieldTable(string opt,string group){
         TH1* h_tmp_Up;
         TH1* h_tmp_Down;
         std::vector<string> systNames;
+        std::vector<string> npNames;
         systNames.clear();
+        npNames.clear();
+        i_np = -1;
+        // actual systematics
         for(int i_syst=0;i_syst<fNSyst;i_syst++){
             string systName = fSystematics[i_syst]->fName;
+            string systNuisPar = systName;
             systNames.push_back( systName );
+            systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
+            npNames.push_back(systNuisPar);
+            i_np++;
             for(int i_bin=1;i_bin<=Nbin;i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 //
@@ -4691,8 +5091,8 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                     h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                 }
-                h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
-                h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
+                h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
                 //
                 // eventually add any other samples with the same title
                 for(int j_smp=0;j_smp<fNSamples;j_smp++){
@@ -4719,19 +5119,112 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                 h_tmp_Down = sh->GetSystematic(systName)->fHistDown;
                             }
                         }
-                        h_up[i_syst]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-                        h_down[i_syst]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                        h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
+                        h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
                     }
                 }
             }
         }
-	// FIXME SF 
-        //
+        // add the gammas (only if post-fit)
+        if(isPostFit && fUseGammaPulls){
+            // loop on regions
+            for(int i_ch=1;i_ch<=Nbin;i_ch++){
+                Region *region = fRegions[regionVec[i_ch-1]];
+                if(region==0x0) continue;
+                if(region->fTot==0x0) continue;
+                // loop on bins
+                for(int i_bin=1;i_bin<=region->fTot->GetNbinsX();i_bin++){
+                    // set gamma name
+                    string gammaName = Form("stat_%s_bin_%d",region->fName.c_str(),i_bin-1);
+                    if(fSamples[i_smp]->fSeparateGammas)
+                        gammaName = Form("shape_stat_%s_%s_bin_%d",fSamples[i_smp]->fName.c_str(),region->fName.c_str(),i_bin-1);
+                    systNames.push_back( gammaName );
+                    npNames.push_back(gammaName);
+                    i_np++;
+                    sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
+                    //
+                    // find the normfactor in the region
+                    int syst_idx = -1;
+                    for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
+                        if(gammaName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
+                            syst_idx = j_syst;
+                        }
+                    }
+                    //
+                    if(sh!=0x0){
+                        if(isPostFit){
+                            if(syst_idx<0){
+                                h_tmp_Up   = sh->fHist_postFit;
+                                h_tmp_Down = sh->fHist_postFit;
+                            }
+                            else{
+                                h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp_postFit;
+                                h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown_postFit;
+                            }
+                        }
+                        else {
+                            if(syst_idx<0){
+                                h_tmp_Up   = sh->fHist;
+                                h_tmp_Down = sh->fHist;
+                            }
+                            else{
+                                h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp;
+                                h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown;
+                            }
+                        }
+                    }
+                    else {
+                        h_tmp_Up   = new TH1F(Form("h_DUMMY_%s_up_%i",  gammaName.c_str(),i_bin-1),"h_dummy",1,0,1);
+                        h_tmp_Down = new TH1F(Form("h_DUMMY_%s_down_%i",gammaName.c_str(),i_bin-1),"h_dummy",1,0,1);
+                    }
+                    if(i_bin==1){
+                        h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),gammaName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),gammaName.c_str()), Nbin,0,Nbin) );
+                        h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),gammaName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),gammaName.c_str()), Nbin,0,Nbin) );
+                    }
+                    h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
+                    h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                    //
+                    // eventually add any other samples with the same title
+                    for(int j_smp=0;j_smp<fNSamples;j_smp++){
+                        sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( fSamples[j_smp]->fName );
+                        if(sh!=0){
+                            if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
+                                if(isPostFit){
+                                    if(syst_idx<0){
+                                        h_tmp_Up   = sh->fHist_postFit;
+                                        h_tmp_Down = sh->fHist_postFit;
+                                    }
+                                    else{
+                                        h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp_postFit;
+                                        h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown_postFit;
+                                    }
+                                }
+                                else{
+                                    if(syst_idx<0){
+                                        h_tmp_Up   = sh->fHist;
+                                        h_tmp_Down = sh->fHist;
+                                    }
+                                    else{
+                                        h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp;
+                                        h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown;
+                                    }
+                                }
+                                h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
+                                h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // Only for post-fit, loop on norm factors as well
         if(isPostFit){
             for(int i_norm=0;i_norm<fNNorm;i_norm++){
                 string normName = fNormFactors[i_norm]->fName;
                 systNames.push_back( normName );
+                string systNuisPar = normName;
+                npNames.push_back(systNuisPar);
+                i_np++;
                 for(int i_bin=1;i_bin<=Nbin;i_bin++){
                     sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                     //
@@ -4773,8 +5266,8 @@ void TtHFit::BuildYieldTable(string opt,string group){
                         h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),normName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),normName.c_str()), Nbin,0,Nbin) );
                         h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),normName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),normName.c_str()), Nbin,0,Nbin) );
                     }
-                    h_up[i_norm+fNSyst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
-                    h_down[i_norm+fNSyst]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                    h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
+                    h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
                     //
                     // eventually add any other samples with the same title
                     for(int j_smp=0;j_smp<fNSamples;j_smp++){
@@ -4801,8 +5294,8 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                         h_tmp_Down = sh->GetSystematic(normName)->fHistDown;
                                     }
                                 }
-                                h_up[i_norm+fNSyst]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-                                h_down[i_norm+fNSyst]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                                h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
+                                h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
                             }
                         }
                     }
@@ -4810,8 +5303,8 @@ void TtHFit::BuildYieldTable(string opt,string group){
             }
         }
         //
-        if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, systNames, fFitResults->fCorrMatrix );
-        else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, systNames );
+        if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames, fFitResults->fCorrMatrix );
+        else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames );
     }
     //
     // Print samples except ghosts, data for blind fits, signal for B-only...
@@ -4865,10 +5358,23 @@ void TtHFit::BuildYieldTable(string opt,string group){
     TH1* h_tmp_Up;
     TH1* h_tmp_Down;
     std::vector<string> systNames;
+    std::vector<string> npNames;
     systNames.clear();
+    npNames.clear();
+    i_np = -1;
+    // actual systematics
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         string systName = fSystematics[i_syst]->fName;
+        string systNuisPar = systName;
         systNames.push_back( systName );
+        if(fSystematics[i_syst]!=0x0)
+            systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
+        if(FindInStringVector(npNames,systNuisPar)<0){
+            npNames.push_back(systNuisPar);
+            i_np++;
+        }
+        else
+            continue;
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             // find the systematic in the region
             int syst_idx = -1;
@@ -4902,14 +5408,115 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,systName.c_str()), Form("h_Tot_%s_Up_TMP",  systName.c_str()), Nbin,0,Nbin) );
                 h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",systName.c_str()), Form("h_Tot_%s_Down_TMP",systName.c_str()), Nbin,0,Nbin) );
             }
-            h_up[i_syst]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
-            h_down[i_syst]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+            h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+            h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+            //
+            // look for other syst with the same np
+            for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
+                if(j_syst==syst_idx) continue;
+                if(systNuisPar==TtHFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
+                    TH1* h_tmp = 0x0;
+                    if(isPostFit){
+                        h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst];
+                        h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[j_syst];
+                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                    }
+                    else{
+                        h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[j_syst];
+                        h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[j_syst];
+                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot;
+                    }
+                    h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral()-h_tmp->Integral() );
+                    h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral()-h_tmp->Integral() );
+                }
+            }
         }
     }
-    // FIXME SF 
+    // add the gammas (only if post-fit)
+    if(isPostFit && fUseGammaPulls){
+        // loop on regions
+        for(int i_ch=1;i_ch<=Nbin;i_ch++){
+            Region *region = fRegions[regionVec[i_ch-1]];
+            if(region==0x0) continue;
+            if(region->fTot==0x0) continue;
+            // loop on bins
+            for(int i_bin=1;i_bin<=region->fTot->GetNbinsX();i_bin++){
+                // set gamma name
+                string gammaName = Form("stat_%s_bin_%d",region->fName.c_str(),i_bin-1);
+                if(FindInStringVector(npNames,gammaName)<0){
+                    npNames.push_back(gammaName);
+                    i_np++;
+                }
+                else
+                    continue;
+                systNames.push_back( gammaName );
+                // find the systematic in the region
+                int syst_idx = -1;
+                for(int j_syst=0;j_syst<(int)region->fSystNames.size();j_syst++){
+                    if(gammaName==region->fSystNames[j_syst]){
+                        syst_idx = j_syst;
+                    }
+                }
+                if(syst_idx<0){
+                    h_tmp_Up   = region->fTot_postFit;
+                    h_tmp_Down = region->fTot_postFit;
+                }
+                else{
+                    h_tmp_Up   = region->fTotUp_postFit[syst_idx];
+                    h_tmp_Down = region->fTotDown_postFit[syst_idx];
+                }
+                if(i_bin==1){
+                    h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
+                    h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
+                }
+                h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+                h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+                //
+                // now sample-specific gammas
+                for(auto sample : fSamples){
+                    if(!sample->fSeparateGammas) continue;
+                    gammaName = Form("shape_stat_%s_%s_bin_%d",sample->fName.c_str(),region->fName.c_str(),i_bin-1);
+                    if(FindInStringVector(npNames,gammaName)<0){
+                        npNames.push_back(gammaName);
+                        i_np++;
+                    }
+                    else
+                        continue;
+                    systNames.push_back( gammaName );
+                    // find the systematic in the region
+                    int syst_idx = -1;
+                    for(int j_syst=0;j_syst<(int)region->fSystNames.size();j_syst++){
+                        if(gammaName==region->fSystNames[j_syst]){
+                            syst_idx = j_syst;
+                        }
+                    }
+                    if(syst_idx<0){
+                        h_tmp_Up   = region->fTot_postFit;
+                        h_tmp_Down = region->fTot_postFit;
+                    }
+                    else{
+                        h_tmp_Up   = region->fTotUp_postFit[syst_idx];
+                        h_tmp_Down = region->fTotDown_postFit[syst_idx];
+                    }
+                    if(i_bin==1){
+                        h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
+                        h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
+                    }
+                    h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+                    h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+                }
+            }
+        }
+    }
     // add the norm factors
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         string normName = fNormFactors[i_norm]->fName;
+        if(FindInStringVector(npNames,normName)<0){
+            npNames.push_back(normName);
+            i_np++;
+        }
+        else
+            continue;
         systNames.push_back( normName );
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             // find the systematic in the region
@@ -4944,13 +5551,13 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,normName.c_str()), Form("h_Tot_%s_Up_TMP",  normName.c_str()), Nbin,0,Nbin) );
                 h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",normName.c_str()), Form("h_Tot_%s_Down_TMP",normName.c_str()), Nbin,0,Nbin) );
             }
-            h_up[fNSyst+i_norm]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
-            h_down[fNSyst+i_norm]->SetBinContent( i_bin,h_tmp_Down->Integral() );
+            h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
+            h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
     //
-    if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames, fFitResults->fCorrMatrix );
-    else           g_err_tot = BuildTotError( h_tot, h_up, h_down, systNames );
+    if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix );
+    else           g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames );
     //
     out << " | Total | ";
     texout << "\\hline " << endl;
@@ -5659,6 +6266,8 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 //         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddNoSyst(fSystematics[i_syst]->fName.c_str());
         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddUniformSyst(fSystematics[i_syst]->fName.c_str());
     }
+    // test for morphing: it seems to work!!!
+//     meas.AddPreprocessFunction("mu_tt","1.-SigXsecOverSM","SigXsecOverSM[0,0,1]");
     //
     meas.PrintXML((fName+"/RooStats/").c_str());
     meas.CollectHistograms();
@@ -6866,7 +7475,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 
     if(fFitType==BONLY){
         std::cerr << "\033[1;31m<!> ERROR in TtHFit::ProduceNPRanking(): For ranking plots, the SPLUSB FitType is needed.  \033[0m"<<std::endl;
-        return;
+        abort();
     }
 
     //
@@ -6875,11 +7484,13 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     std::vector< string > nuisPars;
     std::vector< bool > isNF;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName ||
+//         if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName ||
+        if(NPnames=="all" || NPnames==fSystematics[i_syst]->fNuisanceParameter ||
             ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
             ){
             if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
-            nuisPars.push_back( fSystematics[i_syst]->fName );
+//             nuisPars.push_back( fSystematics[i_syst]->fName );
+            nuisPars.push_back( fSystematics[i_syst]->fNuisanceParameter );
             isNF.push_back( false );
         }
     }
@@ -7322,13 +7933,19 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
                 }
             }
             // build the title of the nuis par
-            parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1];
+            parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1] + ")";
 //             string tmpTitle=parname[i];
 //             tmpTitle=ReplaceString(tmpTitle,"gamma_stat_","");
 //             tmpTitle=ReplaceString(tmpTitle,"_"," ");
 //             parTitle="#gamma ("+tmpTitle+")";
         }
         else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
+        
+//         if(parTitle==""){
+//             for(auto syst : fSystematics){
+//                 if(syst->fNuisanceParameter == parname[i]) parTitle = TtHFitter::SYSTMAP[ syst->fName ];
+//             }
+//         }
 
         Names.push_back(parTitle);
 

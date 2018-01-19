@@ -170,6 +170,12 @@ Note that, each object should have unique <ObjectName>.
      * TtresSmoothing   : if set to TRUE, the systematic uncertainty smoothing will use the ttbar resonances convention for the smoothing. The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal or 400 to treat it as uncorrelated with the nominal.
      * UseGammaPulls    : if set to TRUE, the fit results in terms of gamma parameter pulls, constraints and correlations are propagated to the post-fit plots, when possible (i.e. not for validation plots of course)
      * GuessMCStatEmptyBins: if set to FALSE, for empty (or negative) bins, the fitter will assume that the stat uncertainty is equal to its content (i.e. both set to 1e-06). If set to TRUE (default), the MC stat uncertainty is taken from the last non-empty bin. 
+     * MergeUnderOverFlow : if set to TRUE the underflow content of each histogram is added to the first bin and the overflow to the last one (default is FALSE for HIST inputs and TRUE for NTUP inputs)
+     * DoSummaryPlot    : if set to FALSE no summary plot is created
+     * DoMergedPlot     : if set to TRUE a merged plot of all the included regions is created
+     * DoTables         : if set to FALSE no tables are created
+     * DoSignalRegionsPlot : if set to FALSE no signal regions plot is created
+     * DoPieChartPlot    : if set to FALSE no background composition pie-chart plot is created
      
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -256,7 +262,7 @@ Note that, each object should have unique <ObjectName>.
      * SubtractSample(s): if specified, each sample hist gets subtracted bin-by-bin another sample hist, in each of the regions
      * Smooth           : if set to TRUE, the nominal histograms are smoothed (based on TH1::Smooth but taking into account the original stat uncertainty) 
      * AsimovReplacementFor: only for GHOST samples; if set, the creation of cutsom Asimov data-set(s) is triggered; use as 'AsimovReplacementFor: "dataset","sample"', where "dataset" is the name of a custom Asimov dataset one wants to create (the same name will have to be set under Job->CustomAsimov in order to use it) and "sample" is the sample this GHOST sample will superseed
-     * SeparateGammas   : if set to TRUE, the sample will not contribute to the overall gamma factors for MC stat, but a separate set of them will be added for this sample (through the SHAPE systematic technology)
+     * SeparateGammas   : if set to TRUE, the sample will not contribute to the overall gamma factors for MC stat, but a separate set of them will be added for this sample (through the SHAPE systematic technology); NB: you need to re-run at least the "b" step if you want to decorrelate the gammas on existing inputs (wf is not enough)
      * CorrelateGammasInRegions: to be used only together with SeparateGammas; can be used to correlate MC stat across regions; example: "SR1:SR2,CR1:CR2:CR3" will use the same NP for the MC stat in each bin of SR1 and SR2 and in each bin of CR1, CR2 and CR3
 
   * NormFactor:

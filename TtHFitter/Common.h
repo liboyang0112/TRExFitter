@@ -75,6 +75,7 @@ namespace TtHFitter{
     extern bool HISTOCHECKCRASH;
     extern bool REMOVEXERRORS;
     extern float CORRELATIONTHRESHOLD;
+    extern bool MERGEUNDEROVERFLOW;
     extern std::map< string,string > SYSTMAP;
     extern std::map< string,string > SYSTTEX;
     extern std::map< string,string > NPMAP;
@@ -125,5 +126,7 @@ TH1* DropBins(TH1* h,std::vector<int> v);
 float CorrectIntegral(TH1* h,float *err=0);
 
 void CloseFiles( const std::set<std::string> &set);
+
+TH1F* MergeHistograms(vector<TH1*> hVec);
 
 #endif

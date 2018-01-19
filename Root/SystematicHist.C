@@ -28,6 +28,7 @@ SystematicHist::SystematicHist(string name){
     fHistoNameUp = "";
     fFileNameShapeUp = "";
     fHistoNameShapeUp = "";
+    fHistUp_postFit = 0x0;
 
     fHistDown = 0x0;
     fHistDown_orig = 0x0;
@@ -37,6 +38,7 @@ SystematicHist::SystematicHist(string name){
     fHistoNameDown = "";
     fFileNameShapeDown = "";
     fHistoNameShapeDown = "";
+    fHistDown_postFit = 0x0;
     
     fScaleUp   = 1.;
     fScaleDown = 1.;

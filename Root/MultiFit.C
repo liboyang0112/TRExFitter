@@ -1489,7 +1489,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 
     if(fFitType==2){
         std::cerr << "\033[1;31m<!> ERROR in MultiFit::ProduceNPRanking(): For ranking plots, the SPLUSB FitType is needed.  \033[0m"<<std::endl;
-        return;
+        abort();
     }
 
     string inputData = fDataName;
@@ -1501,7 +1501,8 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     string systName;
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         for(unsigned int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
-            systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
+//             systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
+            systName = fFitList[i_fit]->fSystematics[i_syst]->fNuisanceParameter;
             if(FindInStringVector(Names,systName)<0){
                 Names.push_back(systName);
                 vSystematics.push_back(fFitList[i_fit]->fSystematics[i_syst]);
@@ -1531,10 +1532,12 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     std::vector< string > nuisPars;
     std::vector< bool > isNF;
     for(int i_syst=0;i_syst<Nsyst;i_syst++){
-        if(NPnames=="all" || NPnames==vSystematics[i_syst]->fName ||
+//         if(NPnames=="all" || NPnames==vSystematics[i_syst]->fName ||
+        if(NPnames=="all" || NPnames==vSystematics[i_syst]->fNuisanceParameter ||
             ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0") ==0 ) )
             ){
-            nuisPars.push_back( vSystematics[i_syst]->fName );
+//             nuisPars.push_back( vSystematics[i_syst]->fName );
+            nuisPars.push_back( vSystematics[i_syst]->fNuisanceParameter );
             isNF.push_back( false );
         }
     }
@@ -1901,6 +1904,12 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
             parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1];
         }
         else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
+        
+//         if(parTitle==""){
+//             for(auto syst : fSystematics){
+//                 if(syst->fNuisanceParameter == parname[i]) parTitle = TtHFitter::SYSTMAP[ syst->fName ];
+//             }
+//         }
 
         Names.push_back(parTitle);
 

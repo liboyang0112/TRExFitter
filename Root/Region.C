@@ -107,6 +107,8 @@ Region::Region(string name){
     fChi2prob = -1;
     
     fUseGammaPulls = false;
+    
+    fTot = 0x0;
 }
 
 //__________________________________________________________________________________
@@ -417,8 +419,15 @@ void Region::BuildPreFitErrorHist(){
         for(int j_syst=0;j_syst<i_syst;j_syst++){
             if(TtHFitter::NPMAP[fSystNames[i_syst]]==TtHFitter::NPMAP[fSystNames[j_syst]]){
                 found = true;
-                h_up[   FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotUp[  i_syst]);
-                h_down[ FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotDown[i_syst]);
+//                 h_up[   FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotUp[  i_syst]);
+//                 h_down[ FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotDown[i_syst]);
+                int whichsyst = FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]);
+                TH1*h_diff_up   = (TH1*) h_up[whichsyst]  ->Clone(Form("%s_%s","clone_",h_up[whichsyst]  ->GetName()));
+                TH1*h_diff_down = (TH1*) h_down[whichsyst]->Clone(Form("%s_%s","clone_",h_down[whichsyst]->GetName()));
+                h_diff_up  ->Add(fTotUp[  i_syst],fTot,1,-1);
+                h_diff_down->Add(fTotDown[i_syst],fTot,1,-1);
+                h_up[   FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_up);
+                h_down[ FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_down);
                 break;
             }
         }
@@ -620,6 +629,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     TH1* hUp = 0x0;
     TH1* hDown = 0x0;
     string systName = "";
+    string systNuisPar = "";
     SystematicHist *sh = 0x0;
     string systNameSF = "";
     int iBinSF = 0;
@@ -643,6 +653,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             }
         }
 
+        //
         // Shape factors
         //
         // extract number of bins
@@ -651,8 +662,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         // loop over shape factors
         for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
             systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
+//             systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fNuisanceParameter;
             // add syst name for each bin
-            for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){	  
+            for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){     
                 systNameSF = systName + "_bin_" + std::to_string(i_bin);
                 // the shape factor naming used i_bin - 1 for the first bin
                 // add it as one syst per bin
@@ -669,6 +681,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         //
         for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
             systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
+//             if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic!=0x0)
+//                 systName = fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -712,9 +726,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             // Get fit result
             //
             systName    = fSystNames[i_syst];
-            systValue   = fitRes->GetNuisParValue(systName);
-            systErrUp   = fitRes->GetNuisParErrUp(systName);
-            systErrDown = fitRes->GetNuisParErrDown(systName);
+            if(TtHFitter::NPMAP[systName]=="") TtHFitter::NPMAP[systName] = systName;
+            systValue   = fitRes->GetNuisParValue(TtHFitter::NPMAP[systName]);
+            systErrUp   = fitRes->GetNuisParErrUp(TtHFitter::NPMAP[systName]);
+            systErrDown = fitRes->GetNuisParErrDown(TtHFitter::NPMAP[systName]);
             
             if(TtHFitter::DEBUGLEVEL>0) cout << "      alpha = " << systValue << " +" << systErrUp << " " << systErrDown << endl;
             
@@ -734,7 +749,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             //
             sh = fSampleHists[i]->GetSystematic(systName);
             
-            // hack: add a systematic hist if not there... FIXME
+            // hack: add a systematic hist if not there
             if(sh==0x0){
                 fSampleHists[i]->AddHistoSyst(systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
                 sh = fSampleHists[i]->GetSystematic(systName);
@@ -757,19 +772,27 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 hDown = 0x0;
                 yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
+                double yieldNominal_postFit_nfOnly = yieldNominal;
+                for(auto nf : fSampleHists[i]->fNormFactors){
+                    yieldNominal_postFit_nfOnly *= fitRes->GetNuisParValue(nf->fName);
+                }
                 
                 int posTmp = systName.find("_bin_");
-                std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
+                std::string gammaName      = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
+                std::string gammaNameShape = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
                 //
                 // if it's a gamma
                 if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas){
+//                     diffUp   += yieldNominal*systErrUp;
+//                     diffDown += yieldNominal*systErrDown;
                     diffUp   += yieldNominal_postFit*systErrUp;
                     diffDown += yieldNominal_postFit*systErrDown;
                 }
                 //
                 // if it's a specific-sample gamma
-                gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
-                if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fSeparateGammas){
+                else if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fSeparateGammas){
+//                     diffUp   += yieldNominal*systErrUp;
+//                     diffDown += yieldNominal*systErrDown;
                     diffUp   += yieldNominal_postFit*systErrUp;
                     diffDown += yieldNominal_postFit*systErrDown;
                 }
@@ -778,6 +801,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 else if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
                     diffUp   += yieldNominal*systErrUp;
                     diffDown += yieldNominal*systErrDown;
+//                     diffUp   += yieldNominal_postFit*systErrUp;
+//                     diffDown += yieldNominal_postFit*systErrDown;
                 }
                 //
                 // ShapeFactor have to get NP per bin
@@ -790,6 +815,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     if(fSampleHists[i]->HasShapeFactor(systNameSF) && iBinSF == i_bin){
                         diffUp   += yieldNominal*systErrUp;
                         diffDown += yieldNominal*systErrDown;
+//                         diffUp   += yieldNominal_postFit*systErrUp;
+//                         diffDown += yieldNominal_postFit*systErrDown;
                     }
                 }
                 //
@@ -800,8 +827,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     hDown = sh->fHistDown;
                     if(hUp!=0x0)    yieldUp     = hUp ->GetBinContent(i_bin);
                     else            yieldUp     = yieldNominal;
+//                     else            yieldUp     = yieldNominal_postFit;
                     if(hDown!=0x0)  yieldDown   = hDown -> GetBinContent(i_bin);
                     else            yieldDown   = yieldNominal;
+//                     else            yieldDown   = yieldNominal_postFit;
                     
                     //
                     // Compute updated relative syst. variations (linear scaling)
@@ -810,34 +839,56 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     float scaleDown = 0;
                     if(yieldNominal!=0){
                         //Normalisation component
-                        double overall_up = 0.;
+                        double overall_up   = 0.;
                         double overall_down = 0.;
                         if(sh->fIsOverall){
                             std::map < int, double > res_norm = GetDeltaNForUncertainties( systValue, systErrUp, systErrDown, 
                                                                                         yieldNominal, 
                                                                                         yieldNominal*(sh->fNormUp+1.), 
                                                                                         yieldNominal*(sh->fNormDown+1.), 
+//                                                                                         yieldNominal_postFit, 
+//                                                                                         yieldNominal_postFit*(sh->fNormUp+1.), 
+//                                                                                         yieldNominal_postFit*(sh->fNormDown+1.), 
+//                                                                                         yieldNominal_postFit_nfOnly, 
+//                                                                                         yieldNominal_postFit_nfOnly*(sh->fNormUp+1.), 
+//                                                                                         yieldNominal_postFit_nfOnly*(sh->fNormDown+1.), 
                                                                                         fIntCode_overall);
-                            overall_up = (res_norm[1]-res_norm[-1])*yieldNominal/2.;
-                            overall_down = (res_norm[1]-res_norm[-1])*yieldNominal/2;
+//                             overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal/2.;
+//                             overall_down = (res_norm[1]-res_norm[-1])*yieldNominal/2.;
+//                             overall_up   = res_norm[1] *yieldNominal;
+//                             overall_down =-res_norm[-1]*yieldNominal;
+                            overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/2.;
+                            overall_down = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/2.;
+//                             overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit_nfOnly/2.;
+//                             overall_down = (res_norm[1]-res_norm[-1])*yieldNominal_postFit_nfOnly/2.;
+//                             overall_up   = res_norm[1] *yieldNominal_postFit;
+//                             overall_down =-res_norm[-1]*yieldNominal_postFit;
                         }
                         //Shape component
-                        double shape_up = 0.;
+                        double shape_up   = 0.;
                         double shape_down = 0.;
                         if(sh->fIsShape){
                             std::map < int, double > res_shape = GetDeltaNForUncertainties( systValue, systErrUp, systErrDown, 
                                                                                         yieldNominal, 
+//                                                                                         yieldNominal_postFit, 
+//                                                                                         yieldNominal_postFit_nfOnly, 
                                                                                         sh->fHistShapeUp->GetBinContent(i_bin), 
                                                                                         sh->fHistShapeDown->GetBinContent(i_bin), 
                                                                                         fIntCode_shape);
-                            shape_up = (res_shape[1]-res_shape[-1])*yieldNominal/2.;
-                            shape_down = (res_shape[1]-res_shape[-1])*yieldNominal/2.;
+//                             shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal/2.;
+//                             shape_down = (res_shape[1]-res_shape[-1])*yieldNominal/2.;
+//                             shape_up   = (res_shape[1]-res_shape[-1])/2.;
+//                             shape_down = (res_shape[1]-res_shape[-1])/2.;
+                            shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal_postFit/2.;
+                            shape_down = (res_shape[1]-res_shape[-1])*yieldNominal_postFit/2.;
+//                             shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal_postFit_nfOnly/2.;
+//                             shape_down = (res_shape[1]-res_shape[-1])*yieldNominal_postFit_nfOnly/2.;
                         }
-                        scaleUp = overall_up + shape_up;
+                        scaleUp   = overall_up   + shape_up;
                         scaleDown = overall_down + shape_down;
 
                     }
-                    diffUp += scaleUp;
+                    diffUp   += scaleUp;
                     diffDown -= scaleDown;
                 }
                 
@@ -898,11 +949,13 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     //
     std::vector< TH1* > h_up;
     std::vector< TH1* > h_down;
+    std::vector<std::string> systNuisPars;
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
         h_up.  push_back( fTotUp_postFit[i_syst]   );
         h_down.push_back( fTotDown_postFit[i_syst] );
+        systNuisPars.push_back(TtHFitter::NPMAP[fSystNames[i_syst]]);
     }
-    fErr_postFit = BuildTotError( fTot_postFit, h_up, h_down, fSystNames, fitRes->fCorrMatrix );
+    fErr_postFit = BuildTotError( fTot_postFit, h_up, h_down, systNuisPars, fitRes->fCorrMatrix );
     fErr_postFit->SetName("g_totErr_postFit");
     // at this point fTot and fErr _postFit should be ready
     
@@ -1014,6 +1067,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             double multNorm = 1.;
             for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
                 systName = fSampleHists[i]->fSyst[i_syst]->fName;
+                if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0)
+                    systName = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
                 if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0){
                     if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE)
                         continue;
@@ -1085,6 +1140,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
             NormFactor *nf = fSampleHists[i]->fNormFactors[i_norm];
             nfName = nf->fName;
+//             nfName = nf->fNuisanceParameter; // not implemeted yet...
             if(nf->fConst) nfValue = nf->fNominal;
             else           nfValue = fitRes->GetNuisParValue(nfName);
 //             if(nfValue==0) nfValue = 0.0001;  // FIXME
@@ -1262,10 +1318,14 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
         if(fSampleHists[i]->fHist_postFit){
             fSampleHists[i]->fHist_postFit->Write(Form("h_%s_postFit",fSampleHists[i]->fName.c_str()),TObject::kOverwrite);
             for(unsigned int i_syst=0;i_syst<fSampleHists[i]->fSyst.size();i_syst++){
-                if(fSampleHists[i]->fSyst[i_syst]) fSampleHists[i]->fSyst[i_syst]->fHistUp_postFit  ->Write(
-                    Form("h_%s_%s_Up_postFit",fSampleHists[i]->fName.c_str(),fSampleHists[i]->fSyst[i_syst]->fName.c_str()), TObject::kOverwrite);
-                if(fSampleHists[i]->fSyst[i_syst]) fSampleHists[i]->fSyst[i_syst]->fHistDown_postFit->Write(
-                    Form("h_%s_%s_Down_postFit",fSampleHists[i]->fName.c_str(),fSampleHists[i]->fSyst[i_syst]->fName.c_str()),TObject::kOverwrite);
+                if(fSampleHists[i]->fSyst[i_syst]) 
+                    if(fSampleHists[i]->fSyst[i_syst]->fHistUp_postFit)
+                        fSampleHists[i]->fSyst[i_syst]->fHistUp_postFit  ->Write(
+                          Form("h_%s_%s_Up_postFit",fSampleHists[i]->fName.c_str(),fSampleHists[i]->fSyst[i_syst]->fName.c_str()), TObject::kOverwrite);
+                if(fSampleHists[i]->fSyst[i_syst])
+                    if(fSampleHists[i]->fSyst[i_syst]->fHistDown_postFit)
+                        fSampleHists[i]->fSyst[i_syst]->fHistDown_postFit->Write(
+                          Form("h_%s_%s_Down_postFit",fSampleHists[i]->fName.c_str(),fSampleHists[i]->fSyst[i_syst]->fName.c_str()),TObject::kOverwrite);
             }
         }
     }
@@ -1953,8 +2013,8 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         std::vector<string> systNames_unique;
         for(unsigned int i_syst=0;i_syst<fSystNames.size();i_syst++){
             if (std::find(systNames_unique.begin(), systNames_unique.end(), fSystNames[i_syst]) == systNames_unique.end())
-            systNames_unique.push_back(fSystNames[i_syst]);
-                else continue;
+                systNames_unique.push_back(fSystNames[i_syst]);
+            else continue;
             for(unsigned int j_syst=0;j_syst<fSystNames.size();j_syst++){
                 if (fSystNames[i_syst]==fSystNames[j_syst] && i_syst!=j_syst) continue;
                 if(matrix!=0x0){

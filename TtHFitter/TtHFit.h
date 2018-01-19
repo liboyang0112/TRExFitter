@@ -106,6 +106,7 @@ public:
     void DrawAndSaveSeparationPlots();
     
     TthPlot* DrawSummary(string opt="", TthPlot* = 0);
+    void DrawMergedPlot(std::vector<Region*> regions, string opt="");
     void BuildYieldTable(string opt="",string group="");
     
     // regions examples:
@@ -244,6 +245,12 @@ public:
     std::string fRankingPlot;
     std::string fImageFormat;
     std::string fAtlasLabel;
+    
+    bool fDoSummaryPlot;
+    bool fDoMergedPlot;
+    bool fDoTables;
+    bool fDoSignalRegionsPlot;
+    bool fDoPieChartPlot;
     
     //
     // Fit caracteristics
