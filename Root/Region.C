@@ -107,6 +107,8 @@ Region::Region(string name){
     fChi2prob = -1;
     
     fUseGammaPulls = false;
+    
+    fTot = 0x0;
 }
 
 //__________________________________________________________________________________
@@ -724,6 +726,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             // Get fit result
             //
             systName    = fSystNames[i_syst];
+            if(TtHFitter::NPMAP[systName]=="") TtHFitter::NPMAP[systName] = systName;
             systValue   = fitRes->GetNuisParValue(TtHFitter::NPMAP[systName]);
             systErrUp   = fitRes->GetNuisParErrUp(TtHFitter::NPMAP[systName]);
             systErrDown = fitRes->GetNuisParErrDown(TtHFitter::NPMAP[systName]);
@@ -780,18 +783,18 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 //
                 // if it's a gamma
                 if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas){
-                    diffUp   += yieldNominal*systErrUp;
-                    diffDown += yieldNominal*systErrDown;
-//                     diffUp   += yieldNominal_postFit*systErrUp;
-//                     diffDown += yieldNominal_postFit*systErrDown;
+//                     diffUp   += yieldNominal*systErrUp;
+//                     diffDown += yieldNominal*systErrDown;
+                    diffUp   += yieldNominal_postFit*systErrUp;
+                    diffDown += yieldNominal_postFit*systErrDown;
                 }
                 //
                 // if it's a specific-sample gamma
                 else if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fSeparateGammas){
-                    diffUp   += yieldNominal*systErrUp;
-                    diffDown += yieldNominal*systErrDown;
-//                     diffUp   += yieldNominal_postFit*systErrUp;
-//                     diffDown += yieldNominal_postFit*systErrDown;
+//                     diffUp   += yieldNominal*systErrUp;
+//                     diffDown += yieldNominal*systErrDown;
+                    diffUp   += yieldNominal_postFit*systErrUp;
+                    diffDown += yieldNominal_postFit*systErrDown;
                 }
                 //
                 // if it's a norm factor
@@ -846,34 +849,40 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 //                                                                                         yieldNominal_postFit, 
 //                                                                                         yieldNominal_postFit*(sh->fNormUp+1.), 
 //                                                                                         yieldNominal_postFit*(sh->fNormDown+1.), 
+//                                                                                         yieldNominal_postFit_nfOnly, 
+//                                                                                         yieldNominal_postFit_nfOnly*(sh->fNormUp+1.), 
+//                                                                                         yieldNominal_postFit_nfOnly*(sh->fNormDown+1.), 
                                                                                         fIntCode_overall);
-//                             overall_up = (res_norm[1]-res_norm[-1])*yieldNominal/2.;
-//                             overall_down = (res_norm[1]-res_norm[-1])*yieldNominal/2;
+//                             overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal/2.;
+//                             overall_down = (res_norm[1]-res_norm[-1])*yieldNominal/2.;
 //                             overall_up   = res_norm[1] *yieldNominal;
 //                             overall_down =-res_norm[-1]*yieldNominal;
-//                             overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/2.;
-//                             overall_down = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/2.;
-                            overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit_nfOnly/2.;
-                            overall_down = (res_norm[1]-res_norm[-1])*yieldNominal_postFit_nfOnly/2.;
+                            overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/2.;
+                            overall_down = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/2.;
+//                             overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit_nfOnly/2.;
+//                             overall_down = (res_norm[1]-res_norm[-1])*yieldNominal_postFit_nfOnly/2.;
 //                             overall_up   = res_norm[1] *yieldNominal_postFit;
 //                             overall_down =-res_norm[-1]*yieldNominal_postFit;
                         }
                         //Shape component
-                        double shape_up = 0.;
+                        double shape_up   = 0.;
                         double shape_down = 0.;
                         if(sh->fIsShape){
                             std::map < int, double > res_shape = GetDeltaNForUncertainties( systValue, systErrUp, systErrDown, 
                                                                                         yieldNominal, 
 //                                                                                         yieldNominal_postFit, 
+//                                                                                         yieldNominal_postFit_nfOnly, 
                                                                                         sh->fHistShapeUp->GetBinContent(i_bin), 
                                                                                         sh->fHistShapeDown->GetBinContent(i_bin), 
                                                                                         fIntCode_shape);
-//                             shape_up = (res_shape[1]-res_shape[-1])*yieldNominal/2.;
+//                             shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal/2.;
 //                             shape_down = (res_shape[1]-res_shape[-1])*yieldNominal/2.;
-//                             shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal_postFit/2.;
-//                             shape_down = (res_shape[1]-res_shape[-1])*yieldNominal_postFit/2.;
-                            shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal_postFit_nfOnly/2.;
-                            shape_down = (res_shape[1]-res_shape[-1])*yieldNominal_postFit_nfOnly/2.;
+//                             shape_up   = (res_shape[1]-res_shape[-1])/2.;
+//                             shape_down = (res_shape[1]-res_shape[-1])/2.;
+                            shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal_postFit/2.;
+                            shape_down = (res_shape[1]-res_shape[-1])*yieldNominal_postFit/2.;
+//                             shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal_postFit_nfOnly/2.;
+//                             shape_down = (res_shape[1]-res_shape[-1])*yieldNominal_postFit_nfOnly/2.;
                         }
                         scaleUp   = overall_up   + shape_up;
                         scaleDown = overall_down + shape_down;
