@@ -2621,8 +2621,6 @@ void TtHFit::ReadNtuples(){
                         fullMCweight += " * "+syst->fWeightUp;
                     else
                         fullMCweight += " * "+smp->fMCweight;
-                    if(syst->fWeightSufUp!="")
-                        fullMCweight += " * "+syst->fWeightSufUp;
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
@@ -2737,8 +2735,6 @@ void TtHFit::ReadNtuples(){
                         fullMCweight += " * "+syst->fWeightDown;
                     else
                         fullMCweight += " * " +smp->fMCweight;
-                    if(syst->fWeightSufDown!="")
-                        fullMCweight += " * "+syst->fWeightSufDown;
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
