@@ -3,6 +3,7 @@
     * Fixed crashes related to post-fit and gamma uncertainty propagation
     * Fixed small bugs from previous commit
     * Added/fixed flags to remove xerror bars and end-bars
+    * IMPORTANT: FIXED BUG IN WEIGHT SYSTEMATICS
 
 2018-01-17 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixes post-fit uncertainty band issues with norm factors fitted away from 1
