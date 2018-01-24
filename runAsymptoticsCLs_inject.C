@@ -313,10 +313,14 @@ void runAsymptoticsCLs_inject(const char* infile,
   }
   int asimov0_status=global_status;
   
-  RooDataSet* asimovData_1 = (RooDataSet*)w->data(asimovDataName);
+  RooDataSet* asimovData_1 = 0x0;// = (RooDataSet*)w->data(asimovDataName);
   if (!asimovData_1)
   {
-    asimovData_1 = makeAsimovData(conditionalExpected, obs_nll, 1);
+//     RooDataSet* makeAsimovData(bool doConditional, RooNLLVar* conditioning_nll, double mu_val, string* mu_str = NULL, string* mu_prof_str = NULL, double mu_val_profile = -999, bool doFit = true);
+//     TMPdata=makeAsimovData(1, obs_nll, 1.0, &tmp1, &tmp2, 1.0, true,firstPOI->GetName() );
+    string tmp1="TMP";
+    string tmp2="TMP"; 
+    asimovData_1 = makeAsimovData(conditionalExpected, obs_nll, 1, &tmp1 , &tmp2 , 1.,true);
   }
   int asimov1_status=global_status;
   
@@ -331,7 +335,7 @@ void runAsymptoticsCLs_inject(const char* infile,
   map_nll_muhat[asimov_0_nll] = asimov_0_nll->getVal();
 
   asimov_1_nll = createNLL(asimovData_1);//(RooNLLVar*)pdf->createNLL(*asimovData_0);
-  map_snapshots[asimov_1_nll] = "conditionalGlobs_0";
+  map_snapshots[asimov_1_nll] = "conditionalGlobs_1";
   map_data_nll[asimovData_1] = asimov_1_nll;
   setMu(1);
   map_muhat[asimov_1_nll] = 1;

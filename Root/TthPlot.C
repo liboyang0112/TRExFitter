@@ -346,6 +346,7 @@ void TthPlot::Draw(string options){
     // Draws an empty histogram to reserve the upper pad and set style
     //
     gStyle->SetEndErrorSize(4.);
+    if(TtHFitter::NOENDERR) gStyle->SetEndErrorSize(0);
     pad0->cd();
     TH1* h_dummy = (TH1*)h_tot->Clone("h_dummy");
     h_dummy->Scale(0);
@@ -367,11 +368,11 @@ void TthPlot::Draw(string options){
         h_data->SetLineWidth(2);
         // build asym data
         if(options.find("poiss")!=string::npos) g_data = poissonize(h_data);
-        else                                    g_data = new TGraphAsymmErrors(h_data);
-        g_data->SetMarkerSize(h_data->GetMarkerSize());
-        g_data->SetMarkerColor(h_data->GetMarkerColor());
-        g_data->SetMarkerStyle(h_data->GetMarkerStyle());
-        g_data->SetLineWidth(h_data->GetLineWidth());
+        else                                    g_data = histToGraph(h_data); // new TGraphAsymmErrors(h_data);
+//         g_data->SetMarkerSize(h_data->GetMarkerSize());
+//         g_data->SetMarkerColor(h_data->GetMarkerColor());
+//         g_data->SetMarkerStyle(h_data->GetMarkerStyle());
+//         g_data->SetLineWidth(h_data->GetLineWidth());
     }
     else{
         hasData = false;
@@ -770,6 +771,7 @@ void TthPlot::Draw(string options){
     else                              h_dummy2->GetYaxis()->SetLabelOffset(0.02);
     h_dummy2->GetYaxis()->SetNdivisions(504,false);
     gStyle->SetEndErrorSize(4.);
+    if(TtHFitter::NOENDERR) gStyle->SetEndErrorSize(0);
 //     pad1 -> SetTicky();
 
     //
@@ -781,7 +783,6 @@ void TthPlot::Draw(string options){
     h_ratio->SetMarkerColor(kBlack);
     h_ratio->SetLineWidth(2);
     TGraphAsymmErrors *g_ratio = histToGraph(h_ratio);
-    g_ratio -> SetMarkerStyle(h_ratio->GetMarkerStyle());
     for(int i_bin=1;i_bin<=h_ratio->GetNbinsX();i_bin++){
         //For the ratio plot, the error is just to illustrate the "poisson uncertainty on the data"
         if(TtHFitter::REMOVEXERRORS){
@@ -791,7 +792,7 @@ void TthPlot::Draw(string options){
         if(h_data->GetBinContent(i_bin)<1 || h_ratio->GetBinContent(i_bin)<0.001){
             g_ratio->SetPointEYhigh( i_bin-1,0 );
             g_ratio->SetPointEYlow(  i_bin-1,0 );
-            h_ratio->SetBinError( i_bin,0 );
+            h_ratio->SetBinError(    i_bin,  0 );
         }
         else{
             g_ratio->SetPointEYhigh( i_bin-1,g_data->GetErrorYhigh(i_bin-1)/h_tot->GetBinContent(i_bin) );
@@ -983,6 +984,14 @@ void TthPlot::Draw(string options){
             h_dummy->GetYaxis()->SetTitle(ytitle.c_str());
         }
     }
+    
+    // turn off x-error bars
+    if(TtHFitter::REMOVEXERRORS){
+        for (UInt_t i=0; i< (UInt_t)g_data->GetN(); i++) {
+            g_data->SetPointEXlow(i,0);
+            g_data->SetPointEXhigh(i,0);
+        }
+    }
 
     // Fix y max
     //
@@ -1108,11 +1117,7 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
     int hBinCounter = 1;
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
         double content = (gr->GetY())[i];
-        if(!TtHFitter::REMOVEXERRORS){
         gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
-        } else {
-            gr->SetPointError(i,0,0,GC_down(content),GC_up(content));            
-        }
         //     if(content==0){
         if(content<0.1){ // FIXME
             gr->RemovePoint(i);
@@ -1124,6 +1129,8 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
     gr->SetMarkerColor(h->GetMarkerColor());
     gr->SetMarkerStyle(h->GetMarkerStyle());
     gr->SetLineWidth(h->GetLineWidth());
+    gr->SetLineColor(h->GetLineColor());
+    gr->SetLineStyle(h->GetLineStyle());
     return gr;
 }
 
@@ -1132,11 +1139,8 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
 TGraphAsymmErrors* histToGraph(TH1* h){
     TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
-        if(!TtHFitter::REMOVEXERRORS){
-        gr->SetPointError(i,0.499*h->GetBinWidth(i+1),0.5*h->GetBinWidth(i+1),0,0);
-        } else {
-            gr->SetPointError(i,0,0,0,0);          
-        }
+        gr->SetPointEXlow(i,0.499*h->GetBinWidth(i+1));
+        gr->SetPointEXhigh(i,0.5*h->GetBinWidth(i+1));
     }
     gr->SetMarkerStyle(h->GetMarkerStyle());
     gr->SetMarkerSize(h->GetMarkerSize());
