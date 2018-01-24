@@ -2135,7 +2135,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     // add nuisance parameter - systematic title correspondence
     for(auto syst : fSystematics){
-        if(sys->fNuisanceParameter!=sys->fName) TtHFitter::SYSTMAP[sys->fNuisanceParameter] = sys->fTitle;
+        if(syst->fNuisanceParameter!=syst->fName) TtHFitter::SYSTMAP[syst->fNuisanceParameter] = syst->fTitle;
     }
     // add nuisance parameter - norm-factor title correspondence & fix nuisance parameter
     for(auto norm : fNormFactors){
