@@ -25,6 +25,7 @@ bool TtHFitter::SPLITHISTOFILES = false;
 bool TtHFitter::HISTOCHECKCRASH = true;
 bool TtHFitter::GUESSMCSTATERROR = true;
 bool TtHFitter::REMOVEXERRORS = false;
+bool TtHFitter::NOENDERR = false;
 float TtHFitter::CORRELATIONTHRESHOLD = -1;
 bool TtHFitter::MERGEUNDEROVERFLOW = false;
 std::map <string,string> TtHFitter::SYSTMAP;

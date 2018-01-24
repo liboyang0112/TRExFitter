@@ -1043,7 +1043,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     for(int i=0;i<fNSamples;i++){
         hSmpNew[i] = (TH1*)fSampleHists[i]->fHist->Clone();
         // set to 0 uncertainty in each bin if MCstat set to FALSE
-        if(!fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas){
+        if((!fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas) || fUseGammaPulls){
             for(int i_bin=0;i_bin<hSmpNew[i]->GetNbinsX()+2;i_bin++) hSmpNew[i]->SetBinError(i_bin,0.);
         }
     }
@@ -1240,7 +1240,6 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     //
     // MCstat set to 0 if disabled
     //
-//     if(!fUseStatErr || (fUseGammaPulls && fSampleHists[i]->fSample->fUseMCStat)){
     if(!fUseStatErr || fUseGammaPulls){
         for(int i_bin=1;i_bin<=fTot_postFit->GetNbinsX();i_bin++){
             fTot_postFit->SetBinError(i_bin,0);
@@ -2007,7 +2006,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         finalErrMinus = 0;
         corr = 0;
         yieldNominal = h_nominal->GetBinContent(i_bin);
-        double err =h_nominal->GetBinError(i_bin);
+        double err = h_nominal->GetBinError(i_bin);
         
         // - loop on the syst, two by two, to include the correlations
         std::vector<string> systNames_unique;
