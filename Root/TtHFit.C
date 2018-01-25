@@ -174,6 +174,9 @@ TtHFit::TtHFit(string name){
     
     fGetGoodnessOfFit = false;
     fGetChi2 = 0; // 0: no, 1: stat-only, 2: with syst
+    
+    fRunMorphing = false;
+    fTemplateInterpolationOption = TtHFit::LINEAR;
 }
 
 //__________________________________________________________________________________
@@ -1470,6 +1473,23 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 smp->fCorrelateGammasInRegions.push_back(regions);
             }
         }
+        // morphing
+        param = cs->Get("Morphing");
+        if(param!=""){
+            std::vector<std::string> morph_par = Vectorize(param,',');
+            if (morph_par.size() != 2){
+                std::cerr << "Morphing requires exactly 2 parameters, but " << morph_par.size() << " provided" << std::endl;
+                return;
+            }
+            fRunMorphing = true;
+            std::string name      = morph_par.at(0);
+            float value = std::stof(morph_par.at(1));
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing: Adding " << name << ", with value: " << value << std::endl;
+            AddTemplateWeight(name, value);
+            // set proper normalization
+            std::string morphName = "morph_"+name+"_"+std::to_string(value);
+            smp->AddNormFactor(morphName, 1, 0, 10, false);
+        }
         // ...
     }
     //
@@ -2141,6 +2161,18 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     for(auto norm : fNormFactors){
         if(TtHFitter::NPMAP[norm->fName]=="") TtHFitter::NPMAP[norm->fName] = norm->fName;
         if(norm->fNuisanceParameter!=norm->fName) TtHFitter::SYSTMAP[norm->fNuisanceParameter] = norm->fTitle;
+    }
+    // morphng
+    if (fRunMorphing){
+        // template fitting stuff
+        fTemplateWeightVec = TtHFit::GetTemplateWeightVec(fTemplateInterpolationOption);
+//         if(TtHFitter::DEBUGLEVEL>0){
+//             for (const auto& i: fTemplateWeightVec){
+//                 std::cout << "Template name: " << i.name << std::endl;
+//                 std::cout << "Template function: " << i.function << std::endl;
+//                 std::cout << "Template range: " << i.range << std::endl;
+//             }
+//         }
     }
 }
 
@@ -6246,6 +6278,11 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     }
     // test for morphing: it seems to work!!!
 //     meas.AddPreprocessFunction("mu_tt","1.-SigXsecOverSM","SigXsecOverSM[0,0,1]");
+    for(const TtHFit::TemplateWeight& itemp : fTemplateWeightVec){
+        string normName = "morph_"+itemp.name+"_"+std::to_string(itemp.value);
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "normName: " << normName << std::endl;
+        meas.AddPreprocessFunction(normName, itemp.function, itemp.range);
+    }
     //
     meas.PrintXML((fName+"/RooStats/").c_str());
     meas.CollectHistograms();
@@ -8723,4 +8760,75 @@ void TtHFit::defineVariable(int regIter){
 
     delete h1;
     delete h2;
+}
+//__________________________________________________________________________________
+//
+void TtHFit::AddTemplateWeight(const std::string& name, float value){
+    std::pair<float, std::string> temp = std::make_pair(value, name);
+    fTemplatePair.push_back(temp);
+}
+
+//__________________________________________________________________________________
+//
+const std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::TemplateInterpolationOption& opt){
+    std::vector<TtHFit::TemplateWeight> vec;
+    // first sort vector of inputs for templates
+    if (fTemplatePair.size() < 2){
+        std::cerr << "You need to provide at least 2 templates for template fit to work, but you provided: " << fTemplatePair.size() << std::endl;
+        return vec;
+    }
+    std::sort(fTemplatePair.begin(), fTemplatePair.end());
+    // find min and max for range
+    float min = fTemplatePair.at(0).first;
+    float max = fTemplatePair.at(fTemplatePair.size() -1).first;
+    for (unsigned int itemp = 0; itemp < (fTemplatePair.size() ); itemp++){
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing: Template " << itemp << std::endl;
+        TtHFit::TemplateWeight tmp;
+        tmp.name = fTemplatePair.at(itemp).second;
+        tmp.value = fTemplatePair.at(itemp).first;
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing:   " << tmp.name << " = " << tmp.value << std::endl;
+        tmp.range = tmp.name+"["+std::to_string(min)+","+std::to_string(min)+","+std::to_string(max)+"]";
+        // calculate the actual function
+        tmp.function = TtHFit::GetWeightFunction(itemp, opt, min, max);
+        vec.push_back(tmp);
+    }
+    return vec;
+}
+
+//__________________________________________________________________________________
+//
+const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt, float min, float max) const{
+    std::string fun = "";
+    float x_i;
+    float deltaXp = -1; // |x(i+1)-x(i)| 
+    float deltaXm = -1; // |x(i-1)-x(i)|
+    std::string name;
+    if (itemp < fTemplatePair.size()){
+        x_i = fTemplatePair.at(itemp).first;
+        name = fTemplatePair.at(itemp).second;
+    }
+    else return fun;
+    //
+    if ((itemp+1) < fTemplatePair.size() ){
+        deltaXp = std::fabs(fTemplatePair.at(itemp+1).first - fTemplatePair.at(itemp).first);
+    }
+    if (((int)itemp-1) >=0 ){
+        deltaXm = std::fabs(fTemplatePair.at(itemp-1).first - fTemplatePair.at(itemp).first);
+    }
+    if(deltaXp<0 && deltaXm<0){
+        std::cerr << "ERROR: Morphing: delta X = " << deltaXp << ", " << deltaXm << std::endl;
+        return fun;
+    }
+    if (opt == TtHFit::LINEAR){
+        fun  = "(";
+        if(deltaXm>0) fun += "((("+name+"-"+std::to_string(x_i)+")< 0)&&(fabs("+name+"-"+std::to_string(x_i)+")<"+std::to_string(deltaXm)+"))*(1.-(fabs("+name+"-"+std::to_string(x_i)+"))/"+std::to_string(deltaXm)+")";
+        else fun += "0.";
+        fun += "+";
+        if(deltaXp>0) fun += "((("+name+"-"+std::to_string(x_i)+")>=0)&&(fabs("+name+"-"+std::to_string(x_i)+")<"+std::to_string(deltaXp)+"))*(1.-(fabs("+name+"-"+std::to_string(x_i)+"))/"+std::to_string(deltaXp)+")";
+        else fun += "0.";
+        fun += ")";
+    }
+    // ...
+    if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing:   weight function = " << fun << std::endl;
+    return fun;
 }
