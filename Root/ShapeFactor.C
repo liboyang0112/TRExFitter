@@ -1,4 +1,5 @@
 #include "TtHFitter/ShapeFactor.h"
+#include "TtHFitter/StatusLogbook.h"
 
 // -------------------------------------------------------------------------------------------------
 // class ShapeFactor
@@ -33,7 +34,6 @@ void ShapeFactor::Set(string name, float nominal, float min, float max, bool isC
 //__________________________________________________________________________________
 //
 void ShapeFactor::Print(){
-    cout << "        ShapeFactor: " << fName << "\t" << fNominal << ", " << fMin << ", " << fMax;
-    if(fConst) cout << " (CONSTANT)"; 
-    cout << endl;
+	if (!fConst) WriteDebugStatus("ShapeFactor::Print", "        ShapeFactor: " + fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax));
+	else WriteDebugStatus("ShapeFactor::Print", "        ShapeFactor: " + fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax) + "(CONSTANT)");
 }
