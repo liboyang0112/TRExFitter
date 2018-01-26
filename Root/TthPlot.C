@@ -1,4 +1,5 @@
 #include "TtHFitter/TthPlot.h"
+#include "TtHFitter/StatusLogbook.h"
 
 using namespace std;
 
@@ -314,8 +315,8 @@ void TthPlot::BlindData(){
             }
         }
         else{
-            std::cout << "TthPlot::WARNING: Either h_data (" << h_data << "), h_signal (" << h_signal << ") or h_tot (" << h_tot << ") not defined.";
-            std::cout << " Blidning not possible. Skipped." << std::endl;
+			WriteWarningStatus("TthPlot::BlindData", "Either h_data, h_signal, h_tot not defined.");
+			WriteWarningStatus("TthPlot::BlindData", " Blidning not possible. Skipped.");
         }
     }
 }
@@ -427,7 +428,7 @@ void TthPlot::Draw(string options){
     //if(h_normsig!=0x0){
         for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
             signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
-            std::cout << "--- Signal " << fNormSigNames[i_smp] << " scaled by " <<signalScale << std::endl;
+			WriteInfoStatus("TthPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale));
             h_normsig[i_smp]->Scale(signalScale);
             h_normsig[i_smp]->SetLineColor(h_normsig[i_smp]->GetFillColor());
             h_normsig[i_smp]->SetFillColor(0);
@@ -1079,7 +1080,7 @@ TCanvas* TthPlot::GetCanvas(){
 void TthPlot::SetBinBlinding(bool on,float threshold){
     fBlindingThreshold = threshold;
     if(!on) fBlindingThreshold = -1;
-    std::cout << "TthPlot::INFO: Setting blinding threshold = " << fBlindingThreshold << std::endl;
+	WriteInfoStatus("TthPlot::SetBinBlinding", "Setting blinding threshold = " + std::to_string(fBlindingThreshold));
 }
 
 //_____________________________________________________________________________
@@ -1087,11 +1088,11 @@ void TthPlot::SetBinBlinding(bool on,float threshold){
 void TthPlot::SetBinBlinding(bool on,TH1F* h_blind){
     h_blinding = h_blind;
     if(!on) fBlindingThreshold = -1;
-    std::cout << "TthPlot::INFO: Setting blinding bins:";
+	std::string temp = "Setting blinding bins:";
     for(int i_bin=1;i_bin<h_blinding->GetNbinsX()+1;i_bin++){
-        std::cout << " " << h_blinding->GetBinContent(i_bin);
+        temp+= " " + std::to_string(h_blinding->GetBinContent(i_bin));
     }
-    std::cout << std::endl;
+	WriteDebugStatus("TthPlot::SetBinBlinding", temp);
 }
 
 

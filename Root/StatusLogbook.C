@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-int fMaxStrLen  = 540;
+int fMaxStrLen  = 54000;
 
 void WriteErrorStatus(const std::string& classname, const std::string& info)
 {
