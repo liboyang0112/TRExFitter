@@ -2,6 +2,7 @@
 
 #include "TtHFitter/ConfigParser.h"
 #include "TtHFitter/FittingTool.h"
+#include "TtHFitter/StatusLogbook.h"
 
 //Roofit headers
 #include "RooSimultaneous.h"
@@ -258,8 +259,8 @@ void MultiFit::AddFitFromConfig(string configFile,string options,string label,st
 //__________________________________________________________________________________
 //
 RooWorkspace* MultiFit::CombineWS(){
-    cout << "...................................." << endl;
-    std::cout << "Combining workspaces..." << std::endl;
+	WriteInfoStatus("MultiFit::CombineWS", "....................................");
+	WriteInfoStatus("MultiFit::CombineWS", "Combining workspaces...");
 
     std::vector < RooWorkspace* > vec_ws;
     std::vector < std::string > vec_chName;
@@ -269,15 +270,15 @@ RooWorkspace* MultiFit::CombineWS(){
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         std::string fitName = fFitList[i_fit]->fInputName;
         std::string fitDir = fFitList[i_fit]->fName;
-        if(TtHFitter::DEBUGLEVEL>0) std::cout << "Adding Fit: " << fitName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << fitDir << std::endl;
+		WriteDebugStatus("MultiFit::CombineWS", "Adding Fit: " + fitName + ", " + fFitLabels[i_fit] + ", " + fFitSuffs[i_fit] + fitDir);
 
         RooStats::HistFactory::Measurement *meas;
         std::string fileName = fitDir + "/RooStats/" + fitName + "_combined_" + fitName + fFitSuffs[i_fit] + "_model.root";
         if(fWsFiles[i_fit]!="") fileName = fWsFiles[i_fit];
-        if(TtHFitter::DEBUGLEVEL>0) std::cout << "Opening file " << fileName << std::endl;
+		WriteDebugStatus("MultiFit::CombineWS", "Opening file " + fileName );
         TFile *rootFile = new TFile(fileName.c_str(),"read");
         RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get("combined");
-        if(TtHFitter::DEBUGLEVEL>0) std::cout << "Getting " << fitName+fFitSuffs[i_fit] << std::endl;
+		WriteDebugStatus("MultiFit::CombineWS", "Getting " + fitName+fFitSuffs[i_fit] );
         meas = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fitName+fFitSuffs[i_fit]).c_str());
         //
         // import measurement if not there yet
@@ -303,10 +304,10 @@ RooWorkspace* MultiFit::CombineWS(){
                 Region *reg = fFitList[i_fit]->fRegions[i_reg];
                 if(reg->fRegionType==Region::VALIDATION) continue;
                 std::string fileName = fitDir + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
-                std::cout << "  Opening file " << fileName << std::endl;
+				WriteDebugStatus("MultiFit::CombineWS", "  Opening file " + fileName );
                 TFile *rootFile = new TFile(fileName.c_str(),"read");
                 RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get(reg->fName.c_str());
-                std::cout << "  Getting " << reg->fName << std::endl;
+				WriteDebugStatus("MultiFit::CombineWS", "  Getting " + reg->fName );
                 vec_ws.push_back(m_ws);
                 vec_chName.push_back(reg->fName);
             }
@@ -318,7 +319,7 @@ RooWorkspace* MultiFit::CombineWS(){
     // Create the HistoToWorkspaceFactoryFast object to perform safely the combination
     //
     if(!measurement){
-        std::cout << "<!> Error in MultiFit::CombineWS() : The measurement object has not been retrieved ! Please check." << std::endl;
+		WriteErrorStatus("MultiFit::CombineWS", "The measurement object has not been retrieved ! Please check.");
         return 0;
     }
     RooStats::HistFactory::HistoToWorkspaceFactoryFast factory(*measurement);
@@ -326,7 +327,7 @@ RooWorkspace* MultiFit::CombineWS(){
     // Creating the combined model
     RooWorkspace* ws = factory.MakeCombinedModel( vec_chName, vec_ws );
 
-    cout << "...................................." << endl;
+	WriteInfoStatus("MultiFit::CombineWS", "....................................");
 
     // Configure the workspace
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
@@ -403,9 +404,9 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     }
 
     if(vVarNameMinos.size()>0){
-        std::cout << "Setting the variables to use MINOS with:" << std::endl;
+		WriteDebugStatus("MultiFit::FitCombinedWS", "Setting the variables to use MINOS with:");
         for(unsigned int i_minos=0;i_minos<vVarNameMinos.size();i_minos++){
-            std::cout << "  " << vVarNameMinos[i_minos] << std::endl;
+			WriteDebugStatus("MultiFit::FitCombinedWS",  "  " + vVarNameMinos[i_minos]);
         }
         fitTool -> UseMinos(vVarNameMinos);
     }
@@ -427,10 +428,10 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     else if(inputData!=""){
         data = (RooDataSet*)ws->data( inputData.c_str() );
     } else {
-        std::cout << "In MultiFit::FitCombinedWS() function: you didn't specify inputData => will try with observed data !" << std::endl;
+		WriteWarningStatus("MultiFit::FitCombinedWS", "You didn't specify inputData => will try with observed data !");
         data = (RooDataSet*)ws->data("obsData");
         if(!data){
-            std::cout << "In MultiFit::FitCombinedWS() function: observed data not present => will use with asimov data !" << std::endl;
+			WriteWarningStatus("MultiFit::FitCombinedWS", "Observed data not present => will use with asimov data !");
             data = (RooDataSet*)ws->data("asimovData");
         }
     }
@@ -448,8 +449,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     // - read fit resutls
     // - fix all NP to fitted ones before fitting
     if(fIncludeStatOnly){
-        std::cout << "Fitting stat-only: reading fit results from full fit from file:" << std::endl;
-        std::cout << "  " << (fOutDir+"/Fits/"+fName+fSaveSuf+".txt") << std::endl;
+		WriteInfoStatus("MultiFit::FitCombinedWS", "Fitting stat-only: reading fit results from full fit from file:");
+		WriteInfoStatus("MultiFit::FitCombinedWS", "  " + (fOutDir+"/Fits/"+fName+fSaveSuf+".txt"));
         fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
         std::vector<std::string> npNames;
         std::vector<double> npValues;
@@ -516,14 +517,14 @@ void MultiFit::ComparePOI(string POI){
     vector<string> suffs;
     vector<string> titles;
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        std::cout << "Adding Fit: " << fFitList[i_fit]->fInputName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
+		WriteInfoStatus("MultiFit::ComparePOI", "Adding Fit: " + fFitList[i_fit]->fInputName + ", " + fFitLabels[i_fit] + ", " + fFitSuffs[i_fit]);
         names.push_back( fFitList[i_fit]->fInputName );
         dirs.push_back( fFitList[i_fit]->fName );
         titles.push_back( fFitLabels[i_fit] );
         suffs.push_back( fFitSuffs[i_fit] );
     }
     if(fCombine){
-        std::cout << "Adding Combined Fit" << std::endl;
+		WriteInfoStatus("MultiFit::ComparePOI", "Adding Combined Fit");
         names.push_back( fName );
         dirs.push_back( fOutDir );
         titles.push_back( "Combined" );
@@ -796,14 +797,14 @@ void MultiFit::CompareLimit(){
     vector<string> suffs;  suffs.clear();
     vector<string> titles; titles.clear();
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        std::cout << "Adding Fit: " << fFitList[i_fit]->fInputName << ", " << fFitLabels[i_fit] << ", " << fFitSuffs[i_fit] << std::endl;
+		WriteInfoStatus("MultiFit::CompareLimit", "Adding Fit: " + fFitList[i_fit]->fInputName + ", " + fFitLabels[i_fit] + ", " + fFitSuffs[i_fit]);
         dirs.push_back( fFitList[i_fit]->fName );
         names.push_back( fFitList[i_fit]->fInputName );
         titles.push_back( fFitLabels[i_fit] );
         suffs.push_back( fFitSuffs[i_fit] );
     }
     if(fCombine){
-        std::cout << "Adding combined limit" << std::endl;
+		WriteInfoStatus("MultiFit::CompareLimit", "Adding combined limit");
         dirs.push_back( fOutDir );
         names.push_back( fName );
         titles.push_back( "Combined" );
@@ -838,16 +839,16 @@ void MultiFit::CompareLimit(){
     for(int i=0;i<N;i++){
         if(fSignalInjection){
             f = new TFile(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
-            std::cout << "Reading file " << Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) << std::endl;
+			WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + "_injection.root");
         }
         else{
             f = new TFile(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
-            std::cout << "Reading file " << Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) << std::endl;
+			WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + ".root");
         }
         h = (TH1*)f->Get("limit");
         if(fSignalInjection) h_old = (TH1*)f->Get("limit_old");
 
-        std::cout << " " << h->GetBinContent(1) << std::endl;
+		WriteDebugStatus("MultiFit::CompareLimit", "bin 1 content: " + std::to_string(h->GetBinContent(1)));
         if(fFitShowObserved[i]) g_obs->SetPoint(N-i-1,h->GetBinContent(1),N-i-1);
         else g_obs->SetPoint(N-i-1,-1,N-i-1);
         g_exp->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
@@ -969,7 +970,7 @@ void MultiFit::ComparePulls(string category){
 
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1){
-            std::cout << "Adding Combined Fit" << std::endl;
+			WriteInfoStatus("MultiFit::ComparePulls", "Adding Combined Fit");
             dirs.push_back( fOutDir );
             names.push_back( fName );
             titles.push_back( "Combined" );
@@ -1067,18 +1068,19 @@ void MultiFit::ComparePulls(string category){
         while(true){
             in >> systName;
             if(!in.good()) break;
-            cout << "Looking for " << systName << "... ";
+			WriteDebugStatus("MultiFit::ComparePulls", "Looking for " + systName);
+			std::string temp_string = "";
             for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
                 if(NamesNew[i_syst]==systName){
-                    cout << "found";
-                    cout << ", title = " << TitlesNew[i_syst];
+                    temp_string+=  "found";
+                    temp_string += ", title = " + TitlesNew[i_syst];
                     Names.push_back(NamesNew[i_syst]);
                     Titles.push_back(TitlesNew[i_syst]);
                     Categories.push_back(CategoriesNew[i_syst]);
                     break;
                 }
             }
-            cout << endl;
+			WriteDebugStatus("MultiFit::ComparePulls", temp_string);
         }
         in.close();
     }
@@ -1232,8 +1234,8 @@ void MultiFit::CompareNormFactors(string category){
 
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1){
-            std::cout << "Adding Combined Fit" << std::endl;
-	    dirs.push_back( fOutDir );
+			WriteInfoStatus("MultiFit::CompareNormFactors", "Adding Combined Fit");
+	    	dirs.push_back( fOutDir );
             names.push_back( fName );
             titles.push_back( "Combined" );
             suffs.push_back( "" );
@@ -1330,18 +1332,19 @@ void MultiFit::CompareNormFactors(string category){
         while(true){
             in >> normName;
             if(!in.good()) break;
-            cout << "Looking for " << normName << "... ";
+			WriteDebugStatus("MultiFit::CompareNormFactors", "Looking for " + normName + "... ");
+			std::string temp_string = "";
             for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
                 if(NamesNew[i_norm]==normName){
-                    cout << "found";
-                    cout << ", title = " << TitlesNew[i_norm];
+                    temp_string+= "found";
+                    temp_string+= ", title = " + TitlesNew[i_norm];
                     Names.push_back(NamesNew[i_norm]);
                     Titles.push_back(TitlesNew[i_norm]);
                     Categories.push_back(CategoriesNew[i_norm]);
                     break;
                 }
             }
-            cout << endl;
+			WriteDebugStatus("MultiFit::CompareNormFactors", temp_string);
         }
         in.close();
     }
@@ -1470,7 +1473,7 @@ void MultiFit::CompareNormFactors(string category){
 void MultiFit::PlotCombinedCorrelationMatrix(){
     TtHFit *fit = fFitList[0];
     if(fit->fStatOnly){
-        std::cout << "MultiFit::INFO: Stat only fit => No Correlation Matrix generated." << std::endl;
+		WriteInfoStatus("MultiFit::PlotCombinedCorrelationMatrix", "Stat only fit => No Correlation Matrix generated.");
         return;
     }
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
@@ -1484,11 +1487,11 @@ void MultiFit::PlotCombinedCorrelationMatrix(){
 //____________________________________________________________________________________
 //
 void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
-    std::cout << "...................................." << std::endl;
-    std::cout << "Producing Ranking..." << std::endl;
+	WriteInfoStatus("MultiFit::ProduceNPRanking", "....................................");
+	WriteInfoStatus("MultiFit::ProduceNPRanking", "Producing Ranking...");
 
     if(fFitType==2){
-        std::cerr << "\033[1;31m<!> ERROR in MultiFit::ProduceNPRanking(): For ranking plots, the SPLUSB FitType is needed.  \033[0m"<<std::endl;
+		WriteErrorStatus("MultiFit::ProduceNPRanking", "For ranking plots, the SPLUSB FitType is needed.");
         abort();
     }
 
@@ -1594,10 +1597,10 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     else if(inputData!=""){
         data = (RooDataSet*)ws->data( inputData.c_str() );
     } else {
-        std::cout << "In MultiFit::ProduceNPRanking() function: you didn't specify inputData => will try with observed data !" << std::endl;
+		WriteWarningStatus("MultiFit::ProduceNPRanking", "You didn't specify inputData => will try with observed data !");
         data = (RooDataSet*)ws->data("obsData");
         if(!data){
-            std::cout << "In MultiFit::ProduceNPRanking() function: observed data not present => will use with asimov data !" << std::endl;
+			WriteWarningStatus("MultiFit::ProduceNPRanking", "Observed data not present => will use with asimov data !");
             data = (RooDataSet*)ws->data("asimovData");
         }
     }
@@ -1709,8 +1712,8 @@ void MultiFit::PlotNPRankingManager(){
 //____________________________________________________________________________________
 //
 void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
-    std::cout << "...................................." << std::endl;
-    std::cout << "Plotting Ranking..." << std::endl;
+	WriteInfoStatus("MultiFit::PlotNPRanking", "....................................");
+	WriteInfoStatus("MultiFit::PlotNPRanking", "Plotting Ranking...");
     //
     string fileToRead = fOutDir+"/Fits/NPRanking.txt";
     //
@@ -1747,7 +1750,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     ifstream fin( fileToRead.c_str() );
     fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     if (paramname=="Luminosity"){
-        std::cerr << "MultiFit::PlotNPRanking::WARNING: Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"" << std::endl;
+		WriteErrorStatus("MultiFit::PlotNPRanking", "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"");
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     }
     while (!fin.eof()){
@@ -1761,13 +1764,12 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         poinomdown.push_back(PoiNomDown);
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
         if (paramname=="Luminosity"){
-            std::cerr << "MultiFit::PlotNPRanking::WARNING: Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"" << std::endl;
+			WriteErrorStatus("MultiFit::PlotNPRanking", "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"");
             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
         }
     }
 
     unsigned int SIZE = parname.size();
-    if(TtHFitter::DEBUGLEVEL>0) std::cout << "NP ordering..." << std::endl;
     number.push_back(0.5);
     for (unsigned int i=1;i<SIZE;i++){
         number.push_back(i+0.5);
@@ -2059,7 +2061,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         c->SaveAs( (fOutDir+"/RankingSysts."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else{
-      std::cout << "WARNING::TtHFitter:Your ranking plot felt in unknown category :s" << endl;
+	  WriteWarningStatus("MultiFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
       for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
         c->SaveAs( (fOutDir+"/RankingUnknown."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
     }
@@ -2072,8 +2074,8 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 //____________________________________________________________________________________
 //
 void MultiFit::PlotSummarySoverB(){
-    std::cout << "...................................." << std::endl;
-    std::cout << "Producing S/B plot..." << std::endl;
+	WriteInfoStatus("MultiFit::PlotSummarySoverB", "....................................");
+	WriteInfoStatus("MultiFit::PlotSummarySoverB", "Producing S/B plot...");
 
     bool includeBonly = false;
     if(fBonlySuffix!="") includeBonly = true;
@@ -2143,10 +2145,10 @@ void MultiFit::PlotSummarySoverB(){
     for(int i_hist=0;i_hist<Nhist;i_hist++){
         TH1F* h_tmp = 0x0;
         TH1F* h_tmpBonly = 0x0;
-        if(TtHFitter::DEBUGLEVEL>0) std::cout << "Opening file " << fileNames[i_hist] << std::endl;
+		WriteDebugStatus("MultiFit::PlotSummarySoverB",  "Opening file " + fileNames[i_hist]);
         file.push_back(new TFile(fileNames[i_hist].c_str()));
         if(includeBonly){
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Opening file " << fileNamesBonly[i_hist] << std::endl;
+			WriteDebugStatus("MultiFit::PlotSummarySoverB", "Opening file " + fileNamesBonly[i_hist]);
             fileBonly.push_back(new TFile(fileNamesBonly[i_hist].c_str()));
         }
         //
@@ -2162,30 +2164,28 @@ void MultiFit::PlotSummarySoverB(){
         }
         //
         for(unsigned int i_sig=0;i_sig<sigList.size();i_sig++){
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Getting histogram " << "h_"+sigList[i_sig]+"_postFit";
+			WriteDebugStatus("MultiFit::PlotSummarySoverB", "  Getting histogram h_"+sigList[i_sig]+"_postFit");
             h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+sigList[i_sig]+"_postFit").c_str() );
             if(h_tmp!=0x0){
-                if(TtHFitter::DEBUGLEVEL>0) std::cout << " ... FOUND";
+				WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... FOUND");
                 if(h_sig[i_hist]==0x0) h_sig[i_hist] = h_tmp;
                 else                   h_sig[i_hist]->Add(h_tmp);
             }
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << std::endl;
         }
         for(unsigned int i_bkg=0;i_bkg<bkgList.size();i_bkg++){
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << "  Getting histogram " << "h_"+bkgList[i_bkg]+"_postFit";
+			WriteDebugStatus("MultiFit::PlotSummarySoverB", "  Getting histogram h_"+bkgList[i_bkg]+"_postFit");
             h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
             if(includeBonly) h_tmpBonly = (TH1F*)fileBonly[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
             if(h_tmp!=0x0){
-                if(TtHFitter::DEBUGLEVEL>0) std::cout << " ... FOUND";
+				WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... FOUND");
                 if(h_bkg[i_hist]==0x0) h_bkg[i_hist] = h_tmp;
                 else                   h_bkg[i_hist]->Add(h_tmp);
             }
             if(h_tmpBonly!=0x0){
-                if(TtHFitter::DEBUGLEVEL>0) std::cout << " ... B-only FOUND";
+				WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... B-only FOUND");
                 if(h_bkgBonly[i_hist]==0x0) h_bkgBonly[i_hist] = h_tmpBonly;
                 else                        h_bkgBonly[i_hist]->Add(h_tmpBonly);
             }
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << std::endl;
             // syst variations
             for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
                 // up
@@ -2516,7 +2516,7 @@ TH1F* MultiFit::Combine(vector<TH1F*> h){
     int Nbins = 0;
     int Nhist = h.size();
     for(int i_hist=0;i_hist<Nhist;i_hist++){
-        if(h[i_hist]==0x0) std::cout << "WARNING: empty histgram " << i_hist << std::endl;
+		if(h[i_hist]==0x0) WriteWarningStatus("MultiFit::Combine", "empty histgram " + std::to_string(i_hist));
         else Nbins += h[i_hist]->GetNbinsX();
     }
     TH1F* h_new = new TH1F(Form("%s_comb",h[0]->GetName()),Form("%s_comb",h[0]->GetTitle()),Nbins,0,Nbins);
@@ -2563,7 +2563,7 @@ TH1F* MultiFit::Rebin(TH1F* h,vector<float> vec, bool isData){
         if ( value<h_new->GetXaxis()->GetXmin() ) value=0.9999*h_new->GetXaxis()->GetXmin();
         if ( value>h_new->GetXaxis()->GetXmax() ) {
             double tmpvalue=1.0001*h_new->GetXaxis()->GetXmax();
-            cout << "turning: " << value << " in: " << tmpvalue << endl;
+			WriteDebugStatus("MultiFit::Rebin", "turning: " + std::to_string(value) + " in: " + std::to_string(tmpvalue));
             value=tmpvalue;
         }
         int i_bin=h_new->FindBin(value);
