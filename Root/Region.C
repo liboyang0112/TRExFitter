@@ -387,7 +387,17 @@ void Region::BuildPreFitErrorHist(){
                 // scale according to NormFactors
                 float scale = 1.;
                 for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
-                    scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
+                    NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf];
+                    // if this norm factor is a morphing one
+                    if(nf->fName.find("morph_")!=string::npos){
+                        std::string formula = TtHFitter::SYSTMAP[nf->fName];
+                        std::string name = TtHFitter::NPMAP[nf->fName];
+                        formula = ReplaceString(formula,name,"x");
+                        TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+                        scale *= f_morph->Eval(nf->fNominal);
+                    }
+                    else
+                        scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
                 }
                 //
                 // skip data
@@ -529,8 +539,21 @@ TthPlot* Region::DrawPreFit(string opt){
         }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
-            h->Scale(fSig[i]->fSample->fNormFactors[i_nf]->fNominal);
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf];
+            // if this norm factor is a morphing one
+            if(nf->fName.find("morph_")!=string::npos){
+                std::string formula = TtHFitter::SYSTMAP[nf->fName];
+                std::string name = TtHFitter::NPMAP[nf->fName];
+                formula = ReplaceString(formula,name,"x");
+                TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+                float scale = f_morph->Eval(nf->fNominal);
+                h->Scale(scale);
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: " << nf->fName << " => Scaling " << fSig[i]->fSample->fName << " by " << scale << std::endl;
+            }
+            else{
+                h->Scale(nf->fNominal);
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: " << nf->fName << " => Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            }
         }
         if(TtHFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
         if(TtHFitter::SHOWNORMSIG){
@@ -557,8 +580,21 @@ TthPlot* Region::DrawPreFit(string opt){
         }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
-            h->Scale(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal);
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fBkg[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf];
+            // if this norm factor is a morphing one
+            if(nf->fName.find("morph_")!=string::npos){
+                std::string formula = TtHFitter::SYSTMAP[nf->fName];
+                std::string name = TtHFitter::NPMAP[nf->fName];
+                formula = ReplaceString(formula,name,"x");
+                TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+                float scale = f_morph->Eval(nf->fNominal);
+                h->Scale(scale);
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: " << nf->fName << " => Scaling " << fSig[i]->fSample->fName << " by " << scale << std::endl;
+            }
+            else{
+                h->Scale(nf->fNominal);
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: " << nf->fName << " => Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            }
         }
         p->AddBackground(h,title);
         if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");

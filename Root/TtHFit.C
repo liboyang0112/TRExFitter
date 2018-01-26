@@ -1490,8 +1490,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
 			WriteDebugStatus("TtHFit", "Morphing: Adding " + name + ", with value: " + std::to_string(value));
             AddTemplateWeight(name, value);
             // set proper normalization
-            std::string morphName = "morph_"+name+"_"+std::to_string(value);
-            smp->AddNormFactor(morphName, 1, 0, 10, false);
+            std::string morphName = "morph_"+name+"_"+ReplaceString(std::to_string(value),"-","m");
+            NormFactor *nf = smp->AddNormFactor(morphName, 1, 0, 10, false);
+            fNormFactors.push_back( nf );
+            fNormFactorNames.push_back( nf->fName );
+            fNNorm++;
         }
         // ...
     }
@@ -2168,15 +2171,43 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(TtHFitter::NPMAP[norm->fName]=="") TtHFitter::NPMAP[norm->fName] = norm->fName;
         if(norm->fNuisanceParameter!=norm->fName) TtHFitter::SYSTMAP[norm->fNuisanceParameter] = norm->fTitle;
     }
-    // morphng
+    // morphing
     if (fRunMorphing){
         // template fitting stuff
         fTemplateWeightVec = TtHFit::GetTemplateWeightVec(fTemplateInterpolationOption);
-		for (const auto& i: fTemplateWeightVec){
-			WriteDebugStatus("TtHFit", "Morphing: Template name: " + i.name);
-			WriteDebugStatus("TtHFit", "Morphing: Template function: " + i.function);
-			WriteDebugStatus("TtHFit", "Morphing: Template range: " + i.range);
-		}
+        for(const TtHFit::TemplateWeight& itemp : fTemplateWeightVec){
+            string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
+            TtHFitter::SYSTMAP[normName] = itemp.function;
+            TtHFitter::NPMAP[normName]   = itemp.name;
+            // get the norm factor corresponding to each template
+            for(auto norm : fNormFactors){
+                if(norm->fName == normName){
+                    // find a norm factor in the config corresponding to the morphing parameter
+                    // NB: it should be there in the config, otherwise an error message is shown and the code crashe
+                    bool found = false;
+                    for(auto norm2 : fNormFactors){
+                        if(norm2->fName == itemp.name){
+                            norm->fNominal = norm2->fNominal;
+                            norm->fMin = norm2->fMin;
+                            norm->fMax = norm2->fMax;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found){
+                        std::cerr << "\033[1;31m<!>TtHFit::ERROR: No NormFactor with name " << itemp.name << " found (needed for morphing.\033[0m" << std::endl;
+                        std::cerr << "Please add to the config something like:" << std::endl;
+                        std::cerr << "" << std::endl;
+                        std::cerr << "  NormFactor: " << itemp.name << std::endl;
+                        std::cerr << "    Nominal: <the value corresponding to your nominal template>" << std::endl;
+                        std::cerr << "    Min: <the min value for which you have provided template>" << std::endl;
+                        std::cerr << "    Max: <the max value for which you have provided template>" << std::endl;
+                        std::cerr << "" << std::endl;
+                        exit(1);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -6276,10 +6307,9 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 //         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddNoSyst(fSystematics[i_syst]->fName.c_str());
         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddUniformSyst(fSystematics[i_syst]->fName.c_str());
     }
-    // test for morphing: it seems to work!!!
-//     meas.AddPreprocessFunction("mu_tt","1.-SigXsecOverSM","SigXsecOverSM[0,0,1]");
+    // morphing
     for(const TtHFit::TemplateWeight& itemp : fTemplateWeightVec){
-        string normName = "morph_"+itemp.name+"_"+std::to_string(itemp.value);
+        string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
         if(TtHFitter::DEBUGLEVEL>0) std::cout << "normName: " << normName << std::endl;
         meas.AddPreprocessFunction(normName, itemp.function, itemp.range);
     }
@@ -8829,6 +8859,7 @@ const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::Te
         fun += ")";
     }
     // ...
+    fun = ReplaceString(fun,"--","+");
     if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing:   weight function = " << fun << std::endl;
     return fun;
 }
