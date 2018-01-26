@@ -1,5 +1,6 @@
 #include "TtHFitter/Common.h"
 #include "TtHFitter/HistoTools.h"
+#include "TtHFitter/StatusLogbook.h"
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -47,8 +48,8 @@ std::map<string,TFile*> TtHFitter::TFILEMAP;
 //
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight){
     TH1F* h = new TH1F("h","h",nbin,xmin,xmax);
-    if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram " << variable.c_str() << " from  " << ntuple << "  ..." << endl;
-    if(TtHFitter::DEBUGLEVEL>0) cout << "    with weight  " << Form("(%s)*(%s)",weight.c_str(),selection.c_str()) << "  ..." << endl;
+	WriteDebugStatus("Common::HistFromNtuple", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
+	WriteDebugStatus("Common::HistFromNtuple", "    with weight  (" + weight + ")*("+selection+")  ...");
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();
@@ -63,8 +64,8 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
 //
 TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight){
     TH1F* h = new TH1F("h","h",nbin,bins);
-    if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram  " << variable.c_str() << " from " << ntuple << "  ..." << endl;
-    if(TtHFitter::DEBUGLEVEL>0) cout << "    with weight  " << Form("(%s)*(%s)",weight.c_str(),selection.c_str()) << "  ..." << endl;
+	WriteDebugStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
+	WriteDebugStatus("Common::HistFromNtupleBinArr", "    with weight  (" + weight + ")*("+selection+")  ...");
     TChain *t = new TChain();
     t->Add(ntuple.c_str());
     h->Sumw2();
@@ -100,16 +101,16 @@ TH1* HistFromFile(string fullName){
 TH1* HistFromFile(string fileName,string histoName){
     if(fileName=="") return 0x0;
     if(histoName=="") return 0x0;
-    if(TtHFitter::DEBUGLEVEL>0) cout << "  Extracting histogram  " << histoName << "  from file  " << fileName << "  ..." << endl;
+	WriteDebugStatus("Common::HistFromFile", "  Extracting histogram  " + histoName + "  from file  " + fileName + "  ...");
     TH1 *h = 0x0;
     TFile *f = GetFile(fileName);
     if(not f){
-        cout<<"cannot find input file '"<<fileName<<"'"<<endl;
+		WriteErrorStatus("Common::HistFromFile", "cannot find input file '" + fileName + "'");
         return h;
     }
     h = static_cast<TH1*>(f->Get(histoName.c_str()));
     if(not h){
-        cout<<"cannot find histogram '"<<histoName<<"' from input file '"<<fileName<<"'"<<endl;
+		WriteErrorStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "'");
         return h;
     }
     h = static_cast<TH1*>(h->Clone());
@@ -309,18 +310,14 @@ double GetSeparation( TH1F* S1, TH1F* B1 ) {
   TH1F* B=new TH1F(*B1);
   Double_t separation = 0;
   if ((S->GetNbinsX() != B->GetNbinsX()) || (S->GetNbinsX() <= 0)) {
-    cout << "<GetSeparation> signal and background"
-         << " histograms have different number of bins: "
-         << S->GetNbinsX() << " : " << B->GetNbinsX() << endl;
+	WriteErrorStatus("Common::GetSeparation", "signal and background histograms have different number of bins: " + std::to_string(S->GetNbinsX()) + " : " + std::to_string(B->GetNbinsX()));
   }
   if (S->GetXaxis()->GetXmin() != B->GetXaxis()->GetXmin() ||
       S->GetXaxis()->GetXmax() != B->GetXaxis()->GetXmax() ||
       S->GetXaxis()->GetXmax() <= S->GetXaxis()->GetXmin()) {
-    cout << S->GetXaxis()->GetXmin() << " " << B->GetXaxis()->GetXmin()
-         << " " << S->GetXaxis()->GetXmax() << " " << B->GetXaxis()->GetXmax()
-         << " " << S->GetXaxis()->GetXmax() << " " << S->GetXaxis()->GetXmin() << endl;
-    cout << "<GetSeparation> signal and background"
-         << " histograms have different or invalid dimensions:" << endl;
+	WriteErrorStatus("Common::GetSeparation", "signal and background histograms have different or invalid dimensions:");
+	WriteErrorStatus("Common::GetSeparation", "Signal Xmin: " + std::to_string(S->GetXaxis()->GetXmin()) + ", background Xmin " + std::to_string(B->GetXaxis()->GetXmin()));
+	WriteErrorStatus("Common::GetSeparation", "Signal Xmax: " + std::to_string(S->GetXaxis()->GetXmax()) + ", background Xmax " + std::to_string(B->GetXaxis()->GetXmax()));
   }
   Int_t    nstep  = S->GetNbinsX();
   Double_t intBin = (S->GetXaxis()->GetXmax() - S->GetXaxis()->GetXmin())/nstep;
@@ -335,9 +332,7 @@ double GetSeparation( TH1F* S1, TH1F* B1 ) {
     separation *= intBin;
   }
   else {
-    cout << "<GetSeparation> histograms with zero entries: "
-         << nS << " : " << nB << " cannot compute separation"
-         << endl;
+	WriteErrorStatus("Common::GetSeparation", "histograms with zero entries: signal: " + std::to_string(nS) + " : background : " + std::to_string(nB) + " cannot compute separation");
     separation = 0;
   }
   return separation;
@@ -351,7 +346,7 @@ TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
   TH1F* h_blind = (TH1F*)h_data->Clone("h_blind");
   for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
     if( h_sig->GetBinContent(i_bin) / h_bkg->GetBinContent(i_bin) > threshold ){
-      std::cout << "Common::INFO: Blinding bin n." << i_bin << std::endl;
+	  WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
       h_data->SetBinContent(i_bin,0.);
       h_blind->SetBinContent(i_bin,1.);
     }
@@ -367,7 +362,7 @@ TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
 void BlindDataHisto( TH1* h_data, TH1* h_blind ) {
   for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
     if(h_blind->GetBinContent(i_bin)!=0){
-      std::cout << "Common::INFO: Blinding bin n." << i_bin << std::endl;
+	  WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
       h_data->SetBinContent(i_bin,0.);
     }
   }
@@ -379,12 +374,12 @@ double convertStoD(string toConvert){
   try{
     converted = std::stod(toConvert, &pos);
     if(pos != toConvert.size()){
-      std::cerr << "ERROR: Convert string -> double, partially converted object: " << toConvert << std::endl;
+	  WriteErrorStatus("Common::BlindDataHisto", "Convert string -> double, partially converted object: " +  toConvert);
       exit(1);
     }
   }
   catch(const std::exception& err){
-    std::cerr << "ERROR: Convert string -> double, exception catched: " << toConvert <<  " " << err.what() << std::endl;
+	WriteErrorStatus("Common::BlindDataHisto", "Convert string -> double, exception catched: " + toConvert +  " " + err.what());
     exit(1);
   }
   return converted;
