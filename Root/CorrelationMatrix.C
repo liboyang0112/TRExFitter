@@ -1,4 +1,5 @@
 #include "TtHFitter/CorrelationMatrix.h"
+#include "TtHFitter/StatusLogbook.h"
 #include "TH2F.h"
 
 //__________________________________________________________________________________
@@ -39,11 +40,11 @@ void CorrelationMatrix::SetCorrelation(string p0,string p1,float corr){
 //
 float CorrelationMatrix::GetCorrelation(string p0,string p1){
     if(!fNuisParIsThere[p0]){
-        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p0 << " not found in correlation matrix. Returning correlation = 0." << endl;
+		WriteWarningStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. Returning correlation = 0.");
         return 0.;
     }
     if(!fNuisParIsThere[p1]){
-        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p1 << " not found in correlation matrix. Returning correlation = 0." << endl;
+		WriteWarningStatus("CorrelationMatrix::GetCorrelation", "NP " + p1 + " not found in correlation matrix. Returning correlation = 0.");
         return 0.;
     }
     int idx0 = fNuisParIdx[p0];
@@ -69,7 +70,7 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
                 const string jSystName = fNuisParNames[jNP];
                 double corr = GetCorrelation(iSystName, jSystName);
                 if(abs(corr)>=minCorr){
-                    std::cout << iSystName << " " << minCorr << "    " << corr << " (" << jSystName << ")" << std::endl;
+					WriteDebugStatus("CorrelationMatrix::Draw", iSystName + " " + std::to_string(minCorr) + "    " + std::to_string(corr) + " (" + jSystName + ")");
                     vec_NP.push_back(iSystName);
                     break;
                 }
