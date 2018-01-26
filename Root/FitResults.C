@@ -1,4 +1,5 @@
 #include "TtHFitter/FitResults.h"
+#include "TtHFitter/StatusLogbook.h"
 
 //__________________________________________________________________________________
 //
@@ -41,7 +42,7 @@ float FitResults::GetNuisParValue(string p){
         idx = fNuisParIdx[p];
     }
     else{
-        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p << " not found... Returning 0." << endl;
+		WriteDebugStatus("FitResults::GetNuisParValue", "NP " + p + " not found... Returning 0.");
         return 0.;
     }
     return fNuisPar[idx]->fFitValue;
@@ -55,7 +56,7 @@ float FitResults::GetNuisParErrUp(string p){
         idx = fNuisParIdx[p];
     }
     else{
-        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p << " not found... Returning error = 1." << endl;
+		WriteDebugStatus("FitResults::GetNuisParErrUp", "NP " + p + " not found... Returning error = 1.");
         return 1.;
     }
     return fNuisPar[idx]->fPostFitUp;
@@ -69,7 +70,7 @@ float FitResults::GetNuisParErrDown(string p){
         idx = fNuisParIdx[p];
     }
     else{
-        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p << " not found... Returning error = 1." << endl;
+		WriteDebugStatus("FitResults::GetNuisParErrDown", "NP " + p + " not found... Returning error = 1.");
         return 1.;
     }
     return fNuisPar[idx]->fPostFitDown;
@@ -104,20 +105,16 @@ void FitResults::ReadFromTXT(string fileName){
     while(std::getline(in, line)){
         if(line=="") continue;
         if(line=="NUISANCE_PARAMETERS"){
-            if(TtHFitter::DEBUGLEVEL>0){
-                cout << "--------------------" << endl;
-                cout << "Reading Nuisance Parameters..." << endl;
-                cout << "--------------------" << endl;
-            }
+			WriteDebugStatus("FitResults::ReadFromTXT", "--------------------");
+			WriteDebugStatus("FitResults::ReadFromTXT", "Reading Nuisance Parameters...");
+			WriteDebugStatus("FitResults::ReadFromTXT", "--------------------");
             readingNP = true;
             continue;
         }
         else if(line=="CORRELATION_MATRIX"){
-            if(TtHFitter::DEBUGLEVEL>0){
-                cout << "--------------------" << endl;
-                cout << "Reading Correlation Matrix..." << endl;
-                cout << "--------------------" << endl;
-            }
+			WriteDebugStatus("FitResults::ReadFromTXT", "--------------------");
+			WriteDebugStatus("FitResults::ReadFromTXT", "Reading Reading Correlation Matrix...");
+			WriteDebugStatus("FitResults::ReadFromTXT", "--------------------");
             readingNP = false;
             readingCM = true;
             std::getline(in, line); // skip 1 line
@@ -144,9 +141,7 @@ void FitResults::ReadFromTXT(string fileName){
             np->fFitValue = value;
             np->fPostFitUp = up;
             np->fPostFitDown = down;
-            if(TtHFitter::DEBUGLEVEL>0){
-                if(print) cout << name << ": " << value << " +" << up << " " << down << endl;
-            }
+            if(print) WriteDebugStatus("FitResults::ReadFromTXT", name + ": " + std::to_string(value) + " +" + std::to_string(up) + " " + std::to_string(down));
             i++;
         }
         if(readingCM){
@@ -162,27 +157,27 @@ void FitResults::ReadFromTXT(string fileName){
         }
     }
     if(includeCorrelations){
-        if(TtHFitter::DEBUGLEVEL>0){
-          if(print){
-              for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
-                  cout << "\t " << fNuisParNames[j_sys];
-              }
-              cout << endl;
-              for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
-                  cout << fNuisParNames[i_sys];
-                  for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
-                      cout << Form("\t%.4f",matrix->GetCorrelation(fNuisParNames[i_sys],fNuisParNames[j_sys]));
-                  }
-                  cout << endl;
-              }
-          }
-        }
+		if(print){
+			std::string temp_string = "";
+		    for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
+		        temp_string+= "\t " + fNuisParNames[j_sys];
+		    }
+			WriteDebugStatus("FitResults::ReadFromTXT",temp_string);	
+			temp_string = "";
+		    for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
+		        temp_string +=  fNuisParNames[i_sys];
+		        for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
+		            temp_string += Form("\t%.4f",matrix->GetCorrelation(fNuisParNames[i_sys],fNuisParNames[j_sys]));
+		        }
+				WriteDebugStatus("FitResults::ReadFromTXT",temp_string);	
+		    }
+		}
     }
     fCorrMatrix = matrix;
     //
     int TOTsyst = fNuisParNames.size();
-    cout << "Found " << TOTsyst << " systematics." << endl;
-    if(TOTsyst<=0) cout << "WARNING: No systematics found in fit result file..." << endl;
+	WriteDebugStatus("FitResults::ReadFromTXT", "Found " + std::to_string(TOTsyst) + " systematics.");
+	if (TOTsyst<=0) WriteWarningStatus("FitResults::ReadFromTXT", "No systematics found in fit result file...");
 }
 
 //__________________________________________________________________________________
