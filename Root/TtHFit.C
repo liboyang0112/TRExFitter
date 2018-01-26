@@ -424,7 +424,7 @@ void TtHFit::WriteHistos(){
             else                 sh->WriteToFile(fFiles[i_ch]);
         }
     }
-	WriteInfoStatus("TtHFitter::WriteHistos","-------------------------------------------");
+	WriteInfoStatus("TtHFit::WriteHistos","-------------------------------------------");
 }
 
 // //__________________________________________________________________________________
@@ -2205,6 +2205,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             }
         }
     }
+
+	if (TtHFitter::DEBUGLEVEL < 2){
+		gErrorIgnoreLevel = kError;
+		RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
+	}
 }
 
 
@@ -7325,24 +7330,24 @@ void TtHFit::ReadFitResults(string fileName){
 //__________________________________________________________________________________
 //
 void TtHFit::Print(){
-	WriteInfoStatus("TtHFit::Print()", "-------------------------------------------");
-	WriteInfoStatus("TtHFit::Print()", fInputName);
-	WriteInfoStatus("TtHFit::Print()", "      NtuplePaths = ");
+	WriteInfoStatus("TtHFit::Print", "-------------------------------------------");
+	WriteInfoStatus("TtHFit::Print", fInputName);
+	WriteInfoStatus("TtHFit::Print", "      NtuplePaths = ");
 	for(int i=0;i<(int)fNtuplePaths.size();i++){
-		WriteInfoStatus("TtHFit::Print()", " " + fNtuplePaths[i]);
+		WriteInfoStatus("TtHFit::Print", " " + fNtuplePaths[i]);
 	}
-	WriteInfoStatus("TtHFit::Print()", "      NtupleName  = " + fNtupleName);
-	WriteInfoStatus("TtHFit::Print()", "      MCweight    = " + fMCweight);
-	WriteInfoStatus("TtHFit::Print()", "      Selection   = " + fSelection);
-	WriteInfoStatus("TtHFit::Print()", "      HistoPaths  = " + fSelection);
+	WriteInfoStatus("TtHFit::Print", "      NtupleName  = " + fNtupleName);
+	WriteInfoStatus("TtHFit::Print", "      MCweight    = " + fMCweight);
+	WriteInfoStatus("TtHFit::Print", "      Selection   = " + fSelection);
+	WriteInfoStatus("TtHFit::Print", "      HistoPaths  = " + fSelection);
 	for(int i=0;i<(int)fHistoPaths.size();i++){
-		WriteInfoStatus("TtHFit::Print()", " " + fHistoPaths[i]);
+		WriteInfoStatus("TtHFit::Print", " " + fHistoPaths[i]);
 	}
-	WriteInfoStatus("TtHFit::Print()", "      HistoName   = " + fHistoName);
+	WriteInfoStatus("TtHFit::Print", "      HistoName   = " + fHistoName);
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->Print();
     }
-	WriteInfoStatus("TtHFit::Print()", "-------------------------------------------");
+	WriteInfoStatus("TtHFit::Print", "-------------------------------------------");
 }
 
 //__________________________________________________________________________________
@@ -8159,7 +8164,6 @@ void TtHFit::MergeSystematics(){
                 WriteDebugStatus("TtHFit::MergeSsystematics", "Found NP(syst) " + syst->fNuisanceParameter + "(" + syst->fName + ") = to syst name " + syst1->fName );
                 for(auto reg : fRegions){
 					WriteDebugStatus("TtHFit::MergeSsystematics", "Region: " + reg->fName);
-                    if (TtHFitter::DEBUGLEVEL>1) std::cout << std::endl << "Region: "<< reg->fName <<std::endl;
                     for(auto sh : reg->fSampleHists){
                         SystematicHist *syh  = sh->GetSystematic(syst ->fName);
                         SystematicHist *syh1 = sh->GetSystematic(syst1->fName);
