@@ -799,8 +799,13 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 //
                 // if it's a norm factor
                 else if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
-                    diffUp   += yieldNominal*systErrUp;
-                    diffDown += yieldNominal*systErrDown;
+                    if (systValue >= 0) {
+                       diffUp   += yieldNominal*systErrUp;
+                       diffDown += yieldNominal*systErrDown;
+                    } else {
+                       diffUp   += yieldNominal*systErrDown;
+                       diffDown += yieldNominal*systErrUp;
+                    }
 //                     diffUp   += yieldNominal_postFit*systErrUp;
 //                     diffDown += yieldNominal_postFit*systErrDown;
                 }
@@ -888,8 +893,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                         scaleDown = overall_down + shape_down;
 
                     }
-                    diffUp   += scaleUp;
-                    diffDown -= scaleDown;
+                    diffUp   += scaleUp*((yieldNominal_postFit>0)-(yieldNominal_postFit<0));
+                    diffDown -= scaleDown*((yieldNominal_postFit>0)-(yieldNominal_postFit<0));
                 }
                 
                 if(TtHFitter::DEBUGLEVEL>0) cout << "\t +" << 100*diffUp/yieldNominal << "%\t " << 100*diffDown/yieldNominal << "%" << endl;
@@ -934,8 +939,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 // increase diffUp/Down according to the previously stored histograms
                 yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);
                 if(!sh) continue;
-                if(sh->fHistUp_postFit)   diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit;
-                if(sh->fHistDown_postFit) diffDown += sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit;
+                if(sh->fHistUp_postFit)   diffUp   += (sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit)
+                    * ((yieldNominal_postFit>=0)-(yieldNominal_postFit<0));
+                if(sh->fHistDown_postFit) diffDown += (sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit)
+                    * ((yieldNominal_postFit>=0)-(yieldNominal_postFit<0));
             }
             // add the proper bin content to the variation hists
             fTotUp_postFit[i_syst]  ->AddBinContent( i_bin, diffUp   );

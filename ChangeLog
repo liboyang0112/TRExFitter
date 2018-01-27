@@ -1,3 +1,6 @@
+2018-01-27 Robert Wolff <robert.wolff@cern.ch>
+    * Fixed post-fit errors when negative norm-factors are used
+
 2018-01-24 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixed runAsymptoticCLs_inject
     * Fixed crashes related to post-fit and gamma uncertainty propagation
