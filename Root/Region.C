@@ -2014,8 +2014,11 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
             if (std::find(systNames_unique.begin(), systNames_unique.end(), fSystNames[i_syst]) == systNames_unique.end())
                 systNames_unique.push_back(fSystNames[i_syst]);
             else continue;
+            std::vector<string> systNames_unique_2;
             for(unsigned int j_syst=0;j_syst<fSystNames.size();j_syst++){
-                if (fSystNames[i_syst]==fSystNames[j_syst] && i_syst!=j_syst) continue;
+                if (std::find(systNames_unique_2.begin(), systNames_unique_2.end(), fSystNames[j_syst]) == systNames_unique_2.end())
+                    systNames_unique_2.push_back(fSystNames[j_syst]);
+                else continue;
                 if(matrix!=0x0){
                     corr = matrix->GetCorrelation(fSystNames[i_syst],fSystNames[j_syst]);
                 } else {
