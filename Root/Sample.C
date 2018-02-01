@@ -25,6 +25,7 @@ Sample::Sample(string name,int type){
     fDivideBy = "";
     fMultiplyBy = "";
     fSmooth = false;
+    fBuildPullTable = false;
     //
     // ntuples
     fSelection = "1";

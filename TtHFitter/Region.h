@@ -57,8 +57,8 @@ public:
     void BuildPreFitErrorHist();
     TthPlot* DrawPreFit(string opt="");
     void BuildPostFitErrorHist(FitResults *fitRes);
-    TthPlot* DrawPostFit(FitResults *fitRes,string opt="");
-      
+    TthPlot* DrawPostFit(FitResults *fitRes,ofstream & pullTex,string opt="");
+    
     void SetBinning(int N, double *bins);
     void Rebin(int N);
     void SetRegionType(RegionType type);

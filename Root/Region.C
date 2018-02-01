@@ -991,7 +991,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 
 //__________________________________________________________________________________
 //
-TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
+TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
 
     if(TtHFitter::PREFITONPOSTFIT){
         fPlotPostFit->h_tot_bkg_prefit = (TH1*)fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit");
@@ -1060,6 +1060,12 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+        if (fSampleHists[i]->fSample->fBuildPullTable){
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFitter::Region:INFO - propagate post-fit to Sample " << fSampleHists[i]->fSample->fTitle << std::endl;
+            TString sampleTex= fSampleHists[i]->fSample->fTexTitle;
+            pullTex << "\\hline\n" << endl;
+            pullTex << "{\\color{blue}{$\\rightarrow \\,$ "<< sampleTex << "}} & \\\\\n"<< endl;
+        }
         hNew = (TH1*)hSmpNew[i]->Clone();
         for(int i_bin=1;i_bin<=hNew->GetNbinsX();i_bin++){
             double binContent0 = hSmpNew[i]->GetBinContent(i_bin);
@@ -1067,6 +1073,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             double multNorm = 1.;
             for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
                 systName = fSampleHists[i]->fSyst[i_syst]->fName;
+                TString systNameNew(systName); // used in pull tables
                 if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0)
                     systName = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
                 if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0){
@@ -1085,6 +1092,14 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
                     float binContentUp   = (fSampleHists[i]->fSyst[i_syst]->fNormUp+1) * binContent0;
                     float binContentDown = (fSampleHists[i]->fSyst[i_syst]->fNormDown+1) * binContent0;
                     multNorm *= (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall));
+                    if (fSampleHists[i]->fSample->fBuildPullTable){
+                        if ((((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) > 1.01) || ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) < 0.99)) && (i_bin==1)) {
+                            if(TtHFitter::DEBUGLEVEL>0)
+                                std::cout << "TtHFitter::Region:INFO - Syst "<< systName <<" in bin " << i_bin << " has norm effect "
+                                          << ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) -1 )*100 << std::endl;
+                            pullTex  << setprecision(2) << "norm "<< systNameNew.ReplaceAll("_","-") << "&"<< ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) -1 )*100  << " \\% \\\\\n"<< endl;
+                        }
+                    }
                 }
                 
                 //
@@ -1094,6 +1109,14 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
                     float binContentUp   = fSampleHists[i]->fSyst[i_syst]->fHistShapeUp->GetBinContent(i_bin);
                     float binContentDown = fSampleHists[i]->fSyst[i_syst]->fHistShapeDown->GetBinContent(i_bin);
                     multShape += (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 );
+                    if (fSampleHists[i]->fSample->fBuildPullTable){
+                        if (((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 ) > 0.03) || ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 ) < - 0.03)) {
+                            if(TtHFitter::DEBUGLEVEL>0)
+                                std::cout << "TtHFitter::Region:INFO - Syst "<< systName <<" in bin " << i_bin << " has shape effect "
+                                          << (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 )*100 << std::endl;
+                            pullTex << setprecision(2) <<"shape "<<  systNameNew.ReplaceAll("_","-") <<" bin " << i_bin << "&"<<(GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 )*100  << " \\% \\\\\n"<< endl;
+                        }
+                    }
                 }
             }
             
