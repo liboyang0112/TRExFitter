@@ -296,6 +296,8 @@ public:
     int fGetChi2;
 
     bool fTtresSmoothing;
+    
+    std::vector<std::string> fCustomFunctions;
 };
 
 #endif

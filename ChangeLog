@@ -1,3 +1,7 @@
+2018-02-01 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Small fix preventing a crash when producing pre-fit yield tables
+    * CustomFunctions option added for Job, to be able to use custom functions defined in .C files for selection or weights (instructions in the README)
+    
 2018-01-24 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixed runAsymptoticCLs_inject
     * Fixed crashes related to post-fit and gamma uncertainty propagation
