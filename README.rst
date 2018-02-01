@@ -175,7 +175,8 @@ Note that, each object should have unique <ObjectName>.
      * DoMergedPlot     : if set to TRUE a merged plot of all the included regions is created
      * DoTables         : if set to FALSE no tables are created
      * DoSignalRegionsPlot : if set to FALSE no signal regions plot is created
-     * DoPieChartPlot    : if set to FALSE no background composition pie-chart plot is created
+     * DoPieChartPlot   : if set to FALSE no background composition pie-chart plot is created
+     * CustomFunctions  : list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values)
      
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
