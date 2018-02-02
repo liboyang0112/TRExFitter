@@ -175,7 +175,8 @@ Note that, each object should have unique <ObjectName>.
      * DoMergedPlot     : if set to TRUE a merged plot of all the included regions is created
      * DoTables         : if set to FALSE no tables are created
      * DoSignalRegionsPlot : if set to FALSE no signal regions plot is created
-     * DoPieChartPlot    : if set to FALSE no background composition pie-chart plot is created
+     * DoPieChartPlot   : if set to FALSE no background composition pie-chart plot is created
+     * CustomFunctions  : list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values)
      
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -264,8 +265,8 @@ Note that, each object should have unique <ObjectName>.
      * AsimovReplacementFor: only for GHOST samples; if set, the creation of cutsom Asimov data-set(s) is triggered; use as 'AsimovReplacementFor: "dataset","sample"', where "dataset" is the name of a custom Asimov dataset one wants to create (the same name will have to be set under Job->CustomAsimov in order to use it) and "sample" is the sample this GHOST sample will superseed
      * SeparateGammas   : if set to TRUE, the sample will not contribute to the overall gamma factors for MC stat, but a separate set of them will be added for this sample (through the SHAPE systematic technology); NB: you need to re-run at least the "b" step if you want to decorrelate the gammas on existing inputs (wf is not enough)
      * CorrelateGammasInRegions: to be used only together with SeparateGammas; can be used to correlate MC stat across regions; example: "SR1:SR2,CR1:CR2:CR3" will use the same NP for the MC stat in each bin of SR1 and SR2 and in each bin of CR1, CR2 and CR3
+     * Morphing         : add this to each template you have, to do a template fit / morphing; syntax is <name-of-parameter>,<value-corresponding-to-this-template>; the POI should be set to <name-of-parameter>
      * BuildPullTable: if set to TRUE or NORM-ONLY, create tables showing the post-fit acceptance effect of nuisance parameter pulls for this sample, set to NORM+SHAPE to include the bin-by-bin effect
-
 
   * NormFactor:
      * Samples          : comma-separated list of samples on which to apply the norm factor
