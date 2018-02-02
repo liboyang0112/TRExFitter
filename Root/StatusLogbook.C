@@ -10,8 +10,6 @@ void WriteErrorStatus(const std::string& classname, const std::string& info)
 
   int fNWhitespace = fMaxStrLen - 42 - info.size() - classname.size();
 
-  if(fNWhitespace <= 0) std::cerr << "\033[1;31m" << "ERROR-ERROR::StatusLogbook: length of cout string is <= 0 !!!" << std::endl;
-
   std::string Whitespace = "";
 
   for(int i = 0; i < fNWhitespace; ++i)
@@ -20,7 +18,7 @@ void WriteErrorStatus(const std::string& classname, const std::string& info)
   std::string outputstring = "=== ERROR::"+classname+": "+info;
 
   // always print error
-  std::cout << "\033[1;31m" << outputstring.c_str() << "\33[0m" << std::endl;
+  std::cerr << "\033[1;31m" << outputstring.c_str() << "\33[0m" << std::endl;
 
 }
 
@@ -28,8 +26,6 @@ void WriteWarningStatus(const std::string& classname, const std::string& info)
 {
 
   int fNWhitespace = fMaxStrLen - 42 - info.size() - classname.size();
-
-  if(fNWhitespace <= 0) std::cerr << "\033[1;31m" << "ERROR-ERROR::StatusLogbook: length of cout string is <= 0 !!!" << std::endl;
 
   std::string Whitespace = "";
 
@@ -48,8 +44,6 @@ void WriteInfoStatus(const std::string& classname, const std::string& info)
 
   int fNWhitespace = fMaxStrLen - 42 - info.size() - classname.size();
 
-  if(fNWhitespace <= 0) std::cerr << "\033[1;31m" << "ERROR-ERROR::StatusLogbook: length of cout string is <= 0 !!!" << std::endl;
-
   std::string Whitespace = "";
 
   for(int i = 0; i < fNWhitespace; ++i)
@@ -65,8 +59,6 @@ void WriteDebugStatus(const std::string& classname, const std::string& info)
 {
 
   int fNWhitespace = fMaxStrLen - 42 - info.size() - classname.size();
-
-  if(fNWhitespace <= 0) std::cerr << "\033[1;31m" << "ERROR-ERROR::StatusLogbook: length of cout string is <= 0 !!!" << std::endl;
 
   std::string Whitespace = "";
 
