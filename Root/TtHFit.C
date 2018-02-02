@@ -6137,12 +6137,14 @@ void TtHFit::CreateCustomAsimov(){
 //__________________________________________________________________________________
 // turn to RooStat::HistFactory
 void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
+	
+    WriteInfoStatus("TtHFit::ToRooStat", "-------------------------------------------");
+	WriteInfoStatus("TtHFit::ToRooStat", "Exporting to RooStats...");
 
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+    
     //Suffix used for the regular bin transformed histogram
     const std::string suffix_regularBinning = "_regBin";
-
-	WriteInfoStatus("TtHFit::ToRooStat", "-------------------------------------------");
-	WriteInfoStatus("TtHFit::ToRooStat", "Exporting to RooStats...");
 
     RooStats::HistFactory::Measurement meas((fInputName+fSuffix).c_str(), (fInputName+fSuffix).c_str());
     meas.SetOutputFilePrefix((fName+"/RooStats/"+fInputName).c_str());
@@ -6175,7 +6177,9 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
             std::string name = "customAsimov_"+fCustomAsimov;
             SampleHist* cash = fRegions[i_ch]->GetSampleHist(name);
             if(cash==0x0){
+    			if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 				WriteWarningStatus("TtHFit::ToRooStat", "No Custom Asimov " + fCustomAsimov + " available. Taking regular Asimov.");
+    			if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             }
             else{
 				std::string temp_string = cash->fHist->GetName();
@@ -6302,7 +6306,10 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     meas.PrintXML((fName+"/RooStats/").c_str());
     meas.CollectHistograms();
     meas.PrintTree();
+
     if(makeWorkspace) RooStats::HistFactory::MakeModelAndMeasurementFast(meas);
+    
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 }
 
 //__________________________________________________________________________________
@@ -6623,7 +6630,10 @@ void TtHFit::Fit(){
         //
         // Creating the combined model with the regions to fit only
         //
+    	if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+
         ws = PerformWorkspaceCombination( regionsToFit );
+    	
         //
         // If needed (only if needed), create a RooDataset object
         //
@@ -6637,7 +6647,9 @@ void TtHFit::Fit(){
         //
         // Calls the PerformFit() function to actually do the fit
         //
-        PerformFit( ws, data, fFitType, true);
+		if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+        
+		PerformFit( ws, data, fFitType, true);
     }
 
     //
@@ -6827,6 +6839,7 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
 //
 std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType, bool save ){
 
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     std::map < std::string, double > result;
 
     /////////////////////////////////
@@ -6956,6 +6969,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     
     // Performs the fit
     fitTool -> MinimType("Minuit2");
+	if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
     float nll = fitTool -> FitPDF( mc, simPdf, data );
 //     fitTool -> FitPDF( mc, simPdf, data, true );   // for fast fit
     if(save){

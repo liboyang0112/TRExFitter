@@ -88,6 +88,7 @@ FittingTool::~FittingTool()
 //
 float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit ) {
     
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 	WriteDebugStatus("FittingTool::FitPDF", "-> Entering in FitPDF function");
     
     //
@@ -135,6 +136,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     //
     RooRealVar * poi = (RooRealVar*) model->GetParametersOfInterest()->first();
     if(!poi){
+		if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 		WriteErrorStatus("FittingTool::FitPDF", "Cannot find the parameter of interest !");
         return 0;
     }
@@ -143,7 +145,9 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     //poi -> setRange(m_RangePOI_down,m_RangePOI_up); // Commented by Loic to avoid overwriting user's setting in config file
     
     poi -> setVal(m_valPOI);
+	if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 	WriteInfoStatus("FittingTool::FitPDF", "Setting starting mu = " + std::to_string(m_valPOI));
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     // randomize the POI
     if(!m_constPOI && m_randomize){
         poi->setVal( m_valPOI + m_randomNP*(gRandom->Uniform(2)-1.) );
@@ -154,6 +158,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 	
     RooRealVar* var = NULL;
     RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
+	if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
     if(nuis){
         TIterator* it2 = nuis->createIterator();
         while( (var = (RooRealVar*) it2->Next()) ){
@@ -295,6 +300,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     m_edm = -99;
     RooFitResult * r;
     
+	if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
     while (nrItr<maxRetries && status!=0 && status!=1){
         
 		WriteInfoStatus("FittingTool::FitPDF", "");
