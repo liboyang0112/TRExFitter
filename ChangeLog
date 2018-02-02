@@ -1,3 +1,6 @@
+2018-02-02 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * template fitting improved, with post-fit functionality working (still not for summary and tables, systematics to check)
+    
 2018-01-26 Michele Pinamonti <michele.pinamonti@gmail.com>
     * template fitting improved, with prefit functionality working (still no post-fit)
     

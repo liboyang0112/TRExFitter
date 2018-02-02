@@ -679,10 +679,15 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         // Norm factors
         //
         for(int i_norm=0;i_norm<fSampleHists[i_sample]->fNNorm;i_norm++){
-            systName = fSampleHists[i_sample]->fNormFactors[i_norm]->fName;
+            NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm];
+            systName = nf->fName;
+//             // if this norm factor is a morphing one => save the nuis.par
+//             if(nf->fName.find("morph_")!=string::npos){
+//                 systName = TtHFitter::NPMAP[nf->fName];
+//             }
             // skip POI if B-only fit FIXME
             if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
-            if(fSampleHists[i_sample]->fNormFactors[i_norm]->fConst) continue;            
+            if(nf->fConst) continue;            
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -810,7 +815,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
                 double yieldNominal_postFit_nfOnly = yieldNominal;
                 for(auto nf : fSampleHists[i]->fNormFactors){
-                    yieldNominal_postFit_nfOnly *= fitRes->GetNuisParValue(nf->fName);
+                    yieldNominal_postFit_nfOnly *= fitRes->GetNuisParValue(TtHFitter::NPMAP[nf->fName]);
                 }
                 
                 int posTmp = systName.find("_bin_");
@@ -835,10 +840,23 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 //
                 // if it's a norm factor
                 else if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
-                    diffUp   += yieldNominal*systErrUp;
-                    diffDown += yieldNominal*systErrDown;
-//                     diffUp   += yieldNominal_postFit*systErrUp;
-//                     diffDown += yieldNominal_postFit*systErrDown;
+                    // if this norm factor is a morphing one
+                    if(fSystNames[i_syst].find("morph_")!=string::npos){
+                        std::string formula = TtHFitter::SYSTMAP[fSystNames[i_syst]];
+                        std::string name = TtHFitter::NPMAP[fSystNames[i_syst]];
+                        formula = ReplaceString(formula,name,"x");
+                        TF1* f_morph = new TF1("f_morph",formula.c_str(),fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax);
+                        float scaleUp   = f_morph->Eval(systValue+systErrUp);
+                        float scaleDown = f_morph->Eval(systValue-systErrDown);
+                        diffUp   += yieldNominal*(scaleUp  -1);
+                        diffDown += yieldNominal*(scaleDown-1);
+                    }
+                    else{
+                        diffUp   += yieldNominal*systErrUp;
+                        diffDown += yieldNominal*systErrDown;
+//                         diffUp   += yieldNominal_postFit*systErrUp;
+//                         diffDown += yieldNominal_postFit*systErrDown;
+                    }
                 }
                 //
                 // ShapeFactor have to get NP per bin
@@ -1178,12 +1196,24 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             nfName = nf->fName;
 //             nfName = nf->fNuisanceParameter; // not implemeted yet...
             if(nf->fConst) nfValue = nf->fNominal;
-            else           nfValue = fitRes->GetNuisParValue(nfName);
+            else           nfValue = fitRes->GetNuisParValue(TtHFitter::NPMAP[nfName]);
 //             if(nfValue==0) nfValue = 0.0001;  // FIXME
 //             if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 0.0001;   // FIXME
 //             if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 1;   // FIXME
 //             if(nfName=="SigXsecOverSM") nfValue = 1;   // FIXME
-            hSmpNew[i]->Scale(nfValue);
+            //
+            // if this norm factor is a morphing one
+            if(nfName.find("morph_")!=string::npos){
+                std::string formula = TtHFitter::SYSTMAP[nfName];
+                std::string name = TtHFitter::NPMAP[nfName];
+                formula = ReplaceString(formula,name,"x");
+                TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+                float scale = f_morph->Eval(nfValue);
+                hSmpNew[i]->Scale(scale);
+            }
+            else{
+                hSmpNew[i]->Scale(nfValue);
+            }
         }
     }
     
