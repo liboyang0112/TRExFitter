@@ -176,6 +176,8 @@ TtHFit::TtHFit(string name){
     fGetGoodnessOfFit = false;
     fGetChi2 = 0; // 0: no, 1: stat-only, 2: with syst
     
+    fCustomFunctions.clear();
+
     fRunMorphing = false;
     fTemplateInterpolationOption = TtHFit::LINEAR;
 }
@@ -921,6 +923,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(      param == "TRUE" )  fDoPieChartPlot = true;
         else if( param == "FALSE" ) fDoPieChartPlot = false;
+    }
+    param = cs->Get("CustomFunctions"); if( param != "" ) {
+        fCustomFunctions = Vectorize(param,',');
     }
     
     //
@@ -2227,6 +2232,12 @@ void TtHFit::ReadNtuples(){
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
     SampleHist *sh;
+    //
+    // Import custom functions from .C files
+    //
+    for(auto file : fCustomFunctions){
+        gROOT->ProcessLineSync((".x "+file+"+").c_str());
+    }
     //
     // Loop on regions and samples
     //
@@ -4278,14 +4289,14 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
                     }
                     //
                     integral = h->IntegralAndError(1,h->GetNbinsX(),intErr);
+                    // this becuase MC stat is taken into account by the gammas
+                    if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
+                        intErr = 0.;
                 }
                 else{
                     integral = 0.;
                     intErr   = 0.;
                 }
-                // this becuase MC stat is taken into account by the gammas
-                if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
-                    intErr = 0.;
                 h_sig[Nsig]->SetBinContent( i_bin,integral );
                 h_sig[Nsig]->SetBinError( i_bin,intErr );
             }
@@ -5120,7 +5131,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 //
                 if(sh!=0x0){
                     if(isPostFit){
-                        if(syst_idx<0){
+                        if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
                             h_tmp_Up   = sh->fHist_postFit;
                             h_tmp_Down = sh->fHist_postFit;
                         }
@@ -5130,7 +5141,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                         }
                     }
                     else {
-                        if(syst_idx<0){
+                        if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
                             h_tmp_Up   = sh->fHist;
                             h_tmp_Down = sh->fHist;
                         }
@@ -5157,7 +5168,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     if(sh==0x0) continue;
                     if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                         if(isPostFit){
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
                                 h_tmp_Up   = sh->fHist_postFit;
                                 h_tmp_Down = sh->fHist_postFit;
                             }
@@ -5167,7 +5178,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                             }
                         }
                         else{
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
                                 h_tmp_Up   = sh->fHist;
                                 h_tmp_Down = sh->fHist;
                             }
@@ -5210,7 +5221,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     //
                     if(sh!=0x0){
                         if(isPostFit){
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
                                 h_tmp_Up   = sh->fHist_postFit;
                                 h_tmp_Down = sh->fHist_postFit;
                             }
@@ -5220,7 +5231,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                             }
                         }
                         else {
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
                                 h_tmp_Up   = sh->fHist;
                                 h_tmp_Down = sh->fHist;
                             }
@@ -5245,7 +5256,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                         if(sh!=0){
                             if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                                 if(isPostFit){
-                                    if(syst_idx<0){
+                                    if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
                                         h_tmp_Up   = sh->fHist_postFit;
                                         h_tmp_Down = sh->fHist_postFit;
                                     }
@@ -5255,7 +5266,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                     }
                                 }
                                 else{
-                                    if(syst_idx<0){
+                                    if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
                                         h_tmp_Up   = sh->fHist;
                                         h_tmp_Down = sh->fHist;
                                     }
@@ -5293,7 +5304,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     //
                     if(sh!=0x0){
                         if(isPostFit){
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
                                 h_tmp_Up   = sh->fHist_postFit;
                                 h_tmp_Down = sh->fHist_postFit;
                             }
@@ -5303,7 +5314,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                             }
                         }
                         else {
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
                                 h_tmp_Up   = sh->fHist;
                                 h_tmp_Down = sh->fHist;
                             }
@@ -5330,7 +5341,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                         if(sh!=0){
                             if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                                 if(isPostFit){
-                                    if(syst_idx<0){
+                                    if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
                                         h_tmp_Up   = sh->fHist_postFit;
                                         h_tmp_Down = sh->fHist_postFit;
                                     }
@@ -5340,7 +5351,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                     }
                                 }
                                 else{
-                                    if(syst_idx<0){
+                                    if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
                                         h_tmp_Up   = sh->fHist;
                                         h_tmp_Down = sh->fHist;
                                     }

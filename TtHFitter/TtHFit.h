@@ -314,6 +314,8 @@ public:
 
     bool fTtresSmoothing;
     
+    std::vector<std::string> fCustomFunctions;
+    
     bool fRunMorphing;
     std::vector<std::pair<float,std::string> > fTemplatePair;
     std::vector<TtHFit::TemplateWeight> fTemplateWeightVec;
