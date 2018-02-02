@@ -1440,15 +1440,21 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             smp->fAddSamples = Vectorize(param,',');
         }
         // enable pull tables
-        param = cs->Get("BuildPullTable");
-        if(param!=""){
+        param = cs->Get("BuildPullTable");   if( param != "" ){ // can be TRUE, NORM-ONLY, NORM+SHAPE (TRUE is equal to NORM-ONLY)
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "TRUE" || param == "true" || param == "True"){
-                smp->fBuildPullTable = true;
+            if( param == "TRUE" ){
+                smp->fBuildPullTable = 1;
+                fWithPullTables = true;
+            }
+            if( param.find("NORM-ONLY")!=std::string::npos ){
+                smp->fBuildPullTable = 1;
+                fWithPullTables = true;
+            }
+            else if( param.find("NORM+SHAPE")!=std::string::npos ){
+                smp->fBuildPullTable = 2;
                 fWithPullTables = true;
             }
         }
-
         // allow smoothing of nominal histogram?
         param = cs->Get("Smooth");
         if(param!=""){

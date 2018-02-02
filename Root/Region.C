@@ -1060,8 +1060,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        if (fSampleHists[i]->fSample->fBuildPullTable){
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFitter::Region:INFO - propagate post-fit to Sample " << fSampleHists[i]->fSample->fTitle << std::endl;
+        if (fSampleHists[i]->fSample->fBuildPullTable>0){
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFitter::Region:INFO - propagating post-fit to Sample " << fSampleHists[i]->fSample->fTitle << std::endl;
             TString sampleTex= fSampleHists[i]->fSample->fTexTitle;
             pullTex << "\\hline\n" << endl;
             pullTex << "{\\color{blue}{$\\rightarrow \\,$ "<< sampleTex << "}} & \\\\\n"<< endl;
@@ -1092,7 +1092,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
                     float binContentUp   = (fSampleHists[i]->fSyst[i_syst]->fNormUp+1) * binContent0;
                     float binContentDown = (fSampleHists[i]->fSyst[i_syst]->fNormDown+1) * binContent0;
                     multNorm *= (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall));
-                    if (fSampleHists[i]->fSample->fBuildPullTable){
+                    if (fSampleHists[i]->fSample->fBuildPullTable>0){
                         if ((((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) > 1.01) || ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) < 0.99)) && (i_bin==1)) {
                             if(TtHFitter::DEBUGLEVEL>0)
                                 std::cout << "TtHFitter::Region:INFO - Syst "<< systName <<" in bin " << i_bin << " has norm effect "
@@ -1109,7 +1109,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
                     float binContentUp   = fSampleHists[i]->fSyst[i_syst]->fHistShapeUp->GetBinContent(i_bin);
                     float binContentDown = fSampleHists[i]->fSyst[i_syst]->fHistShapeDown->GetBinContent(i_bin);
                     multShape += (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 );
-                    if (fSampleHists[i]->fSample->fBuildPullTable){
+                    if (fSampleHists[i]->fSample->fBuildPullTable==2){
                         if (((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 ) > 0.03) || ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 ) < - 0.03)) {
                             if(TtHFitter::DEBUGLEVEL>0)
                                 std::cout << "TtHFitter::Region:INFO - Syst "<< systName <<" in bin " << i_bin << " has shape effect "
