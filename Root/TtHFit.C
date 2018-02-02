@@ -4092,20 +4092,21 @@ void TtHFit::DrawAndSaveAll(string opt){
         }
         //
         if(isPostFit){
-	          ofstream pullTex;
-	          if(fWithPullTables){
-	              pullTex.open((fName+"/Tables/Pull_"+fSuffix+fRegions[i_ch]->fName+".tex").c_str());
-	              pullTex << "\\documentclass[10pt]{article}" << endl;
-	              pullTex << "\\usepackage{siunitx}" << endl;
-	              pullTex << "\\usepackage{xcolor}" << endl;
-	              pullTex << "\\usepackage[margin=0.1in,landscape,papersize={210mm,100mm}]{geometry}" << endl;
-	              pullTex << "\\begin{document}" << endl;
+            ofstream pullTex;
+            if(fWithPullTables){
+                gSystem->mkdir((fName+"/Tables").c_str()); // need to create directory, as it may not exist yet
+                pullTex.open((fName+"/Tables/Pulls_"+fSuffix+fRegions[i_ch]->fName+".tex").c_str());
+                pullTex << "\\documentclass[10pt]{article}" << endl;
+                pullTex << "\\usepackage{siunitx}" << endl;
+                pullTex << "\\usepackage{xcolor}" << endl;
+                pullTex << "\\usepackage[margin=0.1in,landscape,papersize={210mm,100mm}]{geometry}" << endl;
+                pullTex << "\\begin{document}" << endl;
 
-	              pullTex << "\\begin{tabular}{|lr|}\n" << endl;
-	              pullTex << "\\hline\\hline\n" << endl;
-	              TString region(fRegions[i_ch]->fName);
-	              pullTex << "\\multicolumn{2}{|c|}{" << fRegions[i_ch]->fTexLabel << "} \\\\\n"<< endl;
-	          }
+                pullTex << "\\begin{tabular}{|lr|}\n" << endl;
+                pullTex << "\\hline\\hline\n" << endl;
+                TString region(fRegions[i_ch]->fName);
+                pullTex << "\\multicolumn{2}{|c|}{" << fRegions[i_ch]->fTexLabel << "} \\\\\n"<< endl;
+            }
 
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,opt+" blind");
@@ -4113,12 +4114,12 @@ void TtHFit::DrawAndSaveAll(string opt){
             for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
 
-	          if(fWithPullTables){
-	              pullTex << "\\hline\\hline\n" << endl;
-	              pullTex << "\\end{tabular}"  << endl;
-	              pullTex << "\\end{document}" << endl;
-	              pullTex.close();
-	          }
+            if(fWithPullTables){
+                pullTex << "\\hline\\hline\n" << endl;
+                pullTex << "\\end{tabular}"  << endl;
+                pullTex << "\\end{document}" << endl;
+                pullTex.close();
+            }
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
