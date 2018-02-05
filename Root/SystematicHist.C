@@ -114,9 +114,9 @@ bool SystematicHist::IsShape(){
 //_____________________________________________________________________________
 //
 void SystematicHist::Print(){
-	std::string temp = "        Systematic: " + fName;
+    std::string temp = "        Systematic: " + fName;
     if(fHistShapeUp==0x0 && fHistShapeDown==0x0 && fHistUp==0x0 && fHistDown==0x0) temp + Form("\toverall (%.3f,%.3f)",fNormUp,fNormDown);
-	WriteInfoStatus("SystematicHist::Print", temp);
+    WriteInfoStatus("SystematicHist::Print", temp);
 }
 
 //_____________________________________________________________________________

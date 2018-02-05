@@ -34,6 +34,6 @@ void ShapeFactor::Set(string name, float nominal, float min, float max, bool isC
 //__________________________________________________________________________________
 //
 void ShapeFactor::Print(){
-	if (!fConst) WriteDebugStatus("ShapeFactor::Print", "        ShapeFactor: " + fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax));
-	else WriteDebugStatus("ShapeFactor::Print", "        ShapeFactor: " + fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax) + "(CONSTANT)");
+    if (!fConst) WriteDebugStatus("ShapeFactor::Print", "        ShapeFactor: " + fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax));
+    else WriteDebugStatus("ShapeFactor::Print", "        ShapeFactor: " + fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax) + "(CONSTANT)");
 }

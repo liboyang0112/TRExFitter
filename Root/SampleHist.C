@@ -101,9 +101,9 @@ SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
     syh = GetSystematic(name);
     // ... and if not create a new one
     if(syh==0x0){
-      syh = new SystematicHist(name);
-      fSyst.push_back(syh);
-      fNSyst ++;
+        syh = new SystematicHist(name);
+        fSyst.push_back(syh);
+        fNSyst ++;
     }
     //
 //     syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_Up",fHist->GetName(),name.c_str()));
@@ -418,7 +418,7 @@ void SampleHist::WriteToFile(TFile *f){
         Systematic *gamma = 0x0;
         if(GetSystematic(systName)) gamma = GetSystematic(systName)->fSystematic;  //GetSystematic(systName);
         if(gamma==0x0) gamma = new Systematic(systName,Systematic::SHAPE);
-		WriteDebugStatus("SampleHist::WriteToFile", "adding separate gammas as SHAPE systematic " + systName);
+        WriteDebugStatus("SampleHist::WriteToFile", "adding separate gammas as SHAPE systematic " + systName);
         gamma->fRegions.clear();
         gamma->fRegions.push_back(fRegionName);
         SystematicHist *syh = AddHistoSyst(systName,htempUp,htempDown);
@@ -491,10 +491,10 @@ void SampleHist::FixEmptyBins(){
         float content = fHist->GetBinContent(i_bin);
         float error   = fHist->GetBinError(  i_bin);
         if(content<=0){
-			std::string temp = fHist->GetName();
-			WriteWarningStatus("SampleHist::FixEmptyBins", "Checking your nominal histogram " +temp + ", the bin " + std::to_string(i_bin) + 
-				" has a null/negative bin content (content = " + std::to_string(content) + ") ! You should have a look at this !");
-			WriteWarningStatus("SampleHist::FixEmptyBins", "    --> For now setting this bin to 1e-06  +/- 1e-06!!! "); 
+            std::string temp = fHist->GetName();
+            WriteWarningStatus("SampleHist::FixEmptyBins", "Checking your nominal histogram " +temp + ", the bin " + std::to_string(i_bin) + 
+                " has a null/negative bin content (content = " + std::to_string(content) + ") ! You should have a look at this !");
+            WriteWarningStatus("SampleHist::FixEmptyBins", "    --> For now setting this bin to 1e-06  +/- 1e-06!!! "); 
             // set nominal to 10^-6
             fHist->SetBinContent(i_bin,1e-6);
             if(!TtHFitter::GUESSMCSTATERROR){
@@ -536,28 +536,28 @@ void SampleHist::FixEmptyBins(){
 //_____________________________________________________________________________
 //
 void SampleHist::Print(){
-	std::string temp = fHist->GetName();
-	WriteInfoStatus("SampleHist::Print", "      Sample: " + fName + "\t" + temp);
+    std::string temp = fHist->GetName();
+    WriteInfoStatus("SampleHist::Print", "      Sample: " + fName + "\t" + temp);
     if(fNSyst>0){
-		temp = "        Systematics:   ";
+        temp = "        Systematics:   ";
         for(int i_syst=0;i_syst<fNSyst;i_syst++){
             temp+= " " + fSyst[i_syst]->fName;
         }
-		WriteInfoStatus("SampleHist::Print", temp);
+        WriteInfoStatus("SampleHist::Print", temp);
     }
     if(fNNorm>0){
         temp = "        NormFactor(s): ";
         for(int i_norm=0;i_norm<fNNorm;i_norm++){
             temp+= " " + fNormFactors[i_norm]->fName;
         }
-		WriteInfoStatus("SampleHist::Print", temp);
+        WriteInfoStatus("SampleHist::Print", temp);
     }
     if(fNShape>0){
         temp = "        ShapeFactor(s): ";
         for(int i_shape=0;i_shape<fNShape;i_shape++){
             temp+= " " + fShapeFactors[i_shape]->fName;
         }
-		WriteInfoStatus("SampleHist::Print", temp);
+        WriteInfoStatus("SampleHist::Print", temp);
     }
 }
 
@@ -980,8 +980,8 @@ void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
             fSyst[i_syst]->fNormUp   = fSyst[i_syst]->fHistUp  ->Integral()/h_nominal->Integral() - 1.;
             fSyst[i_syst]->fNormDown = fSyst[i_syst]->fHistDown->Integral()/h_nominal->Integral() - 1.;
         } else {
-			WriteErrorStatus("SampleHist::SmoothSyst", "A nominal histogram with 0 intergral has been found. Please check ! ");
-			WriteErrorStatus("SampleHist::SmoothSyst", "            -> Sample: " + fName);
+            WriteErrorStatus("SampleHist::SmoothSyst", "A nominal histogram with 0 intergral has been found. Please check ! ");
+            WriteErrorStatus("SampleHist::SmoothSyst", "            -> Sample: " + fName);
         }
 
         if(fSyst[i_syst]->fIsShape){
@@ -1085,25 +1085,25 @@ void SampleHist::Divide(SampleHist *sh){
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){
             fSyst[i_syst]->Divide( sh->fHist );
-			WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
-			WriteDebugStatus("SampleHist::Divide", "Using its nominal. ");
+            WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Divide", "Using its nominal. ");
         }
         else{
             fSyst[i_syst]->Divide( syh );
-			WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
-			WriteDebugStatus("SampleHist::Divide", "Properly computing with that. ");
+            WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Divide", "Properly computing with that. ");
         }
     }
     // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
-      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
 //        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==0x0){
-			WriteDebugStatus("SampleHist::Divide", "Adding syst "+ systName + " to sample "+ fName);
+            WriteDebugStatus("SampleHist::Divide", "Adding syst "+ systName + " to sample "+ fName);
             TH1* hUp   = (TH1*)fHist->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)fHist->Clone("h_tmp_down");
             hUp  ->Divide(   sh->fHist );
@@ -1124,7 +1124,7 @@ void SampleHist::Divide(SampleHist *sh){
             delete hUp;
             delete hDown;
         }
-      }
+    }
     delete hOrig;
 }
 
@@ -1142,25 +1142,25 @@ void SampleHist::Multiply(SampleHist *sh){
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){
             fSyst[i_syst]->Multiply( sh->fHist );
-			WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
-			WriteDebugStatus("SampleHist::Multiply", "Using its nominal. ");
+            WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Multiply", "Using its nominal. ");
         }
         else{
             fSyst[i_syst]->Multiply( syh );
-			WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
-			WriteDebugStatus("SampleHist::Multiply", "Properly computing with that. ");
+            WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Multiply", "Properly computing with that. ");
         }
     }
     // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
-      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+    for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
 //        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==0x0){
-			WriteDebugStatus("SampleHist::Multiply", "Adding syst "+ systName + " to sample "+ fName);
+            WriteDebugStatus("SampleHist::Multiply", "Adding syst "+ systName + " to sample "+ fName);
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp   );
@@ -1173,7 +1173,7 @@ void SampleHist::Multiply(SampleHist *sh){
             delete hUp;
             delete hDown;
         }
-      }
+    }
     delete hOrig;
 }
 
@@ -1191,25 +1191,25 @@ void SampleHist::Add(SampleHist *sh,float scale){
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){
             fSyst[i_syst]->Add( sh->fHist, scale );
-			WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
-			WriteDebugStatus("SampleHist::Add", "Using its nominal. ");
+            WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Add", "Using its nominal. ");
         }
         else{
             fSyst[i_syst]->Add( syh, scale );
-			WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
-			WriteDebugStatus("SampleHist::Add", "Properly computing with that. ");
+            WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Add", "Properly computing with that. ");
         }
     }
     // loop on all the systematics the the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
-      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+    for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
 //        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==0x0){
-			WriteDebugStatus("SampleHist::Add", "Adding syst "+ systName + " to sample "+ fName);
+            WriteDebugStatus("SampleHist::Add", "Adding syst "+ systName + " to sample "+ fName);
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
             hUp  ->Add( sh->fSyst[i_syst]->fHistUp  ,scale );
@@ -1222,6 +1222,6 @@ void SampleHist::Add(SampleHist *sh,float scale){
             delete hUp;
             delete hDown;
         }
-      }
+    }
     delete hOrig;
 }

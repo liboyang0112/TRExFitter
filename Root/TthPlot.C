@@ -315,8 +315,8 @@ void TthPlot::BlindData(){
             }
         }
         else{
-			WriteWarningStatus("TthPlot::BlindData", "Either h_data, h_signal, h_tot not defined.");
-			WriteWarningStatus("TthPlot::BlindData", " Blidning not possible. Skipped.");
+            WriteWarningStatus("TthPlot::BlindData", "Either h_data, h_signal, h_tot not defined.");
+            WriteWarningStatus("TthPlot::BlindData", " Blidning not possible. Skipped.");
         }
     }
 }
@@ -428,7 +428,7 @@ void TthPlot::Draw(string options){
     //if(h_normsig!=0x0){
         for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
             signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
-			WriteInfoStatus("TthPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale));
+            WriteInfoStatus("TthPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale));
             h_normsig[i_smp]->Scale(signalScale);
             h_normsig[i_smp]->SetLineColor(h_normsig[i_smp]->GetFillColor());
             h_normsig[i_smp]->SetFillColor(0);
@@ -1080,7 +1080,7 @@ TCanvas* TthPlot::GetCanvas(){
 void TthPlot::SetBinBlinding(bool on,float threshold){
     fBlindingThreshold = threshold;
     if(!on) fBlindingThreshold = -1;
-	WriteInfoStatus("TthPlot::SetBinBlinding", "Setting blinding threshold = " + std::to_string(fBlindingThreshold));
+    WriteInfoStatus("TthPlot::SetBinBlinding", "Setting blinding threshold = " + std::to_string(fBlindingThreshold));
 }
 
 //_____________________________________________________________________________
@@ -1088,11 +1088,11 @@ void TthPlot::SetBinBlinding(bool on,float threshold){
 void TthPlot::SetBinBlinding(bool on,TH1F* h_blind){
     h_blinding = h_blind;
     if(!on) fBlindingThreshold = -1;
-	std::string temp = "Setting blinding bins:";
+    std::string temp = "Setting blinding bins:";
     for(int i_bin=1;i_bin<h_blinding->GetNbinsX()+1;i_bin++){
         temp+= " " + std::to_string(h_blinding->GetBinContent(i_bin));
     }
-	WriteDebugStatus("TthPlot::SetBinBlinding", temp);
+    WriteDebugStatus("TthPlot::SetBinBlinding", temp);
 }
 
 

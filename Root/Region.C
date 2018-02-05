@@ -144,10 +144,10 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
         fNBkg ++;
     }
     else if(sample->fType==Sample::GHOST){
-		WriteDebugStatus("Region::SetSampleHist", "Adding GHOST sample.");
+        WriteDebugStatus("Region::SetSampleHist", "Adding GHOST sample.");
     }
     else{
-		WriteErrorStatus("Region::SetSampleHist", "SampleType not supported.");
+        WriteErrorStatus("Region::SetSampleHist", "SampleType not supported.");
     }
     fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
     fSampleHists[fNSamples]->fRegionName = fName;
@@ -176,10 +176,10 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
         fNBkg ++;
     }
     else if(sample->fType==Sample::GHOST){
-		WriteDebugStatus("Region::SetSampleHist", "Adding GHOST sample.");
+        WriteDebugStatus("Region::SetSampleHist", "Adding GHOST sample.");
     }
     else{
-		WriteErrorStatus("Region::SetSampleHist", "SampleType not supported.");
+        WriteErrorStatus("Region::SetSampleHist", "SampleType not supported.");
     }
     fSampleHists[fNSamples]->fHist->SetName(Form("%s_%s",fName.c_str(),sample->fName.c_str()));
     fSampleHists[fNSamples]->fRegionName = fName;
@@ -242,7 +242,7 @@ SampleHist* Region::GetSampleHist(string &sampleName){
 //__________________________________________________________________________________
 //
 void Region::BuildPreFitErrorHist(){
-	WriteInfoStatus("Region::BuildPreFitErrorHist", "Building pre-fit plot for region " + fName + " ...");
+    WriteInfoStatus("Region::BuildPreFitErrorHist", "Building pre-fit plot for region " + fName + " ...");
     //
     float yieldNominal(0.), yieldUp(0.), yieldDown(0.);
     float diffUp(0.), diffDown(0.);
@@ -317,11 +317,11 @@ void Region::BuildPreFitErrorHist(){
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
         
-		WriteDebugStatus("Region::BuildPreFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
+        WriteDebugStatus("Region::BuildPreFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
         
         // - loop on systematics
         for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
-			WriteDebugStatus("Region::BuildPreFitErrorHist", "    Systematic: " + fSystNames[i_syst]);
+            WriteDebugStatus("Region::BuildPreFitErrorHist", "    Systematic: " + fSystNames[i_syst]);
             systName = fSystNames[i_syst];
             
             // get SystematicHist
@@ -355,8 +355,8 @@ void Region::BuildPreFitErrorHist(){
                     diffUp   += yieldUp   - yieldNominal;
                     diffDown += yieldDown - yieldNominal;
                 }
-				WriteDebugStatus("Region::BuildPreFitErrorHist", "        Bin " + std::to_string(i_bin) + ":  " + " \t +" + std::to_string(100*diffUp/yieldNominal)
-				 + "%\t " + std::to_string(100*diffDown/yieldNominal) + "%");
+                WriteDebugStatus("Region::BuildPreFitErrorHist", "        Bin " + std::to_string(i_bin) + ":  " + " \t +" + std::to_string(100*diffUp/yieldNominal)
+                 + "%\t " + std::to_string(100*diffDown/yieldNominal) + "%");
             }
         }
     }
@@ -411,7 +411,7 @@ void Region::BuildPreFitErrorHist(){
         }
     }
     
-	WriteDebugStatus("Region::BuildPreFitErrorHist", "----");
+    WriteDebugStatus("Region::BuildPreFitErrorHist", "----");
     
     //
     // build the vectors of variations (sum histograms for systematics with the same NP)
@@ -459,16 +459,16 @@ void Region::BuildPreFitErrorHist(){
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- PRE-FIT AGREEMENT EVALUATION -----------------------");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- PRE-FIT AGREEMENT EVALUATION -----------------------");
         if(fGetChi2==1)
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- -------- STAT-ONLY --------- -----------------------");
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "--- REGION " + fName + ":");
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "  chi2        = " + std::to_string(fChi2val));
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "  ndof        = " + std::to_string(fNDF));
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "  probability = " + std::to_string(fChi2prob));
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- -------- STAT-ONLY --------- -----------------------");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "--- REGION " + fName + ":");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "  chi2        = " + std::to_string(fChi2val));
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "  ndof        = " + std::to_string(fNDF));
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "  probability = " + std::to_string(fChi2prob));
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
     }
 }
 
@@ -542,11 +542,11 @@ TthPlot* Region::DrawPreFit(string opt){
                 TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                 float scale = f_morph->Eval(nf->fNominal);
                 h->Scale(scale);
-				WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
+                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
             }
             else{
                 h->Scale(nf->fNominal);
-				WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
+                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
             }
         }
         if(TtHFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
@@ -583,11 +583,11 @@ TthPlot* Region::DrawPreFit(string opt){
                 TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                 float scale = f_morph->Eval(nf->fNominal);
                 h->Scale(scale);
-				WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
+                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
             }
             else{
                 h->Scale(nf->fNominal);
-				WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
+                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
             }
         }
         p->AddBackground(h,title);
@@ -633,7 +633,7 @@ TthPlot* Region::DrawPreFit(string opt){
 //
 void Region::BuildPostFitErrorHist(FitResults *fitRes){
    
-	WriteInfoStatus("Region::BuildPostFitErrorHist", "Building post-fit plot for region " + fName + " ..."); 
+    WriteInfoStatus("Region::BuildPostFitErrorHist", "Building post-fit plot for region " + fName + " ..."); 
     
     float yieldNominal(0.), yieldUp(0.), yieldDown(0.);
     float yieldNominal_postFit = 0.;
@@ -744,12 +744,12 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-		WriteDebugStatus("Region::BuildPostFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
+        WriteDebugStatus("Region::BuildPostFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
         
         // - loop on systematics
         for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
             
-			WriteDebugStatus("Region::BuildPostFitErrorHist", "    Systematic: " + fSystNames[i_syst]);
+            WriteDebugStatus("Region::BuildPostFitErrorHist", "    Systematic: " + fSystNames[i_syst]);
             
             //
             // Get fit result
@@ -760,7 +760,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             systErrUp   = fitRes->GetNuisParErrUp(TtHFitter::NPMAP[systName]);
             systErrDown = fitRes->GetNuisParErrDown(TtHFitter::NPMAP[systName]);
             
-			WriteDebugStatus("Region::BuildPostFitErrorHist", "      alpha = " + std::to_string(systValue) + " +" + std::to_string(systErrUp) + " " + std::to_string(systErrDown));
+            WriteDebugStatus("Region::BuildPostFitErrorHist", "      alpha = " + std::to_string(systValue) + " +" + std::to_string(systErrUp) + " " + std::to_string(systErrDown));
             
             // this to include (prefit) error from SHAPE syst
             if(fSampleHists[i]->GetSystematic(systName)){
@@ -933,8 +933,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     diffDown -= scaleDown;
                 }
                 
-				WriteDebugStatus("Region::BuildPostFitErrorHist", "        Bin " + std::to_string(i_bin) + ":   " + "\t +" + std::to_string(100*diffUp/yieldNominal) 
-					+ "%\t " + std::to_string(100*diffDown/yieldNominal) + "%");
+                WriteDebugStatus("Region::BuildPostFitErrorHist", "        Bin " + std::to_string(i_bin) + ":   " + "\t +" + std::to_string(100*diffUp/yieldNominal) 
+                    + "%\t " + std::to_string(100*diffDown/yieldNominal) + "%");
 
                 //
                 // Add the proper bin content to the variation hists (coming from post-fit total histogram)
@@ -1017,16 +1017,16 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- POST-FIT AGREEMENT EVALUATION -----------------------");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- POST-FIT AGREEMENT EVALUATION -----------------------");
         if(fGetChi2==1)
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- -------- STAT-ONLY --------- -----------------------");
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "--- REGION " + fName + ":");
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "  chi2        = " + std::to_string(fChi2val));
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "  ndof        = " + std::to_string(fNDF));
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "  probability = " + std::to_string(fChi2prob));
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
-		WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- -------- STAT-ONLY --------- -----------------------");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "--- REGION " + fName + ":");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "  chi2        = " + std::to_string(fChi2val));
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "  ndof        = " + std::to_string(fNDF));
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "  probability = " + std::to_string(fChi2prob));
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
+        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
     }
     
 }
@@ -1073,9 +1073,9 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     p->SetLumiScale(fLumiScale);
 
     if(fBinLabels.size() and fBinLabels.size()==fNbins) {
-      for(int i_bin=0; i_bin<fNbins; i_bin++) {
-        p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
-      }
+        for(int i_bin=0; i_bin<fNbins; i_bin++) {
+            p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
+        }
     }
     
     //
@@ -1151,9 +1151,9 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
                 std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
                 if(fSampleHists[i]->fSample->fSeparateGammas)
                             gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
-				WriteDebugStatus("Region::DrawPostFit", "Looking for gamma " + gammaName);
+                WriteDebugStatus("Region::DrawPostFit", "Looking for gamma " + gammaName);
                 float gammaValue = fitRes->GetNuisParValue(gammaName);
-				WriteDebugStatus("Region::DrawPostFit", "  -->  pull = " + std::to_string(gammaValue));
+                WriteDebugStatus("Region::DrawPostFit", "  -->  pull = " + std::to_string(gammaValue));
                 // linear effect
                 if(gammaValue>0) binContentNew *= gammaValue;
             }
@@ -1337,21 +1337,21 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     WriteDebugStatus("Region::DrawPostFit", "--------------------");
     WriteDebugStatus("Region::DrawPostFit", "Final bin contents");
     WriteDebugStatus("Region::DrawPostFit", "--------------------");
-	for(int i_bin=1;i_bin<=fTot_postFit->GetNbinsX();i_bin++){
-    	WriteDebugStatus("Region::DrawPostFit", std::to_string(i_bin) + ":\t" + std::to_string(fTot_postFit->GetBinContent(i_bin)) + " +" +
-		std::to_string( fErr_postFit->GetErrorYhigh(i_bin-1)) + " -" + std::to_string(fErr_postFit->GetErrorYlow(i_bin-1)));
-	}
+    for(int i_bin=1;i_bin<=fTot_postFit->GetNbinsX();i_bin++){
+        WriteDebugStatus("Region::DrawPostFit", std::to_string(i_bin) + ":\t" + std::to_string(fTot_postFit->GetBinContent(i_bin)) + " +" +
+        std::to_string( fErr_postFit->GetErrorYhigh(i_bin-1)) + " -" + std::to_string(fErr_postFit->GetErrorYlow(i_bin-1)));
+    }
     
     //
     // Save in a root file...
     //
     gSystem->mkdir((fFitName+"/Histograms").c_str());
-	WriteInfoStatus("Region::DrawPostFit", "Writing file " + fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root");
+    WriteInfoStatus("Region::DrawPostFit", "Writing file " + fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root");
     TFile *f = new TFile((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE");
     fErr_postFit->Write("",TObject::kOverwrite);
     fTot_postFit->Write("",TObject::kOverwrite);
     if( fPlotPostFit->h_tot_bkg_prefit)
-      fPlotPostFit->h_tot_bkg_prefit->Write("",TObject::kOverwrite);
+        fPlotPostFit->h_tot_bkg_prefit->Write("",TObject::kOverwrite);
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
         if(fTotUp_postFit[i_syst])   fTotUp_postFit[i_syst]  ->Write("",TObject::kOverwrite);
         if(fTotDown_postFit[i_syst]) fTotDown_postFit[i_syst]->Write("",TObject::kOverwrite);
@@ -1447,7 +1447,7 @@ void Region::SetLabel(string label,string shortLabel){
 //__________________________________________________________________________________
 //
 void Region::Print(){
-	WriteInfoStatus("Region::Print", "    Region: " + fName);
+    WriteInfoStatus("Region::Print", "    Region: " + fName);
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         fSampleHists[i_smp]->Print();
     }
