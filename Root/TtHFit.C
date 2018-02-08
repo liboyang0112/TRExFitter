@@ -63,6 +63,8 @@ TtHFit::TtHFit(string name){
 
     fFitResults = 0;
 
+    fWithPullTables = false;
+
     fRegions.clear();
     fSamples.clear();
     fSystematics.clear();
@@ -174,6 +176,11 @@ TtHFit::TtHFit(string name){
     
     fGetGoodnessOfFit = false;
     fGetChi2 = 0; // 0: no, 1: stat-only, 2: with syst
+    
+    fCustomFunctions.clear();
+
+    fRunMorphing = false;
+    fTemplateInterpolationOption = TtHFit::LINEAR;
 }
 
 //__________________________________________________________________________________
@@ -917,6 +924,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(      param == "TRUE" )  fDoPieChartPlot = true;
         else if( param == "FALSE" ) fDoPieChartPlot = false;
     }
+    param = cs->Get("CustomFunctions"); if( param != "" ) {
+        fCustomFunctions = Vectorize(param,',');
+    }
     
     //
     // General options
@@ -1437,6 +1447,22 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(param!=""){
             smp->fAddSamples = Vectorize(param,',');
         }
+        // enable pull tables
+        param = cs->Get("BuildPullTable");   if( param != "" ){ // can be TRUE, NORM-ONLY, NORM+SHAPE (TRUE is equal to NORM-ONLY)
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param == "TRUE" ){
+                smp->fBuildPullTable = 1;
+                fWithPullTables = true;
+            }
+            if( param.find("NORM-ONLY")!=std::string::npos ){
+                smp->fBuildPullTable = 1;
+                fWithPullTables = true;
+            }
+            else if( param.find("NORM+SHAPE")!=std::string::npos ){
+                smp->fBuildPullTable = 2;
+                fWithPullTables = true;
+            }
+        }
         // allow smoothing of nominal histogram?
         param = cs->Get("Smooth");
         if(param!=""){
@@ -1469,6 +1495,26 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 std::cout << "Correlating gammas for this sample in regions " << set << std::endl;
                 smp->fCorrelateGammasInRegions.push_back(regions);
             }
+        }
+        // morphing
+        param = cs->Get("Morphing");
+        if(param!=""){
+            std::vector<std::string> morph_par = Vectorize(param,',');
+            if (morph_par.size() != 2){
+                std::cerr << "Morphing requires exactly 2 parameters, but " << morph_par.size() << " provided" << std::endl;
+                return;
+            }
+            fRunMorphing = true;
+            std::string name      = morph_par.at(0);
+            float value = std::stof(morph_par.at(1));
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing: Adding " << name << ", with value: " << value << std::endl;
+            AddTemplateWeight(name, value);
+            // set proper normalization
+            std::string morphName = "morph_"+name+"_"+ReplaceString(std::to_string(value),"-","m");
+            NormFactor *nf = smp->AddNormFactor(morphName, 1, 0, 10, false);
+            fNormFactors.push_back( nf );
+            fNormFactorNames.push_back( nf->fName );
+            fNNorm++;
         }
         // ...
     }
@@ -2142,6 +2188,44 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(TtHFitter::NPMAP[norm->fName]=="") TtHFitter::NPMAP[norm->fName] = norm->fName;
         if(norm->fNuisanceParameter!=norm->fName) TtHFitter::SYSTMAP[norm->fNuisanceParameter] = norm->fTitle;
     }
+    // morphing
+    if (fRunMorphing){
+        // template fitting stuff
+        fTemplateWeightVec = TtHFit::GetTemplateWeightVec(fTemplateInterpolationOption);
+        for(const TtHFit::TemplateWeight& itemp : fTemplateWeightVec){
+            string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
+            TtHFitter::SYSTMAP[normName] = itemp.function;
+            TtHFitter::NPMAP[normName]   = itemp.name;
+            // get the norm factor corresponding to each template
+            for(auto norm : fNormFactors){
+                if(norm->fName == normName){
+                    // find a norm factor in the config corresponding to the morphing parameter
+                    // NB: it should be there in the config, otherwise an error message is shown and the code crashe
+                    bool found = false;
+                    for(auto norm2 : fNormFactors){
+                        if(norm2->fName == itemp.name){
+                            norm->fNominal = norm2->fNominal;
+                            norm->fMin = norm2->fMin;
+                            norm->fMax = norm2->fMax;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found){
+                        std::cerr << "\033[1;31m<!>TtHFit::ERROR: No NormFactor with name " << itemp.name << " found (needed for morphing.\033[0m" << std::endl;
+                        std::cerr << "Please add to the config something like:" << std::endl;
+                        std::cerr << "" << std::endl;
+                        std::cerr << "  NormFactor: " << itemp.name << std::endl;
+                        std::cerr << "    Nominal: <the value corresponding to your nominal template>" << std::endl;
+                        std::cerr << "    Min: <the min value for which you have provided template>" << std::endl;
+                        std::cerr << "    Max: <the max value for which you have provided template>" << std::endl;
+                        std::cerr << "" << std::endl;
+                        exit(1);
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -2159,6 +2243,12 @@ void TtHFit::ReadNtuples(){
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
     SampleHist *sh;
+    //
+    // Import custom functions from .C files
+    //
+    for(auto file : fCustomFunctions){
+        gROOT->ProcessLineSync((".x "+file+"+").c_str());
+    }
     //
     // Loop on regions and samples
     //
@@ -4074,11 +4164,34 @@ void TtHFit::DrawAndSaveAll(string opt){
         }
         //
         if(isPostFit){
+            ofstream pullTex;
+            if(fWithPullTables){
+                gSystem->mkdir((fName+"/Tables").c_str()); // need to create directory, as it may not exist yet
+                pullTex.open((fName+"/Tables/Pulls_"+fSuffix+fRegions[i_ch]->fName+".tex").c_str());
+                pullTex << "\\documentclass[10pt]{article}" << endl;
+                pullTex << "\\usepackage{siunitx}" << endl;
+                pullTex << "\\usepackage{xcolor}" << endl;
+                pullTex << "\\usepackage[margin=0.1in,landscape,papersize={210mm,100mm}]{geometry}" << endl;
+                pullTex << "\\begin{document}" << endl;
+
+                pullTex << "\\begin{tabular}{|lr|}\n" << endl;
+                pullTex << "\\hline\\hline\n" << endl;
+                TString region(fRegions[i_ch]->fName);
+                pullTex << "\\multicolumn{2}{|c|}{" << fRegions[i_ch]->fTexLabel << "} \\\\\n"<< endl;
+            }
+
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
-            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,opt+" blind");
-            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,opt+" blind");
+            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,opt);
             for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
+
+            if(fWithPullTables){
+                pullTex << "\\hline\\hline\n" << endl;
+                pullTex << "\\end{tabular}"  << endl;
+                pullTex << "\\end{document}" << endl;
+                pullTex.close();
+            }
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
@@ -4214,14 +4327,14 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
                     }
                     //
                     integral = h->IntegralAndError(1,h->GetNbinsX(),intErr);
+                    // this becuase MC stat is taken into account by the gammas
+                    if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
+                        intErr = 0.;
                 }
                 else{
                     integral = 0.;
                     intErr   = 0.;
                 }
-                // this becuase MC stat is taken into account by the gammas
-                if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
-                    intErr = 0.;
                 h_sig[Nsig]->SetBinContent( i_bin,integral );
                 h_sig[Nsig]->SetBinError( i_bin,intErr );
             }
@@ -5053,7 +5166,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 //
                 if(sh!=0x0){
                     if(isPostFit){
-                        if(syst_idx<0){
+                        if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
                             h_tmp_Up   = sh->fHist_postFit;
                             h_tmp_Down = sh->fHist_postFit;
                         }
@@ -5063,7 +5176,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                         }
                     }
                     else {
-                        if(syst_idx<0){
+                        if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
                             h_tmp_Up   = sh->fHist;
                             h_tmp_Down = sh->fHist;
                         }
@@ -5090,7 +5203,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     if(sh==0x0) continue;
                     if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                         if(isPostFit){
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
                                 h_tmp_Up   = sh->fHist_postFit;
                                 h_tmp_Down = sh->fHist_postFit;
                             }
@@ -5100,7 +5213,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                             }
                         }
                         else{
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
                                 h_tmp_Up   = sh->fHist;
                                 h_tmp_Down = sh->fHist;
                             }
@@ -5143,7 +5256,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     //
                     if(sh!=0x0){
                         if(isPostFit){
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
                                 h_tmp_Up   = sh->fHist_postFit;
                                 h_tmp_Down = sh->fHist_postFit;
                             }
@@ -5153,7 +5266,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                             }
                         }
                         else {
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
                                 h_tmp_Up   = sh->fHist;
                                 h_tmp_Down = sh->fHist;
                             }
@@ -5178,7 +5291,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                         if(sh!=0){
                             if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                                 if(isPostFit){
-                                    if(syst_idx<0){
+                                    if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
                                         h_tmp_Up   = sh->fHist_postFit;
                                         h_tmp_Down = sh->fHist_postFit;
                                     }
@@ -5188,7 +5301,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                     }
                                 }
                                 else{
-                                    if(syst_idx<0){
+                                    if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
                                         h_tmp_Up   = sh->fHist;
                                         h_tmp_Down = sh->fHist;
                                     }
@@ -5226,7 +5339,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     //
                     if(sh!=0x0){
                         if(isPostFit){
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
                                 h_tmp_Up   = sh->fHist_postFit;
                                 h_tmp_Down = sh->fHist_postFit;
                             }
@@ -5236,7 +5349,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                             }
                         }
                         else {
-                            if(syst_idx<0){
+                            if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
                                 h_tmp_Up   = sh->fHist;
                                 h_tmp_Down = sh->fHist;
                             }
@@ -5263,7 +5376,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                         if(sh!=0){
                             if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                                 if(isPostFit){
-                                    if(syst_idx<0){
+                                    if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
                                         h_tmp_Up   = sh->fHist_postFit;
                                         h_tmp_Down = sh->fHist_postFit;
                                     }
@@ -5273,7 +5386,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                     }
                                 }
                                 else{
-                                    if(syst_idx<0){
+                                    if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
                                         h_tmp_Up   = sh->fHist;
                                         h_tmp_Down = sh->fHist;
                                     }
@@ -6244,8 +6357,12 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 //         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddNoSyst(fSystematics[i_syst]->fName.c_str());
         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddUniformSyst(fSystematics[i_syst]->fName.c_str());
     }
-    // test for morphing: it seems to work!!!
-//     meas.AddPreprocessFunction("mu_tt","1.-SigXsecOverSM","SigXsecOverSM[0,0,1]");
+    // morphing
+    for(const TtHFit::TemplateWeight& itemp : fTemplateWeightVec){
+        string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "normName: " << normName << std::endl;
+        meas.AddPreprocessFunction(normName, itemp.function, itemp.range);
+    }
     //
     meas.PrintXML((fName+"/RooStats/").c_str());
     meas.CollectHistograms();
@@ -8727,4 +8844,76 @@ void TtHFit::defineVariable(int regIter){
 
     delete h1;
     delete h2;
+}
+//__________________________________________________________________________________
+//
+void TtHFit::AddTemplateWeight(const std::string& name, float value){
+    std::pair<float, std::string> temp = std::make_pair(value, name);
+    fTemplatePair.push_back(temp);
+}
+
+//__________________________________________________________________________________
+//
+const std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::TemplateInterpolationOption& opt){
+    std::vector<TtHFit::TemplateWeight> vec;
+    // first sort vector of inputs for templates
+    if (fTemplatePair.size() < 2){
+        std::cerr << "You need to provide at least 2 templates for template fit to work, but you provided: " << fTemplatePair.size() << std::endl;
+        return vec;
+    }
+    std::sort(fTemplatePair.begin(), fTemplatePair.end());
+    // find min and max for range
+    float min = fTemplatePair.at(0).first;
+    float max = fTemplatePair.at(fTemplatePair.size() -1).first;
+    for (unsigned int itemp = 0; itemp < (fTemplatePair.size() ); itemp++){
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing: Template " << itemp << std::endl;
+        TtHFit::TemplateWeight tmp;
+        tmp.name = fTemplatePair.at(itemp).second;
+        tmp.value = fTemplatePair.at(itemp).first;
+        if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing:   " << tmp.name << " = " << tmp.value << std::endl;
+        tmp.range = tmp.name+"["+std::to_string(min)+","+std::to_string(min)+","+std::to_string(max)+"]";
+        // calculate the actual function
+        tmp.function = TtHFit::GetWeightFunction(itemp, opt, min, max);
+        vec.push_back(tmp);
+    }
+    return vec;
+}
+
+//__________________________________________________________________________________
+//
+const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt, float min, float max) const{
+    std::string fun = "";
+    float x_i;
+    float deltaXp = -1; // |x(i+1)-x(i)| 
+    float deltaXm = -1; // |x(i-1)-x(i)|
+    std::string name;
+    if (itemp < fTemplatePair.size()){
+        x_i = fTemplatePair.at(itemp).first;
+        name = fTemplatePair.at(itemp).second;
+    }
+    else return fun;
+    //
+    if ((itemp+1) < fTemplatePair.size() ){
+        deltaXp = std::fabs(fTemplatePair.at(itemp+1).first - fTemplatePair.at(itemp).first);
+    }
+    if (((int)itemp-1) >=0 ){
+        deltaXm = std::fabs(fTemplatePair.at(itemp-1).first - fTemplatePair.at(itemp).first);
+    }
+    if(deltaXp<0 && deltaXm<0){
+        std::cerr << "ERROR: Morphing: delta X = " << deltaXp << ", " << deltaXm << std::endl;
+        return fun;
+    }
+    if (opt == TtHFit::LINEAR){
+        fun  = "(";
+        if(deltaXm>0) fun += "((("+name+"-"+std::to_string(x_i)+")< 0)&&(fabs("+name+"-"+std::to_string(x_i)+")<"+std::to_string(deltaXm)+"))*(1.-(fabs("+name+"-"+std::to_string(x_i)+"))/"+std::to_string(deltaXm)+")";
+        else fun += "0.";
+        fun += "+";
+        if(deltaXp>0) fun += "((("+name+"-"+std::to_string(x_i)+")>=0)&&(fabs("+name+"-"+std::to_string(x_i)+")<"+std::to_string(deltaXp)+"))*(1.-(fabs("+name+"-"+std::to_string(x_i)+"))/"+std::to_string(deltaXp)+")";
+        else fun += "0.";
+        fun += ")";
+    }
+    // ...
+    fun = ReplaceString(fun,"--","+");
+    if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing:   weight function = " << fun << std::endl;
+    return fun;
 }

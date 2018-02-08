@@ -1,5 +1,26 @@
+2018-02-02 Alexander Held <alexander.held@cern.ch>
+    * Added new Samples option BuildPullTable to create tables showing post-fit acceptance effect of nuisance parameter pulls
+    * See README for details
+    * Original implementation by Jelena Jovicevic / Thomas Calvet
+    * Closes TTHFITTER-169
+
+2018-02-02 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * template fitting improved, with post-fit functionality working (still not for summary and tables, systematics to check)
+    
+2018-02-01 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Small fix preventing a crash when producing pre-fit yield tables
+    * CustomFunctions option added for Job, to be able to use custom functions defined in .C files for selection or weights (instructions in the README)
+
 2018-01-27 Robert Wolff <robert.wolff@cern.ch>
     * Fixed yields and plots errors and ranking for twice defined systematics
+
+2018-01-26 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * template fitting improved, with prefit functionality working (still no post-fit)
+    
+2018-01-25 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Added first version of template fitting (1D signal morphing) THANKS TOMAS DADO!!
+    * Working on TTHFITTER-139
+    * Fixed small issue with prefit tables causing crash sometimes
 
 2018-01-24 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixed runAsymptoticCLs_inject

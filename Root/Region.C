@@ -387,7 +387,17 @@ void Region::BuildPreFitErrorHist(){
                 // scale according to NormFactors
                 float scale = 1.;
                 for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
-                    scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
+                    NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf];
+                    // if this norm factor is a morphing one
+                    if(nf->fName.find("morph_")!=string::npos){
+                        std::string formula = TtHFitter::SYSTMAP[nf->fName];
+                        std::string name = TtHFitter::NPMAP[nf->fName];
+                        formula = ReplaceString(formula,name,"x");
+                        TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+                        scale *= f_morph->Eval(nf->fNominal);
+                    }
+                    else
+                        scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
                 }
                 //
                 // skip data
@@ -529,8 +539,21 @@ TthPlot* Region::DrawPreFit(string opt){
         }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
-            h->Scale(fSig[i]->fSample->fNormFactors[i_nf]->fNominal);
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf];
+            // if this norm factor is a morphing one
+            if(nf->fName.find("morph_")!=string::npos){
+                std::string formula = TtHFitter::SYSTMAP[nf->fName];
+                std::string name = TtHFitter::NPMAP[nf->fName];
+                formula = ReplaceString(formula,name,"x");
+                TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+                float scale = f_morph->Eval(nf->fNominal);
+                h->Scale(scale);
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: " << nf->fName << " => Scaling " << fSig[i]->fSample->fName << " by " << scale << std::endl;
+            }
+            else{
+                h->Scale(nf->fNominal);
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: " << nf->fName << " => Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            }
         }
         if(TtHFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
         if(TtHFitter::SHOWNORMSIG){
@@ -557,8 +580,21 @@ TthPlot* Region::DrawPreFit(string opt){
         }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
-            h->Scale(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal);
-            if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: Scaling " << fBkg[i]->fSample->fName << " by " << fBkg[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf];
+            // if this norm factor is a morphing one
+            if(nf->fName.find("morph_")!=string::npos){
+                std::string formula = TtHFitter::SYSTMAP[nf->fName];
+                std::string name = TtHFitter::NPMAP[nf->fName];
+                formula = ReplaceString(formula,name,"x");
+                TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+                float scale = f_morph->Eval(nf->fNominal);
+                h->Scale(scale);
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: " << nf->fName << " => Scaling " << fSig[i]->fSample->fName << " by " << scale << std::endl;
+            }
+            else{
+                h->Scale(nf->fNominal);
+                if(TtHFitter::DEBUGLEVEL>0) std::cout << "Region::INFO: " << nf->fName << " => Scaling " << fSig[i]->fSample->fName << " by " << fSig[i]->fSample->fNormFactors[i_nf]->fNominal << std::endl;
+            }
         }
         p->AddBackground(h,title);
         if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
@@ -643,10 +679,15 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
         // Norm factors
         //
         for(int i_norm=0;i_norm<fSampleHists[i_sample]->fNNorm;i_norm++){
-            systName = fSampleHists[i_sample]->fNormFactors[i_norm]->fName;
+            NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm];
+            systName = nf->fName;
+//             // if this norm factor is a morphing one => save the nuis.par
+//             if(nf->fName.find("morph_")!=string::npos){
+//                 systName = TtHFitter::NPMAP[nf->fName];
+//             }
             // skip POI if B-only fit FIXME
             if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
-            if(fSampleHists[i_sample]->fNormFactors[i_norm]->fConst) continue;            
+            if(nf->fConst) continue;            
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -774,7 +815,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
                 double yieldNominal_postFit_nfOnly = yieldNominal;
                 for(auto nf : fSampleHists[i]->fNormFactors){
-                    yieldNominal_postFit_nfOnly *= fitRes->GetNuisParValue(nf->fName);
+                    yieldNominal_postFit_nfOnly *= fitRes->GetNuisParValue(TtHFitter::NPMAP[nf->fName]);
                 }
                 
                 int posTmp = systName.find("_bin_");
@@ -799,10 +840,23 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 //
                 // if it's a norm factor
                 else if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
-                    diffUp   += yieldNominal*systErrUp;
-                    diffDown += yieldNominal*systErrDown;
-//                     diffUp   += yieldNominal_postFit*systErrUp;
-//                     diffDown += yieldNominal_postFit*systErrDown;
+                    // if this norm factor is a morphing one
+                    if(fSystNames[i_syst].find("morph_")!=string::npos){
+                        std::string formula = TtHFitter::SYSTMAP[fSystNames[i_syst]];
+                        std::string name = TtHFitter::NPMAP[fSystNames[i_syst]];
+                        formula = ReplaceString(formula,name,"x");
+                        TF1* f_morph = new TF1("f_morph",formula.c_str(),fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax);
+                        float scaleUp   = f_morph->Eval(systValue+systErrUp);
+                        float scaleDown = f_morph->Eval(systValue-systErrDown);
+                        diffUp   += yieldNominal*(scaleUp  -1);
+                        diffDown += yieldNominal*(scaleDown-1);
+                    }
+                    else{
+                        diffUp   += yieldNominal*systErrUp;
+                        diffDown += yieldNominal*systErrDown;
+//                         diffUp   += yieldNominal_postFit*systErrUp;
+//                         diffDown += yieldNominal_postFit*systErrDown;
+                    }
                 }
                 //
                 // ShapeFactor have to get NP per bin
@@ -991,7 +1045,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 
 //__________________________________________________________________________________
 //
-TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
+TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
 
     if(TtHFitter::PREFITONPOSTFIT){
         fPlotPostFit->h_tot_bkg_prefit = (TH1*)fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit");
@@ -1060,6 +1114,12 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+        if (fSampleHists[i]->fSample->fBuildPullTable>0){
+            if(TtHFitter::DEBUGLEVEL>0) std::cout << "TtHFitter::Region:INFO - propagating post-fit to Sample " << fSampleHists[i]->fSample->fTitle << std::endl;
+            TString sampleTex= fSampleHists[i]->fSample->fTexTitle;
+            pullTex << "\\hline\n" << endl;
+            pullTex << "{\\color{blue}{$\\rightarrow \\,$ "<< sampleTex << "}} & \\\\\n"<< endl;
+        }
         hNew = (TH1*)hSmpNew[i]->Clone();
         for(int i_bin=1;i_bin<=hNew->GetNbinsX();i_bin++){
             double binContent0 = hSmpNew[i]->GetBinContent(i_bin);
@@ -1067,6 +1127,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             double multNorm = 1.;
             for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
                 systName = fSampleHists[i]->fSyst[i_syst]->fName;
+                TString systNameNew(systName); // used in pull tables
                 if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0)
                     systName = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
                 if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0){
@@ -1085,6 +1146,14 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
                     float binContentUp   = (fSampleHists[i]->fSyst[i_syst]->fNormUp+1) * binContent0;
                     float binContentDown = (fSampleHists[i]->fSyst[i_syst]->fNormDown+1) * binContent0;
                     multNorm *= (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall));
+                    if (fSampleHists[i]->fSample->fBuildPullTable>0){
+                        if ((((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) > 1.01) || ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) < 0.99)) && (i_bin==1)) {
+                            if(TtHFitter::DEBUGLEVEL>0)
+                                std::cout << "TtHFitter::Region:INFO - Syst "<< systName <<" in bin " << i_bin << " has norm effect "
+                                          << ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) -1 )*100 << std::endl;
+                            pullTex  << setprecision(2) << "norm "<< systNameNew.ReplaceAll("_","-") << "&"<< ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) -1 )*100  << " \\% \\\\\n"<< endl;
+                        }
+                    }
                 }
                 
                 //
@@ -1094,6 +1163,14 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
                     float binContentUp   = fSampleHists[i]->fSyst[i_syst]->fHistShapeUp->GetBinContent(i_bin);
                     float binContentDown = fSampleHists[i]->fSyst[i_syst]->fHistShapeDown->GetBinContent(i_bin);
                     multShape += (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 );
+                    if (fSampleHists[i]->fSample->fBuildPullTable==2){
+                        if (((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 ) > 0.03) || ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 ) < - 0.03)) {
+                            if(TtHFitter::DEBUGLEVEL>0)
+                                std::cout << "TtHFitter::Region:INFO - Syst "<< systName <<" in bin " << i_bin << " has shape effect "
+                                          << (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 )*100 << std::endl;
+                            pullTex << setprecision(2) <<"shape "<<  systNameNew.ReplaceAll("_","-") <<" bin " << i_bin << "&"<<(GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 )*100  << " \\% \\\\\n"<< endl;
+                        }
+                    }
                 }
             }
             
@@ -1142,12 +1219,24 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,string opt){
             nfName = nf->fName;
 //             nfName = nf->fNuisanceParameter; // not implemeted yet...
             if(nf->fConst) nfValue = nf->fNominal;
-            else           nfValue = fitRes->GetNuisParValue(nfName);
+            else           nfValue = fitRes->GetNuisParValue(TtHFitter::NPMAP[nfName]);
 //             if(nfValue==0) nfValue = 0.0001;  // FIXME
 //             if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 0.0001;   // FIXME
 //             if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 1;   // FIXME
 //             if(nfName=="SigXsecOverSM") nfValue = 1;   // FIXME
-            hSmpNew[i]->Scale(nfValue);
+            //
+            // if this norm factor is a morphing one
+            if(nfName.find("morph_")!=string::npos){
+                std::string formula = TtHFitter::SYSTMAP[nfName];
+                std::string name = TtHFitter::NPMAP[nfName];
+                formula = ReplaceString(formula,name,"x");
+                TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+                float scale = f_morph->Eval(nfValue);
+                hSmpNew[i]->Scale(scale);
+            }
+            else{
+                hSmpNew[i]->Scale(nfValue);
+            }
         }
     }
     
