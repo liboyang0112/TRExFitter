@@ -266,7 +266,8 @@ Note that, each object should have unique <ObjectName>.
      * SeparateGammas   : if set to TRUE, the sample will not contribute to the overall gamma factors for MC stat, but a separate set of them will be added for this sample (through the SHAPE systematic technology); NB: you need to re-run at least the "b" step if you want to decorrelate the gammas on existing inputs (wf is not enough)
      * CorrelateGammasInRegions: to be used only together with SeparateGammas; can be used to correlate MC stat across regions; example: "SR1:SR2,CR1:CR2:CR3" will use the same NP for the MC stat in each bin of SR1 and SR2 and in each bin of CR1, CR2 and CR3
      * Morphing         : add this to each template you have, to do a template fit / morphing; syntax is <name-of-parameter>,<value-corresponding-to-this-template>; the POI should be set to <name-of-parameter>
-     
+     * BuildPullTable: if set to TRUE or NORM-ONLY, create tables showing the post-fit acceptance effect of nuisance parameter pulls for this sample, set to NORM+SHAPE to include the bin-by-bin effect
+
   * NormFactor:
      * Samples          : comma-separated list of samples on which to apply the norm factor
      * Regions          : comma-separated list of regions where to apply the norm factor

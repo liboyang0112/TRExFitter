@@ -218,6 +218,8 @@ public:
     string fHistoFile;
     
     FitResults *fFitResults;
+
+    bool fWithPullTables;
     
     int fIntCode_overall;
     int fIntCode_shape;

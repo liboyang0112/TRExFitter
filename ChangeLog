@@ -1,3 +1,9 @@
+2018-02-02 Alexander Held <alexander.held@cern.ch>
+    * Added new Samples option BuildPullTable to create tables showing post-fit acceptance effect of nuisance parameter pulls
+    * See README for details
+    * Original implementation by Jelena Jovicevic / Thomas Calvet
+    * Closes TTHFITTER-169
+
 2018-02-02 Michele Pinamonti <michele.pinamonti@gmail.com>
     * template fitting improved, with post-fit functionality working (still not for summary and tables, systematics to check)
     
