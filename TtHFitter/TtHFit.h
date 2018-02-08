@@ -51,6 +51,18 @@ public:
         ASYMPTOTIC = 0,
         TOYS = 1
     };
+
+    enum TemplateInterpolationOption{
+        LINEAR = 0,
+        TRIANGULAR = 1
+    };
+    
+    struct TemplateWeight{
+        std::string function;
+        std::string range;
+        std::string name;
+        float value;
+    };
     
     TtHFit(string name="MyMeasurement");
     ~TtHFit();
@@ -151,6 +163,11 @@ public:
     
     void MergeSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
     
+    // for template fitting
+    void AddTemplateWeight(const std::string& name, float);
+    const std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
+    const std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
+
     // -------------------------
       
     string fName;
@@ -201,6 +218,8 @@ public:
     string fHistoFile;
     
     FitResults *fFitResults;
+
+    bool fWithPullTables;
     
     int fIntCode_overall;
     int fIntCode_shape;
@@ -296,6 +315,13 @@ public:
     int fGetChi2;
 
     bool fTtresSmoothing;
+    
+    std::vector<std::string> fCustomFunctions;
+    
+    bool fRunMorphing;
+    std::vector<std::pair<float,std::string> > fTemplatePair;
+    std::vector<TtHFit::TemplateWeight> fTemplateWeightVec;
+    TemplateInterpolationOption fTemplateInterpolationOption;
 };
 
 #endif
