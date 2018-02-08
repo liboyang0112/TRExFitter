@@ -1,3 +1,6 @@
+2018-02-08 Tomas Dado <tomas.dadod@cern.ch>
+    * Added support for morphing when two different variables that use morphing for templates are used
+
 2018-02-02 Alexander Held <alexander.held@cern.ch>
     * Added new Samples option BuildPullTable to create tables showing post-fit acceptance effect of nuisance parameter pulls
     * See README for details

@@ -1508,7 +1508,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             std::string name      = morph_par.at(0);
             float value = std::stof(morph_par.at(1));
             if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing: Adding " << name << ", with value: " << value << std::endl;
-            AddTemplateWeight(name, value);
+            if (!MorphIsAlreadyPresent(name, value)) AddTemplateWeight(name, value);
             // set proper normalization
             std::string morphName = "morph_"+name+"_"+ReplaceString(std::to_string(value),"-","m");
             NormFactor *nf = smp->AddNormFactor(morphName, 1, 0, 10, false);
@@ -8912,4 +8912,15 @@ const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::Te
     fun = ReplaceString(fun,"--","+");
     if(TtHFitter::DEBUGLEVEL>0) std::cout << "INFO::Morphing:   weight function = " << fun << std::endl;
     return fun;
+}
+
+//____________________________________________________________________________________
+//
+const bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float value) const {
+    for (const std::pair<float, std::string> itemp : fTemplatePair){
+        if ((itemp.second == name) && (itemp.first == value)){
+            return true;
+        }
+    }    
+    return false;
 }
