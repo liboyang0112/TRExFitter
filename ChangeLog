@@ -1,7 +1,9 @@
 2018-02-09 Tomas Dado <tomas.dadod@cern.ch>
     * Added new option to JOB settings "SuppressNegativeBinWarnings", if set
 	to true the code will not print out warning about (zero)negative bin
-	contents
+	contents, closes TTHFITTER-62
+	* Added new printout option, Verbose. Activated when DebugLevel > 2.
+	Applied to correlation matrices. Solves TTHFITTER-170
 
 2018-02-08 Tomas Dado <tomas.dadod@cern.ch>
     * Added support for morphing when two different variables that use morphing for templates are used
