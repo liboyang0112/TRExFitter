@@ -20,7 +20,7 @@ To setup just use the script::
 
   source setup.sh
 
-(should work on any machine with access to afs - provided that nothing else is set-up previously)
+(should work on any machine with access to cvmfs - provided that nothing else is set-up previously)
 
 To compile::
 
@@ -49,8 +49,8 @@ The only mandatory argument, <action(s)>, tells to the TtHFitter which operation
 The possible operations are defined in the main file (e.g. util/myFit.C).
 For instance, if you use the default file `util/myFit.C`, the available options are:
 
-* h : read input histograms (valid only if the proper option is spefified in the config file)
-* n : read input ntuples (valid only if the proper option is spefified in the config file)
+* h : read input histograms (valid only if the proper option is specified in the config file)
+* n : read input ntuples (valid only if the proper option is specified in the config file)
 * w : create the RooStats xmls and workspace
 * f : fit the workspace
 * l : calculate exclusion limit
@@ -73,7 +73,7 @@ See the section "Command line options" below.
 Config File
 ---------
 
-Here's a list of the inputs and options which can be specifed in the config file:
+Here's a list of the inputs and options which can be specified in the config file:
 
 - The structure of the file should be the following::
 
@@ -122,7 +122,7 @@ Note that, each object should have unique <ObjectName>.
      * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'Gaussian' (default) or 'Poisson'
      * DebugLevel       : 0 or 1
      * PlotOptions      : a set of options for plotting:
-        * YIELDS : if set, the legend will be one-column and will include the yileds; otherwise two-columns and no yields
+        * YIELDS : if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields
         * NORMSIG : add normlised signal to plots
         * NOSIG: don't show signal in stack
         * OVERSIG: overlay signal (not normalised)
@@ -135,24 +135,24 @@ Note that, each object should have unique <ObjectName>.
         * LANDSCAPE : -> \begin{landscape}
      * SystControlPlots : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
      * SystDataPlots    : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame.
-     * CorrelationThreshold : Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05:5%)
+     * CorrelationThreshold : Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%)
      * SignalRegionsPlot: list of regions to put in SignalRegionsPlot; use "EMPTY" to put an empty entry, "ENDL" to specify end of line
      * HistoChecks      : NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem
      * LumiLabel        : label for luminosity to be put on plots
      * CmeLabel         : label for center-of-mass energy to be put on plots
      * SplitHistoFiles  : set this to true to have histogram files split by region (useful with many regions and/or run in parallel)
      * BlindingThreshold: bins with S/B > this number will be blinded
-     * KeepPrefitBlindedBins : if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" opiton) pre-fit blinding is kept in post-fit plots 
+     * KeepPrefitBlindedBins : if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots 
      * RankingMaxNP     : max number of NP to show in ranking plot
      * RankingPlot      : NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots.
      * ImageFormat      : png, pdf or eps
-     * StatOnly         : the code ignores systematics and MC stat uncertainties from all computations (limits, significances, fit, ...); need to re-reate ws in case of limit and sigificance
+     * StatOnly         : the code ignores systematics and MC stat uncertainties from all computations (limits, significances, fit, ...); need to re-create ws in case of limit and significance
      * SystErrorBars    : add stat error bars to syst variations in syst plots
      * SummaryPlotRegions : list of regions to be shown in summary plot (useful to specify a custom order)
-     * FixNPforStatOnly : if set to TRUE, when running stat-only (with either of the two options) also the norm facotrs other than the POI are kept fixed
-     * InputFolder      : specify it to read fit input histograms from a different direcotry than <jobName>/Histograms/
+     * FixNPforStatOnly : if set to TRUE, when running stat-only (with either of the two options) also the norm factors other than the POI are kept fixed
+     * InputFolder      : specify it to read fit input histograms from a different directory than <jobName>/Histograms/
      * InputName        : specify it to read fit input histograms from files with different name than <jobName>_blabla.root
-     * OutputDir        : specify it to write everything in a different direcotry than <jobName>
+     * OutputDir        : specify it to write everything in a different directory than <jobName>
      * WorkspaceFileName : if specified, an external ws can be used as input for fitting (not 100% supported)
      * KeepPruning      : if set to TRUE, the first time the ws is created (option w) a Pruning.root file is created under <jobName>/ and used for future operations to skip pruned systematics (makes operations much faster in case many syst are pruned)
      * AtlasLabel       : to specify Internal, Preliminary, etc...
@@ -160,12 +160,12 @@ Note that, each object should have unique <ObjectName>.
      * SystCategoryTables : if set to TRUE, additional syst tables with systematics grouped by category are created
      * SummaryPlotYmax  : if set, it will force the summary plot to use this value as max y-maxis value
      * SummaryPlotYmin  : if set, it will force the summary plot to use this value as min y-maxis value
-     * RatioYmax        : if set, it will specify a the max of the range of the ratio plots
-     * RatioYmin        : if set, it will specify a the min of the range of the ratio plots 
-     * RatioYmaxPostFit : if set, it will specify a the max of the range of the ratio plots, for post-fit only
-     * RatioYminPostFit : if set, it will specify a the min of the range of the ratio plots, for post-fit only 
+     * RatioYmax        : if set, it will specify the max of the range of the ratio plots
+     * RatioYmin        : if set, it will specify the min of the range of the ratio plots 
+     * RatioYmaxPostFit : if set, it will specify the max of the range of the ratio plots, for post-fit only
+     * RatioYminPostFit : if set, it will specify the min of the range of the ratio plots, for post-fit only 
      * CustomAsimov     : if set, the workspace will be created with an AsimovData built according to Sample->AsimovReplacementFor option (see below) instead of data
-     * RandomPOISeed    : if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated statrging from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number)
+     * RandomPOISeed    : if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated starting from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number)
      * GetChi2          : if set to TRUE (or STAT+SYST), for pre- and post-fit plots the extended chi2 test is done, and results are printed on the screen for each plot when running d and/or p; can be set to STAT (or STAT-ONLY) for stat-only chi2
      * TtresSmoothing   : if set to TRUE, the systematic uncertainty smoothing will use the ttbar resonances convention for the smoothing. The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal or 400 to treat it as uncorrelated with the nominal.
      * UseGammaPulls    : if set to TRUE, the fit results in terms of gamma parameter pulls, constraints and correlations are propagated to the post-fit plots, when possible (i.e. not for validation plots of course)
@@ -219,17 +219,17 @@ Note that, each object should have unique <ObjectName>.
      * NtuplePathSuff(s): only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region
      * MCweight         : only for option NTUP, the additional weight used in this region (for MC samples only)
      * Rebin            : if specified, the histograms will be rebinned merging N bins together, where N is the argument (int)
-     * Binning          : if specified, the histograms will be rebinned according to the new binning specifed, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions ro define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning.
+     * Binning          : if specified, the histograms will be rebinned according to the new binning specified, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions or define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning.
      * BinWidth         : if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number
      * BinLabels        : if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins)
      * Type             : can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
-     * DataType         : ASIMOV or DATA. Is asimov is set, the limits and significances are computed without taking into acount the data in these region, but a projection of the fit performed in the regions with DATA
+     * DataType         : ASIMOV or DATA. Is Asimov is set, the limits and significances are computed without taking into account the data in these region, but a projection of the fit performed in the regions with DATA
      * Ymax             : if set, it will force the plot to use this value as max y-maxis value
      * Ymin             : if set, it will force the plot to use this value as min y-maxis value
-     * RatioYmax        : if set, it will specify a the max of the range of the ratio plot for this region only
-     * RatioYmin        : if set, it will specify a the min of the range of the ratio plot for this region only 
-     * RatioYmaxPostFit : if set, it will specify a the max of the range of the ratio plot for this region only, for post-fit only
-     * RatioYminPostFit : if set, it will specify a the min of the range of the ratio plot for this region only, for post-fit only 
+     * RatioYmax        : if set, it will specify the max of the range of the ratio plot for this region only
+     * RatioYmin        : if set, it will specify the min of the range of the ratio plot for this region only 
+     * RatioYmaxPostFit : if set, it will specify the max of the range of the ratio plot for this region only, for post-fit only
+     * RatioYminPostFit : if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only 
      * DropBins         : allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 0 for the index
 
   * Sample:
@@ -249,7 +249,7 @@ Note that, each object should have unique <ObjectName>.
      * NormFactor       : NormalisationFactor (free parameter in the fit); in the format <name>,nominal,min,max
      * ShapeFactor      : ShapeFactor added
      * NormalizedByTheory: set it to false for data-driven backgrounds (MCweight, Lumi and LumiScale from Job and Region will be ignored)
-     * MCweight         : only for option NTUP, the additional weight sed in this sample (for all types of samples!! Not only MC)
+     * MCweight         : only for option NTUP, the additional weight used in this sample (for all types of samples!! Not only MC)
      * Selection        : valid only for option NTUP; additional selection for this region
      * Regions          : set this to have the sample only in some regions
      * Exclude          : set this to exclude the sample in some regions
@@ -262,11 +262,12 @@ Note that, each object should have unique <ObjectName>.
      * AddSample(s)     : if specified, each sample hist gets added bin-by-bin another sample hist, in each of the regions
      * SubtractSample(s): if specified, each sample hist gets subtracted bin-by-bin another sample hist, in each of the regions
      * Smooth           : if set to TRUE, the nominal histograms are smoothed (based on TH1::Smooth but taking into account the original stat uncertainty) 
-     * AsimovReplacementFor: only for GHOST samples; if set, the creation of cutsom Asimov data-set(s) is triggered; use as 'AsimovReplacementFor: "dataset","sample"', where "dataset" is the name of a custom Asimov dataset one wants to create (the same name will have to be set under Job->CustomAsimov in order to use it) and "sample" is the sample this GHOST sample will superseed
+     * AsimovReplacementFor: only for GHOST samples; if set, the creation of custom Asimov data-set(s) is triggered; use as 'AsimovReplacementFor: "dataset","sample"', where "dataset" is the name of a custom Asimov dataset one wants to create (the same name will have to be set under Job->CustomAsimov in order to use it) and "sample" is the sample this GHOST sample will supercede
      * SeparateGammas   : if set to TRUE, the sample will not contribute to the overall gamma factors for MC stat, but a separate set of them will be added for this sample (through the SHAPE systematic technology); NB: you need to re-run at least the "b" step if you want to decorrelate the gammas on existing inputs (wf is not enough)
      * CorrelateGammasInRegions: to be used only together with SeparateGammas; can be used to correlate MC stat across regions; example: "SR1:SR2,CR1:CR2:CR3" will use the same NP for the MC stat in each bin of SR1 and SR2 and in each bin of CR1, CR2 and CR3
      * Morphing         : add this to each template you have, to do a template fit / morphing; syntax is <name-of-parameter>,<value-corresponding-to-this-template>; the POI should be set to <name-of-parameter>
-     
+     * BuildPullTable: if set to TRUE or NORM-ONLY, create tables showing the post-fit acceptance effect of nuisance parameter pulls for this sample, set to NORM+SHAPE to include the bin-by-bin effect
+
   * NormFactor:
      * Samples          : comma-separated list of samples on which to apply the norm factor
      * Regions          : comma-separated list of regions where to apply the norm factor
@@ -289,9 +290,9 @@ Note that, each object should have unique <ObjectName>.
      * ExcludeRegionSample : comma-separated list of region:sample to exclude
      * Type                : can be HISTO, OVERALL, SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin) or STAT (this refers to auto-creation of one systematic from stat uncertainty for each bin of corresponding region)
      * Title               : title of the systematic (will be shown in plots)
-     * StoredName          : if specified, will be used to read and write histograms in the root files under Hostograms/ intead of the syst name; useful to decorrelate without re-creating histograms
+     * StoredName          : if specified, will be used to read and write histograms in the root files under Histograms/ intead of the syst name; useful to decorrelate without re-creating histograms
      * NuisancaParameter   : if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics
-     * IsFreeParameter     : if set to TRUE, the constraint will be a flat one instead of gaussian (use with caution)
+     * IsFreeParameter     : if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution)
      * Category            : major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
      * HistoPathUp         : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation
      * HistoPathDown       : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation
@@ -328,14 +329,14 @@ Note that, each object should have unique <ObjectName>.
      * Smoothing           : smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
      * OverallUp           : for OVERALL systematic: the relative "up" shift (0.1 means +10%)
      * OverallDown         : for OVERALL systematic: the relative "down" shift (-0.1 means -10%)
-     * ScaleUp             : for OVERALL, HISTO or SHAPE systematic: scale difference between "up" and nominal by a factor, or different factors for different regions (with teh syntax "region1:1.2,region2:0.9"
-     * ScaleDown           : for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor, or different factors for different regions (with teh syntax "region1:1.2,region2:0.9"
+     * ScaleUp             : for OVERALL, HISTO or SHAPE systematic: scale difference between "up" and nominal by a factor, or different factors for different regions (with the syntax "region1:1.2,region2:0.9"
+     * ScaleDown           : for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor, or different factors for different regions (with the syntax "region1:1.2,region2:0.9"
      * ReferenceSample     : if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
      * DropShapeIn         : specify regions where you want the smoothing / pruning to be forced to drop the shape and keep only norm
      * DropNorm            : the same as the previous one, but to drop the norm and keep only the shape
      * KeepNormForSamples  : list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
-     * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearily subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
+     * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
      
 
 Command line options
@@ -348,8 +349,8 @@ Currently the supported options are:
 * Systematics: to limit the systematics to use to the list specified
 * Signal:      in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance)
 * Exclude:     to exclude certain Regions / Samples / Systematics
-* Suffix:      used for: plots, workspace, fit resutls, etc
-* SaveSuffix:  used for: saving histograms with a suffux (to be merged / renamed later, see last section on hupdate)
+* Suffix:      used for: plots, workspace, fit results, etc
+* SaveSuffix:  used for: saving histograms with a suffix (to be merged / renamed later, see last section on hupdate)
 * Update:      if TRUE, the output .root file is updated, otherwise is overwrote
 * StatOnlyFit: if TRUE, the same as Fit->StatOnlyFit
 
@@ -364,7 +365,7 @@ Ranking Plot
 
 - The ranking plot can be created in one go, with just the command line argument "r" (after having run the nominal fit fit "f").
 - Since this can take too much time (and memory), for complicated fits it's better to run it in several steps:
-   by specifying the command-line option "Ranking=<name/index>", one can produce the txt input for the ranking only for a specific line of the ranking, i.e. for a single NP (speficied either through its name or index). Once all the needed txt files are created (e.g. in parallel through batch jobs) with the option "Ranking=plot" they are merged to create the final plot.
+   by specifying the command-line option "Ranking=<name/index>", one can produce the txt input for the ranking only for a specific line of the ranking, i.e. for a single NP (specified either through its name or index). Once all the needed txt files are created (e.g. in parallel through batch jobs) with the option "Ranking=plot" they are merged to create the final plot.
 
 - Examples::
 
@@ -410,7 +411,7 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
 
     ./myFit  m  config/myTopWS_multifit.config
 
-  this will compare the fit resutls in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the flight).
+  this will compare the fit results in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the flight).
 
 - To make a real combination, one needs to use the usual command options "w", "f" and "l" together with the flag "Combine: TRUE" in the config above. Example::
 
@@ -442,7 +443,7 @@ Input File Merging with hupdate
 Output Directories Structure
 ---------
 
-* For each TtHFit objetc, a diretory is created, with the same name as the Fit Name
+* For each TtHFit object, a directory is created, with the same name as the Fit Name
 * Inside this direcotry, at every step, some outputs are created, following the structure described above
 
   * Plots/              : contains the data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots

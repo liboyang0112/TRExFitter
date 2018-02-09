@@ -64,6 +64,8 @@ TtHFit::TtHFit(string name){
 
     fFitResults = 0;
 
+    fWithPullTables = false;
+
     fRegions.clear();
     fSamples.clear();
     fSystematics.clear();
@@ -177,6 +179,7 @@ TtHFit::TtHFit(string name){
     fGetChi2 = 0; // 0: no, 1: stat-only, 2: with syst
     
     fCustomFunctions.clear();
+    fSuppressNegativeBinWarnings = false;
 
     fRunMorphing = false;
     fTemplateInterpolationOption = TtHFit::LINEAR;
@@ -769,6 +772,15 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             TtHFitter::GUESSMCSTATERROR = false;
         }
     }
+    param = cs->Get("SuppressNegativeBinWarnings");  if( param != ""){
+        if( param == "true" || param == "True" ||  param == "TRUE" ){
+            fSuppressNegativeBinWarnings = true;
+        } else if (param == "false" || param == "False" ||  param == "FALSE"){
+            fSuppressNegativeBinWarnings = false;
+        } else {
+            WriteWarningStatus("TtHFit::ReadConfigFile", "You specified SuppressNegativeBinWarnings option but didnt provide valid parameter. Using default (false)");
+        }
+    }
     param = cs->Get("CorrelationThreshold"); if( param != ""){
         TtHFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
     }
@@ -1172,20 +1184,20 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 if(vec_bins[1]=="TransfoD"){
                     reg -> fTransfoDzSig=convertStoD(vec_bins[2]);
                     reg -> fTransfoDzBkg=convertStoD(vec_bins[3]);
-            if(vec_bins.size()>4){
-              for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
-            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
-              }
-            }
+                    if(vec_bins.size()>4){
+                        for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+                            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+                        }
+                    }
                 }
                 else if(vec_bins[1]=="TransfoF"){
                     reg -> fTransfoFzSig=convertStoD(vec_bins[2]);
                     reg -> fTransfoFzBkg=convertStoD(vec_bins[3]);
-            if(vec_bins.size()>4){
-              for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
-            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
-              }
-            }
+                    if(vec_bins.size()>4){
+                        for(unsigned int i_Bkgs=3; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+                            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+                        }
+                    }
                 }
                 else if(vec_bins[1]=="TransfoJ"){
                     if(vec_bins.size() > 2) reg -> fTransfoJpar1=convertStoD(vec_bins[2]);
@@ -1194,11 +1206,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                     else reg -> fTransfoJpar2 = 1.;
                     if(vec_bins.size() > 4) reg -> fTransfoJpar3=convertStoD(vec_bins[4]);
                     else reg -> fTransfoJpar3 = 5.;
-            if(vec_bins.size()>5){
-              for(unsigned int i_Bkgs=4; i_Bkgs<vec_bins.size(); ++i_Bkgs){
-            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
-              }
-            }
+                    if(vec_bins.size()>5){
+                        for(unsigned int i_Bkgs=4; i_Bkgs<vec_bins.size(); ++i_Bkgs){
+                            reg -> fAutoBinBkgsInSig.push_back(vec_bins[i_Bkgs]);
+                        }
+                    }
                 }
                 else{
                     WriteErrorStatus("TtHFit::ReadConfigFile", "Unknown transformation: " + vec_bins[1] + ", try again");
@@ -1447,6 +1459,22 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(param!=""){
             smp->fAddSamples = Vectorize(param,',');
         }
+        // enable pull tables
+        param = cs->Get("BuildPullTable");   if( param != "" ){ // can be TRUE, NORM-ONLY, NORM+SHAPE (TRUE is equal to NORM-ONLY)
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param == "TRUE" ){
+                smp->fBuildPullTable = 1;
+                fWithPullTables = true;
+            }
+            if( param.find("NORM-ONLY")!=std::string::npos ){
+                smp->fBuildPullTable = 1;
+                fWithPullTables = true;
+            }
+            else if( param.find("NORM+SHAPE")!=std::string::npos ){
+                smp->fBuildPullTable = 2;
+                fWithPullTables = true;
+            }
+        }
         // allow smoothing of nominal histogram?
         param = cs->Get("Smooth");
         if(param!=""){
@@ -1492,7 +1520,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             std::string name      = morph_par.at(0);
             float value = std::stof(morph_par.at(1));
             WriteDebugStatus("TtHFit::ReadConfigFile", "Morphing: Adding " + name + ", with value: " + std::to_string(value));
-            AddTemplateWeight(name, value);
+            if (!MorphIsAlreadyPresent(name, value)) AddTemplateWeight(name, value);
             // set proper normalization
             std::string morphName = "morph_"+name+"_"+ReplaceString(std::to_string(value),"-","m");
             NormFactor *nf = smp->AddNormFactor(morphName, 1, 0, 10, false);
@@ -2214,7 +2242,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
 
     if (TtHFitter::DEBUGLEVEL < 2){
         gErrorIgnoreLevel = kError;
-        RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
+        RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
     }
 }
 
@@ -3037,7 +3065,7 @@ void TtHFit::CorrectHistograms(){
             //
             // Fix empty bins
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
-                sh->FixEmptyBins();
+                sh->FixEmptyBins(fSuppressNegativeBinWarnings);
             }
 
             //
@@ -4062,7 +4090,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
                                                pruned
                                               );
                         if(syh==0x0){
-                            WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
+                            if (!pruned) WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
                             continue;
                         }
                     }
@@ -4149,11 +4177,34 @@ void TtHFit::DrawAndSaveAll(string opt){
         }
         //
         if(isPostFit){
+            ofstream pullTex;
+            if(fWithPullTables){
+                gSystem->mkdir((fName+"/Tables").c_str()); // need to create directory, as it may not exist yet
+                pullTex.open((fName+"/Tables/Pulls_"+fSuffix+fRegions[i_ch]->fName+".tex").c_str());
+                pullTex << "\\documentclass[10pt]{article}" << endl;
+                pullTex << "\\usepackage{siunitx}" << endl;
+                pullTex << "\\usepackage{xcolor}" << endl;
+                pullTex << "\\usepackage[margin=0.1in,landscape,papersize={210mm,100mm}]{geometry}" << endl;
+                pullTex << "\\begin{document}" << endl;
+
+                pullTex << "\\begin{tabular}{|lr|}\n" << endl;
+                pullTex << "\\hline\\hline\n" << endl;
+                TString region(fRegions[i_ch]->fName);
+                pullTex << "\\multicolumn{2}{|c|}{" << fRegions[i_ch]->fTexLabel << "} \\\\\n"<< endl;
+            }
+
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
-            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,opt+" blind");
-            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,opt);
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,opt+" blind");
+            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,opt);
             for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
+
+            if(fWithPullTables){
+                pullTex << "\\hline\\hline\n" << endl;
+                pullTex << "\\end{tabular}"  << endl;
+                pullTex << "\\end{document}" << endl;
+                pullTex.close();
+            }
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
@@ -7863,6 +7914,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     }
 
     unsigned int SIZE = parname.size();
+    WriteDebugStatus("TtHFit::PlotNPRanking", "NP ordering...");
     number.push_back(0.5);
     for (unsigned int i=1;i<SIZE;i++){
         number.push_back(i+0.5);
@@ -8887,4 +8939,15 @@ const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::Te
     fun = ReplaceString(fun,"--","+");
     WriteDebugStatus("TtHFit::GetWeightFunction", "Morphing:   weight function = " + fun);
     return fun;
+}
+
+//____________________________________________________________________________________
+//
+const bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float value) const {
+    for (const std::pair<float, std::string> itemp : fTemplatePair){
+        if ((itemp.second == name) && (itemp.first == value)){
+            return true;
+        }
+    }    
+    return false;
 }

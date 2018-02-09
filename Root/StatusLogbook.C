@@ -70,3 +70,19 @@ void WriteDebugStatus(const std::string& classname, const std::string& info)
     if (TtHFitter::DEBUGLEVEL > 1) std::cout << outputstring.c_str() << std::endl;
 
 }
+
+void WriteVerboseStatus(const std::string& classname, const std::string& info)
+{
+
+    int fNWhitespace = fMaxStrLen - 42 - info.size() - classname.size();
+    
+    std::string Whitespace = "";
+    
+    for(int i = 0; i < fNWhitespace; ++i)
+        Whitespace += " ";
+    
+    std::string outputstring = "=== VERBOSE::"+classname+": "+info;
+    
+    if (TtHFitter::DEBUGLEVEL > 2) std::cout << outputstring.c_str() << std::endl;
+
+}

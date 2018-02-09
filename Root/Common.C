@@ -48,8 +48,8 @@ std::map<string,TFile*> TtHFitter::TFILEMAP;
 //
 TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight){
         TH1F* h = new TH1F("h","h",nbin,xmin,xmax);
-        WriteDebugStatus("Common::HistFromNtuple", "    Extracting histogram " + variable + " from  " + ntuple + "  ...");
-        WriteDebugStatus("Common::HistFromNtuple", "        with weight  (" + weight + ")*("+selection+")  ...");
+        WriteVerboseStatus("Common::HistFromNtuple", "    Extracting histogram " + variable + " from  " + ntuple + "  ...");
+        WriteVerboseStatus("Common::HistFromNtuple", "        with weight  (" + weight + ")*("+selection+")  ...");
         TChain *t = new TChain();
         t->Add(ntuple.c_str());
         h->Sumw2();
@@ -64,8 +64,8 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
 //
 TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight){
         TH1F* h = new TH1F("h","h",nbin,bins);
-        WriteDebugStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
-        WriteDebugStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
+        WriteVerboseStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
+        WriteVerboseStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
         TChain *t = new TChain();
         t->Add(ntuple.c_str());
         h->Sumw2();
@@ -101,7 +101,7 @@ TH1* HistFromFile(string fullName){
 TH1* HistFromFile(string fileName,string histoName){
         if(fileName=="") return 0x0;
         if(histoName=="") return 0x0;
-        WriteDebugStatus("Common::HistFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
+        WriteVerboseStatus("Common::HistFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
         TH1 *h = 0x0;
         TFile *f = GetFile(fileName);
         if(not f){

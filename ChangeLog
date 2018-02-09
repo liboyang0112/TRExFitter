@@ -1,3 +1,17 @@
+2018-02-09 Tomas Dado <tomas.dadod@cern.ch>
+    * Added new option to JOB settings "SuppressNegativeBinWarnings", if set
+	to true the code will not print out warning about (zero)negative bin
+	contents
+
+2018-02-08 Tomas Dado <tomas.dadod@cern.ch>
+    * Added support for morphing when two different variables that use morphing for templates are used
+
+2018-02-02 Alexander Held <alexander.held@cern.ch>
+    * Added new Samples option BuildPullTable to create tables showing post-fit acceptance effect of nuisance parameter pulls
+    * See README for details
+    * Original implementation by Jelena Jovicevic / Thomas Calvet
+    * Closes TTHFITTER-169
+
 2018-02-02 Michele Pinamonti <michele.pinamonti@gmail.com>
     * template fitting improved, with post-fit functionality working (still not for summary and tables, systematics to check)
     

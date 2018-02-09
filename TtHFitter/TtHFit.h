@@ -167,6 +167,7 @@ public:
     void AddTemplateWeight(const std::string& name, float);
     const std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
     const std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
+    const bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
     // -------------------------
       
@@ -218,6 +219,8 @@ public:
     string fHistoFile;
     
     FitResults *fFitResults;
+
+    bool fWithPullTables;
     
     int fIntCode_overall;
     int fIntCode_shape;
@@ -313,6 +316,8 @@ public:
     int fGetChi2;
 
     bool fTtresSmoothing;
+
+    bool fSuppressNegativeBinWarnings;
     
     std::vector<std::string> fCustomFunctions;
     

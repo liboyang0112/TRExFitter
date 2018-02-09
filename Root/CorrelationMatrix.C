@@ -70,7 +70,7 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
                 const string jSystName = fNuisParNames[jNP];
                 double corr = GetCorrelation(iSystName, jSystName);
                 if(abs(corr)>=minCorr){
-                    WriteDebugStatus("CorrelationMatrix::Draw", iSystName + " " + std::to_string(minCorr) + "    " + std::to_string(corr) + " (" + jSystName + ")");
+                    WriteVerboseStatus("CorrelationMatrix::Draw", iSystName + " " + std::to_string(minCorr) + "    " + std::to_string(corr) + " (" + jSystName + ")");
                     vec_NP.push_back(iSystName);
                     break;
                 }

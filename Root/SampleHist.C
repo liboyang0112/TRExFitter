@@ -461,7 +461,7 @@ void SampleHist::ReadFromFile(){
 
 //_____________________________________________________________________________
 //
-void SampleHist::FixEmptyBins(){
+void SampleHist::FixEmptyBins(const bool suppress){
     //
     // store yields (nominal and systs)
     float yield = fHist->Integral();
@@ -492,9 +492,11 @@ void SampleHist::FixEmptyBins(){
         float error   = fHist->GetBinError(  i_bin);
         if(content<=0){
             std::string temp = fHist->GetName();
-            WriteWarningStatus("SampleHist::FixEmptyBins", "Checking your nominal histogram " +temp + ", the bin " + std::to_string(i_bin) + 
+            if (!suppress){ 
+                WriteWarningStatus("SampleHist::FixEmptyBins", "Checking your nominal histogram " +temp + ", the bin " + std::to_string(i_bin) + 
                 " has a null/negative bin content (content = " + std::to_string(content) + ") ! You should have a look at this !");
-            WriteWarningStatus("SampleHist::FixEmptyBins", "    --> For now setting this bin to 1e-06  +/- 1e-06!!! "); 
+                WriteWarningStatus("SampleHist::FixEmptyBins", "    --> For now setting this bin to 1e-06  +/- 1e-06!!! "); 
+            }
             // set nominal to 10^-6
             fHist->SetBinContent(i_bin,1e-6);
             if(!TtHFitter::GUESSMCSTATERROR){
@@ -537,27 +539,27 @@ void SampleHist::FixEmptyBins(){
 //
 void SampleHist::Print(){
     std::string temp = fHist->GetName();
-    WriteInfoStatus("SampleHist::Print", "      Sample: " + fName + "\t" + temp);
+    WriteDebugStatus("SampleHist::Print", "      Sample: " + fName + "\t" + temp);
     if(fNSyst>0){
         temp = "        Systematics:   ";
         for(int i_syst=0;i_syst<fNSyst;i_syst++){
             temp+= " " + fSyst[i_syst]->fName;
         }
-        WriteInfoStatus("SampleHist::Print", temp);
+        WriteDebugStatus("SampleHist::Print", temp);
     }
     if(fNNorm>0){
         temp = "        NormFactor(s): ";
         for(int i_norm=0;i_norm<fNNorm;i_norm++){
             temp+= " " + fNormFactors[i_norm]->fName;
         }
-        WriteInfoStatus("SampleHist::Print", temp);
+        WriteDebugStatus("SampleHist::Print", temp);
     }
     if(fNShape>0){
         temp = "        ShapeFactor(s): ";
         for(int i_shape=0;i_shape<fNShape;i_shape++){
             temp+= " " + fShapeFactors[i_shape]->fName;
         }
-        WriteInfoStatus("SampleHist::Print", temp);
+        WriteDebugStatus("SampleHist::Print", temp);
     }
 }
 

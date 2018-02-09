@@ -38,7 +38,7 @@ public:
   void WriteToFile(TFile *f=0x0);
   void ReadFromFile();
   
-  void FixEmptyBins();
+  void FixEmptyBins(const bool suppress);
   
   void Print();
   
