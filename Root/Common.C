@@ -101,16 +101,19 @@ TH1* HistFromFile(string fullName){
 TH1* HistFromFile(string fileName,string histoName){
         if(fileName=="") return 0x0;
         if(histoName=="") return 0x0;
+        bool hasCustomAsimov = false;
+        if (fileName.find("customAsimov") != std::string::npos) hasCustomAsimov = true;
         WriteVerboseStatus("Common::HistFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
         TH1 *h = 0x0;
         TFile *f = GetFile(fileName);
-        if(not f){
+        if(f == 0x0){
                 WriteErrorStatus("Common::HistFromFile", "cannot find input file '" + fileName + "'");
                 return h;
         }
         h = static_cast<TH1*>(f->Get(histoName.c_str()));
-        if(not h){
-                WriteErrorStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "'");
+        if(h == 0x0){
+                if (!hasCustomAsimov) WriteErrorStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "'");
+                else WriteDebugStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "', but its customAsimov histogram so this should not be a problem");
                 return h;
         }
         h = static_cast<TH1*>(h->Clone());

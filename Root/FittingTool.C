@@ -447,9 +447,8 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     WriteInfoStatus("FittingTool::FitPDF", "            - minuit status " + std::to_string(status));
     WriteInfoStatus("FittingTool::FitPDF", "            - hess status " + std::to_string(m_hessStatus));
     WriteInfoStatus("FittingTool::FitPDF", "            - Edm = " + std::to_string(m_edm));
-    WriteInfoStatus("FittingTool::FitPDF", "            - Edm = " + std::to_string(m_edm));
-    sw.Print();
     WriteInfoStatus("FittingTool::FitPDF", "***********************************************************");
+    sw.Print();
     WriteInfoStatus("FittingTool::FitPDF", "");
     WriteInfoStatus("FittingTool::FitPDF", "");
     WriteInfoStatus("FittingTool::FitPDF", "");

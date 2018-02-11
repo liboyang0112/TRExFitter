@@ -4,6 +4,9 @@
 	contents, closes TTHFITTER-62
 	* Added new printout option, Verbose. Activated when DebugLevel > 2.
 	Applied to correlation matrices. Solves TTHFITTER-170
+	* Added few protections for printout. Warnings for missing histograms will
+	not be printed for histograms containing "customAsimov". Missing NPs in
+	correlation will print warning only if they do not contain "morph".
 
 2018-02-08 Tomas Dado <tomas.dadod@cern.ch>
     * Added support for morphing when two different variables that use morphing for templates are used
