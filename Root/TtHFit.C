@@ -4084,22 +4084,22 @@ void TtHFit::ReadHistos(/*string fileName*/){
                         if(binContent==1 || binContent==-2) pruned = 1;
                         if(binContent==2 || binContent==-3) pruned = 2;
                     }
-                        syh = sh->AddHistoSyst(systName,
-                                               Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                               Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                               pruned
-                                              );
-                        if(syh==0x0){
-                            if (!pruned) WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
-                            continue;
-                        }
+                    syh = sh->AddHistoSyst(systName,
+                                           Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                           pruned
+                                          );
+                    if(syh==0x0){
+                        if (!pruned) WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
+                        continue;
                     }
+                }
                 // for both
-                    syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
-                    syh->fFileNameShapeUp    = fileName;
-                    syh->fFileNameShapeDown  = fileName;
+                syh->fFileNameShapeUp    = fileName;
+                syh->fFileNameShapeDown  = fileName;
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName]!=0){
@@ -8408,7 +8408,7 @@ void TtHFit::ComputeBining(int regIter){
                               }
                         }
                         if(usedInSig){
-                            WriteDebugStatus("TtHFit::ComputeBinning", "Using " + fSamples[i_smp]->fName + " as signal");
+                            WriteDebugStatus("TtHFit::ComputeBining", "Using " + fSamples[i_smp]->fName + " as signal");
                             if(nDefSig){
                                 hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                                 nDefSig=false;
