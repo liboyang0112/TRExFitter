@@ -235,8 +235,8 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     }
     
     double nllval = nll->getVal();
-//     double nLLatMLE = 0.;//m_fitResult->minNll();
-//     double nlloffset = nll->getVal() - nLLatMLE;
+    double nLLatMLE = 0.;//m_fitResult->minNll();
+    double nlloffset = nll->getVal() - nLLatMLE;
     
     WriteDebugStatus("FittingTool::FitPDF","   -> Initial value of the NLL = " +std::to_string(nllval));
     if(m_debug){
@@ -463,11 +463,11 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 //     if(constrainedParams) delete constrainedParams;
     
     nllval = 0;
-//     nLLatMLE = 0;
-//     nlloffset = 0;
+    nLLatMLE = 0;
+    nlloffset = 0;
     if(nll) nllval = nll->getVal();
-//     if(m_fitResult) nLLatMLE = m_fitResult->minNll();
-//     if(nll) nlloffset = nll->getVal() - nLLatMLE;
+    if(m_fitResult) nLLatMLE = m_fitResult->minNll();
+    if(nll) nlloffset = nll->getVal() - nLLatMLE;
     
 //     RooArgList poiList; 
 //     poiList.addClone(fNullParams); // make a clone list 
@@ -480,10 +480,16 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 //         RemoveConstantParameters(poiList);
 //         int ndof = poiList.getSize();
         int ndof = 1;
+        double redNLL = nllval - 1000000.0;
+        std::stringstream redNLL_ss;
+        redNLL_ss << std::fixed << std::setprecision(20) << redNLL;
+        
+        std::cout << std::fixed << std::setprecision(20);
+
+        WriteInfoStatus("FittingTool::FitPDF", "   -> Reduced Final value of the NLL = " + redNLL_ss.str());
         WriteInfoStatus("FittingTool::FitPDF", "   -> Final value of the NLL = " + std::to_string(nllval));
-//         std::cout << "   -> Final value of offset  = " << nlloffset << std::endl;
-//         std::cout << "   -> Final NLL - offset     = " << nllval-nlloffset << std::endl;
-//         std::cout << "   -> Goodness of fit (NLL/ndof) = " << nllval/ndof << std::endl;
+        WriteInfoStatus("FittingTool::FitPDF", "   -> Final value of offset = " + std::to_string(nlloffset));
+        WriteInfoStatus("FittingTool::FitPDF", "   -> Final NLL - offset = " + std::to_string(nllval-nlloffset));
     }
     if(nll) delete nll;
 //     delete poi;  // creates a crash
