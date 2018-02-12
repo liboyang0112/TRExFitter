@@ -6154,7 +6154,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
 //__________________________________________________________________________________
 // called before w in case of CustomAsimov
 void TtHFit::CreateCustomAsimov(){
-    WriteInfoStatus("TtHFit::CreateCustomAsimov", "Running CreateCustomAsimov");
+    WriteDebugStatus("TtHFit::CreateCustomAsimov", "Running CreateCustomAsimov");
     // get a list of all CustomAsimov to create
     std::vector<std::string> customAsimovList;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
