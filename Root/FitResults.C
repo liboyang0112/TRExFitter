@@ -162,14 +162,14 @@ void FitResults::ReadFromTXT(string fileName){
             for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
                 temp_string+= "\t " + fNuisParNames[j_sys];
             }
-            WriteVerboseStatus("FitResults::ReadFromTXT",temp_string);    
+            WriteVerboseStatus("FitResults::ReadFromTXT",temp_string);
             temp_string = "";
             for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
                 temp_string +=  fNuisParNames[i_sys];
                 for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
                     temp_string += Form("\t%.4f",matrix->GetCorrelation(fNuisParNames[i_sys],fNuisParNames[j_sys]));
                 }
-                WriteVerboseStatus("FitResults::ReadFromTXT",temp_string);    
+                WriteVerboseStatus("FitResults::ReadFromTXT",temp_string);
             }
         }
     }

@@ -552,7 +552,7 @@ TH1F* MergeHistograms(vector<TH1*> hVec){
             k_bin ++;
         }
     }
-    // create the new histogram  
+    // create the new histogram
     TH1F *hOut = new TH1F("h_merge","h_merge",Nbins,bins);
     hOut->SetTitle(hVec[0]->GetTitle());
     hOut->SetLineColor(hVec[0]->GetLineColor());

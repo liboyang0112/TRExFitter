@@ -15,7 +15,7 @@ public:
   SampleHist(Sample *sample,TH1 *hist);
   SampleHist(Sample *sample, string histoName, string fileName);
   ~SampleHist();
-  
+
   TH1* GetHist();
   Sample* GetSample();
   SystematicHist* AddOverallSyst(string name,float up,float down);
@@ -34,25 +34,25 @@ public:
   bool HasSyst(string name);
   bool HasNorm(string name);
   bool HasShapeFactor(string name);
-  
+
   void WriteToFile(TFile *f=0x0);
   void ReadFromFile();
-  
+
   void FixEmptyBins(const bool suppress);
-  
+
   void Print();
-  
+
   void Rebin(int ngroup = 2, const Double_t* xbins = 0);
   void DrawSystPlot( const string &syst="all", TH1* h_data=0x0, bool SumAndData=false, bool bothPanels=false );
   void SmoothSyst(string syst="all",bool force=false, bool TtresSmoothing = false);
-  
+
   void Divide(  SampleHist* sh);
   void Multiply(SampleHist* sh);
   void Add(     SampleHist* sh,float scale=1.);
-  
+
   void SampleHistAdd(SampleHist* h);
   void CloneSampleHist(SampleHist* h, std::set<std::string> names);
-  
+
 //   void SmoothNominal(); // new
 //   void Rebin(); // new
 
@@ -66,14 +66,14 @@ public:
   string fHistoName;
   bool fIsData;
   bool fIsSig;
-    
+
   int fNSyst;
   std::vector < SystematicHist* > fSyst;
   int fNNorm;
   std::vector < NormFactor* > fNormFactors;
   int fNShape;
   std::vector < ShapeFactor* > fShapeFactors;
-  
+
   // other useful info
   string fFitName;
   string fRegionName;

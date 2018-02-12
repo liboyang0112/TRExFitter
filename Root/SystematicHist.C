@@ -15,7 +15,7 @@ SystematicHist::SystematicHist(string name){
     fIsShape = false;
     fSmoothType = 0;
     fSymmetrisationType = 0;
-    
+
     fShapePruned = false;
     fNormPruned  = false;
     fBadShape    = false;
@@ -40,7 +40,7 @@ SystematicHist::SystematicHist(string name){
     fFileNameShapeDown = "";
     fHistoNameShapeDown = "";
     fHistDown_postFit = 0x0;
-    
+
     fScaleUp   = 1.;
     fScaleDown = 1.;
 }

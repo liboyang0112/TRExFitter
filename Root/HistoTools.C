@@ -417,9 +417,9 @@ void HistoTools::Smooth_Ttres(TH1* hsyst, TH1* hnom, bool independentVar){
         return dM(b)/N;
     };
 
-  
+
     for (int i = 0; i < hist.size(); ++i) {
-        WriteDebugStatus("HistoTools::Smooth_Ttres", "Smooth_Ttres: pre-smooth bin " + std::to_string(i+1) + ", edge = " + std::to_string(hist[i].edge) + ", dM/N = " + std::to_string(dMoverN(hist[i])) + ", N = " + std::to_string(hist[i].N) + ", S = " + std::to_string(hist[i].S) + ", dN = " + std::to_string(std::sqrt(hist[i].dN2)) + ", dS = " + std::to_string(std::sqrt(hist[i].dS2)));  
+        WriteDebugStatus("HistoTools::Smooth_Ttres", "Smooth_Ttres: pre-smooth bin " + std::to_string(i+1) + ", edge = " + std::to_string(hist[i].edge) + ", dM/N = " + std::to_string(dMoverN(hist[i])) + ", N = " + std::to_string(hist[i].N) + ", S = " + std::to_string(hist[i].S) + ", dN = " + std::to_string(std::sqrt(hist[i].dN2)) + ", dS = " + std::to_string(std::sqrt(hist[i].dS2)));
     }
 
     // BEGIN STEP 1 -- DANILO
@@ -524,7 +524,7 @@ void HistoTools::Smooth_Ttres(TH1* hsyst, TH1* hnom, bool independentVar){
         }
     }
     if (mergedLarge100) continue;
-        
+
         // at least a pair of bins have a difference of relative differences to the nominal larger than the stat error
         // find the pair of bins with largest error/relative difference
         std::vector<double> relDiff(hist.size()-1);
@@ -912,7 +912,7 @@ int HistoTools::get_nVar(TH1* hratio){
         prevBin = thisBin;
         thisBin = hratio->GetBinContent(bin);
 
-        
+
         WriteDebugStatus("HistoTools::get_nVar", "Prev/this: " + std::to_string(prevBin) + " " + std::to_string(thisBin));
 
         if(fabs(thisBin-prevBin)<1e-7) continue;//skip bins with same content

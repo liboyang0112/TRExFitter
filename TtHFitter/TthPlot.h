@@ -12,7 +12,7 @@ class TthPlot {
   public:
     TthPlot(string name="c",int canvasWidth=600,int canvasHeight=700);
     ~TthPlot(){};
-    
+
     void SetChannel(string name);
     void AddLabel(string name);
     void SetLumi(string name);
@@ -23,7 +23,7 @@ class TthPlot {
     void SetYmaxScale(float scale);
     void SetBinLabel(int bin,string name);
     void SetBinWidth(float width);
-    
+
     void SetData(TH1* h,string name="Data");
     void AddSignal(TH1* h,string name="Signal");
     void AddNormSignal(TH1* h,string name="Signal");
@@ -34,16 +34,16 @@ class TthPlot {
 
     void SetChi2KS(float chi2prob,float ksprob=-1,float chi2val=-1,int ndf=-1);
     void BlindData();
-    
+
     void Draw(string options="");
     void SaveAs(string name);
     void WriteToFile(string name);
-    
+
     TCanvas* GetCanvas();
-    
+
     void SetBinBlinding(bool on,float threshold=0.02);
     void SetBinBlinding(bool on,TH1F*h_blind);
-  
+
 //   private:
     string fName;
     TH1* h_data;
@@ -64,7 +64,7 @@ class TthPlot {
     TLegend* leg1;
     TPad* pad0;
     TPad* pad1;
-    
+
     string xtitle;
     string ytitle;
     string data_name;
@@ -81,7 +81,7 @@ class TthPlot {
     float Chi2val;
     float Chi2prob;
     float KSprob;
-    
+
     float fYmax;
     float fYmin;
     float fRatioYmax;
@@ -97,7 +97,7 @@ class TthPlot {
 public:
   const TH1* GetTotal() const { return h_tot; };
   TH1* GetTotBkg() const;
-  
+
 };
 
 // function to get asymmetric error bars for hists

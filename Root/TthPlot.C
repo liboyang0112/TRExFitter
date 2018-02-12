@@ -79,14 +79,14 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     fLumiScale = 1.;
     fBlindingThreshold = -1; // if <0, no blinding
     fLegendNColumns = 0;
-    
+
     fYmin = 0;
     fYmax = 0;
     fRatioYmin = 0.;
     fRatioYmax = 2.;
-    
+
     h_blinding = 0x0;
-    
+
     h_tot_bkg_prefit = 0x0;
 }
 
@@ -410,7 +410,7 @@ void TthPlot::Draw(string options){
       h_tot_bkg_prefit->SetLineWidth(2);
       h_tot_bkg_prefit->Draw("HIST same");
     }
-    
+
     //
     // Total error bands style setting
     //
@@ -565,7 +565,7 @@ void TthPlot::Draw(string options){
           leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
           leg1->AddEntry((TObject*)0," ","");
         }
-        
+
         leg->Draw();
         leg1->Draw();
     }
@@ -603,9 +603,9 @@ void TthPlot::Draw(string options){
             for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm.)").c_str(),"l");
             for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
-        
+
         if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-        
+
         leg->Draw();
     }
     else if(fLegendNColumns==3){ //TtHFitter::OPTION["LegendNColumns"]==3){
@@ -646,7 +646,7 @@ void TthPlot::Draw(string options){
         }
 
         if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-        
+
         leg->Draw();
     }
     else if(fLegendNColumns==4){
@@ -683,7 +683,7 @@ void TthPlot::Draw(string options){
         }
 
         if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-        
+
         leg->Draw();
     }
     else{
@@ -721,7 +721,7 @@ void TthPlot::Draw(string options){
         }
 
         if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-        
+
         leg->Draw();
 
         if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
@@ -985,7 +985,7 @@ void TthPlot::Draw(string options){
             h_dummy->GetYaxis()->SetTitle(ytitle.c_str());
         }
     }
-    
+
     // turn off x-error bars
     if(TtHFitter::REMOVEXERRORS){
         for (UInt_t i=0; i< (UInt_t)g_data->GetN(); i++) {
@@ -1023,7 +1023,7 @@ void TthPlot::Draw(string options){
         if(fYmin>0)  h_dummy->SetMinimum(fYmin);
         else         h_dummy->SetMinimum(1.);
     }
-    
+
     if(h_blind!=0x0){
         h_blind->Scale(h_dummy->GetMaximum());
     }
@@ -1036,7 +1036,7 @@ void TthPlot::Draw(string options){
     else if(pad0->GetWw()<596. && h_dummy->GetMaximum()>1000){
         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
     }
-    
+
 //     if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
 //         myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
 }

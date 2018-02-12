@@ -37,19 +37,19 @@ public:
         VALIDATION = 2,
         SIGNAL = 3
     };
-    
+
     enum DataType {
         REALDATA = 0,
         ASIMOVDATA = 1
     };
-    
+
     Region(string name);
     ~Region();
 
     // -------
     // Methods
     // -------
-    
+
     SampleHist* SetSampleHist(Sample *sample, string histoName, string fileName);
     SampleHist* SetSampleHist(Sample *sample, TH1* hist );
     SampleHist* GetSampleHist(string &sampleName);
@@ -58,13 +58,13 @@ public:
     TthPlot* DrawPreFit(string opt="");
     void BuildPostFitErrorHist(FitResults *fitRes);
     TthPlot* DrawPostFit(FitResults *fitRes,ofstream & pullTex,string opt="");
-    
+
     void SetBinning(int N, double *bins);
     void Rebin(int N);
     void SetRegionType(RegionType type);
     void SetRegionDataType( DataType type );
     void AddSample(Sample *sample);
-    
+
     void AddSelection(string selection);
     void AddMCweight(string weight);
     void SetVariable(string variable,int nbin,float xmin,float xmax,string corrVar1="",string corrVar2="");
@@ -77,16 +77,16 @@ public:
     // cosmetics
     void SetVariableTitle(string name);
     void SetLabel(string label,string shortLabel="");
-    
+
     // log
     void Print();
-    
+
     void PrintSystTable(FitResults* fitRes,string opt="");
-    
+
     // -------
     // Members
     // -------
-    
+
     string fName;
     string fVariableTitle;
     string fYTitle;
@@ -113,7 +113,7 @@ public:
     float fRatioYmax;
     float fRatioYminPostFit;
     float fRatioYmaxPostFit;
-    
+
     // to draw
     THStack *fStack;
     TH1* fTot;
@@ -163,60 +163,60 @@ public:
     std::vector<string> fHistoFileSuffs;
     std::vector<string> fHistoNames;
     std::vector<string> fHistoNameSuffs;
-    
+
     int fNSyst;
     std::vector < Systematic* > fSystematics;
     int fNNorm;
     std::vector < NormFactor* >  fNormFactors;
     int fNShape;
     std::vector < ShapeFactor* > fShapeFactors;
-    
+
     // plot objects
     TthPlot *fPlotPreFit;
     TthPlot *fPlotPostFit;
-    
+
     bool fUseStatErr;
-    
+
     int fIntCode_overall;
     int fIntCode_shape;
-    
+
     std::vector< string > fSystNames;
     std::vector< string > fNpNames;
-    
+
     TtHFit::FitType fFitType;
     string fPOI;
     string fFitLabel;
-    
+
     string fLumiLabel;
     string fCmeLabel;
-    
+
     float fLumiScale;
-    
+
     bool fLogScale;
-    
+
     float fBinWidth;
-    
+
     float fBlindingThreshold;
-    
+
     bool fSkipSmoothing;
-    
+
     string fATLASlabel;
     string fSuffix;
-    
+
     string fGroup; // used to split yield tables
-    
+
     TH1F* fBlindedBins;
     bool fKeepPrefitBlindedBins;
     int fGetChi2;
-    
+
     std::vector<int> fDropBins;
 
     std::vector<std::string> fBinLabels;
-    
+
     float fChi2val;
     int fNDF;
     float fChi2prob;
-    
+
     bool fUseGammaPulls;
 };
 

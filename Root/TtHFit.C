@@ -106,7 +106,7 @@ TtHFit::TtHFit(string name){
     fYmax = 0;
 
     fFitResultsFile = "";
-    
+
     fDoSummaryPlot = true;
     fDoMergedPlot = false;
     fDoTables = true;
@@ -162,22 +162,22 @@ TtHFit::TtHFit(string name){
 
     // Increase the limit for formula evaluations
     ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
-    
+
     fKeepPrefitBlindedBins = false;
     fBlindedBins = 0x0;
-    
+
     fRatioYmax = 1.5;
     fRatioYmin = 0.5;
     fRatioYmaxPostFit = 1.5;
     fRatioYminPostFit = 0.5;
-    
+
     fCustomAsimov = "";
     fRandomPOISeed = -1;
     fTableOptions = "STANDALONE";
-    
+
     fGetGoodnessOfFit = false;
     fGetChi2 = 0; // 0: no, 1: stat-only, 2: with syst
-    
+
     fCustomFunctions.clear();
     fSuppressNegativeBinWarnings = false;
 
@@ -802,9 +802,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("SummaryPlotYmin");  if(param != "") fYmin = atof(param.c_str());
     param = cs->Get("SummaryPlotYmax");  if(param != "") fYmax = atof(param.c_str());
     param = cs->Get("RatioYmin");  if(param != "") { fRatioYmin = atof(param.c_str()); fRatioYminPostFit = fRatioYmin; }
-    param = cs->Get("RatioYmax");  if(param != "") { fRatioYmax = atof(param.c_str()); fRatioYmaxPostFit = fRatioYmax; }  
+    param = cs->Get("RatioYmax");  if(param != "") { fRatioYmax = atof(param.c_str()); fRatioYmaxPostFit = fRatioYmax; }
     param = cs->Get("RatioYminPostFit");  if(param != "") fRatioYminPostFit = atof(param.c_str());
-    param = cs->Get("RatioYmaxPostFit");  if(param != "") fRatioYmaxPostFit = atof(param.c_str());    
+    param = cs->Get("RatioYmaxPostFit");  if(param != "") fRatioYmaxPostFit = atof(param.c_str());
     param = cs->Get("HistoChecks");  if(param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "NOCRASH" ){
@@ -939,7 +939,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("CustomFunctions"); if( param != "" ) {
         fCustomFunctions = Vectorize(param,',');
     }
-    
+
     //
     // General options
     //
@@ -2380,7 +2380,7 @@ void TtHFit::ReadNtuples(){
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
-            
+
             // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
             // so we need to get its systematics first
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
@@ -2811,14 +2811,14 @@ void TtHFit::ReadNtuples(){
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            
+
                             // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
                             TH1* href_up_Tmp = (TH1*)href_up->Clone(Form("%s_Tmp", href_up->GetName()));
                             href_up_Tmp->Divide(href);
                             href_up_Tmp->Multiply(hnom);
                             htmp->Add(hnom);
                             htmp->Add(href_up_Tmp,-1);
-                            
+
                             delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
@@ -2924,14 +2924,14 @@ void TtHFit::ReadNtuples(){
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            
+
                             // Formula: UpHisto = [1+(down-nom)/nom-(DataDown-Data)/Data]*nom = down+nom+DataDown/Data*nom
                             TH1* href_down_Tmp = (TH1*) href_down->Clone(Form("%s_Tmp", href_down->GetName()));
                             href_down_Tmp->Divide(href);
                             href_down_Tmp->Multiply(hnom);
                             htmp->Add(hnom);
                             htmp->Add(href_down_Tmp,-1);
-                            
+
                             delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
@@ -3061,7 +3061,7 @@ void TtHFit::CorrectHistograms(){
                     syh->fSystematic = syst;
                 }
             }
-            
+
             //
             // Fix empty bins
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
@@ -3153,7 +3153,7 @@ void TtHFit::CorrectHistograms(){
     //
     // Smooth systematics
     SmoothSystematics("all");
-    
+
 //     // NEW: scale systematics according to ScaleUp and ScaleDown
 //     for(int i_ch=0;i_ch<fNRegions;i_ch++){
 //         Region *reg = fRegions[i_ch];
@@ -3199,10 +3199,10 @@ void TtHFit::CorrectHistograms(){
 //                     syh->fHistDown = h_tmp;
 //                     syh->fNormDown *= syh->fScaleDown;
 //                 }
-//             }            
+//             }
 //         }
 //     }
-    
+
     // drop normalisation part of systematic according to fDropNormIn
     for(auto reg : fRegions){
         for(auto sh : reg->fSampleHists){
@@ -3223,7 +3223,7 @@ void TtHFit::CorrectHistograms(){
             }
         }
     }
-    
+
     //
     // NEW: artifificially set all systematics not to affect overall normalisation for sample or set of samples
     // (the form should be KeepNormForSamples: ttlight+ttc+ttb,wjets
@@ -3263,7 +3263,7 @@ void TtHFit::CorrectHistograms(){
             }
         }
     }
-    
+
     //
     // For data: restore original data sample (needed if bins were dropped previously)
     //Checks if a data sample exists
@@ -3282,8 +3282,8 @@ void TtHFit::CorrectHistograms(){
             }
         }
     }
-    
-    // 
+
+    //
     // Poissonize data
     if(hasData && TtHFitter::OPTION["PoissonizeData"]!=0){
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -3300,7 +3300,7 @@ void TtHFit::CorrectHistograms(){
             }
         }
     }
-    
+
     //
     // Drop bins
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -3341,7 +3341,7 @@ void TtHFit::ReadHistograms(){
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
     SampleHist *sh;
- 
+
     //
     // Loop on regions and samples
     //
@@ -3408,8 +3408,8 @@ void TtHFit::ReadHistograms(){
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
-            
-            
+
+
             // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
                 Systematic *syst = fSamples[i_smp]->fSystematics[i_syst];
@@ -3750,14 +3750,14 @@ void TtHFit::ReadHistograms(){
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            
+
                             // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
                             TH1* href_up_Tmp = (TH1*) href_up->Clone(Form("%s_Tmp", href_up->GetName()));
                             href_up_Tmp->Divide(href);
                             href_up_Tmp->Multiply(hnom);
                             htmp->Add(hnom);
                             htmp->Add(href_up_Tmp,-1);
-                            
+
                             delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
@@ -3840,14 +3840,14 @@ void TtHFit::ReadHistograms(){
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            
+
                             // Formula: UpHisto = [1+(down-nom)/nom-(DataDown-Data)/Data]*nom = down+nom+DataDown/Data*nom
                             TH1* href_down_Tmp = (TH1*) href_down->Clone(Form("%s_Tmp", href_down->GetName()));
                             href_down_Tmp->Divide(href);
                             href_down_Tmp->Multiply(hnom);
                             htmp->Add(hnom);
                             htmp->Add(href_down_Tmp,-1);
-                            
+
                             delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
@@ -4332,7 +4332,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
                     else           h = (TH1F*)sh->fHist->Clone(); // Michele
                     //
                     if(!isPostFit){
-                        // FIXME SF 
+                        // FIXME SF
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
@@ -4368,7 +4368,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
                     else           h = (TH1F*)sh->fHist->Clone(); // Michele
                     //
                     if(!isPostFit){
-                        // FIXME SF 
+                        // FIXME SF
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
@@ -4491,7 +4491,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
     if( TtHFitter::PREFITONPOSTFIT and isPostFit) {
       p->h_tot_bkg_prefit = (TH1*)prefit_plot->GetTotBkg()->Clone("h_tot_bkg_prefit");
     }
-    
+
     //
     // Build tot
     //
@@ -4926,7 +4926,7 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
 //     p->SetXaxis();
     p->SetLumi(fLumiLabel);
     p->fATLASlabel = fAtlasLabel;
-    
+
     p->fYmax = 1.25*ymax0;
     p->Draw(opt);
     //
@@ -4939,7 +4939,7 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
         TLine *l_tmp = new TLine(edge,0,edge,2);
         l_tmp->SetLineStyle(kDashed);
         l_tmp->Draw("same");
-        l.push_back(l_tmp);        
+        l.push_back(l_tmp);
     }
     //
     // (dahsed) line in main pad
@@ -5022,8 +5022,8 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
     float textHeight = 0.05*(672./p->pad0->GetWh());
     if(isPostFit) tex->DrawLatex(0.33,0.88-textHeight,"Post-fit");
     else          tex->DrawLatex(0.33,0.88-textHeight,"Pre-fit");
-    
-    // 
+
+    //
     // save image
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
         if(isPostFit) p->SaveAs((fName+"/Plots/Merge_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
@@ -5092,12 +5092,12 @@ void TtHFit::BuildYieldTable(string opt,string group){
         texout << "\\begin{document}" << endl;
     }
     if(fTableOptions.find("LANDSCAPE")!=string::npos){
-        texout << "\\begin{landscape}" << endl;        
+        texout << "\\begin{landscape}" << endl;
     }
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
     if(fTableOptions.find("FOOTNOTESIZE")!=string::npos){
-        texout << "\\footnotesize" << endl;        
+        texout << "\\footnotesize" << endl;
     }
     texout << "\\begin{tabular}{|c" ;
     for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
@@ -5720,7 +5720,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     texout << "\\end{center} " << endl;
     texout << "\\end{table} " << endl;
     if(fTableOptions.find("LANDSCAPE")!=string::npos){
-        texout << "\\end{landscape}" << endl;        
+        texout << "\\end{landscape}" << endl;
     }
     if(fTableOptions.find("STANDALONE")!=string::npos){
         texout << "\\end{document}" << endl;
@@ -6200,12 +6200,12 @@ void TtHFit::CreateCustomAsimov(){
 //__________________________________________________________________________________
 // turn to RooStat::HistFactory
 void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
-    
+
     WriteInfoStatus("TtHFit::ToRooStat", "-------------------------------------------");
     WriteInfoStatus("TtHFit::ToRooStat", "Exporting to RooStats...");
 
     if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-    
+
     //Suffix used for the regular bin transformed histogram
     const std::string suffix_regularBinning = "_regBin";
 
@@ -6371,7 +6371,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     meas.PrintTree();
 
     if(makeWorkspace) RooStats::HistFactory::MakeModelAndMeasurementFast(meas);
-    
+
     if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 }
 
@@ -6696,7 +6696,7 @@ void TtHFit::Fit(){
         if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 
         ws = PerformWorkspaceCombination( regionsToFit );
-        
+
         //
         // If needed (only if needed), create a RooDataset object
         //
@@ -6711,7 +6711,7 @@ void TtHFit::Fit(){
         // Calls the PerformFit() function to actually do the fit
         //
         if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
-        
+
         PerformFit( ws, data, fFitType, true);
     }
 
@@ -7004,7 +7004,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     // Get initial ikelihood value from Asimov
     float nll0 = 0.;
     if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
-    
+
     //
     // Get number of degrees of freedom
     // - number of bins
@@ -7017,7 +7017,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         nNF++;
     }
     ndof -= nNF;
-    
+
 //     RooArgSet* nuis = (RooArgSet*) mc->GetPdf()->getParameters(*data);
 // //     RooArgSet* syst = (RooArgSet*) mc->GetPdf()->getAllConstraints(mc->GetObservables(),*nuis);
 // //     RooArgSet* syst = (RooArgSet*) mc->GetConstraintParameters();
@@ -7029,7 +7029,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
 //     cerr << syst << endl;
 //     ndof -= (nuis->getSize()-syst->getSize());
 //     cerr << ndof << endl;
-    
+
     // Performs the fit
     fitTool -> MinimType("Minuit2");
     if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
@@ -7058,7 +7058,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         WriteInfoStatus("TtHFit::PerformFit", "----------------------- -------------------------- -----------------------");
         WriteInfoStatus("TtHFit::PerformFit", "----------------------- -------------------------- -----------------------");
     }
-    
+
     return result;
 }
 
@@ -7394,7 +7394,7 @@ void TtHFit::ReadFitResults(string fileName){
                 fFitResults->fNuisPar[i]->fCategory = fNormFactors[j]->fCategory;
             }
         }
-    // FIXME SF probably there are several NPs associated to it 
+    // FIXME SF probably there are several NPs associated to it
         for(unsigned int j=0;j<fShapeFactors.size();j++){
             if(fShapeFactors[j]->fName == fFitResults->fNuisPar[i]->fName){
                 fFitResults->fNuisPar[i]->fTitle = fShapeFactors[j]->fTitle;
@@ -7561,7 +7561,7 @@ void TtHFit::DrawAndSaveSeparationPlots(){
 
 //         ATLASLabelNew(0.20, 0.90,(char*)" Internal Simulation",kBlack, 0.03);
         if(fAtlasLabel!="none") ATLASLabelNew(0.20,0.84+0.04,(char*)(fAtlasLabel+"  Simulation").c_str(), kBlack, gStyle->GetTextSize());
-        
+
 //         TLatex ls4;
 //         ls4.SetNDC();
 //         ls4.SetTextSize(0.03);
@@ -7999,7 +7999,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 
     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
 //         if(isNF[i]) g->SetPoint(idx, nuhat[i]-1,idx+0.5);
-//         else        
+//         else
         g->SetPoint(idx, nuhat[i],  idx+0.5);
         g->SetPointEXhigh(      idx, nuerrhi[i]);
         g->SetPointEXlow(       idx, nuerrlo[i]);
@@ -8053,7 +8053,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 //             parTitle="#gamma ("+tmpTitle+")";
         }
         else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
-        
+
 //         if(parTitle==""){
 //             for(auto syst : fSystematics){
 //                 if(syst->fNuisanceParameter == parname[i]) parTitle = TtHFitter::SYSTMAP[ syst->fName ];
@@ -8238,7 +8238,7 @@ void TtHFit::MergeSystematics(){
             for(auto syst1 : fSystematics){
                 if(syst->fName==syst1->fName) continue;
                 if(!(syst->fNuisanceParameter==syst1->fName && syst1->fNuisanceParameter==syst1->fName)) continue;
-                // now merge all SystematicHist in all regions                
+                // now merge all SystematicHist in all regions
                 WriteDebugStatus("TtHFit::MergeSsystematics", "Found NP(syst) " + syst->fNuisanceParameter + "(" + syst->fName + ") = to syst name " + syst1->fName );
                 for(auto reg : fRegions){
                     WriteDebugStatus("TtHFit::MergeSsystematics", "Region: " + reg->fName);
@@ -8323,7 +8323,7 @@ void TtHFit::ComputeBining(int regIter){
     //
     WriteDebugStatus("TtHFit::ComputeBining", "Will compute binning with the following options:");
 
-    std::string tmp_string = std::to_string(fRegions[regIter]->fTransfoFzSig); 
+    std::string tmp_string = std::to_string(fRegions[regIter]->fTransfoFzSig);
     if((fRegions[regIter]->fTransfoDzSig>1e-3 || fRegions[regIter]->fTransfoDzBkg>1e-3) )
         WriteDebugStatus("TtHFit::ComputeBining", " TransfoD - zSig=" + tmp_string + " - zBkg=" + std::to_string(fRegions[regIter]->fTransfoDzBkg));
     if((fRegions[regIter]->fTransfoFzSig>1e-3 || fRegions[regIter]->fTransfoFzBkg>1e-3) )
@@ -8334,7 +8334,7 @@ void TtHFit::ComputeBining(int regIter){
 
     if(bkgReg) WriteDebugStatus("TtHFit::ComputeBining", " - bkg reg");
     else WriteDebugStatus("TtHFit::ComputeBining", " - sig reg");
-    
+
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         //
         // using NTuples
@@ -8907,7 +8907,7 @@ const std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtH
 const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt, float min, float max) const{
     std::string fun = "";
     float x_i;
-    float deltaXp = -1; // |x(i+1)-x(i)| 
+    float deltaXp = -1; // |x(i+1)-x(i)|
     float deltaXm = -1; // |x(i-1)-x(i)|
     std::string name;
     if (itemp < fTemplatePair.size()){
@@ -8948,6 +8948,6 @@ const bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float va
         if ((itemp.second == name) && (itemp.first == value)){
             return true;
         }
-    }    
+    }
     return false;
 }

@@ -158,11 +158,11 @@ SystematicHist* SampleHist::AddStatSyst(string name, int i_bin) {
 //_____________________________________________________________________________
 //
 SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
-  
+
     // before doing anything else, check if the sampleHist can be created
     if(h_up  ==0x0) return 0x0;
     if(h_down==0x0) return 0x0;
-  
+
     SystematicHist *syh;
     // try if it's already there...
     syh = GetSystematic(name);
@@ -201,13 +201,13 @@ SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
 //_____________________________________________________________________________
 //
 SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down, int pruned/*1: norm only, 2: shape only*/){
-  
+
     // before doing anything else, check if the sampleHist can be created
     TH1* hUp   = HistFromFile(fileName_up,  histoName_up);
     TH1* hDown = HistFromFile(fileName_down,histoName_down);
     if(hUp  ==0x0) return 0x0;
     if(hDown==0x0) return 0x0;
-    
+
     SystematicHist *sh;
     // try if it's already there...
     sh = GetSystematic(name);
@@ -492,10 +492,10 @@ void SampleHist::FixEmptyBins(const bool suppress){
         float error   = fHist->GetBinError(  i_bin);
         if(content<=0){
             std::string temp = fHist->GetName();
-            if (!suppress){ 
-                WriteWarningStatus("SampleHist::FixEmptyBins", "Checking your nominal histogram " +temp + ", the bin " + std::to_string(i_bin) + 
+            if (!suppress){
+                WriteWarningStatus("SampleHist::FixEmptyBins", "Checking your nominal histogram " +temp + ", the bin " + std::to_string(i_bin) +
                 " has a null/negative bin content (content = " + std::to_string(content) + ") ! You should have a look at this !");
-                WriteWarningStatus("SampleHist::FixEmptyBins", "    --> For now setting this bin to 1e-06  +/- 1e-06!!! "); 
+                WriteWarningStatus("SampleHist::FixEmptyBins", "    --> For now setting this bin to 1e-06  +/- 1e-06!!! ");
             }
             // set nominal to 10^-6
             fHist->SetBinContent(i_bin,1e-6);
@@ -870,12 +870,12 @@ void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
         if(fSyst[i_syst]->fHistUp  ==0x0) continue;
         if(fSyst[i_syst]->fHistDown==0x0) continue;
         if(fSyst[i_syst]->fSystematic==0x0) continue;
-        
+
         h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
         // h_syst_up = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
         // h_syst_down = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
-        
+
         if(fSyst[i_syst]->fSystematic->fPreSmoothing){
             TH1* h_tmp_up   = h_syst_up!=0x0   ? (TH1*)h_syst_up  ->Clone() : 0x0;
             TH1* h_tmp_down = h_syst_down!=0x0 ? (TH1*)h_syst_down->Clone() : 0x0;
@@ -934,7 +934,7 @@ void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
                                             TtresSmoothing // alternative smoothing
                                          );
         }
-        // 
+        //
         // need to ad these lines to make sure overall only systematics get scaled as well
         else{
             HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);

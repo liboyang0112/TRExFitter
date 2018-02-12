@@ -9,7 +9,7 @@ class RooWorkspace;
 
 class MultiFit {
 public:
-    
+
     MultiFit(string name="MyMultiFit");
     ~MultiFit();
 
@@ -18,9 +18,9 @@ public:
     RooWorkspace* CombineWS();
     void SaveCombinedWS();
     std::map < std::string, double > FitCombinedWS( int fitType=1, string inputData="" );
-    void GetCombinedLimit(string inputData="obsData"); // or asimovData    
-    void GetCombinedSignificance(string inputData="obsData"); // or asimovData    
-    
+    void GetCombinedLimit(string inputData="obsData"); // or asimovData
+    void GetCombinedSignificance(string inputData="obsData"); // or asimovData
+
     void ComparePOI(string POI);
     void CompareLimit();
     void ComparePulls(string caterogy="");
@@ -30,7 +30,7 @@ public:
     void PlotNPRankingManager();
     void PlotNPRanking(bool flagSysts=true, bool flagGammas=false);
     void PlotSummarySoverB();
-    
+
     TH1F* Combine(std::vector<TH1F*>);
     TH1F* OrderBins(TH1F* h,std::vector<float> vec);
     TH1F* Rebin(TH1F* h,std::vector<float> vec, bool isData=true);
@@ -42,19 +42,19 @@ public:
     std::vector< string > fWsFiles;
     std::vector< string > fDirectory;
     std::vector< string > fInputName;
-    
+
     std::vector< string > fNPCategories;
-    
+
     bool fCombine;
     bool fCompare;
     bool fStatOnly;
     bool fIncludeStatOnly;
-    
+
     bool fCompareLimits;
     bool fComparePOI;
     bool fComparePulls;
     bool fPlotCombCorrMatrix;
-    
+
     string fName;
     string fDir;
     string fOutDir;
@@ -63,41 +63,41 @@ public:
     string fLimitTitle;
     string fPOITitle;
     string fRankingOnly;
-    
+
     string fPOI;
     float fPOIMin;
     float fPOIMax;
     float fPOIVal;
     string fPOIPrecision;
     float fLimitMax;
-    
+
     bool fUseRnd;
     float fRndRange;
     long int fRndSeed;
 
     string fLumiLabel;
     string fCmeLabel;
-    
+
     ConfigParser *fConfig;
-    
+
     string fSaveSuf;
     std::vector< bool > fFitShowObserved;
-    
+
     string fDataName;
     int fFitType;
     bool fSignalInjection;
-    
+
     bool fCombineChByCh;
     bool fFastFit;
     bool fFastFitForRanking;
     string fNuisParListFile;
-    
+
     bool fPlotSoverB;
     string fSignalTitle;
-    
+
     std::string fFitResultsFile;
     std::string fBonlySuffix;
-    
+
     bool fShowSystForPOI;
 };
 

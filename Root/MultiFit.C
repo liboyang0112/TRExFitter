@@ -889,7 +889,7 @@ void MultiFit::CompareLimit(){
     g_inj->SetMarkerSize(0);
 
     if(fLimitMax!=0) xmax = fLimitMax;
-    
+
     TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,0,xmax);
     h_dummy->Draw();
     h_dummy->SetMinimum(ymin);
@@ -1604,7 +1604,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             data = (RooDataSet*)ws->data("asimovData");
         }
     }
-    
+
     // Loop on NPs to find gammas and add to the list to be ranked
     if(NPnames=="all" || NPnames.find("gamma")!=string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
         RooRealVar* var = NULL;
@@ -1856,7 +1856,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 
     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
 //         if(isNF[i]) g->SetPoint(idx, nuhat[i]-1,idx+0.5);
-//         else        
+//         else
         g->SetPoint(idx, nuhat[i],  idx+0.5);
         g->SetPointEXhigh(      idx, nuerrhi[i]);
         g->SetPointEXlow(       idx, nuerrlo[i]);
@@ -1906,7 +1906,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
             parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1];
         }
         else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
-        
+
 //         if(parTitle==""){
 //             for(auto syst : fSystematics){
 //                 if(syst->fNuisanceParameter == parname[i]) parTitle = TtHFitter::SYSTMAP[ syst->fName ];
@@ -2211,8 +2211,8 @@ void MultiFit::PlotSummarySoverB(){
         }
 
         if(TtHFitter::PREFITONPOSTFIT)
-          h_tot_bkg_prefit[i_hist] = (TH1F*)file[i_hist]->Get("h_tot_bkg_prefit");         
-        
+          h_tot_bkg_prefit[i_hist] = (TH1F*)file[i_hist]->Get("h_tot_bkg_prefit");
+
         //
         // Fix eventually empty histograms
         if(h_sig[i_hist] ==0x0){
@@ -2250,7 +2250,7 @@ void MultiFit::PlotSummarySoverB(){
     TH1F* h_data_comb = Combine(h_data);
     TH1F* h_tot_bkg_prefit_comb = 0x0;
     if(TtHFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_comb = Combine(h_tot_bkg_prefit);
-      
+
 
     std::vector<TH1F*> h_syst_up_comb  (Nsyst);
     std::vector<TH1F*> h_syst_down_comb(Nsyst);
@@ -2277,7 +2277,7 @@ void MultiFit::PlotSummarySoverB(){
     TH1F* h_data_ord = Rebin(h_data_comb,SoverSqrtB);
     TH1F* h_tot_bkg_prefit_ord = 0x0;
     if(TtHFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_ord = Rebin(h_tot_bkg_prefit_comb,SoverSqrtB,false);
-    
+
     std::vector<TH1F*> h_syst_up_ord  (Nsyst);
     std::vector<TH1F*> h_syst_down_ord(Nsyst);
     for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){

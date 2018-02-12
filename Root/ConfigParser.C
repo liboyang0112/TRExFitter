@@ -1,4 +1,4 @@
-#include "TtHFitter/ConfigParser.h" 
+#include "TtHFitter/ConfigParser.h"
 #include <map>
 
 //----------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ string Fix(string s){ // removes leading and trailing white spaces, remove every
     string ss = s.substr( 0, s.find_first_of('%') );
     replace( ss.begin(), ss.end(), '"', ' ');
 //   if(ss.find("#PERCENT#")!=string::npos) ss.replace( ss.find("#PERCENT#"), 9, "%");
-//   ss = ss.substr( ss.find_first_not_of(' '),ss.find_last_not_of(' ')+1 );    
+//   ss = ss.substr( ss.find_first_not_of(' '),ss.find_last_not_of(' ')+1 );
     // Fix by Arthur
     if (ss.find_first_not_of(' ')>0){
         ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' '));
@@ -70,7 +70,7 @@ void ReplaceStringInPlace(std::string& subject, const std::string& search,
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
-// -- Classes -- 
+// -- Classes --
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ ConfigSet::ConfigSet(){
 //__________________________________________________________________________________
 //
 ConfigSet::~ConfigSet(){}
-    
+
 //__________________________________________________________________________________
 //
 void ConfigSet::SetConfig(string name,string value){
@@ -244,10 +244,10 @@ void ConfigParser::ReadFile(string fileName){
             if ( str.find("%")!=string::npos || str.find("#")!=string::npos) continue;
             std::cout << "putting in the map: [" << First(str) << "]=" << Second(str) << std::endl;
             fReplacement[First(str)]=Second(str);
-        } 
+        }
         fileR.close();
     }
- 
+
     file.open(fileName.c_str());
     vector<string> valVec;
     bool reading = false;
