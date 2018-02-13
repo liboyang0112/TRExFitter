@@ -730,7 +730,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             if(!ratioON) {
                 h_1->GetYaxis()->SetTitle("Number of events");
                 h_1->SetMinimum(1e-05);
-                h_1->SetMaximum( ymax*1.3 );
+                h_1->SetMaximum( ymax*2.0 );
             }
             else {
                 h_1->GetYaxis()->SetTitle("#frac{Syst.-Nom.}{Nom.} [%]");
@@ -763,6 +763,13 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 h_nominal_orig->DrawCopy("same HIST");
             }
             else {
+	        double xmin=h_nominal->GetBinLowEdge(1);
+	        double xmax=h_nominal->GetBinLowEdge(h_nominal->GetNbinsX()+1);
+	        TLine* one= new TLine(xmin,0.,xmax,0.);
+	        one->SetLineColor(kBlack);
+	        //one->SetLineStyle(7);
+	        one->SetLineWidth(2);
+	        one->Draw("same HIST");
                 h_nominal -> SetFillStyle(3005);
                 h_nominal -> SetFillColor(kBlue);
                 h_nominal -> SetMarkerSize(0);
@@ -772,24 +779,28 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 }
                 h_nominal -> DrawCopy("e2same");
             }
-            if((ratioON || bothPanels) && SumAndData ) h_dataCopy->Draw("same");
+            if((ratioON || bothPanels) && SumAndData ) h_dataCopy->Draw("EX0same");
 
             if(!ratioON){
                 // Creates a legend for the plot
                 TLatex *tex = new TLatex();
                 tex->SetNDC();
                 if(SumAndData) {
-                    if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),"all samples"));
-                    else                                tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fName.c_str(),"all samples"));
+                    if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fSystematic->fTitle.c_str()));
+                    else                                tex->DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fName.c_str()));
+                    //if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),"all samples"));
+                    //else                                tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fName.c_str(),"all samples"));
                 }
                 else{
-                    if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
-                    else                                tex->DrawLatex(0.17,0.86,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fTitle.c_str()));
+                    if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
+                    else                                tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fTitle.c_str()));
                 }
-                tex->DrawLatex(0.17,0.81,fRegionLabel.c_str());
+                tex->DrawLatex(0.17,0.72,fRegionLabel.c_str());
 
                 //Legend of the histograms
-                TLegend *leg = new TLegend(0.7,0.76,0.9,0.9);
+		TLegend *leg;
+		if(SumAndData) leg = new TLegend(0.7,0.71,0.9,0.9);
+                else leg = new TLegend(0.7,0.71,0.9,0.85);
                 leg->SetFillStyle(0);
                 leg->SetBorderSize(0);
                 leg->SetTextSize(gStyle->GetTextSize());
@@ -808,7 +819,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
 
                 //Legend to define the line style
 //                 TLegend *leg2 = new TLegend(0.605,0.69,0.9,0.74);
-                TLegend *leg2 = new TLegend(0.65,0.69,0.9,0.74);
+                TLegend *leg2 = new TLegend(0.65,0.64,0.9,0.7);
                 leg2->SetFillStyle(0);
                 leg2->SetBorderSize(0);
                 leg2->SetNColumns(2);
@@ -825,13 +836,15 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                     float acc_data = (yield_data-yield_nominal)/yield_nominal;
                     string sign_data =  "+";
                     if(acc_data<0) sign_data = "-";
-                    TLegend *leg3 = new TLegend(0.7,0.61,0.9,0.66);
+                    TLegend *leg3 = new TLegend(0.7,0.43,0.9,0.62);
                     leg3->SetFillStyle(0);
                     leg3->SetBorderSize(0);
                     leg3->SetTextSize(gStyle->GetTextSize());
                     leg3->SetTextFont(gStyle->GetTextFont());
                     leg3->SetMargin(0.2);
-                    leg3->AddEntry(h_dataCopy,Form("data (%s%.1f %%)",sign_data.c_str(),TMath::Abs(acc_data*100)),"l");
+		    leg3->AddEntry(h_dataCopy,"Data","p");
+		    leg3->AddEntry(h_nominal,"Total prediction","l");
+                    //leg3->AddEntry(h_dataCopy,Form("data (%s%.1f %%)",sign_data.c_str(),TMath::Abs(acc_data*100)),"l");
                     leg3 -> Draw();
                 }
             } else {
