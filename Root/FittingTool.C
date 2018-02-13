@@ -242,7 +242,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     if(m_debug){
 //         std::cout << "   -> Initial value of offset  = " << nlloffset << std::endl;
 //         std::cout << "   -> Initial NLL - offset     = " << nllval-nlloffset << std::endl;
-        constrainedParams->Print("v");
+        if(TtHFitter::DEBUGLEVEL > 2) constrainedParams->Print("v");
     }
 
     //
@@ -448,7 +448,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     WriteInfoStatus("FittingTool::FitPDF", "            - hess status " + std::to_string(m_hessStatus));
     WriteInfoStatus("FittingTool::FitPDF", "            - Edm = " + std::to_string(m_edm));
     WriteInfoStatus("FittingTool::FitPDF", "***********************************************************");
-    sw.Print();
+    if (TtHFitter::DEBUGLEVEL > 2) sw.Print();
     WriteInfoStatus("FittingTool::FitPDF", "");
     WriteInfoStatus("FittingTool::FitPDF", "");
     WriteInfoStatus("FittingTool::FitPDF", "");

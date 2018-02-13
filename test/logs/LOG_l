@@ -597,4 +597,4 @@ Median:   4.42313
 Observed: 3.00907
 
 Finished with 35 calls to minimize(nll)
-Real time 0:00:01, CP time 1.150
+Real time 0:00:01, CP time 1.200
