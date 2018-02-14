@@ -60,12 +60,12 @@ string Second(string s){
 }
 
 void ReplaceStringInPlace(std::string& subject, const std::string& search,
-                                                    const std::string& replace) {
-        size_t pos = 0;
-        while((pos = subject.find(search, pos)) != std::string::npos) {
-                 subject.replace(pos, search.length(), replace);
-                 pos += replace.length();
-        }
+                                                const std::string& replace) {
+    size_t pos = 0;
+    while((pos = subject.find(search, pos)) != std::string::npos) {
+        subject.replace(pos, search.length(), replace);
+        pos += replace.length();
+    }
 }
 
 //----------------------------------------------------------------------------------
@@ -263,11 +263,11 @@ void ConfigParser::ReadFile(string fileName){
             std::cout << "  BEFORE replacement: " << str << std::endl;
             map<string,string>::iterator itr=fReplacement.begin();
             for ( ;itr!=fReplacement.end();++itr) {
-    string oldV=itr->first;
-    string newV=itr->second;
-    //std::cout << "VALERIO: " << oldV << " , " << newV << std::endl;
-    //replace( str.begin(), str.end(), oldV, newV);
-    ReplaceStringInPlace(str, oldV, newV);
+                string oldV=itr->first;
+                string newV=itr->second;
+                //std::cout << "VALERIO: " << oldV << " , " << newV << std::endl;
+                //replace( str.begin(), str.end(), oldV, newV);
+                ReplaceStringInPlace(str, oldV, newV);
             }
             std::cout << "  AFTER replacement: " << str << std::endl;
         }
@@ -291,7 +291,7 @@ void ConfigParser::ReadFile(string fileName){
                     if(k>=(int)valVec.size()) val = valVec[valVec.size()-1];
                     else                                            val = valVec[k];
                     fConfSets[fN-n+k]->SetConfig(First(str),Fix(val) );
-    }
+                }
             }
         }
     }
