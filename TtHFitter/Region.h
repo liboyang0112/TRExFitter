@@ -90,7 +90,7 @@ public:
     string fName;
     string fVariableTitle;
     string fYTitle;
-    string fLabel; // something like "e/µ + 6 j, >=4 b b"
+    string fLabel; // something like "e/mu + 6 j, >=4 b b"
     string fShortLabel; // something like "6j,3b"
     string fTexLabel;
     string fFitName;
