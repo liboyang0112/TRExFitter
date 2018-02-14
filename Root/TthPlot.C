@@ -1,4 +1,5 @@
 #include "TtHFitter/TthPlot.h"
+#include "TtHFitter/StatusLogbook.h"
 
 using namespace std;
 
@@ -78,14 +79,14 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     fLumiScale = 1.;
     fBlindingThreshold = -1; // if <0, no blinding
     fLegendNColumns = 0;
-    
+
     fYmin = 0;
     fYmax = 0;
     fRatioYmin = 0.;
     fRatioYmax = 2.;
-    
+
     h_blinding = 0x0;
-    
+
     h_tot_bkg_prefit = 0x0;
 }
 
@@ -314,8 +315,8 @@ void TthPlot::BlindData(){
             }
         }
         else{
-            std::cout << "TthPlot::WARNING: Either h_data (" << h_data << "), h_signal (" << h_signal << ") or h_tot (" << h_tot << ") not defined.";
-            std::cout << " Blidning not possible. Skipped." << std::endl;
+            WriteWarningStatus("TthPlot::BlindData", "Either h_data, h_signal, h_tot not defined.");
+            WriteWarningStatus("TthPlot::BlindData", " Blidning not possible. Skipped.");
         }
     }
 }
@@ -409,7 +410,7 @@ void TthPlot::Draw(string options){
       h_tot_bkg_prefit->SetLineWidth(2);
       h_tot_bkg_prefit->Draw("HIST same");
     }
-    
+
     //
     // Total error bands style setting
     //
@@ -427,7 +428,7 @@ void TthPlot::Draw(string options){
     //if(h_normsig!=0x0){
         for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
             signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
-            std::cout << "--- Signal " << fNormSigNames[i_smp] << " scaled by " <<signalScale << std::endl;
+            WriteInfoStatus("TthPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale));
             h_normsig[i_smp]->Scale(signalScale);
             h_normsig[i_smp]->SetLineColor(h_normsig[i_smp]->GetFillColor());
             h_normsig[i_smp]->SetFillColor(0);
@@ -564,7 +565,7 @@ void TthPlot::Draw(string options){
           leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
           leg1->AddEntry((TObject*)0," ","");
         }
-        
+
         leg->Draw();
         leg1->Draw();
     }
@@ -602,9 +603,9 @@ void TthPlot::Draw(string options){
             for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm.)").c_str(),"l");
             for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
-        
+
         if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-        
+
         leg->Draw();
     }
     else if(fLegendNColumns==3){ //TtHFitter::OPTION["LegendNColumns"]==3){
@@ -645,7 +646,7 @@ void TthPlot::Draw(string options){
         }
 
         if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-        
+
         leg->Draw();
     }
     else if(fLegendNColumns==4){
@@ -682,7 +683,7 @@ void TthPlot::Draw(string options){
         }
 
         if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-        
+
         leg->Draw();
     }
     else{
@@ -720,7 +721,7 @@ void TthPlot::Draw(string options){
         }
 
         if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-        
+
         leg->Draw();
 
         if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
@@ -984,7 +985,7 @@ void TthPlot::Draw(string options){
             h_dummy->GetYaxis()->SetTitle(ytitle.c_str());
         }
     }
-    
+
     // turn off x-error bars
     if(TtHFitter::REMOVEXERRORS){
         for (UInt_t i=0; i< (UInt_t)g_data->GetN(); i++) {
@@ -1022,7 +1023,7 @@ void TthPlot::Draw(string options){
         if(fYmin>0)  h_dummy->SetMinimum(fYmin);
         else         h_dummy->SetMinimum(1.);
     }
-    
+
     if(h_blind!=0x0){
         h_blind->Scale(h_dummy->GetMaximum());
     }
@@ -1035,7 +1036,7 @@ void TthPlot::Draw(string options){
     else if(pad0->GetWw()<596. && h_dummy->GetMaximum()>1000){
         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
     }
-    
+
 //     if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
 //         myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
 }
@@ -1079,7 +1080,7 @@ TCanvas* TthPlot::GetCanvas(){
 void TthPlot::SetBinBlinding(bool on,float threshold){
     fBlindingThreshold = threshold;
     if(!on) fBlindingThreshold = -1;
-    std::cout << "TthPlot::INFO: Setting blinding threshold = " << fBlindingThreshold << std::endl;
+    WriteInfoStatus("TthPlot::SetBinBlinding", "Setting blinding threshold = " + std::to_string(fBlindingThreshold));
 }
 
 //_____________________________________________________________________________
@@ -1087,11 +1088,11 @@ void TthPlot::SetBinBlinding(bool on,float threshold){
 void TthPlot::SetBinBlinding(bool on,TH1F* h_blind){
     h_blinding = h_blind;
     if(!on) fBlindingThreshold = -1;
-    std::cout << "TthPlot::INFO: Setting blinding bins:";
+    std::string temp = "Setting blinding bins:";
     for(int i_bin=1;i_bin<h_blinding->GetNbinsX()+1;i_bin++){
-        std::cout << " " << h_blinding->GetBinContent(i_bin);
+        temp+= " " + std::to_string(h_blinding->GetBinContent(i_bin));
     }
-    std::cout << std::endl;
+    WriteDebugStatus("TthPlot::SetBinBlinding", temp);
 }
 
 

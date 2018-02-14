@@ -11,19 +11,19 @@ public:
   void Set(string name, float nominal=1, float min=0, float max=10, bool isConst=false);
 
   void Print();
-  
+
   string fName;
   string fNuisanceParameter;
   string fTitle;
   string fCategory;
-  
+
   float fNominal;
   float fMin;
   float fMax;
   bool fConst;
-  
+
   std::vector<string> fRegions;
-  std::vector<string> fExclude;  
+  std::vector<string> fExclude;
 };
- 
+
 #endif

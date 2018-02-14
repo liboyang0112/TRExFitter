@@ -12,7 +12,7 @@ Systematic::Systematic(string name,int type,float up,float down){
     fType = type;
     fCategory = "";
     fStoredName = name;
-    
+
     fSmoothType = 0;
     fSymmetrisationType = 0;
     fPreSmoothing = false;
@@ -48,7 +48,7 @@ Systematic::Systematic(string name,int type,float up,float down){
     fNtupleNameSufUp = "";
     //
     fWeightDown = "";
-    fWeightSufDown = "";  
+    fWeightSufDown = "";
     fNtuplePathsDown.clear();
     fNtuplePathSufDown = "";
     fNtupleFilesDown.clear();
@@ -90,7 +90,7 @@ Systematic::Systematic(Systematic &sys) {
     fType = sys.fType;
     fCategory = sys.fCategory;
     fStoredName = sys.fStoredName;
-    
+
     fSmoothType = sys.fSmoothType;
     fSymmetrisationType = sys.fSymmetrisationType;
     //
@@ -119,7 +119,7 @@ Systematic::Systematic(Systematic &sys) {
     fNtupleNameSufUp = sys.fNtupleNameSufUp;
     //
     fWeightDown = sys.fWeightDown;
-    fWeightSufDown = sys.fWeightSufDown;  
+    fWeightSufDown = sys.fWeightSufDown;
     fNtuplePathsDown = sys.fNtuplePathsDown;
     fNtuplePathSufDown = sys.fNtuplePathSufDown;
     fNtupleFilesDown = sys.fNtupleFilesDown;
@@ -164,7 +164,7 @@ Systematic::~Systematic(){
     fNtupleNamesDown.clear();
     fHistoPathsUp.clear();
     fHistoFilesUp.clear();
-    fHistoNamesUp.clear(); 
+    fHistoNamesUp.clear();
     fHistoPathsDown.clear();
     fHistoFilesDown.clear();
     fHistoNamesDown.clear();

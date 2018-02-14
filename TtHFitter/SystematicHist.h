@@ -12,7 +12,7 @@ public:
   void WriteToFile(TFile *f=0x0);
   void ReadFromFile();
   bool IsShape();
-  
+
   void Print();
 
   void Divide(TH1* h);
@@ -21,7 +21,7 @@ public:
   void Multiply(SystematicHist *syh);
   void Add(TH1* h,float scale=1.);
   void Add(SystematicHist *syh,float scale=1.);
-  
+
   string fName;
   Systematic *fSystematic;
 
@@ -29,7 +29,7 @@ public:
   bool fIsShape;
   int fSmoothType;
   int fSymmetrisationType;
-  
+
   bool fShapePruned;
   bool fNormPruned;
   bool fBadShape;
@@ -56,9 +56,9 @@ public:
   string fHistoNameShapeDown;
   TH1* fHistDown_original;
   TH1* fHistDown_postFit;
-  
+
   float fScaleUp;
   float fScaleDown;
-}; 
+};
 
 #endif

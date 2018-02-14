@@ -1,5 +1,6 @@
 #include "TtHFitter/SystematicHist.h"
 #include "TtHFitter/HistoTools.h"
+#include "TtHFitter/StatusLogbook.h"
 
 // -------------------------------------------------------------------------------------------------
 // SystematicHist
@@ -14,7 +15,7 @@ SystematicHist::SystematicHist(string name){
     fIsShape = false;
     fSmoothType = 0;
     fSymmetrisationType = 0;
-    
+
     fShapePruned = false;
     fNormPruned  = false;
     fBadShape    = false;
@@ -39,7 +40,7 @@ SystematicHist::SystematicHist(string name){
     fFileNameShapeDown = "";
     fHistoNameShapeDown = "";
     fHistDown_postFit = 0x0;
-    
+
     fScaleUp   = 1.;
     fScaleDown = 1.;
 }
@@ -113,9 +114,9 @@ bool SystematicHist::IsShape(){
 //_____________________________________________________________________________
 //
 void SystematicHist::Print(){
-    cout << "        Systematic: " << fName;
-    if(fHistShapeUp==0x0 && fHistShapeDown==0x0 && fHistUp==0x0 && fHistDown==0x0) cout << Form("\toverall (%.3f,%.3f)",fNormUp,fNormDown) << endl;
-    else cout << endl;
+    std::string temp = "        Systematic: " + fName;
+    if(fHistShapeUp==0x0 && fHistShapeDown==0x0 && fHistUp==0x0 && fHistDown==0x0) temp + Form("\toverall (%.3f,%.3f)",fNormUp,fNormDown);
+    WriteInfoStatus("SystematicHist::Print", temp);
 }
 
 //_____________________________________________________________________________

@@ -7,23 +7,116 @@
 Applying ATLAS style settings...
 
 Reading config file config/myFit.config
------------------------------
-Reading histograms from file FitExample/Histograms/FitExample_histos.root ...
-------------------------------------------------------
-Reading fit results from file FitExample/Fits/FitExample.txt
-Found 12 systematics.
-Building post-fit plot for region SR_1 ...
-Writing file FitExample/Histograms/SR_1_postFit.root
+[1;32m=== INFO::TtHFit::ReadHistos: -----------------------------[0m
+[1;32m=== INFO::TtHFit::ReadHistos: Reading histograms from file FitExample/Histograms/FitExample_histos.root ...[0m
+=== DEBUG::TtHFit::ReadHistos:   Reading region SR_1
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Data
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
+=== DEBUG::TtHFit::ReadHistos:       Reading syst Bkg1Xsec
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TtHFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TtHFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
+=== DEBUG::TtHFit::ReadHistos:   Reading region SR_2
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Data
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TtHFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TtHFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
+[1;32m=== INFO::TtHFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TtHFit::ReadFitResults: Reading fit results from file [0m
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Reading Reading Correlation Matrix...
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Found 12 systematics.
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998523
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.020640
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983482
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.938167
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998523
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.020640
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983482
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.938167
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998523
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.020640
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983482
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.938167
+[1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region SR_1 ...[0m
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: Final bin contents
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: 1:	111.322426 +8.141271 -8.141271
+=== DEBUG::Region::DrawPostFit: 2:	110.292450 +7.215135 -7.215135
+=== DEBUG::Region::DrawPostFit: 3:	70.468575 +6.423162 -6.423162
+=== DEBUG::Region::DrawPostFit: 4:	24.380356 +4.408641 -4.408641
+[1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_1_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been created
-Building post-fit plot for region SR_2 ...
-Writing file FitExample/Histograms/SR_2_postFit.root
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000830
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.024820
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987140
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.942788
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000830
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.024820
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987140
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.942788
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000830
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.024820
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987140
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.942788
+[1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region SR_2 ...[0m
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: Final bin contents
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: 1:	108.976959 +6.382750 -6.382750
+=== DEBUG::Region::DrawPostFit: 2:	108.698143 +5.922365 -5.922365
+=== DEBUG::Region::DrawPostFit: 3:	70.191086 +6.460830 -6.460830
+=== DEBUG::Region::DrawPostFit: 4:	24.237284 +4.368861 -4.368861
+[1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_2_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
--------------------------------------------
-Building Summary Plot...
+[1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
+[1;32m=== INFO::TtHFit::DrawSummary: Building Summary Plot...[0m
+=== DEBUG::TtHFit::DrawSummary: Adding Data:   Data 2015
+=== DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TtHFit::DrawSummary: Adding Signal: Signal
+=== DEBUG::TtHFit::DrawSummary: 1:	316.463806	+15.866894	-15.866894
+=== DEBUG::TtHFit::DrawSummary: 2:	312.103485	+12.770890	-12.770890
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
--------------------------------------------
-Building Summary Plot...
--------------------------------------------
-Building Yields Table...
-TtHFit::INFO: Printing syt tables
+[1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
+[1;32m=== INFO::TtHFit::DrawSummary: Building Summary Plot...[0m
+[1;32m=== INFO::TtHFit::BuildYieldTable: -------------------------------------------[0m
+[1;32m=== INFO::TtHFit::BuildYieldTable: Building Yields Table...[0m
+[1;32m=== INFO::TtHFit::PrintSystTables: Printing syt tables[0m
 Info in <TCanvas::Print>: png file FitExample/PieChart_postFit.png has been created

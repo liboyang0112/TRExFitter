@@ -316,6 +316,8 @@ public:
     int fGetChi2;
 
     bool fTtresSmoothing;
+
+    bool fSuppressNegativeBinWarnings;
     
     std::vector<std::string> fCustomFunctions;
     

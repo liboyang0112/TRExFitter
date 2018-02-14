@@ -1,5 +1,6 @@
 #include "TtHFitter/HistoTools.h"
 #include "TtHFitter/SampleHist.h"
+#include "TtHFitter/StatusLogbook.h"
 
 // -------------------------------------------------------------------------------------------------
 // SampleHist
@@ -100,9 +101,9 @@ SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
     syh = GetSystematic(name);
     // ... and if not create a new one
     if(syh==0x0){
-      syh = new SystematicHist(name);
-      fSyst.push_back(syh);
-      fNSyst ++;
+        syh = new SystematicHist(name);
+        fSyst.push_back(syh);
+        fNSyst ++;
     }
     //
 //     syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_Up",fHist->GetName(),name.c_str()));
@@ -157,11 +158,11 @@ SystematicHist* SampleHist::AddStatSyst(string name, int i_bin) {
 //_____________________________________________________________________________
 //
 SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
-  
+
     // before doing anything else, check if the sampleHist can be created
     if(h_up  ==0x0) return 0x0;
     if(h_down==0x0) return 0x0;
-  
+
     SystematicHist *syh;
     // try if it's already there...
     syh = GetSystematic(name);
@@ -200,13 +201,13 @@ SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
 //_____________________________________________________________________________
 //
 SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down, int pruned/*1: norm only, 2: shape only*/){
-  
+
     // before doing anything else, check if the sampleHist can be created
     TH1* hUp   = HistFromFile(fileName_up,  histoName_up);
     TH1* hDown = HistFromFile(fileName_down,histoName_down);
     if(hUp  ==0x0) return 0x0;
     if(hDown==0x0) return 0x0;
-    
+
     SystematicHist *sh;
     // try if it's already there...
     sh = GetSystematic(name);
@@ -417,7 +418,7 @@ void SampleHist::WriteToFile(TFile *f){
         Systematic *gamma = 0x0;
         if(GetSystematic(systName)) gamma = GetSystematic(systName)->fSystematic;  //GetSystematic(systName);
         if(gamma==0x0) gamma = new Systematic(systName,Systematic::SHAPE);
-        if(TtHFitter::DEBUGLEVEL>0) std::cout << "adding separate gammas as SHAPE systematic " << systName << std::endl;
+        WriteDebugStatus("SampleHist::WriteToFile", "adding separate gammas as SHAPE systematic " + systName);
         gamma->fRegions.clear();
         gamma->fRegions.push_back(fRegionName);
         SystematicHist *syh = AddHistoSyst(systName,htempUp,htempDown);
@@ -460,7 +461,7 @@ void SampleHist::ReadFromFile(){
 
 //_____________________________________________________________________________
 //
-void SampleHist::FixEmptyBins(){
+void SampleHist::FixEmptyBins(const bool suppress){
     //
     // store yields (nominal and systs)
     float yield = fHist->Integral();
@@ -490,12 +491,11 @@ void SampleHist::FixEmptyBins(){
         float content = fHist->GetBinContent(i_bin);
         float error   = fHist->GetBinError(  i_bin);
         if(content<=0){
-            if(TtHFitter::DEBUGLEVEL>0){
-                std::cout << "WARNING: Checking your nominal histogram " << fHist->GetName();
-                std::cout << ", the bin " << i_bin;
-                std::cout << " has a null/negative bin content (content = " << content << ") ! You should have a look at this !" << std::endl;
-                std::cout << "    --> For now setting this bin to 1e-06";
-                std::cout << " +/- 1e-06!!! " << std::endl;
+            std::string temp = fHist->GetName();
+            if (!suppress){
+                WriteWarningStatus("SampleHist::FixEmptyBins", "Checking your nominal histogram " +temp + ", the bin " + std::to_string(i_bin) +
+                " has a null/negative bin content (content = " + std::to_string(content) + ") ! You should have a look at this !");
+                WriteWarningStatus("SampleHist::FixEmptyBins", "    --> For now setting this bin to 1e-06  +/- 1e-06!!! ");
             }
             // set nominal to 10^-6
             fHist->SetBinContent(i_bin,1e-6);
@@ -538,27 +538,28 @@ void SampleHist::FixEmptyBins(){
 //_____________________________________________________________________________
 //
 void SampleHist::Print(){
-    cout <<     "      Sample: " << fName << "\t" << fHist->GetName() << endl;
+    std::string temp = fHist->GetName();
+    WriteDebugStatus("SampleHist::Print", "      Sample: " + fName + "\t" + temp);
     if(fNSyst>0){
-        cout << "        Systematics:   ";
+        temp = "        Systematics:   ";
         for(int i_syst=0;i_syst<fNSyst;i_syst++){
-            cout << " " << fSyst[i_syst]->fName;
+            temp+= " " + fSyst[i_syst]->fName;
         }
-        cout << endl;
+        WriteDebugStatus("SampleHist::Print", temp);
     }
     if(fNNorm>0){
-        cout << "        NormFactor(s): ";
+        temp = "        NormFactor(s): ";
         for(int i_norm=0;i_norm<fNNorm;i_norm++){
-            cout << " " << fNormFactors[i_norm]->fName;
+            temp+= " " + fNormFactors[i_norm]->fName;
         }
-        cout << endl;
+        WriteDebugStatus("SampleHist::Print", temp);
     }
     if(fNShape>0){
-        cout << "        ShapeFactor(s): ";
+        temp = "        ShapeFactor(s): ";
         for(int i_shape=0;i_shape<fNShape;i_shape++){
-            cout << " " << fShapeFactors[i_shape]->fName;
+            temp+= " " + fShapeFactors[i_shape]->fName;
         }
-        cout << endl;
+        WriteDebugStatus("SampleHist::Print", temp);
     }
 }
 
@@ -869,12 +870,12 @@ void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
         if(fSyst[i_syst]->fHistUp  ==0x0) continue;
         if(fSyst[i_syst]->fHistDown==0x0) continue;
         if(fSyst[i_syst]->fSystematic==0x0) continue;
-        
+
         h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
         // h_syst_up = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
         // h_syst_down = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
-        
+
         if(fSyst[i_syst]->fSystematic->fPreSmoothing){
             TH1* h_tmp_up   = h_syst_up!=0x0   ? (TH1*)h_syst_up  ->Clone() : 0x0;
             TH1* h_tmp_down = h_syst_down!=0x0 ? (TH1*)h_syst_down->Clone() : 0x0;
@@ -933,7 +934,7 @@ void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
                                             TtresSmoothing // alternative smoothing
                                          );
         }
-        // 
+        //
         // need to ad these lines to make sure overall only systematics get scaled as well
         else{
             HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
@@ -981,8 +982,8 @@ void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
             fSyst[i_syst]->fNormUp   = fSyst[i_syst]->fHistUp  ->Integral()/h_nominal->Integral() - 1.;
             fSyst[i_syst]->fNormDown = fSyst[i_syst]->fHistDown->Integral()/h_nominal->Integral() - 1.;
         } else {
-            std::cerr << "<!> In SampleHist::SmoothSyst(): A nominal histogram with 0 intergral has been found. Please check ! " << std::endl;
-            std::cerr << "            -> Sample: " << fName << std::endl;
+            WriteErrorStatus("SampleHist::SmoothSyst", "A nominal histogram with 0 intergral has been found. Please check ! ");
+            WriteErrorStatus("SampleHist::SmoothSyst", "            -> Sample: " + fName);
         }
 
         if(fSyst[i_syst]->fIsShape){
@@ -1086,25 +1087,25 @@ void SampleHist::Divide(SampleHist *sh){
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){
             fSyst[i_syst]->Divide( sh->fHist );
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " not present in  "<< sh->fName;
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Using its nominal. " << std::endl;
+            WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Divide", "Using its nominal. ");
         }
         else{
             fSyst[i_syst]->Divide( syh );
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " present in  "<< sh->fName;
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Properly computing with that. " << std::endl;
+            WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Divide", "Properly computing with that. ");
         }
     }
     // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
-      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
 //        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==0x0){
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Adding syst "<< systName << " to sample "<< fName << std::endl;
+            WriteDebugStatus("SampleHist::Divide", "Adding syst "+ systName + " to sample "+ fName);
             TH1* hUp   = (TH1*)fHist->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)fHist->Clone("h_tmp_down");
             hUp  ->Divide(   sh->fHist );
@@ -1125,7 +1126,7 @@ void SampleHist::Divide(SampleHist *sh){
             delete hUp;
             delete hDown;
         }
-      }
+    }
     delete hOrig;
 }
 
@@ -1143,25 +1144,25 @@ void SampleHist::Multiply(SampleHist *sh){
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){
             fSyst[i_syst]->Multiply( sh->fHist );
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " not present in  "<< sh->fName;
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Using its nominal. " << std::endl;
+            WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Multiply", "Using its nominal. ");
         }
         else{
             fSyst[i_syst]->Multiply( syh );
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " present in  "<< sh->fName;
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Properly computing with that. " << std::endl;
+            WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Multiply", "Properly computing with that. ");
         }
     }
     // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
-      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+    for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
 //        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==0x0){
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Adding syst "<< systName << " to sample "<< fName << std::endl;
+            WriteDebugStatus("SampleHist::Multiply", "Adding syst "+ systName + " to sample "+ fName);
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp   );
@@ -1174,7 +1175,7 @@ void SampleHist::Multiply(SampleHist *sh){
             delete hUp;
             delete hDown;
         }
-      }
+    }
     delete hOrig;
 }
 
@@ -1192,25 +1193,25 @@ void SampleHist::Add(SampleHist *sh,float scale){
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){
             fSyst[i_syst]->Add( sh->fHist, scale );
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " not present in  "<< sh->fName;
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Using its nominal. " << std::endl;
+            WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Add", "Using its nominal. ");
         }
         else{
             fSyst[i_syst]->Add( syh, scale );
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Syst. "<< systName <<"(" << NuisParName <<")"<< " present in  "<< sh->fName;
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << ". Properly computing with that. " << std::endl;
+            WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
+            WriteDebugStatus("SampleHist::Add", "Properly computing with that. ");
         }
     }
     // loop on all the systematics the the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
-      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+    for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
 //        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==0x0){
-            if(TtHFitter::DEBUGLEVEL>1) std::cout << "Adding syst "<< systName << " to sample "<< fName << std::endl;
+            WriteDebugStatus("SampleHist::Add", "Adding syst "+ systName + " to sample "+ fName);
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
             hUp  ->Add( sh->fSyst[i_syst]->fHistUp  ,scale );
@@ -1223,6 +1224,6 @@ void SampleHist::Add(SampleHist *sh,float scale){
             delete hUp;
             delete hDown;
         }
-      }
+    }
     delete hOrig;
 }

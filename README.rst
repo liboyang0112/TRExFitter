@@ -120,7 +120,7 @@ Note that, each object should have unique <ObjectName>.
      * IntCodeShape     : interpolation code used for the shape component of systematics (should match the one used in RooStats)
      * MCstatThreshold  : if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
      * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'Gaussian' (default) or 'Poisson'
-     * DebugLevel       : 0 or 1
+     * DebugLevel       : 0 = prints only Warning and Errors, 1 = additionally prints Info messages, 2 = additionally prints Debug messages, >2 additionally prints Verbose messages. For option <2 RooFit/Roostats messages will bea heavily suppressed 
      * PlotOptions      : a set of options for plotting:
         * YIELDS : if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields
         * NORMSIG : add normlised signal to plots
@@ -177,6 +177,7 @@ Note that, each object should have unique <ObjectName>.
      * DoSignalRegionsPlot : if set to FALSE no signal regions plot is created
      * DoPieChartPlot   : if set to FALSE no background composition pie-chart plot is created
      * CustomFunctions  : list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values)
+     * SuppressNegativeBinWarnings  : If set to true will suppress warning messages about negative or 0 content in bins
      
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis

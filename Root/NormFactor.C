@@ -1,4 +1,5 @@
 #include "TtHFitter/NormFactor.h"
+#include "TtHFitter/StatusLogbook.h"
 
 // -------------------------------------------------------------------------------------------------
 // class NormFactor
@@ -33,7 +34,6 @@ void NormFactor::Set(string name, float nominal, float min, float max, bool isCo
 //__________________________________________________________________________________
 //
 void NormFactor::Print(){
-    cout << "        NormFactor: " << fName << "\t" << fNominal << ", " << fMin << ", " << fMax;
-    if(fConst) cout << " (CONSTANT)"; 
-    cout << endl;
+    if (fConst) WriteInfoStatus("NormFactor::Print", fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax) + "  (CONSTANT)");
+    else WriteInfoStatus("NormFactor::Print", fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax));
 }
