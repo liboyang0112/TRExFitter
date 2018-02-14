@@ -1,3 +1,7 @@
+2018-02-14 Alexander Held <alexander.held@cern.ch>
+    * Removed non-ASCII characters from core files
+    * Fixes TTHFITTER-168
+
 2018-02-09 Tomas Dado <tomas.dadod@cern.ch>
     * Added new option to JOB settings "SuppressNegativeBinWarnings", if set
 	to true the code will not print out warning about (zero)negative bin

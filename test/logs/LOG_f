@@ -227,7 +227,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
-[1;32m=== INFO::FittingTool::FitPDF: Fit try n°1[0m
+[1;32m=== INFO::FittingTool::FitPDF: Fit try no.1[0m
 [1;32m=== INFO::FittingTool::FitPDF: ======================[0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 Minuit2Minimizer: Minimize with max-calls 6000 convergence for edm < 1 strategy 1
