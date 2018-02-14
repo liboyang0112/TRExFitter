@@ -587,7 +587,7 @@ TthPlot* Region::DrawPreFit(string opt){
             }
             else{
                 h->Scale(nf->fNominal);
-                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
+                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
             }
         }
         p->AddBackground(h,title);
