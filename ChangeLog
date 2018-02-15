@@ -1,4 +1,4 @@
-2018-02-02 Michele Pinamonti <michele.pinamonti@gmail.com>
+2018-02-15 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Bootstrap functionality added (fixes TTHFITTER-174)
     * Fixed crash when doing d step
     * fixed range of LHscan for norm factors (using actual range)
@@ -6,6 +6,10 @@
 2018-02-14 Alexander Held <alexander.held@cern.ch>
     * Removed non-ASCII characters from core files
     * Fixes TTHFITTER-168
+    
+2018-02-13 Emma Winkels <ewinkels@cern.ch>
+    * Small improvements to systematics plots
+    * Clarified description of SignalRegionsPlot option in README
 
 2018-02-09 Tomas Dado <tomas.dadod@cern.ch>
     * Added new option to JOB settings "SuppressNegativeBinWarnings", if set

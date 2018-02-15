@@ -135,8 +135,8 @@ Note that, each object should have unique <ObjectName>.
         * LANDSCAPE : -> \begin{landscape}
      * SystControlPlots : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
      * SystDataPlots    : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame.
-     * CorrelationThreshold : Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%)
-     * SignalRegionsPlot: list of regions to put in SignalRegionsPlot; use "EMPTY" to put an empty entry, "ENDL" to specify end of line
+     * CorrelationThreshold : Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05:5%)
+     * SignalRegionsPlot: list of regions to put in SignalRegionsPlot and PieChartPlots; use "EMPTY" to put an empty entry, "ENDL" to specify end of line. This specifies the order of regions plotted in signal region S/B plots and pie chart plots, as well as number of regions per row.
      * HistoChecks      : NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem
      * LumiLabel        : label for luminosity to be put on plots
      * CmeLabel         : label for center-of-mass energy to be put on plots
