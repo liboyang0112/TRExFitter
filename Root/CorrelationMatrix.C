@@ -1,4 +1,5 @@
 #include "TtHFitter/CorrelationMatrix.h"
+#include "TtHFitter/StatusLogbook.h"
 #include "TH2F.h"
 
 //__________________________________________________________________________________
@@ -38,12 +39,18 @@ void CorrelationMatrix::SetCorrelation(string p0,string p1,float corr){
 //__________________________________________________________________________________
 //
 float CorrelationMatrix::GetCorrelation(string p0,string p1){
+    bool isMorph_p0 = false;
+    bool isMorph_p1 = false;
+    if (p0.find("morph_") != std::string::npos) isMorph_p0 = true;
+    if (p1.find("morph_") != std::string::npos) isMorph_p1 = true;
     if(!fNuisParIsThere[p0]){
-        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p0 << " not found in correlation matrix. Returning correlation = 0." << endl;
+        if(!isMorph_p0) WriteWarningStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. Returning correlation = 0.");
+        else WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. The NP is for morphing. Returning correlation = 0.");
         return 0.;
     }
     if(!fNuisParIsThere[p1]){
-        if(TtHFitter::DEBUGLEVEL>0) cout << "  WARNING: NP " << p1 << " not found in correlation matrix. Returning correlation = 0." << endl;
+        if(!isMorph_p1) WriteWarningStatus("CorrelationMatrix::GetCorrelation", "NP " + p1 + " not found in correlation matrix. Returning correlation = 0.");
+        else WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. The NP is for morphing. Returning correlation = 0.");
         return 0.;
     }
     int idx0 = fNuisParIdx[p0];
@@ -55,7 +62,7 @@ float CorrelationMatrix::GetCorrelation(string p0,string p1){
 //__________________________________________________________________________________
 //
 void CorrelationMatrix::Draw(string path, const double minCorr){
-    
+
     //
     // 0) Determines the number of lines/columns
     //
@@ -69,7 +76,7 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
                 const string jSystName = fNuisParNames[jNP];
                 double corr = GetCorrelation(iSystName, jSystName);
                 if(abs(corr)>=minCorr){
-                    std::cout << iSystName << " " << minCorr << "    " << corr << " (" << jSystName << ")" << std::endl;
+                    WriteVerboseStatus("CorrelationMatrix::Draw", iSystName + " " + std::to_string(minCorr) + "    " + std::to_string(corr) + " (" + jSystName + ")");
                     vec_NP.push_back(iSystName);
                     break;
                 }
@@ -77,7 +84,7 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
         }
     }
     int N = vec_NP.size();
-    
+
     //
     // 0.5) Skip some NPs
     //
@@ -99,16 +106,16 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
         vec_NP.push_back(iSystName);
     }
     N = vec_NP.size();
-    
+
     //
     // 1) Performs the plot
     //
     TH2F *h_corr = new TH2F("h_corr","",N,0,N,N,0,N);
     h_corr->SetDirectory(0);
-    
+
     for(unsigned int iNP = 0; iNP < vec_NP.size(); ++iNP){//line number
         const string iSystName = vec_NP[iNP];
-        
+
         if(TtHFitter::SYSTMAP[iSystName]!=""){
             h_corr->GetXaxis()->SetBinLabel(iNP+1,(TString)TtHFitter::SYSTMAP[iSystName]);
             h_corr->GetYaxis()->SetBinLabel(N-iNP,(TString)TtHFitter::SYSTMAP[iSystName]);
@@ -117,23 +124,23 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
             h_corr->GetXaxis()->SetBinLabel(iNP+1,(TString)iSystName);
             h_corr->GetYaxis()->SetBinLabel(N-iNP,(TString)iSystName);
         }
-        
+
         for(unsigned int jNP = 0; jNP < vec_NP.size(); ++jNP){//column number
             const string jSystName = vec_NP[jNP];
-    
+
             h_corr -> SetBinContent(iNP+1,N-jNP,100.*GetCorrelation(iSystName, jSystName));
 //             h_corr -> SetBinContent(N-jNP,iNP+1,100.*GetCorrelation(iSystName, jSystName));
-            
+
         }
     }
     h_corr->SetMinimum(-100.);
     h_corr->SetMaximum(100.);
-    
+
     int size = 500;
     if(vec_NP.size()>10){
         size = vec_NP.size()*50;
     }
-    
+
     //
     // 2) Style settings
     //
@@ -147,14 +154,14 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
 //     gPad->SetTopMargin(0.1*600/(size+100));
     gPad->SetRightMargin(0.);
     gPad->SetTopMargin(0.);
-    
+
     h_corr->GetXaxis()->LabelsOption("v");
     h_corr->GetXaxis()->SetLabelSize( h_corr->GetXaxis()->GetLabelSize()*0.75 );
     h_corr->GetYaxis()->SetLabelSize( h_corr->GetYaxis()->GetLabelSize()*0.75 );
     c1->SetTickx(0);
     c1->SetTicky(0);
     h_corr->GetYaxis()->SetTickLength(0);
-    h_corr->GetXaxis()->SetTickLength(0);  
+    h_corr->GetXaxis()->SetTickLength(0);
     c1->SetGrid();
     h_corr->Draw("col TEXT");
     c1->RedrawAxis("g");

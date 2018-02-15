@@ -48,16 +48,16 @@ Sample::Sample(string name,int type){
     fNormFactors.clear();
     fShapeFactors.clear();
     fSystematics.clear();
-    
+
     fSubtractSamples.clear();
     fAddSamples.clear();
-    
+
     fAsimovReplacementFor = std::make_pair("","");
-    
+
     fSeparateGammas = false;
     fCorrelateGammasInRegions.clear();
 }
-    
+
 //__________________________________________________________________________________
 //
 Sample::~Sample(){
@@ -158,7 +158,7 @@ void Sample::AddNormFactor(NormFactor* normFactor){
 }
 
 //__________________________________________________________________________________
-// 
+//
 void Sample::AddShapeFactor(ShapeFactor* shapeFactor){
     fShapeFactors.push_back(shapeFactor);
     fNShape ++;

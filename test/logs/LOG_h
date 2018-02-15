@@ -7,46 +7,243 @@
 Applying ATLAS style settings...
 
 Reading config file config/myFit.config
--------------------------------------------
-Creating/updating file FitExample/Histograms/FitExample_histos.root ...
-  Region SR_1 ...
-  Region SR_2 ...
-
--------------------------------------------
-  TtHFit: FitExample
-      NtuplePaths =      NtupleName  = 
-      MCweight    = 1
-      Selection   = 1
-      HistoPaths  = ExampleInputs
-      HistoName   = 
-    Region: SR_1
-      Sample: Data	SR_1_Data
-      Sample: Bkg1	SR_1_Bkg1
-        Systematics:    JES Bkg1Xsec
-      Sample: Bkg2	SR_1_Bkg2
-        Systematics:    Bkg2Xsec
-      Sample: Signal	SR_1_Signal
-        Systematics:    JES
-        NormFactor(s):  SigXsecOverSM
-    Region: SR_2
-      Sample: Data	SR_2_Data
-      Sample: Bkg1	SR_2_Bkg1
-        Systematics:    JES
-      Sample: Bkg2	SR_2_Bkg2
-        Systematics:    Bkg2Xsec
-      Sample: Signal	SR_2_Signal
-        Systematics:    JES
-        NormFactor(s):  SigXsecOverSM
-
--------------------------------------------
--------------------------------------------
-Smoothing and/or Symmetrising Systematic Variations ...
-Running CreateCustomAsimov
--------------------------------------------
-Writing histograms to file FitExample/Histograms/FitExample_histos.root ...
--------------------------------------------
-Writing histograms to file FitExample/Histograms/FitExample_histos.root ...
--------------------------------------------
+[1;32m=== INFO::TtHFit::CreateRootFiles: -------------------------------------------[0m
+[1;32m=== INFO::TtHFit::CreateRootFiles: Creating/updating file FitExample/Histograms/FitExample_histos.root ...[0m
+[1;32m=== INFO::TtHFit::ReadHistograms:   Region SR_1 ...[0m
+=== DEBUG::TtHFit::ReadHistograms:   Reading DATA sample Data
+=== DEBUG::TthFit::ReadHistograms:   Reading Bkg1
+=== DEBUG::TtHFit::ReadHistograms: Adding syst JES
+=== DEBUG::TtHFit::ReadHistograms: Adding syst Bkg1Xsec
+=== DEBUG::TthFit::ReadHistograms:   Reading Bkg2
+=== DEBUG::TtHFit::ReadHistograms: Adding syst Bkg2Xsec
+=== DEBUG::TthFit::ReadHistograms:   Reading Signal
+=== DEBUG::TtHFit::ReadHistograms: Adding norm SigXsecOverSM
+=== DEBUG::TtHFit::ReadHistograms: Adding syst JES
+[1;32m=== INFO::TtHFit::ReadHistograms:   Region SR_2 ...[0m
+=== DEBUG::TtHFit::ReadHistograms:   Reading DATA sample Data
+=== DEBUG::TthFit::ReadHistograms:   Reading Bkg1
+=== DEBUG::TtHFit::ReadHistograms: Adding syst JES
+=== DEBUG::TthFit::ReadHistograms:   Reading Bkg2
+=== DEBUG::TtHFit::ReadHistograms: Adding syst Bkg2Xsec
+=== DEBUG::TthFit::ReadHistograms:   Reading Signal
+=== DEBUG::TtHFit::ReadHistograms: Adding norm SigXsecOverSM
+=== DEBUG::TtHFit::ReadHistograms: Adding syst JES
+[1;32m=== INFO::TtHFit::Print: -------------------------------------------[0m
+[1;32m=== INFO::TtHFit::Print: FitExample[0m
+[1;32m=== INFO::TtHFit::Print:       NtuplePaths = [0m
+[1;32m=== INFO::TtHFit::Print:       NtupleName  = [0m
+[1;32m=== INFO::TtHFit::Print:       MCweight    = 1[0m
+[1;32m=== INFO::TtHFit::Print:       Selection   = 1[0m
+[1;32m=== INFO::TtHFit::Print:       HistoPaths  = 1[0m
+[1;32m=== INFO::TtHFit::Print:  ExampleInputs[0m
+[1;32m=== INFO::TtHFit::Print:       HistoName   = [0m
+[1;32m=== INFO::Region::Print:     Region: SR_1[0m
+=== DEBUG::SampleHist::Print:       Sample: Data	SR_1_Data
+=== DEBUG::SampleHist::Print:       Sample: Bkg1	SR_1_Bkg1
+=== DEBUG::SampleHist::Print:         Systematics:    JES Bkg1Xsec
+=== DEBUG::SampleHist::Print:       Sample: Bkg2	SR_1_Bkg2
+=== DEBUG::SampleHist::Print:         Systematics:    Bkg2Xsec
+=== DEBUG::SampleHist::Print:       Sample: Signal	SR_1_Signal
+=== DEBUG::SampleHist::Print:         Systematics:    JES
+=== DEBUG::SampleHist::Print:         NormFactor(s):  SigXsecOverSM
+[1;32m=== INFO::Region::Print:     Region: SR_2[0m
+=== DEBUG::SampleHist::Print:       Sample: Data	SR_2_Data
+=== DEBUG::SampleHist::Print:       Sample: Bkg1	SR_2_Bkg1
+=== DEBUG::SampleHist::Print:         Systematics:    JES
+=== DEBUG::SampleHist::Print:       Sample: Bkg2	SR_2_Bkg2
+=== DEBUG::SampleHist::Print:         Systematics:    Bkg2Xsec
+=== DEBUG::SampleHist::Print:       Sample: Signal	SR_2_Signal
+=== DEBUG::SampleHist::Print:         Systematics:    JES
+=== DEBUG::SampleHist::Print:         NormFactor(s):  SigXsecOverSM
+[1;32m=== INFO::TtHFit::Print: -------------------------------------------[0m
+[1;32m=== INFO::TtHFit::SmoothSystematics: -------------------------------------------[0m
+[1;32m=== INFO::TtHFit::SmoothSystematics: Smoothing and/or Symmetrising Systematic Variations ...[0m
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 100.000000 90.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 75.000000 70.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 20.000000 30.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 10.000000 30.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1 100.000000 1.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.000000 100.000000 0.010000 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 1
+=== DEBUG::HistoTools::rebin_getMaxVar: 2 75.000000 1.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.000000 75.000000 0.013333 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 2
+=== DEBUG::HistoTools::rebin_getMaxVar: 3 20.000000 2.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.000000 20.000000 0.100000 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 4 10.000000 0.500000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.061553 30.000000 0.068718 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 4
+=== DEBUG::HistoTools::get_nVar: Bin/content: 1 0.900000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.000000 0.900000
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 1 11
+=== DEBUG::HistoTools::get_nVar: Bin/content: 2 0.933333
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.900000 0.933333
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 2 11
+=== DEBUG::HistoTools::get_nVar: Bin/content: 3 2.000000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.933333 2.000000
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 3 11
+=== DEBUG::HistoTools::get_nVar: Out get_nVar:0
+=== DEBUG::HistoTools::Smooth_maxVariations: ---: 0.080000 0
+=== DEBUG::HistoTools::Smooth_maxVariations: Final: 0.080000 0
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 100.000000 100.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 75.000000 75.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 20.000000 20.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 10.000000 10.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1 100.000000 1.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.000000 100.000000 0.010000 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 1
+=== DEBUG::HistoTools::rebin_getMaxVar: 2 75.000000 1.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.000000 75.000000 0.013333 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 2
+=== DEBUG::HistoTools::rebin_getMaxVar: 3 20.000000 2.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.000000 20.000000 0.100000 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 4 10.000000 0.500000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.061553 30.000000 0.068718 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 4
+=== DEBUG::HistoTools::get_nVar: Bin/content: 1 1.000000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.000000 1.000000
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 1 11
+=== DEBUG::HistoTools::get_nVar: Bin/content: 2 1.000000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 1.000000 1.000000
+=== DEBUG::HistoTools::get_nVar: Bin/content: 3 1.000000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 1.000000 1.000000
+=== DEBUG::HistoTools::get_nVar: Out get_nVar:0
+=== DEBUG::HistoTools::Smooth_maxVariations: ---: 0.080000 0
+=== DEBUG::HistoTools::Smooth_maxVariations: Final: 0.080000 0
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 0.100000 0.110000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 0.500000 0.510000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 1.500000 1.520000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 3.100000 3.130000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1 0.100000 0.316228
+=== DEBUG::HistoTools::rebin_getMaxVar: 0.316228 0.100000 3.162278 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2 0.500000 0.707107
+=== DEBUG::HistoTools::rebin_getMaxVar: 0.774597 0.600000 1.290994 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 3 1.500000 1.224745
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.449138 2.100000 0.690066 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 4 3.100000 1.760682
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.280351 5.200000 0.438529 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 4
+=== DEBUG::HistoTools::get_nVar: Bin/content: 1 1.013462
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.000000 1.013462
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 1 11
+=== DEBUG::HistoTools::get_nVar: Out get_nVar:0
+=== DEBUG::HistoTools::Smooth_maxVariations: ---: 0.080000 0
+=== DEBUG::HistoTools::Smooth_maxVariations: Final: 0.080000 0
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 0.100000 0.100000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 0.500000 0.500000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 1.500000 1.500000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 3.100000 3.100000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1 0.100000 0.316228
+=== DEBUG::HistoTools::rebin_getMaxVar: 0.316228 0.100000 3.162278 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2 0.500000 0.707107
+=== DEBUG::HistoTools::rebin_getMaxVar: 0.774597 0.600000 1.290994 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 3 1.500000 1.224745
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.449138 2.100000 0.690066 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 4 3.100000 1.760682
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.280351 5.200000 0.438529 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 4
+=== DEBUG::HistoTools::get_nVar: Bin/content: 1 1.000000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.000000 1.000000
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 1 11
+=== DEBUG::HistoTools::get_nVar: Out get_nVar:0
+=== DEBUG::HistoTools::Smooth_maxVariations: ---: 0.080000 0
+=== DEBUG::HistoTools::Smooth_maxVariations: Final: 0.080000 0
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 100.000000 90.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 75.000000 70.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 20.000000 30.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 10.000000 30.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1 100.000000 1.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.000000 100.000000 0.010000 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 1
+=== DEBUG::HistoTools::rebin_getMaxVar: 2 75.000000 1.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.000000 75.000000 0.013333 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 2
+=== DEBUG::HistoTools::rebin_getMaxVar: 3 20.000000 2.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.000000 20.000000 0.100000 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 4 10.000000 0.500000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.061553 30.000000 0.068718 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 4
+=== DEBUG::HistoTools::get_nVar: Bin/content: 1 0.900000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.000000 0.900000
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 1 11
+=== DEBUG::HistoTools::get_nVar: Bin/content: 2 0.933333
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.900000 0.933333
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 2 11
+=== DEBUG::HistoTools::get_nVar: Bin/content: 3 2.000000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.933333 2.000000
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 3 11
+=== DEBUG::HistoTools::get_nVar: Out get_nVar:0
+=== DEBUG::HistoTools::Smooth_maxVariations: ---: 0.080000 0
+=== DEBUG::HistoTools::Smooth_maxVariations: Final: 0.080000 0
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 100.000000 100.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 75.000000 75.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 20.000000 20.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 10.000000 10.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1 100.000000 1.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.000000 100.000000 0.010000 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 1
+=== DEBUG::HistoTools::rebin_getMaxVar: 2 75.000000 1.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.000000 75.000000 0.013333 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 2
+=== DEBUG::HistoTools::rebin_getMaxVar: 3 20.000000 2.000000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.000000 20.000000 0.100000 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 4 10.000000 0.500000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.061553 30.000000 0.068718 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 4
+=== DEBUG::HistoTools::get_nVar: Bin/content: 1 1.000000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.000000 1.000000
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 1 11
+=== DEBUG::HistoTools::get_nVar: Bin/content: 2 1.000000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 1.000000 1.000000
+=== DEBUG::HistoTools::get_nVar: Bin/content: 3 1.000000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 1.000000 1.000000
+=== DEBUG::HistoTools::get_nVar: Out get_nVar:0
+=== DEBUG::HistoTools::Smooth_maxVariations: ---: 0.080000 0
+=== DEBUG::HistoTools::Smooth_maxVariations: Final: 0.080000 0
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 0.100000 0.110000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 0.500000 0.510000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 1.500000 1.520000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 3.100000 3.130000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1 0.100000 0.316228
+=== DEBUG::HistoTools::rebin_getMaxVar: 0.316228 0.100000 3.162278 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2 0.500000 0.707107
+=== DEBUG::HistoTools::rebin_getMaxVar: 0.774597 0.600000 1.290994 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 3 1.500000 1.224745
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.449138 2.100000 0.690066 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 4 3.100000 1.760682
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.280351 5.200000 0.438529 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 4
+=== DEBUG::HistoTools::get_nVar: Bin/content: 1 1.013462
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.000000 1.013462
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 1 11
+=== DEBUG::HistoTools::get_nVar: Out get_nVar:0
+=== DEBUG::HistoTools::Smooth_maxVariations: ---: 0.080000 0
+=== DEBUG::HistoTools::Smooth_maxVariations: Final: 0.080000 0
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 0.100000 0.100000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 0.500000 0.500000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 1.500000 1.500000
+=== DEBUG::HistoTools::rebin_getMaxVar: In: 3.100000 3.100000
+=== DEBUG::HistoTools::rebin_getMaxVar: 1 0.100000 0.316228
+=== DEBUG::HistoTools::rebin_getMaxVar: 0.316228 0.100000 3.162278 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 2 0.500000 0.707107
+=== DEBUG::HistoTools::rebin_getMaxVar: 0.774597 0.600000 1.290994 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 3 1.500000 1.224745
+=== DEBUG::HistoTools::rebin_getMaxVar: 1.449138 2.100000 0.690066 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: 4 3.100000 1.760682
+=== DEBUG::HistoTools::rebin_getMaxVar: 2.280351 5.200000 0.438529 0.080000
+=== DEBUG::HistoTools::rebin_getMaxVar: Push back bin: 4
+=== DEBUG::HistoTools::get_nVar: Bin/content: 1 1.000000
+=== DEBUG::HistoTools::get_nVar: Prev/this: 0.000000 1.000000
+=== DEBUG::HistoTools::get_nVar: Var, usedBins, up/wasup: 0 1 11
+=== DEBUG::HistoTools::get_nVar: Out get_nVar:0
+=== DEBUG::HistoTools::Smooth_maxVariations: ---: 0.080000 0
+=== DEBUG::HistoTools::Smooth_maxVariations: Final: 0.080000 0
+=== DEBUG::TtHFit::CreateCustomAsimov: Running CreateCustomAsimov
+[1;32m=== INFO::TtHFit::WriteHistos: -------------------------------------------[0m
+[1;32m=== INFO::TtHFit::WriteHistos: Writing histograms to file FitExample/Histograms/FitExample_histos.root ...[0m
+[1;32m=== INFO::TtHFit::WriteHistos: -------------------------------------------[0m
+[1;32m=== INFO::TtHFit::WriteHistos: Writing histograms to file FitExample/Histograms/FitExample_histos.root ...[0m
+[1;32m=== INFO::TtHFit::WriteHistos: -------------------------------------------[0m
 Info in <TCanvas::Print>: png file FitExample/Systematics/JES/SR_1_Bkg1.png has been created
 Info in <TCanvas::Print>: png file FitExample/Systematics/Bkg1Xsec/SR_1_Bkg1.png has been created
 Info in <TCanvas::Print>: png file FitExample/Systematics/Bkg2Xsec/SR_1_Bkg2.png has been created

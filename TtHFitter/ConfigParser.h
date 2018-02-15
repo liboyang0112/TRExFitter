@@ -22,7 +22,7 @@ class Config {
 public:
   Config();
   ~Config();
-  
+
   string fName;
   string fValue;
 };
@@ -31,7 +31,7 @@ class ConfigSet {
 public:
   ConfigSet();
   ~ConfigSet();
-  
+
   void SetConfig(string name,string value);
   string Get(string name);
   string operator[](string name);
@@ -43,7 +43,7 @@ public:
   void Set(string name,string value);
   string GetName();
   string GetValue();
-  
+
 private:
   int fN;
   string fName;
@@ -56,12 +56,12 @@ class ConfigParser {
 public:
   ConfigParser();
   ~ConfigParser();
-  
+
   ConfigSet *fConfSets[MAXconfig];
   void ReadFile(string fileName);
   ConfigSet *GetConfigSet(int i=0);
   ConfigSet *GetConfigSet(string name,int i=0);
-  
+
 private:
   int fN;
 };

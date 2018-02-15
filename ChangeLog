@@ -1,3 +1,30 @@
+2018-02-15 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Bootstrap functionality added (fixes TTHFITTER-174)
+    * Fixed crash when doing d step
+    * fixed range of LHscan for norm factors (using actual range)
+    
+2018-02-14 Alexander Held <alexander.held@cern.ch>
+    * Removed non-ASCII characters from core files
+    * Fixes TTHFITTER-168
+    
+2018-02-13 Emma Winkels <ewinkels@cern.ch>
+    * Small improvements to systematics plots
+    * Clarified description of SignalRegionsPlot option in README
+
+2018-02-09 Tomas Dado <tomas.dadod@cern.ch>
+    * Added new option to JOB settings "SuppressNegativeBinWarnings", if set
+	to true the code will not print out warning about (zero)negative bin
+	contents, closes TTHFITTER-62
+	* Added new printout option, Verbose. Activated when DebugLevel > 2.
+	Applied to correlation matrices. Solves TTHFITTER-170
+	* Added few protections for printout. Warnings for missing histograms will
+	not be printed for histograms containing "customAsimov". Missing NPs in
+	correlation will print warning only if they do not contain "morph".
+	* Added more digints to NLL and reduced NLL values
+
+2018-02-08 Tomas Dado <tomas.dadod@cern.ch>
+    * Added support for morphing when two different variables that use morphing for templates are used
+
 2018-02-02 Alexander Held <alexander.held@cern.ch>
     * Added new Samples option BuildPullTable to create tables showing post-fit acceptance effect of nuisance parameter pulls
     * See README for details
@@ -12,7 +39,7 @@
     * CustomFunctions option added for Job, to be able to use custom functions defined in .C files for selection or weights (instructions in the README)
 
 2018-01-27 Robert Wolff <robert.wolff@cern.ch>
-    * Fixed post-fit errors when negative norm-factors are used
+    * Fixed yields and plots errors and ranking for twice defined systematics
 
 2018-01-26 Michele Pinamonti <michele.pinamonti@gmail.com>
     * template fitting improved, with prefit functionality working (still no post-fit)

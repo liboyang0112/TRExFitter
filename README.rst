@@ -120,7 +120,7 @@ Note that, each object should have unique <ObjectName>.
      * IntCodeShape     : interpolation code used for the shape component of systematics (should match the one used in RooStats)
      * MCstatThreshold  : if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
      * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'Gaussian' (default) or 'Poisson'
-     * DebugLevel       : 0 or 1
+     * DebugLevel       : 0 = prints only Warning and Errors, 1 = additionally prints Info messages, 2 = additionally prints Debug messages, >2 additionally prints Verbose messages. For option <2 RooFit/Roostats messages will bea heavily suppressed 
      * PlotOptions      : a set of options for plotting:
         * YIELDS : if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields
         * NORMSIG : add normlised signal to plots
@@ -135,8 +135,8 @@ Note that, each object should have unique <ObjectName>.
         * LANDSCAPE : -> \begin{landscape}
      * SystControlPlots : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
      * SystDataPlots    : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame.
-     * CorrelationThreshold : Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%)
-     * SignalRegionsPlot: list of regions to put in SignalRegionsPlot; use "EMPTY" to put an empty entry, "ENDL" to specify end of line
+     * CorrelationThreshold : Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05:5%)
+     * SignalRegionsPlot: list of regions to put in SignalRegionsPlot and PieChartPlots; use "EMPTY" to put an empty entry, "ENDL" to specify end of line. This specifies the order of regions plotted in signal region S/B plots and pie chart plots, as well as number of regions per row.
      * HistoChecks      : NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem
      * LumiLabel        : label for luminosity to be put on plots
      * CmeLabel         : label for center-of-mass energy to be put on plots
@@ -177,6 +177,8 @@ Note that, each object should have unique <ObjectName>.
      * DoSignalRegionsPlot : if set to FALSE no signal regions plot is created
      * DoPieChartPlot   : if set to FALSE no background composition pie-chart plot is created
      * CustomFunctions  : list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values)
+     * SuppressNegativeBinWarnings  : If set to true will suppress warning messages about negative or 0 content in bins
+     * Bootstrap        : (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like "bsWeight(x,eventNumber,mcChannelNumber)", where bsWeight should be loaded with 'CustomFunctions: "bsWeight.C"' and eventNumber and mcChannelNumber shoudl be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option 'BootstrapIdx=<i>' should be given, with <i>=0,1,2,3...
      
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis

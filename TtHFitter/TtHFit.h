@@ -167,6 +167,7 @@ public:
     void AddTemplateWeight(const std::string& name, float);
     const std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
     const std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
+    const bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
     // -------------------------
       
@@ -316,12 +317,17 @@ public:
 
     bool fTtresSmoothing;
     
+    bool fSuppressNegativeBinWarnings;
+    
     std::vector<std::string> fCustomFunctions;
     
     bool fRunMorphing;
     std::vector<std::pair<float,std::string> > fTemplatePair;
     std::vector<TtHFit::TemplateWeight> fTemplateWeightVec;
     TemplateInterpolationOption fTemplateInterpolationOption;
+    
+    std::string fBootstrap;
+    int fBootstrapIdx;
 };
 
 #endif

@@ -18,17 +18,17 @@
 
 class Sample {
 public:
-  
+
     enum SampleType{
         BACKGROUND, // 0
         SIGNAL, // 1
         DATA, // 2
         GHOST // 3
     };
-    
+
     Sample(std::string name,int type=0);
     ~Sample();
-    
+
     // -------
     // Methods
     // -------
@@ -38,7 +38,7 @@ public:
     void SetFillColor(int color);
     void SetLineColor(int color);
     void NormalizedByTheory(const bool norm);
-    
+
     // read from ntupes
     void AddNtuplePath(std::string path);
     void AddNtupleFile(std::string file);
@@ -50,7 +50,7 @@ public:
     void AddHistoPath(std::string path);
     void AddHistoFile(std::string file);
     void AddHistoName(std::string name);
-    
+
     // norm factors and systs
     void AddNormFactor(NormFactor *factor);
     void AddShapeFactor(ShapeFactor *factor);
@@ -60,7 +60,7 @@ public:
     Systematic* AddSystematic(std::string name,int type=0,float up=0,float down=0);
     bool HasNormFactor(std::string name);
     bool HasSystematic(std::string name);
-    
+
     // -------
     // Members
     // -------
@@ -85,7 +85,7 @@ public:
     std::vector<std::string> fAddSamples;
     bool fSmooth;
     int fBuildPullTable;
-    
+
     // to read from ntuples
     std::string fSelection;
     std::string fMCweight;
@@ -95,7 +95,7 @@ public:
     std::vector<std::string> fNtupleFileSuffs;
     std::vector<std::string> fNtupleNames;
     std::vector<std::string> fNtupleNameSuffs;
-    
+
     // to read from histograms
     // <path>/<file>.root/<name>
     std::vector<std::string> fHistoPaths;
@@ -111,10 +111,10 @@ public:
     int fNNorm;
     std::vector < NormFactor* > fNormFactors;
     int fNShape;
-    std::vector < ShapeFactor* > fShapeFactors; 
-   
+    std::vector < ShapeFactor* > fShapeFactors;
+
     std::pair<std::string,std::string> fAsimovReplacementFor;
-    
+
     bool fSeparateGammas;
     std::vector<std::vector<std::string>> fCorrelateGammasInRegions;
 };
