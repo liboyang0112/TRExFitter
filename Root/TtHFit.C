@@ -387,6 +387,10 @@ void TtHFit::CreateRootFiles(){
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
             if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
             else                 fileName = fName + "/Histograms/" + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
+            // Bootstrap
+            if(fBootstrap!="" && fBootstrapIdx>=0){
+                fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
+            }
             WriteInfoStatus("TtHFit::CreateRootFiles","-------------------------------------------");
             WriteInfoStatus("TtHFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
             if(recreate) fFiles.push_back(new TFile(fileName.c_str(),"RECREATE"));
@@ -4117,31 +4121,34 @@ void TtHFit::ReadHistos(/*string fileName*/){
                         if(binContent==1 || binContent==-2) pruned = 1;
                         if(binContent==2 || binContent==-3) pruned = 2;
                     }
-                        syh = sh->AddHistoSyst(systName,
-                                               Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                               Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                               pruned
-                                              );
-                        if(syh==0x0){
-                        if (!pruned) WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
-                            continue;
-                        }
+                    syh = sh->AddHistoSyst(systName,
+                                            Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                            Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                            pruned
+                                          );
+                    if(syh==0x0){
+                    if (!pruned) WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
+                        continue;
                     }
+                }
                 // for both
-                    syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
-                    syh->fFileNameShapeUp    = fileName;
-                    syh->fFileNameShapeDown  = fileName;
+                syh->fFileNameShapeUp    = fileName;
+                syh->fFileNameShapeDown  = fileName;
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
-                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0){
                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName]!=0){
                         syh->fScaleUp *= fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName];
                     }
+                }
                 syh->fScaleDown = fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
-                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
-                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[regionName]!=0)
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0){
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[regionName]!=0){
                         syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[regionName];
+                    }
+                }
                 //
                 if(fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::OVERALL){
                     syh->fNormUp   *= syh->fScaleUp;
