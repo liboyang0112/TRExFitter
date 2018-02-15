@@ -306,7 +306,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
         WriteInfoStatus("FittingTool::FitPDF", "");
         WriteInfoStatus("FittingTool::FitPDF", "");
         WriteInfoStatus("FittingTool::FitPDF", "");
-        WriteInfoStatus("FittingTool::FitPDF", "Fit try n°" + std::to_string(nrItr+1));
+        WriteInfoStatus("FittingTool::FitPDF", "Fit try no." + std::to_string(nrItr+1));
         WriteInfoStatus("FittingTool::FitPDF", "======================");
         WriteInfoStatus("FittingTool::FitPDF", "");
 
