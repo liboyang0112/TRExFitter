@@ -316,7 +316,7 @@ public:
     int fGetChi2;
 
     bool fTtresSmoothing;
-
+    
     bool fSuppressNegativeBinWarnings;
     
     std::vector<std::string> fCustomFunctions;
@@ -325,6 +325,9 @@ public:
     std::vector<std::pair<float,std::string> > fTemplatePair;
     std::vector<TtHFit::TemplateWeight> fTemplateWeightVec;
     TemplateInterpolationOption fTemplateInterpolationOption;
+    
+    std::string fBootstrap;
+    int fBootstrapIdx;
 };
 
 #endif
