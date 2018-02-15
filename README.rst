@@ -178,6 +178,7 @@ Note that, each object should have unique <ObjectName>.
      * DoPieChartPlot   : if set to FALSE no background composition pie-chart plot is created
      * CustomFunctions  : list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values)
      * SuppressNegativeBinWarnings  : If set to true will suppress warning messages about negative or 0 content in bins
+     * Bootstrap        : (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like "bsWeight(x,eventNumber,mcChannelNumber)", where bsWeight should be loaded with 'CustomFunctions: "bsWeight.C"' and eventNumber and mcChannelNumber shoudl be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option 'BootstrapIdx=<i>' should be given, with <i>=0,1,2,3...
      
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
