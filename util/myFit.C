@@ -63,7 +63,6 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
             }
             if(doRanking){
                 if(myMultiFit->fRankingOnly!="plot")  myMultiFit->ProduceNPRanking( myMultiFit->fRankingOnly );
-//                 if(myMultiFit->fRankingOnly=="all" || myMultiFit->fRankingOnly=="plot")  myMultiFit->PlotNPRanking();
                 if(myMultiFit->fRankingOnly=="all" || myMultiFit->fRankingOnly=="plot")  myMultiFit->PlotNPRankingManager();
             }
         }
@@ -148,7 +147,6 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
         myFit->ToRooStat(true,true);
     }
 
-    // use the external tool FitCrossCheckForLimits fir fitting
     if(doFit){
         myFit->Fit();
         myFit->PlotFittedNP();

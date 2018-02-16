@@ -29,7 +29,8 @@ MultiFit::MultiFit(string name){
     fName = name;
     fDir = "";
     fOutDir = "";
-    fLabel = name;
+//     fLabel = name;
+    fLabel = "";
     fShowObserved = false;
     fLimitTitle = "95% CL limit on #sigma/#sigma_{SM}(t#bar{t}H) at m_{H} = 125 GeV";
     fPOITitle = "best fit #mu = #sigma^{t#bar{t}H}/#sigma^{t#bar{t}H}_{SM} for m_{H} = 125 GeV";
@@ -74,8 +75,11 @@ MultiFit::MultiFit(string name){
     fSignalTitle = "t#bar{t}H";
     //
     fFitResultsFile = "";
+    fLimitsFile = "";
+    fLimitsFiles.clear();
     fBonlySuffix = "";
     fShowSystForPOI = false;
+    fVarNameLH.clear();    
 }
 
 //__________________________________________________________________________________
@@ -126,9 +130,7 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     else{
         fOutDir = "./" + fName;
     }
-    param = cs->Get("Label");
-    if(param!="") fLabel = param;
-    else          fLabel = fName;
+    param = cs->Get("Label");     if( param != "")  fLabel     = param;
     param = cs->Get("LumiLabel"); if( param != "")  fLumiLabel = param;
     param = cs->Get("CmeLabel");  if( param != "")  fCmeLabel  = param;
     param = cs->Get("SaveSuf");   if( param != "")  fSaveSuf   = param;
@@ -188,9 +190,12 @@ void MultiFit::ReadConfigFile(string configFile,string options){
     param = cs->Get("PlotSoverB");     if( param == "TRUE" )  fPlotSoverB = true;
     param = cs->Get("SignalTitle");    if( param != "" )  fSignalTitle = param;
     param = cs->Get("FitResultsFile"); if( param != "" )  fFitResultsFile = param;
+    param = cs->Get("LimitsFile");     if( param != "" )  fLimitsFile     = param;
     param = cs->Get("BonlySuffix");    if( param != "" )  fBonlySuffix    = param;
     //
-    param = cs->Get("ShowSystForPOI"); if( param != "" && param != "FALSE" )  fShowSystForPOI = true;
+    param = cs->Get("ShowSystForPOI");   if( param != "" && param != "FALSE" )  fShowSystForPOI   = true;
+    param = cs->Get("GetGoodnessOfFit"); if( param != "" && param != "FALSE" )  fGetGoodnessOfFit = true;
+    param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = Vectorize(param,','); }
 
     param = cs->Get("PlotOptions");    if( param != ""){
         auto vec = Vectorize(param,',');
@@ -237,6 +242,8 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         AddFitFromConfig(confFile,fullOptions,label,loadSuf,wsFile);
         //
         param = cs->Get("FitResultsFile"); if( param != "" )  fFitList[fFitList.size()-1]->fFitResultsFile = param;
+        fLimitsFiles.push_back("");
+        param = cs->Get("LimitsFile");     if( param != "" )  fLimitsFiles[fFitList.size()-1] = param;
         param = cs->Get("POIName"); if( param != "" )  fFitList[fFitList.size()-1]->fPOI = param;
         param = cs->Get("Directory"); if( param != "" )  fFitList[fFitList.size()-1]->fName = param;
         param = cs->Get("InputName"); if( param != "" )  fFitList[fFitList.size()-1]->fInputName = param;
@@ -438,12 +445,52 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
 
     // Performs the fit
     gSystem -> mkdir((fOutDir+"/Fits/").c_str(),true);
+
+    //
+    // Get initial ikelihood value from Asimov
+    float nll0 = 0.;
+    if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
+    
+    //
+    // Get number of degrees of freedom
+    // - number of bins
+    int ndof = data->numEntries();
+    // - minus number of free & non-constant parameters
+    std::vector<std::string> nfList;
+    for(auto fit : fFitList){
+        for(auto nf : fit->fNormFactors){
+            if(nf->fConst) continue;
+            if(FindInStringVector(nfList,nf->fName)>=0) continue;
+            if(fFitType==2 && fPOI==nf->fName) continue;
+            nfList.push_back(nf->fName);
+        }
+    }
+    ndof -= nfList.size();
+    
     fitTool -> MinimType("Minuit2");
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     // Full fit
-    fitTool -> FitPDF( mc, simPdf, data, fFastFit );
+    float nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
     fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     result = fitTool -> ExportFitResultInMap();
+
+    //
+    // Goodness of fit
+    if(fGetGoodnessOfFit){
+        float deltaNLL = nll-nll0;
+        double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
+        WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
+        WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL0        = " + std::to_string(nll0));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL         = " + std::to_string(nll));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  ndof        = " + std::to_string(ndof));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  dNLL        = " + std::to_string(deltaNLL));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  2dNLL/nof   = " + std::to_string(2.*deltaNLL/ndof));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  probability = " + std::to_string(prob));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
+        WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
+    }
 
     // Stat-only fit:
     // - read fit resutls
@@ -472,6 +519,22 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
     }
 
+    //
+    // Calls the  function to create LH scan with respect to a parameter
+    //
+    if(fVarNameLH.size()>0){
+        if (fVarNameLH[0]=="all"){
+            for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
+                GetLikelihoodScan( ws, it->first, data, true, fCompare);
+            }
+        }
+        else{
+            for(unsigned int i=0; i<fVarNameLH.size(); ++i){
+                GetLikelihoodScan( ws, fVarNameLH[i], data, true, fCompare);
+            }
+        }
+    }
+    
     return result;
 }
 //__________________________________________________________________________________
@@ -672,46 +735,34 @@ void MultiFit::ComparePOI(string POI){
     h_dummy->GetYaxis()->SetNdivisions(Ndiv);
 
     TLatex *tex = new TLatex();
-//     tex->SetNDC(1);
 
     for(int i=0;i<N;i++){
         h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
-//         myText(0.5,(1.*i)/(1.*N),kBlack,Form("#mu= %.1f",g_central->GetY()[i]));
-//                 tex->DrawLatex(0.5,(1.*i)/(1.*N),Form("#mu= %.1f",g_central->GetY()[i]));
         if(fShowSystForPOI){
             tex->SetTextSize(gStyle->GetTextSize()*1.2);
-//             tex->SetTextAlign(31);
-//             tex->SetTextFont(82);
             tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#font[62]{%." + fPOIPrecision + "f}").c_str(),g_central->GetX()[N-i-1]));
-            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{+%." + fPOIPrecision + "f}}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{ -%." + fPOIPrecision + "f}}").c_str(),g_tot->GetErrorXlow(N-i-1)));
+            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
+            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_tot->GetErrorXlow(N-i-1)));
             tex->DrawLatex(xmin+0.69*(xmax-xmin),N-i-1,"(");
-            tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{+%." + fPOIPrecision + "f}}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{ -%." + fPOIPrecision + "f}}").c_str(),g_stat->GetErrorXlow(N-i-1)));
-            tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{+%." + fPOIPrecision + "f}}").c_str(),
+	    tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
+	    tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_stat->GetErrorXlow(N-i-1)));
+            tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),
                 sqrt( pow(g_tot->GetErrorXhigh(N-i-1),2) - pow(g_stat->GetErrorXhigh(N-i-1),2) ) ) );
-            tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{ -%." + fPOIPrecision + "f}}").c_str(),
+            tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),
                 sqrt( pow(g_tot->GetErrorXlow(N-i-1) ,2) - pow(g_stat->GetErrorXlow(N-i-1) ,2) ) ) );
             tex->DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
         }
         else{
             tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#mu = %." + fPOIPrecision + "f").c_str(),g_central->GetX()[N-i-1]));
-            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{+%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{-%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXlow(N-i-1)));
-            tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{+%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{-%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXlow(N-i-1)));
+            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
+            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXlow(N-i-1)));
+            tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
+            tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXlow(N-i-1)));
         }
     }
 
-//     TLine *l_0 = new TLine(0,-0.5,0,N-0.5);
-//     l_0->SetLineWidth(2);
-//     l_0->SetLineColor(kGray);
-//     l_0->SetLineStyle(kDotted);
-//     l_0->Draw("same");
-
     TLine *l_SM = new TLine(1,-0.5,1,N-0.5);
     l_SM->SetLineWidth(2);
-//     l_SM->SetLineColor(kGray+1);
     l_SM->SetLineColor(kGray);
     l_SM->Draw("same");
 
@@ -745,9 +796,12 @@ void MultiFit::ComparePOI(string POI){
 //     ATLASLabel(0.02,0.93,"    Internal",kBlack);
 //     myText(0.35,0.93,kBlack,process.c_str());
 //     myText(0.65,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+//     ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
+//     if(process!="") myText(0.60,0.93,kBlack,Form("%s, #sqrt{s} = %s, %s",process.c_str(),fCmeLabel.c_str(),fLumiLabel.c_str()));
+//     else            myText(0.70,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
-    if(process!="") myText(0.60,0.93,kBlack,Form("%s, #sqrt{s} = %s, %s",process.c_str(),fCmeLabel.c_str(),fLumiLabel.c_str()));
-    else            myText(0.70,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
 
     TLegend *leg;
     leg = new TLegend(0.35,0.775,0.7,0.9);
@@ -837,13 +891,23 @@ void MultiFit::CompareLimit(){
 
     // get values
     for(int i=0;i<N;i++){
-        if(fSignalInjection){
-            f = new TFile(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
-            WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + "_injection.root");
+        if(i>fLimitsFiles.size()-1){
+            if(fLimitsFile!="") fLimitsFiles.push_back(fLimitsFile);
+            else                fLimitsFiles.push_back("");
+        }
+        if(fLimitsFiles[i]==""){
+            if(fSignalInjection){
+                f = new TFile(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
+                WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + "_injection.root");
+            }
+            else{
+                f = new TFile(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
+                WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + ".root");
+            }
         }
         else{
-            f = new TFile(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
-            WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + ".root");
+            f = new TFile(fLimitsFiles[i].c_str());
+            WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + fLimitsFiles[i]);
         }
         h = (TH1*)f->Get("limit");
         if(fSignalInjection) h_old = (TH1*)f->Get("limit_old");
@@ -922,9 +986,12 @@ void MultiFit::CompareLimit(){
 //     ATLASLabel(0.02,0.93,"    Internal",kBlack);
 //     myText(0.35,0.93,kBlack,process.c_str());
 //     myText(0.65,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+//     ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
+//     if(process!="") myText(0.60,0.93,kBlack,Form("%s, #sqrt{s} = %s, %s",process.c_str(),fCmeLabel.c_str(),fLumiLabel.c_str()));
+//     else            myText(0.70,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
-    if(process!="") myText(0.60,0.93,kBlack,Form("%s, #sqrt{s} = %s, %s",process.c_str(),fCmeLabel.c_str(),fLumiLabel.c_str()));
-    else            myText(0.70,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
 
     TLegend *leg;
     if(showObs) leg = new TLegend(0.65,0.2,0.95,0.40);
@@ -1477,7 +1544,7 @@ void MultiFit::PlotCombinedCorrelationMatrix(){
         return;
     }
     //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
-    fit->ReadFitResults(fOutDir+"/Fits/"+fName+".txt");
+    fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     if(fit->fFitResults){
         for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
             fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format],TtHFitter::CORRELATIONTHRESHOLD);
@@ -1577,7 +1644,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     //
     // Get the combined model
     //
-    TFile *f = new TFile((fOutDir+"/ws_combined.root").c_str() );
+    TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
 
     //
@@ -1642,7 +1709,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     fitTool -> ConstPOI(false);
 
     TtHFit *fit = fFitList[fFitList.size()-1];
-    fit->ReadFitResults(fOutDir+"/Fits/"+fName+".txt");
+    fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     muhat = fit->fFitResults -> GetNuisParValue( fPOI );
 
     for(unsigned int i=0;i<nuisPars.size();i++){
@@ -2069,7 +2136,211 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     delete c;
 }
 
+//__________________________________________________________________________________
+//
+void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data,bool recreate,bool compare){
+    WriteInfoStatus("MultiFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
+    TString LHDir("LHoodPlots/");
+    
+    // shut-up RooFit!
+    if(TtHFitter::DEBUGLEVEL<=1){
+        if(TtHFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
+        else if(TtHFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL) ;
+        RooMsgService::instance().getStream(1).removeTopic(Generation) ;
+        RooMsgService::instance().getStream(1).removeTopic(Plotting) ;
+        RooMsgService::instance().getStream(1).removeTopic(LinkStateMgmt) ;
+        RooMsgService::instance().getStream(1).removeTopic(Eval) ;  
+        RooMsgService::instance().getStream(1).removeTopic(Caching) ;  
+        RooMsgService::instance().getStream(1).removeTopic(Optimization) ;  
+        RooMsgService::instance().getStream(1).removeTopic(ObjectHandling) ;  
+        RooMsgService::instance().getStream(1).removeTopic(InputArguments) ;  
+        RooMsgService::instance().getStream(1).removeTopic(Tracing) ;  
+        RooMsgService::instance().getStream(1).removeTopic(Contents) ;  
+        RooMsgService::instance().getStream(1).removeTopic(DataHandling) ;  
+        RooMsgService::instance().setStreamStatus(1,false);
+    }
 
+    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
+    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+
+    bool isPoI = false;
+    RooRealVar* firstPOI = (RooRealVar*) mc->GetParametersOfInterest()->first();
+    TString firstPOIname = (TString)firstPOI->GetName();
+    if (firstPOIname.Contains(varName.c_str())) isPoI = true;
+
+    RooRealVar* var = NULL;
+    TString vname = "";
+    std::string vname_s = "";
+    bool foundSyst = false;
+    Double_t minVal = -3;
+    Double_t maxVal =  3;
+    for(auto fit : fFitList){
+        for(auto nf : fit->fNormFactors){
+            if(nf->fName == varName){
+                minVal = nf->fMin;
+                maxVal = nf->fMax;
+            }
+        }
+    }
+
+    if (isPoI){
+        TIterator* it = mc->GetParametersOfInterest()->createIterator();
+        while( (var = (RooRealVar*) it->Next()) ){
+            vname=var->GetName();
+            vname_s=var->GetName();
+            if (vname.Contains(varName.c_str())) {
+                WriteInfoStatus("MultiFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
+                foundSyst=true;
+                break;
+            }
+        }
+    }
+    else {
+        TIterator* it = mc->GetNuisanceParameters()->createIterator();
+        while( (var = (RooRealVar*) it->Next()) ){
+            vname=var->GetName();
+            vname_s=var->GetName();
+            if (vname.Contains(varName.c_str())) {
+                WriteInfoStatus("MultiFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
+                foundSyst=true;
+                break;
+            }
+        }
+    }
+
+    if(!foundSyst){
+        WriteWarningStatus("MultiFit::GetLikelihoodScan", "systematic " + varName + " not found (most probably due to Pruning), skip LHscan !");
+        return;
+    }
+    WriteInfoStatus("MultiFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
+
+    TCanvas* can = new TCanvas("NLLscan");
+    can->SetTopMargin(0.1);
+    RooCurve* curve;
+    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(minVal, maxVal));
+    
+    if(recreate){
+        RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
+        TString tag("");
+        RooAbsReal* pll = nll->createProfile(*var);
+        pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TtHFitter::NCPU));
+        curve = frameLH->getCurve();
+    }
+    else{
+        TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
+        curve = (RooCurve*)f->Get("LHscan");
+    }
+    curve->Draw();
+    
+    // take the LH curves also for other fits
+    RooCurve *curve_statOnly; // to implement
+    std::vector<RooCurve*> curve_fit;
+    std::vector<RooCurve*> curve_fit_statOnly; // to implement
+    TLegend *leg = new TLegend(0.5,0.85-0.06*(fFitList.size()+1),0.75,0.85);
+//     leg->SetFillStyle(0);
+    leg->SetFillColor(kWhite);
+    leg->SetBorderSize(0);
+    leg->SetTextSize(gStyle->GetTextSize());
+    leg->SetTextFont(gStyle->GetTextFont());
+    if(compare){
+        for(auto fit : fFitList){
+            TFile *f = new TFile(fit->fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
+            if(f!=0x0) curve_fit.push_back((RooCurve*)f->Get("LHscan"));
+            else       curve_fit.push_back(0x0);
+        }
+        //
+        int idx = 0;
+        for(auto crv : curve_fit){
+            if(idx==0) crv->SetLineColor(kBlue);
+            if(idx==1) crv->SetLineColor(kGreen);
+            frameLH->addPlotable(crv,"same");
+            leg->AddEntry(crv,fFitList[idx]->fLabel.c_str(),"l");
+            idx++;
+        }
+        leg->AddEntry(curve,"Combined","l");
+    }
+
+    float val = var->getVal();
+    frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
+
+    // y axis
+    //frameLH->updateYAxis(minVal,maxVal,"");
+    frameLH->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
+//     if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
+    if(TtHFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[varName].c_str());
+    else if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
+
+    TString cname="";
+    cname.Append("NLLscan_");
+    cname.Append(vname);
+
+    can->SetTitle(cname);
+    can->SetName(cname);
+    can->cd();
+    frameLH->Draw();
+  //   latex->Draw("same");
+
+    TLatex *tex = new TLatex();
+    tex->SetTextColor(kGray+2);
+    
+    TLine *l1s = new TLine(minVal,0.5,maxVal,0.5);
+    l1s->SetLineStyle(kDashed);
+    l1s->SetLineColor(kGray);
+    l1s->SetLineWidth(2);
+    if(frameLH->GetMaximum()>2){
+        l1s->Draw();
+        tex->DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
+    }
+    
+    if(isPoI){
+        if(frameLH->GetMaximum()>2){
+            TLine *l2s = new TLine(minVal,2,maxVal,2);
+            l2s->SetLineStyle(kDashed);
+            l2s->SetLineColor(kGray);
+            l2s->SetLineWidth(2);
+            l2s->Draw();
+            tex->DrawLatex(maxVal,2,"#lower[-0.1]{#kern[-1]{2 #it{#sigma}   }}");
+        }
+        //
+        if(frameLH->GetMaximum()>4.5){
+            TLine *l3s = new TLine(minVal,4.5,maxVal,4.5);
+            l3s->SetLineStyle(kDashed);
+            l3s->SetLineColor(kGray);
+            l3s->SetLineWidth(2);
+            l3s->Draw();
+            tex->DrawLatex(maxVal,4.5,"#lower[-0.1]{#kern[-1]{3 #it{#sigma}   }}");
+        }
+        //
+        TLine *lv0 = new TLine(0,frameLH->GetMinimum(),0,frameLH->GetMaximum());
+        lv0->Draw();
+        //
+        TLine *lh0 = new TLine(minVal,0,maxVal,0);
+        lh0->Draw();
+    }
+
+    system(TString("mkdir -vp ")+fName+"/"+LHDir);
+
+    if(compare){
+        leg->Draw();
+        ATLASLabel(0.15,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
+        myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+        if(fLabel!="") myText(0.2,0.85,kBlack,Form("#kern[-1]{%s}",fLabel.c_str()));
+    }
+    
+    frameLH->SetMinimum(0);
+    can->RedrawAxis();
+    curve->Draw("same");
+    
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TtHFitter::IMAGEFORMAT[i_format] );
+    
+    if(recreate){
+        // write it to a ROOT file as well
+        TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
+        curve->Write("LHscan",TObject::kOverwrite);
+    }
+}
 
 //____________________________________________________________________________________
 //

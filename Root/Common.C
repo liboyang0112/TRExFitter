@@ -128,6 +128,8 @@ void WriteHistToFile(TH1* h,string fileName,string option){
     TDirectory *dir = gDirectory;
     TFile *f = new TFile(fileName.c_str(),option.c_str());
     h->Write("",TObject::kOverwrite);
+    h->SetDirectory(0);
+//     h->AddDirectory(0);
     delete f;
     dir->cd();
 }
@@ -138,6 +140,8 @@ void WriteHistToFile(TH1* h,TFile *f){
     TDirectory *dir = gDirectory;
     f->cd();
     h->Write("",TObject::kOverwrite);
+    h->SetDirectory(0);
+//     h->AddDirectory(0);
     dir->cd();
 }
 

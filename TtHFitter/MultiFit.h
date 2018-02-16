@@ -29,7 +29,8 @@ public:
     void ProduceNPRanking(string NPnames="all");
     void PlotNPRankingManager();
     void PlotNPRanking(bool flagSysts=true, bool flagGammas=false);
-    void PlotSummarySoverB();
+    void PlotSummarySoverB();    
+    void GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data,bool recreate=true,bool compare=false);
 
     TH1F* Combine(std::vector<TH1F*>);
     TH1F* OrderBins(TH1F* h,std::vector<float> vec);
@@ -96,9 +97,14 @@ public:
     string fSignalTitle;
 
     std::string fFitResultsFile;
+    std::string fLimitsFile;
+    std::vector<std::string> fLimitsFiles;
     std::string fBonlySuffix;
 
     bool fShowSystForPOI;
+    bool fGetGoodnessOfFit;
+    
+    std::vector<std::string> fVarNameLH;
 };
 
 #endif
