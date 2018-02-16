@@ -492,6 +492,22 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
     }
 
+    //
+    // Calls the  function to create LH scan with respect to a parameter
+    //
+    if(fVarNameLH.size()>0){
+        if (fVarNameLH[0]=="all"){
+            for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
+                GetLikelihoodScan( ws, it->first, data, true, fCompare);
+            }
+        }
+        else{
+            for(unsigned int i=0; i<fVarNameLH.size(); ++i){
+                GetLikelihoodScan( ws, fVarNameLH[i], data, true, fCompare);
+            }
+        }
+    }
+
     // Stat-only fit:
     // - read fit resutls
     // - fix all NP to fitted ones before fitting
@@ -517,22 +533,6 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         fitTool -> FixNPs(npNames,npValues);
         fitTool -> FitPDF( mc, simPdf, data );
         fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
-    }
-
-    //
-    // Calls the  function to create LH scan with respect to a parameter
-    //
-    if(fVarNameLH.size()>0){
-        if (fVarNameLH[0]=="all"){
-            for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws, it->first, data, true, fCompare);
-            }
-        }
-        else{
-            for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-                GetLikelihoodScan( ws, fVarNameLH[i], data, true, fCompare);
-            }
-        }
     }
     
     return result;
