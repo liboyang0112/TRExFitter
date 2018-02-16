@@ -1,7 +1,16 @@
+2018-02-16 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixes TTHFITTER-171
+    * Fixes TTHFITTER-172
+    * Fixed few more things in MultiFit
+    * Fixes TTHFITTER-175
+    * Fixed issue with prefit yield table (thanks for spotting it Steffen)
+    * Improved LH scan and fixes TTHFITTER-160
+    
 2018-02-15 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Bootstrap functionality added (fixes TTHFITTER-174)
     * Fixed crash when doing d step
     * fixed range of LHscan for norm factors (using actual range)
+    * fixed issue in prefit tables for systematics with same NP
     
 2018-02-14 Alexander Held <alexander.held@cern.ch>
     * Removed non-ASCII characters from core files
