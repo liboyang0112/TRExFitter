@@ -86,7 +86,7 @@ namespace TtHFitter{
     extern std::map< string, float > OPTION;
     extern std::map<string,TFile*> TFILEMAP;
     extern bool GUESSMCSTATERROR;
-};
+}
 
 const int MAXregions = 100;
 const int MAXsamples = 100;
