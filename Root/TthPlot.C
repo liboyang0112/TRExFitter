@@ -170,7 +170,7 @@ void TthPlot::AddSignal(TH1* h,string name){
 //     }
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
-    int idx = std::find(fSigNames.begin(),fSigNames.end(),name) - fSigNames.begin();
+    unsigned int idx = std::find(fSigNames.begin(),fSigNames.end(),name) - fSigNames.begin();
     if(idx<fSigNames.size()){
         h_signal[idx]->Add(h,fLumiScale);
     }
@@ -190,7 +190,7 @@ void TthPlot::AddNormSignal(TH1* h,string name){
 //     }
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
-    int idx = std::find(fNormSigNames.begin(),fNormSigNames.end(),name) - fNormSigNames.begin();
+    unsigned int idx = std::find(fNormSigNames.begin(),fNormSigNames.end(),name) - fNormSigNames.begin();
     if(idx<fNormSigNames.size()){
         h_normsig[idx]->Add(h,fLumiScale);
     }
@@ -210,7 +210,7 @@ void TthPlot::AddOverSignal(TH1* h,string name){
 //     }
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
-    int idx = std::find(fOverSigNames.begin(),fOverSigNames.end(),name) - fOverSigNames.begin();
+    unsigned int idx = std::find(fOverSigNames.begin(),fOverSigNames.end(),name) - fOverSigNames.begin();
     if(idx<fOverSigNames.size()){
         h_oversig[idx]->Add(h,fLumiScale);
     }
@@ -243,7 +243,7 @@ void TthPlot::AddBackground(TH1* h,string name){
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
     //
-    int idx = std::find(fBkgNames.begin(),fBkgNames.end(),name) - fBkgNames.begin();
+    unsigned int idx = std::find(fBkgNames.begin(),fBkgNames.end(),name) - fBkgNames.begin();
     if(idx<fBkgNames.size()){
         h_bkg[idx]->Add(h,fLumiScale);
     }
@@ -325,7 +325,7 @@ void TthPlot::BlindData(){
 //
 TH1* TthPlot::GetTotBkg() const{
   TH1* h = (TH1*)h_tot->Clone("h_tot_bkg");
-  for (int i=0; i<fSigNames.size(); ++i) {
+  for (unsigned int i=0; i<fSigNames.size(); ++i) {
     h->Add( h_signal[i], -1);
   }
   return h;
@@ -403,7 +403,7 @@ void TthPlot::Draw(string options){
     //
     h_stack->Draw("HIST same");
 
-    if( TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit ) {
+    if( TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit ) {
       h_tot_bkg_prefit->SetFillColor(0);
       h_tot_bkg_prefit->SetLineStyle(kDashed);
       h_tot_bkg_prefit->SetLineColor(kBlue);
@@ -547,11 +547,11 @@ void TthPlot::Draw(string options){
         }
 
         //Signal and background legends
-        for(int i_smp=0;i_smp<fSigNames.size();i_smp++){
+        for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++){
             leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
             leg1->AddEntry((TObject*)0,Form("%.1f",h_signal[i_smp]->Integral()),"");
         }
-        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++){
+        for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++){
             leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
             leg1->AddEntry((TObject*)0,Form("%.1f",h_bkg[i_smp]->Integral()),"");
         }
@@ -561,7 +561,7 @@ void TthPlot::Draw(string options){
         else leg->AddEntry(g_tot,"Uncertainty","f");
         leg1->AddEntry((TObject*)0," ","");
 
-        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) {
+        if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) {
           leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
           leg1->AddEntry((TObject*)0," ","");
         }
@@ -590,21 +590,21 @@ void TthPlot::Draw(string options){
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
 
         //Signal and background legend
-        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+        for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
 //         for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]==0){
-            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
-            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
-        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+        for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
         else leg->AddEntry(g_tot,"Uncertainty","f");
         if(TtHFitter::OPTION["TtHbbStyle"]!=0){
-            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm.)").c_str(),"l");
-            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm.)").c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
 
-        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
 
         leg->Draw();
     }
@@ -632,20 +632,20 @@ void TthPlot::Draw(string options){
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
 
         //Signal and background legend
-        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+        for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]==0){
-            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
-            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
-        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+        for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
         else leg->AddEntry(g_tot,"Uncertainty","f");
         if(TtHFitter::OPTION["TtHbbStyle"]!=0){
-            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
-            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
 
-        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
 
         leg->Draw();
     }
@@ -669,20 +669,20 @@ void TthPlot::Draw(string options){
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
 
         //Signal and background legend
-        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+        for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]==0){
-            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
-            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
-        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+        for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
         else leg->AddEntry(g_tot,"Uncertainty","f");
         if(TtHFitter::OPTION["TtHbbStyle"]!=0){
-            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
-            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
 
-        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
 
         leg->Draw();
     }
@@ -707,20 +707,20 @@ void TthPlot::Draw(string options){
         if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
 
         //Signal and background legend
-        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+        for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]==0){
-            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
-            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
-        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+        for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
         else leg->AddEntry(g_tot,"Uncertainty","f");
         if(TtHFitter::OPTION["TtHbbStyle"]!=0){
-            for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
-            for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
 
-        if(TtHFitter::PREFITONPOSTFIT and h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
 
         leg->Draw();
 
@@ -753,7 +753,6 @@ void TthPlot::Draw(string options){
     }
     else                                   h_ratio = (TH1*)h_data->Clone("h_ratio");
 
-    TH1 *h_ratio2 = (TH1*)h_tot->Clone("h_ratio2");
     TH1 *h_tot_nosyst = (TH1*)h_tot->Clone("h_tot_nosyst");
     for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
         h_tot_nosyst->SetBinError(i_bin,0);
@@ -962,10 +961,10 @@ void TthPlot::Draw(string options){
     //
     // Set bin width and eventually divide larger bins by this bin width
     if(fBinWidth>0){
-        for(int i_smp=0;i_smp<fSigNames.size();i_smp++)      SetHistBinWidth(h_signal[i_smp], fBinWidth);
-        for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++)  SetHistBinWidth(h_normsig[i_smp],fBinWidth);
-        for(int i_smp=0;i_smp<fOverSigNames.size();i_smp++)  SetHistBinWidth(h_oversig[i_smp],fBinWidth);
-        for(int i_smp=0;i_smp<fBkgNames.size();i_smp++)      SetHistBinWidth(h_bkg[i_smp],    fBinWidth);
+        for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)      SetHistBinWidth(h_signal[i_smp], fBinWidth);
+        for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++)  SetHistBinWidth(h_normsig[i_smp],fBinWidth);
+        for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++)  SetHistBinWidth(h_oversig[i_smp],fBinWidth);
+        for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)      SetHistBinWidth(h_bkg[i_smp],    fBinWidth);
         //
         if(h_tot) SetHistBinWidth(h_tot,fBinWidth);
         if(g_tot) SetGraphBinWidth(g_tot,fBinWidth);
