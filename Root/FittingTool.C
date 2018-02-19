@@ -52,7 +52,8 @@ m_noShapeFactors(false),
 m_RangePOI_up(100.),
 m_RangePOI_down(-10.),
 m_randomize(false),
-m_randomNP(0.1)
+m_randomNP(0.1),
+m_randSeed(-999)
 {
     m_constNP.clear();
     m_constNPvalue.clear();
@@ -478,8 +479,6 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 
     if(m_debug){
 //         RemoveConstantParameters(poiList);
-//         int ndof = poiList.getSize();
-        int ndof = 1;
         double redNLL = nllval - 1000000.0;
         std::stringstream redNLL_ss;
         redNLL_ss << std::fixed << std::setprecision(20) << redNLL;
