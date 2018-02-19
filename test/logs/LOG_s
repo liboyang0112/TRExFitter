@@ -6,7 +6,7 @@
 
 Applying ATLAS style settings...
 
-Reading config file config/myFit.config
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m
 full list of observables:
 RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
 [#0] ERROR:InputArguments -- RooArgSet::checkForDup: ERROR argument with name nom_alpha_JES is already in this set

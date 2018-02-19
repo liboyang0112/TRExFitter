@@ -6,7 +6,7 @@
 
 Applying ATLAS style settings...
 
-Reading config file config/myFit.config
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m
 [1;32m=== INFO::TtHFit::ReadHistos: -----------------------------[0m
 [1;32m=== INFO::TtHFit::ReadHistos: Reading histograms from file FitExample/Histograms/FitExample_histos.root ...[0m
 === DEBUG::TtHFit::ReadHistos:   Reading region SR_1

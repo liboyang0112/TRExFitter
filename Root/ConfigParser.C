@@ -231,7 +231,7 @@ void ConfigParser::ReadFile(string fileName){
     file.close();
     file.clear();
     if (replacementFileName!="") {
-        WriteInfoStatus("ConfigParser::ReadFile", "Attempting to open replacement file: " + replacementFileName + " to fill the map");
+        WriteInfoStatus("ConfigParser::ReadFile", "Opening replacement file: " + replacementFileName + " to fill the map");
         ////replacementFileName="Common_XS_unc_Replacement.txt";
         ifstream fileR(replacementFileName.c_str());
         if(!fileR.is_open()){
