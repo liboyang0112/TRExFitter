@@ -256,7 +256,7 @@ void FitResults::DrawNormFactors( const string &path, const std::vector < NormFa
 
     TLatex *systs = new TLatex();
     systs->SetTextSize( systs->GetTextSize()*0.8 );
-    for(int i=0;i<selected_norm_factors.size();i++){
+    for(unsigned int i=0;i<selected_norm_factors.size();i++){
       systs->DrawLatex(xmax*1.05,2*i+0.75,(selected_norm_factors[i]->fTitle).c_str());
       systs->DrawLatex(xmax*0.7,2*i+0.75,
         Form("%.2f ^{%.2f}_{%.2f}",selected_norm_factors[i]->fFitValue, selected_norm_factors[i]->fPostFitUp, selected_norm_factors[i]->fPostFitDown ) );
@@ -354,10 +354,8 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
     float xmin = -2.9;
     float xmax = 2.9;
     float max = 0;
-//     string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
-    string npToExclude[] = {"gamma_","stat_","shape_"};
+    std::vector<std::string> npToExclude = {"gamma_","stat_","shape_"};
     bool brazilian = true;
-    bool grayLines = false;
 
     TGraphAsymmErrors *g = new TGraphAsymmErrors();
 
@@ -373,8 +371,8 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
         if( FindInStringVector(fNuisParToHide,par->fName)>=0 ) continue;
 
         bool skip = false;
-        for(int ii=0; ii<sizeof(npToExclude)/sizeof(string); ii++){
-            if(par->fName.find(npToExclude[ii])!=string::npos){
+        for(const std::string& ii : npToExclude){
+            if(par->fName.find(ii)!=string::npos){
                 skip = true;
                 break;
             }
