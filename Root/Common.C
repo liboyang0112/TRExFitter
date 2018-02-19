@@ -401,11 +401,11 @@ struct BinNom {
 
 bool systFluctuationNominal(std::vector<BinNom> &hist) {
     auto dM = [](const BinNom &b) { return sqrt(b.dN2); };
-    auto dMoverN = [dM](const BinNom &b) {
-        double N = b.N;
-        if (N == 0) N = 1e-16;
-        return dM(b)/N;
-    };
+    //auto dMoverN = [dM](const BinNom &b) {
+    //    double N = b.N;
+    //    if (N == 0) N = 1e-16;
+    //    return dM(b)/N;
+    //};
     auto N = [](const BinNom &b) {
         return b.N;
     };
@@ -418,7 +418,7 @@ bool systFluctuationNominal(std::vector<BinNom> &hist) {
     return false;
 }
 
-bool SmoothHistogramTtres( TH1* h) {
+void SmoothHistogramTtres( TH1* h) {
     double origIntegral = h->Integral();
 
     h->Smooth(2);
@@ -432,11 +432,8 @@ bool SmoothHistogramTtres( TH1* h) {
 // to smooth a nominal histogram, taking into account the statistical uncertinaty on each bin (note: no empty bins, please!!)
 bool SmoothHistogram( TH1* h, int forceFlat, float nsigma ){
     int nbinsx = h->GetNbinsX();
-    float xmin = h->GetBinLowEdge(1);
-    float xmax = h->GetBinLowEdge(nbinsx)+h->GetBinWidth(nbinsx);
     double error;
     float integral = h->IntegralAndError(1,h->GetNbinsX(),error);
-    TH1* h_orig = (TH1*)h->Clone("h_orig");
     //
     // if not flat, go on with the smoothing
     int Nmax = 5;
@@ -496,7 +493,7 @@ bool SmoothHistogram( TH1* h, int forceFlat, float nsigma ){
     return isFlat;
 }
 
-TH1* DropBins(TH1* h,std::vector<int> v){
+void DropBins(TH1* h,const std::vector<int> &v){
     TH1* h_new = (TH1*)h->Clone(h->GetName());
     for(int i_bin=1;i_bin<=h_new->GetNbinsX();i_bin++){
         if(find(v.begin(),v.end(),i_bin-1)!=v.end()){
@@ -540,7 +537,7 @@ TH1F* MergeHistograms(vector<TH1*> hVec){
         Nbins += h->GetNbinsX();
     }
     // build array of bin edges
-    float bins[Nbins];
+    float *bins = new float[Nbins];
     // coutner
     int k_bin = 0;
     // first edge from first histogram
