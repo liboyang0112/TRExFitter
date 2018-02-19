@@ -8705,7 +8705,6 @@ void TtHFit::ComputeBining(int regIter){
     }
     bins[nBins-1]=hbkg->GetBinLowEdge( hbkg->GetNbinsX() + 1 );
     WriteInfoStatus("TtHFit::ComputeBinning", "Your final binning from automatic binning function is:");
-    WriteInfoStatus("TtHFit::ComputeBinning", "Your final binning from automatic binning function is:");
     std::string temp_string = "";
     for(unsigned int i_bins=0; i_bins<bins_vec.size(); ++i_bins){
       temp_string+= std::to_string(bins[i_bins]) + " - ";
