@@ -774,7 +774,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 h_nominal -> SetFillStyle(3005);
                 h_nominal -> SetFillColor(kBlue);
                 h_nominal -> SetMarkerSize(0);
-                for ( unsigned int i=1; i<=h_nominal->GetNbinsX(); ++i ) {
+                for ( int i=1; i<=h_nominal->GetNbinsX(); ++i ) {
                     h_nominal -> SetBinError( i, h_nominal -> GetBinError( i ) * 100. / h_nominal -> GetBinContent( i ) );
                     h_nominal -> SetBinContent( i, 0 );
                 }
@@ -959,14 +959,14 @@ void SampleHist::SmoothSyst(string syst,bool force, bool TtresSmoothing){
         //
         if(fSample->fSmooth){
             if(h_syst_up!=0x0){
-                for(unsigned int iBin = 1; iBin <= h_syst_up  ->GetNbinsX(); ++iBin ){
+                for(int iBin = 1; iBin <= h_syst_up  ->GetNbinsX(); ++iBin ){
                     float relDiff = (h_syst_up->GetBinContent(iBin) - h_nominal->GetBinContent(iBin))/ h_nominal->GetBinContent(iBin);
                     if(relDiff>=1. ) h_syst_up->SetBinContent(iBin, (1.+0.99)*h_nominal->GetBinContent(iBin) );
                     if(relDiff<=-1.) h_syst_up->SetBinContent(iBin, (1.-0.99)*h_nominal->GetBinContent(iBin) );
                 }
             }
             if(h_syst_down!=0x0){
-                for(unsigned int iBin = 1; iBin <= h_syst_down  ->GetNbinsX(); ++iBin ){
+                for(int iBin = 1; iBin <= h_syst_down  ->GetNbinsX(); ++iBin ){
                     float relDiff = (h_syst_down->GetBinContent(iBin) - h_nominal->GetBinContent(iBin))/ h_nominal->GetBinContent(iBin);
                     if(relDiff>=1. ) h_syst_down->SetBinContent(iBin, (1.+0.99)*h_nominal->GetBinContent(iBin) );
                     if(relDiff<=-1.) h_syst_down->SetBinContent(iBin, (1.-0.99)*h_nominal->GetBinContent(iBin) );
