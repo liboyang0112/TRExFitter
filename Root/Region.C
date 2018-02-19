@@ -807,7 +807,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     yieldNominal_postFit_nfOnly *= fitRes->GetNuisParValue(TtHFitter::NPMAP[nf->fName]);
                 }
 
-                unsigned int posTmp = systName.find("_bin_");
+                size_t posTmp = systName.find("_bin_");
                 std::string gammaName      = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
                 std::string gammaNameShape = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
                 //
