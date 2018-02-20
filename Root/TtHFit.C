@@ -112,6 +112,7 @@ TtHFit::TtHFit(string name){
     fDoTables = true;
     fDoSignalRegionsPlot = true;
     fDoPieChartPlot = true;
+    fDoGroupedSystImpactTable = false;
 
     //
     // Fit caracteristics
@@ -846,6 +847,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("ReduceNPforRanking");  if( param != ""){
         fReduceNPforRanking = atof(param.c_str());
+    }
+    param = cs->Get("GroupedSystImpactTable");    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fDoGroupedSystImpactTable = true;
+        }
     }
     param = cs->Get("ImageFormat");  if( param != ""){
         fImageFormat = Vectorize(param,',')[0];
@@ -7782,6 +7789,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         fitTool -> NoGammas();
         fitTool -> NoSystematics();
     }
+    fitTool -> SetGroupedSystImpactTable( fDoGroupedSystImpactTable );
 
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
     muhat = fFitResults -> GetNuisParValue( fPOI );
@@ -7810,6 +7818,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         ws->loadSnapshot("tmp_snapshot");
         fitTool -> ResetFixedNP();
         fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+        fitTool -> SetWorkspace( ws );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
         //
@@ -7817,6 +7826,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         ws->loadSnapshot("tmp_snapshot");
         fitTool -> ResetFixedNP();
         fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
+        fitTool -> SetWorkspace( ws );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
         //
@@ -7849,6 +7859,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             ws->loadSnapshot("tmp_snapshot");
             fitTool -> ResetFixedNP();
             fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+            fitTool -> SetWorkspace( ws );
             fitTool -> FitPDF( mc, simPdf, data );
             muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
             //
@@ -7856,6 +7867,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             ws->loadSnapshot("tmp_snapshot");
             fitTool -> ResetFixedNP();
             fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
+            fitTool -> SetWorkspace( ws );
             fitTool -> FitPDF( mc, simPdf, data );
             //
             muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];

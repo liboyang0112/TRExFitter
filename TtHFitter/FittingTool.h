@@ -71,6 +71,9 @@ public:
 
     inline void UseMinos( const std::vector<std::string> minosvar){ m_useMinos = true; m_varMinos = minosvar; }
 
+    inline void SetGroupedSystImpactTable( const bool doTable ) { m_groupedSystImpactTable = doTable; }
+    inline void SetWorkspace( RooWorkspace* ws ) { m_ws = ws; }
+
     //
     // Specific functions
     //
@@ -98,6 +101,8 @@ private:
     bool m_randomize;
     double m_randomNP;
     long int m_randSeed;
+    bool m_groupedSystImpactTable;
+    RooWorkspace* m_ws;
 
 //     TString m_constNP;
 //     double m_constNPvalue;

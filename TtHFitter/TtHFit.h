@@ -272,6 +272,7 @@ public:
     bool fDoTables;
     bool fDoSignalRegionsPlot;
     bool fDoPieChartPlot;
+    bool fDoGroupedSystImpactTable;
     
     //
     // Fit caracteristics

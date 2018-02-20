@@ -53,7 +53,8 @@ m_RangePOI_up(100.),
 m_RangePOI_down(-10.),
 m_randomize(false),
 m_randomNP(0.1),
-m_randSeed(-999)
+m_randSeed(-999),
+m_groupedSystImpactTable(false)
 {
     m_constNP.clear();
     m_constNPvalue.clear();
@@ -458,6 +459,10 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 //     m_fitResult = r;
     m_fitResult = (RooFitResult*)r->Clone();
     delete r;
+
+    if(m_groupedSystImpactTable){
+        WriteInfoStatus("FittingTool::FitPDF","performing grouped ranking");
+    }
 
     //
     // clean stuff
