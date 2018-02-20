@@ -157,11 +157,9 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
     }
     if (TtresSmoothing) {
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-          const int smoothingLevel = (histOps - ( histOps % 10 ) ) / 10;
           Smooth_Ttres( modifiedUp,    hNom,   false );
           Smooth_Ttres( modifiedDown,  hNom,   false );
         } else if( ( histOps - ( histOps % 10 ) ) >= SMOOTH_INDEPENDENT && (histOps - ( histOps % 10 ) ) < UNKNOWN ){
-          const int smoothingLevel = (histOps - ( histOps % 10 ) ) / 100;
           Smooth_Ttres( modifiedUp,    hNom,   true );
           Smooth_Ttres( modifiedDown,  hNom,   true );
         }
@@ -212,12 +210,12 @@ TH1F* HistoTools::InvertShift(TH1* h_syst, TH1* h_nominal){
     result -> SetDirectory(0);
     result -> Add(h_syst,-1);
     result -> Add(h_nominal,1);
-    for( unsigned int iBin = 1; iBin <= result -> GetNbinsX(); ++iBin ){
+    for( int iBin = 1; iBin <= result -> GetNbinsX(); ++iBin ){
         result -> SetBinError(iBin, h_syst->GetBinError(iBin));
     }
 
     //Another sanity check: search for negative bins
-    for( unsigned int iBin = 1; iBin <= result -> GetNbinsX(); ++iBin ){
+    for( int iBin = 1; iBin <= result -> GetNbinsX(); ++iBin ){
         double content = result -> GetBinContent(iBin);
         if(content < 0){
             result -> SetBinContent(iBin, 0.);
@@ -309,7 +307,7 @@ void HistoTools::Scale(TH1* h_syst, TH1* h_nominal, float factor){
     h_syst -> Add(h_nominal,1);
 
     //Another sanity check: search for negative bins
-    for( unsigned int iBin = 1; iBin <= h_syst -> GetNbinsX(); ++iBin ){
+    for( int iBin = 1; iBin <= h_syst -> GetNbinsX(); ++iBin ){
         double content = h_syst -> GetBinContent(iBin);
         if(content < 0){
             h_syst -> SetBinContent(iBin, 0.);
@@ -329,7 +327,7 @@ double HistoTools::avgError(std::vector<Bin> &hist, bool independentVar) {
     avg += dM/hist[k].N;
   }
   std::sort(errs.begin(), errs.end());
-  int s = errs.size();
+  //int s = errs.size();
   //if (s % 2 == 0) return (errs[s/2-1] + errs[s/2+1])/2.0;
   //return errs[s/2];
   return avg/((double) Nbins);
@@ -418,7 +416,7 @@ void HistoTools::Smooth_Ttres(TH1* hsyst, TH1* hnom, bool independentVar){
     };
 
 
-    for (int i = 0; i < hist.size(); ++i) {
+    for (unsigned int i = 0; i < hist.size(); ++i) {
         WriteDebugStatus("HistoTools::Smooth_Ttres", "Smooth_Ttres: pre-smooth bin " + std::to_string(i+1) + ", edge = " + std::to_string(hist[i].edge) + ", dM/N = " + std::to_string(dMoverN(hist[i])) + ", N = " + std::to_string(hist[i].N) + ", S = " + std::to_string(hist[i].S) + ", dN = " + std::to_string(std::sqrt(hist[i].dN2)) + ", dS = " + std::to_string(std::sqrt(hist[i].dS2)));
     }
 
@@ -499,7 +497,7 @@ void HistoTools::Smooth_Ttres(TH1* hsyst, TH1* hnom, bool independentVar){
     while (systFluctuation(hist, independentVar) && (hist.size() > 1)) {
         // first check if a bin is larger than 100%
         bool mergedLarge100 = false;
-        for (int k = 0; k < hist.size(); ++k) {
+        for (unsigned int k = 0; k < hist.size(); ++k) {
             if (fabs(hist[k].S - hist[k].N) >= hist[k].N) {
                 std::vector<Bin>::iterator toMergeItr = hist.begin() + k;
                 std::vector<Bin>::iterator toMergeSecond = std::prev(toMergeItr);
@@ -550,7 +548,7 @@ void HistoTools::Smooth_Ttres(TH1* hsyst, TH1* hnom, bool independentVar){
         hist.erase(toMergeSecond);
     }
 
-    for (int i = 0; i < hist.size(); ++i) {
+    for (unsigned int i = 0; i < hist.size(); ++i) {
         WriteDebugStatus("HistoTools::Smooth_Ttres", "Post-smooth last step bin " + std::to_string(i+1) + ", edge = " + std::to_string(hist[i].edge) + ", dM/N = " + std::to_string(dMoverN(hist[i])) + ", N = " + std::to_string(hist[i].N) + ", S = " + std::to_string(hist[i].S) + ", dN = " + std::to_string(std::sqrt(hist[i].dN2)) + ", dS = " + std::to_string(std::sqrt(hist[i].dS2)));
     }
 
@@ -788,7 +786,6 @@ int HistoTools::rebin_getMaxVar(TH1* hnom,TH1* hsyst, double tolerance){
   binLimit.push_back( hnom->GetXaxis()->GetXmin() );
   double relErr=20000;
   double cumulIntSyst=0;
-  double cumulErrSyst=0;
   double cumulInt=0;
   double cumulErr=0;
   int thisBin=0;
@@ -956,7 +953,7 @@ bool HistoTools::HasShape(TH1* hnom, SystematicHist* sh, float threshold){
 
     //If at least one bin is the shape histogram is larger than the threshold, keep the uncertainty
     bool hasShape = false;
-    for (unsigned int iBin = 1; iBin <= hnom->GetNbinsX(); ++iBin) {
+    for (int iBin = 1; iBin <= hnom->GetNbinsX(); ++iBin) {
         double nom = hnom->GetBinContent(iBin);
         double up = sh->fHistShapeUp->GetBinContent(iBin);
         double down = sh->fHistShapeDown->GetBinContent(iBin);
@@ -1027,7 +1024,7 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         return isGood;
     }
 
-    for( unsigned int iBin = 1; iBin <= NbinsNom; ++iBin ){
+    for( int iBin = 1; iBin <= NbinsNom; ++iBin ){
         double lowEdgeNom   = nom->GetBinLowEdge(iBin);
         double lowEdgeUp    = sh->fHistUp->GetBinLowEdge(iBin);
         double lowEdgeDown  = sh->fHistDown->GetBinLowEdge(iBin);
@@ -1054,7 +1051,7 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
     //
     // 3) Checks the absence on bins with 0 content (for nominal)
     //
-    for( unsigned int iBin = 1; iBin <= NbinsNom; ++iBin ){
+    for( int iBin = 1; iBin <= NbinsNom; ++iBin ){
         double content = nom->GetBinContent(iBin);
         if( ( checkNullContent && content<=0 ) || ( !checkNullContent && content<0 ) ){
             std::string temp = nom->GetName();
@@ -1073,8 +1070,6 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
 
         //Now, for those histograms, checks if a systematics also has 0 content to
         //avoid 100% down systematics
-        double contentUp    = sh->fHistUp->GetBinContent(iBin);
-        double contentDown  = sh->fHistDown->GetBinContent(iBin);
         if( TMath::Abs( nom->GetBinContent(iBin)-1e-05) < 1e-10  ){
             //This bin has most likely been changed to the default non-zero value
             sh->fHistUp->SetBinContent(iBin,1e-05);
@@ -1087,7 +1082,7 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
     //
     // 4) Check the presence of abnormal bins (content-based)
     //
-    for( unsigned int iBin = 1; iBin <= NbinsNom; ++iBin ){
+    for( int iBin = 1; iBin <= NbinsNom; ++iBin ){
         double contentNom   = nom->GetBinContent(iBin);
         double contentUp    = sh->fHistUp->GetBinContent(iBin);
         double contentDown  = sh->fHistDown->GetBinContent(iBin);

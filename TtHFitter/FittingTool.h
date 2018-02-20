@@ -80,16 +80,24 @@ public:
 
 private:
     TString m_minimType;
-    int m_minuitStatus, m_hessStatus;
-    double m_edm,m_valPOI,m_randomNP;
-    long int m_randSeed;
-    double m_RangePOI_up,m_RangePOI_down;
-    bool m_useMinos,m_constPOI;
-    bool m_noGammas,m_noSystematics,m_noNormFactors;
-    bool m_noShapeFactors;
+    int m_minuitStatus;
+    int m_hessStatus;
+    double m_edm;
+    double m_valPOI;
+    bool m_useMinos;
     std::vector<std::string> m_varMinos;
+    bool m_constPOI;
     RooFitResult* m_fitResult;
-    bool m_debug,m_randomize;
+    bool m_debug;
+    bool m_noGammas;
+    bool m_noSystematics;
+    bool m_noNormFactors;
+    bool m_noShapeFactors;
+    double m_RangePOI_up;
+    double m_RangePOI_down;
+    bool m_randomize;
+    double m_randomNP;
+    long int m_randSeed;
 
 //     TString m_constNP;
 //     double m_constNPvalue;

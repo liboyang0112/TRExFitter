@@ -622,25 +622,25 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         WriteInfoStatus("TtHFit::ReadConfigFile", "Running options: ");
         if(onlyRegions.size()>0){
             WriteInfoStatus("TtHFit::ReadConfigFile", "  Only these Regions: ");
-            for(int i=0;i<onlyRegions.size();i++){
+            for(unsigned int i=0;i<onlyRegions.size();i++){
                 WriteInfoStatus("TtHFit::ReadConfigFile", "    " + onlyRegions[i]);
             }
         }
         if(onlySamples.size()>0){
             WriteInfoStatus("TtHFit::ReadConfigFile", "  Only these Samples: ");
-            for(int i=0;i<onlySamples.size();i++){
+            for(unsigned int i=0;i<onlySamples.size();i++){
                 WriteInfoStatus("TtHFit::ReadConfigFile", "    " + onlySamples[i]);
             }
         }
         if(onlySystematics.size()>0){
             WriteInfoStatus("TtHFit::ReadConfigFile", "  Only these Systematics: ");
-            for(int i=0;i<onlySystematics.size();i++){
+            for(unsigned int i=0;i<onlySystematics.size();i++){
                 WriteInfoStatus("TtHFit::ReadConfigFile", "    " + onlySystematics[i]);
             }
         }
         if(toExclude.size()>0){
             WriteInfoStatus("TtHFit::ReadConfigFile", "  Exclude: ");
-            for(int i=0;i<toExclude.size();i++){
+            for(unsigned int i=0;i<toExclude.size();i++){
                 WriteInfoStatus("TtHFit::ReadConfigFile", "    " + toExclude[i]);
             }
         }
@@ -1236,8 +1236,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 }
             }
             else{
-                const int nBounds = vec_bins.size();
-                double bins[nBounds];
+                const unsigned int nBounds = vec_bins.size();
+                double *bins = new double(nBounds);
                 for (unsigned int iBound = 0; iBound < nBounds; ++iBound){
                     bins[iBound] = atof(vec_bins[iBound].c_str());
                 }
@@ -1990,7 +1990,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                   unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
                     WriteInfoStatus("TtHFit::ReadConfigFile", regNames[i_reg] + " " + std::to_string(nbins));
                     // decorrelate by bin
-                    for (int i_bin = 0; i_bin < nbins; i_bin++) {
+                    for (unsigned int i_bin = 0; i_bin < nbins; i_bin++) {
                         Systematic* mySys= new Systematic(*sys);
                         mySys->fName=(mySys->fName)+"_"+regNames[i_reg]+"_bin"+std::to_string(i_bin);
                         std::vector<string> tmpReg;
@@ -2373,7 +2373,7 @@ void TtHFit::ReadNtuples(){
                                          );
             htmp = 0x0;
             h = 0x0;
-            for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+            for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 if(fRegions[i_ch]->fHistoBins){
                     htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                  variable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
@@ -2529,7 +2529,7 @@ void TtHFit::ReadNtuples(){
                                                 // name suf
                                                 NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
                                                 );
-                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                         variable, reg->fHistoNBinsRebin, reg->fHistoBins,
@@ -2634,7 +2634,7 @@ void TtHFit::ReadNtuples(){
                                          );
             htmp = 0x0;
             h = 0x0;
-            for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+            for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 if(fRegions[i_ch]->fHistoBins){
                     htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                  variable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
@@ -2808,7 +2808,7 @@ void TtHFit::ReadNtuples(){
                                                 // name suf
                                                 NtupleNameSuffsUp.size()>0 ? NtupleNameSuffsUp : empty
                                                 );
-                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                         variable, reg->fHistoNBinsRebin, reg->fHistoBins,
@@ -2925,7 +2925,7 @@ void TtHFit::ReadNtuples(){
                                                 // name suf
                                                 NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
                                                 );
-                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                         variable, reg->fHistoNBinsRebin, reg->fHistoBins,
@@ -3276,7 +3276,7 @@ void TtHFit::CorrectHistograms(){
         Region *reg = fRegions[i_ch];
         for(int i_sys=0;i_sys<fNSyst;i_sys++){
             if(fSystematics[i_sys]->fKeepNormForSamples.size()==0) continue;
-            for(int ii=0;ii<fSystematics[i_sys]->fKeepNormForSamples.size();ii++){
+            for(unsigned int ii=0;ii<fSystematics[i_sys]->fKeepNormForSamples.size();ii++){
                 std::vector<std::string> subSamples = Vectorize(fSystematics[i_sys]->fKeepNormForSamples[ii],'+');
                 // get nominal yield and syst yields for this sum of samples
                 float yieldNominal = 0.;
@@ -3423,7 +3423,7 @@ void TtHFit::ReadHistograms(){
                                         );
             htmp = 0x0;
             h = 0x0;
-            for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+            for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                 //Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[i_ch]->fHistoBins){
@@ -3498,7 +3498,7 @@ void TtHFit::ReadHistograms(){
                                                 empty :
                                                 ToVec( syst->fHistoNameSufUp )
                                                 );
-                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
@@ -3549,7 +3549,7 @@ void TtHFit::ReadHistograms(){
                                                 empty :
                                                 ToVec( syst->fHistoNameSufDown )
                                                 );
-                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
@@ -3619,7 +3619,7 @@ void TtHFit::ReadHistograms(){
                                         );
             htmp = 0x0;
             h = 0x0;
-            for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+            for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 files_names.insert(fullPaths[i_path]);
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                 //Pre-processing of histograms (rebinning, lumi scaling)
@@ -3751,7 +3751,7 @@ void TtHFit::ReadHistograms(){
                                                 empty :
                                                 ToVec( syst->fHistoNameSufUp )
                                                 );
-                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         files_names.insert(fullPaths[i_path]);
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                         // Pre-processing of histograms (rebinning, lumi scaling)
@@ -3841,7 +3841,7 @@ void TtHFit::ReadHistograms(){
                                                 empty :
                                                 ToVec( syst->fHistoNameSufDown )
                                                 );
-                    for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         files_names.insert(fullPaths[i_path]);
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
                         // Pre-processing of histograms (rebinning, lumi scaling)
@@ -3930,7 +3930,6 @@ void TtHFit::ReadHistograms(){
 //
 void TtHFit::ReadHistos(/*string fileName*/){
     string fileName = "";
-    TH1F* h;
     SampleHist *sh;
     SystematicHist *syh;
     string regionName;
@@ -4381,7 +4380,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
             h_sig[Nsig]->SetLineColor(lineColor);
             h_sig[Nsig]->SetFillColor(fillColor);
             h_sig[Nsig]->SetLineWidth(lineWidth);
-            for(int i_bin=1;(int)i_bin<=regionVec.size();i_bin++){
+            for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=0x0){
                     if(isPostFit)  h = (TH1F*)sh->fHist_postFit->Clone(); // Michele
@@ -4798,7 +4797,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
             tex.SetNDC(0);
             tex.SetTextAlign(20);
             //
-            for(int ii=0;ii<=(int)divisionVec.size();ii++){
+            for(unsigned int ii=0;ii<=divisionVec.size();ii++){
                 if(fSummaryPlotLabels.size()<ii+1) break;
                 if(divisionVec.size()<ii) break;
                 float xmax = Nbin;
@@ -4817,7 +4816,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
             tex.SetNDC(0);
             tex.SetTextAlign(20);
             //
-            for(int ii=0;ii<=(int)divisionVec.size();ii++){
+            for(unsigned int ii=0;ii<=divisionVec.size();ii++){
                 if(fSummaryPlotValidationLabels.size()<ii+1) break;
                 if(divisionVec.size()<ii) break;
                 float xmax = Nbin;
@@ -4952,7 +4951,7 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
     }
     //
     // scale them (but the first region
-    for(int i_ch=1;i_ch<regions.size();i_ch++){
+    for(unsigned int i_ch=1;i_ch<regions.size();i_ch++){
         float scale = ymax/hTotVec[i_ch]->GetMaximum();
         hTotVec[i_ch]->Scale( scale );
         hDataVec[i_ch]->Scale( scale );
@@ -4974,8 +4973,8 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
     if(!p) return;
     //
     p->SetData(MergeHistograms(hDataVec),"");
-    for(int i_sig=0;i_sig<hSignalVec.size();i_sig++)     p->AddSignal(    MergeHistograms(hSignalVec[i_sig])    ,"");
-    for(int i_bkg=0;i_bkg<hBackgroundVec.size();i_bkg++) p->AddBackground(MergeHistograms(hBackgroundVec[i_bkg]),"");
+    for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++)     p->AddSignal(    MergeHistograms(hSignalVec[i_sig])    ,"");
+    for(unsigned int i_bkg=0;i_bkg<hBackgroundVec.size();i_bkg++) p->AddBackground(MergeHistograms(hBackgroundVec[i_bkg]),"");
     p->SetTotBkg(MergeHistograms(hTotVec));
     //
     p->SetCME(fCmeLabel);
@@ -5064,8 +5063,8 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
     TLatex *tex = new TLatex();
     tex->SetTextSize(gStyle->GetTextSize());
     tex->SetTextFont(gStyle->GetTextFont());
-    float xlabel = 0;
-    for(int i_ch=0;i_ch<regions.size();i_ch++){
+    //float xlabel = 0;
+    for(unsigned int i_ch=0;i_ch<regions.size();i_ch++){
         tex->SetNDC(0);
         tex->DrawLatex(edges[i_ch],1.15*ymax,("#kern[-1]{"+regions[i_ch]->fLabel+"   }").c_str());
 //         if(i_ch==0) xlabel += (edges[i_ch]-h_dummy->GetXaxis()->GetBinLowEdge(1))/(h_dummy->GetXaxis()->GetBinUpEdge(h_dummy->GetNbinsX())-h_dummy->GetXaxis()->GetBinLowEdge(1));
@@ -5113,11 +5112,9 @@ void TtHFit::BuildYieldTable(string opt,string group){
     TH1F *h_tot;
     TGraphAsymmErrors *g_err[MAXsamples];
     TGraphAsymmErrors *g_err_tot;
-    int Nbkg = 0;
     //
     string name;
     string title;
-    float err;
     //
     double intErr; // to store the integral error
     TH1* h0; // to store varius histograms temporary
@@ -5137,7 +5134,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
     int Nbin = regionVec.size();
     //
     out << " |       | ";
-    for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
+    for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
         out << fRegions[regionVec[i_bin-1]]->fLabel << " | ";
     }
     out << endl;
@@ -5156,12 +5153,12 @@ void TtHFit::BuildYieldTable(string opt,string group){
         texout << "\\footnotesize" << endl;        
     }
     texout << "\\begin{tabular}{|c" ;
-    for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
+    for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
         texout << "|c";
     }
     texout << "|}" << endl;
     texout << "\\hline " << endl;
-    for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
+    for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
         if(fRegions[regionVec[i_bin-1]]->fTexLabel!="") texout << " & " << fRegions[regionVec[i_bin-1]]->fTexLabel ;
         else                                            texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
     }
@@ -5183,7 +5180,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
             idxVec.push_back(i_smp);
             h_smp[idxVec[i_smp]] = new TH1F(("h_"+name).c_str(),title.c_str(), Nbin,0,Nbin);
         }
-        for(int i_bin=1;i_bin<=regionVec.size();i_bin++){
+        for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
             sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
             if(sh!=0x0){
                 if(isPostFit && fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::GHOST)
@@ -5882,11 +5879,12 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     pBottom->cd();
 
     pBottom->Divide(nCols,nRows);
-    int Nreg = nRows*nCols;
-    if(Nreg>(int)regions.size()) Nreg = regions.size();
-    TH1F* h[Nreg];
-    float S[Nreg];
-    float B[Nreg];
+    unsigned int Nreg = nRows*nCols;
+    if(Nreg>regions.size()) Nreg = regions.size();
+    std::vector<TH1F*> h;
+    h.resize(Nreg);
+    float *S = new float(Nreg);
+    float *B = new float(Nreg);
     double xbins[] = {0,0.1,0.9,1.0};
     TLatex *tex = new TLatex();
     tex->SetNDC();
@@ -5896,7 +5894,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     //
     // Get the values
     //
-    for(int i=0;i<Nreg;i++){
+    for(unsigned int i=0;i<Nreg;i++){
         S[i] = 0.;
         B[i] = 0.;
         if(regions[i]==0x0) continue;
@@ -5921,7 +5919,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     bool hasSR = false;
     bool hasCR = false;
     bool hasVR = false;
-    for(int i=0;i<Nreg;i++){
+    for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==0x0) continue;
         pBottom->cd(i+1);
         if(TtHFitter::OPTION["LogSignalRegionPlot"]) gPad->SetLogy();
@@ -5983,7 +5981,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         else                                     tex->DrawLatex(0.27,0.72,SB.c_str());
     }
     //
-    for(int i=0;i<Nreg;i++){
+    for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==0x0) continue;
         if(TtHFitter::OPTION["LogSignalRegionPlot"]!=0){
             h[i]->SetMaximum(yMax*200);
@@ -6131,9 +6129,9 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
         pBottom->cd(i+1);
         string label = regions[i]->fShortLabel;
 
-        const int back_n = results[i].size();
-        float values[back_n];
-        int colors[back_n];
+        const unsigned int back_n = results[i].size();
+        float *values = new float(back_n);
+        int *colors = new int(back_n);
         for( unsigned int iTemp = 0; iTemp < back_n; ++iTemp ){
             values[iTemp] = 0.;
             colors[iTemp] = 0;
@@ -6148,7 +6146,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
 
         TPie *pie = new TPie(("pie_"+label).c_str()," ",back_n, values, colors);
         pie -> SetRadius( pie -> GetRadius() * 0.8 );
-        for( unsigned int iEntry = 0; iEntry < pie->GetEntries(); ++iEntry) pie -> SetEntryLabel(iEntry,"");
+        for(int iEntry = 0; iEntry < pie->GetEntries(); ++iEntry) pie -> SetEntryLabel(iEntry,"");
         pie -> Draw();
         tex->DrawLatex(0.1,0.85,label.c_str());
     }
@@ -6364,7 +6362,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                             if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter.find("stat_")!=string::npos){
                                 // see if there are regions to correlate with others
                                 for(auto set : h->fSample->fCorrelateGammasInRegions){
-                                    for(int i_reg=0;i_reg<set.size();i_reg++){
+                                    for(unsigned int i_reg=0;i_reg<set.size();i_reg++){
                                         if(i_reg!=0 && regionName==set[i_reg]){
                                             regionName = set[0];
                                             break;
@@ -6658,7 +6656,7 @@ void TtHFit::DrawPruningPlot(){
 
     //
     // Save prunign hist for future usage
-    TFile *filePrun;
+    TFile *filePrun = nullptr;
     // - checking if Pruning.root exists
     // if yes
     if(!gSystem->AccessPathName( (fName+"/Pruning.root").c_str() )){
@@ -6672,6 +6670,10 @@ void TtHFit::DrawPruningPlot(){
         for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
             histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
         }
+    }
+    if (filePrun != nullptr){
+        filePrun->Close();
+        delete filePrun;
     }
 }
 
@@ -6709,10 +6711,9 @@ void TtHFit::Fit(){
         // Fills a vector of regions to consider for fit
         //
 //         bool simpleData = true; // this becomes false if some regions have data and others don't
-        int previousDataType = -1;
         std::vector < std:: string > regionsToFit;
         std::map < std::string, int > regionDataType;
-        for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             bool isToFit = false;
 
             if ( fFitRegion == CRONLY ) {
@@ -6743,8 +6744,6 @@ void TtHFit::Fit(){
                 }
                 regionDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
                 //
-//                 if(previousDataType>=0 && previousDataType!=(int)dataType) simpleData = false;
-                previousDataType = (int)dataType;
             }
         }
         //
@@ -6884,7 +6883,6 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     RooCategory* channelCat = (RooCategory*)&simPdf->indexCat();
     TIterator* iter = channelCat->typeIterator() ;
     RooCatType* tt = NULL;
-    int nrIndices = 0;
     int iFrame = 0;
     int i = 0;
     while( (tt = (RooCatType*) iter -> Next()) ) {
@@ -7266,7 +7264,7 @@ void TtHFit::GetLimit(){
         std::map < std::string, int > regionsForFitDataType;
         std::map < std::string, int > regionsForLimitDataType;
         bool onlyUseRealData = true;
-        for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
             if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind ){
                 Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
@@ -7364,7 +7362,7 @@ void TtHFit::GetSignificance(){
         std::map < std::string, int > regionsForFitDataType;
         std::map < std::string, int > regionsForSignDataType;
         bool onlyUseRealData = true;
-        for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
             if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
                 Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
@@ -7700,7 +7698,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     //
     std::vector < std:: string > regionsToFit;
     std::map < std::string, int > regionDataType;
-    for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+    for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
         bool isToFit = false;
 
         if ( fFitRegion == CRONLY ) {
@@ -7915,7 +7913,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     cmd       += " fi ;";
     gSystem->Exec(cmd.c_str());
     //
-    int maxNP = fRankingMaxNP;
+    unsigned int maxNP = fRankingMaxNP;
     //
     string paramname;
     double nuiphat;
@@ -8017,14 +8015,14 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     number.push_back(parname.size()-0.5);
 
     double poimax = 0;
-    for (int i=0;i<SIZE;i++) {
+    for (unsigned int i=0;i<SIZE;i++) {
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poinomup[i]),TMath::Abs(poinomdown[i]) ));
         nuerrlo[i] = TMath::Abs(nuerrlo[i]);
     }
     poimax *= 1.2;
 
-    for (int i=0;i<SIZE;i++) {
+    for (unsigned int i=0;i<SIZE;i++) {
         poiup[i]     *= (2./poimax);
         poidown[i]   *= (2./poimax);
         poinomup[i]  *= (2./poimax);
@@ -8100,7 +8098,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
             }
             // find the short label of this region
             std::string regTitle = regName;
-            for( unsigned int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+            for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
                 if(fRegions[i_ch]->fName==regName){
                     regTitle = fRegions[i_ch]->fShortLabel;
                     break;
@@ -8437,7 +8435,7 @@ void TtHFit::ComputeBining(int regIter){
                                         NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
                                         NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                         );
-              for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+              for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                   int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
                   TtHFitter::SetDebugLevel(0);
                   htmp = HistFromNtuple( fullPaths[i_path],
@@ -8516,7 +8514,7 @@ void TtHFit::ComputeBining(int regIter){
                         histoNames, empty  // same for histo name
                         );
 
-            for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+            for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
                 TtHFitter::SetDebugLevel(0);
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
@@ -8794,7 +8792,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     }
     WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
 
-    TF1* poly = new TF1("poly2","[0]+[1]*x+[2]*x*x",0,10);
+    //TF1* poly = new TF1("poly2","[0]+[1]*x+[2]*x*x",0,10);
     TCanvas* can = new TCanvas("NLLscan");
 
     RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
@@ -8807,7 +8805,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     RooCurve* curve = frameLH->getCurve();
     curve->Draw();
 
-    float val = var->getVal();
+    //float val = var->getVal();
     frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
 
 //     // fit function
@@ -8885,7 +8883,10 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     
     // write it to a ROOT file as well
     TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
+    f->cd();
     curve->Write("LHscan",TObject::kOverwrite);
+    f->Close();
+    delete f;
 }
 
 //____________________________________________________________________________________
@@ -8941,7 +8942,7 @@ void TtHFit::defineVariable(int regIter){
                                     NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                     );
         //
-        for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+        for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
             WriteDebugStatus("TtHFit::defineVariable", " -> Retriving : " + fRegions[regIter]->fCorrVar1 +
                                                         " w/ weight " + fullMCweight + "*" + fullSelection  +
                                                         " from " +  fullPaths[i_path]);

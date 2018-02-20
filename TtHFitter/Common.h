@@ -86,7 +86,7 @@ namespace TtHFitter{
     extern std::map< string, float > OPTION;
     extern std::map<string,TFile*> TFILEMAP;
     extern bool GUESSMCSTATERROR;
-};
+}
 
 const int MAXregions = 100;
 const int MAXsamples = 100;
@@ -120,9 +120,9 @@ double convertStoD(string toConvert);
 
 // TH1F* SmoothHistogram( TH1* h );
 bool SmoothHistogram( TH1* h, int forceFlat=-1, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
-bool SmoothHistogramTtres( TH1* h);
+void SmoothHistogramTtres( TH1* h);
 
-TH1* DropBins(TH1* h,std::vector<int> v);
+void DropBins(TH1* h, const std::vector<int> &v);
 
 float CorrectIntegral(TH1* h,float *err=0);
 

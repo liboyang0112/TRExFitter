@@ -272,7 +272,6 @@ RooWorkspace* MultiFit::CombineWS(){
     std::vector < RooWorkspace* > vec_ws;
     std::vector < std::string > vec_chName;
     RooStats::HistFactory::Measurement *measurement = 0x0;
-    TFile *rootFileCombined = 0x0;
 
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         std::string fitName = fFitList[i_fit]->fInputName;
@@ -519,7 +518,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         std::vector<double> npValues;
         for(unsigned int i_np=0;i_np<fFitList[0]->fFitResults->fNuisPar.size();i_np++){
             bool isNF = false;
-            for(int i_fit=0;i_fit<fFitList.size();i_fit++){
+            for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
                 if(!fFitList[i_fit]->fFixNPforStatOnlyFit &&
                     FindInStringVector(fFitList[i_fit]->fNormFactorNames,fFitList[0]->fFitResults->fNuisPar[i_np]->fName)>=0){
                     isNF = true;
@@ -870,7 +869,7 @@ void MultiFit::CompareLimit(){
 
     bool showObs = fShowObserved;
 
-    int N = names.size();
+    unsigned int N = names.size();
 
     float ymin = -0.5;
     float ymax = N-0.5;
@@ -890,7 +889,7 @@ void MultiFit::CompareLimit(){
     TH1* h_old;
 
     // get values
-    for(int i=0;i<N;i++){
+    for(unsigned int i=0;i<N;i++){
         if(i>fLimitsFiles.size()-1){
             if(fLimitsFile!="") fLimitsFiles.push_back(fLimitsFile);
             else                fLimitsFiles.push_back("");
@@ -961,7 +960,7 @@ void MultiFit::CompareLimit(){
     h_dummy->SetLineColor(kWhite);
     h_dummy->GetYaxis()->Set(N,ymin,ymax);
     h_dummy->GetYaxis()->SetNdivisions(Ndiv);
-    for(int i=0;i<N;i++){
+    for(unsigned int i=0;i<N;i++){
         h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
     }
 
@@ -1058,7 +1057,6 @@ void MultiFit::ComparePulls(string category){
 //     string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
     string npToExclude[] = {"gamma_","stat_"};
     bool brazilian = true;
-    bool grayLines = false;
 
     // create a list of Systematics
     std::vector< string > Names;  Names.clear();
@@ -1067,7 +1065,7 @@ void MultiFit::ComparePulls(string category){
     string systName;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
-        for(unsigned int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
+        for(int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
             systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
             if(FindInStringVector(Names,systName)<0){
                 Names.push_back(systName);
@@ -1322,7 +1320,6 @@ void MultiFit::CompareNormFactors(string category){
     float max = 0;
 //     string npToExclude[] = {"gamma_","stat_"};
 //     bool brazilian = true;
-//     bool grayLines = false;
 
     // create a list of Norm Factors
     std::vector< string > Names;  Names.clear();
@@ -1331,7 +1328,7 @@ void MultiFit::CompareNormFactors(string category){
     string normName;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
-        for(unsigned int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
+        for(int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
             normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
             if(normName==fPOI) continue;
             if(FindInStringVector(Names,normName)<0){
@@ -1507,7 +1504,7 @@ void MultiFit::CompareNormFactors(string category){
     TLatex *values = new TLatex();
     values->SetTextSize( values->GetTextSize()*0.8 );
     for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
-        for(int i_fit=0;i_fit<N;i_fit++){
+        for(unsigned int i_fit=0;i_fit<N;i_fit++){
             values->DrawLatex((xmin+(xmax-xmin)*(0.45+i_fit*0.55/N)),(Nnorm-i_norm-1)+0.25,
                               Form("%.2f^{+%.2f}_{-%.2f}",g[i_fit]->GetX()[i_norm],g[i_fit]->GetErrorXhigh(i_norm),g[i_fit]->GetErrorXlow(i_norm)));
         }
@@ -1570,7 +1567,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     std::vector< std::string > Names;  Names.clear();
     string systName;
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        for(unsigned int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
+        for(int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
 //             systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
             systName = fFitList[i_fit]->fSystematics[i_syst]->fNuisanceParameter;
             if(FindInStringVector(Names,systName)<0){
@@ -1586,7 +1583,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     std::vector< std::string > nfNames;  nfNames.clear();
     string normName;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        for(unsigned int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
+        for(int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
             normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
             if(FindInStringVector(nfNames,systName)<0){
                 nfNames.push_back(normName);
@@ -1601,7 +1598,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     //
     std::vector< string > nuisPars;
     std::vector< bool > isNF;
-    for(int i_syst=0;i_syst<Nsyst;i_syst++){
+    for(int i_syst=0;i_syst< (int) Nsyst;i_syst++){
 //         if(NPnames=="all" || NPnames==vSystematics[i_syst]->fName ||
         if(NPnames=="all" || NPnames==vSystematics[i_syst]->fNuisanceParameter ||
             ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0") ==0 ) )
@@ -1611,11 +1608,11 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             isNF.push_back( false );
         }
     }
-    for(int i_norm=0;i_norm<Nnorm;i_norm++){
+    for(int i_norm=0;i_norm<(int)Nnorm;i_norm++){
         if(fPOI==vNormFactors[i_norm]->fName) continue;
         if(NPnames=="all" || NPnames==vNormFactors[i_norm]->fName ||
 //           atoi(NPnames.c_str())-fNSyst==i_norm ){ ||
-            ( atoi(NPnames.c_str())-Nnorm==i_norm && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0")==0) )
+            ( ((atoi(NPnames.c_str())-(int)Nnorm) == i_norm) && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0")==0) )
             ){
             nuisPars.push_back( vNormFactors[i_norm]->fName );
             isNF.push_back( true );
@@ -1684,7 +1681,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
                 if(np.find("gamma")!=string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
-                    if(np==NPnames || (atoi(NPnames.c_str())-Nsyst-Nnorm==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
+                    if(np==NPnames || (((atoi(NPnames.c_str())-(int)Nsyst-(int)Nnorm)==i_gamma) && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
                         nuisPars.push_back(ReplaceString(np,"gamma_",""));
                         isNF.push_back( true );
                         if(NPnames!="all") break;
@@ -1794,7 +1791,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     cmd       += " fi ;";
     gSystem->Exec(cmd.c_str());
     //
-    int maxNP = fFitList[0]->fRankingMaxNP;
+    unsigned int maxNP = fFitList[0]->fRankingMaxNP;
     //
     string paramname;
     double nuiphat;
@@ -1878,7 +1875,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     number.push_back(parname.size()-0.5);
 
     double poimax = 0;
-    for (int i=0;i<SIZE;i++) {
+    for (unsigned int i=0;i<SIZE;i++) {
 //     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poinomup[i]),TMath::Abs(poinomdown[i]) ));
@@ -1886,7 +1883,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     }
     poimax *= 1.2;
 
-    for (int i=0;i<SIZE;i++) {
+    for (unsigned int i=0;i<SIZE;i++) {
 //     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
         poiup[i]     *= (2./poimax);
         poidown[i]   *= (2./poimax);
@@ -1962,7 +1959,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
             // find the short label of this region
             std::string regTitle = regName;
             for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-                for( unsigned int i_ch = 0; i_ch < fFitList[i_fit]->fNRegions; i_ch++ ){
+                for( int i_ch = 0; i_ch < fFitList[i_fit]->fNRegions; i_ch++ ){
                     if(fFitList[i_fit]->fRegions[i_ch]->fName==regName){
                         regTitle = fFitList[i_fit]->fRegions[i_ch]->fShortLabel;
                         break;
@@ -2234,7 +2231,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     curve->Draw();
     
     // take the LH curves also for other fits
-    RooCurve *curve_statOnly; // to implement
+    //RooCurve *curve_statOnly; // to implement
     std::vector<RooCurve*> curve_fit;
     std::vector<RooCurve*> curve_fit_statOnly; // to implement
     TLegend *leg = new TLegend(0.5,0.85-0.06*(fFitList.size()+1),0.75,0.85);
@@ -2261,7 +2258,6 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
         leg->AddEntry(curve,"Combined","l");
     }
 
-    float val = var->getVal();
     frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
 
     // y axis
@@ -2338,7 +2334,10 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     if(recreate){
         // write it to a ROOT file as well
         TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
+        f->cd();
         curve->Write("LHscan",TObject::kOverwrite);
+        f->Close();
+        delete f;
     }
 }
 
@@ -2400,7 +2399,7 @@ void MultiFit::PlotSummarySoverB(){
         }
     }
 
-    int Nsyst = systList.size();
+    unsigned int Nsyst = systList.size();
 
     std::vector<TFile*> file;
     std::vector<TFile*> fileBonly;
@@ -2529,8 +2528,6 @@ void MultiFit::PlotSummarySoverB(){
         h_syst_up_comb  [i_syst] = Combine(h_syst_up  [i_syst]);
         h_syst_down_comb[i_syst] = Combine(h_syst_down[i_syst]);
     }
-
-    int Nbins = h_bkg_comb->GetNbinsX();
 
     std::vector<float> SoverSqrtB;
     float sig, bkg;
@@ -2694,7 +2691,6 @@ void MultiFit::PlotSummarySoverB(){
     }
 
     TH1F *h_ratioBonly = 0x0;
-    TH1F *h_denBonly   = 0x0;
     if(includeBonly){
 //         h_ratioBonly = (TH1F*)h_data_ord->Clone("h_ratioBonly");
 //         h_ratioBonly->Divide(h_bkgBonly_ord);
@@ -2827,7 +2823,6 @@ TH1F* MultiFit::Rebin(TH1F* h,vector<float> vec, bool isData){
     // works for l+jets
     //15,-3.75,-0.6);
     h_new->Sumw2();
-    float xlow, xhigh;
     // new way
     for(int j_bin=1;j_bin<=h->GetNbinsX();j_bin++){
         float value=TMath::Log10(vec[j_bin-1]);

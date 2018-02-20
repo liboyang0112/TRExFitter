@@ -88,15 +88,15 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     //
     // 0.5) Skip some NPs
     //
-    string npToExclude[] = {"gamma_","stat_"};
+    std::vector<string> npToExclude = {"gamma_","stat_"};
     bool skip = false;
     std::vector < string > vec_NP_old = vec_NP;
     vec_NP.clear();
     for(unsigned int iNP = 0; iNP < vec_NP_old.size(); ++iNP){
         const string iSystName = vec_NP_old[iNP];
         skip = false;
-        for(int ii=0; ii<sizeof(npToExclude)/sizeof(string); ii++){
-            if(iSystName.find(npToExclude[ii])!=string::npos){
+        for(const std::string& ii : npToExclude){
+            if(iSystName.find(ii)!=string::npos){
                 skip = true;
                 continue;
             }

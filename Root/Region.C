@@ -209,7 +209,7 @@ void Region::AddSystematic(Systematic *syst){
 void Region::SetBinning(int N, double *bins){
     fNbins = fHistoNBinsRebin = N;
     fHistoBins = new double[N+1];
-    for(unsigned int i=0; i<=N; ++i) fHistoBins[i] = bins[i];    
+    for(int i=0; i<=N; ++i) fHistoBins[i] = bins[i];
 }
 
 //__________________________________________________________________________________
@@ -288,8 +288,6 @@ void Region::BuildPreFitErrorHist(){
         //
         // Systematics
         //
-        Systematic *syst = 0x0;
-        Sample *sample = fSampleHists[i]->fSample;
         for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
             systName = fSampleHists[i]->fSyst[i_syst]->fName;
             if(!systIsThere[systName]){
@@ -516,7 +514,7 @@ TthPlot* Region::DrawPreFit(string opt){
     p->SetLumiScale(fLumiScale);
     if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
 
-    if(fBinLabels.size() and fBinLabels.size()==fNbins) {
+    if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
       for(int i_bin=0; i_bin<fNbins; i_bin++) {
         p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
       }
@@ -640,13 +638,11 @@ TthPlot* Region::DrawPreFit(string opt){
 void Region::BuildPostFitErrorHist(FitResults *fitRes){
     
     WriteInfoStatus("Region::BuildPostFitErrorHist", "Building post-fit plot for region " + fName + " ...");
-    
-    float yieldNominal(0.), yieldUp(0.), yieldDown(0.);
+    float yieldNominal(0.);
+    //float yieldUp(0.), yieldDown(0.);
     float yieldNominal_postFit = 0.;
     float diffUp(0.), diffDown(0.);
-    float deltaN = 0.;
-    float totYield = 0.;
-    
+
     //
     // 0) Collect all the systematics on all the samples
     //
@@ -656,8 +652,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     float systValue(0.);
     float systErrUp(0.);
     float systErrDown(0.);
-    TH1* hUp = 0x0;
-    TH1* hDown = 0x0;
+    //TH1* hUp = 0x0;
+    //TH1* hDown = 0x0;
     string systName = "";
     string systNuisPar = "";
     SystematicHist *sh = 0x0;
@@ -802,16 +798,16 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 
                 diffUp = 0.;
                 diffDown = 0.;
-                hUp = 0x0;
-                hDown = 0x0;
+                //hUp = 0x0;
+                //hDown = 0x0;
                 yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
                 double yieldNominal_postFit_nfOnly = yieldNominal;
                 for(auto nf : fSampleHists[i]->fNormFactors){
                     yieldNominal_postFit_nfOnly *= fitRes->GetNuisParValue(TtHFitter::NPMAP[nf->fName]);
                 }
-                
-                int posTmp = systName.find("_bin_");
+
+                size_t posTmp = systName.find("_bin_");
                 std::string gammaName      = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
                 std::string gammaNameShape = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
                 //
@@ -870,13 +866,13 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 // Systematics treatment 
                 //
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
-                    hUp   = sh->fHistUp;
-                    hDown = sh->fHistDown;
-                    if(hUp!=0x0)    yieldUp     = hUp ->GetBinContent(i_bin);
-                    else            yieldUp     = yieldNominal;
+                    //hUp   = sh->fHistUp;
+                    //hDown = sh->fHistDown;
+                    //if(hUp!=0x0)    yieldUp     = hUp ->GetBinContent(i_bin);
+                    //else            yieldUp     = yieldNominal;
 //                     else            yieldUp     = yieldNominal_postFit;
-                    if(hDown!=0x0)  yieldDown   = hDown -> GetBinContent(i_bin);
-                    else            yieldDown   = yieldNominal;
+                    //if(hDown!=0x0)  yieldDown   = hDown -> GetBinContent(i_bin);
+                    //else            yieldDown   = yieldNominal;
 //                     else            yieldDown   = yieldNominal_postFit;
                     
                     //
@@ -1078,10 +1074,10 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
 
-    if(fBinLabels.size() and fBinLabels.size()==fNbins) {
-      for(int i_bin=0; i_bin<fNbins; i_bin++) {
-        p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
-      }
+    if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
+        for(int i_bin=0; i_bin<fNbins; i_bin++) {
+            p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
+        }
     }
     
     //
@@ -1101,9 +1097,6 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
     //
     string systName;
     float systValue;
-    float systErrUp;
-    float systErrDown;
-    TH1* hSyst;
     TH1* hNew;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
@@ -1377,6 +1370,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
     gSystem->mkdir((fFitName+"/Histograms").c_str());
     WriteInfoStatus("Region::DrawPostFit", "Writing file " + fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root");
     TFile *f = new TFile((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE");
+    f->cd();
     fErr_postFit->Write("",TObject::kOverwrite);
     fTot_postFit->Write("",TObject::kOverwrite);
     if( fPlotPostFit->h_tot_bkg_prefit)
@@ -1404,6 +1398,8 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
             }
         }
     }
+    f->Close();
+    delete f;
     //
     return p;
 }
@@ -1446,9 +1442,9 @@ void Region::SetAlternativeVariable(string variable,string sample){
 //
 bool Region::UseAlternativeVariable(string sample){
     if (fAlternativeVariables.find(sample)==fAlternativeVariables.end())
-      return false;
+        return false;
     else
-      return true;
+        return true;
 }
 
 //__________________________________________________________________________________
@@ -2013,9 +2009,7 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
             double ynom_j = h_nominal->GetBinContent(j+1);
             for(unsigned int n=0;n<nsyst;n++){
                 double ysyst_i_n = h_up[n]->GetBinContent(i+1);
-                double ysyst_j_n = h_up[n]->GetBinContent(j+1);
                 for(unsigned int m=0;m<nsyst;m++){
-                    double ysyst_i_m = h_up[m]->GetBinContent(i+1);
                     double ysyst_j_m = h_up[m]->GetBinContent(j+1);
                     // more than Bill's suggestion: add correlation between systematics!!
                     double corr = 0.;
@@ -2082,8 +2076,6 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         finalErrMinus = 0;
         corr = 0;
         yieldNominal = h_nominal->GetBinContent(i_bin);
-        double err = h_nominal->GetBinError(i_bin);
-        
         // - loop on the syst, two by two, to include the correlations
 //         std::vector<string> systNames_unique;
         for(unsigned int i_syst=0;i_syst<fSystNames.size();i_syst++){

@@ -4,7 +4,7 @@ ROOTLIB    = $(shell root-config --libs) -lMinuit
 
 CXXFLAGS   = -g -I.
 CXXFLAGS  += -Wno-long-long -fPIC
-CXXFLAGS  += $(shell root-config --cflags)
+CXXFLAGS  += $(shell root-config --cflags) -Wall -pedantic
 
 LDFLAGS    = $(ROOTLIB)
 LDFLAGS   += -lHistFactory -lRooStats -lRooFit -lRooFitCore
