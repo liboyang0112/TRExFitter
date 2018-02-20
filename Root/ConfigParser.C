@@ -1,4 +1,5 @@
 #include "TtHFitter/ConfigParser.h"
+#include "TtHFitter/StatusLogbook.h"
 #include <map>
 
 //----------------------------------------------------------------------------------
@@ -207,11 +208,11 @@ ConfigParser::~ConfigParser(){
 //__________________________________________________________________________________
 //
 void ConfigParser::ReadFile(string fileName){
-    cout << "Reading config file " << fileName << endl;
+    WriteInfoStatus("ConfigParser::ReadFile", "Reading config file: " + fileName);
     ifstream file(fileName.c_str());
     if(!file.is_open()){
-        std::cerr << "<!> Error in ConfigParser::ReadFile: The file cannot be opened !" << std::endl;
-        return;
+        WriteErrorStatus("ConfigParser::ReadFile", "The config file cannot be opened!");
+        exit(-1);
     }
     string str, val;
 
@@ -230,11 +231,11 @@ void ConfigParser::ReadFile(string fileName){
     file.close();
     file.clear();
     if (replacementFileName!="") {
-        std::cout <<    " ... found replacement file: " << replacementFileName << " ... now filling the map" << std::endl;
+        WriteInfoStatus("ConfigParser::ReadFile", "Opening replacement file: " + replacementFileName + " to fill the map");
         ////replacementFileName="Common_XS_unc_Replacement.txt";
         ifstream fileR(replacementFileName.c_str());
         if(!fileR.is_open()){
-            std::cerr << "<!> Error in ConfigParser::ReadFile: The replacement file: " << replacementFileName << " cannot be open !!" << std::endl;
+            WriteErrorStatus("ConfigParser::ReadFile", "The replacement file: " + replacementFileName + " cannot be opend!");
             exit(-1);
         }
         while (getline(fileR, str)){
@@ -242,7 +243,7 @@ void ConfigParser::ReadFile(string fileName){
             replace( str.begin(), str.end(), '\r', ' ');
             replace( str.begin(), str.end(), '\t', ' ');
             if ( str.find("%")!=string::npos || str.find("#")!=string::npos) continue;
-            std::cout << "putting in the map: [" << First(str) << "]=" << Second(str) << std::endl;
+            WriteInfoStatus("ConfigParser::ReadFile", "putting in the map: [" + First(str) + "]=" + Second(str));
             fReplacement[First(str)]=Second(str);
         }
         fileR.close();
@@ -260,7 +261,7 @@ void ConfigParser::ReadFile(string fileName){
         if(str[str.find_first_not_of(' ')]=='%') continue;
 
         if (str.find("XXX")!=string::npos) {
-            std::cout << "  BEFORE replacement: " << str << std::endl;
+            WriteInfoStatus("ConfigParser::ReadFile", "BEFORE replacement: " + str);
             map<string,string>::iterator itr=fReplacement.begin();
             for ( ;itr!=fReplacement.end();++itr) {
                 string oldV=itr->first;
@@ -269,7 +270,7 @@ void ConfigParser::ReadFile(string fileName){
                 //replace( str.begin(), str.end(), oldV, newV);
                 ReplaceStringInPlace(str, oldV, newV);
             }
-            std::cout << "  AFTER replacement: " << str << std::endl;
+            WriteInfoStatus("ConfigParser::ReadFile", " AFTER replacement: " + str);
         }
 
         if(str.find_first_not_of(' ')==string::npos){
