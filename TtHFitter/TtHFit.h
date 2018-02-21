@@ -272,7 +272,6 @@ public:
     bool fDoTables;
     bool fDoSignalRegionsPlot;
     bool fDoPieChartPlot;
-    bool fDoGroupedSystImpactTable;
     
     //
     // Fit caracteristics
@@ -291,6 +290,7 @@ public:
     vector<string> fVarNameMinos;
     vector<string> fVarNameHide;
     std::string fWorkspaceFileName;
+    bool fDoGroupedSystImpactTable;
 
     //
     // Limit parameters

@@ -848,12 +848,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("ReduceNPforRanking");  if( param != ""){
         fReduceNPforRanking = atof(param.c_str());
     }
-    param = cs->Get("GroupedSystImpactTable");    if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fDoGroupedSystImpactTable = true;
-        }
-    }
     param = cs->Get("ImageFormat");  if( param != ""){
         fImageFormat = Vectorize(param,',')[0];
         TtHFitter::IMAGEFORMAT = Vectorize(param,',');
@@ -1058,6 +1052,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
             fGetGoodnessOfFit = true;
+        }
+    }
+    param = cs->Get("GroupedSystImpactTable");    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fDoGroupedSystImpactTable = true;
         }
     }
 

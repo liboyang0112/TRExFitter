@@ -653,7 +653,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
         full      =ScanSingleParamReversed("Stat_Theo" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
 
 
-        // full      =ScanSingleParam("Stat_Rest" , true, true , fitdata, fitpdf, constrainedParams, ws, model );
+        // full      =ScanSingleParam("Stat_Rest" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
         ws->loadSnapshot("snapshot_AfterFit_GO");
         ws->loadSnapshot("snapshot_AfterFit_POI");
         ws->loadSnapshot("snapshot_AfterFit_NP");
@@ -765,116 +765,114 @@ float FittingTool::ScanSingleParamReversed(string nameV, bool doStat, bool exclu
     TIterator* it = mc->GetNuisanceParameters()->createIterator();
     RooRealVar* var2 = NULL;
     if (!calib) {
-      while( (var2 = (RooRealVar*) it->Next()) ){
-        string varname = (string) var2->GetName();
-        if (doStat) {
-          // remove everything but gammas
-          if (!excludeGammas) {
-            if (varname.find("gamma")!=string::npos) var2->setConstant(1);
-            continue;
-          }
-          // // need to do it manually since I can never control the content of the WSs:
-          // if ( varname=="ttb_norm" || varname=="ttc_norm" || varname=="mu_XS_ttH_tthlep" ||
-          //      varname=="nbkg_Hgg_ttHhad_tthgg"      || varname=="nbkg_Hgg_ttHlep_tthgg" ||
-          //      varname=="BGshape_slope_ttHhad_tthgg" || varname=="BGshape_slope_ttHlep_tthgg" ) continue;
+        while( (var2 = (RooRealVar*) it->Next()) ){
+            string varname = (string) var2->GetName();
+            if (doStat) {
+                // remove everything but gammas
+                if (!excludeGammas) {
+                    if (varname.find("gamma")!=string::npos) var2->setConstant(1);
+                    continue;
+                }
+                // // need to do it manually since I can never control the content of the WSs:
+                // if ( varname=="ttb_norm" || varname=="ttc_norm" || varname=="mu_XS_ttH_tthlep" ||
+                //      varname=="nbkg_Hgg_ttHhad_tthgg"      || varname=="nbkg_Hgg_ttHlep_tthgg" ||
+                //      varname=="BGshape_slope_ttHhad_tthgg" || varname=="BGshape_slope_ttHlep_tthgg" ) continue;
 
-          // DISABLE EVERYTHING!!!
-          var2->setConstant(0);
+                // DISABLE EVERYTHING!!!
+                var2->setConstant(0);
 
-          if (nameV=="Stat_Stat") {
-            // enable the CR Stat.
-            var2->setConstant(1);
-            // ws->var("ttb_norm")->setVal(1);
-            // ws->var("ttc_norm")->setVal(1);
-          }
+                if (nameV=="Stat_Stat") {
+                    // enable the CR Stat.
+                    var2->setConstant(1);
+                    // ws->var("ttb_norm")->setVal(1);
+                    // ws->var("ttc_norm")->setVal(1);
+                }
 
-          if (nameV=="Stat_ttbNorm") {
-            // enable the CR Stat.
-            ws->var("ttb_norm")->setConstant(1);
-            // if (varname.find("ttb_norm")!=string::npos || ((varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttbb_")!=string::npos || varname.find("alpha_tt3b_")!=string::npos || varname.find("alpha_ttB_")!=string::npos) && varname.find("_XS")!=string::npos) ) var2->setConstant(1);
-          }
+                if (nameV=="Stat_ttbNorm") {
+                    // enable the CR Stat.
+                    ws->var("ttb_norm")->setConstant(1);
+                    // if (varname.find("ttb_norm")!=string::npos || ((varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttbb_")!=string::npos || varname.find("alpha_tt3b_")!=string::npos || varname.find("alpha_ttB_")!=string::npos) && varname.find("_XS")!=string::npos) ) var2->setConstant(1);
+                }
 
-          if (nameV=="Stat_ttcNorm") {
-            // enable the CR Stat.
-            ws->var("ttc_norm")->setConstant(1);
-            //if (varname.find("ttc_norm")!=string::npos || (varname.find("alpha_ttc_")!=string::npos && varname.find("_XS")!=string::npos) ) var2->setConstant(1);
-          }
+                if (nameV=="Stat_ttcNorm") {
+                    // enable the CR Stat.
+                    ws->var("ttc_norm")->setConstant(1);
+                    //if (varname.find("ttc_norm")!=string::npos || (varname.find("alpha_ttc_")!=string::npos && varname.find("_XS")!=string::npos) ) var2->setConstant(1);
+                }
 
-          if (nameV=="Stat_Theo") {
-            if ( varname.find("alpha_ATLAS_BR_")!=string::npos || varname.find("alpha_ttH_")!=string::npos ) var2->setConstant(1);
-          }
+                if (nameV=="Stat_Theo") {
+                    if ( varname.find("alpha_ATLAS_BR_")!=string::npos || varname.find("alpha_ttH_")!=string::npos ) var2->setConstant(1);
+                }
 
-          if (nameV=="Stat_Rest") {
-            // enable the CR Stat.
-            if ( varname.find("CRStat")==string::npos && varname.find("alpha_ATLAS_BR_")==string::npos && varname.find("alpha_ttH_")==string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_FTAG") {
-            // enable the CR Stat.
-            if ( varname.find("alpha_ATLAS_FTAG_")!=string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_JE") {
-            // enable the CR Stat.
-            if ( varname.find("alpha_ATLAS_JES")!=string::npos || varname.find("alpha_ATLAS_JER")!=string::npos || varname.find("alpha_ATLAS_MET_")!=string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_ttbGen") {
-            // enable the CR Stat.
-            if ( varname.find("alpha_ttb_Gen")!=string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_ttb") {
-            // enable the CR Stat.
-            //if ( (varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttbb_")!=string::npos || varname.find("alpha_tt3b_")!=string::npos || varname.find("alpha_ttB_")!=string::npos) && varname.find("_XS")==string::npos ) var2->setConstant(1);
-            if ( varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttbb_")!=string::npos || varname.find("alpha_tt3b_")!=string::npos || varname.find("alpha_ttB_")!=string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_ttc") {
-            // enable the CR Stat.
-            //if ( varname.find("alpha_ttc_")!=string::npos && varname.find("_XS")==string::npos ) var2->setConstant(1);
-            if ( varname.find("alpha_ttc_")!=string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_ttlight") {
-            // enable the CR Stat.
-            if ( varname.find("alpha_ttlight_")!=string::npos || varname.find("alpha_tt_XS")!=string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_oth") {
-            // enable the CR Stat.
-            if ( varname.find("alpha_Wjets_")!=string::npos || varname.find("alpha_Zjets_")!=string::npos || varname.find("alpha_Diboson_")!=string::npos || varname.find("alpha_tHjb_")!=string::npos || varname.find("alpha_WtH_")!=string::npos || varname.find("alpha_ttZ_")!=string::npos || varname.find("alpha_ttW_")!=string::npos || varname.find("alpha_singletop_")!=string::npos || varname.find("alpha_tZjb_")!=string::npos || varname.find("alpha_WtZ_")!=string::npos || varname.find("alpha_ttWW_")!=string::npos || varname.find("alpha_tttt_")!=string::npos || varname.find("alpha_fakes_")!=string::npos || varname.find("alpha_Wt_")!=string::npos || varname.find("alpha_tchan_")!=string::npos || varname.find("alpha_Fakes2l_")!=string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_PRWjvt") {
-            // enable the CR Stat.
-            if ( varname.find("alpha_ATLAS_PRW")!=string::npos || varname.find("alpha_ATLAS_JVT")!=string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_lumi") {
-            // enable the CR Stat.
-            if ( varname.find("alpha_ATLAS_lumi")!=string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_lepton") {
-            // enable the CR Stat.
-            if ( varname.find("alpha_ATLAS_EL_")!=string::npos || varname.find("alpha_ATLAS_EM_")!=string::npos || varname.find("alpha_ATLAS_MU_")!=string::npos ) var2->setConstant(1);
-          }
-          if (nameV=="Stat_MET") {
-            // enable the CR Stat.
-            if ( varname.find("alpha_ATLAS_MET_")!=string::npos ) var2->setConstant(1);
-          }
+                if (nameV=="Stat_Rest") {
+                    // enable the CR Stat.
+                    if ( varname.find("CRStat")==string::npos && varname.find("alpha_ATLAS_BR_")==string::npos && varname.find("alpha_ttH_")==string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_FTAG") {
+                    // enable the CR Stat.
+                    if ( varname.find("alpha_ATLAS_FTAG_")!=string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_JE") {
+                    // enable the CR Stat.
+                    if ( varname.find("alpha_ATLAS_JES")!=string::npos || varname.find("alpha_ATLAS_JER")!=string::npos || varname.find("alpha_ATLAS_MET_")!=string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_ttbGen") {
+                    // enable the CR Stat.
+                    if ( varname.find("alpha_ttb_Gen")!=string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_ttb") {
+                    // enable the CR Stat.
+                    //if ( (varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttbb_")!=string::npos || varname.find("alpha_tt3b_")!=string::npos || varname.find("alpha_ttB_")!=string::npos) && varname.find("_XS")==string::npos ) var2->setConstant(1);
+                    if ( varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttbb_")!=string::npos || varname.find("alpha_tt3b_")!=string::npos || varname.find("alpha_ttB_")!=string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_ttc") {
+                    // enable the CR Stat.
+                    //if ( varname.find("alpha_ttc_")!=string::npos && varname.find("_XS")==string::npos ) var2->setConstant(1);
+                    if ( varname.find("alpha_ttc_")!=string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_ttlight") {
+                    // enable the CR Stat.
+                    if ( varname.find("alpha_ttlight_")!=string::npos || varname.find("alpha_tt_XS")!=string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_oth") {
+                    // enable the CR Stat.
+                    if ( varname.find("alpha_Wjets_")!=string::npos || varname.find("alpha_Zjets_")!=string::npos || varname.find("alpha_Diboson_")!=string::npos || varname.find("alpha_tHjb_")!=string::npos || varname.find("alpha_WtH_")!=string::npos || varname.find("alpha_ttZ_")!=string::npos || varname.find("alpha_ttW_")!=string::npos || varname.find("alpha_singletop_")!=string::npos || varname.find("alpha_tZjb_")!=string::npos || varname.find("alpha_WtZ_")!=string::npos || varname.find("alpha_ttWW_")!=string::npos || varname.find("alpha_tttt_")!=string::npos || varname.find("alpha_fakes_")!=string::npos || varname.find("alpha_Wt_")!=string::npos || varname.find("alpha_tchan_")!=string::npos || varname.find("alpha_Fakes2l_")!=string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_PRWjvt") {
+                    // enable the CR Stat.
+                    if ( varname.find("alpha_ATLAS_PRW")!=string::npos || varname.find("alpha_ATLAS_JVT")!=string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_lumi") {
+                    // enable the CR Stat.
+                    if ( varname.find("alpha_ATLAS_lumi")!=string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_lepton") {
+                    // enable the CR Stat.
+                    if ( varname.find("alpha_ATLAS_EL_")!=string::npos || varname.find("alpha_ATLAS_EM_")!=string::npos || varname.find("alpha_ATLAS_MU_")!=string::npos ) var2->setConstant(1);
+                }
+                if (nameV=="Stat_MET") {
+                    // enable the CR Stat.
+                    if ( varname.find("alpha_ATLAS_MET_")!=string::npos ) var2->setConstant(1);
+                }
 
-        } else {
-          if (varname.find(nameV)!=string::npos) {
-            var2->setConstant(1);
-          }
+            }
+            else {
+                if (varname.find(nameV)!=string::npos) {
+                    var2->setConstant(1);
+                }
+            }
         }
-      }
     }
 
     constrainedParams->Print("v");
     // repeat the fit here ....
-    RooAbsReal* nll = fitpdf->createNLL(*fitdata,
-                RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs),
-                RooFit::Offset(1), NumCPU(4, RooFit::Hybrid) );
+    RooAbsReal* nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), NumCPU(4, RooFit::Hybrid) );
     RooMinimizer minim2(*nll);
     minim2.setStrategy(1);
     // minim2.setPrintLevel(-1);
     minim2.setPrintLevel(1);
     minim2.setEps(1);
-    int status = minim2.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(),
-               ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+    int status = minim2.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
     ////////////////RooFitResult * r=minim2.save();
     RooRealVar * thePOI = dynamic_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
 
@@ -938,22 +936,22 @@ float FittingTool::ScanSingleParamReversed(string nameV, bool doStat, bool exclu
       << " ||||  DO: " << oldPOIerrD << " --> " << newPOIerrD << endl;
     */
     if (doStat && excludeGammas) {
-      //cout << " Stat. rel Err: " << newPOIerrU/thePOI->getVal()*100 << "   ,   " << newPOIerrD/thePOI->getVal()*100 << endl;
+        //cout << " Stat. rel Err: " << newPOIerrU/thePOI->getVal()*100 << "   ,   " << newPOIerrD/thePOI->getVal()*100 << endl;
     }
     else if (doStat && !excludeGammas) {
-      //cout << " Stat+Gam Err : " << newPOIerrU/thePOI->getVal()*100 << "   ,   " << newPOIerrD/thePOI->getVal()*100 << endl;
+        //cout << " Stat+Gam Err : " << newPOIerrU/thePOI->getVal()*100 << "   ,   " << newPOIerrD/thePOI->getVal()*100 << endl;
     }
     else {
-      if ( (fabs(newPOIerrU)>fabs(oldPOIerrU)) || (fabs(newPOIerrD)>fabs(oldPOIerrD)) ) {
-        cout << " PROBLEM for sys: " << nameV << " .... please check" << endl;
-        cout << "      Error: " << oldPOIerr << " --> " << newPOIerr
-       << " ||||  UP: " << oldPOIerrU << " --> " << newPOIerrU
-       << " ||||  DO: " << oldPOIerrD << " --> " << newPOIerrD << endl;
-      }
-      //cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " << nameV << "    :   "
-      //<< sqrt(oldPOIerrU*oldPOIerrU-newPOIerrU*newPOIerrU)/thePOI->getVal()*100 << "   ,   "
-      //  << sqrt(oldPOIerrD*oldPOIerrD-newPOIerrD*newPOIerrD)/thePOI->getVal()*100 << endl << endl;
-      //// then please do the average
+        if ( (fabs(newPOIerrU)>fabs(oldPOIerrU)) || (fabs(newPOIerrD)>fabs(oldPOIerrD)) ) {
+            cout << " PROBLEM for sys: " << nameV << " .... please check" << endl;
+            cout << "      Error: " << oldPOIerr << " --> " << newPOIerr
+                 << " ||||  UP: " << oldPOIerrU << " --> " << newPOIerrU
+                 << " ||||  DO: " << oldPOIerrD << " --> " << newPOIerrD << endl;
+        }
+        //cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " << nameV << "    :   "
+        //<< sqrt(oldPOIerrU*oldPOIerrU-newPOIerrU*newPOIerrU)/thePOI->getVal()*100 << "   ,   "
+        //  << sqrt(oldPOIerrD*oldPOIerrD-newPOIerrD*newPOIerrD)/thePOI->getVal()*100 << endl << endl;
+        //// then please do the average
     }
 
 
@@ -969,6 +967,6 @@ float FittingTool::ScanSingleParamReversed(string nameV, bool doStat, bool exclu
       //
     //}
     //cout << "VALERIO: " << nameV << " after everything POI error: " << thePOI->getError() << endl;
-    //
+
     return newPOIerr;
 }

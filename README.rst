@@ -179,7 +179,6 @@ Note that, each object should have unique <ObjectName>.
      * CustomFunctions  : list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values)
      * SuppressNegativeBinWarnings  : If set to true will suppress warning messages about negative or 0 content in bins
      * Bootstrap        : (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like "bsWeight(x,eventNumber,mcChannelNumber)", where bsWeight should be loaded with 'CustomFunctions: "bsWeight.C"' and eventNumber and mcChannelNumber shoudl be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option 'BootstrapIdx=<i>' should be given, with <i>=0,1,2,3...
-     * GroupedSystImpactTable : if set to TRUE, create a table showing impact of nuisance parameters grouped together by SubCategory
      
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -194,6 +193,7 @@ Note that, each object should have unique <ObjectName>.
      * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
      * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
+     * GroupedSystImpactTable : if set to TRUE, create a table showing impact of nuisance parameters grouped together by SubCategory
      
   * Limit:
      * LimitType        : can be ASYMPTOTIC or TOYS (the latter is not yet supported)
