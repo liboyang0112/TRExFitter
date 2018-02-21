@@ -71,15 +71,15 @@ public:
 
     inline void UseMinos( const std::vector<std::string> minosvar){ m_useMinos = true; m_varMinos = minosvar; }
 
-    inline void SetGroupedSystImpactTable( const bool doTable ) { m_groupedSystImpactTable = doTable; }
-    inline void SetWorkspace( RooWorkspace* ws ) { m_ws = ws; }
-
     //
     // Specific functions
     //
     float FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit = false, bool noFit = false );
     void ExportFitResultInTextFile( const std::string &finaName );
     std::map < std::string, double > ExportFitResultInMap();
+
+    int GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws );
+    float ScanSingleParamReversed(string nameV, bool doStat, bool excludeGammas, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams, RooStats::ModelConfig* mc, RooWorkspace* ws, bool calib=false );
 
 private:
     TString m_minimType;
@@ -101,8 +101,6 @@ private:
     bool m_randomize;
     double m_randomNP;
     long int m_randSeed;
-    bool m_groupedSystImpactTable;
-    RooWorkspace* m_ws;
 
 //     TString m_constNP;
 //     double m_constNPvalue;

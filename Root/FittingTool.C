@@ -53,8 +53,7 @@ m_RangePOI_up(100.),
 m_RangePOI_down(-10.),
 m_randomize(false),
 m_randomNP(0.1),
-m_randSeed(-999),
-m_groupedSystImpactTable(false)
+m_randSeed(-999)
 {
     m_constNP.clear();
     m_constNPvalue.clear();
@@ -460,10 +459,6 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     m_fitResult = (RooFitResult*)r->Clone();
     delete r;
 
-    if(m_groupedSystImpactTable){
-        WriteInfoStatus("FittingTool::FitPDF","performing grouped ranking");
-    }
-
     //
     // clean stuff
 //     if(constrainedParams) delete constrainedParams;
@@ -576,4 +571,404 @@ std::map < std::string, double > FittingTool::ExportFitResultInMap(){
     }
     if(param) delete param;
     return result;
+}
+
+//____________________________________________________________________________________
+//
+int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws ){
+
+    // obtain constrainedParams and poi just as in FitPDF()
+    RooArgSet* constrainedParams = fitpdf->getParameters(*fitdata);
+    RooStats::RemoveConstantParameters(constrainedParams);
+    RooFit::Constrain(*constrainedParams);
+
+    RooRealVar * poi = (RooRealVar*) model->GetParametersOfInterest()->first();
+    if(!poi){
+        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+        WriteErrorStatus("FittingTool::FitPDF", "Cannot find the parameter of interest !");
+        return -1;
+    }
+    poi -> setConstant(m_constPOI);
+    poi -> setVal(m_valPOI);
+    if(!m_constPOI && m_randomize){
+        poi->setVal( m_valPOI + m_randomNP*(gRandom->Uniform(2)-1.) );
+    }
+
+    WriteInfoStatus("FittingTool::GetGroupedImpact","-----------------------------------------------------");
+    WriteInfoStatus("FittingTool::GetGroupedImpact","performing grouped ranking section");
+    // ws->var("ttb_norm")->setVal(1.1);
+    // ws->var("ttc_norm")->setVal(1.1);
+    // poi->setVal( 2.1 );
+
+
+    if (!poi->isConstant()) {
+        // save a snapshot
+        ws->saveSnapshot("snapshot_AfterFit_POI", *model->GetParametersOfInterest() );
+        ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters()) );
+        ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())  );
+        float full=ScanSingleParamReversed("Stat_Norm" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+
+        //  ws->loadSnapshot("snapshot_AfterFit_GO");
+        //  ws->loadSnapshot("snapshot_AfterFit_POI");
+        //  ws->loadSnapshot("snapshot_AfterFit_NP");
+        // ws->var("ttb_norm")->setVal(1.0);
+        // ws->var("ttc_norm")->setVal(1.1);
+        //  ws->saveSnapshot("snapshot_AfterFit_POI", *model->GetParametersOfInterest() );
+        //  ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters()) );
+        //  ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())  );
+        full      =ScanSingleParamReversed("Stat_ttbNorm" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+
+        //  ws->loadSnapshot("snapshot_AfterFit_GO");
+        //  ws->loadSnapshot("snapshot_AfterFit_POI");
+        //  ws->loadSnapshot("snapshot_AfterFit_NP");
+        // ws->var("ttb_norm")->setVal(1.1);
+        // ws->var("ttc_norm")->setVal(1.0);
+        //  ws->saveSnapshot("snapshot_AfterFit_POI", *model->GetParametersOfInterest() );
+        //  ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters()) );
+        //  ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())  );
+        full      =ScanSingleParamReversed("Stat_ttcNorm" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        //  ws->loadSnapshot("snapshot_AfterFit_GO");
+        //  ws->loadSnapshot("snapshot_AfterFit_POI");
+        //  ws->loadSnapshot("snapshot_AfterFit_NP");
+        // ws->var("ttb_norm")->setVal(1.1);
+        // ws->var("ttc_norm")->setVal(1.1);
+        //  ws->saveSnapshot("snapshot_AfterFit_POI", *model->GetParametersOfInterest() );
+        //  ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters()) );
+        //  ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())  );
+
+        full      =ScanSingleParamReversed("Stat_FTAG" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_JE" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_ttb" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_ttbGen" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_ttc" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_ttlight" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_oth" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_PRWjvt" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_lumi" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_lepton" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        //full      =ScanSingleParamReversed("Stat_MET" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+
+        full      =ScanSingleParamReversed("Stat_Gamma", true, false, fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_Stat" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+        full      =ScanSingleParamReversed("Stat_Theo" , true, true , fitdata, fitpdf, constrainedParams, model, ws );
+
+
+        // full      =ScanSingleParam("Stat_Rest" , true, true , fitdata, fitpdf, constrainedParams, ws, model );
+        ws->loadSnapshot("snapshot_AfterFit_GO");
+        ws->loadSnapshot("snapshot_AfterFit_POI");
+        ws->loadSnapshot("snapshot_AfterFit_NP");
+    }
+
+
+    cout << setprecision(2) << fixed << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_Full");
+    cout << "POI          is: " << poi->getVal() << " +/- " << poi->getError() << "  :  high: " << poi->getErrorHi() << "  low: " << poi->getErrorLo() << endl;
+    float StatUp2=(poi->getErrorHi()*poi->getErrorHi());
+    float StatLo2=(poi->getErrorLo()*poi->getErrorLo());
+    float Stat2  =(poi->getError()*poi->getError());
+    ws->loadSnapshot("snapshot_AfterFit_POI_Stat");
+    cout << "POI StatOnly is: " << poi->getVal() << " +/- " << poi->getError() << "  :  high: " << poi->getErrorHi() << "  low: " << poi->getErrorLo() << endl;
+    // float StatUp2=(poi->getErrorHi()*poi->getErrorHi());
+    // float StatLo2=(poi->getErrorLo()*poi->getErrorLo());
+    // float Stat2  =(poi->getError()*poi->getError());
+    ws->loadSnapshot("snapshot_AfterFit_POI_Gamma");
+    cout << "POI Stat+Gam is: " << poi->getVal() << " +/- " << poi->getError() << "  :  high: " << poi->getErrorHi() << "  low: " << poi->getErrorLo() << endl;
+    //cout << "   --> MC stat.  : +/- " << sqrt( - pow(poi->getError(),2) + Stat2 ) << endl;
+    cout << "   --> MC stat.           : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    // ws->loadSnapshot("snapshot_AfterFit_POI_CRstat");
+    // cout << "   --> CRstat.            : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+
+
+    ws->loadSnapshot("snapshot_AfterFit_POI_ttbNorm");
+    cout << "   --> ttb normalization  : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_ttcNorm");
+    cout << "   --> ttc normalization  : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_Theo");
+    cout << "   --> ttH modelling      : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_FTAG");
+    cout << "   --> Flavour tagging    : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_JE");
+    cout << "   --> JET and JER        : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_ttb");
+    cout << "   --> ttb modelling      : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_ttbGen");
+    cout << "   --> ttbGen modelling      : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_ttc");
+    cout << "   --> ttc modelling      : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_ttlight");
+    cout << "   --> ttlight modelling  : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_oth");
+    cout << "   --> Other backgrounds  : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_PRWjvt");
+    cout << "   --> PRW and JVT        : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_lumi");
+    cout << "   --> Luminosity         : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI_lepton");
+    cout << "   --> Leptons            : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    // ws->loadSnapshot("snapshot_AfterFit_POI_MET");
+    // cout << "   --> MET                : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+
+
+    // ws->loadSnapshot("snapshot_AfterFit_POI_Rest");
+    // cout << "   --> Rest               : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    ws->loadSnapshot("snapshot_AfterFit_POI");
+    cout << "   --> Full sys. : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
+    //cout << " MC stat. abs: " << sqrt( - pow(GammaUp,2) - - pow(poi->getErrorHi(),2) ) << " ,  - " << sqrt( - pow(GammaDo,2) - - pow(poi->getErrorLo(),2) ) << endl;
+    //cout << " MC stat. rel: " << sqrt( - pow(GammaUp,2) - - pow(poi->getErrorHi(),2) )/poi->getVal()*100 << " ,  - " << sqrt( - pow(GammaDo,2) - - pow(poi->getErrorLo(),2) )/poi->getVal()*100 << endl;
+    //ws->loadSnapshot("snapshot_AfterFit_POI");
+    cout << endl << endl;
+    // ws->loadSnapshot("snapshot_AfterFit_POI_CRstat");
+    // cout << "POI wCRstat is: " << poi->getVal() << " +/- " << poi->getError() << "  :  high: " << poi->getErrorHi() << "  low: " << poi->getErrorLo() << endl;
+    // StatUp2=(poi->getErrorHi()*poi->getErrorHi());
+    // StatLo2=(poi->getErrorLo()*poi->getErrorLo());
+    // Stat2  =(poi->getError()*poi->getError());
+    ws->loadSnapshot("snapshot_AfterFit_POI_Stat");
+    cout << "POI StatOnly is: " << poi->getVal() << " +/- " << poi->getError() << "  :  high: " << poi->getErrorHi() << "  low: " << poi->getErrorLo() << endl;
+    StatUp2=(poi->getErrorHi()*poi->getErrorHi());
+    StatLo2=(poi->getErrorLo()*poi->getErrorLo());
+    Stat2  =(poi->getError()*poi->getError());
+
+    ws->loadSnapshot("snapshot_AfterFit_POI");
+    cout << "   --> Full sys. : +" << sqrt(  pow(poi->getErrorHi(),2) - StatUp2 ) << " ,  -" << sqrt(  pow(poi->getErrorLo(),2) - StatLo2 ) << endl;
+
+
+    float step=0.25;
+    int npoints=(int)((4.5+0.5)/step);
+    for (int i=0; i<npoints+1; i++) {
+    //GetLH( -0.5+((float)i)*step, LHmin, fitdata, fitpdf, constrainedParams);
+    }
+    ws->loadSnapshot("snapshot_AfterFit_POI");
+    ws->loadSnapshot("snapshot_AfterFit_NP");
+
+    WriteInfoStatus("FittingTool::FitPDF","finishing grouped ranking section");
+    WriteInfoStatus("FittingTool::FitPDF","-----------------------------------------------------");
+
+    return 0;
+}
+
+
+//____________________________________________________________________________________
+//
+float FittingTool::ScanSingleParamReversed(string nameV, bool doStat, bool excludeGammas, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams, RooStats::ModelConfig* mc, RooWorkspace* ws, bool calib ) {
+
+    // (VD): use this to fix nuisance parameter before the fit
+    const RooArgSet* glbObs = mc->GetGlobalObservables();
+    ws->loadSnapshot("snapshot_AfterFit_GO");
+    ws->loadSnapshot("snapshot_AfterFit_POI");
+    ws->loadSnapshot("snapshot_AfterFit_NP");
+
+    cout << endl;
+    cout << "    ------------       " << endl;
+    cout << "    NEW BREAKDOWN      " << endl;
+    cout << "Scan : " << nameV << endl;
+
+    TIterator* it = mc->GetNuisanceParameters()->createIterator();
+    RooRealVar* var2 = NULL;
+    if (!calib) {
+      while( (var2 = (RooRealVar*) it->Next()) ){
+        string varname = (string) var2->GetName();
+        if (doStat) {
+          // remove everything but gammas
+          if (!excludeGammas) {
+            if (varname.find("gamma")!=string::npos) var2->setConstant(1);
+            continue;
+          }
+          // // need to do it manually since I can never control the content of the WSs:
+          // if ( varname=="ttb_norm" || varname=="ttc_norm" || varname=="mu_XS_ttH_tthlep" ||
+          //      varname=="nbkg_Hgg_ttHhad_tthgg"      || varname=="nbkg_Hgg_ttHlep_tthgg" ||
+          //      varname=="BGshape_slope_ttHhad_tthgg" || varname=="BGshape_slope_ttHlep_tthgg" ) continue;
+
+          // DISABLE EVERYTHING!!!
+          var2->setConstant(0);
+
+          if (nameV=="Stat_Stat") {
+            // enable the CR Stat.
+            var2->setConstant(1);
+            // ws->var("ttb_norm")->setVal(1);
+            // ws->var("ttc_norm")->setVal(1);
+          }
+
+          if (nameV=="Stat_ttbNorm") {
+            // enable the CR Stat.
+            ws->var("ttb_norm")->setConstant(1);
+            // if (varname.find("ttb_norm")!=string::npos || ((varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttbb_")!=string::npos || varname.find("alpha_tt3b_")!=string::npos || varname.find("alpha_ttB_")!=string::npos) && varname.find("_XS")!=string::npos) ) var2->setConstant(1);
+          }
+
+          if (nameV=="Stat_ttcNorm") {
+            // enable the CR Stat.
+            ws->var("ttc_norm")->setConstant(1);
+            //if (varname.find("ttc_norm")!=string::npos || (varname.find("alpha_ttc_")!=string::npos && varname.find("_XS")!=string::npos) ) var2->setConstant(1);
+          }
+
+          if (nameV=="Stat_Theo") {
+            if ( varname.find("alpha_ATLAS_BR_")!=string::npos || varname.find("alpha_ttH_")!=string::npos ) var2->setConstant(1);
+          }
+
+          if (nameV=="Stat_Rest") {
+            // enable the CR Stat.
+            if ( varname.find("CRStat")==string::npos && varname.find("alpha_ATLAS_BR_")==string::npos && varname.find("alpha_ttH_")==string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_FTAG") {
+            // enable the CR Stat.
+            if ( varname.find("alpha_ATLAS_FTAG_")!=string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_JE") {
+            // enable the CR Stat.
+            if ( varname.find("alpha_ATLAS_JES")!=string::npos || varname.find("alpha_ATLAS_JER")!=string::npos || varname.find("alpha_ATLAS_MET_")!=string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_ttbGen") {
+            // enable the CR Stat.
+            if ( varname.find("alpha_ttb_Gen")!=string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_ttb") {
+            // enable the CR Stat.
+            //if ( (varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttbb_")!=string::npos || varname.find("alpha_tt3b_")!=string::npos || varname.find("alpha_ttB_")!=string::npos) && varname.find("_XS")==string::npos ) var2->setConstant(1);
+            if ( varname.find("alpha_ttb_")!=string::npos || varname.find("alpha_ttbb_")!=string::npos || varname.find("alpha_tt3b_")!=string::npos || varname.find("alpha_ttB_")!=string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_ttc") {
+            // enable the CR Stat.
+            //if ( varname.find("alpha_ttc_")!=string::npos && varname.find("_XS")==string::npos ) var2->setConstant(1);
+            if ( varname.find("alpha_ttc_")!=string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_ttlight") {
+            // enable the CR Stat.
+            if ( varname.find("alpha_ttlight_")!=string::npos || varname.find("alpha_tt_XS")!=string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_oth") {
+            // enable the CR Stat.
+            if ( varname.find("alpha_Wjets_")!=string::npos || varname.find("alpha_Zjets_")!=string::npos || varname.find("alpha_Diboson_")!=string::npos || varname.find("alpha_tHjb_")!=string::npos || varname.find("alpha_WtH_")!=string::npos || varname.find("alpha_ttZ_")!=string::npos || varname.find("alpha_ttW_")!=string::npos || varname.find("alpha_singletop_")!=string::npos || varname.find("alpha_tZjb_")!=string::npos || varname.find("alpha_WtZ_")!=string::npos || varname.find("alpha_ttWW_")!=string::npos || varname.find("alpha_tttt_")!=string::npos || varname.find("alpha_fakes_")!=string::npos || varname.find("alpha_Wt_")!=string::npos || varname.find("alpha_tchan_")!=string::npos || varname.find("alpha_Fakes2l_")!=string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_PRWjvt") {
+            // enable the CR Stat.
+            if ( varname.find("alpha_ATLAS_PRW")!=string::npos || varname.find("alpha_ATLAS_JVT")!=string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_lumi") {
+            // enable the CR Stat.
+            if ( varname.find("alpha_ATLAS_lumi")!=string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_lepton") {
+            // enable the CR Stat.
+            if ( varname.find("alpha_ATLAS_EL_")!=string::npos || varname.find("alpha_ATLAS_EM_")!=string::npos || varname.find("alpha_ATLAS_MU_")!=string::npos ) var2->setConstant(1);
+          }
+          if (nameV=="Stat_MET") {
+            // enable the CR Stat.
+            if ( varname.find("alpha_ATLAS_MET_")!=string::npos ) var2->setConstant(1);
+          }
+
+        } else {
+          if (varname.find(nameV)!=string::npos) {
+            var2->setConstant(1);
+          }
+        }
+      }
+    }
+
+    constrainedParams->Print("v");
+    // repeat the fit here ....
+    RooAbsReal* nll = fitpdf->createNLL(*fitdata,
+                RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs),
+                RooFit::Offset(1), NumCPU(4, RooFit::Hybrid) );
+    RooMinimizer minim2(*nll);
+    minim2.setStrategy(1);
+    // minim2.setPrintLevel(-1);
+    minim2.setPrintLevel(1);
+    minim2.setEps(1);
+    int status = minim2.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(),
+               ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+    ////////////////RooFitResult * r=minim2.save();
+    RooRealVar * thePOI = dynamic_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
+
+    bool HessStatus= minim2.hesse();
+    RooArgSet minosSet(*thePOI);
+    ///////////////////////////////////////if ( ws->var("normNF_ttb")!=0 ) minosSet.add( *(ws->var("normNF_ttb") ) );
+    ///////////////////////////////////////if ( ws->var("normNF_ttc")!=0 ) minosSet.add( *(ws->var("normNF_ttc") ) );
+    //if ( ws->var("mu_XS_ttH_tthbb")!=0 )  minosSet.add( *(ws->var("mu_XS_ttH_tthbb") ) );
+    ///////////////////////////////////////if ( ws->var("mu_XS_ttH_tthlep")!=0 ) minosSet.add( *(ws->var("mu_XS_ttH_tthlep") ) );
+    minim2.minos(minosSet);
+
+    if (status!=0) cout << "I WAS UNABLE TO PERFORM THE FIT CORRECTLY ... HessStatus: " << HessStatus << endl;
+
+    //cout << "VALERIO SAYS: after fit for configuration: " << nameV << " , " << doStat << " , " << excludeGammas << "   --> with MU= " << thePOI->getVal() <<  " +/- " << thePOI->getError() << endl;
+    float newPOIerr =thePOI->getError();
+    float newPOIerrU=thePOI->getErrorHi();
+    float newPOIerrD=thePOI->getErrorLo();
+    float newPOIVal=thePOI->getVal();
+    if (nameV=="Stat_Norm")  ws->saveSnapshot("snapshot_AfterFit_POI_Full"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_Gamma") ws->saveSnapshot("snapshot_AfterFit_POI_Gamma" , *mc->GetParametersOfInterest() );
+    // //if (calib)              ws->saveSnapshot("snapshot_AfterFit_POI_CALIB" , *mc->GetParametersOfInterest() );
+    // if (nameV=="Stat_Stat")  ws->saveSnapshot("snapshot_AfterFit_POI_CRstat", *mc->GetParametersOfInterest() );
+    // if (nameV=="Stat_Theo")  ws->saveSnapshot("snapshot_AfterFit_POI_Theo"  , *mc->GetParametersOfInterest() );
+    // if (nameV=="Stat_Rest")  ws->saveSnapshot("snapshot_AfterFit_POI_Rest"  , *mc->GetParametersOfInterest() );
+
+    if (nameV=="Stat_Stat")   ws->saveSnapshot("snapshot_AfterFit_POI_Stat"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_ttbNorm")   ws->saveSnapshot("snapshot_AfterFit_POI_ttbNorm"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_ttcNorm")   ws->saveSnapshot("snapshot_AfterFit_POI_ttcNorm"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_Theo")   ws->saveSnapshot("snapshot_AfterFit_POI_Theo"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_Rest")   ws->saveSnapshot("snapshot_AfterFit_POI_Rest"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_FTAG")   ws->saveSnapshot("snapshot_AfterFit_POI_FTAG"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_JE")   ws->saveSnapshot("snapshot_AfterFit_POI_JE"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_ttb")   ws->saveSnapshot("snapshot_AfterFit_POI_ttb"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_ttbGen")   ws->saveSnapshot("snapshot_AfterFit_POI_ttbGen"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_ttc")   ws->saveSnapshot("snapshot_AfterFit_POI_ttc"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_ttlight")   ws->saveSnapshot("snapshot_AfterFit_POI_ttlight"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_oth")   ws->saveSnapshot("snapshot_AfterFit_POI_oth"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_PRWjvt")   ws->saveSnapshot("snapshot_AfterFit_POI_PRWjvt"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_lumi")   ws->saveSnapshot("snapshot_AfterFit_POI_lumi"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_lepton")   ws->saveSnapshot("snapshot_AfterFit_POI_lepton"  , *mc->GetParametersOfInterest() );
+    if (nameV=="Stat_MET")   ws->saveSnapshot("snapshot_AfterFit_POI_MET"  , *mc->GetParametersOfInterest() );
+
+
+    if (!doStat) ws->loadSnapshot("snapshot_AfterFit_POI_CALIB");
+    else         ws->loadSnapshot("snapshot_AfterFit_POI");
+    float oldPOIerr =thePOI->getError();
+    float oldPOIerrU=thePOI->getErrorHi();
+    float oldPOIerrD=thePOI->getErrorLo();
+    float oldPOIVal=thePOI->getVal();
+    //cout << "newPOIval= " << newPOIVal << "   ...oldPOIval: " << oldPOIVal << endl;
+    // recalibrate ... if necessary
+    /*
+      newPOIerr += (oldPOIVal-newPOIVal);
+      newPOIerrU+= (oldPOIVal-newPOIVal);
+      newPOIerrD+= (oldPOIVal-newPOIVal);
+    */
+
+    /*
+      cout << " How things changes: " << oldPOIerr << " --> " << newPOIerr
+      << " ||||  UP: " << oldPOIerrU << " --> " << newPOIerrU
+      << " ||||  DO: " << oldPOIerrD << " --> " << newPOIerrD << endl;
+    */
+    if (doStat && excludeGammas) {
+      //cout << " Stat. rel Err: " << newPOIerrU/thePOI->getVal()*100 << "   ,   " << newPOIerrD/thePOI->getVal()*100 << endl;
+    }
+    else if (doStat && !excludeGammas) {
+      //cout << " Stat+Gam Err : " << newPOIerrU/thePOI->getVal()*100 << "   ,   " << newPOIerrD/thePOI->getVal()*100 << endl;
+    }
+    else {
+      if ( (fabs(newPOIerrU)>fabs(oldPOIerrU)) || (fabs(newPOIerrD)>fabs(oldPOIerrD)) ) {
+        cout << " PROBLEM for sys: " << nameV << " .... please check" << endl;
+        cout << "      Error: " << oldPOIerr << " --> " << newPOIerr
+       << " ||||  UP: " << oldPOIerrU << " --> " << newPOIerrU
+       << " ||||  DO: " << oldPOIerrD << " --> " << newPOIerrD << endl;
+      }
+      //cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " << nameV << "    :   "
+      //<< sqrt(oldPOIerrU*oldPOIerrU-newPOIerrU*newPOIerrU)/thePOI->getVal()*100 << "   ,   "
+      //  << sqrt(oldPOIerrD*oldPOIerrD-newPOIerrD*newPOIerrD)/thePOI->getVal()*100 << endl << endl;
+      //// then please do the average
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //if (!calib) { //this might be tricky when we have hidden NP that needs to be kept fixed ... but the snapshot should protect this
+      //it = constrainedParams->createIterator();
+      //var2 = NULL;
+      //while( (var2 = (RooRealVar*) it->Next()) ){
+      //string varname = (string) var2->GetName();
+      //var2->setConstant(0);
+      //
+    //}
+    //cout << "VALERIO: " << nameV << " after everything POI error: " << thePOI->getError() << endl;
+    //
+    return newPOIerr;
 }
