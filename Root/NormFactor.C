@@ -10,7 +10,7 @@ NormFactor::NormFactor():fName(""),fNominal(0),fMin(0),fMax(0),fConst(false){}
 
 //__________________________________________________________________________________
 //
-NormFactor::NormFactor(string name, float nominal, float min, float max, bool isConst){
+NormFactor::NormFactor(std::string name, float nominal, float min, float max, bool isConst){
     Set(name,nominal,min,max,isConst);
 }
 
@@ -20,7 +20,7 @@ NormFactor::~NormFactor(){}
 
 //__________________________________________________________________________________
 //
-void NormFactor::Set(string name, float nominal, float min, float max, bool isConst){
+void NormFactor::Set(std::string name, float nominal, float min, float max, bool isConst){
     fName = name;
     fNominal = nominal;
     fMin = min;

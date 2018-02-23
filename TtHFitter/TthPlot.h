@@ -1,43 +1,41 @@
-#include "TtHFitter/Common.h"
+#ifndef TTHPLOT_H
+#define TTHPLOT_H
 
-#ifndef __TthPlot__
-#define __TthPlot__
+#include "TtHFitter/Common.h"
 
 const int MAXbins = 1000;
 const int MAXSAMPLES = 100;
 
-using namespace std;
-
 class TthPlot {
   public:
-    TthPlot(string name="c",int canvasWidth=600,int canvasHeight=700);
+    TthPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700);
     ~TthPlot(){};
 
-    void SetChannel(string name);
-    void AddLabel(string name);
-    void SetLumi(string name);
+    void SetChannel(std::string name);
+    void AddLabel(std::string name);
+    void SetLumi(std::string name);
     void SetLumiScale(float scale);
-    void SetCME(string name);
-    void SetXaxis(string name,bool isNjet=false);
-    void SetYaxis(string name);
+    void SetCME(std::string name);
+    void SetXaxis(std::string name,bool isNjet=false);
+    void SetYaxis(std::string name);
     void SetYmaxScale(float scale);
-    void SetBinLabel(int bin,string name);
+    void SetBinLabel(int bin,std::string name);
     void SetBinWidth(float width);
 
-    void SetData(TH1* h,string name="Data");
-    void AddSignal(TH1* h,string name="Signal");
-    void AddNormSignal(TH1* h,string name="Signal");
-    void AddOverSignal(TH1* h,string name="Signal");
-    void AddBackground(TH1* h,string name="MC");
+    void SetData(TH1* h,std::string name="Data");
+    void AddSignal(TH1* h,std::string name="Signal");
+    void AddNormSignal(TH1* h,std::string name="Signal");
+    void AddOverSignal(TH1* h,std::string name="Signal");
+    void AddBackground(TH1* h,std::string name="MC");
     void SetTotBkgAsym(TGraphAsymmErrors* g);
     void SetTotBkg(TH1* h);
 
     void SetChi2KS(float chi2prob,float ksprob=-1,float chi2val=-1,int ndf=-1);
     void BlindData();
 
-    void Draw(string options="");
-    void SaveAs(string name);
-    void WriteToFile(string name);
+    void Draw(std::string options="");
+    void SaveAs(std::string name);
+    void WriteToFile(std::string name);
 
     TCanvas* GetCanvas();
 
@@ -45,7 +43,7 @@ class TthPlot {
     void SetBinBlinding(bool on,TH1F*h_blind);
 
 //   private:
-    string fName;
+    std::string fName;
     TH1* h_data;
     TGraphAsymmErrors* g_data;
     TH1* h_mc;
@@ -65,17 +63,17 @@ class TthPlot {
     TPad* pad0;
     TPad* pad1;
 
-    string xtitle;
-    string ytitle;
-    string data_name;
-    std::vector< string > fBkgNames;
-    std::vector< string > fSigNames;
-    std::vector< string > fNormSigNames;
-    std::vector< string > fOverSigNames;
-    std::vector< string > fLabels;
-    string fLumi;
-    string fCME;
-    string fATLASlabel;
+    std::string xtitle;
+    std::string ytitle;
+    std::string data_name;
+    std::vector< std::string > fBkgNames;
+    std::vector< std::string > fSigNames;
+    std::vector< std::string > fNormSigNames;
+    std::vector< std::string > fOverSigNames;
+    std::vector< std::string > fLabels;
+    std::string fLumi;
+    std::string fCME;
+    std::string fATLASlabel;
     float yMaxScale;
     int NDF;
     float Chi2val;
@@ -89,7 +87,7 @@ class TthPlot {
     float fBinWidth;
     bool fIsNjet;
     bool fShowYields;
-    string fBinLabel[MAXbins];
+    std::string fBinLabel[MAXbins];
     float fLumiScale;
     float fBlindingThreshold;
     int fLegendNColumns;

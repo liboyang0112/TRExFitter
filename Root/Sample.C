@@ -5,7 +5,7 @@
 
 //__________________________________________________________________________________
 //
-Sample::Sample(string name,int type){
+Sample::Sample(std::string name,int type){
     fName = name;
     fTitle = name;
     fTexTitle = "";
@@ -80,7 +80,7 @@ Sample::~Sample(){
 
 //__________________________________________________________________________________
 // cosmetics
-void Sample::SetTitle(string title){
+void Sample::SetTitle(std::string title){
     fTitle = title;
 }
 
@@ -104,49 +104,49 @@ void Sample::NormalizedByTheory(const bool norm ){
 
 //__________________________________________________________________________________
 // read from ntuples
-void Sample::SetMCweight(string weight){
+void Sample::SetMCweight(std::string weight){
     fMCweight = weight;
 }
 
 //__________________________________________________________________________________
 //
-void Sample::SetSelection(string selection){
+void Sample::SetSelection(std::string selection){
     fSelection = selection;
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddNtuplePath(string path){
+void Sample::AddNtuplePath(std::string path){
     fNtuplePaths.push_back(path);
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddNtupleFile(string file){
+void Sample::AddNtupleFile(std::string file){
     fNtupleFiles.push_back(file);
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddNtupleName(string name){
+void Sample::AddNtupleName(std::string name){
     fNtupleNames.push_back(name);
 }
 
 //__________________________________________________________________________________
 // read from histograms
-void Sample::AddHistoPath(string path){
+void Sample::AddHistoPath(std::string path){
     fHistoPaths.push_back(path);
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddHistoFile(string file){
+void Sample::AddHistoFile(std::string file){
     fHistoFiles.push_back(file);
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddHistoName(string name){
+void Sample::AddHistoName(std::string name){
     fHistoNames.push_back(name);
 }
 
@@ -191,7 +191,7 @@ bool Sample::HasNormFactor(std::string name){
 
 //__________________________________________________________________________________
 //
-NormFactor* Sample::AddNormFactor(string name,float nominal,float min,float max,bool isConst){
+NormFactor* Sample::AddNormFactor(std::string name,float nominal,float min,float max,bool isConst){
     fNormFactors.push_back(new NormFactor(name,nominal,min,max,isConst));
     fNNorm ++;
     return fNormFactors[fNNorm-1];
@@ -199,7 +199,7 @@ NormFactor* Sample::AddNormFactor(string name,float nominal,float min,float max,
 
 //__________________________________________________________________________________
 //
-ShapeFactor* Sample::AddShapeFactor(string name,float nominal,float min,float max,bool isConst){
+ShapeFactor* Sample::AddShapeFactor(std::string name,float nominal,float min,float max,bool isConst){
     fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max,isConst));
     fNShape ++;
     return fShapeFactors[fNShape-1];
@@ -207,7 +207,7 @@ ShapeFactor* Sample::AddShapeFactor(string name,float nominal,float min,float ma
 
 //__________________________________________________________________________________
 //
-Systematic* Sample::AddSystematic(string name,int type,float up,float down){
+Systematic* Sample::AddSystematic(std::string name,int type,float up,float down){
     fSystematics.push_back(new Systematic(name,type,up,down));
     fNSyst++;
     return fSystematics[fNSyst-1];

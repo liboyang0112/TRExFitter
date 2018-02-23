@@ -4,21 +4,21 @@
 // Allows to implement all necessary informations and functions to perform likelihood fits.
 //
 
-#ifndef _FittingTool_
-#define _FittingTool_
+#ifndef FITTINGTOOL_H
+#define FITTINGTOOL_H
 
 #include "TtHFitter/Common.h"
-
-class RooFitResult;
-class TString;
-class RooAbsPdf;
-class RooAbsData;
 
 #include <string>
 #include <map>
 #include <vector>
 #include "RooStats/ModelConfig.h"
 #include "TVirtualFitter.h"
+
+class RooFitResult;
+class TString;
+class RooAbsPdf;
+class RooAbsData;
 
 class FittingTool {
 

@@ -3,6 +3,7 @@
 #include "TtHFitter/ConfigParser.h"
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/Region.h"
 
 //Roofit headers
 #include "RooSimultaneous.h"

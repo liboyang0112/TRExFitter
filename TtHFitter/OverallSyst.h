@@ -1,12 +1,12 @@
-#ifndef __OverallSyst__
-#define __OverallSyst__
+#ifndef OVERALLSYST_H
+#define OVERALLSYST_H
 
 class OverallSyst {
 public:
-    OverallSyst(string name, float up, float down);
+    OverallSyst(std::string name, float up, float down);
     ~OverallSyst();
 
-    string fName;
+    std::string fName;
     float fUp;
     float fDown;
 };

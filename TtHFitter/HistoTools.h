@@ -1,10 +1,12 @@
-#ifndef __HistoTools__
-#define __HistoTools__
+#ifndef HISTOTOOLS_H
+#define HISTOTOOLS_H
 
+#include <vector>
+
+//foward declarations
 class TH1;
 class TH1F;
 class SystematicHist;
-#include <vector>
 
 namespace HistoTools {
 
@@ -16,7 +18,7 @@ namespace HistoTools {
         //Smoothing operations are 10th
         SMOOTH = 10,
 
-	SMOOTH_INDEPENDENT = 100,
+        SMOOTH_INDEPENDENT = 100,
 
         //Other (possible) functionnalities
         UNKNOWN = 1000
@@ -44,12 +46,12 @@ namespace HistoTools {
 
 
     struct Bin {
-      double N;
-      double S;
-      double dN2;
-      double dS2;
-      double edge;
-      Bin(double _N, double _S, double _dN2, double _dS2, double _edge) { N = _N; S = _S; dN2 = _dN2; dS2 = _dS2; edge = _edge; }
+        double N;
+        double S;
+        double dN2;
+        double dS2;
+        double edge;
+        Bin(double _N, double _S, double _dN2, double _dS2, double _edge) { N = _N; S = _S; dN2 = _dN2; dS2 = _dS2; edge = _edge; }
     };
     bool systFluctuation(std::vector<Bin> &hist, bool independentVar);
     double avgError(std::vector<Bin> &hist, bool independentVar);
