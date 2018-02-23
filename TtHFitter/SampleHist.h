@@ -1,3 +1,6 @@
+#ifndef SAMPLEHIST_H
+#define SAMPLEHIST_H
+
 #include "RooStats/HistFactory/Measurement.h"
 #include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
 
@@ -6,34 +9,31 @@
 #include "TtHFitter/SystematicHist.h"
 #include "TtHFitter/Sample.h"
 
-#ifndef __SampleHist__
-#define __SampleHist__
-
 class SampleHist {
 public:
   SampleHist();
   SampleHist(Sample *sample,TH1 *hist);
-  SampleHist(Sample *sample, string histoName, string fileName);
+  SampleHist(Sample *sample, std::string histoName, std::string fileName);
   ~SampleHist();
 
   TH1* GetHist();
   Sample* GetSample();
-  SystematicHist* AddOverallSyst(string name,float up,float down);
-  SystematicHist* AddStatSyst(string name,int i_bin);
-  SystematicHist* AddHistoSyst(string name,TH1* h_up,TH1* h_down);
-  SystematicHist* AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down, int pruned=0);
-  SystematicHist* GetSystematic(string systName);
-  SystematicHist* GetSystFromNP(string NuisParName);
-  NormFactor* AddNormFactor(string name,float nominal, float min, float max);
+  SystematicHist* AddOverallSyst(std::string name,float up,float down);
+  SystematicHist* AddStatSyst(std::string name,int i_bin);
+  SystematicHist* AddHistoSyst(std::string name,TH1* h_up,TH1* h_down);
+  SystematicHist* AddHistoSyst(std::string name,std::string histoName_up, std::string fileName_up,std::string histoName_down, std::string fileName_down, int pruned=0);
+  SystematicHist* GetSystematic(std::string systName);
+  SystematicHist* GetSystFromNP(std::string NuisParName);
+  NormFactor* AddNormFactor(std::string name,float nominal, float min, float max);
   NormFactor* AddNormFactor(NormFactor *normFactor);
-  NormFactor* GetNormFactor(string name);
-  ShapeFactor* AddShapeFactor(string name,float nominal, float min, float max);
+  NormFactor* GetNormFactor(std::string name);
+  ShapeFactor* AddShapeFactor(std::string name,float nominal, float min, float max);
   ShapeFactor* AddShapeFactor(ShapeFactor *shapeFactor);
-  ShapeFactor* GetShapeFactor(string name);
+  ShapeFactor* GetShapeFactor(std::string name);
 
-  bool HasSyst(string name);
-  bool HasNorm(string name);
-  bool HasShapeFactor(string name);
+  bool HasSyst(std::string name);
+  bool HasNorm(std::string name);
+  bool HasShapeFactor(std::string name);
 
   void WriteToFile(TFile *f=0x0);
   void ReadFromFile();
@@ -43,8 +43,8 @@ public:
   void Print();
 
   void Rebin(int ngroup = 2, const Double_t* xbins = 0);
-  void DrawSystPlot( const string &syst="all", TH1* h_data=0x0, bool SumAndData=false, bool bothPanels=false );
-  void SmoothSyst(string syst="all",bool force=false, bool TtresSmoothing = false);
+  void DrawSystPlot( const std::string &syst="all", TH1* h_data=0x0, bool SumAndData=false, bool bothPanels=false );
+  void SmoothSyst(std::string syst="all",bool force=false, bool TtresSmoothing = false);
 
   void Divide(  SampleHist* sh);
   void Multiply(SampleHist* sh);
@@ -56,14 +56,14 @@ public:
 //   void SmoothNominal(); // new
 //   void Rebin(); // new
 
-  string fName;
+  std::string fName;
   Sample *fSample;
   TH1 *fHist;
   TH1 *fHist_orig;  // new
   TH1 *fHist_regBin;  // new
   TH1 *fHist_postFit;
-  string fFileName;
-  string fHistoName;
+  std::string fFileName;
+  std::string fHistoName;
   bool fIsData;
   bool fIsSig;
 
@@ -75,10 +75,10 @@ public:
   std::vector < ShapeFactor* > fShapeFactors;
 
   // other useful info
-  string fFitName;
-  string fRegionName;
-  string fRegionLabel;
-  string fVariableTitle;
+  std::string fFitName;
+  std::string fRegionName;
+  std::string fRegionLabel;
+  std::string fVariableTitle;
   bool fSystSmoothed;
 };
 

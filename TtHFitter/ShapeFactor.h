@@ -1,29 +1,29 @@
-#include "TtHFitter/Common.h"
+#ifndef SHAPEFACTOR_H
+#define SHAPEFACTOR_H
 
-#ifndef __ShapeFactor__
-#define __ShapeFactor__
+#include "TtHFitter/Common.h"
 
 class ShapeFactor{
 public:
-  ShapeFactor();
-  ShapeFactor(string name, float nominal=1, float min=0, float max=10, bool isConst=false);
-  ~ShapeFactor();
-  void Set(string name, float nominal=1, float min=0, float max=10, bool isConst=false);
+    ShapeFactor();
+    ShapeFactor(std::string name, float nominal=1, float min=0, float max=10, bool isConst=false);
+    ~ShapeFactor();
+    void Set(std::string name, float nominal=1, float min=0, float max=10, bool isConst=false);
 
-  void Print();
+    void Print();
 
-  string fName;
-  string fNuisanceParameter;
-  string fTitle;
-  string fCategory;
+    std::string fName;
+    std::string fNuisanceParameter;
+    std::string fTitle;
+    std::string fCategory;
 
-  float fNominal;
-  float fMin;
-  float fMax;
-  bool fConst;
+    float fNominal;
+    float fMin;
+    float fMax;
+    bool fConst;
 
-  std::vector<string> fRegions;
-  std::vector<string> fExclude;
+    std::vector<std::string> fRegions;
+    std::vector<std::string> fExclude;
 };
 
 #endif

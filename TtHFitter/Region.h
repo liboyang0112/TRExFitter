@@ -1,5 +1,5 @@
-#ifndef __Region__
-#define __Region__
+#ifndef REGION_H
+#define REGION_H
 
 #include <map>
 
@@ -25,9 +25,7 @@
 #include "TtHFitter/TtHFit.h"
 
 
-class Sample;
 class Systematic;
-class SampleHist;
 
 class Region {
 public:
@@ -43,21 +41,21 @@ public:
         ASIMOVDATA = 1
     };
 
-    Region(string name);
+    Region(std::string name);
     ~Region();
 
     // -------
     // Methods
     // -------
 
-    SampleHist* SetSampleHist(Sample *sample, string histoName, string fileName);
+    SampleHist* SetSampleHist(Sample *sample, std::string histoName, std::string fileName);
     SampleHist* SetSampleHist(Sample *sample, TH1* hist );
-    SampleHist* GetSampleHist(string &sampleName);
+    SampleHist* GetSampleHist(std::string &sampleName);
 
     void BuildPreFitErrorHist();
-    TthPlot* DrawPreFit(string opt="");
+    TthPlot* DrawPreFit(std::string opt="");
     void BuildPostFitErrorHist(FitResults *fitRes);
-    TthPlot* DrawPostFit(FitResults *fitRes,ofstream & pullTex,string opt="");
+    TthPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex,std::string opt="");
 
     void SetBinning(int N, double *bins);
     void Rebin(int N);
@@ -65,35 +63,35 @@ public:
     void SetRegionDataType( DataType type );
     void AddSample(Sample *sample);
 
-    void AddSelection(string selection);
-    void AddMCweight(string weight);
-    void SetVariable(string variable,int nbin,float xmin,float xmax,string corrVar1="",string corrVar2="");
-    void SetAlternativeVariable(string variable,string sample);
-    bool UseAlternativeVariable(string sample);
+    void AddSelection(std::string selection);
+    void AddMCweight(std::string weight);
+    void SetVariable(std::string variable,int nbin,float xmin,float xmax,std::string corrVar1="",std::string corrVar2="");
+    void SetAlternativeVariable(std::string variable,std::string sample);
+    bool UseAlternativeVariable(std::string sample);
 
-    void SetHistoName(string name); // name of the histogram to read (the same for each sample)
+    void SetHistoName(std::string name); // name of the histogram to read (the same for each sample)
     void AddSystematic(Systematic *syst);
 
     // cosmetics
-    void SetVariableTitle(string name);
-    void SetLabel(string label,string shortLabel="");
+    void SetVariableTitle(std::string name);
+    void SetLabel(std::string label,std::string shortLabel="");
 
     // log
     void Print();
 
-    void PrintSystTable(FitResults* fitRes,string opt="");
+    void PrintSystTable(FitResults* fitRes,std::string opt="");
 
     // -------
     // Members
     // -------
 
-    string fName;
-    string fVariableTitle;
-    string fYTitle;
-    string fLabel; // something like "e/mu + 6 j, >=4 b b"
-    string fShortLabel; // something like "6j,3b"
-    string fTexLabel;
-    string fFitName;
+    std::string fName;
+    std::string fVariableTitle;
+    std::string fYTitle;
+    std::string fLabel; // something like "e/mu + 6 j, >=4 b b"
+    std::string fShortLabel; // something like "6j,3b"
+    std::string fTexLabel;
+    std::string fFitName;
     RegionType fRegionType;
     DataType fRegionDataType;
     bool fHasData;
@@ -129,7 +127,7 @@ public:
     TH1* fTotDown_postFit[MAXsyst];
 
     // ntuple stuff
-    string fBinTransfo;
+    std::string fBinTransfo;
     double fTransfoDzBkg;
     double fTransfoDzSig;
     double fTransfoFzBkg;
@@ -137,32 +135,32 @@ public:
     double fTransfoJpar1;
     double fTransfoJpar2;
     double fTransfoJpar3;
-    std::vector<string> fAutoBinBkgsInSig;
-    string fVariable;
+    std::vector<std::string> fAutoBinBkgsInSig;
+    std::string fVariable;
     std::map<std::string, std::string> fAlternativeVariables;
-    string fCorrVar1;
-    string fCorrVar2;
+    std::string fCorrVar1;
+    std::string fCorrVar2;
     int fNbins;
     float fXmin, fXmax;
-    string fSelection;
-    string fMCweight;
-    std::vector<string> fNtuplePaths;
-    std::vector<string> fNtuplePathSuffs;
-    std::vector<string> fNtupleFiles;
-    std::vector<string> fNtupleFileSuffs;
-    std::vector<string> fNtupleNames;
-    std::vector<string> fNtupleNameSuffs;
+    std::string fSelection;
+    std::string fMCweight;
+    std::vector<std::string> fNtuplePaths;
+    std::vector<std::string> fNtuplePathSuffs;
+    std::vector<std::string> fNtupleFiles;
+    std::vector<std::string> fNtupleFileSuffs;
+    std::vector<std::string> fNtupleNames;
+    std::vector<std::string> fNtupleNameSuffs;
 
     // histogram stuff
 //     string fHistoName;
     double *fHistoBins;
     int fHistoNBinsRebin;
-    std::vector<string> fHistoPaths;
-    std::vector<string> fHistoPathSuffs;
-    std::vector<string> fHistoFiles;
-    std::vector<string> fHistoFileSuffs;
-    std::vector<string> fHistoNames;
-    std::vector<string> fHistoNameSuffs;
+    std::vector<std::string> fHistoPaths;
+    std::vector<std::string> fHistoPathSuffs;
+    std::vector<std::string> fHistoFiles;
+    std::vector<std::string> fHistoFileSuffs;
+    std::vector<std::string> fHistoNames;
+    std::vector<std::string> fHistoNameSuffs;
 
     int fNSyst;
     std::vector < Systematic* > fSystematics;
@@ -180,15 +178,15 @@ public:
     int fIntCode_overall;
     int fIntCode_shape;
 
-    std::vector< string > fSystNames;
-    std::vector< string > fNpNames;
+    std::vector< std::string > fSystNames;
+    std::vector< std::string > fNpNames;
 
     TtHFit::FitType fFitType;
-    string fPOI;
-    string fFitLabel;
+    std::string fPOI;
+    std::string fFitLabel;
 
-    string fLumiLabel;
-    string fCmeLabel;
+    std::string fLumiLabel;
+    std::string fCmeLabel;
 
     float fLumiScale;
 
@@ -200,10 +198,10 @@ public:
 
     bool fSkipSmoothing;
 
-    string fATLASlabel;
-    string fSuffix;
+    std::string fATLASlabel;
+    std::string fSuffix;
 
-    string fGroup; // used to split yield tables
+    std::string fGroup; // used to split yield tables
 
     TH1F* fBlindedBins;
     bool fKeepPrefitBlindedBins;
@@ -229,8 +227,8 @@ std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_err
 
 
 // To build the total error band
-TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > systNames, CorrelationMatrix *matrix=0x0 );
+TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< std::string > systNames, CorrelationMatrix *matrix=0x0 );
 
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > fSystNames, CorrelationMatrix *matrix=0x0 );
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=0x0 );
 
 #endif

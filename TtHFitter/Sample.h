@@ -1,3 +1,6 @@
+#ifndef SAMPLE_H
+#define SAMPLE_H
+
 #include "TFile.h"
 #include "TH1.h"
 #include "THStack.h"
@@ -12,9 +15,6 @@
 #include "TtHFitter/Systematic.h"
 #include "TtHFitter/NormFactor.h"
 #include "TtHFitter/ShapeFactor.h"
-
-#ifndef __Sample__
-#define __Sample__
 
 class Sample {
 public:
@@ -56,7 +56,7 @@ public:
     void AddShapeFactor(ShapeFactor *factor);
     void AddSystematic(Systematic *syst);
     NormFactor* AddNormFactor(std::string name,float nominal=1,float min=0,float max=10,bool isConst=false);
-    ShapeFactor* AddShapeFactor(string name,float nominal=1,float min=0,float max=10,bool isConst=false);
+    ShapeFactor* AddShapeFactor(std::string name,float nominal=1,float min=0,float max=10,bool isConst=false);
     Systematic* AddSystematic(std::string name,int type=0,float up=0,float down=0);
     bool HasNormFactor(std::string name);
     bool HasSystematic(std::string name);

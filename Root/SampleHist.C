@@ -2,6 +2,8 @@
 #include "TtHFitter/SampleHist.h"
 #include "TtHFitter/StatusLogbook.h"
 
+using namespace std;
+
 // -------------------------------------------------------------------------------------------------
 // SampleHist
 

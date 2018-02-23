@@ -20,30 +20,30 @@
 // -------------------------------------------------------
 // -------------------------------------------------------
 
-void FitExample(string opt="h",string configFile="util/myFit.config",string options=""){
+void FitExample(std::string opt="h",std::string configFile="util/myFit.config",std::string options=""){
     SetAtlasStyle();
     
     RooStats::UseNLLOffset(true);
     
     // interpret opt
-    bool readHistograms  = opt.find("h")!=string::npos;
-    bool readNtuples     = opt.find("n")!=string::npos;
-    bool rebinAndSmooth  = opt.find("b")!=string::npos; // new: separated from the input creation
-    bool createWorkspace = opt.find("w")!=string::npos;
-    bool doFit           = opt.find("f")!=string::npos;
-    bool doRanking       = opt.find("r")!=string::npos;
-    bool doLimit         = opt.find("l")!=string::npos;
-    bool doSignificance  = opt.find("s")!=string::npos;
-    bool drawPreFit      = opt.find("d")!=string::npos;
-    bool drawPostFit     = opt.find("p")!=string::npos;
-    bool drawSeparation  = opt.find("a")!=string::npos;
+    bool readHistograms  = opt.find("h")!=std::string::npos;
+    bool readNtuples     = opt.find("n")!=std::string::npos;
+    bool rebinAndSmooth  = opt.find("b")!=std::string::npos; // new: separated from the input creation
+    bool createWorkspace = opt.find("w")!=std::string::npos;
+    bool doFit           = opt.find("f")!=std::string::npos;
+    bool doRanking       = opt.find("r")!=std::string::npos;
+    bool doLimit         = opt.find("l")!=std::string::npos;
+    bool doSignificance  = opt.find("s")!=std::string::npos;
+    bool drawPreFit      = opt.find("d")!=std::string::npos;
+    bool drawPostFit     = opt.find("p")!=std::string::npos;
+    bool drawSeparation  = opt.find("a")!=std::string::npos;
     
     if(!readNtuples && !rebinAndSmooth){
         TH1::AddDirectory(kFALSE); // FIXME: it would be nice to have a solution which works always
     }
     
     // multi-fit
-    bool isMultiFit      = opt.find("m")!=string::npos;
+    bool isMultiFit      = opt.find("m")!=std::string::npos;
     if(isMultiFit){
         MultiFit *myMultiFit = new MultiFit();
         myMultiFit->ReadConfigFile(configFile,options);
@@ -250,9 +250,9 @@ void FitExample(string opt="h",string configFile="util/myFit.config",string opti
 // -------------------------------------------------------
 
 int main(int argc, char **argv){
-  string opt="h";
-  string config="util/myFit,config";
-  string options="";
+  std::string opt="h";
+  std::string config="util/myFit,config";
+  std::string options="";
   
   if(argc>1) opt     = argv[1];
   if(argc>2) config  = argv[2];

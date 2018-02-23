@@ -1,16 +1,16 @@
-#include "TtHFitter/Common.h"
+#ifndef NUISPARAMETER_H
+#define NUISPARAMETER_H
 
-#ifndef __NuisParameter__
-#define __NuisParameter__
+#include "TtHFitter/Common.h"
 
 class NuisParameter {
 public:
-    NuisParameter(string name);
+    NuisParameter(std::string name);
     ~NuisParameter();
 
-    string fName;
-    string fTitle;
-    string fCategory;
+    std::string fName;
+    std::string fTitle;
+    std::string fCategory;
     float fStartValue;
     float fFitValue;
     float fPostFitUp; // this should be like +0.8... So alpha+deltaAlpha = fFitValue + fPostFitUp

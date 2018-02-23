@@ -24,6 +24,8 @@
 #include "TtHFitter/SystematicHist.h"
 #include "TtHFitter/StatusLogbook.h"
 
+using namespace std;
+
 //_________________________________________________________________________
 //
 TH1F* HistoTools::TranformHistogramBinning(TH1* originalHist){

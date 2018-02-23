@@ -1,3 +1,6 @@
+#ifndef COMMON_H
+#define COMMON_H
+
 // c++ stuff
 #include <iostream>
 #include <sstream>
@@ -49,11 +52,6 @@
 #include "AtlasLabels.h"
 #include "AtlasUtils.h"
 
-using namespace std;
-
-#ifndef __Common__
-#define __Common__
-
 namespace TtHFitter{
     extern int DEBUGLEVEL;
     void SetDebugLevel(int level=0);
@@ -77,14 +75,14 @@ namespace TtHFitter{
     extern bool NOENDERR;
     extern float CORRELATIONTHRESHOLD;
     extern bool MERGEUNDEROVERFLOW;
-    extern std::map< string,string > SYSTMAP;
-    extern std::map< string,string > SYSTTEX;
-    extern std::map< string,string > NPMAP;
-    extern std::vector< string > IMAGEFORMAT;
+    extern std::map< std::string,std::string > SYSTMAP;
+    extern std::map< std::string,std::string > SYSTTEX;
+    extern std::map< std::string,std::string > NPMAP;
+    extern std::vector< std::string > IMAGEFORMAT;
     extern int NCPU;
     //
-    extern std::map< string, float > OPTION;
-    extern std::map<string,TFile*> TFILEMAP;
+    extern std::map< std::string, float > OPTION;
+    extern std::map<std::string,TFile*> TFILEMAP;
     extern bool GUESSMCSTATERROR;
 }
 
@@ -93,30 +91,30 @@ const int MAXsamples = 100;
 const int MAXsyst = 500;
 const int MAXnorm = 10;
 
-TFile* GetFile(string fileName);
-TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight);
-TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight);
-TH1* HistFromFile(string fullName);
-TH1* HistFromFile(string fileName,string histoName);
-void WriteHistToFile(TH1* h,string fileName,string option="UPDATE");
+TFile* GetFile(std::string fileName);
+TH1F* HistFromNtuple(std::string ntuple, std::string variable, int nbin, float xmin, float xmax, std::string selection, std::string weight);
+TH1F* HistFromNtupleBinArr(std::string ntuple, std::string variable, int nbin, double *bins, std::string selection, std::string weight);
+TH1* HistFromFile(std::string fullName);
+TH1* HistFromFile(std::string fileName,std::string histoName);
+void WriteHistToFile(TH1* h,std::string fileName,std::string option="UPDATE");
 void WriteHistToFile(TH1* h,TFile *f);
 void MergeUnderOverFlow(TH1* h);
-std::vector<string> CreatePathsList( std::vector<string> paths, std::vector<string> pathSufs,
-                                    std::vector<string> files, std::vector<string> fileSufs,
-                                    std::vector<string> names, std::vector<string> nameSufs);
-std::vector<string> CombinePathSufs( std::vector<string> pathSufs, std::vector<string> newPathSufs );
-std::vector<string> ToVec(string s);
+std::vector<std::string> CreatePathsList( std::vector<std::string> paths, std::vector<std::string> pathSufs,
+                                    std::vector<std::string> files, std::vector<std::string> fileSufs,
+                                    std::vector<std::string> names, std::vector<std::string> nameSufs);
+std::vector<std::string> CombinePathSufs( std::vector<std::string> pathSufs, std::vector<std::string> newPathSufs );
+std::vector<std::string> ToVec(std::string s);
 // string RemovePrefix(string s,string prefix);
-string ReplaceString(string subject, const string& search,
-                     const string& replace);
+std::string ReplaceString(std::string subject, const std::string& search,
+                     const std::string& replace);
 
-int FindInStringVector(std::vector<string> v, string s);
-int FindInStringVectorOfVectors(std::vector<std::vector<string> > v, string s, string ss);
+int FindInStringVector(std::vector<std::string> v, std::string s);
+int FindInStringVectorOfVectors(std::vector<std::vector<std::string> > v, std::string s, std::string ss);
 double GetSeparation( TH1F* S1, TH1F* B1 );
 
 TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
 void BlindDataHisto( TH1* h_data, TH1* h_blind );
-double convertStoD(string toConvert);
+double convertStoD(std::string toConvert);
 
 // TH1F* SmoothHistogram( TH1* h );
 bool SmoothHistogram( TH1* h, int forceFlat=-1, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
@@ -128,6 +126,6 @@ float CorrectIntegral(TH1* h,float *err=0);
 
 void CloseFiles( const std::set<std::string> &set);
 
-TH1F* MergeHistograms(vector<TH1*> hVec);
+TH1F* MergeHistograms(std::vector<TH1*> hVec);
 
 #endif

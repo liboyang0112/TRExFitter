@@ -1,7 +1,7 @@
-#include "TtHFitter/Common.h"
+#ifndef SYSTEMATIC_H
+#define SYSTEMATIC_H
 
-#ifndef __Systematic__
-#define __Systematic__
+#include "TtHFitter/Common.h"
 
 class Systematic {
 public:
@@ -13,7 +13,7 @@ public:
         STAT // 3
     };
 
-    Systematic(string name,int type=0,float up=0,float down=0);
+    Systematic(std::string name,int type=0,float up=0,float down=0);
     Systematic( Systematic &sys);  // copy constructor
     ~Systematic();
 
@@ -21,16 +21,16 @@ public:
     // Members
     // -------
 
-    string fName;
-    string fNuisanceParameter;
-    string fTitle;
-    string fCategory;
-    string fStoredName;
+    std::string fName;
+    std::string fNuisanceParameter;
+    std::string fTitle;
+    std::string fCategory;
+    std::string fStoredName;
     int fType;
     int fSmoothType;
     bool fPreSmoothing;
     int fSymmetrisationType;
-    string fReferenceSample;
+    std::string fReferenceSample;
     bool fKeepReferenceOverallVar;
 
     bool fSubtractRefSampleVar;
@@ -52,51 +52,51 @@ public:
     bool fIsShapeOnly;
     bool fIsNormOnly;
 
-    std::vector<string> fRegions;
-    std::vector<string> fExclude;
+    std::vector<std::string> fRegions;
+    std::vector<std::string> fExclude;
     std::vector<std::vector<std::string> > fExcludeRegionSample;
-    std::vector<string> fDropShapeIn;
-    std::vector<string> fDropNormIn;
-    std::vector<string> fKeepNormForSamples;
+    std::vector<std::string> fDropShapeIn;
+    std::vector<std::string> fDropNormIn;
+    std::vector<std::string> fKeepNormForSamples;
     std::vector<int> fBins;
 
     // from ntuples - up
-    string fWeightUp;
-    string fWeightSufUp;
-    std::vector<string> fNtuplePathsUp;
-    string fNtuplePathSufUp;
-    std::vector<string> fNtupleFilesUp;
-    string fNtupleFileSufUp;
-    std::vector<string> fNtupleNamesUp;
-    string fNtupleNameSufUp;
+    std::string fWeightUp;
+    std::string fWeightSufUp;
+    std::vector<std::string> fNtuplePathsUp;
+    std::string fNtuplePathSufUp;
+    std::vector<std::string> fNtupleFilesUp;
+    std::string fNtupleFileSufUp;
+    std::vector<std::string> fNtupleNamesUp;
+    std::string fNtupleNameSufUp;
 
     // from ntuples - down
-    string fWeightDown;
-    string fWeightSufDown;
-    std::vector<string> fNtuplePathsDown;
-    string fNtuplePathSufDown;
-    std::vector<string> fNtupleFilesDown;
-    string fNtupleFileSufDown;
-    std::vector<string> fNtupleNamesDown;
-    string fNtupleNameSufDown;
+    std::string fWeightDown;
+    std::string fWeightSufDown;
+    std::vector<std::string> fNtuplePathsDown;
+    std::string fNtuplePathSufDown;
+    std::vector<std::string> fNtupleFilesDown;
+    std::string fNtupleFileSufDown;
+    std::vector<std::string> fNtupleNamesDown;
+    std::string fNtupleNameSufDown;
 
-    string fIgnoreWeight;
+    std::string fIgnoreWeight;
 
     // from histos - up
-    std::vector<string> fHistoPathsUp;
-    string fHistoPathSufUp;
-    std::vector<string> fHistoFilesUp;
-    string fHistoFileSufUp;
-    std::vector<string> fHistoNamesUp;
-    string fHistoNameSufUp;
+    std::vector<std::string> fHistoPathsUp;
+    std::string fHistoPathSufUp;
+    std::vector<std::string> fHistoFilesUp;
+    std::string fHistoFileSufUp;
+    std::vector<std::string> fHistoNamesUp;
+    std::string fHistoNameSufUp;
 
     // from histos - down
-    std::vector<string> fHistoPathsDown;
-    string fHistoPathSufDown;
-    std::vector<string> fHistoFilesDown;
-    string fHistoFileSufDown;
-    std::vector<string> fHistoNamesDown;
-    string fHistoNameSufDown;
+    std::vector<std::string> fHistoPathsDown;
+    std::string fHistoPathSufDown;
+    std::vector<std::string> fHistoFilesDown;
+    std::string fHistoFileSufDown;
+    std::vector<std::string> fHistoNamesDown;
+    std::string fHistoNameSufDown;
 
     //
     std::string fSampleUp;

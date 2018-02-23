@@ -18,9 +18,11 @@
 
 //Corresponding header
 #include "TtHFitter/TtHFit.h"
+#include "TtHFitter/Region.h"
 
 #include "TFormula.h"
 
+using namespace std;
 using namespace RooFit;
 
 // -------------------------------------------------------------------------------------------------

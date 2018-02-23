@@ -2,7 +2,7 @@
 
 //__________________________________________________________________________________
 //
-NuisParameter::NuisParameter(string name){
+NuisParameter::NuisParameter(std::string name){
     fName = name;
     fTitle = name;
     fCategory = "";

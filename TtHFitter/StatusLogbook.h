@@ -1,5 +1,5 @@
-#ifndef StatusLogbook_H_
-#define StatusLogbook_H_
+#ifndef STATUSLOGBOOK_H
+#define STATUSLOGBOOK_H
 
 #include <string>
 
