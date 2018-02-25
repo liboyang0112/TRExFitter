@@ -10,13 +10,12 @@ to choose which mu value to profile observed data at before generating expected
 
 */
 
-
-
+#include "TtHFitter/RunSig.h"
 
 #include "RooWorkspace.h"
 #include "RooStats/ModelConfig.h"
 #include "RooDataSet.h"
-#include "RooMinimizerFcn.h"
+#include "RooMinimizer.h"
 #include "RooNLLVar.h"
 #include "RooRealVar.h"
 #include "RooSimultaneous.h"
@@ -29,9 +28,6 @@ to choose which mu value to profile observed data at before generating expected
 
 #include "TStopwatch.h"
 
-//#include "macros/makeAsimovData.C"
-//#include "macros/makeData.C"
-
 #include "TFile.h"
 
 #include <iostream>
@@ -42,18 +38,15 @@ using namespace std;
 using namespace RooFit;
 using namespace RooStats;
 
-
-RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w, RooNLLVar* conditioning_nll, double mu_val, string* mu_str, string* mu_prof_str, double mu_val_profile, bool doFit);
-int minimize(RooNLLVar* nll, RooWorkspace* combWS = NULL);
-void runSig(const char* inFileName,
-	    const char* wsName = "combined",
-	    const char* modelConfigName = "ModelConfig",
-	    const char* dataName = "obsData",
-	    const char* asimov1DataName = "asimovData_1",
-	    const char* conditional1Snapshot = "conditionalGlobs_1",
-	    const char* nominalSnapshot = "nominalGlobs",
-	    string smass = "130",
-	    string folder = "test")
+void RunSig(const char* inFileName,
+	    const char* wsName,
+	    const char* modelConfigName,
+	    const char* dataName,
+	    const char* asimov1DataName,
+	    const char* conditional1Snapshot,
+	    const char* nominalSnapshot,
+	    string smass,
+	    string folder)
 {
 //   double mass;
 //   stringstream massStr;
@@ -62,7 +55,6 @@ void runSig(const char* inFileName,
 
   double mu_profile_value = 1; // mu value to profile the obs data at wbefore generating the expected
   bool doConditional      = 1; // do conditional expected data
-  bool remakeData         = 0; // handle unphysical pdf cases in H->ZZ->4l
   bool doUncap            = 1; // uncap p0
   bool doInj              = 0; // setup the poi for injection study (zero is faster if you're not)
   bool doObs              = 1; // compute median significance
@@ -120,15 +112,6 @@ void runSig(const char* inFileName,
 
 
   RooAbsPdf* pdf = mc->GetPdf();
-//   if (string(pdf->ClassName()) == "RooSimultaneous" && remakeData)
-//   {
-//     RooSimultaneous* simPdf = (RooSimultaneous*)pdf;
-//     double min_mu;
-//     data = makeData(data, simPdf, mc->GetObservables(), mu, mass, min_mu);
-//   }
-
-
-
 
   string condSnapshot(conditional1Snapshot);
   RooArgSet nuis_tmp2 = *mc->GetNuisanceParameters();
