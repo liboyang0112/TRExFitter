@@ -5,6 +5,7 @@
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/HistoTools.h"
 #include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/RunSig.h"
 
 //Roofit headers
 #include "RooSimultaneous.h"
@@ -7374,15 +7375,13 @@ void TtHFit::GetSignificance(){
         }
     }
 
-    string cmd;
-
     //
     // If a workspace file name is specified, do simple significance
     //
     if(fWorkspaceFileName!=""){
         string dataName = "obsData";
         if(!hasData || fFitIsBlind) dataName = "asimovData";
-        cmd = "root -l -b -q 'runSig.C(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
+        RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
     }
 
     else{
@@ -7450,10 +7449,9 @@ void TtHFit::GetSignificance(){
         //
         // Finally computing the significance
         //
-        cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fInputName+fSuffix+"\",\""+fName+"/Significance\")'";
+        std::string outputName_s = static_cast<std::string> (outputName);
+        RunSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fInputName+fSuffix).c_str(), (fName+"/Significance").c_str());
     }
-
-    gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________
