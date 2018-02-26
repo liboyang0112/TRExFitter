@@ -1,6 +1,6 @@
 Build status
 ---------
-.. image:: https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg 
+.. image:: https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg
    :target: https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master
 
 
@@ -120,7 +120,7 @@ Note that, each object should have unique <ObjectName>.
      * IntCodeShape     : interpolation code used for the shape component of systematics (should match the one used in RooStats)
      * MCstatThreshold  : if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
      * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'Gaussian' (default) or 'Poisson'
-     * DebugLevel       : 0 = prints only Warning and Errors, 1 = additionally prints Info messages, 2 = additionally prints Debug messages, >2 additionally prints Verbose messages. For option <2 RooFit/Roostats messages will bea heavily suppressed 
+     * DebugLevel       : 0 = prints only Warning and Errors, 1 = additionally prints Info messages, 2 = additionally prints Debug messages, >2 additionally prints Verbose messages. For option <2 RooFit/Roostats messages will be heavily suppressed
      * PlotOptions      : a set of options for plotting:
         * YIELDS : if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields
         * NORMSIG : add normlised signal to plots
@@ -142,7 +142,7 @@ Note that, each object should have unique <ObjectName>.
      * CmeLabel         : label for center-of-mass energy to be put on plots
      * SplitHistoFiles  : set this to true to have histogram files split by region (useful with many regions and/or run in parallel)
      * BlindingThreshold: bins with S/B > this number will be blinded
-     * KeepPrefitBlindedBins : if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots 
+     * KeepPrefitBlindedBins : if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots
      * RankingMaxNP     : max number of NP to show in ranking plot
      * RankingPlot      : NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots.
      * ImageFormat      : png, pdf or eps
@@ -161,15 +161,15 @@ Note that, each object should have unique <ObjectName>.
      * SummaryPlotYmax  : if set, it will force the summary plot to use this value as max y-maxis value
      * SummaryPlotYmin  : if set, it will force the summary plot to use this value as min y-maxis value
      * RatioYmax        : if set, it will specify the max of the range of the ratio plots
-     * RatioYmin        : if set, it will specify the min of the range of the ratio plots 
+     * RatioYmin        : if set, it will specify the min of the range of the ratio plots
      * RatioYmaxPostFit : if set, it will specify the max of the range of the ratio plots, for post-fit only
-     * RatioYminPostFit : if set, it will specify the min of the range of the ratio plots, for post-fit only 
+     * RatioYminPostFit : if set, it will specify the min of the range of the ratio plots, for post-fit only
      * CustomAsimov     : if set, the workspace will be created with an AsimovData built according to Sample->AsimovReplacementFor option (see below) instead of data
      * RandomPOISeed    : if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated starting from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number)
      * GetChi2          : if set to TRUE (or STAT+SYST), for pre- and post-fit plots the extended chi2 test is done, and results are printed on the screen for each plot when running d and/or p; can be set to STAT (or STAT-ONLY) for stat-only chi2
      * TtresSmoothing   : if set to TRUE, the systematic uncertainty smoothing will use the ttbar resonances convention for the smoothing. The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal or 400 to treat it as uncorrelated with the nominal.
      * UseGammaPulls    : if set to TRUE, the fit results in terms of gamma parameter pulls, constraints and correlations are propagated to the post-fit plots, when possible (i.e. not for validation plots of course)
-     * GuessMCStatEmptyBins: if set to FALSE, for empty (or negative) bins, the fitter will assume that the stat uncertainty is equal to its content (i.e. both set to 1e-06). If set to TRUE (default), the MC stat uncertainty is taken from the last non-empty bin. 
+     * GuessMCStatEmptyBins: if set to FALSE, for empty (or negative) bins, the fitter will assume that the stat uncertainty is equal to its content (i.e. both set to 1e-06). If set to TRUE (default), the MC stat uncertainty is taken from the last non-empty bin.
      * MergeUnderOverFlow : if set to TRUE the underflow content of each histogram is added to the first bin and the overflow to the last one (default is FALSE for HIST inputs and TRUE for NTUP inputs)
      * DoSummaryPlot    : if set to FALSE no summary plot is created
      * DoMergedPlot     : if set to TRUE a merged plot of all the included regions is created
@@ -179,7 +179,7 @@ Note that, each object should have unique <ObjectName>.
      * CustomFunctions  : list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values)
      * SuppressNegativeBinWarnings  : If set to true will suppress warning messages about negative or 0 content in bins
      * Bootstrap        : (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like "bsWeight(x,eventNumber,mcChannelNumber)", where bsWeight should be loaded with 'CustomFunctions: "bsWeight.C"' and eventNumber and mcChannelNumber shoudl be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option 'BootstrapIdx=<i>' should be given, with <i>=0,1,2,3...
-     
+
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
      * FitRegion        : can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions. You can also specify a comma-separated list of regions to use in the fit
@@ -193,8 +193,8 @@ Note that, each object should have unique <ObjectName>.
      * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
      * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
-     * GroupedSystImpactTable : if set to TRUE, create a table showing impact of nuisance parameters grouped together by SubCategory
-     
+     * GroupedSystImpactTable : if set to TRUE, create a table showing impact of nuisance parameters grouped together by their SubCategory parameters
+
   * Limit:
      * LimitType        : can be ASYMPTOTIC or TOYS (the latter is not yet supported)
      * LimitBlind       : can be TRUE or FALSE (TRUE means that ALL regions are blinded)
@@ -230,9 +230,9 @@ Note that, each object should have unique <ObjectName>.
      * Ymax             : if set, it will force the plot to use this value as max y-maxis value
      * Ymin             : if set, it will force the plot to use this value as min y-maxis value
      * RatioYmax        : if set, it will specify the max of the range of the ratio plot for this region only
-     * RatioYmin        : if set, it will specify the min of the range of the ratio plot for this region only 
+     * RatioYmin        : if set, it will specify the min of the range of the ratio plot for this region only
      * RatioYmaxPostFit : if set, it will specify the max of the range of the ratio plot for this region only, for post-fit only
-     * RatioYminPostFit : if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only 
+     * RatioYminPostFit : if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only
      * DropBins         : allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 0 for the index
 
   * Sample:
@@ -264,7 +264,7 @@ Note that, each object should have unique <ObjectName>.
      * DivideBy         : if specified, each sample hist is divided bin-by-bin by another sample hist, in each of the regions
      * AddSample(s)     : if specified, each sample hist gets added bin-by-bin another sample hist, in each of the regions
      * SubtractSample(s): if specified, each sample hist gets subtracted bin-by-bin another sample hist, in each of the regions
-     * Smooth           : if set to TRUE, the nominal histograms are smoothed (based on TH1::Smooth but taking into account the original stat uncertainty) 
+     * Smooth           : if set to TRUE, the nominal histograms are smoothed (based on TH1::Smooth but taking into account the original stat uncertainty)
      * AsimovReplacementFor: only for GHOST samples; if set, the creation of custom Asimov data-set(s) is triggered; use as 'AsimovReplacementFor: "dataset","sample"', where "dataset" is the name of a custom Asimov dataset one wants to create (the same name will have to be set under Job->CustomAsimov in order to use it) and "sample" is the sample this GHOST sample will supercede
      * SeparateGammas   : if set to TRUE, the sample will not contribute to the overall gamma factors for MC stat, but a separate set of them will be added for this sample (through the SHAPE systematic technology); NB: you need to re-run at least the "b" step if you want to decorrelate the gammas on existing inputs (wf is not enough)
      * CorrelateGammasInRegions: to be used only together with SeparateGammas; can be used to correlate MC stat across regions; example: "SR1:SR2,CR1:CR2:CR3" will use the same NP for the MC stat in each bin of SR1 and SR2 and in each bin of CR1, CR2 and CR3
@@ -297,6 +297,7 @@ Note that, each object should have unique <ObjectName>.
      * NuisancaParameter   : if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics
      * IsFreeParameter     : if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution)
      * Category            : major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
+     * SubCategory         : minor category for the systematic, used to evaluate systematics impact per SubCategory is GroupedSystImpactTable is enabled, completely independent of Category
      * HistoPathUp         : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation
      * HistoPathDown       : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation
      * HistoPathSufUp      : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation
@@ -340,7 +341,7 @@ Note that, each object should have unique <ObjectName>.
      * KeepNormForSamples  : list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
      * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
-     
+
 
 Command line options
 ---------
