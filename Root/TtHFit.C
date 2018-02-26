@@ -112,7 +112,6 @@ TtHFit::TtHFit(string name){
     fDoTables = true;
     fDoSignalRegionsPlot = true;
     fDoPieChartPlot = true;
-    fDoGroupedSystImpactTable = false;
 
     //
     // Fit caracteristics
@@ -130,6 +129,8 @@ TtHFit::TtHFit(string name){
     fVarNameMinos.clear();
     fVarNameHide.clear();
     fWorkspaceFileName = "";
+    fDoGroupedSystImpactTable = false;
+    fSystSubCategoryMap.clear();
 
     //
     // Limit type
@@ -1782,6 +1783,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             sys->fIsNormOnly=true;
         if(cs->Get("Category")!=""){
             sys->fCategory = cs->Get("Category");
+        }
+        if(cs->Get("SubCategory")!=""){
+            sys->fSubCategory = cs->Get("SubCategory");
         }
         // Experimental
         if(cs->Get("IsFreeParameter")!="" && cs->Get("IsFreeParameter")!="FALSE" && cs->Get("IsFreeParameter")!="False" && cs->Get("IsFreeParameter")!="false"){
@@ -7124,6 +7128,10 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     //
     // grouped systematics impact
     if(fDoGroupedSystImpactTable){
+        // fill fSystSubCategoryMap first
+        ProduceSystSubCategoryMap();
+        // hand over the map to the FittingTool
+        fitTool -> SetSystMap( fSystSubCategoryMap );
         fitTool -> GetGroupedImpact( mc, simPdf, data, ws );
     }
 
@@ -9081,4 +9089,16 @@ const bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float va
         }
     }    
     return false;
+}
+
+//____________________________________________________________________________________
+// create a map associating systematics to their SubCategory
+void TtHFit::ProduceSystSubCategoryMap(){
+   WriteDebugStatus("TtHFit::ProduceSystSubCategoryMap", "filling SubCategory map");
+
+   for(int i_syst=0;i_syst<fNSyst;i_syst++){
+       //std::cout << fSystematics[i_syst]->fName << endl;
+       fSystSubCategoryMap.insert(std::make_pair(fSystematics[i_syst]->fName, fSystematics[i_syst]->fSubCategory));
+
+   }
 }

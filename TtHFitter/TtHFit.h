@@ -170,6 +170,9 @@ public:
     const std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
     const bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
+    // systematics association to SubCategories
+    void ProduceSystSubCategoryMap();
+
     // -------------------------
       
     string fName;
@@ -291,6 +294,7 @@ public:
     vector<string> fVarNameHide;
     std::string fWorkspaceFileName;
     bool fDoGroupedSystImpactTable;
+    std::map<std::string, std::string> fSystSubCategoryMap;
 
     //
     // Limit parameters

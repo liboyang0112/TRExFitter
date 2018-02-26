@@ -57,6 +57,8 @@ m_randSeed(-999)
 {
     m_constNP.clear();
     m_constNPvalue.clear();
+    m_systSubCategoryMap.clear();
+    m_subCategories.clear();
 }
 
 //________________________________________________________________________
@@ -84,6 +86,18 @@ FittingTool::FittingTool( const FittingTool &q ){
 //
 FittingTool::~FittingTool()
 {}
+
+
+//________________________________________________________________________
+//
+void FittingTool::SetSubCategories() {
+    WriteDebugStatus("FittingTool::SetSubCategories", "finding unique SubCategories");
+    // loop over m_systSubCategoryMap to find all unique SubCategories, save in m_subCategories set
+    for(std::map<std::string, std::string>::iterator it = m_systSubCategoryMap.begin(); it != m_systSubCategoryMap.end(); ++it) {
+        //std::cout << it->first << " " << it->second << endl;
+        m_subCategories.insert(it->second);
+    }
+}
 
 //________________________________________________________________________
 //
@@ -594,12 +608,25 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
         poi->setVal( m_valPOI + m_randomNP*(gRandom->Uniform(2)-1.) );
     }
 
-    WriteInfoStatus("FittingTool::GetGroupedImpact","-----------------------------------------------------");
-    WriteInfoStatus("FittingTool::GetGroupedImpact","performing grouped ranking section");
+
+    // loop over unique SubCategories
+    for (std::set<std::string>::iterator itCategories = m_subCategories.begin(); itCategories != m_subCategories.end(); ++itCategories){
+        WriteInfoStatus("FittingTool::GetGroupedImpact","performing grouped systematics impact evaluation for: " + *itCategories);
+
+        // find all associated systematics
+        for(std::map<std::string, std::string>::iterator itSysts = m_systSubCategoryMap.begin(); itSysts != m_systSubCategoryMap.end(); ++itSysts) {
+            if (itSysts->second == *itCategories) {
+                WriteDebugStatus("FittingTool::GetGroupedImpact","  associated syst: " + itSysts->first);
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------------------
+    // Thomas' code below
+
     // ws->var("ttb_norm")->setVal(1.1);
     // ws->var("ttc_norm")->setVal(1.1);
     // poi->setVal( 2.1 );
-
 
     if (!poi->isConstant()) {
         // save a snapshot

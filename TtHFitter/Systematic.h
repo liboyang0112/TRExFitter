@@ -25,6 +25,7 @@ public:
     string fNuisanceParameter;
     string fTitle;
     string fCategory;
+    string fSubCategory;
     string fStoredName;
     int fType;
     int fSmoothType;

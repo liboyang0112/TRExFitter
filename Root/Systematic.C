@@ -11,6 +11,7 @@ Systematic::Systematic(string name,int type,float up,float down){
     fNuisanceParameter = name;
     fType = type;
     fCategory = "";
+    fSubCategory = "";
     fStoredName = name;
 
     fSmoothType = 0;
@@ -89,6 +90,7 @@ Systematic::Systematic(Systematic &sys) {
     fNuisanceParameter = sys.fNuisanceParameter;
     fType = sys.fType;
     fCategory = sys.fCategory;
+    fSubCategory = sys.fSubCategory;
     fStoredName = sys.fStoredName;
 
     fSmoothType = sys.fSmoothType;

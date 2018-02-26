@@ -58,6 +58,9 @@ public:
 
     inline void SetRandomNP( const double rndNP, const bool rndize, const long int rndSeed=-999 ) { m_randomNP = rndNP; m_randomize = rndize; m_randSeed = rndSeed; }
 
+    void SetSubCategories();
+    inline void SetSystMap( std::map<std::string, std::string> systSubCategoryMap ) { m_systSubCategoryMap = systSubCategoryMap; SetSubCategories(); } // fills both m_systSubCategoryMap and m_subCategories
+
 //     inline void FixNP( const TString &np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
     inline void ResetFixedNP() { m_constNP.clear(); m_constNPvalue.clear(); };
     inline void FixNP( std::string np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
@@ -108,6 +111,9 @@ private:
     std::vector<double> m_constNPvalue;
     std::vector<std::string> m_initialNP;
     std::vector<double> m_initialNPvalue;
+
+    std::map<std::string, std::string> m_systSubCategoryMap;
+    std::set<std::string> m_subCategories;
 };
 
 
