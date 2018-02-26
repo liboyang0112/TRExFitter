@@ -9099,6 +9099,5 @@ void TtHFit::ProduceSystSubCategoryMap(){
    for(int i_syst=0;i_syst<fNSyst;i_syst++){
        //std::cout << fSystematics[i_syst]->fName << endl;
        fSystSubCategoryMap.insert(std::make_pair(fSystematics[i_syst]->fName, fSystematics[i_syst]->fSubCategory));
-
    }
 }
