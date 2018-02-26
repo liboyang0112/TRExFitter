@@ -2,6 +2,8 @@
 #include "TtHFitter/StatusLogbook.h"
 #include "TH2F.h"
 
+using namespace std;
+
 //__________________________________________________________________________________
 //
 CorrelationMatrix::CorrelationMatrix(){

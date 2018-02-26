@@ -1,6 +1,8 @@
 #include "TtHFitter/FitResults.h"
 #include "TtHFitter/StatusLogbook.h"
 
+using namespace std;
+
 //__________________________________________________________________________________
 //
 FitResults::FitResults(){

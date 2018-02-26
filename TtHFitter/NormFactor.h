@@ -1,29 +1,29 @@
-#include "TtHFitter/Common.h"
+#ifndef NORMFACTOR_H
+#define NORMFACTOR_H
 
-#ifndef __NormFactor__
-#define __NormFactor__
+#include "TtHFitter/Common.h"
 
 class NormFactor{
 public:
     NormFactor();
-    NormFactor(string name, float nominal=1, float min=0, float max=10, bool isConst=false);
+    NormFactor(std::string name, float nominal=1, float min=0, float max=10, bool isConst=false);
     ~NormFactor();
-    void Set(string name, float nominal=1, float min=0, float max=10, bool isConst=false);
+    void Set(std::string name, float nominal=1, float min=0, float max=10, bool isConst=false);
 
     void Print();
 
-    string fName;
-    string fNuisanceParameter;
-    string fTitle;
-    string fCategory;
+    std::string fName;
+    std::string fNuisanceParameter;
+    std::string fTitle;
+    std::string fCategory;
 
     float fNominal;
     float fMin;
     float fMax;
     bool fConst;
 
-    std::vector<string> fRegions;
-    std::vector<string> fExclude;
+    std::vector<std::string> fRegions;
+    std::vector<std::string> fExclude;
 };
 
 #endif

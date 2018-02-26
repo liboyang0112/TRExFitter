@@ -1,7 +1,7 @@
-#include "TtHFitter/Common.h"
+#ifndef CORRELATIONMATRIX_H
+#define CORRELATIONMATRIX_H
 
-#ifndef __CorrelationMatrix__
-#define __CorrelationMatrix__
+#include "TtHFitter/Common.h"
 
 class CorrelationMatrix {
 
@@ -12,18 +12,18 @@ public:
     //
     // Functions
     //
-    void AddNuisPar(string p);
-    void SetCorrelation(string p0,string p1,float corr);
-    float GetCorrelation(string p0,string p1);
-    void Draw(string path, const double corrMin = -1.);
+    void AddNuisPar(std::string p);
+    void SetCorrelation(std::string p0,std::string p1,float corr);
+    float GetCorrelation(std::string p0,std::string p1);
+    void Draw(std::string path, const double corrMin = -1.);
 
     //
     // Data members
     //
-    vector<string> fNuisParNames;
-    map<string,int> fNuisParIdx;
-    map<string,bool> fNuisParIsThere;
-    vector<string> fNuisParToHide;
+    std::vector<std::string> fNuisParNames;
+    std::map<std::string,int> fNuisParIdx;
+    std::map<std::string,bool> fNuisParIsThere;
+    std::vector<std::string> fNuisParToHide;
     float fMatrix[MAXsyst][MAXsyst];
 };
 
