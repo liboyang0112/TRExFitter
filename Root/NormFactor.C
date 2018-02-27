@@ -10,17 +10,7 @@ NormFactor::NormFactor():fName(""),fNominal(0),fMin(0),fMax(0),fConst(false){}
 
 //__________________________________________________________________________________
 //
-NormFactor::NormFactor(std::string name, float nominal, float min, float max, bool isConst){
-    Set(name,nominal,min,max,isConst);
-}
-
-//__________________________________________________________________________________
-//
-NormFactor::~NormFactor(){}
-
-//__________________________________________________________________________________
-//
-void NormFactor::Set(std::string name, float nominal, float min, float max, bool isConst){
+NormFactor::NormFactor(std::string name, float nominal, float min, float max, bool isConst, std::string subCategory){
     fName = name;
     fNominal = nominal;
     fMin = min;
@@ -29,7 +19,13 @@ void NormFactor::Set(std::string name, float nominal, float min, float max, bool
     //
     fNuisanceParameter = name;
     fTitle = name;
+    //
+    fSubCategory = subCategory;
 }
+
+//__________________________________________________________________________________
+//
+NormFactor::~NormFactor(){}
 
 //__________________________________________________________________________________
 //

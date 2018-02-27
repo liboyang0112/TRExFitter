@@ -280,6 +280,7 @@ Note that, each object should have unique <ObjectName>.
      * Min              : min value
      * Max              : max value
      * Constant         : set to TRUE to have a fixed norm factor
+     * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory if GroupedSystImpactTable is enabled, defaults to "NormFactors"
 
   * ShapeFactor:
      * Samples          : comma-separated list of samples on which to apply the shape factor
@@ -297,7 +298,7 @@ Note that, each object should have unique <ObjectName>.
      * NuisancaParameter   : if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics
      * IsFreeParameter     : if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution)
      * Category            : major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
-     * SubCategory         : minor category for the systematic, used to evaluate systematics impact per SubCategory is GroupedSystImpactTable is enabled, completely independent of Category
+     * SubCategory         : minor category for the systematic, used to evaluate impact on POI per SubCategory if GroupedSystImpactTable is enabled, defaults to Category setting if it is used, otherwise defaults to "Uncategorised"
      * HistoPathUp         : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation
      * HistoPathDown       : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation
      * HistoPathSufUp      : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation

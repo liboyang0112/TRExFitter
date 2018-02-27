@@ -1618,6 +1618,10 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(param!=""){
             norm->fCategory = param;
         }
+        param = cs->Get("SubCategory");
+        if(param!=""){
+            norm->fSubCategory = param;
+        }
         param = cs->Get("Title"); if(param!=""){
             norm->fTitle = param;
             TtHFitter::SYSTMAP[norm->fName] = norm->fTitle;
@@ -1784,10 +1788,11 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL")
             sys->fIsNormOnly=true;
         if(cs->Get("Category")!=""){
-            sys->fCategory = cs->Get("Category");
+            sys->fCategory    = cs->Get("Category");
+            sys->fSubCategory = cs->Get("Category"); // SubCategory defaults to the Category setting, if the Category is explicitly set
         }
         if(cs->Get("SubCategory")!=""){
-            sys->fSubCategory = cs->Get("SubCategory");
+            sys->fSubCategory = cs->Get("SubCategory"); // note this needs to happen after Category was set, in order to overwrite the default if required
         }
         // Experimental
         if(cs->Get("IsFreeParameter")!="" && cs->Get("IsFreeParameter")!="FALSE" && cs->Get("IsFreeParameter")!="False" && cs->Get("IsFreeParameter")!="false"){
@@ -9098,8 +9103,17 @@ const bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float va
 void TtHFit::ProduceSystSubCategoryMap(){
    WriteDebugStatus("TtHFit::ProduceSystSubCategoryMap", "filling SubCategory map");
 
+   // first add all systematics, here an "alpha_" prefix is needed
    for(int i_syst=0;i_syst<fNSyst;i_syst++){
        //std::cout << fSystematics[i_syst]->fName << endl;
-       fSystSubCategoryMap.insert(std::make_pair(fSystematics[i_syst]->fName, fSystematics[i_syst]->fSubCategory));
+       fSystSubCategoryMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fName).c_str(), fSystematics[i_syst]->fSubCategory));
+   }
+
+   // also add norm factors, no "alpha_" needed
+   for(int i_nf=0;i_nf<fNNorm;i_nf++){
+       //std::cout << fNormFactors[i_nf]->fName << endl;
+       if (fNormFactors[i_nf]->fName != fPOI) {
+           fSystSubCategoryMap.insert(std::make_pair(fNormFactors[i_nf]->fName, fNormFactors[i_nf]->fSubCategory));
+       }
    }
 }

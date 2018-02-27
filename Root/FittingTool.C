@@ -57,7 +57,7 @@ m_randSeed(-999)
 {
     m_constNP.clear();
     m_constNPvalue.clear();
-    m_systSubCategoryMap.clear();
+    m_subCategoryMap.clear();
     m_subCategories.clear();
 }
 
@@ -92,8 +92,8 @@ FittingTool::~FittingTool()
 //
 void FittingTool::SetSubCategories() {
     WriteDebugStatus("FittingTool::SetSubCategories", "finding unique SubCategories");
-    // loop over m_systSubCategoryMap to find all unique SubCategories, save in m_subCategories set
-    for(std::map<std::string, std::string>::iterator it = m_systSubCategoryMap.begin(); it != m_systSubCategoryMap.end(); ++it) {
+    // loop over m_subCategoryMap to find all unique SubCategories, save in m_subCategories set
+    for(std::map<std::string, std::string>::iterator it = m_subCategoryMap.begin(); it != m_subCategoryMap.end(); ++it) {
         //std::cout << it->first << " " << it->second << endl;
         m_subCategories.insert(it->second);
     }
@@ -615,27 +615,27 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
         ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())  );
     }
 
-    std::vector<std::string> associatedSysts;
+    std::vector<std::string> associatedParams;
 
-    ScanSingleParamReversed(true, true , fitdata, fitpdf, constrainedParams, model, ws, "Stat_Norm", associatedSysts);
-    ScanSingleParamReversed(true, false, fitdata, fitpdf, constrainedParams, model, ws, "Stat_Gamma", associatedSysts);
-    ScanSingleParamReversed(true, true,  fitdata, fitpdf, constrainedParams, model, ws, "Stat_Stat", associatedSysts);
+    ScanSingleParamReversed(true, true , fitdata, fitpdf, constrainedParams, model, ws, "Stat_Norm", associatedParams);
+    ScanSingleParamReversed(true, false, fitdata, fitpdf, constrainedParams, model, ws, "Stat_Gamma", associatedParams);
+    ScanSingleParamReversed(true, true,  fitdata, fitpdf, constrainedParams, model, ws, "Stat_Stat", associatedParams);
 
     // loop over unique SubCategories
     for (std::set<std::string>::iterator itCategories = m_subCategories.begin(); itCategories != m_subCategories.end(); ++itCategories){
         WriteInfoStatus("FittingTool::GetGroupedImpact","performing grouped systematics impact evaluation for: " + *itCategories);
 
-        // find all associated systematics
-        associatedSysts.clear();
-        for(std::map<std::string, std::string>::iterator itSysts = m_systSubCategoryMap.begin(); itSysts != m_systSubCategoryMap.end(); ++itSysts) {
+        // find all associated parameters
+        associatedParams.clear();
+        for(std::map<std::string, std::string>::iterator itSysts = m_subCategoryMap.begin(); itSysts != m_subCategoryMap.end(); ++itSysts) {
             if (itSysts->second == *itCategories) {
-                WriteDebugStatus("FittingTool::GetGroupedImpact","  associated syst: " + itSysts->first);
-                associatedSysts.push_back("alpha_" + itSysts->first); // note the required "alpha_" prefix
+                WriteDebugStatus("FittingTool::GetGroupedImpact","  associated parameter: " + itSysts->first);
+                associatedParams.push_back(itSysts->first);
             }
         }
 
         if (!poi->isConstant()) {
-            ScanSingleParamReversed(true, true , fitdata, fitpdf, constrainedParams, model, ws, *itCategories, associatedSysts );
+            ScanSingleParamReversed(true, true , fitdata, fitpdf, constrainedParams, model, ws, *itCategories, associatedParams );
         }
     }
 
@@ -760,8 +760,6 @@ float FittingTool::ScanSingleParamReversed(bool doStat, bool excludeGammas, RooA
     WriteInfoStatus("FittingTool::ScanSingleParamReversed", "-----------------------------------------------------");
     WriteInfoStatus("FittingTool::ScanSingleParamReversed", "           breakdown for " + category);
     WriteInfoStatus("FittingTool::ScanSingleParamReversed", "-----------------------------------------------------");
-
-    cout << "Scan : " << category << endl;
 
     TIterator* it = mc->GetNuisanceParameters()->createIterator();
     RooRealVar* var2 = NULL;

@@ -6,9 +6,8 @@
 class NormFactor{
 public:
     NormFactor();
-    NormFactor(std::string name, float nominal=1, float min=0, float max=10, bool isConst=false);
+    NormFactor(std::string name, float nominal=1, float min=0, float max=10, bool isConst=false, std::string subCategory="NormFactors");
     ~NormFactor();
-    void Set(std::string name, float nominal=1, float min=0, float max=10, bool isConst=false);
 
     void Print();
 
@@ -16,6 +15,7 @@ public:
     std::string fNuisanceParameter;
     std::string fTitle;
     std::string fCategory;
+    std::string fSubCategory;
 
     float fNominal;
     float fMin;

@@ -13,7 +13,7 @@ Systematic::Systematic(string name,int type,float up,float down){
     fNuisanceParameter = name;
     fType = type;
     fCategory = "";
-    fSubCategory = "";
+    fSubCategory = "Uncategorised";
     fStoredName = name;
 
     fSmoothType = 0;
