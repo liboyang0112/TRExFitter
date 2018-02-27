@@ -15,7 +15,6 @@ to choose which mu value to profile observed data at before generating expected
 #include "TtHFitter/Common.h"
 
 #include "RooWorkspace.h"
-#include "RooStats/ModelConfig.h"
 #include "RooDataSet.h"
 #include "RooMinimizer.h"
 #include "RooNLLVar.h"
@@ -49,6 +48,11 @@ void RunSig(const char* inFileName,
     const char* nominalSnapshot,
     string smass,
     string folder){
+
+    if (TtHFitter::DEBUGLEVEL < 2){
+        gErrorIgnoreLevel = kError;
+        RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+    }
 
     double mu_profile_value = 1; // mu value to profile the obs data at wbefore generating the expected
     bool doConditional          = 1; // do conditional expected data
