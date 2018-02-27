@@ -2,9 +2,9 @@
 Author: Aaron Armbruster
 Date:       2012-06-01
 Email:  armbrusa@umich.edu
-Description: 
+Description:
 
-Compute statistical significance with profile likelihood test stat. 
+Compute statistical significance with profile likelihood test stat.
 Option for uncapped test stat is added (doUncap), as well as an option
 to choose which mu value to profile observed data at before generating expected
 
@@ -78,7 +78,7 @@ void RunSig(const char* inFileName,
             arg->setAttribute("BinnedLikelihood");
         }
     }
-    
+
     ModelConfig* mc = (ModelConfig*)ws->obj(modelConfigName);
     if (!mc){
         std::string s = modelConfigName;
@@ -119,7 +119,7 @@ void RunSig(const char* inFileName,
     if (!asimovData1 || (string(inFileName).find("ic10") != string::npos && emb)){
         if (emb) emb->setVal(0.7);
         WriteInfoStatus("RunSig::RunSig", "Asimov data doesn't exist! Please, allow me to build one for you...");
-        
+
         string mu_str, mu_prof_str;
         asimovData1 = makeAsimovData(mc, doConditional, ws, obs_nll, 1, &mu_str, &mu_prof_str, mu_profile_value, true);
         condSnapshot="conditionalGlobs"+mu_prof_str;
@@ -128,7 +128,7 @@ void RunSig(const char* inFileName,
         //ws->Print();
         //asimovData1 = (RooDataSet*)ws->data("asimovData_1");
     }
-    
+
     if (!doUncap) mu->setRange(0, 40);
     else mu->setRange(-40, 40);
 
@@ -215,7 +215,7 @@ void RunSig(const char* inFileName,
         if (doUncap && mu->getVal() < 0) obs_q0 = -obs_q0;
 
         sign = int(obs_q0 == 0 ? 0 : obs_q0 / fabs(obs_q0));
-        if (!doUncap && ((obs_q0 < 0 && obs_q0 > -0.1) || mu->getVal() < 0.001)) obs_sig = 0; 
+        if (!doUncap && ((obs_q0 < 0 && obs_q0 > -0.1) || mu->getVal() < 0.001)) obs_sig = 0;
         else obs_sig = sign*sqrt(fabs(obs_q0));
     }
 
@@ -244,7 +244,7 @@ void RunSig(const char* inFileName,
 
     timer.Stop();
     timer.Print();
-    
+
 }
 
 
@@ -369,13 +369,13 @@ RooDataSet* makeData(RooDataSet* orig, RooSimultaneous* simPdf, const RooArgSet*
                 if (soverb > max_soverb){
                     max_soverb = soverb;
                     std::string s = pdf->GetName();
-                    WriteDebugStatus("RunSig::makeData", "Found new max s/b: " + std::to_string(soverb) + " in pdf " + s + " at m = " + std::to_string(thisObs->getVal())); 
+                    WriteDebugStatus("RunSig::makeData", "Found new max s/b: " + std::to_string(soverb) + " in pdf " + s + " at m = " + std::to_string(thisObs->getVal()));
                 }
             }
 
-            
-            
-//           if (s < 0) 
+
+
+//           if (s < 0)
 //           {
 //  continue;
 //           }
@@ -390,7 +390,7 @@ RooDataSet* makeData(RooDataSet* orig, RooSimultaneous* simPdf, const RooArgSet*
 
 
             double weight = ds->weight();
-//           if ((typeName.find("ATLAS_H_4mu") != string::npos || 
+//           if ((typeName.find("ATLAS_H_4mu") != string::npos ||
 //       typeName.find("ATLAS_H_4e") != string::npos ||
 //       typeName.find("ATLAS_H_2mu2e") != string::npos ||
 //       typeName.find("ATLAS_H_2e2mu") != string::npos) && fabs(firstObs->getVal() - mass) < 10 && weight == 0)
@@ -409,8 +409,8 @@ RooDataSet* makeData(RooDataSet* orig, RooSimultaneous* simPdf, const RooArgSet*
         data_map[string(ds->GetName())] = (RooDataSet*)thisData;
     }
 
-    
-    RooDataSet* newData = new RooDataSet("newData","newData",RooArgSet(*observables, *weightVar), 
+
+    RooDataSet* newData = new RooDataSet("newData","newData",RooArgSet(*observables, *weightVar),
                              Index(*cat), Import(data_map), WeightVar(*weightVar));
 
     orig->Print();
@@ -513,7 +513,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
         //RooRealVar* thisNui = (RooRealVar*)pdf->getObservables();
 
 
-//need this incase the observable isn't fundamental. 
+//need this incase the observable isn't fundamental.
 //in this case, see which variable is dependent on the nuisance parameter and use that.
         RooArgSet* components = pdf->getComponents();
 //       components->Print();
@@ -678,7 +678,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
     if (!simPdf){
         // Get pdf associated with state from simpdf
         RooAbsPdf* pdftmp = mc->GetPdf();//simPdf->getPdf(channelCat->getLabel()) ;
-    
+
         // Generate observables defined by the pdf associated with this state
         RooArgSet* obstmp = pdftmp->getObservables(*mc->GetObservables()) ;
 
@@ -701,7 +701,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
             }
             if (thisNorm*expectedEvents > 0 && thisNorm*expectedEvents < pow(10.0, 18)) asimovData->add(*mc->GetObservables(), thisNorm*expectedEvents);
         }
-        
+
         if (TtHFitter::DEBUGLEVEL > 1){
             asimovData->Print();
         }
@@ -712,7 +712,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
         }
 
         //((RooRealVar*)obstmp->first())->Print();
-         
+
         w->import(*asimovData);
 
         if (TtHFitter::DEBUGLEVEL > 1){
@@ -723,7 +723,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
     else{
         map<string, RooDataSet*> asimovDataMap;
 
-        
+
         //try fix for sim pdf
         RooCategory* channelCat = (RooCategory*)&simPdf->indexCat();//(RooCategory*)w->cat("master_channel");//(RooCategory*) (&simPdf->indexCat());
         //      TIterator* iter = simPdf->indexCat().typeIterator() ;
@@ -738,7 +738,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
             iFrame++;
             // Get pdf associated with state from simpdf
             RooAbsPdf* pdftmp = simPdf->getPdf(channelCat->getLabel()) ;
-    
+
             // Generate observables defined by the pdf associated with this state
             RooArgSet* obstmp = pdftmp->getObservables(*mc->GetObservables()) ;
 
@@ -758,7 +758,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
                 thisNorm=pdftmp->getVal(obstmp)*thisObs->getBinWidth(jj);
                 if (thisNorm*expectedEvents > 0 && thisNorm*expectedEvents < pow(10.0, 18)) obsDataUnbinned->add(*mc->GetObservables(), thisNorm*expectedEvents);
             }
-        
+
             if (TtHFitter::DEBUGLEVEL > 1){
                 obsDataUnbinned->Print();
                 WriteDebugStatus("RunSig::makeAsimovData", "sum entries " + std::to_string(obsDataUnbinned->sumEntries()));
