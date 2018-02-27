@@ -1,17 +1,15 @@
 #ifndef RUNSIG_H
 #define RUNSIG_H
 
-#include "RooWorkspace.h"
 #include "RooStats/ModelConfig.h"
-#include "RooDataSet.h"
-#include "RooMinimizerFcn.h"
-#include "RooNLLVar.h"
-#include "RooRealVar.h"
-#include "RooSimultaneous.h"
-#include "RooCategory.h"
-#include "RooRealSumPdf.h"
 
 #include <string>
+
+//forward declarations
+class RooWorkspace;
+class RooDataSet;
+class RooNLLVar;
+class RooSimultaneous;
 
 RooDataSet* makeAsimovData(RooStats::ModelConfig* mc, bool doConditional, RooWorkspace* w, RooNLLVar* conditioning_nll, double mu_val, std::string* mu_str, std::string* mu_prof_str, double mu_val_profile, bool doFit);
 

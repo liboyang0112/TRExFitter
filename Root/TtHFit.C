@@ -7166,6 +7166,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
         WriteErrorStatus("TtHFit::PerformWorkspaceCombination", "The measurement object has not been retrieved ! Please check.");
         return 0;
     }
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     RooStats::HistFactory::HistoToWorkspaceFactoryFast factory(*measurement);
 
     // Creating the combined model
@@ -7173,6 +7174,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
 
     // Configure the workspace
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     return ws;
 }
