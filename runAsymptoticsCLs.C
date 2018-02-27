@@ -81,9 +81,6 @@ This version is functionally fully consistent with the previous tag.
 NOTE: The script runs significantly faster when compiled
 */
 
-
-
-
 #include "TMath.h"
 #include "Math/ProbFuncMathCore.h"
 #include "Math/QuantFuncMathCore.h"
