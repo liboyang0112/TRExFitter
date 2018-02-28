@@ -55,6 +55,8 @@ TtHFit::TtHFit(string name){
     fLumiErr = 0.000001;
     fLumiScale = 1.;
 
+    fRunROOTMacros = false;
+
     fThresholdSystPruning_Normalisation = -1;
     fThresholdSystPruning_Shape = -1;
     fThresholdSystLarge = - 1;
@@ -961,6 +963,16 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("Bootstrap"); if( param != "" ){
         fBootstrap = param;
+    }
+    param = cs->Get("RunROOTMacros"); if ( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE"){
+           fRunROOTMacros = true; 
+        } else if (param == "FALSE"){
+           fRunROOTMacros = false; 
+        } else {
+            WriteWarningStatus("TtHFit::ReadConfigFile", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
+        }
     }
     
     //
@@ -7286,11 +7298,15 @@ void TtHFit::GetLimit(){
         string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
         if(fSignalInjection){
-            LimitsCLs_inject::RunAsymptoticsCLs_inject(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
+            if (!fRunROOTMacros){
+                 LimitsCLs_inject::RunAsymptoticsCLs_inject(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
+            } 
             cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
         }
         else{
-            LimitsCLs::RunAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
+            if (!fRunROOTMacros){
+                LimitsCLs::RunAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
+            }
             cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
         }
 
@@ -7359,13 +7375,17 @@ void TtHFit::GetLimit(){
         ws_forLimit -> Write();
         f_clone -> Close();
         if(fSignalInjection){
-            std::string outputName_s = static_cast<std::string> (outputName);
-            LimitsCLs_inject::RunAsymptoticsCLs_inject(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
+            if (!fRunROOTMacros){
+                std::string outputName_s = static_cast<std::string> (outputName);
+                LimitsCLs_inject::RunAsymptoticsCLs_inject(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
+            }
             cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
         }
         else{
-            std::string outputName_s = static_cast<std::string> (outputName);
-            LimitsCLs::RunAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
+            if (!fRunROOTMacros){
+                std::string outputName_s = static_cast<std::string> (outputName);
+                LimitsCLs::RunAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
+            }
             cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
         }
     }
@@ -7373,7 +7393,8 @@ void TtHFit::GetLimit(){
      //
      // Finally computing the limit
      //
-     gSystem->Exec(cmd.c_str());
+
+     if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________
@@ -7466,10 +7487,12 @@ void TtHFit::GetSignificance(){
         // Finally computing the significance
         //
         std::string outputName_s = static_cast<std::string> (outputName);
-        RunSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fInputName+fSuffix).c_str(), (fName+"/Significance").c_str());
+        if (!fRunROOTMacros){
+            RunSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fInputName+fSuffix).c_str(), (fName+"/Significance").c_str());
+        }
         cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fInputName+fSuffix+"\",\""+fName+"/Significance\")'";
     }
-    gSystem->Exec(cmd.c_str());
+    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________
