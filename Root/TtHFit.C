@@ -5897,12 +5897,12 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     pBottom->cd();
 
     pBottom->Divide(nCols,nRows);
-    unsigned int Nreg = nRows*nCols;
+    unsigned int Nreg = static_cast<unsigned int> (nRows*nCols);
     if(Nreg>regions.size()) Nreg = regions.size();
     std::vector<TH1F*> h;
     h.resize(Nreg);
-    float *S = new float(Nreg);
-    float *B = new float(Nreg);
+    float *S = new float[Nreg];
+    float *B = new float[Nreg];
     double xbins[] = {0,0.1,0.9,1.0};
     TLatex *tex = new TLatex();
     tex->SetNDC();
@@ -6015,6 +6015,8 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         c->SaveAs((fName+"/SignalRegions"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
 
     //
+    delete [] S;
+    delete [] B;
     delete c;
 }
 
@@ -6148,8 +6150,8 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
         string label = regions[i]->fShortLabel;
 
         const unsigned int back_n = results[i].size();
-        float *values = new float(back_n);
-        int *colors = new int(back_n);
+        float *values = new float[back_n];
+        int *colors = new int[back_n];
         for( unsigned int iTemp = 0; iTemp < back_n; ++iTemp ){
             values[iTemp] = 0.;
             colors[iTemp] = 0;
@@ -6167,6 +6169,9 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
         for(int iEntry = 0; iEntry < pie->GetEntries(); ++iEntry) pie -> SetEntryLabel(iEntry,"");
         pie -> Draw();
         tex->DrawLatex(0.1,0.85,label.c_str());
+        
+        delete [] values;
+        delete [] colors;
     }
 
     c -> cd();
