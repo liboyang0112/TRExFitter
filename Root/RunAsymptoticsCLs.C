@@ -192,6 +192,11 @@ void LimitsCLs::RunAsymptoticsCLs(const char* infile,
     TStopwatch timer;
     timer.Start();
 
+    if (TtHFitter::DEBUGLEVEL < 2){
+        gErrorIgnoreLevel = kError;
+        RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+    }
+
     if (killBelowFatal) RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer(defaultMinimizer.c_str());
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(defaultStrategy);
