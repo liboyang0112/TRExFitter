@@ -591,7 +591,7 @@ std::map < std::string, double > FittingTool::ExportFitResultInMap(){
 //
 int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws ){
 
-    // obtain constrainedParams and poi just as in FitPDF()
+    // obtain constrainedParams and poi like in FitPDF(), but make sure POI is not constant
     RooArgSet* constrainedParams = fitpdf->getParameters(*fitdata);
     RooStats::RemoveConstantParameters(constrainedParams);
     RooFit::Constrain(*constrainedParams);
@@ -602,30 +602,29 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
         WriteErrorStatus("FittingTool::FitPDF", "Cannot find the parameter of interest !");
         return -1;
     }
-    poi -> setConstant(m_constPOI);
+    poi -> setConstant(false);
     poi -> setVal(m_valPOI);
     if(!m_constPOI && m_randomize){
         poi->setVal( m_valPOI + m_randomNP*(gRandom->Uniform(2)-1.) );
     }
 
-    if (!poi->isConstant()) {
-        // save snapshot of original workspace
-        ws->saveSnapshot("snapshot_AfterFit_POI", *model->GetParametersOfInterest() );
-        ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters()) );
-        ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())  );
-    }
+    // save snapshot of original workspace
+    ws->saveSnapshot("snapshot_AfterFit_POI", *model->GetParametersOfInterest() );
+    ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters()) );
+    ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())  );
 
-    std::vector<std::string> associatedParams;
+    std::vector<std::string> associatedParams; // parameters associated to a SubCategory
+    std::vector<std::string> snapshotNames;    // names of snapshots produced by ScanSingleParamReversed
 
-    ScanSingleParamReversed(true, true , fitdata, fitpdf, constrainedParams, model, ws, "Stat_Norm", associatedParams);
-    ScanSingleParamReversed(true, false, fitdata, fitpdf, constrainedParams, model, ws, "Stat_Gamma", associatedParams);
-    ScanSingleParamReversed(true, true,  fitdata, fitpdf, constrainedParams, model, ws, "Stat_Stat", associatedParams);
+    snapshotNames.push_back(ScanSingleParamReversed(true , fitdata, fitpdf, constrainedParams, model, ws, "Stat_Norm", associatedParams));    // fixed Gammas
+    snapshotNames.push_back(ScanSingleParamReversed(false, fitdata, fitpdf, constrainedParams, model, ws, "Stat_Gamma", associatedParams));   //
+    snapshotNames.push_back(ScanSingleParamReversed(true,  fitdata, fitpdf, constrainedParams, model, ws, "Stat_Stat", associatedParams));    //
 
     // loop over unique SubCategories
     for (std::set<std::string>::iterator itCategories = m_subCategories.begin(); itCategories != m_subCategories.end(); ++itCategories){
         WriteInfoStatus("FittingTool::GetGroupedImpact","performing grouped systematics impact evaluation for: " + *itCategories);
 
-        // find all associated parameters
+        // find all associated parameters per SubCategory
         associatedParams.clear();
         for(std::map<std::string, std::string>::iterator itSysts = m_subCategoryMap.begin(); itSysts != m_subCategoryMap.end(); ++itSysts) {
             if (itSysts->second == *itCategories) {
@@ -634,16 +633,14 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
             }
         }
 
-        if (!poi->isConstant()) {
-            ScanSingleParamReversed(true, true , fitdata, fitpdf, constrainedParams, model, ws, *itCategories, associatedParams );
-        }
+        // perform a fit where parameters in SubCategory are held constant
+        snapshotNames.push_back(ScanSingleParamReversed(true , fitdata, fitpdf, constrainedParams, model, ws, *itCategories, associatedParams));
     }
 
-    if (!poi->isConstant()) {
-        ws->loadSnapshot("snapshot_AfterFit_GO");
-        ws->loadSnapshot("snapshot_AfterFit_POI");
-        ws->loadSnapshot("snapshot_AfterFit_NP");
-    }
+    // load original workspace again
+    ws->loadSnapshot("snapshot_AfterFit_GO");
+    ws->loadSnapshot("snapshot_AfterFit_POI");
+    ws->loadSnapshot("snapshot_AfterFit_NP");
 
     WriteInfoStatus("FittingTool::FitPDF","-----------------------------------------------------");
     WriteInfoStatus("FittingTool::GetGroupedImpact", "final results:");
@@ -663,8 +660,6 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     cout << "POI Stat+Gam is: " << poi->getVal() << " +/- " << poi->getError() << "  :  high: " << poi->getErrorHi() << "  low: " << poi->getErrorLo() << endl;
     //cout << "   --> MC stat.  : +/- " << sqrt( - pow(poi->getError(),2) + Stat2 ) << endl;
     cout << "   --> MC stat.:\t +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    // ws->loadSnapshot("snapshot_AfterFit_POI_CRstat");
-    // cout << "   --> CRstat.            : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
     //
     std::cout<<std::endl;
 
@@ -675,47 +670,12 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
         std::cout<<std::endl;
     }
 
-    /*
-    ws->loadSnapshot("snapshot_AfterFit_POI_ttbNorm");
-    cout << "   --> ttb normalization  : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_ttcNorm");
-    cout << "   --> ttc normalization  : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_Theo");
-    cout << "   --> ttH modelling      : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_FTAG");
-    cout << "   --> Flavour tagging    : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_JE");
-    cout << "   --> JET and JER        : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_ttb");
-    cout << "   --> ttb modelling      : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_ttbGen");
-    cout << "   --> ttbGen modelling      : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_ttc");
-    cout << "   --> ttc modelling      : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_ttlight");
-    cout << "   --> ttlight modelling  : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_oth");
-    cout << "   --> Other backgrounds  : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_PRWjvt");
-    cout << "   --> PRW and JVT        : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_lumi");
-    cout << "   --> Luminosity         : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    ws->loadSnapshot("snapshot_AfterFit_POI_lepton");
-    cout << "   --> Leptons            : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    // ws->loadSnapshot("snapshot_AfterFit_POI_MET");
-    // cout << "   --> MET                : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
-    */
-
-    // ws->loadSnapshot("snapshot_AfterFit_POI_Rest");
-    // cout << "   --> Rest               : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
     ws->loadSnapshot("snapshot_AfterFit_POI");
 //    cout << "   --> Full sys. : +" << sqrt( - pow(poi->getErrorHi(),2) + StatUp2 ) << " ,  -" << sqrt( - pow(poi->getErrorLo(),2) + StatLo2 ) << endl;
     //cout << " MC stat. abs: " << sqrt( - pow(GammaUp,2) - - pow(poi->getErrorHi(),2) ) << " ,  - " << sqrt( - pow(GammaDo,2) - - pow(poi->getErrorLo(),2) ) << endl;
     //cout << " MC stat. rel: " << sqrt( - pow(GammaUp,2) - - pow(poi->getErrorHi(),2) )/poi->getVal()*100 << " ,  - " << sqrt( - pow(GammaDo,2) - - pow(poi->getErrorLo(),2) )/poi->getVal()*100 << endl;
     //ws->loadSnapshot("snapshot_AfterFit_POI");
 //    cout << endl << endl;
-    // ws->loadSnapshot("snapshot_AfterFit_POI_CRstat");
-    // cout << "POI wCRstat is: " << poi->getVal() << " +/- " << poi->getError() << "  :  high: " << poi->getErrorHi() << "  low: " << poi->getErrorLo() << endl;
     // StatUp2=(poi->getErrorHi()*poi->getErrorHi());
     // StatLo2=(poi->getErrorLo()*poi->getErrorLo());
     // Stat2  =(poi->getError()*poi->getError());
@@ -728,12 +688,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     ws->loadSnapshot("snapshot_AfterFit_POI");
     cout << "   --> Full sys. : +" << sqrt(  pow(poi->getErrorHi(),2) - StatUp2 ) << " ,  -" << sqrt(  pow(poi->getErrorLo(),2) - StatLo2 ) << endl;
 
-
-    float step=0.25;
-    int npoints=(int)((4.5+0.5)/step);
-    for (int i=0; i<npoints+1; i++) {
-    //GetLH( -0.5+((float)i)*step, LHmin, fitdata, fitpdf, constrainedParams);
-    }
+    ws->loadSnapshot("snapshot_AfterFit_GO");
     ws->loadSnapshot("snapshot_AfterFit_POI");
     ws->loadSnapshot("snapshot_AfterFit_NP");
 
@@ -746,10 +701,9 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 
 //____________________________________________________________________________________
 //
-float FittingTool::ScanSingleParamReversed(bool doStat, bool excludeGammas, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams, RooStats::ModelConfig* mc,
-                                           RooWorkspace* ws, std::string category, std::vector<std::string> affectedSysts, bool calib ) {
-
-    string nameV = "";
+// perform a fit where all parameters in SubGroup "category" are set to constant
+std::string FittingTool::ScanSingleParamReversed(bool excludeGammas, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
+                                                 RooStats::ModelConfig* mc, RooWorkspace* ws, std::string category, std::vector<std::string> affectedParams) {
 
     // (VD): use this to fix nuisance parameter before the fit
     const RooArgSet* glbObs = mc->GetGlobalObservables();
@@ -763,48 +717,27 @@ float FittingTool::ScanSingleParamReversed(bool doStat, bool excludeGammas, RooA
 
     TIterator* it = mc->GetNuisanceParameters()->createIterator();
     RooRealVar* var2 = NULL;
-    if (!calib) {
-        while( (var2 = (RooRealVar*) it->Next()) ){
-            string varname = (string) var2->GetName();
-            if (doStat) {
-                // remove everything but gammas
-                if (!excludeGammas) {
-                    if (varname.find("gamma")!=string::npos) var2->setConstant(1);
-                    continue;
-                }
 
-                // DISABLE EVERYTHING!!!
-                var2->setConstant(0);
+    while( (var2 = (RooRealVar*) it->Next()) ){
+        string varname = (string) var2->GetName();
 
+        // remove everything but gammas
+        if (!excludeGammas) {
+            if (varname.find("gamma")!=string::npos) var2->setConstant(1);
+            continue;
+        }
 
-                // new behavior
-                if (std::find(affectedSysts.begin(), affectedSysts.end(), varname) != affectedSysts.end()) {
-                  WriteDebugStatus("FittingTool::ScanSingleParamReversed", "setting " + varname + " constant");
-                  var2->setConstant(1);
-                }
+        // set everything non-constant
+        var2->setConstant(0);
 
-                if (category=="Stat_Stat") {
-                    // enable the CR Stat.
-                    var2->setConstant(1);
-                    // ws->var("ttb_norm")->setVal(1);
-                    // ws->var("ttc_norm")->setVal(1);
-                }
+        // set all ffectedParams constant
+        if (std::find(affectedParams.begin(), affectedParams.end(), varname) != affectedParams.end()) {
+          WriteDebugStatus("FittingTool::ScanSingleParamReversed", "setting " + varname + " constant");
+          var2->setConstant(1);
+        }
 
-                // EXAMPLE for NFs:
-                //    ws->var("ttb_norm")->setConstant(1);
-
-                // EXAMPLE "default" behavior
-                //if (nameV=="Stat_ttlight") {
-                //    // enable the CR Stat.
-                //    if ( varname.find("alpha_ttlight_")!=string::npos || varname.find("alpha_tt_XS")!=string::npos ) var2->setConstant(1);
-                //}
-
-            }
-            else {
-                if (varname.find(nameV)!=string::npos) {
-                    var2->setConstant(1);
-                }
-            }
+        if (category=="Stat_Stat") {
+            var2->setConstant(1);
         }
     }
 
@@ -814,63 +747,47 @@ float FittingTool::ScanSingleParamReversed(bool doStat, bool excludeGammas, RooA
     RooAbsReal* nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), NumCPU(4, RooFit::Hybrid) );
     RooMinimizer minim2(*nll);
     minim2.setStrategy(1);
-    // minim2.setPrintLevel(-1);
-    minim2.setPrintLevel(1);
+    minim2.setPrintLevel(1); // set to -1 to reduce output
     minim2.setEps(1);
     int status = minim2.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
-    ////////////////RooFitResult * r=minim2.save();
     RooRealVar * thePOI = dynamic_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
 
     bool HessStatus= minim2.hesse();
     RooArgSet minosSet(*thePOI);
-    ///////////////////////////////////////if ( ws->var("normNF_ttb")!=0 ) minosSet.add( *(ws->var("normNF_ttb") ) );
-    ///////////////////////////////////////if ( ws->var("normNF_ttc")!=0 ) minosSet.add( *(ws->var("normNF_ttc") ) );
-    //if ( ws->var("mu_XS_ttH_tthbb")!=0 )  minosSet.add( *(ws->var("mu_XS_ttH_tthbb") ) );
-    ///////////////////////////////////////if ( ws->var("mu_XS_ttH_tthlep")!=0 ) minosSet.add( *(ws->var("mu_XS_ttH_tthlep") ) );
     minim2.minos(minosSet);
 
-    if (status!=0) cout << "I WAS UNABLE TO PERFORM THE FIT CORRECTLY ... HessStatus: " << HessStatus << endl;
+    if (status!=0) WriteErrorStatus("FittingTool::ScanSingleParamReversed", "unable to perform fit correctly! HessStatus: " + std::to_string(HessStatus));
 
-    //cout << "VALERIO SAYS: after fit for configuration: " << nameV << " , " << doStat << " , " << excludeGammas << "   --> with MU= " << thePOI->getVal() <<  " +/- " << thePOI->getError() << endl;
+    //cout << "VALERIO SAYS: after fit for configuration: " , " << excludeGammas << "   --> with MU= " << thePOI->getVal() <<  " +/- " << thePOI->getError() << endl;
     float newPOIerr =thePOI->getError();
     float newPOIerrU=thePOI->getErrorHi();
     float newPOIerrD=thePOI->getErrorLo();
     float newPOIVal=thePOI->getVal();
-    if (category=="Stat_Norm")  ws->saveSnapshot("snapshot_AfterFit_POI_Full"  , *mc->GetParametersOfInterest() );
-    if (category=="Stat_Gamma") ws->saveSnapshot("snapshot_AfterFit_POI_Gamma" , *mc->GetParametersOfInterest() );
 
-    if (category=="Stat_Stat")   ws->saveSnapshot("snapshot_AfterFit_POI_Stat"  , *mc->GetParametersOfInterest() );
+    std::string snapshotName;
+    if (category=="Stat_Norm") snapshotName = "snapshot_AfterFit_POI_Full";
+    else if (category=="Stat_Gamma") snapshotName = "snapshot_AfterFit_POI_Gamma";
+    else if (category=="Stat_Stat") snapshotName = "snapshot_AfterFit_POI_Stat";
+    else snapshotName = "snapshot_AfterFit_POI_" + category;
 
-    if (nameV=="Stat_ttbNorm")   ws->saveSnapshot("snapshot_AfterFit_POI_ttbNorm"  , *mc->GetParametersOfInterest() );
-    if (nameV=="Stat_ttlight")   ws->saveSnapshot("snapshot_AfterFit_POI_ttlight"  , *mc->GetParametersOfInterest() );
+    ws->saveSnapshot(snapshotName.c_str(), *mc->GetParametersOfInterest() );
 
-
-    // generic implementation
-    if (nameV=="") ws->saveSnapshot(("snapshot_AfterFit_POI_" + category).c_str(), *mc->GetParametersOfInterest() );
-
-    if (!doStat) ws->loadSnapshot("snapshot_AfterFit_POI_CALIB");
-    else         ws->loadSnapshot("snapshot_AfterFit_POI");
+    ws->loadSnapshot("snapshot_AfterFit_POI");
     float oldPOIerr =thePOI->getError();
     float oldPOIerrU=thePOI->getErrorHi();
     float oldPOIerrD=thePOI->getErrorLo();
     float oldPOIVal=thePOI->getVal();
-    //cout << "newPOIval= " << newPOIVal << "   ...oldPOIval: " << oldPOIVal << endl;
-    // recalibrate ... if necessary
-    /*
-      newPOIerr += (oldPOIVal-newPOIVal);
-      newPOIerrU+= (oldPOIVal-newPOIVal);
-      newPOIerrD+= (oldPOIVal-newPOIVal);
-    */
 
     /*
       cout << " How things changes: " << oldPOIerr << " --> " << newPOIerr
       << " ||||  UP: " << oldPOIerrU << " --> " << newPOIerrU
       << " ||||  DO: " << oldPOIerrD << " --> " << newPOIerrD << endl;
     */
-    if (doStat && excludeGammas) {
+
+    if (excludeGammas) {
         //cout << " Stat. rel Err: " << newPOIerrU/thePOI->getVal()*100 << "   ,   " << newPOIerrD/thePOI->getVal()*100 << endl;
     }
-    else if (doStat && !excludeGammas) {
+    else if (!excludeGammas) {
         //cout << " Stat+Gam Err : " << newPOIerrU/thePOI->getVal()*100 << "   ,   " << newPOIerrD/thePOI->getVal()*100 << endl;
     }
     else {
@@ -880,25 +797,7 @@ float FittingTool::ScanSingleParamReversed(bool doStat, bool excludeGammas, RooA
                  << " ||||  UP: " << oldPOIerrU << " --> " << newPOIerrU
                  << " ||||  DO: " << oldPOIerrD << " --> " << newPOIerrD << endl;
         }
-        //cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " << nameV << "    :   "
-        //<< sqrt(oldPOIerrU*oldPOIerrU-newPOIerrU*newPOIerrU)/thePOI->getVal()*100 << "   ,   "
-        //  << sqrt(oldPOIerrD*oldPOIerrD-newPOIerrD*newPOIerrD)/thePOI->getVal()*100 << endl << endl;
-        //// then please do the average
     }
 
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //if (!calib) { //this might be tricky when we have hidden NP that needs to be kept fixed ... but the snapshot should protect this
-      //it = constrainedParams->createIterator();
-      //var2 = NULL;
-      //while( (var2 = (RooRealVar*) it->Next()) ){
-      //string varname = (string) var2->GetName();
-      //var2->setConstant(0);
-      //
-    //}
-    //cout << "VALERIO: " << nameV << " after everything POI error: " << thePOI->getError() << endl;
-
-    return newPOIerr;
+    return snapshotName;
 }
