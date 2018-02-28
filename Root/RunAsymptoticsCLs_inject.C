@@ -792,15 +792,17 @@ double LimitsCLs_inject::getQmu95(double sigma, double mu){
         double qmu95_pre = qmu95_guess - 10*2*qmu95_guess*precision_inject;
         while (fabs(qmu95_guess-qmu95_pre) > 2*qmu95_guess*precision_inject){
             qmu95_pre = qmu95_guess;
-            WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "qmu95_guess = " + std::to_string(qmu95_guess));
-            WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "CLs =         " + std::to_string(calcCLs(qmu95_guess, sigma, mu)));
-            WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "Derivative =  " + std::to_string(calcDerCLs(qmu95_guess, sigma, mu)));
+            if (TtHFitter::DEBUGLEVEL > 2){
+                WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "qmu95_guess = " + std::to_string(qmu95_guess));
+                WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "CLs =         " + std::to_string(calcCLs(qmu95_guess, sigma, mu)));
+                WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "Derivative =  " + std::to_string(calcDerCLs(qmu95_guess, sigma, mu)));
+            }
 
             double corr = damping_factor*(calcCLs(qmu95_guess, sigma, mu)-target_CLs_inject)/calcDerCLs(qmu95_guess, sigma, mu);
             for (map<double, double>::iterator itr=guess_to_corr.begin();itr!=guess_to_corr.end();itr++){
                 if (fabs(itr->first - qmu95_guess) < 2*qmu95_guess*precision_inject) {
                     damping_factor *= 0.8;
-                    WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "Changing damping factor to " + std::to_string(damping_factor) + ", nrDamping = " + std::to_string(nrDamping));
+                    if (TtHFitter::DEBUGLEVEL > 2)WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "Changing damping factor to " + std::to_string(damping_factor) + ", nrDamping = " + std::to_string(nrDamping));
                     if (nrDamping++ > 10){
                         nrDamping = 1;
                         damping_factor = 1.0;
@@ -812,8 +814,10 @@ double LimitsCLs_inject::getQmu95(double sigma, double mu){
             guess_to_corr[qmu95_guess] = corr;
             qmu95_guess = qmu95_guess - corr;
 
-            WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "next guess = " + std::to_string(qmu95_guess));
-            WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "precision =  " + std::to_string(2*qmu95_guess*precision_inject));
+            if (TtHFitter::DEBUGLEVEL > 2){
+                WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "next guess = " + std::to_string(qmu95_guess));
+                WriteVerboseStatus("RunAsymptoticCLs_inject::getQmu95", "precision =  " + std::to_string(2*qmu95_guess*precision_inject));
+            }
             nrItr++;
             if (nrItr > 200){
                 WriteErrorStatus("RunAsymptoticCLs_inject::getQmu95", "Infinite loop detected in getQmu95. Please intervene.");
@@ -834,8 +838,10 @@ double LimitsCLs_inject::getQmu95(double sigma, double mu){
 double LimitsCLs_inject::calcCLs(double qmu_tilde, double sigma, double mu){
     double pmu = calcPmu(qmu_tilde, sigma, mu);
     double pb = calcPb(qmu_tilde, sigma, mu);
-    WriteVerboseStatus("RunAsymptoticCLs_inject::calcCLs", "pmu = " + std::to_string(pmu));
-    WriteVerboseStatus("RunAsymptoticCLs_inject::calcCLs", "pb =  " + std::to_string(pb));
+    if (TtHFitter::DEBUGLEVEL > 2){
+        WriteVerboseStatus("RunAsymptoticCLs_inject::calcCLs", "pmu = " + std::to_string(pmu));
+        WriteVerboseStatus("RunAsymptoticCLs_inject::calcCLs", "pb =  " + std::to_string(pb));
+    }
     if (pb == 1) return 0.5;
     return pmu/(1-pb);
 }
@@ -848,7 +854,7 @@ double LimitsCLs_inject::calcPmu(double qmu, double sigma, double mu){
     else{
         pmu = 1-ROOT::Math::gaussian_cdf((qmu+mu*mu/(sigma*sigma))/(2*fabs(mu/sigma)));
     }
-    WriteVerboseStatus("RunAsymptoticCLs_inject::calcPmu", "for pmu, qmu = " + std::to_string(qmu) + ", sigma = " + std::to_string(sigma) + ", mu = " + std::to_string(mu) + ", pmu = " + std::to_string(pmu));
+    if (TtHFitter::DEBUGLEVEL > 2) WriteVerboseStatus("RunAsymptoticCLs_inject::calcPmu", "for pmu, qmu = " + std::to_string(qmu) + ", sigma = " + std::to_string(sigma) + ", mu = " + std::to_string(mu) + ", pmu = " + std::to_string(pmu));
     return pmu;
 }
 
