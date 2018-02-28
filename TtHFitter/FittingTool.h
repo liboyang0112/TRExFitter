@@ -82,7 +82,7 @@ public:
     std::map < std::string, double > ExportFitResultInMap();
 
     int GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws );
-    std::string ScanSingleParamReversed(bool excludeGammas, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
+    std::string ScanSingleParamReversed(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
                                         RooStats::ModelConfig* mc, RooWorkspace* ws, std::string category, std::vector<std::string> affectedParams);
 
 private:
