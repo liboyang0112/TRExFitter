@@ -572,6 +572,7 @@ TH1F* MergeHistograms(vector<TH1*> hVec){
             k_bin ++;
         }
     }
+    delete [] bins;
     // return
     return hOut;
 }
