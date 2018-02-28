@@ -1621,6 +1621,25 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         param = cs->Get("Max"); if(param!=""){ norm->fMax = atof(param.c_str()); }
         param = cs->Get("Nominal"); if(param!=""){ norm->fNominal = atof(param.c_str()); }
         //
+        param = cs->Get("Expression"); if(param!=""){
+            std::vector<std::string> v = Vectorize(param,',');
+            norm->fExpression = std::make_pair(v[0],v[1]);
+            // title will contain the expression FIXME
+            norm->fTitle = v[0];
+            TtHFitter::SYSTMAP[norm->fName] = v[0];
+            // nuis-par will contain the nuis-par of the norm factor the expression depends on FIXME
+            norm->fNuisanceParameter = v[1];
+            TtHFitter::NPMAP[norm->fName] = v[1];
+            // set nominal, min and max according to the norm factor the expression depends on FIXME
+            for(auto nf : fNormFactors){
+                if(nf->fNuisanceParameter == v[1]){
+                    norm->fNominal = nf->fNominal;
+                    norm->fMin = nf->fMin;
+                    norm->fMax = nf->fMax;
+                }
+            }
+        }
+        //
         // save list of
         if(regions[0]!="all") norm->fRegions = regions;
         if(exclude[0]!="")    norm->fExclude = exclude;
@@ -6425,6 +6444,12 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
         WriteDebugStatus("TtHFit::ToRooStat", "Morhing: normName: " + normName);
         meas.AddPreprocessFunction(normName, itemp.function, itemp.range);
+    }
+    for(auto nf : fNormFactors){
+        if(nf->fExpression.first!=""){
+            meas.AddPreprocessFunction(nf->fName,nf->fExpression.first,
+                                       nf->fExpression.second+"["+std::to_string(nf->fNominal)+","+std::to_string(nf->fMin)+","+std::to_string(nf->fMax)+"]");
+        }
     }
     //
     meas.PrintXML((fName+"/RooStats/").c_str());
