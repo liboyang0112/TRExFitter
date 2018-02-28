@@ -1247,7 +1247,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             }
             else{
                 const unsigned int nBounds = vec_bins.size();
-                double *bins = new double(nBounds);
+                double *bins = new double[nBounds];
                 for (unsigned int iBound = 0; iBound < nBounds; ++iBound){
                     bins[iBound] = atof(vec_bins[iBound].c_str());
                 }
