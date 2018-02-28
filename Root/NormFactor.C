@@ -29,6 +29,8 @@ void NormFactor::Set(std::string name, float nominal, float min, float max, bool
     //
     fNuisanceParameter = name;
     fTitle = name;
+    //
+    fExpression = std::make_pair("","");
 }
 
 //__________________________________________________________________________________
