@@ -270,6 +270,8 @@ public:
     bool fDoSignalRegionsPlot;
     bool fDoPieChartPlot;
 
+    std::string fGroupedImpactCategory;
+
     //
     // Fit caracteristics
     //
@@ -288,7 +290,7 @@ public:
     std::vector<std::string> fVarNameHide;
     std::string fWorkspaceFileName;
     bool fDoGroupedSystImpactTable;
-    std::map<std::string, std::string> fSystSubCategoryMap;
+    std::map<std::string, std::string> fSubCategoryImpactMap;
 
     //
     // Limit parameters

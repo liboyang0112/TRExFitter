@@ -115,6 +115,8 @@ TtHFit::TtHFit(string name){
     fDoSignalRegionsPlot = true;
     fDoPieChartPlot = true;
 
+    fGroupedImpactCategory = "all";
+
     //
     // Fit caracteristics
     //
@@ -132,7 +134,7 @@ TtHFit::TtHFit(string name){
     fVarNameHide.clear();
     fWorkspaceFileName = "";
     fDoGroupedSystImpactTable = false;
-    fSystSubCategoryMap.clear();
+    fSubCategoryImpactMap.clear();
 
     //
     // Limit type
@@ -621,6 +623,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fLumiScale = atof(optMap["LumiScale"].c_str());
         if(optMap["BootstrapIdx"]!="")
             fBootstrapIdx = atoi(optMap["BootstrapIdx"].c_str());
+        if(optMap["GroupedImpact"]!="")
+            fGroupedImpactCategory = optMap["GroupedImpact"];
         //
         WriteInfoStatus("TtHFit::ReadConfigFile", "-------------------------------------------");
         WriteInfoStatus("TtHFit::ReadConfigFile", "Running options: ");
@@ -7140,11 +7144,11 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     //
     // grouped systematics impact
     if(fDoGroupedSystImpactTable){
-        // fill fSystSubCategoryMap first
+        // fill fSubCategoryImpactMap first
         ProduceSystSubCategoryMap();
         // hand over the map to the FittingTool
-        fitTool -> SetSystMap( fSystSubCategoryMap );
-        fitTool -> GetGroupedImpact( mc, simPdf, data, ws );
+        fitTool -> SetSystMap( fSubCategoryImpactMap );
+        fitTool -> GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory );
     }
 
     return result;
@@ -9104,21 +9108,31 @@ const bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float va
 }
 
 //____________________________________________________________________________________
-// create a map associating systematics to their SubCategory
+// create a map associating parameters to their SubCategory
 void TtHFit::ProduceSystSubCategoryMap(){
    WriteDebugStatus("TtHFit::ProduceSystSubCategoryMap", "filling SubCategory map");
+
+   // special treatment needed for two cases:
+   // 1) stat-only fit where all parameters are fixed, see FittingTool::GetGroupedImpact()
+   // 2) fit with all Gammas fixed, see FittingTool::GetGroupedImpact()
+   fSubCategoryImpactMap.insert(std::make_pair("DUMMY_STATONLY", "FullSyst"));
+   fSubCategoryImpactMap.insert(std::make_pair("DUMMY_GAMMAS", "Gammas"));
 
    // first add all systematics, here an "alpha_" prefix is needed
    for(int i_syst=0;i_syst<fNSyst;i_syst++){
        //std::cout << fSystematics[i_syst]->fName << endl;
-       fSystSubCategoryMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fName).c_str(), fSystematics[i_syst]->fSubCategory));
+       if(fSystematics[i_syst]->fSubCategory=="Gammas" or fSystematics[i_syst]->fSubCategory=="FullSyst")
+           WriteWarningStatus("TtHFit::ReadConfigFile"," use of \"Gammas\" or \"FullSyst\" as SubCategory names is not supported, you will likely run into issues");
+       fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fName).c_str(), fSystematics[i_syst]->fSubCategory));
    }
 
    // also add norm factors, no "alpha_" needed
    for(int i_nf=0;i_nf<fNNorm;i_nf++){
        //std::cout << fNormFactors[i_nf]->fName << endl;
+       if(fNormFactors[i_nf]->fSubCategory=="Gammas" or fNormFactors[i_nf]->fSubCategory=="FullSyst")
+           WriteWarningStatus("TtHFit::ReadConfigFile"," use of \"Gammas\" or \"FullSyst\" as SubCategory names is not supported, you will likely run into issues");
        if (fNormFactors[i_nf]->fName != fPOI) {
-           fSystSubCategoryMap.insert(std::make_pair(fNormFactors[i_nf]->fName, fNormFactors[i_nf]->fSubCategory));
+           fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fName, fNormFactors[i_nf]->fSubCategory));
        }
    }
 }
