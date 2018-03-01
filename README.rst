@@ -391,6 +391,7 @@ Grouped Impact
 - The impact is calculated by performing a fit where the nuisance parameters in the group are fixed to their best-fit values, and then the subtracting the resulting uncertainty on the POI in quadrature from the uncertainty from the nominal fit.
 - The command line parameter `GroupedImpact` can be used to parallelize the impact calculations. If it is not specified, all existing groups are evaluated sequentially.
 - Example::
+
     # evaluate impact of Gammas
     ./myFit.exe f <config> GroupedImpact="Gammas"
 
