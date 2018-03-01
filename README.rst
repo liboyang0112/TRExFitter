@@ -386,10 +386,10 @@ Ranking Plot
 Grouped Impact
 ---------
 
-- Evaluates the combined impact of a group of nuisance parameters on the POI. Enable by setting the Fit option ```GroupedSystImpactTable``` to TRUE. Specify groups using the ```SubCategory``` option (for Systematics and NormFactors).
+- Evaluates the combined impact of a group of nuisance parameters on the POI. Enable by setting the Fit option ``GroupedSystImpactTable`` to TRUE. Specify groups using the ``SubCategory`` option (for Systematics and NormFactors).
 - Two groups are defined by default: "Gammas" (MC stat. impact) and "FullSyst" (full systematics impact with statistical component subtracted).
 - The impact is calculated by performing a fit where the nuisance parameters in the group are fixed to their best-fit values, and then the subtracting the resulting uncertainty on the POI in quadrature from the uncertainty from the nominal fit.
-- The command line parameter ```GroupedImpact``` can be used to parallelize the impact calculations. If it is not specified, all existing groups are evaluated sequentially.
+- The command line parameter ``GroupedImpact`` can be used to parallelize the impact calculations. If it is not specified, all existing groups are evaluated sequentially.
 - Example::
 
     # evaluate impact of Gammas
