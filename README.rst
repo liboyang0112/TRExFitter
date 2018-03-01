@@ -281,6 +281,7 @@ Note that, each object should have unique <ObjectName>.
      * Max              : max value
      * Constant         : set to TRUE to have a fixed norm factor
      * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory if GroupedSystImpactTable is enabled, defaults to "NormFactors", do not use "Gammas" or "FullSyst" as SubCategory names
+     * Expression       : a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form "<expression>,<dependency>", where <dependency> should contain the name(s) of the norm factor the expression depends on [example: "1.-SigXsecOverSM","SigXsecOverSM"]
 
   * ShapeFactor:
      * Samples          : comma-separated list of samples on which to apply the shape factor

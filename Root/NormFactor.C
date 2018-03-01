@@ -21,6 +21,7 @@ NormFactor::NormFactor(std::string name, float nominal, float min, float max, bo
     fTitle = name;
     //
     fSubCategory = subCategory;
+    fExpression = std::make_pair("","");
 }
 
 //__________________________________________________________________________________
