@@ -5,6 +5,9 @@
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/HistoTools.h"
 #include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/RunSig.h"
+#include "TtHFitter/RunAsymptoticsCLs.h"
+#include "TtHFitter/RunAsymptoticsCLs_inject.h"
 
 //Roofit headers
 #include "RooSimultaneous.h"
@@ -51,6 +54,8 @@ TtHFit::TtHFit(string name){
     fLumi = 1.;
     fLumiErr = 0.000001;
     fLumiScale = 1.;
+
+    fRunROOTMacros = false;
 
     fThresholdSystPruning_Normalisation = -1;
     fThresholdSystPruning_Shape = -1;
@@ -958,6 +963,16 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     }
     param = cs->Get("Bootstrap"); if( param != "" ){
         fBootstrap = param;
+    }
+    param = cs->Get("RunROOTMacros"); if ( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE"){
+           fRunROOTMacros = true; 
+        } else if (param == "FALSE"){
+           fRunROOTMacros = false; 
+        } else {
+            WriteWarningStatus("TtHFit::ReadConfigFile", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
+        }
     }
     
     //
@@ -7195,6 +7210,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
         WriteErrorStatus("TtHFit::PerformWorkspaceCombination", "The measurement object has not been retrieved ! Please check.");
         return 0;
     }
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     RooStats::HistFactory::HistoToWorkspaceFactoryFast factory(*measurement);
 
     // Creating the combined model
@@ -7202,6 +7218,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
 
     // Configure the workspace
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     return ws;
 }
@@ -7280,10 +7297,18 @@ void TtHFit::GetLimit(){
     if(fWorkspaceFileName!=""){
         string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
-        if(fSignalInjection)
+        if(fSignalInjection){
+            if (!fRunROOTMacros){
+                 LimitsCLs_inject::RunAsymptoticsCLs_inject(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
+            } 
             cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-        else
+        }
+        else{
+            if (!fRunROOTMacros){
+                LimitsCLs::RunAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
+            }
             cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
+        }
 
     }
 
@@ -7349,16 +7374,27 @@ void TtHFit::GetLimit(){
         originalMeasurement -> Write();
         ws_forLimit -> Write();
         f_clone -> Close();
-        if(fSignalInjection)
+        if(fSignalInjection){
+            if (!fRunROOTMacros){
+                std::string outputName_s = static_cast<std::string> (outputName);
+                LimitsCLs_inject::RunAsymptoticsCLs_inject(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
+            }
             cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-        else
+        }
+        else{
+            if (!fRunROOTMacros){
+                std::string outputName_s = static_cast<std::string> (outputName);
+                LimitsCLs::RunAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
+            }
             cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
+        }
     }
+    
+     //
+     // Finally computing the limit
+     //
 
-    //
-    // Finally computing the limit
-    //
-    gSystem->Exec(cmd.c_str());
+     if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________
@@ -7374,8 +7410,7 @@ void TtHFit::GetSignificance(){
         }
     }
 
-    string cmd;
-
+    std::string cmd;
     //
     // If a workspace file name is specified, do simple significance
     //
@@ -7383,6 +7418,7 @@ void TtHFit::GetSignificance(){
         string dataName = "obsData";
         if(!hasData || fFitIsBlind) dataName = "asimovData";
         cmd = "root -l -b -q 'runSig.C(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
+        RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
     }
 
     else{
@@ -7450,10 +7486,13 @@ void TtHFit::GetSignificance(){
         //
         // Finally computing the significance
         //
+        std::string outputName_s = static_cast<std::string> (outputName);
+        if (!fRunROOTMacros){
+            RunSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fInputName+fSuffix).c_str(), (fName+"/Significance").c_str());
+        }
         cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fInputName+fSuffix+"\",\""+fName+"/Significance\")'";
     }
-
-    gSystem->Exec(cmd.c_str());
+    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________

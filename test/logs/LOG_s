@@ -204,34 +204,38 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 [1;32m=== INFO::TtHFIt::DumpData: Activating binned likelihood attribute for SR_2_model[0m
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
-
-Processing runSig.C("FitExample/RooStats/FitExample_combined_FitExample_model_forSignificance.root","combined","ModelConfig","ttHFitterData","asimovData_1","conditionalGlobs_1","nominalGlobs","FitExample","FitExample/Significance")...
-
-[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
-                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
-                All rights reserved, please read http://roofit.sourceforge.net/license.txt
-
-  1) 0x4b54160 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
-  2) 0x4b60d30 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
-  3) 0x4b51da0 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
-  4) 0x496bef0 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
-  5) 0x4979580 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
-  6) 0x497ce20 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
-  7) 0x497ff00 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
-  8) 0x4cc6b20 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
-  9) 0x4ccb840 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
- 10) 0x4cce920 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
- 11) 0x4cd1a00 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
-Setting max function calls
+  1) 0x4ba79a0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  2) 0x4bab7a0 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  3) 0x4ba55a0 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  4) 0x4de5c30 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  5) 0x4de8760 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  6) 0x4deb2f0 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  7) 0x4dedea0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  8) 0x4dd2780 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+  9) 0x4e419b0 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 10) 0x4e44560 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 11) 0x4e47110 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+[1;32m=== INFO::RunSig::RunSig: Setting max function calls[0m
 [#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name conditionalNuis_0 is available
 [#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
 [#1] INFO:Minization --  Including the following contraint terms in minimization: (alpha_JESConstraint,alpha_Bkg1XsecConstraint,alpha_Bkg2XsecConstraint,gamma_stat_SR_1_bin_0_constraint,gamma_stat_SR_1_bin_1_constraint,gamma_stat_SR_1_bin_2_constraint,gamma_stat_SR_1_bin_3_constraint,gamma_stat_SR_2_bin_0_constraint,gamma_stat_SR_2_bin_1_constraint,gamma_stat_SR_2_bin_2_constraint,gamma_stat_SR_2_bin_3_constraint)
-Asimov data doesn't exist! Please, allow me to build one for you...
-Creating asimov data at mu = 1, profiling at mu = 1
+[1;32m=== INFO::RunSig::RunSig: Asimov data doesn't exist! Please, allow me to build one for you...[0m
+[1;32m=== INFO::RunSig::makeAsimovData: Creating asimov data at mu = 1.000000, profiling at mu = 1.000000[0m
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
 [#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name nominalGlobs is available
-nominalGlobs doesn't exist. Saving snapshot.
+[1;32m=== INFO::RunSig::makeAsimovData: nominalGlobs doesn't exist. Saving snapshot.[0m
 [#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name nominalNuis is available
-nominalNuis doesn't exist. Saving snapshot.
+[1;32m=== INFO::RunSig::makeAsimovData: nominalNuis doesn't exist. Saving snapshot.[0m
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_ttHFitterData_with_constr) Summation contains a RooNLLVar, using its error level
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
 RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
@@ -261,26 +265,41 @@ gamma_stat_SR_2_bin_0	  = 0.999917	 +/-  0.0292987	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02776	 +/-  0.0445951	(limited)
 gamma_stat_SR_2_bin_2	  = 0.987731	 +/-  0.0776508	(limited)
 gamma_stat_SR_2_bin_3	  = 0.912516	 +/-  0.127609	(limited)
-Saving conditional snapshots
-Glob snapshot name = conditionalGlobs_1
-Nuis snapshot name = conditionalNuis_1
+[1;32m=== INFO::RunSig::makeAsimovData: Saving conditional snapshots[0m
+[1;32m=== INFO::RunSig::makeAsimovData: Glob snapshot name = conditionalGlobs_1[0m
+[1;32m=== INFO::RunSig::makeAsimovData: Nuis snapshot name = conditionalNuis_1[0m
+=== DEBUG::RunSig::makeAsimovData: Making asimov
 [#0] WARNING:InputArguments -- RooWorkspace::defineSet(combined) WARNING redefining previously defined named set obsAndWeight
+RooArgSet::dependents = (obs_x_SR_1)
+=== DEBUG::RunSig::makeAsimovData: on type: SR_1 1
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.511 weighted)
+=== DEBUG::RunSig::makeAsimovData: sum entries 317.510714
+=== DEBUG::RunSig::makeAsimovData: channel: SR_1, data: 
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.511 weighted)
+=== DEBUG::RunSig::makeAsimovData: 
+RooArgSet::dependents = (obs_x_SR_2)
+=== DEBUG::RunSig::makeAsimovData: on type: SR_2 2
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (313.602 weighted)
+=== DEBUG::RunSig::makeAsimovData: sum entries 313.602263
+=== DEBUG::RunSig::makeAsimovData: channel: SR_2, data: 
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (313.602 weighted)
+=== DEBUG::RunSig::makeAsimovData: 
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset asimovData_1
 [#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
 [#1] INFO:Minization --  Including the following contraint terms in minimization: (alpha_JESConstraint,alpha_Bkg1XsecConstraint,alpha_Bkg2XsecConstraint,gamma_stat_SR_1_bin_0_constraint,gamma_stat_SR_1_bin_1_constraint,gamma_stat_SR_1_bin_2_constraint,gamma_stat_SR_1_bin_3_constraint,gamma_stat_SR_2_bin_0_constraint,gamma_stat_SR_2_bin_1_constraint,gamma_stat_SR_2_bin_2_constraint,gamma_stat_SR_2_bin_3_constraint)
-  1) 0x4d65ca0 RooRealVar::             nom_alpha_JES = -0.00941607 C  L(-10 - 10)  "nom_alpha_JES"
-  2) 0x4b5f150 RooRealVar::        nom_alpha_Bkg1Xsec = 0.236234 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
-  3) 0x4d64830 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0497527 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
-  4) 0x496dd50 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 0.998033 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_0"
-  5) 0x497b0f0 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 1.02382 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_1"
-  6) 0x497ea20 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 0.98499 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_2"
-  7) 0x4981b00 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 0.909485 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_3"
-  8) 0x4cc8780 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 0.999917 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_0"
-  9) 0x4ccc440 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 1.02776 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_1"
- 10) 0x4ccf520 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 0.987731 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_2"
- 11) 0x4cd2600 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 0.912516 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_3"
+  1) 0x4ecc360 RooRealVar::             nom_alpha_JES = -0.00941607 C  L(-10 - 10)  "nom_alpha_JES"
+  2) 0x4ba9db0 RooRealVar::        nom_alpha_Bkg1Xsec = 0.236234 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
+  3) 0x4ecb250 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0497527 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
+  4) 0x4de7730 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 0.998033 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_0"
+  5) 0x4dea280 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 1.02382 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_1"
+  6) 0x4dece30 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 0.98499 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_2"
+  7) 0x4def9e0 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 0.909485 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_3"
+  8) 0x4e3eb50 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 0.999917 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_0"
+  9) 0x4e423d0 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 1.02776 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_1"
+ 10) 0x4e44f80 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 0.987731 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_2"
+ 11) 0x4e47b30 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 0.912516 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_3"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_asimovData_1_with_constr) Summation contains a RooNLLVar, using its error level
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
 RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
@@ -385,8 +404,7 @@ gamma_stat_SR_2_bin_0	  = 1.00313	 +/-  0.028976	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02036	 +/-  0.0475163	(limited)
 gamma_stat_SR_2_bin_2	  = 0.980962	 +/-  0.080437	(limited)
 gamma_stat_SR_2_bin_3	  = 1.00629	 +/-  0.13415	(limited)
-obs: -1.05904
-Observed significance: -1.05904
-Median test stat val: 0.241201
-Median significance:   0.491122
-Real time 0:00:00, CP time 0.290
+[1;32m=== INFO::RunSig::RunSig: Observed significance: -1.059039[0m
+[1;32m=== INFO::RunSig::RunSig: Median test stat val: 0.241201[0m
+[1;32m=== INFO::RunSig::RunSig: Median significance:       0.491122[0m
+Real time 0:00:00, CP time 0.190
