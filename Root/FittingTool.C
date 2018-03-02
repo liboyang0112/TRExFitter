@@ -589,7 +589,10 @@ std::map < std::string, double > FittingTool::ExportFitResultInMap(){
 
 //____________________________________________________________________________________
 //
-int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, std::string categoryOfInterest ){
+int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, std::string categoryOfInterest, std::string outFileName ){
+    // file to save results to
+    std::ofstream outFile;
+    outFile.open(outFileName.c_str());
 
     // obtain constrainedParams and poi like in FitPDF(), but make sure POI is not constant
     RooArgSet* constrainedParams = fitpdf->getParameters(*fitdata);
@@ -674,12 +677,17 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
             continue; // if a category was specified via command line, only process that one
 
         ws->loadSnapshot(("snapshot_AfterFit_POI_" + *itCategories).c_str());
-        std::cout << *itCategories + " category"<<std::endl;
+        std::cout << *itCategories + " category" << std::endl;
         std::cout << "POI is: " << poi->getVal() << " +/- " << poi->getError() << "    ( +" << poi->getErrorHi() << ", " << poi->getErrorLo() << " )" << std::endl;
-        if(*itCategories=="FullSyst") std::cout<<"  (corresponds to a stat-only fit)"<<std::endl;
+        if(*itCategories=="FullSyst") std::cout <<"  (corresponds to a stat-only fit)"<<std::endl;
         std::cout << "   --> " " impact:  " << sqrt( - pow(poi->getError(),2) + Nom2 ) << "    ( +" << sqrt( - pow(poi->getErrorHi(),2) + NomUp2 ) << ", -" << sqrt( - pow(poi->getErrorLo(),2) + NomLo2 ) << " )" << std::endl;
         std::cout<< "-------------------------------------------------------------"<<std::endl;
+
+        // write results to file
+        outFile << *itCategories << "    " << sqrt( - pow(poi->getError(),2) + Nom2 ) << "  ( +" << sqrt( - pow(poi->getErrorHi(),2) + NomUp2 ) << ", -" << sqrt( - pow(poi->getErrorLo(),2) + NomLo2 ) << " )" << std::endl;
     }
+
+    outFile.close();
 
     // load original nominal fit again
     ws->loadSnapshot("snapshot_AfterFit_GO");

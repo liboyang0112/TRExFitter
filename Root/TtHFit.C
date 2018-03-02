@@ -6733,6 +6733,25 @@ void TtHFit::DrawPruningPlot(){
 //
 void TtHFit::Fit(){
 
+    // FIXME the functionality below really should go somewhere else...
+    // if enabled, merge grouped impact table together and exit
+    if(fDoGroupedSystImpactTable and (fGroupedImpactCategory=="combine")){
+        // name of file to write results to or read from
+        std::string outNameGroupedImpact = fName+"/Fits/GroupedImpact"+fSuffix;
+        if(fGroupedImpactCategory!="all") outNameGroupedImpact += "_"+fGroupedImpactCategory;
+        outNameGroupedImpact += ".txt";
+
+        WriteInfoStatus("TtHFit::Fit", "merging grouped impact evaluations");
+        std::string fileToRead = fName+"/Fits/GroupedImpact"+fSuffix+".txt";
+        std::string cmd = " if [[ `ls "+fName+"/Fits/GroupedImpact"+fSuffix+"_*` != \"\" ]] ; then";
+        cmd            += " if [[ `ls "+fName+"/Fits/GroupedImpact"+fSuffix+".txt` == \"\" ]] ; then";
+        cmd            += " cat "+fName+"/Fits/GroupedImpact_* > "+fileToRead+" ; ";
+        cmd            += " fi ;";
+        cmd            += " fi ;";
+        gSystem->Exec(cmd.c_str());
+        return;
+    }
+
     //Checks if a data sample exists
     bool hasData = false;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -7166,14 +7185,18 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         WriteInfoStatus("TtHFit::PerformFit", "----------------------- -------------------------- -----------------------");
     }
 
+
     //
     // grouped systematics impact
-    if(fDoGroupedSystImpactTable){
-        // fill fSubCategoryImpactMap first
-        ProduceSystSubCategoryMap();
-        // hand over the map to the FittingTool
-        fitTool -> SetSystMap( fSubCategoryImpactMap );
-        fitTool -> GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory );
+    if((fDoGroupedSystImpactTable) and (fGroupedImpactCategory!="combine")){
+        // name of file to write results to or read from
+        std::string outNameGroupedImpact = fName+"/Fits/GroupedImpact"+fSuffix;
+        if(fGroupedImpactCategory!="all") outNameGroupedImpact += "_"+fGroupedImpactCategory;
+        outNameGroupedImpact += ".txt";
+
+        ProduceSystSubCategoryMap();                        // fill fSubCategoryImpactMap first
+        fitTool -> SetSystMap( fSubCategoryImpactMap );     // hand over the map to the FittingTool
+        fitTool -> GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory, outNameGroupedImpact);
     }
 
     return result;

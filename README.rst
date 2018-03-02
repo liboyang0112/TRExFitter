@@ -280,7 +280,7 @@ Note that, each object should have unique <ObjectName>.
      * Min              : min value
      * Max              : max value
      * Constant         : set to TRUE to have a fixed norm factor
-     * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory if GroupedSystImpactTable is enabled, defaults to "NormFactors", do not use "Gammas" or "FullSyst" as SubCategory names
+     * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory if GroupedSystImpactTable is enabled, defaults to "NormFactors", do not use "Gammas", "FullSyst" or "combine" as SubCategory names
      * Expression       : a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form "<expression>,<dependency>", where <dependency> should contain the name(s) of the norm factor the expression depends on [example: "1.-SigXsecOverSM","SigXsecOverSM"]
 
   * ShapeFactor:
@@ -299,7 +299,7 @@ Note that, each object should have unique <ObjectName>.
      * NuisancaParameter   : if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics
      * IsFreeParameter     : if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution)
      * Category            : major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
-     * SubCategory         : minor category for the systematic, used to evaluate impact on POI per SubCategory if GroupedSystImpactTable is enabled, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas" or "FullSyst" as SubCategory names
+     * SubCategory         : minor category for the systematic, used to evaluate impact on POI per SubCategory if GroupedSystImpactTable is enabled, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst" or "combine" as SubCategory names
      * HistoPathUp         : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation
      * HistoPathDown       : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation
      * HistoPathSufUp      : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation
@@ -395,6 +395,10 @@ Grouped Impact
 
     # evaluate impact of Gammas
     ./myFit.exe f <config> GroupedImpact="Gammas"
+
+- When the calculations are parallelized, combine the results by running the following at the end::
+
+    ./myFit.exe f <config> GroupedImpact="combine"
 
 
 Multi-Fit
