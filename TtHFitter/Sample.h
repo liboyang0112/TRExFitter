@@ -85,6 +85,7 @@ public:
     std::vector<std::string> fAddSamples;
     bool fSmooth;
     int fBuildPullTable;
+    bool fIsMorph;
 
     // to read from ntuples
     std::string fSelection;

@@ -1,3 +1,7 @@
+2018-03-05 Tomas Dado <tomas.dadod@cern.ch>
+	* Fixxing compilation error for gcc62
+	* Fixxing postfit plots when morphing option is used
+
 2018-02-09 Tomas Dado <tomas.dadod@cern.ch>
 	* Moved ROOT macros for significance and limits calcuation to core code.
 	Modified messaging to use TRExFitter standars. Fixed indetations
