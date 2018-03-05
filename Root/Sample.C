@@ -26,6 +26,7 @@ Sample::Sample(std::string name,int type){
     fMultiplyBy = "";
     fSmooth = false;
     fBuildPullTable = 0;
+    fIsMorph = false;
     //
     // ntuples
     fSelection = "1";

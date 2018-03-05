@@ -1562,6 +1562,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fNormFactors.push_back( nf );
             fNormFactorNames.push_back( nf->fName );
             fNNorm++;
+
+            smp->fIsMorph = true;
         }
         // ...
     }

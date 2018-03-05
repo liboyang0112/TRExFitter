@@ -29,6 +29,7 @@ SampleHist::SampleHist(){
     fRegionLabel = "Region";
     fVariableTitle = "Variable";
     fSystSmoothed = false;
+    fIsMorph = false;
     //
     fSyst.clear();
 }
@@ -38,6 +39,7 @@ SampleHist::SampleHist(){
 SampleHist::SampleHist(Sample *sample,TH1 *hist){
     fSample = sample;
     fName = fSample->fName;
+    fIsMorph = fSample->fIsMorph;
     //
     //Nominal histogram configuration
     fHist = (TH1*)hist->Clone(Form("h_%s",fName.c_str()));
@@ -71,6 +73,7 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
     fName = fSample->fName;
+    fIsMorph = fSample->fIsMorph;
     fHistoName = histoName;
     fFileName = fileName;
     fHist_postFit = 0x0;
