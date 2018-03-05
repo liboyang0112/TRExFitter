@@ -387,12 +387,12 @@ Ranking Plot
 Grouped Impact
 ---------
 
-- The command line argument "i" is used to evaluate the combined impact of groups of nuisance parameters on the POI.
-- Specify groups using the ``SubCategory`` option (for Systematics and NormFactors).
-- Two groups are defined by default: "Gammas" (MC stat. impact) and "FullSyst" (full systematics impact with statistical component subtracted).
-- The impact is calculated by performing a fit where the nuisance parameters in the group are fixed to their best-fit values, and then the subtracting the resulting uncertainty on the POI in quadrature from the uncertainty from the nominal fit.
-- The command line parameter ``GroupedImpact`` can be used to parallelize the impact calculations. If it is not specified, all existing groups are evaluated sequentially.
-- Example::
+* The command line argument ``i`` is used to evaluate the combined impact of groups of nuisance parameters on the POI.
+* Specify groups using the ``SubCategory`` option (for Systematics and NormFactors).
+* Two groups are defined by default: "Gammas" (MC stat. impact) and "FullSyst" (full systematics impact with statistical component subtracted).
+* The impact is calculated by performing a fit where the nuisance parameters in the group are fixed to their best-fit values, and then the subtracting the resulting uncertainty on the POI in quadrature from the uncertainty from the nominal fit.
+* The command line parameter ``GroupedImpact`` can be used to parallelize the impact calculations. If it is not specified, all existing groups are evaluated sequentially.
+* Example::
 
     # evaluate impact of all groups sequentially
     ./myFit.exe i <config>
@@ -400,7 +400,7 @@ Grouped Impact
     # evaluate only the impact of Gammas
     ./myFit.exe i <config> GroupedImpact="Gammas"
 
-- When the calculations are parallelized, combine the results by running the following at the end::
+* When the calculations are parallelized, combine the results by running the following at the end::
 
     ./myFit.exe i <config> GroupedImpact="combine"
 
