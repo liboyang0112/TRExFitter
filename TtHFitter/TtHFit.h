@@ -234,6 +234,8 @@ public:
     bool fStatOnlyFit;
     bool fFixNPforStatOnlyFit;
 
+    bool fRunROOTMacros;
+
     std::vector<std::string> fRegionsToPlot;
     std::vector<std::string> fSummaryPlotRegions;
     std::vector<std::string> fSummaryPlotLabels;

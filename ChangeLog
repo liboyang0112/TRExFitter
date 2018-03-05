@@ -1,3 +1,9 @@
+2018-02-09 Tomas Dado <tomas.dadod@cern.ch>
+	* Moved ROOT macros for significance and limits calcuation to core code.
+	Modified messaging to use TRExFitter standars. Fixed indetations
+	* Still left the option to run with the ROOT macros by setting:
+	"RunROOTMacros" to "True" 
+
 2018-02-28 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Fixed random crashes caused by recent commits (thanks Tomas)
     * Added "Expression" option for NormFactors, which allows to correlate different norm factors in a custom way (see README)
