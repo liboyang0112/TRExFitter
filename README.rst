@@ -61,6 +61,7 @@ For instance, if you use the default file `util/myFit.C`, the available options 
 * r : draw ranking plot (see later)
 * b : re-run smoothing (in the future also rebinning)
 * m : multi-fit (see later)
+* i : grouped impact evaluation (see below)
 
 New optional argument: <options>.
 It's a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form::
@@ -193,7 +194,6 @@ Note that, each object should have unique <ObjectName>.
      * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
      * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
-     * GroupedSystImpactTable : if set to TRUE, create a table showing impact of nuisance parameters grouped together by their SubCategory parameters
 
   * Limit:
      * LimitType        : can be ASYMPTOTIC or TOYS (the latter is not yet supported)
@@ -280,7 +280,7 @@ Note that, each object should have unique <ObjectName>.
      * Min              : min value
      * Max              : max value
      * Constant         : set to TRUE to have a fixed norm factor
-     * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory if GroupedSystImpactTable is enabled, defaults to "NormFactors", do not use "Gammas", "FullSyst" or "combine" as SubCategory names
+     * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names
      * Expression       : a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form "<expression>,<dependency>", where <dependency> should contain the name(s) of the norm factor the expression depends on [example: "1.-SigXsecOverSM","SigXsecOverSM"]
 
   * ShapeFactor:
@@ -299,7 +299,7 @@ Note that, each object should have unique <ObjectName>.
      * NuisancaParameter   : if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics
      * IsFreeParameter     : if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution)
      * Category            : major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
-     * SubCategory         : minor category for the systematic, used to evaluate impact on POI per SubCategory if GroupedSystImpactTable is enabled, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst" or "combine" as SubCategory names
+     * SubCategory         : minor category for the systematic, used to evaluate impact on POI per SubCategory in "i" step, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst", or "combine" as SubCategory names
      * HistoPathUp         : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation
      * HistoPathDown       : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation
      * HistoPathSufUp      : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation
@@ -387,18 +387,22 @@ Ranking Plot
 Grouped Impact
 ---------
 
-- Evaluates the combined impact of a group of nuisance parameters on the POI. Enable by setting the Fit option ``GroupedSystImpactTable`` to TRUE. Specify groups using the ``SubCategory`` option (for Systematics and NormFactors).
+- The command line argument "i" is used to evaluate the combined impact of groups of nuisance parameters on the POI.
+- Specify groups using the ``SubCategory`` option (for Systematics and NormFactors).
 - Two groups are defined by default: "Gammas" (MC stat. impact) and "FullSyst" (full systematics impact with statistical component subtracted).
 - The impact is calculated by performing a fit where the nuisance parameters in the group are fixed to their best-fit values, and then the subtracting the resulting uncertainty on the POI in quadrature from the uncertainty from the nominal fit.
 - The command line parameter ``GroupedImpact`` can be used to parallelize the impact calculations. If it is not specified, all existing groups are evaluated sequentially.
 - Example::
 
-    # evaluate impact of Gammas
-    ./myFit.exe f <config> GroupedImpact="Gammas"
+    # evaluate impact of all groups sequentially
+    ./myFit.exe i <config>
+
+    # evaluate only the impact of Gammas
+    ./myFit.exe i <config> GroupedImpact="Gammas"
 
 - When the calculations are parallelized, combine the results by running the following at the end::
 
-    ./myFit.exe f <config> GroupedImpact="combine"
+    ./myFit.exe i <config> GroupedImpact="combine"
 
 
 Multi-Fit

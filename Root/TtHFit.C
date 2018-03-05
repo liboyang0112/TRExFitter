@@ -1061,12 +1061,6 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fGetGoodnessOfFit = true;
         }
     }
-    param = cs->Get("GroupedSystImpactTable");    if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fDoGroupedSystImpactTable = true;
-        }
-    }
 
     //##########################################################
     //
@@ -6733,25 +6727,6 @@ void TtHFit::DrawPruningPlot(){
 //
 void TtHFit::Fit(){
 
-    // FIXME the functionality below really should go somewhere else...
-    // if enabled, merge grouped impact table together and exit
-    if(fDoGroupedSystImpactTable and (fGroupedImpactCategory=="combine")){
-        // name of file to write results to or read from
-        std::string outNameGroupedImpact = fName+"/Fits/GroupedImpact"+fSuffix;
-        if(fGroupedImpactCategory!="all") outNameGroupedImpact += "_"+fGroupedImpactCategory;
-        outNameGroupedImpact += ".txt";
-
-        WriteInfoStatus("TtHFit::Fit", "merging grouped impact evaluations");
-        std::string fileToRead = fName+"/Fits/GroupedImpact"+fSuffix+".txt";
-        std::string cmd = " if [[ `ls "+fName+"/Fits/GroupedImpact"+fSuffix+"_*` != \"\" ]] ; then";
-        cmd            += " if [[ `ls "+fName+"/Fits/GroupedImpact"+fSuffix+".txt` == \"\" ]] ; then";
-        cmd            += " cat "+fName+"/Fits/GroupedImpact_* > "+fileToRead+" ; ";
-        cmd            += " fi ;";
-        cmd            += " fi ;";
-        gSystem->Exec(cmd.c_str());
-        return;
-    }
-
     //Checks if a data sample exists
     bool hasData = false;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -7185,11 +7160,10 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         WriteInfoStatus("TtHFit::PerformFit", "----------------------- -------------------------- -----------------------");
     }
 
-
     //
     // grouped systematics impact
-    if((fDoGroupedSystImpactTable) and (fGroupedImpactCategory!="combine")){
-        // name of file to write results to or read from
+    if(fDoGroupedSystImpactTable){
+        // name of file to write results to
         std::string outNameGroupedImpact = fName+"/Fits/GroupedImpact"+fSuffix;
         if(fGroupedImpactCategory!="all") outNameGroupedImpact += "_"+fGroupedImpactCategory;
         outNameGroupedImpact += ".txt";
@@ -9183,4 +9157,21 @@ void TtHFit::ProduceSystSubCategoryMap(){
            fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fName, fNormFactors[i_nf]->fSubCategory));
        }
    }
+}
+
+//____________________________________________________________________________________
+// combine individual results from grouped impact evaluation into one table
+void TtHFit::BuildGroupedImpactTable(){
+    WriteInfoStatus("TtHFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
+    std::string targetName = fName+"/Fits/GroupedImpact"+fSuffix+".txt";
+
+    if(std::ifstream(targetName).good()){
+        WriteWarningStatus("TtHFit::BuildGroupedImpactTable","file " + targetName + " already exists, will not overwrite");
+    }
+    else{
+        std::string cmd = " if [[ `ls "+fName+"/Fits/GroupedImpact"+fSuffix+"_*` != \"\" ]] ; then";
+        cmd            += " cat "+fName+"/Fits/GroupedImpact_* > "+targetName+" ; ";
+        cmd            += " fi ;";
+        gSystem->Exec(cmd.c_str());
+    }
 }

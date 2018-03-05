@@ -164,8 +164,9 @@ public:
     const std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
     const bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
-    // systematics association to SubCategories
+    // for grouped impact evaluation
     void ProduceSystSubCategoryMap();
+    void BuildGroupedImpactTable();
 
     // -------------------------
 

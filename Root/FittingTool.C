@@ -602,7 +602,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     RooRealVar * poi = (RooRealVar*) model->GetParametersOfInterest()->first();
     if(!poi){
         if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
-        WriteErrorStatus("FittingTool::FitPDF", "Cannot find the parameter of interest !");
+        WriteErrorStatus("FittingTool::GetGroupedImpact", "Cannot find the parameter of interest !");
         return -1;
     }
     poi -> setConstant(false);
@@ -612,15 +612,15 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     }
 
     // save snapshot of original workspace
-    ws->saveSnapshot("snapshot_AfterFit_POI", *model->GetParametersOfInterest() );
-    ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters()) );
-    ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())  );
+    ws->saveSnapshot("snapshot_AfterFit_POI", *(model->GetParametersOfInterest()) );
+    ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters())   );
+    ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())    );
 
     std::vector<std::string> associatedParams; // parameters associated to a SubCategory
-    std::vector<std::string> snapshotNames;    // names of snapshots produced by ScanSingleParamReversed
 
-    snapshotNames.push_back(ScanSingleParamReversed(false, false, fitdata, fitpdf, constrainedParams, model, ws, "Nominal", associatedParams));  // nothing held constant -> "snapshot_AfterFit_POI_Nominal"
-
+    // repeat the nominal fit - done so that the initial randomization is the exact same as for the following fit(s)
+    // this should help avoid issues with fits ending up in different local minima for groups with very small impact on the POI
+    FitExcludingGroup(false, false, fitdata, fitpdf, constrainedParams, model, ws, "Nominal", associatedParams);  // nothing held constant -> "snapshot_AfterFit_POI_Nominal"
 
     // loop over unique SubCategories
     for (std::set<std::string>::iterator itCategories = m_subCategories.begin(); itCategories != m_subCategories.end(); ++itCategories){
@@ -633,22 +633,24 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
         associatedParams.clear();
         for(std::map<std::string, std::string>::iterator itSysts = m_subCategoryMap.begin(); itSysts != m_subCategoryMap.end(); ++itSysts) {
             if (itSysts->second == *itCategories) {
-                WriteDebugStatus("FittingTool::GetGroupedImpact","  associated parameter: " + itSysts->first);
+                //WriteDebugStatus("FittingTool::GetGroupedImpact","  associated parameter: " + itSysts->first);
                 associatedParams.push_back(itSysts->first);
             }
         }
 
         // special case for gammas
         if(*itCategories=="Gammas") {
-            ScanSingleParamReversed(true,  false, fitdata, fitpdf, constrainedParams, model, ws, *itCategories, associatedParams);
+            FitExcludingGroup(true,  false, fitdata, fitpdf, constrainedParams, model, ws, *itCategories, associatedParams);
         }
+
         // special case for stat-only fit
         else if(*itCategories=="FullSyst") {
-            ScanSingleParamReversed(true,  true,  fitdata, fitpdf, constrainedParams, model, ws, *itCategories, associatedParams);
+            FitExcludingGroup(true,  true,  fitdata, fitpdf, constrainedParams, model, ws, *itCategories, associatedParams);
         }
+
         // default: perform a fit where parameters in SubCategory are held constant
         else {
-            snapshotNames.push_back(ScanSingleParamReversed(false, false, fitdata, fitpdf, constrainedParams, model, ws, *itCategories, associatedParams));
+            FitExcludingGroup(false, false, fitdata, fitpdf, constrainedParams, model, ws, *itCategories, associatedParams);
         }
     }
 
@@ -657,39 +659,41 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     ws->loadSnapshot("snapshot_AfterFit_POI");
     ws->loadSnapshot("snapshot_AfterFit_NP");
 
-    WriteInfoStatus("FittingTool::FitPDF","-----------------------------------------------------");
-    WriteInfoStatus("FittingTool::GetGroupedImpact", "final results:");
+    WriteInfoStatus("FittingTool::GetGroupedImpact","-----------------------------------------------------");
 
-    cout << setprecision(2) << fixed << endl;
-
-    // replication of nominal fit
+    // report replication of nominal fit
     ws->loadSnapshot("snapshot_AfterFit_POI_Nominal");
-    cout << "replicated nominal fit"<<std::endl;
-    cout << "POI  is: " << poi->getVal() << " +/- " << poi->getError() << "    ( +" << poi->getErrorHi() << ", " << poi->getErrorLo() << " )" << std::endl;
+    WriteInfoStatus("FittingTool::GetGroupedImpact", "replicated nominal fit");
+    WriteInfoStatus("FittingTool::GetGroupedImpact", "POI is:   " + std::to_string(poi->getVal()) + " +/- " + std::to_string(poi->getError()) +
+                                                     "    ( +" + std::to_string(poi->getErrorHi()) + ", " + std::to_string(poi->getErrorLo()) + " )");
+
     float NomUp2=(poi->getErrorHi()*poi->getErrorHi());
     float NomLo2=(poi->getErrorLo()*poi->getErrorLo());
     float Nom2  =(poi->getError()*poi->getError());
 
-    std::cout<< "-------------------------------------------------------------"<<std::endl;
-
+    // report impact calculations, impact is obtained by quadrature subtraction from replicated nominal fit
     for (std::set<std::string>::iterator itCategories = m_subCategories.begin(); itCategories != m_subCategories.end(); ++itCategories){
         if(categoryOfInterest!="all" and *itCategories!=categoryOfInterest)
             continue; // if a category was specified via command line, only process that one
 
         ws->loadSnapshot(("snapshot_AfterFit_POI_" + *itCategories).c_str());
-        std::cout << *itCategories + " category" << std::endl;
-        std::cout << "POI is: " << poi->getVal() << " +/- " << poi->getError() << "    ( +" << poi->getErrorHi() << ", " << poi->getErrorLo() << " )" << std::endl;
-        if(*itCategories=="FullSyst") std::cout <<"  (corresponds to a stat-only fit)"<<std::endl;
-        std::cout << "   --> " " impact:  " << sqrt( - pow(poi->getError(),2) + Nom2 ) << "    ( +" << sqrt( - pow(poi->getErrorHi(),2) + NomUp2 ) << ", -" << sqrt( - pow(poi->getErrorLo(),2) + NomLo2 ) << " )" << std::endl;
-        std::cout<< "-------------------------------------------------------------"<<std::endl;
+        WriteInfoStatus("FittingTool::GetGroupedImpact","-----------------------------------------------------");
+        WriteInfoStatus("FittingTool::GetGroupedImpact", "category: " + *itCategories + " (fixed to best-fit values for fit)");
+        WriteInfoStatus("FittingTool::GetGroupedImpact", "POI is:   " + std::to_string(poi->getVal()) + " +/- " + std::to_string(poi->getError()) +
+                                                         "    ( +" + std::to_string(poi->getErrorHi()) + ", " + std::to_string(poi->getErrorLo()) + " )");
+        if(*itCategories=="FullSyst") WriteDebugStatus("FittingTool::GetGroupedImpact", "  (corresponds to a stat-only fit)");
+        WriteInfoStatus("FittingTool::GetGroupedImpact", "           --> impact: " + std::to_string(sqrt(-pow(poi->getError(),2) + Nom2)) +
+                                                         "    ( +" + std::to_string(sqrt(- pow(poi->getErrorHi(),2) + NomUp2)) + ", -" + std::to_string(sqrt(- pow(poi->getErrorLo(),2) + NomLo2)) + " )" );
 
         // write results to file
         outFile << *itCategories << "    " << sqrt( - pow(poi->getError(),2) + Nom2 ) << "  ( +" << sqrt( - pow(poi->getErrorHi(),2) + NomUp2 ) << ", -" << sqrt( - pow(poi->getErrorLo(),2) + NomLo2 ) << " )" << std::endl;
     }
 
+    WriteInfoStatus("FittingTool::GetGroupedImpact", "-----------------------------------------------------");
+
     outFile.close();
 
-    // load original nominal fit again
+    // load original workspace again
     ws->loadSnapshot("snapshot_AfterFit_GO");
     ws->loadSnapshot("snapshot_AfterFit_POI");
     ws->loadSnapshot("snapshot_AfterFit_NP");
@@ -700,9 +704,9 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 
 //____________________________________________________________________________________
 //
-// perform a fit where all parameters in SubGroup "category" are set to constant
-std::string FittingTool::ScanSingleParamReversed(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
-                                                 RooStats::ModelConfig* mc, RooWorkspace* ws, std::string category, std::vector<std::string> affectedParams) {
+// perform a fit where all parameters in "affectedParams" (usually coming from SubGroup "category") are set to constant, optionally also gammas or all parameters
+void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
+                                    RooStats::ModelConfig* mc, RooWorkspace* ws, std::string category, std::vector<std::string> affectedParams) {
 
     // (VD): use this to fix nuisance parameter before the fit
     const RooArgSet* glbObs = mc->GetGlobalObservables();
@@ -710,9 +714,9 @@ std::string FittingTool::ScanSingleParamReversed(bool excludeGammas, bool statOn
     ws->loadSnapshot("snapshot_AfterFit_POI");
     ws->loadSnapshot("snapshot_AfterFit_NP");
 
-    WriteInfoStatus("FittingTool::ScanSingleParamReversed", "-----------------------------------------------------");
-    WriteInfoStatus("FittingTool::ScanSingleParamReversed", "           breakdown for " + category);
-    WriteInfoStatus("FittingTool::ScanSingleParamReversed", "-----------------------------------------------------");
+    WriteInfoStatus("FittingTool::FitExcludingGroup", "-----------------------------------------------------");
+    WriteInfoStatus("FittingTool::FitExcludingGroup", "           breakdown for " + category);
+    WriteInfoStatus("FittingTool::FitExcludingGroup", "-----------------------------------------------------");
 
     TIterator* it = mc->GetNuisanceParameters()->createIterator();
     RooRealVar* var2 = NULL;
@@ -730,7 +734,6 @@ std::string FittingTool::ScanSingleParamReversed(bool excludeGammas, bool statOn
 
         // set all affectedParams constant
         if (std::find(affectedParams.begin(), affectedParams.end(), varname) != affectedParams.end()) {
-          WriteDebugStatus("FittingTool::ScanSingleParamReversed", "setting " + varname + " constant");
           var2->setConstant(1);
         }
 
@@ -740,7 +743,7 @@ std::string FittingTool::ScanSingleParamReversed(bool excludeGammas, bool statOn
         }
     }
 
-    constrainedParams->Print("v");
+    //constrainedParams->Print("v");
     // repeat the fit here ....
     RooAbsReal* nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), NumCPU(4, RooFit::Hybrid) );
     RooMinimizer minim2(*nll);
@@ -754,16 +757,13 @@ std::string FittingTool::ScanSingleParamReversed(bool excludeGammas, bool statOn
     RooArgSet minosSet(*thePOI);
     minim2.minos(minosSet);
 
-    if (status!=0) WriteErrorStatus("FittingTool::ScanSingleParamReversed", "unable to perform fit correctly! HessStatus: " + std::to_string(HessStatus));
+    if (status!=0) WriteErrorStatus("FittingTool::FitExcludingGroup", "unable to perform fit correctly! HessStatus: " + std::to_string(HessStatus));
 
-    //cout << "VALERIO SAYS: after fit for configuration: " , " << excludeGammas << "   --> with MU= " << thePOI->getVal() <<  " +/- " << thePOI->getError() << endl;
     float newPOIerr =thePOI->getError();
     float newPOIerrU=thePOI->getErrorHi();
     float newPOIerrD=thePOI->getErrorLo();
 
-    std::string snapshotName;
-    snapshotName = "snapshot_AfterFit_POI_" + category;
-
+    std::string snapshotName = "snapshot_AfterFit_POI_" + category;
     ws->saveSnapshot(snapshotName.c_str(), *mc->GetParametersOfInterest() );
 
     ws->loadSnapshot("snapshot_AfterFit_POI");
@@ -771,26 +771,10 @@ std::string FittingTool::ScanSingleParamReversed(bool excludeGammas, bool statOn
     float oldPOIerrU=thePOI->getErrorHi();
     float oldPOIerrD=thePOI->getErrorLo();
 
-    /*
-      cout << " How things changes: " << oldPOIerr << " --> " << newPOIerr
-      << " ||||  UP: " << oldPOIerrU << " --> " << newPOIerrU
-      << " ||||  DO: " << oldPOIerrD << " --> " << newPOIerrD << endl;
-    */
-
-    if (excludeGammas) {
-        //cout << " Stat. rel Err: " << newPOIerrU/thePOI->getVal()*100 << "   ,   " << newPOIerrD/thePOI->getVal()*100 << endl;
+    // check if uncertainties have increased compared to nominal fit, with 0.5% tolerance
+    if ( (std::fabs(newPOIerrU)>std::fabs(oldPOIerrU)*1.005) || (std::fabs(newPOIerrD)>std::fabs(oldPOIerrD)*1.005) ) {
+        WriteErrorStatus("FittingTool::FitExcludingGroup", "uncertainty has increased for " + category + "! please check the fit");
+        WriteErrorStatus("FittingTool::FitExcludingGroup", "old: " + std::to_string(oldPOIerr) + " (+" + std::to_string(oldPOIerrU) + ", " + std::to_string(oldPOIerrD) + ")");
+        WriteErrorStatus("FittingTool::FitExcludingGroup", "new: " + std::to_string(newPOIerr) + " (+" + std::to_string(newPOIerrU) + ", " + std::to_string(newPOIerrD) + ")");
     }
-    else if (!excludeGammas) {
-        //cout << " Stat+Gam Err : " << newPOIerrU/thePOI->getVal()*100 << "   ,   " << newPOIerrD/thePOI->getVal()*100 << endl;
-    }
-    else {
-        if ( (fabs(newPOIerrU)>fabs(oldPOIerrU)) || (fabs(newPOIerrD)>fabs(oldPOIerrD)) ) {
-            cout << " PROBLEM for sys: " << category << " .... please check" << endl;
-            cout << "      Error: " << oldPOIerr << " --> " << newPOIerr
-                 << " ||||  UP: " << oldPOIerrU << " --> " << newPOIerrU
-                 << " ||||  DO: " << oldPOIerrD << " --> " << newPOIerrD << endl;
-        }
-    }
-
-    return snapshotName;
 }

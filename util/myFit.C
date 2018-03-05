@@ -37,6 +37,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     bool drawPreFit      = opt.find("d")!=std::string::npos;
     bool drawPostFit     = opt.find("p")!=std::string::npos;
     bool drawSeparation  = opt.find("a")!=std::string::npos;
+    bool groupedImpact   = opt.find("i")!=std::string::npos;
     
     if(!readNtuples && !rebinAndSmooth){
         TH1::AddDirectory(kFALSE); // FIXME: it would be nice to have a solution which works always
@@ -163,6 +164,12 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     
     if(doSignificance){
         myFit->GetSignificance();
+    }
+
+    if(groupedImpact){
+        myFit->fDoGroupedSystImpactTable = true;
+        if(myFit->fGroupedImpactCategory!="combine") myFit->Fit(); // this calls TtHFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
+        else                                         myFit->BuildGroupedImpactTable();
     }
 
     TthPlot* prefit_plot = 0;
