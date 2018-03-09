@@ -30,10 +30,91 @@ Applying ATLAS style settings...
 === DEBUG::TtHFit::ReadHistos:       Reading syst JES
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region SR_1 ...[0m
+=== DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +-16.580231%	 16.580231%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +16.246704%	 -16.246704%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +54.287514%	 -54.287514%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +85.376945%	 -85.376945%
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: Bkg1Xsec
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +10.000000%	 -10.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +10.000000%	 -10.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +10.000000%	 -10.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +10.000000%	 -10.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: Bkg2Xsec
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg2
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: Bkg1Xsec
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: Bkg2Xsec
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +20.000000%	 -20.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +20.000000%	 -20.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +20.000000%	 -20.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +20.000000%	 -20.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:   Sample: Signal
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +1.346156%	 -1.346156%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +1.346159%	 -1.346159%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +1.346151%	 -1.346151%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +1.346157%	 -1.346157%
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: Bkg1Xsec
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: Bkg2Xsec
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist: ----
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1.png has been created
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region SR_2 ...[0m
+=== DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +-16.580231%	 16.580231%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +16.246704%	 -16.246704%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +54.287514%	 -54.287514%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +85.376945%	 -85.376945%
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: Bkg2Xsec
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg2
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: Bkg2Xsec
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +20.000000%	 -20.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +20.000000%	 -20.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +20.000000%	 -20.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +20.000000%	 -20.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:   Sample: Signal
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +1.346156%	 -1.346156%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +1.346159%	 -1.346159%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +1.346151%	 -1.346151%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +1.346157%	 -1.346157%
+=== DEBUG::Region::BuildPreFitErrorHist:     Systematic: Bkg2Xsec
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 2:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
+=== DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist: ----
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2.png has been created
 [1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
