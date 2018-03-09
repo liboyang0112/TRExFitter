@@ -2110,7 +2110,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
 //                               ){
                         if(   (samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
                            && (exclude[0]==""    || FindInStringVector(exclude, sam->fName)<0 ) ){
-                          sam->AddSystematic(mySys);
+                            sam->AddSystematic(mySys);
                         }
                     }
                 }
@@ -4188,13 +4188,13 @@ void TtHFit::ReadHistos(/*string fileName*/){
                         if(binContent==1 || binContent==-2) pruned = 1;
                         if(binContent==2 || binContent==-3) pruned = 2;
                     }
-                        syh = sh->AddHistoSyst(systName,
-                                               Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                               Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                               pruned
-                                              );
-                        if(syh==0x0){
-                    if (!pruned) WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
+                    syh = sh->AddHistoSyst(systName,
+                                          Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                          Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                          pruned
+                                          );
+                    if(syh==0x0){
+                        if (!pruned) WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
                             continue;
                         }
                     }
@@ -4202,8 +4202,8 @@ void TtHFit::ReadHistos(/*string fileName*/){
                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
-                    syh->fFileNameShapeUp    = fileName;
-                    syh->fFileNameShapeDown  = fileName;
+                syh->fFileNameShapeUp    = fileName;
+                syh->fFileNameShapeDown  = fileName;
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0){
                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName]!=0){
@@ -7432,7 +7432,7 @@ void TtHFit::GetLimit(){
                 LimitsCLs::RunAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
             }
             cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-    }
+        }
     }
 
     //
@@ -8856,73 +8856,73 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
         RooMsgService::instance().setStreamStatus(1,false);
     }
 
-  RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
-  RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
+    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
 
-  bool isPoI = false;
-  RooRealVar* firstPOI = (RooRealVar*) mc->GetParametersOfInterest()->first();
-  TString firstPOIname = (TString)firstPOI->GetName();
-  if (firstPOIname.Contains(varName.c_str())) isPoI = true;
+    bool isPoI = false;
+    RooRealVar* firstPOI = (RooRealVar*) mc->GetParametersOfInterest()->first();
+    TString firstPOIname = (TString)firstPOI->GetName();
+    if (firstPOIname.Contains(varName.c_str())) isPoI = true;
 
-  RooRealVar* var = NULL;
-  TString vname = "";
-    std::string vname_s = "";
-  bool foundSyst = false;
-  Double_t minVal = -3;
-  Double_t maxVal =  3;
-  for(auto nf : fNormFactors){
-    if(nf->fName == varName){
-      minVal = nf->fMin;
-      maxVal = nf->fMax;
+    RooRealVar* var = NULL;
+    TString vname = "";
+      std::string vname_s = "";
+    bool foundSyst = false;
+    Double_t minVal = -3;
+    Double_t maxVal =  3;
+    for(auto nf : fNormFactors){
+        if(nf->fName == varName){
+            minVal = nf->fMin;
+            maxVal = nf->fMax;
+        }
     }
-  }
 
-  if (isPoI){
-    TIterator* it = mc->GetParametersOfInterest()->createIterator();
-    while( (var = (RooRealVar*) it->Next()) ){
-      vname=var->GetName();
-            vname_s=var->GetName();
-            if (vname.Contains(varName.c_str())) {
-                WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
-                foundSyst=true;
-                break;
-            }
+    if (isPoI){
+      TIterator* it = mc->GetParametersOfInterest()->createIterator();
+      while( (var = (RooRealVar*) it->Next()) ){
+        vname=var->GetName();
+              vname_s=var->GetName();
+              if (vname.Contains(varName.c_str())) {
+                  WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
+                  foundSyst=true;
+                  break;
+              }
+      }
     }
-  }
-  else {
-    TIterator* it = mc->GetNuisanceParameters()->createIterator();
-    while( (var = (RooRealVar*) it->Next()) ){
-      vname=var->GetName();
-            vname_s=var->GetName();
-            if (vname.Contains(varName.c_str())) {
-                WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
-                foundSyst=true;
-                break;
-            }
+    else {
+      TIterator* it = mc->GetNuisanceParameters()->createIterator();
+      while( (var = (RooRealVar*) it->Next()) ){
+        vname=var->GetName();
+              vname_s=var->GetName();
+              if (vname.Contains(varName.c_str())) {
+                  WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
+                  foundSyst=true;
+                  break;
+              }
+      }
     }
-  }
 
-  if(!foundSyst){
-        WriteWarningStatus("TtHFit::GetLikelihoodScan", "systematic " + varName + " not found (most probably due to Pruning), skip LHscan !");
-    return;
-  }
+    if(!foundSyst){
+          WriteWarningStatus("TtHFit::GetLikelihoodScan", "systematic " + varName + " not found (most probably due to Pruning), skip LHscan !");
+      return;
+    }
     WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
 
     //TF1* poly = new TF1("poly2","[0]+[1]*x+[2]*x*x",0,10);
-  TCanvas* can = new TCanvas("NLLscan");
+    TCanvas* can = new TCanvas("NLLscan");
 
-  RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
+    RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
 
-  TString tag("");
-  RooAbsReal* pll = nll->createProfile(*var);
+    TString tag("");
+    RooAbsReal* pll = nll->createProfile(*var);
 //   RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(-1.5,3.5));
-  RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(minVal, maxVal));
-  pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TtHFitter::NCPU));
-  RooCurve* curve = frameLH->getCurve();
-  curve->Draw();
+    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(minVal, maxVal));
+    pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TtHFitter::NCPU));
+    RooCurve* curve = frameLH->getCurve();
+    curve->Draw();
 
     //float val = var->getVal();
-  frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
+    frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
 
 //     // fit function
 //     for( int par(0); par<3; par++) { poly->SetParameter(par,0); }
@@ -8941,25 +8941,25 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     if(TtHFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[varName].c_str());
     else if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
 
-  TString cname="";
-  cname.Append("NLLscan_");
-  cname.Append(vname);
+    TString cname="";
+    cname.Append("NLLscan_");
+    cname.Append(vname);
 
-  can->SetTitle(cname);
-  can->SetName(cname);
-  can->cd();
-  frameLH->Draw();
+    can->SetTitle(cname);
+    can->SetName(cname);
+    can->cd();
+    frameLH->Draw();
 //   latex->Draw("same");
 
     TLatex *tex = new TLatex();
     tex->SetTextColor(kGray+2);
     
-  TLine *l1s = new TLine(minVal,0.5,maxVal,0.5);
+    TLine *l1s = new TLine(minVal,0.5,maxVal,0.5);
     l1s->SetLineStyle(kDashed);
     l1s->SetLineColor(kGray);
     l1s->SetLineWidth(2);
     if(frameLH->GetMaximum()>2){
-  l1s->Draw();
+    l1s->Draw();
         tex->DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
     }
     
@@ -8989,13 +8989,13 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
         lh0->Draw();
     }
 
-  TString LHDir("LHoodPlots/");
-  system(TString("mkdir -vp ")+fName+"/"+LHDir);
+    TString LHDir("LHoodPlots/");
+    system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
     can->RedrawAxis();
     
-  for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-      can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TtHFitter::IMAGEFORMAT[i_format] );
+    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
+        can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TtHFitter::IMAGEFORMAT[i_format] );
     
     // write it to a ROOT file as well
     TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");

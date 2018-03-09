@@ -992,9 +992,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 if(!sh) continue;
                 if(fSampleHists[i]->fSample->fIsMorph){
                     if (std::fabs(yieldNominal_postFit) > 1e-6){
-                if(sh->fHistUp_postFit)   diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit;
-                if(sh->fHistDown_postFit) diffDown += sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit;
-            }
+                        if(sh->fHistUp_postFit)   diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit;
+                        if(sh->fHistDown_postFit) diffDown += sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit;
+                    }
                 } else {
                     if(sh->fHistUp_postFit)   diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit;
                     if(sh->fHistDown_postFit) diffDown += sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit;
@@ -1094,9 +1094,9 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
     p->SetLumiScale(fLumiScale);
 
     if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
-      for(int i_bin=0; i_bin<fNbins; i_bin++) {
-        p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
-      }
+        for(int i_bin=0; i_bin<fNbins; i_bin++) {
+            p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
+        }
     }
     
     //
@@ -1459,9 +1459,9 @@ void Region::SetAlternativeVariable(string variable,string sample){
 //
 bool Region::UseAlternativeVariable(string sample){
     if (fAlternativeVariables.find(sample)==fAlternativeVariables.end())
-      return false;
+        return false;
     else
-      return true;
+        return true;
 }
 
 //__________________________________________________________________________________
