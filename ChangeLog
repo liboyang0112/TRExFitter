@@ -1,3 +1,12 @@
+2018-03-09 Alexander Held <alexander.held@cern.ch>
+    * Added the possibility to create tables showing post-fit impact of groups
+		of nuisance parameters on the POI, see readme for documentation
+    * Can now group Systematics and NormFactors via new SubCategory options
+        * Two groups exist by default, "Gammas" and "FullSyst"
+    * New command line option "i" to perform required calculations
+        * Can use GroupedImpact options to parallelize (similar to ranking)
+    * Closes TTHFITTER-88
+
 2018-03-05 Tomas Dado <tomas.dadod@cern.ch>
 	* Fixxing compilation error for gcc62
 	* Fixxing postfit plots when morphing option is used
