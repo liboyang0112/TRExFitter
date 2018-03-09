@@ -79,14 +79,14 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     fLumiScale = 1.;
     fBlindingThreshold = -1; // if <0, no blinding
     fLegendNColumns = 0;
-
+    
     fYmin = 0;
     fYmax = 0;
     fRatioYmin = 0.;
     fRatioYmax = 2.;
-
+    
     h_blinding = 0x0;
-
+    
     h_tot_bkg_prefit = 0x0;
 }
 
@@ -410,11 +410,12 @@ void TthPlot::Draw(string options){
       h_tot_bkg_prefit->SetLineWidth(2);
       h_tot_bkg_prefit->Draw("HIST same");
     }
-
+    
     //
     // Total error bands style setting
     //
     g_tot->SetFillStyle(3354);
+    if(TtHFitter::OPTION["SystFillStyle"]!=0) g_tot->SetFillStyle(TtHFitter::OPTION["SystFillStyle"]);
     g_tot->SetFillColor(kBlue-7);
     g_tot->SetLineColor(kWhite);
     g_tot->SetLineWidth(0);
@@ -520,6 +521,9 @@ void TthPlot::Draw(string options){
     if(TtHFitter::OPTION["FourTopStyle"]!=0 || TtHFitter::OPTION["TtHbbStyle"]!=0){
         legX1 = 1-0.5*(596./pad0->GetWw())-0.08;
     }
+    if(TtHFitter::OPTION["LegendX1"]!=0){
+        legX1 = TtHFitter::OPTION["LegendX1"];
+    }
     float legX2 = 0.94;
     float legXmid = legX1+0.5*(legX2-legX1);
 
@@ -565,7 +569,7 @@ void TthPlot::Draw(string options){
           leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
           leg1->AddEntry((TObject*)0," ","");
         }
-
+        
         leg->Draw();
         leg1->Draw();
     }
@@ -587,7 +591,11 @@ void TthPlot::Draw(string options){
         leg->SetMargin(0.22);
 
         //Draws data in the legend only is real data
-        if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
+        if(hasData){
+//           leg->AddEntry(h_data,data_name.c_str(),"lep");
+            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,data_name.c_str(),"ep");
+            else                         leg->AddEntry(h_data,data_name.c_str(),"lep");
+        }
 
         //Signal and background legend
         for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
@@ -603,9 +611,9 @@ void TthPlot::Draw(string options){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm.)").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
-
+        
         if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-
+        
         leg->Draw();
     }
     else if(fLegendNColumns==3){ //TtHFitter::OPTION["LegendNColumns"]==3){
@@ -629,7 +637,11 @@ void TthPlot::Draw(string options){
         leg->SetMargin(0.20);
 
         //Draws data in the legend only is real data
-        if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
+        if(hasData){
+//             leg->AddEntry(h_data,data_name.c_str(),"lep");
+            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,data_name.c_str(),"ep");
+            else                         leg->AddEntry(h_data,data_name.c_str(),"lep");
+        }
 
         //Signal and background legend
         for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
@@ -646,7 +658,7 @@ void TthPlot::Draw(string options){
         }
 
         if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-
+        
         leg->Draw();
     }
     else if(fLegendNColumns==4){
@@ -666,8 +678,12 @@ void TthPlot::Draw(string options){
         leg->SetMargin(0.18);
 
         //Draws data in the legend only is real data
-        if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
-
+        if(hasData){
+//             leg->AddEntry(h_data,data_name.c_str(),"lep");
+            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,data_name.c_str(),"ep");
+            else                         leg->AddEntry(h_data,data_name.c_str(),"lep");
+        }
+        
         //Signal and background legend
         for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
         if(TtHFitter::OPTION["TtHbbStyle"]==0){
@@ -683,7 +699,7 @@ void TthPlot::Draw(string options){
         }
 
         if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-
+        
         leg->Draw();
     }
     else{
@@ -704,7 +720,11 @@ void TthPlot::Draw(string options){
         leg->SetMargin(0.22);
 
         //Draws data in the legend only is real data
-        if(hasData)leg->AddEntry(h_data,data_name.c_str(),"lep");
+        if(hasData){
+//             leg->AddEntry(h_data,data_name.c_str(),"lep");
+            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,data_name.c_str(),"ep");
+            else                         leg->AddEntry(h_data,data_name.c_str(),"lep");
+        }
 
         //Signal and background legend
         for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
@@ -721,7 +741,7 @@ void TthPlot::Draw(string options){
         }
 
         if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
-
+        
         leg->Draw();
 
         if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
@@ -792,6 +812,7 @@ void TthPlot::Draw(string options){
         if(h_data->GetBinContent(i_bin)<1 || h_ratio->GetBinContent(i_bin)<0.001){
             g_ratio->SetPointEYhigh( i_bin-1,0 );
             g_ratio->SetPointEYlow(  i_bin-1,0 );
+            g_ratio->SetPoint(       i_bin-1,g_ratio->GetX()[i_bin-1],-1 );
             h_ratio->SetBinError(    i_bin,  0 );
         }
         else{
@@ -869,14 +890,17 @@ void TthPlot::Draw(string options){
     gPad->RedrawAxis();
 
     // to hide the upper limit (label) of the ratio plot
-    TLine line(0.01,1,0.1,1);
-    line.SetLineColor(kWhite);
-//     line.SetLineColor(kRed);
-    line.SetLineWidth(25);
-    if(pad0->GetWw() >= 2*pad0->GetWh())   line.DrawLineNDC(0.06,1,0.100,1);
-    else if(pad0->GetWw() > pad0->GetWh()) line.DrawLineNDC(0.05,1,0.088,1);
-    else                                   line.DrawLineNDC(0.07,1,0.135,1);
+//     TLine line(0.01,1,0.1,1);
+//     line.SetLineColor(kWhite);
+// //     line.SetLineColor(kRed);
+//     line.SetLineWidth(25);
+//     if(pad0->GetWw() >= 2*pad0->GetWh())   line.DrawLineNDC(0.06,1,0.100,1);
+//     else if(pad0->GetWw() > pad0->GetWh()) line.DrawLineNDC(0.05,1,0.088,1);
+//     else                                   line.DrawLineNDC(0.07,1,0.135,1);
 
+    // more clever way, using the new functionality in ROOT:
+    h_dummy2->GetYaxis()->ChangeLabel(-1,-1,-1,-1,-1,-1," ");
+    
     //
     // Add arrows when the ratio is beyond the limits of the ratio plot
     //
@@ -984,7 +1008,7 @@ void TthPlot::Draw(string options){
             h_dummy->GetYaxis()->SetTitle(ytitle.c_str());
         }
     }
-
+    
     // turn off x-error bars
     if(TtHFitter::REMOVEXERRORS){
         for (UInt_t i=0; i< (UInt_t)g_data->GetN(); i++) {
@@ -1022,20 +1046,22 @@ void TthPlot::Draw(string options){
         if(fYmin>0)  h_dummy->SetMinimum(fYmin);
         else         h_dummy->SetMinimum(1.);
     }
-
+    
     if(h_blind!=0x0){
         h_blind->Scale(h_dummy->GetMaximum());
     }
 
     //
     // eventually make y-axis labels smaller...
-    if(pad0->GetWw()<596. && h_dummy->GetMaximum()>10000){
+//     if(pad0->GetWw()<596. && h_dummy->GetMaximum()>10000){
+    if(h_dummy->GetMaximum()>10000){
         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.75 );
     }
-    else if(pad0->GetWw()<596. && h_dummy->GetMaximum()>1000){
+//     else if(pad0->GetWw()<596. && h_dummy->GetMaximum()>1000){
+    else if(h_dummy->GetMaximum()>1000){
         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
     }
-
+    
 //     if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
 //         myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
 }
@@ -1116,7 +1142,8 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
     TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
     int hBinCounter = 1;
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
-        double content = (gr->GetY())[i];
+//         double content = (gr->GetY())[i];
+        double content = pow( (gr->GetErrorYhigh(i)) ,2); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
         gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
         //     if(content==0){
         if(content<0.1){ // FIXME

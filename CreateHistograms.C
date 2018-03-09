@@ -10,7 +10,8 @@ void CreateHistograms(){
   // create signal histos
   TFile *f_sig = new TFile("ExampleInputs/sig.root","RECREATE");
   TH1F *h_sig = new TH1F("h_sig","Signal",4,0,400);
-  float yield_sig[] = {0.1,0.5,1.5,3.1};
+//   float yield_sig[] = {0.1,0.5,1.5,3.1};
+  float yield_sig[] = {0.1*10,0.5*10,1.5*10,3.1*10};
   for(int i_bin=1;i_bin<=sizeof(yield_sig)/sizeof(float);i_bin++){
     h_sig->SetBinContent(i_bin,yield_sig[i_bin-1]);
   }
