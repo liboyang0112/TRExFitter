@@ -4199,7 +4199,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
                         }
                     }
                 // for both
-                    syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 syh->fFileNameShapeUp    = fileName;
@@ -7439,7 +7439,7 @@ void TtHFit::GetLimit(){
     // Finally computing the limit
     //
 
-     if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
+    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________
@@ -8866,7 +8866,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
 
     RooRealVar* var = NULL;
     TString vname = "";
-      std::string vname_s = "";
+    std::string vname_s = "";
     bool foundSyst = false;
     Double_t minVal = -3;
     Double_t maxVal =  3;
@@ -8878,33 +8878,33 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     }
 
     if (isPoI){
-      TIterator* it = mc->GetParametersOfInterest()->createIterator();
-      while( (var = (RooRealVar*) it->Next()) ){
-        vname=var->GetName();
-              vname_s=var->GetName();
-              if (vname.Contains(varName.c_str())) {
-                  WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
-                  foundSyst=true;
-                  break;
-              }
-      }
+        TIterator* it = mc->GetParametersOfInterest()->createIterator();
+        while( (var = (RooRealVar*) it->Next()) ){
+            vname=var->GetName();
+            vname_s=var->GetName();
+            if (vname.Contains(varName.c_str())) {
+                WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
+                foundSyst=true;
+                break;
+            }
+        }
     }
     else {
-      TIterator* it = mc->GetNuisanceParameters()->createIterator();
-      while( (var = (RooRealVar*) it->Next()) ){
+        TIterator* it = mc->GetNuisanceParameters()->createIterator();
+        while( (var = (RooRealVar*) it->Next()) ){
         vname=var->GetName();
-              vname_s=var->GetName();
-              if (vname.Contains(varName.c_str())) {
-                  WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
-                  foundSyst=true;
-                  break;
-              }
-      }
+            vname_s=var->GetName();
+            if (vname.Contains(varName.c_str())) {
+                WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
+                foundSyst=true;
+                break;
+            }
+        }
     }
 
     if(!foundSyst){
-          WriteWarningStatus("TtHFit::GetLikelihoodScan", "systematic " + varName + " not found (most probably due to Pruning), skip LHscan !");
-      return;
+        WriteWarningStatus("TtHFit::GetLikelihoodScan", "systematic " + varName + " not found (most probably due to Pruning), skip LHscan !");
+        return;
     }
     WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
 
@@ -8915,7 +8915,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
 
     TString tag("");
     RooAbsReal* pll = nll->createProfile(*var);
-//   RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(-1.5,3.5));
+//     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(-1.5,3.5));
     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(minVal, maxVal));
     pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TtHFitter::NCPU));
     RooCurve* curve = frameLH->getCurve();
@@ -8960,7 +8960,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     l1s->SetLineWidth(2);
     if(frameLH->GetMaximum()>2){
     l1s->Draw();
-        tex->DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
+    tex->DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
     }
     
     if(isPoI){
