@@ -570,18 +570,6 @@ int TtHFit::ReadConfigFile(string fileName,string options){
     std::vector< string > toExclude; toExclude.clear();
     string onlySignal; onlySignal = "";
 
-    //
-    // General options
-    //
-    cs = fConfig->GetConfigSet("Options");
-    if(cs!=0x0){
-        for(int i=0;i<cs->GetN();i++){
-            if(cs->GetConfigValue(i) != ""){
-                TtHFitter::OPTION[cs->GetConfigName(i)] = atof(cs->GetConfigValue(i).c_str());
-            }
-        }
-    }
-
     //##########################################################
     //
     // FIT options

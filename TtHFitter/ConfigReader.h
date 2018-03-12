@@ -41,23 +41,29 @@ class ConfigReader {
     private:
 
         /**
-          * Helped function to read Command line settings
+          * Helper function to read Command line settings
           * @param string config options
           * @return int status code
           */
         int ReadCommandLineOptions(std::string option);
         
         /**
-          * Helped function to read JOB settings
+          * Helper function to read JOB settings
           * @return int status code
           */
         int ReadJobOptions();
 
         /**
-          * Helped function to read plotting settings in JOB
+          * Helper function to read plotting settings in JOB
           * @return int status code
           */
         int SetJobPlot();
+
+        /**
+          * Helper function to read plotting settings in Options
+          * @return int status code
+          */
+        int ReadGeneralOptions();
 
         /**
           * Helper function to check the consistency of the input
@@ -72,9 +78,9 @@ class ConfigReader {
         TtHFit *fFitter;
     
         /**
-          * Instance of ConfigSet needed to read the config
+          * Pointer of ConfigSet needed to read the config
           */ 
-        ConfigSet fConfSet;
+        ConfigSet *fConfSet;
 
         /**
           * Instance of ConfigParser used to parse the text

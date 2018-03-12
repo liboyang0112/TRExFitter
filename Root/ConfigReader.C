@@ -33,6 +33,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     }
 
     sc+= ReadJobOptions();
+    
+    sc+= ReadGeneralOptions();
 
     return 0;
 }
@@ -129,17 +131,17 @@ int ConfigReader::ReadCommandLineOptions(std::string option){
 int ConfigReader::ReadJobOptions(){
     std::string param = ""; // helper string
 
-    fConfSet = *fParser.GetConfigSet("Job");
+    fConfSet = fParser.GetConfigSet("Job");
     
-    fFitter->fName = CheckName(fConfSet.GetValue());
+    fFitter->fName = CheckName(fConfSet->GetValue());
     fFitter->fInputName = fFitter->fName;
     
     //Set DebugLevel
-    param = fConfSet.Get("DebugLevel");
+    param = fConfSet->Get("DebugLevel");
     if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
     
     // Set outputDir
-    param = fConfSet.Get("OutputDir");
+    param = fConfSet->Get("OutputDir");
     if(param != ""){
       fFitter->fDir = param;
       if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
@@ -148,15 +150,15 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set Label
-    param = fConfSet.Get("Label");
+    param = fConfSet->Get("Label");
     if(param!="") fFitter->fLabel = param;
     else          fFitter->fLabel = fFitter->fName;
 
     // Set POI
-    fFitter->SetPOI(CheckName(fConfSet.Get("POI")));
+    fFitter->SetPOI(CheckName(fConfSet->Get("POI")));
 
     //Set reading option
-    param = fConfSet.Get("ReadFrom");
+    param = fConfSet->Get("ReadFrom");
     std::transform(param.begin(), param.end(), param.begin(), ::toupper);
     if(      param=="HIST" || param=="HISTOGRAMS")  fFitter->fInputType = 0;
     else if( param=="NTUP" || param=="NTUPLES" )    fFitter->fInputType = 1;
@@ -170,7 +172,7 @@ int ConfigReader::ReadJobOptions(){
     else if(fFitter->fInputType==1) TtHFitter::MERGEUNDEROVERFLOW = true;
    
     // Set MergeUnderOverFlow from config 
-    param = fConfSet.Get("MergeUnderOverFlow");
+    param = fConfSet->Get("MergeUnderOverFlow");
     if(param!=""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(      param == "TRUE" )  TtHFitter::MERGEUNDEROVERFLOW = true;
@@ -184,53 +186,53 @@ int ConfigReader::ReadJobOptions(){
     //Set paths
     // HIST option only
     if(fFitter->fInputType==0){
-        fFitter->AddHistoPath( fConfSet.Get("HistoPath") );
-        if (fConfSet.Get("NtuplePath") != ""){
+        fFitter->AddHistoPath( fConfSet->Get("HistoPath") );
+        if (fConfSet->Get("NtuplePath") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePath:' option, ignoring.");
         }
-        if (fConfSet.Get("NtuplePaths") != ""){
+        if (fConfSet->Get("NtuplePaths") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePaths:' option, ignoring.");
         }
-        if (fConfSet.Get("MCweight") != ""){
+        if (fConfSet->Get("MCweight") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'MCweight:' option, ignoring.");
         }
-        if (fConfSet.Get("Selection") != ""){
+        if (fConfSet->Get("Selection") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'Selection:' option, ignoring.");
         }
-        if (fConfSet.Get("NtupleName") != ""){
+        if (fConfSet->Get("NtupleName") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtupleName:' option, ignoring.");
         }
     }
     // Setting for NTUP only
     if(fFitter->fInputType==1){
-        if (fConfSet.Get("HistoPath") != ""){
+        if (fConfSet->Get("HistoPath") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoPath:' option, ignoring.");
         }
-        fFitter->SetNtupleFile( fConfSet.Get("NtupleFile") );
-        if(fConfSet.Get("NtuplePath")!="") {
-            fFitter->AddNtuplePath( fConfSet.Get("NtuplePath") ); 
+        fFitter->SetNtupleFile( fConfSet->Get("NtupleFile") );
+        if(fConfSet->Get("NtuplePath")!="") {
+            fFitter->AddNtuplePath( fConfSet->Get("NtuplePath") ); 
         }
-        param = fConfSet.Get("NtuplePaths");
+        param = fConfSet->Get("NtuplePaths");
         if( param != "" ){
             std::vector<std::string> paths = Vectorize( param,',' );
             for(const std::string& ipath : paths){
                 fFitter->AddNtuplePath( ipath );
             }
         }
-        param = fConfSet.Get("MCweight");
+        param = fConfSet->Get("MCweight");
         if(param!="") fFitter->SetMCweight(param);
 
-        param = fConfSet.Get("Selection");
+        param = fConfSet->Get("Selection");
         if(param!="") fFitter->SetSelection(param);
-        fFitter->SetNtupleName( fConfSet.Get("NtupleName") );
+        fFitter->SetNtupleName( fConfSet->Get("NtupleName") );
     }
     
     // Set lumi
-    param = fConfSet.Get("Lumi");
+    param = fConfSet->Get("Lumi");
     if( param != "" ) fFitter->SetLumi( atof(param.c_str()) );
 
     // Set LumiScale
-    param = fConfSet.Get("LumiScale");
+    param = fConfSet->Get("LumiScale");
     if( param != "" ){
         WriteWarningStatus("ConfigReader::ReadJobOptions", "\"LumiScale\" is only done for quick tests since it is inefficient.");
         WriteWarningStatus("ConfigReader::ReadJobOptions", "To normalize all the samples to the luminosity, use \"Lumi\" instead.");
@@ -238,7 +240,7 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set TtresSmoothing
-    param = fConfSet.Get("TtresSmoothing");
+    param = fConfSet->Get("TtresSmoothing");
     if( param != ""){ 
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ) fFitter->fTtresSmoothing = true;
@@ -249,27 +251,27 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set SystPruningShape
-    param = fConfSet.Get("SystPruningShape");
+    param = fConfSet->Get("SystPruningShape");
     if( param != "") fFitter->fThresholdSystPruning_Shape = atof(param.c_str());
 
     // Set SystPruningNorm
-    param = fConfSet.Get("SystPruningNorm");
+    param = fConfSet->Get("SystPruningNorm");
     if( param != "")  fFitter->fThresholdSystPruning_Normalisation = atof(param.c_str());
 
     // Set SystLarge
-    param = fConfSet.Get("SystLarge");
+    param = fConfSet->Get("SystLarge");
     if( param != "")  fFitter->fThresholdSystLarge = atof(param.c_str());
 
     // Set IntCodeOverall
-    param = fConfSet.Get("IntCodeOverall");
+    param = fConfSet->Get("IntCodeOverall");
     if( param != "")  fFitter->fIntCode_overall = atoi(param.c_str());
 
     // Set IntCodeShape
-    param = fConfSet.Get("IntCodeShape");
+    param = fConfSet->Get("IntCodeShape");
     if( param != "")  fFitter->fIntCode_shape = atoi(param.c_str());
 
     // Set MCstatThreshold
-    param = fConfSet.Get("MCstatThreshold");
+    param = fConfSet->Get("MCstatThreshold");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(param=="NONE")  fFitter->SetStatErrorConfig( false, 0. );
@@ -283,11 +285,11 @@ int ConfigReader::ReadJobOptions(){
     }
 
     //Set MCstatConstraint
-    param = fConfSet.Get("MCstatConstraint");
+    param = fConfSet->Get("MCstatConstraint");
     if( param != "")  fFitter->fStatErrCons = param;
 
     // Set UseGammaPulls
-    param = fConfSet.Get("UseGammaPulls");
+    param = fConfSet->Get("UseGammaPulls");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if (param == "TRUE") fFitter->fUseGammaPulls = true;
@@ -301,20 +303,20 @@ int ConfigReader::ReadJobOptions(){
     if (SetJobPlot() != 0) return 1;
 
     // Set TableOptions 
-    param = fConfSet.Get("TableOptions");
+    param = fConfSet->Get("TableOptions");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         fFitter->fTableOptions = param;
     }
 
     // Set CorrelationThreshold
-    param = fConfSet.Get("CorrelationThreshold");
+    param = fConfSet->Get("CorrelationThreshold");
     if( param != ""){
         TtHFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
     }
 
     // Set HistoChecks
-    param = fConfSet.Get("HistoChecks");
+    param = fConfSet->Get("HistoChecks");
     if(param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "NOCRASH" ){
@@ -325,15 +327,15 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set LumiLabel
-    param = fConfSet.Get("LumiLabel");
+    param = fConfSet->Get("LumiLabel");
     if( param != "") fFitter->fLumiLabel = param;
 
     // Set CmeLabel
-    param = fConfSet.Get("CmeLabel");
+    param = fConfSet->Get("CmeLabel");
     if( param != "") fFitter->fCmeLabel = param;
 
     // Set SplitHistoFiles
-    param = fConfSet.Get("SplitHistoFiles");
+    param = fConfSet->Get("SplitHistoFiles");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
@@ -347,25 +349,25 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set BlindingThreshold"
-    param = fConfSet.Get("BlindingThreshold");
+    param = fConfSet->Get("BlindingThreshold");
     if( param != ""){
         fFitter->fBlindingThreshold = atof(param.c_str());
     }
 
     // Set RankingMaxNP
-    param = fConfSet.Get("RankingMaxNP");
+    param = fConfSet->Get("RankingMaxNP");
     if( param != ""){
         fFitter->fRankingMaxNP = atoi(param.c_str());
     }
 
     // Set ReduceNPforRanking
-    param = fConfSet.Get("ReduceNPforRanking");
+    param = fConfSet->Get("ReduceNPforRanking");
     if( param != ""){
         fFitter->fReduceNPforRanking = atof(param.c_str());
     }
 
     // Set ImageFormat
-    param = fConfSet.Get("ImageFormat");
+    param = fConfSet->Get("ImageFormat");
     if( param != ""){
         std::vector<std::string> tmp = Vectorize(param,',');
         if (tmp.size() > 0) fFitter->fImageFormat = tmp.at(0);
@@ -376,7 +378,7 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set StatOnly
-    param = fConfSet.Get("StatOnly");
+    param = fConfSet->Get("StatOnly");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
@@ -390,7 +392,7 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set FixNPforStatOnly
-    param = fConfSet.Get("FixNPforStatOnly");
+    param = fConfSet->Get("FixNPforStatOnly");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
@@ -404,25 +406,25 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set InputFolder
-    param = fConfSet.Get("InputFolder");
+    param = fConfSet->Get("InputFolder");
     if( param != "" ){
         fFitter->fInputFolder = param;
     }
 
     // Set InputName
-    param = fConfSet.Get("InputName");
+    param = fConfSet->Get("InputName");
     if( param != "" ){
         fFitter->fInputName = param;
     }
 
     // Set WorkspaceFileName
-    param = fConfSet.Get("WorkspaceFileName");
+    param = fConfSet->Get("WorkspaceFileName");
     if( param != "" ){
         fFitter->fWorkspaceFileName = param;
     }
 
     // Set KeepPruning
-    param = fConfSet.Get("KeepPruning");
+    param = fConfSet->Get("KeepPruning");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ) fFitter->fKeepPruning = true;
@@ -435,13 +437,13 @@ int ConfigReader::ReadJobOptions(){
 
 
     // Set AtlasLabel
-    param = fConfSet.Get("AtlasLabel");
+    param = fConfSet->Get("AtlasLabel");
     if( param != "" ){
         fFitter->fAtlasLabel = param;
     }
         
     // Set CleanTables
-    param = fConfSet.Get("CleanTables");
+    param = fConfSet->Get("CleanTables");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ) fFitter->fCleanTables = true;
@@ -453,7 +455,7 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set SystCategoryTables
-    param = fConfSet.Get("SystCategoryTables");
+    param = fConfSet->Get("SystCategoryTables");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ) fFitter->fSystCategoryTables = true;
@@ -465,32 +467,32 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set Suffix
-    param = fConfSet.Get("Suffix");
+    param = fConfSet->Get("Suffix");
     if( param != "" ){
         fFitter->fSuffix = param;
     }
     
     // Set SaveSuffix
-    param = fConfSet.Get("SaveSuffix");
+    param = fConfSet->Get("SaveSuffix");
     if( param != "" ){
         fFitter->fSaveSuffix = param;
     }
 
     // Set HideNP
-    param = fConfSet.Get("HideNP");
+    param = fConfSet->Get("HideNP");
     if( param != "" ){
         fFitter->fVarNameHide = Vectorize(param,',');
     }
         
     // Set RegionGroups
-    param = fConfSet.Get("RegionGroups");
+    param = fConfSet->Get("RegionGroups");
     if( param != "" ) {
         std::vector<std::string> groups = Vectorize(param,',');
         for(const std::string& igroup : groups) fFitter->fRegionGroups.push_back(igroup);
     }
 
     // Set KeepPrefitBlindedBins
-    param = fConfSet.Get("KeepPrefitBlindedBins");
+    param = fConfSet->Get("KeepPrefitBlindedBins");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ) fFitter->fKeepPrefitBlindedBins = true;
@@ -502,13 +504,13 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set CustomAsimov
-    param = fConfSet.Get("CustomAsimov");
+    param = fConfSet->Get("CustomAsimov");
     if( param != "" ){
         fFitter->fCustomAsimov = param;
     }
 
     // Set RandomPOISeed
-    param = fConfSet.Get("RandomPOISeed");
+    param = fConfSet->Get("RandomPOISeed");
     if( param != "" ){
         int seed = atoi(param.c_str());
         if(seed>=0){
@@ -521,7 +523,7 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set GetChi2
-    param = fConfSet.Get("GetChi2");
+    param = fConfSet->Get("GetChi2");
     if( param != "" ){ // can be TRUE, SYST+STAT, STAT-ONLY... (if it contains STAT and no SYST => stat-only, ptherwise stat+syst)
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
@@ -539,7 +541,7 @@ int ConfigReader::ReadJobOptions(){
     }
     
     // Set DoTables
-    param = fConfSet.Get("DoTables");
+    param = fConfSet->Get("DoTables");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(      param == "TRUE" )  fFitter->fDoTables = true;
@@ -551,19 +553,19 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set CustomFunctions
-    param = fConfSet.Get("CustomFunctions");
+    param = fConfSet->Get("CustomFunctions");
     if( param != "" ) {
         fFitter->fCustomFunctions = Vectorize(param,',');
     }
 
     // Set Bootstrap
-    param = fConfSet.Get("Bootstrap");
+    param = fConfSet->Get("Bootstrap");
     if( param != "" ){
         fFitter->fBootstrap = param;
     }
 
     // Set RunROOTMacros
-    param = fConfSet.Get("RunROOTMacros");
+    param = fConfSet->Get("RunROOTMacros");
     if ( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if (param == "TRUE"){
@@ -578,7 +580,7 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set DecorrSuff
-    param = fConfSet.Get("DecorrSuff");
+    param = fConfSet->Get("DecorrSuff");
     if( param != ""){
         fFitter->fDecorrSuff = param;
     }
@@ -590,7 +592,7 @@ int ConfigReader::ReadJobOptions(){
 int ConfigReader::SetJobPlot(){
 
     // Plot option
-    std::string param = fConfSet.Get("PlotOptions");
+    std::string param = fConfSet->Get("PlotOptions");
     std::vector<std::string> vec;
     if( param != ""){
         vec = Vectorize(param,',');
@@ -607,7 +609,7 @@ int ConfigReader::SetJobPlot(){
     }
 
     // Set PlotOptionsSummary
-    param = fConfSet.Get("PlotOptionsSummary");
+    param = fConfSet->Get("PlotOptionsSummary");
     if( param != ""){
         vec = Vectorize(param,',');
         if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TtHFitter::SHOWSTACKSIG_SUMMARY   = false;
@@ -622,7 +624,7 @@ int ConfigReader::SetJobPlot(){
     }
     
     // Set SystControlPlots
-    param = fConfSet.Get("SystControlPlots");
+    param = fConfSet->Get("SystControlPlots");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
@@ -636,7 +638,7 @@ int ConfigReader::SetJobPlot(){
     }
 
     // Set SystDataPlots
-    param = fConfSet.Get("SystDataPlots");
+    param = fConfSet->Get("SystDataPlots");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
@@ -653,7 +655,7 @@ int ConfigReader::SetJobPlot(){
     }
 
     // Set SystErrorBars
-    param = fConfSet.Get("SystErrorBars");
+    param = fConfSet->Get("SystErrorBars");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(param == "TRUE" ){
@@ -667,7 +669,7 @@ int ConfigReader::SetJobPlot(){
     }
 
     // Set GuessMCStatEmptyBins
-    param = fConfSet.Get("GuessMCStatEmptyBins");
+    param = fConfSet->Get("GuessMCStatEmptyBins");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
@@ -681,7 +683,7 @@ int ConfigReader::SetJobPlot(){
     }
 
     // Set SuppressNegativeBinWarnings
-    param = fConfSet.Get("SuppressNegativeBinWarnings"); 
+    param = fConfSet->Get("SuppressNegativeBinWarnings"); 
      if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if ( param == "TRUE" ){
@@ -695,67 +697,67 @@ int ConfigReader::SetJobPlot(){
     }
 
     // Set SignalRegionsPlot    
-    param = fConfSet.Get("SignalRegionsPlot");
+    param = fConfSet->Get("SignalRegionsPlot");
     if(param != ""){
         fFitter->fRegionsToPlot = Vectorize(param,',');
     }
 
     // Set SummaryPlotRegions
-    param = fConfSet.Get("SummaryPlotRegions");
+    param = fConfSet->Get("SummaryPlotRegions");
     if(param != ""){
         fFitter->fSummaryPlotRegions = Vectorize(param,',');
     }
 
     // Set SummaryPlotLabels
-    param = fConfSet.Get("SummaryPlotLabels");
+    param = fConfSet->Get("SummaryPlotLabels");
     if(param != ""){
         fFitter->fSummaryPlotLabels = Vectorize(param,',');
     }
 
     // Set SummaryPlotValidationRegions
-    param = fConfSet.Get("SummaryPlotValidationRegions");  
+    param = fConfSet->Get("SummaryPlotValidationRegions");  
     if(param != ""){
         fFitter->fSummaryPlotValidationRegions = Vectorize(param,',');
     }
 
     // Set SummaryPlotValidationLabels
-    param = fConfSet.Get("SummaryPlotValidationLabels");
+    param = fConfSet->Get("SummaryPlotValidationLabels");
     if(param != ""){
         fFitter->fSummaryPlotValidationLabels = Vectorize(param,',');
     }
 
     // Set SummaryPlotYmin
-    param = fConfSet.Get("SummaryPlotYmin");
+    param = fConfSet->Get("SummaryPlotYmin");
     if(param != "") fFitter->fYmin = atof(param.c_str());
 
     // Set SummaryPlotYmax
-    param = fConfSet.Get("SummaryPlotYmax");
+    param = fConfSet->Get("SummaryPlotYmax");
     if(param != "") fFitter->fYmax = atof(param.c_str());
 
     // Set RatioYmin
-    param = fConfSet.Get("RatioYmin");
+    param = fConfSet->Get("RatioYmin");
     if(param != "") {
         fFitter->fRatioYmin = atof(param.c_str());
         fFitter->fRatioYminPostFit = fFitter->fRatioYmin;
     }
     
     // Set RatioYmax
-    param = fConfSet.Get("RatioYmax");
+    param = fConfSet->Get("RatioYmax");
     if(param != ""){
         fFitter->fRatioYmax = atof(param.c_str());
         fFitter->fRatioYmaxPostFit = fFitter->fRatioYmax; 
     }  
 
     // Set RatioYminPostFit
-    param = fConfSet.Get("RatioYminPostFit");
+    param = fConfSet->Get("RatioYminPostFit");
     if(param != "") fFitter->fRatioYminPostFit = atof(param.c_str());
 
     // Set RatioYmaxPostFit
-    param = fConfSet.Get("RatioYmaxPostFit");
+    param = fConfSet->Get("RatioYmaxPostFit");
     if(param != "") fFitter->fRatioYmaxPostFit = atof(param.c_str());    
 
     // Set DoSummaryPlot
-    param = fConfSet.Get("DoSummaryPlot");
+    param = fConfSet->Get("DoSummaryPlot");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(      param == "TRUE" )  fFitter->fDoSummaryPlot = true;
@@ -767,7 +769,7 @@ int ConfigReader::SetJobPlot(){
     }
 
     // Set DoMergedPlot
-    param = fConfSet.Get("DoMergedPlot");
+    param = fConfSet->Get("DoMergedPlot");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(      param == "TRUE" )  fFitter->fDoMergedPlot = true;
@@ -779,7 +781,7 @@ int ConfigReader::SetJobPlot(){
     }
     
     // Set DoSignalRegionsPlot
-    param = fConfSet.Get("DoSignalRegionsPlot");
+    param = fConfSet->Get("DoSignalRegionsPlot");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(      param == "TRUE" )  fFitter->fDoSignalRegionsPlot = true;
@@ -789,7 +791,7 @@ int ConfigReader::SetJobPlot(){
             fFitter->fDoSignalRegionsPlot = false;
         }
     }
-    param = fConfSet.Get("DoPieChartPlot");
+    param = fConfSet->Get("DoPieChartPlot");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(      param == "TRUE" )  fFitter->fDoPieChartPlot = true;
@@ -801,9 +803,22 @@ int ConfigReader::SetJobPlot(){
     }
 
     // Set RankingPlot
-    param = fConfSet.Get("RankingPlot");
+    param = fConfSet->Get("RankingPlot");
     if( param != ""){
         fFitter->fRankingPlot = param;
+    }
+
+    return 0;
+}
+
+int ConfigReader::ReadGeneralOptions(){
+    fConfSet = fParser.GetConfigSet("Options");        
+    if (fConfSet != nullptr){
+        for(int i=0; i < fConfSet->GetN(); i++){
+            if(fConfSet->GetConfigValue(i) != ""){
+                TtHFitter::OPTION[fConfSet->GetConfigName(i)] = atof(fConfSet->GetConfigValue(i).c_str());
+            }
+        }
     }
 
     return 0;
