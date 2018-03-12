@@ -261,19 +261,6 @@ void TtHFit::SetLimitType(LimitType type){
 
 //__________________________________________________________________________________
 //
-std::string TtHFit::CheckName( const std::string &name ){
-    if( isdigit( name.at(0) ) ){
-        WriteErrorStatus("TtHFit::CheckName", "ERROR in browsing name: " + name + ". A number has been detected at the first position of the name.");
-        WriteErrorStatus("TtHFit::CheckName", "           This can lead to unexpected behaviours in HistFactory. Please change the name. ");
-        WriteErrorStatus("TtHFit::CheckName", "           The code is about to crash.");
-        abort();
-    } else {
-        return name;
-    }
-}
-
-//__________________________________________________________________________________
-//
 void TtHFit::SetFitRegion(FitRegion region){
     fFitRegion = region;
 }
@@ -583,327 +570,6 @@ int TtHFit::ReadConfigFile(string fileName,string options){
     std::vector< string > toExclude; toExclude.clear();
     string onlySignal; onlySignal = "";
 
-    //##########################################################
-    //
-    // JOB options
-    //
-    //##########################################################
-    cs = fConfig->GetConfigSet("Job");
-
-    fName = CheckName(cs->GetValue());
-    fInputName = fName;
-
-    param = cs->Get("OutputDir");
-    if(param != ""){
-      fDir = param;
-      if(fDir.back() != '/') fDir += '/';
-      fName = fDir + fName;
-      gSystem->mkdir(fName.c_str(), true);
-    }
-    param = cs->Get("Label");  if(param!="") fLabel = param;
-                               else          fLabel = fName;
-    SetPOI(CheckName(cs->Get("POI")));
-    param = cs->Get("ReadFrom");
-    std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-    if(      param=="HIST" || param=="HISTOGRAMS")  fInputType = 0;
-    else if( param=="NTUP" || param=="NTUPLES" )    fInputType = 1;
-    else{
-        WriteErrorStatus("TtHFit::ReadConfigFile", "Invalid \"ReadFrom\" argument. Options: \"HIST\", \"NTUP\"");
-        return 1;
-    }
-    // set default MERGEUNDEROVERFLOW
-    if(fInputType==0)      TtHFitter::MERGEUNDEROVERFLOW = false;
-    else if(fInputType==1) TtHFitter::MERGEUNDEROVERFLOW = true;
-    param = cs->Get("MergeUnderOverFlow");    if(param!=""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  TtHFitter::MERGEUNDEROVERFLOW = true;
-        else if( param == "FALSE" ) TtHFitter::MERGEUNDEROVERFLOW = false;
-    }
-    //
-    if(fInputType==0){
-        AddHistoPath( cs->Get("HistoPath") );
-    }
-    if(fInputType==1){
-        SetNtupleFile( cs->Get("NtupleFile") );
-        if(cs->Get("NtuplePath")!="") { AddNtuplePath( cs->Get("NtuplePath") ); }
-        param = cs->Get("NtuplePaths");
-        if( param != "" ){
-            std::vector<string> paths = Vectorize( param,',' );
-            for(int i=0;i<(int)paths.size();i++){
-                AddNtuplePath( paths[i] );
-            }
-        }
-        param = cs->Get("MCweight");  if(param!="") SetMCweight(param);
-        param = cs->Get("Selection"); if(param!="") SetSelection(param);
-        SetNtupleName( cs->Get("NtupleName") );
-    }
-    param = cs->Get("Lumi");              if( param != "" ) SetLumi( atof(param.c_str()) );
-    param = cs->Get("LumiScale");         if( param != "" ){
-        WriteWarningStatus("TtHFit::ReadConfigFile", "\"LumiScale\" is only done for quick tests since it is inefficient.");
-        WriteWarningStatus("TtHFit::ReadConfigFile", "To normalize all the samples to the luminosity, use \"Lumi\" instead.");
-        fLumiScale = atof(param.c_str());
-    }
-    param = cs->Get("TtresSmoothing");    if( param != "")  if( param == "true" || param == "True" ||  param == "TRUE" ) fTtresSmoothing         = true;
-    param = cs->Get("SystPruningShape");  if( param != "")  fThresholdSystPruning_Shape         = atof(param.c_str());
-    param = cs->Get("SystPruningNorm");   if( param != "")  fThresholdSystPruning_Normalisation = atof(param.c_str());
-    param = cs->Get("SystLarge");         if( param != "")  fThresholdSystLarge = atof(param.c_str());
-    param = cs->Get("IntCodeOverall");    if( param != "")  fIntCode_overall  = atoi(param.c_str());
-    param = cs->Get("IntCodeShape");      if( param != "")  fIntCode_shape    = atoi(param.c_str());
-    param = cs->Get("MCstatThreshold");   if( param != ""){
-        if(param=="NONE" || param=="None" || param=="none")  SetStatErrorConfig( false, 0. );
-        else                                                 SetStatErrorConfig( true,  atof(param.c_str()) );
-    }
-    else{
-        SetStatErrorConfig( true, 0. );
-    }
-    param = cs->Get("MCstatConstraint");  if( param != "")  fStatErrCons   = param;
-    param = cs->Get("UseGammaPulls");     if( param != "")  fUseGammaPulls = param!="FALSE";
-    param = cs->Get("DebugLevel");        if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
-    param = cs->Get("PlotOptions");       if( param != ""){
-        vec = Vectorize(param,',');
-        if( std::find(vec.begin(), vec.end(), "YIELDS") !=vec.end() )  TtHFitter::SHOWYIELDS     = true;
-        if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TtHFitter::SHOWSTACKSIG   = false;
-        if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG    = true;
-        if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG = true;
-        if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TtHFitter::LEGENDLEFT     = true;
-        if( std::find(vec.begin(), vec.end(), "CHI2")   !=vec.end() )  TtHFitter::SHOWCHI2       = true;
-        if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
-        if( std::find(vec.begin(), vec.end(), "POISSONIZE")        !=vec.end() )  TtHFitter::POISSONIZE     = true;
-        if( std::find(vec.begin(), vec.end(), "NOXERR") !=vec.end() )  TtHFitter::REMOVEXERRORS  = true;
-        if( std::find(vec.begin(), vec.end(), "NOENDERR") !=vec.end() )TtHFitter::NOENDERR       = true;
-        // ...
-    }
-    param = cs->Get("PlotOptionsSummary");       if( param != ""){
-        vec = Vectorize(param,',');
-        if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TtHFitter::SHOWSTACKSIG_SUMMARY   = false;
-        if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG_SUMMARY    = true;
-        if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG_SUMMARY = true;
-    }
-    else{
-        TtHFitter::SHOWSTACKSIG_SUMMARY   = TtHFitter::SHOWSTACKSIG    ;
-        TtHFitter::SHOWNORMSIG_SUMMARY    = TtHFitter::SHOWNORMSIG     ;
-        TtHFitter::SHOWOVERLAYSIG_SUMMARY = TtHFitter::SHOWOVERLAYSIG  ;
-    }
-    param = cs->Get("TableOptions");       if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        fTableOptions = param;
-    }
-    //
-    param = cs->Get("SystControlPlots");  if( param != ""){
-        if( param == "true" || param == "True" ||  param == "TRUE" ){
-            TtHFitter::SYSTCONTROLPLOTS = true;
-        } else {
-            TtHFitter::SYSTCONTROLPLOTS = false;
-        }
-    }
-    param = cs->Get("SystDataPlots");  if( param != "" ){
-        if( param == "true" || param == "True" ||  param == "TRUE" ){
-            TtHFitter::SYSTDATAPLOT = true;
-            fSystDataPlot_upFrame=false;
-        } else if( param == "fillUpFrame" ){
-            TtHFitter::SYSTDATAPLOT = true;
-            fSystDataPlot_upFrame=true;
-        } else {
-            TtHFitter::SYSTDATAPLOT = false;
-            fSystDataPlot_upFrame=false;
-        }
-    }
-    param = cs->Get("SystErrorBars");  if( param != ""){
-        if( param == "true" || param == "True" ||  param == "TRUE" ){
-            TtHFitter::SYSTERRORBARS = true;
-        }
-    }
-    param = cs->Get("GuessMCStatEmptyBins");  if( param != ""){
-        if( param == "true" || param == "True" ||  param == "TRUE" ){
-            TtHFitter::GUESSMCSTATERROR = true;
-        } else {
-            TtHFitter::GUESSMCSTATERROR = false;
-        }
-    }
-    param = cs->Get("SuppressNegativeBinWarnings");  if( param != ""){
-        if( param == "true" || param == "True" ||  param == "TRUE" ){
-            fSuppressNegativeBinWarnings = true;
-        } else if (param == "false" || param == "False" ||  param == "FALSE"){
-            fSuppressNegativeBinWarnings = false;
-        } else {
-            WriteWarningStatus("TtHFit::ReadConfigFile", "You specified SuppressNegativeBinWarnings option but didnt provide valid parameter. Using default (false)");
-        }
-    }
-    param = cs->Get("CorrelationThreshold"); if( param != ""){
-        TtHFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
-    }
-    param = cs->Get("SignalRegionsPlot");  if(param != ""){
-        fRegionsToPlot = Vectorize(param,',');
-    }
-    param = cs->Get("SummaryPlotRegions");  if(param != ""){
-        fSummaryPlotRegions = Vectorize(param,',');
-    }
-    param = cs->Get("SummaryPlotLabels");  if(param != ""){
-        fSummaryPlotLabels = Vectorize(param,',');
-    }
-    param = cs->Get("SummaryPlotValidationRegions");  if(param != ""){
-        fSummaryPlotValidationRegions = Vectorize(param,',');
-    }
-    param = cs->Get("SummaryPlotValidationLabels");  if(param != ""){
-        fSummaryPlotValidationLabels = Vectorize(param,',');
-    }
-    param = cs->Get("SummaryPlotYmin");  if(param != "") fYmin = atof(param.c_str());
-    param = cs->Get("SummaryPlotYmax");  if(param != "") fYmax = atof(param.c_str());
-    param = cs->Get("RatioYmin");  if(param != "") { fRatioYmin = atof(param.c_str()); fRatioYminPostFit = fRatioYmin; }
-    param = cs->Get("RatioYmax");  if(param != "") { fRatioYmax = atof(param.c_str()); fRatioYmaxPostFit = fRatioYmax; }  
-    param = cs->Get("RatioYminPostFit");  if(param != "") fRatioYminPostFit = atof(param.c_str());
-    param = cs->Get("RatioYmaxPostFit");  if(param != "") fRatioYmaxPostFit = atof(param.c_str());    
-    param = cs->Get("HistoChecks");  if(param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "NOCRASH" ){
-            TtHFitter::HISTOCHECKCRASH = false;
-        }
-    }
-    param = cs->Get("LumiLabel"); if( param != "") fLumiLabel = param;
-    param = cs->Get("CmeLabel"); if( param != "") fCmeLabel = param;
-    param = cs->Get("SplitHistoFiles");  if( param != ""){
-        if( param == "true" || param == "True" ||  param == "TRUE" ){
-            TtHFitter::SPLITHISTOFILES = true;
-        } else {
-            TtHFitter::SPLITHISTOFILES = false;
-        }
-    }
-    param = cs->Get("BlindingThreshold");  if( param != ""){
-        fBlindingThreshold = atof(param.c_str());
-    }
-    param = cs->Get("RankingMaxNP");  if( param != ""){
-        fRankingMaxNP = atoi(param.c_str());
-    }
-    param = cs->Get("RankingPlot");  if( param != ""){
-        fRankingPlot = param;
-    }
-    param = cs->Get("ReduceNPforRanking");  if( param != ""){
-        fReduceNPforRanking = atof(param.c_str());
-    }
-    param = cs->Get("ImageFormat");  if( param != ""){
-        fImageFormat = Vectorize(param,',')[0];
-        TtHFitter::IMAGEFORMAT = Vectorize(param,',');
-    }
-    param = cs->Get("StatOnly");    if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fStatOnly = true;
-        }
-    }
-    param = cs->Get("FixNPforStatOnly");    if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFixNPforStatOnlyFit = true;
-        }
-    }
-    param = cs->Get("InputFolder");    if( param != "" ){
-        fInputFolder = param;
-    }
-    param = cs->Get("InputName");    if( param != "" ){
-        fInputName = param;
-    }
-    param = cs->Get("WorkspaceFileName");    if( param != "" ){
-        fWorkspaceFileName = param;
-    }
-    param = cs->Get("KeepPruning");    if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fKeepPruning = true;
-    }
-    param = cs->Get("AtlasLabel"); if( param != "" ){
-        fAtlasLabel = param;
-    }
-    param = cs->Get("CleanTables");    if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fCleanTables = true;
-    }
-    param = cs->Get("SystCategoryTables");    if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fSystCategoryTables = true;
-    }
-    param = cs->Get("Suffix"); if( param != "" ){
-        fSuffix = param;
-    }
-    param = cs->Get("SaveSuffix"); if( param != "" ){
-        fSaveSuffix = param;
-    }
-    param = cs->Get("HideNP"); if( param != "" ){
-        fVarNameHide = Vectorize(param,',');
-    }
-    param = cs->Get("RegionGroups"); if( param != "" ) {
-        vector<string> groups =   Vectorize(param,',');
-        for(unsigned int i_gr=0;i_gr<groups.size();i_gr++)
-        fRegionGroups.push_back(groups[i_gr]);
-    }
-    param = cs->Get("KeepPrefitBlindedBins");    if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fKeepPrefitBlindedBins = true;
-    }
-    param = cs->Get("CustomAsimov");    if( param != "" ){
-//         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-//         if( param == "TRUE" ) fCustomAsimov = true;
-        fCustomAsimov = param;
-    }
-    param = cs->Get("RandomPOISeed");   if( param != "" ){
-        int seed = atoi(param.c_str());
-        if(seed>=0) fRandomPOISeed = seed;
-    }
-    param = cs->Get("GetChi2");   if( param != "" ){ // can be TRUE, SYST+STAT, STAT-ONLY... (if it contains STAT and no SYST => stat-only, ptherwise stat+syst)
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fGetChi2 = 2;
-        }
-        if( param.find("SYST")!=std::string::npos ){
-            fGetChi2 = 2;
-        }
-        else if( param.find("STAT")!=std::string::npos ){
-            fGetChi2 = 1;
-        }
-    }
-    param = cs->Get("DoSummaryPlot");   if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fDoSummaryPlot = true;
-        else if( param == "FALSE" ) fDoSummaryPlot = false;
-    }
-    param = cs->Get("DoMergedPlot");   if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fDoMergedPlot = true;
-        else if( param == "FALSE" ) fDoMergedPlot = false;
-    }
-    param = cs->Get("DoTables");   if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fDoTables = true;
-        else if( param == "FALSE" ) fDoTables = false;
-    }
-    param = cs->Get("DoSignalRegionsPlot");   if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fDoSignalRegionsPlot = true;
-        else if( param == "FALSE" ) fDoSignalRegionsPlot = false;
-    }
-    param = cs->Get("DoPieChartPlot");   if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fDoPieChartPlot = true;
-        else if( param == "FALSE" ) fDoPieChartPlot = false;
-    }
-    param = cs->Get("CustomFunctions"); if( param != "" ) {
-        fCustomFunctions = Vectorize(param,',');
-    }
-    param = cs->Get("Bootstrap"); if( param != "" ){
-        fBootstrap = param;
-    }
-    param = cs->Get("RunROOTMacros"); if ( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE"){
-           fRunROOTMacros = true; 
-        } else if (param == "FALSE"){
-           fRunROOTMacros = false; 
-        } else {
-            WriteWarningStatus("TtHFit::ReadConfigFile", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
-        }
-    }
-    param = cs->Get("DecorrSuff");  if( param != ""){
-        fDecorrSuff = param;
-    }
-    
     //
     // General options
     //
@@ -1051,8 +717,10 @@ int TtHFit::ReadConfigFile(string fileName,string options){
         nReg++;
         if(onlyRegions.size()>0 && FindInStringVector(onlyRegions,cs->GetValue())<0) continue;
         if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
-        regNames.push_back( CheckName(cs->GetValue()) ); //why the CheckName is needed?? A: cs->GetValue() might have leading/trailing spaces...
-        reg = NewRegion(CheckName(cs->GetValue()));
+        //regNames.push_back( CheckName(cs->GetValue()) ); //why the CheckName is needed?? A: cs->GetValue() might have leading/trailing spaces...
+        //reg = NewRegion(CheckName(cs->GetValue()));
+        regNames.push_back( (cs->GetValue()) ); //why the CheckName is needed?? A: cs->GetValue() might have leading/trailing spaces...
+        reg = NewRegion((cs->GetValue()));
         reg->fGetChi2 = fGetChi2;
         reg->SetVariableTitle(cs->Get("VariableTitle"));
         reg->SetLabel(cs->Get("Label"),cs->Get("ShortLabel"));
@@ -1250,7 +918,8 @@ int TtHFit::ReadConfigFile(string fileName,string options){
         if(cs->Get("Type")=="data"   || cs->Get("Type")=="DATA")   type = Sample::DATA;
         if(cs->Get("Type")=="ghost"  || cs->Get("Type")=="GHOST")  type = Sample::GHOST;
         if(onlySignal!="" && type==Sample::SIGNAL && cs->GetValue()!=onlySignal) continue;
-        smp = NewSample(CheckName(cs->GetValue()),type);
+        //smp = NewSample(CheckName(cs->GetValue()),type);
+        smp = NewSample((cs->GetValue()),type);
         smp->SetTitle(cs->Get("Title"));
         param = cs->Get("TexTitle"); if(param!="") smp->fTexTitle = param;
         param = cs->Get("Group"); if(param!="") smp->fGroup = param;
@@ -1529,7 +1198,8 @@ int TtHFit::ReadConfigFile(string fileName,string options){
         vector<string> samples = Vectorize(samples_str,',');
         vector<string> regions = Vectorize(regions_str,',');
         vector<string> exclude = Vectorize(exclude_str,',');
-        norm = new NormFactor(CheckName(cs->GetValue()));
+        //norm = new NormFactor(CheckName(cs->GetValue()));
+        norm = new NormFactor((cs->GetValue()));
         TtHFitter::SYSTMAP[norm->fName] = norm->fName;
         if( FindInStringVector(fNormFactorNames,norm->fName)<0 ){
             fNormFactors.push_back( norm );
@@ -1625,7 +1295,8 @@ int TtHFit::ReadConfigFile(string fileName,string options){
         vector<string> samples = Vectorize(samples_str,',');
         vector<string> regions = Vectorize(regions_str,',');
         vector<string> exclude = Vectorize(exclude_str,',');
-        shape = new ShapeFactor(CheckName(cs->GetValue()));
+        //shape = new ShapeFactor(CheckName(cs->GetValue()));
+        shape = new ShapeFactor((cs->GetValue()));
         if( FindInStringVector(fShapeFactorNames,shape->fName)<0 ){
             fShapeFactors.push_back( shape );
             fShapeFactorNames.push_back( shape->fName );
@@ -1736,7 +1407,8 @@ int TtHFit::ReadConfigFile(string fileName,string options){
             type = Systematic::STAT;
         }
         string decorrelate = cs->Get("Decorrelate");
-        sys = new Systematic(CheckName(cs->GetValue()),type);
+        //sys = new Systematic(CheckName(cs->GetValue()),type);
+        sys = new Systematic((cs->GetValue()),type);
         TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
         if(cs->Get("Type")=="overall" || cs->Get("Type")=="OVERALL")
             sys->fIsNormOnly=true;

@@ -54,6 +54,19 @@ class ConfigReader {
         int ReadJobOptions();
 
         /**
+          * Helped function to read plotting settings in JOB
+          * @return int status code
+          */
+        int SetJobPlot();
+
+        /**
+          * Helper function to check the consistency of the input
+          * @param string Input parameter
+          * @return string Corrected parameter
+          */
+        std::string CheckName(const std::string &name);
+
+        /**
           * Pointer to TtHFit class, set during initialization
           */
         TtHFit *fFitter;

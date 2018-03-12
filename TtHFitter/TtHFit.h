@@ -67,7 +67,6 @@ public:
     void SetLumi(const float lumi);
     void SetFitType(FitType type);
     void SetLimitType( LimitType type );
-    std::string CheckName( const std::string &name );
     void SetFitRegion(FitRegion region);
     
     Sample* NewSample(std::string name,int type=0);
