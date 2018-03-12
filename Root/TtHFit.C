@@ -4961,14 +4961,11 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
             ymax  = TtHFitter::OPTION["MergeYfrac"]*ymax0;
         }
         hTotVec.push_back(h_tmp);
-//         if(i_ch<regions.size()-1){
             if(i_ch>0) edges.push_back(h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX())-h_tmp->GetXaxis()->GetBinLowEdge(1) + edges[i_ch-1]);
             else       edges.push_back(h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()));
-//         }
         // get xaxes
         if(i_ch>0) xaxis.push_back(new TGaxis(edges[i_ch-1],                      0,edges[i_ch],0, h_tmp->GetXaxis()->GetBinLowEdge(1),h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()) ,510,"+"));
         else       xaxis.push_back(new TGaxis(h_tmp->GetXaxis()->GetBinLowEdge(1),0,edges[i_ch],0, h_tmp->GetXaxis()->GetBinLowEdge(1),h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()) ,510,"+"));
-//         else       xaxis.push_back(new TGaxis(0,0,edges[i_ch],0, h_tmp->GetXaxis()->GetBinLowEdge(1),h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()) ,510,"+"));
         // get yaxes
         if(i_ch>0) yaxis.push_back(new TGaxis(edges[i_ch-1],                      0,edges[i_ch-1],                      ymax, 0,ymaxTmp, 510,"-"));
         else       yaxis.push_back(new TGaxis(h_tmp->GetXaxis()->GetBinLowEdge(1),0,h_tmp->GetXaxis()->GetBinLowEdge(1),ymax, 0,ymaxTmp, 510,"-"));
@@ -5000,13 +4997,6 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
                 h_tmp = (TH1*)hTotVec[i_ch]->Clone();
                 h_tmp->Scale(0);
             }
-            //
-//             if(sample->fType==Sample::DATA){
-// //                 h_tmp->Sumw2();
-//                 for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
-//                     h_tmp->SetBinError(i_bin,sqrt(h_tmp->GetBinContent(i_bin)));
-//                 }
-//             }
             if(sample->fGroup!="") h_tmp->SetTitle(sample->fGroup.c_str());
             else                   h_tmp->SetTitle(sample->fTitle.c_str());
             tmpVec.push_back(h_tmp);
@@ -5029,19 +5019,17 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
         for(auto hVec : hSignalVec)     hVec[i_ch]->Scale( scale );
         for(auto hVec : hBackgroundVec) hVec[i_ch]->Scale( scale );
     }
-    // merge them
-//     TH1* h_tot  = MergeHistograms(hTotVec);
-//     TH1* h_data = MergeHistograms(hDataVec);
-    // ... here need to do the same for all othe histograms
     //
-    // Plot them
+    // merge andplot them
     TthPlot *p;
-    // For 4-top-style plots
-    if(TtHFitter::OPTION["FourTopStyle"]>0){
-        p = new TthPlot(fInputName+"_merge",TtHFitter::OPTION["CanvasWidthMerge"],TtHFitter::OPTION["CanvasHeight"]);
-        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsMerge"];
-    }
-    if(!p) return;
+    int cWeidthMerge = 1200;
+    int cHeightMerge = 600;
+    int lNcolumnsMerge = 3;
+    if(TtHFitter::OPTION["CanvasWidthMerge"]!=0)    cWeidthMerge   = TtHFitter::OPTION["CanvasWidthMerge"];
+    if(TtHFitter::OPTION["CanvasHeight"]!=0)        cHeightMerge   = TtHFitter::OPTION["CanvasHeight"];
+    if(TtHFitter::OPTION["LegendNColumnsMerge"]!=0) lNcolumnsMerge = TtHFitter::OPTION["LegendNColumnsMerge"];
+    p = new TthPlot(fInputName+"_merge",cWeidthMerge,cHeightMerge);
+    p->fLegendNColumns = lNcolumnsMerge;
     //
     p->SetData(MergeHistograms(hDataVec),"");
     for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++)     p->AddSignal(    MergeHistograms(hSignalVec[i_sig])    ,"");
@@ -5049,7 +5037,6 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     p->SetTotBkg(MergeHistograms(hTotVec));
     //
     p->SetCME(fCmeLabel);
-//     p->SetXaxis();
     p->SetLumi(fLumiLabel);
     p->fATLASlabel = fAtlasLabel;
     
@@ -5087,10 +5074,7 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
             a->SetNdivisions(805);
             // the following lines require newer version of ROOT
             a->ChangeLabel(1,-1,-1,-1,-1,-1," ");
-//             gStyle->SetTickLength(0.0001,"y");
             a->Draw();
-//             a->SetTickLength(0);
-//             a->SetTickLength(0.5*((TH1*)p->pad0->GetPrimitive("h_dummy"))->GetYaxis()->GetTickLength());
         }
         i_yaxis ++;
     }
@@ -5123,7 +5107,6 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
         a->SetNdivisions(805);
         TGaxis *ga = (TGaxis*)a->DrawClone();
         ga->SetTitle(regions[i_reg]->fVariableTitle.c_str());
-//         ga->SetTitleOffset(h_dummy2->GetXaxis()->GetTitleOffset()*0.45);
         ga->SetTitleOffset(h_dummy2->GetXaxis()->GetTitleOffset()*0.45*(1200./600.)*(TtHFitter::OPTION["CanvasHeight"]/TtHFitter::OPTION["CanvasWidthMerge"]));
         ga->SetTitleSize(gStyle->GetTextSize());
         ga->SetTitleFont(gStyle->GetTextFont());
@@ -5139,13 +5122,9 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     TLatex *tex = new TLatex();
     tex->SetTextSize(gStyle->GetTextSize());
     tex->SetTextFont(gStyle->GetTextFont());
-    //float xlabel = 0;
     for(unsigned int i_ch=0;i_ch<regions.size();i_ch++){
         tex->SetNDC(0);
         tex->DrawLatex(edges[i_ch],1.15*ymax,("#kern[-1]{"+regions[i_ch]->fLabel+" }").c_str());
-//         if(i_ch==0) xlabel += (edges[i_ch]-h_dummy->GetXaxis()->GetBinLowEdge(1))/(h_dummy->GetXaxis()->GetBinUpEdge(h_dummy->GetNbinsX())-h_dummy->GetXaxis()->GetBinLowEdge(1));
-//         else        xlabel += (edges[i_ch]-edges[i_ch-1])/(h_dummy->GetXaxis()->GetBinUpEdge(h_dummy->GetNbinsX())-h_dummy->GetXaxis()->GetBinLowEdge(1));
-//         myText(xlabel-0.05,0.7,1,("#kern[-1]{"+regions[i_ch]->fLabel+"}").c_str());
     }
     //
     tex->SetNDC(1);
@@ -5153,7 +5132,6 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     float textHeight = 0.05*(672./p->pad0->GetWh());
     if(isPostFit) tex->DrawLatex(0.33,0.88-textHeight,"Post-fit");
     else          tex->DrawLatex(0.33,0.88-textHeight,"Pre-fit");
-    
     // 
     // save image
     std::string saveName = fName+"/Plots/";

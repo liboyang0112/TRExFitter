@@ -70,6 +70,7 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     for(int i_bin=0;i_bin<MAXbins;i_bin++)
         fBinLabel[i_bin] = "";
     //
+    fDataName = "Data";
     fSigNames.clear();
     fNormSigNames.clear();
     fOverSigNames.clear();
@@ -158,7 +159,7 @@ void TthPlot::SetData(TH1* h,string name){
     h_data = (TH1*)h->Clone();
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
-    data_name = name;
+    fDataName = name;
 }
 
 //_____________________________________________________________________________
@@ -546,7 +547,7 @@ void TthPlot::Draw(string options){
         leg1->SetMargin(0.);
 
         if(hasData){//only add data in the legend if real data are here
-            leg->AddEntry(h_data,data_name.c_str(),"lep");
+            leg->AddEntry(h_data,fDataName.c_str(),"lep");
             leg1->AddEntry((TObject*)0,Form("%.1f",h_data->Integral()),"");
         }
 
@@ -592,9 +593,9 @@ void TthPlot::Draw(string options){
 
         //Draws data in the legend only is real data
         if(hasData){
-//           leg->AddEntry(h_data,data_name.c_str(),"lep");
-            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,data_name.c_str(),"ep");
-            else                         leg->AddEntry(h_data,data_name.c_str(),"lep");
+//           leg->AddEntry(h_data,fDataName.c_str(),"lep");
+            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
+            else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
 
         //Signal and background legend
@@ -638,9 +639,9 @@ void TthPlot::Draw(string options){
 
         //Draws data in the legend only is real data
         if(hasData){
-//             leg->AddEntry(h_data,data_name.c_str(),"lep");
-            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,data_name.c_str(),"ep");
-            else                         leg->AddEntry(h_data,data_name.c_str(),"lep");
+//             leg->AddEntry(h_data,fDataName.c_str(),"lep");
+            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
+            else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
 
         //Signal and background legend
@@ -679,9 +680,9 @@ void TthPlot::Draw(string options){
 
         //Draws data in the legend only is real data
         if(hasData){
-//             leg->AddEntry(h_data,data_name.c_str(),"lep");
-            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,data_name.c_str(),"ep");
-            else                         leg->AddEntry(h_data,data_name.c_str(),"lep");
+//             leg->AddEntry(h_data,fDataName.c_str(),"lep");
+            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
+            else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
         
         //Signal and background legend
@@ -721,9 +722,9 @@ void TthPlot::Draw(string options){
 
         //Draws data in the legend only is real data
         if(hasData){
-//             leg->AddEntry(h_data,data_name.c_str(),"lep");
-            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,data_name.c_str(),"ep");
-            else                         leg->AddEntry(h_data,data_name.c_str(),"lep");
+//             leg->AddEntry(h_data,fDataName.c_str(),"lep");
+            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
+            else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
 
         //Signal and background legend
@@ -1078,7 +1079,7 @@ void TthPlot::WriteToFile(string name){
     TDirectory *here = gDirectory;
     TFile *f = new TFile(name.c_str(),"RECREATE");
     f->cd();
-    if(h_data) h_data->Write(Form("h_%s",data_name.c_str()),TObject::kOverwrite);
+    if(h_data) h_data->Write(Form("h_%s",fDataName.c_str()),TObject::kOverwrite);
     h_tot->Write("h_totErr",TObject::kOverwrite);
     if(g_tot) g_tot->Write("g_totErr",TObject::kOverwrite);
     for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
