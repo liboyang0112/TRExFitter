@@ -38,6 +38,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     
     sc+= ReadFitOptions();
 
+    sc+= ReadLimitOptions();
+
     return 0;
 }
 
@@ -989,6 +991,68 @@ int ConfigReader::ReadFitOptions(){
     }
 
     return 0;
+}
+
+int ConfigReader::ReadLimitOptions(){
+    std::string param = "";
+
+    fConfSet = fParser.GetConfigSet("Limit");
+    if (fConfSet == nullptr){
+        WriteInfoStatus("ConfigReader::ReadLimitOptions", "You do not have Limit option in the config. It is ok, we just want to let you know.");
+        return 0; // it is ok to not have Fit set up 
+    }
+
+    // Set LimitType    
+    param = fConfSet->Get("LimitType");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "ASYMPTOTIC" ){
+            fFitter->SetLimitType(TtHFit::ASYMPTOTIC);
+        }
+        else if( param == "TOYS" ){
+            fFitter->SetLimitType(TtHFit::TOYS);
+        }
+        else{
+            WriteErrorStatus("ConfigReader::ReadLimitOptions", "Unknown LimitType argument : " + fConfSet->Get("LimitType"));
+            return 1;
+        }
+    }
+
+    // Set LimitBlind
+    param = fConfSet->Get("LimitBlind");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fLimitIsBlind = true;
+        } else if ( param == "FALSE" ){
+            fFitter->fLimitIsBlind = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadLimitOptions", "You specified 'LimitBlind' option but didnt provide valid parameter. Using default (false)");
+            fFitter->fLimitIsBlind = false;
+        }
+    }
+    
+    // Set POIAsimov
+    param = fConfSet->Get("POIAsimov");
+    if( param != "" ){
+        fFitter->fLimitPOIAsimov = atof(param.c_str());
+    }
+
+    // Set SignalInjection
+    param = fConfSet->Get("SignalInjection");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fSignalInjection = true;
+        } else if ( param == "FALSE" ){
+            fFitter->fSignalInjection = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadLimitOptions", "You specified 'SignalInjection' option but didnt provide valid parameter. Using default (false)");
+            fFitter->fSignalInjection = false;
+        }
+    }
+
+    return 0; 
 }
 
 std::string ConfigReader::CheckName( const std::string &name ){

@@ -72,6 +72,12 @@ class ConfigReader {
         int ReadFitOptions();
 
         /**
+          * Helper function to read Limit settings
+          * @return int status code
+          */
+        int ReadLimitOptions();
+
+        /**
           * Helper function to check the consistency of the input
           * @param string Input parameter
           * @return string Corrected parameter

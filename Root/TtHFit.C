@@ -572,43 +572,6 @@ int TtHFit::ReadConfigFile(string fileName,string options){
 
     //##########################################################
     //
-    // Reads LIMIT parameters
-    //
-    //##########################################################
-    cs = fConfig->GetConfigSet("Limit");
-    if (cs) {
-        param = cs->Get("LimitType");    if( param != "" ){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if( param == "ASYMPTOTIC" )
-                SetLimitType(TtHFit::ASYMPTOTIC);
-            else if( param == "TOYS" )
-                SetLimitType(TtHFit::TOYS);
-            else{
-                WriteErrorStatus("TtHFIt::ReadConfigFile", "Unknown LimitType argument : " + cs->Get("LimitType"));
-                return 1;
-            }
-        }
-        param = cs->Get("LimitBlind");    if( param != "" ){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if( param == "TRUE" ){
-                fLimitIsBlind = true;
-            } else if ( param == "FALSE" ){
-                fLimitIsBlind = false;
-            }
-        }
-        param = cs->Get("POIAsimov");  if( param != "" ){ fLimitPOIAsimov = atof(param.c_str()); }
-        param = cs->Get("SignalInjection");  if( param != "" ){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if( param == "TRUE" ){
-                fSignalInjection = true;
-            } else if ( param == "FALSE" ){
-                fSignalInjection = false;
-            }
-        }
-    }
-
-    //##########################################################
-    //
     // REGIONS options
     //
     //##########################################################
