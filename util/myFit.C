@@ -1,5 +1,7 @@
 #include "TtHFitter/Common.h"
 
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/ConfigReader.h"
 #include "TtHFitter/NuisParameter.h"
 #include "TtHFitter/CorrelationMatrix.h"
 #include "TtHFitter/FitResults.h"
@@ -88,8 +90,16 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     // proceed if not multi-fit
     
     TtHFit *myFit = new TtHFit();
-    int sc = myFit->ReadConfigFile(configFile,options);
-    if(sc!=0) return;
+
+    // initialize config reader 
+    ConfigReader reader(myFit);
+
+    // read the actual config
+    int sc = reader.ReadFullConfig(configFile,options);
+    if(sc!=0){
+        WriteErrorStatus("myFit::FitExample", "Failed to read the config file.");
+        return;
+    }
     
     // check compatibility between run option and config file
     if(readHistograms && myFit->fInputType!=TtHFit::HIST){

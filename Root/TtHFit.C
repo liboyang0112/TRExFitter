@@ -2,6 +2,7 @@
 #include <iomanip>
 
 //TtHFitter headers
+#include "TtHFitter/ConfigReader.h"
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/HistoTools.h"
 #include "TtHFitter/StatusLogbook.h"
@@ -567,14 +568,6 @@ void TtHFit::DrawSystPlotsSumSamples(){
 //__________________________________________________________________________________
 // Build fit from config file
 int TtHFit::ReadConfigFile(string fileName,string options){
-    fConfig->ReadFile(fileName);
-    //
-    // check the config syntax
-    ConfigParser *refConfig = new ConfigParser();
-    refConfig->ReadFile("jobSchema.config");
-    int sc = fConfig->CheckSyntax(refConfig);
-    if(sc!=0) return sc;
-    //
     ConfigSet *cs; // to store stuff later
     string param;
     std::vector< string > vec;
@@ -2334,8 +2327,7 @@ int TtHFit::ReadConfigFile(string fileName,string options){
         gErrorIgnoreLevel = kError;
         RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
     }
-    
-    return sc;
+    return 0;
 }
 
 
