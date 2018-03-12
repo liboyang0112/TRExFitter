@@ -88,7 +88,8 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     // proceed if not multi-fit
     
     TtHFit *myFit = new TtHFit();
-    myFit->ReadConfigFile(configFile,options);
+    int sc = myFit->ReadConfigFile(configFile,options);
+    if(sc!=0) return;
     
     // check compatibility between run option and config file
     if(readHistograms && myFit->fInputType!=TtHFit::HIST){

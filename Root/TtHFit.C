@@ -566,8 +566,15 @@ void TtHFit::DrawSystPlotsSumSamples(){
 
 //__________________________________________________________________________________
 // Build fit from config file
-void TtHFit::ReadConfigFile(string fileName,string options){
+int TtHFit::ReadConfigFile(string fileName,string options){
     fConfig->ReadFile(fileName);
+    //
+    // check the config syntax
+    ConfigParser *refConfig = new ConfigParser();
+    refConfig->ReadFile("jobSchema.config");
+    int sc = fConfig->CheckSyntax(refConfig);
+    if(sc!=0) return sc;
+    //
     ConfigSet *cs; // to store stuff later
     string param;
     std::vector< string > vec;
@@ -688,7 +695,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     else if( param=="NTUP" || param=="NTUPLES" )    fInputType = 1;
     else{
         WriteErrorStatus("TtHFit::ReadConfigFile", "Invalid \"ReadFrom\" argument. Options: \"HIST\", \"NTUP\"");
-        return;
+        return 1;
     }
     // set default MERGEUNDEROVERFLOW
     if(fInputType==0)      TtHFitter::MERGEUNDEROVERFLOW = false;
@@ -1008,7 +1015,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             SetFitType(TtHFit::BONLY);
         else{
             WriteErrorStatus("TtHFIt::ReadConfigFile", "Unknown FitType argument : " + cs->Get("FitType"));
-            return;
+            return 1;
         }
     }
     else if( fFitType == UNDEFINED ){
@@ -1025,7 +1032,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             fFitRegionsToFit = Vectorize(param,',');
             if(fFitRegionsToFit.size()==0){
                 WriteErrorStatus("TtHFIt::ReadConfigFile", "Unknown FitRegion argument : " + cs->Get("FitRegion"));
-                return;
+                return 1;
             }
         }
     }
@@ -1094,7 +1101,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
                 SetLimitType(TtHFit::TOYS);
             else{
                 WriteErrorStatus("TtHFIt::ReadConfigFile", "Unknown LimitType argument : " + cs->Get("LimitType"));
-                return;
+                return 1;
             }
         }
         param = cs->Get("LimitBlind");    if( param != "" ){
@@ -1557,7 +1564,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             std::vector<std::string> morph_par = Vectorize(param,',');
             if (morph_par.size() != 2){
                 WriteErrorStatus("TtHFit::ReadConfigFile", "Morphing requires exactly 2 parameters, but " + std::to_string(morph_par.size()) + " provided");
-                return;
+                return 1;
             }
             fRunMorphing = true;
             std::string name      = morph_par.at(0);
@@ -2251,7 +2258,7 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         else {
             WriteErrorStatus("TtHFit::ReadConfigFile", "decorrelate option: " + decorrelate  + "  not supported ...");
             WriteErrorStatus("TtHFit::ReadConfigFile", "       PLEASE USE ONLY: REGION, SAMPLE, SHAPEACC");
-            return;
+            return 1;
         }
         // New: for systeamtics which also vary Data (e.g. JER with Full NPs)
         // This will subtract linearly the relative variation on Data from each relative variation on MC
@@ -2327,6 +2334,8 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         gErrorIgnoreLevel = kError;
         RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
     }
+    
+    return sc;
 }
 
 
