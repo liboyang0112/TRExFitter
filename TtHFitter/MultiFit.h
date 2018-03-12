@@ -17,7 +17,7 @@ public:
     void AddFitFromConfig(std::string configFile,std::string options,std::string label,std::string loadSuf="",std::string wsFile="");
     RooWorkspace* CombineWS();
     void SaveCombinedWS();
-    std::map < std::string, double > FitCombinedWS( int fitType=1, std::string inputData="" );
+    std::map < std::string, double > FitCombinedWS( int fitType=1, std::string inputData="", bool performFit=true );
     void GetCombinedLimit(std::string inputData="obsData"); // or asimovData
     void GetCombinedSignificance(std::string inputData="obsData"); // or asimovData
 

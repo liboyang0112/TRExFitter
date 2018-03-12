@@ -537,6 +537,12 @@ TthPlot* Region::DrawPreFit(string opt){
         if(!fSig[i]->fSample->fUseMCStat && !fSig[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
         }
+        // else still check if the value is reasonable
+        else{
+            for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++){
+                if(h->GetBinError(i_bin)>10*h->GetBinContent(i_bin)) h->SetBinError(i_bin,h->GetBinContent(i_bin));
+            }
+        }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
             NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf];
@@ -578,6 +584,12 @@ TthPlot* Region::DrawPreFit(string opt){
         if(!fBkg[i]->fSample->fUseMCStat && !fBkg[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
         }
+        // else still check if the value is reasonable
+        else{
+            for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++){
+                if(h->GetBinError(i_bin)>10*h->GetBinContent(i_bin)) h->SetBinError(i_bin,h->GetBinContent(i_bin));
+            }
+        }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
             NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf];
@@ -607,6 +619,11 @@ TthPlot* Region::DrawPreFit(string opt){
     if(!fUseStatErr){
         for(int i_bin=1;i_bin<=fTot->GetNbinsX();i_bin++){
             fTot->SetBinError(i_bin,0);
+        }
+    }
+    else{
+        for(int i_bin=0;i_bin<fTot->GetNbinsX()+2;i_bin++){
+            if(fTot->GetBinError(i_bin)>10*fTot->GetBinContent(i_bin)) fTot->SetBinError(i_bin,fTot->GetBinContent(i_bin));
         }
     }
     
@@ -644,7 +661,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     //float yieldUp(0.), yieldDown(0.);
     float yieldNominal_postFit = 0.;
     float diffUp(0.), diffDown(0.);
-
+    
     //
     // 0) Collect all the systematics on all the samples
     //
@@ -741,15 +758,15 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     //
     // 1) Build post-fit error hists (for each sample and each systematic):
     //
-
+    
     // - loop on samples
     for(int i=0;i<fNSamples;i++){
-
+        
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         WriteVerboseStatus("Region::BuildPostFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
-
+        
         // - loop on systematics
         for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
             
@@ -807,7 +824,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 for(auto nf : fSampleHists[i]->fNormFactors){
                     yieldNominal_postFit_nfOnly *= fitRes->GetNuisParValue(TtHFitter::NPMAP[nf->fName]);
                 }
-
+                
                 size_t posTmp = systName.find("_bin_");
                 std::string gammaName      = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
                 std::string gammaNameShape = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
@@ -834,8 +851,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                         TF1* f_morph = new TF1("f_morph",formula.c_str(),fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax);
                         float scaleUp   = f_morph->Eval(systValue+systErrUp);
                         float scaleDown = f_morph->Eval(systValue-systErrDown);
-                        diffUp   += yieldNominal*(scaleUp - 1);
-                        diffDown += yieldNominal*(scaleDown - 1);
+                        diffUp   += yieldNominal*(scaleUp  -1);
+                        diffDown += yieldNominal*(scaleDown-1);
                     }
                     else{
                         diffUp   += yieldNominal*systErrUp;
@@ -941,7 +958,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             }
         }
     }
-
     
     // at this point all the sample-by-sample post-fit variation histograms should be filled
     //

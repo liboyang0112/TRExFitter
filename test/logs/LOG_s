@@ -204,17 +204,17 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 [1;32m=== INFO::TtHFIt::DumpData: Activating binned likelihood attribute for SR_2_model[0m
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
-  1) 0x4ba79a0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
-  2) 0x4bab7a0 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
-  3) 0x4ba55a0 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
-  4) 0x4de5c30 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
-  5) 0x4de8760 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
-  6) 0x4deb2f0 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
-  7) 0x4dedea0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
-  8) 0x4dd2780 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
-  9) 0x4e419b0 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
- 10) 0x4e44560 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
- 11) 0x4e47110 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+  1) 0x4fff800 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  2) 0x5003540 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  3) 0x4ffd400 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  4) 0x4fe96e0 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  5) 0x4fec230 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  6) 0x4feedf0 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  7) 0x4ff1a10 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  8) 0x507e560 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+  9) 0x5082f80 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 10) 0x5085b10 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 11) 0x50886a0 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
 [1;32m=== INFO::RunSig::RunSig: Setting max function calls[0m
 [#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name conditionalNuis_0 is available
 [#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
@@ -289,17 +289,17 @@ RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] =
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset asimovData_1
 [#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
 [#1] INFO:Minization --  Including the following contraint terms in minimization: (alpha_JESConstraint,alpha_Bkg1XsecConstraint,alpha_Bkg2XsecConstraint,gamma_stat_SR_1_bin_0_constraint,gamma_stat_SR_1_bin_1_constraint,gamma_stat_SR_1_bin_2_constraint,gamma_stat_SR_1_bin_3_constraint,gamma_stat_SR_2_bin_0_constraint,gamma_stat_SR_2_bin_1_constraint,gamma_stat_SR_2_bin_2_constraint,gamma_stat_SR_2_bin_3_constraint)
-  1) 0x4ecc360 RooRealVar::             nom_alpha_JES = -0.00941607 C  L(-10 - 10)  "nom_alpha_JES"
-  2) 0x4ba9db0 RooRealVar::        nom_alpha_Bkg1Xsec = 0.236234 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
-  3) 0x4ecb250 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0497527 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
-  4) 0x4de7730 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 0.998033 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_0"
-  5) 0x4dea280 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 1.02382 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_1"
-  6) 0x4dece30 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 0.98499 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_2"
-  7) 0x4def9e0 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 0.909485 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_3"
-  8) 0x4e3eb50 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 0.999917 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_0"
-  9) 0x4e423d0 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 1.02776 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_1"
- 10) 0x4e44f80 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 0.987731 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_2"
- 11) 0x4e47b30 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 0.912516 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_3"
+  1) 0x510d0b0 RooRealVar::             nom_alpha_JES = -0.00941607 C  L(-10 - 10)  "nom_alpha_JES"
+  2) 0x5001bf0 RooRealVar::        nom_alpha_Bkg1Xsec = 0.236234 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
+  3) 0x510bff0 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0497527 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
+  4) 0x4feb260 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 0.998033 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_0"
+  5) 0x4fedd90 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 1.02382 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_1"
+  6) 0x4ff09b0 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 0.98499 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_2"
+  7) 0x4ff35d0 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 0.909485 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_3"
+  8) 0x5080120 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 0.999917 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_0"
+  9) 0x5083980 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 1.02776 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_1"
+ 10) 0x5086510 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 0.987731 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_2"
+ 11) 0x50890a0 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 0.912516 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_3"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_asimovData_1_with_constr) Summation contains a RooNLLVar, using its error level
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
 RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
@@ -407,4 +407,5 @@ gamma_stat_SR_2_bin_3	  = 1.00629	 +/-  0.13415	(limited)
 [1;32m=== INFO::RunSig::RunSig: Observed significance: -1.059039[0m
 [1;32m=== INFO::RunSig::RunSig: Median test stat val: 0.241201[0m
 [1;32m=== INFO::RunSig::RunSig: Median significance:       0.491122[0m
-Real time 0:00:00, CP time 0.190
+mkdir: created directory `FitExample/Significance'
+Real time 0:00:00, CP time 0.160

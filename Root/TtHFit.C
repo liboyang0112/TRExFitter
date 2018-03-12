@@ -119,6 +119,8 @@ TtHFit::TtHFit(string name){
     fDoTables = true;
     fDoSignalRegionsPlot = true;
     fDoPieChartPlot = true;
+    
+    fSummaryPrefix = "";
 
     //
     // Fit caracteristics
@@ -193,6 +195,9 @@ TtHFit::TtHFit(string name){
     
     fBootstrap = "";
     fBootstrapIdx = -1;
+
+    fDecorrSysts.clear();
+    fDecorrSuff = "_decor";
 }
 
 //__________________________________________________________________________________
@@ -973,6 +978,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
         } else {
             WriteWarningStatus("TtHFit::ReadConfigFile", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
         }
+    }
+    param = cs->Get("DecorrSuff");  if( param != ""){
+        fDecorrSuff = param;
     }
     
     //
@@ -2252,6 +2260,12 @@ void TtHFit::ReadConfigFile(string fileName,string options){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
             if(param == "TRUE" ) sys->fSubtractRefSampleVar = true;// default is false
         }
+        //
+        // this at the end:
+        if(FindInStringVector(fDecorrSysts,sys->fNuisanceParameter)>=0){
+            WriteInfoStatus("TtHFit::ReadConfigFile","Decorrelating systematic with NP = " + sys->fNuisanceParameter);
+            sys->fNuisanceParameter += fDecorrSuff;
+        }
     }
     //
     // -- Post config-reading actions ---
@@ -2334,6 +2348,7 @@ void TtHFit::ReadNtuples(){
     // Import custom functions from .C files
     //
     for(auto file : fCustomFunctions){
+        WriteInfoStatus("TtHFit::ReadNtuples", "  Loading function from " + file + " ...");
         gROOT->ProcessLineSync((".x "+file+"+").c_str());
     }
     //
@@ -4174,15 +4189,15 @@ void TtHFit::ReadHistos(/*string fileName*/){
                         if(binContent==2 || binContent==-3) pruned = 2;
                     }
                     syh = sh->AddHistoSyst(systName,
-                                            Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                            Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                            pruned
+                                          Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                          Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                          pruned
                                           );
                     if(syh==0x0){
-                    if (!pruned) WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
-                        continue;
+                        if (!pruned) WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
+                            continue;
+                        }
                     }
-                }
                 // for both
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
@@ -4876,8 +4891,14 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
-        else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        if(fSummaryPrefix!=""){
+            if(isPostFit)  p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+            else           p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        }
+        else{
+            if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+            else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        }
     }
     //
     for(int i_syst=0;i_syst<(int)h_up.size();i_syst++){
@@ -4892,9 +4913,17 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
 
 //__________________________________________________________________________________
 //
-void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
+void TtHFit::DrawMergedPlot(std::string opt,std::string group){
+    std::vector<Region*> regions;
+    if(group=="") regions = fRegions;
+    else{
+        for(auto region : fRegions){
+            if(region->fGroup == group) regions.push_back(region);
+        }
+    }
     bool isPostFit = false;
     if(opt.find("post")!=string::npos) isPostFit = true;
+    if(TtHFitter::POISSONIZE) opt += " poissonize";
     // start with total prediction, which should be always there
     // build a vector of histograms
     int i_ch = 0;
@@ -4928,17 +4957,15 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
         // set max for first hist
         if(ymax0<0){
             ymax0 = ymaxTmp;
-            ymax  = 0.66*ymax0;
+            if(TtHFitter::OPTION["MergeYfrac"]==0) TtHFitter::OPTION["MergeYfrac"] = 0.66;
+            ymax  = TtHFitter::OPTION["MergeYfrac"]*ymax0;
         }
         hTotVec.push_back(h_tmp);
-//         if(i_ch<regions.size()-1){
             if(i_ch>0) edges.push_back(h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX())-h_tmp->GetXaxis()->GetBinLowEdge(1) + edges[i_ch-1]);
             else       edges.push_back(h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()));
-//         }
         // get xaxes
         if(i_ch>0) xaxis.push_back(new TGaxis(edges[i_ch-1],                      0,edges[i_ch],0, h_tmp->GetXaxis()->GetBinLowEdge(1),h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()) ,510,"+"));
         else       xaxis.push_back(new TGaxis(h_tmp->GetXaxis()->GetBinLowEdge(1),0,edges[i_ch],0, h_tmp->GetXaxis()->GetBinLowEdge(1),h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()) ,510,"+"));
-//         else       xaxis.push_back(new TGaxis(0,0,edges[i_ch],0, h_tmp->GetXaxis()->GetBinLowEdge(1),h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX()) ,510,"+"));
         // get yaxes
         if(i_ch>0) yaxis.push_back(new TGaxis(edges[i_ch-1],                      0,edges[i_ch-1],                      ymax, 0,ymaxTmp, 510,"-"));
         else       yaxis.push_back(new TGaxis(h_tmp->GetXaxis()->GetBinLowEdge(1),0,h_tmp->GetXaxis()->GetBinLowEdge(1),ymax, 0,ymaxTmp, 510,"-"));
@@ -4970,13 +4997,6 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
                 h_tmp = (TH1*)hTotVec[i_ch]->Clone();
                 h_tmp->Scale(0);
             }
-            //
-            if(sample->fType==Sample::DATA){
-//                 h_tmp->Sumw2();
-                for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
-                    h_tmp->SetBinError(i_bin,sqrt(h_tmp->GetBinContent(i_bin)));
-                }
-            }
             if(sample->fGroup!="") h_tmp->SetTitle(sample->fGroup.c_str());
             else                   h_tmp->SetTitle(sample->fTitle.c_str());
             tmpVec.push_back(h_tmp);
@@ -4993,22 +5013,23 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
         float scale = ymax/hTotVec[i_ch]->GetMaximum();
         hTotVec[i_ch]->Scale( scale );
         hDataVec[i_ch]->Scale( scale );
+        for(int i_bin=1;i_bin<=hDataVec[i_ch]->GetNbinsX();i_bin++){
+            hDataVec[i_ch]->SetBinError(i_bin,sqrt(hDataVec[i_ch]->GetBinContent(i_bin)));
+        }
         for(auto hVec : hSignalVec)     hVec[i_ch]->Scale( scale );
         for(auto hVec : hBackgroundVec) hVec[i_ch]->Scale( scale );
     }
-    // merge them
-//     TH1* h_tot  = MergeHistograms(hTotVec);
-//     TH1* h_data = MergeHistograms(hDataVec);
-    // ... here need to do the same for all othe histograms
     //
-    // Plot them
+    // merge andplot them
     TthPlot *p;
-    // For 4-top-style plots
-    if(TtHFitter::OPTION["FourTopStyle"]>0){
-        p = new TthPlot(fInputName+"_merge",TtHFitter::OPTION["CanvasWidthMerge"],TtHFitter::OPTION["CanvasHeight"]);
-        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsMerge"];
-    }
-    if(!p) return;
+    int cWeidthMerge = 1200;
+    int cHeightMerge = 600;
+    int lNcolumnsMerge = 3;
+    if(TtHFitter::OPTION["CanvasWidthMerge"]!=0)    cWeidthMerge   = TtHFitter::OPTION["CanvasWidthMerge"];
+    if(TtHFitter::OPTION["CanvasHeight"]!=0)        cHeightMerge   = TtHFitter::OPTION["CanvasHeight"];
+    if(TtHFitter::OPTION["LegendNColumnsMerge"]!=0) lNcolumnsMerge = TtHFitter::OPTION["LegendNColumnsMerge"];
+    p = new TthPlot(fInputName+"_merge",cWeidthMerge,cHeightMerge);
+    p->fLegendNColumns = lNcolumnsMerge;
     //
     p->SetData(MergeHistograms(hDataVec),"");
     for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++)     p->AddSignal(    MergeHistograms(hSignalVec[i_sig])    ,"");
@@ -5016,11 +5037,11 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
     p->SetTotBkg(MergeHistograms(hTotVec));
     //
     p->SetCME(fCmeLabel);
-//     p->SetXaxis();
     p->SetLumi(fLumiLabel);
     p->fATLASlabel = fAtlasLabel;
     
-    p->fYmax = 1.25*ymax0;
+    if(TtHFitter::OPTION["MergeYmaxScale"]==0) TtHFitter::OPTION["MergeYmaxScale"] = 1.25;
+    p->fYmax = TtHFitter::OPTION["MergeYmaxScale"]*ymax0;
     p->Draw(opt);
     //
     // manipulate canvas / pad
@@ -5052,7 +5073,7 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
             a->SetLabelSize(gStyle->GetTextSize());
             a->SetNdivisions(805);
             // the following lines require newer version of ROOT
-//             a->ChangeLabel(1,-1,-1,-1,-1,-1," ");
+            a->ChangeLabel(1,-1,-1,-1,-1,-1," ");
             a->Draw();
         }
         i_yaxis ++;
@@ -5079,20 +5100,20 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
     h_dummy2->GetXaxis()->SetLabelSize(0);
     h_dummy2->GetXaxis()->SetTickLength(0);
     p->pad1->RedrawAxis();
-    int i_reg = 0;
+    unsigned int i_reg = 0;
     for(auto a : xaxis){
         a->SetLabelFont(gStyle->GetTextFont());
         a->SetLabelSize(gStyle->GetTextSize());
         a->SetNdivisions(805);
         TGaxis *ga = (TGaxis*)a->DrawClone();
         ga->SetTitle(regions[i_reg]->fVariableTitle.c_str());
-        ga->SetTitleOffset(h_dummy2->GetXaxis()->GetTitleOffset()*0.45);
+        ga->SetTitleOffset(h_dummy2->GetXaxis()->GetTitleOffset()*0.45*(1200./600.)*(TtHFitter::OPTION["CanvasHeight"]/TtHFitter::OPTION["CanvasWidthMerge"]));
         ga->SetTitleSize(gStyle->GetTextSize());
         ga->SetTitleFont(gStyle->GetTextFont());
         // the following lines require newer version of ROOT
-//         if(i_reg<regions.size()-1){
-//             ga->ChangeLabel(-1,-1,-1,-1,-1,-1," "); // shut up the last label ;)
-//         }
+        if(i_reg<regions.size()-1){
+            ga->ChangeLabel(-1,-1,-1,-1,-1,-1," "); // shut up the last label ;)
+        }
         i_reg ++;
     }
     //
@@ -5101,13 +5122,9 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
     TLatex *tex = new TLatex();
     tex->SetTextSize(gStyle->GetTextSize());
     tex->SetTextFont(gStyle->GetTextFont());
-    //float xlabel = 0;
     for(unsigned int i_ch=0;i_ch<regions.size();i_ch++){
         tex->SetNDC(0);
-        tex->DrawLatex(edges[i_ch],1.15*ymax,("#kern[-1]{"+regions[i_ch]->fLabel+"   }").c_str());
-//         if(i_ch==0) xlabel += (edges[i_ch]-h_dummy->GetXaxis()->GetBinLowEdge(1))/(h_dummy->GetXaxis()->GetBinUpEdge(h_dummy->GetNbinsX())-h_dummy->GetXaxis()->GetBinLowEdge(1));
-//         else        xlabel += (edges[i_ch]-edges[i_ch-1])/(h_dummy->GetXaxis()->GetBinUpEdge(h_dummy->GetNbinsX())-h_dummy->GetXaxis()->GetBinLowEdge(1));
-//         myText(xlabel-0.05,0.7,1,("#kern[-1]{"+regions[i_ch]->fLabel+"}").c_str());
+        tex->DrawLatex(edges[i_ch],1.15*ymax,("#kern[-1]{"+regions[i_ch]->fLabel+" }").c_str());
     }
     //
     tex->SetNDC(1);
@@ -5115,12 +5132,16 @@ void TtHFit::DrawMergedPlot(std::vector<Region*> regions,std::string opt){
     float textHeight = 0.05*(672./p->pad0->GetWh());
     if(isPostFit) tex->DrawLatex(0.33,0.88-textHeight,"Post-fit");
     else          tex->DrawLatex(0.33,0.88-textHeight,"Pre-fit");
-    
     // 
     // save image
+    std::string saveName = fName+"/Plots/";
+    if(fSummaryPrefix!="") saveName += fSummaryPrefix+"_";
+    saveName += "Merge";
+    if(group!="") saveName += "_"+group;
+    if(isPostFit) saveName += "_postFit";
+    saveName += fSuffix;
     for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        if(isPostFit) p->SaveAs((fName+"/Plots/Merge_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
-        else          p->SaveAs((fName+"/Plots/Merge"        +fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+        p->SaveAs((saveName+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
     }
 }
 
@@ -7391,12 +7412,12 @@ void TtHFit::GetLimit(){
             cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
         }
     }
-    
-     //
-     // Finally computing the limit
-     //
 
-     if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
+    //
+    // Finally computing the limit
+    //
+
+    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________
@@ -8793,7 +8814,7 @@ void TtHFit::ComputeBining(int regIter){
 //
 void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data){
     WriteInfoStatus("TtHFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
-    
+  
     // shut-up RooFit!
     if(TtHFitter::DEBUGLEVEL<=1){
         if(TtHFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
@@ -8828,10 +8849,10 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     Double_t minVal = -3;
     Double_t maxVal =  3;
     for(auto nf : fNormFactors){
-      if(nf->fName == varName){
-        minVal = nf->fMin;
-        maxVal = nf->fMax;
-      }
+        if(nf->fName == varName){
+            minVal = nf->fMin;
+            maxVal = nf->fMax;
+        }
     }
 
     if (isPoI){
@@ -8849,7 +8870,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     else {
         TIterator* it = mc->GetNuisanceParameters()->createIterator();
         while( (var = (RooRealVar*) it->Next()) ){
-            vname=var->GetName();
+        vname=var->GetName();
             vname_s=var->GetName();
             if (vname.Contains(varName.c_str())) {
                 WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
@@ -8872,7 +8893,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
 
     TString tag("");
     RooAbsReal* pll = nll->createProfile(*var);
-  //   RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(-1.5,3.5));
+//     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(-1.5,3.5));
     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(minVal, maxVal));
     pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TtHFitter::NCPU));
     RooCurve* curve = frameLH->getCurve();
@@ -8887,12 +8908,12 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
 //     TString fitStr = Form("%5.2f + %5.2fx + %5.2fx^{2}", poly->GetParameter(0), poly->GetParameter(1), poly->GetParameter(2));
 //     TLatex* latex = new TLatex();
 //     latex->SetNDC(); // latex->SetTextSize(0.055);
-//     latex->SetTextSize(gStyle->GetTextSize());
+//   latex->SetTextSize(gStyle->GetTextSize());
 //     latex->SetTextAlign(32);
 //     latex->SetText(0.925,0.925, fitStr);
 
-    // y axis
-    //frameLH->updateYAxis(minVal,maxVal,"");
+  // y axis
+  //frameLH->updateYAxis(minVal,maxVal,"");
     frameLH->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
 //     if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
     if(TtHFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[varName].c_str());
@@ -8906,7 +8927,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     can->SetName(cname);
     can->cd();
     frameLH->Draw();
-  //   latex->Draw("same");
+//   latex->Draw("same");
 
     TLatex *tex = new TLatex();
     tex->SetTextColor(kGray+2);
@@ -8916,8 +8937,8 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     l1s->SetLineColor(kGray);
     l1s->SetLineWidth(2);
     if(frameLH->GetMaximum()>2){
-        l1s->Draw();
-        tex->DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
+    l1s->Draw();
+    tex->DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
     }
     
     if(isPoI){

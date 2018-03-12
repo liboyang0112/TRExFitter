@@ -77,6 +77,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
             if(myMultiFit->fPlotCombCorrMatrix) myMultiFit->PlotCombinedCorrelationMatrix();
             if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI(myMultiFit->fPOI);
             if(myMultiFit->fCompareLimits) myMultiFit->CompareLimit();
+            if(myMultiFit->fVarNameLH.size()>0) myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName, false );
         }
         //
         if(myMultiFit->fPlotSoverB)    myMultiFit->PlotSummarySoverB();
@@ -175,7 +176,13 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     if(drawPreFit){
         if(TtHFitter::OPTION["PrefitRatioMax"]==2){
             myFit->DrawAndSaveAll("prefit");
-            if(myFit->fDoMergedPlot) myFit->DrawMergedPlot(myFit->fRegions,"prefit");
+            if(myFit->fDoMergedPlot){
+                if(myFit->fRegionGroups.size()==0)
+                    myFit->DrawMergedPlot("prefit");
+                for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
+                    myFit->DrawMergedPlot("prefit",myFit->fRegionGroups[i_gr]);
+                }
+            }
             if(myFit->fDoSummaryPlot){
                 prefit_plot       = myFit->DrawSummary("log prefit");
                 prefit_plot_valid = myFit->DrawSummary("log valid prefit");
@@ -183,7 +190,13 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
         }
         else{
             myFit->DrawAndSaveAll();
-            if(myFit->fDoMergedPlot) myFit->DrawMergedPlot(myFit->fRegions,"");
+            if(myFit->fDoMergedPlot){
+                if(myFit->fRegionGroups.size()==0)
+                    myFit->DrawMergedPlot("");
+                for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
+                    myFit->DrawMergedPlot("",myFit->fRegionGroups[i_gr]);
+                }
+            }
             if(myFit->fDoSummaryPlot){
                 prefit_plot       = myFit->DrawSummary("log");
                 prefit_plot_valid = myFit->DrawSummary("log valid");
@@ -210,7 +223,13 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     
     if(drawPostFit){
         myFit->DrawAndSaveAll("post");
-        if(myFit->fDoMergedPlot) myFit->DrawMergedPlot(myFit->fRegions,"post");
+        if(myFit->fDoMergedPlot){
+            if(myFit->fRegionGroups.size()==0)
+                myFit->DrawMergedPlot("post");
+            for(unsigned int i_gr=0;i_gr<myFit->fRegionGroups.size();i_gr++){
+                myFit->DrawMergedPlot("post",myFit->fRegionGroups[i_gr]);
+            }
+        }
         if(myFit->fDoSummaryPlot){
             myFit->DrawSummary("log post",      prefit_plot);
             myFit->DrawSummary("log post valid",prefit_plot_valid);
