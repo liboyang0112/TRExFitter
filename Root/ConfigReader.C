@@ -35,6 +35,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadJobOptions();
     
     sc+= ReadGeneralOptions();
+    
+    sc+= ReadFitOptions();
 
     return 0;
 }
@@ -132,6 +134,10 @@ int ConfigReader::ReadJobOptions(){
     std::string param = ""; // helper string
 
     fConfSet = fParser.GetConfigSet("Job");
+    if (fConfSet == nullptr){
+        WriteErrorStatus("ConfigReader::ReadJobOptions", "You need to provide JOB settings!");
+        exit(EXIT_FAILURE);
+    }
     
     fFitter->fName = CheckName(fConfSet->GetValue());
     fFitter->fInputName = fFitter->fName;
@@ -818,6 +824,167 @@ int ConfigReader::ReadGeneralOptions(){
             if(fConfSet->GetConfigValue(i) != ""){
                 TtHFitter::OPTION[fConfSet->GetConfigName(i)] = atof(fConfSet->GetConfigValue(i).c_str());
             }
+        }
+    } else {
+        WriteDebugStatus("ConfigReader::ReadGeneralOptions", "You do not have 'Options' option in the config. It is ok, we just want to let you know.");
+    }
+
+    return 0;
+}
+
+int ConfigReader::ReadFitOptions(){
+    std::string param = "";
+
+    fConfSet = fParser.GetConfigSet("Fit");
+    if (fConfSet == nullptr){
+        WriteInfoStatus("ConfigReader::ReadFitOptions", "You do not have Fit option in the config. It is ok, we just want to let you know.");
+        return 0; // it is ok to not have Fit set up 
+    }
+
+    //Set FitType
+    param = fConfSet->Get("FitType");
+    if( param != "" && fFitter->fFitType == TtHFit::UNDEFINED ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "SPLUSB" ){
+            fFitter->SetFitType(TtHFit::SPLUSB);
+        }
+        else if( param == "BONLY" ){
+            fFitter->SetFitType(TtHFit::BONLY);
+        }
+        else{
+            WriteErrorStatus("ConfigReader::ReadFitOptions", "Unknown FitType argument : " + fConfSet->Get("FitType"));
+            return 1;
+        }
+    }
+    else if( fFitter->fFitType == TtHFit::UNDEFINED ){
+        WriteInfoStatus("ConfigReader::ReadFitOptions","Setting default fit Type SPLUSB");
+        fFitter->SetFitType(TtHFit::SPLUSB);
+    }
+
+    // Set FitRegion
+    param = fConfSet->Get("FitRegion");
+    std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+    if( param != "" ){
+        if( param == "CRONLY" ){
+            fFitter->SetFitRegion(TtHFit::CRONLY);
+        }
+        else if( param == "CRSR" ){
+            fFitter->SetFitRegion(TtHFit::CRSR);
+        }
+        else{
+            fFitter->SetFitRegion(TtHFit::USERSPECIFIC);
+            fFitter->fFitRegionsToFit = Vectorize(param,',');
+            if(fFitter->fFitRegionsToFit.size()==0){
+                WriteErrorStatus("ConfigReader::ReadFitOptions", "Unknown FitRegion argument : " + fConfSet->Get("FitRegion"));
+                return 1;
+            }
+        }
+    }
+    
+    // Set FitBlind
+    param = fConfSet->Get("FitBlind");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fFitIsBlind = true;
+        } else if ( param == "FALSE" ){
+            fFitter->fFitIsBlind = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'FitBlind' option but didnt provide valid parameter. Using default (false)");
+            fFitter->fFitIsBlind = false;
+        }
+    }
+    
+    // Set POIAsimov
+    param = fConfSet->Get("POIAsimov");
+    if( param != "" ){
+         fFitter->fFitPOIAsimov = atof(param.c_str());
+    }
+
+    // Set NPValues
+    param = fConfSet->Get("NPValues");
+    if( param != "" ){
+        std::vector < std::string > temp_vec = Vectorize(param,',');
+        for(std::string iNP : temp_vec){
+            std::vector < std::string > np_value = Vectorize(iNP,':');
+            if(np_value.size()==2){
+                fFitter->fFitNPValues.insert( std::pair < std::string, double >( np_value[0], atof(np_value[1].c_str()) ) );
+            } else {
+                WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'NPValues' option but didnt provide 2 parameters for each NP which is expected. Ignoring");
+            }
+        }
+    }
+    
+    // Set FixNPs
+    param = fConfSet->Get("FixNPs");
+    if( param != "" ){
+        std::vector < std::string > temp_fixedNPs = Vectorize(param,',');
+        for(std::string iNP : temp_fixedNPs){
+            std::vector < std::string > fixed_nps = Vectorize(iNP,':');
+            if(fixed_nps.size()==2){
+                fFitter->fFitFixedNPs.insert( std::pair < std::string, double >( fixed_nps[0], atof(fixed_nps[1].c_str()) ) );
+            } else {
+                WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'FixNPs' option but didnt provide 2 parameters for each NP which is expected. Ignoring");
+            }
+        }
+    }
+
+    // Set doLHscan
+    param = fConfSet->Get("doLHscan");
+    if( param != "" ){
+        fFitter->fVarNameLH = Vectorize(param,',');
+    }
+    
+    // Set UseMinos
+    param = fConfSet->Get("UseMinos");
+    if( param != "" ){
+        fFitter->fVarNameMinos = Vectorize(param,',');
+    }
+
+    // Set SetRandomInitialNPval
+    param = fConfSet->Get("SetRandomInitialNPval");
+    if( param != ""){
+        fFitter->fUseRnd = true;
+        fFitter->fRndRange = std::atof(param.c_str());
+    }
+
+    // Set SetRandomInitialNPvalSeed
+    param = fConfSet->Get("SetRandomInitialNPvalSeed");
+    if( param != ""){
+        fFitter->fRndSeed = std::atol(param.c_str());
+    }
+
+    // Set NumCPU
+    param = fConfSet->Get("NumCPU");
+    if( param != "" ){
+        TtHFitter::NCPU = std::atoi( param.c_str());
+    }
+
+    // Set StatOnlyFit
+    param = fConfSet->Get("StatOnlyFit");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fStatOnlyFit = true;
+        } else if (param == "FALSE") {
+            fFitter->fStatOnlyFit = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'StatOnlyFit' option but didnt provide valid parameter. Using default (false)");
+            fFitter->fStatOnlyFit = false;
+        }
+    }
+
+    // Set GetGoodnessOfFit
+    param = fConfSet->Get("GetGoodnessOfFit");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fGetGoodnessOfFit = true;
+        } else if (param == "FALSE"){
+            fFitter->fGetGoodnessOfFit = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'GetGoodnessOfFit' option but didnt provide valid parameter. Using default (false)");
+            fFitter->fGetGoodnessOfFit = false;
         }
     }
 

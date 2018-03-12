@@ -66,6 +66,12 @@ class ConfigReader {
         int ReadGeneralOptions();
 
         /**
+          * Helper function to read Fit settings
+          * @return int status code
+          */
+        int ReadFitOptions();
+
+        /**
           * Helper function to check the consistency of the input
           * @param string Input parameter
           * @return string Corrected parameter
