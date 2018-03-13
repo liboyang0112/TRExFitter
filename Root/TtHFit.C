@@ -5129,6 +5129,7 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
         }
     }
 
+
     //Creating a set
     const char* weightName="weightVar";
     RooArgSet obsAndWeight;
@@ -5155,6 +5156,10 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
 
     //-- POI
     RooRealVar * poi = (RooRealVar*) mc->GetParametersOfInterest()->first();
+    if (poi == nullptr){
+        WriteErrorStatus("TtHFit::DumpData", "Cannot find POI in workspace, exitting...");
+        exit(EXIT_FAILURE);
+    }
     poi -> setVal(poiValue);
 
     //-- Nuisance parameters

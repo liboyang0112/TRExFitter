@@ -26,9 +26,10 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     fParser.ReadFile(fileName);
 
     // initialize checker COnfigParser to cross check the input
-    ConfigParser refConfig;
-    refConfig.ReadFile("jobSchema.config");
-    int sc = fParser.CheckSyntax(&refConfig);
+    //ConfigParser refConfig;
+    //refConfig.ReadFile("jobSchema.config");
+    //int sc = fParser.CheckSyntax(&refConfig);
+    int sc = 0;
 
     if (sc != 0) return sc;
 
@@ -1565,7 +1566,7 @@ int ConfigReader::ReadSampleOptions(){
         if(param != "") sample->SetLineColor(atoi(param.c_str()));
 
         // Set NormFactor
-        param == confSet->Get("NormFactor");
+        param = confSet->Get("NormFactor");
         if(param!=""){
             // check if the normfactor is called just with the name or with full definition
             const unsigned int sz = Vectorize(param,',').size();
@@ -1602,7 +1603,7 @@ int ConfigReader::ReadSampleOptions(){
         }
 
         // Set ShapeFactor
-        param == confSet->Get("ShapeFactor");
+        param = confSet->Get("ShapeFactor");
         if(param!=""){
             // check if the normfactor is called just with the name or with full definition
             const unsigned int sz = Vectorize(param,',').size();
