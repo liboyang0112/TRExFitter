@@ -59,7 +59,7 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     
     sc+= PostConfig();
 
-    return 0;
+    return sc;
 }
 
 int ConfigReader::ReadCommandLineOptions(std::string option){
@@ -2332,7 +2332,7 @@ int ConfigReader::ReadSystOptions(){
 
             // Set Symmetrisation
             param = confSet->Get("Symmetrisation");
-            if(param == ""){
+            if(param != ""){
                 std::transform(param.begin(), param.end(), param.begin(), ::toupper);
                 if(param == "ONESIDED") sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
                 else if(param == "TWOSIDED") sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;

@@ -98,7 +98,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     int sc = reader.ReadFullConfig(configFile,options);
     if(sc!=0){
         WriteErrorStatus("myFit::FitExample", "Failed to read the config file.");
-        return;
+        exit(EXIT_FAILURE);
     }
     
     if (TtHFitter::DEBUGLEVEL < 2){
