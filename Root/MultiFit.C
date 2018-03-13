@@ -4,6 +4,7 @@
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/StatusLogbook.h"
 #include "TtHFitter/Region.h"
+#include "TtHFitter/ConfigReader.h"
 
 //Roofit headers
 #include "RooSimultaneous.h"
@@ -258,7 +259,15 @@ void MultiFit::ReadConfigFile(string configFile,string options){
 //
 void MultiFit::AddFitFromConfig(string configFile,string options,string label,string loadSuf,string wsFile){
     fFitList.push_back(new TtHFit());
-    fFitList[fFitList.size()-1]->ReadConfigFile(configFile,options);
+
+    // initialize config reader 
+    ConfigReader reader(fFitList[fFitList.size()-1]);
+
+    if (reader.ReadFullConfig(configFile,options) != 0){
+        WriteErrorStatus("MultiFit::AddFitFromConfig", "Failed to read the config file.");
+        exit(EXIT_FAILURE);
+    }
+
     fFitLabels.push_back(label);
     fFitSuffs.push_back(loadSuf);
     fWsFiles.push_back(wsFile);

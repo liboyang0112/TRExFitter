@@ -96,9 +96,6 @@ public:
     void DrawSystPlots();
     void DrawSystPlotsSumSamples();
 
-    // config file
-    int ReadConfigFile(std::string fileName,std::string options="");
-    
     // read from ..
     void ReadNtuples();
     void ReadHistograms();

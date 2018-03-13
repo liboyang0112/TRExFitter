@@ -7,6 +7,8 @@
 #include "TtHFitter/Sample.h"
 #include "TtHFitter/NormFactor.h"
 #include "TtHFitter/ShapeFactor.h"
+#include "TtHFitter/Systematic.h"
+#include "TtHFitter/HistoTools.h"
 
 
 ConfigReader::ConfigReader(TtHFit *fitter){
@@ -51,6 +53,10 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadNormFactorOptions();
     
     sc+= ReadShapeFactorOptions();
+    
+    sc+= ReadSystOptions();
+    
+    sc+= PostConfig();
 
     return 0;
 }
@@ -1070,7 +1076,6 @@ int ConfigReader::ReadLimitOptions(){
 int ConfigReader::ReadRegionOptions(){
     std::string param = "";
     int nReg = 0;
-    std::vector<std::string> fRegNames;
 
     Region *reg;
 
@@ -2087,6 +2092,775 @@ int ConfigReader::ReadShapeFactorOptions(){
             if(   (samples[0]=="all" || FindInStringVector(samples, sample->fName)>=0 )
                && (exclude[0]==""    || FindInStringVector(exclude, sample->fName)<0 ) ){
                 sample->AddShapeFactor(sfactor);
+            }
+        }
+    }
+
+    return 0;
+}
+
+int ConfigReader::ReadSystOptions(){
+    std::string param = "";
+    int nSys = 9;
+    Systematic *sys = nullptr;
+    Sample *sample = nullptr;
+    int type = 0;
+
+    int typed = 0;
+    //Addition for StatOnly fit: dummy systematic for the significance computation and limit setting
+    Systematic *sysd;
+    if (fFitter->fStatOnly) {
+        typed = Systematic::OVERALL;
+        sysd = new Systematic("Dummy",typed);
+        sysd->fOverallUp   = 0.;
+        sysd->fOverallDown = -0.;
+        sysd->fScaleUp   = 1.;
+        sysd->fScaleDown   = 1.;
+        fFitter->fSystematics.push_back( sysd );
+        TtHFitter::SYSTMAP[sysd->fName] = "Dummy";
+        fFitter->fNSyst++;
+        for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+            sample = fFitter->fSamples[i_smp];
+            if(sample->fType == Sample::SIGNAL ) {
+                sample->AddSystematic(sysd);
+            }
+        }
+    }
+
+    while(true){
+        ConfigSet *confSet = fParser.GetConfigSet("Systematic",nSys);
+        if (confSet == nullptr) break;
+        nSys++;
+        
+        if(fOnlySystematics.size()>0 && FindInStringVector(fOnlySystematics,confSet->GetValue())<0) continue;
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
+        std::string samples_str = confSet->Get("Samples");
+        std::string regions_str = confSet->Get("Regions");
+        std::string exclude_str = confSet->Get("Exclude");
+        std::string excludeRegionSample_str = confSet->Get("ExcludeRegionSample");
+        if(samples_str=="") samples_str = "all";
+        if(regions_str=="") regions_str = "all";
+        std::vector<std::string> samples = Vectorize(samples_str,',');
+        std::vector<std::string> regions = Vectorize(regions_str,',');
+        std::vector<std::string> exclude = Vectorize(exclude_str,',');
+        fExcludeRegionSample = Vectorize(excludeRegionSample_str,',');
+        type = Systematic::HISTO;
+
+        // Set type
+        param = confSet->Get("Type");
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+
+        if(param == "OVERALL") type = Systematic::OVERALL;
+        else if(param == "SHAPE") type = Systematic::SHAPE;
+        else if (param == "STAT") type = Systematic::STAT;
+
+        std::string decorrelate = confSet->Get("Decorrelate");
+        
+        sys = new Systematic(CheckName(confSet->GetValue()),type);
+        TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
+        if(param == "OVERALL") sys->fIsNormOnly=true;
+        
+        // SetCategory
+        param = confSet->Get("Category");
+        if(param != "") sys->fCategory = param;
+
+        // Set IsFreeParameter
+        // Experimental
+        param = confSet->Get("IsFreeParameter");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if (param != "TRUE") sys->fIsFreeParameter = true;
+            else if (param != "TRUE") sys->fIsFreeParameter = false;
+            else {
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'IsFreeParameter' option but didnt provide valid parameter. Using default (false)");
+                sys->fIsFreeParameter = false;
+            }
+        }
+
+        // Set StoredName
+        // New: name to use when writing / reading the Histograms file
+        param = confSet->Get("StoredName");
+        if(param != "") sys->fStoredName = param;
+        
+        bool hasUp   = false;
+        bool hasDown = false;
+        if(type==Systematic::HISTO || type==Systematic::SHAPE){
+            if(fFitter->fInputType==0){ // HIST input
+                if(confSet->Get("HistoPathUp")!=""){
+                    sys->fHistoPathsUp.push_back(confSet->Get("HistoPathUp"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoPathDown")!=""){
+                    sys->fHistoPathsDown.push_back(confSet->Get("HistoPathDown"));
+                    hasDown = true;
+                }
+                if(confSet->Get("HistoPathSufUp")!=""){
+                    sys->fHistoPathSufUp = confSet->Get("HistoPathSufUp");
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoPathSufDown")!=""){
+                    sys->fHistoPathSufDown = confSet->Get("HistoPathSufDown");
+                    hasDown = true;
+                }
+                if(confSet->Get("HistoFileUp")!=""){
+                    sys->fHistoFilesUp.push_back(confSet->Get("HistoFileUp"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoFileDown")!=""){
+                    sys->fHistoFilesDown.push_back(confSet->Get("HistoFileDown"));
+                    hasDown = true;
+                }
+                if(confSet->Get("HistoFileSufUp")!=""){
+                    sys->fHistoFileSufUp = confSet->Get("HistoFileSufUp");
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoFileSufDown")!=""){
+                    sys->fHistoFileSufDown = confSet->Get("HistoFileSufDown");
+                    hasDown = true;
+                }
+                if(confSet->Get("HistoNameUp")!=""){
+                    sys->fHistoNamesUp.push_back(confSet->Get("HistoNameUp"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoNameDown")!=""){
+                    sys->fHistoNamesDown.push_back(confSet->Get("HistoNameDown"));
+                    hasDown = true;
+                }
+                if(confSet->Get("HistoNameSufUp")!=""){
+                    sys->fHistoNameSufUp = confSet->Get("HistoNameSufUp");
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoNameSufDown")!=""){
+                    sys->fHistoNameSufDown = confSet->Get("HistoNameSufDown");
+                    hasDown = true;
+                }
+            }
+            else if(fFitter->fInputType==1){ // NTUP option
+                if(confSet->Get("NtuplePathUp")!=""){
+                    sys->fNtuplePathsUp.push_back(confSet->Get("NtuplePathUp"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtuplePathDown")!=""){
+                    sys->fNtuplePathsDown.push_back(confSet->Get("NtuplePathDown"));
+                    hasDown = true;
+                }
+                if(confSet->Get("NtuplePathsUp")!=""){
+                    sys->fNtuplePathsUp = Vectorize(confSet->Get("NtuplePathsUp"),',');
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtuplePathsDown")!=""){
+                    sys->fNtuplePathsDown = Vectorize(confSet->Get("NtuplePathsDown"),',');
+                    hasDown = true;
+                }
+                if(confSet->Get("NtuplePathSufUp")!=""){
+                    sys->fNtuplePathSufUp = confSet->Get("NtuplePathSufUp");
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtuplePathSufDown")!=""){
+                    sys->fNtuplePathSufDown = confSet->Get("NtuplePathSufDown");
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleFileUp")!=""){
+                    sys->fNtupleFilesUp.push_back(confSet->Get("NtupleFileUp"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleFileDown")!=""){
+                    sys->fNtupleFilesDown .push_back(confSet->Get("NtupleFileDown"));
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleFilesUp")!=""){
+                    sys->fNtupleFilesUp = Vectorize(confSet->Get("NtupleFilesUp"),',');
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleFilesDown")!=""){
+                    sys->fNtupleFilesDown = Vectorize(confSet->Get("NtupleFilesDown"),',');
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleFileSufUp")!=""){
+                    sys->fNtupleFileSufUp = confSet->Get("NtupleFileSufUp");
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleFileSufDown")!=""){
+                    sys->fNtupleFileSufDown = confSet->Get("NtupleFileSufDown");
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleNameUp")!=""){
+                    sys->fNtupleNamesUp.push_back(confSet->Get("NtupleNameUp"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleNameDown")!=""){
+                    sys->fNtupleNamesDown.push_back( confSet->Get("NtupleNameDown"));
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleNamesUp")!=""){
+                    sys->fNtupleNamesUp = Vectorize(confSet->Get("NtupleNamesUp"),',');
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleNamesDown")!=""){
+                    sys->fNtupleNamesDown = Vectorize(confSet->Get("NtupleNamesDown"),',');
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleNameSufUp")!=""){
+                    sys->fNtupleNameSufUp = confSet->Get("NtupleNameSufUp");
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleNameSufDown")!=""){
+                    sys->fNtupleNameSufDown = confSet->Get("NtupleNameSufDown");
+                    hasDown = true;
+                }
+                if(confSet->Get("WeightUp")!=""){
+                    sys->fWeightUp = confSet->Get("WeightUp");
+                    hasUp   = true;
+                }
+                if(confSet->Get("WeightDown")!=""){
+                    sys->fWeightDown = confSet->Get("WeightDown");
+                    hasDown = true;
+                }
+                if(confSet->Get("WeightSufUp")!=""){
+                    sys->fWeightSufUp = confSet->Get("WeightSufUp");
+                    hasUp   = true;
+                }
+                if(confSet->Get("WeightSufDown")!=""){
+                    sys->fWeightSufDown = confSet->Get("WeightSufDown");
+                    hasDown = true;
+                }
+                if(confSet->Get("IgnoreWeight")!="") sys->fIgnoreWeight = confSet->Get("IgnoreWeight");
+            }
+            sys->fHasUpVariation   = hasUp  ;
+            sys->fHasDownVariation = hasDown;
+
+            // Set Symmetrisation
+            param = confSet->Get("Symmetrisation");
+            if(param == ""){
+                std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+                if(param == "ONESIDED") sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
+                else if(param == "TWOSIDED") sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
+                else {
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Symetrisation scheme is not recognized ... ");
+                    return 1;
+                }
+            }
+
+            // Set Smoothing
+            param = confSet->Get("Smoothing");
+            if(param != "") sys->fSmoothType = atoi(param.c_str());
+
+
+            param = confSet->Get("PreSmoothing");
+            if(param != ""){
+                std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+                if(param == "TRUE") sys->fPreSmoothing = true;
+                else if(param == "FALSE") sys->fPreSmoothing = false;
+                else {
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'PreSmoothing' option but didnt provide valid parameter. Using default (false)");
+                    sys->fPreSmoothing = false;
+                }
+            }
+        } // end of if(type==Systematic::HISTO || type==Systematic::SHAPE) 
+        else if(type==Systematic::OVERALL){
+            // Set OverallUp
+            param = confSet->Get("OverallUp");
+            if (param != "") sys->fOverallUp = atof( param.c_str() );
+
+            // Set OverallUDown
+            param = confSet->Get("OverallDown");
+            if (param != "") sys->fOverallDown = atof( param.c_str() );
+        }
+        
+        // Set ScaleUp
+        param = confSet->Get("ScaleUp");
+        if(param!=""){
+            std::vector < std::string > temp_vec = Vectorize(param,',');
+            if(temp_vec.size()==1 && Vectorize(temp_vec[0],':').size()==1){
+                sys->fScaleUp = atof(param.c_str());
+            }
+            else{
+                for(std::string ireg : temp_vec){
+                    std::vector < std::string > reg_value = Vectorize(ireg,':');
+                    if(reg_value.size()==2){
+                        sys->fScaleUpRegions.insert( std::pair < std::string, float >( reg_value[0], atof(reg_value[1].c_str()) ) );
+                    }
+                }
+            }
+        }
+
+        // Set ScaleDown
+        param = confSet->Get("ScaleDown");
+        if(param!=""){
+            std::vector < std::string > temp_vec = Vectorize(param,',');
+            if(temp_vec.size()==1 && Vectorize(temp_vec[0],':').size()==1){
+                sys->fScaleDown = atof(param.c_str());
+            }
+            else{
+                for(std::string ireg : temp_vec){
+                    std::vector < std::string > reg_value = Vectorize(ireg,':');
+                    if(reg_value.size()==2){
+                        sys->fScaleDownRegions.insert( std::pair < std::string, float >( reg_value[0], atof(reg_value[1].c_str()) ) );
+                    }
+                }
+            }
+        }
+
+        // Set SampleUp
+        // a new way of defining systematics, just comparing directly with GHOST samples
+        // --> this can be used only if this systematic is applied to a single sample
+        param = confSet->Get("SampleUp");
+        if(param!="") sys->fSampleUp = param;
+        
+        // Set SampleDown
+        param = confSet->Get("SampleDown");
+        if(param!="") sys->fSampleDown = param;
+        
+        // Set ReferenceSample    
+        // this to obtain syst variation relatively to given sample
+        param = confSet->Get("ReferenceSample");
+        if(param!="") sys->fReferenceSample = param;
+
+        // Set KeepReferenceOverallVar
+        param = confSet->Get("KeepReferenceOverallVar");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "FALSE") sys->fKeepReferenceOverallVar = false;
+            else if(param == "TRUE" ) sys->fKeepReferenceOverallVar = true;
+            else {
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'KeepReferenceOverallVar' option but didnt provide valid parameter. Using default (true)");
+                sys->fKeepReferenceOverallVar = true;
+            }
+        }
+
+        // Set DropShapeIn
+        param = confSet->Get("DropShapeIn");
+        if(param!="") sys->fDropShapeIn = Vectorize(param,',');
+        
+        // Set DropNorm
+        param = confSet->Get("DropNorm");
+        if(param!="") sys->fDropNormIn = Vectorize(param,',');
+
+        // Set KeepNormForSamples
+        param = confSet->Get("KeepNormForSamples");
+        if(param!="") sys->fKeepNormForSamples = Vectorize(param,',');
+       
+        if (regions.size() == 0 || exclude.size() == 0){
+            WriteErrorStatus("ConfigReader::ReadSystOptions", "Region or excude region size is equal to zero. Please check this");
+            return 1;
+        } 
+        if(regions[0]!="all") sys->fRegions = regions;
+        if(exclude[0]!="")    sys->fExclude = exclude;
+        
+        for (std::string ier : fExcludeRegionSample){
+            std::vector<std::string> pair_ERS = Vectorize(ier,':');
+            if (pair_ERS.size()==2){
+                sys->fExcludeRegionSample.push_back(pair_ERS);
+            }
+        }
+        if ( decorrelate == "" && type != Systematic::STAT) {
+            if (SetSystNoDecorelate(confSet, sys, samples, exclude) != 0) return 1;
+        }
+        else if (decorrelate == "REGION" || type == Systematic::STAT)  {
+            if (SetSystRegionDecorelate(confSet, sys, samples, exclude, regions, type) != 0) return 1;
+        }
+        else if (decorrelate == "SAMPLE")  {
+            if (SetSystSampleDecorelate(confSet, sys, samples, exclude) != 0) return 1;
+        }
+        else if (decorrelate == "SHAPEACC")  {
+            if (SetSystShapeDecorelate(confSet, sys, samples, exclude) != 0) return 1;
+        }
+        else {
+            WriteErrorStatus("ConfigReader::ReadSystOptions", "decorrelate option: " + decorrelate  + "  not supported ...");
+            WriteErrorStatus("ConfigReader::ReadSystOptions", "       PLEASE USE ONLY: REGION, SAMPLE, SHAPEACC");
+            return 1;
+        }
+
+        // Set SubtractRefSampleVar
+        // New: for systeamtics which also vary Data (e.g. JER with Full NPs)
+        // This will subtract linearly the relative variation on Data from each relative variation on MC
+        param = confSet->Get("SubtractRefSampleVar");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "TRUE" ) sys->fSubtractRefSampleVar = true;// default is false
+            else if(param == "FALSE" ) sys->fSubtractRefSampleVar = false;// default is false
+            else {
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'PreSmoothing' option but didnt provide valid parameter. Using default (false)");
+                sys->fSubtractRefSampleVar = false;
+            }
+        }
+        
+        if(FindInStringVector(fFitter->fDecorrSysts,sys->fNuisanceParameter)>=0){
+            WriteInfoStatus("ConfigReader::ReadSystOptions","Decorrelating systematic with NP = " + sys->fNuisanceParameter);
+            sys->fNuisanceParameter += fFitter->fDecorrSuff;
+        }
+    
+    }
+    
+    return 0;
+}
+
+int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude){
+    Sample *sam = nullptr;
+
+    fFitter->fSystematics.push_back( sys );
+    fFitter->fNSyst++;
+
+    // Set NuisanceParameter
+    std::string param = confSet->Get("NuisanceParameter");
+    if(param!=""){
+        sys->fNuisanceParameter = param;
+        TtHFitter::NPMAP[sys->fName] = sys->fNuisanceParameter;
+    }
+    else{
+        sys->fNuisanceParameter = sys->fName;
+        TtHFitter::NPMAP[sys->fName] = sys->fName;
+    }
+
+    // Set Title
+    param = confSet->Get("Title");
+    if(param != ""){
+        sys->fTitle = param;
+        TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
+    }
+
+    // Set TexTitle
+    param = confSet->Get("TexTitle");
+    if(param!="") TtHFitter::SYSTTEX[sys->fName] = param;
+    
+    // attach the syst to the proper samples
+    for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+        sam = fFitter->fSamples[i_smp];
+        if(sam->fType == Sample::DATA) continue;
+        // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
+        if(sam->fType == Sample::DATA){
+            if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
+              sam->AddSystematic(sys);
+            }
+            else continue;
+        }
+        if(!sam->fUseSystematics) continue;
+        if((samples[0] == "all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
+           && (exclude[0] == "" || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
+        ){
+            if((samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
+               && (exclude[0]=="" || FindInStringVector(exclude, sam->fName)<0 ) ){
+                sam->AddSystematic(sys);
+            }
+        }
+    }
+    
+    return 0;
+}
+
+int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude, const std::vector<std::string> regions, int type){
+    Sample *sam = nullptr;
+    std::string param = "";
+    
+    for(std::string ireg : fRegNames) {
+        bool keepReg=false;
+        if ( regions[0]=="all" ) keepReg=true;
+        else {
+            for ( const std::string& iGoodReg : regions) {
+                if ( ireg == iGoodReg ) keepReg=true;
+            }
+        }
+        for ( const std::string iBadReg : exclude) {
+            if ( iBadReg == ireg ) keepReg=false;
+        }
+
+        if (!keepReg) {
+            WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", "IGNORING REGION: " + ireg);
+            continue;
+        }
+        WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", "--> KEEPING IT!!! " + ireg);
+
+        if (type == Systematic::STAT) {
+          Region* reg = fFitter->GetRegion(ireg);
+          unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
+            WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", ireg + " " + std::to_string(nbins));
+            // decorrelate by bin
+            for (unsigned int i_bin = 0; i_bin < nbins; i_bin++) {
+                Systematic* mySys= new Systematic(*sys);
+                mySys->fName=(mySys->fName)+"_"+ireg+"_bin"+std::to_string(i_bin);
+                std::vector<std::string> tmpReg;
+                tmpReg.push_back( ireg );
+                mySys->fRegions = tmpReg;
+                std::vector<int> tmpBin;
+                tmpBin.push_back( i_bin );
+                mySys->fBins = tmpBin;
+                fFitter->fSystematics.push_back( mySys );
+
+                // Set NuisanceParameter
+                param = confSet->Get("NuisanceParameter");
+                if(param != ""){
+                    mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+ireg+"_bin"+std::to_string(i_bin);
+                    TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                } else {
+                    mySys->fNuisanceParameter = mySys->fName;
+                    TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+                }
+        
+                // Set Title
+                param = confSet->Get("Title");
+                if(param != ""){
+                    mySys->fTitle = (sys->fTitle)+"_"+ireg+"_bin"+std::to_string(i_bin);
+                    TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+                }
+                fFitter->fNSyst++;
+                for (int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+                    sam = fFitter->fSamples[i_smp];
+                    if(sam->fType == Sample::DATA) continue;
+                    if(!sam->fUseSystematics) continue;
+                    if(   (samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
+                       && (exclude[0]==""    || FindInStringVector(exclude, sam->fName)<0 ) ){
+                        sam->AddSystematic(mySys);
+                    }
+                }
+            }
+        } else {
+            //
+            // cloning the sys for each region
+            Systematic* mySys= new Systematic(*sys);
+            mySys->fName=(mySys->fName)+"_"+ireg;
+            std::vector<std::string> tmpReg;
+            tmpReg.push_back( ireg );
+            mySys->fRegions = tmpReg;
+            fFitter->fSystematics.push_back( mySys );
+
+            // Set NuisanceParameter
+            param == confSet->Get("NuisanceParameter");
+            if(param != ""){
+                mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+ireg;
+                TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+            }
+            else{
+                mySys->fNuisanceParameter = mySys->fName;
+                TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+            }
+
+            // Set Title
+            param = confSet->Get("Title");
+            if(param != ""){
+                mySys->fTitle = (sys->fTitle)+"_"+ireg;
+                TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+            }
+            fFitter->fNSyst++;
+            //
+            for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+                sam = fFitter->fSamples[i_smp];
+                // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
+                if(sam->fType == Sample::DATA){
+                    if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
+                        sam->AddSystematic(mySys);
+                    }
+                    else continue;
+                }
+                if(!sam->fUseSystematics) continue;
+                if(   (samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
+                    && (exclude[0]==""    || FindInStringVector(exclude, sam->fName)<0 ) ){
+                    sam->AddSystematic(mySys);
+                }
+            }
+        }
+    }
+    delete sys;
+
+    return 0;
+}
+
+int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
+    Sample *sam = nullptr;
+    std::string param = "";
+            
+    // (this is really messy)
+    for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+        sam = fFitter->fSamples[i_smp];
+        // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
+        if(sam->fType == Sample::DATA){
+          if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
+            sam->AddSystematic(sys);
+          }
+          else continue;
+        }
+        if(sam->fType == Sample::GHOST) continue;
+        bool keepSam=false;
+        if ( samples[0]=="all" ) keepSam=true;
+        else {
+            if ( find(samples.begin(), samples.end(), sam->fName)!=samples.end() ) keepSam=true;
+        }
+        if ( find(exclude.begin(), exclude.end(), sam->fName)!=exclude.end() ) keepSam=false;
+        if (!keepSam) {
+            WriteInfoStatus("ConfigReader::SetSystSampleDecorelate", " IGNORING SAMPLE: " + sam->fName);
+            continue;
+        }
+        WriteInfoStatus("ConfigReader::SetSystSampleDecorelate", " --> KEEPING SAMPLE: " + sam->fName);
+        //
+        // cloning the sys for each region
+        Systematic* mySys= new Systematic(*sys);
+        mySys->fName=(mySys->fName)+"_"+sam->fName;
+        fFitter->fSystematics.push_back( mySys );
+
+        // Set NuisanceParameter
+        param = confSet->Get("NuisanceParameter");
+        if(param != ""){
+            mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+sam->fName;
+            TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+        }
+        else{
+            mySys->fNuisanceParameter = mySys->fName;
+            TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+        }
+
+        // Set Title
+        param == confSet->Get("Title");
+        if(param != ""){
+            mySys->fTitle = (sys->fTitle)+"_"+sam->fName;
+            TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+        }
+        fFitter->fNSyst++;
+        sam->AddSystematic(mySys);
+    }
+    delete sys;
+    
+    return 0;
+}
+
+int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
+    Sample *sam = nullptr;
+    std::string param = "";
+
+    // cloning the sys
+    Systematic* mySys1= new Systematic(*sys);
+    mySys1->fName=(mySys1->fName)+"_Acc";
+    fFitter->fSystematics.push_back( mySys1 );
+    mySys1->fIsNormOnly = true;
+
+    // Set NuisanceParameter
+    param = confSet->Get("NuisanceParameter");
+    if(param != ""){
+        mySys1->fNuisanceParameter = (sys->fNuisanceParameter)+"_Acc";
+        TtHFitter::NPMAP[mySys1->fName] = sys->fNuisanceParameter;
+    }
+    else{
+        mySys1->fNuisanceParameter = mySys1->fName;
+        TtHFitter::NPMAP[mySys1->fName] = mySys1->fName;
+    }
+
+    // Set Title
+    param = confSet->Get("Title");
+    if(param != ""){
+        mySys1->fTitle = (sys->fTitle)+"_Acc";
+        TtHFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
+    }
+    fFitter->fNSyst++;
+    
+    for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+        sam = fFitter->fSamples[i_smp];
+        // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
+        if(sam->fType == Sample::DATA){
+            if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
+                sam->AddSystematic(mySys1);
+            }
+            else continue;
+        }
+        if(!sam->fUseSystematics) continue;
+        if(   (samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
+           && (exclude[0]==""    || FindInStringVector(exclude, sam->fName)<0 ) ){
+            sam->AddSystematic(mySys1);
+        }
+    }
+
+    if ( sys->fType!=Systematic::OVERALL ) {
+        // cloning the sys
+        Systematic* mySys2= new Systematic(*sys);
+        mySys2->fName=(mySys2->fName)+"_Shape";
+        mySys2->fIsNormOnly=false;
+        mySys2->fIsShapeOnly=true;
+        fFitter->fSystematics.push_back( mySys2 );
+        
+        //Set NuisanceParameter
+        param = confSet->Get("NuisanceParameter");
+        if(param != ""){
+            mySys2->fNuisanceParameter = (sys->fNuisanceParameter)+"_Shape";
+            TtHFitter::NPMAP[mySys2->fName] = sys->fNuisanceParameter;
+        }
+        else{
+            mySys2->fNuisanceParameter = mySys2->fName;
+            TtHFitter::NPMAP[mySys2->fName] = mySys2->fName;
+        }
+
+        // Set Title
+        param = confSet->Get("Title");
+        if(param != ""){
+            mySys2->fTitle = (sys->fTitle)+"_Shape";
+            TtHFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
+        }
+        fFitter->fNSyst++;
+
+        
+        for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+            sam = fFitter->fSamples[i_smp];
+            if(sam->fType == Sample::DATA) continue;
+            if(!sam->fUseSystematics) continue;
+            if(   (samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
+               && (exclude[0]==""    || FindInStringVector(exclude, sam->fName)<0 ) ){
+                sam->AddSystematic(mySys2);
+            }
+        }
+    }
+    delete sys;
+    
+    return 0;
+}
+
+int ConfigReader::PostConfig(){
+    // if StatOnly, also sets to OFF the MC stat
+    if(fFitter->fStatOnly){
+        WriteInfoStatus("ConfigReader::PostConfig","StatOnly option is setting to OFF the MC-stat (gammas) as well.");
+        WriteInfoStatus("ConfigReader::PostConfig","To keep them on use the command line option 'Systematics=NONE'");
+        WriteInfoStatus("ConfigReader::PostConfig","or comment out all Systematics in config file.");
+        fFitter->SetStatErrorConfig( false, 0. );
+    }
+
+    // add nuisance parameter - systematic title correspondence
+    for(auto syst : fFitter->fSystematics){
+        if(syst->fNuisanceParameter!=syst->fName) TtHFitter::SYSTMAP[syst->fNuisanceParameter] = syst->fTitle;
+    }
+    // add nuisance parameter - norm-factor title correspondence & fix nuisance parameter
+    for(auto norm : fFitter->fNormFactors){
+        if(TtHFitter::NPMAP[norm->fName]=="") TtHFitter::NPMAP[norm->fName] = norm->fName;
+        if(norm->fNuisanceParameter!=norm->fName) TtHFitter::SYSTMAP[norm->fNuisanceParameter] = norm->fTitle;
+    }
+
+    // morphing
+    if (fFitter->fRunMorphing){
+        // template fitting stuff
+        fFitter->fTemplateWeightVec = fFitter->GetTemplateWeightVec(fFitter->fTemplateInterpolationOption);
+        for(const TtHFit::TemplateWeight& itemp : fFitter->fTemplateWeightVec){
+            std::string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
+            TtHFitter::SYSTMAP[normName] = itemp.function;
+            TtHFitter::NPMAP[normName]   = itemp.name;
+            // get the norm factor corresponding to each template
+            for(auto norm : fFitter->fNormFactors){
+                if(norm->fName == normName){
+                    // find a norm factor in the config corresponding to the morphing parameter
+                    // NB: it should be there in the config, otherwise an error message is shown and the code crashe
+                    bool found = false;
+                    for(auto norm2 : fFitter->fNormFactors){
+                        if(norm2->fName == itemp.name){
+                            norm->fNominal = norm2->fNominal;
+                            norm->fMin = norm2->fMin;
+                            norm->fMax = norm2->fMax;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found){
+                        WriteErrorStatus("ConfigReader::PostConfig", "No NormFactor with name " + itemp.name + " found (needed for morphing");
+                        WriteErrorStatus("ConfigReader::PostConfig", "Please add to the config something like:");
+                        WriteErrorStatus("ConfigReader::PostConfig", "  NormFactor: " + itemp.name);
+                        WriteErrorStatus("ConfigReader::PostConfig", "    Min: <the min value for which you have provided template>");
+                        WriteErrorStatus("ConfigReader::PostConfig", "    Max: <the min value for which you have provided template>");
+                        WriteErrorStatus("ConfigReader::PostConfig", "    Samples: none");
+                        return 1;
+                    }
+                }
             }
         }
     }

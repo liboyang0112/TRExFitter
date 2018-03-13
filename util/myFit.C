@@ -101,6 +101,11 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
         return;
     }
     
+    if (TtHFitter::DEBUGLEVEL < 2){
+        gErrorIgnoreLevel = kError;
+        RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+    }
+
     // check compatibility between run option and config file
     if(readHistograms && myFit->fInputType!=TtHFit::HIST){
         std::cerr << "ERROR: Option \"h\" asked but no HISTO InputType speficied in the configuration file. Aborting." << std::endl;

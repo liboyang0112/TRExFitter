@@ -10,6 +10,7 @@
 //Forward class declaration
 class TtHFit;
 class Region;
+class Systematic;
 
 /**
  * \class ConfigReader
@@ -134,6 +135,56 @@ class ConfigReader {
         int ReadShapeFactorOptions();
 
         /**
+          * Helper function to read Systematic settings
+          * @return int status code
+          */
+        int ReadSystOptions();
+
+        /**
+          * Helper function to read Part of Syst config
+          * @param COnfigSet A pointer needed for reading
+          * @param Systematic A pointer to syst that is being set
+          * @param vector of strings Needed for this setting
+          * @param vector of strings Needed for this setting
+          * @return int status code
+          */
+        int SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
+
+        /**
+          * Helper function to read Part of Syst config
+          * @param COnfigSet A pointer needed for reading
+          * @param Systematic A pointer to syst that is being set
+          * @param vector of strings Needed for this setting
+          * @param vector of strings Needed for this setting
+          * @param vector of strings Needed for this setting
+          * @param int Flag needed for for this setting
+          * @return int status code
+          */
+        int SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude, const std::vector<std::string> regions, int type);
+    
+        /**
+          * Helper function to read Part of Syst config
+          * @param COnfigSet A pointer needed for reading
+          * @param Systematic A pointer to syst that is being set
+          * @return int status code
+          */
+        int SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
+    
+        /**
+          * Helper function to read Part of Syst config
+          * @param COnfigSet A pointer needed for reading
+          * @param Systematic A pointer to syst that is being set
+          * @return int status code
+          */
+        int SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
+
+        /**
+          * Helper function that is run after config is read
+          * @return int status code
+          */
+        int PostConfig();
+    
+        /**
           * Helper function to check the consistency of the input
           * @param string Input parameter
           * @return string Corrected parameter
@@ -169,7 +220,11 @@ class ConfigReader {
           * vector of strings, one for each exclude region
           */ 
         std::vector< std::string > fToExclude;
-       
+      
+        /**
+          * vector of strings, one for each exclude region sample
+          */ 
+        std::vector< std::string > fExcludeRegionSample; 
         /**
           * vector of names, one for each region
           */ 
