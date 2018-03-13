@@ -9,6 +9,7 @@
 
 //Forward class declaration
 class TtHFit;
+class Region;
 
 /**
  * \class ConfigReader
@@ -55,9 +56,10 @@ class ConfigReader {
 
         /**
           * Helper function to read plotting settings in JOB
+          * @param ConfigSet A pointer needed to parse the config
           * @return int status code
           */
-        int SetJobPlot();
+        int SetJobPlot(ConfigSet *confSet);
 
         /**
           * Helper function to read plotting settings in Options
@@ -78,6 +80,42 @@ class ConfigReader {
         int ReadLimitOptions();
 
         /**
+          * Helper function to read Region settings
+          * @return int status code
+          */
+        int ReadRegionOptions();
+
+        /**
+          * Helper function to read Region settings based on input type
+          * @param Region A pointer needed to parse the input
+          * @param ConfigSet A pointer neede to parse the input
+          * @return int status code
+          */
+        int SetRegionHIST(Region* reg, ConfigSet *confSet);
+
+        /**
+          * Helper function to read Region settings based on input type
+          * @param Region A pointer needed to parse the input
+          * @param ConfigSet A pointer neede to parse the input
+          * @return int status code
+          */
+        int SetRegionNTUP(Region* reg, ConfigSet *confSet);
+
+        /**
+          * Helper function to check if config has settings for NTUP
+          * @param ConfigSet A pointer needed to parse the input
+          * @return bool 
+          */ 
+        bool ConfigHasNTUP(ConfigSet* confSet);
+
+        /**
+          * Helper function to check if config has settings for HIST
+          * @param ConfigSet A pointer needed to parse the input
+          * @return bool 
+          */ 
+        bool ConfigHasHIST(ConfigSet* confSet);
+
+        /**
           * Helper function to check the consistency of the input
           * @param string Input parameter
           * @return string Corrected parameter
@@ -89,11 +127,6 @@ class ConfigReader {
           */
         TtHFit *fFitter;
     
-        /**
-          * Pointer of ConfigSet needed to read the config
-          */ 
-        ConfigSet *fConfSet;
-
         /**
           * Instance of ConfigParser used to parse the text
           */
@@ -118,7 +151,12 @@ class ConfigReader {
           * vector of strings, one for each exclude region
           */ 
         std::vector< std::string > fToExclude;
-        
+       
+        /**
+          * vector of names, one for each region
+          */ 
+        std::vector<std::string> fRegNames; 
+
         /**
           *  string for signal only
           */ 
