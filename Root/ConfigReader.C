@@ -47,6 +47,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadRegionOptions();
     
     sc+= ReadSampleOptions();
+    
+    sc+= ReadNormFactorOptions();
 
     return 0;
 }
@@ -1857,6 +1859,137 @@ int ConfigReader::ReadSampleOptions(){
         return 1;
     }
 
+    return 0;
+}
+
+int ConfigReader::ReadNormFactorOptions(){
+    std::string param = "";
+
+    int nNorm = 0;
+    NormFactor *nfactor = nullptr;
+    Sample *sample = nullptr;
+
+    while(true){
+        ConfigSet *confSet = fParser.GetConfigSet("NormFactor", nNorm);
+        if (confSet == nullptr) break;
+        nNorm++;
+        
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
+
+        std::string samples_str = confSet->Get("Samples");
+        std::string regions_str = confSet->Get("Regions");
+        std::string exclude_str = confSet->Get("Exclude");
+        if(samples_str=="") samples_str = "all";
+        if(regions_str=="") regions_str = "all";
+        std::vector<std::string> samples = Vectorize(samples_str,',');
+        std::vector<std::string> regions = Vectorize(regions_str,',');
+        std::vector<std::string> exclude = Vectorize(exclude_str,',');
+
+        nfactor = new NormFactor(CheckName(confSet->GetValue()));
+        
+        TtHFitter::SYSTMAP[nfactor->fName] = nfactor->fName;
+        if( FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
+            fFitter->fNormFactors.push_back( nfactor );
+            fFitter->fNormFactorNames.push_back( nfactor->fName );
+            fFitter->fNNorm++;
+        }
+        else{
+            nfactor = fFitter->fNormFactors[ FindInStringVector(fFitter->fNormFactorNames,nfactor->fName) ];
+        }
+
+        // Set NuisanceParameter
+        param = confSet->Get("NuisanceParameter");
+        if(param != ""){
+            nfactor->fNuisanceParameter = param;
+            TtHFitter::NPMAP[nfactor->fName] = nfactor->fNuisanceParameter;
+        }
+        else{
+            nfactor->fNuisanceParameter = nfactor->fName;
+            TtHFitter::NPMAP[nfactor->fName] = nfactor->fName;
+        }
+
+        // Set Constant
+        param = confSet->Get("Constant");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param=="TRUE") nfactor->fConst = true;
+            else if(param=="FALSE") nfactor->fConst = false;
+            else {
+                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "You specified 'Constant' option but didnt provide valid parameter. Using default (false)");
+                nfactor->fConst = false;
+            }
+        }
+
+        // Set Category
+        param = confSet->Get("Category");
+        if(param != "") nfactor->fCategory = param;
+
+        // Set Title
+        param = confSet->Get("Title");
+        if(param != ""){
+            nfactor->fTitle = param;
+            TtHFitter::SYSTMAP[nfactor->fName] = nfactor->fTitle;
+        }
+        
+        // Set TexTitle
+        param = confSet->Get("TexTitle");
+        if(param != "") TtHFitter::SYSTTEX[nfactor->fName] = param;
+        
+        // Set Min
+        param = confSet->Get("Min");
+        if(param!="") nfactor->fMin = atof(param.c_str());
+
+        // Set Max
+        param = confSet->Get("Max");
+        if(param!="") nfactor->fMax = atof(param.c_str());
+
+        // Set Nominal
+        param = confSet->Get("Nominal");
+        if(param!="") nfactor->fNominal = atof(param.c_str());
+
+        // Set Expression
+        param = confSet->Get("Expression");
+        if(param!=""){
+            std::vector<std::string> v = Vectorize(param,',');
+            if (v.size() != 2){
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "You specified 'Expression' option but didnt provide 2 parameters. Please check this");
+                return 1;
+            }
+            nfactor->fExpression = std::make_pair(v[0],v[1]);
+            // title will contain the expression FIXME
+            nfactor->fTitle = v[0];
+            TtHFitter::SYSTMAP[nfactor->fName] = v[0];
+            // nuis-par will contain the nuis-par of the norm factor the expression depends on FIXME
+            nfactor->fNuisanceParameter = v[1];
+            TtHFitter::NPMAP[nfactor->fName] = v[1];
+            // set nominal, min and max according to the norm factor the expression depends on FIXME
+            for(NormFactor *nf : fFitter->fNormFactors){
+                if(nf->fNuisanceParameter == v[1]){
+                    nfactor->fNominal = nf->fNominal;
+                    nfactor->fMin = nf->fMin;
+                    nfactor->fMax = nf->fMax;
+                }
+            }
+        }
+        
+        // save list of
+        if (regions.size() == 0 || exclude.size() == 0){
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or excude region size is equal to zero. Please check this");
+                return 1;
+            
+        }
+        if(regions[0] != "all") nfactor->fRegions = regions;
+        if(exclude[0] != "")    nfactor->fExclude = exclude;
+        // attach the syst to the proper samples
+        for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+            sample = fFitter->fSamples[i_smp];
+            if(sample->fType == Sample::DATA) continue;
+            if(   (samples[0]=="all" || FindInStringVector(samples, sample->fName)>=0 )
+               && (exclude[0]==""    || FindInStringVector(exclude, sample->fName)<0 ) ){
+                sample->AddNormFactor(nfactor);
+            }
+        }
+    }
     return 0;
 }
 

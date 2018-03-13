@@ -122,6 +122,12 @@ class ConfigReader {
         int ReadSampleOptions();
 
         /**
+          * Helper function to read NormFactor settings
+          * @return int status code
+          */
+        int ReadNormFactorOptions();
+
+        /**
           * Helper function to check the consistency of the input
           * @param string Input parameter
           * @return string Corrected parameter
