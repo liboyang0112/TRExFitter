@@ -4,6 +4,9 @@
 #include "TtHFitter/StatusLogbook.h"
 #include "TtHFitter/Common.h"
 #include "TtHFitter/Region.h"
+#include "TtHFitter/Sample.h"
+#include "TtHFitter/NormFactor.h"
+#include "TtHFitter/ShapeFactor.h"
 
 
 ConfigReader::ConfigReader(TtHFit *fitter){
@@ -42,6 +45,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadLimitOptions();
 
     sc+= ReadRegionOptions();
+    
+    sc+= ReadSampleOptions();
 
     return 0;
 }
@@ -1433,9 +1438,431 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     return 0;
 }
 
+int ConfigReader::ReadSampleOptions(){
+    int nSmp = 0;
+    Sample *sample = nullptr;
+    NormFactor *nfactor = nullptr;
+    ShapeFactor *sfactor = nullptr;
+
+    int type = 0;
+    std::string param = "";
+
+    while(true){
+        ConfigSet *confSet = fParser.GetConfigSet("Sample",nSmp);
+        if (confSet == nullptr) break;
+        nSmp++;
+        
+        if(fOnlySamples.size()>0 && FindInStringVector(fOnlySamples,confSet->GetValue())<0) continue;
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
+        type = Sample::BACKGROUND;
+
+        // Set Type
+        param = confSet->Get("Type");
+        if (param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "SIGNAL") type = Sample::SIGNAL;
+            else if(param == "DATA") type = Sample::DATA;
+            else if(param == "GHOST") type = Sample::GHOST;
+            else if(param == "BACKGROUND") type = Sample::BACKGROUND;
+            else {
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'Type' option in sample but didnt provide valid parameter. Using default (BACKGROUND)");
+            }
+            if(fOnlySignal != "" && type==Sample::SIGNAL && confSet->GetValue()!=fOnlySignal) continue;
+        } 
+        sample = fFitter->NewSample((confSet->GetValue()),type);
+    
+        // Set Title
+        param = confSet->Get("Title");
+        if (param != "") sample->SetTitle(param);
+
+        // Set TexTitle
+        param = confSet->Get("TexTitle");
+        if(param!="") sample->fTexTitle = param;
+
+        // Set Group
+        param = confSet->Get("Group");
+        if(param!="") sample->fGroup = param;
+
+        // HIST input
+        if (fFitter->fInputType == 0){
+            // Set HistoFile
+            param = confSet->Get("HistoFile");
+            if(param!="") sample->AddHistoFile( param );
+
+            // Set HistoName
+            param = confSet->Get("HistoName");
+            if(param!="") sample->fHistoNames.push_back( param );
+
+            // Set HistoPath
+            param = confSet->Get("HistoPath");
+            if(param!="") sample->AddHistoPath( param );
+        
+            if (ConfigHasNTUP(confSet)){
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You provided some NTUP options but your input type is HIST. Options will be ingored");
+            }
+        } else if (fFitter->fInputType == 1){ // NTUP input
+            // Set NtupleFile
+            param = confSet->Get("NtupleFile");
+            if(param!="") sample->AddNtupleFile( param );
+
+            // Set NtupleFiles
+            param = confSet->Get("NtupleFiles");
+            if(param!="") sample->fNtupleFiles = Vectorize( param ,',' );
+
+            // Set NtupleName
+            param = confSet->Get("NtupleName");
+            if(param!="") sample->AddNtupleName( param );
+
+            // Set NtupleNames
+            param = confSet->Get("NtupleNames");
+            if(param!="") sample->fNtupleNames = Vectorize( param ,',' );
+            
+            // Set NtuplePath
+            param = confSet->Get("NtuplePath");
+            if(param!="") sample->AddNtuplePath( param );
+
+            // Set NtuplePaths
+            param = confSet->Get("NtuplePaths");
+            if(param != "") sample->fNtuplePaths = Vectorize( param ,',' );
+
+            // Set NtupleNameSuff
+            param = confSet->Get("NtupleNameSuff");
+            if(param != "") {
+                sample->fNtupleNameSuffs.clear();
+                sample->fNtupleNameSuffs.push_back( param );
+            }
+            
+            // Set NtupleNameSuffs
+            param = confSet->Get("NtupleNameSuffs");
+            if( param != "" ){
+                std::vector<std::string> paths = Vectorize( param,',' );
+                sample->fNtupleNameSuffs = paths;
+            }
+
+            if (ConfigHasHIST(confSet)){
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You provided some HIST options but your input type is NTUP. Options will be ingored");
+            }
+        } else {
+            WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input type provided. Please check this!");
+            return 1;
+        }
+        
+        // Set FillColor
+        param = confSet->Get("FillColor");
+        if(param != "") sample->SetFillColor(atoi(param.c_str()));
+
+        // Set LineColor
+        param = confSet->Get("LineColor");
+        if(param != "") sample->SetLineColor(atoi(param.c_str()));
+
+        // Set NormFactor
+        param == confSet->Get("NormFactor");
+        if(param!=""){
+            // check if the normfactor is called just with the name or with full definition
+            const unsigned int sz = Vectorize(param,',').size();
+            if (sz != 1 && sz != 4 && sz != 5){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'NormFactor' provided. Please check this!");
+                return 1;
+            }
+            if( sz > 1 ){
+                bool isConst = false;
+                if( Vectorize(param,',').size()>4){
+                    std::string tmp = Vectorize(param,',')[4];
+                    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
+                    if (tmp == "TRUE"){
+                        isConst = true;
+                    } 
+                }
+                if (sz > 3)
+                    nfactor = sample->AddNormFactor(
+                    Vectorize(param,',')[0],
+                    atof(Vectorize(param,',')[1].c_str()),
+                    atof(Vectorize(param,',')[2].c_str()),
+                    atof(Vectorize(param,',')[3].c_str()),
+                    isConst
+                );
+            }
+            else{
+                nfactor = sample->AddNormFactor( Vectorize(param,',')[0] );
+            }
+            if( FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
+                fFitter->fNormFactors.push_back( nfactor );
+                fFitter->fNormFactorNames.push_back( nfactor->fName );
+                fFitter->fNNorm++;
+            }
+        }
+
+        // Set ShapeFactor
+        param == confSet->Get("ShapeFactor");
+        if(param!=""){
+            // check if the normfactor is called just with the name or with full definition
+            const unsigned int sz = Vectorize(param,',').size();
+            if (sz != 1 && sz != 4 && sz != 5){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'ShapeFactor' provided. Please check this!");
+                return 1;
+            }
+            if( sz > 1 ){
+                bool isConst = false;
+                if( Vectorize(param,',').size()>4){
+                    std::string tmp = Vectorize(param,',')[4];
+                    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
+                    if (tmp == "TRUE"){
+                        isConst = true;
+                    } 
+                }
+                if (sz > 3)
+                    sfactor = sample->AddShapeFactor(
+                    Vectorize(param,',')[0],
+                    atof(Vectorize(param,',')[1].c_str()),
+                    atof(Vectorize(param,',')[2].c_str()),
+                    atof(Vectorize(param,',')[3].c_str()),
+                    isConst
+                );
+            }
+            else{
+                sfactor = sample->AddShapeFactor( Vectorize(param,',')[0] );
+            }
+            if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
+                fFitter->fShapeFactors.push_back( sfactor );
+                fFitter->fShapeFactorNames.push_back( sfactor->fName );
+                fFitter->fNShape++;
+            }
+        }
+
+        // Set NormalizedByTheory
+        param = confSet->Get("NormalizedByTheory");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param=="FALSE") sample->NormalizedByTheory(false);
+            else if(param=="TRUE") sample->NormalizedByTheory(true);
+            else{
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'NormalizedByTheory' option but didnt provide valid parameter. Using default (true)");
+                sample->NormalizedByTheory(true);
+            }
+        }
+
+        // Set MCweight and Selection
+        if(fFitter->fInputType==1){
+            param = confSet->Get("MCweight");
+            if(param != "") sample->SetMCweight( param );
+
+            param = confSet->Get("Selection");
+            if(param!="") sample->SetSelection( param );
+        }
+
+
+        // to specify only certain regions
+        std::string regions_str = confSet->Get("Regions");
+        std::string exclude_str = confSet->Get("Exclude");
+        std::vector<std::string> regions = Vectorize(regions_str,',');
+        std::vector<std::string> exclude = Vectorize(exclude_str,',');
+        sample->fRegions.clear();
+
+        for(int i_reg=0;i_reg<fFitter->fNRegions;i_reg++){
+            std::string regName = fFitter->fRegions[i_reg]->fName;
+            if( (regions_str=="" || regions_str=="all" || FindInStringVector(regions,regName)>=0)
+                && FindInStringVector(exclude,regName)<0 ){
+                sample->fRegions.push_back( fFitter->fRegions[i_reg]->fName );
+            }
+        }
+
+        // Set LumiScale
+        param = confSet->Get("LumiScale");
+        if(param!="") sample->fLumiScales.push_back( atof(param.c_str()) );
+
+        // Set LumiScales
+        param = confSet->Get("LumiScales");
+        if(param!=""){
+            std::vector<std::string> lumiScales_str = Vectorize( param ,',' );
+            for(const std::string& ilumiscale : lumiScales_str){
+                sample->fLumiScales.push_back( atof(ilumiscale.c_str()) );
+            }
+        }
+
+        // Set IgnoreSelection
+        // to skip global & region selection for this sample
+        param = confSet->Get("IgnoreSelection");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "TRUE") sample->fIgnoreSelection = "TRUE";
+            else if(param == "FALSE") sample->fIgnoreSelection = "FALSE";
+            else {
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'IgnoreSelection' option but didnt provide valid parameter. Using default (false)");
+                sample->fIgnoreSelection = "FALSE";
+            }
+        }
+        
+        // Set UseMCstat
+        // to skip MC stat uncertainty for this sample
+        param = confSet->Get("UseMCstat");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "FALSE") sample->fUseMCStat = false;
+            else if (param == "TRUE") sample->fUseMCStat = true;
+            else {
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'UseMCstat' option but didnt provide valid parameter. Using default (true)");
+                sample->fUseMCStat = true;
+            }
+        }
+
+        // Set UseSystematics
+        // to skip MC systematics for this sample
+        param = confSet->Get("UseSystematics");
+        // set it to false for ghost samples and data and true for other samples
+        if(type == Sample::GHOST || type == Sample::DATA) sample->fUseSystematics = false;
+        else                                              sample->fUseSystematics = true;
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "FALSE") sample->fUseSystematics = false;
+            else if(param == "TRUE" ) sample->fUseSystematics = true;
+            else {
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'UseSystematics' option but didnt provide valid parameter. Using default (true)");
+                sample->fUseSystematics = true;
+            }
+        }
+
+        // Set DivideBy
+        param = confSet->Get("DivideBy");;
+        if (param != "") sample->fDivideBy = param;
+
+        // Set MultiplyBy
+        param = confSet->Get("MultiplyBy");
+        sample->fMultiplyBy = param;
+
+        // Set SubtractSample
+        param = confSet->Get("SubtractSample");
+        if(param!="") sample->fSubtractSamples.push_back(param);
+
+        // Set SubtractSamples
+        param = confSet->Get("SubtractSamples");
+        if(param != "") sample->fSubtractSamples = Vectorize(param,',');
+
+        // Set AddSample
+        param = confSet->Get("AddSample");
+        if(param != "") sample->fAddSamples.push_back(param);
+
+        // Set AddSamples
+        param = confSet->Get("AddSamples");
+        if(param!="") sample->fAddSamples = Vectorize(param,',');
+        
+        // Set BuildPullTable
+        // enable pull tables
+        param = confSet->Get("BuildPullTable");
+        if( param != "" ){ // can be TRUE, NORM-ONLY, NORM+SHAPE (TRUE is equal to NORM-ONLY)
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param == "TRUE" ){
+                sample->fBuildPullTable = 1;
+                fFitter->fWithPullTables = true;
+            }
+            if( param.find("NORM-ONLY")!=std::string::npos ){
+                sample->fBuildPullTable = 1;
+                fFitter->fWithPullTables = true;
+            }
+            else if( param.find("NORM+SHAPE")!=std::string::npos ){
+                sample->fBuildPullTable = 2;
+                fFitter->fWithPullTables = true;
+            }
+        }
+
+        // Set Smooth
+        // allow smoothing of nominal histogram?
+        param = confSet->Get("Smooth");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "TRUE") sample->fSmooth = true;
+            else if(param == "FALSE") sample->fSmooth = false;
+            else {
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'Smooth' option but didnt provide valid parameter. Using default (false)");
+                sample->fSmooth = false;
+            }
+        }
+
+        // Set AsimovReplacementFor
+        // AsimovReplacementFor
+        param = confSet->Get("AsimovReplacementFor");
+        if(param != ""){
+            if(Vectorize(param,',').size() == 2){
+                sample->fAsimovReplacementFor.first  = Vectorize(param,',')[0];
+                sample->fAsimovReplacementFor.second = Vectorize(param,',')[1];
+            } else {
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "You specified 'AsimovReplacementFor' option but didnt provide 2 parameters. Please check this");
+                return 1;
+            }
+        }
+
+        // Set SeparateGammas
+        // separate gammas
+        param = confSet->Get("SeparateGammas");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "TRUE"){
+                sample->fSeparateGammas = true;
+                if(confSet->Get("UseMCstat") == "") sample->fUseMCStat = false; // remove the usual gammas for this sample (only if no UseMCstat is specified!!)
+            } else if (param == "FALSE") sample->fSeparateGammas = false;
+            else {
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'SeparateGammas' option but didnt provide valid parameter. Using default (false)");
+                sample->fSeparateGammas = false;
+            }
+        }
+
+        // Set CorrelateGammasInRegions
+        // in the form    CorrelateGammasInRegions: SR1:SR2,CR1:CR2:CR3
+        param = confSet->Get("CorrelateGammasInRegions");
+        if(param != ""){
+            std::vector<std::string> sets = Vectorize(param,',');
+            for(std::string set : sets){
+                std::vector<std::string> regions = Vectorize(set,':');
+                WriteDebugStatus("ConfigReader::ReadSampleOptions", "Correlating gammas for this sample in regions " + set);
+                sample->fCorrelateGammasInRegions.push_back(regions);
+            }
+        }
+
+        // Set Morphing
+        param = confSet->Get("Morphing");
+        if(param != ""){
+            std::vector<std::string> morph_par = Vectorize(param,',');
+            if (morph_par.size() != 2){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Morphing requires exactly 2 parameters, but " + std::to_string(morph_par.size()) + " provided");
+                return 1;
+            }
+            fFitter->fRunMorphing = true;
+            std::string name      = morph_par.at(0);
+            float value = std::stof(morph_par.at(1));
+            WriteDebugStatus("ConfigReader::ReadSampleOptions", "Morphing: Adding " + name + ", with value: " + std::to_string(value));
+            if (!fFitter->MorphIsAlreadyPresent(name, value)) fFitter->AddTemplateWeight(name, value);
+            // set proper normalization
+            std::string morphName = "morph_"+name+"_"+ReplaceString(std::to_string(value),"-","m");
+            NormFactor *nf = sample->AddNormFactor(morphName, 1, 0, 10, false);
+            fFitter->fNormFactors.push_back( nf );
+            fFitter->fNormFactorNames.push_back( nf->fName );
+            fFitter->fNNorm++;
+
+            sample->fIsMorph = true;
+        }
+        
+    }
+    
+    // build new samples if AsimovReplacementFor are specified
+    for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+        if(fFitter->fSamples[i_smp]->fAsimovReplacementFor.first!=""){
+            WriteDebugStatus("ConfigReader::ReadSampleOptions", "Creating sample " + fFitter->fSamples[i_smp]->fAsimovReplacementFor.first);
+            Sample *ca = fFitter->NewSample("customAsimov_"+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first,Sample::GHOST);
+            ca->SetTitle("Pseudo-Data ("+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first+")");
+            ca->fUseSystematics = false;
+        }
+    }
+
+    if (nSmp == 0){
+        WriteErrorStatus("ConfigReader::ReadSampleOptions", "No 'Sample' provided. You need to provide at least one 'Sample' object. Check this!");
+        return 1;
+    }
+
+    return 0;
+}
+
 std::string ConfigReader::CheckName( const std::string &name ){
     if( std::isdigit( name.at(0) ) ){
-        WriteErrorStatus("ConfigReader::CheckName", "ERROR in browsing name: " + name + ". A number has been detected at the first position of the name.");
+        WriteErrorStatus("ConfigReader::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
         WriteErrorStatus("ConfigReader::CheckName", "           This can lead to unexpected behaviours in HistFactory. Please change the name. ");
         WriteErrorStatus("ConfigReader::CheckName", "           The code is about to crash.");
         std::abort();
@@ -1445,11 +1872,11 @@ std::string ConfigReader::CheckName( const std::string &name ){
 }
 
 bool ConfigReader::ConfigHasNTUP(ConfigSet* confSet){
-    if (confSet->Get("Variable") != "" || confSet->Get("VariableForSample") != "" || confSet->Get("Selection") != "" || confSet->Get("NtupleName") != "" || confSet->Get("NtupleNameSuff") != "" || confSet->Get("MCweight") != "" || confSet->Get("NtuplePathSuff") != "") return true;
+    if (confSet->Get("Variable") != "" || confSet->Get("VariableForSample") != "" || confSet->Get("Selection") != "" || confSet->Get("NtupleName") != "" || confSet->Get("NtupleNameSuff") != "" || confSet->Get("MCweight") != "" || confSet->Get("NtuplePathSuff") != "" || confSet->Get("NtupleFile") != "" || confSet->Get("NtupleFiles") != "" || confSet->Get("NtupleNames") != "" || confSet->Get("NtuplePath") != "" || confSet->Get("NtuplePaths") != "" || confSet->Get("NtuplePathSuffs") != "") return true;
     else return false;
 }
 
 bool ConfigReader::ConfigHasHIST(ConfigSet* confSet){
-    if (confSet->Get("HistoFile") != "" || confSet->Get("HistoName") != "" || confSet->Get("HistoPathSuff") != "" || confSet->Get("HistoPathSuffs") != "" ) return true;
+    if (confSet->Get("HistoFile") != "" || confSet->Get("HistoName") != "" || confSet->Get("HistoPathSuff") != "" || confSet->Get("HistoPathSuffs") != "" || confSet->Get("HistoPath") != "" ) return true;
     else return false;
 }

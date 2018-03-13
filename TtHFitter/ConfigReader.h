@@ -116,6 +116,12 @@ class ConfigReader {
         bool ConfigHasHIST(ConfigSet* confSet);
 
         /**
+          * Helper function to read Sample settings
+          * @return int status code
+          */
+        int ReadSampleOptions();
+
+        /**
           * Helper function to check the consistency of the input
           * @param string Input parameter
           * @return string Corrected parameter
