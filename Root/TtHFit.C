@@ -571,85 +571,6 @@ int TtHFit::ReadConfigFile(string fileName,string options){
     string onlySignal; onlySignal = "";
 
     std::vector<std::string> regNames;
-    Sample *sam;
-    //##########################################################
-    //
-    // ShapeFactor options
-    //
-    //##########################################################
-    int nShape = 0;
-    ShapeFactor *shape;
-    //    Sample *sam;
-
-    while(true){
-        cs = fConfig->GetConfigSet("ShapeFactor",nShape);
-        if(cs==0x0) break;
-        nShape++;
-        if(toExclude.size()>0 && FindInStringVector(toExclude,cs->GetValue())>=0) continue;
-        string samples_str = cs->Get("Samples");
-        string regions_str = cs->Get("Regions");
-        string exclude_str = cs->Get("Exclude");
-        if(samples_str=="") samples_str = "all";
-        if(regions_str=="") regions_str = "all";
-        vector<string> samples = Vectorize(samples_str,',');
-        vector<string> regions = Vectorize(regions_str,',');
-        vector<string> exclude = Vectorize(exclude_str,',');
-        //shape = new ShapeFactor(CheckName(cs->GetValue()));
-        shape = new ShapeFactor((cs->GetValue()));
-        if( FindInStringVector(fShapeFactorNames,shape->fName)<0 ){
-            fShapeFactors.push_back( shape );
-            fShapeFactorNames.push_back( shape->fName );
-            fNShape++;
-        }
-        else{
-            shape = fShapeFactors[ FindInStringVector(fShapeFactorNames,shape->fName) ];
-        }
-        if(cs->Get("NuisanceParameter")!=""){
-            shape->fNuisanceParameter = cs->Get("NuisanceParameter");
-            TtHFitter::NPMAP[shape->fName] = shape->fNuisanceParameter;
-        }
-        else{
-            shape->fNuisanceParameter = shape->fName;
-            TtHFitter::NPMAP[shape->fName] = shape->fName;
-        }
-        param = cs->Get("Constant");
-        if(param!=""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param=="TRUE") shape->fConst = true;
-        }
-        param = cs->Get("Category");
-        if(param!=""){
-            shape->fCategory = param;
-        }
-        param = cs->Get("Title"); if(param!=""){
-            shape->fTitle = param;
-            TtHFitter::SYSTMAP[shape->fName] = shape->fTitle;
-        }
-        param = cs->Get("TexTitle"); if(param!=""){
-            TtHFitter::SYSTTEX[shape->fName] = param;
-        }
-        param = cs->Get("Min"); if(param!=""){ shape->fMin = atof(param.c_str()); }
-        param = cs->Get("Max"); if(param!=""){ shape->fMax = atof(param.c_str()); }
-        param = cs->Get("Nominal"); if(param!=""){ shape->fNominal = atof(param.c_str()); }
-        //
-        // save list of
-        if(regions[0]!="all") shape->fRegions = regions;
-        if(exclude[0]!="")    shape->fExclude = exclude;
-        // attach the syst to the proper samples
-        for(int i_smp=0;i_smp<fNSamples;i_smp++){
-            sam = fSamples[i_smp];
-            if(sam->fType == Sample::DATA) continue;
-//             if(   (samples[0]=="all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
-//                && (exclude[0]==""    || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
-//             ){
-            if(   (samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
-               && (exclude[0]==""    || FindInStringVector(exclude, sam->fName)<0 ) ){
-                sam->AddShapeFactor(shape);
-            }
-        }
-        // ...
-    }
-
 
     //##########################################################
     //
@@ -658,7 +579,7 @@ int TtHFit::ReadConfigFile(string fileName,string options){
     //##########################################################
     int nSys = 0;
     Systematic *sys;
-//     Sample *sam;
+     Sample *sam;
 
     //Addition for StatOnly fit: dummy systematic for the significance computation and limit setting
     int typed=0;

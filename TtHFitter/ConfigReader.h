@@ -128,6 +128,12 @@ class ConfigReader {
         int ReadNormFactorOptions();
 
         /**
+          * Helper function to read ShapeFactor settings
+          * @return int status code
+          */
+        int ReadShapeFactorOptions();
+
+        /**
           * Helper function to check the consistency of the input
           * @param string Input parameter
           * @return string Corrected parameter

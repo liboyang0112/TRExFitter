@@ -49,6 +49,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadSampleOptions();
     
     sc+= ReadNormFactorOptions();
+    
+    sc+= ReadShapeFactorOptions();
 
     return 0;
 }
@@ -1990,6 +1992,105 @@ int ConfigReader::ReadNormFactorOptions(){
             }
         }
     }
+    return 0;
+}
+
+int ConfigReader::ReadShapeFactorOptions(){
+    std::string param = "";
+    int nShape = 0;
+    ShapeFactor *sfactor = nullptr;
+    Sample *sample = nullptr;
+
+    while(true){
+        ConfigSet *confSet = fParser.GetConfigSet("ShapeFactor",nShape);
+        if (confSet == nullptr) break;
+        nShape++;
+
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
+        std::string samples_str = confSet->Get("Samples");
+        std::string regions_str = confSet->Get("Regions");
+        std::string exclude_str = confSet->Get("Exclude");
+        if(samples_str=="") samples_str = "all";
+        if(regions_str=="") regions_str = "all";
+        std::vector<std::string> samples = Vectorize(samples_str,',');
+        std::vector<std::string> regions = Vectorize(regions_str,',');
+        std::vector<std::string> exclude = Vectorize(exclude_str,',');
+        sfactor = new ShapeFactor(CheckName(confSet->GetValue()));
+        if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
+            fFitter->fShapeFactors.push_back( sfactor );
+            fFitter->fShapeFactorNames.push_back( sfactor->fName );
+            fFitter->fNShape++;
+        }
+        else{
+            sfactor = fFitter->fShapeFactors[ FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName) ];
+        }
+
+        // Set NuisanceParameter
+        param = confSet->Get("NuisanceParameter");
+        if(param != ""){
+            sfactor->fNuisanceParameter = param;
+            TtHFitter::NPMAP[sfactor->fName] = sfactor->fNuisanceParameter;
+        }
+        else{
+            sfactor->fNuisanceParameter = sfactor->fName;
+            TtHFitter::NPMAP[sfactor->fName] = sfactor->fName;
+        }
+
+        // Set Constant
+        param = confSet->Get("Constant");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param=="TRUE") sfactor->fConst = true;
+            else if(param=="FALSE") sfactor->fConst = false;
+            else {
+                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "You specified 'Constant' option but didnt provide valid parameter. Using default (false)");
+                sfactor->fConst = false;
+            }
+        }
+
+        // Set Category
+        param = confSet->Get("Category");
+        if(param!="") sfactor->fCategory = param;
+    
+        // Set Title
+        param = confSet->Get("Title");
+        if(param != ""){
+            sfactor->fTitle = param;
+            TtHFitter::SYSTMAP[sfactor->fName] = sfactor->fTitle;
+        }
+        param = confSet->Get("TexTitle");
+        if(param != "") TtHFitter::SYSTTEX[sfactor->fName] = param;
+        
+        // Set Min
+        param = confSet->Get("Min");
+        if(param!="") sfactor->fMin = atof(param.c_str());
+
+        // Set Max
+        param = confSet->Get("Max");
+        if(param!="") sfactor->fMax = atof(param.c_str());
+
+        // Set Nominal
+        param = confSet->Get("Nominal");
+        if(param!="") sfactor->fNominal = atof(param.c_str());
+
+        if (regions.size() == 0 || exclude.size() == 0){
+            WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "Region or excude region size is equal to zero. Please check this");
+            return 1;
+        }
+        // save list of
+        if(regions[0]!="all") sfactor->fRegions = regions;
+        if(exclude[0]!="")    sfactor->fExclude = exclude;
+        // attach the syst to the proper samples
+        for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+            sample = fFitter->fSamples[i_smp];
+            if(sample->fType == Sample::DATA) continue;
+            if(   (samples[0]=="all" || FindInStringVector(samples, sample->fName)>=0 )
+               && (exclude[0]==""    || FindInStringVector(exclude, sample->fName)<0 ) ){
+                sample->AddShapeFactor(sfactor);
+            }
+        }
+    }
+
     return 0;
 }
 
