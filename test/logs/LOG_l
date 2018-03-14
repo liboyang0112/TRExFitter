@@ -207,7 +207,6 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 === DEBUG::RunAsymptoticsCLs::RunAsymptoticsCLs: get min and max of firstPOI
 === DEBUG::RunAsymptoticsCLs::RunAsymptoticsCLs: firstPOIMin 0.000000
 === DEBUG::RunAsymptoticsCLs::RunAsymptoticsCLs: firstPOIMax 100.000000
-   INFO: In dommap (/var/build/jenkins/workspace/lcg_release/BUILDTYPE/Release/COMPILER/gcc49/LABEL/slc6-physical/build/projects/ROOT-6.04.14/src/ROOT/6.04.14/roofit/roofitcore/src/BidirMMapPipe.cxx, line 422): anonymous mmapping works, excellent!
 [1;32m=== INFO::RunAsymptoticCLs::makeAsimovData: Creating asimov data at mu = 0.000000, profiling at mu = 0.000000[0m
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
@@ -980,5 +979,6 @@ RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] =
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Median:    4.423135[0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Observed:  3.009067[0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
+mkdir: created directory `FitExample/Limits/'
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Finished with 35 calls to minimize(nll)[0m
-Real time 0:00:01, CP time 1.550
+Real time 0:00:01, CP time 1.090

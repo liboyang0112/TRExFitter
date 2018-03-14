@@ -65,7 +65,7 @@ class TthPlot {
 
     std::string xtitle;
     std::string ytitle;
-    std::string data_name;
+    std::string fDataName;
     std::vector< std::string > fBkgNames;
     std::vector< std::string > fSigNames;
     std::vector< std::string > fNormSigNames;

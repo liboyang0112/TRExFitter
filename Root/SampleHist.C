@@ -742,8 +742,14 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 h_1->GetYaxis()->SetTitle("#frac{Syst.-Nom.}{Nom.} [%]");
                 h_1->GetYaxis()->SetTitleOffset(1.6);
                 h_1->GetXaxis()->SetTitleOffset(3.);
-                h_1->SetMinimum(-ymax*1.5);
-                h_1->SetMaximum( ymax*1.5);
+                if(TtHFitter::OPTION["SystPlotRatioRange"]!=0){
+                    h_1->SetMinimum(-TtHFitter::OPTION["SystPlotRatioRange"]);
+                    h_1->SetMaximum( TtHFitter::OPTION["SystPlotRatioRange"]);
+                }
+                else{
+                    h_1->SetMinimum(-ymax*1.5);
+                    h_1->SetMaximum( ymax*1.5);
+                }
             }
             h_1->GetXaxis()->SetTitle(fVariableTitle.c_str());
 

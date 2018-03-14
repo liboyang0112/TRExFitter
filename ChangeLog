@@ -7,6 +7,10 @@
         * Can use GroupedImpact options to parallelize (similar to ranking)
     * Closes TTHFITTER-88
 
+2018-02-28 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Merging some features developed for the 4top analysis
+    * Updating ROOT version
+
 2018-03-05 Tomas Dado <tomas.dadod@cern.ch>
 	* Fixxing compilation error for gcc62
 	* Fixxing postfit plots when morphing option is used
