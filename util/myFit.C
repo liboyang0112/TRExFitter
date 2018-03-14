@@ -101,6 +101,8 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
         exit(EXIT_FAILURE);
     }
     
+    WriteInfoStatus("myFit::FitExample", "Finished with the config reading with status " + std::to_string(sc));
+    
     if (TtHFitter::DEBUGLEVEL < 2){
         gErrorIgnoreLevel = kError;
         RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);

@@ -17,7 +17,6 @@ ConfigReader::ConfigReader(TtHFit *fitter){
 }
 
 ConfigReader::~ConfigReader(){
-    WriteInfoStatus("ConfigReader::~ConfigReader", "Finished with the config reading");
 }
 
 
