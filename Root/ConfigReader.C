@@ -39,23 +39,23 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     }
 
     sc+= ReadJobOptions();
-    
+
     sc+= ReadGeneralOptions();
-    
+
     sc+= ReadFitOptions();
 
     sc+= ReadLimitOptions();
 
     sc+= ReadRegionOptions();
-    
+
     sc+= ReadSampleOptions();
-    
+
     sc+= ReadNormFactorOptions();
-    
+
     sc+= ReadShapeFactorOptions();
-    
+
     sc+= ReadSystOptions();
-    
+
     sc+= PostConfig();
 
     return sc;
@@ -64,7 +64,7 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 int ConfigReader::ReadCommandLineOptions(std::string option){
     std::vector< std::string > optVec = Vectorize(option,':');
     std::map< std::string,std::string > optMap;
-    
+
     for(const std::string& iopt : optVec){
         std::vector< std::string > optPair;
         optPair = Vectorize(iopt,'=');
@@ -116,6 +116,9 @@ int ConfigReader::ReadCommandLineOptions(std::string option){
     if(optMap["BootstrapIdx"]!=""){
         fFitter->fBootstrapIdx = atoi(optMap["BootstrapIdx"].c_str());
     }
+    if(optMap["GroupedImpact"]!=""){
+        fFitter->fGroupedImpactCategory = optMap["GroupedImpact"];
+    }
     //
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "-------------------------------------------");
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "Running options: ");
@@ -158,14 +161,14 @@ int ConfigReader::ReadJobOptions(){
         WriteErrorStatus("ConfigReader::ReadJobOptions", "You need to provide JOB settings!");
         return 1;
     }
-    
+
     fFitter->fName = CheckName(confSet->GetValue());
     fFitter->fInputName = fFitter->fName;
-    
+
     //Set DebugLevel
     param = confSet->Get("DebugLevel");
     if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
-    
+
     // Set outputDir
     param = confSet->Get("OutputDir");
     if(param != ""){
@@ -192,12 +195,12 @@ int ConfigReader::ReadJobOptions(){
         WriteErrorStatus("ConfigReader::ReadJobOptions", "Invalid \"ReadFrom\" argument. Options: \"HIST\", \"NTUP\"");
         return 1;
     }
-    
+
     // set default MERGEUNDEROVERFLOW
     if(fFitter->fInputType==0)      TtHFitter::MERGEUNDEROVERFLOW = false;
     else if(fFitter->fInputType==1) TtHFitter::MERGEUNDEROVERFLOW = true;
-   
-    // Set MergeUnderOverFlow from config 
+
+    // Set MergeUnderOverFlow from config
     param = confSet->Get("MergeUnderOverFlow");
     if(param!=""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -208,7 +211,7 @@ int ConfigReader::ReadJobOptions(){
             TtHFitter::MERGEUNDEROVERFLOW = false;
         }
     }
-    
+
     //Set paths
     // HIST option only
     if(fFitter->fInputType==0){
@@ -236,7 +239,7 @@ int ConfigReader::ReadJobOptions(){
         }
         fFitter->SetNtupleFile( confSet->Get("NtupleFile") );
         if(confSet->Get("NtuplePath")!="") {
-            fFitter->AddNtuplePath( confSet->Get("NtuplePath") ); 
+            fFitter->AddNtuplePath( confSet->Get("NtuplePath") );
         }
         param = confSet->Get("NtuplePaths");
         if( param != "" ){
@@ -252,7 +255,7 @@ int ConfigReader::ReadJobOptions(){
         if(param!="") fFitter->SetSelection(param);
         fFitter->SetNtupleName( confSet->Get("NtupleName") );
     }
-    
+
     // Set lumi
     param = confSet->Get("Lumi");
     if( param != "" ) fFitter->SetLumi( atof(param.c_str()) );
@@ -267,7 +270,7 @@ int ConfigReader::ReadJobOptions(){
 
     // Set TtresSmoothing
     param = confSet->Get("TtresSmoothing");
-    if( param != ""){ 
+    if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ) fFitter->fTtresSmoothing = true;
         else {
@@ -328,7 +331,7 @@ int ConfigReader::ReadJobOptions(){
     // plotting options are in special function
     if (SetJobPlot(confSet) != 0) return 1;
 
-    // Set TableOptions 
+    // Set TableOptions
     param = confSet->Get("TableOptions");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -467,7 +470,7 @@ int ConfigReader::ReadJobOptions(){
     if( param != "" ){
         fFitter->fAtlasLabel = param;
     }
-        
+
     // Set CleanTables
     param = confSet->Get("CleanTables");
     if( param != "" ){
@@ -497,7 +500,7 @@ int ConfigReader::ReadJobOptions(){
     if( param != "" ){
         fFitter->fSuffix = param;
     }
-    
+
     // Set SaveSuffix
     param = confSet->Get("SaveSuffix");
     if( param != "" ){
@@ -509,7 +512,7 @@ int ConfigReader::ReadJobOptions(){
     if( param != "" ){
         fFitter->fVarNameHide = Vectorize(param,',');
     }
-        
+
     // Set RegionGroups
     param = confSet->Get("RegionGroups");
     if( param != "" ) {
@@ -565,7 +568,7 @@ int ConfigReader::ReadJobOptions(){
             return 1;
         }
     }
-    
+
     // Set DoTables
     param = confSet->Get("DoTables");
     if( param != "" ){
@@ -595,13 +598,13 @@ int ConfigReader::ReadJobOptions(){
     if ( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if (param == "TRUE"){
-            fFitter->fRunROOTMacros = true; 
+            fFitter->fRunROOTMacros = true;
         }
         else if (param == "FALSE"){
-            fFitter->fRunROOTMacros = false; 
+            fFitter->fRunROOTMacros = false;
         } else {
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
-            fFitter->fRunROOTMacros = false; 
+            fFitter->fRunROOTMacros = false;
         }
     }
 
@@ -648,7 +651,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         TtHFitter::SHOWNORMSIG_SUMMARY    = TtHFitter::SHOWNORMSIG     ;
         TtHFitter::SHOWOVERLAYSIG_SUMMARY = TtHFitter::SHOWOVERLAYSIG  ;
     }
-    
+
     // Set SystControlPlots
     param = confSet->Get("SystControlPlots");
     if( param != ""){
@@ -705,11 +708,11 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         } else {
             WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'GuessMCStatEmptyBins' option but you didn't provide valid setting. Using default (FALSE)");
             TtHFitter::GUESSMCSTATERROR = false;
-        }   
+        }
     }
 
     // Set SuppressNegativeBinWarnings
-    param = confSet->Get("SuppressNegativeBinWarnings"); 
+    param = confSet->Get("SuppressNegativeBinWarnings");
      if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if ( param == "TRUE" ){
@@ -722,7 +725,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         }
     }
 
-    // Set SignalRegionsPlot    
+    // Set SignalRegionsPlot
     param = confSet->Get("SignalRegionsPlot");
     if(param != ""){
         fFitter->fRegionsToPlot = Vectorize(param,',');
@@ -741,7 +744,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     }
 
     // Set SummaryPlotValidationRegions
-    param = confSet->Get("SummaryPlotValidationRegions");  
+    param = confSet->Get("SummaryPlotValidationRegions");
     if(param != ""){
         fFitter->fSummaryPlotValidationRegions = Vectorize(param,',');
     }
@@ -766,13 +769,13 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         fFitter->fRatioYmin = atof(param.c_str());
         fFitter->fRatioYminPostFit = fFitter->fRatioYmin;
     }
-    
+
     // Set RatioYmax
     param = confSet->Get("RatioYmax");
     if(param != ""){
         fFitter->fRatioYmax = atof(param.c_str());
-        fFitter->fRatioYmaxPostFit = fFitter->fRatioYmax; 
-    }  
+        fFitter->fRatioYmaxPostFit = fFitter->fRatioYmax;
+    }
 
     // Set RatioYminPostFit
     param = confSet->Get("RatioYminPostFit");
@@ -780,7 +783,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
 
     // Set RatioYmaxPostFit
     param = confSet->Get("RatioYmaxPostFit");
-    if(param != "") fFitter->fRatioYmaxPostFit = atof(param.c_str());    
+    if(param != "") fFitter->fRatioYmaxPostFit = atof(param.c_str());
 
     // Set DoSummaryPlot
     param = confSet->Get("DoSummaryPlot");
@@ -805,7 +808,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
             fFitter->fDoMergedPlot = false;
         }
     }
-    
+
     // Set DoSignalRegionsPlot
     param = confSet->Get("DoSignalRegionsPlot");
     if( param != "" ){
@@ -838,7 +841,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
 }
 
 int ConfigReader::ReadGeneralOptions(){
-    ConfigSet* confSet = fParser.GetConfigSet("Options");        
+    ConfigSet* confSet = fParser.GetConfigSet("Options");
     if (confSet != nullptr){
         for(int i=0; i < confSet->GetN(); i++){
             if(confSet->GetConfigValue(i) != ""){
@@ -858,7 +861,7 @@ int ConfigReader::ReadFitOptions(){
     ConfigSet *confSet = fParser.GetConfigSet("Fit");
     if (confSet == nullptr){
         WriteInfoStatus("ConfigReader::ReadFitOptions", "You do not have Fit option in the config. It is ok, we just want to let you know.");
-        return 0; // it is ok to not have Fit set up 
+        return 0; // it is ok to not have Fit set up
     }
 
     //Set FitType
@@ -900,7 +903,7 @@ int ConfigReader::ReadFitOptions(){
             }
         }
     }
-    
+
     // Set FitBlind
     param = confSet->Get("FitBlind");
     if( param != "" ){
@@ -914,7 +917,7 @@ int ConfigReader::ReadFitOptions(){
             fFitter->fFitIsBlind = false;
         }
     }
-    
+
     // Set POIAsimov
     param = confSet->Get("POIAsimov");
     if( param != "" ){
@@ -934,7 +937,7 @@ int ConfigReader::ReadFitOptions(){
             }
         }
     }
-    
+
     // Set FixNPs
     param = confSet->Get("FixNPs");
     if( param != "" ){
@@ -954,7 +957,7 @@ int ConfigReader::ReadFitOptions(){
     if( param != "" ){
         fFitter->fVarNameLH = Vectorize(param,',');
     }
-    
+
     // Set UseMinos
     param = confSet->Get("UseMinos");
     if( param != "" ){
@@ -1017,10 +1020,10 @@ int ConfigReader::ReadLimitOptions(){
     ConfigSet* confSet = fParser.GetConfigSet("Limit");
     if (confSet == nullptr){
         WriteInfoStatus("ConfigReader::ReadLimitOptions", "You do not have Limit option in the config. It is ok, we just want to let you know.");
-        return 0; // it is ok to not have Fit set up 
+        return 0; // it is ok to not have Fit set up
     }
 
-    // Set LimitType    
+    // Set LimitType
     param = confSet->Get("LimitType");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -1049,7 +1052,7 @@ int ConfigReader::ReadLimitOptions(){
             fFitter->fLimitIsBlind = false;
         }
     }
-    
+
     // Set POIAsimov
     param = confSet->Get("POIAsimov");
     if( param != "" ){
@@ -1070,7 +1073,7 @@ int ConfigReader::ReadLimitOptions(){
         }
     }
 
-    return 0; 
+    return 0;
 }
 
 int ConfigReader::ReadRegionOptions(){
@@ -1087,7 +1090,7 @@ int ConfigReader::ReadRegionOptions(){
         if(fOnlyRegions.size()>0 && FindInStringVector(fOnlyRegions,confSet->GetValue())<0) continue;
         if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
         fRegNames.push_back( CheckName(confSet->GetValue()) ); //why the CheckName is needed?? A: cs->GetValue() might have leading/trailing spaces...
-        
+
         reg = fFitter->NewRegion((confSet->GetValue()));
         reg->fGetChi2 = fFitter->fGetChi2;
         reg->SetVariableTitle(confSet->Get("VariableTitle"));
@@ -1111,7 +1114,7 @@ int ConfigReader::ReadRegionOptions(){
 
         // Set RatioYmin
         param = confSet->Get("RatioYmin");
-        if(param!="") { 
+        if(param!="") {
             reg->fRatioYmin = atof(param.c_str());
             reg->fRatioYminPostFit = reg->fRatioYmin;
         }
@@ -1130,7 +1133,7 @@ int ConfigReader::ReadRegionOptions(){
         // Set RatioYmaxPostFit
         param = confSet->Get("RatioYmaxPostFit");
         if(param!="") reg->fRatioYmaxPostFit = atof(param.c_str());
-        
+
         // Set TexLabel
         param = confSet->Get("TexLabel");
         if( param != "") reg->fTexLabel = param;
@@ -1170,7 +1173,7 @@ int ConfigReader::ReadRegionOptions(){
             WriteErrorStatus("ConfigReader::ReadRegionOptions", "Unknown input type: " +std::to_string(fFitter->fInputType));
             return 1;
         }
-    
+
         // Set Rebin
         param = confSet->Get("Rebin");
         if(param != "") reg->Rebin(atoi(param.c_str()));
@@ -1314,7 +1317,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     if(param!="") reg->fHistoFiles.push_back( param );
 
     // Set HistoName
-    param = confSet->Get("HistoName"); 
+    param = confSet->Get("HistoName");
     if(param!="") reg->SetHistoName( param );
 
     // Set HistoPathSuff
@@ -1333,12 +1336,12 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
             reg->fHistoPathSuffs.push_back( Fix(ipath) );
         }
     }
-   
+
     // Check for NTUP inputs
     if (ConfigHasNTUP(confSet)){
         WriteWarningStatus("ConfigReader::SetRegionHIST", "Found some NTUP settings in Region, while input option is HIST. Ignoring them.");
     }
-    
+
     return 0;
 }
 
@@ -1402,7 +1405,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
 
     // Set NtupleName
     param = confSet->Get("NtupleName");
-    if(param!="") { 
+    if(param!="") {
         reg->fNtupleNames.clear();
         reg->fNtupleNames.push_back(param);
     }
@@ -1420,7 +1423,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
         std::vector<std::string> paths = Vectorize( param,',' );
         reg->fNtupleNameSuffs = paths;
     }
-    
+
     // Set MCweight
     param = confSet->Get("MCweight");
     if (param != "") reg->fMCweight = param; // this will override the global MCweight, if any
@@ -1431,7 +1434,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
         reg->fNtuplePathSuffs.clear();
         reg->fNtuplePathSuffs.push_back( param );
     }
-    
+
     // Set NtuplePathSuffs
     param = confSet->Get("NtuplePathSuffs");
     if( param != "" ){
@@ -1443,7 +1446,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     if (ConfigHasHIST(confSet)){
         WriteWarningStatus("ConfigReader::SetRegionNTUP", "Found some HIST settings in Region, while input option is NTUP. Ignoring them.");
     }
-    
+
     return 0;
 }
 
@@ -1460,7 +1463,7 @@ int ConfigReader::ReadSampleOptions(){
         ConfigSet *confSet = fParser.GetConfigSet("Sample",nSmp);
         if (confSet == nullptr) break;
         nSmp++;
-        
+
         if(fOnlySamples.size()>0 && FindInStringVector(fOnlySamples,confSet->GetValue())<0) continue;
         if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
         type = Sample::BACKGROUND;
@@ -1477,9 +1480,9 @@ int ConfigReader::ReadSampleOptions(){
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'Type' option in sample but didnt provide valid parameter. Using default (BACKGROUND)");
             }
             if(fOnlySignal != "" && type==Sample::SIGNAL && confSet->GetValue()!=fOnlySignal) continue;
-        } 
+        }
         sample = fFitter->NewSample((confSet->GetValue()),type);
-    
+
         // Set Title
         param = confSet->Get("Title");
         if (param != "") sample->SetTitle(param);
@@ -1505,7 +1508,7 @@ int ConfigReader::ReadSampleOptions(){
             // Set HistoPath
             param = confSet->Get("HistoPath");
             if(param!="") sample->AddHistoPath( param );
-        
+
             if (ConfigHasNTUP(confSet)){
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You provided some NTUP options but your input type is HIST. Options will be ingored");
             }
@@ -1525,7 +1528,7 @@ int ConfigReader::ReadSampleOptions(){
             // Set NtupleNames
             param = confSet->Get("NtupleNames");
             if(param!="") sample->fNtupleNames = Vectorize( param ,',' );
-            
+
             // Set NtuplePath
             param = confSet->Get("NtuplePath");
             if(param!="") sample->AddNtuplePath( param );
@@ -1540,7 +1543,7 @@ int ConfigReader::ReadSampleOptions(){
                 sample->fNtupleNameSuffs.clear();
                 sample->fNtupleNameSuffs.push_back( param );
             }
-            
+
             // Set NtupleNameSuffs
             param = confSet->Get("NtupleNameSuffs");
             if( param != "" ){
@@ -1555,7 +1558,7 @@ int ConfigReader::ReadSampleOptions(){
             WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input type provided. Please check this!");
             return 1;
         }
-        
+
         // Set FillColor
         param = confSet->Get("FillColor");
         if(param != "") sample->SetFillColor(atoi(param.c_str()));
@@ -1580,7 +1583,7 @@ int ConfigReader::ReadSampleOptions(){
                     std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
                     if (tmp == "TRUE"){
                         isConst = true;
-                    } 
+                    }
                 }
                 if (sz > 3)
                     nfactor = sample->AddNormFactor(
@@ -1617,7 +1620,7 @@ int ConfigReader::ReadSampleOptions(){
                     std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
                     if (tmp == "TRUE"){
                         isConst = true;
-                    } 
+                    }
                 }
                 if (sz > 3)
                     sfactor = sample->AddShapeFactor(
@@ -1700,7 +1703,7 @@ int ConfigReader::ReadSampleOptions(){
                 sample->fIgnoreSelection = "FALSE";
             }
         }
-        
+
         // Set UseMCstat
         // to skip MC stat uncertainty for this sample
         param = confSet->Get("UseMCstat");
@@ -1753,7 +1756,7 @@ int ConfigReader::ReadSampleOptions(){
         // Set AddSamples
         param = confSet->Get("AddSamples");
         if(param!="") sample->fAddSamples = Vectorize(param,',');
-        
+
         // Set BuildPullTable
         // enable pull tables
         param = confSet->Get("BuildPullTable");
@@ -1848,9 +1851,9 @@ int ConfigReader::ReadSampleOptions(){
 
             sample->fIsMorph = true;
         }
-        
+
     }
-    
+
     // build new samples if AsimovReplacementFor are specified
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         if(fFitter->fSamples[i_smp]->fAsimovReplacementFor.first!=""){
@@ -1880,7 +1883,7 @@ int ConfigReader::ReadNormFactorOptions(){
         ConfigSet *confSet = fParser.GetConfigSet("NormFactor", nNorm);
         if (confSet == nullptr) break;
         nNorm++;
-        
+
         if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
 
         std::string samples_str = confSet->Get("Samples");
@@ -1893,7 +1896,7 @@ int ConfigReader::ReadNormFactorOptions(){
         std::vector<std::string> exclude = Vectorize(exclude_str,',');
 
         nfactor = new NormFactor(CheckName(confSet->GetValue()));
-        
+
         TtHFitter::SYSTMAP[nfactor->fName] = nfactor->fName;
         if( FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
             fFitter->fNormFactors.push_back( nfactor );
@@ -1931,17 +1934,21 @@ int ConfigReader::ReadNormFactorOptions(){
         param = confSet->Get("Category");
         if(param != "") nfactor->fCategory = param;
 
+        // Set Category
+        param = confSet->Get("SubCategory");
+        if(param != "") nfactor->fSubCategory = param;
+
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
             nfactor->fTitle = param;
             TtHFitter::SYSTMAP[nfactor->fName] = nfactor->fTitle;
         }
-        
+
         // Set TexTitle
         param = confSet->Get("TexTitle");
         if(param != "") TtHFitter::SYSTTEX[nfactor->fName] = param;
-        
+
         // Set Min
         param = confSet->Get("Min");
         if(param!="") nfactor->fMin = atof(param.c_str());
@@ -1978,12 +1985,12 @@ int ConfigReader::ReadNormFactorOptions(){
                 }
             }
         }
-        
+
         // save list of
         if (regions.size() == 0 || exclude.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or excude region size is equal to zero. Please check this");
                 return 1;
-            
+
         }
         if(regions[0] != "all") nfactor->fRegions = regions;
         if(exclude[0] != "")    nfactor->fExclude = exclude;
@@ -2056,7 +2063,7 @@ int ConfigReader::ReadShapeFactorOptions(){
         // Set Category
         param = confSet->Get("Category");
         if(param!="") sfactor->fCategory = param;
-    
+
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
@@ -2065,7 +2072,7 @@ int ConfigReader::ReadShapeFactorOptions(){
         }
         param = confSet->Get("TexTitle");
         if(param != "") TtHFitter::SYSTTEX[sfactor->fName] = param;
-        
+
         // Set Min
         param = confSet->Get("Min");
         if(param!="") sfactor->fMin = atof(param.c_str());
@@ -2131,7 +2138,7 @@ int ConfigReader::ReadSystOptions(){
         ConfigSet *confSet = fParser.GetConfigSet("Systematic",nSys);
         if (confSet == nullptr) break;
         nSys++;
-        
+
         if(fOnlySystematics.size()>0 && FindInStringVector(fOnlySystematics,confSet->GetValue())<0) continue;
         if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
         std::string samples_str = confSet->Get("Samples");
@@ -2155,14 +2162,23 @@ int ConfigReader::ReadSystOptions(){
         else if (param == "STAT") type = Systematic::STAT;
 
         std::string decorrelate = confSet->Get("Decorrelate");
-        
+
         sys = new Systematic(CheckName(confSet->GetValue()),type);
         TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
         if(param == "OVERALL") sys->fIsNormOnly=true;
-        
+
         // SetCategory
         param = confSet->Get("Category");
-        if(param != "") sys->fCategory = param;
+        if(param != ""){
+            sys->fCategory = param;
+            sys->fSubCategory = param; //SubCategory defaults to the Category setting, if the order to overwrite the default if required
+        }
+
+        // SetCategory
+        param = confSet->Get("SubCategory");
+        if (param != ""){
+            sys->fSubCategory = param; // note this needs to happen after Category was set, in order to overwrite the default if required
+        }
 
         // Set IsFreeParameter
         // Experimental
@@ -2181,7 +2197,7 @@ int ConfigReader::ReadSystOptions(){
         // New: name to use when writing / reading the Histograms file
         param = confSet->Get("StoredName");
         if(param != "") sys->fStoredName = param;
-        
+
         bool hasUp   = false;
         bool hasDown = false;
         if(type==Systematic::HISTO || type==Systematic::SHAPE){
@@ -2356,7 +2372,7 @@ int ConfigReader::ReadSystOptions(){
                     sys->fPreSmoothing = false;
                 }
             }
-        } // end of if(type==Systematic::HISTO || type==Systematic::SHAPE) 
+        } // end of if(type==Systematic::HISTO || type==Systematic::SHAPE)
         else if(type==Systematic::OVERALL){
             // Set OverallUp
             param = confSet->Get("OverallUp");
@@ -2366,7 +2382,7 @@ int ConfigReader::ReadSystOptions(){
             param = confSet->Get("OverallDown");
             if (param != "") sys->fOverallDown = atof( param.c_str() );
         }
-        
+
         // Set ScaleUp
         param = confSet->Get("ScaleUp");
         if(param!=""){
@@ -2406,12 +2422,12 @@ int ConfigReader::ReadSystOptions(){
         // --> this can be used only if this systematic is applied to a single sample
         param = confSet->Get("SampleUp");
         if(param!="") sys->fSampleUp = param;
-        
+
         // Set SampleDown
         param = confSet->Get("SampleDown");
         if(param!="") sys->fSampleDown = param;
-        
-        // Set ReferenceSample    
+
+        // Set ReferenceSample
         // this to obtain syst variation relatively to given sample
         param = confSet->Get("ReferenceSample");
         if(param!="") sys->fReferenceSample = param;
@@ -2431,7 +2447,7 @@ int ConfigReader::ReadSystOptions(){
         // Set DropShapeIn
         param = confSet->Get("DropShapeIn");
         if(param!="") sys->fDropShapeIn = Vectorize(param,',');
-        
+
         // Set DropNorm
         param = confSet->Get("DropNorm");
         if(param!="") sys->fDropNormIn = Vectorize(param,',');
@@ -2439,14 +2455,14 @@ int ConfigReader::ReadSystOptions(){
         // Set KeepNormForSamples
         param = confSet->Get("KeepNormForSamples");
         if(param!="") sys->fKeepNormForSamples = Vectorize(param,',');
-       
+
         if (regions.size() == 0 || exclude.size() == 0){
             WriteErrorStatus("ConfigReader::ReadSystOptions", "Region or excude region size is equal to zero. Please check this");
             return 1;
-        } 
+        }
         if(regions[0]!="all") sys->fRegions = regions;
         if(exclude[0]!="")    sys->fExclude = exclude;
-        
+
         for (std::string ier : fExcludeRegionSample){
             std::vector<std::string> pair_ERS = Vectorize(ier,':');
             if (pair_ERS.size()==2){
@@ -2484,14 +2500,14 @@ int ConfigReader::ReadSystOptions(){
                 sys->fSubtractRefSampleVar = false;
             }
         }
-        
+
         if(FindInStringVector(fFitter->fDecorrSysts,sys->fNuisanceParameter)>=0){
             WriteInfoStatus("ConfigReader::ReadSystOptions","Decorrelating systematic with NP = " + sys->fNuisanceParameter);
             sys->fNuisanceParameter += fFitter->fDecorrSuff;
         }
-    
+
     }
-    
+
     return 0;
 }
 
@@ -2522,7 +2538,7 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
     // Set TexTitle
     param = confSet->Get("TexTitle");
     if(param!="") TtHFitter::SYSTTEX[sys->fName] = param;
-    
+
     // attach the syst to the proper samples
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         sam = fFitter->fSamples[i_smp];
@@ -2544,14 +2560,14 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
             }
         }
     }
-    
+
     return 0;
 }
 
 int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude, const std::vector<std::string> regions, int type){
     Sample *sam = nullptr;
     std::string param = "";
-    
+
     for(std::string ireg : fRegNames) {
         bool keepReg=false;
         if ( regions[0]=="all" ) keepReg=true;
@@ -2595,7 +2611,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
                     mySys->fNuisanceParameter = mySys->fName;
                     TtHFitter::NPMAP[mySys->fName] = mySys->fName;
                 }
-        
+
                 // Set Title
                 param = confSet->Get("Title");
                 if(param != ""){
@@ -2667,7 +2683,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
 int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
     Sample *sam = nullptr;
     std::string param = "";
-            
+
     // (this is really messy)
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         sam = fFitter->fSamples[i_smp];
@@ -2717,7 +2733,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         sam->AddSystematic(mySys);
     }
     delete sys;
-    
+
     return 0;
 }
 
@@ -2749,7 +2765,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         TtHFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
     }
     fFitter->fNSyst++;
-    
+
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         sam = fFitter->fSamples[i_smp];
         // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
@@ -2773,7 +2789,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         mySys2->fIsNormOnly=false;
         mySys2->fIsShapeOnly=true;
         fFitter->fSystematics.push_back( mySys2 );
-        
+
         //Set NuisanceParameter
         param = confSet->Get("NuisanceParameter");
         if(param != ""){
@@ -2793,7 +2809,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         }
         fFitter->fNSyst++;
 
-        
+
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
             sam = fFitter->fSamples[i_smp];
             if(sam->fType == Sample::DATA) continue;
@@ -2805,7 +2821,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         }
     }
     delete sys;
-    
+
     return 0;
 }
 

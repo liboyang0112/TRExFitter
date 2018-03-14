@@ -25,6 +25,7 @@ public:
     std::string fNuisanceParameter;
     std::string fTitle;
     std::string fCategory;
+    std::string fSubCategory;
     std::string fStoredName;
     int fType;
     int fSmoothType;
