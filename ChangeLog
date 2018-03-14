@@ -1,11 +1,9 @@
 2018-03-09 Alexander Held <alexander.held@cern.ch>
-    * Added the possibility to create tables showing post-fit impact of groups
-		of nuisance parameters on the POI, see readme for documentation
+    * Added the possibility to create tables showing post-fit impact of groups of nuisance parameters on the POI, see readme for more information
     * Can now group Systematics and NormFactors via new SubCategory options
         * Two groups exist by default, "Gammas" and "FullSyst"
     * New command line option "i" to perform required calculations
-        * Can use GroupedImpact options to parallelize (similar to ranking)
-    * Closes TTHFITTER-88
+        * Can use GroupedImpact option to parallelize (similar to ranking)
 
 2018-02-28 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Merging some features developed for the 4top analysis
