@@ -2102,7 +2102,7 @@ int ConfigReader::ReadShapeFactorOptions(){
 
 int ConfigReader::ReadSystOptions(){
     std::string param = "";
-    int nSys = 9;
+    int nSys = 0;
     Systematic *sys = nullptr;
     Sample *sample = nullptr;
     int type = 0;
