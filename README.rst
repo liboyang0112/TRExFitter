@@ -281,7 +281,7 @@ Note that, each object should have unique <ObjectName>.
      * Min              : min value
      * Max              : max value
      * Constant         : set to TRUE to have a fixed norm factor
-     * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names
+     * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality)
      * Expression       : a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form "<expression>,<dependency>", where <dependency> should contain the name(s) of the norm factor the expression depends on [example: "1.-SigXsecOverSM","SigXsecOverSM"]
 
   * ShapeFactor:
@@ -300,7 +300,7 @@ Note that, each object should have unique <ObjectName>.
      * NuisancaParameter   : if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics
      * IsFreeParameter     : if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution)
      * Category            : major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
-     * SubCategory         : minor category for the systematic, used to evaluate impact on POI per SubCategory in "i" step, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst", or "combine" as SubCategory names
+     * SubCategory         : minor category for the systematic, used to evaluate impact on POI per SubCategory in "i" step, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality)
      * HistoPathUp         : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation
      * HistoPathDown       : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation
      * HistoPathSufUp      : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation
@@ -393,6 +393,7 @@ Grouped Impact
 * Two groups are defined by default: "Gammas" (MC stat. impact) and "FullSyst" (full systematics impact with statistical component subtracted).
 * The impact is calculated by performing a fit where the nuisance parameters in the group are fixed to their best-fit values, and then the subtracting the resulting uncertainty on the POI in quadrature from the uncertainty from the nominal fit.
 * The command line parameter ``GroupedImpact`` can be used to parallelize the impact calculations. If it is not specified, all existing groups are evaluated sequentially.
+* The results are saved in ``Fits/GroupedImpact*``.
 * Example::
 
     # evaluate impact of all groups sequentially

@@ -170,7 +170,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     if(groupedImpact){
         myFit->fDoGroupedSystImpactTable = true;
         if(myFit->fGroupedImpactCategory!="combine") myFit->Fit(); // this calls TtHFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
-        else                                         myFit->BuildGroupedImpactTable();
+        else                                         myFit->BuildGroupedImpactTable(); // combine the results into one table with option "combine"
     }
 
     TthPlot* prefit_plot = 0;
