@@ -1,5 +1,7 @@
 #include "TtHFitter/Common.h"
 
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/ConfigReader.h"
 #include "TtHFitter/NuisParameter.h"
 #include "TtHFitter/CorrelationMatrix.h"
 #include "TtHFitter/FitResults.h"
@@ -89,8 +91,24 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     // proceed if not multi-fit
     
     TtHFit *myFit = new TtHFit();
-    myFit->ReadConfigFile(configFile,options);
+
+    // initialize config reader 
+    ConfigReader reader(myFit);
+
+    // read the actual config
+    int sc = reader.ReadFullConfig(configFile,options);
+    if(sc!=0){
+        WriteErrorStatus("myFit::FitExample", "Failed to read the config file.");
+        exit(EXIT_FAILURE);
+    }
     
+    WriteInfoStatus("myFit::FitExample", "Finished with the config reading with status " + std::to_string(sc));
+    
+    if (TtHFitter::DEBUGLEVEL < 2){
+        gErrorIgnoreLevel = kError;
+        RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+    }
+
     // check compatibility between run option and config file
     if(readHistograms && myFit->fInputType!=TtHFit::HIST){
         std::cerr << "ERROR: Option \"h\" asked but no HISTO InputType speficied in the configuration file. Aborting." << std::endl;
