@@ -25,17 +25,17 @@ int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::st
     int sc = 0;
 
     if (sc != 0) return sc;
-    
+
     // syntax of the config is ok
     // read different types of settings
     if (option != ""){
         sc+= ReadCommandLineOptions(option);
     }
-    
+
     sc+= ReadJobOptions();
-    
+
     sc+= ReadFitOptions(option);
-    
+
     // make directory
     gSystem->mkdir(fMultiFitter->fOutDir.c_str());
 
@@ -48,7 +48,7 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
     std::map< std::string,std::string > optMap;
     std::vector< std::string > optVec;
 
-    
+
     optVec = Vectorize(option,':');
     for(const std::string& iopt : optVec){
         std::vector< std::string > optPair;
@@ -60,11 +60,11 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
             return 1;
         }
     }
-    
+
     if(optMap["Ranking"]!=""){
         fMultiFitter->fRankingOnly = optMap["Ranking"];
     }
-    
+
     if(optMap["Suffix"]!=""){
         fGlobalSuffix = optMap["Suffix"];
     }
@@ -179,7 +179,7 @@ int ConfigReaderMulti::ReadJobOptions(){
         else {
             WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'PlotCombCorrMatrix' option but you didn't provide valid setting. Using default (FALSE)");
             fMultiFitter->fPlotCombCorrMatrix  = false;
-        }   
+        }
     }
 
     // Set Combine
@@ -273,7 +273,7 @@ int ConfigReaderMulti::ReadJobOptions(){
         else {
             WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'FitType' option but you didn't provide valid setting. Using default (SPLUSB)");
             fMultiFitter->fFitType = 1;
-        }   
+        }
     }
 
     // Set SignalInjection
@@ -307,7 +307,7 @@ int ConfigReaderMulti::ReadJobOptions(){
         for(const std::string &icat : categ)
             fMultiFitter->fNPCategories.push_back(icat);
     }
-    
+
     // Set SetRandomInitialNPval
     param = confSet->Get("SetRandomInitialNPval");
     if( param != ""){
@@ -425,7 +425,6 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
     std::string param = "";
     int nFit = 0;
 
-    
     while(true){
         ConfigSet *confSet = fParser.GetConfigSet("Fit", nFit);
         if (confSet == nullptr) break;
@@ -437,7 +436,7 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
         if(param!="" && options!="") fullOptions = options+";"+param;
         else if(param!="") fullOptions = param;
         else fullOptions = options;
-        
+
         // name
         fMultiFitter->fFitNames.push_back(confSet->GetValue());
 
@@ -451,7 +450,7 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
         std::string loadSuf = "";
         if(param!="") loadSuf = param;
         else          loadSuf = fGlobalSuffix;
-        
+
         // config file
         std::string confFile = "";
         param = confSet->Get("ConfigFile");
@@ -496,6 +495,11 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
         // Set InputName
         param = confSet->Get("InputName");
         if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fInputName = param;
+    }
+
+    if (nFit == 0){
+        WriteErrorStatus("ConfigReaderMulti::ReadFitOptions", "You need to provide at least one 'Fit' option. Please check this!");
+        return 1;
     }
 
     return 0;

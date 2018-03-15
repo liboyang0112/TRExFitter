@@ -1019,7 +1019,7 @@ int ConfigReader::ReadLimitOptions(){
 
     ConfigSet* confSet = fParser.GetConfigSet("Limit");
     if (confSet == nullptr){
-        WriteInfoStatus("ConfigReader::ReadLimitOptions", "You do not have Limit option in the config. It is ok, we just want to let you know.");
+        WriteDebugStatus("ConfigReader::ReadLimitOptions", "You do not have Limit option in the config. It is ok, we just want to let you know.");
         return 0; // it is ok to not have Fit set up
     }
 
