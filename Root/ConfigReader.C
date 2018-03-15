@@ -2639,7 +2639,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
             fFitter->fSystematics.push_back( mySys );
 
             // Set NuisanceParameter
-            param == confSet->Get("NuisanceParameter");
+            param = confSet->Get("NuisanceParameter");
             if(param != ""){
                 mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+ireg;
                 TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
@@ -2723,7 +2723,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         }
 
         // Set Title
-        param == confSet->Get("Title");
+        param = confSet->Get("Title");
         if(param != ""){
             mySys->fTitle = (sys->fTitle)+"_"+sam->fName;
             TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
