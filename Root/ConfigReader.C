@@ -305,8 +305,7 @@ int ConfigReader::ReadJobOptions(){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(param=="NONE")  fFitter->SetStatErrorConfig( false, 0. );
         else{
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'MCstatThreshold' option but you didn't set it to NONE. Using default (TRUE, 0)");
-            fFitter->SetStatErrorConfig( true, 0.);
+            fFitter->SetStatErrorConfig( true, atof(param.c_str()));
         }
     }
     else{
@@ -558,13 +557,13 @@ int ConfigReader::ReadJobOptions(){
         if( param == "TRUE" ){
             fFitter->fGetChi2 = 2;
         }
-        if( param.find("SYST")!=std::string::npos ){
+        else if( param.find("SYST")!=std::string::npos ){
             fFitter->fGetChi2 = 2;
         }
         else if( param.find("STAT")!=std::string::npos ){
             fFitter->fGetChi2 = 1;
         } else {
-            WriteErrorStatus("ConfigReader::ReadJobOptions", "You specified 'GetChi2' option but you didn;t provide valid option. Check this!");
+            WriteErrorStatus("ConfigReader::ReadJobOptions", "You specified 'GetChi2' option but you didn't provide valid option. Check this!");
             return 1;
         }
     }
@@ -1251,7 +1250,7 @@ int ConfigReader::ReadRegionOptions(){
         if(param != "") reg->fBinWidth = atof(param.c_str());
 
         // Set Type
-        param == confSet->Get("Type");
+        param = confSet->Get("Type");
         if(param != ""){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
             if( param=="CONTROL" )     reg -> SetRegionType(Region::CONTROL);
