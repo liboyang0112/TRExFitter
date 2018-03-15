@@ -1,5 +1,8 @@
 #include "TtHFitter/Common.h"
 
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/ConfigReader.h"
+#include "TtHFitter/ConfigReaderMulti.h"
 #include "TtHFitter/NuisParameter.h"
 #include "TtHFitter/CorrelationMatrix.h"
 #include "TtHFitter/FitResults.h"
@@ -47,8 +50,14 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     bool isMultiFit      = opt.find("m")!=std::string::npos;
     if(isMultiFit){
         MultiFit *myMultiFit = new MultiFit();
-        myMultiFit->ReadConfigFile(configFile,options);
-        //
+        ConfigReaderMulti confReaderMulti(myMultiFit);
+        int sc = confReaderMulti.ReadFullConfig(configFile,options) ;
+    
+        if (sc != 0){
+            WriteErrorStatus("myFit::FitExample", "Failed to read the config file for multifit.");
+            exit(EXIT_FAILURE);
+        }
+
         if(myMultiFit->fCombine){
             if(createWorkspace){
                 myMultiFit->SaveCombinedWS();
@@ -89,15 +98,31 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     // proceed if not multi-fit
     
     TtHFit *myFit = new TtHFit();
-    myFit->ReadConfigFile(configFile,options);
+
+    // initialize config reader 
+    ConfigReader reader(myFit);
+
+    // read the actual config
+    int sc = reader.ReadFullConfig(configFile,options);
+    if(sc!=0){
+        WriteErrorStatus("myFit::FitExample", "Failed to read the config file.");
+        exit(EXIT_FAILURE);
+    }
     
+    WriteInfoStatus("myFit::FitExample", "Finished with the config reading with status " + std::to_string(sc));
+    
+    if (TtHFitter::DEBUGLEVEL < 2){
+        gErrorIgnoreLevel = kError;
+        RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+    }
+
     // check compatibility between run option and config file
     if(readHistograms && myFit->fInputType!=TtHFit::HIST){
-        std::cerr << "ERROR: Option \"h\" asked but no HISTO InputType speficied in the configuration file. Aborting." << std::endl;
+        WriteErrorStatus("myFit::FitExample", "Option \"h\" asked but no HISTO InputType specified in the configuration file. Aborting.");
         return;
     }
     if(readNtuples && myFit->fInputType!=TtHFit::NTUP){
-        std::cerr << "ERROR: Option \"n\" asked but no NTUP InputType speficied in the configuration file. Aborting." << std::endl;
+        WriteErrorStatus("myFit::FitExample", "Option \"n\" asked but no NTUP InputType specified in the configuration file. Aborting.");
         return;
     }
       

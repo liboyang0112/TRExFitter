@@ -319,3 +319,51 @@ ConfigSet *ConfigParser::GetConfigSet(string name,int i){ // returns the i-th co
     }
     return 0x0;
 }
+
+//__________________________________________________________________________________
+//
+int ConfigParser::CheckSyntax(ConfigParser *refConfigParser){
+    int exitStatus = 0;
+    bool match = false;
+    // loop on all the confic sets
+    for(int i_cs = 0;i_cs<fN;i_cs++){
+        ConfigSet *cs = fConfSets[i_cs];
+        ConfigSet *refConfigSet = 0x0;
+        // check if the same exists in the reference
+        match = false;
+        for(int i_cs2 = 0;i_cs2<refConfigParser->fN;i_cs2++){
+            ConfigSet *cs2 = refConfigParser->fConfSets[i_cs2];
+            if(cs->fName==cs2->fName){
+                match = true;
+                refConfigSet = cs2;
+                continue;
+            }
+        }
+        if(!match){
+            WriteErrorStatus("ConfigParser::CheckSyntax", " ConfigSet " + cs->fName + " not recongnized. Check jobScheme.config.");
+            exitStatus = 1;
+        }
+        // if it passes the check, go and check configs
+        else{
+            for(int i_c = 0;i_c<cs->fN;i_c++){
+                Config c = cs->fConfig[i_c];
+                Config refConfig;
+                match = false;
+                // check if the same exists in the reference
+                for(int i_c2 = 0;i_c2<refConfigSet->fN;i_c2++){
+                    Config c2 = refConfigSet->fConfig[i_c2];
+                    if(c.fName==c2.fName){
+                        match = true;
+                        refConfig = c2;
+                        continue;
+                    }
+                }
+                if(!match){
+                    WriteErrorStatus("ConfigParser::CheckSyntax", " Config " + c.fName + " (under " + cs->fName + ") not recongnized. Check jobScheme.config.");
+                    exitStatus = 1;
+                }
+            }
+        }
+    }
+    return exitStatus;
+}

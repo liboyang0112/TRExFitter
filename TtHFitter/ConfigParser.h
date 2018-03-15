@@ -42,7 +42,7 @@ public:
     std::string GetName();
     std::string GetValue();
 
-private:
+// private:
     int fN;
     std::string fName;
     std::string fValue;
@@ -59,8 +59,9 @@ public:
     void ReadFile(std::string fileName);
     ConfigSet *GetConfigSet(int i=0);
     ConfigSet *GetConfigSet(std::string name,int i=0);
+    int CheckSyntax(ConfigParser *refConfigParser);
 
-private:
+// private:
     int fN;
 };
 
