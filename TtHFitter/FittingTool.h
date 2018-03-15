@@ -58,6 +58,9 @@ public:
 
     inline void SetRandomNP( const double rndNP, const bool rndize, const long int rndSeed=-999 ) { m_randomNP = rndNP; m_randomize = rndize; m_randSeed = rndSeed; }
 
+    void SetSubCategories();
+    inline void SetSystMap( std::map<std::string, std::string> subCategoryMap ) { m_subCategoryMap = subCategoryMap; SetSubCategories(); } // fills both m_subCategoryMap and m_subCategories
+
 //     inline void FixNP( const TString &np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
     inline void ResetFixedNP() { m_constNP.clear(); m_constNPvalue.clear(); };
     inline void FixNP( std::string np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
@@ -77,6 +80,10 @@ public:
     float FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit = false, bool noFit = false );
     void ExportFitResultInTextFile( const std::string &finaName );
     std::map < std::string, double > ExportFitResultInMap();
+
+    int GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, std::string categoryOfInterest, std::string outFileName );
+    void FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
+                           RooStats::ModelConfig* mc, RooWorkspace* ws, std::string category, std::vector<std::string> affectedParams);
 
 private:
     TString m_minimType;
@@ -105,6 +112,9 @@ private:
     std::vector<double> m_constNPvalue;
     std::vector<std::string> m_initialNP;
     std::vector<double> m_initialNPvalue;
+
+    std::map<std::string, std::string> m_subCategoryMap;
+    std::set<std::string> m_subCategories;
 };
 
 

@@ -164,6 +164,10 @@ public:
     const std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
     const bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
+    // for grouped impact evaluation
+    void ProduceSystSubCategoryMap();
+    void BuildGroupedImpactTable();
+
     // -------------------------
       
     std::string fName;
@@ -268,9 +272,11 @@ public:
     bool fDoTables;
     bool fDoSignalRegionsPlot;
     bool fDoPieChartPlot;
-    
+
+    std::string fGroupedImpactCategory;
+
     std::string fSummaryPrefix;
-    
+
     //
     // Fit caracteristics
     //
@@ -288,6 +294,8 @@ public:
     std::vector<std::string> fVarNameMinos;
     std::vector<std::string> fVarNameHide;
     std::string fWorkspaceFileName;
+    bool fDoGroupedSystImpactTable;
+    std::map<std::string, std::string> fSubCategoryImpactMap;
 
     //
     // Limit parameters
