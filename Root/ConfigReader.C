@@ -1933,7 +1933,7 @@ int ConfigReader::ReadNormFactorOptions(){
         param = confSet->Get("Category");
         if(param != "") nfactor->fCategory = param;
 
-        // Set Category
+        // Set SubCategory
         param = confSet->Get("SubCategory");
         if(param != "") nfactor->fSubCategory = param;
 
@@ -2170,10 +2170,10 @@ int ConfigReader::ReadSystOptions(){
         param = confSet->Get("Category");
         if(param != ""){
             sys->fCategory = param;
-            sys->fSubCategory = param; //SubCategory defaults to the Category setting, if the order to overwrite the default if required
+            sys->fSubCategory = param; //SubCategory defaults to the Category setting, if the Category is explicitly set
         }
 
-        // SetCategory
+        // SetSubCategory
         param = confSet->Get("SubCategory");
         if (param != ""){
             sys->fSubCategory = param; // note this needs to happen after Category was set, in order to overwrite the default if required
