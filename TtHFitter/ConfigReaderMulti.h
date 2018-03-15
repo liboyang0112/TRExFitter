@@ -55,9 +55,10 @@ class ConfigReaderMulti {
 
         /**
           * Helper function to read Fit settings
+          * @param string Option flag
           * @return int status code
           */
-        int ReadFitOptions();
+        int ReadFitOptions(const std::string& option);
 
         /**
           * Pointer to MultiFit class, set during initialization

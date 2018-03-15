@@ -13,7 +13,6 @@ public:
     MultiFit(std::string name="MyMultiFit");
     ~MultiFit();
 
-    void ReadConfigFile(std::string configFile,std::string options);
     void AddFitFromConfig(std::string configFile,std::string options,std::string label,std::string loadSuf="",std::string wsFile="");
     RooWorkspace* CombineWS();
     void SaveCombinedWS();

@@ -34,7 +34,10 @@ int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::st
     
     sc+= ReadJobOptions();
     
-    sc+= ReadFitOptions();
+    sc+= ReadFitOptions(option);
+    
+    // make directory
+    gSystem->mkdir(fMultiFitter->fOutDir.c_str());
 
     return sc;
 }
@@ -418,6 +421,82 @@ int ConfigReaderMulti::ReadJobOptions(){
     return 0;
 }
 
-int ConfigReaderMulti::ReadFitOptions(){
+int ConfigReaderMulti::ReadFitOptions(const std::string& options){
+    std::string param = "";
+    int nFit = 0;
+
+    
+    while(true){
+        ConfigSet *confSet = fParser.GetConfigSet("Fit", nFit);
+        if (confSet == nullptr) break;
+        nFit++;
+
+        // Set Options
+        std::string fullOptions;
+        param = confSet->Get("Options");
+        if(param!="" && options!="") fullOptions = options+";"+param;
+        else if(param!="") fullOptions = param;
+        else fullOptions = options;
+        
+        // name
+        fMultiFitter->fFitNames.push_back(confSet->GetValue());
+
+        // Set Label
+        param = confSet->Get("Label");
+        std::string label = confSet->GetValue();
+        if(param!="") label = param;
+
+        // Set suf
+        param = confSet->Get("LoadSuf");
+        std::string loadSuf = "";
+        if(param!="") loadSuf = param;
+        else          loadSuf = fGlobalSuffix;
+        
+        // config file
+        std::string confFile = "";
+        param = confSet->Get("ConfigFile");
+        if(param!="") confFile = param;
+
+        // workspace
+        std::string wsFile = "";
+        param = confSet->Get("Workspace");
+        if(param!="") wsFile = param;
+
+        // show obs
+        param = confSet->Get("ShowObserved");
+        if (param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param=="FALSE") fMultiFitter->fFitShowObserved.push_back(false);
+            else if (param == "TRUE") fMultiFitter->fFitShowObserved.push_back(true);
+            else {
+                WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'ShowObserved' option but you didn't provide valid setting. Using default (TRUE)");
+                fMultiFitter->fFitShowObserved.push_back(true);
+            }
+        }
+
+        fMultiFitter->AddFitFromConfig(confFile,fullOptions,label,loadSuf,wsFile);
+
+        // Set FitResultsFile
+        param = confSet->Get("FitResultsFile");
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fFitResultsFile = param;
+        fMultiFitter->fLimitsFiles.push_back("");
+
+        // Set LimitsFile
+        param = confSet->Get("LimitsFile");
+        if( param != "" ) fMultiFitter->fLimitsFiles[fMultiFitter->fFitList.size()-1] = param;
+
+        // Set POIName
+        param = confSet->Get("POIName");
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fPOI = param;
+
+        // Set Directory
+        param = confSet->Get("Directory");
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fName = param;
+
+        // Set InputName
+        param = confSet->Get("InputName");
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fInputName = param;
+    }
+
     return 0;
 }

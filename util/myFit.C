@@ -58,8 +58,6 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
             exit(EXIT_FAILURE);
         }
 
-        //myMultiFit->ReadConfigFile(configFile,options);
-        //
         if(myMultiFit->fCombine){
             if(createWorkspace){
                 myMultiFit->SaveCombinedWS();

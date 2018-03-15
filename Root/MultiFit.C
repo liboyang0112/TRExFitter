@@ -92,66 +92,6 @@ MultiFit::~MultiFit(){
 
 //__________________________________________________________________________________
 //
-void MultiFit::ReadConfigFile(string configFile,string options){
-    std::string globalSuffix = "";
-    fConfig->ReadFile(configFile);
-    ConfigSet *cs; // to store stuff later
-    string param;
-    //
-    // set multi-fit
-    cs = fConfig->GetConfigSet("MultiFit");
-    // fits
-    int nFit = 0;
-    while(true){
-        cs = fConfig->GetConfigSet("Fit",nFit);
-        if(cs==0x0) break;
-        nFit++;
-        // options
-        string fullOptions;
-        param = cs->Get("Options");
-        if(param!="" && options!="") fullOptions = options+";"+param;
-        else if(param!="") fullOptions = param;
-        else fullOptions = options;
-        // name
-        fFitNames.push_back(cs->GetValue());
-        // label
-        param = cs->Get("Label");
-        string label = cs->GetValue();
-        if(param!="") label = param;
-        // load suf
-        param = cs->Get("LoadSuf");
-        string loadSuf = "";
-        if(param!="") loadSuf = param;
-        else          loadSuf = globalSuffix;
-        // config file
-        string confFile = "";
-        param = cs->Get("ConfigFile");
-        if(param!="") confFile = param;
-        // workspace
-        string wsFile = "";
-        param = cs->Get("Workspace");
-        if(param!="") wsFile = param;
-        // show obs
-        param = cs->Get("ShowObserved");
-        if(param=="FALSE") fFitShowObserved.push_back(false);
-        else fFitShowObserved.push_back(true);
-        //
-        AddFitFromConfig(confFile,fullOptions,label,loadSuf,wsFile);
-        //
-        param = cs->Get("FitResultsFile"); if( param != "" )  fFitList[fFitList.size()-1]->fFitResultsFile = param;
-        fLimitsFiles.push_back("");
-        param = cs->Get("LimitsFile");     if( param != "" )  fLimitsFiles[fFitList.size()-1] = param;
-        param = cs->Get("POIName"); if( param != "" )  fFitList[fFitList.size()-1]->fPOI = param;
-        param = cs->Get("Directory"); if( param != "" )  fFitList[fFitList.size()-1]->fName = param;
-        param = cs->Get("InputName"); if( param != "" )  fFitList[fFitList.size()-1]->fInputName = param;
-    }
-
-    // make directory
-    gSystem->mkdir(fOutDir.c_str());
-}
-
-//__________________________________________________________________________________
-//
 void MultiFit::AddFitFromConfig(string configFile,string options,string label,string loadSuf,string wsFile){
     fFitList.push_back(new TtHFit());
 
