@@ -30,11 +30,12 @@ public:
     void PlotNPRanking(bool flagSysts=true, bool flagGammas=false);
     void PlotSummarySoverB();
     void GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data,bool recreate=true,bool compare=false);
+    void BuildGroupedImpactTable();
 
     TH1F* Combine(std::vector<TH1F*>);
     TH1F* OrderBins(TH1F* h,std::vector<float> vec);
     TH1F* Rebin(TH1F* h,std::vector<float> vec, bool isData=true);
-
+    
     std::vector< std::string > fFitNames;
     std::vector< TtHFit* > fFitList;
     std::vector< std::string > fFitLabels;
@@ -63,6 +64,7 @@ public:
     std::string fLimitTitle;
     std::string fPOITitle;
     std::string fRankingOnly;
+    std::string fGroupedImpactCategory;
 
     std::string fPOI;
     float fPOIMin;
@@ -104,6 +106,7 @@ public:
     bool fGetGoodnessOfFit;
 
     std::vector<std::string> fVarNameLH;
+    bool fDoGroupedSystImpactTable;
 };
 
 #endif

@@ -75,6 +75,11 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
                 if(myMultiFit->fRankingOnly!="plot")  myMultiFit->ProduceNPRanking( myMultiFit->fRankingOnly );
                 if(myMultiFit->fRankingOnly=="all" || myMultiFit->fRankingOnly=="plot")  myMultiFit->PlotNPRankingManager();
             }
+            if(groupedImpact){
+                myMultiFit->fDoGroupedSystImpactTable = true;
+                if(myMultiFit->fGroupedImpactCategory!="combine") myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName ); // this calls TtHFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
+                else                                              myMultiFit->BuildGroupedImpactTable(); // combine the results into one table with option "combine"
+            }
         }
         //
         if(myMultiFit->fCompare){

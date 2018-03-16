@@ -64,6 +64,9 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
     if(optMap["Ranking"]!=""){
         fMultiFitter->fRankingOnly = optMap["Ranking"];
     }
+    if(optMap["GroupedImpact"]!=""){
+        fMultiFitter->fGroupedImpactCategory = optMap["GroupedImpact"];
+    }
 
     if(optMap["Suffix"]!=""){
         fGlobalSuffix = optMap["Suffix"];
