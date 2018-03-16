@@ -755,8 +755,13 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     RooRealVar * thePOI = dynamic_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
 
     bool HessStatus= minim2.hesse();
+        
     RooArgSet minosSet(*thePOI);
-    minim2.minos(minosSet);
+    if(m_useMinos && (m_varMinos.at(0)=="all" || find(m_varMinos.begin(),m_varMinos.end(),thePOI->GetName())<m_varMinos.end())){
+        minim2.minos(minosSet);
+    }
+//     else
+//         minim2.minos();
 
     if (status!=0) WriteErrorStatus("FittingTool::FitExcludingGroup", "unable to perform fit correctly! HessStatus: " + std::to_string(HessStatus));
 
