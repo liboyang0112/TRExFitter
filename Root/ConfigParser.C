@@ -380,27 +380,32 @@ bool ConfigParser::SettingIsPresentAndValid(ConfigParser *refConfigParser, const
     
     ConfigSet *cs = nullptr;
     ConfigSet *cs_ref = nullptr;
-    
+   
+    bool isFound = false;
+ 
     for (int i_cs =0; i_cs < fN; i_cs++){
         cs = fConfSets[i_cs];
         if (cs->fName == setting_set){
+            isFound = true;
             break;
         }
     }
 
     // if we cannot find the setting return false = not present
-    if (cs == nullptr) return false;
+    if (!isFound) return false;
 
+    bool refIsFound = false;
     // check if the setting type exists in the reference
     for (int i_cs =0; i_cs < refConfigParser->fN; i_cs++){
         cs_ref = refConfigParser->fConfSets[i_cs];
         if (cs_ref->fName == setting_set){
+            refIsFound = true;
             break;
         }
     }
 
     // config set is not present in the reference
-    if (cs_ref == nullptr){
+    if (!refIsFound){
         WriteErrorStatus("ConfigParser::SettingIsPresentAndValid", "Cannot find config set '" + setting_set + "' in reference config. Please check this!");
         exit(EXIT_FAILURE);
     }
