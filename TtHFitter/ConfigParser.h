@@ -61,6 +61,9 @@ public:
     ConfigSet *GetConfigSet(std::string name,int i=0);
     int CheckSyntax(ConfigParser *refConfigParser);
 
+    bool SettingIsPresentAndValid(ConfigParser *refConfigParser, const std::string &setting_set, const std::string &setting) const;
+    void CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std::string &setting_set, const std::string &setting) const;
+    void CheckParameters(const std::vector<std::string> &current_settings, const std::vector<std::string> &possible_settings, const std::string& setting_set, const std::string &setting) const;
 // private:
     int fN;
 };
