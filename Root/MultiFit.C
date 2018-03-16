@@ -68,6 +68,7 @@ MultiFit::MultiFit(string name){
     fUseRnd = false;
     //
     fRankingOnly = "all";
+    fGroupedImpactCategory = "all";
     fFastFit = false;
     fFastFitForRanking = true;
     fNuisParListFile = "";
@@ -80,7 +81,9 @@ MultiFit::MultiFit(string name){
     fLimitsFiles.clear();
     fBonlySuffix = "";
     fShowSystForPOI = false;
-    fVarNameLH.clear();    
+    fVarNameLH.clear();
+    //
+    fDoGroupedSystImpactTable = false;
 }
 
 //__________________________________________________________________________________
@@ -112,6 +115,8 @@ void MultiFit::ReadConfigFile(string configFile,string options){
         //
         if(optMap["Ranking"]!="")
             fRankingOnly = optMap["Ranking"];
+        if(optMap["GroupedImpact"]!="")
+            fGroupedImpactCategory = optMap["GroupedImpact"];
         //
         if(optMap["Suffix"]!="")
             globalSuffix = optMap["Suffix"];
@@ -491,6 +496,28 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
             WriteInfoStatus("MultiFit::FitCombinedWS", "  probability = " + std::to_string(prob));
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
+        }
+
+        //
+        // grouped systematics impact
+        if(fDoGroupedSystImpactTable){
+            std::string outNameGroupedImpact = fOutDir+"/Fits/GroupedImpact"+fSaveSuf;
+            if(fGroupedImpactCategory!="all") outNameGroupedImpact += "_"+fGroupedImpactCategory;
+            outNameGroupedImpact += ".txt";
+            // need to create a merged list of fSubCategoryImpactMap from the include Fits
+            std::map<std::string, std::string> mergedMap;
+            mergedMap.clear();
+            for(auto fit : fFitList){
+                fit->ProduceSystSubCategoryMap();
+                for(auto m : fit->fSubCategoryImpactMap){
+                    if(mergedMap[m.first]=="") mergedMap[m.first] = m.second;
+                    else if(mergedMap[m.first]!=m.second){
+                        WriteWarningStatus("MultiFit::FitCombinedWS","Systematics assigned to different SubCategory in the different included Fits. Keeping first Fit convention.");
+                    }
+                }
+            }
+            fitTool -> SetSystMap( mergedMap );
+            fitTool -> GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory, outNameGroupedImpact);
         }
     }
     
@@ -1185,7 +1212,6 @@ void MultiFit::ComparePulls(string category){
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
-//             fitRes->ReadFromTXT(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
             if(fFitResultsFile!="") fitRes->ReadFromTXT(fFitResultsFile);
             else                    fitRes->ReadFromTXT(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
         }
@@ -1450,7 +1476,8 @@ void MultiFit::CompareNormFactors(string category){
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
-            fitRes->ReadFromTXT(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
+            if(fFitResultsFile!="") fitRes->ReadFromTXT(fFitResultsFile);
+            else                    fitRes->ReadFromTXT(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
         }
         else{
             fitRes = fFitList[i_fit]->fFitResults;
@@ -2884,4 +2911,21 @@ TH1F* MultiFit::Rebin(TH1F* h,vector<float> vec, bool isData){
     }
     h_new->SetMinimum(1);
     return h_new;
+}
+
+//____________________________________________________________________________________
+// combine individual results from grouped impact evaluation into one table
+void MultiFit::BuildGroupedImpactTable(){
+    WriteInfoStatus("TtHFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
+    std::string targetName = fOutDir+"/Fits/GroupedImpact"+fSaveSuf+".txt";
+
+    if(std::ifstream(targetName).good()){
+        WriteWarningStatus("TtHFit::BuildGroupedImpactTable","file " + targetName + " already exists, will not overwrite");
+    }
+    else{
+        std::string cmd = " if [[ `ls "+fOutDir+"/Fits/GroupedImpact"+fSaveSuf+"_*` != \"\" ]] ; then";
+        cmd            += " cat "+fOutDir+"/Fits/GroupedImpact_* > "+targetName+" ; ";
+        cmd            += " fi ;";
+        gSystem->Exec(cmd.c_str());
+    }
 }
