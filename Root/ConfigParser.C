@@ -325,45 +325,13 @@ ConfigSet *ConfigParser::GetConfigSet(string name,int i){ // returns the i-th co
 //
 int ConfigParser::CheckSyntax(ConfigParser *refConfigParser){
     int exitStatus = 0;
-    bool match = false;
     // loop on all the confic sets
-    for(int i_cs = 0;i_cs<fN;i_cs++){
+    for(int i_cs = 0; i_cs<fN; i_cs++){
         ConfigSet *cs = fConfSets[i_cs];
-        ConfigSet *refConfigSet = 0x0;
         // check if the same exists in the reference
-        match = false;
-        for(int i_cs2 = 0;i_cs2<refConfigParser->fN;i_cs2++){
-            ConfigSet *cs2 = refConfigParser->fConfSets[i_cs2];
-            if(cs->fName==cs2->fName){
-                match = true;
-                refConfigSet = cs2;
-                continue;
-            }
-        }
-        if(!match){
-            WriteErrorStatus("ConfigParser::CheckSyntax", " ConfigSet " + cs->fName + " not recongnized. Check jobScheme.config.");
-            exitStatus = 1;
-        }
-        // if it passes the check, go and check configs
-        else{
-            for(int i_c = 0;i_c<cs->fN;i_c++){
-                Config c = cs->fConfig[i_c];
-                Config refConfig;
-                match = false;
-                // check if the same exists in the reference
-                for(int i_c2 = 0;i_c2<refConfigSet->fN;i_c2++){
-                    Config c2 = refConfigSet->fConfig[i_c2];
-                    if(c.fName==c2.fName){
-                        match = true;
-                        refConfig = c2;
-                        continue;
-                    }
-                }
-                if(!match){
-                    WriteErrorStatus("ConfigParser::CheckSyntax", " Config " + c.fName + " (under " + cs->fName + ") not recongnized. Check jobScheme.config.");
-                    exitStatus = 1;
-                }
-            }
+        for (int i_c = 0; i_c < cs->fN; i_c++){
+            Config c = cs->fConfig[i_c];
+            exitStatus+= SettingIsValid(cs, refConfigParser, cs->fName, c.fName);
         }
     }
     return exitStatus;
@@ -372,27 +340,13 @@ int ConfigParser::CheckSyntax(ConfigParser *refConfigParser){
 
 //_______________________________________________________________________________________
 //
-bool ConfigParser::SettingIsPresentAndValid(ConfigParser *refConfigParser, const std::string &setting_set, const std::string &setting) const{
+int ConfigParser::SettingIsValid(ConfigSet *cs, ConfigParser *refConfigParser, const std::string &setting_set, const std::string &setting) const{
     if (refConfigParser == nullptr){
         WriteErrorStatus("ConfigParser::SettingIsPresentAndValid", "Invalid pointer to the reference ConfigParser. Please check this!");
         exit(EXIT_FAILURE);
     }
-    
-    ConfigSet *cs = nullptr;
-    ConfigSet *cs_ref = nullptr;
-   
-    bool isFound = false;
- 
-    for (int i_cs =0; i_cs < fN; i_cs++){
-        cs = fConfSets[i_cs];
-        if (cs->fName == setting_set){
-            isFound = true;
-            break;
-        }
-    }
 
-    // if we cannot find the setting return false = not present
-    if (!isFound) return false;
+    ConfigSet *cs_ref = nullptr;
 
     bool refIsFound = false;
     // check if the setting type exists in the reference
@@ -406,32 +360,29 @@ bool ConfigParser::SettingIsPresentAndValid(ConfigParser *refConfigParser, const
 
     // config set is not present in the reference
     if (!refIsFound){
-        WriteErrorStatus("ConfigParser::SettingIsPresentAndValid", "Cannot find config set '" + setting_set + "' in reference config. Please check this!");
-        exit(EXIT_FAILURE);
+        WriteErrorStatus("ConfigParser::SettingIsValid", "Cannot find config set '" + setting_set + "' in reference config. Please check this!");
+        return 1;
     }
-    
-    // setting is not present
-    if (cs->Get(setting) == "") return false;
-    
-    // check the validity of the single setting
-    CheckSingleSetting(cs, cs_ref, setting_set, setting);
 
-    return true;
+    // check the validity of the single setting
+    if(CheckSingleSetting(cs, cs_ref, setting_set, setting)) return 1;
+
+    return 0;
 }
 
 //_______________________________________________________________________________________
 //
-void ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std::string &setting_set, const std::string &setting) const {
+int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std::string &setting_set, const std::string &setting) const {
     std::string param = cs->Get(setting);
     std::string ref_param = cs_ref->Get(setting);
 
     if (ref_param == ""){
         WriteErrorStatus("ConfigParser::CheckSingleSetting", "Cannot find setting '" + setting + "' for setting set " + setting_set +  " in reference config. Please check this!");
-        exit(EXIT_FAILURE);
-    } 
+        return 1;
+    }
 
     // there is nothing to check if the reference setting is simply 'string'
-    if (ref_param == "string") return;   
+    if (ref_param == "string") return 0;
 
     // need to check the consistency of the provided settings
     // first check the number of provided parameters
@@ -446,63 +397,139 @@ void ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const st
 
     unsigned int current_setting_size = current_settings.size();
     // search the vector for the possible sizes
-    
+
     auto it = std::find(possible_sizes.begin(), possible_sizes.end(), current_setting_size);
     if (it == possible_sizes.end()){
         WriteErrorStatus("ConfigParser::CheckSingleSetting", "You provided " + std::to_string(current_setting_size) +" parameters, for setting set '" + setting_set + "' and setting '" + setting );
         std::string tmp = "Possible setting sizes are: ";
         for (const unsigned int& i : possible_sizes){
             tmp+= std::to_string(i) + " ";
-        } 
+        }
         tmp+= ". Please check this!";
         WriteErrorStatus("ConfigParser::CheckSingleSetting", tmp );
-        
+
         exit(EXIT_FAILURE);
     }
 
     // sizes are correct, not we need to check the actual input
-    CheckParameters(current_settings, possible_settings, setting_set, setting);
+    if(CheckParameters(current_settings, possible_settings, setting_set, setting)) return 1;
+
+    return 0;
 }
 
-void ConfigParser::CheckParameters(const std::vector<std::string> &current_settings, const std::vector<std::string> &possible_settings, const std::string &setting_set, const std::string &setting) const{
+int ConfigParser::CheckParameters(const std::vector<std::string> &current_settings, const std::vector<std::string> &possible_settings, const std::string &setting_set, const std::string &setting) const{
     if (current_settings.size() == 1){ // this is easy, one simple parameter
         std::string param = current_settings.at(0);
         if (possible_settings.size() == 1){
+            // only one setting available
             if (possible_settings.at(0) == "int"){
                 // try to convert the param to int
                 try{
                     std::stoi(possible_settings.at(0));
-                } catch (std::exception e){
-                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter" + param + " cannot be converted to int, for setting set '" + setting_set + "' and setting '" + setting );
-                    exit(EXIT_FAILURE); 
+                } catch (std::exception &e){
+                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param + " cannot be converted to int, for setting set '" + setting_set + "' and setting '" + setting );
+                    return 1;
                 }
             } else if (possible_settings.at(0) == "float"){
                 try {
                     std::stof(possible_settings.at(0));
-                } catch (std::exception e){
-                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter" + param + " cannot be converted to float, for setting set '" + setting_set + "' and setting '" + setting );
-                    exit(EXIT_FAILURE); 
+                } catch (std::exception &e){
+                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param + " cannot be converted to float, for setting set '" + setting_set + "' and setting '" + setting );
+                    return 1;
                 }
             } else if (param != possible_settings.at(0)){
-                WriteErrorStatus("ConfigParser::CheckParameters", "Parameter" + param + " is not valid, for setting set '" + setting_set + "' and setting '" + setting );
+                WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param + " is not valid, for setting set '" + setting_set + "' and setting '" + setting );
                 WriteErrorStatus("ConfigParser::CheckParameters", "Only valid setting is: " + possible_settings.at(0) );
+                return 1;
             }
-        } 
+        }
         else {
+            // multiple settings are possible
+            bool isFound = false;
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            auto it = std::find(possible_settings.begin(), possible_settings.end(), param);
-            if (it == possible_settings.end()){
-                WriteErrorStatus("ConfigParser::CheckParameters", "Parameter" + param +" is not valid, for setting set '" + setting_set + "' and setting '" + setting );
+            for (const std::string& isetting : possible_settings){
+                // for string
+                if (param == isetting){
+                    isFound = true;
+                    break;
+                } else if (isetting == "int"){ // if one if the inputs can also be int
+                    bool isOk = true;
+                    try {
+                        std::stoi(param);
+                    } catch (std::exception &e){
+                        isOk = false;
+                    }
+                    if (isOk){
+                        isFound = true;
+                        break;
+                    }
+                } else if (isetting == "float"){ // if one of the inputs can also be float
+                    bool isOk = true;
+                    try {
+                        std::stof(param);
+                    } catch (std::exception &e){
+                        isOk = false;
+                    }
+                    if (isOk){
+                        isFound = true;
+                        break;
+                    }
+                }
+            }
+            if (isFound){
+                WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param +" is not valid, for setting set '" + setting_set + "' and setting '" + setting );
                 std::string tmp = "Possible values: ";
                 for (const std::string &i : possible_settings){
                     tmp+= i + " ";
-                } 
+                }
                 tmp+= ". Please check this!";
                 WriteErrorStatus("ConfigParser::CheckParameters", tmp );
-                exit(EXIT_FAILURE);
+                return 1;
             }
         }
     } else { // more settings = more difficult
+        // check which of the allowed settings has the correct size
+        unsigned int position = 9999;
+        for (unsigned int iset = 0; iset < possible_settings.size(); iset++){
+            if (Vectorize(possible_settings.at(iset),',').size() == current_settings.size()){
+                position = iset;
+                break;
+            }
+        }
+
+        // this should never happen because this has already been checked
+        if (position == 9999){
+            WriteErrorStatus("ConfigParser::CheckParameters", "Different sizes of current and available setting vectors. This is NOT your fault. Please report this. We re sorry...");
+            return 1;
+        }
+
+        // compare it element by element
+        std::vector<std::string> possible_settings_vec = Vectorize(possible_settings.at(position),',');
+        for (unsigned int iset = 0; iset < current_settings.size(); iset++){
+            // element is int
+            if (possible_settings_vec.at(iset) == "int"){
+                try {
+                    std::stoi(current_settings.at(iset));
+                } catch (std::exception &e){
+                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + current_settings.at(iset) +" is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iset+1) + ". Please check this!" );
+                    return 1;
+                }
+            } else if (possible_settings_vec.at(iset) == "float"){ // element is float
+                try {
+                    std::stof(current_settings.at(iset));
+                } catch (std::exception &e){
+                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + current_settings.at(iset) + " is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iset+1) + ". Please check this!" );
+                    return 1;
+                }
+            } else { // element is string
+                if (possible_settings_vec.at(iset) != current_settings.at(iset)){
+                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + current_settings.at(iset) +" is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iset+1) + ". Please check this!" );
+                    return 1;
+                }
+            }
+        }
     }
+
+    return 0;
 }
 

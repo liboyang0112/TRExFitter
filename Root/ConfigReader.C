@@ -25,10 +25,10 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     fParser.ReadFile(fileName);
 
     // initialize checker COnfigParser to cross check the input
-    //ConfigParser refConfig;
-    //refConfig.ReadFile("jobSchema.config");
-    //int sc = fParser.CheckSyntax(&refConfig);
-    int sc = 0;
+    ConfigParser refConfig;
+    refConfig.ReadFile("jobSchema.config");
+    int sc = fParser.CheckSyntax(&refConfig);
+    //int sc = 0;
 
     if (sc != 0) return sc;
 

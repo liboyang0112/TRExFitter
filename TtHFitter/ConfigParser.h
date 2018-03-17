@@ -61,9 +61,36 @@ public:
     ConfigSet *GetConfigSet(std::string name,int i=0);
     int CheckSyntax(ConfigParser *refConfigParser);
 
-    bool SettingIsPresentAndValid(ConfigParser *refConfigParser, const std::string &setting_set, const std::string &setting) const;
-    void CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std::string &setting_set, const std::string &setting) const;
-    void CheckParameters(const std::vector<std::string> &current_settings, const std::vector<std::string> &possible_settings, const std::string& setting_set, const std::string &setting) const;
+    /**
+      * Method that checks provided setting with reference config file
+      * @param ConfigSet Pointer to actual configuration setting type 
+      * @param ConfigSet Pointer to referece config parser 
+      * @param string Name of the setting set
+      * @param string Name of the setting
+      * @return int Status code
+      */
+    int SettingIsValid(ConfigSet *cs, ConfigParser *refConfigParser, const std::string &setting_set, const std::string &setting) const;
+
+    /**
+      * Helper method that checks single setting with reference file
+      * @param ConfigSet Pointer to actual configuration setting type 
+      * @param ConfigSet Pointer to referece config parser 
+      * @param string Name of the setting set
+      * @param string Name of the setting
+      * @return int Status code
+      */
+    int CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std::string &setting_set, const std::string &setting) const;
+
+    /**
+      * Helper method that checks validity of provided parameters for given setting with reference file
+      * @param ConfigSet Pointer to actual configuration setting type 
+      * @param ConfigSet Pointer to referece config parser 
+      * @param string Name of the setting set
+      * @param string Name of the setting
+      * @return int Status code
+      */
+    int CheckParameters(const std::vector<std::string> &current_settings, const std::vector<std::string> &possible_settings, const std::string& setting_set, const std::string &setting) const;
+
 // private:
     int fN;
 };
