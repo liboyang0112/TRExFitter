@@ -831,8 +831,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 //
                 // if it's a gamma
                 if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas){
-                    diffUp   += yieldNominal_postFit*systErrUp;
-                    diffDown += yieldNominal_postFit*systErrDown;
+                    diffUp   += yieldNominal_postFit*systErrUp/systValue;
+                    diffDown += yieldNominal_postFit*systErrDown/systValue;
                 }
                 //
                 // if it's a specific-sample gamma
@@ -855,8 +855,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                         diffDown += yieldNominal*(scaleDown-1);
                     }
                     else{
-                        diffUp   += yieldNominal*systErrUp;
-                        diffDown += yieldNominal*systErrDown;
+                        diffUp   += yieldNominal_postFit*systErrUp/systValue;
+                        diffDown += yieldNominal_postFit*systErrDown/systValue;
                     }
                 }
                 //
