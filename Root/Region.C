@@ -912,8 +912,17 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 //                             overall_down = (res_norm[1]-res_norm[-1])*yieldNominal/2.;
 //                             overall_up   = res_norm[1] *yieldNominal;
 //                             overall_down =-res_norm[-1]*yieldNominal;
-                            overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/2.;
-                            overall_down = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/2.;
+                            // overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/2.;
+                            // overall_down = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/2.;
+                            // std::cout << "-----" << std::endl;
+                            // std::cout << fSystNames[i_syst] << std::endl;
+
+                            // std::cout << res_norm[0] << std::endl;
+                            // std::cout << res_norm[-1] << std::endl;
+                            // std::cout << res_norm[1] << std::endl;
+                            overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/res_norm[0]/2.;
+                            overall_down   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit/res_norm[0]/2.;
+                            //overall_down = (res_norm[-1]-res_norm[0])*yieldNominal/2.;
 //                             overall_up   = (res_norm[1]-res_norm[-1])*yieldNominal_postFit_nfOnly/2.;
 //                             overall_down = (res_norm[1]-res_norm[-1])*yieldNominal_postFit_nfOnly/2.;
 //                             overall_up   = res_norm[1] *yieldNominal_postFit;
@@ -934,8 +943,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 //                             shape_down = (res_shape[1]-res_shape[-1])*yieldNominal/2.;
 //                             shape_up   = (res_shape[1]-res_shape[-1])/2.;
 //                             shape_down = (res_shape[1]-res_shape[-1])/2.;
-                            shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal_postFit/2.;
-                            shape_down = (res_shape[1]-res_shape[-1])*yieldNominal_postFit/2.;
+                            shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal_postFit/res_shape[0]/2.;
+                            shape_down = (res_shape[1]-res_shape[-1])*yieldNominal_postFit/res_shape[0]/2.;
 //                             shape_up   = (res_shape[1]-res_shape[-1])*yieldNominal_postFit_nfOnly/2.;
 //                             shape_down = (res_shape[1]-res_shape[-1])*yieldNominal_postFit_nfOnly/2.;
                         }
