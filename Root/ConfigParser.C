@@ -425,14 +425,14 @@ int ConfigParser::CheckParameters(const std::vector<std::string> &current_settin
             if (possible_settings.at(0) == "int"){
                 // try to convert the param to int
                 try{
-                    std::stoi(possible_settings.at(0));
-                } catch (std::exception &e){
+                    std::stoi(param);
+                } catch (std::invalid_argument& e){
                     WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param + " cannot be converted to int, for setting set '" + setting_set + "' and setting '" + setting );
                     return 1;
                 }
             } else if (possible_settings.at(0) == "float"){
                 try {
-                    std::stof(possible_settings.at(0));
+                    std::stof(param);
                 } catch (std::exception &e){
                     WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param + " cannot be converted to float, for setting set '" + setting_set + "' and setting '" + setting );
                     return 1;
@@ -476,7 +476,7 @@ int ConfigParser::CheckParameters(const std::vector<std::string> &current_settin
                     }
                 }
             }
-            if (isFound){
+            if (!isFound){
                 WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param +" is not valid, for setting set '" + setting_set + "' and setting '" + setting );
                 std::string tmp = "Possible values: ";
                 for (const std::string &i : possible_settings){
@@ -521,6 +521,7 @@ int ConfigParser::CheckParameters(const std::vector<std::string> &current_settin
                     WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + current_settings.at(iset) + " is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iset+1) + ". Please check this!" );
                     return 1;
                 }
+            } else if (possible_settings_vec.at(iset) == "string"){// nothing to do here
             } else { // element is string
                 if (possible_settings_vec.at(iset) != current_settings.at(iset)){
                     WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + current_settings.at(iset) +" is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iset+1) + ". Please check this!" );
