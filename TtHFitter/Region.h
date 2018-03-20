@@ -54,6 +54,13 @@ public:
 
     void BuildPreFitErrorHist();
     TthPlot* DrawPreFit(std::string opt="");
+    double GetMultFactors( FitResults *fitRes, 
+                                std::ofstream& pullTex,
+                                const int i /*sample*/, const int i_bin /*bin number*/,
+                                const double binContent0,
+                                const std::string &syst = "",
+                                const bool isUp = true);
+
     void BuildPostFitErrorHist(FitResults *fitRes);
     TthPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex,std::string opt="");
 
