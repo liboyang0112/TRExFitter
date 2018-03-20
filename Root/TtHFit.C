@@ -9225,7 +9225,8 @@ void TtHFit::ProduceSystSubCategoryMap(){
        if(fNormFactors[i_nf]->fSubCategory=="Gammas" or fNormFactors[i_nf]->fSubCategory=="FullSyst" or fNormFactors[i_nf]->fSubCategory=="combine")
            WriteWarningStatus("TtHFit::ReadConfigFile"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
        if (fNormFactors[i_nf]->fName != fPOI) {
-           fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fName, fNormFactors[i_nf]->fSubCategory));
+//            fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fName, fNormFactors[i_nf]->fSubCategory));
+           fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fNuisanceParameter, fNormFactors[i_nf]->fSubCategory));
        }
    }
 }

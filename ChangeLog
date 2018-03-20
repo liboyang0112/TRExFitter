@@ -1,3 +1,7 @@
+2018-02-28 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Extending post-fit impact table functionality to MultiFit
+    * Fixing two small issues with post-fit impact tables (for cases with no minos or with systName!=nuisPar)
+    
 2018-03-09 Alexander Held <alexander.held@cern.ch>
     * Added the possibility to create tables showing post-fit impact of groups of nuisance parameters on the POI, see readme for more information
     * Can now group Systematics and NormFactors via new SubCategory options
