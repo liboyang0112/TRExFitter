@@ -8,6 +8,7 @@ Applying ATLAS style settings...
 
 [1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
 [1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: jobSchema.config[0m
 === DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
 === DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
