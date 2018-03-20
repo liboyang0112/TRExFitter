@@ -83,14 +83,21 @@ public:
 
     /**
       * Helper method that checks validity of provided parameters for given setting with reference file
-      * @param ConfigSet Pointer to actual configuration setting type 
-      * @param ConfigSet Pointer to referece config parser 
+      * @param string Setting in users config
+      * @param string vector List of possible settings
       * @param string Name of the setting set
       * @param string Name of the setting
       * @return int Status code
       */
     int CheckParameters(const std::string &current, const std::vector<std::string> &possible_settings, const std::string& setting_set, const std::string &setting) const;
 
+    /**
+      * @param string Name of the setting set
+      * @param string Setting in users config
+      * @param string Possible setting from reference file
+      * @param char Delimiter whn multiple parameters are provided
+      * @return bool Is valid setting
+      */
     bool SettingMultipleParamIsOK(const std::string &setting_set, const std::string& current, const std::string& possible, const char delimiter = ',') const;
 
 // private:

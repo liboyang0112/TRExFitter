@@ -407,8 +407,7 @@ int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std
         }
         tmp+= ". Please check this!";
         WriteErrorStatus("ConfigParser::CheckSingleSetting", tmp );
-
-        exit(EXIT_FAILURE);
+        return 1;
     }
 
     // sizes are correct, not we need to check the actual input
