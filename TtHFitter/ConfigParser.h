@@ -89,7 +89,9 @@ public:
       * @param string Name of the setting
       * @return int Status code
       */
-    int CheckParameters(const std::vector<std::string> &current_settings, const std::vector<std::string> &possible_settings, const std::string& setting_set, const std::string &setting) const;
+    int CheckParameters(const std::string &current, const std::vector<std::string> &possible_settings, const std::string& setting_set, const std::string &setting) const;
+
+    bool SettingMultipleParamIsOK(const std::string &setting_set, const std::string& current, const std::string& possible, const char delimiter = ',') const;
 
 // private:
     int fN;

@@ -412,125 +412,68 @@ int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std
     }
 
     // sizes are correct, not we need to check the actual input
-    if(CheckParameters(current_settings, possible_settings, setting_set, setting)) return 1;
+    if(CheckParameters(param, possible_settings, setting_set, setting)) return 1;
 
     return 0;
 }
 
-int ConfigParser::CheckParameters(const std::vector<std::string> &current_settings, const std::vector<std::string> &possible_settings, const std::string &setting_set, const std::string &setting) const{
-    if (current_settings.size() == 1){ // this is easy, one simple parameter
-        std::string param = current_settings.at(0);
-        if (possible_settings.size() == 1){
-            // only one setting available
-            if (possible_settings.at(0) == "int"){
-                // try to convert the param to int
-                try{
-                    std::stoi(param);
-                } catch (std::invalid_argument& e){
-                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param + " cannot be converted to int, for setting set '" + setting_set + "' and setting '" + setting );
-                    return 1;
-                }
-            } else if (possible_settings.at(0) == "float"){
-                try {
-                    std::stof(param);
-                } catch (std::exception &e){
-                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param + " cannot be converted to float, for setting set '" + setting_set + "' and setting '" + setting );
-                    return 1;
-                }
-            } else if (param != possible_settings.at(0)){
-                WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param + " is not valid, for setting set '" + setting_set + "' and setting '" + setting );
-                WriteErrorStatus("ConfigParser::CheckParameters", "Only valid setting is: " + possible_settings.at(0) );
-                return 1;
-            }
-        }
-        else {
-            // multiple settings are possible
-            bool isFound = false;
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            for (const std::string& isetting : possible_settings){
-                // for string
-                if (param == isetting){
-                    isFound = true;
-                    break;
-                } else if (isetting == "int"){ // if one if the inputs can also be int
-                    bool isOk = true;
-                    try {
-                        std::stoi(param);
-                    } catch (std::exception &e){
-                        isOk = false;
-                    }
-                    if (isOk){
-                        isFound = true;
-                        break;
-                    }
-                } else if (isetting == "float"){ // if one of the inputs can also be float
-                    bool isOk = true;
-                    try {
-                        std::stof(param);
-                    } catch (std::exception &e){
-                        isOk = false;
-                    }
-                    if (isOk){
-                        isFound = true;
-                        break;
-                    }
-                }
-            }
-            if (!isFound){
-                WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + param +" is not valid, for setting set '" + setting_set + "' and setting '" + setting );
-                std::string tmp = "Possible values: ";
-                for (const std::string &i : possible_settings){
-                    tmp+= i + " ";
-                }
-                tmp+= ". Please check this!";
-                WriteErrorStatus("ConfigParser::CheckParameters", tmp );
-                return 1;
-            }
-        }
-    } else { // more settings = more difficult
-        // check which of the allowed settings has the correct size
-        unsigned int position = 9999;
-        for (unsigned int iset = 0; iset < possible_settings.size(); iset++){
-            if (Vectorize(possible_settings.at(iset),',').size() == current_settings.size()){
-                position = iset;
+int ConfigParser::CheckParameters(const std::string &current, const std::vector<std::string> &possible_settings, const std::string &setting_set, const std::string &setting) const{
+    if (possible_settings.size() == 1){
+        if(!SettingMultipleParamIsOK(setting_set, current, possible_settings.at(0))) return 1;
+    }
+    else {
+        // multiple settings are possible
+        bool isFound = false;
+        //std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        for (const std::string& isetting : possible_settings){
+            // for string
+            if(SettingMultipleParamIsOK(setting_set, current, isetting)){
+                isFound = true;
                 break;
             }
         }
-
-        // this should never happen because this has already been checked
-        if (position == 9999){
-            WriteErrorStatus("ConfigParser::CheckParameters", "Different sizes of current and available setting vectors. This is NOT your fault. Please report this. We re sorry...");
-            return 1;
-        }
-
-        // compare it element by element
-        std::vector<std::string> possible_settings_vec = Vectorize(possible_settings.at(position),',');
-        for (unsigned int iset = 0; iset < current_settings.size(); iset++){
-            // element is int
-            if (possible_settings_vec.at(iset) == "int"){
-                try {
-                    std::stoi(current_settings.at(iset));
-                } catch (std::exception &e){
-                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + current_settings.at(iset) +" is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iset+1) + ". Please check this!" );
-                    return 1;
-                }
-            } else if (possible_settings_vec.at(iset) == "float"){ // element is float
-                try {
-                    std::stof(current_settings.at(iset));
-                } catch (std::exception &e){
-                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + current_settings.at(iset) + " is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iset+1) + ". Please check this!" );
-                    return 1;
-                }
-            } else if (possible_settings_vec.at(iset) == "string"){// nothing to do here
-            } else { // element is string
-                if (possible_settings_vec.at(iset) != current_settings.at(iset)){
-                    WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + current_settings.at(iset) +" is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iset+1) + ". Please check this!" );
-                    return 1;
-                }
+        if (!isFound){
+            WriteErrorStatus("ConfigParser::CheckParameters", "Parameter " + current +" is not valid, for setting set '" + setting_set + "' and setting '" + setting );
+            std::string tmp = "Possible values: ";
+            for (const std::string &i : possible_settings){
+                tmp+= i + " ";
             }
+            tmp+= ". Please check this!";
+            WriteErrorStatus("ConfigParser::CheckParameters", tmp );
+            return 1;
         }
     }
 
     return 0;
 }
 
+bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, const std::string& current, const std::string& possible, const char delimiter) const{
+
+    std::vector<std::string> current_vec = Vectorize(current, delimiter);
+    std::vector<std::string> possible_vec = Vectorize(possible, delimiter);
+    
+    if (current_vec.size() != possible_vec.size()) return false;
+
+    // check setting by setting
+    for (unsigned int iparam = 0; iparam < possible_vec.size(); iparam++){
+        if (possible_vec.at(iparam) == "string"){
+            continue; // nothing to check
+        } else if (possible_vec.at(iparam) == "int"){
+            try {
+                std::stoi(current_vec.at(iparam));
+            } catch (std::exception &e){
+                WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + current + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
+                return false;
+            }
+        } else if (possible_vec.at(iparam) == "float"){
+            try {
+                std::stof(current_vec.at(iparam));
+            } catch (std::exception &e){
+                WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + current + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
