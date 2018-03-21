@@ -9207,7 +9207,8 @@ void TtHFit::ProduceSystSubCategoryMap(){
        //std::cout << fSystematics[i_syst]->fName << endl;
        if(fSystematics[i_syst]->fSubCategory=="Gammas" or fSystematics[i_syst]->fSubCategory=="FullSyst" or fSystematics[i_syst]->fSubCategory=="combine")
            WriteWarningStatus("TtHFit::ReadConfigFile"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
-       fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fName).c_str(), fSystematics[i_syst]->fSubCategory));
+//        fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fName).c_str(), fSystematics[i_syst]->fSubCategory));
+       fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fNuisanceParameter).c_str(), fSystematics[i_syst]->fSubCategory));
    }
 
    // also add norm factors, no "alpha_" needed
