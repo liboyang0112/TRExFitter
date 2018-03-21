@@ -141,10 +141,10 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     // Needed for Ranking plot, but also to set random initial values for the NPs
     //
     if(m_randSeed == -999){
-      gRandom->SetSeed(time(NULL));
+        gRandom->SetSeed(time(NULL));
     }
     else{
-      gRandom->SetSeed(m_randSeed);
+        gRandom->SetSeed(m_randSeed);
     }
 
     //
@@ -622,6 +622,15 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     // repeat the nominal fit - done so that the initial randomization is the exact same as for the following fit(s)
     // this should help avoid issues with fits ending up in different local minima for groups with very small impact on the POI
     FitExcludingGroup(false, false, fitdata, fitpdf, constrainedParams, model, ws, "Nominal", associatedParams);  // nothing held constant -> "snapshot_AfterFit_POI_Nominal"
+    
+    //
+    // eventually do it once more
+    if(TtHFitter::OPTION["GroupedImpactMoreFit"]>0){
+        ws->saveSnapshot("snapshot_AfterFit_POI", *(model->GetParametersOfInterest()) );
+        ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters())   );
+        ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())    );
+        FitExcludingGroup(false, false, fitdata, fitpdf, constrainedParams, model, ws, "Nominal", associatedParams);  // nothing held constant -> "snapshot_AfterFit_POI_Nominal"
+    }
 
     // loop over unique SubCategories
     for (std::set<std::string>::iterator itCategories = m_subCategories.begin(); itCategories != m_subCategories.end(); ++itCategories){
@@ -735,7 +744,7 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
 
         // set all affectedParams constant
         if (std::find(affectedParams.begin(), affectedParams.end(), varname) != affectedParams.end()) {
-          var2->setConstant(1);
+            var2->setConstant(1);
         }
 
         // for stat-only fits, set everything constant
@@ -746,7 +755,7 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
 
     //constrainedParams->Print("v");
     // repeat the fit here ....
-    RooAbsReal* nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), NumCPU(4, RooFit::Hybrid) );
+    RooAbsReal* nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1),  NumCPU(TtHFitter::NCPU,RooFit::Hybrid) );
     RooMinimizer minim2(*nll);
     minim2.setStrategy(1);
     minim2.setPrintLevel(1); // set to -1 to reduce output
@@ -760,8 +769,6 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     if(m_useMinos && (m_varMinos.at(0)=="all" || find(m_varMinos.begin(),m_varMinos.end(),thePOI->GetName())<m_varMinos.end())){
         minim2.minos(minosSet);
     }
-//     else
-//         minim2.minos();
 
     if (status!=0) WriteErrorStatus("FittingTool::FitExcludingGroup", "unable to perform fit correctly! HessStatus: " + std::to_string(HessStatus));
 
@@ -772,7 +779,7 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     std::string snapshotName = "snapshot_AfterFit_POI_" + category;
     ws->saveSnapshot(snapshotName.c_str(), *mc->GetParametersOfInterest() );
 
-    ws->loadSnapshot("snapshot_AfterFit_POI");
+    ws->loadSnapshot("snapshot_AfterFit_POI_Nominal");
     float oldPOIerr =thePOI->getError();
     float oldPOIerrU=thePOI->getErrorHi();
     float oldPOIerrD=thePOI->getErrorLo();
