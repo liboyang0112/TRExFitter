@@ -233,7 +233,7 @@ void ConfigParser::ReadFile(string fileName){
     }
     file.close();
     file.clear();
-    if (replacementFileName!="") {
+    if (replacementFileName!="" && (fileName.find("jobSchema.config") == string::npos)) {
         WriteInfoStatus("ConfigParser::ReadFile", "Opening replacement file: " + replacementFileName + " to fill the map");
         ////replacementFileName="Common_XS_unc_Replacement.txt";
         ifstream fileR(replacementFileName.c_str());
