@@ -5614,6 +5614,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
         }
         else
             continue;
+
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             // find the systematic in the region
             int syst_idx = -1;
@@ -5676,10 +5677,11 @@ void TtHFit::BuildYieldTable(string opt,string group){
         // loop on regions
         for(int i_ch=1;i_ch<=Nbin;i_ch++){
             Region *region = fRegions[regionVec[i_ch-1]];
+            std::cout << "====> " << region -> fName << std::endl;
             if(region==0x0) continue;
-            if(region->fTot==0x0) continue;
+            if(region->fTot_postFit==0x0) continue;
             // loop on bins
-            for(int i_bin=1;i_bin<=region->fTot->GetNbinsX();i_bin++){
+            for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
                 // set gamma name
                 string gammaName = Form("stat_%s_bin_%d",region->fName.c_str(),i_bin-1);
                 npNames.push_back(gammaName);
@@ -5712,9 +5714,9 @@ void TtHFit::BuildYieldTable(string opt,string group){
         for(int i_ch=1;i_ch<=Nbin;i_ch++){
             Region *region = fRegions[regionVec[i_ch-1]];
             if(region==0x0) continue;
-            if(region->fTot==0x0) continue;
+            if(region->fTot_postFit==0x0) continue;
             // loop on bins
-            for(int i_bin=1;i_bin<=region->fTot->GetNbinsX();i_bin++){
+            for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
                 for(auto sample : fSamples){
                     if(!sample->fSeparateGammas) continue;
                     string gammaName = Form("shape_stat_%s_%s_bin_%d",sample->fName.c_str(),region->fName.c_str(),i_bin-1);
@@ -9120,7 +9122,7 @@ const std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtH
     std::vector<TtHFit::TemplateWeight> vec;
     // first sort vector of inputs for templates
     if (fTemplatePair.size() < 2){
-        WriteErrorStatus("TtHFit::GetTemplateWeightVec", "You need to provide at least 2 templates for template fit to work, but you provided: " + fTemplatePair.size());
+        WriteErrorStatus("TtHFit::GetTemplateWeightVec", "You need to provide at least 2 templates for template fit to work, but you provided: " + std::to_string(fTemplatePair.size()));
         return vec;
     }
     std::sort(fTemplatePair.begin(), fTemplatePair.end());
