@@ -416,14 +416,14 @@ int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std
     return 0;
 }
 
-int ConfigParser::CheckParameters(const std::string &current, const std::vector<std::string> &possible_settings, const std::string &setting_set, const std::string &setting) const{
+int ConfigParser::CheckParameters(std::string current, const std::vector<std::string> &possible_settings, const std::string &setting_set, const std::string &setting) const{
     if (possible_settings.size() == 1){
         if(!SettingMultipleParamIsOK(setting_set, current, possible_settings.at(0))) return 1;
     }
     else {
         // multiple settings are possible
         bool isFound = false;
-        //std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        std::transform(current.begin(), current.end(), current.begin(), ::toupper);
         for (const std::string& isetting : possible_settings){
             // for string
             if(SettingMultipleParamIsOK(setting_set, current, isetting)){

@@ -89,7 +89,7 @@ public:
       * @param string Name of the setting
       * @return int Status code
       */
-    int CheckParameters(const std::string &current, const std::vector<std::string> &possible_settings, const std::string& setting_set, const std::string &setting) const;
+    int CheckParameters(std::string current, const std::vector<std::string> &possible_settings, const std::string& setting_set, const std::string &setting) const;
 
     /**
       * @param string Name of the setting set
