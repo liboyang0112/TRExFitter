@@ -2184,8 +2184,8 @@ int ConfigReader::ReadSystOptions(){
         param = confSet->Get("IsFreeParameter");
         if(param != ""){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if (param != "TRUE") sys->fIsFreeParameter = true;
-            else if (param != "TRUE") sys->fIsFreeParameter = false;
+            if (param == "TRUE") sys->fIsFreeParameter = true;
+            else if (param == "FALSE") sys->fIsFreeParameter = false;
             else {
                 WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'IsFreeParameter' option but didnt provide valid parameter. Using default (false)");
                 sys->fIsFreeParameter = false;
