@@ -684,8 +684,8 @@ void LimitsCLs_inject::doPredictiveFit(RooNLLVar* nll, double mu1, double mu2, d
     }
 
     delete itr;
-    delete theta_mu1;
-    delete theta_mu2;
+    delete[] theta_mu1;
+    delete[] theta_mu2;
 }
 
 RooNLLVar* LimitsCLs_inject::createNLL(RooDataSet* _data){
