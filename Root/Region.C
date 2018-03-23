@@ -2047,7 +2047,6 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
     float finalErrPlus(0.);
     float finalErrMinus(0.);
     float corr(0.);
-    float yieldNominal(0.);
     float errUp_i(0.),   errUp_j(0.);
     float errDown_i(0.), errDown_j(0.);
     //
@@ -2056,7 +2055,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         finalErrPlus = 0;
         finalErrMinus = 0;
         corr = 0;
-        yieldNominal = h_nominal->GetBinContent(i_bin);
+        // yieldNominal = h_nominal->GetBinContent(i_bin);
         // - loop on the syst, two by two, to include the correlations
 //         std::vector<string> systNames_unique;
         for(unsigned int i_syst=0;i_syst<fSystNames.size();i_syst++){
