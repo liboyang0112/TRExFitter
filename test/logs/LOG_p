@@ -118,7 +118,5 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been
 [1;32m=== INFO::TtHFit::DrawSummary: Building Summary Plot...[0m
 [1;32m=== INFO::TtHFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TtHFit::BuildYieldTable: Building Yields Table...[0m
-====> SR_1
-====> SR_2
 [1;32m=== INFO::TtHFit::PrintSystTables: Printing syt tables[0m
 Info in <TCanvas::Print>: png file FitExample/PieChart_postFit.png has been created
