@@ -65,10 +65,10 @@ Applying ATLAS style settings...
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	111.322426 +8.141271 -8.141271
-=== DEBUG::Region::DrawPostFit: 2:	110.292450 +7.215135 -7.215135
-=== DEBUG::Region::DrawPostFit: 3:	70.468575 +6.423162 -6.423162
-=== DEBUG::Region::DrawPostFit: 4:	24.380356 +4.408641 -4.408641
+=== DEBUG::Region::DrawPostFit: 1:	111.322426 +8.100948 -8.100948
+=== DEBUG::Region::DrawPostFit: 2:	110.292450 +7.126775 -7.126775
+=== DEBUG::Region::DrawPostFit: 3:	70.468575 +6.396560 -6.396560
+=== DEBUG::Region::DrawPostFit: 4:	24.380356 +4.253962 -4.253962
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_1_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been created
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
@@ -99,10 +99,10 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been cr
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	108.976959 +6.382750 -6.382750
-=== DEBUG::Region::DrawPostFit: 2:	108.698143 +5.922365 -5.922365
-=== DEBUG::Region::DrawPostFit: 3:	70.191086 +6.460830 -6.460830
-=== DEBUG::Region::DrawPostFit: 4:	24.237284 +4.368861 -4.368861
+=== DEBUG::Region::DrawPostFit: 1:	108.976959 +6.494166 -6.494166
+=== DEBUG::Region::DrawPostFit: 2:	108.698143 +5.909606 -5.909606
+=== DEBUG::Region::DrawPostFit: 3:	70.191086 +6.437824 -6.437824
+=== DEBUG::Region::DrawPostFit: 4:	24.237284 +4.227614 -4.227614
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_2_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
 [1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
@@ -111,8 +111,8 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been cr
 === DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TtHFit::DrawSummary: Adding Signal: Signal
-=== DEBUG::TtHFit::DrawSummary: 1:	316.463806	+15.866894	-15.866894
-=== DEBUG::TtHFit::DrawSummary: 2:	312.103485	+12.770890	-12.770890
+=== DEBUG::TtHFit::DrawSummary: 1:	316.463806	+15.561548	-15.561548
+=== DEBUG::TtHFit::DrawSummary: 2:	312.103485	+12.738965	-12.738965
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
 [1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TtHFit::DrawSummary: Building Summary Plot...[0m
