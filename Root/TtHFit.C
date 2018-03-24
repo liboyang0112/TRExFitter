@@ -5677,7 +5677,6 @@ void TtHFit::BuildYieldTable(string opt,string group){
         // loop on regions
         for(int i_ch=1;i_ch<=Nbin;i_ch++){
             Region *region = fRegions[regionVec[i_ch-1]];
-            std::cout << "====> " << region -> fName << std::endl;
             if(region==0x0) continue;
             if(region->fTot_postFit==0x0) continue;
             // loop on bins
