@@ -7423,19 +7423,19 @@ void TtHFit::ProduceSystSubCategoryMap(){
     // add all systematics, here an "alpha_" prefix is needed
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         //std::cout << fSystematics[i_syst]->fName << endl;
-    if(fSystematics[i_syst]->fSubCategory=="Gammas" or fSystematics[i_syst]->fSubCategory=="FullSyst" or fSystematics[i_syst]->fSubCategory=="combine")
-        WriteWarningStatus("TtHFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
+        if(fSystematics[i_syst]->fSubCategory=="Gammas" or fSystematics[i_syst]->fSubCategory=="FullSyst" or fSystematics[i_syst]->fSubCategory=="combine")
+            WriteWarningStatus("TtHFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
 //        fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fName).c_str(), fSystematics[i_syst]->fSubCategory));
-        fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fNuisanceParameter).c_str(), fSystematics[i_syst]->fSubCategory));
+            fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fNuisanceParameter).c_str(), fSystematics[i_syst]->fSubCategory));
     }
-
+    
     // also add norm factors, no "alpha_" needed
     for(int i_nf=0;i_nf<fNNorm;i_nf++){
         //std::cout << fNormFactors[i_nf]->fName << endl;
         if(fNormFactors[i_nf]->fSubCategory=="Gammas" or fNormFactors[i_nf]->fSubCategory=="FullSyst" or fNormFactors[i_nf]->fSubCategory=="combine")
             WriteWarningStatus("TtHFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
         if (fNormFactors[i_nf]->fName != fPOI) {
-//             fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fName, fNormFactors[i_nf]->fSubCategory));
+//            fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fName, fNormFactors[i_nf]->fSubCategory));
             fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fNuisanceParameter, fNormFactors[i_nf]->fSubCategory));
         }
     }
