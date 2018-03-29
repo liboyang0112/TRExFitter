@@ -949,8 +949,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
                     std::ofstream dummy;
                     double multNom = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal );
-                    double multUp = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, fSystNames[i_syst], true);
-                    double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, fSystNames[i_syst], false);
+                    double multUp = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TtHFitter::NPMAP[systName], true);
+                    double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TtHFitter::NPMAP[systName], false);
                     diffUp   += (multUp/multNom - 1.)*yieldNominal_postFit;
                     diffDown += (multDown/multNom - 1.)*yieldNominal_postFit;
                 }
