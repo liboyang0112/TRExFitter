@@ -988,6 +988,9 @@ void TtHFit::ReadConfigFile(string fileName,string options){
     param = cs->Get("DecorrSuff");  if( param != ""){
         fDecorrSuff = param;
     }
+    param = cs->Get("DecorrSysts");  if( param != ""){
+        fDecorrSysts = Vectorize(param,',');
+    }
     
     //
     // General options
@@ -5056,6 +5059,10 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     
     if(TtHFitter::OPTION["MergeYmaxScale"]==0) TtHFitter::OPTION["MergeYmaxScale"] = 1.25;
     p->fYmax = TtHFitter::OPTION["MergeYmaxScale"]*ymax0;
+    if(fRatioYmax>0) p->fRatioYmax = fRatioYmax;
+    if(fRatioYmin>0) p->fRatioYmin = fRatioYmin;
+    if(isPostFit && fRatioYmaxPostFit>0) p->fRatioYmax = fRatioYmaxPostFit;
+    if(isPostFit && fRatioYminPostFit>0) p->fRatioYmin = fRatioYminPostFit;
     p->Draw(opt);
     //
     // manipulate canvas / pad
@@ -5064,7 +5071,8 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     p->pad1->cd();
     vector<TLine*> l;
     for(auto edge : edges){
-        TLine *l_tmp = new TLine(edge,0,edge,2);
+        TLine *l_tmp = new TLine(edge,((TH1*)p->pad1->GetPrimitive("h_dummy2"))->GetMinimum(),
+                                 edge,((TH1*)p->pad1->GetPrimitive("h_dummy2"))->GetMaximum());
         l_tmp->SetLineStyle(kDashed);
         l_tmp->Draw("same");
         l.push_back(l_tmp);        
@@ -5120,6 +5128,8 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
         a->SetLabelSize(gStyle->GetTextSize());
         a->SetNdivisions(805);
         TGaxis *ga = (TGaxis*)a->DrawClone();
+        if(fRatioYmin!=0) { ga->SetY1(fRatioYmin); ga->SetY2(fRatioYmin); }
+        if(isPostFit && fRatioYminPostFit!=0) { ga->SetY1(fRatioYminPostFit); ga->SetY2(fRatioYminPostFit); }
         ga->SetTitle(regions[i_reg]->fVariableTitle.c_str());
         ga->SetTitleOffset(h_dummy2->GetXaxis()->GetTitleOffset()*0.45*(1200./600.)*(TtHFitter::OPTION["CanvasHeight"]/TtHFitter::OPTION["CanvasWidthMerge"]));
         ga->SetTitleSize(gStyle->GetTextSize());
@@ -5614,7 +5624,6 @@ void TtHFit::BuildYieldTable(string opt,string group){
         }
         else
             continue;
-
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             // find the systematic in the region
             int syst_idx = -1;
