@@ -981,4 +981,4 @@ RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] =
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
 mkdir: created directory `FitExample/Limits/'
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Finished with 35 calls to minimize(nll)[0m
-Real time 0:00:01, CP time 1.090
+Real time 0:00:03, CP time 2.010
