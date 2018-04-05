@@ -186,6 +186,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     }
     
     if(drawPreFit){
+        if(!createWorkspace) myFit->DrawPruningPlot();
         if(TtHFitter::OPTION["PrefitRatioMax"]==2){
             myFit->DrawAndSaveAll("prefit");
             if(myFit->fDoMergedPlot){
@@ -234,6 +235,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     }
     
     if(drawPostFit){
+        if(!createWorkspace && !drawPreFit) myFit->DrawPruningPlot(); 
         myFit->DrawAndSaveAll("post");
         if(myFit->fDoMergedPlot){
             if(myFit->fRegionGroups.size()==0)
