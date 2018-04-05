@@ -14,6 +14,7 @@ To get a specific tag, do the following::
 
   cd TRExFitter && git checkout <tag number> && cd -
 
+  
 Setup
 ---------
 To setup just use the script::
@@ -93,15 +94,18 @@ Here's a list of the inputs and options which can be specified in the config fil
 NB: note the *blank* line between the objects!!)
 
 - The file should contain
+   * exactly one object of type "Job"
    * exactly one object of type "Fit"
+   * exactly one object of type "Limit"
    * at least one object of type "Sample"
    * at least one object of type "Region"
-   * any number of objects of type "Systematic" (even 0 should be ok)
+   * any number of objects of type "Systematic" (even 0 is ok)
+   * any number of objects of type "NormFactor" (even 0 is ok)
 
 Note that, each object should have unique <ObjectName>.
 
 
-- Then, for each object type, here's a PARTIAL list of properties to be specified:
+- Then, for each object type, here's the list of available properties to be specified:
 
   * Job:
      * Label: it's the label which will be showed on the plots
@@ -179,7 +183,7 @@ Note that, each object should have unique <ObjectName>.
      * DoPieChartPlot   : if set to FALSE no background composition pie-chart plot is created
      * CustomFunctions  : list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values)
      * SuppressNegativeBinWarnings  : If set to true will suppress warning messages about negative or 0 content in bins
-     * Bootstrap        : (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like "bsWeight(x,eventNumber,mcChannelNumber)", where bsWeight should be loaded with 'CustomFunctions: "bsWeight.C"' and eventNumber and mcChannelNumber shoudl be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option 'BootstrapIdx=<i>' should be given, with <i>=0,1,2,3...
+     * Bootstrap        : (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like "bsWeight(x,eventNumber,mcChannelNumber)", where bsWeight should be loaded with 'CustomFunctions: "bsWeight.C"' and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option 'BootstrapIdx=<i>' should be given, with <i>=0,1,2,3...
      * RunROOTMacros    : If set to True will run ROOT macros for limits and significa, otherwise (default) will run version which is compiled and has updated messaging. The functunality is the same.
 
   * Fit:
@@ -360,6 +364,13 @@ Currently the supported options are:
 * SaveSuffix:  used for: saving histograms with a suffix (to be merged / renamed later, see last section on hupdate)
 * Update:      if TRUE, the output .root file is updated, otherwise is overwrote
 * StatOnlyFit: if TRUE, the same as Fit->StatOnlyFit
+* StatOnly:    if TRUE, no systematics nor norm factors will be considered (equivalent to set StatOnly: TRUE in the config)
+* Ranking:     see Ranking section
+* FitResults:  the specified fit results file will be used, for instance for post-fit plots (instead of the file jobName/Fits/jobName.txt)
+* FitType:     can be set to SPLUSB or BONLY to replace the option in the config file
+* LumiScale:   as the options in config file
+* BootstrapIdx: see description of Bootstrap option in config (under Job)
+* GroupedImpact: see Grouped Impact section
 
 Note: the wild-card * is supported, but only as last character.
 Example::
@@ -485,6 +496,7 @@ Output Directories Structure
   * Histograms/         : contains the root file(s) with all the inputs
   * LHoodPlots/         : contains the likelihood scan with respect to the specified parameter
 
+  
 ShapeFactor example
 -------------------
 
@@ -494,13 +506,18 @@ ShapeFactor example
     python makeDataDriven.py
     python runDataDrivenExample.py
 
-
 The results are in :code:`JobDataDriven`
 
 
 TtHFitter package authors
 -----------------
-Contacts:
+
+Managers:
 
 * Michele Pinamonti <michele.pinamonti@gmail.com>
 * Loic Valery <loic.valery@cern.ch>
+
+Development and support team:
+
+* Alexander Held <alexander.held@cern.ch>
+* Tomas Dado <tomas.dadod@cern.ch>

@@ -17,6 +17,8 @@
 //Roostats headers
 #include "RooStats/ModelConfig.h"
 #include "RooStats/AsymptoticCalculator.h"
+#include "Math/MinimizerOptions.h"
+#include "RooMinimizer.h"
 
 //Roofit headers
 #include "RooDataSet.h"
@@ -106,7 +108,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 
     if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     WriteDebugStatus("FittingTool::FitPDF", "-> Entering in FitPDF function");
-
+    
     //
     // Printing the whole model for information
     //
