@@ -383,7 +383,7 @@ void Region::BuildPreFitErrorHist(){
                 for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
                     NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf];
                     // if this norm factor is a morphing one
-                    if(nf->fName.find("morph_")!=string::npos){
+                    if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                         std::string formula = TtHFitter::SYSTMAP[nf->fName];
                         std::string name = TtHFitter::NPMAP[nf->fName];
                         formula = ReplaceString(formula,name,"x");
@@ -548,7 +548,7 @@ TthPlot* Region::DrawPreFit(string opt){
         for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
             NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf];
             // if this norm factor is a morphing one
-            if(nf->fName.find("morph_")!=string::npos){
+            if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TtHFitter::SYSTMAP[nf->fName];
                 std::string name = TtHFitter::NPMAP[nf->fName];
                 formula = ReplaceString(formula,name,"x");
@@ -595,7 +595,7 @@ TthPlot* Region::DrawPreFit(string opt){
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
             NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf];
             // if this norm factor is a morphing one
-            if(nf->fName.find("morph_")!=string::npos){
+            if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TtHFitter::SYSTMAP[nf->fName];
                 std::string name = TtHFitter::NPMAP[nf->fName];
                 formula = ReplaceString(formula,name,"x");
@@ -689,29 +689,29 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         if(fSampleHists[i]->fSyst[i_syst]->fIsOverall){
             float binContentUp   = (fSampleHists[i]->fSyst[i_syst]->fNormUp+1) * binContent0;
             float binContentDown = (fSampleHists[i]->fSyst[i_syst]->fNormDown+1) * binContent0;
-            multNorm *= (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall));
+//             multNorm *= (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall));
+            float factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall);
             if (fSampleHists[i]->fSample->fBuildPullTable>0){
-                if ((((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) > 1.01) || ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) < 0.99)) && (i_bin==1)) {
-                    WriteDebugStatus("Region::DrawPostFit", "Syst " + systName +" in bin " + std::to_string(i_bin) + " has norm effect " +
-                                  std::to_string( ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) -1 )*100));
-                    pullTex  << setprecision(2) << "norm "<< systNameNew.ReplaceAll("_","-") << "&"<< ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall)) -1 )*100  << " \\% \\\\\n"<< endl;
+                if (((factor > 1.01) || (factor < 0.99)) && (i_bin==1)) {
+                    WriteDebugStatus("Region::DrawPostFit", "Syst " + systName +" in bin " + std::to_string(i_bin) + " has norm effect " + std::to_string( factor*100 ));
+                    pullTex << setprecision(2) << "norm " << systNameNew.ReplaceAll("_","-") << "&" << (factor-1)*100 << " \\% \\\\\n" << std::endl;
                 }
             }
         }
 
-        
         //
         // Shape component: use the linear interpolation and the additive combination
         //
         if(fSampleHists[i]->fSyst[i_syst]->fIsShape){
             float binContentUp   = fSampleHists[i]->fSyst[i_syst]->fHistShapeUp->GetBinContent(i_bin);
             float binContentDown = fSampleHists[i]->fSyst[i_syst]->fHistShapeDown->GetBinContent(i_bin);
-            multShape += (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 );
+//             multShape += (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 );
+            float factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape);
+            multShape += factor - 1;
             if (fSampleHists[i]->fSample->fBuildPullTable==2){
-                if (((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 ) > 0.03) || ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 ) < - 0.03)) {
-                    WriteDebugStatus("Region::DrawPostFit", "Syst " + systName +" in bin " + std::to_string(i_bin) + " has shape effect " +
-                                  std::to_string( ((GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape)) -1 )*100));
-                    pullTex << setprecision(2) <<"shape "<<  systNameNew.ReplaceAll("_","-") <<" bin " << i_bin << "&"<<(GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 )*100  << " \\% \\\\\n"<< endl;
+                if (((factor-1) > 0.03) || ((factor-1) < - 0.03)) {
+                    WriteDebugStatus("Region::DrawPostFit", "Syst " + systName +" in bin " + std::to_string(i_bin) + " has shape effect " + std::to_string( (factor-1)*100 ));
+                    pullTex << setprecision(2) << "shape " << systNameNew.ReplaceAll("_","-") << " bin " << i_bin << "&" << (factor-1)*100  << " \\% \\\\\n" << std::endl;
                 }
             }
         }
@@ -908,7 +908,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 // if it's a norm factor
                 else if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
                     // if this norm factor is a morphing one
-                    if(fSystNames[i_syst].find("morph_")!=string::npos){
+                    if(fSystNames[i_syst].find("morph_")!=string::npos || fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fExpression.first!=""){
                         std::string formula = TtHFitter::SYSTMAP[fSystNames[i_syst]];
                         std::string name = TtHFitter::NPMAP[fSystNames[i_syst]];
                         formula = ReplaceString(formula,name,"x");
@@ -948,10 +948,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 //
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
                     std::ofstream dummy;
-                    double multNom = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal );
-                    double multUp = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TtHFitter::NPMAP[systName], true);
+                    double multNom  = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal );
+                    double multUp   = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TtHFitter::NPMAP[systName], true);
                     double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TtHFitter::NPMAP[systName], false);
-                    diffUp   += (multUp/multNom - 1.)*yieldNominal_postFit;
+                    diffUp   += (multUp/multNom   - 1.)*yieldNominal_postFit;
                     diffDown += (multDown/multNom - 1.)*yieldNominal_postFit;
                 }
                 
@@ -1194,7 +1194,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
 //             if(nfName=="SigXsecOverSM") nfValue = 1;   // FIXME
             //
             // if this norm factor is a morphing one
-            if(nfName.find("morph_")!=string::npos){
+            if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TtHFitter::SYSTMAP[nfName];
                 std::string name = TtHFitter::NPMAP[nfName];
                 formula = ReplaceString(formula,name,"x");
