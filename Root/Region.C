@@ -691,6 +691,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
             float binContentDown = (fSampleHists[i]->fSyst[i_syst]->fNormDown+1) * binContent0;
 //             multNorm *= (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall));
             float factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall);
+            multNorm *= factor;
             if (fSampleHists[i]->fSample->fBuildPullTable>0){
                 if (((factor > 1.01) || (factor < 0.99)) && (i_bin==1)) {
                     WriteDebugStatus("Region::DrawPostFit", "Syst " + systName +" in bin " + std::to_string(i_bin) + " has norm effect " + std::to_string( factor*100 ));
