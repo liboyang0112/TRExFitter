@@ -960,6 +960,9 @@ void MultiFit::ComparePulls(string category){
             if(FindInStringVector(Names,systName)<0){
                 Names.push_back(systName);
                 Titles.push_back(fFitList[i_fit]->fSystematics[i_syst]->fTitle);
+                if(FindInStringVector(fFitList[i_fit]->fDecorrSysts,fFitList[i_fit]->fSystematics[i_syst]->fName)>=0){
+                    Titles[Titles.size()-1] += fFitList[i_fit]->fDecorrSuff;
+                }
                 Categories.push_back(fFitList[i_fit]->fSystematics[i_syst]->fCategory);
             }
         }

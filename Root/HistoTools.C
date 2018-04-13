@@ -406,7 +406,7 @@ void HistoTools::Smooth_Ttres(TH1* hsyst, TH1* hnom, bool independentVar){
     }
     std::string temp1 = hnom->GetName();
     std::string temp2 = hsyst->GetName();
-    WriteDebugStatus("HistoTools::Smooth_Ttres", "Smooth_Ttres: nominal and syst. name: " + temp1 + " " + temp2 + ", independent errors? " + std::to_string(independentVar) + ", number of bins: " + std::to_string(Nbins));
+    WriteVerboseStatus("HistoTools::Smooth_Ttres", "Smooth_Ttres: nominal and syst. name: " + temp1 + " " + temp2 + ", independent errors? " + std::to_string(independentVar) + ", number of bins: " + std::to_string(Nbins));
 
     auto dM_indep = [](const Bin &b) { return sqrt(b.dN2 + b.dS2); };
     auto dM_dep = [](const Bin &b) { return max(sqrt(b.dN2), sqrt(b.dS2)); };
@@ -419,7 +419,7 @@ void HistoTools::Smooth_Ttres(TH1* hsyst, TH1* hnom, bool independentVar){
 
 
     for (unsigned int i = 0; i < hist.size(); ++i) {
-        WriteDebugStatus("HistoTools::Smooth_Ttres", "Smooth_Ttres: pre-smooth bin " + std::to_string(i+1) + ", edge = " + std::to_string(hist[i].edge) + ", dM/N = " + std::to_string(dMoverN(hist[i])) + ", N = " + std::to_string(hist[i].N) + ", S = " + std::to_string(hist[i].S) + ", dN = " + std::to_string(std::sqrt(hist[i].dN2)) + ", dS = " + std::to_string(std::sqrt(hist[i].dS2)));
+        WriteVerboseStatus("HistoTools::Smooth_Ttres", "Smooth_Ttres: pre-smooth bin " + std::to_string(i+1) + ", edge = " + std::to_string(hist[i].edge) + ", dM/N = " + std::to_string(dMoverN(hist[i])) + ", N = " + std::to_string(hist[i].N) + ", S = " + std::to_string(hist[i].S) + ", dN = " + std::to_string(std::sqrt(hist[i].dN2)) + ", dS = " + std::to_string(std::sqrt(hist[i].dS2)));
     }
 
     // BEGIN STEP 1 -- DANILO
@@ -539,7 +539,7 @@ void HistoTools::Smooth_Ttres(TH1* hsyst, TH1* hnom, bool independentVar){
         std::vector<double>::iterator toMergeRelItr = std::max_element(relDiff.begin(), relDiff.end());
         int binToMerge = (int) (toMergeRelItr - relDiff.begin()) + 1; // difference always taken between current and previous, so index 0, means merging 0 and 1
         std::vector<Bin>::iterator toMergeItr = hist.begin() + binToMerge; // get iterator
-        WriteDebugStatus("HistoTools::Smooth_Ttres", "found bin " + std::to_string( (int) (toMergeItr - hist.begin()) + 1) + " with low edge at " + std::to_string(toMergeItr->edge) + " and dM/N = " + std::to_string(dMoverN(*toMergeItr)));
+        WriteVerboseStatus("HistoTools::Smooth_Ttres", "found bin " + std::to_string( (int) (toMergeItr - hist.begin()) + 1) + " with low edge at " + std::to_string(toMergeItr->edge) + " and dM/N = " + std::to_string(dMoverN(*toMergeItr)));
         std::vector<Bin>::iterator toMergeSecond = std::prev(toMergeItr); // always merge with previous
         toMergeItr->N += toMergeSecond->N;
         toMergeItr->S += toMergeSecond->S;
@@ -551,7 +551,7 @@ void HistoTools::Smooth_Ttres(TH1* hsyst, TH1* hnom, bool independentVar){
     }
 
     for (unsigned int i = 0; i < hist.size(); ++i) {
-        WriteDebugStatus("HistoTools::Smooth_Ttres", "Post-smooth last step bin " + std::to_string(i+1) + ", edge = " + std::to_string(hist[i].edge) + ", dM/N = " + std::to_string(dMoverN(hist[i])) + ", N = " + std::to_string(hist[i].N) + ", S = " + std::to_string(hist[i].S) + ", dN = " + std::to_string(std::sqrt(hist[i].dN2)) + ", dS = " + std::to_string(std::sqrt(hist[i].dS2)));
+        WriteVerboseStatus("HistoTools::Smooth_Ttres", "Post-smooth last step bin " + std::to_string(i+1) + ", edge = " + std::to_string(hist[i].edge) + ", dM/N = " + std::to_string(dMoverN(hist[i])) + ", N = " + std::to_string(hist[i].N) + ", S = " + std::to_string(hist[i].S) + ", dN = " + std::to_string(std::sqrt(hist[i].dN2)) + ", dS = " + std::to_string(std::sqrt(hist[i].dS2)));
     }
 
     //
@@ -667,7 +667,7 @@ void HistoTools::Smooth_maxVariations(TH1* hsyst, TH1* hnom, int nbins){
 
     int nVar = rebin_getMaxVar(hnom,hsyst,tolerance);
 
-    WriteDebugStatus("HistoTools::Smooth_maxVariations", "---: " + std::to_string(tolerance) + " " + std::to_string(nVar));
+    WriteVerboseStatus("HistoTools::Smooth_maxVariations", "---: " + std::to_string(tolerance) + " " + std::to_string(nVar));
 
     //
     // Iterates the smoothing of the systematic histogram until the number a slope changes is lower than "nbins"
@@ -675,7 +675,7 @@ void HistoTools::Smooth_maxVariations(TH1* hsyst, TH1* hnom, int nbins){
     while (nVar > nbins){
         tolerance = tolerance/2.;
         nVar = rebin_getMaxVar(hnom,hsyst,tolerance);
-        WriteDebugStatus("HistoTools::Smooth_maxVariations", "---: " + std::to_string(tolerance) + " " + std::to_string(nVar) );
+        WriteVerboseStatus("HistoTools::Smooth_maxVariations", "---: " + std::to_string(tolerance) + " " + std::to_string(nVar) );
         if(tolerance==0){
             std::string temp1 = hnom->GetName();
             std::string temp2 = hnom->GetTitle();
@@ -684,7 +684,7 @@ void HistoTools::Smooth_maxVariations(TH1* hsyst, TH1* hnom, int nbins){
             break;
         }
     }
-    WriteDebugStatus("HistoTools::Smooth_maxVariations", "Final: " + std::to_string(tolerance) + " " + std::to_string(nVar));
+    WriteVerboseStatus("HistoTools::Smooth_maxVariations", "Final: " + std::to_string(tolerance) + " " + std::to_string(nVar));
 
     TH1F *ratio = (TH1F *) hsyst->Clone();
     ratio->Divide(hnom);
@@ -781,7 +781,7 @@ int HistoTools::rebin_getMaxVar(TH1* hnom,TH1* hsyst, double tolerance){
   //
 
   for(int i=1;i<=hsyst->GetNbinsX();i++){
-    WriteDebugStatus("HistoTools::rebin_getMaxVar", "In: " + std::to_string(hnom->GetBinContent(i)) + " " + std::to_string(hsyst->GetBinContent(i)));
+    WriteVerboseStatus("HistoTools::rebin_getMaxVar", "In: " + std::to_string(hnom->GetBinContent(i)) + " " + std::to_string(hsyst->GetBinContent(i)));
   }
 
   std::vector<double> binLimit;
@@ -811,8 +811,8 @@ int HistoTools::rebin_getMaxVar(TH1* hnom,TH1* hsyst, double tolerance){
           }
           if (relErr==0) relErr=20000;
 
-          WriteDebugStatus("HistoTools::rebin_getMaxVar", std::to_string(thisBin) + " " + std::to_string(hnom->GetBinContent(thisBin)) + " " + std::to_string(hnom->GetBinError(thisBin)));
-          WriteDebugStatus("HistoTools::rebin_getMaxVar", std::to_string(std::sqrt(cumulErr)) + " " + std::to_string(cumulInt) + " " + std::to_string(relErr) + " " + std::to_string(tolerance));
+          WriteVerboseStatus("HistoTools::rebin_getMaxVar", std::to_string(thisBin) + " " + std::to_string(hnom->GetBinContent(thisBin)) + " " + std::to_string(hnom->GetBinError(thisBin)));
+          WriteVerboseStatus("HistoTools::rebin_getMaxVar", std::to_string(std::sqrt(cumulErr)) + " " + std::to_string(cumulInt) + " " + std::to_string(relErr) + " " + std::to_string(tolerance));
 
         } while (relErr > tolerance && thisBin!=hnom->GetNbinsX() );
 
@@ -822,7 +822,7 @@ int HistoTools::rebin_getMaxVar(TH1* hnom,TH1* hsyst, double tolerance){
             binLimit.back() = hnom->GetBinCenter(thisBin)+hnom->GetBinWidth(thisBin)/2;
         }
 
-        WriteDebugStatus("HistoTools::rebin_getMaxVar", "Push back bin: " + std::to_string(thisBin));
+        WriteVerboseStatus("HistoTools::rebin_getMaxVar", "Push back bin: " + std::to_string(thisBin));
 
         cumulInt=0;
         cumulErr=0;
@@ -904,7 +904,7 @@ int HistoTools::get_nVar(TH1* hratio){
 
     for (int bin=1; bin <=hratio->GetNbinsX(); bin++) {
 
-        WriteDebugStatus("HistoTools::get_nVar", "Bin/content: " + std::to_string(bin) + " " + std::to_string(hratio->GetBinContent(bin)));
+        WriteVerboseStatus("HistoTools::get_nVar", "Bin/content: " + std::to_string(bin) + " " + std::to_string(hratio->GetBinContent(bin)));
 
         if(hratio->GetBinContent(bin)==0) continue;
 
@@ -912,7 +912,7 @@ int HistoTools::get_nVar(TH1* hratio){
         thisBin = hratio->GetBinContent(bin);
 
 
-        WriteDebugStatus("HistoTools::get_nVar", "Prev/this: " + std::to_string(prevBin) + " " + std::to_string(thisBin));
+        WriteVerboseStatus("HistoTools::get_nVar", "Prev/this: " + std::to_string(prevBin) + " " + std::to_string(thisBin));
 
         if(fabs(thisBin-prevBin)<1e-7) continue;//skip bins with same content
 
@@ -928,12 +928,12 @@ int HistoTools::get_nVar(TH1* hratio){
         else
             hasChange = false;
 
-        WriteDebugStatus("HistoTools::get_nVar", "Var, usedBins, up/wasup: " + std::to_string(nVar) + " " + std::to_string(usedBins) + " " + std::to_string(thisUp) + std::to_string(goingUp));
+        WriteVerboseStatus("HistoTools::get_nVar", "Var, usedBins, up/wasup: " + std::to_string(nVar) + " " + std::to_string(usedBins) + " " + std::to_string(thisUp) + std::to_string(goingUp));
 
         goingUp = thisUp;
     }
 
-    WriteDebugStatus("HistoTools::get_nVar", "Out get_nVar:" + std::to_string(nVar));
+    WriteVerboseStatus("HistoTools::get_nVar", "Out get_nVar:" + std::to_string(nVar));
 
     return nVar;
 

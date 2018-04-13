@@ -613,6 +613,12 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fDecorrSuff = param;
     }
 
+    // Set DecorrSysts
+    param = confSet->Get("DecorrSysts");
+    if( param != ""){
+        fFitter->fDecorrSysts = Vectorize(param,',');
+    }
+
     // success
     return 0;
 }

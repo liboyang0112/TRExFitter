@@ -34,6 +34,16 @@ Applying ATLAS style settings...
 === DEBUG::TtHFit::ReadHistos:     Reading sample Signal
 === DEBUG::TtHFit::ReadHistos:       Reading norm SigXsecOverSM
 === DEBUG::TtHFit::ReadHistos:       Reading syst JES
+=== DEBUG::TtHFit::ReadHistos:   Reading region VR
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Data
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
+=== DEBUG::TtHFit::ReadHistos:       Reading syst Bkg1Xsec
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TtHFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TtHFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TtHFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
 [1;32m=== INFO::TtHFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TtHFit::ReadFitResults: Reading fit results from file [0m
 === DEBUG::FitResults::ReadFromTXT: --------------------
@@ -111,6 +121,16 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been cr
 === DEBUG::Region::DrawPostFit: 4:	24.237284 +4.227614 -4.227614
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_2_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
+[1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region VR ...[0m
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: Final bin contents
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: 1:	324.394562 +25.308907 -25.308907
+=== DEBUG::Region::DrawPostFit: 2:	293.985718 +22.375265 -22.375265
+=== DEBUG::Region::DrawPostFit: 3:	164.621536 +19.501373 -19.501373
+=== DEBUG::Region::DrawPostFit: 4:	62.858246 +11.182803 -11.182803
+[1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/VR_postFit.root[0m
+Info in <TCanvas::Print>: png file FitExample/Plots/VR_postFit.png has been created
 [1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TtHFit::DrawSummary: Building Summary Plot...[0m
 === DEBUG::TtHFit::DrawSummary: Adding Data:   Data 2015
@@ -122,6 +142,13 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been cr
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
 [1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TtHFit::DrawSummary: Building Summary Plot...[0m
+=== DEBUG::TtHFit::DrawSummary: Adding Data:   Data 2015
+=== DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TtHFit::DrawSummary: Adding Signal: Signal
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
+=== DEBUG::TtHFit::DrawSummary: 1:	845.860046	+44.130676	-44.130676
+Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has been created
 [1;32m=== INFO::TtHFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TtHFit::BuildYieldTable: Building Yields Table...[0m
 [1;32m=== INFO::TtHFit::PrintSystTables: Printing syt tables[0m
