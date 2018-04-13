@@ -1,0 +1,417 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: jobSchema.config[0m
+=== DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
+=== DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
+[1;32m=== INFO::myFit::FitExample: Finished with the config reading with status 0[0m
+full list of observables:
+RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
+[#0] ERROR:InputArguments -- RooArgSet::checkForDup: ERROR argument with name nom_alpha_JES is already in this set
+[#0] ERROR:InputArguments -- RooArgSet::checkForDup: ERROR argument with name nom_alpha_Bkg2Xsec is already in this set
+
+
+------------------
+ Entering combination
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_alpha_JES
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_alpha_Bkg1Xsec
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_alpha_Bkg2Xsec
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_gamma_stat_SR_1_bin_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_gamma_stat_SR_1_bin_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_gamma_stat_SR_1_bin_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_gamma_stat_SR_1_bin_3
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_gamma_stat_SR_2_bin_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_gamma_stat_SR_2_bin_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_gamma_stat_SR_2_bin_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_gamma_stat_SR_2_bin_3
+-----------------------------------------
+create toy data for SR_1,SR_2
+[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
+RooDataSet::AsimovData0[obs_x_SR_1,channelCat,weight:binWeightAsimov] = 4 entries (315.2 weighted)
+[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
+RooDataSet::AsimovData1[obs_x_SR_2,channelCat,weight:binWeightAsimov] = 4 entries (315.2 weighted)
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset asimovDataFullModel
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  asimovDataFullModel to asimovData
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::obs_x_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::obs_x_SR_2
+Merging data for channel SR_1
+Merging data for channel SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR_1
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  SR_1 to obsData
+
+RooWorkspace(combined) combined contents
+
+variables
+---------
+(channelCat,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_alpha_JES,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3,obs_x_SR_1,obs_x_SR_2,weightVar)
+
+datasets
+--------
+RooDataSet::asimovData(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+RooDataSet::obsData(channelCat,obs_x_SR_1,obs_x_SR_2)
+
+named sets
+----------
+ModelConfig_GlobalObservables:(nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
+ModelConfig_Observables:(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+globalObservables:(nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
+observables:(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+
+
+
+----------------
+ Importing combined model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg1_SR_1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg1_SR_1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg1_SR_1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg2_SR_1nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Signal_SR_1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Signal_SR_1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Signal_SR_1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg1_SR_2_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg1_SR_2_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg1_SR_2_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg2_SR_2nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Signal_SR_2_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Signal_SR_2_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Signal_SR_2_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooCategory::channelCat for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::lumiConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::0.1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Lumi
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nominalLumi
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::alpha_JESConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::alpha_JES
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_alpha_JES for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::alpha_Bkg1XsecConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::alpha_Bkg1Xsec
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_alpha_Bkg1Xsec for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::alpha_Bkg2XsecConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::alpha_Bkg2Xsec
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_alpha_Bkg2Xsec for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_0_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_0 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_0_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_1_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_1 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_1_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_2_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_2 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_2_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_3_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_3 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_3_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_3
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR_1_model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg1_SR_1_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg1_SR_1_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing ParamHistFunc::mc_stat_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::obs_x_SR_1 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg1_SR_1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::Bkg1_SR_1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg1_SR_1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg1_SR_1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg1_SR_1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg2_SR_1_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg2_SR_1_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg2_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg2_SR_1_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Signal_SR_1_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_1_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::Signal_SR_1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Signal_SR_1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Signal_SR_1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Signal_SR_1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::SigXsecOverSM
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_0_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_0 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_0_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_1_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_1 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_1_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_2_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_2 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_2_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_3_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_3 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_3_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_3
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR_2_model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg1_SR_2_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg1_SR_2_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing ParamHistFunc::mc_stat_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::obs_x_SR_2 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg1_SR_2_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::Bkg1_SR_2_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg1_SR_2_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg1_SR_2_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg1_SR_2_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_2_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_2_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg2_SR_2_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg2_SR_2_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg2_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg2_SR_2_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_2_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_2_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Signal_SR_2_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_2_overallSyst_x_StatUncert
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_2_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::Signal_SR_2_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Signal_SR_2_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Signal_SR_2_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Signal_SR_2_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_2_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_2_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_2_2
+setting Lumi constant
+Setting Parameter(s) of Interest as: SigXsecOverSM 
+
+=== Using the following for ModelConfig ===
+Observables:             RooArgSet:: = (obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+Parameters of Interest:  RooArgSet:: = (SigXsecOverSM)
+Nuisance Parameters:     RooArgSet:: = (alpha_Bkg1Xsec,alpha_Bkg2Xsec,alpha_JES,gamma_stat_SR_1_bin_0,gamma_stat_SR_1_bin_1,gamma_stat_SR_1_bin_2,gamma_stat_SR_1_bin_3,gamma_stat_SR_2_bin_0,gamma_stat_SR_2_bin_1,gamma_stat_SR_2_bin_2,gamma_stat_SR_2_bin_3)
+Global Observables:      RooArgSet:: = (nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
+PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 56.2
+
+=== DEBUG::TtHFit::DumpData: Dumping data with the following parameters
+=== DEBUG::TtHFit::DumpData:     * Regions data type 
+=== DEBUG::TtHFit::DumpData:        - Region: SR_1       DataType: 0
+=== DEBUG::TtHFit::DumpData:        - Region: SR_2       DataType: 0
+=== DEBUG::TtHFit::DumpData:     * No NP values injected 
+=== DEBUG::TtHFit::DumpData:     * POI value: 0.000000
+[1;32m=== INFO::TtHFIt::DumpData: Activating binned likelihood attribute for SR_1_model[0m
+[1;32m=== INFO::TtHFIt::DumpData: Activating binned likelihood attribute for SR_2_model[0m
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
+  1) 0x653e610 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  2) 0x6542350 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  3) 0x653c210 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  4) 0x6527910 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  5) 0x652a4a0 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  6) 0x652d0c0 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  7) 0x652fce0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  8) 0x65bd370 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+  9) 0x65c1d90 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 10) 0x65c4920 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 11) 0x65c74b0 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+[1;32m=== INFO::RunSig::RunSig: Setting max function calls[0m
+[#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name conditionalNuis_0 is available
+[#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
+[#1] INFO:Minization --  Including the following contraint terms in minimization: (alpha_JESConstraint,alpha_Bkg1XsecConstraint,alpha_Bkg2XsecConstraint,gamma_stat_SR_1_bin_0_constraint,gamma_stat_SR_1_bin_1_constraint,gamma_stat_SR_1_bin_2_constraint,gamma_stat_SR_1_bin_3_constraint,gamma_stat_SR_2_bin_0_constraint,gamma_stat_SR_2_bin_1_constraint,gamma_stat_SR_2_bin_2_constraint,gamma_stat_SR_2_bin_3_constraint)
+[1;32m=== INFO::RunSig::RunSig: Asimov data doesn't exist! Please, allow me to build one for you...[0m
+[1;32m=== INFO::RunSig::makeAsimovData: Creating asimov data at mu = 1.000000, profiling at mu = 1.000000[0m
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
+=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
+[#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name nominalGlobs is available
+[1;32m=== INFO::RunSig::makeAsimovData: nominalGlobs doesn't exist. Saving snapshot.[0m
+[#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name nominalNuis is available
+[1;32m=== INFO::RunSig::makeAsimovData: nominalNuis doesn't exist. Saving snapshot.[0m
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_ttHFitterData_with_constr) Summation contains a RooNLLVar, using its error level
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
+RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
+RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4 dataset entries)
+[#1] INFO:Fitting -- RooAbsTestStatistic::initSimMode: created 2 slave calculators.
+MnSeedGenerator: for initial parameters FCN = 458.2951062105
+MnSeedGenerator: Initial state:   - FCN =   458.2951062105 Edm =      1.11701 NCalls =     41
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   458.2951062105 Edm =      1.11701 NCalls =     41
+VariableMetric: Iteration #   0 - FCN =   458.2951062105 Edm =      1.11701 NCalls =     41
+VariableMetric: Iteration #   1 - FCN =   457.3914180333 Edm =     0.148865 NCalls =     65
+VariableMetric: Iteration #   2 - FCN =   457.3069924803 Edm =   0.00514909 NCalls =     89
+VariableMetric: Iteration #   3 - FCN =   457.3014860346 Edm =  0.000788668 NCalls =    113
+VariableMetric: Iteration #   4 - FCN =   457.3000881343 Edm =  8.57081e-05 NCalls =    137
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = 457.300088134297368
+Edm   = 8.57080582965957409e-05
+Nfcn  = 137
+alpha_Bkg1Xsec	  = 0.236234	 +/-  0.618303	(limited)
+alpha_Bkg2Xsec	  = -0.0497527	 +/-  0.4391	(limited)
+alpha_JES	  = -0.00941607	 +/-  0.315416	(limited)
+gamma_stat_SR_1_bin_0	  = 0.998033	 +/-  0.0280303	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02382	 +/-  0.0454196	(limited)
+gamma_stat_SR_1_bin_2	  = 0.98499	 +/-  0.0787646	(limited)
+gamma_stat_SR_1_bin_3	  = 0.909485	 +/-  0.129519	(limited)
+gamma_stat_SR_2_bin_0	  = 0.999917	 +/-  0.0292987	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02776	 +/-  0.0445951	(limited)
+gamma_stat_SR_2_bin_2	  = 0.987731	 +/-  0.0776508	(limited)
+gamma_stat_SR_2_bin_3	  = 0.912516	 +/-  0.127609	(limited)
+[1;32m=== INFO::RunSig::makeAsimovData: Saving conditional snapshots[0m
+[1;32m=== INFO::RunSig::makeAsimovData: Glob snapshot name = conditionalGlobs_1[0m
+[1;32m=== INFO::RunSig::makeAsimovData: Nuis snapshot name = conditionalNuis_1[0m
+=== DEBUG::RunSig::makeAsimovData: Making asimov
+[#0] WARNING:InputArguments -- RooWorkspace::defineSet(combined) WARNING redefining previously defined named set obsAndWeight
+RooArgSet::dependents = (obs_x_SR_1)
+=== DEBUG::RunSig::makeAsimovData: on type: SR_1 1
+[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.511 weighted)
+=== DEBUG::RunSig::makeAsimovData: sum entries 317.510714
+=== DEBUG::RunSig::makeAsimovData: channel: SR_1, data: 
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.511 weighted)
+=== DEBUG::RunSig::makeAsimovData: 
+RooArgSet::dependents = (obs_x_SR_2)
+=== DEBUG::RunSig::makeAsimovData: on type: SR_2 2
+[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (313.602 weighted)
+=== DEBUG::RunSig::makeAsimovData: sum entries 313.602263
+=== DEBUG::RunSig::makeAsimovData: channel: SR_2, data: 
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (313.602 weighted)
+=== DEBUG::RunSig::makeAsimovData: 
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset asimovData_1
+[#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
+[#1] INFO:Minization --  Including the following contraint terms in minimization: (alpha_JESConstraint,alpha_Bkg1XsecConstraint,alpha_Bkg2XsecConstraint,gamma_stat_SR_1_bin_0_constraint,gamma_stat_SR_1_bin_1_constraint,gamma_stat_SR_1_bin_2_constraint,gamma_stat_SR_1_bin_3_constraint,gamma_stat_SR_2_bin_0_constraint,gamma_stat_SR_2_bin_1_constraint,gamma_stat_SR_2_bin_2_constraint,gamma_stat_SR_2_bin_3_constraint)
+  1) 0x664bec0 RooRealVar::             nom_alpha_JES = -0.00941607 C  L(-10 - 10)  "nom_alpha_JES"
+  2) 0x6540a00 RooRealVar::        nom_alpha_Bkg1Xsec = 0.236234 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
+  3) 0x664ae00 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0497527 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
+  4) 0x6529440 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 0.998033 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_0"
+  5) 0x652c060 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 1.02382 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_1"
+  6) 0x652ec80 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 0.98499 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_2"
+  7) 0x65318a0 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 0.909485 C  L(0 - 10)  "nom_gamma_stat_SR_1_bin_3"
+  8) 0x65bef30 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 0.999917 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_0"
+  9) 0x65c2790 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 1.02776 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_1"
+ 10) 0x65c5320 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 0.987731 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_2"
+ 11) 0x65c7eb0 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 0.912516 C  L(0 - 10)  "nom_gamma_stat_SR_2_bin_3"
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_asimovData_1_with_constr) Summation contains a RooNLLVar, using its error level
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
+RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
+RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4 dataset entries)
+[#1] INFO:Fitting -- RooAbsTestStatistic::initSimMode: created 2 slave calculators.
+MnSeedGenerator: for initial parameters FCN = 451.038952853
+MnSeedGenerator: Initial state:   - FCN =    451.038952853 Edm =     0.441215 NCalls =     23
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =    451.038952853 Edm =     0.441215 NCalls =     23
+VariableMetric: Iteration #   0 - FCN =    451.038952853 Edm =     0.441215 NCalls =     23
+VariableMetric: Iteration #   1 - FCN =   450.8068003361 Edm =    0.0195955 NCalls =     47
+VariableMetric: Iteration #   2 - FCN =   450.7883433387 Edm =   0.00062212 NCalls =     70
+VariableMetric: Iteration #   3 - FCN =   450.7874198975 Edm =  0.000120907 NCalls =     94
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = 450.787419897515463
+Edm   = 0.000120906595277601528
+Nfcn  = 94
+alpha_Bkg1Xsec	  = 0.274593	 +/-  0.600369	(limited)
+alpha_Bkg2Xsec	  = 0.0540522	 +/-  0.380854	(limited)
+alpha_JES	  = 0.074392	 +/-  0.248667	(limited)
+gamma_stat_SR_1_bin_0	  = 0.999034	 +/-  0.0278943	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02085	 +/-  0.0475	(limited)
+gamma_stat_SR_1_bin_2	  = 0.981746	 +/-  0.080961	(limited)
+gamma_stat_SR_1_bin_3	  = 0.937616	 +/-  0.121788	(limited)
+gamma_stat_SR_2_bin_0	  = 1.00105	 +/-  0.0288821	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02515	 +/-  0.0475107	(limited)
+gamma_stat_SR_2_bin_2	  = 0.984854	 +/-  0.0803794	(limited)
+gamma_stat_SR_2_bin_3	  = 0.941332	 +/-  0.120714	(limited)
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_asimovData_1_with_constr) Summation contains a RooNLLVar, using its error level
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
+MnSeedGenerator: for initial parameters FCN = 450.6668193267
+MnSeedGenerator: Initial state:   - FCN =   450.6668193267 Edm =  2.98958e-10 NCalls =     23
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   450.6668193267 Edm =  2.98958e-10 NCalls =     23
+VariableMetric: Iteration #   0 - FCN =   450.6668193267 Edm =  2.98958e-10 NCalls =     23
+Info in <Minuit2>: VariableMetricBuilder: no improvement in line search
+VariableMetric: Iteration #   1 - FCN =   450.6668193267 Edm =  2.98958e-10 NCalls =     34
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = 450.666819326703376
+Edm   = 2.98958303445683031e-10
+Nfcn  = 34
+alpha_Bkg1Xsec	  = 0.236234	 +/-  0.635253	(limited)
+alpha_Bkg2Xsec	  = -0.0497527	 +/-  0.435893	(limited)
+alpha_JES	  = -0.00941607	 +/-  0.239136	(limited)
+gamma_stat_SR_1_bin_0	  = 0.998033	 +/-  0.0287839	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02382	 +/-  0.046674	(limited)
+gamma_stat_SR_1_bin_2	  = 0.98499	 +/-  0.0778043	(limited)
+gamma_stat_SR_1_bin_3	  = 0.909485	 +/-  0.115967	(limited)
+gamma_stat_SR_2_bin_0	  = 0.999917	 +/-  0.0288142	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02776	 +/-  0.0467806	(limited)
+gamma_stat_SR_2_bin_2	  = 0.987731	 +/-  0.0779629	(limited)
+gamma_stat_SR_2_bin_3	  = 0.912516	 +/-  0.116246	(limited)
+[#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name conditionalNuis_0 is available
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_ttHFitterData_with_constr) Summation contains a RooNLLVar, using its error level
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
+MnSeedGenerator: for initial parameters FCN = 456.8887258735
+MnSeedGenerator: Initial state:   - FCN =   456.8887258735 Edm =     0.404638 NCalls =     23
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   456.8887258735 Edm =     0.404638 NCalls =     23
+VariableMetric: Iteration #   0 - FCN =   456.8887258735 Edm =     0.404638 NCalls =     23
+VariableMetric: Iteration #   1 - FCN =   456.6769447424 Edm =    0.0181169 NCalls =     47
+VariableMetric: Iteration #   2 - FCN =   456.6606818948 Edm =  0.000290124 NCalls =     70
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = 456.660681894756294
+Edm   = 0.000290123921395850012
+Nfcn  = 70
+alpha_Bkg1Xsec	  = 0.256279	 +/-  0.614041	(limited)
+alpha_Bkg2Xsec	  = 0.036293	 +/-  0.382004	(limited)
+alpha_JES	  = 0.0612093	 +/-  0.215167	(limited)
+gamma_stat_SR_1_bin_0	  = 0.998433	 +/-  0.0288487	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02141	 +/-  0.0460865	(limited)
+gamma_stat_SR_1_bin_2	  = 0.984214	 +/-  0.0767729	(limited)
+gamma_stat_SR_1_bin_3	  = 0.942321	 +/-  0.116237	(limited)
+gamma_stat_SR_2_bin_0	  = 1.00066	 +/-  0.028835	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02579	 +/-  0.046512	(limited)
+gamma_stat_SR_2_bin_2	  = 0.987623	 +/-  0.0772215	(limited)
+gamma_stat_SR_2_bin_3	  = 0.946467	 +/-  0.116061	(limited)
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_ttHFitterData_with_constr) Summation contains a RooNLLVar, using its error level
+Minuit2Minimizer: Minimize with max-calls 6000 convergence for edm < 1 strategy 0
+MnSeedGenerator: for initial parameters FCN = 456.6606818948
+MnSeedGenerator: Initial state:   - FCN =   456.6606818948 Edm =     0.204403 NCalls =     27
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   456.6606818948 Edm =     0.204403 NCalls =     27
+VariableMetric: Iteration #   0 - FCN =   456.6606818948 Edm =     0.204403 NCalls =     27
+VariableMetric: Iteration #   1 - FCN =   456.4664567493 Edm =      0.24292 NCalls =     53
+VariableMetric: Iteration #   2 - FCN =   456.1777411591 Edm =    0.0678861 NCalls =     79
+VariableMetric: Iteration #   3 - FCN =   456.1031892101 Edm =   0.00255763 NCalls =    105
+VariableMetric: Iteration #   4 - FCN =   456.0999000495 Edm =  0.000530351 NCalls =    131
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = 456.099900049467919
+Edm   = 0.000530350642247031019
+Nfcn  = 131
+SigXsecOverSM	  = -1.95126	 +/-  1.83482	(limited)
+alpha_Bkg1Xsec	  = 0.341278	 +/-  0.610496	(limited)
+alpha_Bkg2Xsec	  = 0.245463	 +/-  0.444461	(limited)
+alpha_JES	  = 0.242546	 +/-  0.309645	(limited)
+gamma_stat_SR_1_bin_0	  = 1.00068	 +/-  0.0281498	(limited)
+gamma_stat_SR_1_bin_1	  = 1.01526	 +/-  0.0474427	(limited)
+gamma_stat_SR_1_bin_2	  = 0.976731	 +/-  0.0809995	(limited)
+gamma_stat_SR_1_bin_3	  = 1.00052	 +/-  0.134303	(limited)
+gamma_stat_SR_2_bin_0	  = 1.00313	 +/-  0.028976	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02036	 +/-  0.0475163	(limited)
+gamma_stat_SR_2_bin_2	  = 0.980962	 +/-  0.080437	(limited)
+gamma_stat_SR_2_bin_3	  = 1.00629	 +/-  0.13415	(limited)
+[1;32m=== INFO::RunSig::RunSig: Observed significance: -1.059039[0m
+[1;32m=== INFO::RunSig::RunSig: Median test stat val: 0.241201[0m
+[1;32m=== INFO::RunSig::RunSig: Median significance:       0.491122[0m
+mkdir: created directory ‘FitExample/Significance’
+Real time 0:00:00, CP time 0.340
