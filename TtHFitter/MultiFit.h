@@ -107,6 +107,8 @@ public:
 
     std::vector<std::string> fVarNameLH;
     bool fDoGroupedSystImpactTable;
+    
+    bool fRunROOTMacros;
 };
 
 #endif

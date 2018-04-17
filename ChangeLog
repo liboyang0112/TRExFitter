@@ -1,10 +1,17 @@
+2018-04-16 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Added few missing options to jobSchema (DoSignalRegionsPlot and SeparateGammas)
+    * Fixed issue of info messages printed if debug = 0 before config reading (function added to ConfigParser and called at top of myFit)
+    * Fixed typo in multi-fit config reader
+    * "No systematics found in fit result file" moved to Debug stream
+    * Added logo (can switch it on with Logo: TRUE)
+    * Added RunROOTMacros option to multi-fit (but crashing with limits... so TRUE by default)
+    
 2018-03-09 Tomas Dado <tomas.dado@cern.ch>
 	* Created new class that processes config input
 	* Moved readig of the config from TthFit.C into separate file
 
 2018-02-28 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Few more fixes to post-fit impact table
-    
 
 2018-03-21 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Few more fixes to post-fit impact table

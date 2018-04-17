@@ -18,3 +18,6 @@ alias macro="root -l -b -q"
 
 # Giancarlo
 export PATH=$PATH:`pwd`
+
+# to be able to point to the confg schema
+export TREXFITTER_HOME=`pwd`

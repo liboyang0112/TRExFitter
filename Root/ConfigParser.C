@@ -63,6 +63,8 @@ string Second(string s){
     return Fix(second);
 }
 
+//_______________________________________________________________________________________
+//
 void ReplaceStringInPlace(std::string& subject, const std::string& search,
                                                 const std::string& replace) {
     size_t pos = 0;
@@ -70,6 +72,26 @@ void ReplaceStringInPlace(std::string& subject, const std::string& search,
         subject.replace(pos, search.length(), replace);
         pos += replace.length();
     }
+}
+
+//_______________________________________________________________________________________
+// used to pre-read a config file to check single option values
+std::string ReadValueFromConfig(std::string fileName,std::string option){
+    std::string value = "";
+    std::ifstream file(fileName.c_str());
+    if(!file.is_open()) return value;
+    std::string str;
+    while(true){
+        file >> str;
+        if(!file.good()) break;
+        if(str==(option+":")){
+            file >> value;
+            break;
+        }
+    }
+    file.close();
+    file.clear();    
+    return value;
 }
 
 //----------------------------------------------------------------------------------
@@ -337,7 +359,6 @@ int ConfigParser::CheckSyntax(ConfigParser *refConfigParser){
     return exitStatus;
 }
 
-
 //_______________________________________________________________________________________
 //
 int ConfigParser::SettingIsValid(ConfigSet *cs, ConfigParser *refConfigParser, const std::string &setting_set, const std::string &setting) const{
@@ -416,6 +437,8 @@ int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std
     return 0;
 }
 
+//_______________________________________________________________________________________
+//
 int ConfigParser::CheckParameters(std::string current, const std::vector<std::string> &possible_settings, const std::string &setting_set, const std::string &setting) const{
     if (possible_settings.size() == 1){
         if(!SettingMultipleParamIsOK(setting_set, current, possible_settings.at(0))) return 1;
@@ -446,6 +469,8 @@ int ConfigParser::CheckParameters(std::string current, const std::vector<std::st
     return 0;
 }
 
+//_______________________________________________________________________________________
+//
 bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, const std::string& current, const std::string& possible, const char delimiter) const{
 
     std::vector<std::string> current_vec = Vectorize(current, delimiter);

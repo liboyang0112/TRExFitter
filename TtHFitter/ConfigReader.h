@@ -6,6 +6,8 @@
 
 // standard c++ includes
 #include <string>
+#include <iostream>
+#include <fstream>
 
 //Forward class declaration
 class TtHFit;

@@ -14,6 +14,7 @@ std::string Fix(std::string s);
 std::vector<std::string> Vectorize(std::string s,char c);
 std::string First(std::string s);
 std::string Second(std::string s);
+std::string ReadValueFromConfig(std::string fileName,std::string option);
 
 // classes
 class Config {

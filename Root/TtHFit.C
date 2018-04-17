@@ -14,7 +14,6 @@
 #include "RooSimultaneous.h"
 #include "RooDataSet.h"
 #include "RooCategory.h"
-#include "RooDataSet.h"
 #include "RooRealSumPdf.h"
 
 //HistFactory headers
@@ -574,7 +573,8 @@ void TtHFit::ReadNtuples(){
     //
     for(auto file : fCustomFunctions){
         WriteInfoStatus("TtHFit::ReadNtuples", "  Loading function from " + file + " ...");
-        gROOT->ProcessLineSync((".x "+file+"+").c_str());
+//         gROOT->ProcessLineSync((".x "+file+"+").c_str());
+        gROOT->ProcessLineSync((".L "+file+"+").c_str());
     }
     //
     // Loop on regions and samples
@@ -5394,8 +5394,8 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     
     // Performs the fit
     fitTool -> MinimType("Minuit2");
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
     float nll = fitTool -> FitPDF( mc, simPdf, data );
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 //     fitTool -> FitPDF( mc, simPdf, data, true );   // for fast fit
     if(save){
         gSystem -> mkdir((fName+"/Fits/").c_str(),true);
@@ -5690,8 +5690,10 @@ void TtHFit::GetSignificance(){
     if(fWorkspaceFileName!=""){
         string dataName = "obsData";
         if(!hasData || fFitIsBlind) dataName = "asimovData";
+        if (!fRunROOTMacros){
+            RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
+        }
         cmd = "root -l -b -q 'runSig.C(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
-        RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
     }
 
     else{

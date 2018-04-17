@@ -179,7 +179,7 @@ void FitResults::ReadFromTXT(string fileName){
     //
     int TOTsyst = fNuisParNames.size();
     WriteDebugStatus("FitResults::ReadFromTXT", "Found " + std::to_string(TOTsyst) + " systematics.");
-    if (TOTsyst<=0) WriteWarningStatus("FitResults::ReadFromTXT", "No systematics found in fit result file...");
+    if (TOTsyst<=0) WriteDebugStatus("FitResults::ReadFromTXT", "No systematics found in fit result file. Stat-only fit-results?");
 }
 
 //__________________________________________________________________________________

@@ -10,23 +10,27 @@
 #include "TtHFitter/Systematic.h"
 #include "TtHFitter/HistoTools.h"
 
-
+//__________________________________________________________________________________
+//
 ConfigReader::ConfigReader(TtHFit *fitter){
     fFitter = fitter;
     WriteInfoStatus("ConfigReader::ConfigReader", "Started reading the config");
 }
 
+//__________________________________________________________________________________
+//
 ConfigReader::~ConfigReader(){
 }
 
-
+//__________________________________________________________________________________
+// Read the full config file
 int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string& option){
     // initialize ConfigParser for the actual config
     fParser.ReadFile(fileName);
 
     // initialize checker COnfigParser to cross check the input
     ConfigParser refConfig;
-    refConfig.ReadFile("jobSchema.config");
+    refConfig.ReadFile(gSystem->ExpandPathName("$TREXFITTER_HOME/jobSchema.config"));
     int sc = fParser.CheckSyntax(&refConfig);
     //int sc = 0;
 
@@ -61,6 +65,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     return sc;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadCommandLineOptions(std::string option){
     std::vector< std::string > optVec = Vectorize(option,':');
     std::map< std::string,std::string > optMap;
@@ -153,6 +159,8 @@ int ConfigReader::ReadCommandLineOptions(std::string option){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadJobOptions(){
     std::string param = ""; // helper string
 
@@ -463,7 +471,6 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
-
     // Set AtlasLabel
     param = confSet->Get("AtlasLabel");
     if( param != "" ){
@@ -623,6 +630,8 @@ int ConfigReader::ReadJobOptions(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::SetJobPlot(ConfigSet *confSet){
 
     // Plot option
@@ -845,6 +854,8 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadGeneralOptions(){
     ConfigSet* confSet = fParser.GetConfigSet("Options");
     if (confSet != nullptr){
@@ -860,6 +871,8 @@ int ConfigReader::ReadGeneralOptions(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadFitOptions(){
     std::string param = "";
 
@@ -1019,6 +1032,8 @@ int ConfigReader::ReadFitOptions(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadLimitOptions(){
     std::string param = "";
 
@@ -1081,6 +1096,8 @@ int ConfigReader::ReadLimitOptions(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadRegionOptions(){
     std::string param = "";
     int nReg = 0;
@@ -1314,6 +1331,8 @@ int ConfigReader::ReadRegionOptions(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     std::string param = "";
 
@@ -1350,6 +1369,8 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     std::string param = "";
 
@@ -1455,6 +1476,8 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadSampleOptions(){
     int nSmp = 0;
     Sample *sample = nullptr;
@@ -1877,6 +1900,8 @@ int ConfigReader::ReadSampleOptions(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadNormFactorOptions(){
     std::string param = "";
 
@@ -2012,6 +2037,8 @@ int ConfigReader::ReadNormFactorOptions(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadShapeFactorOptions(){
     std::string param = "";
     int nShape = 0;
@@ -2111,6 +2138,8 @@ int ConfigReader::ReadShapeFactorOptions(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadSystOptions(){
     std::string param = "";
     int nSys = 0;
@@ -2516,6 +2545,8 @@ int ConfigReader::ReadSystOptions(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude){
     Sample *sam = nullptr;
 
@@ -2569,6 +2600,8 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude, const std::vector<std::string> regions, int type){
     Sample *sam = nullptr;
     std::string param = "";
@@ -2685,6 +2718,8 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
     Sample *sam = nullptr;
     std::string param = "";
@@ -2742,6 +2777,8 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
     Sample *sam = nullptr;
     std::string param = "";
@@ -2830,6 +2867,8 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::PostConfig(){
     // if StatOnly, also sets to OFF the MC stat
     if(fFitter->fStatOnly){
@@ -2889,6 +2928,8 @@ int ConfigReader::PostConfig(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 std::string ConfigReader::CheckName( const std::string &name ){
     if( std::isdigit( name.at(0) ) ){
         WriteErrorStatus("ConfigReader::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
@@ -2900,11 +2941,15 @@ std::string ConfigReader::CheckName( const std::string &name ){
     }
 }
 
+//__________________________________________________________________________________
+//
 bool ConfigReader::ConfigHasNTUP(ConfigSet* confSet){
     if (confSet->Get("Variable") != "" || confSet->Get("VariableForSample") != "" || confSet->Get("Selection") != "" || confSet->Get("NtupleName") != "" || confSet->Get("NtupleNameSuff") != "" || confSet->Get("MCweight") != "" || confSet->Get("NtuplePathSuff") != "" || confSet->Get("NtupleFile") != "" || confSet->Get("NtupleFiles") != "" || confSet->Get("NtupleNames") != "" || confSet->Get("NtuplePath") != "" || confSet->Get("NtuplePaths") != "" || confSet->Get("NtuplePathSuffs") != "") return true;
     else return false;
 }
 
+//__________________________________________________________________________________
+//
 bool ConfigReader::ConfigHasHIST(ConfigSet* confSet){
     if (confSet->Get("HistoFile") != "" || confSet->Get("HistoName") != "" || confSet->Get("HistoPathSuff") != "" || confSet->Get("HistoPathSuffs") != "" || confSet->Get("HistoPath") != "" ) return true;
     else return false;

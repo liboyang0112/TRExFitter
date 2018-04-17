@@ -3,26 +3,30 @@
 #include "TtHFitter/MultiFit.h"
 #include "TtHFitter/StatusLogbook.h"
 
-
+//_______________________________________________________________________________________
+//
 ConfigReaderMulti::ConfigReaderMulti(MultiFit *multiFitter){
     fMultiFitter = multiFitter;
     WriteInfoStatus("ConfigReaderMulti::ConfigReaderMulti", "Started reading the config for multifit");
     fGlobalSuffix = "";
 }
 
+//_______________________________________________________________________________________
+//
 ConfigReaderMulti::~ConfigReaderMulti(){
 }
 
-
+//_______________________________________________________________________________________
+//
 int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::string& option){
     // initialize ConfigParser for the actual config
     fParser.ReadFile(fileName);
 
     // initialize checker COnfigParser to cross check the input
-    //ConfigParser refConfig;
-    //refConfig.ReadFile("jobSchema.config");
-    //int sc = fParser.CheckSyntax(&refConfig);
-    int sc = 0;
+    ConfigParser refConfig;
+    refConfig.ReadFile(gSystem->ExpandPathName("$TREXFITTER_HOME/multiFitSchema.config"));
+    int sc = fParser.CheckSyntax(&refConfig);
+//     int sc = 0;
 
     if (sc != 0) return sc;
 
@@ -42,6 +46,8 @@ int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::st
     return sc;
 }
 
+//_______________________________________________________________________________________
+//
 int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
     // Read options (to skip stuff, or include only some regions, samples, systs...)
     // Syntax: .. .. Regions=ge4jge2b:Exclude=singleTop,wjets
@@ -75,9 +81,11 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
     return 0;
 }
 
+//_______________________________________________________________________________________
+//
 int ConfigReaderMulti::ReadJobOptions(){
     std::string param = "";
-    ConfigSet *confSet = fParser.GetConfigSet("MulltiFit");
+    ConfigSet *confSet = fParser.GetConfigSet("MultiFit");
     if (confSet == nullptr){
         WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "Cannot find 'MultiFit' in your config which is required. Please check this!");
         return 1;
@@ -421,9 +429,26 @@ int ConfigReaderMulti::ReadJobOptions(){
         if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
     }
 
+    // Set RunROOTMacros
+    param = confSet->Get("RunROOTMacros");
+    if ( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE"){
+            fMultiFitter->fRunROOTMacros = true;
+        }
+        else if (param == "FALSE"){
+            fMultiFitter->fRunROOTMacros = false;
+        } else {
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
+            fMultiFitter->fRunROOTMacros = false;
+        }
+    }
+    
     return 0;
 }
 
+//_______________________________________________________________________________________
+//
 int ConfigReaderMulti::ReadFitOptions(const std::string& options){
     std::string param = "";
     int nFit = 0;
