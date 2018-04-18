@@ -282,7 +282,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
 
 int main(int argc, char **argv){
   std::string opt="h";
-  std::string config="util/myFit,config";
+  std::string config="util/myFit.config";
   std::string options="";
   
   if(argc>1) opt     = argv[1];
