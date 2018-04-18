@@ -12,7 +12,7 @@ Applying ATLAS style settings...
 === DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
 === DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
-[1;32m=== INFO::myFit::FitExample: Finished with the config reading with status 0[0m
+[1;32m=== INFO::myFit::FitExample: Successfully read config file.[0m
 full list of observables:
 RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
 [#0] ERROR:InputArguments -- RooArgSet::checkForDup: ERROR argument with name nom_alpha_JES is already in this set
