@@ -1,3 +1,12 @@
+Introduction
+---------
+This package provides a framework to perform profile likelihood fits. In addition to that, many convenient features are available. TRExFitter was previously also known as TtHFitter. Here are a few important references to make use of:
+
+* `TRExFitter twiki page <https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TtHFitter>`_ for additional documentation and many references to further details
+* `TRExFitter JIRA <https://its.cern.ch/jira/projects/TTHFITTER/summary>`_
+* TRExFitter mailing list: `atlas-phys-stat-tthfitter <https://e-groups.cern.ch/e-groups/EgroupsSubscription.do?egroupName=atlas-phys-stat-tthfitter>`_
+
+
 Build status
 ---------
 .. image:: https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg
@@ -14,7 +23,7 @@ To get a specific tag, do the following::
 
   cd TRExFitter && git checkout <tag number> && cd -
 
-  
+
 Setup
 ---------
 To setup just use the script::
@@ -41,14 +50,14 @@ To run the code, after compiling (see "Setup"), use the command::
     ./myFit.exe  <action(s)>  [<config file>]  [<update>]  [<options>]
 
 The configuration file (<config file>) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
-By default the file  config/myFit.config  is loaded.
+By default the file  ``config/myFit.config``  is loaded.
 See the section "Config File" for more details.
-As examples give a look at  ``config/myFit.config``  or  ``config/ttH2015.config`` .
-Most of the times the only file the user has to modify to get his fit is the configuration file.
+Take a look at  ``config/myFit.config``  or  ``config/ttH2015.config`` to see some example config files.
+Most of the time, the only file the user has to modify to obtain their desired results is the configuration file.
 
-The only mandatory argument, <action(s)>, tells to the TtHFitter which operation(s) to perform.
+The only mandatory argument, <action(s)>, tells TRExFitter which operation(s) to perform.
 The possible operations are defined in the main file (e.g. util/myFit.C).
-For instance, if you use the default file `util/myFit.C`, the available options are:
+For instance, if you use the default file ``util/myFit.C``, the available options are:
 
 * h : read input histograms (valid only if the proper option is specified in the config file)
 * n : read input ntuples (valid only if the proper option is specified in the config file)
@@ -65,7 +74,7 @@ For instance, if you use the default file `util/myFit.C`, the available options 
 * i : grouped impact evaluation (see below)
 
 New optional argument: <options>.
-It's a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form::
+It is a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form::
 
     "<option1>=<value1>,<value2>,...:<option2>=..."
 
@@ -75,7 +84,7 @@ See the section "Command line options" below.
 Config File
 ---------
 
-Here's a list of the inputs and options which can be specified in the config file:
+Here is a list of the inputs and options which can be specified in the config file:
 
 - The structure of the file should be the following::
 
@@ -91,7 +100,7 @@ Here's a list of the inputs and options which can be specified in the config fil
 
      ...
 
-NB: note the *blank* line between the objects!!)
+NB: note the *blank* line between the objects!
 
 - The file should contain
    * exactly one object of type "Job"
@@ -102,13 +111,13 @@ NB: note the *blank* line between the objects!!)
    * any number of objects of type "Systematic" (even 0 is ok)
    * any number of objects of type "NormFactor" (even 0 is ok)
 
-Note that, each object should have unique <ObjectName>.
+Note that each object should have unique <ObjectName>.
 
 
-- Then, for each object type, here's the list of available properties to be specified:
+- Then, for each object type, here is the list of available properties to be specified:
 
   * Job:
-     * Label: it's the label which will be showed on the plots
+     * Label            : the label which will be shown on plots
      * POI: the name of the parameter of interest; this should correspond to a NormFactor defined below
      * ReadFrom         : can be HIST or NTUP; default is HIST
      * HistoPath        : valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stored
@@ -123,7 +132,7 @@ Note that, each object should have unique <ObjectName>.
      * SystLarge        : all systematics above this threshold will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%)
      * IntCodeOverall   : interpolation code used for the normalization component of systematics (should match the one used in RooStats)
      * IntCodeShape     : interpolation code used for the shape component of systematics (should match the one used in RooStats)
-     * MCstatThreshold  : if set it will add the MC stat uncertainty to the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative)
+     * MCstatThreshold  : by default, the MC stat uncertainty is included in the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative) if the option is set to a float (default: no threshold); can also set to NONE in order to disable MC stat uncertainty completely
      * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'Gaussian' (default) or 'Poisson'
      * DebugLevel       : 0 = prints only Warning and Errors, 1 = additionally prints Info messages, 2 = additionally prints Debug messages, >2 additionally prints Verbose messages. For option <2 RooFit/Roostats messages will be heavily suppressed
      * PlotOptions      : a set of options for plotting:
@@ -175,16 +184,17 @@ Note that, each object should have unique <ObjectName>.
      * TtresSmoothing   : if set to TRUE, the systematic uncertainty smoothing will use the ttbar resonances convention for the smoothing. The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal or 400 to treat it as uncorrelated with the nominal.
      * UseGammaPulls    : if set to TRUE, the fit results in terms of gamma parameter pulls, constraints and correlations are propagated to the post-fit plots, when possible (i.e. not for validation plots of course)
      * GuessMCStatEmptyBins: if set to FALSE, for empty (or negative) bins, the fitter will assume that the stat uncertainty is equal to its content (i.e. both set to 1e-06). If set to TRUE (default), the MC stat uncertainty is taken from the last non-empty bin.
-     * MergeUnderOverFlow : if set to TRUE the underflow content of each histogram is added to the first bin and the overflow to the last one (default is FALSE for HIST inputs and TRUE for NTUP inputs)
-     * DoSummaryPlot    : if set to FALSE no summary plot is created
-     * DoMergedPlot     : if set to TRUE a merged plot of all the included regions is created
-     * DoTables         : if set to FALSE no tables are created
-     * DoSignalRegionsPlot : if set to FALSE no signal regions plot is created
-     * DoPieChartPlot   : if set to FALSE no background composition pie-chart plot is created
+     * MergeUnderOverFlow : if set to TRUE, the underflow content of each histogram is added to the first bin and the overflow to the last one (default is FALSE for HIST inputs and TRUE for NTUP inputs)
+     * DoSummaryPlot    : if set to FALSE, no summary plot is created
+     * DoMergedPlot     : if set to TRUE, a merged plot of all the region groups specified with the RegionGroups option is created
+     * DoTables         : if set to FALSE, no tables are created
+     * DoSignalRegionsPlot : if set to FALSE, no signal regions plot is created
+     * DoPieChartPlot   : if set to FALSE, no background composition pie-chart plot is created
      * CustomFunctions  : list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values)
      * SuppressNegativeBinWarnings  : If set to true will suppress warning messages about negative or 0 content in bins
      * Bootstrap        : (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like "bsWeight(x,eventNumber,mcChannelNumber)", where bsWeight should be loaded with 'CustomFunctions: "bsWeight.C"' and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option 'BootstrapIdx=<i>' should be given, with <i>=0,1,2,3...
      * RunROOTMacros    : If set to True will run ROOT macros for limits and significa, otherwise (default) will run version which is compiled and has updated messaging. The functunality is the same.
+     * RegionGroups     : groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -239,6 +249,7 @@ Note that, each object should have unique <ObjectName>.
      * RatioYmaxPostFit : if set, it will specify the max of the range of the ratio plot for this region only, for post-fit only
      * RatioYminPostFit : if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only
      * DropBins         : allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 0 for the index
+     * Group            : if specified, regions of the same group appear together in several places, see RegionGroups option
 
   * Sample:
      * Type             : can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace
@@ -423,7 +434,7 @@ Multi-Fit
 
 The Multi-Fit functionality can be used to compare fit results or even to combine fit inputs from different configuration files / Jobs.
 
-- To use it you need a dedicated config file, with a similar structure as the usual ones. Example::
+- To use it you need a dedicated config file, with a structure similar to the usual ones. Example::
 
     MultiFit: "myTopWS_multifit"
       Label: "My Label"
@@ -451,20 +462,20 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
 
     ./myFit  m  config/myTopWS_multifit.config
 
-  this will compare the fit results in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the flight).
+  This will compare the fit results in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the fly when running his multi-fit option).
 
 - To make a real combination, one needs to use the usual command options "w", "f" and "l" together with the flag "Combine: TRUE" in the config above. Example::
 
     ./myFit  mwf  config/myTopWS_multifit.config
 
-  this will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
+  This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
 
 Input File Merging with hupdate
 ---------
 
-- A macro hupdate is included in order to mimic hadd functionality but without adding histograms if they have the same name
-- This is useful for running different systematics in different steps (like different batch jobs) and then merging results afterward
+- A macro ``hupdate`` is included, which mimics hadd functionality, but without adding histograms if they have the same name.
+- This is useful for running different systematics in different steps (like different batch jobs) and then merging results afterwards.
 - One needs to compile the hupdate macro before being able to use it::
 
     make hupdate
@@ -496,7 +507,7 @@ Output Directories Structure
   * Histograms/         : contains the root file(s) with all the inputs
   * LHoodPlots/         : contains the likelihood scan with respect to the specified parameter
 
-  
+
 ShapeFactor example
 -------------------
 
@@ -509,7 +520,28 @@ ShapeFactor example
 The results are in :code:`JobDataDriven`
 
 
-TtHFitter package authors
+Replacement file
+-------------------
+You can define placeholders in your config file, which are replaced with values specified in an external file, which is read at the beginning of TRExFitter execution. This requires adding an additional option into your config (can put it anywhere right now, recommended to put it in the Job block)::
+
+  ReplacementFile: path/to/file.txt
+
+The replacement file should have the following structure::
+
+  # comment
+  XXX_placeholder: 0.1
+  XXX_another_placeholder: 0.2
+  % also a comment
+
+Note that all placeholders must start with ``XXX``. In your config file, you can then refer to the placeholders like this::
+
+  Sample: "ttbar"
+    MCweight: XXX_placeholder
+
+If you would like to ensure that the replacement works correctly, set your DebugLevel to a minimum value of 1 and check the output of the framework.
+
+
+TRExFitter package authors
 -----------------
 
 Managers:
