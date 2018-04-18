@@ -2,9 +2,9 @@ Introduction
 ---------
 This package provides a framework to perform profile likelihood fits. In addition to that, many convenient features are available. TRExFitter was previously also known as TtHFitter. Here are a few important references to make use of:
 
-* [TRExFitter twiki page](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TtHFitter) for additional documentation and many references to further details
-* [TRExFitter JIRA](https://its.cern.ch/jira/projects/TTHFITTER/summary)
-* TRExFitter mailing list: ``atlas-phys-stat-tthfitter``
+* `TRExFitter twiki page<https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TtHFitter>`_ for additional documentation and many references to further details
+* `TRExFitter JIRA<https://its.cern.ch/jira/projects/TTHFITTER/summary>`_
+* TRExFitter mailing list: `atlas-phys-stat-tthfitter<https://e-groups.cern.ch/e-groups/EgroupsSubscription.do?egroupName=atlas-phys-stat-tthfitter>`_
 
 
 Build status
