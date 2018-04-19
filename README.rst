@@ -135,6 +135,7 @@ Note that, each object should have unique <ObjectName>.
         * CHI2: the chi2/ndf and chi2 prob will be printed on each plot, provided that the option GetChi2 is set
         * PREFITONPOSTFIT: draw a dashed line on the postfit plot that indicates the sum of prefit background
         * NOXERR: removes the horizontal error bars on the data and the ratio plots
+     * PlotOptionsSummary: the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used)
      * TableOptions      : a set of options for tables (yield tables only for the moment):
         * STANDALONE : default! If not set, no "\begin{document}"
         * FOOTNOTESIZE : -> \footnotesize
@@ -186,7 +187,9 @@ Note that, each object should have unique <ObjectName>.
      * SuppressNegativeBinWarnings  : If set to true will suppress warning messages about negative or 0 content in bins
      * Bootstrap        : (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like "bsWeight(x,eventNumber,mcChannelNumber)", where bsWeight should be loaded with 'CustomFunctions: "bsWeight.C"' and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option 'BootstrapIdx=<i>' should be given, with <i>=0,1,2,3...
      * RunROOTMacros    : If set to True will run ROOT macros for limits and significa, otherwise (default) will run version which is compiled and has updated messaging. The functunality is the same.
-
+     * DecorrSysts      : comma-separated list of systematics which you want to decorrelate from another channel (this is don by automatically attaching a suffix to the NormFactor for each of them); can use wildcards
+     * DecorrSuff       : the suffix to attach when using DecorrSysts
+     
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
      * FitRegion        : can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions. You can also specify a comma-separated list of regions to use in the fit

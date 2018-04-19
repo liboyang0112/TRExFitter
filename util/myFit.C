@@ -24,7 +24,7 @@
 // -------------------------------------------------------
 
 // trick to suppress the RooFit banner
-int doBanner(){ return 0; }
+// int doBanner(){ return 0; }
 
 void FitExample(std::string opt="h",std::string configFile="util/myFit.config",std::string options=""){
     
@@ -36,7 +36,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     // pre-read the logo option
     std::string logoStr = ReadValueFromConfig(configFile,"Logo");
     if(logoStr=="TRUE"){
-        std::ifstream logoFile("logo.txt");
+        std::ifstream logoFile("$TREXFITTER_HOME/logo.txt");
         std::string str;
         std::string logo = "";
         while(getline(logoFile,str)){
