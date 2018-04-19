@@ -26,17 +26,17 @@
 // trick to suppress the RooFit banner
 // int doBanner(){ return 0; }
 
-void FitExample(std::string opt="h",std::string configFile="util/myFit.config",std::string options=""){
+void FitExample(std::string opt="h",std::string configFile="config/myFit.config",std::string options=""){
     
     // pre-read the config just to extract the debug level
     std::string debugStr = ReadValueFromConfig(configFile,"DebugLevel");
-    if(debugStr=="") WriteWarningStatus("", "Not able to pre-read the DebugLevel => keep the defaul (1).");
+    if(debugStr=="") WriteWarningStatus("", "Not able to pre-read the DebugLevel => keep the default (1).");
     else if(debugStr!="1") TtHFitter::DEBUGLEVEL = atoi(debugStr.c_str());
 
     // pre-read the logo option
     std::string logoStr = ReadValueFromConfig(configFile,"Logo");
     if(logoStr=="TRUE"){
-        std::ifstream logoFile("$TREXFITTER_HOME/logo.txt");
+        std::ifstream logoFile(gSystem->ExpandPathName("$TREXFITTER_HOME/logo.txt"));
         std::string str;
         std::string logo = "";
         while(getline(logoFile,str)){

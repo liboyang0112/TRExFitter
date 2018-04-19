@@ -1,3 +1,5 @@
+location=$1
+
 # Setup ROOT and gcc
 # added back by Michele
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
@@ -13,11 +15,16 @@ else
    echo -e "\033[42;1;37m ROOT has been set to: *${ROOTSYS}* \033[0m"
 fi
 
-# Michele
 alias macro="root -l -b -q"
 
-# Giancarlo
-export PATH=$PATH:`pwd`
+if [[ "$location" != "" ]]
+then
+  export PATH=$PATH:$location
+  # to be able to point to the confg schema
+  export TREXFITTER_HOME=$location
+else
+  export PATH=$PATH:`pwd`
+  # to be able to point to the confg schema
+  export TREXFITTER_HOME=`pwd`  
+fi
 
-# to be able to point to the confg schema
-export TREXFITTER_HOME=`pwd`
