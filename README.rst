@@ -135,6 +135,7 @@ Note that each object should have unique <ObjectName>.
      * MCstatThreshold  : by default, the MC stat uncertainty is included in the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative) if the option is set to a float (default: no threshold); can also set to NONE in order to disable MC stat uncertainty completely
      * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'Gaussian' (default) or 'Poisson'
      * DebugLevel       : 0 = prints only Warning and Errors, 1 = additionally prints Info messages, 2 = additionally prints Debug messages, >2 additionally prints Verbose messages. For option <2 RooFit/Roostats messages will be heavily suppressed
+     * Logo             : is set to TRUE will print the TRExFitter logo
      * PlotOptions      : a set of options for plotting:
         * YIELDS : if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields
         * NORMSIG : add normlised signal to plots
@@ -143,6 +144,7 @@ Note that each object should have unique <ObjectName>.
         * CHI2: the chi2/ndf and chi2 prob will be printed on each plot, provided that the option GetChi2 is set
         * PREFITONPOSTFIT: draw a dashed line on the postfit plot that indicates the sum of prefit background
         * NOXERR: removes the horizontal error bars on the data and the ratio plots
+     * PlotOptionsSummary: the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used)
      * TableOptions      : a set of options for tables (yield tables only for the moment):
         * STANDALONE : default! If not set, no "\begin{document}"
         * FOOTNOTESIZE : -> \footnotesize
@@ -194,6 +196,8 @@ Note that each object should have unique <ObjectName>.
      * SuppressNegativeBinWarnings  : If set to true will suppress warning messages about negative or 0 content in bins
      * Bootstrap        : (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like "bsWeight(x,eventNumber,mcChannelNumber)", where bsWeight should be loaded with 'CustomFunctions: "bsWeight.C"' and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option 'BootstrapIdx=<i>' should be given, with <i>=0,1,2,3...
      * RunROOTMacros    : If set to True will run ROOT macros for limits and significa, otherwise (default) will run version which is compiled and has updated messaging. The functunality is the same.
+     * DecorrSysts      : comma-separated list of systematics which you want to decorrelate from another channel (this is don by automatically attaching a suffix to the NormFactor for each of them); can use wildcards
+     * DecorrSuff       : the suffix to attach when using DecorrSysts
      * RegionGroups     : groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE
 
   * Fit:

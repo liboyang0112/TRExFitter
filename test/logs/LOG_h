@@ -3,10 +3,17 @@
                 Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
                 All rights reserved, please read http://roofit.sourceforge.net/license.txt
 
+                    No rights reserved, feel free to use and modify it ;)
 
 Applying ATLAS style settings...
 
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
 [1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m
+=== DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
+=== DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
+[1;32m=== INFO::myFit::FitExample: Successfully read config file.[0m
+Reading histograms...
 [1;32m=== INFO::TtHFit::CreateRootFiles: -------------------------------------------[0m
 [1;32m=== INFO::TtHFit::CreateRootFiles: Creating/updating file FitExample/Histograms/FitExample_histos.root ...[0m
 [1;32m=== INFO::TtHFit::ReadHistograms:   Region SR_1 ...[0m

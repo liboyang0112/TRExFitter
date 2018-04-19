@@ -3,10 +3,16 @@
                 Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
                 All rights reserved, please read http://roofit.sourceforge.net/license.txt
 
+                    No rights reserved, feel free to use and modify it ;)
 
 Applying ATLAS style settings...
 
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
 [1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m
+=== DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
+=== DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
+[1;32m=== INFO::myFit::FitExample: Successfully read config file.[0m
 [1;32m=== INFO::TtHFit::ReadHistos: -----------------------------[0m
 [1;32m=== INFO::TtHFit::ReadHistos: Reading histograms from file FitExample/Histograms/FitExample_histos.root ...[0m
 === DEBUG::TtHFit::ReadHistos:   Reading region SR_1
@@ -38,6 +44,7 @@ Applying ATLAS style settings...
 === DEBUG::TtHFit::ReadHistos:     Reading sample Signal
 === DEBUG::TtHFit::ReadHistos:       Reading norm SigXsecOverSM
 === DEBUG::TtHFit::ReadHistos:       Reading syst JES
+Drawing pre-fit plots...
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region SR_1 ...[0m
 === DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1

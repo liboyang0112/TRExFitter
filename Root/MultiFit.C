@@ -1,9 +1,13 @@
 #include "TtHFitter/MultiFit.h"
 
+#include "TtHFitter/ConfigReader.h"
 #include "TtHFitter/ConfigParser.h"
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/StatusLogbook.h"
 #include "TtHFitter/Region.h"
+#include "TtHFitter/RunSig.h"
+#include "TtHFitter/RunAsymptoticsCLs.h"
+#include "TtHFitter/RunAsymptoticsCLs_inject.h"
 
 //Roofit headers
 #include "RooSimultaneous.h"
@@ -84,6 +88,8 @@ MultiFit::MultiFit(string name){
     fVarNameLH.clear();
     //
     fDoGroupedSystImpactTable = false;
+    //
+    fRunROOTMacros = true; // FIXME: had to temporary set it to true by default, otherwise it crashes...
 }
 
 //__________________________________________________________________________________
@@ -94,179 +100,25 @@ MultiFit::~MultiFit(){
 
 //__________________________________________________________________________________
 //
-void MultiFit::ReadConfigFile(string configFile,string options){
-    std::string globalSuffix = "";
-    fConfig->ReadFile(configFile);
-    ConfigSet *cs; // to store stuff later
-    string param;
-    //
-    // Read options (to skip stuff, or include only some regions, samples, systs...)
-    // Syntax: .. .. Regions=ge4jge2b:Exclude=singleTop,wjets
-    std::map< string,string > optMap; optMap.clear();
-    std::vector< string > optVec;
-    //
-    if(options!=""){
-        optVec = Vectorize(options,':');
-        for(unsigned int i_opt=0;i_opt<optVec.size();i_opt++){
-            std::vector< string > optPair;
-            optPair = Vectorize(optVec[i_opt],'=');
-            optMap[optPair[0]] = optPair[1];
-        }
-        //
-        if(optMap["Ranking"]!="")
-            fRankingOnly = optMap["Ranking"];
-        if(optMap["GroupedImpact"]!="")
-            fGroupedImpactCategory = optMap["GroupedImpact"];
-        //
-        if(optMap["Suffix"]!="")
-            globalSuffix = optMap["Suffix"];
-    }
-
-    //
-    // set multi-fit
-    cs = fConfig->GetConfigSet("MultiFit");
-    fName = cs->GetValue();
-    param = cs->Get("OutputDir");
-    if(param !=""){
-        fDir = param;
-        if(fDir.back() != '/') fDir += '/';
-        fOutDir = fDir + fName;
-        gSystem->mkdir(fOutDir.c_str(), true);
-    }
-    else{
-        fOutDir = "./" + fName;
-    }
-    param = cs->Get("Label");     if( param != "")  fLabel     = param;
-    param = cs->Get("LumiLabel"); if( param != "")  fLumiLabel = param;
-    param = cs->Get("CmeLabel");  if( param != "")  fCmeLabel  = param;
-    param = cs->Get("SaveSuf");   if( param != "")  fSaveSuf   = param;
-    else                                            fSaveSuf   = globalSuffix;
-    param = cs->Get("ShowObserved");   if( param != "" && param != "FALSE" ) fShowObserved = true;
-    param = cs->Get("LimitTitle"); if( param != "") fLimitTitle = param;
-    if(fLimitTitle.find("95CL")!=string::npos) fLimitTitle.replace(fLimitTitle.find("95CL"),4,"95% CL");
-    param = cs->Get("POITitle"); if( param != "") fPOITitle = param;
-    param = cs->Get("CompareLimits"); if( param != "" && param != "TRUE" )  fCompareLimits = false;
-    param = cs->Get("ComparePOI");    if( param != "" && param != "TRUE" )  fComparePOI    = false;
-    param = cs->Get("ComparePulls");  if( param != "" && param != "TRUE" )  fComparePulls  = false;
-    param = cs->Get("PlotCombCorrMatrix");  if( param == "TRUE" )     fPlotCombCorrMatrix  = true;
-    //
-    param = cs->Get("Combine"); if( param != "" && param != "FALSE" )  fCombine = true;
-    param = cs->Get("Compare"); if( param != "" && param != "FALSE" )  fCompare = true;
-    //
-    param = cs->Get("StatOnly"); if( param != "" && param != "FALSE" )  fStatOnly = true;
-    param = cs->Get("IncludeStatOnly"); if( param != "" && param != "FALSE" )  fIncludeStatOnly = true;
-    //
-    param = cs->Get("POIName");  if( param != "" ) fPOI = param;
-    param = cs->Get("POIRange"); if( param != "" && Vectorize(param,',').size()==2 ) {
-        fPOIMin = atof( Vectorize(param,',')[0].c_str() );
-        fPOIMax = atof( Vectorize(param,',')[1].c_str() );
-    }
-    param = cs->Get("LimitMax"); if( param != "" ) {
-        fLimitMax = atof( param.c_str() );
-    }
-    param = cs->Get("POIVal");   if( param != "" ) fPOIVal = atof(param.c_str());
-    param = cs->Get("POIPrecision");   if( param != "" ) fPOIPrecision = param.c_str();
-    param = cs->Get("DataName"); if( param != "" ) fDataName = param;
-    param = cs->Get("FitType");  if( param != "" ){
-        if(param=="SPLUSB") fFitType = 1;
-        if(param=="BONLY")  fFitType = 2;
-    }
-    param = cs->Get("SignalInjection");  if( param != "" && param != "FALSE" ) fSignalInjection = true;
-    //
-    param = cs->Get("CombineChByCh"); if( param != "" && param != "FALSE" )  fCombineChByCh = true;
-    //
-    param = cs->Get("NPCategories"); if( param != "" ) {
-        vector<string> categ =   Vectorize(param,',');
-        for(unsigned int i_cat=0;i_cat<categ.size();i_cat++)
-            fNPCategories.push_back(categ[i_cat]);
-//       fNPCategories.insert(fNPCategories.end(),Vectorize(param,',').begin(),Vectorize(param,',').end());
-    }
-    param = cs->Get("SetRandomInitialNPval");  if( param != ""){
-        fUseRnd = true;
-        fRndRange = atof(param.c_str());
-    }
-    param = cs->Get("SetRandomInitialNPvalSeed"); if( param != ""){
-        fRndSeed = atol(param.c_str());
-    }
-    param = cs->Get("NumCPU"); if( param != "" ){ TtHFitter::NCPU = atoi( param.c_str()); }
-    //
-    param = cs->Get("FastFit"); if( param == "TRUE" )  fFastFit = true;
-    param = cs->Get("FastFitForRanking"); if( param == "TRUE" )  fFastFitForRanking = true;
-    param = cs->Get("NuisParListFile"); if( param != "" )  fNuisParListFile = param;
-    param = cs->Get("PlotSoverB");     if( param == "TRUE" )  fPlotSoverB = true;
-    param = cs->Get("SignalTitle");    if( param != "" )  fSignalTitle = param;
-    param = cs->Get("FitResultsFile"); if( param != "" )  fFitResultsFile = param;
-    param = cs->Get("LimitsFile");     if( param != "" )  fLimitsFile     = param;
-    param = cs->Get("BonlySuffix");    if( param != "" )  fBonlySuffix    = param;
-    //
-    param = cs->Get("ShowSystForPOI");   if( param != "" && param != "FALSE" )  fShowSystForPOI   = true;
-    param = cs->Get("GetGoodnessOfFit"); if( param != "" && param != "FALSE" )  fGetGoodnessOfFit = true;
-    param = cs->Get("doLHscan"); if( param != "" ){ fVarNameLH = Vectorize(param,','); }
-
-    param = cs->Get("PlotOptions");    if( param != ""){
-        auto vec = Vectorize(param,',');
-        if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
-        // ...
-    }
-    //
-    // fits
-    int nFit = 0;
-    while(true){
-        cs = fConfig->GetConfigSet("Fit",nFit);
-        if(cs==0x0) break;
-        nFit++;
-        // options
-        string fullOptions;
-        param = cs->Get("Options");
-        if(param!="" && options!="") fullOptions = options+";"+param;
-        else if(param!="") fullOptions = param;
-        else fullOptions = options;
-        // name
-        fFitNames.push_back(cs->GetValue());
-        // label
-        param = cs->Get("Label");
-        string label = cs->GetValue();
-        if(param!="") label = param;
-        // load suf
-        param = cs->Get("LoadSuf");
-        string loadSuf = "";
-        if(param!="") loadSuf = param;
-        else          loadSuf = globalSuffix;
-        // config file
-        string confFile = "";
-        param = cs->Get("ConfigFile");
-        if(param!="") confFile = param;
-        // workspace
-        string wsFile = "";
-        param = cs->Get("Workspace");
-        if(param!="") wsFile = param;
-        // show obs
-        param = cs->Get("ShowObserved");
-        if(param=="FALSE") fFitShowObserved.push_back(false);
-        else fFitShowObserved.push_back(true);
-        //
-        AddFitFromConfig(confFile,fullOptions,label,loadSuf,wsFile);
-        //
-        param = cs->Get("FitResultsFile"); if( param != "" )  fFitList[fFitList.size()-1]->fFitResultsFile = param;
-        fLimitsFiles.push_back("");
-        param = cs->Get("LimitsFile");     if( param != "" )  fLimitsFiles[fFitList.size()-1] = param;
-        param = cs->Get("POIName"); if( param != "" )  fFitList[fFitList.size()-1]->fPOI = param;
-        param = cs->Get("Directory"); if( param != "" )  fFitList[fFitList.size()-1]->fName = param;
-        param = cs->Get("InputName"); if( param != "" )  fFitList[fFitList.size()-1]->fInputName = param;
-    }
-
-    // make directory
-    gSystem->mkdir(fOutDir.c_str());
-}
-
-//__________________________________________________________________________________
-//
 void MultiFit::AddFitFromConfig(string configFile,string options,string label,string loadSuf,string wsFile){
+    // keep debug level
+    int debug = TtHFitter::DEBUGLEVEL;
+  
     fFitList.push_back(new TtHFit());
-    fFitList[fFitList.size()-1]->ReadConfigFile(configFile,options);
+
+    // initialize config reader 
+    ConfigReader reader(fFitList[fFitList.size()-1]);
+
+    if (reader.ReadFullConfig(configFile,options) != 0){
+        WriteErrorStatus("MultiFit::AddFitFromConfig", "Failed to read the config file.");
+        exit(EXIT_FAILURE);
+    }
+
     fFitLabels.push_back(label);
     fFitSuffs.push_back(loadSuf);
     fWsFiles.push_back(wsFile);
+    
+    TtHFitter::DEBUGLEVEL = debug;
 }
 
 //__________________________________________________________________________________
@@ -274,6 +126,8 @@ void MultiFit::AddFitFromConfig(string configFile,string options,string label,st
 RooWorkspace* MultiFit::CombineWS(){
     WriteInfoStatus("MultiFit::CombineWS", "....................................");
     WriteInfoStatus("MultiFit::CombineWS", "Combining workspaces...");
+
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 
     std::vector < RooWorkspace* > vec_ws;
     std::vector < std::string > vec_chName;
@@ -343,6 +197,8 @@ RooWorkspace* MultiFit::CombineWS(){
 
     // Configure the workspace
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
+    
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     return ws;
 }
@@ -350,6 +206,7 @@ RooWorkspace* MultiFit::CombineWS(){
 //__________________________________________________________________________________
 //
 void MultiFit::SaveCombinedWS(){
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     //
     // Creating the rootfile
     //
@@ -364,11 +221,13 @@ void MultiFit::SaveCombinedWS(){
     f->cd();
     ws->Write("combWS");
     f->Close();
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 }
 
 //__________________________________________________________________________________
 //
 std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inputData, bool performFit){
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
 
@@ -384,6 +243,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     // Fit configuration (1: SPLUSB or 2: BONLY)
     //
     FittingTool *fitTool = new FittingTool();
+    fitTool->SetDebug(TtHFitter::DEBUGLEVEL);
     if(fitType==2){
         fitTool -> ValPOI(0.);
         fitTool -> ConstPOI(true);
@@ -440,10 +300,14 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     else if(inputData!=""){
         data = (RooDataSet*)ws->data( inputData.c_str() );
     } else {
+        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
         WriteWarningStatus("MultiFit::FitCombinedWS", "You didn't specify inputData => will try with observed data !");
+        if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         data = (RooDataSet*)ws->data("obsData");
         if(!data){
+            if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteWarningStatus("MultiFit::FitCombinedWS", "Observed data not present => will use with asimov data !");
+            if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             data = (RooDataSet*)ws->data("asimovData");
         }
     }
@@ -474,7 +338,6 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         ndof -= nfList.size();
         
         fitTool -> MinimType("Minuit2");
-        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 
         // Full fit
         float nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
@@ -486,6 +349,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         if(fGetGoodnessOfFit){
             float deltaNLL = nll-nll0;
             double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
+            if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL0        = " + std::to_string(nll0));
@@ -496,6 +360,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
             WriteInfoStatus("MultiFit::FitCombinedWS", "  probability = " + std::to_string(prob));
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
+            if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         }
 
         //
@@ -542,8 +407,10 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         // - read fit resutls
         // - fix all NP to fitted ones before fitting
         if(fIncludeStatOnly){
+            if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteInfoStatus("MultiFit::FitCombinedWS", "Fitting stat-only: reading fit results from full fit from file:");
             WriteInfoStatus("MultiFit::FitCombinedWS", "  " + (fOutDir+"/Fits/"+fName+fSaveSuf+".txt"));
+            if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
             std::vector<std::string> npNames;
             std::vector<double> npValues;
@@ -565,26 +432,39 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
             fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
         }
     }
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
     
     return result;
 }
 //__________________________________________________________________________________
 //
 void MultiFit::GetCombinedLimit(string inputData){
+    WriteInfoStatus("MultiFit::GetCombinedLimit", "Runing runAsymptoticsCLs macro...");
+    
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
     string cmd;
-    if(fSignalInjection)
+    if(fSignalInjection){
+        if (!fRunROOTMacros){
+            LimitsCLs_inject::RunAsymptoticsCLs_inject(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "asimovData_0", (fOutDir+"/Limits/").c_str(),(fName+fSaveSuf).c_str(),0.95);
+        }
         cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
-    else
+    }
+    else{
+        if (!fRunROOTMacros){
+            LimitsCLs::RunAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "asimovData_0", (fOutDir+"/Limits/").c_str(),(fName+fSaveSuf).c_str(),0.95);
+        }
         cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
+    }
     //
     // Finally computing the limit
     //
-    gSystem->Exec(cmd.c_str());
+    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 //__________________________________________________________________________________
 //
 void MultiFit::GetCombinedSignificance(string inputData){
+    WriteInfoStatus("MultiFit::GetCombinedSignificance", "Runing runSig macro...");
+  
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
     string cmd;
     cmd = "root -l -b -q 'runSig.C(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSaveSuf+"\",\""+fOutDir+"/Significance\")'";
@@ -592,7 +472,10 @@ void MultiFit::GetCombinedSignificance(string inputData){
     //
     // Finally computing the significance
     //
-    gSystem->Exec(cmd.c_str());
+    if (!fRunROOTMacros){
+        RunSig(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSaveSuf).c_str(), (fOutDir+"/Significance").c_str());
+    }
+    else gSystem->Exec(cmd.c_str());
 }
 //__________________________________________________________________________________
 //

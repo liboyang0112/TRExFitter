@@ -1,5 +1,8 @@
 #include "TtHFitter/Common.h"
 
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/ConfigReader.h"
+#include "TtHFitter/ConfigReaderMulti.h"
 #include "TtHFitter/NuisParameter.h"
 #include "TtHFitter/CorrelationMatrix.h"
 #include "TtHFitter/FitResults.h"
@@ -20,8 +23,37 @@
 // -------------------------------------------------------
 // -------------------------------------------------------
 
+// trick to suppress the RooFit banner
+// int doBanner(){ return 0; }
+
 void FitExample(std::string opt="h",std::string configFile="util/myFit.config",std::string options=""){
+    
+    // pre-read the config just to extract the debug level
+    std::string debugStr = ReadValueFromConfig(configFile,"DebugLevel");
+    if(debugStr=="") WriteWarningStatus("", "Not able to pre-read the DebugLevel => keep the defaul (1).");
+    else if(debugStr!="1") TtHFitter::DEBUGLEVEL = atoi(debugStr.c_str());
+
+    // pre-read the logo option
+    std::string logoStr = ReadValueFromConfig(configFile,"Logo");
+    if(logoStr=="TRUE"){
+        std::ifstream logoFile("$TREXFITTER_HOME/logo.txt");
+        std::string str;
+        std::string logo = "";
+        while(getline(logoFile,str)){
+            if(!logoFile.good()) break;
+            logo+=str;
+            logo+="\n";
+        }
+        std::cout << logo << std::endl;
+    }
+    
+    if(TtHFitter::DEBUGLEVEL<=0)      gErrorIgnoreLevel = kError;
+    else if(TtHFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+    
+    // now can set ATLAS style
+    if(TtHFitter::DEBUGLEVEL<=0) std::cout.setstate(std::ios_base::failbit);
     SetAtlasStyle();
+    if(TtHFitter::DEBUGLEVEL<=0) std::cout.clear();
     
     RooStats::UseNLLOffset(true);
     
@@ -47,26 +79,38 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     bool isMultiFit      = opt.find("m")!=std::string::npos;
     if(isMultiFit){
         MultiFit *myMultiFit = new MultiFit();
-        myMultiFit->ReadConfigFile(configFile,options);
-        //
+        ConfigReaderMulti confReaderMulti(myMultiFit);
+        int sc = confReaderMulti.ReadFullConfig(configFile,options) ;
+    
+        if (sc != 0){
+            WriteErrorStatus("myFit::FitExample", "Failed to read the config file for multifit.");
+            exit(EXIT_FAILURE);
+        }
+
         if(myMultiFit->fCombine){
             if(createWorkspace){
+                std::cout << "Combining workspaces..." << std::endl;
                 myMultiFit->SaveCombinedWS();
             }
             if(doFit){
+                std::cout << "Fitting combining workspace..." << std::endl;
                 myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName );
             }
             if(doLimit){
+                std::cout << "Getting combined limit..." << std::endl;
                 myMultiFit->GetCombinedLimit( myMultiFit->fDataName );
             }
             if(doSignificance){
+                std::cout << "Getting combined significance..." << std::endl;
                 myMultiFit->GetCombinedSignificance( myMultiFit->fDataName );
             }
             if(doRanking){
+                std::cout << "Getting combined ranking..." << std::endl;
                 if(myMultiFit->fRankingOnly!="plot")  myMultiFit->ProduceNPRanking( myMultiFit->fRankingOnly );
                 if(myMultiFit->fRankingOnly=="all" || myMultiFit->fRankingOnly=="plot")  myMultiFit->PlotNPRankingManager();
             }
             if(groupedImpact){
+                std::cout << "Getting combined grouped systematic impact..." << std::endl;
                 myMultiFit->fDoGroupedSystImpactTable = true;
                 if(myMultiFit->fGroupedImpactCategory!="combine") myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName ); // this calls TtHFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
                 else                                              myMultiFit->BuildGroupedImpactTable(); // combine the results into one table with option "combine"
@@ -74,6 +118,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
         }
         //
         if(myMultiFit->fCompare){
+            std::cout << "Comparing fits..." << std::endl;
             if(myMultiFit->fComparePulls){
                 for(unsigned int i_cat=0;i_cat<myMultiFit->fNPCategories.size();i_cat++){
                     myMultiFit->ComparePulls(myMultiFit->fNPCategories[i_cat]);
@@ -86,7 +131,10 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
             if(myMultiFit->fVarNameLH.size()>0) myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName, false );
         }
         //
-        if(myMultiFit->fPlotSoverB)    myMultiFit->PlotSummarySoverB();
+        if(myMultiFit->fPlotSoverB){
+            std::cout << "Comparing fits..." << std::endl;
+            myMultiFit->PlotSummarySoverB();
+        }
         //
         return;
     }
@@ -94,21 +142,38 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     // proceed if not multi-fit
     
     TtHFit *myFit = new TtHFit();
-    myFit->ReadConfigFile(configFile,options);
+
+    // initialize config reader 
+    ConfigReader reader(myFit);
     
+    // read the actual config
+    int sc = reader.ReadFullConfig(configFile,options);
+    if(sc!=0){
+        WriteErrorStatus("myFit::FitExample", "Failed to read the config file.");
+        exit(EXIT_FAILURE);
+    }
+    
+    WriteInfoStatus("myFit::FitExample", "Successfully read config file.");
+    
+    if (TtHFitter::DEBUGLEVEL < 2){
+        gErrorIgnoreLevel = kError;
+        RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+    }
+
     // check compatibility between run option and config file
     if(readHistograms && myFit->fInputType!=TtHFit::HIST){
-        std::cerr << "ERROR: Option \"h\" asked but no HISTO InputType speficied in the configuration file. Aborting." << std::endl;
+        WriteErrorStatus("myFit::FitExample", "Option \"h\" asked but no HISTO InputType specified in the configuration file. Aborting.");
         return;
     }
     if(readNtuples && myFit->fInputType!=TtHFit::NTUP){
-        std::cerr << "ERROR: Option \"n\" asked but no NTUP InputType speficied in the configuration file. Aborting." << std::endl;
+        WriteErrorStatus("myFit::FitExample", "Option \"n\" asked but no NTUP InputType specified in the configuration file. Aborting.");
         return;
     }
       
     // -------------------------------------------------------
 
     if(readHistograms){
+        std::cout << "Reading histograms..." << std::endl;
         myFit->CreateRootFiles();
         myFit->ReadHistograms();
         myFit->Print();
@@ -120,6 +185,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
         if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
     else if(readNtuples){
+        std::cout << "Reading ntuples..." << std::endl;
         myFit->CreateRootFiles();
         myFit->ReadNtuples();
         myFit->Print();
@@ -136,6 +202,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     
     // new
     if(rebinAndSmooth){
+        std::cout << "Rebinning and smoothing..." << std::endl;
         bool udpate = myFit->fUpdate;
         myFit->fUpdate = true;
         myFit->CreateRootFiles();  // ?
@@ -149,30 +216,36 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     }
 
     if(createWorkspace){
+        std::cout << "Creating workspace..." << std::endl;
         myFit->DrawPruningPlot();
         myFit->SetLumiErr(0.);
         myFit->ToRooStat(true,true);
     }
 
     if(doFit){
+        std::cout << "Fitting..." << std::endl;
         myFit->Fit();
         myFit->PlotFittedNP();
         myFit->PlotCorrelationMatrix();
     }
     if(doRanking){
+        std::cout << "Doing ranking..." << std::endl;
         if(myFit->fRankingOnly!="plot")  myFit->ProduceNPRanking( myFit->fRankingOnly );
         if(myFit->fRankingOnly=="all" || myFit->fRankingOnly=="plot")  myFit->PlotNPRankingManager();
     }
     
     if(doLimit){
+        std::cout << "Extracting limit..." << std::endl;
         myFit->GetLimit();
     }
     
     if(doSignificance){
+        std::cout << "Extracting significance..." << std::endl;
         myFit->GetSignificance();
     }
 
     if(groupedImpact){
+        std::cout << "Doing grouped systematics impact table..." << std::endl;
         myFit->fDoGroupedSystImpactTable = true;
         if(myFit->fGroupedImpactCategory!="combine") myFit->Fit(); // this calls TtHFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
         else                                         myFit->BuildGroupedImpactTable(); // combine the results into one table with option "combine"
@@ -186,6 +259,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     }
     
     if(drawPreFit){
+        std::cout << "Drawing pre-fit plots..." << std::endl;
         if(TtHFitter::OPTION["PrefitRatioMax"]==2){
             myFit->DrawAndSaveAll("prefit");
             if(myFit->fDoMergedPlot){
@@ -234,6 +308,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     }
     
     if(drawPostFit){
+        std::cout << "Drawing post-fit plots..." << std::endl;
         myFit->DrawAndSaveAll("post");
         if(myFit->fDoMergedPlot){
             if(myFit->fRegionGroups.size()==0)
@@ -265,6 +340,7 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
     }
 
     if(drawSeparation){
+        std::cout << "Drawing separation plots..." << std::endl;
         myFit->DrawAndSaveSeparationPlots();
     //    myFit->ListOfBestSeparationVariables(); // for the future list of best separation variables
     //    myFit->ListOfBestDataMCVariables();     // for the future list of best data-mc agreement variables based on KS test
@@ -281,6 +357,10 @@ void FitExample(std::string opt="h",std::string configFile="util/myFit.config",s
 // -------------------------------------------------------
 
 int main(int argc, char **argv){
+  std::string version = "3.23";
+  std::cout << "\033[1mTRExFitter v" << version << " -- Developed by Michele Pinamonti, Loic Valery, Alexander Held, Tomas Dado\033[0m" << std::endl;
+  std::cout << "                    No rights reserved, feel free to use and modify it ;)" << std::endl;
+  
   std::string opt="h";
   std::string config="util/myFit.config";
   std::string options="";
