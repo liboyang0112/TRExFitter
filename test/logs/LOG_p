@@ -3,12 +3,12 @@
                 Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
                 All rights reserved, please read http://roofit.sourceforge.net/license.txt
 
+                    No rights reserved, feel free to use and modify it ;)
 
 Applying ATLAS style settings...
 
 [1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
 [1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m
-[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: jobSchema.config[0m
 === DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
 === DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
@@ -44,6 +44,7 @@ Applying ATLAS style settings...
 === DEBUG::TtHFit::ReadHistos:     Reading sample Signal
 === DEBUG::TtHFit::ReadHistos:       Reading norm SigXsecOverSM
 === DEBUG::TtHFit::ReadHistos:       Reading syst JES
+Drawing post-fit plots...
 [1;32m=== INFO::TtHFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TtHFit::ReadFitResults: Reading fit results from file [0m
 === DEBUG::FitResults::ReadFromTXT: --------------------
