@@ -3,10 +3,17 @@
                 Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
                 All rights reserved, please read http://roofit.sourceforge.net/license.txt
 
+                    No rights reserved, feel free to use and modify it ;)
 
 Applying ATLAS style settings...
 
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
 [1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m
+=== DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
+=== DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
+[1;32m=== INFO::myFit::FitExample: Successfully read config file.[0m
+Extracting limit...
 full list of observables:
 RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
 [#0] ERROR:InputArguments -- RooArgSet::checkForDup: ERROR argument with name nom_alpha_JES is already in this set
@@ -979,6 +986,6 @@ RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] =
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Median:    4.423135[0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Observed:  3.009067[0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
-mkdir: created directory `FitExample/Limits/'
+mkdir: directory `FitExample/Limits/' creata
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Finished with 35 calls to minimize(nll)[0m
-Real time 0:00:01, CP time 1.090
+Real time 0:00:04, CP time 1.990

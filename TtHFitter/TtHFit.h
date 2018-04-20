@@ -67,7 +67,6 @@ public:
     void SetLumi(const float lumi);
     void SetFitType(FitType type);
     void SetLimitType( LimitType type );
-    std::string CheckName( const std::string &name );
     void SetFitRegion(FitRegion region);
     
     Sample* NewSample(std::string name,int type=0);
@@ -97,9 +96,6 @@ public:
     void DrawSystPlots();
     void DrawSystPlotsSumSamples();
 
-    // config file
-    int ReadConfigFile(std::string fileName,std::string options="");
-    
     // read from ..
     void ReadNtuples();
     void ReadHistograms();

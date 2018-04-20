@@ -44,7 +44,7 @@ float FitResults::GetNuisParValue(string p){
         idx = fNuisParIdx[p];
     }
     else{
-        WriteDebugStatus("FitResults::GetNuisParValue", "NP " + p + " not found... Returning 0.");
+        WriteVerboseStatus("FitResults::GetNuisParValue", "NP " + p + " not found... Returning 0.");
         return 0.;
     }
     return fNuisPar[idx]->fFitValue;
@@ -58,7 +58,7 @@ float FitResults::GetNuisParErrUp(string p){
         idx = fNuisParIdx[p];
     }
     else{
-        WriteDebugStatus("FitResults::GetNuisParErrUp", "NP " + p + " not found... Returning error = 1.");
+        WriteVerboseStatus("FitResults::GetNuisParErrUp", "NP " + p + " not found... Returning error = 1.");
         return 1.;
     }
     return fNuisPar[idx]->fPostFitUp;
@@ -72,7 +72,7 @@ float FitResults::GetNuisParErrDown(string p){
         idx = fNuisParIdx[p];
     }
     else{
-        WriteDebugStatus("FitResults::GetNuisParErrDown", "NP " + p + " not found... Returning error = 1.");
+        WriteVerboseStatus("FitResults::GetNuisParErrDown", "NP " + p + " not found... Returning error = 1.");
         return 1.;
     }
     return fNuisPar[idx]->fPostFitDown;
@@ -179,7 +179,7 @@ void FitResults::ReadFromTXT(string fileName){
     //
     int TOTsyst = fNuisParNames.size();
     WriteDebugStatus("FitResults::ReadFromTXT", "Found " + std::to_string(TOTsyst) + " systematics.");
-    if (TOTsyst<=0) WriteWarningStatus("FitResults::ReadFromTXT", "No systematics found in fit result file...");
+    if (TOTsyst<=0) WriteDebugStatus("FitResults::ReadFromTXT", "No systematics found in fit result file. Stat-only fit-results?");
 }
 
 //__________________________________________________________________________________

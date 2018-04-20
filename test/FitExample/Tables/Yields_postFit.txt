@@ -1,5 +1,5 @@
- |       | Signal Region 1 | Signal Region 2 | 
- | Background | 316.462 pm 15.1514 | 312.102 pm 11.8618 | 
- | Signal | 0.00195189 pm 4.88098 | 0.00196054 pm 4.88098 | 
- | Total | 316.464 pm 16.885 | 312.103 pm 12.7153 | 
- | Data 2015 | 319 | 319 | 
+ |       | Signal Region 1 | Signal Region 2 | Validation region | 
+ | Background | 316.462 pm 14.8885 | 312.102 pm 11.8917 | 845.86 pm 44.1317 | 
+ | Signal | 0.00195189 pm 4.69183 | 0.00196054 pm 4.71263 | 0.000243576 pm 0.585492 | 
+ | Total | 316.464 pm 15.5615 | 312.103 pm 12.739 | 845.86 pm 49.2318 | 
+ | Data 2015 | 319 | 319 | 886 | 
