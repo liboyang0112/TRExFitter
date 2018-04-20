@@ -32,9 +32,7 @@ To setup just use the script::
 
 (should work on any machine with access to cvmfs - provided that nothing else is set-up previously)
 
-.. warning:: When calling this script outside the ``TRExFitter`` directory, specify the path to the directory as a command line argument
-
-Example::
+**Important!** When calling this script outside the ``TRExFitter`` directory, specify the path to the directory as a command line argument, example::
 
   source setup.sh path/to/TRExFitter
 
