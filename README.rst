@@ -119,8 +119,9 @@ NB: note the *blank* line between the objects!
 
 Note that each object should have unique <ObjectName>.
 
+At the beginning of TRExFitter execution, the config file used will be checked against a reference file. The reference files for single and multi-fits are ``jobSchema.config`` and ``multiFitSchema.config``, respectively. These files specify which options are allowed per block, and how the arguments should look like.
 
-- Then, for each object type, here is the list of available properties to be specified:
+For each object type (also called "block"), here is the list of available properties:
 
   * Job:
      * Label            : the label which will be shown on plots
@@ -205,6 +206,7 @@ Note that each object should have unique <ObjectName>.
      * DecorrSysts      : comma-separated list of systematics which you want to decorrelate from another channel (this is don by automatically attaching a suffix to the NormFactor for each of them); can use wildcards
      * DecorrSuff       : the suffix to attach when using DecorrSysts
      * RegionGroups     : groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE
+     * ReplacementFile  : allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see dedicated section on this option below
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -532,7 +534,7 @@ The results are in :code:`JobDataDriven`
 
 Replacement file
 -------------------
-You can define placeholders in your config file, which are replaced with values specified in an external file, which is read at the beginning of TRExFitter execution. This requires adding an additional option into your config (can put it anywhere right now, recommended to put it in the Job block)::
+You can define placeholders in your config file, which are replaced with values specified in an external file, which is read at the beginning of TRExFitter execution. This requires adding an additional option into your config, as part of the Job block::
 
   ReplacementFile: path/to/file.txt
 
