@@ -117,11 +117,11 @@ NB: note the *blank* line between the objects!
    * any number of objects of type "Systematic" (even 0 is ok)
    * any number of objects of type "NormFactor" (even 0 is ok)
 
-Note that each object should have unique <ObjectName>.
+- Note that each object should have unique <ObjectName>.
 
-At the beginning of TRExFitter execution, the config file used will be checked against a reference file. The reference files for single and multi-fits are ``jobSchema.config`` and ``multiFitSchema.config``, respectively. These files specify which options are allowed per block, and how the arguments should look like.
+- At the beginning of TRExFitter execution, the config file used will be checked against a reference file. The reference files for single and multi-fits are ``jobSchema.config`` and ``multiFitSchema.config``, respectively. These files specify which options are allowed per block, and how the arguments should look like.
 
-For each object type (also called "block"), here is the list of available properties:
+- For each object type (also called "block"), here is the list of available properties:
 
   * Job:
      * Label            : the label which will be shown on plots
