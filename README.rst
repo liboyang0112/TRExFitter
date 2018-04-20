@@ -352,10 +352,10 @@ Note that each object should have unique <ObjectName>.
      * NtupleNameSufDown   : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic down variation
      * SampleUp            : if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only
      * SampleDown          : if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only
-     * WeightUp            : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic up variation
-     * WeightDown          : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic down variation
-     * WeightSufUp         : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation
-     * WeightSufDown       : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation
+     * WeightUp            : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic up variation (the MCweight applied on the nominal sample is not multiplied with this, only WeightUp will be applied on the systematic sample if this is used)
+     * WeightDown          : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic down variation (the MCweight applied on the nominal sample is not multiplied with this, only WeightDown will be applied on the systematic sample if this is used)
+     * WeightSufUp         : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation (multiplied with the MCWeight acting on the nominal sample)
+     * WeightSufDown       : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation (multiplied with the MCWeight acting on the nominal sample)
      * IgnoreWeight        : only for option NTUP: if set, the corresponding weight (present in Job, Sample or Region) will be ignored for this systematic
      * Symmetrisation      : can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line
      * Smoothing           : smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
