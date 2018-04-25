@@ -207,6 +207,10 @@ NB: note the *blank* line between the objects!
      * DecorrSuff       : the suffix to attach when using DecorrSysts
      * RegionGroups     : groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE
      * ReplacementFile  : allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see dedicated section on this option below
+     * ReduceNPforRanking: scales impact of NPs in ranking plot
+     * Suffix           : added to file names of plots, workspace, fit results etc. (equivalent to command line option)
+     * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
+     * HideNP           : comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -218,6 +222,7 @@ NB: note the *blank* line between the objects!
      * doLHscan         : comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled
      * UseMinos         : comma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs
      * SetRandomInitialNPval : useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits
+     * SetRandomInitialNPvalSeed : seed used to determine initial NP settings in minimization process if SetRandomInitialNPval option is enabled
      * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
      * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
