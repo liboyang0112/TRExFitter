@@ -211,6 +211,9 @@ NB: note the *blank* line between the objects!
      * Suffix           : added to file names of plots, workspace, fit results etc. (equivalent to command line option)
      * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
      * HideNP           : comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix
+     * SummaryPlotLabels : labels to be used per region in summary plot
+     * SummaryPlotValidationRegions : validation regions to be included in validation summary plot (default: all)
+     * SummaryPlotValidationLabels : labels to be used per region in validation region summary plot
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -267,6 +270,9 @@ NB: note the *blank* line between the objects!
      * RatioYminPostFit : if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only
      * DropBins         : allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 0 for the index
      * Group            : if specified, regions of the same group appear together in several places, see RegionGroups option
+     * YaxisTitle       : title of y-axis used for plots of the region
+     * YmaxScale        : scales range of y-axis (default: 2.0)
+     * Ymax             : maximum value on y-axis
 
   * Sample:
      * Type             : can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace
