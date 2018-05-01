@@ -207,6 +207,13 @@ NB: note the *blank* line between the objects!
      * DecorrSuff       : the suffix to attach when using DecorrSysts
      * RegionGroups     : groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE
      * ReplacementFile  : allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see dedicated section on this option below
+     * ReduceNPforRanking: scales impact of NPs in ranking plot
+     * Suffix           : added to file names of plots, workspace, fit results etc. (equivalent to command line option)
+     * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
+     * HideNP           : comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix
+     * SummaryPlotLabels : labels to be used per region in summary plot
+     * SummaryPlotValidationRegions : regions to be included in validation region summary plot (default: all)
+     * SummaryPlotValidationLabels : labels to be used per region in validation region summary plot
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -218,6 +225,7 @@ NB: note the *blank* line between the objects!
      * doLHscan         : comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled
      * UseMinos         : comma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs
      * SetRandomInitialNPval : useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits
+     * SetRandomInitialNPvalSeed : seed used to determine initial NP settings in minimization process if SetRandomInitialNPval option is enabled
      * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
      * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
@@ -262,6 +270,10 @@ NB: note the *blank* line between the objects!
      * RatioYminPostFit : if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only
      * DropBins         : allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 0 for the index
      * Group            : if specified, regions of the same group appear together in several places, see RegionGroups option
+     * YaxisTitle       : title of y-axis used for plots of the region
+     * YmaxScale        : scales range of y-axis (default: 2.0, meaning the maximum axis value is twice the largest yield in any bin)
+     * Ymax             : maximum value on y-axis
+     * SkipSmoothing    : if smoothing of nominal samples is used, this option can be used to disable smoothing per region (default: FALSE)
 
   * Sample:
      * Type             : can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace
@@ -371,6 +383,7 @@ NB: note the *blank* line between the objects!
      * KeepNormForSamples  : list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
      * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
+     * Decorrelate         : decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects)
 
 
 Command line options
