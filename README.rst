@@ -212,7 +212,7 @@ NB: note the *blank* line between the objects!
      * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
      * HideNP           : comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix
      * SummaryPlotLabels : labels to be used per region in summary plot
-     * SummaryPlotValidationRegions : validation regions to be included in validation summary plot (default: all)
+     * SummaryPlotValidationRegions : regions to be included in validation region summary plot (default: all)
      * SummaryPlotValidationLabels : labels to be used per region in validation region summary plot
 
   * Fit:
@@ -271,7 +271,7 @@ NB: note the *blank* line between the objects!
      * DropBins         : allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 0 for the index
      * Group            : if specified, regions of the same group appear together in several places, see RegionGroups option
      * YaxisTitle       : title of y-axis used for plots of the region
-     * YmaxScale        : scales range of y-axis (default: 2.0)
+     * YmaxScale        : scales range of y-axis (default: 2.0, meaning the maximum axis value is twice the largest yield in any bin)
      * Ymax             : maximum value on y-axis
      * SkipSmoothing    : if smoothing of nominal samples is used, this option can be used to disable smoothing per region (default: FALSE)
 
@@ -384,7 +384,6 @@ NB: note the *blank* line between the objects!
      * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
      * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
      * Decorrelate         : decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects)
-     * KeepReferenceOverallVar: (default: TRUE)
 
 
 Command line options
