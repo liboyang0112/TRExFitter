@@ -1,3 +1,9 @@
+2018-05-03 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing bug in ConfigParser that would not check the setting if option
+	were not int/ string or float
+	* Adding Significance block into config and separating settings from
+	limit setting - closes TTHFITTER-185
+
 2018-04-25 Alexander Held <alexander.held@cern.ch>
     * adding a few missing options to the reference config and fixing typos
     * extending readme with missing options

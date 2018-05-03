@@ -300,7 +300,13 @@ public:
     bool fLimitIsBlind;
     double fLimitPOIAsimov;
     bool fSignalInjection;
-    
+   
+    // 
+    // Significance parameters
+    //
+    bool fSignificanceIsBlind;
+    double fSignificancePOIAsimov;
+ 
     bool fCleanTables;
     bool fSystCategoryTables;
     

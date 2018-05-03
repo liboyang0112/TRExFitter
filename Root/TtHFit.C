@@ -151,6 +151,12 @@ TtHFit::TtHFit(string name){
     fLimitPOIAsimov = 0;
     fSignalInjection = false;
 
+    // 
+    // Significance parameters
+    //
+    fSignificanceIsBlind = false;
+    fSignificancePOIAsimov = 0;
+
     fImageFormat = "png";
     TtHFitter::IMAGEFORMAT.clear();
     TtHFitter::IMAGEFORMAT.push_back("png");
@@ -5707,14 +5713,14 @@ void TtHFit::GetSignificance(){
         bool onlyUseRealData = true;
         for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-            if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
+            if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fSignificanceIsBlind){
                 Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
                 regionsForFit.push_back( fRegions[i_ch] -> fName );
                 regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
             }
             regionsForSign.push_back(fRegions[i_ch] -> fName);
-            regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (!hasData || fLimitIsBlind) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
-            if(fLimitIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
+            regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (!hasData || fSignificanceIsBlind) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+            if(fSignificanceIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
                 onlyUseRealData = false;
             }
         }
@@ -5737,7 +5743,7 @@ void TtHFit::GetSignificance(){
         // Create the final asimov dataset for limit setting
         //
         RooWorkspace* ws_forSignificance = PerformWorkspaceCombination( regionsForSign );
-        data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
+        data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fSignificancePOIAsimov : npValues[fPOI] );
 
         //
         // Gets the measurement object in the original combined workspace (created with the "w" command)
