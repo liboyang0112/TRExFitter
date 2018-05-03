@@ -1118,7 +1118,7 @@ int ConfigReader::ReadSignificanceOptions(){
         } else if ( param == "FALSE" ){
             fFitter->fSignificanceIsBlind = false;
         } else {
-            WriteWarningStatus("ConfigReader::ReadSignificanceOptions", "You specified 'LimitBlind' option but didnt provide valid parameter. Using default (false)");
+            WriteWarningStatus("ConfigReader::ReadSignificanceOptions", "You specified 'SignificanceBlind' option but didnt provide valid parameter. Using default (false)");
             fFitter->fSignificanceIsBlind = false;
         }
     }
