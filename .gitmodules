@@ -1,0 +1,3 @@
+[submodule "CommonSystSmoothingTool"]
+	path = CommonSystSmoothingTool
+	url = ssh://git@gitlab.cern.ch:7999/atlas-phys/exot/CommonSystSmoothingTool.git
