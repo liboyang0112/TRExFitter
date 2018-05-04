@@ -1,5 +1,6 @@
 2018-05-04 Alexander Held <alexander.held@cern.ch>
     * removing ReduceNPforRanking option (not in use, and was not working properly either)
+    * fixing default config path in myFit.C
 
 2018-04-25 Alexander Held <alexander.held@cern.ch>
     * adding a few missing options to the reference config and fixing typos
