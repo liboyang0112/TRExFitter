@@ -53,10 +53,8 @@ namespace HistoTools {
         double edge;
         Bin(double _N, double _S, double _dN2, double _dS2, double _edge) { N = _N; S = _S; dN2 = _dN2; dS2 = _dS2; edge = _edge; }
     };
-    bool systFluctuation(std::vector<Bin> &hist, bool independentVar);
     double avgError(std::vector<Bin> &hist, bool independentVar);
     bool systSmallerThanStat(std::vector<Bin> &hist, bool independentVar, double avgError);
-    void Smooth_Ttres(TH1* hsyst,TH1* hnom, bool independentVar);
 
     //Has systematic
     bool HasShape(TH1* nom, SystematicHist* sh, float threshold);

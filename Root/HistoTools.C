@@ -24,6 +24,8 @@
 #include "TtHFitter/SystematicHist.h"
 #include "TtHFitter/StatusLogbook.h"
 
+#include "CommonSystSmoothingTool/SmoothSystematics/SmoothHist.h"
+
 using namespace std;
 
 //_________________________________________________________________________
@@ -152,6 +154,10 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
     // SECOND STEP: SMOOTHING
     //
     //##################################################
+    
+    // Initialize common smoothing tool
+    SmoothHist smoothTool;
+    
     if(hNom->GetNbinsX()==1){
         std::string temp =  hNom->GetName();
         WriteDebugStatus("HistoTools::SmoothHistograms", "In HistoTools::ManageHistograms(): skipping smoothing for systematics on \"" + temp + "\" since just 1 bin.");
@@ -159,17 +165,17 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
     }
     if (TtresSmoothing) {
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-          Smooth_Ttres( modifiedUp,    hNom,   false );
-          Smooth_Ttres( modifiedDown,  hNom,   false );
+            modifiedUp      = smoothTool.Smooth_Ttres(hNom, originUp,   false);
+            modifiedDown    = smoothTool.Smooth_Ttres(hNom, originDown, false);
         } else if( ( histOps - ( histOps % 10 ) ) >= SMOOTH_INDEPENDENT && (histOps - ( histOps % 10 ) ) < UNKNOWN ){
-          Smooth_Ttres( modifiedUp,    hNom,   true );
-          Smooth_Ttres( modifiedDown,  hNom,   true );
+            modifiedUp      = smoothTool.Smooth_Ttres(hNom, originUp,   true);
+            modifiedDown    = smoothTool.Smooth_Ttres(hNom, originDown, true);
         }
     } else {
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-          const int smoothingLevel = (histOps - ( histOps % 10 ) ) / 10;
-          Smooth_maxVariations( modifiedUp,    hNom,   smoothingLevel );
-          Smooth_maxVariations( modifiedDown,  hNom,   smoothingLevel );
+            const int smoothingLevel = (histOps - ( histOps % 10 ) ) / 10;
+            modifiedUp      = smoothTool.Smooth_Ttres(hNom, originUp,   smoothingLevel);
+            modifiedDown    = smoothTool.Smooth_Ttres(hNom, originDown, smoothingLevel);
         }
     }
 }
@@ -351,307 +357,6 @@ bool HistoTools::systSmallerThanStat(std::vector<Bin> &hist, bool independentVar
         }
     }
     return false;
-}
-
-// check if one bin has:
-// | (S(i)-N(i))/N(i) - (S(i-1)-N(i-1))/N(i-1)| <
-// sqrt[ dS(i)^2/N(i)^2 + S(i)^2 dN(i)^2/N(i)^4
-//       - 2 dS(i)/N(i) S(i) dN(i)/N(i)^2
-//       dS(i+1)^2/N(i+1)^2 + S(i+1)^2 dN(i+1)^2/N(i+1)^4
-//       - 2 dS(i+1)/N(i+1) S(i+1) dN(i+1)/N(i+1)^2 ]
-bool HistoTools::systFluctuation(std::vector<Bin> &hist, bool independentVar) {
-    auto dM_indep = [](const Bin &b) { return sqrt(b.dN2 + b.dS2); };
-    auto dM_dep = [](const Bin &b) { return max(sqrt(b.dN2), sqrt(b.dS2)); };
-    auto dM = independentVar?dM_indep:dM_dep;
-    auto dMoverN = [dM](const Bin &b) {
-        double N = b.N;
-        if (N == 0) N = 1e-16;
-        return dM(b)/N;
-    };
-    auto SoverN = [](const Bin &b) {
-        double N = b.N;
-        if (N == 0) N = 1e-16;
-        return (b.S - N)/N;
-    };
-    auto dSoverN2 = [dMoverN](const Bin &b) -> double {
-        double N = b.N;
-        if (N == 0) N = 1e-16;
-        //double r = b.dS2*pow(1.0/N, 2);
-        double r = std::pow(dMoverN(b), 2);
-        if (r < 0) return 0.0;
-        return r;
-    };
-    int Nbins = hist.size();
-    for (int k = 1; k < Nbins; ++k) {
-        double variation_prev = fabs(SoverN(hist[k]) - SoverN(hist[k-1]));
-        double sum_errors = sqrt(dSoverN2(hist[k]) + dSoverN2(hist[k-1]));
-        //double sum_errors = max(sqrt(dSoverN2(hist[k])), sqrt(dSoverN2(hist[k-1])));
-        if (variation_prev < sum_errors) return true;
-    }
-    return false;
-}
-
-//_________________________________________________________________________
-//
-void HistoTools::Smooth_Ttres(TH1* hsyst, TH1* hnom, bool independentVar){
-
-    //
-    // General idea: merge bins with large relative stat. error until systematic variation is larger than stat. error in all bins or only one bin is left
-    //
-    float systIntegral = hsyst->Integral();
-    std::vector<Bin> hist;
-    int Nbins = hnom->GetNbinsX();
-    for (int k = 1; k <= Nbins; ++k) {
-        hist.push_back(Bin(hnom->GetBinContent(k), hsyst->GetBinContent(k), pow(hnom->GetBinError(k), 2), pow(hsyst->GetBinError(k), 2), hnom->GetXaxis()->GetBinLowEdge(k)));
-    }
-    std::string temp1 = hnom->GetName();
-    std::string temp2 = hsyst->GetName();
-    WriteVerboseStatus("HistoTools::Smooth_Ttres", "Smooth_Ttres: nominal and syst. name: " + temp1 + " " + temp2 + ", independent errors? " + std::to_string(independentVar) + ", number of bins: " + std::to_string(Nbins));
-
-    auto dM_indep = [](const Bin &b) { return sqrt(b.dN2 + b.dS2); };
-    auto dM_dep = [](const Bin &b) { return max(sqrt(b.dN2), sqrt(b.dS2)); };
-    auto dM = independentVar?dM_indep:dM_dep;
-    auto dMoverN = [dM](const Bin &b) {
-        double N = b.N;
-        if (N == 0) N = 1e-16;
-        return dM(b)/N;
-    };
-
-
-    for (unsigned int i = 0; i < hist.size(); ++i) {
-        WriteVerboseStatus("HistoTools::Smooth_Ttres", "Smooth_Ttres: pre-smooth bin " + std::to_string(i+1) + ", edge = " + std::to_string(hist[i].edge) + ", dM/N = " + std::to_string(dMoverN(hist[i])) + ", N = " + std::to_string(hist[i].N) + ", S = " + std::to_string(hist[i].S) + ", dN = " + std::to_string(std::sqrt(hist[i].dN2)) + ", dS = " + std::to_string(std::sqrt(hist[i].dS2)));
-    }
-
-    // BEGIN STEP 1 -- DANILO
-    /*
-    double avgErr = avgError(hist, independentVar);
-    // define:
-    // N = nominal
-    // S = systematic uncertainty histogram
-    // delta N = stat. unc. of nominal
-    // delta S = stat. unc. of systematic uncertainty
-    // delta M = max (delta N, delta S) if independentVar = false
-    // delta M = sqrt(delta N^2 + delta S^2) if independentVar = true
-    //
-    // first check if one bin above the error average per bin has |S - N| < delta M and merge largest statistical fluctuations first until all bins have |S - N| > stat error
-    while (systSmallerThanStat(hist, independentVar, avgErr) && (hist.size() > 1)) {
-        // at least one bin has a syst. variation smaller than the stat. error
-        // find bin with largest value of delta M / N and merge it with neighbour
-        std::vector<Bin>::iterator toMergeItr = std::max_element(hist.begin(), hist.end(), [dMoverN](const Bin &b1, const Bin& b2) { return dMoverN(b1) < dMoverN(b2); });
-        if (TtHFitter::DEBUGLEVEL>3)
-          std::cout << "Smooth_Ttres: found bin " << (int) (toMergeItr - hist.begin()) + 1 << " with low edge at " << toMergeItr->edge << " and dM/N = " << dMoverN(*toMergeItr) << std::endl;
-        //if (toMergeItr == hist.end()) break; // ???
-        std::vector<Bin>::iterator toMergeSecond = hist.begin();
-        if (toMergeItr == hist.begin()) { // merge with next
-            if (TtHFitter::DEBUGLEVEL>3)
-               std::cout << "Smooth_Ttres: merge with next, because this is the first bin" << std::endl;
-            toMergeSecond = std::next(toMergeItr);
-        } else if (toMergeItr == hist.end()-1) { // merge with previous
-            if (TtHFitter::DEBUGLEVEL>3)
-               std::cout << "Smooth_Ttres: merge with previous, because this is the last bin" << std::endl;
-            toMergeSecond = std::prev(toMergeItr);
-        } else {
-            if (TtHFitter::DEBUGLEVEL>3)
-                std::cout << "Smooth_Ttres: dM/N previous and next: " << dMoverN(*std::prev(toMergeItr)) << ", " << dMoverN(*std::next(toMergeItr)) << std::endl;
-            if (dMoverN(*std::prev(toMergeItr)) < dMoverN(*std::next(toMergeItr))) {
-                toMergeSecond = std::next(toMergeItr);
-                if (TtHFitter::DEBUGLEVEL>3)
-                   std::cout << "Smooth_Ttres: merge with next" << std::endl;
-            } else {
-                toMergeSecond = std::prev(toMergeItr);
-                if (TtHFitter::DEBUGLEVEL>3)
-                   std::cout << "Smooth_Ttres: merge with previous" << std::endl;
-            }
-        }
-        toMergeItr->N += toMergeSecond->N;
-        toMergeItr->S += toMergeSecond->S;
-        toMergeItr->dN2 += toMergeSecond->dN2;
-        toMergeItr->dS2 += toMergeSecond->dS2;
-        if (toMergeItr->edge > toMergeSecond->edge)
-            toMergeItr->edge = toMergeSecond->edge;
-        hist.erase(toMergeSecond);
-    }
-    // END STEP 1   -- DANILO
-    */
-
-    // merge until all bins satisfy:
-    // | (S(i)-N(i))/N(i) - (S(i-1)-N(i-1))/N(i-1)| >
-    // sqrt[ dS(i)^2/N(i)^2
-    // remove this:      + S(i)^2 dN(i)^2/N(i)^4
-    // remove this:      - 2 dS(i)/N(i) S(i) dN(i)/N(i)^2
-    //       dS(i+1)^2/N(i+1)^2
-    // remove this:      + S(i+1)^2 dN(i+1)^2/N(i+1)^4
-    // remove this:      - 2 dS(i+1)/N(i+1) S(i+1) dN(i+1)/N(i+1)^2 ]
-    // here merge first bins with largest relative difference to the nominal between two bins
-    auto SoverN = [](const Bin &b) {
-        double N = b.N;
-        if (N == 0) N = 1e-16;
-        return (b.S - N)/N;
-    };
-    auto dSoverN2 = [dMoverN](const Bin &b) -> double {
-        double N = b.N;
-        if (N == 0) N = 1e-16;
-        //double r = b.dS2*pow(1.0/N, 2);
-        double r = pow(dMoverN(b), 2);  // DANILO
-        if (r < 0) return 0.0;
-        return r;
-    };
-    while (systFluctuation(hist, independentVar) && (hist.size() > 1)) {
-        // first check if a bin is larger than 100%
-        bool mergedLarge100 = false;
-        for (unsigned int k = 0; k < hist.size(); ++k) {
-            if (fabs(hist[k].S - hist[k].N) >= hist[k].N) {
-                std::vector<Bin>::iterator toMergeItr = hist.begin() + k;
-                std::vector<Bin>::iterator toMergeSecond = std::prev(toMergeItr);
-                if (k == hist.size()-1) toMergeSecond = std::prev(toMergeItr);
-                else if (k == 0) toMergeSecond = std::next(toMergeItr);
-            else {
-                if (sqrt(dSoverN2(*std::prev(toMergeItr))) > sqrt(dSoverN2(*std::next(toMergeItr)))) {
-                    toMergeSecond = std::prev(toMergeItr);
-                } else {
-                    toMergeSecond = std::next(toMergeItr);
-                }
-            }
-            toMergeItr->N += toMergeSecond->N;
-            toMergeItr->S += toMergeSecond->S;
-            toMergeItr->dN2 += toMergeSecond->dN2;
-            toMergeItr->dS2 += toMergeSecond->dS2;
-            if (toMergeItr->edge > toMergeSecond->edge)
-                toMergeItr->edge = toMergeSecond->edge;
-            hist.erase(toMergeSecond);
-            mergedLarge100 = true;
-            break;
-        }
-    }
-    if (mergedLarge100) continue;
-
-        // at least a pair of bins have a difference of relative differences to the nominal larger than the stat error
-        // find the pair of bins with largest error/relative difference
-        std::vector<double> relDiff(hist.size()-1);
-        std::vector<Bin>::iterator it = std::next(hist.begin());
-        std::generate(relDiff.begin(), relDiff.end(), [&it,SoverN,dSoverN2]() -> double {
-             double r = sqrt(dSoverN2(*it) + dSoverN2(*std::prev(it)))/fabs(SoverN(*it) - SoverN(*std::prev(it)));
-             //double r = max(sqrt(dSoverN2(*it)), sqrt(dSoverN2(*std::prev(it))))/fabs(SoverN(*it) - SoverN(*std::prev(it)));
-             it++;
-             return r;
-             });
-
-        std::vector<double>::iterator toMergeRelItr = std::max_element(relDiff.begin(), relDiff.end());
-        int binToMerge = (int) (toMergeRelItr - relDiff.begin()) + 1; // difference always taken between current and previous, so index 0, means merging 0 and 1
-        std::vector<Bin>::iterator toMergeItr = hist.begin() + binToMerge; // get iterator
-        WriteVerboseStatus("HistoTools::Smooth_Ttres", "found bin " + std::to_string( (int) (toMergeItr - hist.begin()) + 1) + " with low edge at " + std::to_string(toMergeItr->edge) + " and dM/N = " + std::to_string(dMoverN(*toMergeItr)));
-        std::vector<Bin>::iterator toMergeSecond = std::prev(toMergeItr); // always merge with previous
-        toMergeItr->N += toMergeSecond->N;
-        toMergeItr->S += toMergeSecond->S;
-        toMergeItr->dN2 += toMergeSecond->dN2;
-        toMergeItr->dS2 += toMergeSecond->dS2;
-        if (toMergeItr->edge > toMergeSecond->edge)
-            toMergeItr->edge = toMergeSecond->edge;
-        hist.erase(toMergeSecond);
-    }
-
-    for (unsigned int i = 0; i < hist.size(); ++i) {
-        WriteVerboseStatus("HistoTools::Smooth_Ttres", "Post-smooth last step bin " + std::to_string(i+1) + ", edge = " + std::to_string(hist[i].edge) + ", dM/N = " + std::to_string(dMoverN(hist[i])) + ", N = " + std::to_string(hist[i].N) + ", S = " + std::to_string(hist[i].S) + ", dN = " + std::to_string(std::sqrt(hist[i].dN2)) + ", dS = " + std::to_string(std::sqrt(hist[i].dS2)));
-    }
-
-    //
-    // Define the array for new bin ranges and a template histogram with this binning
-    //
-    double* Bins;
-    Bins=new double[hist.size()+1];
-    for ( unsigned int i=0; i < hist.size(); i++) {
-        Bins[i]=hist[i].edge;
-    }
-    Bins[hist.size()] = hnom->GetXaxis()->GetBinUpEdge(hnom->GetNbinsX());
-
-    TH1F* hnomBinned = new TH1F("hnomBinned", "", hist.size(), Bins);
-    hnomBinned->Sumw2();
-    TH1F* hsystBinned = new TH1F("hsystBinned", "", hist.size(), Bins);
-    hsystBinned->Sumw2();
-    for (int V = 1; V <= hnomBinned->GetNbinsX(); V++) {
-        hnomBinned->SetBinContent(V, hist[V-1].N);
-        hnomBinned->SetBinError(V, sqrt(hist[V-1].dN2));
-        hsystBinned->SetBinContent(V, hist[V-1].S);
-        hsystBinned->SetBinError(V, sqrt(hist[V-1].dS2));
-    }
-    hsystBinned->Divide(hnomBinned);//now, hsystBinned is the relative systematic uncertainty
-
-    //
-    // Modify the systematic uncertainty histogram based on the "stat reliable" ratio to avoid statistical fluctuations
-    //
-    std::vector<double> err;
-    for(int i=1;i<=hsyst->GetNbinsX();i++){
-        // systematic_new = nominal(with normal binning) * relative_systematic_uncertainty(with new binning)
-        hsyst->SetBinContent(i,hnom->GetBinContent(i)*hsystBinned->GetBinContent(hsystBinned->FindBin( hsyst->GetBinCenter(i))));
-        err.push_back(hsyst->GetBinError(i));
-    }
-
-    delete hnomBinned;
-    delete hsystBinned;
-    delete [] Bins;
-
-    // use TH1::Smooth() to apply 353QH method on |S-N|/N histogram
-    TH1F *ratio = (TH1F *) hsyst->Clone();
-    ratio->Divide(hnom);
-    hsyst->Add(hnom,-1);
-    hsyst->Divide(hnom);
-
-    //First non-empty bin
-    int minbin = 0;
-    for(int i=1; i < ratio->GetNbinsX()+1;i++){
-        if(ratio->GetBinContent(i)!=0){
-            minbin = i;
-            break;
-        }
-    }
-
-    //Last non-empty bin
-    int maxbin = ratio->GetNbinsX();
-    for(int i=maxbin; i>= 1;i--){
-        if(ratio->GetBinContent(i)!=0){
-            maxbin = i;
-            break;
-        }
-    }
-
-    // Smooth only works well for positive entries: shifts all entries by an offset of 100
-    for(int i=1;i<=hsyst->GetNbinsX();i++){
-        hsyst->SetBinContent( i, hsyst->GetBinContent(i) + 100 );
-        //         hsyst->SetBinContent( i, hsyst->GetBinContent(i) + 1000 );
-    }
-
-    // Due to the rebinning, some bins can have the same content. Call the ROOT smooth function to avoid this.
-    int binwidth = getBinWidth(ratio);
-    if(binwidth>1) binwidth=1;
-    hsyst->GetXaxis()->SetRange(minbin,maxbin);
-    if(binwidth<maxbin-minbin){
-        if (independentVar) {
-            hsyst->Smooth(4, "R");
-        } else {
-            hsyst->Smooth(binwidth, "R");
-        }
-    }
-
-    // Removes the 100 offset
-    for(int i=1;i<=hsyst->GetNbinsX();i++){
-        hsyst->SetBinContent( i, hsyst->GetBinContent(i) - 100 );
-        //         hsyst->SetBinContent( i, hsyst->GetBinContent(i) - 1000 );
-    }
-    hsyst->Multiply(hnom);
-    hsyst->Add(hnom);
-
-    if(hsyst->Integral()!=0){
-        hsyst->Scale(systIntegral/hsyst->Integral());
-    }
-    // Checks if any bin with < 0 content exists
-    for(int i=1;i<=hsyst->GetNbinsX();i++){
-        double content = hsyst->GetBinContent( i );
-        hsyst->SetBinError(i, err[i-1]);
-        if(content < 0){
-            hsyst -> SetBinContent(i, 0.);
-        }
-    }
-    delete ratio;
 }
 
 //_________________________________________________________________________
