@@ -287,6 +287,20 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set Smoothing option
+    param = confSet->Get("SmoothingOption");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "MAXVARIATION" ) fFitter->fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
+        else if (param == "TTBARRESONANCE") fFitter->fSmoothOption = HistoTools::SmoothOption::TTBARRESONANCE;
+        else if (param == "COMMONTOOLSMOOTH") fFitter->fSmoothOption = HistoTools::SmoothOption::COMMONTOOLSMOOTH;
+        else if (param == "KERNELFUNCTION") fFitter->fSmoothOption = HistoTools::SmoothOption::KERNELFUNCTION;
+        else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'SmoothingOption' option but you didn't provide valid input. Using default (MAXVARIATION)");
+            fFitter->fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
+        }
+    }
+
     // Set SystPruningShape
     param = confSet->Get("SystPruningShape");
     if( param != "") fFitter->fThresholdSystPruning_Shape = atof(param.c_str());
