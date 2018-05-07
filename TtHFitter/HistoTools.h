@@ -24,11 +24,18 @@ namespace HistoTools {
         UNKNOWN = 1000
     };
 
+    enum SmoothOption {
+        MAXVARIATION = 0,
+        TTBARRESONANCE = 1,
+        COMMONTOOLSMOOTH = 2,
+        KERNELFUNCTION = 3
+    };
+
     TH1F* TranformHistogramBinning(TH1* originalHist);
 
-    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, bool TtresSmoothing = false);
+    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
     void SymmetrizeHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
-    void SmoothHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, bool TtresSmoothing = false);
+    void SmoothHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
 
     //Symmetrisation functions
     TH1F* SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp );

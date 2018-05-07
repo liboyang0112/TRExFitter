@@ -35,6 +35,7 @@ using namespace RooFit;
 //
 TtHFit::TtHFit(string name){
     fTtresSmoothing = false;
+    fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
     fDir = "";
     fName = name;
     fInputName = name;
@@ -358,7 +359,7 @@ void TtHFit::SmoothSystematics(string syst){
 //             if(fRegions[i_ch]->fSampleHists[i_smp]->fSample!=0x0){
 //                 if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::DATA) continue;
 //             }
-            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(syst, false, fTtresSmoothing);
+            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false, fTtresSmoothing);
         }
     }
 }

@@ -16,6 +16,7 @@
 #include "TtHFitter/NormFactor.h"
 #include "TtHFitter/ShapeFactor.h"
 #include "TtHFitter/ConfigParser.h"
+#include "TtHFitter/HistoTools.h"
 
 class RooDataSet;
 class RooWorkspace;
@@ -319,6 +320,8 @@ public:
     int fGetChi2;
 
     bool fTtresSmoothing;
+    
+    HistoTools::SmoothOption fSmoothOption;
     
     bool fSuppressNegativeBinWarnings;
 

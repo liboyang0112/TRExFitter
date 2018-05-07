@@ -66,7 +66,7 @@ TH1F* HistoTools::TranformHistogramBinning(TH1* originalHist){
 //_________________________________________________________________________
 //
 void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, bool TtresSmoothing) {
+                                    TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing) {
     //
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
     //
@@ -85,13 +85,13 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
 
     // if one-sided & symmetrization asked, do smoothing first and symmetrization after
     if( histOps % 10 == SYMMETRIZEONESIDED ){
-        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, TtresSmoothing);
+        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing);
         SymmetrizeHistograms(histOps,hNom,modifiedUp,modifiedDown,modifiedUp,modifiedDown,scaleUp,scaleDown);
     }
     // otherwise, first symmetrization and then smoothing
     else{
         SymmetrizeHistograms(histOps,hNom,originUp,originDown,modifiedUp,modifiedDown,scaleUp,scaleDown);
-        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, TtresSmoothing);
+        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing);
     }
 }
 
@@ -148,7 +148,7 @@ void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, T
 //_________________________________________________________________________
 //
 void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, bool TtresSmoothing){
+                                    TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing){
     //##################################################
     //
     // SECOND STEP: SMOOTHING
@@ -163,7 +163,7 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
         WriteDebugStatus("HistoTools::SmoothHistograms", "In HistoTools::ManageHistograms(): skipping smoothing for systematics on \"" + temp + "\" since just 1 bin.");
         return;
     }
-    if (TtresSmoothing) {
+    if (TtresSmoothing || smoothOpt == TTBARRESONANCE) {
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
             modifiedUp      = smoothTool.Smooth_Ttres(hNom, originUp,   false);
             modifiedDown    = smoothTool.Smooth_Ttres(hNom, originDown, false);
@@ -171,12 +171,43 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
             modifiedUp      = smoothTool.Smooth_Ttres(hNom, originUp,   true);
             modifiedDown    = smoothTool.Smooth_Ttres(hNom, originDown, true);
         }
-    } else {
+    } else if (smoothOpt == MAXVARIATION){
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
             const int smoothingLevel = (histOps - ( histOps % 10 ) ) / 10;
-            modifiedUp      = smoothTool.Smooth_Ttres(hNom, originUp,   smoothingLevel);
-            modifiedDown    = smoothTool.Smooth_Ttres(hNom, originDown, smoothingLevel);
+            Smooth_maxVariations( modifiedUp,    hNom,   smoothingLevel );
+            Smooth_maxVariations( modifiedDown,  hNom,   smoothingLevel );
         }
+    } else if (smoothOpt == COMMONTOOLSMOOTH){
+        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
+            modifiedUp      = smoothTool.smoothHistogram(hNom, originUp, true);
+            modifiedDown    = smoothTool.smoothHistogram(hNom, originDown, true);
+        }
+    } else if (smoothOpt == KERNELFUNCTION){
+        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
+
+            // choose kernel option
+            smoothTool.setKernelOption("box");
+    
+            // choose smoothing - ratio or difference
+            smoothTool.setSmoothType("ratio"); // or delta
+
+            // Set list of kernel radii
+            //smoothTool.setSpans({0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8,
+            //                     1.0, 1.2, 1.4, 1.6, 1.8, 2.0
+            //                    });
+            
+            /*In the default span list, maximum span is 2.
+             * If you bin width is larger then 2, you should call this fuction.
+             * */
+            smoothTool.useRalativeSpans(false);
+
+            modifiedUp      = smoothTool.smoothWithKernel(hNom, originUp);
+            modifiedDown    = smoothTool.smoothWithKernel(hNom, originDown);
+        }
+    } else {
+        WriteWarningStatus("HistoTools::SmoothHistograms", "Unknown smoothing option. Please check the config file.");
+        WriteWarningStatus("HistoTools::SmoothHistograms", "No smoothing will be applied.");
+        return; 
     }
 }
 
@@ -902,3 +933,4 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
     }
     return isGood;
 }
+
