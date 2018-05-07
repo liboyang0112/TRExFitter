@@ -2,6 +2,7 @@
 #define HISTOTOOLS_H
 
 #include <vector>
+#include <string>
 
 //foward declarations
 class TH1;
@@ -33,9 +34,9 @@ namespace HistoTools {
 
     TH1F* TranformHistogramBinning(TH1* originalHist);
 
-    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
+    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false, std::string kernelOpt = "box", std::string kernelSmoothType = "ratio");
     void SymmetrizeHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
-    void SmoothHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
+    void SmoothHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false, std::string kernelOpt = "box", std::string kernelSmoothType = "ratio");
 
     //Symmetrisation functions
     TH1F* SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp );
@@ -68,5 +69,7 @@ namespace HistoTools {
 
     //Histograms checker
     bool CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNull = true, bool causeCrash = false);
+
+    int GetMaxBinWidth(TH1* hist);
 }
 #endif

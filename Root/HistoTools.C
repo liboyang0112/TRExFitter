@@ -66,7 +66,7 @@ TH1F* HistoTools::TranformHistogramBinning(TH1* originalHist){
 //_________________________________________________________________________
 //
 void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing) {
+                                    TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing, std::string kernelOpt, std::string kernelSmoothType) {
     //
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
     //
@@ -85,13 +85,13 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
 
     // if one-sided & symmetrization asked, do smoothing first and symmetrization after
     if( histOps % 10 == SYMMETRIZEONESIDED ){
-        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing);
+        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing, kernelOpt, kernelSmoothType);
         SymmetrizeHistograms(histOps,hNom,modifiedUp,modifiedDown,modifiedUp,modifiedDown,scaleUp,scaleDown);
     }
     // otherwise, first symmetrization and then smoothing
     else{
         SymmetrizeHistograms(histOps,hNom,originUp,originDown,modifiedUp,modifiedDown,scaleUp,scaleDown);
-        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing);
+        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing, kernelOpt, kernelSmoothType);
     }
 }
 
@@ -148,7 +148,7 @@ void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, T
 //_________________________________________________________________________
 //
 void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing){
+                                    TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing, std::string kernelOpt, std::string kernelSmoothType){
     //##################################################
     //
     // SECOND STEP: SMOOTHING
@@ -186,10 +186,10 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
 
             // choose kernel option
-            smoothTool.setKernelOption("box");
+            smoothTool.setKernelOption(kernelOpt);
     
             // choose smoothing - ratio or difference
-            smoothTool.setSmoothType("ratio"); // or delta
+            smoothTool.setSmoothType(kernelSmoothType); // or delta
 
             // Set list of kernel radii
             //smoothTool.setSpans({0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8,
@@ -199,7 +199,11 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
             /*In the default span list, maximum span is 2.
              * If you bin width is larger then 2, you should call this fuction.
              * */
-            smoothTool.useRalativeSpans(false);
+            if (GetMaxBinWidth(hNom) > 2 ){
+                smoothTool.useRalativeSpans(true);
+            } else {
+                smoothTool.useRalativeSpans(false);
+            }
 
             modifiedUp      = smoothTool.smoothWithKernel(hNom, originUp);
             modifiedDown    = smoothTool.smoothWithKernel(hNom, originDown);
@@ -934,3 +938,15 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
     return isGood;
 }
 
+//_________________________________________________________________________
+//
+int HistoTools::GetMaxBinWidth(TH1* hist){
+    float max = -999;
+
+    for (int ibin = 1; ibin <= hist->GetNbinsX(); ibin++){
+        float width = hist->GetBinWidth(ibin);
+        if (max < width) max = width;
+    }
+
+    return max;
+}

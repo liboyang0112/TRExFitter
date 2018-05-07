@@ -36,6 +36,8 @@ using namespace RooFit;
 TtHFit::TtHFit(string name){
     fTtresSmoothing = false;
     fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
+    fKernelOpt = "box";
+    fKernelSmoothType = "ratio";
     fDir = "";
     fName = name;
     fInputName = name;
@@ -359,7 +361,7 @@ void TtHFit::SmoothSystematics(string syst){
 //             if(fRegions[i_ch]->fSampleHists[i_smp]->fSample!=0x0){
 //                 if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::DATA) continue;
 //             }
-            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false, fTtresSmoothing);
+            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false, fTtresSmoothing, fKernelOpt, fKernelSmoothType);
         }
     }
 }
@@ -1400,10 +1402,10 @@ void TtHFit::CorrectHistograms(){
                 h_correction = (TH1*)h->Clone( Form("%s_corr",h->GetName()) );
                 TH1* h0 = (TH1*)h->Clone( Form("%s_orig0",h->GetName()) );
                 if (fTtresSmoothing) {
-                  isFlat = false;
-                  SmoothHistogramTtres( h );
+                    isFlat = false;
+                    SmoothHistogramTtres( h );
                 } else {
-                isFlat = SmoothHistogram( h );
+                    isFlat = SmoothHistogram( h );
                 }
                 h_correction->Divide( h0 );
             }

@@ -192,6 +192,8 @@ NB: note the *blank* line between the objects!
      * GetChi2          : if set to TRUE (or STAT+SYST), for pre- and post-fit plots the extended chi2 test is done, and results are printed on the screen for each plot when running d and/or p; can be set to STAT (or STAT-ONLY) for stat-only chi2
      * TtresSmoothing   : if set to TRUE, the systematic uncertainty smoothing will use the ttbar resonances convention for the smoothing. The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal or 400 to treat it as uncorrelated with the nominal.
      * SmoothingOption  : Choose which smoothing option to use, allowed parameters are: MAXVARIATION (default), TTBARRESONANCE, COMMONTOOLSMOOTH or KERNELFUNCTION.
+     * KernelSmoothingOption  : Only for KERNELFUNCTION smoothing. Choose which smoothing option to use, allowed parameters are: BOX (default) or NORMAL.
+     * KernelSmoothingType  : Only for KERNELFUNCTION smoothing. Choose which smoothing type to use, allowed parameters are: RATIO (default) or DELTA.
      * UseGammaPulls    : if set to TRUE, the fit results in terms of gamma parameter pulls, constraints and correlations are propagated to the post-fit plots, when possible (i.e. not for validation plots of course)
      * GuessMCStatEmptyBins: if set to FALSE, for empty (or negative) bins, the fitter will assume that the stat uncertainty is equal to its content (i.e. both set to 1e-06). If set to TRUE (default), the MC stat uncertainty is taken from the last non-empty bin.
      * MergeUnderOverFlow : if set to TRUE, the underflow content of each histogram is added to the first bin and the overflow to the last one (default is FALSE for HIST inputs and TRUE for NTUP inputs)
