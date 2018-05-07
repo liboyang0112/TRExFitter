@@ -11,6 +11,10 @@ stages:
    - draw
    - cleanup
 
+## Checkout the submodule 
+variables:
+   GIT_SUBMODULE_STRATEGY: recursive
+
 ##
 ## Common setup for all jobs
 ##
