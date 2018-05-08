@@ -2,6 +2,7 @@
 #define HISTOTOOLS_H
 
 #include <vector>
+#include <string>
 
 //foward declarations
 class TH1;
@@ -24,11 +25,18 @@ namespace HistoTools {
         UNKNOWN = 1000
     };
 
+    enum SmoothOption {
+        MAXVARIATION = 0,
+        TTBARRESONANCE = 1,
+        COMMONTOOLSMOOTH = 2,
+        KERNELFUNCTION = 3
+    };
+
     TH1F* TranformHistogramBinning(TH1* originalHist);
 
-    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, bool TtresSmoothing = false);
+    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false, std::string kernelOpt = "box", std::string kernelSmoothType = "ratio");
     void SymmetrizeHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
-    void SmoothHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, bool TtresSmoothing = false);
+    void SmoothHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false, std::string kernelOpt = "box", std::string kernelSmoothType = "ratio");
 
     //Symmetrisation functions
     TH1F* SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp );
@@ -53,15 +61,15 @@ namespace HistoTools {
         double edge;
         Bin(double _N, double _S, double _dN2, double _dS2, double _edge) { N = _N; S = _S; dN2 = _dN2; dS2 = _dS2; edge = _edge; }
     };
-    bool systFluctuation(std::vector<Bin> &hist, bool independentVar);
     double avgError(std::vector<Bin> &hist, bool independentVar);
     bool systSmallerThanStat(std::vector<Bin> &hist, bool independentVar, double avgError);
-    void Smooth_Ttres(TH1* hsyst,TH1* hnom, bool independentVar);
 
     //Has systematic
     bool HasShape(TH1* nom, SystematicHist* sh, float threshold);
 
     //Histograms checker
     bool CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNull = true, bool causeCrash = false);
+
+    int GetMaxBinWidth(TH1* hist);
 }
 #endif

@@ -287,6 +287,52 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set Smoothing option
+    param = confSet->Get("SmoothingOption");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "MAXVARIATION" ) fFitter->fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
+        else if (param == "TTBARRESONANCE") fFitter->fSmoothOption = HistoTools::SmoothOption::TTBARRESONANCE;
+        else if (param == "COMMONTOOLSMOOTH") fFitter->fSmoothOption = HistoTools::SmoothOption::COMMONTOOLSMOOTH;
+        else if (param == "KERNELFUNCTION") fFitter->fSmoothOption = HistoTools::SmoothOption::KERNELFUNCTION;
+        else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'SmoothingOption' option but you didn't provide valid input. Using default (MAXVARIATION)");
+            fFitter->fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
+        }
+    }
+
+    // Set Smoothing option for Kernel
+    param = confSet->Get("KernelSmoothingOption");
+    if (param != ""){
+        if (fFitter->fSmoothOption == HistoTools::SmoothOption::KERNELFUNCTION){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if (param == "BOX") fFitter->fKernelOpt = "box";
+            else if (param == "NORMAL") fFitter->fKernelOpt = "normal";
+            else {
+                WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'KernelSmoothingOption' option but you didn't provide valid setting! Using default (BOX).");
+                fFitter->fKernelOpt = "box";
+            }
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'KernelSmoothingOption' option but you didn't set smoothing option to 'KERNELFUNCTION' Ignoring.");
+        }
+    }
+
+    // Set Smoothing option for Kernel
+    param = confSet->Get("KernelSmoothingType");
+    if (param != ""){
+        if (fFitter->fSmoothOption == HistoTools::SmoothOption::KERNELFUNCTION){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if (param == "RATIO") fFitter->fKernelOpt = "ratio";
+            else if (param == "DELTA") fFitter->fKernelOpt = "delta";
+            else {
+                WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'KernelSmoothingType' option but you didn't provide valid setting! Using default (RATIO).");
+                fFitter->fKernelOpt = "ratio";
+            }
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'KernelSmoothingType' option but you didn't set smoothing option to 'KERNELFUNCTION' Ignoring.");
+        }
+    }
+
     // Set SystPruningShape
     param = confSet->Get("SystPruningShape");
     if( param != "") fFitter->fThresholdSystPruning_Shape = atof(param.c_str());
