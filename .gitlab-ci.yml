@@ -13,7 +13,7 @@ stages:
 
 ## Checkout the submodule 
 variables:
-   GIT_SUBMODULE_STRATEGY: recursive
+   GIT_SUBMODULE_STRATEGY: normal
 
 ##
 ## Common setup for all jobs
