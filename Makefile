@@ -1,4 +1,5 @@
 COMMONSYSTSMOOTHINGTOOLDIR =./CommonSystSmoothingTool
+COMMONSTATTOOLS = ./CommonStatTools
 
 ROOTCFLAGS = $(shell root-config --cflags)
 ROOTLIB    = $(shell root-config --libs) -lMinuit
@@ -13,6 +14,7 @@ CXXFLAGSSMOOTH  += $(shell root-config --cflags) -Wall -pedantic
 
 LDFLAGS    = $(ROOTLIB)
 LDFLAGS   += -lHistFactory -lRooStats -lRooFit -lRooFitCore
+LDFLAGS   += -L${COMMONSTATTOOLS}/build -lExoStats
 
 SOURCE := util/myFit.C
 SOURCE += $(wildcard Root/*.C)
@@ -23,6 +25,7 @@ SOURCESMOOTH := $(wildcard ${COMMONSYSTSMOOTHINGTOOLDIR}/Root/*.cxx)
 OBJS := $(SOURCE:.C=.o)
 
 OBJSSMOOTH := $(SOURCESMOOTH:.cxx=.o)
+
 
 %.o: %.C
 	g++ -c $(CXXFLAGS) -o $@ $<
