@@ -25,6 +25,10 @@ then
 else
   export PATH=$PATH:`pwd`
   # to be able to point to the confg schema
-  export TREXFITTER_HOME=`pwd`  
+  export TREXFITTER_HOME=`pwd`
 fi
 
+if [ ! -f $TREXFITTER_HOME/logo.txt ]; then
+  echo -e "\033[1;31mWARNING:\033[0m \$TREXFITTER_HOME environmental variable not set properly"
+  echo -e "\033[1;31mWARNING:\033[0m call this script with the path to the TRExFitter directory as an additional argument"
+fi

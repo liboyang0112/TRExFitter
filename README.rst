@@ -32,6 +32,12 @@ To setup just use the script::
 
 (should work on any machine with access to cvmfs - provided that nothing else is set-up previously)
 
+**Important!** When calling this script outside the ``TRExFitter`` directory, specify the path to the directory as a command line argument, example::
+
+  source setup.sh path/to/TRExFitter
+
+This will ensure that the ``$TREXFITTER_HOME`` environment variable is properly set, which is used by the code to locate e.g. a config template used for syntax checks.
+
 To compile::
 
   make
@@ -111,10 +117,11 @@ NB: note the *blank* line between the objects!
    * any number of objects of type "Systematic" (even 0 is ok)
    * any number of objects of type "NormFactor" (even 0 is ok)
 
-Note that each object should have unique <ObjectName>.
+- Note that each object should have unique <ObjectName>.
 
+- At the beginning of TRExFitter execution, the config file used will be checked against a reference file. The reference files for single and multi-fits are ``jobSchema.config`` and ``multiFitSchema.config``, respectively. These files specify which options are allowed per block, and how the arguments should look like.
 
-- Then, for each object type, here is the list of available properties to be specified:
+- For each object type (also called "block"), here is the list of available properties:
 
   * Job:
      * Label            : the label which will be shown on plots
@@ -199,6 +206,13 @@ Note that each object should have unique <ObjectName>.
      * DecorrSysts      : comma-separated list of systematics which you want to decorrelate from another channel (this is don by automatically attaching a suffix to the NormFactor for each of them); can use wildcards
      * DecorrSuff       : the suffix to attach when using DecorrSysts
      * RegionGroups     : groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE
+     * ReplacementFile  : allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see dedicated section on this option below
+     * Suffix           : added to file names of plots, workspace, fit results etc. (equivalent to command line option)
+     * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
+     * HideNP           : comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix
+     * SummaryPlotLabels : labels to be used per region in summary plot
+     * SummaryPlotValidationRegions : regions to be included in validation region summary plot (default: all)
+     * SummaryPlotValidationLabels : labels to be used per region in validation region summary plot
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -210,6 +224,7 @@ Note that each object should have unique <ObjectName>.
      * doLHscan         : comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled
      * UseMinos         : comma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs
      * SetRandomInitialNPval : useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits
+     * SetRandomInitialNPvalSeed : seed used to determine initial NP settings in minimization process if SetRandomInitialNPval option is enabled
      * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
      * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
@@ -254,6 +269,10 @@ Note that each object should have unique <ObjectName>.
      * RatioYminPostFit : if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only
      * DropBins         : allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 0 for the index
      * Group            : if specified, regions of the same group appear together in several places, see RegionGroups option
+     * YaxisTitle       : title of y-axis used for plots of the region
+     * YmaxScale        : scales range of y-axis (default: 2.0, meaning the maximum axis value is twice the largest yield in any bin)
+     * Ymax             : maximum value on y-axis
+     * SkipSmoothing    : if smoothing of nominal samples is used, this option can be used to disable smoothing per region (default: FALSE)
 
   * Sample:
      * Type             : can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace
@@ -346,10 +365,10 @@ Note that each object should have unique <ObjectName>.
      * NtupleNameSufDown   : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic down variation
      * SampleUp            : if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only
      * SampleDown          : if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only
-     * WeightUp            : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic up variation
-     * WeightDown          : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic down variation
-     * WeightSufUp         : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation
-     * WeightSufDown       : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation
+     * WeightUp            : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic up variation (the MCweight applied on the nominal sample is not multiplied with this, only WeightUp will be applied on the systematic sample if this is used)
+     * WeightDown          : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic down variation (the MCweight applied on the nominal sample is not multiplied with this, only WeightDown will be applied on the systematic sample if this is used)
+     * WeightSufUp         : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation (multiplied with the MCWeight acting on the nominal sample)
+     * WeightSufDown       : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation (multiplied with the MCWeight acting on the nominal sample)
      * IgnoreWeight        : only for option NTUP: if set, the corresponding weight (present in Job, Sample or Region) will be ignored for this systematic
      * Symmetrisation      : can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line
      * Smoothing           : smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
@@ -363,6 +382,7 @@ Note that each object should have unique <ObjectName>.
      * KeepNormForSamples  : list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
      * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
+     * Decorrelate         : decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects)
 
 
 Command line options
@@ -526,7 +546,7 @@ The results are in :code:`JobDataDriven`
 
 Replacement file
 -------------------
-You can define placeholders in your config file, which are replaced with values specified in an external file, which is read at the beginning of TRExFitter execution. This requires adding an additional option into your config (can put it anywhere right now, recommended to put it in the Job block)::
+You can define placeholders in your config file, which are replaced with values specified in an external file, which is read at the beginning of TRExFitter execution. This requires adding an additional option into your config, as part of the Job block::
 
   ReplacementFile: path/to/file.txt
 

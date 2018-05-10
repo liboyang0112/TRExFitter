@@ -1,3 +1,11 @@
+2018-05-04 Alexander Held <alexander.held@cern.ch>
+    * removing ReduceNPforRanking option (not in use, and was not working properly either)
+    * fixing default config path in myFit.C
+
+2018-04-25 Alexander Held <alexander.held@cern.ch>
+    * adding a few missing options to the reference config and fixing typos
+    * extending readme with missing options
+
 2018-04-16 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Added few missing options to jobSchema (DoSignalRegionsPlot and SeparateGammas)
     * Fixed issue of info messages printed if debug = 0 before config reading (function added to ConfigParser and called at top of myFit)

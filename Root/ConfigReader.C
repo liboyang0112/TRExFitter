@@ -396,12 +396,6 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fRankingMaxNP = atoi(param.c_str());
     }
 
-    // Set ReduceNPforRanking
-    param = confSet->Get("ReduceNPforRanking");
-    if( param != ""){
-        fFitter->fReduceNPforRanking = atof(param.c_str());
-    }
-
     // Set ImageFormat
     param = confSet->Get("ImageFormat");
     if( param != ""){

@@ -362,7 +362,7 @@ int main(int argc, char **argv){
   std::cout << "                    No rights reserved, feel free to use and modify it ;)" << std::endl;
   
   std::string opt="h";
-  std::string config="util/myFit.config";
+  std::string config="config/myFit.config";
   std::string options="";
   
   if(argc>1) opt     = argv[1];
