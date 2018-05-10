@@ -207,7 +207,6 @@ NB: note the *blank* line between the objects!
      * DecorrSuff       : the suffix to attach when using DecorrSysts
      * RegionGroups     : groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE
      * ReplacementFile  : allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see dedicated section on this option below
-     * ReduceNPforRanking: scales impact of NPs in ranking plot
      * Suffix           : added to file names of plots, workspace, fit results etc. (equivalent to command line option)
      * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
      * HideNP           : comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix

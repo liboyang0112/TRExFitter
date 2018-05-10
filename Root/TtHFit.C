@@ -93,7 +93,6 @@ TtHFit::TtHFit(string name){
     fBlindingThreshold = -1;
 
     fRankingMaxNP = 10;
-    fReduceNPforRanking = 0.;
     fRankingOnly = "all";
     fRankingPlot = "Merge";
     fAtlasLabel = "Internal";
@@ -6211,10 +6210,6 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             fitTool -> FitPDF( mc, simPdf, data );
             //
             muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
-            if(fReduceNPforRanking!=0){
-                muVarNomUp[ nuisPars[i] ]   = muhat + (muVarNomUp[ nuisPars[i] ]   - muhat)/fReduceNPforRanking;
-                muVarNomDown[ nuisPars[i] ] = muhat + (muVarNomDown[ nuisPars[i] ] - muhat)/fReduceNPforRanking;
-            }
         }
         dMuUp   = muVarNomUp[nuisPars[i]]-muhat;
         dMuDown = muVarNomDown[nuisPars[i]]-muhat;
