@@ -207,8 +207,8 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 === DEBUG::TtHFit::DumpData:        - Region: SR_2       DataType: 0
 === DEBUG::TtHFit::DumpData:     * No NP values injected 
 === DEBUG::TtHFit::DumpData:     * POI value: 0.000000
-[1;32m=== INFO::TtHFIt::DumpData: Activating binned likelihood attribute for SR_1_model[0m
-[1;32m=== INFO::TtHFIt::DumpData: Activating binned likelihood attribute for SR_2_model[0m
+=== DEBUG::TtHFit::DumpData: Activating binned likelihood attribute for SR_1_model
+=== DEBUG::TtHFit::DumpData: Activating binned likelihood attribute for SR_2_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
 === DEBUG::RunAsymptoticsCLs::RunAsymptoticsCLs: get min and max of firstPOI
@@ -986,6 +986,5 @@ RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] =
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Median:    4.423135[0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Observed:  3.009067[0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
-mkdir: directory `FitExample/Limits/' creata
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Finished with 35 calls to minimize(nll)[0m
-Real time 0:00:04, CP time 1.990
+Real time 0:00:01, CP time 1.090
