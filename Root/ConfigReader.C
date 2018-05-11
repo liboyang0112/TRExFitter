@@ -619,6 +619,21 @@ int ConfigReader::ReadJobOptions(){
     if( param != ""){
         fFitter->fDecorrSysts = Vectorize(param,',');
     }
+    
+    // Set SmoothMorphingTemplates
+    param = confSet->Get("SmoothMorphingTemplates");
+    if ( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE"){
+            fFitter->fSmoothMorphingTemplates = true;
+        }
+        else if (param == "FALSE"){
+            fFitter->fSmoothMorphingTemplates = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified SmoothMorphingTemplates option but didnt provide valid parameter. Using default (false)");
+            fFitter->fSmoothMorphingTemplates = false;
+        }
+    }
 
     // success
     return 0;
@@ -1021,6 +1036,26 @@ int ConfigReader::ReadFitOptions(){
             WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'GetGoodnessOfFit' option but didnt provide valid parameter. Using default (false)");
             fFitter->fGetGoodnessOfFit = false;
         }
+    }
+    
+    // Set fDoNonProfileFit
+    param = confSet->Get("DoNonProfileFit");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fDoNonProfileFit = true;
+        } else if (param == "FALSE"){
+            fFitter->fDoNonProfileFit = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'DoNonProfileFit' option but didnt provide valid parameter. Using default (false)");
+            fFitter->fDoNonProfileFit = false;
+        }
+    }
+
+    // Set FitToys
+    param = confSet->Get("FitToys");
+    if( param != "" ){
+        fFitter->fFitToys = std::atoi( param.c_str());
     }
 
     return 0;
@@ -1725,6 +1760,13 @@ int ConfigReader::ReadSampleOptions(){
                 sample->fIgnoreSelection = "FALSE";
             }
         }
+        
+        // Set IgnoreWeights
+        // to skip global & region weights for this sample
+        param = confSet->Get("IgnoreWeight");
+        if(param!=""){
+            sample->fIgnoreWeight = param;
+        }
 
         // Set UseMCstat
         // to skip MC stat uncertainty for this sample
@@ -1859,7 +1901,7 @@ int ConfigReader::ReadSampleOptions(){
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "Morphing requires exactly 2 parameters, but " + std::to_string(morph_par.size()) + " provided");
                 return 1;
             }
-            fFitter->fRunMorphing = true;
+//             fFitter->fRunMorphing = true;
             std::string name      = morph_par.at(0);
             float value = std::stof(morph_par.at(1));
             WriteDebugStatus("ConfigReader::ReadSampleOptions", "Morphing: Adding " + name + ", with value: " + std::to_string(value));
@@ -1870,8 +1912,9 @@ int ConfigReader::ReadSampleOptions(){
             fFitter->fNormFactors.push_back( nf );
             fFitter->fNormFactorNames.push_back( nf->fName );
             fFitter->fNNorm++;
-
-            sample->fIsMorph = true;
+            sample->fIsMorph[name] = true;
+            sample->fMorphValue[name] = value;
+            if(FindInStringVector(fFitter->fMorphParams,name)<0) fFitter->fMorphParams.push_back( name );
         }
 
     }
@@ -2883,7 +2926,8 @@ int ConfigReader::PostConfig(){
     }
 
     // morphing
-    if (fFitter->fRunMorphing){
+//     if (fFitter->fRunMorphing){
+    if (fFitter->fMorphParams.size()!=0){
         // template fitting stuff
         fFitter->fTemplateWeightVec = fFitter->GetTemplateWeightVec(fFitter->fTemplateInterpolationOption);
         for(const TtHFit::TemplateWeight& itemp : fFitter->fTemplateWeightVec){

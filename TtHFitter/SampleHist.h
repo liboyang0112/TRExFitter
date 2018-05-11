@@ -66,8 +66,7 @@ public:
     std::string fHistoName;
     bool fIsData;
     bool fIsSig;
-    bool fIsMorph;
-
+    std::map<std::string,bool> fIsMorph;
 
     int fNSyst;
     std::vector < SystematicHist* > fSyst;

@@ -1,3 +1,9 @@
+2018-05-11 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Added morphing template smoothing
+    * Added toys to compare with stat. uncertainty from the fit (tested just for stat uncertainty on Asimov)
+    * Added functionality for non-profile fit (stat-only fits on Asimoc with syst variations one at a time)
+    * Various fixes
+    
 2018-05-04 Alexander Held <alexander.held@cern.ch>
     * removing ReduceNPforRanking option (not in use, and was not working properly either)
     * fixing default config path in myFit.C

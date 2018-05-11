@@ -75,6 +75,7 @@ public:
     void SetVariable(std::string variable,int nbin,float xmin,float xmax,std::string corrVar1="",std::string corrVar2="");
     void SetAlternativeVariable(std::string variable,std::string sample);
     bool UseAlternativeVariable(std::string sample);
+    std::string GetAlternativeVariable(std::string sample);
 
     void SetHistoName(std::string name); // name of the histogram to read (the same for each sample)
     void AddSystematic(Systematic *syst);

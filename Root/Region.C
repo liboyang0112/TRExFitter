@@ -392,7 +392,7 @@ void Region::BuildPreFitErrorHist(){
                     }
                     else {
                         scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
-                    }
+                }
                 }
                 //
                 // skip data
@@ -1419,7 +1419,6 @@ void Region::SetAlternativeVariable(string variable,string sample){
     fAlternativeVariables[sample] = variable;
 }
 
-
 //__________________________________________________________________________________
 //
 bool Region::UseAlternativeVariable(string sample){
@@ -1427,6 +1426,20 @@ bool Region::UseAlternativeVariable(string sample){
         return false;
     else
         return true;
+}
+
+//__________________________________________________________________________________
+//
+std::string Region::GetAlternativeVariable(string sample){
+    std::vector<std::string> tmpVec;
+    std::vector<std::string> tmpVec2;
+    for(auto tmp : fAlternativeVariables){
+        tmpVec.push_back(tmp.first);
+        tmpVec2.push_back(tmp.second);
+    }
+    int idx = FindInStringVector(tmpVec,sample);
+    if(idx<0) return "";
+    else return tmpVec2[idx];
 }
 
 //__________________________________________________________________________________

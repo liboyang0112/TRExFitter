@@ -29,7 +29,7 @@ SampleHist::SampleHist(){
     fRegionLabel = "Region";
     fVariableTitle = "Variable";
     fSystSmoothed = false;
-    fIsMorph = false;
+    fIsMorph.clear();
     //
     fSyst.clear();
 }
