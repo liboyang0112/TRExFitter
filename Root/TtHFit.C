@@ -193,7 +193,6 @@ TtHFit::TtHFit(string name){
     fCustomFunctions.clear();
     fSuppressNegativeBinWarnings = false;
 
-//     fRunMorphing = false;
     fMorphParams.clear();
     fTemplateInterpolationOption = TtHFit::LINEAR;
     

@@ -1038,7 +1038,7 @@ int ConfigReader::ReadFitOptions(){
         }
     }
     
-    // Set fDoNonProfileFit
+    // Set DoNonProfileFit
     param = confSet->Get("DoNonProfileFit");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -1901,7 +1901,6 @@ int ConfigReader::ReadSampleOptions(){
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "Morphing requires exactly 2 parameters, but " + std::to_string(morph_par.size()) + " provided");
                 return 1;
             }
-//             fFitter->fRunMorphing = true;
             std::string name      = morph_par.at(0);
             float value = std::stof(morph_par.at(1));
             WriteDebugStatus("ConfigReader::ReadSampleOptions", "Morphing: Adding " + name + ", with value: " + std::to_string(value));
@@ -2926,7 +2925,6 @@ int ConfigReader::PostConfig(){
     }
 
     // morphing
-//     if (fFitter->fRunMorphing){
     if (fFitter->fMorphParams.size()!=0){
         // template fitting stuff
         fFitter->fTemplateWeightVec = fFitter->GetTemplateWeightVec(fFitter->fTemplateInterpolationOption);
