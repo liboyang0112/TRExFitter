@@ -69,7 +69,5 @@ namespace HistoTools {
 
     //Histograms checker
     bool CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNull = true, bool causeCrash = false);
-
-    int GetMaxBinWidth(TH1* hist);
 }
 #endif

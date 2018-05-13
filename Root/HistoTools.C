@@ -173,9 +173,11 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
         }
     } else if (smoothOpt == MAXVARIATION){
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
+            smoothTool.setTRExTolerance(0.08); // This was also default before
+
             const int smoothingLevel = (histOps - ( histOps % 10 ) ) / 10;
-            Smooth_maxVariations( modifiedUp,    hNom,   smoothingLevel );
-            Smooth_maxVariations( modifiedDown,  hNom,   smoothingLevel );
+            modifiedUp   = smoothTool.Smooth_maxVariations(hNom, originUp, smoothingLevel);
+            modifiedDown = smoothTool.Smooth_maxVariations(hNom, originDown, smoothingLevel);
         }
     } else if (smoothOpt == COMMONTOOLSMOOTH){
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
@@ -196,15 +198,6 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
             //                     1.0, 1.2, 1.4, 1.6, 1.8, 2.0
             //                    });
             
-            /*In the default span list, maximum span is 2.
-             * If you bin width is larger then 2, you should call this fuction.
-             * */
-            if (GetMaxBinWidth(hNom) > 2 ){
-                smoothTool.useRalativeSpans(true);
-            } else {
-                smoothTool.useRalativeSpans(false);
-            }
-
             modifiedUp      = smoothTool.smoothWithKernel(hNom, originUp);
             modifiedDown    = smoothTool.smoothWithKernel(hNom, originDown);
         }
@@ -936,17 +929,4 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         WriteDebugStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(overflowDown));
     }
     return isGood;
-}
-
-//_________________________________________________________________________
-//
-int HistoTools::GetMaxBinWidth(TH1* hist){
-    float max = -999;
-
-    for (int ibin = 1; ibin <= hist->GetNbinsX(); ibin++){
-        float width = hist->GetBinWidth(ibin);
-        if (max < width) max = width;
-    }
-
-    return max;
 }
