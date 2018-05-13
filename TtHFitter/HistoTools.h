@@ -46,12 +46,6 @@ namespace HistoTools {
 
     void Scale(TH1* h_syst, TH1* h_nominal, float factor);
 
-    //Smoothing uilities
-    int rebin_getMaxVar(TH1* hnom,TH1* hsyst, double tolerance);
-    int getBinWidth(TH1 *ratio);
-    void Smooth_maxVariations(TH1* hsyst,TH1* hnom, int nbins);
-    int get_nVar(TH1* hratio);
-
 
     struct Bin {
         double N;
