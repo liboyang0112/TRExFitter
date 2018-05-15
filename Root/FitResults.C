@@ -91,6 +91,13 @@ void FitResults::ReadFromTXT(string fileName){
     // get fitted NP's
     std::ifstream in;
     in.open(fileName.c_str());
+    
+    if (!in.is_open())	{
+      WriteErrorStatus("FitResults::ReadFromTXT","Could not open the file \"" + fileName + "\"");
+      delete matrix;
+      return;
+    }
+    
     string input;
     string line;
     bool readingNP = false;
