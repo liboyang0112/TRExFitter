@@ -66,7 +66,7 @@ TH1F* HistoTools::TranformHistogramBinning(TH1* originalHist){
 //_________________________________________________________________________
 //
 void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing, std::string kernelOpt, std::string kernelSmoothType) {
+                                    TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing) {
     //
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
     //
@@ -85,13 +85,13 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
 
     // if one-sided & symmetrization asked, do smoothing first and symmetrization after
     if( histOps % 10 == SYMMETRIZEONESIDED ){
-        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing, kernelOpt, kernelSmoothType);
+        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing);
         SymmetrizeHistograms(histOps,hNom,modifiedUp,modifiedDown,modifiedUp,modifiedDown,scaleUp,scaleDown);
     }
     // otherwise, first symmetrization and then smoothing
     else{
         SymmetrizeHistograms(histOps,hNom,originUp,originDown,modifiedUp,modifiedDown,scaleUp,scaleDown);
-        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing, kernelOpt, kernelSmoothType);
+        SmoothHistograms(    histOps,hNom,originUp,originDown,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing);
     }
 }
 
@@ -148,7 +148,7 @@ void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, T
 //_________________________________________________________________________
 //
 void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing, std::string kernelOpt, std::string kernelSmoothType){
+                                    TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing){
     //##################################################
     //
     // SECOND STEP: SMOOTHING
@@ -165,43 +165,44 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
     }
     if (TtresSmoothing || smoothOpt == TTBARRESONANCE) {
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-            smoothTool.setIndependentVar(false);
-            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "Ttres");
-            modifiedDown    = smoothTool.Smooth(hNom, originDown, "Ttres");
+            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "smoothTtresDependent");
+            modifiedDown    = smoothTool.Smooth(hNom, originDown, "smoothTtresDependent");
         } else if( ( histOps - ( histOps % 10 ) ) >= SMOOTH_INDEPENDENT && (histOps - ( histOps % 10 ) ) < UNKNOWN ){
-            smoothTool.setIndependentVar(true);
-            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "Ttres");
-            modifiedDown    = smoothTool.Smooth(hNom, originDown, "Ttres");
+            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "smoothTtresIndependent");
+            modifiedDown    = smoothTool.Smooth(hNom, originDown, "smoothTtresIndependent");
         }
     } else if (smoothOpt == MAXVARIATION){
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
             smoothTool.setTRExTolerance(0.08); // This was also default before
             const int smoothingLevel = (histOps - ( histOps % 10 ) ) / 10;
             smoothTool.setTRExNbins(smoothingLevel);
-            modifiedUp   = smoothTool.Smooth(hNom, originUp,   "TRExDefault");
-            modifiedDown = smoothTool.Smooth(hNom, originDown, "TRExDefault");
+            modifiedUp   = smoothTool.Smooth(hNom, originUp,   "smoothTRExDefault");
+            modifiedDown = smoothTool.Smooth(hNom, originDown, "smoothTRExDefault");
         }
-    } else if (smoothOpt == COMMONTOOLSMOOTH){
+    } else if (smoothOpt == COMMONTOOLSMOOTHMONOTONIC){
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "merge");
-            modifiedDown    = smoothTool.Smooth(hNom, originDown, "merge");
+            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "smoothRebinMonotonic");
+            modifiedDown    = smoothTool.Smooth(hNom, originDown, "smoothRebinMonotonic");
         }
-    } else if (smoothOpt == KERNELFUNCTION){
+    } else if (smoothOpt == COMMONTOOLSMOOTHPARABOLIC){
         if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-
-            // choose kernel option
-            smoothTool.setKernelOption(kernelOpt);
-    
-            // choose smoothing - ratio or difference
-            smoothTool.setSmoothType(kernelSmoothType); // or delta
-
-            // Set list of kernel radii
-            //smoothTool.setSpans({0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8,
-            //                     1.0, 1.2, 1.4, 1.6, 1.8, 2.0
-            //                    });
-            
-            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "kernel");
-            modifiedDown    = smoothTool.Smooth(hNom, originDown, "kernel");
+            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "smoothRebinParabolic");
+            modifiedDown    = smoothTool.Smooth(hNom, originDown, "smoothRebinParabolic");
+        }
+    } else if (smoothOpt == KERNELRATIOUNIFORM){
+        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
+            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "smoothRatioUniformKernel");
+            modifiedDown    = smoothTool.Smooth(hNom, originDown, "smoothRatioUniformKernel");
+        }
+    } else if (smoothOpt == KERNELDELTAGAUSS){
+        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
+            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "smoothDeltaGaussKernel");
+            modifiedDown    = smoothTool.Smooth(hNom, originDown, "smoothDeltaGaussKernel");
+        }
+    } else if (smoothOpt == KERNELRATIOGAUSS){
+        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
+            modifiedUp      = smoothTool.Smooth(hNom, originUp,   "smoothRatioGaussKernel");
+            modifiedDown    = smoothTool.Smooth(hNom, originDown, "smoothRatioGaussKernel");
         }
     } else {
         WriteWarningStatus("HistoTools::SmoothHistograms", "Unknown smoothing option. Please check the config file.");
