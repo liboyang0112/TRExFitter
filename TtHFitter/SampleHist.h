@@ -45,7 +45,7 @@ public:
 
     void Rebin(int ngroup = 2, const Double_t* xbins = 0);
     void DrawSystPlot( const std::string &syst="all", TH1* h_data=0x0, bool SumAndData=false, bool bothPanels=false );
-    void SmoothSyst(const HistoTools::SmoothOption &opt, std::string syst="all",bool force=false, bool TtresSmoothing = false, std::string kernelOpt = "box", std::string kernelSmoothType = "ratio");
+    void SmoothSyst(const HistoTools::SmoothOption &opt, std::string syst="all",bool force=false, bool TtresSmoothing = false);
 
     void Divide(  SampleHist* sh);
     void Multiply(SampleHist* sh);

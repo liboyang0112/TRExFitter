@@ -881,7 +881,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
 
 //_____________________________________________________________________________
 //
-void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string syst,bool force, bool TtresSmoothing, std::string kernelOpt, std::string kernelSmoothType){
+void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string syst,bool force, bool TtresSmoothing){
     if(fSystSmoothed && !force) return;
     TH1* h_nominal = (TH1*)fHist->Clone("h_nominal");
     TH1* h_syst_up;
@@ -956,8 +956,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                                             h_syst_up, h_syst_down, //modified histograms
                                             fSyst[i_syst]->fScaleUp,fSyst[i_syst]->fScaleDown, // scale factors
                                             smoothOpt,
-                                            TtresSmoothing, // alternative smoothing
-                                            kernelOpt, kernelSmoothType
+                                            TtresSmoothing // alternative smoothing
                                          );
         }
         //

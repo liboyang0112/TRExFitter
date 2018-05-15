@@ -321,10 +321,6 @@ public:
 
     bool fTtresSmoothing;
     
-    std::string fKernelOpt;
-
-    std::string fKernelSmoothType;   
- 
     HistoTools::SmoothOption fSmoothOption;
     
     bool fSuppressNegativeBinWarnings;

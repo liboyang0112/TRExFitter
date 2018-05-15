@@ -28,15 +28,18 @@ namespace HistoTools {
     enum SmoothOption {
         MAXVARIATION = 0,
         TTBARRESONANCE = 1,
-        COMMONTOOLSMOOTH = 2,
-        KERNELFUNCTION = 3
+        COMMONTOOLSMOOTHMONOTONIC = 2,
+        COMMONTOOLSMOOTHPARABOLIC = 3,
+        KERNELRATIOUNIFORM = 4,
+        KERNELDELTAGAUSS = 5,
+        KERNELRATIOGAUSS = 6
     };
 
     TH1F* TranformHistogramBinning(TH1* originalHist);
 
-    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false, std::string kernelOpt = "box", std::string kernelSmoothType = "ratio");
+    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
     void SymmetrizeHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
-    void SmoothHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false, std::string kernelOpt = "box", std::string kernelSmoothType = "ratio");
+    void SmoothHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
 
     //Symmetrisation functions
     TH1F* SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp );
