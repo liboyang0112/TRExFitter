@@ -1,3 +1,6 @@
+2018-05-18 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Tagging TtHFitter-00-03-24: first tag with new config syntax check
+    
 2018-05-04 Alexander Held <alexander.held@cern.ch>
     * removing ReduceNPforRanking option (not in use, and was not working properly either)
     * fixing default config path in myFit.C
@@ -11,7 +14,7 @@
     * Fixed issue of info messages printed if debug = 0 before config reading (function added to ConfigParser and called at top of myFit)
     * Fixed typo in multi-fit config reader
     * "No systematics found in fit result file" moved to Debug stream
-    * Added logo (can switch it on with Logo: TRUE)
+    * Added logo (can switch it on with Logo: TRUE) -- credits to Will Breaden Madden
     * Added RunROOTMacros option to multi-fit (but crashing with limits... so TRUE by default)
     
 2018-03-09 Tomas Dado <tomas.dado@cern.ch>
