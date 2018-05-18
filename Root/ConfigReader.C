@@ -50,6 +50,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 
     sc+= ReadLimitOptions();
 
+    sc+= ReadSignificanceOptions();
+
     sc+= ReadRegionOptions();
 
     sc+= ReadSampleOptions();
@@ -1085,6 +1087,40 @@ int ConfigReader::ReadLimitOptions(){
             WriteWarningStatus("ConfigReader::ReadLimitOptions", "You specified 'SignalInjection' option but didnt provide valid parameter. Using default (false)");
             fFitter->fSignalInjection = false;
         }
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadSignificanceOptions(){
+    std::string param = "";
+
+    ConfigSet* confSet = fParser.GetConfigSet("Significance");
+    if (confSet == nullptr){
+        WriteDebugStatus("ConfigReader::ReadSignificanceOptions", "You do not have Significance option in the config. It is ok, we just want to let you know.");
+        return 0; // it is ok to not have Fit set up
+    }
+
+    // Set LimitBlind
+    param = confSet->Get("SignificanceBlind");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fSignificanceIsBlind = true;
+        } else if ( param == "FALSE" ){
+            fFitter->fSignificanceIsBlind = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadSignificanceOptions", "You specified 'SignificanceBlind' option but didnt provide valid parameter. Using default (false)");
+            fFitter->fSignificanceIsBlind = false;
+        }
+    }
+
+    // Set POIAsimov
+    param = confSet->Get("POIAsimov");
+    if( param != "" ){
+        fFitter->fSignificancePOIAsimov = atof(param.c_str());
     }
 
     return 0;

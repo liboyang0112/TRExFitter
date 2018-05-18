@@ -235,6 +235,10 @@ NB: note the *blank* line between the objects!
      * POIAsimov        : value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
      * SignalInjection  : if set to TRUE, expected signal with signal injection is evaluated
 
+  * Significance:
+     * SignificanceBlind: can be TRUE or FALSE (TRUE means that ALL regions are blinded)
+     * POIAsimov        : value of the POI to inject in the Asimov dataset in SignificanceBlind is set to TRUE
+
   * Options:
      * additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...
 

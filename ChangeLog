@@ -1,6 +1,13 @@
+2018-05-03 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing bug in ConfigParser that would not check the setting if option
+	were not int/ string or float
+	* Adding Significance block into config and separating settings from
+	limit setting - closes TTHFITTER-185
+
 2018-05-18 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Tagging TtHFitter-00-03-24: first tag with new config syntax check
     
+
 2018-05-04 Alexander Held <alexander.held@cern.ch>
     * removing ReduceNPforRanking option (not in use, and was not working properly either)
     * fixing default config path in myFit.C
