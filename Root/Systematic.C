@@ -68,12 +68,26 @@ Systematic::Systematic(string name,int type,float up,float down){
     fHistoNamesUp.clear();
     fHistoNameSufUp = "";
     //
+    fHistoPathsUpData.clear();
+    fHistoPathSufUpData = "";
+    fHistoFilesUpData.clear();
+    fHistoFileSufUpData = "";
+    fHistoNamesUpData.clear();
+    fHistoNameSufUpData = "";
+    //
     fHistoPathsDown.clear();
     fHistoPathSufDown = "";
     fHistoFilesDown.clear();
     fHistoFileSufDown = "";
     fHistoNamesDown.clear();
     fHistoNameSufDown = "";
+    //
+    fHistoPathsDownData.clear();
+    fHistoPathSufDownData = "";
+    fHistoFilesDownData.clear();
+    fHistoFileSufDownData = "";
+    fHistoNamesDownData.clear();
+    fHistoNameSufDownData = "";
     //
     fRegions.clear();
     fExclude.clear();
@@ -140,12 +154,26 @@ Systematic::Systematic(Systematic &sys) {
     fHistoNamesUp = sys.fHistoNamesUp;
     fHistoNameSufUp = sys.fHistoNameSufUp;
     //
+    fHistoPathsUpData = sys.fHistoPathsUpData;
+    fHistoPathSufUpData = sys.fHistoPathSufUpData;
+    fHistoFilesUpData = sys.fHistoFilesUpData;
+    fHistoFileSufUpData = sys.fHistoFileSufUpData;
+    fHistoNamesUpData = sys.fHistoNamesUpData;
+    fHistoNameSufUpData = sys.fHistoNameSufUpData;
+    //
     fHistoPathsDown = sys.fHistoPathsDown;
     fHistoPathSufDown = sys.fHistoPathSufDown;
     fHistoFilesDown = sys.fHistoFilesDown;
     fHistoFileSufDown = sys.fHistoFileSufDown;
     fHistoNamesDown = sys.fHistoNamesDown;
     fHistoNameSufDown = sys.fHistoNameSufDown;
+    //
+    fHistoPathsDownData = sys.fHistoPathsDownData;
+    fHistoPathSufDownData = sys.fHistoPathSufDownData;
+    fHistoFilesDownData = sys.fHistoFilesDownData;
+    fHistoFileSufDownData = sys.fHistoFileSufDownData;
+    fHistoNamesDownData = sys.fHistoNamesDownData;
+    fHistoNameSufDownData = sys.fHistoNameSufDownData;
     //
     fRegions = sys.fRegions;
     fExclude = sys.fExclude;
@@ -169,7 +197,13 @@ Systematic::~Systematic(){
     fHistoPathsUp.clear();
     fHistoFilesUp.clear();
     fHistoNamesUp.clear();
+    fHistoPathsUpData.clear();
+    fHistoFilesUpData.clear();
+    fHistoNamesUpData.clear();
     fHistoPathsDown.clear();
     fHistoFilesDown.clear();
     fHistoNamesDown.clear();
+    fHistoPathsDownData.clear();
+    fHistoFilesDownData.clear();
+    fHistoNamesDownData.clear();
 }
