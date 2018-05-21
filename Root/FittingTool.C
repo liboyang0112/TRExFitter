@@ -45,7 +45,7 @@ m_useMinos(false),
 m_varMinos(0),
 m_constPOI(false),
 m_fitResult(0),
-m_debug(false),
+m_debug(1),
 m_noGammas(false),
 m_noSystematics(false),
 m_noNormFactors(false),
@@ -106,13 +106,13 @@ void FittingTool::SetSubCategories() {
 //
 float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit ) {
 
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+    if (m_debug < 1) std::cout.setstate(std::ios_base::failbit);
     WriteDebugStatus("FittingTool::FitPDF", "-> Entering in FitPDF function");
     
     //
     // Printing the whole model for information
     //
-    if(m_debug) model->Print();
+    if(m_debug >= 2) model->Print();
 
     //
     // Getting the list of model that can be constrained (parameters of the MC)
@@ -130,14 +130,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     //
     // Create the likelihood based on fitpdf, fitData and the parameters
     //
-//     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1) );
-    RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1),
-//     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(0),
-                                         RooFit::NumCPU(TtHFitter::NCPU,RooFit::Hybrid)
-//                                          ,RooFit::Optimize(2)
-//                                          ,RooFit::Extended(true)   // experimental
-                                        );
-
+    RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), RooFit::NumCPU(TtHFitter::NCPU,RooFit::Hybrid) );
 
     //
     // Needed for Ranking plot, but also to set random initial values for the NPs
@@ -154,18 +147,16 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     //
     RooRealVar * poi = (RooRealVar*) model->GetParametersOfInterest()->first();
     if(!poi){
-        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+        if (m_debug < 1) std::cout.clear();
         WriteErrorStatus("FittingTool::FitPDF", "Cannot find the parameter of interest !");
         return 0;
     }
-
     poi -> setConstant(m_constPOI);
-    //poi -> setRange(m_RangePOI_down,m_RangePOI_up); // Commented by Loic to avoid overwriting user's setting in config file
-
     poi -> setVal(m_valPOI);
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
-    WriteInfoStatus("FittingTool::FitPDF", "Setting starting mu = " + std::to_string(m_valPOI));
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+    if (m_debug < 1) std::cout.clear();
+    WriteDebugStatus("FittingTool::FitPDF", "Setting starting mu = " + std::to_string(m_valPOI));
+    if (m_debug < 1) std::cout.setstate(std::ios_base::failbit);
+    
     // randomize the POI
     if(!m_constPOI && m_randomize){
         poi->setVal( m_valPOI + m_randomNP*(gRandom->Uniform(2)-1.) );
@@ -176,7 +167,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 
     RooRealVar* var = NULL;
     RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+//     if (m_debug < 2) std::cout.clear();
     if(nuis){
         TIterator* it2 = nuis->createIterator();
         while( (var = (RooRealVar*) it2->Next()) ){
@@ -195,7 +186,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
             else if(np.find("alpha_")!=string::npos && m_noSystematics){
                 WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
                 var->setConstant( 1 );
-//                 var->setVal( 0 );
+                var->setVal( 0 );
                 found = true;
             }
             else if(m_noNormFactors){
@@ -230,7 +221,6 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
             for( unsigned int i_np = 0; i_np<m_initialNP.size(); i_np++ ){
                 if( np == ("alpha_"+m_initialNP[i_np]) || np == m_initialNP[i_np] ){
                     var->setVal(m_initialNPvalue[i_np]);
-//                     var->setVal(m_initialNPvalue[i_np]/2.); // why was it like this?
                     WriteInfoStatus("FittingTool::FitPDF", " ---> Setting " + m_initialNP[i_np] + " to "  +std::to_string(m_initialNPvalue[i_np]));
                     found = true;
                     break;
@@ -257,26 +247,14 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     double nlloffset = nll->getVal() - nLLatMLE;
 
     WriteDebugStatus("FittingTool::FitPDF","   -> Initial value of the NLL = " +std::to_string(nllval));
-    if(m_debug){
-//         std::cout << "   -> Initial value of offset  = " << nlloffset << std::endl;
-//         std::cout << "   -> Initial NLL - offset     = " << nllval-nlloffset << std::endl;
-        if(TtHFitter::DEBUGLEVEL > 2) constrainedParams->Print("v");
-    }
+    if(m_debug >= 2) constrainedParams->Print("v");
 
     //
     // return here if specified not to perform the fit
     if(noFit) return nllval;
 
     //
-    // Desperate attempts
-//     TVirtualFitter::SetPrecision(1e-10); // default 1e-6
-//     TVirtualFitter::SetMaxIterations(100000);  // default 5000
-
-    //
-    //
     // Safe fit loop
-    //
-    //
     static int nrItr = 0;
     const int maxRetries = 3;
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer(m_minimType);
@@ -318,7 +296,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     m_edm = -99;
     RooFitResult * r;
 
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+//     if (m_debug < 2) std::cout.clear();
     while (nrItr<maxRetries && status!=0 && status!=1){
 
         WriteInfoStatus("FittingTool::FitPDF", "");
@@ -466,14 +444,14 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     WriteInfoStatus("FittingTool::FitPDF", "            - hess status " + std::to_string(m_hessStatus));
     WriteInfoStatus("FittingTool::FitPDF", "            - Edm = " + std::to_string(m_edm));
     WriteInfoStatus("FittingTool::FitPDF", "***********************************************************");
-    if (TtHFitter::DEBUGLEVEL > 2) sw.Print();
+    if (m_debug >= 2) sw.Print();
     WriteInfoStatus("FittingTool::FitPDF", "");
     WriteInfoStatus("FittingTool::FitPDF", "");
     WriteInfoStatus("FittingTool::FitPDF", "");
 
     m_minuitStatus = status;
 //     m_fitResult = r;
-    m_fitResult = (RooFitResult*)r->Clone();
+    if(r!=0x0) m_fitResult = (RooFitResult*)r->Clone();
     delete r;
 
     //
@@ -494,18 +472,22 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 //     int ndf = poiList.getSize();
 //     Double_t pvalue = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndf);
 
-    if(m_debug){
+    if(m_debug >= 1){
 //         RemoveConstantParameters(poiList);
         double redNLL = nllval - 1000000.0;
         std::stringstream redNLL_ss;
         redNLL_ss << std::fixed << std::setprecision(20) << redNLL;
 
+        std::streamsize ss = std::cout.precision();
         std::cout << std::fixed << std::setprecision(20);
 
         WriteInfoStatus("FittingTool::FitPDF", "   -> Reduced Final value of the NLL = " + redNLL_ss.str());
         WriteInfoStatus("FittingTool::FitPDF", "   -> Final value of the NLL = " + std::to_string(nllval));
         WriteInfoStatus("FittingTool::FitPDF", "   -> Final value of offset = " + std::to_string(nlloffset));
         WriteInfoStatus("FittingTool::FitPDF", "   -> Final NLL - offset = " + std::to_string(nllval-nlloffset));
+        
+        std::cout << resetiosflags( ios::fixed | ios::showpoint );        
+        std::cout << std::setprecision(ss);
     }
     if(nll) delete nll;
 //     delete poi;  // creates a crash
@@ -515,6 +497,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 //     nuis->~RooArgSet();
 //     if(glbObs) delete glbObs;
 //     glbObs->~RooArgSet();
+    if (m_debug < 1) std::cout.clear();
     return nllval;
 }
 
@@ -573,11 +556,11 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName )
 //____________________________________________________________________________________
 //
 std::map < std::string, double > FittingTool::ExportFitResultInMap(){
-
+    std::map < std::string, double > result;
     if(!m_fitResult){
         WriteErrorStatus("FittingTool::ExportFitResultInMap", "The FitResultObject seems not to be defined.");
+        return result;
     }
-    std::map < std::string, double > result;
     RooRealVar* var(nullptr);
     TIterator* param = m_fitResult -> floatParsFinal().createIterator();
     while( (var = (RooRealVar*) param->Next()) ){

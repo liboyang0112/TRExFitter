@@ -77,15 +77,18 @@ public:
     std::vector<std::string> fRegions;
     std::vector<float> fLumiScales;
     std::string fIgnoreSelection;
+    std::string fIgnoreWeight;
     bool fUseMCStat;
     bool fUseSystematics;
     std::string fDivideBy;
     std::string fMultiplyBy;
     std::vector<std::string> fSubtractSamples;
     std::vector<std::string> fAddSamples;
+    std::string fNormToSample;
     bool fSmooth;
     int fBuildPullTable;
-    bool fIsMorph;
+    std::map<std::string,bool> fIsMorph;
+    std::map<std::string,float> fMorphValue;
 
     // to read from ntuples
     std::string fSelection;

@@ -15,6 +15,9 @@ Applying ATLAS style settings...
 === DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
 [1;32m=== INFO::myFit::FitExample: Successfully read config file.[0m
 Fitting...
+[1;32m=== INFO::TtHFit::Fit: [0m
+[1;32m=== INFO::TtHFit::Fit: -------------------------------------------[0m
+[1;32m=== INFO::TtHFit::Fit: Performing nominal fit...[0m
 full list of observables:
 RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
 [#0] ERROR:InputArguments -- RooArgSet::checkForDup: ERROR argument with name nom_alpha_JES is already in this set
@@ -208,8 +211,8 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 === DEBUG::TtHFit::DumpData:        - Region: SR_2       DataType: 0
 === DEBUG::TtHFit::DumpData:     * No NP values injected 
 === DEBUG::TtHFit::DumpData:     * POI value: 0.000000
-[1;32m=== INFO::TtHFIt::DumpData: Activating binned likelihood attribute for SR_1_model[0m
-[1;32m=== INFO::TtHFIt::DumpData: Activating binned likelihood attribute for SR_2_model[0m
+=== DEBUG::TtHFit::DumpData: Activating binned likelihood attribute for SR_1_model
+=== DEBUG::TtHFit::DumpData: Activating binned likelihood attribute for SR_2_model
 === DEBUG::FittingTool::FitPDF: -> Entering in FitPDF function
 
 === Using the following for ModelConfig ===
@@ -225,12 +228,24 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
 RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4 dataset entries)
 [#1] INFO:Fitting -- RooAbsTestStatistic::initSimMode: created 2 slave calculators.
-[1;32m=== INFO::FittingTool::FitPDF: Setting starting mu = 0.000000[0m
+=== DEBUG::FittingTool::FitPDF: Setting starting mu = 0.000000
 === DEBUG::FittingTool::FitPDF:    -> Constant POI : 0
 === DEBUG::FittingTool::FitPDF:    -> Value of POI : 0.000000
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.163
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.163
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 457.285391
+  1) 0x519cc40 RooRealVar::         SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
+  2) 0x5124a20 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  3) 0x5125f90 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  4) 0x5122e70 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  5) 0x51280e0 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  6) 0x512a180 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  7) 0x512c9e0 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  8) 0x512f240 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  9) 0x51a1b30 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+ 10) 0x51a4cb0 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 11) 0x51a7510 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 12) 0x51a9dd0 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -277,6 +292,7 @@ Info in <Minuit2>: Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000735[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
+Real time 0:00:00, CP time 0.130
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m

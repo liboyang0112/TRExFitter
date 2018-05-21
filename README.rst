@@ -213,6 +213,7 @@ NB: note the *blank* line between the objects!
      * SummaryPlotLabels : labels to be used per region in summary plot
      * SummaryPlotValidationRegions : regions to be included in validation region summary plot (default: all)
      * SummaryPlotValidationLabels : labels to be used per region in validation region summary plot
+     * SmoothMorphingTemplates : if set to TRUE (default is FALSE), the templates used for morphig are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory)
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -228,6 +229,8 @@ NB: note the *blank* line between the objects!
      * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
      * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
+     * DoNonProfileFit  : [EXPERIMENTAL] if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time
+     * FitToys          : [EXPERIMENTAL] if set to N > 0, N stat-ony toys are generated and fitted
 
   * Limit:
      * LimitType        : can be ASYMPTOTIC or TOYS (the latter is not yet supported)
@@ -323,6 +326,7 @@ NB: note the *blank* line between the objects!
      * Min              : min value
      * Max              : max value
      * Constant         : set to TRUE to have a fixed norm factor
+     * Category         : major category to which the NormFactor belongs (instrumental, theory, ttbar, ...)
      * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality)
      * Expression       : a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form "<expression>,<dependency>", where <dependency> should contain the name(s) of the norm factor the expression depends on [example: "1.-SigXsecOverSM","SigXsecOverSM"]
 

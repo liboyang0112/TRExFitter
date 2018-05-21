@@ -75,6 +75,10 @@ public:
     void SetVariable(std::string variable,int nbin,float xmin,float xmax,std::string corrVar1="",std::string corrVar2="");
     void SetAlternativeVariable(std::string variable,std::string sample);
     bool UseAlternativeVariable(std::string sample);
+    std::string GetAlternativeVariable(std::string sample);
+    void SetAlternativeSelection(std::string selection,std::string sample);
+    bool UseAlternativeSelection(std::string sample);
+    std::string GetAlternativeSelection(std::string sample);
 
     void SetHistoName(std::string name); // name of the histogram to read (the same for each sample)
     void AddSystematic(Systematic *syst);
@@ -145,6 +149,7 @@ public:
     std::vector<std::string> fAutoBinBkgsInSig;
     std::string fVariable;
     std::map<std::string, std::string> fAlternativeVariables;
+    std::map<std::string, std::string> fAlternativeSelections;
     std::string fCorrVar1;
     std::string fCorrVar2;
     int fNbins;

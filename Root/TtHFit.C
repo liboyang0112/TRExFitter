@@ -199,7 +199,7 @@ TtHFit::TtHFit(string name){
     fCustomFunctions.clear();
     fSuppressNegativeBinWarnings = false;
 
-    fRunMorphing = false;
+    fMorphParams.clear();
     fTemplateInterpolationOption = TtHFit::LINEAR;
     
     fBootstrap = "";
@@ -207,6 +207,10 @@ TtHFit::TtHFit(string name){
 
     fDecorrSysts.clear();
     fDecorrSuff = "_decor";
+    
+    fDoNonProfileFit = false;
+    fFitToys = 0;
+    fSmoothMorphingTemplates = false;
 }
 
 //__________________________________________________________________________________
@@ -616,11 +620,20 @@ void TtHFit::ReadNtuples(){
             //
             // set selection and weight
             fullSelection = "1";
-            //             fSelection + " && " + fRegions[i_ch]->fSelection;
+            //
+            //Check whether to use an alternative selection or not
+            std::string selection;
+            if (fRegions[i_ch]->UseAlternativeSelection(fSamples[i_smp]->fName)){
+                selection = fRegions[i_ch]->GetAlternativeSelection(fSamples[i_smp]->fName);
+            }
+            else{
+                selection = fRegions[i_ch]->fSelection;
+            }
+            //
             if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                 fullSelection += " && ("+fSelection+")";
-            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fRegions[i_ch]->fSelection!="" && fRegions[i_ch]->fSelection!="1")
-                fullSelection += " && ("+fRegions[i_ch]->fSelection+")";
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && selection!="" && selection!="1")
+                fullSelection += " && ("+selection+")";
             if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
                 fullSelection += " && ("+fSamples[i_smp]->fSelection+")";
             if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSamples[i_smp]->fIgnoreSelection!="FALSE" && fSamples[i_smp]->fIgnoreSelection!="")
@@ -631,10 +644,10 @@ void TtHFit::ReadNtuples(){
             //Check whether to use an alternative variable (e.g. in TRF) or not
             std::string variable;
             if (fRegions[i_ch]->UseAlternativeVariable(fSamples[i_smp]->fName)){
-              variable = fRegions[i_ch]->fAlternativeVariables[fSamples[i_smp]->fName];
+                variable = fRegions[i_ch]->GetAlternativeVariable(fSamples[i_smp]->fName);
             }
             else{
-              variable = fRegions[i_ch]->fVariable;
+                variable = fRegions[i_ch]->fVariable;
             }
             //
             // build a list of ntuples to read
@@ -717,8 +730,8 @@ void TtHFit::ReadNtuples(){
                 fullSelection = "1";
                 if(smp->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                     fullSelection += " && ("+fSelection+")";
-                if(smp->fIgnoreSelection!="TRUE" && reg->fSelection!="" && reg->fSelection!="1")
-                    fullSelection += " && ("+reg->fSelection+")";
+                if(smp->fIgnoreSelection!="TRUE" && selection!="" && selection!="1")
+                    fullSelection += " && ("+selection+")";
                 if(smp->fSelection!="" && smp->fSelection!="1")
                     fullSelection += " && ("+smp->fSelection+")";
                 if(smp->fIgnoreSelection!="TRUE" && smp->fIgnoreSelection!="FALSE" && smp->fIgnoreSelection!="")
@@ -866,11 +879,20 @@ void TtHFit::ReadNtuples(){
             //
             // set selection and weight
             fullSelection = "1";
-            //             fSelection + " && " + fRegions[i_ch]->fSelection;
+            //
+            //Check whether to use an alternative selection or not
+            std::string selection;
+            if (fRegions[i_ch]->UseAlternativeSelection(fSamples[i_smp]->fName)){
+                selection = fRegions[i_ch]->GetAlternativeSelection(fSamples[i_smp]->fName);
+            }
+            else{
+                selection = fRegions[i_ch]->fSelection;
+            }
+            //
             if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                 fullSelection += " && ("+fSelection+")";
-            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fRegions[i_ch]->fSelection!="" && fRegions[i_ch]->fSelection!="1")
-                fullSelection += " && ("+fRegions[i_ch]->fSelection+")";
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && selection!="" && selection!="1")
+                fullSelection += " && ("+selection+")";
             if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
                 fullSelection += " && ("+fSamples[i_smp]->fSelection+")";
             if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSamples[i_smp]->fIgnoreSelection!="FALSE" && fSamples[i_smp]->fIgnoreSelection!="")
@@ -888,14 +910,18 @@ void TtHFit::ReadNtuples(){
             if(fBootstrap!="" && fBootstrapIdx>=0){
                 fullMCweight += " * ("+ReplaceString(fBootstrap,"x",Form("%d",fBootstrapIdx))+")";
             }
+            // ignore particular weights
+            if(fSamples[i_smp]->fIgnoreWeight!=""){
+                fullMCweight=ReplaceString(fullMCweight, fSamples[i_smp]->fIgnoreWeight,"1");
+            }
             //
             //Check whether to use an alternative variable (e.g. in TRF) or not
             std::string variable;
             if (fRegions[i_ch]->UseAlternativeVariable(fSamples[i_smp]->fName)){
-              variable = fRegions[i_ch]->fAlternativeVariables[fSamples[i_smp]->fName];
+                variable = fRegions[i_ch]->GetAlternativeVariable(fSamples[i_smp]->fName);
             }
             else{
-              variable = fRegions[i_ch]->fVariable;
+                variable = fRegions[i_ch]->fVariable;
             }
             //
             // build a list of ntuples to read
@@ -1030,8 +1056,8 @@ void TtHFit::ReadNtuples(){
                 fullSelection = "1";
                 if(smp->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                     fullSelection += " && ("+fSelection+")";
-                if(smp->fIgnoreSelection!="TRUE" && reg->fSelection!="" && reg->fSelection!="1")
-                    fullSelection += " && ("+reg->fSelection+")";
+                if(smp->fIgnoreSelection!="TRUE" && selection!="" && selection!="1")
+                    fullSelection += " && ("+selection+")";
                 if(smp->fSelection!="" && smp->fSelection!="1")
                     fullSelection += " && ("+smp->fSelection+")";
                 if(smp->fIgnoreSelection!="TRUE" && smp->fIgnoreSelection!="FALSE" && smp->fIgnoreSelection!="")
@@ -1051,10 +1077,16 @@ void TtHFit::ReadNtuples(){
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
-                        fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
-                        fullMCweight=ReplaceString(fullMCweight,"*  *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"* *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"**","*");
+                        fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"1");
+//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
+                    }
+                    if(smp->fIgnoreWeight!=""){
+                        fullMCweight=ReplaceString(fullMCweight, smp->fIgnoreWeight,"1");
+//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
                     if(syst->fWeightSufUp!="")
                         fullMCweight += " * "+syst->fWeightSufUp;
@@ -1169,10 +1201,16 @@ void TtHFit::ReadNtuples(){
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
-                        fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
-                        fullMCweight=ReplaceString(fullMCweight,"*  *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"* *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"**","*");
+                        fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"1");
+//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
+                    }
+                    if(smp->fIgnoreWeight!=""){
+                        fullMCweight=ReplaceString(fullMCweight, smp->fIgnoreWeight,"1");
+//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
                     if(syst->fWeightSufDown!="")
                         fullMCweight += " * "+syst->fWeightSufDown;
@@ -1365,6 +1403,12 @@ void TtHFit::CorrectHistograms(){
                 WriteDebugStatus("TtHFit::CorrectHistograms", "dividing " + fSamples[i_smp]->fName  + "by sample " + fSamples[i_smp]->fDivideBy + " from sample " + fSamples[i_smp]->fName);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
                 if(smph0!=0x0) sh->Divide(smph0);
+            }
+            // Norm to sample
+            if(fSamples[i_smp]->fNormToSample!=""){
+                WriteDebugStatus("TtHFit::CorrectHistograms", "normalizing " + fSamples[i_smp]->fName  + "to sample " + fSamples[i_smp]->fDivideBy);                
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fNormToSample);
+                if(smph0!=0x0) sh->Scale(smph0->fHist->Integral()/sh->fHist->Integral());
             }
 
             //
@@ -1654,6 +1698,15 @@ void TtHFit::CorrectHistograms(){
                     if(syh->fHistShapeDown) DropBins(syh->fHistShapeDown,reg->fDropBins);
                 }
             }
+        }
+    }
+    
+    //
+    // Morph smoothing (linear)
+    if(fSmoothMorphingTemplates){
+        for(auto par : fMorphParams){
+            WriteInfoStatus("TtHFit::CorrectHistograms","Smoothing morphing templates for parameter "+par);
+            SmoothMorphTemplates(par);
         }
     }
 }
@@ -4990,7 +5043,9 @@ void TtHFit::DrawPruningPlot(){
 //
 void TtHFit::Fit(){
 
-    //Checks if a data sample exists
+    //
+    // Checks if a data sample exists
+    //
     bool hasData = false;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::DATA){
@@ -5003,29 +5058,44 @@ void TtHFit::Fit(){
     RooWorkspace* ws = 0x0;
 
     //
+    // If fDoNonProfileFit => set stat-only
+    //
+    if(fDoNonProfileFit){
+        WriteInfoStatus("TtHFit::Fit","In non-profile mode => Setting to stat-only.");
+        fStatOnly = true;
+    }
+    
+    //
     // If there's a workspace specified, go on with simple fit, without looking for separate workspaces per region
     //
     if(fWorkspaceFileName!=""){
+        WriteInfoStatus("TtHFit::Fit","");
+        WriteInfoStatus("TtHFit::Fit","-------------------------------------------");
+        WriteInfoStatus("TtHFit::Fit","Performing nominal fit on pre-specified workspace...");
         TFile *rootFile = new TFile(fWorkspaceFileName.c_str(),"read");
         ws = (RooWorkspace*) rootFile->Get("combined");
         if(!ws){
-            WriteErrorStatus("TtHFit::Fit()", "The workspace (\"combined\") cannot be found in file " + fWorkspaceFileName + ". Please check !");
+            WriteErrorStatus("TtHFit::Fit", "The workspace (\"combined\") cannot be found in file " + fWorkspaceFileName + ". Please check !");
         }
         if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
         else                        data = (RooDataSet*)ws->data("asimovData");
-        PerformFit( ws, data, fFitType, true );
+        PerformFit( ws, data, fFitType, true, TtHFitter::DEBUGLEVEL );
     }
+    //
+    // Otherwise go on with normal fit
+    //
     else{
+        WriteInfoStatus("TtHFit::Fit","");
+        WriteInfoStatus("TtHFit::Fit","-------------------------------------------");
+        WriteInfoStatus("TtHFit::Fit","Performing nominal fit...");
         //
         // Fills a vector of regions to consider for fit
         //
-//         bool simpleData = true; // this becomes false if some regions have data and others don't
         std::vector < std:: string > regionsToFit;
         std::map < std::string, int > regionDataType;
         for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             bool isToFit = false;
-
-            if ( fFitRegion == CRONLY ) {
+           if ( fFitRegion == CRONLY ) {
                 if( fRegions[i_ch] -> fRegionType == Region::CONTROL ){
                     isToFit = true;
                 }
@@ -5048,50 +5118,208 @@ void TtHFit::Fit(){
                 Region::DataType dataType;
                 if(fFitIsBlind || !hasData){
                     dataType = Region::ASIMOVDATA;
-                } else {
+                }
+                else{
                     dataType = fRegions[i_ch] -> fRegionDataType;
                 }
                 regionDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
-                //
             }
         }
         //
         // Creating the combined model with the regions to fit only
         //
         if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-
         ws = PerformWorkspaceCombination( regionsToFit );
-
         //
         // If needed (only if needed), create a RooDataset object
         //
-//         if(simpleData){
-//             if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
-//             else                        data = (RooDataSet*)ws->data("asimovData");
-//         }
-//         else{
-            data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
-//         }
+        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
         //
         // Calls the PerformFit() function to actually do the fit
         //
         if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+        PerformFit( ws, data, fFitType, true, TtHFitter::DEBUGLEVEL);
+    }
 
-        PerformFit( ws, data, fFitType, true);
+    //
+    // Toys
+    //
+    if(fFitToys>0){
+        // temporary switch off minos (not needed)
+        std::vector<std::string> varMinosTmp = fVarNameMinos;
+        fVarNameMinos.clear();
+        WriteInfoStatus("TtHFit::Fit","");
+        WriteInfoStatus("TtHFit::Fit","-------------------------------------------");
+        WriteInfoStatus("TtHFit::Fit","Generating and fitting toys...");
+        // set all regions as ASIMOVDATA and create combined ws
+        std::vector < std:: string > regionsToFit;
+        std::map < std::string, int > regionDataType;
+        for(auto reg : fRegions) regionDataType[reg->fName] = Region::ASIMOVDATA;
+        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+            if ( fFitRegion == CRONLY && fRegions[i_ch] -> fRegionType == Region::CONTROL )
+                regionsToFit.push_back( fRegions[i_ch] -> fName );
+            else if ( fFitRegion == CRSR && (fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL) )
+                regionsToFit.push_back( fRegions[i_ch] -> fName );
+        }
+        ws = PerformWorkspaceCombination( regionsToFit );
+        // create map to store fit results
+        std::map < std::string, double > npValues;
+        // create histogram to store fitted POI values
+        NormFactor* POInf = fNormFactors[FindInStringVector(fNormFactorNames,fPOI)];
+        TH1F *h_toys = new TH1F("h_toys","h_toys",50,POInf->fMin,POInf->fMax);
+        // get RooStats stuff
+        RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
+        RooAbsPdf* pdf = mc->GetPdf();
+        const RooArgSet* obsSet = mc->GetObservables();
+        RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
+        for(int i_toy=0;i_toy<fFitToys;i_toy++){
+            // setting POI to constant, not to allow it to fluctuate in toy creation
+            poiVar->setConstant(1);
+            poiVar->setVal(fFitPOIAsimov);
+            RooDataSet* toyData = pdf->generate( *obsSet, RooFit::Extended() );
+            // re-set POI to free-floating, and to nominal value
+            poiVar->setConstant(0);
+            poiVar->setVal(POInf->fNominal);
+            // extract POI from fit result and fill histogram
+            npValues = PerformFit( ws, toyData, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
+            if(npValues.size()>0) h_toys->Fill(npValues[fPOI]);
+        }
+        // plot, fit and save toy histogram
+        TCanvas* c = new TCanvas("c","c",600,600);
+        h_toys->Draw("E");
+        TF1* g = new TF1("g","gaus",POInf->fMin,POInf->fMax);
+        g->SetLineColor(kRed);
+        h_toys->Fit("g","R");
+        g->Draw("same");
+        h_toys->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[fPOI].c_str());
+        h_toys->GetYaxis()->SetTitle("Pseudo-experiements");
+        myText(0.60,0.90,1,Form("Mean  = %.2f #pm %.2f",g->GetParameter(1), g->GetParError(1)));
+        myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g->GetParameter(2),g->GetParError(2)));
+        myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g->GetChisquare(),g->GetNDF()));
+        for(auto format : TtHFitter::IMAGEFORMAT) c->SaveAs((fName+"/Toys."+format).c_str());
+        fVarNameMinos = varMinosTmp; // retore Minos settings
+    }
+    
+    //
+    // Fit result on Asimov with shifted systematics
+    //
+    if(fDoNonProfileFit){
+        WriteInfoStatus("TtHFit::Fit","");
+        WriteInfoStatus("TtHFit::Fit","-------------------------------------------");
+        WriteInfoStatus("TtHFit::Fit","Scan of systematics for non-profile fit...");
+        ofstream out;
+        std::vector < std:: string > regionsToFit;
+        out.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
+        std::map < std::string, int > regionDataType;
+        for(auto reg : fRegions) regionDataType[reg->fName] = Region::ASIMOVDATA;
+        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+            if ( fFitRegion == CRONLY && fRegions[i_ch] -> fRegionType == Region::CONTROL )
+                regionsToFit.push_back( fRegions[i_ch] -> fName );
+            else if ( fFitRegion == CRSR && (fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL) )
+                regionsToFit.push_back( fRegions[i_ch] -> fName );
+        }
+        ws = PerformWorkspaceCombination( regionsToFit );
+        std::map < std::string, double > npValues;
+        // nominal fit on Asimov
+        RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
+        ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
+        ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
+        WriteInfoStatus("TtHFit::Fit","Fitting nominal Asimov...");
+        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+        npValues = PerformFit( ws, data, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
+        float nominalPOIval = npValues[fPOI];
+        RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
+        float statUp = poiVar->getErrorHi();
+        float statDo = poiVar->getErrorLo();
+        std::map < std::string, double > newPOIvalUp;
+        std::map < std::string, double > newPOIvalDo;
+        std::vector < std::string > npList;
+        // temporary switch off minos (not needed)
+        std::vector<std::string> varMinosTmp = fVarNameMinos;
+        fVarNameMinos.clear();
+        for(auto syst : fSystematics){
+            if(FindInStringVector(npList,syst->fNuisanceParameter)<0){
+                npList.push_back(syst->fNuisanceParameter);
+                for(int ud=0;ud<2;ud++){
+                    //Be sure to take the initial values of the NP
+                    ws->loadSnapshot("InitialStateModelGlob");
+                    ws->loadSnapshot("InitialStateModelNuis");
+                    // - create Asimov with that NP fixed to +/-1sigma
+                    std::map < std::string, double > npVal; npVal.clear();
+                    npVal = fFitNPValues;
+                    if(ud==0) npVal["alpha_"+syst->fNuisanceParameter] =  1;
+                    if(ud==1) npVal["alpha_"+syst->fNuisanceParameter] = -1;
+                    WriteInfoStatus("TtHFit::Fit","Systematic "+syst->fNuisanceParameter+"...");
+                    data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
+                    // - again a stat-only fit to that Asimov
+                    fFitFixedNPs[syst->fNuisanceParameter] = 0;
+                    fFitFixedNPs["alpha_"+syst->fNuisanceParameter] = 0;
+                    npValues = PerformFit( ws, data, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
+                    float newPOIval = npValues[fPOI];
+                    if(ud==0) newPOIvalUp[syst->fNuisanceParameter] = newPOIval;
+                    if(ud==1) newPOIvalDo[syst->fNuisanceParameter] = newPOIval;
+                }
+            }
+        }
+        // print:
+        std::cout << "Results of non-profile fit:" << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
+        std::cout << "StatisticalError\t" << statUp << "\t" << statDo << std::endl;
+        out       << "StatisticalError\t" << statUp << "\t" << statDo << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
+        float totUp = 0.;
+        float totDo = 0.;
+        npList.clear();
+        for(auto syst : fSystematics){
+            if(FindInStringVector(npList,syst->fNuisanceParameter)<0){
+                npList.push_back(syst->fNuisanceParameter);
+                std::cout << syst->fNuisanceParameter;
+                out       << syst->fNuisanceParameter;
+                // - up and down
+                for(int ud=0;ud<2;ud++){
+                    if(ud==0) std::cout << "\t" << newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval;
+                    if(ud==1) std::cout << "\t" << newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval;
+                    if(ud==0) out       << "\t" << newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval;
+                    if(ud==1) out       << "\t" << newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval;
+                    if(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval>0) totUp = sqrt(pow(totUp,2)+pow(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval,2));
+                    if(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval<0) totDo = sqrt(pow(totDo,2)+pow(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval,2));
+                    if(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval>0) totUp = sqrt(pow(totUp,2)+pow(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval,2));
+                    if(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval<0) totDo = sqrt(pow(totDo,2)+pow(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval,2));
+                }
+                std::cout << std::endl;
+                out       << std::endl;
+            }
+        }
+        std::cout << "-----------------------------------" << std::endl;
+        std::cout << "TotalSystematic \t" << totUp << "\t-" << totDo << std::endl;
+        out       << "TotalSystematic \t" << totUp << "\t-" << totDo << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
+        std::cout << "TotalStat+Syst  \t" << sqrt(pow(totUp,2)+pow(statUp,2)) << "\t-" << sqrt(pow(totDo,2)+pow(statDo,2)) << std::endl;
+        out       << "TotalStat+Syst  \t" << sqrt(pow(totUp,2)+pow(statUp,2)) << "\t-" << sqrt(pow(totDo,2)+pow(statDo,2)) << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
+        out.close();
+        fVarNameMinos = varMinosTmp; // retore Minos settings
     }
 
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
     if(fVarNameLH.size()>0){
-        if (fVarNameLH[0]=="all"){
-            for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws, it->first, data);
-            }
+        // 
+        // Don't do it if you did a non-profile fit (FIXME)
+        if(fDoNonProfileFit){
+            WriteWarningStatus("TtHFit::Fit","Better not to perform LH scan if you did non-profile fit with scan on systematics. Skipping LH scan.");
         }
         else{
-            for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-                GetLikelihoodScan( ws, fVarNameLH[i], data);
+            if (fVarNameLH[0]=="all"){
+                for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
+                    GetLikelihoodScan( ws, it->first, data);
+                }
+            }
+            else{
+                for(unsigned int i=0; i<fVarNameLH.size(); ++i){
+                    GetLikelihoodScan( ws, fVarNameLH[i], data);
+                }
             }
         }
     }
@@ -5100,6 +5328,7 @@ void TtHFit::Fit(){
 //__________________________________________________________________________________
 //
 RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue  ){
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 
     //
     // This function dumps a RooDataSet object using the input informations provided by the user
@@ -5108,15 +5337,16 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     //
     WriteDebugStatus("TtHFit::DumpData", "Dumping data with the following parameters");
     WriteDebugStatus("TtHFit::DumpData", "    * Regions data type ");
-        for( const std::pair < std::string, int > dataType : regionDataType ){
+    for( const std::pair < std::string, int > dataType : regionDataType ){
         WriteDebugStatus("TtHFit::DumpData", "       - Region: " + dataType.first + "       DataType: " + std::to_string(dataType.second));
-        }
-        if(npValues.size()){
+    }
+    if(npValues.size()){
         WriteDebugStatus("TtHFit::DumpData", "    * Injected NP values ");
-            for ( const std::pair < std::string, double > npValue : npValues ){
+        for ( const std::pair < std::string, double > npValue : npValues ){
             WriteDebugStatus("TtHFit::DumpData", "       - NP: " + npValue.first + "       Value: " + std::to_string(npValue.second));
-            }
-        } else {
+        }
+    }
+    else {
         WriteDebugStatus("TtHFit::DumpData", "    * No NP values injected ");
     }
     WriteDebugStatus("TtHFit::DumpData", "    * POI value: " + std::to_string(poiValue) );
@@ -5142,10 +5372,9 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
         if (arg->IsA() == RooRealSumPdf::Class()) {
             arg->setAttribute("BinnedLikelihood");
             std::string temp_string = arg->GetName();
-            WriteInfoStatus("TtHFIt::DumpData", "Activating binned likelihood attribute for " + temp_string);
+            WriteDebugStatus("TtHFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
         }
     }
-
 
     //Creating a set
     const char* weightName="weightVar";
@@ -5174,20 +5403,19 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     //-- POI
     RooRealVar * poi = (RooRealVar*) mc->GetParametersOfInterest()->first();
     if (poi == nullptr){
+        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
         WriteErrorStatus("TtHFit::DumpData", "Cannot find POI in workspace, exitting...");
         exit(EXIT_FAILURE);
     }
     poi -> setVal(poiValue);
 
     //-- Nuisance parameters
-    if (!fStatOnly){
-        RooRealVar* var(nullptr);
-        TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
-        while( (var = (RooRealVar*) npIterator->Next()) ){
-          std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
-          if( it_npValue != npValues.end() ){
+    RooRealVar* var(nullptr);
+    TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
+    while( (var = (RooRealVar*) npIterator->Next()) ){
+        std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
+        if( it_npValue != npValues.end() ){
             var -> setVal(it_npValue -> second);
-          }
         }
     }
 
@@ -5210,16 +5438,21 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
         std::map < std::string, int >::const_iterator it_dataType = regionDataType.find( channelCat->getLabel() );
         if( it_dataType == regionDataType.end() ){
             std::string temp_string = channelCat->getLabel();
+            if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteWarningStatus("TtHFit::DumpData", "The following region is not specified in the inputs to the function (" + temp_string + "): use Asimov");
             WriteWarningStatus("TtHFit::DumpData", "   This SHOULD NOT HAPPEN ! Please check if everying is fine !");
-        } else {
+            if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+        }
+        else {
             dataType = regionDataType[channelCat->getLabel()];
         }
 
         //A protection: if there is no real observed data, use only ASIMOV (but print a warning)
         if(dataType==Region::REALDATA && !realData){
             std::string temp_string = channelCat->getLabel();
+            if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteWarningStatus("TtHFit::DumpData", "You want real data for channel " + temp_string + " but none is available in the workspace. Using Asimov instead.");
+            if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             dataType = Region::ASIMOVDATA;
         }
 
@@ -5264,14 +5497,16 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
         ws->loadSnapshot("InitialStateModelNuis");
     }
 
+    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+    
     return asimovData;
 }
 
 //__________________________________________________________________________________
 //
-std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType, bool save ){
+std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType, bool save, int debugLevel ){
 
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+    if (debugLevel < 1) std::cout.setstate(std::ios_base::failbit);
     std::map < std::string, double > result;
 
     /////////////////////////////////
@@ -5284,7 +5519,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     // Fit configuration (SPLUSB or BONLY)
     //
     FittingTool *fitTool = new FittingTool();
-    fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
+    fitTool -> SetDebug(debugLevel);
     if(fitType==BONLY){
         fitTool -> ValPOI(0.);
         fitTool -> ConstPOI(true);
@@ -5294,8 +5529,8 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     }
     fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
     if(fStatOnly){
-      fitTool -> NoGammas();
-      fitTool -> NoSystematics();
+        fitTool -> NoGammas();
+        fitTool -> NoSystematics();
     }
 
     //
@@ -5402,7 +5637,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     // Performs the fit
     fitTool -> MinimType("Minuit2");
     float nll = fitTool -> FitPDF( mc, simPdf, data );
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+    if (debugLevel < 1) std::cout.clear();
 //     fitTool -> FitPDF( mc, simPdf, data, true );   // for fast fit
     if(save){
         gSystem -> mkdir((fName+"/Fits/").c_str(),true);
@@ -5627,7 +5862,7 @@ void TtHFit::GetLimit(){
             //
             // Calls the PerformFit() function to actually do the fit
             //
-            npValues = PerformFit( ws_forFit, data, FitType::BONLY);
+            npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TtHFitter::DEBUGLEVEL);
         }
 
         //
@@ -5737,7 +5972,7 @@ void TtHFit::GetSignificance(){
             //
             // Calls the PerformFit() function to actually do the fit
             //
-            npValues = PerformFit( ws_forFit, data, FitType::BONLY);
+            npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TtHFitter::DEBUGLEVEL);
         }
 
         //
@@ -7406,6 +7641,52 @@ const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::Te
     fun = ReplaceString(fun,"--","+");
     WriteDebugStatus("TtHFit::GetWeightFunction", "Morphing:   weight function = " + fun);
     return fun;
+}
+
+//__________________________________________________________________________________
+//
+void TtHFit::SmoothMorphTemplates(std::string name){
+    TCanvas *c = new TCanvas("c","c",600,600);
+    // get one histogram per bin (per region)
+    for(auto reg : fRegions){
+        std::map<float,TH1*> hMap; // map (paramater-value,histogram)
+        TH1* h_tmp = 0x0;
+        int nTemplates = 0;
+        float min = -999.;
+        float max = -999.;
+        for(auto sh : reg->fSampleHists){
+            Sample* smp = sh->fSample;
+            // if the sample has morphing
+            if(smp->fIsMorph[name]){
+                hMap[smp->fMorphValue[name]] = sh->fHist;
+                if(smp->fMorphValue[name]<min) min = smp->fMorphValue[name];
+                if(smp->fMorphValue[name]>max) max = smp->fMorphValue[name];
+                nTemplates++;
+                h_tmp = sh->fHist;
+            }
+        }
+        if(h_tmp==0x0) return;
+        for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
+            TGraphErrors* g_bin = new TGraphErrors(nTemplates);
+            int i_pt = 0;
+            for(auto vh : hMap){
+                g_bin->SetPoint(i_pt,vh.first,vh.second->GetBinContent(i_bin));
+                g_bin->SetPointError(i_pt,0,vh.second->GetBinError(i_bin));
+                i_pt++;
+            }
+            c->cd();
+            g_bin->Draw("epa");
+            TF1* l = new TF1("l","pol1",min,max);
+            g_bin->Fit("l","RQN");
+            l->SetLineColor(kRed);
+            l->Draw("same");
+            gSystem->mkdir((fName+"/Morphing/").c_str());
+            for(auto format : TtHFitter::IMAGEFORMAT) c->SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+to_string(i_bin)+"."+format).c_str());
+            for(auto vh : hMap){
+                vh.second->SetBinContent(i_bin,l->Eval(vh.first));
+            }
+        }
+    }
 }
 
 //____________________________________________________________________________________

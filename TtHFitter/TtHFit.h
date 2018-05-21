@@ -129,7 +129,7 @@ public:
     // fit etc...
     void Fit();
     RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue);
-    std::map < std::string, double > PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType=SPLUSB, bool save=false );
+    std::map < std::string, double > PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType=SPLUSB, bool save=false, int debugLevel=1 );
     RooWorkspace* PerformWorkspaceCombination( std::vector < std::string > &regionsToFit );
 
     void PlotFittedNP();
@@ -158,6 +158,7 @@ public:
     void AddTemplateWeight(const std::string& name, float);
     const std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
     const std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
+    void SmoothMorphTemplates(std::string name);
     const bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
     // for grouped impact evaluation
@@ -329,7 +330,8 @@ public:
 
     std::vector<std::string> fCustomFunctions;
     
-    bool fRunMorphing;
+//     bool fRunMorphing;
+    std::vector<std::string> fMorphParams;
     std::vector<std::pair<float,std::string> > fTemplatePair;
     std::vector<TtHFit::TemplateWeight> fTemplateWeightVec;
     TemplateInterpolationOption fTemplateInterpolationOption;
@@ -339,6 +341,10 @@ public:
     
     std::vector<std::string> fDecorrSysts;
     std::string fDecorrSuff;
+    
+    bool fDoNonProfileFit;
+    int fFitToys;
+    bool fSmoothMorphingTemplates;
 };
 
 #endif
