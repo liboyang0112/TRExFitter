@@ -56,6 +56,7 @@ Region::Region(string name){
     fShapeFactors.clear();
 
     fAlternativeVariables.clear();
+    fAlternativeSelections.clear();
     
     fIntCode_overall = 4;
     fIntCode_shape = 0;
@@ -1421,8 +1422,33 @@ void Region::SetAlternativeVariable(string variable,string sample){
 
 //__________________________________________________________________________________
 //
+void Region::SetAlternativeSelection(string selection,string sample){
+    fAlternativeSelections[sample] = selection;
+}
+
+//__________________________________________________________________________________
+//
 bool Region::UseAlternativeVariable(string sample){
-    if (fAlternativeVariables.find(sample)==fAlternativeVariables.end())
+//     if (fAlternativeVariables.find(sample)==fAlternativeVariables.end())
+    std::vector<std::string> tmpVec;
+    for(auto tmp : fAlternativeVariables){
+        tmpVec.push_back(tmp.first);
+    }
+    if (FindInStringVector(tmpVec,sample))
+        return false;
+    else
+        return true;
+}
+
+//__________________________________________________________________________________
+//
+bool Region::UseAlternativeSelection(string sample){
+//     if (fAlternativeSelections.find(sample)==fAlternativeSelections.end())
+    std::vector<std::string> tmpVec;
+    for(auto tmp : fAlternativeSelections){
+        tmpVec.push_back(tmp.first);
+    }
+    if (FindInStringVector(tmpVec,sample))
         return false;
     else
         return true;
@@ -1434,6 +1460,20 @@ std::string Region::GetAlternativeVariable(string sample){
     std::vector<std::string> tmpVec;
     std::vector<std::string> tmpVec2;
     for(auto tmp : fAlternativeVariables){
+        tmpVec.push_back(tmp.first);
+        tmpVec2.push_back(tmp.second);
+    }
+    int idx = FindInStringVector(tmpVec,sample);
+    if(idx<0) return "";
+    else return tmpVec2[idx];
+}
+
+//__________________________________________________________________________________
+//
+std::string Region::GetAlternativeSelection(string sample){
+    std::vector<std::string> tmpVec;
+    std::vector<std::string> tmpVec2;
+    for(auto tmp : fAlternativeSelections){
         tmpVec.push_back(tmp.first);
         tmpVec2.push_back(tmp.second);
     }

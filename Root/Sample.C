@@ -26,6 +26,7 @@ Sample::Sample(std::string name,int type){
     fDivideBy = "";
     fMultiplyBy = "";
     fSmooth = false;
+    fNormToSample = "";
     fBuildPullTable = 0;
     fIsMorph.clear();
     fMorphValue.clear();

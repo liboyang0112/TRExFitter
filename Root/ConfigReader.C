@@ -1458,6 +1458,18 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     if(param != "")
     reg->AddSelection( param );
 
+    // Set SelectionForSample
+    param = confSet->Get("SelectionForSample");
+    if( param != "" ){
+        std::vector < std::string > temp_samplesAndSels = Vectorize(param,',');
+        for(std::string ivar : temp_samplesAndSels){
+          std::vector < std::string > vars = Vectorize(ivar,':');
+            if(vars.size()==2){
+                reg->SetAlternativeSelection(vars[1], vars[0]);
+            }
+        }
+    }
+
     // Set NtupleName
     param = confSet->Get("NtupleName");
     if(param!="") {
@@ -1820,6 +1832,10 @@ int ConfigReader::ReadSampleOptions(){
         // Set AddSamples
         param = confSet->Get("AddSamples");
         if(param!="") sample->fAddSamples = Vectorize(param,',');
+
+        // Set NormToSample
+        param = confSet->Get("NormToSample");
+        if(param != "") sample->fNormToSample = param;
 
         // Set BuildPullTable
         // enable pull tables

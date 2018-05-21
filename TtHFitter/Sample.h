@@ -84,6 +84,7 @@ public:
     std::string fMultiplyBy;
     std::vector<std::string> fSubtractSamples;
     std::vector<std::string> fAddSamples;
+    std::string fNormToSample;
     bool fSmooth;
     int fBuildPullTable;
     std::map<std::string,bool> fIsMorph;

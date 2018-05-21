@@ -614,11 +614,20 @@ void TtHFit::ReadNtuples(){
             //
             // set selection and weight
             fullSelection = "1";
-            //             fSelection + " && " + fRegions[i_ch]->fSelection;
+            //
+            //Check whether to use an alternative selection or not
+            std::string selection;
+            if (fRegions[i_ch]->UseAlternativeSelection(fSamples[i_smp]->fName)){
+                selection = fRegions[i_ch]->GetAlternativeSelection(fSamples[i_smp]->fName);
+            }
+            else{
+                selection = fRegions[i_ch]->fSelection;
+            }
+            //
             if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                 fullSelection += " && ("+fSelection+")";
-            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fRegions[i_ch]->fSelection!="" && fRegions[i_ch]->fSelection!="1")
-                fullSelection += " && ("+fRegions[i_ch]->fSelection+")";
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && selection!="" && selection!="1")
+                fullSelection += " && ("+selection+")";
             if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
                 fullSelection += " && ("+fSamples[i_smp]->fSelection+")";
             if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSamples[i_smp]->fIgnoreSelection!="FALSE" && fSamples[i_smp]->fIgnoreSelection!="")
@@ -629,7 +638,6 @@ void TtHFit::ReadNtuples(){
             //Check whether to use an alternative variable (e.g. in TRF) or not
             std::string variable;
             if (fRegions[i_ch]->UseAlternativeVariable(fSamples[i_smp]->fName)){
-//                 variable = fRegions[i_ch]->fAlternativeVariables[fSamples[i_smp]->fName];
                 variable = fRegions[i_ch]->GetAlternativeVariable(fSamples[i_smp]->fName);
             }
             else{
@@ -716,8 +724,8 @@ void TtHFit::ReadNtuples(){
                 fullSelection = "1";
                 if(smp->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                     fullSelection += " && ("+fSelection+")";
-                if(smp->fIgnoreSelection!="TRUE" && reg->fSelection!="" && reg->fSelection!="1")
-                    fullSelection += " && ("+reg->fSelection+")";
+                if(smp->fIgnoreSelection!="TRUE" && selection!="" && selection!="1")
+                    fullSelection += " && ("+selection+")";
                 if(smp->fSelection!="" && smp->fSelection!="1")
                     fullSelection += " && ("+smp->fSelection+")";
                 if(smp->fIgnoreSelection!="TRUE" && smp->fIgnoreSelection!="FALSE" && smp->fIgnoreSelection!="")
@@ -865,11 +873,20 @@ void TtHFit::ReadNtuples(){
             //
             // set selection and weight
             fullSelection = "1";
-            //             fSelection + " && " + fRegions[i_ch]->fSelection;
+            //
+            //Check whether to use an alternative selection or not
+            std::string selection;
+            if (fRegions[i_ch]->UseAlternativeSelection(fSamples[i_smp]->fName)){
+                selection = fRegions[i_ch]->GetAlternativeSelection(fSamples[i_smp]->fName);
+            }
+            else{
+                selection = fRegions[i_ch]->fSelection;
+            }
+            //
             if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                 fullSelection += " && ("+fSelection+")";
-            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fRegions[i_ch]->fSelection!="" && fRegions[i_ch]->fSelection!="1")
-                fullSelection += " && ("+fRegions[i_ch]->fSelection+")";
+            if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && selection!="" && selection!="1")
+                fullSelection += " && ("+selection+")";
             if(fSamples[i_smp]->fSelection!="" && fSamples[i_smp]->fSelection!="1")
                 fullSelection += " && ("+fSamples[i_smp]->fSelection+")";
             if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSamples[i_smp]->fIgnoreSelection!="FALSE" && fSamples[i_smp]->fIgnoreSelection!="")
@@ -895,7 +912,7 @@ void TtHFit::ReadNtuples(){
             //Check whether to use an alternative variable (e.g. in TRF) or not
             std::string variable;
             if (fRegions[i_ch]->UseAlternativeVariable(fSamples[i_smp]->fName)){
-                variable = fRegions[i_ch]->fAlternativeVariables[fSamples[i_smp]->fName];
+                variable = fRegions[i_ch]->GetAlternativeVariable(fSamples[i_smp]->fName);
             }
             else{
                 variable = fRegions[i_ch]->fVariable;
@@ -1033,8 +1050,8 @@ void TtHFit::ReadNtuples(){
                 fullSelection = "1";
                 if(smp->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
                     fullSelection += " && ("+fSelection+")";
-                if(smp->fIgnoreSelection!="TRUE" && reg->fSelection!="" && reg->fSelection!="1")
-                    fullSelection += " && ("+reg->fSelection+")";
+                if(smp->fIgnoreSelection!="TRUE" && selection!="" && selection!="1")
+                    fullSelection += " && ("+selection+")";
                 if(smp->fSelection!="" && smp->fSelection!="1")
                     fullSelection += " && ("+smp->fSelection+")";
                 if(smp->fIgnoreSelection!="TRUE" && smp->fIgnoreSelection!="FALSE" && smp->fIgnoreSelection!="")
@@ -1054,16 +1071,16 @@ void TtHFit::ReadNtuples(){
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
-                        fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
-                        fullMCweight=ReplaceString(fullMCweight,"*  *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"* *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"**","*");
+                        fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"1");
+//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
                     if(smp->fIgnoreWeight!=""){
-                        fullMCweight=ReplaceString(fullMCweight, smp->fIgnoreWeight,"");
-                        fullMCweight=ReplaceString(fullMCweight,"*  *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"* *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"**","*");
+                        fullMCweight=ReplaceString(fullMCweight, smp->fIgnoreWeight,"1");
+//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
                     if(syst->fWeightSufUp!="")
                         fullMCweight += " * "+syst->fWeightSufUp;
@@ -1178,16 +1195,16 @@ void TtHFit::ReadNtuples(){
                     if(reg->fMCweight!="" && fSamples[i_smp]->fNormalizedByTheory)
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
-                        fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"");
-                        fullMCweight=ReplaceString(fullMCweight,"*  *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"* *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"**","*");
+                        fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"1");
+//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
                     if(smp->fIgnoreWeight!=""){
-                        fullMCweight=ReplaceString(fullMCweight, smp->fIgnoreWeight,"");
-                        fullMCweight=ReplaceString(fullMCweight,"*  *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"* *","*");
-                        fullMCweight=ReplaceString(fullMCweight,"**","*");
+                        fullMCweight=ReplaceString(fullMCweight, smp->fIgnoreWeight,"1");
+//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
+//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
                     if(syst->fWeightSufDown!="")
                         fullMCweight += " * "+syst->fWeightSufDown;
@@ -1380,6 +1397,12 @@ void TtHFit::CorrectHistograms(){
                 WriteDebugStatus("TtHFit::CorrectHistograms", "dividing " + fSamples[i_smp]->fName  + "by sample " + fSamples[i_smp]->fDivideBy + " from sample " + fSamples[i_smp]->fName);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
                 if(smph0!=0x0) sh->Divide(smph0);
+            }
+            // Norm to sample
+            if(fSamples[i_smp]->fNormToSample!=""){
+                WriteDebugStatus("TtHFit::CorrectHistograms", "normalizing " + fSamples[i_smp]->fName  + "to sample " + fSamples[i_smp]->fDivideBy);                
+                SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fNormToSample);
+                if(smph0!=0x0) sh->Scale(smph0->fHist->Integral()/sh->fHist->Integral());
             }
 
             //
@@ -5120,6 +5143,7 @@ void TtHFit::Fit(){
         WriteInfoStatus("TtHFit::Fit","");
         WriteInfoStatus("TtHFit::Fit","-------------------------------------------");
         WriteInfoStatus("TtHFit::Fit","Generating and fitting toys...");
+        // set all regions as ASIMOVDATA and create combined ws
         std::vector < std:: string > regionsToFit;
         std::map < std::string, int > regionDataType;
         for(auto reg : fRegions) regionDataType[reg->fName] = Region::ASIMOVDATA;
@@ -5130,24 +5154,29 @@ void TtHFit::Fit(){
                 regionsToFit.push_back( fRegions[i_ch] -> fName );
         }
         ws = PerformWorkspaceCombination( regionsToFit );
+        // create map to store fit results
         std::map < std::string, double > npValues;
+        // create histogram to store fitted POI values
         NormFactor* POInf = fNormFactors[FindInStringVector(fNormFactorNames,fPOI)];
         TH1F *h_toys = new TH1F("h_toys","h_toys",50,POInf->fMin,POInf->fMax);
+        // get RooStats stuff
         RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
         RooAbsPdf* pdf = mc->GetPdf();
         const RooArgSet* obsSet = mc->GetObservables();
         RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
-        ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
-        ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
         for(int i_toy=0;i_toy<fFitToys;i_toy++){
+            // setting POI to constant, not to allow it to fluctuate in toy creation
             poiVar->setConstant(1);
             poiVar->setVal(fFitPOIAsimov);
-            ws->loadSnapshot("InitialStateModelGlob");
-            ws->loadSnapshot("InitialStateModelNuis");
             RooDataSet* toyData = pdf->generate( *obsSet, RooFit::Extended() );
+            // re-set POI to free-floating, and to nominal value
+            poiVar->setConstant(0);
+            poiVar->setVal(POInf->fNominal);
+            // extract POI from fit result and fill histogram
             npValues = PerformFit( ws, toyData, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
             if(npValues.size()>0) h_toys->Fill(npValues[fPOI]);
         }
+        // plot, fit and save toy histogram
         TCanvas* c = new TCanvas("c","c",600,600);
         h_toys->Draw("E");
         TF1* g = new TF1("g","gaus",POInf->fMin,POInf->fMax);
@@ -5160,7 +5189,6 @@ void TtHFit::Fit(){
         myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g->GetParameter(2),g->GetParError(2)));
         myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g->GetChisquare(),g->GetNDF()));
         for(auto format : TtHFitter::IMAGEFORMAT) c->SaveAs((fName+"/Toys."+format).c_str());
-        poiVar->setVal(fFitPOIAsimov);
         fVarNameMinos = varMinosTmp; // retore Minos settings
     }
     
