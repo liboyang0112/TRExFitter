@@ -214,6 +214,7 @@ NB: note the *blank* line between the objects!
      * SummaryPlotValidationRegions : regions to be included in validation region summary plot (default: all)
      * SummaryPlotValidationLabels : labels to be used per region in validation region summary plot
      * SmoothMorphingTemplates : if set to TRUE (default is FALSE), the templates used for morphig are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory)
+     * SummaryPrefix    : adds a prefix to summary and merge plots
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis

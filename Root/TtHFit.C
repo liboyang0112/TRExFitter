@@ -647,7 +647,7 @@ void TtHFit::ReadNtuples(){
                 variable = fRegions[i_ch]->GetAlternativeVariable(fSamples[i_smp]->fName);
             }
             else{
-                variable = fRegions[i_ch]->fVariable;
+              variable = fRegions[i_ch]->fVariable;
             }
             //
             // build a list of ntuples to read
@@ -921,7 +921,7 @@ void TtHFit::ReadNtuples(){
                 variable = fRegions[i_ch]->GetAlternativeVariable(fSamples[i_smp]->fName);
             }
             else{
-                variable = fRegions[i_ch]->fVariable;
+              variable = fRegions[i_ch]->fVariable;
             }
             //
             // build a list of ntuples to read
@@ -1812,29 +1812,28 @@ void TtHFit::ReadHistograms(){
                 hUp = 0x0;
                 if(syst->fHasUpVariation){
                     fullPaths.clear();
-                    
                     fullPaths = CreatePathsList(
-                                    // path
-                                    fHistoPaths,
-                                    // path suf
+                                                // path
+                                                fHistoPaths,
+                                                // path suf
                                     CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsUpData ),
-                                    // file
-                                    syst->fHistoFilesUp.size()==0 ?
-                                    histoFiles :
+                                                // file
+                                                syst->fHistoFilesUp.size()==0 ?
+                                                histoFiles :
                                     syst->fHistoFilesUpData ,
-                                    // file suf
-                                    syst->fHistoFileSufUp=="" ?
-                                    empty :
+                                                // file suf
+                                                syst->fHistoFileSufUp=="" ?
+                                                empty :
                                     ToVec( syst->fHistoFileSufUpData ) ,
-                                    // name
-                                    syst->fHistoNamesUp.size()==0 ?
-                                    histoNames :
+                                                // name
+                                                syst->fHistoNamesUp.size()==0 ?
+                                                histoNames :
                                     syst->fHistoNamesUpData ,
-                                    // name suf
-                                    syst->fHistoNameSufUp=="" ?
-                                    empty :
+                                                // name suf
+                                                syst->fHistoNameSufUp=="" ?
+                                                empty :
                                     ToVec( syst->fHistoNameSufUpData )
-                                    );
+                                                );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                         // Pre-processing of histograms (rebinning, lumi scaling)
@@ -1864,29 +1863,28 @@ void TtHFit::ReadHistograms(){
                 hDown = 0x0;
                 if(syst->fHasDownVariation){
                     fullPaths.clear();
-                    
                     fullPaths = CreatePathsList(
-                                    // path
-                                    fHistoPaths,
-                                    // path suf
+                                                // path
+                                                fHistoPaths,
+                                                // path suf
                                     CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDownData ),
-                                    // file
-                                    syst->fHistoFilesDown.size()==0 ?
-                                    histoFiles :
+                                                // file
+                                                syst->fHistoFilesDown.size()==0 ?
+                                                histoFiles :
                                     syst->fHistoFilesDownData ,
-                                    // file suf
-                                    syst->fHistoFileSufDown=="" ?
-                                    empty :
+                                                // file suf
+                                                syst->fHistoFileSufDown=="" ?
+                                                empty :
                                     ToVec( syst->fHistoFileSufDownData ) ,
-                                    // name
-                                    syst->fHistoNamesDown.size()==0 ?
-                                    histoNames :
+                                                // name
+                                                syst->fHistoNamesDown.size()==0 ?
+                                                histoNames :
                                     syst->fHistoNamesDownData ,
-                                    // name suf
-                                    syst->fHistoNameSufDown=="" ?
-                                    empty :
+                                                // name suf
+                                                syst->fHistoNameSufDown=="" ?
+                                                empty :
                                     ToVec( syst->fHistoNameSufDownData )
-                                    );
+                                                );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
                         // Pre-processing of histograms (rebinning, lumi scaling)
@@ -3297,10 +3295,10 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     for(unsigned int i_ch=1;i_ch<regions.size();i_ch++){
         float scale = ymax/hTotVec[i_ch]->GetMaximum();
         hTotVec[i_ch]->Scale( scale );
-        hDataVec[i_ch]->Scale( scale );
         for(int i_bin=1;i_bin<=hDataVec[i_ch]->GetNbinsX();i_bin++){
             hDataVec[i_ch]->SetBinError(i_bin,sqrt(hDataVec[i_ch]->GetBinContent(i_bin)));
         }
+        hDataVec[i_ch]->Scale( scale );
         for(auto hVec : hSignalVec)     hVec[i_ch]->Scale( scale );
         for(auto hVec : hBackgroundVec) hVec[i_ch]->Scale( scale );
     }
@@ -5044,7 +5042,7 @@ void TtHFit::DrawPruningPlot(){
 void TtHFit::Fit(){
 
     //
-    // Checks if a data sample exists
+    //Checks if a data sample exists
     //
     bool hasData = false;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -5095,7 +5093,8 @@ void TtHFit::Fit(){
         std::map < std::string, int > regionDataType;
         for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             bool isToFit = false;
-           if ( fFitRegion == CRONLY ) {
+
+            if ( fFitRegion == CRONLY ) {
                 if( fRegions[i_ch] -> fRegionType == Region::CONTROL ){
                     isToFit = true;
                 }
@@ -5129,11 +5128,13 @@ void TtHFit::Fit(){
         // Creating the combined model with the regions to fit only
         //
         if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+
         ws = PerformWorkspaceCombination( regionsToFit );
+
         //
         // If needed (only if needed), create a RooDataset object
         //
-        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+            data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
         //
         // Calls the PerformFit() function to actually do the fit
         //
@@ -5311,18 +5312,18 @@ void TtHFit::Fit(){
             WriteWarningStatus("TtHFit::Fit","Better not to perform LH scan if you did non-profile fit with scan on systematics. Skipping LH scan.");
         }
         else{
-            if (fVarNameLH[0]=="all"){
-                for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
-                    GetLikelihoodScan( ws, it->first, data);
-                }
+        if (fVarNameLH[0]=="all"){
+            for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
+                GetLikelihoodScan( ws, it->first, data);
             }
-            else{
-                for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-                    GetLikelihoodScan( ws, fVarNameLH[i], data);
-                }
+        }
+        else{
+            for(unsigned int i=0; i<fVarNameLH.size(); ++i){
+                GetLikelihoodScan( ws, fVarNameLH[i], data);
             }
         }
     }
+}
 }
 
 //__________________________________________________________________________________
@@ -5337,14 +5338,14 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     //
     WriteDebugStatus("TtHFit::DumpData", "Dumping data with the following parameters");
     WriteDebugStatus("TtHFit::DumpData", "    * Regions data type ");
-    for( const std::pair < std::string, int > dataType : regionDataType ){
+        for( const std::pair < std::string, int > dataType : regionDataType ){
         WriteDebugStatus("TtHFit::DumpData", "       - Region: " + dataType.first + "       DataType: " + std::to_string(dataType.second));
-    }
-    if(npValues.size()){
-        WriteDebugStatus("TtHFit::DumpData", "    * Injected NP values ");
-        for ( const std::pair < std::string, double > npValue : npValues ){
-            WriteDebugStatus("TtHFit::DumpData", "       - NP: " + npValue.first + "       Value: " + std::to_string(npValue.second));
         }
+        if(npValues.size()){
+        WriteDebugStatus("TtHFit::DumpData", "    * Injected NP values ");
+            for ( const std::pair < std::string, double > npValue : npValues ){
+            WriteDebugStatus("TtHFit::DumpData", "       - NP: " + npValue.first + "       Value: " + std::to_string(npValue.second));
+            }
     }
     else {
         WriteDebugStatus("TtHFit::DumpData", "    * No NP values injected ");
@@ -5410,14 +5411,14 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     poi -> setVal(poiValue);
 
     //-- Nuisance parameters
-    RooRealVar* var(nullptr);
-    TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
-    while( (var = (RooRealVar*) npIterator->Next()) ){
-        std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
-        if( it_npValue != npValues.end() ){
+        RooRealVar* var(nullptr);
+        TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
+        while( (var = (RooRealVar*) npIterator->Next()) ){
+          std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
+          if( it_npValue != npValues.end() ){
             var -> setVal(it_npValue -> second);
+          }
         }
-    }
 
     //Looping over regions
     map<string, RooDataSet*> asimovDataMap;
@@ -5529,8 +5530,8 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     }
     fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
     if(fStatOnly){
-        fitTool -> NoGammas();
-        fitTool -> NoSystematics();
+      fitTool -> NoGammas();
+      fitTool -> NoSystematics();
     }
 
     //
@@ -5933,8 +5934,8 @@ void TtHFit::GetSignificance(){
         string dataName = "obsData";
         if(!hasData || fFitIsBlind) dataName = "asimovData";
         if (!fRunROOTMacros){
-            RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
-        }
+        RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
+    }
         cmd = "root -l -b -q 'runSig.C(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
     }
 
@@ -7703,33 +7704,33 @@ const bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float va
 //____________________________________________________________________________________
 // create a map associating parameters to their SubCategory
 void TtHFit::ProduceSystSubCategoryMap(){
-    WriteDebugStatus("TtHFit::ProduceSystSubCategoryMap", "filling SubCategory map");
-    
-    // special treatment needed for two cases:
-    // 1) stat-only fit where all parameters are fixed, see FittingTool::GetGroupedImpact()
-    // 2) fit with all Gammas fixed, see FittingTool::GetGroupedImpact()
-    fSubCategoryImpactMap.insert(std::make_pair("DUMMY_STATONLY", "FullSyst"));
-    fSubCategoryImpactMap.insert(std::make_pair("DUMMY_GAMMAS", "Gammas"));
-    
-    // add all systematics, here an "alpha_" prefix is needed
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        //std::cout << fSystematics[i_syst]->fName << endl;
-        if(fSystematics[i_syst]->fSubCategory=="Gammas" or fSystematics[i_syst]->fSubCategory=="FullSyst" or fSystematics[i_syst]->fSubCategory=="combine")
+   WriteDebugStatus("TtHFit::ProduceSystSubCategoryMap", "filling SubCategory map");
+
+   // special treatment needed for two cases:
+   // 1) stat-only fit where all parameters are fixed, see FittingTool::GetGroupedImpact()
+   // 2) fit with all Gammas fixed, see FittingTool::GetGroupedImpact()
+   fSubCategoryImpactMap.insert(std::make_pair("DUMMY_STATONLY", "FullSyst"));
+   fSubCategoryImpactMap.insert(std::make_pair("DUMMY_GAMMAS", "Gammas"));
+
+   // add all systematics, here an "alpha_" prefix is needed
+   for(int i_syst=0;i_syst<fNSyst;i_syst++){
+       //std::cout << fSystematics[i_syst]->fName << endl;
+       if(fSystematics[i_syst]->fSubCategory=="Gammas" or fSystematics[i_syst]->fSubCategory=="FullSyst" or fSystematics[i_syst]->fSubCategory=="combine")
             WriteWarningStatus("TtHFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
 //        fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fName).c_str(), fSystematics[i_syst]->fSubCategory));
-            fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fNuisanceParameter).c_str(), fSystematics[i_syst]->fSubCategory));
-    }
-    
-    // also add norm factors, no "alpha_" needed
-    for(int i_nf=0;i_nf<fNNorm;i_nf++){
-        //std::cout << fNormFactors[i_nf]->fName << endl;
-        if(fNormFactors[i_nf]->fSubCategory=="Gammas" or fNormFactors[i_nf]->fSubCategory=="FullSyst" or fNormFactors[i_nf]->fSubCategory=="combine")
+       fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fNuisanceParameter).c_str(), fSystematics[i_syst]->fSubCategory));
+   }
+
+   // also add norm factors, no "alpha_" needed
+   for(int i_nf=0;i_nf<fNNorm;i_nf++){
+       //std::cout << fNormFactors[i_nf]->fName << endl;
+       if(fNormFactors[i_nf]->fSubCategory=="Gammas" or fNormFactors[i_nf]->fSubCategory=="FullSyst" or fNormFactors[i_nf]->fSubCategory=="combine")
             WriteWarningStatus("TtHFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
-        if (fNormFactors[i_nf]->fName != fPOI) {
+       if (fNormFactors[i_nf]->fName != fPOI) {
 //            fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fName, fNormFactors[i_nf]->fSubCategory));
-            fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fNuisanceParameter, fNormFactors[i_nf]->fSubCategory));
-        }
-    }
+           fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fNuisanceParameter, fNormFactors[i_nf]->fSubCategory));
+       }
+   }
 }
 
 //____________________________________________________________________________________

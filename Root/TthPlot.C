@@ -526,6 +526,9 @@ void TthPlot::Draw(string options){
         legX1 = TtHFitter::OPTION["LegendX1"];
     }
     float legX2 = 0.94;
+    if(TtHFitter::OPTION["LegendX2"]!=0){
+        legX2 = TtHFitter::OPTION["LegendX2"];
+    }
     float legXmid = legX1+0.5*(legX2-legX1);
 
     if(fShowYields){
@@ -627,7 +630,7 @@ void TthPlot::Draw(string options){
 //             leg  = new TLegend(0.6,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
 //         else
 //             leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
-        legX1 = legX2 - 3*(legX2-legXmid+0.1*(legX2-legXmid));
+        if(TtHFitter::OPTION["LegendX1"]==0) legX1 = legX2 - 3*(legX2-legXmid+0.1*(legX2-legXmid));
         leg = new TLegend(legX1,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
         leg->SetNColumns(3);
         leg->SetFillStyle(0);
@@ -635,7 +638,8 @@ void TthPlot::Draw(string options){
         if(!TtHFitter::LEGENDLEFT) leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
         leg->SetTextSize(gStyle->GetTextSize());
-        leg->SetMargin(0.20);
+//         leg->SetMargin(0.20);
+        leg->SetMargin(fLegendNColumns*(legX2-legX1)/10.);
 
         //Draws data in the legend only is real data
         if(hasData){
@@ -1148,8 +1152,10 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
         gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
         //     if(content==0){
         if(content<0.1){ // FIXME
-            gr->RemovePoint(i);
-            i--;
+//             gr->RemovePoint(i);
+//             i--;
+            gr->SetPoint(i,gr->GetX()[i],-1);
+            gr->SetPointError(i,0,0,0,0);
         }
         hBinCounter++;
     }
@@ -1169,6 +1175,11 @@ TGraphAsymmErrors* histToGraph(TH1* h){
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
         gr->SetPointEXlow(i,0.499*h->GetBinWidth(i+1));
         gr->SetPointEXhigh(i,0.5*h->GetBinWidth(i+1));
+        double content = pow( (gr->GetErrorYhigh(i)) ,2); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
+        if(content<0.000001){ // FIXME
+            gr->SetPoint(i,gr->GetX()[i],-1);
+            gr->SetPointError(i,0,0,0,0);
+        }
     }
     gr->SetMarkerStyle(h->GetMarkerStyle());
     gr->SetMarkerSize(h->GetMarkerSize());
