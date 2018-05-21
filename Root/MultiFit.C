@@ -103,7 +103,7 @@ MultiFit::~MultiFit(){
 void MultiFit::AddFitFromConfig(string configFile,string options,string label,string loadSuf,string wsFile){
     // keep debug level
     int debug = TtHFitter::DEBUGLEVEL;
-  
+
     fFitList.push_back(new TtHFit());
 
     // initialize config reader 
@@ -112,7 +112,7 @@ void MultiFit::AddFitFromConfig(string configFile,string options,string label,st
     if (reader.ReadFullConfig(configFile,options) != 0){
         WriteErrorStatus("MultiFit::AddFitFromConfig", "Failed to read the config file.");
         exit(EXIT_FAILURE);
-    }
+}
 
     fFitLabels.push_back(label);
     fFitSuffs.push_back(loadSuf);
@@ -197,7 +197,7 @@ RooWorkspace* MultiFit::CombineWS(){
 
     // Configure the workspace
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
-    
+
     if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     return ws;
@@ -338,6 +338,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         ndof -= nfList.size();
         
         fitTool -> MinimType("Minuit2");
+        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
 
         // Full fit
         float nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
@@ -1756,6 +1757,22 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     }
     while (!fin.eof()){
+        if(paramname.find("stat")!=string::npos && !flagGammas){
+            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+            if (paramname=="Luminosity"){
+                WriteErrorStatus("MultiFit::PlotNPRanking", "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"");
+                fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+            }
+            continue;
+        }
+        if(paramname.find("stat")==string::npos && !flagSysts){
+            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+            if (paramname=="Luminosity"){
+                WriteErrorStatus("MultiFit::PlotNPRanking", "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"");
+                fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+            }
+            continue;
+        }
         parname.push_back(paramname);
         nuhat.push_back(nuiphat);
         nuerrhi.push_back(nuiperrhi);
@@ -1987,6 +2004,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     axis_up->CenterTitle();
     axis_up->SetTitle("#Delta#mu");
     if(SIZE==20) axis_up->SetTitleOffset(1.5);
+    if(SIZE==10) axis_up->SetTitleOffset(1.25);
     axis_up->SetTitleSize(   h_dummy->GetXaxis()->GetLabelSize() );
     axis_up->SetTitleFont(   gStyle->GetTextFont() );
 
