@@ -3,7 +3,9 @@
     * Added toys to compare with uncertainty from the fit (tested just for stat uncertainty on Asimov, need more checks, need to understand why getting stuck at first invalid fit)
     * Added functionality for non-profile fit (stat-only fits on Asimoc with syst variations one at a time)
     * String comparison internal functionality improved for wildcards
+    * Updated fixes from 4top paper
     * Various fixes
+    * Tagging TtHFitter-00-03-25: backup version before merging with Common scripts implementation (version for 4top paper)
 
 2018-05-18 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Tagging TtHFitter-00-03-24: first tag with new config syntax check
