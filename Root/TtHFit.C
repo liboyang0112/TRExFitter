@@ -150,6 +150,12 @@ TtHFit::TtHFit(string name){
     fLimitPOIAsimov = 0;
     fSignalInjection = false;
 
+    // 
+    // Significance parameters
+    //
+    fSignificanceIsBlind = false;
+    fSignificancePOIAsimov = 0;
+
     fImageFormat = "png";
     TtHFitter::IMAGEFORMAT.clear();
     TtHFitter::IMAGEFORMAT.push_back("png");
@@ -1806,28 +1812,29 @@ void TtHFit::ReadHistograms(){
                 hUp = 0x0;
                 if(syst->fHasUpVariation){
                     fullPaths.clear();
+                    
                     fullPaths = CreatePathsList(
-                                                // path
-                                                fHistoPaths,
-                                                // path suf
-                                                CombinePathSufs(reg->fHistoPathSuffs,syst->fHistoPathsUp ),
-                                                // file
-                                                syst->fHistoFilesUp.size()==0 ?
-                                                histoFiles :
-                                                syst->fHistoFilesUp ,
-                                                // file suf
-                                                syst->fHistoFileSufUp=="" ?
-                                                empty :
-                                                ToVec( syst->fHistoFileSufUp ),
-                                                // name
-                                                syst->fHistoNamesUp.size()==0 ?
-                                                histoNames :
-                                                syst->fHistoNamesUp,
-                                                // name suf
-                                                syst->fHistoNameSufUp=="" ?
-                                                empty :
-                                                ToVec( syst->fHistoNameSufUp )
-                                                );
+                                    // path
+                                    fHistoPaths,
+                                    // path suf
+                                    CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsUpData ),
+                                    // file
+                                    syst->fHistoFilesUp.size()==0 ?
+                                    histoFiles :
+                                    syst->fHistoFilesUpData ,
+                                    // file suf
+                                    syst->fHistoFileSufUp=="" ?
+                                    empty :
+                                    ToVec( syst->fHistoFileSufUpData ) ,
+                                    // name
+                                    syst->fHistoNamesUp.size()==0 ?
+                                    histoNames :
+                                    syst->fHistoNamesUpData ,
+                                    // name suf
+                                    syst->fHistoNameSufUp=="" ?
+                                    empty :
+                                    ToVec( syst->fHistoNameSufUpData )
+                                    );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                         // Pre-processing of histograms (rebinning, lumi scaling)
@@ -1857,28 +1864,29 @@ void TtHFit::ReadHistograms(){
                 hDown = 0x0;
                 if(syst->fHasDownVariation){
                     fullPaths.clear();
+                    
                     fullPaths = CreatePathsList(
-                                                // path
-                                                fHistoPaths,
-                                                // path suf
-                                                CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDown ),
-                                                // file
-                                                syst->fHistoFilesDown.size()==0 ?
-                                                histoFiles :
-                                                syst->fHistoFilesDown ,
-                                                // file suf
-                                                syst->fHistoFileSufDown=="" ?
-                                                empty :
-                                                ToVec( syst->fHistoFileSufDown ),
-                                                // name
-                                                syst->fHistoNamesDown.size()==0 ?
-                                                histoNames :
-                                                syst->fHistoNamesDown,
-                                                // name suf
-                                                syst->fHistoNameSufDown=="" ?
-                                                empty :
-                                                ToVec( syst->fHistoNameSufDown )
-                                                );
+                                    // path
+                                    fHistoPaths,
+                                    // path suf
+                                    CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDownData ),
+                                    // file
+                                    syst->fHistoFilesDown.size()==0 ?
+                                    histoFiles :
+                                    syst->fHistoFilesDownData ,
+                                    // file suf
+                                    syst->fHistoFileSufDown=="" ?
+                                    empty :
+                                    ToVec( syst->fHistoFileSufDownData ) ,
+                                    // name
+                                    syst->fHistoNamesDown.size()==0 ?
+                                    histoNames :
+                                    syst->fHistoNamesDownData ,
+                                    // name suf
+                                    syst->fHistoNameSufDown=="" ?
+                                    empty :
+                                    ToVec( syst->fHistoNameSufDownData )
+                                    );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
                         // Pre-processing of histograms (rebinning, lumi scaling)
@@ -5941,14 +5949,14 @@ void TtHFit::GetSignificance(){
         bool onlyUseRealData = true;
         for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-            if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind){
+            if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fSignificanceIsBlind){
                 Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
                 regionsForFit.push_back( fRegions[i_ch] -> fName );
                 regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
             }
             regionsForSign.push_back(fRegions[i_ch] -> fName);
-            regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (!hasData || fLimitIsBlind) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
-            if(fLimitIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
+            regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (!hasData || fSignificanceIsBlind) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+            if(fSignificanceIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
                 onlyUseRealData = false;
             }
         }
@@ -5971,7 +5979,7 @@ void TtHFit::GetSignificance(){
         // Create the final asimov dataset for limit setting
         //
         RooWorkspace* ws_forSignificance = PerformWorkspaceCombination( regionsForSign );
-        data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
+        data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fSignificancePOIAsimov : npValues[fPOI] );
 
         //
         // Gets the measurement object in the original combined workspace (created with the "w" command)

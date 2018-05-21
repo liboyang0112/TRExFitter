@@ -496,6 +496,10 @@ bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, cons
                 WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + current + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
                 return false;
             }
+        } else {
+            if (current_vec.at(iparam) != possible_vec.at(iparam)){
+                return false;
+            }
         }
     }
 

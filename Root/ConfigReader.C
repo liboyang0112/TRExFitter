@@ -50,6 +50,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 
     sc+= ReadLimitOptions();
 
+    sc+= ReadSignificanceOptions();
+
     sc+= ReadRegionOptions();
 
     sc+= ReadSampleOptions();
@@ -1120,6 +1122,40 @@ int ConfigReader::ReadLimitOptions(){
             WriteWarningStatus("ConfigReader::ReadLimitOptions", "You specified 'SignalInjection' option but didnt provide valid parameter. Using default (false)");
             fFitter->fSignalInjection = false;
         }
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadSignificanceOptions(){
+    std::string param = "";
+
+    ConfigSet* confSet = fParser.GetConfigSet("Significance");
+    if (confSet == nullptr){
+        WriteDebugStatus("ConfigReader::ReadSignificanceOptions", "You do not have Significance option in the config. It is ok, we just want to let you know.");
+        return 0; // it is ok to not have Fit set up
+    }
+
+    // Set LimitBlind
+    param = confSet->Get("SignificanceBlind");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fSignificanceIsBlind = true;
+        } else if ( param == "FALSE" ){
+            fFitter->fSignificanceIsBlind = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadSignificanceOptions", "You specified 'SignificanceBlind' option but didnt provide valid parameter. Using default (false)");
+            fFitter->fSignificanceIsBlind = false;
+        }
+    }
+
+    // Set POIAsimov
+    param = confSet->Get("POIAsimov");
+    if( param != "" ){
+        fFitter->fSignificancePOIAsimov = atof(param.c_str());
     }
 
     return 0;
@@ -2336,6 +2372,55 @@ int ConfigReader::ReadSystOptions(){
                     sys->fHistoNameSufDown = confSet->Get("HistoNameSufDown");
                     hasDown = true;
                 }
+                // For reference file when using systematics on it - like JER on data
+                if(confSet->Get("HistoPathUpData")!=""){
+                    sys->fHistoPathsUpData.push_back(confSet->Get("HistoPathUpData"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoPathDownData")!=""){
+                    sys->fHistoPathsDownData.push_back(confSet->Get("HistoPathDownData"));
+                    hasDown   = true;
+                }
+                if(confSet->Get("HistoPathSufUpData")!=""){
+                    sys->fHistoPathSufUpData = confSet->Get("HistoPathSufUpData");
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoPathSufDownData")!=""){
+                    sys->fHistoPathSufDownData = confSet->Get("HistoPathSufDownData");
+                    hasDown = true;
+                }
+                if(confSet->Get("HistoFileUpData")!=""){
+                    sys->fHistoFilesUpData.push_back(confSet->Get("HistoFileUpData"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoFileDownData")!=""){
+                    sys->fHistoFilesDownData.push_back(confSet->Get("HistoFileDownData"));
+                    hasDown = true;
+                }
+                if(confSet->Get("HistoFileSufUpData")!=""){
+                    sys->fHistoFileSufUpData = confSet->Get("HistoFileSufUpData");
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoFileSufDownData")!=""){
+                    sys->fHistoFileSufDown = confSet->Get("HistoFileSufDownData");
+                    hasDown = true;
+                }
+                if(confSet->Get("HistoNameUpData")!=""){
+                    sys->fHistoNamesUp.push_back(confSet->Get("HistoNameUpData"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoNameDownData")!=""){
+                    sys->fHistoNamesDown.push_back(confSet->Get("HistoNameDownData"));
+                    hasDown = true;
+                }
+                if(confSet->Get("HistoNameSufUpData")!=""){
+                    sys->fHistoNameSufUpData = confSet->Get("HistoNameSufUpData");
+                    hasUp   = true;
+                }
+                if(confSet->Get("HistoNameSufDownData")!=""){
+                    sys->fHistoNameSufDownData = confSet->Get("HistoNameSufDownData");
+                    hasDown = true;
+                }
             }
             else if(fFitter->fInputType==1){ // NTUP option
                 if(confSet->Get("NtuplePathUp")!=""){
@@ -2592,6 +2677,19 @@ int ConfigReader::ReadSystOptions(){
             sys->fNuisanceParameter += fFitter->fDecorrSuff;
         }
 
+        // Set paths for data reference sample
+        if (sys->fHistoPathsUpData.size() == 0) sys->fHistoPathsUpData = sys->fHistoPathsUp;
+        if (sys->fHistoPathsDownData.size() == 0) sys->fHistoPathsDownData = sys->fHistoPathsUp;
+        if (sys->fHistoPathSufUpData.size() == 0) sys->fHistoPathSufUpData = sys->fHistoPathSufUp;
+        if (sys->fHistoPathSufDownData.size() == 0) sys->fHistoPathSufDownData = sys->fHistoPathSufDown;
+        if (sys->fHistoFilesUpData.size() == 0) sys->fHistoFilesUpData = sys->fHistoFilesUp;
+        if (sys->fHistoFilesDownData.size() == 0) sys->fHistoFilesDownData = sys->fHistoFilesDown;
+        if (sys->fHistoFileSufUpData.size() == 0) sys->fHistoFileSufUpData = sys->fHistoFileSufUp;
+        if (sys->fHistoFileSufDownData.size() == 0) sys->fHistoFileSufDownData = sys->fHistoFileSufDown;
+        if (sys->fHistoNamesUpData.size() == 0) sys->fHistoNamesUpData = sys->fHistoNamesUp;
+        if (sys->fHistoNamesDownData.size() == 0) sys->fHistoNamesDownData = sys->fHistoNamesDown;
+        if (sys->fHistoNameSufUpData.size() == 0) sys->fHistoNameSufUpData = sys->fHistoNameSufUp;
+        if (sys->fHistoNameSufDownData.size() == 0) sys->fHistoNameSufDownData = sys->fHistoNameSufDown;
     }
 
     return 0;

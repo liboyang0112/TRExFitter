@@ -238,6 +238,10 @@ NB: note the *blank* line between the objects!
      * POIAsimov        : value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
      * SignalInjection  : if set to TRUE, expected signal with signal injection is evaluated
 
+  * Significance:
+     * SignificanceBlind: can be TRUE or FALSE (TRUE means that ALL regions are blinded)
+     * POIAsimov        : value of the POI to inject in the Asimov dataset in SignificanceBlind is set to TRUE
+
   * Options:
      * additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...
 
@@ -386,6 +390,18 @@ NB: note the *blank* line between the objects!
      * KeepNormForSamples  : list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
      * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
+     * HistoPathUpData     : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder for the up variation reference sample (Data) when using HIST
+     * HistoPathDownData   : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder for the down variation reference sample (Data) when using HIST
+     * HistoPathSufUpData  : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder suffixes for the up variation reference sample (Data) when using HIST
+     * HistoPathSufDownData: When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder suffixes for the down variation reference sample (Data) when using HIST
+     * HistoFileUpData     : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file path for the up variation reference sample (Data) when using HIST
+     * HistoFileDownData   : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file path for the down variation reference sample (Data) when using HIST
+     * HistoFileUpSufData  : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file suff path for the up variation reference sample (Data) when using HIST
+     * HistoFileDoSufwnData: When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file suff path for the down variation reference sample (Data) when using HIST
+     * HistoNameUpData     : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path inside the file for the up variation reference sample (Data) when using HIST
+     * HistoNameDownData   : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path inside the file for the down variation reference sample (Data) when using HIST
+     * HistoNameSufUpData  : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path suff inside the file for the up variation reference sample (Data) when using HIST
+     * HistoNameSufDownData: When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path suff inside the file for the down variation reference sample (Data) when using HIST
      * Decorrelate         : decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects)
 
 
