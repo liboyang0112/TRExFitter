@@ -170,7 +170,7 @@ NB: note the *blank* line between the objects!
      * RankingPlot      : NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots.
      * ImageFormat      : png, pdf or eps
      * StatOnly         : the code ignores systematics and MC stat uncertainties from all computations (limits, significances, fit, ...); need to re-create ws in case of limit and significance
-     * SystErrorBars    : add stat error bars to syst variations in syst plots
+     * SystErrorBars    : TRUE by default to add stat error bars to syst variations in syst plots, set to FALSE to disable
      * SummaryPlotRegions : list of regions to be shown in summary plot (useful to specify a custom order)
      * FixNPforStatOnly : if set to TRUE, when running stat-only (with either of the two options) also the norm factors other than the POI are kept fixed
      * InputFolder      : specify it to read fit input histograms from a different directory than <jobName>/Histograms/
