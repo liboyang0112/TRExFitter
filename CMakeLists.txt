@@ -132,7 +132,7 @@ add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )
 target_include_directories( TRExFitter
    PUBLIC ${ROOT_INCLUDE_DIRS}
    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
-target_link_libraries( TRExFitter CommonSystSmoothingTool AtlasUtils ${ROOT_LIBRARIES} )
+target_link_libraries( TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils ${ROOT_LIBRARIES} )
 set_property( TARGET TRExFitter
    PROPERTY PUBLIC_HEADER ${lib_headers} )
 
@@ -151,7 +151,7 @@ install( TARGETS TRExFitter CommonSystSmoothingTool AtlasUtils
 # Helper macro for building the project's executables.
 macro( TRExFitter_add_executable name )
   add_executable( ${name} ${ARGN} )
-  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool AtlasUtils )
+  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils )
   install( TARGETS ${name}
     EXPORT TRExFitterTargets
     RUNTIME DESTINATION bin )
