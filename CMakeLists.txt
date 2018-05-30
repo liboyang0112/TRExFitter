@@ -159,8 +159,17 @@ endmacro( TRExFitter_add_executable )
 
 TRExFitter_add_executable( myFit.exe util/myFit.C )
 
-# Install the CMake description of the project.
-install( EXPORT TRExFitterTargets
-   FILE TRExFitterConfig-targets.cmake
-   DESTINATION cmake
-   NAMESPACE "TRExFitter::" )
+
+# ------------------------------------------------
+# Install target prescription
+# ------------------------------------------------
+
+# Install the CMake description of the project. This is
+# deactivated for now, because one of our dependencies (ExoStats
+# aka CommonStatTools) does not define and install its targets,
+# so we can't install ours either ...
+
+# install( EXPORT TRExFitterTargets
+#    FILE TRExFitterConfig-targets.cmake
+#    DESTINATION cmake
+#    NAMESPACE "TRExFitter::" )
