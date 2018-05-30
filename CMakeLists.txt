@@ -141,7 +141,7 @@ install( TARGETS TRExFitter CommonSystSmoothingTool AtlasUtils
    EXPORT TRExFitterTargets
    ARCHIVE DESTINATION lib
    LIBRARY DESTINATION lib
-   PUBLIC_HEADER DESTINATION TtHFitter )
+   PUBLIC_HEADER DESTINATION include/TtHFitter )
 
 
 # ------------------------------------------------
