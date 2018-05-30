@@ -28,6 +28,11 @@ set( CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/lib )  # Needed by ROOT_GENERATE_D
 # Set the warning flag(s) to use.
 # set( CMAKE_CXX_FLAGS "-Wall -pedantic" )
 
+
+# ------------------------------------------------
+# Dependencies and sub-libraries
+# ------------------------------------------------
+
 # Add ROOT system directory and require ROOT.
 find_package( ROOT 5.34.10 REQUIRED MathCore HistFactory )
 
@@ -63,6 +68,11 @@ target_include_directories( AtlasUtils
    PUBLIC ${ROOT_INCLUDE_DIRS}
    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
 target_link_libraries( AtlasUtils ${ROOT_LIBRARIES} )
+
+
+# ------------------------------------------------
+# The actual TRExFitter library
+# ------------------------------------------------
 
 # Public header files for the shared/static library.
 set( lib_headers
@@ -132,6 +142,11 @@ install( TARGETS TRExFitter CommonSystSmoothingTool AtlasUtils
    ARCHIVE DESTINATION lib
    LIBRARY DESTINATION lib
    PUBLIC_HEADER DESTINATION TtHFitter )
+
+
+# ------------------------------------------------
+# TRExFitter executables
+# ------------------------------------------------
 
 # Helper macro for building the project's executables.
 macro( TRExFitter_add_executable name )
