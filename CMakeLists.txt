@@ -1,0 +1,130 @@
+# Set the minimum CMake version required to build the project.
+cmake_minimum_required( VERSION 3.1 )
+
+# Silence some warnings on macOS with new CMake versions.
+if( NOT ${CMAKE_VERSION} VERSION_LESS 3.9 )
+   cmake_policy( SET CMP0068 NEW )
+endif()
+
+# Set the project's name and version.
+project( TRExFitter )
+
+# Enable using CTest in the project.
+include( CTest )
+
+# Set up the "C++ version" to use.
+set( CMAKE_CXX_STANDARD_REQUIRED 11 CACHE STRING
+   "Minimum C++ standard required for the build" )
+set( CMAKE_CXX_STANDARD 14 CACHE STRING
+   "C++ standard to use for the build" )
+set( CMAKE_CXX_EXTENSIONS FALSE CACHE BOOL
+   "(Dis)allow using compiler extensions" )
+
+# Set the warning flag(s) to use.
+# set( CMAKE_CXX_FLAGS "-Wall -pedantic" )
+
+# Add ROOT system directory and require ROOT.
+find_package( ROOT 5.34.10 REQUIRED MathCore Minuit HistFactory )
+
+# Include the cmake build for the CommonStatTools submodule.
+include_directories( CommonStatTools )
+add_subdirectory( CommonStatTools )
+
+# Include the headers of the CommonSystSmoothingTool.
+include_directories( CommonSystSmoothingTool )
+
+# Public header files for the shared/static library.
+set( lib_headers
+  AtlasLabels.h
+  AtlasStyle.h
+  AtlasUtils.h
+  TtHFitter/Common.h
+  TtHFitter/ConfigParser.h
+  TtHFitter/ConfigReader.h
+  TtHFitter/ConfigReaderMulti.h
+  TtHFitter/CorrelationMatrix.h
+  TtHFitter/FitResults.h
+  TtHFitter/FittingTool.h
+  TtHFitter/HistoTools.h
+  TtHFitter/MultiFit.h
+  TtHFitter/NormFactor.h
+  TtHFitter/NuisParameter.h
+  TtHFitter/OverallSyst.h
+  TtHFitter/Region.h
+  TtHFitter/RunAsymptoticsCLs.h
+  TtHFitter/RunAsymptoticsCLs_inject.h
+  TtHFitter/RunSig.h
+  TtHFitter/Sample.h
+  TtHFitter/SampleHist.h
+  TtHFitter/ShapeFactor.h
+  TtHFitter/StatusLogbook.h
+  TtHFitter/Systematic.h
+  TtHFitter/SystematicHist.h
+  TtHFitter/TtHFit.h
+  TtHFitter/TthPlot.h )
+
+# Source files for the shared/static library.
+set( lib_sources
+  AtlasLabels.C
+  AtlasStyle.C
+  AtlasUtils.C
+  CommonSystSmoothingTool/Root/PlotHist.cxx
+  CommonSystSmoothingTool/Root/SmoothHist.cxx
+  CommonSystSmoothingTool/Root/SmoothingTool.cxx
+  CommonSystSmoothingTool/Root/TRExTools.cxx
+  Root/Common.C
+  Root/ConfigParser.C
+  Root/ConfigReader.C
+  Root/ConfigReaderMulti.C
+  Root/CorrelationMatrix.C
+  Root/FitResults.C
+  Root/FittingTool.C
+  Root/HistoTools.C
+  Root/MultiFit.C
+  Root/NormFactor.C
+  Root/NuisParameter.C
+  Root/Region.C
+  Root/RunAsymptoticsCLs.C
+  Root/RunAsymptoticsCLs_inject.C
+  Root/RunSig.C
+  Root/Sample.C
+  Root/SampleHist.C
+  Root/ShapeFactor.C
+  Root/StatusLogbook.C
+  Root/Systematic.C
+  Root/SystematicHist.C
+  Root/TtHFit.C
+  Root/TthPlot.C )
+
+# Build the shared library.
+add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )
+target_include_directories( TRExFitter
+   PUBLIC ${ROOT_INCLUDE_DIRS}
+   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
+target_link_libraries( TRExFitter ${ROOT_LIBRARIES} )
+set_property( TARGET TRExFitter
+   PROPERTY PUBLIC_HEADER ${lib_headers} )
+
+# Install the libraries.
+install( TARGETS TRExFitter
+   EXPORT TRExFitterTargets
+   ARCHIVE DESTINATION lib
+   LIBRARY DESTINATION lib
+   PUBLIC_HEADER DESTINATION TtHFitter )
+
+# Helper macro for building the project's executables.
+macro( TRExFitter_add_executable name )
+  add_executable( ${name} ${ARGN} )
+  target_link_libraries( ${name} TRExFitter )
+  install( TARGETS ${name}
+    EXPORT TRExFitterTargets
+    RUNTIME DESTINATION bin )
+endmacro( TRExFitter_add_executable )
+
+TRExFitter_add_executable( myFit.exe util/myFit.C )
+
+# Install the CMake description of the project.
+install( EXPORT TRExFitterTargets
+   FILE TRExFitterConfig-targets.cmake
+   DESTINATION cmake
+   NAMESPACE "TRExFitter::" )
