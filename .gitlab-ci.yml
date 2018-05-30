@@ -21,6 +21,7 @@ variables:
 before_script:
   - set +e
   - source setup.sh #sources the setup IN the TREXfitter package (consistent with user's setup)
+  - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:}$PWD/build/lib
   - root -l -b -q
 
 ##
@@ -58,14 +59,12 @@ input_prod:
 histograms:
     stage: hstep
     script:
-      - cd build
-      - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:}$PWD/build/lib
-      - ./bin/myFit.exe h ../config/myFit.config
+      - ./build/bin/myFit.exe h config/myFit.config
       - ls
       - ls FitExample/Histograms/
     artifacts:
       paths:
-        - build/FitExample
+        - FitExample
 
 ##
 ## "Wsetp" step: produces the workspace
@@ -74,18 +73,17 @@ histograms:
 workspace:
     stage: wstep
     script:
-      - cd build
-      - ./bin/myFit.exe w ../config/myFit.config >& LOG_w
+      - ./build/bin/myFit.exe w config/myFit.config >& LOG_w
       - cat LOG_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_w
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/RooStats/
-      - source ../test/scripts/check_step_w.sh
+      - source test/scripts/check_step_w.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
-        - build/FitExample
+        - FitExample
 
 ##
 ## "flsstep" step: performs the fit
@@ -94,19 +92,18 @@ workspace:
 fit:
     stage: flsstep
     script:
-      - cd build
-      - ./bin/myFit.exe f ../config/myFit.config >& LOG_f
+      - ./build/bin/myFit.exe f config/myFit.config >& LOG_f
       - cat LOG_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_f
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/Fits/
       - cat FitExample/Fits/*.txt
-      - source ../test/scripts/check_step_f.sh
+      - source test/scripts/check_step_f.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
-        - build/FitExample
+        - FitExample
 
 ##
 ## "flsstep" step: compute the limits
@@ -115,18 +112,17 @@ fit:
 limit:
     stage: flsstep
     script:
-      - cd build
-      - ./bin/myFit.exe l ../config/myFit.config >& LOG_l
+      - ./build/bin/myFit.exe l config/myFit.config >& LOG_l
       - cat LOG_l | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_l
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/Limits/
-      - source ../test/scripts/check_step_l.sh
+      - source test/scripts/check_step_l.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
-        - build/FitExample
+        - FitExample
 
 ##
 ## "flsstep" step: compute the significance
@@ -135,18 +131,17 @@ limit:
 significance:
     stage: flsstep
     script:
-      - cd build
-      - ./bin/myFit.exe s ../config/myFit.config >& LOG_s
+      - ./build/bin/myFit.exe s config/myFit.config >& LOG_s
       - cat LOG_s | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_s
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/Significance/
-      - source ../test/scripts/check_step_s.sh
+      - source test/scripts/check_step_s.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
-        - build/FitExample
+        - FitExample
 
 ##
 ## "draw" step: performs the prefit plots
@@ -155,18 +150,17 @@ significance:
 draw_prefit:
     stage: draw
     script:
-      - cd build
-      - ./bin/myFit.exe d ../config/myFit.config >& LOG_d
+      - ./build/bin/myFit.exe d config/myFit.config >& LOG_d
       - cat LOG_d | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_d
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/Plots/
-      - source ../test/scripts/check_step_d.sh
+      - source test/scripts/check_step_d.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
-        - build/FitExample/Plots/
+        - FitExample/Plots/
 
 ##
 ## "draw" step: performs the postfit plots
@@ -175,15 +169,14 @@ draw_prefit:
 draw_postfit:
     stage: draw
     script:
-      - cd build
-      - ./bin/myFit.exe p ../config/myFit.config >& LOG_p
+      - ./build/bin/myFit.exe p config/myFit.config >& LOG_p
       - cat LOG_p | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_p
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/Plots/
-      - source ../test/scripts/check_step_p.sh
+      - source test/scripts/check_step_p.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
-        - build/FitExample/Plots/
+        - FitExample/Plots/
