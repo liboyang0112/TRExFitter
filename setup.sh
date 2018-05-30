@@ -51,3 +51,5 @@ fi
 echo "Setting up cmake with: lsetup cmake"
 lsetup cmake
 
+echo "\nIf everything went smoothly, continue by compiling via cmake (in a dedicated build directory):"
+echo "--> mkdir build && cd build && cmake .. && cmake --build ."
