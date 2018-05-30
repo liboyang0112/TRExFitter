@@ -30,8 +30,23 @@ find_package( ROOT 5.34.10 REQUIRED MathCore Minuit HistFactory )
 include_directories( CommonStatTools )
 add_subdirectory( CommonStatTools )
 
-# Include the headers of the CommonSystSmoothingTool.
+# Handle the build of the CommonSystSmoothingTool library. That
+# library comes with a cmake configuration, but introduces
+# dependencies on ATLAS cmake syntax – which we are trying to
+# avoid here. So ignore the shipped CMakeLists.txt, and build our
+# own version of CommonSystSmoothingTool.
 include_directories( CommonSystSmoothingTool )
+set( _syst_smoothing_tool_sources
+  CommonSystSmoothingTool/Root/PlotHist.cxx
+  CommonSystSmoothingTool/Root/SmoothHist.cxx
+  CommonSystSmoothingTool/Root/SmoothingTool.cxx
+  CommonSystSmoothingTool/Root/TRExTools.cxx
+)
+add_library( CommonSystSmoothingTool SHARED ${_syst_smoothing_tool_sources} )
+target_include_directories( CommonSystSmoothingTool
+   PUBLIC ${ROOT_INCLUDE_DIRS}
+   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
+target_link_libraries( CommonSystSmoothingTool ${ROOT_LIBRARIES} )
 
 # Public header files for the shared/static library.
 set( lib_headers
@@ -68,10 +83,6 @@ set( lib_sources
   AtlasLabels.C
   AtlasStyle.C
   AtlasUtils.C
-  CommonSystSmoothingTool/Root/PlotHist.cxx
-  CommonSystSmoothingTool/Root/SmoothHist.cxx
-  CommonSystSmoothingTool/Root/SmoothingTool.cxx
-  CommonSystSmoothingTool/Root/TRExTools.cxx
   Root/Common.C
   Root/ConfigParser.C
   Root/ConfigReader.C
@@ -101,12 +112,12 @@ add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )
 target_include_directories( TRExFitter
    PUBLIC ${ROOT_INCLUDE_DIRS}
    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
-target_link_libraries( TRExFitter ${ROOT_LIBRARIES} )
+target_link_libraries( TRExFitter CommonSystSmoothingTool ${ROOT_LIBRARIES} )
 set_property( TARGET TRExFitter
    PROPERTY PUBLIC_HEADER ${lib_headers} )
 
 # Install the libraries.
-install( TARGETS TRExFitter
+install( TARGETS TRExFitter CommonSystSmoothingTool
    EXPORT TRExFitterTargets
    ARCHIVE DESTINATION lib
    LIBRARY DESTINATION lib
@@ -115,7 +126,7 @@ install( TARGETS TRExFitter
 # Helper macro for building the project's executables.
 macro( TRExFitter_add_executable name )
   add_executable( ${name} ${ARGN} )
-  target_link_libraries( ${name} TRExFitter )
+  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool )
   install( TARGETS ${name}
     EXPORT TRExFitterTargets
     RUNTIME DESTINATION bin )
