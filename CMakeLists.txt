@@ -48,11 +48,19 @@ target_include_directories( CommonSystSmoothingTool
    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
 target_link_libraries( CommonSystSmoothingTool ${ROOT_LIBRARIES} )
 
+# Handle the build of the three auxiliary classes for ATLAS-type
+# labels etc. We don't want to throw this into the TRExFitter
+# library object.
+set( _atlas_utils_headers AtlasLabels.h AtlasStyle.h AtlasUtils.h )
+set( _atlas_utils_sources AtlasLabels.C AtlasStyle.C AtlasUtils.C )
+add_library( AtlasUtils SHARED ${_atlas_utils_headers} ${_atlas_utils_sources} )
+target_include_directories( AtlasUtils
+   PUBLIC ${ROOT_INCLUDE_DIRS}
+   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
+target_link_libraries( AtlasUtils ${ROOT_LIBRARIES} )
+
 # Public header files for the shared/static library.
 set( lib_headers
-  AtlasLabels.h
-  AtlasStyle.h
-  AtlasUtils.h
   TtHFitter/Common.h
   TtHFitter/ConfigParser.h
   TtHFitter/ConfigReader.h
@@ -80,9 +88,6 @@ set( lib_headers
 
 # Source files for the shared/static library.
 set( lib_sources
-  AtlasLabels.C
-  AtlasStyle.C
-  AtlasUtils.C
   Root/Common.C
   Root/ConfigParser.C
   Root/ConfigReader.C
@@ -112,12 +117,12 @@ add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )
 target_include_directories( TRExFitter
    PUBLIC ${ROOT_INCLUDE_DIRS}
    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
-target_link_libraries( TRExFitter CommonSystSmoothingTool ${ROOT_LIBRARIES} )
+target_link_libraries( TRExFitter CommonSystSmoothingTool AtlasUtils ${ROOT_LIBRARIES} )
 set_property( TARGET TRExFitter
    PROPERTY PUBLIC_HEADER ${lib_headers} )
 
 # Install the libraries.
-install( TARGETS TRExFitter CommonSystSmoothingTool
+install( TARGETS TRExFitter CommonSystSmoothingTool AtlasUtils
    EXPORT TRExFitterTargets
    ARCHIVE DESTINATION lib
    LIBRARY DESTINATION lib
@@ -126,7 +131,7 @@ install( TARGETS TRExFitter CommonSystSmoothingTool
 # Helper macro for building the project's executables.
 macro( TRExFitter_add_executable name )
   add_executable( ${name} ${ARGN} )
-  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool )
+  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool AtlasUtils )
   install( TARGETS ${name}
     EXPORT TRExFitterTargets
     RUNTIME DESTINATION bin )
