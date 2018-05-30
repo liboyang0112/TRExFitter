@@ -20,6 +20,11 @@ set( CMAKE_CXX_STANDARD 14 CACHE STRING
 set( CMAKE_CXX_EXTENSIONS FALSE CACHE BOOL
    "(Dis)allow using compiler extensions" )
 
+# Specify the install locations for libraries and binaries.
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
+set( CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/lib )  # Needed by ROOT_GENERATE_DICTIONARY()
+
 # Set the warning flag(s) to use.
 # set( CMAKE_CXX_FLAGS "-Wall -pedantic" )
 
