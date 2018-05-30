@@ -34,7 +34,7 @@ set( CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/lib )  # Needed by ROOT_GENERATE_D
 # ------------------------------------------------
 
 # Add ROOT system directory and require ROOT.
-find_package( ROOT 5.34.10 REQUIRED MathCore HistFactory )
+find_package( ROOT 6.10.06 REQUIRED MathCore HistFactory )
 
 # Include the cmake build for the CommonStatTools submodule.
 include_directories( CommonStatTools )
