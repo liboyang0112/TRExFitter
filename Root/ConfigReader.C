@@ -14,6 +14,7 @@
 //
 ConfigReader::ConfigReader(TtHFit *fitter){
     fFitter = fitter;
+    fNonGhostIsSet = false;
     WriteInfoStatus("ConfigReader::ConfigReader", "Started reading the config");
 }
 
@@ -1179,6 +1180,7 @@ int ConfigReader::ReadRegionOptions(){
         fRegNames.push_back( CheckName(confSet->GetValue()) ); //why the CheckName is needed?? A: cs->GetValue() might have leading/trailing spaces...
 
         reg = fFitter->NewRegion((confSet->GetValue()));
+        fRegions.emplace_back(confSet->GetValue());
         reg->fGetChi2 = fFitter->fGetChi2;
         reg->SetVariableTitle(confSet->Get("VariableTitle"));
         reg->SetLabel(confSet->Get("Label"),confSet->Get("ShortLabel"));
@@ -1577,16 +1579,32 @@ int ConfigReader::ReadSampleOptions(){
         param = confSet->Get("Type");
         if (param != ""){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "SIGNAL") type = Sample::SIGNAL;
-            else if(param == "DATA") type = Sample::DATA;
-            else if(param == "GHOST") type = Sample::GHOST;
-            else if(param == "BACKGROUND") type = Sample::BACKGROUND;
+            if(param == "SIGNAL"){
+                type = Sample::SIGNAL;
+                fNonGhostIsSet = true;
+            }
+            else if(param == "DATA"){
+                type = Sample::DATA;
+                fNonGhostIsSet = true;
+            }
+            else if(param == "GHOST"){
+                if (fNonGhostIsSet){
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Please define GHOST samples first and then other samples");
+                    return 1;
+                }
+                type = Sample::GHOST;
+            }
+            else if(param == "BACKGROUND"){
+                type = Sample::BACKGROUND;
+                fNonGhostIsSet = true;
+            }
             else {
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'Type' option in sample but didnt provide valid parameter. Using default (BACKGROUND)");
             }
             if(fOnlySignal != "" && type==Sample::SIGNAL && confSet->GetValue()!=fOnlySignal) continue;
         }
         sample = fFitter->NewSample((confSet->GetValue()),type);
+        fSamples.emplace_back(confSet->GetValue());
 
         // Set Title
         param = confSet->Get("Title");
@@ -1775,6 +1793,16 @@ int ConfigReader::ReadSampleOptions(){
         std::vector<std::string> exclude = Vectorize(exclude_str,',');
         sample->fRegions.clear();
 
+        if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
+            WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions set up that do not exist");
+            return 1;
+        }
+
+        if (exclude.size() > 0 && !CheckPresence(exclude, fRegions)){
+            WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions to exclude set up that do not exist");
+            return 1;
+        }
+
         for(int i_reg=0;i_reg<fFitter->fNRegions;i_reg++){
             std::string regName = fFitter->fRegions[i_reg]->fName;
             if( (regions_str=="" || regions_str=="all" || FindInStringVector(regions,regName)>=0)
@@ -1847,31 +1875,75 @@ int ConfigReader::ReadSampleOptions(){
 
         // Set DivideBy
         param = confSet->Get("DivideBy");;
-        if (param != "") sample->fDivideBy = param;
+        if (param != ""){
+            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for DivideBy that do not exist");
+                return 1;
+            }
+            sample->fDivideBy = param;
+        }
 
         // Set MultiplyBy
         param = confSet->Get("MultiplyBy");
-        sample->fMultiplyBy = param;
+        if (param != ""){
+            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for MultiplyBy that do not exist");
+                return 1;
+            }
+            sample->fMultiplyBy = param;
+        }
 
         // Set SubtractSample
         param = confSet->Get("SubtractSample");
-        if(param!="") sample->fSubtractSamples.push_back(param);
+        if(param!=""){
+            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSample that do not exist");
+                return 1;
+            }
+            sample->fSubtractSamples.push_back(param);
+        }
 
         // Set SubtractSamples
         param = confSet->Get("SubtractSamples");
-        if(param != "") sample->fSubtractSamples = Vectorize(param,',');
+        if(param != ""){
+            std::vector<std::string> tmp = Vectorize(param,',');
+            if (tmp.size() > 0 && !CheckPresence(tmp, fSamples)){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSamples that do not exist");
+                return 1;
+            }
+            sample->fSubtractSamples = Vectorize(param,',');
+        }
 
         // Set AddSample
         param = confSet->Get("AddSample");
-        if(param != "") sample->fAddSamples.push_back(param);
+        if(param != ""){
+            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSample that do not exist");
+                return 1;
+            }
+            sample->fAddSamples.push_back(param);
+        }
 
         // Set AddSamples
         param = confSet->Get("AddSamples");
-        if(param!="") sample->fAddSamples = Vectorize(param,',');
+        if(param!=""){
+            std::vector<std::string> tmp = Vectorize(param,',');
+            if (tmp.size() > 0 && !CheckPresence(tmp, fSamples)){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSamples that do not exist");
+                return 1;
+            }
+            sample->fAddSamples = Vectorize(param,',');
+        }
 
         // Set NormToSample
         param = confSet->Get("NormToSample");
-        if(param != "") sample->fNormToSample = param;
+        if(param != ""){
+            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for NormToSample that do not exist");
+                return 1;
+            }
+            sample->fNormToSample = param;
+        }
 
         // Set BuildPullTable
         // enable pull tables
@@ -1911,7 +1983,12 @@ int ConfigReader::ReadSampleOptions(){
         if(param != ""){
             if(Vectorize(param,',').size() == 2){
                 sample->fAsimovReplacementFor.first  = Vectorize(param,',')[0];
-                sample->fAsimovReplacementFor.second = Vectorize(param,',')[1];
+                std::string tmp = Vectorize(param,',')[1];
+                if (std::find(fSamples.begin(), fSamples.end(), tmp) == fSamples.end()){
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has sample set up for AsimovReplacementFor that does not exist");
+                    return 1;
+                }
+                sample->fAsimovReplacementFor.second = tmp;
             } else {
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "You specified 'AsimovReplacementFor' option but didnt provide 2 parameters. Please check this");
                 return 1;
@@ -2012,6 +2089,21 @@ int ConfigReader::ReadNormFactorOptions(){
         std::vector<std::string> samples = Vectorize(samples_str,',');
         std::vector<std::string> regions = Vectorize(regions_str,',');
         std::vector<std::string> exclude = Vectorize(exclude_str,',');
+        
+        if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
+            WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up that do not exist");
+            return 1;
+        }
+
+        if (exclude.size() > 0 && !CheckPresence(exclude, fRegions)){
+            WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
+            return 1;
+        }
+
+        if (samples.size() > 0 && !CheckPresence(samples, fSamples)){
+            WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has samples set up that do not exist");
+            return 1;
+        }
 
         nfactor = new NormFactor(CheckName(confSet->GetValue()));
 
@@ -2147,6 +2239,22 @@ int ConfigReader::ReadShapeFactorOptions(){
         std::vector<std::string> samples = Vectorize(samples_str,',');
         std::vector<std::string> regions = Vectorize(regions_str,',');
         std::vector<std::string> exclude = Vectorize(exclude_str,',');
+
+        if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
+            WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up that do not exist");
+            return 1;
+        }
+
+        if (exclude.size() > 0 && !CheckPresence(exclude, fRegions)){
+            WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
+            return 1;
+        }
+
+        if (samples.size() > 0 && !CheckPresence(samples, fSamples)){
+            WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has samples set up that do not exist");
+            return 1;
+        }
+
         sfactor = new ShapeFactor(CheckName(confSet->GetValue()));
         if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
             fFitter->fShapeFactors.push_back( sfactor );
@@ -2272,6 +2380,22 @@ int ConfigReader::ReadSystOptions(){
         std::vector<std::string> samples = Vectorize(samples_str,',');
         std::vector<std::string> regions = Vectorize(regions_str,',');
         std::vector<std::string> exclude = Vectorize(exclude_str,',');
+
+        if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
+            WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up that do not exist");
+            return 1;
+        }
+
+        if (exclude.size() > 0 && !CheckPresence(exclude, fRegions) && !CheckPresence(exclude, fSamples)){
+            WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples/regions set up for excluding that do not exist");
+            return 1;
+        }
+
+        if (samples.size() > 0 && !CheckPresence(samples, fSamples)){
+            WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up that do not exist");
+            return 1;
+        }
+
         fExcludeRegionSample = Vectorize(excludeRegionSample_str,',');
         type = Systematic::HISTO;
 
@@ -2592,16 +2716,34 @@ int ConfigReader::ReadSystOptions(){
         // a new way of defining systematics, just comparing directly with GHOST samples
         // --> this can be used only if this systematic is applied to a single sample
         param = confSet->Get("SampleUp");
-        if(param!="") sys->fSampleUp = param;
+        if(param!=""){
+            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleUp that do not exist");
+                return 1;
+            }
+            sys->fSampleUp = param;
+        }
 
         // Set SampleDown
         param = confSet->Get("SampleDown");
-        if(param!="") sys->fSampleDown = param;
+        if(param!=""){
+            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleDown that do not exist");
+                return 1;
+            }
+            sys->fSampleDown = param;
+        }
 
         // Set ReferenceSample
         // this to obtain syst variation relatively to given sample
         param = confSet->Get("ReferenceSample");
-        if(param!="") sys->fReferenceSample = param;
+        if(param!=""){
+            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in ReferenceSample that do not exist");
+                return 1;
+            }
+            sys->fReferenceSample = param;
+        }
 
         // Set KeepReferenceOverallVar
         param = confSet->Get("KeepReferenceOverallVar");
@@ -2617,15 +2759,36 @@ int ConfigReader::ReadSystOptions(){
 
         // Set DropShapeIn
         param = confSet->Get("DropShapeIn");
-        if(param!="") sys->fDropShapeIn = Vectorize(param,',');
+        if(param!="") {
+            std::vector<std::string> tmp = Vectorize(param,',');
+            if (tmp.size() > 0 && !CheckPresence(tmp, fRegions)){
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropShapeIn that do not exist");
+                return 1;
+            }
+            sys->fDropShapeIn = tmp;
+        }
 
         // Set DropNorm
         param = confSet->Get("DropNorm");
-        if(param!="") sys->fDropNormIn = Vectorize(param,',');
+        if(param!=""){
+            std::vector<std::string> tmp = Vectorize(param,',');
+            if (tmp.size() > 0 && !CheckPresence(tmp, fRegions)){
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropNorm that do not exist");
+                return 1;
+            }
+            sys->fDropNormIn = tmp;
+        }
 
         // Set KeepNormForSamples
         param = confSet->Get("KeepNormForSamples");
-        if(param!="") sys->fKeepNormForSamples = Vectorize(param,',');
+        if(param!="") {
+            std::vector<std::string> tmp = Vectorize(param,',');
+            if (tmp.size() > 0 && !CheckPresence(tmp, fSamples)){
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in KeepNormForSamples that do not exist");
+                return 1;
+            }
+            sys->fKeepNormForSamples = tmp;
+        }
 
         if (regions.size() == 0 || exclude.size() == 0){
             WriteErrorStatus("ConfigReader::ReadSystOptions", "Region or excude region size is equal to zero. Please check this");
@@ -3103,4 +3266,18 @@ bool ConfigReader::ConfigHasNTUP(ConfigSet* confSet){
 bool ConfigReader::ConfigHasHIST(ConfigSet* confSet){
     if (confSet->Get("HistoFile") != "" || confSet->Get("HistoName") != "" || confSet->Get("HistoPathSuff") != "" || confSet->Get("HistoPathSuffs") != "" || confSet->Get("HistoPath") != "" ) return true;
     else return false;
+}
+
+
+//__________________________________________________________________________________
+//
+bool ConfigReader::CheckPresence(const std::vector<std::string> &v1, const std::vector<std::string> &v2){
+    for (const auto& i : v1){
+        if (i == "") continue;
+        if (i == "none") continue;
+        if (i == "all") continue;
+        if (std::find(v2.begin(), v2.end(), i) == v2.end()) return false;
+    }
+
+    return true;
 }
