@@ -1,3 +1,9 @@
+2018-05-31 Tomas Dado <tomas.dado@cern.ch>
+	* Added protection when GHOST samples are defined after other samples
+	* Added automatic check if the used samples/regions are actually defined
+	* Added option to disable the check for regions/samples (will print only
+	warnings) - may be useful for debugging
+
 2018-05-21 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Added morphing template smoothing
     * Added toys to compare with uncertainty from the fit (tested just for stat uncertainty on Asimov, need more checks, need to understand why getting stuck at first invalid fit)
