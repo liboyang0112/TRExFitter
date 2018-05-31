@@ -15,6 +15,7 @@
 ConfigReader::ConfigReader(TtHFit *fitter){
     fFitter = fitter;
     fNonGhostIsSet = false;
+    fAllowWrongRegionSample = false;
     WriteInfoStatus("ConfigReader::ConfigReader", "Started reading the config");
 }
 
@@ -179,6 +180,13 @@ int ConfigReader::ReadJobOptions(){
     //Set DebugLevel
     param = confSet->Get("DebugLevel");
     if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
+    
+    param = confSet->Get("AllowWrongRegionSample");
+    if( param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") fAllowWrongRegionSample = true;
+        else if (param == "FALSE") fAllowWrongRegionSample = false;
+    }
 
     // Set outputDir
     param = confSet->Get("OutputDir");
@@ -1794,13 +1802,21 @@ int ConfigReader::ReadSampleOptions(){
         sample->fRegions.clear();
 
         if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
-            WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions set up that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions set up that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions set up that do not exist");
+                return 1;
+            }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fRegions)){
-            WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions to exclude set up that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions to exclude set up that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions to exclude set up that do not exist");
+                return 1;
+            }
         }
 
         for(int i_reg=0;i_reg<fFitter->fNRegions;i_reg++){
@@ -1877,8 +1893,12 @@ int ConfigReader::ReadSampleOptions(){
         param = confSet->Get("DivideBy");;
         if (param != ""){
             if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for DivideBy that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for DivideBy that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for DivideBy that do not exist");
+                    return 1;
+                }
             }
             sample->fDivideBy = param;
         }
@@ -1887,8 +1907,12 @@ int ConfigReader::ReadSampleOptions(){
         param = confSet->Get("MultiplyBy");
         if (param != ""){
             if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for MultiplyBy that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for MultiplyBy that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for MultiplyBy that do not exist");
+                    return 1;
+                }
             }
             sample->fMultiplyBy = param;
         }
@@ -1897,8 +1921,12 @@ int ConfigReader::ReadSampleOptions(){
         param = confSet->Get("SubtractSample");
         if(param!=""){
             if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSample that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSample that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSample that do not exist");
+                    return 1;
+                }
             }
             sample->fSubtractSamples.push_back(param);
         }
@@ -1908,8 +1936,12 @@ int ConfigReader::ReadSampleOptions(){
         if(param != ""){
             std::vector<std::string> tmp = Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fSamples)){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSamples that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSamples that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSamples that do not exist");
+                    return 1;
+                }
             }
             sample->fSubtractSamples = Vectorize(param,',');
         }
@@ -1918,8 +1950,12 @@ int ConfigReader::ReadSampleOptions(){
         param = confSet->Get("AddSample");
         if(param != ""){
             if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSample that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSample that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSample that do not exist");
+                    return 1;
+                }
             }
             sample->fAddSamples.push_back(param);
         }
@@ -1929,8 +1965,12 @@ int ConfigReader::ReadSampleOptions(){
         if(param!=""){
             std::vector<std::string> tmp = Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fSamples)){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSamples that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSamples that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSamples that do not exist");
+                    return 1;
+                }
             }
             sample->fAddSamples = Vectorize(param,',');
         }
@@ -1939,8 +1979,12 @@ int ConfigReader::ReadSampleOptions(){
         param = confSet->Get("NormToSample");
         if(param != ""){
             if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for NormToSample that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for NormToSample that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for NormToSample that do not exist");
+                    return 1;
+                }
             }
             sample->fNormToSample = param;
         }
@@ -1985,8 +2029,12 @@ int ConfigReader::ReadSampleOptions(){
                 sample->fAsimovReplacementFor.first  = Vectorize(param,',')[0];
                 std::string tmp = Vectorize(param,',')[1];
                 if (std::find(fSamples.begin(), fSamples.end(), tmp) == fSamples.end()){
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has sample set up for AsimovReplacementFor that does not exist");
-                    return 1;
+                    if (fAllowWrongRegionSample){
+                        WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has sample set up for AsimovReplacementFor that does not exist");
+                    } else {
+                        WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has sample set up for AsimovReplacementFor that does not exist");
+                        return 1;
+                    }
                 }
                 sample->fAsimovReplacementFor.second = tmp;
             } else {
@@ -2091,18 +2139,30 @@ int ConfigReader::ReadNormFactorOptions(){
         std::vector<std::string> exclude = Vectorize(exclude_str,',');
         
         if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
-            WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up that do not exist");
+                return 1;
+            }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fRegions)){
-            WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
+                return 1;
+            }
         }
 
         if (samples.size() > 0 && !CheckPresence(samples, fSamples)){
-            WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has samples set up that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has samples set up that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has samples set up that do not exist");
+                return 1;
+            }
         }
 
         nfactor = new NormFactor(CheckName(confSet->GetValue()));
@@ -2241,18 +2301,30 @@ int ConfigReader::ReadShapeFactorOptions(){
         std::vector<std::string> exclude = Vectorize(exclude_str,',');
 
         if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
-            WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up that do not exist");
+                return 1;
+            }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fRegions)){
-            WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
+                return 1;
+            }
         }
 
         if (samples.size() > 0 && !CheckPresence(samples, fSamples)){
-            WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has samples set up that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has samples set up that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has samples set up that do not exist");
+                return 1;
+            }
         }
 
         sfactor = new ShapeFactor(CheckName(confSet->GetValue()));
@@ -2382,18 +2454,30 @@ int ConfigReader::ReadSystOptions(){
         std::vector<std::string> exclude = Vectorize(exclude_str,',');
 
         if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
-            WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up that do not exist");
+                return 1;
+            }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fRegions) && !CheckPresence(exclude, fSamples)){
-            WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples/regions set up for excluding that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples/regions set up for excluding that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples/regions set up for excluding that do not exist");
+                return 1;
+            }
         }
 
         if (samples.size() > 0 && !CheckPresence(samples, fSamples)){
-            WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up that do not exist");
-            return 1;
+            if (fAllowWrongRegionSample){
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up that do not exist");
+            } else {
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up that do not exist");
+                return 1;
+            }
         }
 
         fExcludeRegionSample = Vectorize(excludeRegionSample_str,',');
@@ -2718,8 +2802,12 @@ int ConfigReader::ReadSystOptions(){
         param = confSet->Get("SampleUp");
         if(param!=""){
             if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleUp that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleUp that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleUp that do not exist");
+                    return 1;
+                }
             }
             sys->fSampleUp = param;
         }
@@ -2728,8 +2816,12 @@ int ConfigReader::ReadSystOptions(){
         param = confSet->Get("SampleDown");
         if(param!=""){
             if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleDown that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleDown that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleDown that do not exist");
+                    return 1;
+                }
             }
             sys->fSampleDown = param;
         }
@@ -2739,8 +2831,12 @@ int ConfigReader::ReadSystOptions(){
         param = confSet->Get("ReferenceSample");
         if(param!=""){
             if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in ReferenceSample that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in ReferenceSample that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in ReferenceSample that do not exist");
+                    return 1;
+                }
             }
             sys->fReferenceSample = param;
         }
@@ -2762,8 +2858,12 @@ int ConfigReader::ReadSystOptions(){
         if(param!="") {
             std::vector<std::string> tmp = Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fRegions)){
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropShapeIn that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropShapeIn that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropShapeIn that do not exist");
+                    return 1;
+                }
             }
             sys->fDropShapeIn = tmp;
         }
@@ -2773,8 +2873,12 @@ int ConfigReader::ReadSystOptions(){
         if(param!=""){
             std::vector<std::string> tmp = Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fRegions)){
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropNorm that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropNorm that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropNorm that do not exist");
+                    return 1;
+                }
             }
             sys->fDropNormIn = tmp;
         }
@@ -2784,8 +2888,12 @@ int ConfigReader::ReadSystOptions(){
         if(param!="") {
             std::vector<std::string> tmp = Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fSamples)){
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in KeepNormForSamples that do not exist");
-                return 1;
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in KeepNormForSamples that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in KeepNormForSamples that do not exist");
+                    return 1;
+                }
             }
             sys->fKeepNormForSamples = tmp;
         }

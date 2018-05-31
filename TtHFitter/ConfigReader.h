@@ -218,6 +218,11 @@ class ConfigReader {
         ConfigParser fParser;
 
         /**
+          * flag to control if wrong samples/regions are ok
+          */
+        bool fAllowWrongRegionSample;
+
+        /**
           * flag to control if other than ghost sampels have been set already
           */
         bool fNonGhostIsSet; 
