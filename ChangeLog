@@ -1,3 +1,11 @@
+2018-05-31 Alexander Held <alexander.held@cern.ch>
+    * fixing blinding threshold calculation (fixes TTHFITTER-193)
+    * previously S/(S+B) was calculated and compared to BlindingThreshold
+    * now S/B is calculated instead, as originally intended and documented in the readme
+
+2018-05-30 Alexander Held <alexander.held@cern.ch>
+    * enabling syst error bars by default (default value for SystErrorBars is now TRUE)
+
 2018-05-21 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Added morphing template smoothing
     * Added toys to compare with uncertainty from the fit (tested just for stat uncertainty on Asimov, need more checks, need to understand why getting stuck at first invalid fit)
