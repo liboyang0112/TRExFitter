@@ -1,3 +1,9 @@
+2018-05-31 Tomas Dado <tomas.dado@cern.ch>
+	* Added protection when GHOST samples are defined after other samples
+	* Added automatic check if the used samples/regions are actually defined
+	* Added option to disable the check for regions/samples (will print only
+	warnings) - may be useful for debugging
+
 2018-05-31 Alexander Held <alexander.held@cern.ch>
     * fixing blinding threshold calculation (fixes TTHFITTER-193)
     * previously S/(S+B) was calculated and compared to BlindingThreshold
