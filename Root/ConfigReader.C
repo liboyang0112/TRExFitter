@@ -2462,7 +2462,7 @@ int ConfigReader::ReadSystOptions(){
             }
         }
 
-        if (exclude.size() > 0 && !CheckPresence(exclude, fRegions) && !CheckPresence(exclude, fSamples)){
+        if (exclude.size() > 0 && !CheckPresence(exclude, fRegions, fSamples)){
             if (fAllowWrongRegionSample){
                 WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples/regions set up for excluding that do not exist");
             } else {
@@ -3385,6 +3385,21 @@ bool ConfigReader::CheckPresence(const std::vector<std::string> &v1, const std::
         if (i == "none") continue;
         if (i == "all") continue;
         if (std::find(v2.begin(), v2.end(), i) == v2.end()) return false;
+    }
+
+    return true;
+}
+
+//__________________________________________________________________________________
+//
+bool ConfigReader::CheckPresence(const std::vector<std::string> &v1, const std::vector<std::string> &v2, const std::vector<std::string> &v3){
+    for (const auto& i : v1){
+        if (i == "") continue;
+        if (i == "none") continue;
+        if (i == "all") continue;
+        if (std::find(v2.begin(), v2.end(), i) == v2.end()){
+            if (std::find(v3.begin(), v3.end(), i) == v3.end()) return false;
+        }
     }
 
     return true;
