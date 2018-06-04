@@ -90,6 +90,8 @@ MultiFit::MultiFit(string name){
     fDoGroupedSystImpactTable = false;
     //
     fRunROOTMacros = true; // FIXME: had to temporary set it to true by default, otherwise it crashes...
+    fPOIName = "#mu";
+    fPOINominal = 1;
 }
 
 //__________________________________________________________________________________
@@ -310,6 +312,11 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
             if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             data = (RooDataSet*)ws->data("asimovData");
         }
+    }
+    
+    if (data == nullptr){
+        WriteErrorStatus("MultiFit::FitCombinedWS", "Data returns null ptr, probably wrong name in DataName?");
+        exit(EXIT_FAILURE);
     }
 
     // Performs the fit
@@ -682,7 +689,7 @@ void MultiFit::ComparePOI(string POI){
             tex->DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
         }
         else{
-            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#mu = %." + fPOIPrecision + "f").c_str(),g_central->GetX()[N-i-1]));
+            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form((fPOIName+" = %." + fPOIPrecision + "f").c_str(),g_central->GetX()[N-i-1]));
             tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
             tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXlow(N-i-1)));
             tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
@@ -690,7 +697,7 @@ void MultiFit::ComparePOI(string POI){
         }
     }
 
-    TLine *l_SM = new TLine(1,-0.5,1,N-0.5);
+    TLine *l_SM = new TLine(fPOINominal,-0.5,fPOINominal,N-0.5);
     l_SM->SetLineWidth(2);
     l_SM->SetLineColor(kGray);
     l_SM->Draw("same");
@@ -900,7 +907,7 @@ void MultiFit::CompareLimit(){
     if(showObs) g_obs->Draw("E same");
     if(fSignalInjection) g_inj->Draw("E same");
 
-    TLine *l_SM = new TLine(1,-0.5,1,N-0.5);
+    TLine *l_SM = new TLine(fPOINominal,-0.5,fPOINominal,N-0.5);
     l_SM->SetLineWidth(2);
     l_SM->SetLineColor(kGray);
     l_SM->Draw("same");
@@ -932,7 +939,7 @@ void MultiFit::CompareLimit(){
     leg->AddEntry(g_1s,"Expected #pm 1#sigma","lf");
     leg->AddEntry(g_2s,"Expected #pm 2#sigma","lf");
     if(showObs) leg->AddEntry(g_obs,"Observed","l");
-    if(fSignalInjection) leg->AddEntry(g_inj,"Expected (#mu=1)","l");
+    if(fSignalInjection) leg->AddEntry(g_inj,("Expected ("+fPOIName+"=1)").c_str(),"l");
     leg->Draw();
 
 //     myText(0.75,0.4,kBlack,"Stat. only");
@@ -2012,7 +2019,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     pad1->Draw();
 
     pad1->cd();
-    TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,"Pre-fit impact on #mu:");
+    TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,("Pre-fit impact on "+fPOIName+":").c_str());
     leg1->SetFillStyle(0);
     leg1->SetBorderSize(0);
 //     leg1->SetMargin(0.33);
@@ -2026,7 +2033,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     leg1->AddEntry(g2a,"#theta = #hat{#theta}-#Delta#theta","f");
     leg1->Draw();
 
-    TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,"Post-fit impact on #mu:");
+    TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,("Post-fit impact on "+fPOIName+":").c_str());
     leg2->SetFillStyle(0);
     leg2->SetBorderSize(0);
 //     leg2->SetMargin(0.33);
@@ -2626,11 +2633,11 @@ void MultiFit::PlotSummarySoverB(){
     leg->SetBorderSize(0);
     leg->SetTextSize(gStyle->GetTextSize());
     leg->AddEntry(h_data_ord,"Data","lep");
-    leg->AddEntry(h_sig_ord_lim,Form("%s (#mu_{95%% excl.}=%.1f)",fSignalTitle.c_str(),muLimit),"f");
-    leg->AddEntry(h_sig_ord,    Form("%s (#mu_{fit}=%.1f)"       ,fSignalTitle.c_str(),muFit),"f");
+    leg->AddEntry(h_sig_ord_lim,Form(("%s ("+fPOIName+"_{95%% excl.}=%.1f)").c_str(),fSignalTitle.c_str(),muLimit),"f");
+    leg->AddEntry(h_sig_ord,    Form(("%s ("+fPOIName+"_{fit}=%.1f)"       ).c_str(),fSignalTitle.c_str(),muFit),"f");
     leg->AddEntry(h_bkg_ord,"Background","f");
     leg->AddEntry(h_err,"Bkgd. Unc.","f");
-    if(includeBonly) leg->AddEntry(h_bkgBonly_ord,"Bkgd. (#mu=0)","l");
+    if(includeBonly) leg->AddEntry(h_bkgBonly_ord,("Bkgd. ("+fPOIName+"=0)").c_str(),"l");
     if(TtHFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit_comb,"Pre-Fit Bkgd.","l");
     leg->Draw();
 
@@ -2723,8 +2730,8 @@ void MultiFit::PlotSummarySoverB(){
     leg2->SetMargin(0.1);
     leg2->SetBorderSize(0);
     leg2->SetTextSize(gStyle->GetTextSize());
-    leg2->AddEntry(h_stackSigLim,Form("%s (#mu_{95%% excl.}=%.1f) + Bkgd.",fSignalTitle.c_str(),muLimit),"l");
-    leg2->AddEntry(h_stackSig,   Form("%s (#mu_{fit}=%.1f) + Bkgd."       ,fSignalTitle.c_str(),muFit)  ,"l");
+    leg2->AddEntry(h_stackSigLim,Form(("%s ("+fPOIName+"_{95%% excl.}=%.1f) + Bkgd.").c_str(),fSignalTitle.c_str(),muLimit),"l");
+    leg2->AddEntry(h_stackSig,   Form(("%s ("+fPOIName+"_{fit}=%.1f) + Bkgd."       ).c_str(),fSignalTitle.c_str(),muFit)  ,"l");
     leg2->Draw();
 
     if(includeBonly){

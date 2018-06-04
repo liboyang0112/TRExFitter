@@ -1,3 +1,10 @@
+2018-06-01 Tomas Dado <tomas.dado@cern.ch>
+	* Added cosmetic option for multifit to set the name of POI on plots:
+	"POILabel"
+	* Added cosmetic option for multifit to set the value for SM expectation
+	of POI on plots: "POINominal"
+	* Added protection for "DataName" configuration
+
 2018-05-31 Tomas Dado <tomas.dado@cern.ch>
 	* Added protection when GHOST samples are defined after other samples
 	* Added automatic check if the used samples/regions are actually defined
