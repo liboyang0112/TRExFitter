@@ -516,6 +516,69 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
 
   This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
+Multi-Fit options
+---------
+  
+  * Job:
+     * Label            : the label which will be shown on plots
+     * OutputDir        : the name of the output directory
+     * LumiLabel        : the luminosity label that will be shown on the pltos
+     * CMELabel         : the center of mass energy label that will be shown on the pltos
+     * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
+     ShowObserved       : can be TRUE or FALSE, flag to turn on/off the observed values on the plots
+     * LimitTitle       : the title for limit that will be shwon on the plots
+     * POITitle         : the title of the POI that will be shown on X axis 
+     * CompareLimits    : can be TRUE or FALSE, flag to compare to Limit values
+     * ComparePOI       : can be TRUE or FALSE, flag to compare to POI values
+     * ComparePulls     : can be TRUE or FALSE, flag to compare to pulls values
+     * PlotCombinedCorrMatrix : can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics
+     * Combine          : can be TRUE or FALSE, set to true if you want to perfom actual combination (followed by `mwf`)
+     * Comapre          : can be TRUE or FALSE, set to true if you want to compare values
+     * StatOnly         : can be TRUE or FALSE, set to true if the fits are stat only fits
+     * IncludeStatOnly  : can be TRUE or FALSE, set to true if you want to include stat only fits
+     * POIName          : the name of the POI in the configs
+     * POIRange         : the range of the chosen POI
+     * LimitMax         : set maximum value for the limit
+     * POIVal           : the value of the POI (for ASIMOV)
+     * POIPrecision     : string, set precision of the POI
+     * DataName         : can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used
+     * FitType          : can be SPLUSB or BONLY
+     * SignalInjection  : can be TRUE or FALSE
+     * CombineChByCH    : can be TRUE or FALSE, set to true to combine channel by channel
+     * NPCategories     : comma separeted list of NP categories
+     * SetRandomInitialNPval : provide a float 
+     * SetRandomInitialNPvalSeed : provide an int
+     * NumCPU           : a number of CPU cores used for the fit
+     * FastFit          : can be TRUE or FALSE
+     * FastFitForRanking : can be TRUE or FALSE
+     * NuisParListFile  : 
+     * PlotSoverB       : if set to TRUE will plot signal over background plots
+     * SignalTitle      : a title of the signal for the plots
+     * FitResultsFile   : a name of the file with fit results
+     * LimitsFile       : a name of the file with limits results
+     * BonlySufix       : a suffix of the background only fits
+     * ShowSystForPOI   : can be TRUE or FALSE, set to true if you want to show systematics for POI
+     * GetGoodnessOfFit : can be TRUE or FALSE, set to true to get chi2/NDF for the fit
+     * doLHscan         : comma separeted list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP
+     * PlotOptions      : same as for "standard" fits
+     * Logo             : can be TRUE or FALSE, use true to show TRExFitter logo
+     * DebugLevel       : set level of debug output
+     * RunROOTMacros    : can be TRUE or FALSE, set to true to run the common scripts in root interpreter in stead of running the directly compiled version (FALSE, default)
+     * POILabel         : name of the POI shwon on plots, default is `#\mu`
+     * POINominal       : value of the nominal (SM) prediction for POI, defaults is `1`
+
+  * Fit: 
+     * Options          : additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...
+     * Label            : the label of the values from this config that will be shown on the plots
+     * LoadSuf          :
+     * ConfigFile       : the path to the config file that you want to combine/compare
+     * Workspace        : the path to the worskapce that you want to combine/compare
+     * ShowObserved     : can be TRUE or FALSE, set to true to show the observed values of POI
+     * FitResultsFile   : the path to the file with fit results
+     * LimitsFile       : the path to the file with limits results
+     * POIName          : the name of the POI
+     * Directory        : the path to the directory
+     * InputName        : the name of the input
 
 Input File Merging with hupdate
 ---------
