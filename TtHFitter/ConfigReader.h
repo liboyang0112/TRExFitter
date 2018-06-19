@@ -200,6 +200,23 @@ class ConfigReader {
         std::string CheckName(const std::string &name);
 
         /**
+          * Helper function to check if elements of one vector are present in another
+          * @param vector of parameters to check
+          * @param vector of paramaeters to check to
+          * @return True if all exist, False if at least one does not exist
+          */            
+        bool CheckPresence(const std::vector<std::string> &v1, const std::vector<std::string> &v2);
+
+        /**
+          * Helper function to check if elements of one vector are present in another
+          * @param vector of parameters to check
+          * @param vector of paramaeters to check to
+          * @param vector of paramaeters to check to
+          * @return True if all exist, False if at least one does not exist
+          */            
+        bool CheckPresence(const std::vector<std::string> &v1, const std::vector<std::string> &v2, const std::vector<std::string> &v3);
+
+        /**
           * Pointer to TtHFit class, set during initialization
           */
         TtHFit *fFitter;
@@ -208,6 +225,26 @@ class ConfigReader {
           * Instance of ConfigParser used to parse the text
           */
         ConfigParser fParser;
+
+        /**
+          * flag to control if wrong samples/regions are ok
+          */
+        bool fAllowWrongRegionSample;
+
+        /**
+          * flag to control if other than ghost sampels have been set already
+          */
+        bool fNonGhostIsSet; 
+
+        /**
+          * vector of strings, one for each sample, needed for cross-checks
+          */
+        std::vector< std::string > fSamples; 
+   
+        /**
+          * vector of strings, one for each region, needed for cross-checks
+          */
+        std::vector< std::string > fRegions; 
    
         /**
           * vector of strings, one for each region

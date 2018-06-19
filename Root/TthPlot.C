@@ -305,11 +305,11 @@ void TthPlot::BlindData(){
                 BlindDataHisto( h_data,h_blinding );
             }
             else{
-                h_blinding = BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold );
+                h_blinding = BlindDataHisto( h_data, TthPlot::GetTotBkg(), h_signal[0], fBlindingThreshold );
                 // if more than one signal:
                 if(fSigNames.size()>1){
                     for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
-                        h_blinding->Add( BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold ) );
+                        h_blinding->Add( BlindDataHisto( h_data, TthPlot::GetTotBkg(), h_signal[i_sig], fBlindingThreshold ) );
                         h_blinding->Scale(2.);
                     }
                 }
