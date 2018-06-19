@@ -6866,6 +6866,7 @@ void TtHFit::PrintSystTables(string opt){
     WriteInfoStatus("TtHFit::PrintSystTables", "Printing syt tables");
     if(fCleanTables) opt += "clean";
     if(fSystCategoryTables) opt += "category";
+    if(fTableOptions.find("STANDALONE")!=string::npos) opt += "standalone";
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
         fRegions[i_reg]->PrintSystTable(fFitResults,opt);
     }
