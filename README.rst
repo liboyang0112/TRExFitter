@@ -152,7 +152,7 @@ NB: note the *blank* line between the objects!
         * PREFITONPOSTFIT: draw a dashed line on the postfit plot that indicates the sum of prefit background
         * NOXERR: removes the horizontal error bars on the data and the ratio plots
      * PlotOptionsSummary: the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used)
-     * TableOptions      : a set of options for tables (yield tables only for the moment):
+     * TableOptions      : a set of options for tables:
         * STANDALONE : default! If not set, no "\begin{document}"
         * FOOTNOTESIZE : -> \footnotesize
         * LANDSCAPE : -> \begin{landscape}

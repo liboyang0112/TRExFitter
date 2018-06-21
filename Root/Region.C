@@ -1519,7 +1519,9 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     bool isPostFit  = false; if(opt.find("post")!=string::npos)     isPostFit  = true;
     bool doClean    = false; if(opt.find("clean")!=string::npos)    doClean    = true;
     bool doCategory = false; if(opt.find("category")!=string::npos) doCategory = true;
-    bool standalone = false; if(opt.find("standalone")!=string::npos) standalone=true;
+    bool standalone = false; if(opt.find("standalone")!=string::npos)standalone= true;
+    bool landscape  = false; if(opt.find("landscape")!=string::npos) landscape = true;
+    bool footnotesize=false; if(opt.find("footnotesize")!=string::npos)footnotesize=true;;
     //
     ofstream out;
     ofstream texout;
@@ -1554,8 +1556,10 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
         texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
         texout << "\\begin{document}" << endl;
     }
+    if (landscape) texout << "\\begin{landscape}" << endl;        
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
+    if (footnotesize) texout << "\\footnotesize" << endl;        
     texout << "\\begin{tabular}{|c" ;
 
     if(doCategory){
@@ -1764,6 +1768,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
         texout_cat << "\\end{center} " << endl;
         texout_cat << "\\end{table} " << endl;
     }
+    if (landscape) texout << "\\end{landscape}" << endl;        
     if (standalone) {
         texout << "\\end{document}" << endl;
     }
