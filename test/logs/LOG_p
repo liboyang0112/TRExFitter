@@ -56,81 +56,81 @@ Drawing post-fit plots...
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Found 12 systematics.
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_0
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998523
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998516
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_1
-=== DEBUG::Region::DrawPostFit:   -->  pull = 1.020640
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.021170
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_2
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983482
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983914
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_3
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.938167
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.941234
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_0
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998523
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998516
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_1
-=== DEBUG::Region::DrawPostFit:   -->  pull = 1.020640
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.021170
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_2
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983482
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983914
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_3
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.938167
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.941234
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_0
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998523
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998516
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_1
-=== DEBUG::Region::DrawPostFit:   -->  pull = 1.020640
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.021170
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_2
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983482
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983914
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_3
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.938167
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.941234
 [1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region SR_1 ...[0m
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	111.322426 +8.100948 -8.100948
-=== DEBUG::Region::DrawPostFit: 2:	110.292450 +7.126775 -7.126775
-=== DEBUG::Region::DrawPostFit: 3:	70.468575 +6.396560 -6.396560
-=== DEBUG::Region::DrawPostFit: 4:	24.380356 +4.253962 -4.253962
+=== DEBUG::Region::DrawPostFit: 1:	111.363930 +8.096821 -8.096821
+=== DEBUG::Region::DrawPostFit: 2:	110.279526 +7.142633 -7.142633
+=== DEBUG::Region::DrawPostFit: 3:	70.438187 +6.359362 -6.359362
+=== DEBUG::Region::DrawPostFit: 4:	24.423138 +4.183325 -4.183325
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_1_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been created
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
-=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000830
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000780
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_1
-=== DEBUG::Region::DrawPostFit:   -->  pull = 1.024820
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.025460
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_2
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987140
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987490
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_3
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.942788
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.945739
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
-=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000830
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000780
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_1
-=== DEBUG::Region::DrawPostFit:   -->  pull = 1.024820
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.025460
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_2
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987140
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987490
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_3
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.942788
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.945739
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
-=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000830
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000780
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_1
-=== DEBUG::Region::DrawPostFit:   -->  pull = 1.024820
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.025460
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_2
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987140
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987490
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_3
-=== DEBUG::Region::DrawPostFit:   -->  pull = 0.942788
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.945739
 [1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region SR_2 ...[0m
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	108.976959 +6.494166 -6.494166
-=== DEBUG::Region::DrawPostFit: 2:	108.698143 +5.909606 -5.909606
-=== DEBUG::Region::DrawPostFit: 3:	70.191086 +6.437824 -6.437824
-=== DEBUG::Region::DrawPostFit: 4:	24.237284 +4.227614 -4.227614
+=== DEBUG::Region::DrawPostFit: 1:	109.028198 +6.483063 -6.483063
+=== DEBUG::Region::DrawPostFit: 2:	108.709229 +5.962681 -5.962681
+=== DEBUG::Region::DrawPostFit: 3:	70.158714 +6.406670 -6.406670
+=== DEBUG::Region::DrawPostFit: 4:	24.278431 +4.157642 -4.157642
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_2_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
 [1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region VR ...[0m
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	324.394562 +25.308907 -25.308907
-=== DEBUG::Region::DrawPostFit: 2:	293.985718 +22.375265 -22.375265
-=== DEBUG::Region::DrawPostFit: 3:	164.621536 +19.501373 -19.501373
-=== DEBUG::Region::DrawPostFit: 4:	62.858246 +11.182803 -11.182803
+=== DEBUG::Region::DrawPostFit: 1:	324.525238 +25.292505 -25.292505
+=== DEBUG::Region::DrawPostFit: 2:	293.790588 +22.330563 -22.330563
+=== DEBUG::Region::DrawPostFit: 3:	164.453079 +19.444214 -19.444214
+=== DEBUG::Region::DrawPostFit: 4:	62.746445 +11.147523 -11.147523
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/VR_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/VR_postFit.png has been created
 [1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
@@ -139,8 +139,8 @@ Info in <TCanvas::Print>: png file FitExample/Plots/VR_postFit.png has been crea
 === DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TtHFit::DrawSummary: Adding Signal: Signal
-=== DEBUG::TtHFit::DrawSummary: 1:	316.463806	+15.561548	-15.561548
-=== DEBUG::TtHFit::DrawSummary: 2:	312.103485	+12.738965	-12.738965
+=== DEBUG::TtHFit::DrawSummary: 1:	316.504791	+15.538572	-15.538572
+=== DEBUG::TtHFit::DrawSummary: 2:	312.174561	+12.720732	-12.720732
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
 [1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TtHFit::DrawSummary: Building Summary Plot...[0m
@@ -149,7 +149,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been
 === DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TtHFit::DrawSummary: Adding Signal: Signal
 Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
-=== DEBUG::TtHFit::DrawSummary: 1:	845.860046	+44.130676	-44.130676
+=== DEBUG::TtHFit::DrawSummary: 1:	845.515381	+44.061489	-44.061489
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has been created
 [1;32m=== INFO::TtHFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TtHFit::BuildYieldTable: Building Yields Table...[0m
