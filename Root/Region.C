@@ -1519,6 +1519,9 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     bool isPostFit  = false; if(opt.find("post")!=string::npos)     isPostFit  = true;
     bool doClean    = false; if(opt.find("clean")!=string::npos)    doClean    = true;
     bool doCategory = false; if(opt.find("category")!=string::npos) doCategory = true;
+    bool standalone = false; if(opt.find("standalone")!=string::npos)standalone= true;
+    bool landscape  = false; if(opt.find("landscape")!=string::npos) landscape = true;
+    bool footnotesize=false; if(opt.find("footnotesize")!=string::npos)footnotesize=true;;
     //
     ofstream out;
     ofstream texout;
@@ -1548,18 +1551,24 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     
     
     out << " | ";
-    texout << "\\documentclass[10pt]{article}" << endl;
-    texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
-    texout << "\\begin{document}" << endl;
+    if (standalone) {
+        texout << "\\documentclass[10pt]{article}" << endl;
+        texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
+        texout << "\\begin{document}" << endl;
+    }
+    if (landscape) texout << "\\begin{landscape}" << endl;        
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
+    if (footnotesize) texout << "\\footnotesize" << endl;        
     texout << "\\begin{tabular}{|c" ;
 
     if(doCategory){
         out_cat << " | ";
-        texout_cat << "\\documentclass[10pt]{article}" << endl;
-        texout_cat << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
-        texout_cat << "\\begin{document}" << endl;
+        if (standalone) {
+            texout_cat << "\\documentclass[10pt]{article}" << endl;
+            texout_cat << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
+            texout_cat << "\\begin{document}" << endl;
+        }
         texout_cat << "\\begin{table}[htbp]" << endl;
         texout_cat << "\\begin{center}" << endl;
         texout_cat << "\\begin{tabular}{|c" ;
@@ -1751,7 +1760,6 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     texout << "\\caption{Relative effect of each systematic on the yields.} " << endl;
     texout << "\\end{center} " << endl;
     texout << "\\end{table} " << endl;
-    texout << "\\end{document}" << endl;
 
     if(doCategory){
         texout_cat << "\\hline " << endl;
@@ -1759,7 +1767,10 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
         texout_cat << "\\caption{Realtive effect of each group of systematics on the yields.} " << endl;
         texout_cat << "\\end{center} " << endl;
         texout_cat << "\\end{table} " << endl;
-        texout_cat << "\\end{document}" << endl;
+    }
+    if (landscape) texout << "\\end{landscape}" << endl;        
+    if (standalone) {
+        texout << "\\end{document}" << endl;
     }
 
     if(doClean){
