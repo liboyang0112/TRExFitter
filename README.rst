@@ -140,7 +140,7 @@ NB: note the *blank* line between the objects!
      * IntCodeOverall   : interpolation code used for the normalization component of systematics (should match the one used in RooStats)
      * IntCodeShape     : interpolation code used for the shape component of systematics (should match the one used in RooStats)
      * MCstatThreshold  : by default, the MC stat uncertainty is included in the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative) if the option is set to a float (default: no threshold); can also set to NONE in order to disable MC stat uncertainty completely
-     * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'Gaussian' (default) or 'Poisson'
+     * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'GAUSSIAN' or 'POISSON' (default)
      * DebugLevel       : 0 = prints only Warning and Errors, 1 = additionally prints Info messages, 2 = additionally prints Debug messages, >2 additionally prints Verbose messages. For option <2 RooFit/Roostats messages will be heavily suppressed
      * Logo             : is set to TRUE will print the TRExFitter logo
      * PlotOptions      : a set of options for plotting:

@@ -62,7 +62,7 @@ public:
     ~TtHFit();
     
     void SetPOI(std::string name="SigXsecOverSM");
-    void SetStatErrorConfig(bool useIt=true, float thres=0.05, std::string cons="Gaussian");
+    void SetStatErrorConfig(bool useIt=true, float thres=0.05, std::string cons="Poisson");
     void SetLumiErr(float err);
     void SetLumi(const float lumi);
     void SetFitType(FitType type);
