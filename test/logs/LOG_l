@@ -102,21 +102,25 @@ observables:(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::alpha_Bkg2XsecConstraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::alpha_Bkg2Xsec
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_alpha_Bkg2Xsec for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_0_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_1_bin_0_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_0 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_0_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_1_bin_0_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_0_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_1_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_1_bin_1_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_1 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_1_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_1_bin_1_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_1_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_2_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_1_bin_2_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_2 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_2_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_1_bin_2_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_2_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_3_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_1_bin_3_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_3 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_3_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_1_bin_3_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_3_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_3
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR_1_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg1_SR_1_overallSyst_x_StatUncert
@@ -148,21 +152,25 @@ observables:(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_1_epsilon
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProdPdf::model_SR_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_0_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_2_bin_0_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_0 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_0_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_2_bin_0_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_0_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_1_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_2_bin_1_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_1 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_1_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_2_bin_1_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_1_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_2_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_2_bin_2_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_2 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_2_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_2_bin_2_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_2_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_3_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_2_bin_3_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_3 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_3_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_2_bin_3_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_3_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_3
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR_2_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg1_SR_2_overallSyst_x_StatUncert
@@ -200,7 +208,7 @@ Observables:             RooArgSet:: = (obs_x_SR_1,obs_x_SR_2,weightVar,channelC
 Parameters of Interest:  RooArgSet:: = (SigXsecOverSM)
 Nuisance Parameters:     RooArgSet:: = (alpha_Bkg1Xsec,alpha_Bkg2Xsec,alpha_JES,gamma_stat_SR_1_bin_0,gamma_stat_SR_1_bin_1,gamma_stat_SR_1_bin_2,gamma_stat_SR_1_bin_3,gamma_stat_SR_2_bin_0,gamma_stat_SR_2_bin_1,gamma_stat_SR_2_bin_2,gamma_stat_SR_2_bin_3)
 Global Observables:      RooArgSet:: = (nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
-PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 56.2
+PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 3.62858e-05
 
 === DEBUG::TtHFit::DumpData: Dumping data with the following parameters
 === DEBUG::TtHFit::DumpData:     * Regions data type 
@@ -219,773 +227,743 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Making asimov
 RooArgSet::dependents = (obs_x_SR_1)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_1 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (316.678 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 316.677795
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (316.702 weighted)
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 316.702465
 === DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_1, data: 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (316.678 weighted)
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (316.702 weighted)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: 
 RooArgSet::dependents = (obs_x_SR_2)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_2 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (312.326 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 312.325660
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (312.384 weighted)
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 312.383689
 === DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_2, data: 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (312.326 weighted)
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (312.384 weighted)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: 
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 0.241572
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435554
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.416563, mu_pre = 3.346601, qmu = 2.705543, qmu95 = 4.435554, sigma_obs_extrap = 2.034589, sigma = 2.034589, direction*mu*prec = 0.022083
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478954
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.838657, mu_pre = 4.416563, qmu = 4.712110, qmu95 = 3.478954, sigma_obs_extrap = 2.034589, sigma = 2.034589, direction*mu*prec = 0.019193
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987752
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.069496, mu_pre = 3.838657, qmu = 3.559633, qmu95 = 3.987752, sigma_obs_extrap = 2.034589, sigma = 2.034589, direction*mu*prec = 0.020347
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779629
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.957096, mu_pre = 4.069496, qmu = 4.000625, qmu95 = 3.779629, sigma_obs_extrap = 2.034589, sigma = 2.034589, direction*mu*prec = 0.019785
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871831
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.003726, mu_pre = 3.957096, qmu = 3.782681, qmu95 = 3.871831, sigma_obs_extrap = 2.034589, sigma = 2.034589, direction*mu*prec = 0.020019
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845078
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.989625, mu_pre = 4.003726, qmu = 3.872356, qmu95 = 3.845078, sigma_obs_extrap = 2.034589, sigma = 2.034589, direction*mu*prec = 0.019948
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.839481
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  3.989625[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.034589[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.034589[0m
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 0.247809
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435754
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.360748, mu_pre = 3.304216, qmu = 2.705543, qmu95 = 4.435754, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.021804
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478875
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.790019, mu_pre = 4.360748, qmu = 4.712373, qmu95 = 3.478875, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.018950
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987772
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.017967, mu_pre = 3.790019, qmu = 3.559594, qmu95 = 3.987772, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.020090
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779618
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.906973, mu_pre = 4.017967, qmu = 4.000649, qmu95 = 3.779618, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.019535
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871836
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.953021, mu_pre = 3.906973, qmu = 3.782671, qmu95 = 3.871836, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.019765
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845075
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.939093, mu_pre = 3.953021, qmu = 3.872361, qmu95 = 3.845075, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.019695
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.839482
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  3.939093[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.008821[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.008821[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.311537[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.839481[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            0.241572[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.070862[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.335296[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.309311[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.839482[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            0.247809[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.071721[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.333209[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.211456
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.307623
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435554
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.832688, mu_pre = 3.661915, qmu = 2.705543, qmu95 = 4.435554, sigma_obs_extrap = 2.226286, sigma = 2.226286, direction*mu*prec = 0.024163
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.701603, mu_pre = 3.562588, qmu = 2.705543, qmu95 = 4.435554, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.023508
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478954
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.200332, mu_pre = 4.832688, qmu = 4.712110, qmu95 = 3.478954, sigma_obs_extrap = 2.226286, sigma = 2.226286, direction*mu*prec = 0.021002
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.086400, mu_pre = 4.701603, qmu = 4.712110, qmu95 = 3.478954, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.020432
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987752
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.452921, mu_pre = 4.200332, qmu = 3.559633, qmu95 = 3.987752, sigma_obs_extrap = 2.226286, sigma = 2.226286, direction*mu*prec = 0.022265
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.332137, mu_pre = 4.086400, qmu = 3.559633, qmu95 = 3.987752, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.021661
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779629
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.329930, mu_pre = 4.452921, qmu = 4.000625, qmu95 = 3.779629, sigma_obs_extrap = 2.226286, sigma = 2.226286, direction*mu*prec = 0.021650
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.212483, mu_pre = 4.332137, qmu = 4.000625, qmu95 = 3.779629, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.021062
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871831
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.380954, mu_pre = 4.329930, qmu = 3.782681, qmu95 = 3.871831, sigma_obs_extrap = 2.226286, sigma = 2.226286, direction*mu*prec = 0.021905
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.262123, mu_pre = 4.212483, qmu = 3.782681, qmu95 = 3.871831, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.021311
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845078
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.365524, mu_pre = 4.380954, qmu = 3.872356, qmu95 = 3.845078, sigma_obs_extrap = 2.226286, sigma = 2.226286, direction*mu*prec = 0.021828
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.169391
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.247111, mu_pre = 4.262123, qmu = 3.872356, qmu95 = 3.845078, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.021236
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.119107
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_0_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.989625[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.226286[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.226286[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.939093[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.165899[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.165899[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.036562[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.034480[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.500000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.073124[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.169391[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.211456[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.211456[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.021828[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.375899[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.365524[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.068959[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.119107[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.307623[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.307623[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.021236[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.308017[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.247111[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 1 of nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.757178
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.786522
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435554
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.888922, mu_pre = 3.704526, qmu = 2.705543, qmu95 = 4.435554, sigma_obs_extrap = 2.252192, sigma = 2.252192, direction*mu*prec = 0.024445
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.737847, mu_pre = 3.590051, qmu = 2.705543, qmu95 = 4.435554, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.023689
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478954
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.249208, mu_pre = 4.888922, qmu = 4.712110, qmu95 = 3.478954, sigma_obs_extrap = 2.252192, sigma = 2.252192, direction*mu*prec = 0.021246
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.117901, mu_pre = 4.737847, qmu = 4.712110, qmu95 = 3.478954, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.020590
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987752
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.504736, mu_pre = 4.249208, qmu = 3.559633, qmu95 = 3.987752, sigma_obs_extrap = 2.252192, sigma = 2.252192, direction*mu*prec = 0.022524
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.365533, mu_pre = 4.117901, qmu = 3.559633, qmu95 = 3.987752, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.021828
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779629
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.380315, mu_pre = 4.504736, qmu = 4.000625, qmu95 = 3.779629, sigma_obs_extrap = 2.252192, sigma = 2.252192, direction*mu*prec = 0.021902
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.244956, mu_pre = 4.365533, qmu = 4.000625, qmu95 = 3.779629, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.021225
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871831
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.431932, mu_pre = 4.380315, qmu = 3.782681, qmu95 = 3.871831, sigma_obs_extrap = 2.252192, sigma = 2.252192, direction*mu*prec = 0.022160
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.294978, mu_pre = 4.244956, qmu = 3.782681, qmu95 = 3.871831, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.021475
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845078
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.416322, mu_pre = 4.431932, qmu = 3.872356, qmu95 = 3.845078, sigma_obs_extrap = 2.252192, sigma = 2.252192, direction*mu*prec = 0.022082
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.885044
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.279851, mu_pre = 4.294978, qmu = 3.872356, qmu95 = 3.845078, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.021399
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.869841
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_0_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.365524[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.252192[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.252192[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.247111[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.182596[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.182596[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.026291[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.025833[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.500000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.052581[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.885044[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.757178[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.757178[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.022082[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.050798[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.416322[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.051667[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.869841[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.786522[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.786522[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.021399[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.032740[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.279851[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 2 of nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.833290
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435554
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.896464, mu_pre = 3.710241, qmu = 2.705543, qmu95 = 4.435554, sigma_obs_extrap = 2.255666, sigma = 2.255666, direction*mu*prec = 0.024482
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478954
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.255763, mu_pre = 4.896464, qmu = 4.712110, qmu95 = 3.478954, sigma_obs_extrap = 2.255666, sigma = 2.255666, direction*mu*prec = 0.021279
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987752
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.511685, mu_pre = 4.255763, qmu = 3.559633, qmu95 = 3.987752, sigma_obs_extrap = 2.255666, sigma = 2.255666, direction*mu*prec = 0.022558
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779629
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.387072, mu_pre = 4.511685, qmu = 4.000625, qmu95 = 3.779629, sigma_obs_extrap = 2.255666, sigma = 2.255666, direction*mu*prec = 0.021935
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871831
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.438769, mu_pre = 4.387072, qmu = 3.782681, qmu95 = 3.871831, sigma_obs_extrap = 2.255666, sigma = 2.255666, direction*mu*prec = 0.022194
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845078
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.423135, mu_pre = 4.438769, qmu = 3.872356, qmu95 = 3.845078, sigma_obs_extrap = 2.255666, sigma = 2.255666, direction*mu*prec = 0.022116
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845607
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.838894
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435754
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.741824, mu_pre = 3.592964, qmu = 2.705543, qmu95 = 4.435754, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.023709
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478875
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.121220, mu_pre = 4.741824, qmu = 4.712373, qmu95 = 3.478875, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.020606
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987772
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.369088, mu_pre = 4.121220, qmu = 3.559594, qmu95 = 3.987772, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.021845
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779618
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.248395, mu_pre = 4.369088, qmu = 4.000649, qmu95 = 3.779618, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.021242
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871836
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.298466, mu_pre = 4.248395, qmu = 3.782671, qmu95 = 3.871836, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.021492
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845075
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.283322, mu_pre = 4.298466, qmu = 3.872361, qmu95 = 3.845075, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.021417
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.842707
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_0_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.416322[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.255666[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.255666[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.279851[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.184367[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.184367[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.025122[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.025038[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.500000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.050244[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.845607[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.833290[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.833290[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.022116[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.006813[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.423135[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.050077[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.842707[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.838894[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.838894[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.021417[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.003471[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.283322[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.423135[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.283322[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 3 iterations. [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.981921
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.583932
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.979638, mu_pre = 3.823594, qmu = 2.856585, qmu95 = 4.583932, sigma_obs_extrap = 2.262290, sigma = 2.262290, direction*mu*prec = 0.024898
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.651411
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.366237, mu_pre = 4.979638, qmu = 4.845059, qmu95 = 3.651411, sigma_obs_extrap = 2.262290, sigma = 2.262290, direction*mu*prec = 0.021831
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.139291
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.609087, mu_pre = 4.366237, qmu = 3.724929, qmu95 = 4.139291, sigma_obs_extrap = 2.262290, sigma = 2.262290, direction*mu*prec = 0.023045
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.941756
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.493017, mu_pre = 4.609087, qmu = 4.150814, qmu95 = 3.941756, sigma_obs_extrap = 2.262290, sigma = 2.262290, direction*mu*prec = 0.022465
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.028099
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.540694, mu_pre = 4.493017, qmu = 3.944388, qmu95 = 4.028099, sigma_obs_extrap = 2.262290, sigma = 2.262290, direction*mu*prec = 0.022703
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.002700
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.526130, mu_pre = 4.540694, qmu = 4.028543, qmu95 = 4.002700, sigma_obs_extrap = 2.262290, sigma = 2.262290, direction*mu*prec = 0.022631
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.016858
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  4.526130[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.262290[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.262290[0m
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.987394
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.583726
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.818791, mu_pre = 3.700190, qmu = 2.856585, qmu95 = 4.583726, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.024094
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.651492
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.225343, mu_pre = 4.818791, qmu = 4.844792, qmu95 = 3.651492, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.021127
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.139270
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.460318, mu_pre = 4.225343, qmu = 3.724971, qmu95 = 4.139270, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.022302
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.941767
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.348014, mu_pre = 4.460318, qmu = 4.150789, qmu95 = 3.941767, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.021740
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.028094
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.394143, mu_pre = 4.348014, qmu = 3.944399, qmu95 = 4.028094, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.021971
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.002703
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.380054, mu_pre = 4.394143, qmu = 4.028538, qmu95 = 4.002703, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.021900
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.016857
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  4.380054[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.189276[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.189276[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.022996[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.016858[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.981921[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.497921[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.045801[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.022921[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.016857[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.987394[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.498468[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.045702[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 4.000859
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.583726
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.980672, mu_pre = 3.824493, qmu = 2.856585, qmu95 = 4.583726, sigma_obs_extrap = 2.262822, sigma = 2.262822, direction*mu*prec = 0.024903
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.651492
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.367288, mu_pre = 4.980672, qmu = 4.844792, qmu95 = 3.651492, sigma_obs_extrap = 2.262822, sigma = 2.262822, direction*mu*prec = 0.021836
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.139270
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.610157, mu_pre = 4.367288, qmu = 3.724971, qmu95 = 4.139270, sigma_obs_extrap = 2.262822, sigma = 2.262822, direction*mu*prec = 0.023051
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.941767
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.494080, mu_pre = 4.610157, qmu = 4.150789, qmu95 = 3.941767, sigma_obs_extrap = 2.262822, sigma = 2.262822, direction*mu*prec = 0.022470
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.028094
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.541759, mu_pre = 4.494080, qmu = 3.944399, qmu95 = 4.028094, sigma_obs_extrap = 2.262822, sigma = 2.262822, direction*mu*prec = 0.022709
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.002703
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.527196, mu_pre = 4.541759, qmu = 4.028538, qmu95 = 4.002703, sigma_obs_extrap = 2.262822, sigma = 2.262822, direction*mu*prec = 0.022636
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.017911
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 4.000905
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.583932
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.820031, mu_pre = 3.701041, qmu = 2.856585, qmu95 = 4.583932, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.024100
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.651411
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.226290, mu_pre = 4.820031, qmu = 4.845059, qmu95 = 3.651411, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.021131
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.139291
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.461357, mu_pre = 4.226290, qmu = 3.724929, qmu95 = 4.139291, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.022307
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.941756
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.349007, mu_pre = 4.461357, qmu = 4.150814, qmu95 = 3.941756, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.021745
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.028099
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.395156, mu_pre = 4.349007, qmu = 3.944388, qmu95 = 4.028099, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.021976
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.002700
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.381058, mu_pre = 4.395156, qmu = 4.028543, qmu95 = 4.002700, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.021905
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.017885
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_0_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.526130[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.262822[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.262822[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.380054[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.189779[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.189779[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.022739[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.022738[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.500000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.045477[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.017911[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            4.000859[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          4.000859[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.022636[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.001066[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.527196[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.045476[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.017885[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            4.000905[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          4.000905[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.021905[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.001005[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.381058[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.527196[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.381058[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 1 iterations. [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Found N * sigma = 2 * 2.263598[0m
-[1;32m=== INFO::RunAsymptoticCLs::makeAsimovData: Creating asimov data at mu = 4.527196, profiling at mu = 4.527196[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Found N * sigma = 2 * 2.190529[0m
+[1;32m=== INFO::RunAsymptoticCLs::makeAsimovData: Creating asimov data at mu = 4.381058, profiling at mu = 4.381058[0m
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Making asimov
 RooArgSet::dependents = (obs_x_SR_1)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_1 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (320.051 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 320.051206
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (320.354 weighted)
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 320.353932
 === DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_1, data: 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (320.051 weighted)
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (320.354 weighted)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: 
 RooArgSet::dependents = (obs_x_SR_2)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_2 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.743 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 317.743410
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.906 weighted)
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 317.906034
 === DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_2, data: 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.743 weighted)
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.906 weighted)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: 
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.743290
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.276456, mu_pre = 8.250483, qmu = 2.705543, qmu95 = 2.743290, sigma_obs_extrap = 2.263598, sigma = 2.263598, direction*mu*prec = 0.041382
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.009293, mu_pre = 7.984158, qmu = 2.705543, qmu95 = 2.743290, sigma_obs_extrap = 2.190529, sigma = 2.190529, direction*mu*prec = 0.040046
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_4.5272_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 10.682996
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.768129
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.740467, mu_pre = 8.692293, qmu = 2.705543, qmu95 = 2.768129, sigma_obs_extrap = 2.532199, sigma = 2.532199, direction*mu*prec = 0.043702
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.765431
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.738139, mu_pre = 8.740467, qmu = 2.768491, qmu95 = 2.765431, sigma_obs_extrap = 2.532199, sigma = 2.532199, direction*mu*prec = 0.043691
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.765559
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  8.738139[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.532199[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.532199[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.527196[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.000541[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.765559[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            10.682996[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.427664[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.000945[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_4.3811_with_constr[0m
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 11.253979
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.761628
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.348829, mu_pre = 8.308126, qmu = 2.705543, qmu95 = 2.761628, sigma_obs_extrap = 2.387488, sigma = 2.387488, direction*mu*prec = 0.041744
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.759427
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  8.348829[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.387488[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.387488[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.381058[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.000397[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.759427[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            11.253979[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.443455[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.000714[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_4.5272_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.056203
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 11.589813
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.743213
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 9.391117, mu_pre = 9.357491, qmu = 2.705543, qmu95 = 2.743213, sigma_obs_extrap = 2.936611, sigma = 2.566733, direction*mu*prec = 0.046956
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.772343
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_4.5272_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  8.738139[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.936611[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.566733[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.527196[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.075794[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.024394[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.077689[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.772343[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.056203[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          11.589813[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.046956[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.652978[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      9.391117[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_4.3811_with_constr[0m
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.200757
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 12.040631
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.742876
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.810753, mu_pre = 8.780401, qmu = 2.705543, qmu95 = 2.742876, sigma_obs_extrap = 2.674610, sigma = 2.406029, direction*mu*prec = 0.044054
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.762942
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_4.3811_with_constr[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  8.348829[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.674610[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.406029[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.381058[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.068972[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.023491[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.070631[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.762942[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.200757[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          12.040631[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.044054[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.461924[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      8.810753[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 1 of nll_simPdf_asimovData_4.5272_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.642220
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 12.887713
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.746440
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 9.486255, mu_pre = 9.449056, qmu = 2.705543, qmu95 = 2.746440, sigma_obs_extrap = 2.992278, sigma = 2.615949, direction*mu*prec = 0.047431
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.748699
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_4.5272_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  9.391117[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.992278[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.615949[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.527196[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.052029[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.024739[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.053349[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.748699[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.642220[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          12.887713[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.047431[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.095138[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      9.486255[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 1 of nll_simPdf_asimovData_4.3811_with_constr[0m
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.687163
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 13.134421
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.744656
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.858005, mu_pre = 8.825877, qmu = 2.705543, qmu95 = 2.744656, sigma_obs_extrap = 2.702258, sigma = 2.431127, direction*mu*prec = 0.044290
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.745255
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_4.3811_with_constr[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  8.810753[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.702258[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.431127[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.381058[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.050580[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.023579[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.051801[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.745255[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.687163[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          13.134421[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.044290[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.047252[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      8.858005[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 2 of nll_simPdf_asimovData_4.5272_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.732096
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 13.077831
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.746938
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 9.499851, mu_pre = 9.462098, qmu = 2.705543, qmu95 = 2.746938, sigma_obs_extrap = 3.000208, sigma = 2.623173, direction*mu*prec = 0.047499
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.746020
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_4.5272_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  9.486255[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     3.000208[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.623173[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.527196[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.049175[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.024799[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.050426[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.746020[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.732096[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          13.077831[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.047499[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.013595[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      9.499851[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 2 of nll_simPdf_asimovData_4.3811_with_constr[0m
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.739312
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 13.247701
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.744848
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.862643, mu_pre = 8.830325, qmu = 2.705543, qmu95 = 2.744848, sigma_obs_extrap = 2.704962, sigma = 2.433692, direction*mu*prec = 0.044313
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.743767
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_4.3811_with_constr[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  8.858005[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.704962[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.433692[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.381058[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.048953[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.023592[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.050136[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.743767[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.739312[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          13.247701[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.044313[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.004638[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      8.862643[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_4.5272_with_constr: 9.499851[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_4.3811_with_constr: 8.862643[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 3 iterations. [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.140910
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.113058
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.945516
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.827639, mu_pre = 1.004258, qmu = 0.225846, qmu95 = 1.945516, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.024138
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.733169, mu_pre = 0.984606, qmu = 0.225846, qmu95 = 1.945516, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.023666
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.259262
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.533729, mu_pre = 4.827639, qmu = 5.219054, qmu95 = 0.259262, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.012669
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.484147, mu_pre = 4.733169, qmu = 5.219054, qmu95 = 0.259262, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.012421
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.679000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.865217, mu_pre = 2.533729, qmu = 1.437614, qmu95 = 0.679000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.009326
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.828718, mu_pre = 2.484147, qmu = 1.437614, qmu95 = 0.679000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.009144
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.249000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.427745, mu_pre = 1.865217, qmu = 0.779078, qmu95 = 1.249000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.012139
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.380238, mu_pre = 1.828718, qmu = 0.779078, qmu95 = 1.249000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.011901
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.742000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.896288, mu_pre = 2.427745, qmu = 1.319861, qmu95 = 0.742000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.009481
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.859180, mu_pre = 2.380238, qmu = 1.319861, qmu95 = 0.742000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.009296
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.219000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.383459, mu_pre = 1.896288, qmu = 0.805250, qmu95 = 1.219000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.011917
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.336818, mu_pre = 1.859180, qmu = 0.805250, qmu95 = 1.219000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.011684
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.771000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.913991, mu_pre = 2.383459, qmu = 1.272148, qmu95 = 0.771000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.009570
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.876537, mu_pre = 2.336818, qmu = 1.272148, qmu95 = 0.771000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.009383
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.201000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.358037, mu_pre = 1.913991, qmu = 0.820355, qmu95 = 1.201000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.011790
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.311893, mu_pre = 1.876537, qmu = 0.820355, qmu95 = 1.201000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.011559
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.789000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.926111, mu_pre = 2.358037, qmu = 1.245155, qmu95 = 0.789000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.009631
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.888419, mu_pre = 2.311893, qmu = 1.245155, qmu95 = 0.789000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.009442
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.189000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.341370, mu_pre = 1.926111, qmu = 0.830777, qmu95 = 1.189000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.011707
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.295553, mu_pre = 1.888419, qmu = 0.830777, qmu95 = 1.189000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.011478
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.801000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.934539, mu_pre = 2.341370, qmu = 1.227615, qmu95 = 0.801000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.009673
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.896683, mu_pre = 2.295553, qmu = 1.227615, qmu95 = 0.801000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.009483
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.181000
 === DEBUG::RunAsymptoticCLs::findCrossing: Changing damping factor to 0.800000, nrDamping = 1
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.251184, mu_pre = 1.934539, qmu = 0.838064, qmu95 = 1.181000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.011256
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.207132, mu_pre = 1.896683, qmu = 0.838064, qmu95 = 1.181000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.011036
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.872000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.042610, mu_pre = 2.251184, qmu = 1.134866, qmu95 = 0.872000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.010213
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.002640, mu_pre = 2.207132, qmu = 1.134866, qmu95 = 0.872000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010013
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.073000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.163888, mu_pre = 2.042610, qmu = 0.934315, qmu95 = 1.073000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.010819
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.121544, mu_pre = 2.002640, qmu = 0.934315, qmu95 = 1.073000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010608
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.950000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.082532, mu_pre = 2.163888, qmu = 1.048557, qmu95 = 0.950000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.010413
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.041780, mu_pre = 2.121544, qmu = 1.048557, qmu95 = 0.950000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010209
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.032000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.134687, mu_pre = 2.082532, qmu = 0.971194, qmu95 = 1.032000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.010673
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.092915, mu_pre = 2.041780, qmu = 0.971194, qmu95 = 1.032000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010465
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.979000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.100005, mu_pre = 2.134687, qmu = 1.020448, qmu95 = 0.979000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.010500
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.058911, mu_pre = 2.092915, qmu = 1.020448, qmu95 = 0.979000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010295
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.014000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.122496, mu_pre = 2.100005, qmu = 0.987559, qmu95 = 1.014000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.010612
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.080962, mu_pre = 2.058911, qmu = 0.987559, qmu95 = 1.014000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010405
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.991000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.107495, mu_pre = 2.122496, qmu = 1.008825, qmu95 = 0.991000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.010537
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.066254, mu_pre = 2.080962, qmu = 1.008825, qmu95 = 0.991000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010331
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.006000
 === DEBUG::RunAsymptoticCLs::findCrossing: Changing damping factor to 0.640000, nrDamping = 2
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.113670, mu_pre = 2.107495, qmu = 0.994615, qmu95 = 1.006000, sigma_obs_extrap = 2.113192, sigma = 2.113192, direction*mu*prec = 0.010568
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.072309, mu_pre = 2.066254, qmu = 0.994615, qmu95 = 1.006000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010362
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.000000
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  2.113670[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.113192[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.113192[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  2.072309[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.071840[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.071840[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.142211[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.145366[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          1.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            1.140910[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.527988[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.301286[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            1.113058[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.522445[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.304396[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.009741
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.945516
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.805385, mu_pre = 0.999629, qmu = 0.225846, qmu95 = 1.945516, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.024027
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.259262
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.522049, mu_pre = 4.805385, qmu = 5.219054, qmu95 = 0.259262, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.012610
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.007004
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.946000
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.718799, mu_pre = 0.981398, qmu = 0.225846, qmu95 = 1.946000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.023594
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.259221
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.476534, mu_pre = 4.718799, qmu = 5.221380, qmu95 = 0.259221, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.012383
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.679000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.856619, mu_pre = 2.522049, qmu = 1.437614, qmu95 = 0.679000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.009283
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.249000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.416554, mu_pre = 1.856619, qmu = 0.779078, qmu95 = 1.249000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.012083
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.742000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.887546, mu_pre = 2.416554, qmu = 1.319861, qmu95 = 0.742000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.009438
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.219000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.372472, mu_pre = 1.887546, qmu = 0.805250, qmu95 = 1.219000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.011862
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.771000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.905168, mu_pre = 2.372472, qmu = 1.272148, qmu95 = 0.771000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.009526
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.822886, mu_pre = 2.476534, qmu = 1.438173, qmu95 = 0.679000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009114
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.248000
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.371274, mu_pre = 1.822886, qmu = 0.779187, qmu95 = 1.248000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.011856
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.743000
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.853757, mu_pre = 2.371274, qmu = 1.318518, qmu95 = 0.743000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009269
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.218000
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.327891, mu_pre = 1.853757, qmu = 0.805802, qmu95 = 1.218000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.011639
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.772000
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.871080, mu_pre = 2.327891, qmu = 1.270714, qmu95 = 0.772000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009355
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.201000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.347167, mu_pre = 1.905168, qmu = 0.820355, qmu95 = 1.201000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.011736
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.304208, mu_pre = 1.871080, qmu = 0.820932, qmu95 = 1.201000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.011521
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.789000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.917232, mu_pre = 2.347167, qmu = 1.245155, qmu95 = 0.789000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.009586
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.882239, mu_pre = 2.304208, qmu = 1.244990, qmu95 = 0.789000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009411
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.189000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.330577, mu_pre = 1.917232, qmu = 0.830777, qmu95 = 1.189000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.011653
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.288080, mu_pre = 1.882239, qmu = 0.830753, qmu95 = 1.189000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.011440
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.801000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.925621, mu_pre = 2.330577, qmu = 1.227615, qmu95 = 0.801000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.009628
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.890504, mu_pre = 2.288080, qmu = 1.227622, qmu95 = 0.801000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009453
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.181000
 === DEBUG::RunAsymptoticCLs::findCrossing: Changing damping factor to 0.800000, nrDamping = 1
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.240807, mu_pre = 1.925621, qmu = 0.838064, qmu95 = 1.181000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.011204
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.199941, mu_pre = 1.890504, qmu = 0.838065, qmu95 = 1.181000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.011000
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.872000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.033195, mu_pre = 2.240807, qmu = 1.134866, qmu95 = 0.872000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.010166
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.996115, mu_pre = 2.199941, qmu = 1.134866, qmu95 = 0.872000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009981
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.073000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.153913, mu_pre = 2.033195, qmu = 0.934315, qmu95 = 1.073000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.010770
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.114632, mu_pre = 1.996115, qmu = 0.934315, qmu95 = 1.073000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010573
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.950000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.072933, mu_pre = 2.153913, qmu = 1.048557, qmu95 = 0.950000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.010365
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.035128, mu_pre = 2.114632, qmu = 1.048557, qmu95 = 0.950000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010176
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.032000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.124847, mu_pre = 2.072933, qmu = 0.971194, qmu95 = 1.032000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.010624
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.086096, mu_pre = 2.035128, qmu = 0.971194, qmu95 = 1.032000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010430
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.979000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.090325, mu_pre = 2.124847, qmu = 1.020448, qmu95 = 0.979000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.010452
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.052203, mu_pre = 2.086096, qmu = 1.020448, qmu95 = 0.979000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010261
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.014000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.112712, mu_pre = 2.090325, qmu = 0.987559, qmu95 = 1.014000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.010564
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.074181, mu_pre = 2.052203, qmu = 0.987559, qmu95 = 1.014000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010371
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.991000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.097780, mu_pre = 2.112712, qmu = 1.008825, qmu95 = 0.991000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.010489
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.059522, mu_pre = 2.074181, qmu = 1.008825, qmu95 = 0.991000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010298
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.006000
 === DEBUG::RunAsymptoticCLs::findCrossing: Changing damping factor to 0.640000, nrDamping = 2
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.103927, mu_pre = 2.097780, qmu = 0.994615, qmu95 = 1.006000, sigma_obs_extrap = 2.103450, sigma = 2.103450, direction*mu*prec = 0.010520
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.990000
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.065557, mu_pre = 2.059522, qmu = 0.994615, qmu95 = 1.006000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010328
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.993000
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_0_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  2.113670[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.103450[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.103450[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  2.072309[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.065089[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.065089[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.157482[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.157811[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.500000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.314965[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          0.990000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            1.009741[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          1.009741[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.010520[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.009743[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      2.103927[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.315622[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          0.993000[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            1.007004[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          1.007004[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.010328[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.006752[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      2.065557[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_0_with_constr: 2.103927[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_0_with_constr: 2.065557[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 1 iterations. [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Found N * sigma = 1 * 2.103927[0m
-[1;32m=== INFO::RunAsymptoticCLs::makeAsimovData: Creating asimov data at mu = 2.103927, profiling at mu = 2.103927[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Found N * sigma = 1 * 2.065557[0m
+[1;32m=== INFO::RunAsymptoticCLs::makeAsimovData: Creating asimov data at mu = 2.065557, profiling at mu = 2.065557[0m
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
 === DEBUG::RunAsymptoticCLs::makeAsimovData: Making asimov
 RooArgSet::dependents = (obs_x_SR_1)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_1 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.941 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 317.940788
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.952 weighted)
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 317.952036
 === DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_1, data: 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.941 weighted)
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.952 weighted)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: 
 RooArgSet::dependents = (obs_x_SR_2)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_2 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (314.806 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 314.805961
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (314.898 weighted)
+=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 314.897984
 === DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_2, data: 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (314.806 weighted)
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (314.898 weighted)
 === DEBUG::RunAsymptoticCLs::makeAsimovData: 
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.032036
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.773386, mu_pre = 5.564578, qmu = 2.705543, qmu95 = 3.032036, sigma_obs_extrap = 2.103927, sigma = 2.103927, direction*mu*prec = 0.028867
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.668095, mu_pre = 5.463095, qmu = 2.705543, qmu95 = 3.032036, sigma_obs_extrap = 2.065557, sigma = 2.065557, direction*mu*prec = 0.028340
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.970819
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.730521, mu_pre = 5.773386, qmu = 3.041886, qmu95 = 2.970819, sigma_obs_extrap = 2.103927, sigma = 2.103927, direction*mu*prec = 0.028653
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.626012, mu_pre = 5.668095, qmu = 3.041886, qmu95 = 2.970819, sigma_obs_extrap = 2.065557, sigma = 2.065557, direction*mu*prec = 0.028130
 === DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.981252
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.736635, mu_pre = 5.730521, qmu = 2.971234, qmu95 = 2.981252, sigma_obs_extrap = 2.103927, sigma = 2.103927, direction*mu*prec = 0.028683
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.632015, mu_pre = 5.626012, qmu = 2.971234, qmu95 = 2.981252, sigma_obs_extrap = 2.065557, sigma = 2.065557, direction*mu*prec = 0.028160
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_2.1039_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 5.972556
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.103943
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.249243, mu_pre = 5.964968, qmu = 2.705543, qmu95 = 3.103943, sigma_obs_extrap = 2.347346, sigma = 2.347346, direction*mu*prec = 0.031246
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.014830
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.180270, mu_pre = 6.249243, qmu = 3.118610, qmu95 = 3.014830, sigma_obs_extrap = 2.347346, sigma = 2.347346, direction*mu*prec = 0.030901
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.039662
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.196469, mu_pre = 6.180270, qmu = 3.015693, qmu95 = 3.039662, sigma_obs_extrap = 2.347346, sigma = 2.347346, direction*mu*prec = 0.030982
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.035248
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  6.196469[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.347346[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.347346[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          2.103927[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.007265[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.035248[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            5.972556[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.422346[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.012577[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_2.0656_with_constr[0m
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 6.222740
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.090028
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.043073, mu_pre = 5.779200, qmu = 2.705543, qmu95 = 3.090028, sigma_obs_extrap = 2.257735, sigma = 2.257735, direction*mu*prec = 0.030215
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.006702
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.980927, mu_pre = 6.043073, qmu = 3.103688, qmu95 = 3.006702, sigma_obs_extrap = 2.257735, sigma = 2.257735, direction*mu*prec = 0.029905
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.029382
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.995198, mu_pre = 5.980927, qmu = 3.007460, qmu95 = 3.029382, sigma_obs_extrap = 2.257735, sigma = 2.257735, direction*mu*prec = 0.029976
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.025455
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  5.995198[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.257735[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.257735[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          2.065557[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.006306[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.025455[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            6.222740[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.436101[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.011183[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_2.1039_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.623648
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 6.778182
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.041437
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.517831, mu_pre = 6.259851, qmu = 2.705543, qmu95 = 3.041437, sigma_obs_extrap = 2.526623, sigma = 2.380059, direction*mu*prec = 0.032589
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.973645
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.461267, mu_pre = 6.517831, qmu = 3.051862, qmu95 = 2.973645, sigma_obs_extrap = 2.526623, sigma = 2.380059, direction*mu*prec = 0.032306
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.985957
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.469919, mu_pre = 6.461267, qmu = 2.974146, qmu95 = 2.985957, sigma_obs_extrap = 2.526623, sigma = 2.380059, direction*mu*prec = 0.032350
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.059087
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_2.1039_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  6.196469[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.526623[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.380059[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          2.103927[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.052641[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.162625[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.062864[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.059087[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.623648[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          6.778182[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.032350[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.273450[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      6.469919[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_2.0656_with_constr[0m
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.690028
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 6.928029
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.036964
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.247892, mu_pre = 6.006514, qmu = 2.705543, qmu95 = 3.036964, sigma_obs_extrap = 2.395932, sigma = 2.277711, direction*mu*prec = 0.031239
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.971345
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.195893, mu_pre = 6.247892, qmu = 3.047114, qmu95 = 2.971345, sigma_obs_extrap = 2.395932, sigma = 2.277711, direction*mu*prec = 0.030979
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.983078
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.203720, mu_pre = 6.195893, qmu = 2.971816, qmu95 = 2.983078, sigma_obs_extrap = 2.395932, sigma = 2.277711, direction*mu*prec = 0.031019
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.040152
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_2.0656_with_constr[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  5.995198[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.395932[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.277711[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          2.065557[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.050489[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.160603[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.060149[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.040152[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.690028[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          6.928029[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.031019[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.208522[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      6.203720[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 1 of nll_simPdf_asimovData_2.1039_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.937335
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 7.268757
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.046204
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.557912, mu_pre = 6.294115, qmu = 2.705543, qmu95 = 3.046204, sigma_obs_extrap = 2.547453, sigma = 2.399765, direction*mu*prec = 0.032790
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.976600
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.499393, mu_pre = 6.557912, qmu = 3.056927, qmu95 = 2.976600, sigma_obs_extrap = 2.547453, sigma = 2.399765, direction*mu*prec = 0.032497
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.989355
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.508419, mu_pre = 6.499393, qmu = 2.977127, qmu95 = 2.989355, sigma_obs_extrap = 2.547453, sigma = 2.399765, direction*mu*prec = 0.032542
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.995967
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_2.1039_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  6.469919[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.547453[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.399765[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          2.103927[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.043277[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.163001[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.051705[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.995967[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.937335[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          7.268757[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.032542[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.038500[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      6.508419[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 1 of nll_simPdf_asimovData_2.0656_with_constr[0m
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.954284
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 7.344710
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.040010
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.270460, mu_pre = 6.025680, qmu = 2.705543, qmu95 = 3.040010, sigma_obs_extrap = 2.407584, sigma = 2.289100, direction*mu*prec = 0.031352
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.973263
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.217330, mu_pre = 6.270460, qmu = 3.050347, qmu95 = 2.973263, sigma_obs_extrap = 2.407584, sigma = 2.289100, direction*mu*prec = 0.031087
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.985267
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.225370, mu_pre = 6.217330, qmu = 2.973750, qmu95 = 2.985267, sigma_obs_extrap = 2.407584, sigma = 2.289100, direction*mu*prec = 0.031127
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.988414
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_2.0656_with_constr[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  6.203720[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.407584[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.289100[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          2.065557[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.042825[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.160767[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.051029[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.988414[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.954284[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          7.344710[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.031127[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.021651[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      6.225370[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 2 of nll_simPdf_asimovData_2.1039_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.982692
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 7.338493
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.046917
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.563447, mu_pre = 6.298801, qmu = 2.705543, qmu95 = 3.046917, sigma_obs_extrap = 2.550303, sigma = 2.402548, direction*mu*prec = 0.032817
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.977042
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.504639, mu_pre = 6.563447, qmu = 3.057686, qmu95 = 2.977042, sigma_obs_extrap = 2.550303, sigma = 2.402548, direction*mu*prec = 0.032523
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.989864
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.513721, mu_pre = 6.504639, qmu = 2.977574, qmu95 = 2.989864, sigma_obs_extrap = 2.550303, sigma = 2.402548, direction*mu*prec = 0.032569
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.989025
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_2.1039_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  6.508419[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.550303[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.402548[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          2.103927[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.042080[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.163070[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.050279[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.989025[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.982692[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          7.338493[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.032569[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.005302[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      6.513721[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_2.1039_with_constr: 6.513721[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 3 iterations. [0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_2.0656_with_constr: 6.225370[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 2 iterations. [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.844773
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435556
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.896946, mu_pre = 3.710667, qmu = 2.705543, qmu95 = 4.435556, sigma_obs_extrap = 2.255770, sigma = 2.255770, direction*mu*prec = 0.024485
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478805
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.256138, mu_pre = 4.896946, qmu = 4.712112, qmu95 = 3.478805, sigma_obs_extrap = 2.255770, sigma = 2.255770, direction*mu*prec = 0.021281
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987596
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.512060, mu_pre = 4.256138, qmu = 3.559504, qmu95 = 3.987596, sigma_obs_extrap = 2.255770, sigma = 2.255770, direction*mu*prec = 0.022560
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779491
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.387449, mu_pre = 4.512060, qmu = 4.000468, qmu95 = 3.779491, sigma_obs_extrap = 2.255770, sigma = 2.255770, direction*mu*prec = 0.021937
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871674
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.439139, mu_pre = 4.387449, qmu = 3.782542, qmu95 = 3.871674, sigma_obs_extrap = 2.255770, sigma = 2.255770, direction*mu*prec = 0.022196
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.844917
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.423501, mu_pre = 4.439139, qmu = 3.872199, qmu95 = 3.844917, sigma_obs_extrap = 2.255770, sigma = 2.255770, direction*mu*prec = 0.022118
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.839334
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  4.423501[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.255770[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.255770[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000256[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.024951[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.839334[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.844773[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.499935[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.049895[0m
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.844570
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435540
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.742290, mu_pre = 3.593490, qmu = 2.705543, qmu95 = 4.435540, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.023711
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478800
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.121728, mu_pre = 4.742290, qmu = 4.712091, qmu95 = 3.478800, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.020609
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987582
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.369563, mu_pre = 4.121728, qmu = 3.559497, qmu95 = 3.987582, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.021848
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779480
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.248889, mu_pre = 4.369563, qmu = 4.000453, qmu95 = 3.779480, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.021244
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871661
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.298946, mu_pre = 4.248889, qmu = 3.782532, qmu95 = 3.871661, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.021495
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.844904
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.283802, mu_pre = 4.298946, qmu = 3.872186, qmu95 = 3.844904, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.021419
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.839322
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  4.283802[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.184524[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.184524[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.024954[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.839322[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.844570[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.499912[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.049899[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 7.906601
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.844043
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.193785
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.777534, mu_pre = 2.587714, qmu = 2.705543, qmu95 = 5.193785, sigma_obs_extrap = 1.573063, sigma = 2.256171, direction*mu*prec = 0.018888
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.384004
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.324894, mu_pre = 3.777534, qmu = 5.765883, qmu95 = 4.384004, sigma_obs_extrap = 1.573063, sigma = 2.256171, direction*mu*prec = 0.016624
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.721192
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.419566, mu_pre = 3.324894, qmu = 4.466801, qmu95 = 4.721192, sigma_obs_extrap = 1.573063, sigma = 2.256171, direction*mu*prec = 0.017098
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.653618
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.393804, mu_pre = 3.419566, qmu = 4.724814, qmu95 = 4.653618, sigma_obs_extrap = 1.573063, sigma = 2.256171, direction*mu*prec = 0.016969
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.672160
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.400466, mu_pre = 3.393804, qmu = 4.653886, qmu95 = 4.672160, sigma_obs_extrap = 1.573063, sigma = 2.256171, direction*mu*prec = 0.017002
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.840041
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 7.983221
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.845644
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.200625
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.643795, mu_pre = 2.493946, qmu = 2.705543, qmu95 = 5.200625, sigma_obs_extrap = 1.516049, sigma = 2.184464, direction*mu*prec = 0.018219
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.395070
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.208277, mu_pre = 3.643795, qmu = 5.775873, qmu95 = 4.395070, sigma_obs_extrap = 1.516049, sigma = 2.184464, direction*mu*prec = 0.016041
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.729156
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.298393, mu_pre = 3.208277, qmu = 4.477595, qmu95 = 4.729156, sigma_obs_extrap = 1.516049, sigma = 2.184464, direction*mu*prec = 0.016492
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.662917
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.274082, mu_pre = 3.298393, qmu = 4.732689, qmu95 = 4.662917, sigma_obs_extrap = 1.516049, sigma = 2.184464, direction*mu*prec = 0.016370
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.680935
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.280316, mu_pre = 3.274082, qmu = 4.663174, qmu95 = 4.680935, sigma_obs_extrap = 1.516049, sigma = 2.184464, direction*mu*prec = 0.016402
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.839213
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_ttHFitterData_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.423501[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.573063[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.256171[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000256[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.001365[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.849908[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.009093[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.840041[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            7.906601[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.844043[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.017002[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -1.023035[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      3.400466[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.283802[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.516049[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.184464[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.001281[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.854276[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.008789[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.839213[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            7.983221[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.845644[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.016402[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -1.003486[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      3.280316[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 1 of nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 5.660759
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.417172
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.285019
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.471527, mu_pre = 2.350948, qmu = 2.705543, qmu95 = 5.285019, sigma_obs_extrap = 1.429119, sigma = 2.187181, direction*mu*prec = 0.017358
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.534457
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.069854, mu_pre = 3.471527, qmu = 5.899839, qmu95 = 4.534457, sigma_obs_extrap = 1.429119, sigma = 2.187181, direction*mu*prec = 0.015349
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.830641
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.142108, mu_pre = 3.069854, qmu = 4.613454, qmu95 = 4.830641, sigma_obs_extrap = 1.429119, sigma = 2.187181, direction*mu*prec = 0.015711
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.779621
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.124694, mu_pre = 3.142108, qmu = 4.833197, qmu95 = 4.779621, sigma_obs_extrap = 1.429119, sigma = 2.187181, direction*mu*prec = 0.015623
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.792006
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.128693, mu_pre = 3.124694, qmu = 4.779770, qmu95 = 4.792006, sigma_obs_extrap = 1.429119, sigma = 2.187181, direction*mu*prec = 0.015643
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.588887
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 5.629121
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.371504
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.293882
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.361988, mu_pre = 2.274251, qmu = 2.705543, qmu95 = 5.293882, sigma_obs_extrap = 1.382484, sigma = 2.130119, direction*mu*prec = 0.016810
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.549471
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.974398, mu_pre = 3.361988, qmu = 5.912935, qmu95 = 4.549471, sigma_obs_extrap = 1.382484, sigma = 2.130119, direction*mu*prec = 0.014872
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.841653
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.043025, mu_pre = 2.974398, qmu = 4.628071, qmu95 = 4.841653, sigma_obs_extrap = 1.382484, sigma = 2.130119, direction*mu*prec = 0.015215
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.792113
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.026692, mu_pre = 3.043025, qmu = 4.844117, qmu95 = 4.792113, sigma_obs_extrap = 1.382484, sigma = 2.130119, direction*mu*prec = 0.015133
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.803987
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.030397, mu_pre = 3.026692, qmu = 4.792253, qmu95 = 4.803987, sigma_obs_extrap = 1.382484, sigma = 2.130119, direction*mu*prec = 0.015152
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.613742
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_ttHFitterData_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.400466[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.429119[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.187181[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000256[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.004690[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.851558[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.031597[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.588887[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            5.660759[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          2.417172[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.015643[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.271773[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      3.128693[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.280316[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.382484[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.130119[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.004693[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.854901[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.032344[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.613742[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            5.629121[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          2.371504[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.015152[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.249919[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      3.030397[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 2 of nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 5.094964
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.079878
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.314217
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.379045, mu_pre = 2.279990, qmu = 2.705543, qmu95 = 5.314217, sigma_obs_extrap = 1.385980, sigma = 2.169422, direction*mu*prec = 0.016895
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.584146
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.992761, mu_pre = 3.379045, qmu = 5.943034, qmu95 = 4.584146, sigma_obs_extrap = 1.385980, sigma = 2.169422, direction*mu*prec = 0.014964
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.867171
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.058668, mu_pre = 2.992761, qmu = 4.661825, qmu95 = 4.867171, sigma_obs_extrap = 1.385980, sigma = 2.169422, direction*mu*prec = 0.015293
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.820935
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.043438, mu_pre = 3.058668, qmu = 4.869432, qmu95 = 4.820935, sigma_obs_extrap = 1.385980, sigma = 2.169422, direction*mu*prec = 0.015217
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.831692
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.046795, mu_pre = 3.043438, qmu = 4.821055, qmu95 = 4.831692, sigma_obs_extrap = 1.385980, sigma = 2.169422, direction*mu*prec = 0.015234
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.770914
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 5.080710
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.049284
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.321813
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.280573, mu_pre = 2.211459, qmu = 2.705543, qmu95 = 5.321813, sigma_obs_extrap = 1.344309, sigma = 2.116891, direction*mu*prec = 0.016403
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.597618
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.906866, mu_pre = 3.280573, qmu = 5.954298, qmu95 = 4.597618, sigma_obs_extrap = 1.344309, sigma = 2.116891, direction*mu*prec = 0.014534
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.876721
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.969608, mu_pre = 2.906866, qmu = 4.674897, qmu95 = 4.876721, sigma_obs_extrap = 1.344309, sigma = 2.116891, direction*mu*prec = 0.014848
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.831790
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.955272, mu_pre = 2.969608, qmu = 4.878899, qmu95 = 4.831790, sigma_obs_extrap = 1.344309, sigma = 2.116891, direction*mu*prec = 0.014776
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.787514
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_ttHFitterData_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.128693[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.385980[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.169422[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000256[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.006432[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.852063[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.043479[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.770914[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            5.094964[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          2.079878[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.015234[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.081898[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      3.046795[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.030397[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.344309[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.116891[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.006381[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.855156[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.044055[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.787514[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            5.080710[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          2.049284[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.014776[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.075125[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      2.955272[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 3 of nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 4.926376
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.982320
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.323309
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.350213, mu_pre = 2.257977, qmu = 2.705543, qmu95 = 5.323309, sigma_obs_extrap = 1.372597, sigma = 2.163996, direction*mu*prec = 0.016751
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.600192
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.968813, mu_pre = 3.350213, qmu = 5.956518, qmu95 = 4.600192, sigma_obs_extrap = 1.372597, sigma = 2.163996, direction*mu*prec = 0.014844
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.878620
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.032665, mu_pre = 2.968813, qmu = 4.677402, qmu95 = 4.878620, sigma_obs_extrap = 1.372597, sigma = 2.163996, direction*mu*prec = 0.015163
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.833924
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.018108, mu_pre = 3.032665, qmu = 4.880784, qmu95 = 4.833924, sigma_obs_extrap = 1.372597, sigma = 2.163996, direction*mu*prec = 0.015091
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.823929
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 4.918182
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.956482
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.330458
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.255175, mu_pre = 2.191978, qmu = 2.705543, qmu95 = 5.330458, sigma_obs_extrap = 1.332465, sigma = 2.112806, direction*mu*prec = 0.016276
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.612554
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.885733, mu_pre = 3.255175, qmu = 5.967130, qmu95 = 4.612554, sigma_obs_extrap = 1.332465, sigma = 2.112806, direction*mu*prec = 0.014429
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.887738
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.946744, mu_pre = 2.885733, qmu = 4.689429, qmu95 = 4.887738, sigma_obs_extrap = 1.332465, sigma = 2.112806, direction*mu*prec = 0.014734
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.844160
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.932983, mu_pre = 2.946744, qmu = 4.889835, qmu95 = 4.844160, sigma_obs_extrap = 1.332465, sigma = 2.112806, direction*mu*prec = 0.014665
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.838010
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_ttHFitterData_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.046795[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.372597[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.163996[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000256[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.007074[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.852107[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.047835[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.823929[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            4.926376[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          1.982320[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.015091[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.028687[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      3.018108[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  2.955272[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.332465[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.112806[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.006996[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.855132[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.048296[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.838010[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            4.918182[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          1.956482[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.014665[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.022289[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      2.932983[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 4 of nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 4.867938
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.948374
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.326652
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.339918, mu_pre = 2.250101, qmu = 2.705543, qmu95 = 5.326652, sigma_obs_extrap = 1.367809, sigma = 2.162214, direction*mu*prec = 0.016700
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.605964
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.960233, mu_pre = 3.339918, qmu = 5.961480, qmu95 = 4.605964, sigma_obs_extrap = 1.367809, sigma = 2.162214, direction*mu*prec = 0.014801
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.882877
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.023395, mu_pre = 2.960233, qmu = 4.683018, qmu95 = 4.882877, sigma_obs_extrap = 1.367809, sigma = 2.162214, direction*mu*prec = 0.015117
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.838705
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.009067, mu_pre = 3.023395, qmu = 4.885010, qmu95 = 4.838705, sigma_obs_extrap = 1.367809, sigma = 2.162214, direction*mu*prec = 0.015045
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.842432
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 4.870388
+=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.929079
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.333149
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.247522, mu_pre = 2.186092, qmu = 2.705543, qmu95 = 5.333149, sigma_obs_extrap = 1.328887, sigma = 2.111711, direction*mu*prec = 0.016238
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.617216
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.879376, mu_pre = 3.247522, qmu = 5.971127, qmu95 = 4.617216, sigma_obs_extrap = 1.328887, sigma = 2.111711, direction*mu*prec = 0.014397
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.891181
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.939859, mu_pre = 2.879376, qmu = 4.693964, qmu95 = 4.891181, sigma_obs_extrap = 1.328887, sigma = 2.111711, direction*mu*prec = 0.014699
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.848019
+=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.926272, mu_pre = 2.939859, qmu = 4.893253, qmu95 = 4.848019, sigma_obs_extrap = 1.328887, sigma = 2.111711, direction*mu*prec = 0.014631
+=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.852963
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_ttHFitterData_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.018108[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.367809[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.162214[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000256[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.007310[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.852175[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.049452[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.842432[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            4.867938[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          1.948374[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.015045[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.009041[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      3.009067[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  2.932983[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.328887[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.111711[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.007187[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.855167[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.049624[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.852963[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            4.870388[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          1.929079[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.014631[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.006711[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      2.926272[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_ttHFitterData_with_constr: 3.009067[0m
+[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_ttHFitterData_with_constr: 2.926272[0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 5 iterations. [0m
 [1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Guess for bands[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +2sigma:  8.252184[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +1sigma:  6.155724[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -1sigma:  3.187114[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -2sigma:  2.374010[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +2sigma:  7.991336[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +1sigma:  5.961144[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -1sigma:  3.086370[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -2sigma:  2.298969[0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Correct bands[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +2sigma:  9.499851[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +1sigma:  6.513721[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -1sigma:  3.187114[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -2sigma:  2.374010[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Median:    4.423135[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Observed:  3.009067[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +2sigma:  8.862643[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +1sigma:  6.225370[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -1sigma:  3.086370[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -2sigma:  2.298969[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Median:    4.283322[0m
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Observed:  2.926272[0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Finished with 35 calls to minimize(nll)[0m
-Real time 0:00:01, CP time 1.090
+[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Finished with 33 calls to minimize(nll)[0m
+Real time 0:00:01, CP time 1.070

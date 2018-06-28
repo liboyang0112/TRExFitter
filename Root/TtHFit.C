@@ -4666,7 +4666,11 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
             chan.SetData("", "");
         }
 
-        chan.SetStatErrorConfig(fStatErrThres,fStatErrCons.c_str()); // "Gaussian"
+	// fStatErrCons is upper case after config reading if the MCstatThreshold option is used, otherwise it defaults to "Poisson"
+	// HistFactory expects the constraint not in all uppercase, but in form "Poisson"/"Gaussian" instead
+	if(fStatErrCons=="Poisson" or fStatErrCons=="POISSON") chan.SetStatErrorConfig(fStatErrThres, "Poisson");
+	else if(fStatErrCons=="GAUSSIAN")                      chan.SetStatErrorConfig(fStatErrThres, "Gaussian");
+
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
             if( h != 0x0 && h->fSample->fType!=Sample::DATA && h->fSample->fType!=Sample::GHOST ){
