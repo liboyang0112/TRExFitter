@@ -1077,6 +1077,8 @@ int ConfigReader::ReadFitOptions(){
             fFitter->fTemplateInterpolationOption = TtHFit::LINEAR;
         } else if (param == "SMOOTHLINEAR"){
             fFitter->fTemplateInterpolationOption = TtHFit::SMOOTHLINEAR;
+        } else if (param == "SQUAREROOT"){
+            fFitter->fTemplateInterpolationOption = TtHFit::SQUAREROOT;
         } else {
             WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'TemplateInterpolationOption' option but didnt provide valid parameter. Using default (LINEAR)");
             fFitter->fTemplateInterpolationOption = TtHFit::LINEAR;
