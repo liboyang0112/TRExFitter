@@ -7673,7 +7673,7 @@ std::string TtHFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
     }
 
     // parameter that controls how close to a linear function we want to be
-    float k_init(40);
+    float k_init(80);
     float k_left(k_init);
     float k_right(k_init);
 
@@ -7687,7 +7687,7 @@ std::string TtHFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
         x_right = fTemplatePair.at(itemp+1).first;
     } else if (itemp == (fTemplatePair.size()-1)) { // last template
         x_left = fTemplatePair.at(itemp-1).first;
-        x_right = fTemplatePair.at(itemp).first;
+        x_right = 2*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp-1).first;
     } else { // general template
         x_left = fTemplatePair.at(itemp-1).first;
         x_right = fTemplatePair.at(itemp+1).first;
@@ -7706,22 +7706,10 @@ std::string TtHFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
     corr_left= 1+GetCorrection(k_left, width_left, x_mean, x_left);
     corr_left+= GetCorrection(k_left, width_left, x_mean, x_left, corr_left);
     corr_left+= GetCorrection(k_left, width_left, x_mean, x_left, corr_left);
-    if (itemp != (fTemplatePair.size()-1)){
-        corr_right= 1+GetCorrection(k_right, width_right, x_mean, x_left);
-        corr_right+= GetCorrection(k_right, width_right, x_mean, x_left, corr_right);
-        corr_right+= GetCorrection(k_right, width_right, x_mean, x_left, corr_right);
-    }
+    corr_right= 1+GetCorrection(k_right, width_right, x_mean, x_right);
+    corr_right+= GetCorrection(k_right, width_right, x_mean, x_right, corr_right);
+    corr_right+= GetCorrection(k_right, width_right, x_mean, x_right, corr_right);
     
-    // for the right correction we get NaN for the rightmost tempate,
-    // this is ok as the rightmost template has only the left component
-    if (corr_right != corr_right){
-        corr_right = 1;
-    }
-    if (width_right == 0) {
-        width_right = 1;
-        corr_right = 0;
-    }
-
     // prepare the actual string as "function" + "step function"
     std::string name = fTemplatePair.at(itemp).second;
     std::string step_left = "";
@@ -7732,7 +7720,7 @@ std::string TtHFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
         step_left = "(("+name+"-"+std::to_string(x_mean)+"<0)&&("+name+"-"+std::to_string(x_mean)+">0))";
         step_right = "(("+name+"-"+std::to_string(x_mean)+">=0) && ("+name+"<"+std::to_string(x_right)+"))";
     } else if (itemp == (fTemplatePair.size()-1)) {
-        step_left = "(("+name+">="+std::to_string(x_left)+")&&("+name+"<"+std::to_string(x_right)+"))";
+        step_left = "(("+name+">="+std::to_string(x_left)+")&&("+name+"<"+std::to_string(x_mean)+"))";
         step_right = "(("+name+"-"+std::to_string(x_mean)+"<0)&&("+name+">"+std::to_string(x_right)+"))";
     } else {
         step_left = "((("+name+"-"+std::to_string(x_mean)+")<=0)&&("+name+">"+std::to_string(x_left)+"))";
