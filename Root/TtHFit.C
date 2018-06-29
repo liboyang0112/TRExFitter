@@ -7648,6 +7648,8 @@ std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::Template
         // this will return a string that represents integral of hyperbolic tangent function that
         // approximates absolute value
         fun = GetSmoothLinearInterpolation(itemp);
+    } else if (opt == TtHFit::SQUAREROOT) {
+        fun = GetSquareRootLinearInterpolation(itemp);
     }
     // ...
     fun = ReplaceString(fun,"--","+");
@@ -7761,7 +7763,7 @@ double TtHFit::GetCorrection(float k, float width, float x_mean, float x_left, f
 //__________________________________________________________________________________
 //
 std::string TtHFit::GetSquareRootLinearInterpolation(unsigned int itemp) const {
-    double epsilon = 0.0005;
+    double epsilon = 0.000001;
     
     float x_i = fTemplatePair.at(itemp).first;
     float x_left = -99999;
