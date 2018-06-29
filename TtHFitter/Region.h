@@ -61,8 +61,8 @@ public:
                                 const std::string &syst = "",
                                 const bool isUp = true);
 
-    void BuildPostFitErrorHist(FitResults *fitRes);
-    TthPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex,std::string opt="");
+    void BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names);
+    TthPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex, const std::vector<std::string>& morph_names, std::string opt="");
 
     void SetBinning(int N, double *bins);
     void Rebin(int N);
@@ -92,6 +92,13 @@ public:
 
     void PrintSystTable(FitResults* fitRes,std::string opt="");
 
+    /**
+      * Helper function to get postfit scales of "normalization" parameters used for morphing
+      * @param pointer to FitResults class that stores the fit output
+      * @param dummy parameter that will be filled
+      * @param dummy parameter that will be filled
+      */
+    void PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal);
     // -------
     // Members
     // -------
@@ -164,7 +171,6 @@ public:
     std::vector<std::string> fNtupleNameSuffs;
 
     // histogram stuff
-//     string fHistoName;
     double *fHistoBins;
     int fHistoNBinsRebin;
     std::vector<std::string> fHistoPaths;
