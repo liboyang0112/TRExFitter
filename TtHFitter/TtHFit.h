@@ -156,10 +156,10 @@ public:
     
     // for template fitting
     void AddTemplateWeight(const std::string& name, float);
-    const std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
-    const std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
+    std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
+    std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
     void SmoothMorphTemplates(std::string name);
-    const bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
+    bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
     // for grouped impact evaluation
     void ProduceSystSubCategoryMap();

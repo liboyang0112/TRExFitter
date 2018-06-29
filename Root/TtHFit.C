@@ -7587,7 +7587,7 @@ void TtHFit::AddTemplateWeight(const std::string& name, float value){
 
 //__________________________________________________________________________________
 //
-const std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::TemplateInterpolationOption& opt){
+std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::TemplateInterpolationOption& opt){
     std::vector<TtHFit::TemplateWeight> vec;
     // first sort vector of inputs for templates
     if (fTemplatePair.size() < 2){
@@ -7614,7 +7614,7 @@ const std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtH
 
 //__________________________________________________________________________________
 //
-const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt, float min, float max) const{
+std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt, float min, float max) const{
     std::string fun = "";
     float x_i;
     float deltaXp = -1; // |x(i+1)-x(i)| 
@@ -7699,7 +7699,7 @@ void TtHFit::SmoothMorphTemplates(std::string name){
 
 //____________________________________________________________________________________
 //
-const bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float value) const {
+bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float value) const {
     for (const std::pair<float, std::string> itemp : fTemplatePair){
         if ((itemp.second == name) && (itemp.first == value)){
             return true;
