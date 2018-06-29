@@ -158,6 +158,26 @@ public:
     void AddTemplateWeight(const std::string& name, float);
     std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
     std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
+
+    /*
+     * Function that returns string that represents smoothed abs value function
+     * @param index of the template
+     * @return function in the string form
+     */ 
+    std::string GetSmoothLinearInterpolation(unsigned int itemp) const;
+
+    /*
+     * Helper function to calualte numerical correction to the smoothed linear function 
+     * @param parameter in the argument of the hyperbolic tangent function
+     * @param size of the x axis interval
+     * @param central position of the function
+     * @param left position of the function on x axis
+     * @param right position of the function on x axis
+     * @param parameter of iteration, set to 1 for the first iteration
+     * @return correction
+     */
+    double GetCorrection(float k, float width, float x_mean, float x_left, float init = 1) const;
+    
     void SmoothMorphTemplates(std::string name);
     bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
