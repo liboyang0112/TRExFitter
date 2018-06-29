@@ -2585,8 +2585,8 @@ void TtHFit::DrawAndSaveAll(string opt){
             }
 
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
-            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,opt+" blind");
-            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,opt);
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,opt+" blind");
+            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,opt);
             for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
 
