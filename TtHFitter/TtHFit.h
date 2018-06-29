@@ -48,7 +48,7 @@ public:
 
     enum TemplateInterpolationOption{
         LINEAR = 0,
-        TRIANGULAR = 1
+        SMOOTHLINEAR = 1
     };
     
     struct TemplateWeight{
