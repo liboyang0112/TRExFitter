@@ -7760,6 +7760,71 @@ double TtHFit::GetCorrection(float k, float width, float x_mean, float x_left, f
 
 //__________________________________________________________________________________
 //
+std::string TtHFit::GetSquareRootLinearInterpolation(unsigned int itemp) const {
+    double epsilon = 0.0005;
+    
+    float x_i = fTemplatePair.at(itemp).first;
+    float x_left = -99999;
+    float x_right = -99999;
+
+    if (itemp == 0) { // first template
+        x_left = 2*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp+1).first;
+        x_right = fTemplatePair.at(itemp+1).first;
+    } else if (itemp == (fTemplatePair.size()-1)) { // last template
+        x_left = fTemplatePair.at(itemp-1).first;
+        x_right = 2*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp-1).first;
+    } else { // general template
+        x_left = fTemplatePair.at(itemp-1).first;
+        x_right = fTemplatePair.at(itemp+1).first;
+    }
+
+    //apply correction
+    double a_left = 0;
+    double b_left = 0;
+    double a_right = 0;
+    double b_right = 0;
+
+    GetSquareCorrection(&a_left, &b_left, x_i, x_left, epsilon);
+    GetSquareCorrection(&a_right, &b_right, x_i, x_right, epsilon);
+
+    // prepare the actual string as "function" + "step function"
+    std::string name = fTemplatePair.at(itemp).second;
+    std::string step_left = "";
+    std::string step_right = "";
+
+    // the step function
+    if (itemp == 0) {
+        step_left = "(("+name+"-"+std::to_string(x_i)+"<0)&&("+name+"-"+std::to_string(x_i)+">0))";
+        step_right = "(("+name+"-"+std::to_string(x_i)+">=0) && ("+name+"<"+std::to_string(x_right)+"))";
+    } else if (itemp == (fTemplatePair.size()-1)) {
+        step_left = "(("+name+">="+std::to_string(x_left)+")&&("+name+"<"+std::to_string(x_i)+"))";
+        step_right = "(("+name+"-"+std::to_string(x_i)+"<0)&&("+name+">"+std::to_string(x_right)+"))";
+    } else {
+        step_left = "((("+name+"-"+std::to_string(x_i)+")<=0)&&("+name+">"+std::to_string(x_left)+"))";
+        step_right = "((("+name+"-"+std::to_string(x_i)+")>0)&&("+name+"<"+std::to_string(x_right)+"))";
+    }
+
+    std::string fun_left = "("+step_left+")*(-"+std::to_string(a_left)+"*sqrt(("+name+"-"+std::to_string(x_i)+")*("+name+"-"+std::to_string(x_i)+")+"+std::to_string(epsilon)+")+"+std::to_string(b_left)+")";
+    std::string fun_right = "("+step_right+")*(-"+std::to_string(a_right)+"*sqrt(("+name+"-"+std::to_string(x_i)+")*("+name+"-"+std::to_string(x_i)+")+"+std::to_string(epsilon)+")+"+std::to_string(b_right)+")";
+
+    return ("("+fun_left+"+"+fun_right+")");
+}
+
+//__________________________________________________________________________________
+//
+void TtHFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const {
+    if (x_left == 0) {
+        x_left = 2*x_i;
+    }
+    
+    // this can be analytically calculated
+    double k = std::sqrt(((x_i - x_left)*(x_i - x_left)/epsilon) + 1);
+    *b = k/(k-1);
+    *a = (*b ) / std::sqrt((x_i-x_left)*(x_i-x_left) + epsilon);
+}
+
+//__________________________________________________________________________________
+//
 void TtHFit::SmoothMorphTemplates(std::string name){
     TCanvas *c = new TCanvas("c","c",600,600);
     // get one histogram per bin (per region)
