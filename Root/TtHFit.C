@@ -7763,7 +7763,7 @@ double TtHFit::GetCorrection(float k, float width, float x_mean, float x_left, f
 //__________________________________________________________________________________
 //
 std::string TtHFit::GetSquareRootLinearInterpolation(unsigned int itemp) const {
-    double epsilon = 0.000001;
+    double epsilon = 0.0000001;
     
     float x_i = fTemplatePair.at(itemp).first;
     float x_left = -99999;
