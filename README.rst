@@ -233,6 +233,7 @@ NB: note the *blank* line between the objects!
      * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
      * DoNonProfileFit  : [EXPERIMENTAL] if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time
      * FitToys          : [EXPERIMENTAL] if set to N > 0, N stat-ony toys are generated and fitted
+     * TemplateInterpolationOption: Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by \sqrt(x^2+epsilon) to achieve smooth transitions (first derivative) between the templates
 
   * Limit:
      * LimitType        : can be ASYMPTOTIC or TOYS (the latter is not yet supported)
