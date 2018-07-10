@@ -1,3 +1,9 @@
+2018-07-10 Tomas Dado <tomas.dado@cern.ch>
+	* Adding new option for morphing - can choose LINEAR morphing
+	(default), SMOOTHLINEAR which will use integral of hyperbolic tangent as
+	an aproximation or SQUAREROOT which uses \sqrt(x^2+epsilon) as an
+	aproximation of a linear function
+
 2018-06-28 Tomas Dado <tomas.dado@cern.ch>
 	* Fixing post fit plots when using morphing, previously would cause (-)NaN
 	values and thus zero/infinite error bars

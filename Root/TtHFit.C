@@ -7587,7 +7587,7 @@ void TtHFit::AddTemplateWeight(const std::string& name, float value){
 
 //__________________________________________________________________________________
 //
-const std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::TemplateInterpolationOption& opt){
+std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::TemplateInterpolationOption& opt){
     std::vector<TtHFit::TemplateWeight> vec;
     // first sort vector of inputs for templates
     if (fTemplatePair.size() < 2){
@@ -7614,7 +7614,7 @@ const std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtH
 
 //__________________________________________________________________________________
 //
-const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt, float min, float max) const{
+std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt, float min, float max) const{
     std::string fun = "";
     float x_i;
     float deltaXp = -1; // |x(i+1)-x(i)| 
@@ -7626,17 +7626,17 @@ const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::Te
     }
     else return fun;
     //
-    if ((itemp+1) < fTemplatePair.size() ){
-        deltaXp = std::fabs(fTemplatePair.at(itemp+1).first - fTemplatePair.at(itemp).first);
-    }
-    if (((int)itemp-1) >=0 ){
-        deltaXm = std::fabs(fTemplatePair.at(itemp-1).first - fTemplatePair.at(itemp).first);
-    }
-    if(deltaXp<0 && deltaXm<0){
-        WriteErrorStatus("TtHFit::GetWeightFunction", "Morphing: delta X = " + std::to_string(deltaXp) + ", " + std::to_string(deltaXm));
-        return fun;
-    }
     if (opt == TtHFit::LINEAR){
+        if ((itemp+1) < fTemplatePair.size() ){
+            deltaXp = std::fabs(fTemplatePair.at(itemp+1).first - fTemplatePair.at(itemp).first);
+        }
+        if (((int)itemp-1) >=0 ){
+            deltaXm = std::fabs(fTemplatePair.at(itemp-1).first - fTemplatePair.at(itemp).first);
+        }
+        if(deltaXp<0 && deltaXm<0){
+            WriteErrorStatus("TtHFit::GetWeightFunction", "Morphing: delta X = " + std::to_string(deltaXp) + ", " + std::to_string(deltaXm));
+            return fun;
+        }
         fun  = "(";
         if(deltaXm>0) fun += "((("+name+"-"+std::to_string(x_i)+")< 0)&&(fabs("+name+"-"+std::to_string(x_i)+")<"+std::to_string(deltaXm)+"))*(1.-(fabs("+name+"-"+std::to_string(x_i)+"))/"+std::to_string(deltaXm)+")";
         else fun += "0.";
@@ -7644,11 +7644,185 @@ const std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::Te
         if(deltaXp>0) fun += "((("+name+"-"+std::to_string(x_i)+")>=0)&&(fabs("+name+"-"+std::to_string(x_i)+")<"+std::to_string(deltaXp)+"))*(1.-(fabs("+name+"-"+std::to_string(x_i)+"))/"+std::to_string(deltaXp)+")";
         else fun += "0.";
         fun += ")";
+    } else if (opt == TtHFit::SMOOTHLINEAR) {
+        // this will return a string that represents integral of hyperbolic tangent function that
+        // approximates absolute value
+        fun = GetSmoothLinearInterpolation(itemp);
+    } else if (opt == TtHFit::SQUAREROOT) {
+        fun = GetSquareRootLinearInterpolation(itemp);
     }
     // ...
     fun = ReplaceString(fun,"--","+");
     WriteDebugStatus("TtHFit::GetWeightFunction", "Morphing:   weight function = " + fun);
     return fun;
+}
+
+//__________________________________________________________________________________
+//
+std::string TtHFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
+    // The idea is simple: use integral of hyperbolic tangent 
+    //
+    // -2/width*(1/k)*corr*(log(e^(k*(x-x_mean)+e^(-(k*(x-x_mean))))) - ln(2)) + 1
+    // 
+    // but the function is split into two parts to allow also non-equal steps in
+    // the templates used for the template fit
+    // "width" represents the x-axis size that is used for that particular function
+    // "corr" represents correction to the function so that for x_min/x_max the functional value
+    // is 0, without this correction it won't exactly be zero, because it is an anproximation
+
+    if (itemp >= fTemplatePair.size()){
+        return "";
+    }
+
+    // parameter that controls how close to a linear function we want to be
+    float k_init(80);
+    float k_left(k_init);
+    float k_right(k_init);
+
+    float x_left = -99999;
+    float x_right = -99999;
+    double corr_left = 1;
+    double corr_right = 1;
+
+    if (itemp == 0) { // first template
+        x_left = 2*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp+1).first;
+        x_right = fTemplatePair.at(itemp+1).first;
+    } else if (itemp == (fTemplatePair.size()-1)) { // last template
+        x_left = fTemplatePair.at(itemp-1).first;
+        x_right = 2*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp-1).first;
+    } else { // general template
+        x_left = fTemplatePair.at(itemp-1).first;
+        x_right = fTemplatePair.at(itemp+1).first;
+    }
+
+    float x_mean = fTemplatePair.at(itemp).first;
+    float width_left = 2*std::fabs(x_mean - x_left);
+    float width_right = 2*std::fabs(x_mean - x_right);
+
+    // apply correction to the k parameter depending on the range of the x axis
+    k_left = k_init/width_left;
+    k_right = k_init/width_right;
+
+    // calculate correction to the function to get y= 0 at x_min and x_max
+    // use iterative process to find something which is close enough
+    corr_left= 1+GetCorrection(k_left, width_left, x_mean, x_left);
+    corr_left+= GetCorrection(k_left, width_left, x_mean, x_left, corr_left);
+    corr_left+= GetCorrection(k_left, width_left, x_mean, x_left, corr_left);
+    corr_right= 1+GetCorrection(k_right, width_right, x_mean, x_right);
+    corr_right+= GetCorrection(k_right, width_right, x_mean, x_right, corr_right);
+    corr_right+= GetCorrection(k_right, width_right, x_mean, x_right, corr_right);
+    
+    // prepare the actual string as "function" + "step function"
+    std::string name = fTemplatePair.at(itemp).second;
+    std::string step_left = "";
+    std::string step_right = "";
+
+    // the step function
+    if (itemp == 0) {
+        step_left = "(("+name+"-"+std::to_string(x_mean)+"<0)&&("+name+"-"+std::to_string(x_mean)+">0))";
+        step_right = "(("+name+"-"+std::to_string(x_mean)+">=0) && ("+name+"<"+std::to_string(x_right)+"))";
+    } else if (itemp == (fTemplatePair.size()-1)) {
+        step_left = "(("+name+">="+std::to_string(x_left)+")&&("+name+"<"+std::to_string(x_mean)+"))";
+        step_right = "(("+name+"-"+std::to_string(x_mean)+"<0)&&("+name+">"+std::to_string(x_right)+"))";
+    } else {
+        step_left = "((("+name+"-"+std::to_string(x_mean)+")<=0)&&("+name+">"+std::to_string(x_left)+"))";
+        step_right = "((("+name+"-"+std::to_string(x_mean)+")>0)&&("+name+"<"+std::to_string(x_right)+"))";
+    }
+
+    // the functions
+    std::string fun_left = "(-2/("+std::to_string(width_left*k_left)+")*"+std::to_string(corr_left)+"*(log(exp("+std::to_string(k_left)+"*("+name+"-"+std::to_string(x_mean)+")) + exp(-"+std::to_string(k_left)+"*("+name+"-"+std::to_string(x_mean)+")"+")) - log(2)) +1) * " + step_left;
+
+    std::string fun_right = "(-2/("+std::to_string(width_right*k_right)+")*"+std::to_string(corr_right)+"*(log(exp("+std::to_string(k_right)+"*("+name+"-"+std::to_string(x_mean)+")) + exp(-"+std::to_string(k_right)+"*("+name+"-"+std::to_string(x_mean)+")"+")) - log(2)) +1) * " + step_right;
+
+    return ("(("+fun_left+") + (" +fun_right+"))");
+}
+
+//__________________________________________________________________________________
+//
+double TtHFit::GetCorrection(float k, float width, float x_mean, float x_left, float init) const {
+    double logterm = 0;
+    double corr = 0;
+
+    // since we are calculating logarithm of potentially wery large numbers (e^20)
+    // we need to help the code in case we get overflow, when this happens we simply discard
+    // the smaller contribution and set log(e^(x)) = x manually;
+    
+    //check if the number is inf
+    if (exp(k*(x_left-x_mean)) > exp(k*(x_left-x_mean))) {
+        logterm = k*(x_left-x_mean);
+    } else if (exp(-k*(x_left-x_mean)) > exp(-k*(x_left-x_mean))) {
+        logterm = -k*(x_left-x_mean);
+    } else {
+        logterm = log (exp(k*(x_left-x_mean)) + exp(-k*(x_left-x_mean)));
+    }
+    corr = ((-2/(k*width))*init*(logterm - log(2))+1);
+
+    return corr;
+}
+
+//__________________________________________________________________________________
+//
+std::string TtHFit::GetSquareRootLinearInterpolation(unsigned int itemp) const {
+    double epsilon = 0.0000001;
+    
+    float x_i = fTemplatePair.at(itemp).first;
+    float x_left = -99999;
+    float x_right = -99999;
+
+    if (itemp == 0) { // first template
+        x_left = 2*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp+1).first;
+        x_right = fTemplatePair.at(itemp+1).first;
+    } else if (itemp == (fTemplatePair.size()-1)) { // last template
+        x_left = fTemplatePair.at(itemp-1).first;
+        x_right = 2*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp-1).first;
+    } else { // general template
+        x_left = fTemplatePair.at(itemp-1).first;
+        x_right = fTemplatePair.at(itemp+1).first;
+    }
+
+    //apply correction
+    double a_left = 0;
+    double b_left = 0;
+    double a_right = 0;
+    double b_right = 0;
+
+    GetSquareCorrection(&a_left, &b_left, x_i, x_left, epsilon);
+    GetSquareCorrection(&a_right, &b_right, x_i, x_right, epsilon);
+
+    // prepare the actual string as "function" + "step function"
+    std::string name = fTemplatePair.at(itemp).second;
+    std::string step_left = "";
+    std::string step_right = "";
+
+    // the step function
+    if (itemp == 0) {
+        step_left = "(("+name+"-"+std::to_string(x_i)+"<0)&&("+name+"-"+std::to_string(x_i)+">0))";
+        step_right = "(("+name+"-"+std::to_string(x_i)+">=0) && ("+name+"<"+std::to_string(x_right)+"))";
+    } else if (itemp == (fTemplatePair.size()-1)) {
+        step_left = "(("+name+">="+std::to_string(x_left)+")&&("+name+"<"+std::to_string(x_i)+"))";
+        step_right = "(("+name+"-"+std::to_string(x_i)+"<0)&&("+name+">"+std::to_string(x_right)+"))";
+    } else {
+        step_left = "((("+name+"-"+std::to_string(x_i)+")<=0)&&("+name+">"+std::to_string(x_left)+"))";
+        step_right = "((("+name+"-"+std::to_string(x_i)+")>0)&&("+name+"<"+std::to_string(x_right)+"))";
+    }
+
+    std::string fun_left = "("+step_left+")*(-"+std::to_string(a_left)+"*sqrt(("+name+"-"+std::to_string(x_i)+")*("+name+"-"+std::to_string(x_i)+")+"+std::to_string(epsilon)+")+"+std::to_string(b_left)+")";
+    std::string fun_right = "("+step_right+")*(-"+std::to_string(a_right)+"*sqrt(("+name+"-"+std::to_string(x_i)+")*("+name+"-"+std::to_string(x_i)+")+"+std::to_string(epsilon)+")+"+std::to_string(b_right)+")";
+
+    return ("("+fun_left+"+"+fun_right+")");
+}
+
+//__________________________________________________________________________________
+//
+void TtHFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const {
+    if (x_left == 0) {
+        x_left = 2*x_i;
+    }
+    
+    // this can be analytically calculated
+    double k = std::sqrt(((x_i - x_left)*(x_i - x_left)/epsilon) + 1);
+    *b = k/(k-1);
+    *a = (*b ) / std::sqrt((x_i-x_left)*(x_i-x_left) + epsilon);
 }
 
 //__________________________________________________________________________________
@@ -7699,7 +7873,7 @@ void TtHFit::SmoothMorphTemplates(std::string name){
 
 //____________________________________________________________________________________
 //
-const bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float value) const {
+bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float value) const {
     for (const std::pair<float, std::string> itemp : fTemplatePair){
         if ((itemp.second == name) && (itemp.first == value)){
             return true;

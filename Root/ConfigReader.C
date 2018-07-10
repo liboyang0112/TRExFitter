@@ -1069,6 +1069,22 @@ int ConfigReader::ReadFitOptions(){
         fFitter->fFitToys = std::atoi( param.c_str());
     }
 
+    // Set FitToys
+    param = confSet->Get("TemplateInterpolationOption");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "LINEAR"){
+            fFitter->fTemplateInterpolationOption = TtHFit::LINEAR;
+        } else if (param == "SMOOTHLINEAR"){
+            fFitter->fTemplateInterpolationOption = TtHFit::SMOOTHLINEAR;
+        } else if (param == "SQUAREROOT"){
+            fFitter->fTemplateInterpolationOption = TtHFit::SQUAREROOT;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'TemplateInterpolationOption' option but didnt provide valid parameter. Using default (LINEAR)");
+            fFitter->fTemplateInterpolationOption = TtHFit::LINEAR;
+        }
+    }
+
     return 0;
 }
 
