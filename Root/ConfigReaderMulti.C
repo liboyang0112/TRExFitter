@@ -245,6 +245,15 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("POIName");
     if( param != "" ) fMultiFitter->fPOI = param;
 
+    // Set POILabel
+    param = confSet->Get("POILabel");
+    if( param != "" ) fMultiFitter->fPOIName = param;
+
+    // Set POINominal
+    param = confSet->Get("POINominal");
+    if( param != "" ) fMultiFitter->fPOINominal = std::stof(param);
+
+    // Set POIRange
     // Set POIRange
     param = confSet->Get("POIRange");
     if( param != ""){

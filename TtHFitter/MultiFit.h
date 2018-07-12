@@ -109,6 +109,9 @@ public:
     bool fDoGroupedSystImpactTable;
     
     bool fRunROOTMacros;
+
+    std::string fPOIName;
+    float fPOINominal;
 };
 
 #endif

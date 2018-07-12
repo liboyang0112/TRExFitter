@@ -1,3 +1,63 @@
+2018-07-10 Tomas Dado <tomas.dado@cern.ch>
+	* Adding new option for morphing - can choose LINEAR morphing
+	(default), SMOOTHLINEAR which will use integral of hyperbolic tangent as
+	an aproximation or SQUAREROOT which uses \sqrt(x^2+epsilon) as an
+	aproximation of a linear function
+
+2018-06-28 Tomas Dado <tomas.dado@cern.ch>
+	* Fixing post fit plots when using morphing, previously would cause (-)NaN
+	values and thus zero/infinite error bars
+	* Had to restructure the code a bit (changed the order of loops) to treat
+	mophing properly
+
+2018-06-27 Alexander Held <alexander.held@cern.ch>
+    * fixing MCstatConstraint option to work with new config reading
+    * setting default constraint term for MC stat to Poisson (was Gaussian previously)
+    * adding FILLUPFRAME setting to SystDataPlots option in reference config
+
+2018-06-01 Tomas Dado <tomas.dado@cern.ch>
+	* Added cosmetic option for multifit to set the name of POI on plots:
+	"POILabel"
+	* Added cosmetic option for multifit to set the value for SM expectation
+	of POI on plots: "POINominal"
+	* Added protection for "DataName" configuration
+
+2018-05-31 Tomas Dado <tomas.dado@cern.ch>
+	* Added protection when GHOST samples are defined after other samples
+	* Added automatic check if the used samples/regions are actually defined
+	* Added option to disable the check for regions/samples (will print only
+	warnings) - may be useful for debugging
+
+2018-05-31 Alexander Held <alexander.held@cern.ch>
+    * fixing blinding threshold calculation (fixes TTHFITTER-193)
+    * previously S/(S+B) was calculated and compared to BlindingThreshold
+    * now S/B is calculated instead, as originally intended and documented in the readme
+
+2018-05-30 Alexander Held <alexander.held@cern.ch>
+    * enabling syst error bars by default (default value for SystErrorBars is now TRUE)
+
+2018-05-21 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Added morphing template smoothing
+    * Added toys to compare with uncertainty from the fit (tested just for stat uncertainty on Asimov, need more checks, need to understand why getting stuck at first invalid fit)
+    * Added functionality for non-profile fit (stat-only fits on Asimoc with syst variations one at a time)
+    * String comparison internal functionality improved for wildcards
+    * Updated fixes from 4top paper
+    * Various fixes
+    * Tagging TtHFitter-00-03-25: backup version before merging with Common scripts implementation (version for 4top paper)
+
+2018-05-18 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Tagging TtHFitter-00-03-24: first tag with new config syntax check
+    
+2018-05-03 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing bug in ConfigParser that would not check the setting if option
+	were not int/ string or float
+	* Adding Significance block into config and separating settings from
+	limit setting - closes TTHFITTER-185
+
+2018-05-04 Alexander Held <alexander.held@cern.ch>
+    * removing ReduceNPforRanking option (not in use, and was not working properly either)
+    * fixing default config path in myFit.C
+
 2018-04-25 Alexander Held <alexander.held@cern.ch>
     * adding a few missing options to the reference config and fixing typos
     * extending readme with missing options
@@ -7,7 +67,7 @@
     * Fixed issue of info messages printed if debug = 0 before config reading (function added to ConfigParser and called at top of myFit)
     * Fixed typo in multi-fit config reader
     * "No systematics found in fit result file" moved to Debug stream
-    * Added logo (can switch it on with Logo: TRUE)
+    * Added logo (can switch it on with Logo: TRUE) -- credits to Will Breaden Madden
     * Added RunROOTMacros option to multi-fit (but crashing with limits... so TRUE by default)
     
 2018-03-09 Tomas Dado <tomas.dado@cern.ch>

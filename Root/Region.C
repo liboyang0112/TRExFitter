@@ -56,6 +56,7 @@ Region::Region(string name){
     fShapeFactors.clear();
 
     fAlternativeVariables.clear();
+    fAlternativeSelections.clear();
     
     fIntCode_overall = 4;
     fIntCode_shape = 0;
@@ -268,25 +269,6 @@ void Region::BuildPreFitErrorHist(){
         if(fSampleHists[i]->fSample->fType == Sample::GHOST) continue;
         if(fSampleHists[i]->fSample->fType == Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
         
-        // NOTE: probably we don't need NormFactors here, as they don't introduce prefit uncertainty...
-//         //
-//         // Norm factors
-//         //
-//         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
-//             systName = fSampleHists[i]->fNormFactors[i_norm]->fName;
-//             // skip POI if B-only fit
-//             if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
-//             if(!systIsThere[systName]){
-//                 fSystNames.push_back(systName);
-//                 systIsThere[systName] = true;
-//             }
-//             systNuisPar = systName;
-// //             if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0) systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
-//             if(FindInStringVector(fNpNames,systNuisPar)<0){
-//                 fNpNames.push_back(systNuisPar);
-//             }
-//         }
-        
         //
         // Systematics
         //
@@ -462,7 +444,7 @@ void Region::BuildPreFitErrorHist(){
             }
         }
         if(fGetChi2==1) fNpNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data, fTot, h_up, h_down, fNpNames );
+        std::pair<double,int> res = GetChi2Test( h_data, fTot, h_up, fNpNames );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -722,7 +704,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
 
 //__________________________________________________________________________________
 //
-void Region::BuildPostFitErrorHist(FitResults *fitRes){
+void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names){
     
     WriteInfoStatus("Region::BuildPostFitErrorHist", "Building post-fit plot for region " + fName + " ...");
     float diffUp(0.), diffDown(0.);
@@ -756,9 +738,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm];
             systName = nf->fName;
 //             // if this norm factor is a morphing one => save the nuis.par
-//             if(nf->fName.find("morph_")!=string::npos){
-//                 systName = TtHFitter::NPMAP[nf->fName];
-//             }
             // skip POI if B-only fit FIXME
             if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
             if(nf->fConst) continue;            
@@ -823,30 +802,47 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
     //
     // 1) Build post-fit error hists (for each sample and each systematic):
     //
+    std::vector<double> morph_scale;
+    std::vector<double> morph_scale_nominal;
+    PrepareMorphScales(fitRes, &morph_scale, &morph_scale_nominal);
+
+    // - loop on systematics
+    for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+        
+        WriteVerboseStatus("Region::BuildPostFitErrorHist", "    Systematic: " + fSystNames[i_syst]);
+        
+        int i_morph_sample = 0;
+        //
+        // Get fit result
+        //
+        systName    = fSystNames[i_syst];
+        if(TtHFitter::NPMAP[systName]=="") TtHFitter::NPMAP[systName] = systName;
+        systValue   = fitRes->GetNuisParValue(TtHFitter::NPMAP[systName]);
+        systErrUp   = fitRes->GetNuisParErrUp(TtHFitter::NPMAP[systName]);
+        systErrDown = fitRes->GetNuisParErrDown(TtHFitter::NPMAP[systName]);
+        
+        WriteVerboseStatus("Region::BuildPostFitErrorHist", "      alpha = " + std::to_string(systValue) + " +" + std::to_string(systErrUp) + " " + std::to_string(systErrDown));
+      
+        // needed for morph samples 
+        const int nbins = fTot_postFit->GetNbinsX();
+
+        std::vector<double> morph_nominal(nbins, 0.0);
+        std::vector<double> morph_nominal_postfit(nbins, 0.0);
+        std::vector<double> morph_up_postfit(nbins, 0.0);
+        std::vector<double> morph_down_postfit(nbins, 0.0);
     
-    // - loop on samples
-    for(int i=0;i<fNSamples;i++){
-        
-        // skip data
-        if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
-        if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        WriteVerboseStatus("Region::BuildPostFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
-        
-        // - loop on systematics
-        for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
-            
-            WriteVerboseStatus("Region::BuildPostFitErrorHist", "    Systematic: " + fSystNames[i_syst]);
-            
-            //
-            // Get fit result
-            //
-            systName    = fSystNames[i_syst];
-            if(TtHFitter::NPMAP[systName]=="") TtHFitter::NPMAP[systName] = systName;
-            systValue   = fitRes->GetNuisParValue(TtHFitter::NPMAP[systName]);
-            systErrUp   = fitRes->GetNuisParErrUp(TtHFitter::NPMAP[systName]);
-            systErrDown = fitRes->GetNuisParErrDown(TtHFitter::NPMAP[systName]);
-            
-            WriteVerboseStatus("Region::BuildPostFitErrorHist", "      alpha = " + std::to_string(systValue) + " +" + std::to_string(systErrUp) + " " + std::to_string(systErrDown));
+        std::vector<double> morph_syst_up(nbins, 0.0);
+        std::vector<double> morph_syst_down(nbins, 0.0);
+ 
+        bool isMorph = false;            
+        int morph_index = -1;
+
+        // - loop on samples
+        for(int i=0;i<fNSamples;i++){
+            // skip data
+            if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+            if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+            WriteVerboseStatus("Region::BuildPostFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
             
             // this to include (prefit) error from SHAPE syst
             if(fSampleHists[i]->GetSystematic(systName)){
@@ -858,7 +854,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     }
                 }
             }
-            
+           
             //
             // Get SystematicHist
             //
@@ -877,6 +873,15 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             sh->fHistUp_postFit   = (TH1*)fSampleHists[i]->fHist_postFit->Clone(Form("%s_%s_Up_postFit",  fSampleHists[i]->fHist->GetName(),systName.c_str()));
             sh->fHistDown_postFit = (TH1*)fSampleHists[i]->fHist_postFit->Clone(Form("%s_%s_Down_postFit",fSampleHists[i]->fHist->GetName(),systName.c_str()));
 
+            // check if the sample is morph sample
+            for (const auto& i_morph : morph_names){
+                if (fSampleHists[i]->fIsMorph[i_morph]){
+                    isMorph = true;
+                    morph_index = i;
+                    break;
+                }
+            }
+
             // - loop on bins
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
                 diffUp = 0.;
@@ -885,9 +890,12 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 //hDown = 0x0;
                 double yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
-                double yieldNominal_postFit_nfOnly = yieldNominal;
-                for(auto nf : fSampleHists[i]->fNormFactors){
-                    yieldNominal_postFit_nfOnly *= fitRes->GetNuisParValue(TtHFitter::NPMAP[nf->fName]);
+
+                if (isMorph){
+                    float scaleNom  = morph_scale_nominal.at(i_morph_sample);
+                    float scaleNom_postfit  = morph_scale.at(i_morph_sample);
+                    morph_nominal_postfit.at(i_bin-1)+= yieldNominal*scaleNom_postfit;
+                    morph_nominal.at(i_bin-1)+= yieldNominal*scaleNom;
                 }
                 
                 size_t posTmp = systName.find("_bin_");
@@ -898,12 +906,20 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas){
                     diffUp   += yieldNominal_postFit*systErrUp;
                     diffDown += yieldNominal_postFit*systErrDown;
+                    if (isMorph){
+                        morph_up_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrUp+1);
+                        morph_down_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrDown+1);
+                    }
                 }
                 //
                 // if it's a specific-sample gamma
                 else if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fSeparateGammas){
                     diffUp   += yieldNominal_postFit*systErrUp;
                     diffDown += yieldNominal_postFit*systErrDown;
+                    if (isMorph){
+                        morph_up_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrUp+1);
+                        morph_down_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrDown+1);
+                    }
                 }
                 //
                 // if it's a norm factor
@@ -914,19 +930,18 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                         std::string name = TtHFitter::NPMAP[fSystNames[i_syst]];
                         formula = ReplaceString(formula,name,"x");
                         TF1* f_morph = new TF1("f_morph",formula.c_str(),fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax);
-                        // float scaleUp   = f_morph->Eval(systValue+systErrUp);
-                        // float scaleDown = f_morph->Eval(systValue-systErrDown);
-                        // diffUp   += yieldNominal*(scaleUp  -1);
-                        // diffDown += yieldNominal*(scaleDown-1);
-                        float scaleNom  = f_morph->Eval(systValue);
                         float scaleUp   = f_morph->Eval(systValue+systErrUp);
                         float scaleDown = f_morph->Eval(systValue+systErrDown);
-                        diffUp   += yieldNominal_postFit*(scaleUp/scaleNom  -1);
-                        diffDown += yieldNominal_postFit*(scaleDown/scaleNom-1);
+                        morph_syst_up.at(i_bin-1)   += yieldNominal*scaleUp;
+                        morph_syst_down.at(i_bin-1) += yieldNominal*scaleDown;
                     }
                     else{
                         diffUp   += yieldNominal_postFit*systErrUp/systValue;
                         diffDown += yieldNominal_postFit*systErrDown/systValue;
+                        if (isMorph){
+                            morph_up_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrUp+1);
+                            morph_down_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrDown+1);
+                        }
                     }
                 }
                 //
@@ -938,10 +953,12 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     iBinSF = std::atoi(systName.substr(posTmp + 5).c_str()) + 1;
                     // FIXME could still be a problem with pruning?
                     if(fSampleHists[i]->HasShapeFactor(systNameSF) && iBinSF == i_bin){
-                        // diffUp   += yieldNominal*systErrUp;
-                        // diffDown += yieldNominal*systErrDown;
                         diffUp   += yieldNominal_postFit*systErrUp;
                         diffDown += yieldNominal_postFit*systErrDown;
+                        if (isMorph){
+                            morph_up_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrUp+1);
+                            morph_down_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrDown+1);
+                        }
                     }
                 }
                 //
@@ -952,8 +969,13 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                     double multNom  = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal );
                     double multUp   = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TtHFitter::NPMAP[systName], true);
                     double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TtHFitter::NPMAP[systName], false);
-                    diffUp   += (multUp/multNom   - 1.)*yieldNominal_postFit;
-                    diffDown += (multDown/multNom - 1.)*yieldNominal_postFit;
+                    if (isMorph){
+                        morph_up_postfit.at(i_bin-1)+=(multUp/multNom)*yieldNominal_postFit;
+                        morph_down_postfit.at(i_bin-1)+= (multDown/multNom)*yieldNominal_postFit;
+                    } else {
+                        diffUp   += (multUp/multNom   - 1.)*yieldNominal_postFit;
+                        diffDown += (multDown/multNom - 1.)*yieldNominal_postFit;
+                    }
                 }
                 
                 WriteVerboseStatus("Region::BuildPostFitErrorHist", "        Bin " + std::to_string(i_bin) + ":   " + "\t +" + std::to_string(100*diffUp/yieldNominal)
@@ -962,11 +984,48 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 //
                 // Add the proper bin content to the variation hists (coming from post-fit total histogram)
                 //
-                sh->fHistUp_postFit  ->AddBinContent( i_bin, diffUp   );
-                sh->fHistDown_postFit->AddBinContent( i_bin, diffDown );
+                if (!isMorph){
+                    sh->fHistUp_postFit  ->AddBinContent( i_bin, diffUp   );
+                    sh->fHistDown_postFit->AddBinContent( i_bin, diffDown );
+                }
+            } // loop over bins
+            if(isMorph) i_morph_sample++;
+        } // loop over samples
+
+        if (isMorph){
+            // now apply the corrections from morph
+            // Use it only ONCE for all combines morph templates
+            sh = fSampleHists[morph_index]->GetSystematic(systName);
+            
+            // hack: add a systematic hist if not there
+            if(sh==0x0){
+                fSampleHists[morph_index]->AddHistoSyst(systName,fSampleHists[morph_index]->fHist,fSampleHists[morph_index]->fHist);
+                sh = fSampleHists[morph_index]->GetSystematic(systName);
+            }
+            
+            //
+            // initialize the up and down variation histograms
+            // (note: do it even if the syst is not there; in this case the variation hist will be = to the nominal)
+            //
+            sh->fHistUp_postFit   = (TH1*)fSampleHists[morph_index]->fHist_postFit->Clone(Form("%s_%s_Up_postFit",  fSampleHists[morph_index]->fHist->GetName(),systName.c_str()));
+            sh->fHistDown_postFit = (TH1*)fSampleHists[morph_index]->fHist_postFit->Clone(Form("%s_%s_Down_postFit",fSampleHists[morph_index]->fHist->GetName(),systName.c_str()));
+
+            // loop over bins
+            for (int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
+                sh->fHistUp_postFit    ->AddBinContent( i_bin, (morph_up_postfit.at(i_bin-1)-morph_nominal_postfit.at(i_bin-1)) );
+                sh->fHistDown_postFit  ->AddBinContent( i_bin, (morph_down_postfit.at(i_bin-1)-morph_nominal_postfit.at(i_bin-1)) );
+            }
+
+            // uncertainty from the morph uncertainty
+            if (fSystNames[i_syst].find("morph_")!=string::npos){
+                for (int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
+                    sh->fHistUp_postFit    ->AddBinContent( i_bin, (morph_syst_up.at(i_bin-1)-morph_nominal_postfit.at(i_bin-1)) );
+                    sh->fHistDown_postFit  ->AddBinContent( i_bin, (morph_syst_down.at(i_bin-1)-morph_nominal_postfit.at(i_bin-1)) );
+                }
             }
         }
-    }
+
+    }// loop over systs
     
     // at this point all the sample-by-sample post-fit variation histograms should be filled
     //
@@ -1003,15 +1062,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
                 if(!sh) continue;
                 diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin);
                 diffDown += sh->fHistDown_postFit->GetBinContent(i_bin);
-                // if(fSampleHists[i]->fSample->fIsMorph){
-                //     if (std::fabs(yieldNominal_postFit) > 1e-6){
-                //         if(sh->fHistUp_postFit)   diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit;
-                //         if(sh->fHistDown_postFit) diffDown += sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit;
-                //     }
-                // } else {
-                //     if(sh->fHistUp_postFit)   diffUp   += sh->fHistUp_postFit  ->GetBinContent(i_bin) - yieldNominal_postFit;
-                //     if(sh->fHistDown_postFit) diffDown += sh->fHistDown_postFit->GetBinContent(i_bin) - yieldNominal_postFit;
-                // }
             }
             // add the proper bin content to the variation hists
             fTotUp_postFit[i_syst]  ->AddBinContent( i_bin, diffUp   );
@@ -1047,7 +1097,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
             }
         }
         if(fGetChi2==1) fSystNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, h_down, fSystNames, fitRes->fCorrMatrix );
+        std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -1067,7 +1117,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes){
 
 //__________________________________________________________________________________
 //
-TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
+TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::vector<std::string> &morph_names, string opt){
 
     if(TtHFitter::PREFITONPOSTFIT){
         fPlotPostFit->h_tot_bkg_prefit = (TH1*)fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit");
@@ -1128,7 +1178,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
     // 1) Propagates the post-fit NP values to the central value (pulls)
     //
     string systName;
-    TH1* hNew;
+    TH1* hNew = nullptr;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
@@ -1189,10 +1239,6 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
 //             nfName = nf->fNuisanceParameter; // not implemeted yet...
             if(nf->fConst) nfValue = nf->fNominal;
             else           nfValue = fitRes->GetNuisParValue(TtHFitter::NPMAP[nfName]);
-//             if(nfValue==0) nfValue = 0.0001;  // FIXME
-//             if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 0.0001;   // FIXME
-//             if(nfName=="SigXsecOverSM" && nfValue==0) nfValue = 1;   // FIXME
-//             if(nfName=="SigXsecOverSM") nfValue = 1;   // FIXME
             //
             // if this norm factor is a morphing one
             if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
@@ -1263,8 +1309,6 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
         if(TtHFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
-//         if(TtHFitter::SHOWNORMSIG)     p->AddNormSignal(hSigNew[i],title);
-//         if(TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
         if(TtHFitter::SHOWNORMSIG){
             if( (TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
              || !TtHFitter::OPTION["NormSigSRonly"] )
@@ -1319,7 +1363,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex,string opt){
     //
     // Build error band
     //
-    BuildPostFitErrorHist(fitRes);
+    BuildPostFitErrorHist(fitRes, morph_names);
     
     //
     // Print chi2 info
@@ -1419,14 +1463,66 @@ void Region::SetAlternativeVariable(string variable,string sample){
     fAlternativeVariables[sample] = variable;
 }
 
+//__________________________________________________________________________________
+//
+void Region::SetAlternativeSelection(string selection,string sample){
+    fAlternativeSelections[sample] = selection;
+}
 
 //__________________________________________________________________________________
 //
 bool Region::UseAlternativeVariable(string sample){
-    if (fAlternativeVariables.find(sample)==fAlternativeVariables.end())
+//     if (fAlternativeVariables.find(sample)==fAlternativeVariables.end())
+    std::vector<std::string> tmpVec;
+    for(auto tmp : fAlternativeVariables){
+        tmpVec.push_back(tmp.first);
+    }
+    if (FindInStringVector(tmpVec,sample))
         return false;
     else
         return true;
+}
+
+//__________________________________________________________________________________
+//
+bool Region::UseAlternativeSelection(string sample){
+//     if (fAlternativeSelections.find(sample)==fAlternativeSelections.end())
+    std::vector<std::string> tmpVec;
+    for(auto tmp : fAlternativeSelections){
+        tmpVec.push_back(tmp.first);
+    }
+    if (FindInStringVector(tmpVec,sample))
+        return false;
+    else
+        return true;
+}
+
+//__________________________________________________________________________________
+//
+std::string Region::GetAlternativeVariable(string sample){
+    std::vector<std::string> tmpVec;
+    std::vector<std::string> tmpVec2;
+    for(auto tmp : fAlternativeVariables){
+        tmpVec.push_back(tmp.first);
+        tmpVec2.push_back(tmp.second);
+    }
+    int idx = FindInStringVector(tmpVec,sample);
+    if(idx<0) return "";
+    else return tmpVec2[idx];
+}
+
+//__________________________________________________________________________________
+//
+std::string Region::GetAlternativeSelection(string sample){
+    std::vector<std::string> tmpVec;
+    std::vector<std::string> tmpVec2;
+    for(auto tmp : fAlternativeSelections){
+        tmpVec.push_back(tmp.first);
+        tmpVec2.push_back(tmp.second);
+    }
+    int idx = FindInStringVector(tmpVec,sample);
+    if(idx<0) return "";
+    else return tmpVec2[idx];
 }
 
 //__________________________________________________________________________________
@@ -1466,6 +1562,9 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     bool isPostFit  = false; if(opt.find("post")!=string::npos)     isPostFit  = true;
     bool doClean    = false; if(opt.find("clean")!=string::npos)    doClean    = true;
     bool doCategory = false; if(opt.find("category")!=string::npos) doCategory = true;
+    bool standalone = false; if(opt.find("standalone")!=string::npos)standalone= true;
+    bool landscape  = false; if(opt.find("landscape")!=string::npos) landscape = true;
+    bool footnotesize=false; if(opt.find("footnotesize")!=string::npos)footnotesize=true;;
     //
     ofstream out;
     ofstream texout;
@@ -1495,18 +1594,24 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     
     
     out << " | ";
-    texout << "\\documentclass[10pt]{article}" << endl;
-    texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
-    texout << "\\begin{document}" << endl;
+    if (standalone) {
+        texout << "\\documentclass[10pt]{article}" << endl;
+        texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
+        texout << "\\begin{document}" << endl;
+    }
+    if (landscape) texout << "\\begin{landscape}" << endl;        
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
+    if (footnotesize) texout << "\\footnotesize" << endl;        
     texout << "\\begin{tabular}{|c" ;
 
     if(doCategory){
         out_cat << " | ";
-        texout_cat << "\\documentclass[10pt]{article}" << endl;
-        texout_cat << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
-        texout_cat << "\\begin{document}" << endl;
+        if (standalone) {
+            texout_cat << "\\documentclass[10pt]{article}" << endl;
+            texout_cat << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
+            texout_cat << "\\begin{document}" << endl;
+        }
         texout_cat << "\\begin{table}[htbp]" << endl;
         texout_cat << "\\begin{center}" << endl;
         texout_cat << "\\begin{tabular}{|c" ;
@@ -1698,7 +1803,6 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     texout << "\\caption{Relative effect of each systematic on the yields.} " << endl;
     texout << "\\end{center} " << endl;
     texout << "\\end{table} " << endl;
-    texout << "\\end{document}" << endl;
 
     if(doCategory){
         texout_cat << "\\hline " << endl;
@@ -1706,7 +1810,10 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
         texout_cat << "\\caption{Realtive effect of each group of systematics on the yields.} " << endl;
         texout_cat << "\\end{center} " << endl;
         texout_cat << "\\end{table} " << endl;
-        texout_cat << "\\end{document}" << endl;
+    }
+    if (landscape) texout << "\\end{landscape}" << endl;        
+    if (standalone) {
+        texout << "\\end{document}" << endl;
     }
 
     if(doClean){
@@ -1728,159 +1835,6 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
         }
     }
 }
-
-// //__________________________________________________________________________________
-// //
-// void Region::PrintSystTable(string opt){
-//     bool isPostFit = false;
-//     if(opt.find("post")!=string::npos){
-//         isPostFit = true;
-//     }
-//     //
-//     ofstream out;
-//     ofstream texout;
-//     gSystem->mkdir(fFitName.c_str());
-//     gSystem->mkdir((fFitName+"/Tables").c_str());
-//     if(isPostFit){
-//         out.open((fFitName+"/Tables/"+fName+"_syst_postFit.txt").c_str());
-//         texout.open((fFitName+"/Tables/"+fName+"_syst_postFit.tex").c_str());
-//     }
-//     else{
-//         out.open((fFitName+"/Tables/"+fName+"_syst.txt").c_str());
-//         texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
-//     }
-//     Sample *s = 0x0;
-//     SampleHist *sh = 0x0;
-//     SystematicHist *syh = 0x0;
-//     out << " | ";
-//     
-//     texout << "\\documentclass[10pt]{article}" << endl;
-//     texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
-//     texout << "\\begin{document}" << endl;
-//     //texout << "\\small" << endl;
-//     
-//     texout << "\\begin{table}[htbp]" << endl;
-//     texout << "\\begin{center}" << endl;
-//     //texout << "\\begin{tabular}{|c|c|c|c|c|c|c|c|}" << endl;
-//     texout << "\\begin{tabular}{|c" ;
-//     for (int i =0; i<fSampleHists.size(); i++)
-//       {
-//     texout << "|c";      
-//       }
-//     texout << "|}" << endl;
-// 
-//     texout << "\\hline " << endl;
-//     
-//     float Ncol = 2.;
-//     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-//         sh = fSampleHists[i_smp];
-//         s = sh->fSample;
-//         if(s->fType==Sample::DATA) continue;
-//         if(s->fType==Sample::GHOST) continue;
-//         Ncol+=1;
-//     }
-//     // plot a table with ROOT ;)
-//     int width = (Ncol)*120;
-//     int height = fSystNames.size()*25;
-//     //
-// //     TCanvas *c = new TCanvas("c","c",width,height);
-// //     TPaveText *pt0;
-// //     TPaveText *pt[MAXsamples];
-// //     pt0 = new TPaveText(0,0,2./Ncol,1);
-// //     pt0->SetTextSize(gStyle->GetTextSize());
-// //     pt0->SetFillStyle(0);
-//     //
-//     float i_col = 1;
-//     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-// //         pt[i_smp] = new TPaveText((i_col+1.)/Ncol,0,(i_col+2.)/Ncol,1); // ,"blNDC"
-// //         pt[i_smp]->SetTextSize(gStyle->GetTextSize());
-// //         pt[i_smp]->SetFillStyle(0);
-//         sh = fSampleHists[i_smp];
-//         s = sh->fSample;
-//         if(s->fType==Sample::DATA) continue;
-//         if(s->fType==Sample::GHOST) continue;
-//         out << "      | " << s->fTitle;
-//         texout << "      & " << s->fTitle;
-// //         pt[i_smp]->AddText(s->fTitle.c_str());
-//         i_col+=1;
-//     }
-//     out << " |" << endl;
-//     texout << " \\\\ " << endl;
-//     texout << "\\hline " << endl;
-// 
-// //     pt0->AddText(" ");
-//     //
-// //     TPave *b[100];
-// //     int i_gray = 0;
-//     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
-// //         if(i_syst%2==0) {
-// //             b[i_gray] = new TPave(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst-1)/(fSystNames.size()+1.),0);
-// //             b[i_gray]->SetFillColor(kGray);
-// //             b[i_gray]->Draw("NB");
-// //             i_gray++;
-// //         }
-//         //
-//         if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") {out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]]; texout << "  " << TtHFitter::SYSTMAP[fSystNames[i_syst]];}
-//         else                                           {out << " | " << fSystNames[i_syst]; texout << " " << fSystNames[i_syst];}
-// //         if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") pt0->AddText(TtHFitter::SYSTMAP[fSystNames[i_syst]].c_str());
-// //         else                                           pt0->AddText(fSystNames[i_syst].c_str());
-// //         if(i_syst==0) pt0->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
-//         for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-// //             if(i_syst==0) pt[i_smp]->AddLine(0,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.),1,(1.*fSystNames.size()-i_syst)/(fSystNames.size()+1.));
-//             sh = fSampleHists[i_smp];
-//             s = sh->fSample;
-//             if(s->fType==Sample::DATA) continue;
-//             if(s->fType==Sample::GHOST) continue;
-//             syh = sh->GetSystematic(fSystNames[i_syst]);
-//             if(syh==0x0){
-//                 out << " |    nan   ";
-//                 texout << " &    nan   ";
-// //                 pt[i_smp]->AddText(" - ");
-//             }
-// //             sh = GetSampleHist(fSamples[i_smp]->fName);
-//             else{
-//                 float normUp;
-//                 float normDown;
-//                 if(isPostFit){
-//                     normUp   = (syh->fHistUp_postFit->Integral()   - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
-//                     normDown = (syh->fHistDown_postFit->Integral() - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
-//                 }
-//                 else{
-//                     normUp = syh->fNormUp;
-//                     normDown = syh->fNormDown;
-//                 }
-//                 out << " | " << normUp;
-//                 texout << setprecision(3) << " & " << normUp;
-//                 out << " / " << normDown;
-//                 texout << setprecision(3) << " / " << normDown;
-// //                 pt[i_smp]->AddText(Form("%.2f / %.2f",syh->fNormUp,syh->fNormDown) );
-//             }
-// //             if(i_syst==(int)fSystNames.size()-1) pt[i_smp]->Draw("NB");
-//         }
-//         out << " |" << endl;
-//         texout << " \\\\ " << endl;
-// //         if(i_syst==(int)fSystNames.size()-1) pt0->Draw("NB");
-//     }
-// 
-//     texout << "\\hline " << endl;
-// 
-//     texout << "\\end{tabular} " << endl;
-//     texout << "\\caption{Yields of the analysis} " << endl;
-//     texout << "\\end{center} " << endl;
-//     texout << "\\end{table} " << endl;
-//     texout << "\\end{document}" << endl;
-// 
-//     //TString shellcommand = "cat l3_syst.tex|sed -e \"s/\\#/ /g\" > truc.tex";
-//     //texout.open((fFitName+"/Tables/"+fName+"_syst.tex").c_str());
-// 
-//     TString shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst.tex|sed -e \"s/\\#/ /g\" > "+fFitName+"/Tables/"+fName+"_syst_clean.tex";
-//     //TString shellcommand = "cat "+fFitName+"/Tables/"+fName+"_syst.tex|sed -e \"s/t\\#bar\\{t\\}/t\\$\\bar\\{t\\}\\$/g\" > "+fFitName+"/Tables/"+fName+"_syst_truc.tex";
-//     gSystem->Exec(shellcommand);
-//     
-//     //cat l3_syst.tex|sed -e "s/\#/ /g" > truc.tex
-//     
-// //     c->SaveAs((fFitName+"/Tables/"+fName+"_syst.pdf").c_str());
-// }
 
 // --------------- Functions --------------- //
 
@@ -1966,7 +1920,7 @@ std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_err
 //--------------- ~ ---------------
 
 // function to get pre/post-fit agreement
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
     unsigned int nbins = h_nominal->GetNbinsX();
     unsigned int nsyst = fSystNames.size();
     int ndf = 0;
@@ -2102,4 +2056,40 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
 }
 
 //--------------- ~ ---------------
- 
+void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal){
+    for(int i=0;i<fNSamples;i++){
+        // skip data
+        if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+        for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+            std::string systName    = fSystNames[i_syst];
+            if(TtHFitter::NPMAP[systName]=="") TtHFitter::NPMAP[systName] = systName;
+            float systValue   = fitRes->GetNuisParValue(TtHFitter::NPMAP[systName]);
+
+            if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
+                // if this norm factor is a morphing one
+                if(fSystNames[i_syst].find("morph_")!=string::npos || fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fExpression.first!=""){
+                    std::string formula = TtHFitter::SYSTMAP[fSystNames[i_syst]];
+                    std::string name = TtHFitter::NPMAP[fSystNames[i_syst]];
+                    formula = ReplaceString(formula,name,"x");
+                    TF1* f_morph = new TF1("f_morph",formula.c_str(),fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax);
+                    float scaleNom  = f_morph->Eval(systValue);
+                    morph_scale->emplace_back(scaleNom);
+                    delete f_morph;
+                }
+            }
+            for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
+                NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf];
+                // if this norm factor is a morphing one
+                if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
+                    std::string formula = TtHFitter::SYSTMAP[nf->fName];
+                    std::string name = TtHFitter::NPMAP[nf->fName];
+                    formula = ReplaceString(formula,name,"x");
+                    TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+                    morph_scale_nominal->emplace_back(f_morph->Eval(nf->fNominal));
+                    delete f_morph;
+                }
+            }
+        }
+    }
+}

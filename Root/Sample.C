@@ -20,13 +20,16 @@ Sample::Sample(std::string name,int type){
     fRegions.clear();
     fLumiScales.clear();
     fIgnoreSelection = "";
+    fIgnoreWeight = "";
     fUseMCStat = true;
     fUseSystematics = true;
     fDivideBy = "";
     fMultiplyBy = "";
     fSmooth = false;
+    fNormToSample = "";
     fBuildPullTable = 0;
-    fIsMorph = false;
+    fIsMorph.clear();
+    fMorphValue.clear();
     //
     // ntuples
     fSelection = "1";

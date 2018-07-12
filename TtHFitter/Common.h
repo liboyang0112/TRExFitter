@@ -108,6 +108,9 @@ std::vector<std::string> ToVec(std::string s);
 std::string ReplaceString(std::string subject, const std::string& search,
                      const std::string& replace);
 
+bool StringsMatch(std::string s1,std::string s2);
+int wildcmp(const char *wild, const char *string);
+
 int FindInStringVector(std::vector<std::string> v, std::string s);
 int FindInStringVectorOfVectors(std::vector<std::vector<std::string> > v, std::string s, std::string ss);
 double GetSeparation( TH1F* S1, TH1F* B1 );
@@ -117,7 +120,7 @@ void BlindDataHisto( TH1* h_data, TH1* h_blind );
 double convertStoD(std::string toConvert);
 
 // TH1F* SmoothHistogram( TH1* h );
-bool SmoothHistogram( TH1* h, int forceFlat=-1, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
+bool SmoothHistogram( TH1* h, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
 void SmoothHistogramTtres( TH1* h);
 
 void DropBins(TH1* h, const std::vector<int> &v);

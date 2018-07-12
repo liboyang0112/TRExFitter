@@ -69,7 +69,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
  
    // take next file:
    TIter nextsource_iter( sourcelist );
-   TDirectory *current_sourcedir = gDirectory;
+//    TDirectory *current_sourcedir = gDirectory;
 
    //gain time, do not add the objects in the list in memory
    Bool_t status = TH1::AddDirectoryStatus();
@@ -100,7 +100,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
          if ( obj->IsA()->InheritsFrom( TH1::Class() ) ) {
             // descendant of TH1 -> merge it
             //      cout << "Merging histogram " << obj->GetName() << endl;
-            TH1 *h1 = (TH1*)obj;
+//             TH1 *h1 = (TH1*)obj;
             // loop over all source files and add the content of the
             // correspondant histogram to the one pointed to by "h1"
          } else {

@@ -44,12 +44,13 @@ fi
 # Check if the CommonStatTools code exists
 if [ ! "$(ls -A CommonStatTools)" ]; then
   echo -e "\033[1;31mERROR:\033[0m CommonStatTools directory does not exist or is empty. "
-  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule update' "
+  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule init' (first time use) "
+  echo -e "\033[1;31mERROR:\033[0m Followed with 'git submodule update' "
   return
 fi
 
 echo "Setting up cmake with: lsetup cmake"
 lsetup cmake
 
-echo "\nIf everything went smoothly, continue by compiling via cmake (in a dedicated build directory):"
-echo "--> mkdir build && cd build && cmake .. && cmake --build ."
+echo -e "\nIf everything went smoothly, continue by compiling via cmake (in a dedicated build directory):"
+echo -e "--> mkdir build && cd build && cmake .. && cmake --build ."

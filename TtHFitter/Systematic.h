@@ -91,6 +91,15 @@ public:
     std::vector<std::string> fHistoNamesUp;
     std::string fHistoNameSufUp;
 
+    // needed for systematics on data - like JER
+    // up variation
+    std::vector<std::string> fHistoPathsUpData;
+    std::string fHistoPathSufUpData;
+    std::vector<std::string> fHistoFilesUpData;
+    std::string fHistoFileSufUpData;
+    std::vector<std::string> fHistoNamesUpData;
+    std::string fHistoNameSufUpData;
+
     // from histos - down
     std::vector<std::string> fHistoPathsDown;
     std::string fHistoPathSufDown;
@@ -98,6 +107,15 @@ public:
     std::string fHistoFileSufDown;
     std::vector<std::string> fHistoNamesDown;
     std::string fHistoNameSufDown;
+    
+    // needed for systematics on data - like JER
+    // Down variation
+    std::vector<std::string> fHistoPathsDownData;
+    std::string fHistoPathSufDownData;
+    std::vector<std::string> fHistoFilesDownData;
+    std::string fHistoFileSufDownData;
+    std::vector<std::string> fHistoNamesDownData;
+    std::string fHistoNameSufDownData;
 
     //
     std::string fSampleUp;

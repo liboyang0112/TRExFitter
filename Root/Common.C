@@ -22,7 +22,7 @@ bool TtHFitter::LEGENDLEFT = false;
 bool TtHFitter::PREFITONPOSTFIT = false;
 bool TtHFitter::POISSONIZE = false;
 bool TtHFitter::SYSTCONTROLPLOTS = false;
-bool TtHFitter::SYSTERRORBARS = false;
+bool TtHFitter::SYSTERRORBARS = true;
 bool TtHFitter::SYSTDATAPLOT = false;
 bool TtHFitter::SPLITHISTOFILES = false;
 bool TtHFitter::HISTOCHECKCRASH = true;
@@ -245,13 +245,58 @@ string ReplaceString(string subject, const string& search,
 }
 
 //__________________________________________________________________________________
+// taking into account wildcards on both
+bool StringsMatch(std::string s1,std::string s2){
+    if(wildcmp(s1.c_str(),s2.c_str())>0 || wildcmp(s2.c_str(),s1.c_str())>0) return true;
+    return false;
+}
+
+//__________________________________________________________________________________
+// taking into account wildcards on first argument
+int wildcmp(const char *wild, const char *string) {
+    // Written by Jack Handy - <A href="mailto:jakkhandy@hotmail.com">jakkhandy@hotmail.com</A>
+    const char *cp = NULL, *mp = NULL;
+    while ((*string) && (*wild != '*')) {
+        if ((*wild != *string) && (*wild != '?')) {
+            return 0;
+        }
+        wild++;
+        string++;
+    }
+    while (*string) {
+        if (*wild == '*') {
+          if (!*++wild) {
+              return 1;
+          }
+          mp = wild;
+          cp = string+1;
+        } else if ((*wild == *string) || (*wild == '?')) {
+            wild++;
+            string++;
+        } else {
+            wild = mp;
+            string = cp++;
+        }
+    }
+    while (*wild == '*') {
+        wild++;
+    }
+    return !*wild;
+}
+
+//__________________________________________________________________________________
 //
 int FindInStringVector(std::vector< string > v, string s){
     int idx = -1;
     string s1;
-    string s2;
+//     string s2;
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i];
+        if(StringsMatch(s1,s)){
+            idx = (int)i;
+            break;
+        }
+/*        
         if(s1==s){
             idx = (int)i;
             break;
@@ -287,7 +332,7 @@ int FindInStringVector(std::vector< string > v, string s){
                 idx = (int)i;
                 break;
             }
-        }
+        }*/
     }
     return idx;
 }
@@ -303,7 +348,8 @@ int FindInStringVectorOfVectors(std::vector< std::vector<string> > v, string s, 
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i][0];
         s2 = v[i][1];
-        if(s1==s && s2==ss){
+//         if(s1==s && s2==ss){
+        if(StringsMatch(s1,s) && StringsMatch(s2,ss)){
             idx = (int)i;
             break;
         }
@@ -377,6 +423,8 @@ void BlindDataHisto( TH1* h_data, TH1* h_blind ) {
     }
 }
 
+//__________________________________________________________________________________
+//
 double convertStoD(string toConvert){
     double converted;
     std::string::size_type pos;
@@ -394,6 +442,8 @@ double convertStoD(string toConvert){
     return converted;
 }
 
+//__________________________________________________________________________________
+//
 struct BinNom {
     double N;
     double dN2;
@@ -401,6 +451,8 @@ struct BinNom {
     BinNom(double _N, double _dN2, double _edge) { N = _N; dN2 = _dN2; edge = _edge; }
 };
 
+//__________________________________________________________________________________
+//
 bool systFluctuationNominal(std::vector<BinNom> &hist) {
     auto dM = [](const BinNom &b) { return sqrt(b.dN2); };
     //auto dMoverN = [dM](const BinNom &b) {
@@ -420,6 +472,8 @@ bool systFluctuationNominal(std::vector<BinNom> &hist) {
     return false;
 }
 
+//__________________________________________________________________________________
+//
 void SmoothHistogramTtres( TH1* h) {
     double origIntegral = h->Integral();
 
@@ -432,7 +486,7 @@ void SmoothHistogramTtres( TH1* h) {
 
 //__________________________________________________________________________________
 // to smooth a nominal histogram, taking into account the statistical uncertinaty on each bin (note: no empty bins, please!!)
-bool SmoothHistogram( TH1* h, int forceFlat, float nsigma ){
+bool SmoothHistogram( TH1* h, float nsigma ){
     int nbinsx = h->GetNbinsX();
     double error;
     float integral = h->IntegralAndError(1,h->GetNbinsX(),error);
@@ -461,23 +515,6 @@ bool SmoothHistogram( TH1* h, int forceFlat, float nsigma ){
 
     //
     // try to see if it's consistent with being flat
-//   TF1 *f_fit = new TF1("f_fit","[0]+0*x",xmin,xmax);
-//   h->Fit("f_fit","R0Q");
-//   float p0 = f_fit->GetParameter(0);
-//   float p0err = f_fit->GetParError(0);
-    bool isFlat = true;
-//   for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-//           if( TMath::Abs(h->GetBinContent(i_bin)-p0) > h->GetBinError(i_bin) )
-// /                if( TMath::Abs(h->GetBinContent(i_bin)-p0) > 2*h->GetBinError(i_bin) )
-//                   isFlat = false;
-//   }
-//   if( (forceFlat<0 && isFlat) || forceFlat>0){
-//           for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-//                   h->SetBinContent(i_bin,p0);
-//                   h->SetBinError(i_bin,p0);
-//           }
-//   }
-    isFlat = false; // FIXME
     //
     // make sure you didn't change the integral
     if(h->Integral()>0){
@@ -492,9 +529,11 @@ bool SmoothHistogram( TH1* h, int forceFlat, float nsigma ){
         h->SetBinError(i_bin,E*sqrt(n)/sqrt(N));
     }
     //
-    return isFlat;
+    return false; // this is actual behaviour that was implemented previously
 }
 
+//__________________________________________________________________________________
+//
 void DropBins(TH1* h,const std::vector<int> &v){
     TH1* h_new = (TH1*)h->Clone(h->GetName());
     for(int i_bin=1;i_bin<=h_new->GetNbinsX();i_bin++){
@@ -505,6 +544,8 @@ void DropBins(TH1* h,const std::vector<int> &v){
     }
 }
 
+//__________________________________________________________________________________
+//
 float CorrectIntegral(TH1* h,float *err){
     float integral = 0.;
     float error = 0.;
@@ -518,6 +559,8 @@ float CorrectIntegral(TH1* h,float *err){
     return integral;
 }
 
+//__________________________________________________________________________________
+//
 void CloseFiles( const std::set < std::string> &files_names ){
     for( const auto &fullName : files_names ){
         std::string file = fullName.substr(0,fullName.find_last_of(".")+5);
@@ -530,6 +573,8 @@ void CloseFiles( const std::set < std::string> &files_names ){
     }
 }
 
+//__________________________________________________________________________________
+//
 TH1F* MergeHistograms(vector<TH1*> hVec){
     if(hVec.size()==0) return 0x0;
     if(hVec[0]==0x0) return 0x0;

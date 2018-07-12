@@ -29,7 +29,7 @@ SampleHist::SampleHist(){
     fRegionLabel = "Region";
     fVariableTitle = "Variable";
     fSystSmoothed = false;
-    fIsMorph = false;
+    fIsMorph.clear();
     //
     fSyst.clear();
 }
@@ -587,7 +587,10 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
     //
     // Draw the distributions for nominal, syst (before and after smoothing)
     //
-    float yield_syst_up, yield_syst_down, yield_nominal, yield_data;
+    float yield_syst_up = 0;
+	float yield_syst_down = 0;
+	float yield_nominal = 0;
+	float yield_data = 0;
     TCanvas *c = new TCanvas("c","c",800,600);
     //
     TPad* pad0 = new TPad("pad0","pad0",0,0.30,1,1,0,0,0);
@@ -612,13 +615,13 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
     pad1->Draw();
     pad0->cd();
 
-    TH1* h_nominal;
-    TH1* h_nominal_orig;
-    TH1* h_dataCopy;
-    TH1* h_syst_up;
-    TH1* h_syst_down;
-    TH1* h_syst_up_orig;
-    TH1* h_syst_down_orig;
+    TH1* h_nominal = nullptr;
+    TH1* h_nominal_orig = nullptr;
+    TH1* h_dataCopy = nullptr;
+    TH1* h_syst_up = nullptr;
+    TH1* h_syst_down = nullptr;
+    TH1* h_syst_up_orig = nullptr;
+    TH1* h_syst_down_orig = nullptr;
 
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(syst!="all" && fSyst[i_syst]->fName.find(syst)==string::npos) continue;
@@ -845,7 +848,9 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 leg2->AddEntry(h_syst_up_black,"Modified","l");
                 leg2 -> Draw();
                 if(SumAndData){
-                    float acc_data = (yield_data-yield_nominal)/yield_nominal;
+                    float acc_data = 0;
+					if (yield_nominal != 0) acc_data = (yield_data-yield_nominal)/yield_nominal;
+					else acc_data = 99999999;
                     string sign_data =  "+";
                     if(acc_data<0) sign_data = "-";
                     TLegend *leg3 = new TLegend(0.7,0.43,0.9,0.62);
@@ -854,8 +859,8 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                     leg3->SetTextSize(gStyle->GetTextSize());
                     leg3->SetTextFont(gStyle->GetTextFont());
                     leg3->SetMargin(0.2);
-		    leg3->AddEntry(h_dataCopy,"Data","p");
-		    leg3->AddEntry(h_nominal,"Total prediction","l");
+		    		leg3->AddEntry(h_dataCopy,"Data","p");
+		    		leg3->AddEntry(h_nominal,"Total prediction","l");
                     //leg3->AddEntry(h_dataCopy,Form("data (%s%.1f %%)",sign_data.c_str(),TMath::Abs(acc_data*100)),"l");
                     leg3 -> Draw();
                 }
@@ -1251,4 +1256,18 @@ void SampleHist::Add(SampleHist *sh,float scale){
         }
     }
     delete hOrig;
+}
+
+//_____________________________________________________________________________
+//
+void SampleHist::Scale(float scale){
+    fHist->Scale( scale );
+    // loop on all the systematics in this SampleHist
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(!fSample->fUseSystematics) break;
+        fSyst[i_syst]->fHistUp->Scale( scale );
+        fSyst[i_syst]->fHistUp_orig->Scale( scale );
+        fSyst[i_syst]->fHistDown->Scale( scale );
+        fSyst[i_syst]->fHistDown_orig->Scale( scale );
+    }
 }

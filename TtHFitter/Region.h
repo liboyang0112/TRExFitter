@@ -61,8 +61,8 @@ public:
                                 const std::string &syst = "",
                                 const bool isUp = true);
 
-    void BuildPostFitErrorHist(FitResults *fitRes);
-    TthPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex,std::string opt="");
+    void BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names);
+    TthPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex, const std::vector<std::string>& morph_names, std::string opt="");
 
     void SetBinning(int N, double *bins);
     void Rebin(int N);
@@ -75,6 +75,10 @@ public:
     void SetVariable(std::string variable,int nbin,float xmin,float xmax,std::string corrVar1="",std::string corrVar2="");
     void SetAlternativeVariable(std::string variable,std::string sample);
     bool UseAlternativeVariable(std::string sample);
+    std::string GetAlternativeVariable(std::string sample);
+    void SetAlternativeSelection(std::string selection,std::string sample);
+    bool UseAlternativeSelection(std::string sample);
+    std::string GetAlternativeSelection(std::string sample);
 
     void SetHistoName(std::string name); // name of the histogram to read (the same for each sample)
     void AddSystematic(Systematic *syst);
@@ -88,6 +92,13 @@ public:
 
     void PrintSystTable(FitResults* fitRes,std::string opt="");
 
+    /**
+      * Helper function to get postfit scales of "normalization" parameters used for morphing
+      * @param pointer to FitResults class that stores the fit output
+      * @param dummy parameter that will be filled
+      * @param dummy parameter that will be filled
+      */
+    void PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal);
     // -------
     // Members
     // -------
@@ -145,6 +156,7 @@ public:
     std::vector<std::string> fAutoBinBkgsInSig;
     std::string fVariable;
     std::map<std::string, std::string> fAlternativeVariables;
+    std::map<std::string, std::string> fAlternativeSelections;
     std::string fCorrVar1;
     std::string fCorrVar2;
     int fNbins;
@@ -159,7 +171,6 @@ public:
     std::vector<std::string> fNtupleNameSuffs;
 
     // histogram stuff
-//     string fHistoName;
     double *fHistoBins;
     int fHistoNBinsRebin;
     std::vector<std::string> fHistoPaths;
@@ -236,6 +247,6 @@ std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_err
 // To build the total error band
 TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< std::string > systNames, CorrelationMatrix *matrix=0x0 );
 
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=0x0 );
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=0x0 );
 
 #endif
