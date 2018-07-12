@@ -12,6 +12,7 @@ Applying ATLAS style settings...
 === DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
 === DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
 [1;32m=== INFO::myFit::FitExample: Successfully read config file.[0m
 [1;32m=== INFO::TtHFit::ReadHistos: -----------------------------[0m
 [1;32m=== INFO::TtHFit::ReadHistos: Reading histograms from file FitExample/Histograms/FitExample_histos.root ...[0m
@@ -76,76 +77,76 @@ Printing XML Files for channel: SR_2
 Finished printing XML files
 Finished printing XML files
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Data_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3c05510
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x39658c0
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Bkg1_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3abfa60
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x398d2a0
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Bkg1_JES_Shape_Down_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3ad6f80
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x39bbe40
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Bkg1_JES_Shape_Up_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3ad01d0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x39a6690
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Bkg2_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3bc4740
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x390b470
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Signal_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3bc77a0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3990de0
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Signal_JES_Shape_Down_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3ac91c0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3963c10
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Signal_JES_Shape_Up_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3af1d60
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x39a1440
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Data_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3bc50f0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3a00090
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Bkg1_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3bfd520
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x39637c0
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Bkg1_JES_Shape_Down_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3bfce20
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x397d4a0
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Bkg1_JES_Shape_Up_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3af10d0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x397e560
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Bkg2_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3bc9670
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3904590
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Signal_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3bbc650
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x39ca180
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Signal_JES_Shape_Down_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3bbd3f0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x395e140
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Signal_JES_Shape_Up_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x3bfdcb0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x39ed570
 Measurement Name: FitExample	 OutputFilePrefix: FitExample/RooStats/FitExample	 POI: SigXsecOverSM	 Lumi: 1	 LumiRelErr: 0.1	 BinLow: 0	 BinHigh: 1	 ExportOnly: 1
 Constant Params:  Lumi
 Channels:
 	 Channel Name: SR_1	 InputFile: 
 	 Data:
-	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistoName: SR_1_Data_regBin	 HistoPath: 	 HistoAddress: 0x3ae9990
+	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistoName: SR_1_Data_regBin	 HistoPath: 	 HistoAddress: 0x36330d0
 	 statErrorConfig:
-	 	 RelErrorThreshold: 0	 ConstraintType: Gaussian
+	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
 	 Samples: 
 	 	 Name: Bkg1	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x3b8a7e0
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x3a00620
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 	 Name: Bkg2	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x3bc5d90
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x39c62c0
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 	 Name: Signal	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Signal_regBin	 HistoPath: 	 HistoAddress: 0x3ac95b0
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Signal_regBin	 HistoPath: 	 HistoAddress: 0x3904af0
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 End of Channel SR_1
 	 Channel Name: SR_2	 InputFile: 
 	 Data:
-	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistoName: SR_2_Data_regBin	 HistoPath: 	 HistoAddress: 0x3c2a960
+	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistoName: SR_2_Data_regBin	 HistoPath: 	 HistoAddress: 0x39ea020
 	 statErrorConfig:
-	 	 RelErrorThreshold: 0	 ConstraintType: Gaussian
+	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
 	 Samples: 
 	 	 Name: Bkg1	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x3bbc010
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x39c8050
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 	 Name: Bkg2	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x3bb94b0
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x39c9d30
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 	 Name: Signal	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Signal_regBin	 HistoPath: 	 HistoAddress: 0x3bfb5e0
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Signal_regBin	 HistoPath: 	 HistoAddress: 0x39c0e30
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 End of Channel SR_2
 End Measurement: FitExample
@@ -257,27 +258,31 @@ Making Total Uncertainty for bin 2 Error = 5.61249 Val = 105.5 RelativeError = 0
 Making Total Uncertainty for bin 3 Error = 7.44983 Val = 71.5 RelativeError = 0.104193
 Making Total Uncertainty for bin 4 Error = 4.28369 Val = 28.1 RelativeError = 0.152444
 About to create Constraint Terms from: mc_stat_SR_1 params: (gamma_stat_SR_1_bin_0,gamma_stat_SR_1_bin_1,gamma_stat_SR_1_bin_2,gamma_stat_SR_1_bin_3)
-Using Gaussian StatErrors in channel: SR_1
-Creating constraint for: gamma_stat_SR_1_bin_0. Type of constraint: 0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooGaussian::gamma_stat_SR_1_bin_0_constraint
+Using Poisson StatErrors in channel: SR_1
+Creating constraint for: gamma_stat_SR_1_bin_0. Type of constraint: 1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooPoisson::gamma_stat_SR_1_bin_0_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooRealVar::nom_gamma_stat_SR_1_bin_0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_0 for import of RooGaussian::gamma_stat_SR_1_bin_0_constraint
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooConstVar::gamma_stat_SR_1_bin_0_sigma
-Creating constraint for: gamma_stat_SR_1_bin_1. Type of constraint: 0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooGaussian::gamma_stat_SR_1_bin_1_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooProduct::gamma_stat_SR_1_bin_0_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_0 for import of RooPoisson::gamma_stat_SR_1_bin_0_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooConstVar::gamma_stat_SR_1_bin_0_tau
+Creating constraint for: gamma_stat_SR_1_bin_1. Type of constraint: 1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooPoisson::gamma_stat_SR_1_bin_1_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooRealVar::nom_gamma_stat_SR_1_bin_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_1 for import of RooGaussian::gamma_stat_SR_1_bin_1_constraint
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooConstVar::gamma_stat_SR_1_bin_1_sigma
-Creating constraint for: gamma_stat_SR_1_bin_2. Type of constraint: 0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooGaussian::gamma_stat_SR_1_bin_2_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooProduct::gamma_stat_SR_1_bin_1_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_1 for import of RooPoisson::gamma_stat_SR_1_bin_1_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooConstVar::gamma_stat_SR_1_bin_1_tau
+Creating constraint for: gamma_stat_SR_1_bin_2. Type of constraint: 1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooPoisson::gamma_stat_SR_1_bin_2_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooRealVar::nom_gamma_stat_SR_1_bin_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_2 for import of RooGaussian::gamma_stat_SR_1_bin_2_constraint
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooConstVar::gamma_stat_SR_1_bin_2_sigma
-Creating constraint for: gamma_stat_SR_1_bin_3. Type of constraint: 0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooGaussian::gamma_stat_SR_1_bin_3_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooProduct::gamma_stat_SR_1_bin_2_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_2 for import of RooPoisson::gamma_stat_SR_1_bin_2_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooConstVar::gamma_stat_SR_1_bin_2_tau
+Creating constraint for: gamma_stat_SR_1_bin_3. Type of constraint: 1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooPoisson::gamma_stat_SR_1_bin_3_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooRealVar::nom_gamma_stat_SR_1_bin_3
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_3 for import of RooGaussian::gamma_stat_SR_1_bin_3_constraint
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooConstVar::gamma_stat_SR_1_bin_3_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooProduct::gamma_stat_SR_1_bin_3_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_3 for import of RooPoisson::gamma_stat_SR_1_bin_3_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooConstVar::gamma_stat_SR_1_bin_3_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooRealSumPdf::SR_1_model
 -----------------------------------------
 import model into workspace
@@ -296,21 +301,25 @@ import model into workspace
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooGaussian::alpha_Bkg2XsecConstraint for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::alpha_Bkg2Xsec for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::nom_alpha_Bkg2Xsec for import of RooProdPdf::model_SR_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooGaussian::gamma_stat_SR_1_bin_0_constraint for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooPoisson::gamma_stat_SR_1_bin_0_constraint for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_0 for import of RooProdPdf::model_SR_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooConstVar::gamma_stat_SR_1_bin_0_sigma for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::gamma_stat_SR_1_bin_0_poisMean for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooConstVar::gamma_stat_SR_1_bin_0_tau for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_0 for import of RooProdPdf::model_SR_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooGaussian::gamma_stat_SR_1_bin_1_constraint for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooPoisson::gamma_stat_SR_1_bin_1_constraint for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_1 for import of RooProdPdf::model_SR_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooConstVar::gamma_stat_SR_1_bin_1_sigma for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::gamma_stat_SR_1_bin_1_poisMean for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooConstVar::gamma_stat_SR_1_bin_1_tau for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_1 for import of RooProdPdf::model_SR_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooGaussian::gamma_stat_SR_1_bin_2_constraint for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooPoisson::gamma_stat_SR_1_bin_2_constraint for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_2 for import of RooProdPdf::model_SR_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooConstVar::gamma_stat_SR_1_bin_2_sigma for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::gamma_stat_SR_1_bin_2_poisMean for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooConstVar::gamma_stat_SR_1_bin_2_tau for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_2 for import of RooProdPdf::model_SR_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooGaussian::gamma_stat_SR_1_bin_3_constraint for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooPoisson::gamma_stat_SR_1_bin_3_constraint for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_3 for import of RooProdPdf::model_SR_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooConstVar::gamma_stat_SR_1_bin_3_sigma for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::gamma_stat_SR_1_bin_3_poisMean for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooConstVar::gamma_stat_SR_1_bin_3_tau for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::gamma_stat_SR_1_bin_3 for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealSumPdf::SR_1_model for import of RooProdPdf::model_SR_1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::L_x_Bkg1_SR_1_overallSyst_x_StatUncert for import of RooProdPdf::model_SR_1
@@ -359,12 +368,12 @@ RooRealSumPdf::SR_1_model[ binWidth_obs_x_SR_1_0 * L_x_Bkg1_SR_1_overallSyst_x_S
 RooGaussian::alpha_Bkg1XsecConstraint[ x=alpha_Bkg1Xsec mean=nom_alpha_Bkg1Xsec sigma=1 ] = 1
 RooGaussian::alpha_Bkg2XsecConstraint[ x=alpha_Bkg2Xsec mean=nom_alpha_Bkg2Xsec sigma=1 ] = 1
 RooGaussian::alpha_JESConstraint[ x=alpha_JES mean=nom_alpha_JES sigma=1 ] = 1
-RooGaussian::gamma_stat_SR_1_bin_0_constraint[ x=nom_gamma_stat_SR_1_bin_0 mean=gamma_stat_SR_1_bin_0 sigma=gamma_stat_SR_1_bin_0_sigma ] = 1
-RooGaussian::gamma_stat_SR_1_bin_1_constraint[ x=nom_gamma_stat_SR_1_bin_1 mean=gamma_stat_SR_1_bin_1 sigma=gamma_stat_SR_1_bin_1_sigma ] = 1
-RooGaussian::gamma_stat_SR_1_bin_2_constraint[ x=nom_gamma_stat_SR_1_bin_2 mean=gamma_stat_SR_1_bin_2 sigma=gamma_stat_SR_1_bin_2_sigma ] = 1
-RooGaussian::gamma_stat_SR_1_bin_3_constraint[ x=nom_gamma_stat_SR_1_bin_3 mean=gamma_stat_SR_1_bin_3 sigma=gamma_stat_SR_1_bin_3_sigma ] = 1
+RooPoisson::gamma_stat_SR_1_bin_0_constraint[ x=nom_gamma_stat_SR_1_bin_0 mean=gamma_stat_SR_1_bin_0_poisMean ] = 0.0120712
+RooPoisson::gamma_stat_SR_1_bin_1_constraint[ x=nom_gamma_stat_SR_1_bin_1 mean=gamma_stat_SR_1_bin_1_poisMean ] = 0.0212183
+RooPoisson::gamma_stat_SR_1_bin_2_constraint[ x=nom_gamma_stat_SR_1_bin_2 mean=gamma_stat_SR_1_bin_2_poisMean ] = 0.0415296
+RooPoisson::gamma_stat_SR_1_bin_3_constraint[ x=nom_gamma_stat_SR_1_bin_3 mean=gamma_stat_SR_1_bin_3_poisMean ] = 0.0606989
 RooGaussian::lumiConstraint[ x=Lumi mean=nominalLumi sigma=0.1 ] = 1
-RooProdPdf::model_SR_1[ lumiConstraint * alpha_JESConstraint * alpha_Bkg1XsecConstraint * alpha_Bkg2XsecConstraint * gamma_stat_SR_1_bin_0_constraint * gamma_stat_SR_1_bin_1_constraint * gamma_stat_SR_1_bin_2_constraint * gamma_stat_SR_1_bin_3_constraint * SR_1_model(obs_x_SR_1) ] = 112.4
+RooProdPdf::model_SR_1[ lumiConstraint * alpha_JESConstraint * alpha_Bkg1XsecConstraint * alpha_Bkg2XsecConstraint * gamma_stat_SR_1_bin_0_constraint * gamma_stat_SR_1_bin_1_constraint * gamma_stat_SR_1_bin_2_constraint * gamma_stat_SR_1_bin_3_constraint * SR_1_model(obs_x_SR_1) ] = 7.25715e-05
 
 functions
 --------
@@ -390,6 +399,10 @@ RooStats::HistFactory::FlexibleInterpVar::Signal_SR_1_epsilon[ paramList=(alpha_
 RooProduct::Signal_SR_1_overallNorm_x_sigma_epsilon[ SigXsecOverSM * Signal_SR_1_epsilon ] = 1
 RooProduct::Signal_SR_1_overallSyst_x_HistSyst[ Signal_SR_1_Hist_alpha * Signal_SR_1_overallNorm_x_sigma_epsilon ] = 3.1
 RooProduct::Signal_SR_1_overallSyst_x_StatUncert[ mc_stat_SR_1 * Signal_SR_1_overallSyst_x_HistSyst ] = 3.1
+RooProduct::gamma_stat_SR_1_bin_0_poisMean[ gamma_stat_SR_1_bin_0 * gamma_stat_SR_1_bin_0_tau ] = 1092.07
+RooProduct::gamma_stat_SR_1_bin_1_poisMean[ gamma_stat_SR_1_bin_1 * gamma_stat_SR_1_bin_1_tau ] = 353.341
+RooProduct::gamma_stat_SR_1_bin_2_poisMean[ gamma_stat_SR_1_bin_2 * gamma_stat_SR_1_bin_2_tau ] = 92.1126
+RooProduct::gamma_stat_SR_1_bin_3_poisMean[ gamma_stat_SR_1_bin_3 * gamma_stat_SR_1_bin_3_tau ] = 43.0305
 ParamHistFunc::mc_stat_SR_1[ ] = 1
 
 datasets
@@ -431,7 +444,7 @@ Observables:             RooArgSet:: = (obs_x_SR_1)
 Parameters of Interest:  RooArgSet:: = (SigXsecOverSM)
 Nuisance Parameters:     RooArgSet:: = (alpha_Bkg1Xsec,alpha_Bkg2Xsec,alpha_JES,gamma_stat_SR_1_bin_0,gamma_stat_SR_1_bin_1,gamma_stat_SR_1_bin_2,gamma_stat_SR_1_bin_3)
 Global Observables:      RooArgSet:: = (nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3)
-PDF:                     RooProdPdf::model_SR_1[ lumiConstraint * alpha_JESConstraint * alpha_Bkg1XsecConstraint * alpha_Bkg2XsecConstraint * gamma_stat_SR_1_bin_0_constraint * gamma_stat_SR_1_bin_1_constraint * gamma_stat_SR_1_bin_2_constraint * gamma_stat_SR_1_bin_3_constraint * SR_1_model(obs_x_SR_1) ] = 112.4
+PDF:                     RooProdPdf::model_SR_1[ lumiConstraint * alpha_JESConstraint * alpha_Bkg1XsecConstraint * alpha_Bkg2XsecConstraint * gamma_stat_SR_1_bin_0_constraint * gamma_stat_SR_1_bin_1_constraint * gamma_stat_SR_1_bin_2_constraint * gamma_stat_SR_1_bin_3_constraint * SR_1_model(obs_x_SR_1) ] = 7.25715e-05
 
 Opening File to hold channel: FitExample/RooStats/FitExample_SR_1_FitExample_model.root
 About to write channel measurement to file
@@ -539,27 +552,31 @@ Making Total Uncertainty for bin 2 Error = 5.61249 Val = 105.5 RelativeError = 0
 Making Total Uncertainty for bin 3 Error = 7.44983 Val = 71.5 RelativeError = 0.104193
 Making Total Uncertainty for bin 4 Error = 4.28369 Val = 28.1 RelativeError = 0.152444
 About to create Constraint Terms from: mc_stat_SR_2 params: (gamma_stat_SR_2_bin_0,gamma_stat_SR_2_bin_1,gamma_stat_SR_2_bin_2,gamma_stat_SR_2_bin_3)
-Using Gaussian StatErrors in channel: SR_2
-Creating constraint for: gamma_stat_SR_2_bin_0. Type of constraint: 0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooGaussian::gamma_stat_SR_2_bin_0_constraint
+Using Poisson StatErrors in channel: SR_2
+Creating constraint for: gamma_stat_SR_2_bin_0. Type of constraint: 1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooPoisson::gamma_stat_SR_2_bin_0_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooRealVar::nom_gamma_stat_SR_2_bin_0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_0 for import of RooGaussian::gamma_stat_SR_2_bin_0_constraint
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooConstVar::gamma_stat_SR_2_bin_0_sigma
-Creating constraint for: gamma_stat_SR_2_bin_1. Type of constraint: 0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooGaussian::gamma_stat_SR_2_bin_1_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooProduct::gamma_stat_SR_2_bin_0_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_0 for import of RooPoisson::gamma_stat_SR_2_bin_0_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooConstVar::gamma_stat_SR_2_bin_0_tau
+Creating constraint for: gamma_stat_SR_2_bin_1. Type of constraint: 1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooPoisson::gamma_stat_SR_2_bin_1_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooRealVar::nom_gamma_stat_SR_2_bin_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_1 for import of RooGaussian::gamma_stat_SR_2_bin_1_constraint
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooConstVar::gamma_stat_SR_2_bin_1_sigma
-Creating constraint for: gamma_stat_SR_2_bin_2. Type of constraint: 0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooGaussian::gamma_stat_SR_2_bin_2_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooProduct::gamma_stat_SR_2_bin_1_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_1 for import of RooPoisson::gamma_stat_SR_2_bin_1_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooConstVar::gamma_stat_SR_2_bin_1_tau
+Creating constraint for: gamma_stat_SR_2_bin_2. Type of constraint: 1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooPoisson::gamma_stat_SR_2_bin_2_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooRealVar::nom_gamma_stat_SR_2_bin_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_2 for import of RooGaussian::gamma_stat_SR_2_bin_2_constraint
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooConstVar::gamma_stat_SR_2_bin_2_sigma
-Creating constraint for: gamma_stat_SR_2_bin_3. Type of constraint: 0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooGaussian::gamma_stat_SR_2_bin_3_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooProduct::gamma_stat_SR_2_bin_2_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_2 for import of RooPoisson::gamma_stat_SR_2_bin_2_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooConstVar::gamma_stat_SR_2_bin_2_tau
+Creating constraint for: gamma_stat_SR_2_bin_3. Type of constraint: 1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooPoisson::gamma_stat_SR_2_bin_3_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooRealVar::nom_gamma_stat_SR_2_bin_3
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_3 for import of RooGaussian::gamma_stat_SR_2_bin_3_constraint
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooConstVar::gamma_stat_SR_2_bin_3_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooProduct::gamma_stat_SR_2_bin_3_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_3 for import of RooPoisson::gamma_stat_SR_2_bin_3_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooConstVar::gamma_stat_SR_2_bin_3_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooRealSumPdf::SR_2_model
 -----------------------------------------
 import model into workspace
@@ -575,21 +592,25 @@ import model into workspace
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooGaussian::alpha_Bkg2XsecConstraint for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::alpha_Bkg2Xsec for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::nom_alpha_Bkg2Xsec for import of RooProdPdf::model_SR_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooGaussian::gamma_stat_SR_2_bin_0_constraint for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooPoisson::gamma_stat_SR_2_bin_0_constraint for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_0 for import of RooProdPdf::model_SR_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooConstVar::gamma_stat_SR_2_bin_0_sigma for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::gamma_stat_SR_2_bin_0_poisMean for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooConstVar::gamma_stat_SR_2_bin_0_tau for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_0 for import of RooProdPdf::model_SR_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooGaussian::gamma_stat_SR_2_bin_1_constraint for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooPoisson::gamma_stat_SR_2_bin_1_constraint for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_1 for import of RooProdPdf::model_SR_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooConstVar::gamma_stat_SR_2_bin_1_sigma for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::gamma_stat_SR_2_bin_1_poisMean for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooConstVar::gamma_stat_SR_2_bin_1_tau for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_1 for import of RooProdPdf::model_SR_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooGaussian::gamma_stat_SR_2_bin_2_constraint for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooPoisson::gamma_stat_SR_2_bin_2_constraint for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_2 for import of RooProdPdf::model_SR_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooConstVar::gamma_stat_SR_2_bin_2_sigma for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::gamma_stat_SR_2_bin_2_poisMean for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooConstVar::gamma_stat_SR_2_bin_2_tau for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_2 for import of RooProdPdf::model_SR_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooGaussian::gamma_stat_SR_2_bin_3_constraint for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooPoisson::gamma_stat_SR_2_bin_3_constraint for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_3 for import of RooProdPdf::model_SR_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooConstVar::gamma_stat_SR_2_bin_3_sigma for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::gamma_stat_SR_2_bin_3_poisMean for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooConstVar::gamma_stat_SR_2_bin_3_tau for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::gamma_stat_SR_2_bin_3 for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealSumPdf::SR_2_model for import of RooProdPdf::model_SR_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::L_x_Bkg1_SR_2_overallSyst_x_StatUncert for import of RooProdPdf::model_SR_2
@@ -637,12 +658,12 @@ p.d.f.s
 RooRealSumPdf::SR_2_model[ binWidth_obs_x_SR_2_0 * L_x_Bkg1_SR_2_overallSyst_x_StatUncert + binWidth_obs_x_SR_2_1 * L_x_Bkg2_SR_2_overallSyst_x_StatUncert + binWidth_obs_x_SR_2_2 * L_x_Signal_SR_2_overallSyst_x_StatUncert ] = 112.4/315.2
 RooGaussian::alpha_Bkg2XsecConstraint[ x=alpha_Bkg2Xsec mean=nom_alpha_Bkg2Xsec sigma=1 ] = 1
 RooGaussian::alpha_JESConstraint[ x=alpha_JES mean=nom_alpha_JES sigma=1 ] = 1
-RooGaussian::gamma_stat_SR_2_bin_0_constraint[ x=nom_gamma_stat_SR_2_bin_0 mean=gamma_stat_SR_2_bin_0 sigma=gamma_stat_SR_2_bin_0_sigma ] = 1
-RooGaussian::gamma_stat_SR_2_bin_1_constraint[ x=nom_gamma_stat_SR_2_bin_1 mean=gamma_stat_SR_2_bin_1 sigma=gamma_stat_SR_2_bin_1_sigma ] = 1
-RooGaussian::gamma_stat_SR_2_bin_2_constraint[ x=nom_gamma_stat_SR_2_bin_2 mean=gamma_stat_SR_2_bin_2 sigma=gamma_stat_SR_2_bin_2_sigma ] = 1
-RooGaussian::gamma_stat_SR_2_bin_3_constraint[ x=nom_gamma_stat_SR_2_bin_3 mean=gamma_stat_SR_2_bin_3 sigma=gamma_stat_SR_2_bin_3_sigma ] = 1
+RooPoisson::gamma_stat_SR_2_bin_0_constraint[ x=nom_gamma_stat_SR_2_bin_0 mean=gamma_stat_SR_2_bin_0_poisMean ] = 0.0120712
+RooPoisson::gamma_stat_SR_2_bin_1_constraint[ x=nom_gamma_stat_SR_2_bin_1 mean=gamma_stat_SR_2_bin_1_poisMean ] = 0.0212183
+RooPoisson::gamma_stat_SR_2_bin_2_constraint[ x=nom_gamma_stat_SR_2_bin_2 mean=gamma_stat_SR_2_bin_2_poisMean ] = 0.0415296
+RooPoisson::gamma_stat_SR_2_bin_3_constraint[ x=nom_gamma_stat_SR_2_bin_3 mean=gamma_stat_SR_2_bin_3_poisMean ] = 0.0606989
 RooGaussian::lumiConstraint[ x=Lumi mean=nominalLumi sigma=0.1 ] = 1
-RooProdPdf::model_SR_2[ lumiConstraint * alpha_JESConstraint * alpha_Bkg2XsecConstraint * gamma_stat_SR_2_bin_0_constraint * gamma_stat_SR_2_bin_1_constraint * gamma_stat_SR_2_bin_2_constraint * gamma_stat_SR_2_bin_3_constraint * SR_2_model(obs_x_SR_2) ] = 112.4
+RooProdPdf::model_SR_2[ lumiConstraint * alpha_JESConstraint * alpha_Bkg2XsecConstraint * gamma_stat_SR_2_bin_0_constraint * gamma_stat_SR_2_bin_1_constraint * gamma_stat_SR_2_bin_2_constraint * gamma_stat_SR_2_bin_3_constraint * SR_2_model(obs_x_SR_2) ] = 7.25715e-05
 
 functions
 --------
@@ -668,6 +689,10 @@ RooStats::HistFactory::FlexibleInterpVar::Signal_SR_2_epsilon[ paramList=(alpha_
 RooProduct::Signal_SR_2_overallNorm_x_sigma_epsilon[ SigXsecOverSM * Signal_SR_2_epsilon ] = 1
 RooProduct::Signal_SR_2_overallSyst_x_HistSyst[ Signal_SR_2_Hist_alpha * Signal_SR_2_overallNorm_x_sigma_epsilon ] = 3.1
 RooProduct::Signal_SR_2_overallSyst_x_StatUncert[ mc_stat_SR_2 * Signal_SR_2_overallSyst_x_HistSyst ] = 3.1
+RooProduct::gamma_stat_SR_2_bin_0_poisMean[ gamma_stat_SR_2_bin_0 * gamma_stat_SR_2_bin_0_tau ] = 1092.07
+RooProduct::gamma_stat_SR_2_bin_1_poisMean[ gamma_stat_SR_2_bin_1 * gamma_stat_SR_2_bin_1_tau ] = 353.341
+RooProduct::gamma_stat_SR_2_bin_2_poisMean[ gamma_stat_SR_2_bin_2 * gamma_stat_SR_2_bin_2_tau ] = 92.1126
+RooProduct::gamma_stat_SR_2_bin_3_poisMean[ gamma_stat_SR_2_bin_3 * gamma_stat_SR_2_bin_3_tau ] = 43.0305
 ParamHistFunc::mc_stat_SR_2[ ] = 1
 
 datasets
@@ -709,7 +734,7 @@ Observables:             RooArgSet:: = (obs_x_SR_2)
 Parameters of Interest:  RooArgSet:: = (SigXsecOverSM)
 Nuisance Parameters:     RooArgSet:: = (alpha_Bkg2Xsec,alpha_JES,gamma_stat_SR_2_bin_0,gamma_stat_SR_2_bin_1,gamma_stat_SR_2_bin_2,gamma_stat_SR_2_bin_3)
 Global Observables:      RooArgSet:: = (nom_alpha_JES,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
-PDF:                     RooProdPdf::model_SR_2[ lumiConstraint * alpha_JESConstraint * alpha_Bkg2XsecConstraint * gamma_stat_SR_2_bin_0_constraint * gamma_stat_SR_2_bin_1_constraint * gamma_stat_SR_2_bin_2_constraint * gamma_stat_SR_2_bin_3_constraint * SR_2_model(obs_x_SR_2) ] = 112.4
+PDF:                     RooProdPdf::model_SR_2[ lumiConstraint * alpha_JESConstraint * alpha_Bkg2XsecConstraint * gamma_stat_SR_2_bin_0_constraint * gamma_stat_SR_2_bin_1_constraint * gamma_stat_SR_2_bin_2_constraint * gamma_stat_SR_2_bin_3_constraint * SR_2_model(obs_x_SR_2) ] = 7.25715e-05
 
 Opening File to hold channel: FitExample/RooStats/FitExample_SR_2_FitExample_model.root
 About to write channel measurement to file
@@ -804,21 +829,25 @@ observables:(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::alpha_Bkg2XsecConstraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::alpha_Bkg2Xsec
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_alpha_Bkg2Xsec for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_0_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_1_bin_0_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_0 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_0_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_1_bin_0_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_0_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_1_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_1_bin_1_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_1 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_1_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_1_bin_1_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_1_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_2_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_1_bin_2_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_2 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_2_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_1_bin_2_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_2_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_1_bin_3_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_1_bin_3_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_1_bin_3 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_3_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_1_bin_3_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_1_bin_3_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_1_bin_3
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR_1_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg1_SR_1_overallSyst_x_StatUncert
@@ -850,21 +879,25 @@ observables:(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_1_epsilon
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProdPdf::model_SR_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_0_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_2_bin_0_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_0 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_0_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_2_bin_0_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_0_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_0
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_1_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_2_bin_1_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_1 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_1_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_2_bin_1_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_1_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_1
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_2_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_2_bin_2_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_2 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_2_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_2_bin_2_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_2_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_2
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::gamma_stat_SR_2_bin_3_constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooPoisson::gamma_stat_SR_2_bin_3_constraint
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_gamma_stat_SR_2_bin_3 for import of RooSimultaneous::simPdf
-[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_3_sigma
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::gamma_stat_SR_2_bin_3_poisMean
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::gamma_stat_SR_2_bin_3_tau
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::gamma_stat_SR_2_bin_3
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR_2_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg1_SR_2_overallSyst_x_StatUncert
@@ -902,7 +935,7 @@ Observables:             RooArgSet:: = (obs_x_SR_1,obs_x_SR_2,weightVar,channelC
 Parameters of Interest:  RooArgSet:: = (SigXsecOverSM)
 Nuisance Parameters:     RooArgSet:: = (alpha_Bkg1Xsec,alpha_Bkg2Xsec,alpha_JES,gamma_stat_SR_1_bin_0,gamma_stat_SR_1_bin_1,gamma_stat_SR_1_bin_2,gamma_stat_SR_1_bin_3,gamma_stat_SR_2_bin_0,gamma_stat_SR_2_bin_1,gamma_stat_SR_2_bin_2,gamma_stat_SR_2_bin_3)
 Global Observables:      RooArgSet:: = (nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
-PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 56.2
+PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 3.62858e-05
 
 Writing combined workspace to file: FitExample/RooStats/FitExample_combined_FitExample_model.root
 Writing combined measurement to file: FitExample/RooStats/FitExample_combined_FitExample_model.root

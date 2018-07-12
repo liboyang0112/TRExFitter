@@ -108,6 +108,9 @@ std::vector<std::string> ToVec(std::string s);
 std::string ReplaceString(std::string subject, const std::string& search,
                      const std::string& replace);
 
+bool StringsMatch(std::string s1,std::string s2);
+int wildcmp(const char *wild, const char *string);
+
 int FindInStringVector(std::vector<std::string> v, std::string s);
 int FindInStringVectorOfVectors(std::vector<std::vector<std::string> > v, std::string s, std::string ss);
 double GetSeparation( TH1F* S1, TH1F* B1 );

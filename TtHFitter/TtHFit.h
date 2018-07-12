@@ -49,7 +49,8 @@ public:
 
     enum TemplateInterpolationOption{
         LINEAR = 0,
-        TRIANGULAR = 1
+        SMOOTHLINEAR = 1,
+        SQUAREROOT = 2
     };
     
     struct TemplateWeight{
@@ -63,7 +64,7 @@ public:
     ~TtHFit();
     
     void SetPOI(std::string name="SigXsecOverSM");
-    void SetStatErrorConfig(bool useIt=true, float thres=0.05, std::string cons="Gaussian");
+    void SetStatErrorConfig(bool useIt=true, float thres=0.05, std::string cons="Poisson");
     void SetLumiErr(float err);
     void SetLumi(const float lumi);
     void SetFitType(FitType type);
@@ -130,7 +131,7 @@ public:
     // fit etc...
     void Fit();
     RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue);
-    std::map < std::string, double > PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType=SPLUSB, bool save=false );
+    std::map < std::string, double > PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType=SPLUSB, bool save=false, int debugLevel=1 );
     RooWorkspace* PerformWorkspaceCombination( std::vector < std::string > &regionsToFit );
 
     void PlotFittedNP();
@@ -157,9 +158,47 @@ public:
     
     // for template fitting
     void AddTemplateWeight(const std::string& name, float);
-    const std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
-    const std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
-    const bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
+    std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
+    std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
+
+    /*
+     * Function that returns string that represents smoothed abs value function
+     * @param index of the template
+     * @return function in the string form
+     */ 
+    std::string GetSmoothLinearInterpolation(unsigned int itemp) const;
+
+    /*
+     * Helper function to calualte numerical correction to the smoothed linear function 
+     * @param parameter in the argument of the hyperbolic tangent function
+     * @param size of the x axis interval
+     * @param central position of the function
+     * @param left position of the function on x axis
+     * @param right position of the function on x axis
+     * @param parameter of iteration, set to 1 for the first iteration
+     * @return correction
+     */
+    double GetCorrection(float k, float width, float x_mean, float x_left, float init = 1) const;
+
+    /*
+     * Helper function to approximate absolute value by sqrt(x^2+e)
+     * @param index of the template
+     * @return function in the string form
+     */     
+    std::string GetSquareRootLinearInterpolation(unsigned int itemp) const;
+    
+    /*
+     * Helper function to apply correction to square root aproximation
+     * @param will return value for a from -a*sqrt(x^2+epsilon) +b 
+     * @param will return value for b from -a*sqrt(x^2+epsilon) +b 
+     * @param central position of the function
+     * @param left position of the function on x axis
+     * @ param epsilon = precision of the approximation
+     */
+    void GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const; 
+    
+    void SmoothMorphTemplates(std::string name);
+    bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
     // for grouped impact evaluation
     void ProduceSystSubCategoryMap();
@@ -258,7 +297,6 @@ public:
     float fBlindingThreshold;
     
     int fRankingMaxNP;
-    float fReduceNPforRanking;
     std::string fRankingOnly;
     std::string fRankingPlot;
     std::string fImageFormat;
@@ -301,7 +339,13 @@ public:
     bool fLimitIsBlind;
     double fLimitPOIAsimov;
     bool fSignalInjection;
-    
+   
+    // 
+    // Significance parameters
+    //
+    bool fSignificanceIsBlind;
+    double fSignificancePOIAsimov;
+ 
     bool fCleanTables;
     bool fSystCategoryTables;
     
@@ -327,7 +371,8 @@ public:
 
     std::vector<std::string> fCustomFunctions;
     
-    bool fRunMorphing;
+//     bool fRunMorphing;
+    std::vector<std::string> fMorphParams;
     std::vector<std::pair<float,std::string> > fTemplatePair;
     std::vector<TtHFit::TemplateWeight> fTemplateWeightVec;
     TemplateInterpolationOption fTemplateInterpolationOption;
@@ -337,6 +382,10 @@ public:
     
     std::vector<std::string> fDecorrSysts;
     std::string fDecorrSuff;
+    
+    bool fDoNonProfileFit;
+    int fFitToys;
+    bool fSmoothMorphingTemplates;
 };
 
 #endif

@@ -34,7 +34,7 @@ public:
     //
     // Gettters and setters
     //
-    inline void SetDebug ( const int debug ){ m_debug = debug>0; }
+    inline void SetDebug ( const int debug ){ m_debug = debug; }
 
     inline void MinimType ( const TString &type ){ m_minimType = type; }
     inline TString GetMinimType(){ return m_minimType; }
@@ -95,7 +95,7 @@ private:
     std::vector<std::string> m_varMinos;
     bool m_constPOI;
     RooFitResult* m_fitResult;
-    bool m_debug;
+    int m_debug;
     bool m_noGammas;
     bool m_noSystematics;
     bool m_noNormFactors;

@@ -140,7 +140,7 @@ NB: note the *blank* line between the objects!
      * IntCodeOverall   : interpolation code used for the normalization component of systematics (should match the one used in RooStats)
      * IntCodeShape     : interpolation code used for the shape component of systematics (should match the one used in RooStats)
      * MCstatThreshold  : by default, the MC stat uncertainty is included in the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative) if the option is set to a float (default: no threshold); can also set to NONE in order to disable MC stat uncertainty completely
-     * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'Gaussian' (default) or 'Poisson'
+     * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'GAUSSIAN' or 'POISSON' (default)
      * DebugLevel       : 0 = prints only Warning and Errors, 1 = additionally prints Info messages, 2 = additionally prints Debug messages, >2 additionally prints Verbose messages. For option <2 RooFit/Roostats messages will be heavily suppressed
      * Logo             : is set to TRUE will print the TRExFitter logo
      * PlotOptions      : a set of options for plotting:
@@ -152,7 +152,7 @@ NB: note the *blank* line between the objects!
         * PREFITONPOSTFIT: draw a dashed line on the postfit plot that indicates the sum of prefit background
         * NOXERR: removes the horizontal error bars on the data and the ratio plots
      * PlotOptionsSummary: the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used)
-     * TableOptions      : a set of options for tables (yield tables only for the moment):
+     * TableOptions      : a set of options for tables:
         * STANDALONE : default! If not set, no "\begin{document}"
         * FOOTNOTESIZE : -> \footnotesize
         * LANDSCAPE : -> \begin{landscape}
@@ -170,7 +170,7 @@ NB: note the *blank* line between the objects!
      * RankingPlot      : NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots.
      * ImageFormat      : png, pdf or eps
      * StatOnly         : the code ignores systematics and MC stat uncertainties from all computations (limits, significances, fit, ...); need to re-create ws in case of limit and significance
-     * SystErrorBars    : add stat error bars to syst variations in syst plots
+     * SystErrorBars    : TRUE by default to add stat error bars to syst variations in syst plots, set to FALSE to disable
      * SummaryPlotRegions : list of regions to be shown in summary plot (useful to specify a custom order)
      * FixNPforStatOnly : if set to TRUE, when running stat-only (with either of the two options) also the norm factors other than the POI are kept fixed
      * InputFolder      : specify it to read fit input histograms from a different directory than <jobName>/Histograms/
@@ -208,13 +208,15 @@ NB: note the *blank* line between the objects!
      * DecorrSuff       : the suffix to attach when using DecorrSysts
      * RegionGroups     : groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE
      * ReplacementFile  : allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see dedicated section on this option below
-     * ReduceNPforRanking: scales impact of NPs in ranking plot
      * Suffix           : added to file names of plots, workspace, fit results etc. (equivalent to command line option)
      * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
      * HideNP           : comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix
      * SummaryPlotLabels : labels to be used per region in summary plot
      * SummaryPlotValidationRegions : regions to be included in validation region summary plot (default: all)
      * SummaryPlotValidationLabels : labels to be used per region in validation region summary plot
+     * SmoothMorphingTemplates : if set to TRUE (default is FALSE), the templates used for morphig are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory)
+     * SummaryPrefix    : adds a prefix to summary and merge plots
+     * AllowWrongRegionSample    : Can be TRUE or FALSE (default). When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined.
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -230,12 +232,19 @@ NB: note the *blank* line between the objects!
      * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
      * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the _statOnly suffix (also possible to use it from command line)
      * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
+     * DoNonProfileFit  : [EXPERIMENTAL] if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time
+     * FitToys          : [EXPERIMENTAL] if set to N > 0, N stat-ony toys are generated and fitted
+     * TemplateInterpolationOption: Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by \sqrt(x^2+epsilon) to achieve smooth transitions (first derivative) between the templates
 
   * Limit:
      * LimitType        : can be ASYMPTOTIC or TOYS (the latter is not yet supported)
      * LimitBlind       : can be TRUE or FALSE (TRUE means that ALL regions are blinded)
      * POIAsimov        : value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
      * SignalInjection  : if set to TRUE, expected signal with signal injection is evaluated
+
+  * Significance:
+     * SignificanceBlind: can be TRUE or FALSE (TRUE means that ALL regions are blinded)
+     * POIAsimov        : value of the POI to inject in the Asimov dataset in SignificanceBlind is set to TRUE
 
   * Options:
      * additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...
@@ -321,6 +330,7 @@ NB: note the *blank* line between the objects!
      * Min              : min value
      * Max              : max value
      * Constant         : set to TRUE to have a fixed norm factor
+     * Category         : major category to which the NormFactor belongs (instrumental, theory, ttbar, ...)
      * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality)
      * Expression       : a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form "<expression>,<dependency>", where <dependency> should contain the name(s) of the norm factor the expression depends on [example: "1.-SigXsecOverSM","SigXsecOverSM"]
 
@@ -384,6 +394,18 @@ NB: note the *blank* line between the objects!
      * KeepNormForSamples  : list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
      * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
+     * HistoPathUpData     : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder for the up variation reference sample (Data) when using HIST
+     * HistoPathDownData   : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder for the down variation reference sample (Data) when using HIST
+     * HistoPathSufUpData  : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder suffixes for the up variation reference sample (Data) when using HIST
+     * HistoPathSufDownData: When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder suffixes for the down variation reference sample (Data) when using HIST
+     * HistoFileUpData     : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file path for the up variation reference sample (Data) when using HIST
+     * HistoFileDownData   : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file path for the down variation reference sample (Data) when using HIST
+     * HistoFileUpSufData  : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file suff path for the up variation reference sample (Data) when using HIST
+     * HistoFileDoSufwnData: When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file suff path for the down variation reference sample (Data) when using HIST
+     * HistoNameUpData     : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path inside the file for the up variation reference sample (Data) when using HIST
+     * HistoNameDownData   : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path inside the file for the down variation reference sample (Data) when using HIST
+     * HistoNameSufUpData  : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path suff inside the file for the up variation reference sample (Data) when using HIST
+     * HistoNameSufDownData: When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path suff inside the file for the down variation reference sample (Data) when using HIST
      * Decorrelate         : decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects)
 
 
@@ -495,6 +517,71 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
     ./myFit  mwf  config/myTopWS_multifit.config
 
   This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
+
+
+Multi-Fit options
+---------
+
+* Job:
+   * Label            : the label which will be shown on plots
+   * OutputDir        : the name of the output directory
+   * LumiLabel        : the luminosity label that will be shown on the pltos
+   * CMELabel         : the center of mass energy label that will be shown on the plots
+   * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
+   * ShowObserved     : can be TRUE or FALSE, flag to turn on/off the observed values on the plots
+   * LimitTitle       : the title for limit that will be shwon on the plots
+   * POITitle         : the title of the POI that will be shown on X axis 
+   * CompareLimits    : can be TRUE or FALSE, flag to compare to Limit values
+   * ComparePOI       : can be TRUE or FALSE, flag to compare to POI values
+   * ComparePulls     : can be TRUE or FALSE, flag to compare to pulls values
+   * PlotCombinedCorrMatrix : can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics
+   * Combine          : can be TRUE or FALSE, set to true if you want to perfom actual combination (followed by `mwf`)
+   * Comapre          : can be TRUE or FALSE, set to true if you want to compare values
+   * StatOnly         : can be TRUE or FALSE, set to true if the fits are stat only fits
+   * IncludeStatOnly  : can be TRUE or FALSE, set to true if you want to include stat only fits
+   * POIName          : the name of the POI in the configs
+   * POIRange         : the range of the chosen POI
+   * LimitMax         : set maximum value for the limit
+   * POIVal           : the value of the POI (for ASIMOV)
+   * POIPrecision     : string, set precision of the POI
+   * DataName         : can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used
+   * FitType          : can be SPLUSB or BONLY
+   * SignalInjection  : can be TRUE or FALSE
+   * CombineChByCH    : can be TRUE or FALSE, set to true to combine channel by channel
+   * NPCategories     : comma separeted list of NP categories
+   * SetRandomInitialNPval : provide a float 
+   * SetRandomInitialNPvalSeed : provide an int
+   * NumCPU           : a number of CPU cores used for the fit
+   * FastFit          : can be TRUE or FALSE
+   * FastFitForRanking : can be TRUE or FALSE
+   * NuisParListFile  : 
+   * PlotSoverB       : if set to TRUE will plot signal over background plots
+   * SignalTitle      : a title of the signal for the plots
+   * FitResultsFile   : a name of the file with fit results
+   * LimitsFile       : a name of the file with limits results
+   * BonlySufix       : a suffix of the background only fits
+   * ShowSystForPOI   : can be TRUE or FALSE, set to true if you want to show systematics for POI
+   * GetGoodnessOfFit : can be TRUE or FALSE, set to true to get chi2/NDF for the fit
+   * doLHscan         : comma separeted list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP
+   * PlotOptions      : same as for "standard" fits
+   * Logo             : can be TRUE or FALSE, use true to show TRExFitter logo
+   * DebugLevel       : set level of debug output
+   * RunROOTMacros    : can be TRUE or FALSE, set to true to run the common scripts in root interpreter in stead of running the directly compiled version (FALSE, default)
+   * POILabel         : name of the POI shwon on plots, default is `#\mu`
+   * POINominal       : value of the nominal (SM) prediction for POI, defaults is `1`
+
+* Fit:
+   * Options          : additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...
+   * Label            : the label of the values from this config that will be shown on the plots
+   * LoadSuf          :
+   * ConfigFile       : the path to the config file that you want to combine/compare
+   * Workspace        : the path to the worskapce that you want to combine/compare
+   * ShowObserved     : can be TRUE or FALSE, set to true to show the observed values of POI
+   * FitResultsFile   : the path to the file with fit results
+   * LimitsFile       : the path to the file with limits results
+   * POIName          : the name of the POI
+   * Directory        : the path to the directory
+   * InputName        : the name of the input
 
 
 Input File Merging with hupdate

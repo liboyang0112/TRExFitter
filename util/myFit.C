@@ -346,12 +346,12 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 // -------------------------------------------------------
 
 int main(int argc, char **argv){
-  std::string version = "3.23";
+  std::string version = "3.25";
   std::cout << "\033[1mTRExFitter v" << version << " -- Developed by Michele Pinamonti, Loic Valery, Alexander Held, Tomas Dado\033[0m" << std::endl;
   std::cout << "                    No rights reserved, feel free to use and modify it ;)" << std::endl;
   
   std::string opt="h";
-  std::string config="util/myFit.config";
+  std::string config="config/myFit.config";
   std::string options="";
   
   if(argc>1) opt     = argv[1];

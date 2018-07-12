@@ -29,7 +29,7 @@ SampleHist::SampleHist(){
     fRegionLabel = "Region";
     fVariableTitle = "Variable";
     fSystSmoothed = false;
-    fIsMorph = false;
+    fIsMorph.clear();
     //
     fSyst.clear();
 }
@@ -1251,4 +1251,18 @@ void SampleHist::Add(SampleHist *sh,float scale){
         }
     }
     delete hOrig;
+}
+
+//_____________________________________________________________________________
+//
+void SampleHist::Scale(float scale){
+    fHist->Scale( scale );
+    // loop on all the systematics in this SampleHist
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(!fSample->fUseSystematics) break;
+        fSyst[i_syst]->fHistUp->Scale( scale );
+        fSyst[i_syst]->fHistUp_orig->Scale( scale );
+        fSyst[i_syst]->fHistDown->Scale( scale );
+        fSyst[i_syst]->fHistDown_orig->Scale( scale );
+    }
 }
