@@ -540,7 +540,7 @@ void TtHFit::DrawSystPlots(){
 //__________________________________________________________________________________
 // Draw syst plots
 void TtHFit::DrawSystPlotsSumSamples(){
-  TH1* h_dataCopy;
+  TH1* h_dataCopy = nullptr;
   for(int i_ch=0;i_ch<fNRegions;i_ch++){
     SampleHist* hist = new SampleHist();
     bool empty=true;
@@ -7607,7 +7607,7 @@ std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::T
         WriteDebugStatus("TtHFit::GetTemplateWeightVec", "Morphing:   " + tmp.name + " = " + std::to_string(tmp.value));
         tmp.range = tmp.name+"["+std::to_string(min)+","+std::to_string(min)+","+std::to_string(max)+"]";
         // calculate the actual function
-        tmp.function = TtHFit::GetWeightFunction(itemp, opt, min, max);
+        tmp.function = TtHFit::GetWeightFunction(itemp, opt);
         vec.push_back(tmp);
     }
     return vec;
@@ -7615,7 +7615,7 @@ std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::T
 
 //__________________________________________________________________________________
 //
-std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt, float min, float max) const{
+std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt) const{
     std::string fun = "";
     float x_i;
     float deltaXp = -1; // |x(i+1)-x(i)| 

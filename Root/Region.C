@@ -444,7 +444,7 @@ void Region::BuildPreFitErrorHist(){
             }
         }
         if(fGetChi2==1) fNpNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data, fTot, h_up, h_down, fNpNames );
+        std::pair<double,int> res = GetChi2Test( h_data, fTot, h_up, fNpNames );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -1097,7 +1097,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             }
         }
         if(fGetChi2==1) fSystNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, h_down, fSystNames, fitRes->fCorrMatrix );
+        std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -1178,7 +1178,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::ve
     // 1) Propagates the post-fit NP values to the central value (pulls)
     //
     string systName;
-    TH1* hNew;
+    TH1* hNew = nullptr;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
@@ -1920,7 +1920,7 @@ std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_err
 //--------------- ~ ---------------
 
 // function to get pre/post-fit agreement
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
     unsigned int nbins = h_nominal->GetNbinsX();
     unsigned int nsyst = fSystNames.size();
     int ndf = 0;

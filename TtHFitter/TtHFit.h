@@ -159,7 +159,7 @@ public:
     // for template fitting
     void AddTemplateWeight(const std::string& name, float);
     std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
-    std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
+    std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt) const;
 
     /*
      * Function that returns string that represents smoothed abs value function
