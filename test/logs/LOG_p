@@ -118,7 +118,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been cr
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: 1:	109.028198 +6.483063 -6.483063
-=== DEBUG::Region::DrawPostFit: 2:	108.709229 +5.962681 -5.962681
+=== DEBUG::Region::DrawPostFit: 2:	108.709229 +5.962680 -5.962680
 === DEBUG::Region::DrawPostFit: 3:	70.158714 +6.406670 -6.406670
 === DEBUG::Region::DrawPostFit: 4:	24.278431 +4.157642 -4.157642
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_2_postFit.root[0m
@@ -140,7 +140,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/VR_postFit.png has been crea
 === DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TtHFit::DrawSummary: Adding Signal: Signal
 === DEBUG::TtHFit::DrawSummary: 1:	316.504791	+15.538572	-15.538572
-=== DEBUG::TtHFit::DrawSummary: 2:	312.174561	+12.720732	-12.720732
+=== DEBUG::TtHFit::DrawSummary: 2:	312.174561	+12.720721	-12.720721
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
 [1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TtHFit::DrawSummary: Building Summary Plot...[0m
