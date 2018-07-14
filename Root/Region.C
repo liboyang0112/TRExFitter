@@ -444,7 +444,7 @@ void Region::BuildPreFitErrorHist(){
             }
         }
         if(fGetChi2==1) fNpNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data, fTot, h_up, h_down, fNpNames );
+        std::pair<double,int> res = GetChi2Test( h_data, fTot, h_up, fNpNames );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -1097,7 +1097,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             }
         }
         if(fGetChi2==1) fSystNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, h_down, fSystNames, fitRes->fCorrMatrix );
+        std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -1178,7 +1178,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::ve
     // 1) Propagates the post-fit NP values to the central value (pulls)
     //
     string systName;
-    TH1* hNew;
+    TH1* hNew = nullptr;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
@@ -1861,18 +1861,22 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
             deltaN /= Iz; // divide h_tmp by the nominal
             deltaN = pow( deltaN, TMath::Abs(alpha) );  // d -> d^(|a|)
         } else {
+            float logImiIz = TMath::Log(Imi/Iz);
+            float logImiIzSqr = logImiIz*logImiIz;
+            float logIpIz = TMath::Log(Ip/Iz);
+            float logIpIzSqr = logIpIz*logIpIz;
             // polinomial: equations solved with Mathematica
-            float a1 = -(15*Imi - 15*Ip - 7*Imi*TMath::Log(Imi/Iz) + Imi*pow(TMath::Log(Imi/Iz),2) + 7*Ip*TMath::Log(Ip/Iz) - Ip*pow(TMath::Log(Ip/Iz),2))/(16.*Iz);
-            float a2 = -3 + (3*Imi)/(2.*Iz) + (3*Ip)/(2.*Iz) - (9*Imi*TMath::Log(Imi/Iz))/(16.*Iz) + (Imi*pow(TMath::Log(Imi/Iz),2))/(16.*Iz) -
-            (9*Ip*TMath::Log(Ip/Iz))/(16.*Iz) + (Ip*pow(TMath::Log(Ip/Iz),2))/(16.*Iz);
-            float a3 = (5*Imi)/(8.*Iz) - (5*Ip)/(8.*Iz) - (5*Imi*TMath::Log(Imi/Iz))/(8.*Iz) + (Imi*pow(TMath::Log(Imi/Iz),2))/(8.*Iz) + (5*Ip*TMath::Log(Ip/Iz))/(8.*Iz) -
-            (Ip*pow(TMath::Log(Ip/Iz),2))/(8.*Iz);
-            float a4 = 3 - (3*Imi)/(2.*Iz) - (3*Ip)/(2.*Iz) + (7*Imi*TMath::Log(Imi/Iz))/(8.*Iz) -
-            (Imi*pow(TMath::Log(Imi/Iz),2))/(8.*Iz) + (7*Ip*TMath::Log(Ip/Iz))/(8.*Iz) - (Ip*pow(TMath::Log(Ip/Iz),2))/(8.*Iz);
-            float a5 = (-3*Imi)/(16.*Iz) + (3*Ip)/(16.*Iz) + (3*Imi*TMath::Log(Imi/Iz))/(16.*Iz) - (Imi*pow(TMath::Log(Imi/Iz),2))/(16.*Iz) -
-            (3*Ip*TMath::Log(Ip/Iz))/(16.*Iz) + (Ip*pow(TMath::Log(Ip/Iz),2))/(16.*Iz);
-            float a6 = -1 + Imi/(2.*Iz) + Ip/(2.*Iz) - (5*Imi*TMath::Log(Imi/Iz))/(16.*Iz) + (Imi*pow(TMath::Log(Imi/Iz),2))/(16.*Iz) - (5*Ip*TMath::Log(Ip/Iz))/(16.*Iz) +
-            (Ip*pow(TMath::Log(Ip/Iz),2))/(16.*Iz);
+            float a1 = -(15*Imi - 15*Ip - 7*Imi*logImiIz + Imi*logImiIzSqr + 7*Ip*logIpIz - Ip*logIpIzSqr)/(16.*Iz);
+            float a2 = -3 + (3*Imi)/(2.*Iz) + (3*Ip)/(2.*Iz) - (9*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) -
+            (9*Ip*logIpIz)/(16.*Iz) + (Ip*logIpIzSqr)/(16.*Iz);
+            float a3 = (5*Imi)/(8.*Iz) - (5*Ip)/(8.*Iz) - (5*Imi*logImiIz)/(8.*Iz) + (Imi*logImiIzSqr)/(8.*Iz) + (5*Ip*logIpIz)/(8.*Iz) -
+            (Ip*logIpIzSqr)/(8.*Iz);
+            float a4 = 3 - (3*Imi)/(2.*Iz) - (3*Ip)/(2.*Iz) + (7*Imi*logImiIz)/(8.*Iz) -
+            (Imi*logImiIzSqr)/(8.*Iz) + (7*Ip*logIpIz)/(8.*Iz) - (Ip*logIpIzSqr)/(8.*Iz);
+            float a5 = (-3*Imi)/(16.*Iz) + (3*Ip)/(16.*Iz) + (3*Imi*logImiIz)/(16.*Iz) - (Imi*logImiIzSqr)/(16.*Iz) -
+            (3*Ip*logIpIz)/(16.*Iz) + (Ip*logIpIzSqr)/(16.*Iz);
+            float a6 = -1 + Imi/(2.*Iz) + Ip/(2.*Iz) - (5*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) - (5*Ip*logIpIz)/(16.*Iz) +
+            (Ip*logIpIzSqr)/(16.*Iz);
             float a = alpha;
             deltaN = 1 + a1*a + a2*a*a + a3*a*a*a + a4*a*a*a*a + a5*a*a*a*a*a + a6*a*a*a*a*a*a;
         }
@@ -1920,7 +1924,7 @@ std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_err
 //--------------- ~ ---------------
 
 // function to get pre/post-fit agreement
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
     unsigned int nbins = h_nominal->GetNbinsX();
     unsigned int nsyst = fSystNames.size();
     int ndf = 0;

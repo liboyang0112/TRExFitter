@@ -35,6 +35,7 @@ using namespace RooFit;
 //
 TtHFit::TtHFit(string name){
     fTtresSmoothing = false;
+    fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
     fDir = "";
     fName = name;
     fInputName = name;
@@ -367,7 +368,7 @@ void TtHFit::SmoothSystematics(string syst){
 //             if(fRegions[i_ch]->fSampleHists[i_smp]->fSample!=0x0){
 //                 if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::DATA) continue;
 //             }
-            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(syst, false, fTtresSmoothing);
+            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false, fTtresSmoothing);
         }
     }
 }
@@ -539,7 +540,7 @@ void TtHFit::DrawSystPlots(){
 //__________________________________________________________________________________
 // Draw syst plots
 void TtHFit::DrawSystPlotsSumSamples(){
-  TH1* h_dataCopy;
+  TH1* h_dataCopy = nullptr;
   for(int i_ch=0;i_ch<fNRegions;i_ch++){
     SampleHist* hist = new SampleHist();
     bool empty=true;
@@ -1448,10 +1449,10 @@ void TtHFit::CorrectHistograms(){
                 h_correction = (TH1*)h->Clone( Form("%s_corr",h->GetName()) );
                 TH1* h0 = (TH1*)h->Clone( Form("%s_orig0",h->GetName()) );
                 if (fTtresSmoothing) {
-                  isFlat = false;
-                  SmoothHistogramTtres( h );
+                    isFlat = false;
+                    SmoothHistogramTtres( h );
                 } else {
-                isFlat = SmoothHistogram( h );
+                    isFlat = SmoothHistogram( h );
                 }
                 h_correction->Divide( h0 );
             }
@@ -7606,7 +7607,7 @@ std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::T
         WriteDebugStatus("TtHFit::GetTemplateWeightVec", "Morphing:   " + tmp.name + " = " + std::to_string(tmp.value));
         tmp.range = tmp.name+"["+std::to_string(min)+","+std::to_string(min)+","+std::to_string(max)+"]";
         // calculate the actual function
-        tmp.function = TtHFit::GetWeightFunction(itemp, opt, min, max);
+        tmp.function = TtHFit::GetWeightFunction(itemp, opt);
         vec.push_back(tmp);
     }
     return vec;
@@ -7614,7 +7615,7 @@ std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::T
 
 //__________________________________________________________________________________
 //
-std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt, float min, float max) const{
+std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt) const{
     std::string fun = "";
     float x_i;
     float deltaXp = -1; // |x(i+1)-x(i)| 

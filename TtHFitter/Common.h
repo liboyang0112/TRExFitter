@@ -120,7 +120,7 @@ void BlindDataHisto( TH1* h_data, TH1* h_blind );
 double convertStoD(std::string toConvert);
 
 // TH1F* SmoothHistogram( TH1* h );
-bool SmoothHistogram( TH1* h, int forceFlat=-1, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
+bool SmoothHistogram( TH1* h, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
 void SmoothHistogramTtres( TH1* h);
 
 void DropBins(TH1* h, const std::vector<int> &v);

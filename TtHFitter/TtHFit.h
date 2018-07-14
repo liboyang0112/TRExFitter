@@ -16,6 +16,7 @@
 #include "TtHFitter/NormFactor.h"
 #include "TtHFitter/ShapeFactor.h"
 #include "TtHFitter/ConfigParser.h"
+#include "TtHFitter/HistoTools.h"
 
 class RooDataSet;
 class RooWorkspace;
@@ -158,7 +159,7 @@ public:
     // for template fitting
     void AddTemplateWeight(const std::string& name, float);
     std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
-    std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
+    std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt) const;
 
     /*
      * Function that returns string that represents smoothed abs value function
@@ -363,6 +364,8 @@ public:
     int fGetChi2;
 
     bool fTtresSmoothing;
+    
+    HistoTools::SmoothOption fSmoothOption;
     
     bool fSuppressNegativeBinWarnings;
 
