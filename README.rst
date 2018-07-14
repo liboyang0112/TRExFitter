@@ -38,16 +38,16 @@ To setup just use the script::
 
 This will ensure that the ``$TREXFITTER_HOME`` environment variable is properly set, which is used by the code to locate e.g. a config template used for syntax checks.
 
-To compile::
+To compile:
 
-  make
+1) Create a new build directory with ``mkdir build && cd build``
+2) Run cmake with ``cmake ../``
+3) Compile the code with ``cmake --build ./``
+4) The binary file will appear in ``bin/`` directory
 
 (this will take as main code the file util/myFit.C)
 
-or specify a custom main file as argument::
-
-  make  util/myNewCustomFit.C
-
+**IMPORTANT!** For the first time use you need to type ``git submodule init`` followed by ``git submodule update``
 
 How to
 ---------
