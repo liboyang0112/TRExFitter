@@ -1,3 +1,11 @@
+2018-07-14 Tomas Dado <tomas.dado@cern.ch>
+	* Switched to using Commom Stat tools, for now only for smoothing
+	* New smoothing options are now available, the default is the same as
+	before
+	* Removed Makefile and switched to using cmake
+	* Using optimised compilation (-O3)
+	* Fixed warnings from optimised compilation
+
 2018-07-10 Tomas Dado <tomas.dado@cern.ch>
 	* Adding new option for morphing - can choose LINEAR morphing
 	(default), SMOOTHLINEAR which will use integral of hyperbolic tangent as
