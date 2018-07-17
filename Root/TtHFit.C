@@ -2109,6 +2109,11 @@ void TtHFit::ReadHistograms(){
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
                         if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
+                            // check if the reference sample exists
+                            if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
+                                WriteErrorStatus("TtHFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                exit(EXIT_FAILURE);
+                            }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -2124,6 +2129,11 @@ void TtHFit::ReadHistograms(){
                         }
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                         else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                            // check if the reference sample exists
+                            if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
+                                WriteErrorStatus("TtHFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                exit(EXIT_FAILURE);
+                            }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -2199,6 +2209,11 @@ void TtHFit::ReadHistograms(){
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
                         if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
+                            // check if the reference sample exists
+                            if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
+                                WriteErrorStatus("TtHFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                exit(EXIT_FAILURE);
+                            }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -2214,6 +2229,11 @@ void TtHFit::ReadHistograms(){
                         }
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                         else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                            // check if the reference sample exists
+                            if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
+                                WriteErrorStatus("TtHFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                exit(EXIT_FAILURE);
+                            }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* href_down = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistDown;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
