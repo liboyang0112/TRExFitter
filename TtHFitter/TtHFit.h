@@ -16,6 +16,7 @@
 #include "TtHFitter/NormFactor.h"
 #include "TtHFitter/ShapeFactor.h"
 #include "TtHFitter/ConfigParser.h"
+#include "TtHFitter/HistoTools.h"
 
 class RooDataSet;
 class RooWorkspace;
@@ -48,7 +49,8 @@ public:
 
     enum TemplateInterpolationOption{
         LINEAR = 0,
-        TRIANGULAR = 1
+        SMOOTHLINEAR = 1,
+        SQUAREROOT = 2
     };
     
     struct TemplateWeight{
@@ -156,10 +158,47 @@ public:
     
     // for template fitting
     void AddTemplateWeight(const std::string& name, float);
-    const std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
-    const std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt, float min, float max) const;
+    std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
+    std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt) const;
+
+    /*
+     * Function that returns string that represents smoothed abs value function
+     * @param index of the template
+     * @return function in the string form
+     */ 
+    std::string GetSmoothLinearInterpolation(unsigned int itemp) const;
+
+    /*
+     * Helper function to calualte numerical correction to the smoothed linear function 
+     * @param parameter in the argument of the hyperbolic tangent function
+     * @param size of the x axis interval
+     * @param central position of the function
+     * @param left position of the function on x axis
+     * @param right position of the function on x axis
+     * @param parameter of iteration, set to 1 for the first iteration
+     * @return correction
+     */
+    double GetCorrection(float k, float width, float x_mean, float x_left, float init = 1) const;
+
+    /*
+     * Helper function to approximate absolute value by sqrt(x^2+e)
+     * @param index of the template
+     * @return function in the string form
+     */     
+    std::string GetSquareRootLinearInterpolation(unsigned int itemp) const;
+    
+    /*
+     * Helper function to apply correction to square root aproximation
+     * @param will return value for a from -a*sqrt(x^2+epsilon) +b 
+     * @param will return value for b from -a*sqrt(x^2+epsilon) +b 
+     * @param central position of the function
+     * @param left position of the function on x axis
+     * @ param epsilon = precision of the approximation
+     */
+    void GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const; 
+    
     void SmoothMorphTemplates(std::string name);
-    const bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
+    bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
     // for grouped impact evaluation
     void ProduceSystSubCategoryMap();
@@ -325,6 +364,8 @@ public:
     int fGetChi2;
 
     bool fTtresSmoothing;
+    
+    HistoTools::SmoothOption fSmoothOption;
     
     bool fSuppressNegativeBinWarnings;
 

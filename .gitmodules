@@ -1,0 +1,6 @@
+[submodule "CommonSystSmoothingTool"]
+	path = CommonSystSmoothingTool
+	url = ../../atlas-phys/exot/CommonSystSmoothingTool.git
+[submodule "CommonStatTools"]
+	path = CommonStatTools
+	url = ../../atlas-phys/exot/CommonStatTools.git

@@ -247,6 +247,6 @@ std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_err
 // To build the total error band
 TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< std::string > systNames, CorrelationMatrix *matrix=0x0 );
 
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=0x0 );
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=0x0 );
 
 #endif

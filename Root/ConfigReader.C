@@ -298,6 +298,23 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set Smoothing option
+    param = confSet->Get("SmoothingOption");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "MAXVARIATION" ) fFitter->fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
+        else if (param == "TTBARRESONANCE") fFitter->fSmoothOption = HistoTools::SmoothOption::TTBARRESONANCE;
+        else if (param == "COMMONTOOLSMOOTHMONOTONIC") fFitter->fSmoothOption = HistoTools::SmoothOption::COMMONTOOLSMOOTHMONOTONIC;
+        else if (param == "COMMONTOOLSMOOTHPARABOLIC") fFitter->fSmoothOption = HistoTools::SmoothOption::COMMONTOOLSMOOTHPARABOLIC;
+        else if (param == "KERNELRATIOUNIFORM") fFitter->fSmoothOption = HistoTools::SmoothOption::KERNELRATIOUNIFORM;
+        else if (param == "KERNELDELTAGAUSS") fFitter->fSmoothOption = HistoTools::SmoothOption::KERNELDELTAGAUSS;
+        else if (param == "KERNELRATIOGAUSS") fFitter->fSmoothOption = HistoTools::SmoothOption::KERNELRATIOGAUSS;
+        else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'SmoothingOption' option but you didn't provide valid input. Using default (MAXVARIATION)");
+            fFitter->fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
+        }
+    }
+
     // Set SystPruningShape
     param = confSet->Get("SystPruningShape");
     if( param != "") fFitter->fThresholdSystPruning_Shape = atof(param.c_str());
@@ -1067,6 +1084,22 @@ int ConfigReader::ReadFitOptions(){
     param = confSet->Get("FitToys");
     if( param != "" ){
         fFitter->fFitToys = std::atoi( param.c_str());
+    }
+
+    // Set FitToys
+    param = confSet->Get("TemplateInterpolationOption");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "LINEAR"){
+            fFitter->fTemplateInterpolationOption = TtHFit::LINEAR;
+        } else if (param == "SMOOTHLINEAR"){
+            fFitter->fTemplateInterpolationOption = TtHFit::SMOOTHLINEAR;
+        } else if (param == "SQUAREROOT"){
+            fFitter->fTemplateInterpolationOption = TtHFit::SQUAREROOT;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'TemplateInterpolationOption' option but didnt provide valid parameter. Using default (LINEAR)");
+            fFitter->fTemplateInterpolationOption = TtHFit::LINEAR;
+        }
     }
 
     return 0;

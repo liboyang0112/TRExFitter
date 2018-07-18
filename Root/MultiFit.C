@@ -823,7 +823,7 @@ void MultiFit::CompareLimit(){
 
     TFile *f;
     TH1* h;
-    TH1* h_old;
+    TH1* h_old = nullptr;
 
     // get values
     for(unsigned int i=0;i<N;i++){

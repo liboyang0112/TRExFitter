@@ -1,3 +1,4 @@
+#!bin/bash
 location=$1
 
 # Setup ROOT and gcc
@@ -32,3 +33,25 @@ if [ ! -f $TREXFITTER_HOME/logo.txt ]; then
   echo -e "\033[1;31mWARNING:\033[0m \$TREXFITTER_HOME environmental variable not set properly"
   echo -e "\033[1;31mWARNING:\033[0m call this script with the path to the TRExFitter directory as an additional argument"
 fi
+
+# Check if the CommomSmoothing code exists
+if [ ! "$(ls -A CommonSystSmoothingTool)" ]; then
+  echo -e "\033[1;31mERROR:\033[0m CommonSystSmoothingTool directory does not exist or is empty. "
+  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule init' (first time use) "
+  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule update' "
+  return
+fi
+
+# Check if the CommonStatTools code exists
+if [ ! "$(ls -A CommonStatTools)" ]; then
+  echo -e "\033[1;31mERROR:\033[0m CommonStatTools directory does not exist or is empty. "
+  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule init' (first time use) "
+  echo -e "\033[1;31mERROR:\033[0m Followed with 'git submodule update' "
+  return
+fi
+
+echo "Setting up cmake with: lsetup cmake"
+lsetup cmake
+
+echo -e "\nIf everything went smoothly, continue by compiling via cmake (in a dedicated build directory):"
+echo -e "--> mkdir build && cd build && cmake .. && cmake --build ."

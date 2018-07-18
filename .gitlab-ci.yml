@@ -11,12 +11,17 @@ stages:
    - draw
    - cleanup
 
+## Checkout the submodule 
+variables:
+   GIT_SUBMODULE_STRATEGY: normal
+
 ##
 ## Common setup for all jobs
 ##
 before_script:
   - set +e
   - source setup.sh #sources the setup IN the TREXfitter package (consistent with user's setup)
+  - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:}$PWD/build/lib
   - root -l -b -q
 
 ##
@@ -26,12 +31,13 @@ before_script:
 compile:
    stage: build
    script:
+     - mkdir -p build && cd build
+     - cmake .. | tee cmake.log
      - make clean #make sure we don't have residual compilation results
-     - make > make.log 2>&1 #dump the log files
+     - make 2>&1 | tee -a cmake.log  #dump the log files
    artifacts:
      paths:
-       - make.log
-       - myFit.exe
+       - build
 
 ##
 ## "Prepare" step: in parallel, dumps the inputs of the test
@@ -53,7 +59,7 @@ input_prod:
 histograms:
     stage: hstep
     script:
-      - ./myFit.exe h config/myFit.config
+      - ./build/bin/myFit.exe h config/myFit.config
       - ls
       - ls FitExample/Histograms/
     artifacts:
@@ -67,7 +73,7 @@ histograms:
 workspace:
     stage: wstep
     script:
-      - ./myFit.exe w config/myFit.config >& LOG_w
+      - ./build/bin/myFit.exe w config/myFit.config >& LOG_w
       - cat LOG_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_w
       - ls
       - set -e
@@ -86,7 +92,7 @@ workspace:
 fit:
     stage: flsstep
     script:
-      - ./myFit.exe f config/myFit.config >& LOG_f
+      - ./build/bin/myFit.exe f config/myFit.config >& LOG_f
       - cat LOG_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_f
       - ls
       - set -e
@@ -106,7 +112,7 @@ fit:
 limit:
     stage: flsstep
     script:
-      - ./myFit.exe l config/myFit.config >& LOG_l
+      - ./build/bin/myFit.exe l config/myFit.config >& LOG_l
       - cat LOG_l | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_l
       - ls
       - set -e
@@ -125,7 +131,7 @@ limit:
 significance:
     stage: flsstep
     script:
-      - ./myFit.exe s config/myFit.config >& LOG_s
+      - ./build/bin/myFit.exe s config/myFit.config >& LOG_s
       - cat LOG_s | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_s
       - ls
       - set -e
@@ -144,7 +150,7 @@ significance:
 draw_prefit:
     stage: draw
     script:
-      - ./myFit.exe d config/myFit.config >& LOG_d
+      - ./build/bin/myFit.exe d config/myFit.config >& LOG_d
       - cat LOG_d | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_d
       - ls
       - set -e
@@ -163,7 +169,7 @@ draw_prefit:
 draw_postfit:
     stage: draw
     script:
-      - ./myFit.exe p config/myFit.config >& LOG_p
+      - ./build/bin/myFit.exe p config/myFit.config >& LOG_p
       - cat LOG_p | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_p
       - ls
       - set -e
