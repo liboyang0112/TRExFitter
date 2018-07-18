@@ -2902,6 +2902,21 @@ int ConfigReader::ReadSystOptions(){
             WriteErrorStatus("ConfigReader::ReadSystOptions", "Region or excude region size is equal to zero. Please check this");
             return 1;
         }
+
+        // Set SubtractRefSampleVar
+        // New: for systeamtics which also vary Data (e.g. JER with Full NPs)
+        // This will subtract linearly the relative variation on Data from each relative variation on MC
+        param = confSet->Get("SubtractRefSampleVar");
+        if(param!=""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "TRUE" ) sys->fSubtractRefSampleVar = true;// default is false
+            else if(param == "FALSE" ) sys->fSubtractRefSampleVar = false;// default is false
+            else {
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'PreSmoothing' option but didnt provide valid parameter. Using default (false)");
+                sys->fSubtractRefSampleVar = false;
+            }
+        }
+
         if(regions[0]!="all") sys->fRegions = regions;
         if(exclude[0]!="")    sys->fExclude = exclude;
 
@@ -2929,19 +2944,6 @@ int ConfigReader::ReadSystOptions(){
             return 1;
         }
 
-        // Set SubtractRefSampleVar
-        // New: for systeamtics which also vary Data (e.g. JER with Full NPs)
-        // This will subtract linearly the relative variation on Data from each relative variation on MC
-        param = confSet->Get("SubtractRefSampleVar");
-        if(param!=""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "TRUE" ) sys->fSubtractRefSampleVar = true;// default is false
-            else if(param == "FALSE" ) sys->fSubtractRefSampleVar = false;// default is false
-            else {
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'PreSmoothing' option but didnt provide valid parameter. Using default (false)");
-                sys->fSubtractRefSampleVar = false;
-            }
-        }
 
         if(FindInStringVector(fFitter->fDecorrSysts,sys->fNuisanceParameter)>=0){
             WriteInfoStatus("ConfigReader::ReadSystOptions","Decorrelating systematic with NP = " + sys->fNuisanceParameter);
@@ -2999,7 +3001,6 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
     // attach the syst to the proper samples
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         sam = fFitter->fSamples[i_smp];
-        if(sam->fType == Sample::DATA) continue;
         // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
         if(sam->fType == Sample::DATA){
             if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {

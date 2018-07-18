@@ -1050,7 +1050,7 @@ void TtHFit::ReadNtuples(){
                 }
                 // else ...
                 //
-                if(syst->fReferenceSample!="") smp = GetSample(syst->fReferenceSample);
+                if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar) smp = GetSample(syst->fReferenceSample);
                 //
                 // set selection
                 fullSelection = "1";
