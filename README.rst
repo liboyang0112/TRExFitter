@@ -534,7 +534,7 @@ Multi-Fit options
    * CompareLimits    : can be TRUE or FALSE, flag to compare to Limit values
    * ComparePOI       : can be TRUE or FALSE, flag to compare to POI values
    * ComparePulls     : can be TRUE or FALSE, flag to compare to pulls values
-   * PlotCombinedCorrMatrix : can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics
+   * PlotCombCorrMatrix : can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics
    * Combine          : can be TRUE or FALSE, set to true if you want to perfom actual combination (followed by `mwf`)
    * Comapre          : can be TRUE or FALSE, set to true if you want to compare values
    * StatOnly         : can be TRUE or FALSE, set to true if the fits are stat only fits
