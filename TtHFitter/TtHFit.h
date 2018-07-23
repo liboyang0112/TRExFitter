@@ -193,7 +193,7 @@ public:
      * @param will return value for b from -a*sqrt(x^2+epsilon) +b 
      * @param central position of the function
      * @param left position of the function on x axis
-     * @ param epsilon = precision of the approximation
+     * @param epsilon = precision of the approximation
      */
     void GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const; 
     
@@ -204,6 +204,12 @@ public:
     void ProduceSystSubCategoryMap();
     void BuildGroupedImpactTable();
 
+
+    /*
+     * Helper function that runs toys experiments
+     * @param A pointer to a workspace needed to run the fit
+     */
+    void RunToys(RooWorkspace* ws);
     // -------------------------
       
     std::string fName;
