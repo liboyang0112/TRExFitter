@@ -5171,59 +5171,7 @@ void TtHFit::Fit(){
     // Toys
     //
     if(fFitToys>0){
-        // temporary switch off minos (not needed)
-        std::vector<std::string> varMinosTmp = fVarNameMinos;
-        fVarNameMinos.clear();
-        WriteInfoStatus("TtHFit::Fit","");
-        WriteInfoStatus("TtHFit::Fit","-------------------------------------------");
-        WriteInfoStatus("TtHFit::Fit","Generating and fitting toys...");
-        // set all regions as ASIMOVDATA and create combined ws
-        std::vector < std:: string > regionsToFit;
-        std::map < std::string, int > regionDataType;
-        for(auto reg : fRegions) regionDataType[reg->fName] = Region::ASIMOVDATA;
-        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-            if ( fFitRegion == CRONLY && fRegions[i_ch] -> fRegionType == Region::CONTROL )
-                regionsToFit.push_back( fRegions[i_ch] -> fName );
-            else if ( fFitRegion == CRSR && (fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL) )
-                regionsToFit.push_back( fRegions[i_ch] -> fName );
-        }
-        ws = PerformWorkspaceCombination( regionsToFit );
-        // create map to store fit results
-        std::map < std::string, double > npValues;
-        // create histogram to store fitted POI values
-        NormFactor* POInf = fNormFactors[FindInStringVector(fNormFactorNames,fPOI)];
-        TH1F *h_toys = new TH1F("h_toys","h_toys",50,POInf->fMin,POInf->fMax);
-        // get RooStats stuff
-        RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
-        RooAbsPdf* pdf = mc->GetPdf();
-        const RooArgSet* obsSet = mc->GetObservables();
-        RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
-        for(int i_toy=0;i_toy<fFitToys;i_toy++){
-            // setting POI to constant, not to allow it to fluctuate in toy creation
-            poiVar->setConstant(1);
-            poiVar->setVal(fFitPOIAsimov);
-            RooDataSet* toyData = pdf->generate( *obsSet, RooFit::Extended() );
-            // re-set POI to free-floating, and to nominal value
-            poiVar->setConstant(0);
-            poiVar->setVal(POInf->fNominal);
-            // extract POI from fit result and fill histogram
-            npValues = PerformFit( ws, toyData, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
-            if(npValues.size()>0) h_toys->Fill(npValues[fPOI]);
-        }
-        // plot, fit and save toy histogram
-        TCanvas* c = new TCanvas("c","c",600,600);
-        h_toys->Draw("E");
-        TF1* g = new TF1("g","gaus",POInf->fMin,POInf->fMax);
-        g->SetLineColor(kRed);
-        h_toys->Fit("g","R");
-        g->Draw("same");
-        h_toys->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[fPOI].c_str());
-        h_toys->GetYaxis()->SetTitle("Pseudo-experiements");
-        myText(0.60,0.90,1,Form("Mean  = %.2f #pm %.2f",g->GetParameter(1), g->GetParError(1)));
-        myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g->GetParameter(2),g->GetParError(2)));
-        myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g->GetChisquare(),g->GetNDF()));
-        for(auto format : TtHFitter::IMAGEFORMAT) c->SaveAs((fName+"/Toys."+format).c_str());
-        fVarNameMinos = varMinosTmp; // retore Minos settings
+        RunToys(ws);
     }
     
     //
@@ -7950,4 +7898,77 @@ void TtHFit::BuildGroupedImpactTable(){
         cmd            += " fi ;";
         gSystem->Exec(cmd.c_str());
     }
+}
+
+//____________________________________________________________________________________
+//
+void TtHFit::RunToys(RooWorkspace* ws){
+        gSystem->mkdir( (fName+"/Toys").c_str());
+        // temporary switch off minos (not needed)
+        std::vector<std::string> varMinosTmp = fVarNameMinos;
+        fVarNameMinos.clear();
+        WriteInfoStatus("TtHFit::RunToys","");
+        WriteInfoStatus("TtHFit::RunToys","-------------------------------------------");
+        WriteInfoStatus("TtHFit::RunToys","Generating and fitting toys...");
+        WriteInfoStatus("TtHFit::RunToys","-------------------------------------------");
+        // set all regions as ASIMOVDATA and create combined ws
+        std::vector < std:: string > regionsToFit;
+        std::map < std::string, int > regionDataType;
+        for(auto reg : fRegions) regionDataType[reg->fName] = Region::ASIMOVDATA;
+        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
+            if ( fFitRegion == CRONLY && fRegions[i_ch] -> fRegionType == Region::CONTROL )
+                regionsToFit.push_back( fRegions[i_ch] -> fName );
+            else if ( fFitRegion == CRSR && (fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL) )
+                regionsToFit.push_back( fRegions[i_ch] -> fName );
+        }
+        ws = PerformWorkspaceCombination( regionsToFit );
+        // create map to store fit results
+        std::map < std::string, double > npValues;
+        // create histogram to store fitted POI values
+        NormFactor POInf = *(fNormFactors[FindInStringVector(fNormFactorNames,fPOI)]);
+        TH1F h_toys ("h_toys","h_toys",50,POInf.fMin,POInf.fMax);
+        // get RooStats stuff
+        RooStats::ModelConfig mc = *((RooStats::ModelConfig*)ws -> obj("ModelConfig"));
+        RooAbsPdf *pdf = mc.GetPdf();
+        const RooArgSet obsSet = *(mc.GetObservables());
+        RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
+        for(int i_toy=0;i_toy<fFitToys;i_toy++){
+            // setting POI to constant, not to allow it to fluctuate in toy creation
+            poiVar->setConstant(1);
+            poiVar->setVal(fFitPOIAsimov);
+            WriteInfoStatus("TtHFit::RunToys","Generating toy n. " + std::to_string(i_toy+1) + " out of " + std::to_string(fFitToys) + " toys");
+            RooDataSet toyData = *(pdf->generate( obsSet, RooFit::Extended() ));
+            // re-set POI to free-floating, and to nominal value
+            poiVar->setConstant(0);
+            poiVar->setVal(POInf.fNominal);
+            // extract POI from fit result and fill histogram
+            WriteInfoStatus("TtHFit::RunToys","Fitting toy n. " + std::to_string(i_toy+1));
+            //npValues = PerformFit( ws, &toyData, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
+            npValues = PerformFit( ws, &toyData, fFitType, false, TtHFitter::DEBUGLEVEL);
+            if(npValues.size()>0){
+                h_toys.Fill(npValues[fPOI]);
+                WriteInfoStatus("TtHFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value: " + std::to_string(npValues[fPOI]));
+            }
+        }
+        // plot, fit and save toy histogram
+        TCanvas c("c","c",600,600);
+        h_toys.Draw("E");
+        TF1 g("g","gaus",POInf.fMin,POInf.fMax);
+        g.SetLineColor(kRed);
+        h_toys.Fit("g","RQ");
+        g.Draw("same");
+        h_toys.GetXaxis()->SetTitle(TtHFitter::SYSTMAP[fPOI].c_str());
+        h_toys.GetYaxis()->SetTitle("Pseudo-experiements");
+        myText(0.60,0.90,1,Form("Mean  = %.2f #pm %.2f",g.GetParameter(1), g.GetParError(1)));
+        myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g.GetParameter(2),g.GetParError(2)));
+        myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g.GetChisquare(),g.GetNDF()));
+        for(auto format : TtHFitter::IMAGEFORMAT) c.SaveAs((fName+"/Toys/ToysPlot."+format).c_str());
+        fVarNameMinos = varMinosTmp; // retore Minos settings
+
+        // Also create a ROOT file
+        TFile *out = new TFile ((fName+"/Toys/Toys.root").c_str(), "RECREATE");
+        out->cd();
+        h_toys.Write();
+        out->Close();
+        delete out;
 }
