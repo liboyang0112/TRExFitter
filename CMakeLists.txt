@@ -160,6 +160,14 @@ endmacro( TRExFitter_add_executable )
 
 TRExFitter_add_executable( myFit.exe util/myFit.C )
 
+# Compile the util/hupdate.C executable.
+add_executable( hupdate.exe util/hupdate.C )
+target_include_directories( hupdate.exe PUBLIC ${ROOT_INCLUDE_DIRS} )
+target_link_libraries( hupdate.exe ${ROOT_LIBRARIES} )
+install( TARGETS hupdate.exe
+  EXPORT TRExFitterTargets
+  RUNTIME DESTINATION bin )
+
 
 # ------------------------------------------------
 # Install target prescription
