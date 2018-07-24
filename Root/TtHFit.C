@@ -7943,8 +7943,7 @@ void TtHFit::RunToys(RooWorkspace* ws){
             poiVar->setVal(POInf.fNominal);
             // extract POI from fit result and fill histogram
             WriteInfoStatus("TtHFit::RunToys","Fitting toy n. " + std::to_string(i_toy+1));
-            //npValues = PerformFit( ws, &toyData, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
-            npValues = PerformFit( ws, &toyData, fFitType, false, TtHFitter::DEBUGLEVEL);
+            npValues = PerformFit( ws, &toyData, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
             if(npValues.size()>0){
                 h_toys.Fill(npValues[fPOI]);
                 WriteInfoStatus("TtHFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value: " + std::to_string(npValues[fPOI]));
