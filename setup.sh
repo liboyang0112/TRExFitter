@@ -1,5 +1,5 @@
 #!bin/bash
-location=$1
+location=`cd ${0/setup.sh/} && pwd`
 
 # Setup ROOT and gcc
 # added back by Michele
@@ -35,18 +35,18 @@ if [ ! -f $TREXFITTER_HOME/logo.txt ]; then
 fi
 
 # Check if the CommomSmoothing code exists
-if [ ! "$(ls -A CommonSystSmoothingTool)" ]; then
+if [ ! "$(ls -A ${TREXFITTER_HOME}/CommonSystSmoothingTool)" ]; then
   echo -e "\033[1;31mERROR:\033[0m CommonSystSmoothingTool directory does not exist or is empty. "
-  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule init' (first time use) "
-  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule update' "
+  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule init' (first time use) in the base directory of TRExFitter"
+  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule update' in the base directory of TRExFitter"
   return
 fi
 
 # Check if the CommonStatTools code exists
-if [ ! "$(ls -A CommonStatTools)" ]; then
+if [ ! "$(ls -A ${TREXFITTER_HOME}/CommonStatTools)" ]; then
   echo -e "\033[1;31mERROR:\033[0m CommonStatTools directory does not exist or is empty. "
-  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule init' (first time use) "
-  echo -e "\033[1;31mERROR:\033[0m Followed with 'git submodule update' "
+  echo -e "\033[1;31mERROR:\033[0m You need to type 'git submodule init' (first time use) in the base directory of TRExFitter"
+  echo -e "\033[1;31mERROR:\033[0m Followed with 'git submodule update' in the base directory of TRExFitter"
   return
 fi
 
