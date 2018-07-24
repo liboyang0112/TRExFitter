@@ -1,5 +1,24 @@
-#!bin/bash
-location=`cd ${0/setup.sh/} && pwd`
+#!bin/sh
+
+if [ "${BASH_SOURCE[0]}" != "" ]; then
+    # This should work in bash.
+    _src=${BASH_SOURCE[0]}
+elif [ "${ZSH_NAME}" != "" ]; then
+    # And this in zsh.
+    _src=${(%):-%x}
+elif [ "${1}" != "" ]; then
+    # If none of the above works, we take it from the command line.
+    _src="${1/setup.sh/}/setup.sh"
+else
+    echo -e "\033[1;31mERROR:\033[0m Could not determine the base directory of TRExFitter, i.e. where \"setup.sh\" is located."
+    echo -e "\033[1;31mERROR:\033[0m Can you give it to the source script as additional argument?"
+    echo -e "\033[1;31mERROR:\033[0m For example: source ../setup.sh .."
+    return 1
+fi
+
+location="$(cd -P "$(dirname "${_src}")" && pwd)"
+unset _src
+
 
 # Setup ROOT and gcc
 # added back by Michele
