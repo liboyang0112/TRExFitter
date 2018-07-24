@@ -26,17 +26,11 @@ To get a specific tag, do the following::
 
 Setup
 ---------
-To setup just use the script::
+To setup just use the script (from any location)::
 
   source setup.sh
 
 (should work on any machine with access to cvmfs - provided that nothing else is set-up previously)
-
-**Important!** When calling this script outside the ``TRExFitter`` directory, specify the path to the directory as a command line argument, example::
-
-  source setup.sh path/to/TRExFitter
-
-This will ensure that the ``$TREXFITTER_HOME`` environment variable is properly set, which is used by the code to locate e.g. a config template used for syntax checks.
 
 To compile:
 
@@ -589,19 +583,19 @@ Input File Merging with hupdate
 
 - A macro ``hupdate`` is included, which mimics hadd functionality, but without adding histograms if they have the same name.
 - This is useful for running different systematics in different steps (like different batch jobs) and then merging results afterwards.
-- One needs to compile the hupdate macro before being able to use it::
+- ``hupdate`` is compiled automatically when using cmake. To explicitly request compilation call in the build folder::
 
-    make hupdate
+    make hupdate.exe
 
 - Example usage, combined with the usage of SaveSuffix::
 
-    make hupdate
-    ./myFit.exe n config/ttH2015.config Systematics=BTag_B_NP1:SaveSuffix=_BTag_B_NP1
-    ./myFit.exe n config/ttH2015.config Exclude=BTag_B_NP1:SaveSuffix=_rest
-    ./hupdate ttH2015/Histograms/ttH2015_HThad_4j2b_histos.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_rest.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_BTag_B_NP1.root
-    ./hupdate ttH2015/Histograms/ttH2015_HThad_5j3b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos_BTag_B_NP1.root
-    ./hupdate ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_BTag_B_NP1.root
-    ./myFit.exe dwf config/ttH2015.config
+    make hupdate.exe
+    ./bin/myFit.exe n ../config/ttH2015.config Systematics=BTag_B_NP1:SaveSuffix=_BTag_B_NP1
+    ./bin/myFit.exe n ../config/ttH2015.config Exclude=BTag_B_NP1:SaveSuffix=_rest
+    ./bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_4j2b_histos.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_rest.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_BTag_B_NP1.root
+    ./bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_5j3b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos_BTag_B_NP1.root
+    ./bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_BTag_B_NP1.root
+    ./bin/myFit.exe dwf ../config/ttH2015.config
 
 
 Output Directories Structure

@@ -151,13 +151,22 @@ install( TARGETS TRExFitter CommonSystSmoothingTool AtlasUtils
 # Helper macro for building the project's executables.
 macro( TRExFitter_add_executable name )
   add_executable( ${name} ${ARGN} )
-  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils )
+  target_include_directories( ${name} PUBLIC ${ROOT_INCLUDE_DIRS} )
+  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils ${ROOT_LIBRARIES} )
   install( TARGETS ${name}
     EXPORT TRExFitterTargets
     RUNTIME DESTINATION bin )
 endmacro( TRExFitter_add_executable )
 
 TRExFitter_add_executable( myFit.exe util/myFit.C )
+
+# Compile the util/hupdate.C executable.
+add_executable( hupdate.exe util/hupdate.C )
+target_include_directories( hupdate.exe PUBLIC ${ROOT_INCLUDE_DIRS} )
+target_link_libraries( hupdate.exe ${ROOT_LIBRARIES} )
+install( TARGETS hupdate.exe
+  EXPORT TRExFitterTargets
+  RUNTIME DESTINATION bin )
 
 
 # ------------------------------------------------
