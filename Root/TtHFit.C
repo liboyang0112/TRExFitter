@@ -5596,23 +5596,10 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     }
     ndof -= nNF;
     
-//     RooArgSet* nuis = (RooArgSet*) mc->GetPdf()->getParameters(*data);
-// //     RooArgSet* syst = (RooArgSet*) mc->GetPdf()->getAllConstraints(mc->GetObservables(),*nuis);
-// //     RooArgSet* syst = (RooArgSet*) mc->GetConstraintParameters();
-//     RooStats::RemoveConstantParameters(nuis);
-// //     if(syst) RooStats::RemoveConstantParameters(syst);
-//     cerr << ndof << endl;
-//     cerr << nuis->getSize() << endl;
-// //     if(syst) cerr << syst->getSize() << endl;
-//     cerr << syst << endl;
-//     ndof -= (nuis->getSize()-syst->getSize());
-//     cerr << ndof << endl;
-    
     // Performs the fit
     fitTool -> MinimType("Minuit2");
     float nll = fitTool -> FitPDF( mc, simPdf, data );
     if (debugLevel < 1) std::cout.clear();
-//     fitTool -> FitPDF( mc, simPdf, data, true );   // for fast fit
     if(save){
         gSystem -> mkdir((fName+"/Fits/").c_str(),true);
         if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt");
@@ -5650,6 +5637,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         fitTool -> GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory, outNameGroupedImpact);
     }
 
+    delete fitTool;
     return result;
 }
 
