@@ -141,7 +141,7 @@ public:
     void GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data);
     
     // get fit results from txt file
-    void ReadFitResults(std::string fileName);
+    void ReadFitResults(const std::string& fileName);
     
     void Print();
     
