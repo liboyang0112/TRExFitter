@@ -165,16 +165,12 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     WriteDebugStatus("FittingTool::FitPDF", "   -> Constant POI : " + std::to_string(poi->isConstant()));
     WriteDebugStatus("FittingTool::FitPDF", "   -> Value of POI : " + std::to_string(poi->getVal()));
 
-    RooRealVar* var = NULL;
+    RooRealVar* var = nullptr;
     RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
-//     if (m_debug < 2) std::cout.clear();
     if(nuis){
         TIterator* it2 = nuis->createIterator();
         while( (var = (RooRealVar*) it2->Next()) ){
             string np = var->GetName();
-//             if( np == ("alpha_"+m_constNP) || np == m_constNP ){
-//                 var->setVal(m_constNPvalue);
-//                 var->setConstant(1);
             bool found = false;
             //
             // first check if all systs, norm and gammas should be set to constant
@@ -192,16 +188,8 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
             else if(m_noNormFactors){
                 WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
                 var->setConstant( 1 );
-//                 var->setVal( 1 );
                 found = true;
             }
-        // FIXME SF
-//             else if(m_noShapeFactors){
-//                 if(m_debug) cout << "setting to constant : " << np <<" at value " << var->getVal() << endl;
-//                 var->setConstant( 1 );
-// //                 var->setVal( 1 );
-//                 found = true;
-//             }
             if(found) continue;
             //
             // loop on the NP specified to be constant
@@ -239,7 +227,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
                 }
             }
         }
-        if(it2) delete it2;
+        delete it2;
     }
 
     double nllval = nll->getVal();
@@ -294,7 +282,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     int status=-99;
     m_hessStatus=-99;
     m_edm = -99;
-    RooFitResult * r;
+    RooFitResult *r = nullptr;
 
 //     if (m_debug < 2) std::cout.clear();
     while (nrItr<maxRetries && status!=0 && status!=1){
@@ -407,9 +395,9 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
             else
                 minim.minos();
 
-            if(SliceNPs) delete SliceNPs;
-            if(it3) delete it3;
-            if(it4) delete it4;
+            delete SliceNPs;
+            delete it3;
+            delete it4;
         }//end useMinos
 
         FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>1.0);
@@ -450,13 +438,11 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     WriteInfoStatus("FittingTool::FitPDF", "");
 
     m_minuitStatus = status;
-//     m_fitResult = r;
-    if(r!=0x0) m_fitResult = (RooFitResult*)r->Clone();
+    if(r!=nullptr) m_fitResult = (RooFitResult*)r->Clone();
     delete r;
 
     //
     // clean stuff
-//     if(constrainedParams) delete constrainedParams;
 
     nllval = 0;
     nLLatMLE = 0;
@@ -465,15 +451,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     if(m_fitResult) nLLatMLE = m_fitResult->minNll();
     if(nll) nlloffset = nll->getVal() - nLLatMLE;
 
-//     RooArgList poiList;
-//     poiList.addClone(fNullParams); // make a clone list
-//     Double_t deltaNLL = std::max( nLLatCondMLE-nLLatMLE, 0.);
-//     RemoveConstantParameters(poiList);
-//     int ndf = poiList.getSize();
-//     Double_t pvalue = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndf);
-
     if(m_debug >= 1){
-//         RemoveConstantParameters(poiList);
         double redNLL = nllval - 1000000.0;
         std::stringstream redNLL_ss;
         redNLL_ss << std::fixed << std::setprecision(20) << redNLL;
@@ -489,14 +467,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
         std::cout << resetiosflags( ios::fixed | ios::showpoint );        
         std::cout << std::setprecision(ss);
     }
-    if(nll) delete nll;
-//     delete poi;  // creates a crash
-//     poi->~RooRealVar();  // creates a crash
-//     delete var;
-//     delete nuis;
-//     nuis->~RooArgSet();
-//     if(glbObs) delete glbObs;
-//     glbObs->~RooArgSet();
+    delete nll;
     if (m_debug < 1) std::cout.clear();
     return nllval;
 }
