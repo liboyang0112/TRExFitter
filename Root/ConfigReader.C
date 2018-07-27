@@ -728,7 +728,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
             TtHFitter::SYSTDATAPLOT = true;
             fFitter->fSystDataPlot_upFrame=true;
         } else {
-            WriteDebugStatus("ConfigReader::SetJobPlot", "You specified 'SystDataPlots' option but the value is not 'TRUE' nor 'FILLUPFRAME'. Setting SystDataPlot and SystDataPlot_upFrame to false");
+            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystDataPlots' option but the value is not 'TRUE' nor 'FILLUPFRAME'. Setting SystDataPlot and SystDataPlot_upFrame to false");
             TtHFitter::SYSTDATAPLOT = false;
             fFitter->fSystDataPlot_upFrame=false;
         }

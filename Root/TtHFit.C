@@ -530,7 +530,6 @@ void TtHFit::DrawSystPlots(){
     SampleHist* sh;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
-//             sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
             sh = fRegions[i_ch]->fSampleHists[i_smp];
             sh->DrawSystPlot("all");
         }
@@ -540,29 +539,31 @@ void TtHFit::DrawSystPlots(){
 //__________________________________________________________________________________
 // Draw syst plots
 void TtHFit::DrawSystPlotsSumSamples(){
-  TH1* h_dataCopy = nullptr;
-  for(int i_ch=0;i_ch<fNRegions;i_ch++){
-    SampleHist* hist = new SampleHist();
-    bool empty=true;
-    std::set<std::string> systNames;
-    for(int i_regSmp=0; i_regSmp<fRegions[i_ch]->fNSamples; i_regSmp++){
-      for(int i_smSyst=0; i_smSyst<fRegions[i_ch]->fSampleHists[i_regSmp]->fNSyst; i_smSyst++){
-        systNames.insert(fRegions[i_ch]->fSampleHists[i_regSmp]->fSyst[i_smSyst]->fName);
-      }
+    WriteInfoStatus("TtHFit::DrawSystPlotsSumSamples", "-------------------------------------------");
+    WriteInfoStatus("TtHFit::DrawSystPlotsSumSamples", "Drawing combined plots of syst effects on data...");
+    TH1* h_dataCopy = nullptr;
+    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        SampleHist* hist = new SampleHist();
+        bool empty=true;
+        std::set<std::string> systNames;
+        for(int i_regSmp=0; i_regSmp<fRegions[i_ch]->fNSamples; i_regSmp++){
+            for(int i_smSyst=0; i_smSyst<fRegions[i_ch]->fSampleHists[i_regSmp]->fNSyst; i_smSyst++){
+                systNames.insert(fRegions[i_ch]->fSampleHists[i_regSmp]->fSyst[i_smSyst]->fName);
+            }
+        }
+        for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
+            if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::DATA) h_dataCopy=(TH1*)fRegions[i_ch]->fSampleHists[i_smp]->fHist->Clone();
+            else if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::GHOST) continue;
+            else if(empty){
+                hist->CloneSampleHist(fRegions[i_ch]->fSampleHists[i_smp],systNames);
+                hist->fName = fRegions[i_ch]->fName + "_Combined";
+                empty=false;
+          }
+          else hist->SampleHistAdd(fRegions[i_ch]->fSampleHists[i_smp]);
+        }
+        hist->DrawSystPlot("all", h_dataCopy, true, fSystDataPlot_upFrame);
+        delete hist;
     }
-    for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
-      if(fSamples[i_smp]->fType==Sample::DATA) h_dataCopy=(TH1*)fRegions[i_ch]->fSampleHists[i_smp]->fHist->Clone();
-      else if(fSamples[i_smp]->fType==Sample::GHOST) continue;
-      else if(empty){
-        hist->CloneSampleHist(fRegions[i_ch]->fSampleHists[i_smp],systNames);
-        hist->fName = fRegions[i_ch]->fName + "_Combined";
-        empty=false;
-      }
-      else hist->SampleHistAdd(fRegions[i_ch]->fSampleHists[i_smp]);
-    }
-    hist->DrawSystPlot("all", h_dataCopy, true, fSystDataPlot_upFrame);
-    delete hist;
-  }
 }
 
 // for each region, add a SampleHist for each Sample in the Fit, reading from ntuples
