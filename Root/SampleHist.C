@@ -1038,10 +1038,14 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 
 //_____________________________________________________________________________
 //
-void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names){
+void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, float scale){
     fName = h->fName;
     fHist = (TH1*)h->fHist->Clone();
     fHist_orig = (TH1*)h->fHist_orig->Clone();
+    if (scale >= 0 && scale <=1){
+        fHist->Scale(scale*fHist->Integral());
+        fHist_orig->Scale(scale*fHist_orig->Integral());
+    }
     fFileName = h->fFileName;
     fHistoName = h->fHistoName;
     fIsData = h->fIsData;

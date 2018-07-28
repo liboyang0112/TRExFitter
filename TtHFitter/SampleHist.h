@@ -53,7 +53,7 @@ public:
     void Scale(float scale);
 
     void SampleHistAdd(SampleHist* h);
-    void CloneSampleHist(SampleHist* h, std::set<std::string> names);
+    void CloneSampleHist(SampleHist* h, std::set<std::string> names, float scale = -999);
 
 //   void SmoothNominal(); // new
 //   void Rebin(); // new
