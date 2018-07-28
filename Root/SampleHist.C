@@ -1045,6 +1045,8 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, flo
     if (scale >= 0 && scale <=1){
         fHist->Scale(scale*fHist->Integral());
         fHist_orig->Scale(scale*fHist_orig->Integral());
+    } else {
+        WriteDebugStatus("SampleHist::CloneSampleHist", "Not scaling the histograms because the scale was set to: " +std::to_string(scale));
     }
     fFileName = h->fFileName;
     fHistoName = h->fHistoName;
