@@ -371,6 +371,7 @@ void Region::BuildPreFitErrorHist(){
                         formula = ReplaceString(formula,name,"x");
                         TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                         scale *= f_morph->Eval(nf->fNominal);
+                        delete f_morph;
                     }
                     else {
                         scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
@@ -537,6 +538,7 @@ TthPlot* Region::DrawPreFit(string opt){
                 TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                 float scale = f_morph->Eval(nf->fNominal);
                 h->Scale(scale);
+                delete f_morph;
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
             }
             else{
@@ -932,6 +934,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                         TF1* f_morph = new TF1("f_morph",formula.c_str(),fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax);
                         float scaleUp   = f_morph->Eval(systValue+systErrUp);
                         float scaleDown = f_morph->Eval(systValue+systErrDown);
+                        delete f_morph;
                         morph_syst_up.at(i_bin-1)   += yieldNominal*scaleUp;
                         morph_syst_down.at(i_bin-1) += yieldNominal*scaleDown;
                     }
@@ -1247,6 +1250,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::ve
                 formula = ReplaceString(formula,name,"x");
                 TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                 float scale = f_morph->Eval(nfValue);
+                delete f_moprh;
                 hSmpNew[i]->Scale(scale);
             }
             else{
