@@ -52,7 +52,7 @@ public:
     void Add(     SampleHist* sh,float scale=1.);
     void Scale(float scale);
 
-    void SampleHistAdd(SampleHist* h);
+    void SampleHistAdd(SampleHist* h, float scale = 1);
     void CloneSampleHist(SampleHist* h, std::set<std::string> names, float scale = -999);
 
 //   void SmoothNominal(); // new

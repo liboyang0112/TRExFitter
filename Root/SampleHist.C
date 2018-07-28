@@ -1087,25 +1087,25 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, flo
 
 //_____________________________________________________________________________
 //
-void SampleHist::SampleHistAdd(SampleHist* h){
-    fHist->Add(h->fHist);
-    fHist_orig->Add(h->fHist_orig);
+void SampleHist::SampleHistAdd(SampleHist* h, float scale){
+    fHist->Add(h->fHist, scale);
+    fHist_orig->Add(h->fHist_orig, scale);
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         bool wasIn=false;
         for(int j_syst=0;j_syst<h->fNSyst;j_syst++){
             if(fSyst[i_syst]->fName==h->fSyst[j_syst]->fName){
-                fSyst[i_syst]->fHistUp->Add(h->fSyst[j_syst]->fHistUp);
-                fSyst[i_syst]->fHistDown->Add(h->fSyst[j_syst]->fHistDown);
-                fSyst[i_syst]->fHistUp_orig->Add(h->fSyst[j_syst]->fHistUp_orig);
-                fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig);
+                fSyst[i_syst]->fHistUp->Add(h->fSyst[j_syst]->fHistUp, scale);
+                fSyst[i_syst]->fHistDown->Add(h->fSyst[j_syst]->fHistDown, scale);
+                fSyst[i_syst]->fHistUp_orig->Add(h->fSyst[j_syst]->fHistUp_orig, scale);
+                fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig, scale);
                 wasIn=true;
             }
         }
         if(wasIn) continue;
-        fSyst[i_syst]->fHistUp->Add(h->fHist);
-        fSyst[i_syst]->fHistDown->Add(h->fHist);
-        fSyst[i_syst]->fHistUp_orig->Add(h->fHist);
-        fSyst[i_syst]->fHistDown_orig->Add(h->fHist);
+        fSyst[i_syst]->fHistUp->Add(h->fHist, scale);
+        fSyst[i_syst]->fHistDown->Add(h->fHist, scale);
+        fSyst[i_syst]->fHistUp_orig->Add(h->fHist,scale );
+        fSyst[i_syst]->fHistDown_orig->Add(h->fHist, scale);
     }
 }
 
