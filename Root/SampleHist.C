@@ -1038,10 +1038,12 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 
 //_____________________________________________________________________________
 //
-void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names){
+void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, float scale){
     fName = h->fName;
     fHist = (TH1*)h->fHist->Clone();
     fHist_orig = (TH1*)h->fHist_orig->Clone();
+    fHist->Scale(scale);
+    fHist_orig->Scale(scale);
     fFileName = h->fFileName;
     fHistoName = h->fHistoName;
     fIsData = h->fIsData;
@@ -1052,10 +1054,22 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names){
         for(int i_syst=0; i_syst<h->fNSyst; i_syst++){
             SystematicHist* syst_tmp = new SystematicHist("tmp");
             if(systname!=h->fSyst[i_syst]->fName) continue;
-            syst_tmp->fHistUp = (TH1*)h->fSyst[i_syst]->fHistUp->Clone();
-            syst_tmp->fHistUp_orig = (TH1*)h->fSyst[i_syst]->fHistUp_orig->Clone();
-            syst_tmp->fHistDown = (TH1*)h->fSyst[i_syst]->fHistDown->Clone();
-            syst_tmp->fHistDown_orig = (TH1*)h->fSyst[i_syst]->fHistDown_orig->Clone();
+            TH1* tmp = (TH1*)h->fSyst[i_syst]->fHistUp->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistUp = tmp;
+
+            tmp = (TH1*)h->fSyst[i_syst]->fHistUp_orig->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistUp_orig = tmp;
+
+            tmp = (TH1*)h->fSyst[i_syst]->fHistDown->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistDown = tmp;
+
+            tmp = (TH1*)h->fSyst[i_syst]->fHistDown_orig->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistDown_orig = tmp;
+
             syst_tmp->fName = h->fSyst[i_syst]->fName;
             fSyst.push_back(syst_tmp);
             notFound=false;
@@ -1081,25 +1095,25 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names){
 
 //_____________________________________________________________________________
 //
-void SampleHist::SampleHistAdd(SampleHist* h){
-    fHist->Add(h->fHist);
-    fHist_orig->Add(h->fHist_orig);
+void SampleHist::SampleHistAdd(SampleHist* h, float scale){
+    fHist->Add(h->fHist, scale);
+    fHist_orig->Add(h->fHist_orig, scale);
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         bool wasIn=false;
         for(int j_syst=0;j_syst<h->fNSyst;j_syst++){
             if(fSyst[i_syst]->fName==h->fSyst[j_syst]->fName){
-                fSyst[i_syst]->fHistUp->Add(h->fSyst[j_syst]->fHistUp);
-                fSyst[i_syst]->fHistDown->Add(h->fSyst[j_syst]->fHistDown);
-                fSyst[i_syst]->fHistUp_orig->Add(h->fSyst[j_syst]->fHistUp_orig);
-                fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig);
+                fSyst[i_syst]->fHistUp->Add(h->fSyst[j_syst]->fHistUp, scale);
+                fSyst[i_syst]->fHistDown->Add(h->fSyst[j_syst]->fHistDown, scale);
+                fSyst[i_syst]->fHistUp_orig->Add(h->fSyst[j_syst]->fHistUp_orig, scale);
+                fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig, scale);
                 wasIn=true;
             }
         }
         if(wasIn) continue;
-        fSyst[i_syst]->fHistUp->Add(h->fHist);
-        fSyst[i_syst]->fHistDown->Add(h->fHist);
-        fSyst[i_syst]->fHistUp_orig->Add(h->fHist);
-        fSyst[i_syst]->fHistDown_orig->Add(h->fHist);
+        fSyst[i_syst]->fHistUp->Add(h->fHist, scale);
+        fSyst[i_syst]->fHistDown->Add(h->fHist, scale);
+        fSyst[i_syst]->fHistUp_orig->Add(h->fHist,scale );
+        fSyst[i_syst]->fHistDown_orig->Add(h->fHist, scale);
     }
 }
 
@@ -1112,7 +1126,6 @@ void SampleHist::Divide(SampleHist *sh){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = fSyst[i_syst]->fName;
-//        SystematicHist *syh = sh->GetSystematic( systName );
         string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){

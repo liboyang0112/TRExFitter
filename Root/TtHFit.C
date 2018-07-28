@@ -554,12 +554,16 @@ void TtHFit::DrawSystPlotsSumSamples(){
         for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
             if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::DATA) h_dataCopy=(TH1*)fRegions[i_ch]->fSampleHists[i_smp]->fHist->Clone();
             else if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::GHOST) continue;
-            else if(empty){
-                hist->CloneSampleHist(fRegions[i_ch]->fSampleHists[i_smp],systNames);
-                hist->fName = fRegions[i_ch]->fName + "_Combined";
-                empty=false;
-          }
-          else hist->SampleHistAdd(fRegions[i_ch]->fSampleHists[i_smp]);
+            else {
+                float scale = GetNominalMorphScale(fRegions[i_ch]->fSampleHists[i_smp]);
+                if(empty){
+                    hist->CloneSampleHist(fRegions[i_ch]->fSampleHists[i_smp],systNames, scale);
+                    hist->fName = fRegions[i_ch]->fName + "_Combined";
+                    empty=false;
+                } else {
+                    hist->SampleHistAdd(fRegions[i_ch]->fSampleHists[i_smp], scale);
+                }
+            }
         }
         hist->DrawSystPlot("all", h_dataCopy, true, fSystDataPlot_upFrame);
         delete hist;
@@ -7958,4 +7962,25 @@ void TtHFit::RunToys(RooWorkspace* ws){
         h_toys.Write();
         out->Close();
         delete out;
+}
+
+//____________________________________________________________________________________
+//
+float TtHFit::GetNominalMorphScale(const SampleHist* const sh) const {
+    float scale = 1.;
+    for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
+        NormFactor *nf = sh->fSample->fNormFactors[i_nf];
+        std::string nfName = nf->fName;
+
+        if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
+            std::string formula = TtHFitter::SYSTMAP[nfName];
+            std::string name = TtHFitter::NPMAP[nfName];
+            formula = ReplaceString(formula,name,"x");
+            TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+            scale *= f_morph->Eval(nf->fNominal);
+            delete f_morph;
+        }
+    }
+
+    return scale;
 }
