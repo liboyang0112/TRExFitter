@@ -1042,12 +1042,8 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, flo
     fName = h->fName;
     fHist = (TH1*)h->fHist->Clone();
     fHist_orig = (TH1*)h->fHist_orig->Clone();
-    if (scale >= 0 && scale <=1){
-        fHist->Scale(scale*fHist->Integral());
-        fHist_orig->Scale(scale*fHist_orig->Integral());
-    } else {
-        WriteDebugStatus("SampleHist::CloneSampleHist", "Not scaling the histograms because the scale was set to: " +std::to_string(scale));
-    }
+    fHist->Scale(scale);
+    fHist_orig->Scale(scale);
     fFileName = h->fFileName;
     fHistoName = h->fHistoName;
     fIsData = h->fIsData;
@@ -1058,10 +1054,22 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, flo
         for(int i_syst=0; i_syst<h->fNSyst; i_syst++){
             SystematicHist* syst_tmp = new SystematicHist("tmp");
             if(systname!=h->fSyst[i_syst]->fName) continue;
-            syst_tmp->fHistUp = (TH1*)h->fSyst[i_syst]->fHistUp->Clone();
-            syst_tmp->fHistUp_orig = (TH1*)h->fSyst[i_syst]->fHistUp_orig->Clone();
-            syst_tmp->fHistDown = (TH1*)h->fSyst[i_syst]->fHistDown->Clone();
-            syst_tmp->fHistDown_orig = (TH1*)h->fSyst[i_syst]->fHistDown_orig->Clone();
+            TH1* tmp = (TH1*)h->fSyst[i_syst]->fHistUp->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistUp = tmp;
+
+            tmp = (TH1*)h->fSyst[i_syst]->fHistUp_orig->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistUp_orig = tmp;
+
+            tmp = (TH1*)h->fSyst[i_syst]->fHistDown->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistDown = tmp;
+
+            tmp = (TH1*)h->fSyst[i_syst]->fHistDown_orig->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistDown_orig = tmp;
+
             syst_tmp->fName = h->fSyst[i_syst]->fName;
             fSyst.push_back(syst_tmp);
             notFound=false;
@@ -1118,7 +1126,6 @@ void SampleHist::Divide(SampleHist *sh){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = fSyst[i_syst]->fName;
-//        SystematicHist *syh = sh->GetSystematic( systName );
         string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==0x0){
