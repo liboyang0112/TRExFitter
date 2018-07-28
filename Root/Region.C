@@ -1250,7 +1250,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::ve
                 formula = ReplaceString(formula,name,"x");
                 TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                 float scale = f_morph->Eval(nfValue);
-                delete f_moprh;
+                delete f_morph;
                 hSmpNew[i]->Scale(scale);
             }
             else{
