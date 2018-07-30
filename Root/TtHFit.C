@@ -7979,6 +7979,8 @@ float TtHFit::GetNominalMorphScale(const SampleHist* const sh) const {
             TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
             scale *= f_morph->Eval(nf->fNominal);
             delete f_morph;
+        } else {
+            scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
         }
     }
 
