@@ -5,9 +5,10 @@
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/StatusLogbook.h"
 #include "TtHFitter/Region.h"
-#include "TtHFitter/RunSig.h"
 #include "TtHFitter/RunAsymptoticsCLs.h"
 #include "TtHFitter/RunAsymptoticsCLs_inject.h"
+
+#include "CommonStatTools/runSig.C"
 
 //Roofit headers
 #include "RooSimultaneous.h"
@@ -474,16 +475,11 @@ void MultiFit::GetCombinedSignificance(string inputData){
     WriteInfoStatus("MultiFit::GetCombinedSignificance", "Runing runSig macro...");
   
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
-    string cmd;
-    cmd = "root -l -b -q 'runSig.C(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSaveSuf+"\",\""+fOutDir+"/Significance\")'";
 
     //
     // Finally computing the significance
     //
-    if (!fRunROOTMacros){
-        RunSig(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSaveSuf).c_str(), (fOutDir+"/Significance").c_str());
-    }
-    else gSystem->Exec(cmd.c_str());
+    runSig(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "bla", 0, "ws", (fOutDir+"/Significance").c_str(), true, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, 1, 2);
 }
 //__________________________________________________________________________________
 //

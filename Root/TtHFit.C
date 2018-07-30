@@ -6,9 +6,10 @@
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/HistoTools.h"
 #include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/RunSig.h"
 #include "TtHFitter/RunAsymptoticsCLs.h"
 #include "TtHFitter/RunAsymptoticsCLs_inject.h"
+
+#include "CommonStatTools/runSig.C"
 
 //Roofit headers
 #include "RooSimultaneous.h"
@@ -5893,17 +5894,13 @@ void TtHFit::GetSignificance(){
         }
     }
 
-    std::string cmd;
     //
     // If a workspace file name is specified, do simple significance
     //
     if(fWorkspaceFileName!=""){
         string dataName = "obsData";
         if(!hasData || fFitIsBlind) dataName = "asimovData";
-        if (!fRunROOTMacros){
-        RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
-    }
-        cmd = "root -l -b -q 'runSig.C(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
+        runSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "bla", 0, "ws", (fName+"/Significance").c_str(), true, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, 1, 2);
     }
 
     else{
@@ -5972,12 +5969,8 @@ void TtHFit::GetSignificance(){
         // Finally computing the significance
         //
         std::string outputName_s = static_cast<std::string> (outputName);
-        if (!fRunROOTMacros){
-            RunSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fInputName+fSuffix).c_str(), (fName+"/Significance").c_str());
-        }
-        cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fInputName+fSuffix+"\",\""+fName+"/Significance\")'";
+        runSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "bla", 0, "ws", (fName+"/Significance").c_str(), true, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, 1, 2);
     }
-    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________
