@@ -659,4 +659,4 @@ Managers:
 Development and support team:
 
 * Alexander Held <alexander.held@cern.ch>
-* Tomas Dado <tomas.dadod@cern.ch>
+* Tomas Dado <tomas.dado@cern.ch>
