@@ -75,8 +75,12 @@ echo ""
 ##
 echo ""
 echo "Compiling the code. Cleaning it first, and then recompile."
-make clean && make
-if [[ ! -f myFit.exe ]]; then
+rm -rf build/
+mkdir build && cd build/
+cmake ../
+cmake --build ./
+cd ..
+if [[ ! -f build/bin/myFit.exe ]]; then
   echo "!!ERROR!! The binary file is not found. Need to investigate !!"
   return 0
 fi
@@ -91,7 +95,7 @@ echo "you still can abort the process at any moment."
 echo ""
 for step in h d w f l s d p ; do
   echo "==> $step step ongoing"
-  ./myFit.exe $step config/myFit.config >& LOG_$step
+  ./build/bin/myFit.exe $step config/myFit.config >& LOG_$step
   cat LOG_$step | grep -v "TRExFitter" >& test/logs/LOG_$step
   rm -f LOG_$step
 done
