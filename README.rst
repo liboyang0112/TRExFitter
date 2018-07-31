@@ -210,8 +210,7 @@ NB: note the *blank* line between the objects!
      * SummaryPlotValidationLabels : labels to be used per region in validation region summary plot
      * SmoothMorphingTemplates : if set to TRUE (default is FALSE), the templates used for morphig are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory)
      * SummaryPrefix    : adds a prefix to summary and merge plots
-     * AllowWrongRegionSample    : Can be TRUE or FALSE (default). When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined.
-     * POIPrecision    : Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm facotr mean value and uncertainty. Default is 2.
+     * AllowWrongRegionSample    : Can be TRUE(default) or FALSE. When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined.
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
