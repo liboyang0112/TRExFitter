@@ -304,7 +304,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     bool FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>0.001);
 
     // if not, loop maximum 2 times with increased strategy
-    static int nrItr = 0;
+    int nrItr = 0;
     while (nrItr<maxRetries && FitIsNotGood){
         WriteWarningStatus("FittingTool::FitPDF", "");
         WriteWarningStatus("FittingTool::FitPDF", "   *******************************");
