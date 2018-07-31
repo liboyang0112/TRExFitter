@@ -2614,52 +2614,52 @@ int ConfigReader::ReadSystOptions(){
                     hasDown = true;
                 }
                 // For reference file when using systematics on it - like JER on data
-                if(confSet->Get("HistoPathUpData")!=""){
-                    sys->fHistoPathsUpData.push_back(confSet->Get("HistoPathUpData"));
+                if(confSet->Get("HistoPathUpRefSample")!=""){
+                    sys->fHistoPathsUpRefSample.push_back(confSet->Get("HistoPathUpRefSample"));
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoPathDownData")!=""){
-                    sys->fHistoPathsDownData.push_back(confSet->Get("HistoPathDownData"));
+                if(confSet->Get("HistoPathDownRefSample")!=""){
+                    sys->fHistoPathsDownRefSample.push_back(confSet->Get("HistoPathDownRefSample"));
                     hasDown   = true;
                 }
-                if(confSet->Get("HistoPathSufUpData")!=""){
-                    sys->fHistoPathSufUpData = confSet->Get("HistoPathSufUpData");
+                if(confSet->Get("HistoPathSufUpRefSample")!=""){
+                    sys->fHistoPathSufUpRefSample = confSet->Get("HistoPathSufUpRefSample");
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoPathSufDownData")!=""){
-                    sys->fHistoPathSufDownData = confSet->Get("HistoPathSufDownData");
+                if(confSet->Get("HistoPathSufDownRefSample")!=""){
+                    sys->fHistoPathSufDownRefSample = confSet->Get("HistoPathSufDownRefSample");
                     hasDown = true;
                 }
-                if(confSet->Get("HistoFileUpData")!=""){
-                    sys->fHistoFilesUpData.push_back(confSet->Get("HistoFileUpData"));
+                if(confSet->Get("HistoFileUpRefSample")!=""){
+                    sys->fHistoFilesUpRefSample.push_back(confSet->Get("HistoFileUpRefSample"));
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoFileDownData")!=""){
-                    sys->fHistoFilesDownData.push_back(confSet->Get("HistoFileDownData"));
+                if(confSet->Get("HistoFileDownRefSample")!=""){
+                    sys->fHistoFilesDownRefSample.push_back(confSet->Get("HistoFileDownRefSample"));
                     hasDown = true;
                 }
-                if(confSet->Get("HistoFileSufUpData")!=""){
-                    sys->fHistoFileSufUpData = confSet->Get("HistoFileSufUpData");
+                if(confSet->Get("HistoFileSufUpRefSample")!=""){
+                    sys->fHistoFileSufUpRefSample = confSet->Get("HistoFileSufUpRefSample");
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoFileSufDownData")!=""){
-                    sys->fHistoFileSufDown = confSet->Get("HistoFileSufDownData");
+                if(confSet->Get("HistoFileSufDownRefSample")!=""){
+                    sys->fHistoFileSufDownRefSample = confSet->Get("HistoFileSufDownRefSample");
                     hasDown = true;
                 }
-                if(confSet->Get("HistoNameUpData")!=""){
-                    sys->fHistoNamesUp.push_back(confSet->Get("HistoNameUpData"));
+                if(confSet->Get("HistoNameUpRefSample")!=""){
+                    sys->fHistoNamesUpRefSample.push_back(confSet->Get("HistoNameUpRefSample"));
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoNameDownData")!=""){
-                    sys->fHistoNamesDown.push_back(confSet->Get("HistoNameDownData"));
+                if(confSet->Get("HistoNameDownRefSample")!=""){
+                    sys->fHistoNamesDownRefSample.push_back(confSet->Get("HistoNameDownRefSample"));
                     hasDown = true;
                 }
-                if(confSet->Get("HistoNameSufUpData")!=""){
-                    sys->fHistoNameSufUpData = confSet->Get("HistoNameSufUpData");
+                if(confSet->Get("HistoNameSufUpRefSample")!=""){
+                    sys->fHistoNameSufUpRefSample = confSet->Get("HistoNameSufUpRefSample");
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoNameSufDownData")!=""){
-                    sys->fHistoNameSufDownData = confSet->Get("HistoNameSufDownData");
+                if(confSet->Get("HistoNameSufDownRefSample")!=""){
+                    sys->fHistoNameSufDownRefSample = confSet->Get("HistoNameSufDownRefSample");
                     hasDown = true;
                 }
             }
@@ -2753,6 +2753,79 @@ int ConfigReader::ReadSystOptions(){
                     hasDown = true;
                 }
                 if(confSet->Get("IgnoreWeight")!="") sys->fIgnoreWeight = confSet->Get("IgnoreWeight");
+                // For reference file when using systematics on it - like JER on data
+                if(confSet->Get("NtuplePathUpRefSample")!=""){
+                    sys->fNtuplePathsUpRefSample.push_back(confSet->Get("NtuplePathUpRefSample"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtuplePathDownRefSample")!=""){
+                    sys->fNtuplePathsDownRefSample.push_back(confSet->Get("NtuplePathDownRefSample"));
+                    hasDown = true;
+                }
+                if(confSet->Get("NtuplePathsUpRefSample")!=""){
+                    sys->fNtuplePathsUpRefSample = Vectorize(confSet->Get("NtuplePathsUpRefSample"),',');
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtuplePathsDownRefSample")!=""){
+                    sys->fNtuplePathsDownRefSample = Vectorize(confSet->Get("NtuplePathsDownRefSample"),',');
+                    hasDown = true;
+                }
+                if(confSet->Get("NtuplePathSufUpRefSample")!=""){
+                    sys->fNtuplePathSufUpRefSample = confSet->Get("NtuplePathSufUpRefSample");
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtuplePathSufDownRefSample")!=""){
+                    sys->fNtuplePathSufDownRefSample = confSet->Get("NtuplePathSufDownRefSample");
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleFileUpRefSample")!=""){
+                    sys->fNtupleFilesUpRefSample.push_back(confSet->Get("NtupleFileUpRefSample"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleFileDownRefSample")!=""){
+                    sys->fNtupleFilesDownRefSample.push_back(confSet->Get("NtupleFileDownRefSample"));
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleFilesUpRefSample")!=""){
+                    sys->fNtupleFilesUpRefSample = Vectorize(confSet->Get("NtupleFilesUpRefSample"),',');
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleFilesDownRefSample")!=""){
+                    sys->fNtupleFilesDownRefSample = Vectorize(confSet->Get("NtupleFilesDownRefSample"),',');
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleFileSufUpRefSample")!=""){
+                    sys->fNtupleFileSufUpRefSample = confSet->Get("NtupleFileSufUpRefSample");
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleFileSufDownRefSample")!=""){
+                    sys->fNtupleFileSufDownRefSample = confSet->Get("NtupleFileSufDownRefSample");
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleNameUpRefSample")!=""){
+                    sys->fNtupleNamesUpRefSample.push_back(confSet->Get("NtupleNameUpRefSample"));
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleNameDownRefSample")!=""){
+                    sys->fNtupleNamesDownRefSample.push_back( confSet->Get("NtupleNameDownRefSample"));
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleNamesUpRefSample")!=""){
+                    sys->fNtupleNamesUpRefSample = Vectorize(confSet->Get("NtupleNamesUpRefSample"),',');
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleNamesDownRefSample")!=""){
+                    sys->fNtupleNamesDownRefSample = Vectorize(confSet->Get("NtupleNamesDownRefSample"),',');
+                    hasDown = true;
+                }
+                if(confSet->Get("NtupleNameSufUpRefSample")!=""){
+                    sys->fNtupleNameSufUpRefSample = confSet->Get("NtupleNameSufUpRefSample");
+                    hasUp   = true;
+                }
+                if(confSet->Get("NtupleNameSufDownRefSample")!=""){
+                    sys->fNtupleNameSufDownRefSample = confSet->Get("NtupleNameSufDownRefSample");
+                    hasDown = true;
+                }                
             }
             sys->fHasUpVariation   = hasUp  ;
             sys->fHasDownVariation = hasDown;
@@ -2984,18 +3057,19 @@ int ConfigReader::ReadSystOptions(){
         }
 
         // Set paths for data reference sample
-        if (sys->fHistoPathsUpData.size() == 0) sys->fHistoPathsUpData = sys->fHistoPathsUp;
-        if (sys->fHistoPathsDownData.size() == 0) sys->fHistoPathsDownData = sys->fHistoPathsUp;
-        if (sys->fHistoPathSufUpData.size() == 0) sys->fHistoPathSufUpData = sys->fHistoPathSufUp;
-        if (sys->fHistoPathSufDownData.size() == 0) sys->fHistoPathSufDownData = sys->fHistoPathSufDown;
-        if (sys->fHistoFilesUpData.size() == 0) sys->fHistoFilesUpData = sys->fHistoFilesUp;
-        if (sys->fHistoFilesDownData.size() == 0) sys->fHistoFilesDownData = sys->fHistoFilesDown;
-        if (sys->fHistoFileSufUpData.size() == 0) sys->fHistoFileSufUpData = sys->fHistoFileSufUp;
-        if (sys->fHistoFileSufDownData.size() == 0) sys->fHistoFileSufDownData = sys->fHistoFileSufDown;
-        if (sys->fHistoNamesUpData.size() == 0) sys->fHistoNamesUpData = sys->fHistoNamesUp;
-        if (sys->fHistoNamesDownData.size() == 0) sys->fHistoNamesDownData = sys->fHistoNamesDown;
-        if (sys->fHistoNameSufUpData.size() == 0) sys->fHistoNameSufUpData = sys->fHistoNameSufUp;
-        if (sys->fHistoNameSufDownData.size() == 0) sys->fHistoNameSufDownData = sys->fHistoNameSufDown;
+        // Histo:
+        if (sys->fHistoPathsUpRefSample.size() == 0) sys->fHistoPathsUpRefSample = sys->fHistoPathsUp;
+        if (sys->fHistoPathsDownRefSample.size() == 0) sys->fHistoPathsDownRefSample = sys->fHistoPathsUp;
+        if (sys->fHistoPathSufUpRefSample.size() == 0) sys->fHistoPathSufUpRefSample = sys->fHistoPathSufUp;
+        if (sys->fHistoPathSufDownRefSample.size() == 0) sys->fHistoPathSufDownRefSample = sys->fHistoPathSufDown;
+        if (sys->fHistoFilesUpRefSample.size() == 0) sys->fHistoFilesUpRefSample = sys->fHistoFilesUp;
+        if (sys->fHistoFilesDownRefSample.size() == 0) sys->fHistoFilesDownRefSample = sys->fHistoFilesDown;
+        if (sys->fHistoFileSufUpRefSample.size() == 0) sys->fHistoFileSufUpRefSample = sys->fHistoFileSufUp;
+        if (sys->fHistoFileSufDownRefSample.size() == 0) sys->fHistoFileSufDownRefSample = sys->fHistoFileSufDown;
+        if (sys->fHistoNamesUpRefSample.size() == 0) sys->fHistoNamesUpRefSample = sys->fHistoNamesUp;
+        if (sys->fHistoNamesDownRefSample.size() == 0) sys->fHistoNamesDownRefSample = sys->fHistoNamesDown;
+        if (sys->fHistoNameSufUpRefSample.size() == 0) sys->fHistoNameSufUpRefSample = sys->fHistoNameSufUp;
+        if (sys->fHistoNameSufDownRefSample.size() == 0) sys->fHistoNameSufDownRefSample = sys->fHistoNameSufDown;
     }
 
     return 0;
