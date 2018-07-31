@@ -212,6 +212,8 @@ TtHFit::TtHFit(string name){
     fDoNonProfileFit = false;
     fFitToys = 0;
     fSmoothMorphingTemplates = false;
+
+    fPOIPrecision = 2;
 }
 
 //__________________________________________________________________________________
@@ -5987,6 +5989,7 @@ void TtHFit::ReadFitResults(const string& fileName){
     WriteInfoStatus("TtHFit::ReadFitResults",  "Reading fit results from file ");
     delete fFitResults;
     fFitResults = new FitResults();
+    fFitResults->SetPOIPrecision(fPOIPrecision);
     if(fileName.find(".txt")!=string::npos){
         fFitResults->ReadFromTXT(fileName);
     }
