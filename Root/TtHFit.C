@@ -3500,12 +3500,8 @@ void TtHFit::BuildYieldTable(string opt,string group){
     //
     std::vector<int> regionVec; regionVec.clear();
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-//         if(!checkVR && fRegions[i_ch]->fRegionType!=Region::VALIDATION){
             if(group!="" && fRegions[i_ch]->fGroup!=group) continue;
             regionVec.push_back(i_ch);
-//         } else if(checkVR && fRegions[i_ch]->fRegionType==Region::VALIDATION){
-//             regionVec.push_back(i_ch);
-//         }
     }
     if(regionVec.size()==0) return;
     int Nbin = regionVec.size();
@@ -3565,7 +3561,12 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 else
                     h0 = sh->fHist;
                 float tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
-                h_smp[idxVec[i_smp]]->AddBinContent( i_bin,h0->IntegralAndError(1,h0->GetNbinsX(),intErr) );
+                float scale = 1;
+                if (isPostFit){
+                } else {
+                    scale = GetNominalMorphScale(sh);
+                }
+                h_smp[idxVec[i_smp]]->AddBinContent( i_bin,scale*h0->IntegralAndError(1,h0->GetNbinsX(),intErr) );
                 if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
                     h_smp[idxVec[i_smp]]->SetBinError(i_bin,0.);
                 else
@@ -3579,18 +3580,16 @@ void TtHFit::BuildYieldTable(string opt,string group){
     int i_np = -1;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
-        name = fSamples[i_smp]->fName;
         if(idxVec[i_smp]!=i_smp) continue;
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
+        name = fSamples[i_smp]->fName;
         // build the vectors of variations
-        std::vector< TH1* > h_up;   h_up.clear();
-        std::vector< TH1* > h_down; h_down.clear();
+        std::vector< TH1* > h_up;
+        std::vector< TH1* > h_down;
         TH1* h_tmp_Up;
         TH1* h_tmp_Down;
         std::vector<string> systNames;
         std::vector<string> npNames;
-        systNames.clear();
-        npNames.clear();
         i_np = -1;
         // actual systematics
         for(int i_syst=0;i_syst<fNSyst;i_syst++){
@@ -3641,8 +3640,10 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                     h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                 }
-                h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
-                h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                float scale = 1; 
+                //GetNominalMorphScale(sh);
+                h_up[i_np]  ->SetBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()))*scale );
+                h_down[i_np]->SetBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*scale );
                 //
                 // eventually add any other samples with the same title
                 for(int j_smp=0;j_smp<fNSamples;j_smp++){
@@ -3669,8 +3670,10 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                 h_tmp_Down = sh->GetSystematic(systName)->fHistDown;
                             }
                         }
-                        h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-                        h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                        float scale = 1;
+                        //GetNominalMorphScale(sh);
+                        h_up[i_np]  ->AddBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()))*scale );
+                        h_down[i_np]->AddBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*scale );
                     }
                 }
             }
@@ -7973,6 +7976,7 @@ float TtHFit::GetNominalMorphScale(const SampleHist* const sh) const {
     float scale = 1.;
     for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
         NormFactor *nf = sh->fSample->fNormFactors[i_nf];
+        if (nf == nullptr) continue;
         std::string nfName = nf->fName;
 
         if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
