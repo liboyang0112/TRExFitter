@@ -15,7 +15,7 @@
 ConfigReader::ConfigReader(TtHFit *fitter){
     fFitter = fitter;
     fNonGhostIsSet = false;
-    fAllowWrongRegionSample = false;
+    fAllowWrongRegionSample = true;
     WriteInfoStatus("ConfigReader::ConfigReader", "Started reading the config");
 }
 
