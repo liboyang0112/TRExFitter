@@ -3641,7 +3641,11 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                 }
                 float scale = 1; 
-                //GetNominalMorphScale(sh);
+                if (isPostFit){
+                } else {
+                    scale = GetNominalMorphScale(sh);
+                }
+
                 h_up[i_np]  ->SetBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()))*scale );
                 h_down[i_np]->SetBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*scale );
                 //
@@ -3671,7 +3675,10 @@ void TtHFit::BuildYieldTable(string opt,string group){
                             }
                         }
                         float scale = 1;
-                        //GetNominalMorphScale(sh);
+                        if (isPostFit) {
+                        } else { 
+                            scale = GetNominalMorphScale(sh);
+                        }
                         h_up[i_np]  ->AddBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()))*scale );
                         h_down[i_np]->AddBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*scale );
                     }
@@ -7974,6 +7981,8 @@ void TtHFit::RunToys(RooWorkspace* ws){
 //
 float TtHFit::GetNominalMorphScale(const SampleHist* const sh) const {
     float scale = 1.;
+    if (sh == nullptr) return 1.;
+    if (sh->fSample == nullptr) return 1.;
     for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
         NormFactor *nf = sh->fSample->fNormFactors[i_nf];
         if (nf == nullptr) continue;
