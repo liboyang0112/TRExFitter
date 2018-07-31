@@ -663,6 +663,15 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set DecorrSysts
+    param = confSet->Get("POIPrecision");
+    if( param != ""){
+        fFitter->fPOIPrecision = stoi(param);
+        if (fFitter->fPOIPrecision < 1 || fFitter->fPOIPrecision > 5){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "Parameter POIPrecision has value smaller than 1 or alrger than 5. Using default (2).");
+            fFitter->fPOIPrecision = 2;
+        }
+    }
     // success
     return 0;
 }

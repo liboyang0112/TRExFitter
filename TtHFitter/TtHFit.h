@@ -399,6 +399,7 @@ public:
     bool fDoNonProfileFit;
     int fFitToys;
     bool fSmoothMorphingTemplates;
+    int fPOIPrecision;
 };
 
 #endif

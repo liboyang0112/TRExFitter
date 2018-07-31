@@ -268,12 +268,15 @@ void FitResults::DrawNormFactors( const string &path, const std::vector < NormFa
     for(unsigned int i=0;i<selected_norm_factors.size();i++){
       systs->DrawLatex(xmax*1.05,2*i+0.75,(selected_norm_factors[i]->fTitle).c_str());
       systs->DrawLatex(xmax*0.7,2*i+0.75,
-        Form("%.2f ^{%.2f}_{%.2f}",selected_norm_factors[i]->fFitValue, selected_norm_factors[i]->fPostFitUp, selected_norm_factors[i]->fPostFitDown ) );
+        Form(("%."+std::to_string(fPOIPrecision)+"f ^{%."+std::to_string(fPOIPrecision)+"f}_{%."+std::to_string(fPOIPrecision)+"f}").c_str(),selected_norm_factors[i]->fFitValue, selected_norm_factors[i]->fPostFitUp, selected_norm_factors[i]->fPostFitDown ) );
     }
     h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
     gPad->RedrawAxis();
 
     c->SaveAs(path.c_str());
+    delete g;
+    delete h_dummy;
+    delete systs;
     delete c;
 }
 

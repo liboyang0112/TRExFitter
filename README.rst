@@ -211,6 +211,7 @@ NB: note the *blank* line between the objects!
      * SmoothMorphingTemplates : if set to TRUE (default is FALSE), the templates used for morphig are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory)
      * SummaryPrefix    : adds a prefix to summary and merge plots
      * AllowWrongRegionSample    : Can be TRUE or FALSE (default). When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined.
+     * POIPrecision    : Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm facotr mean value and uncertainty. Default is 2.
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -530,7 +531,7 @@ Multi-Fit options
    * ComparePulls     : can be TRUE or FALSE, flag to compare to pulls values
    * PlotCombCorrMatrix : can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics
    * Combine          : can be TRUE or FALSE, set to true if you want to perfom actual combination (followed by `mwf`)
-   * Comapre          : can be TRUE or FALSE, set to true if you want to compare values
+   * Compare          : can be TRUE or FALSE, set to true if you want to compare values
    * StatOnly         : can be TRUE or FALSE, set to true if the fits are stat only fits
    * IncludeStatOnly  : can be TRUE or FALSE, set to true if you want to include stat only fits
    * POIName          : the name of the POI in the configs
@@ -542,7 +543,7 @@ Multi-Fit options
    * FitType          : can be SPLUSB or BONLY
    * SignalInjection  : can be TRUE or FALSE
    * CombineChByCH    : can be TRUE or FALSE, set to true to combine channel by channel
-   * NPCategories     : comma separeted list of NP categories
+   * NPCategories     : comma separated list of NP categories
    * SetRandomInitialNPval : provide a float 
    * SetRandomInitialNPvalSeed : provide an int
    * NumCPU           : a number of CPU cores used for the fit
