@@ -358,8 +358,12 @@ public:
     //
     bool fSignificanceIsBlind;
     double fSignificancePOIAsimov;
+    std::string fSignificanceParamName;
+    float fSignificanceParamValue;
+    std::string fSignificanceOutputPrefixName;
 
     bool fCleanTables;
+    bool bles;
     bool fSystCategoryTables;
 
     std::vector< std::string > fRegionGroups;
@@ -384,7 +388,6 @@ public:
 
     std::vector<std::string> fCustomFunctions;
 
-//     bool fRunMorphing;
     std::vector<std::string> fMorphParams;
     std::vector<std::pair<float,std::string> > fTemplatePair;
     std::vector<TtHFit::TemplateWeight> fTemplateWeightVec;

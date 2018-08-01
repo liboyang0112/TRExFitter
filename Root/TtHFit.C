@@ -157,6 +157,9 @@ TtHFit::TtHFit(string name){
     //
     fSignificanceIsBlind = false;
     fSignificancePOIAsimov = 0;
+    fSignificanceParamName = "parameter";
+    fSignificanceParamValue = 0;
+    fSignificanceOutputPrefixName = "mySignificance"; 
 
     fImageFormat = "png";
     TtHFitter::IMAGEFORMAT.clear();
@@ -5844,10 +5847,12 @@ void TtHFit::GetSignificance(){
     //
     // If a workspace file name is specified, do simple significance
     //
+    int sigDebug = 3 - TtHFitter::DEBUGLEVEL;
+    if (sigDebug < 0) sigDebug = 0;
     if(fWorkspaceFileName!=""){
         string dataName = "obsData";
-        if(!hasData || fFitIsBlind) dataName = "asimovData";
-        runSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "bla", 0, "ws", (fName+"/Significance").c_str(), true, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, 1, 2);
+        if(!hasData || fSignificanceIsBlind) dataName = "asimovData";
+        runSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fName+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, 0, sigDebug);
     }
 
     else{
@@ -5916,7 +5921,7 @@ void TtHFit::GetSignificance(){
         // Finally computing the significance
         //
         std::string outputName_s = static_cast<std::string> (outputName);
-        runSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "bla", 0, "ws", (fName+"/Significance").c_str(), true, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, 1, 2);
+        runSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fName+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, 0, sigDebug);
     }
 }
 

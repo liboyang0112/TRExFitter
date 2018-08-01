@@ -1208,6 +1208,22 @@ int ConfigReader::ReadSignificanceOptions(){
     if( param != "" ){
         fFitter->fSignificancePOIAsimov = atof(param.c_str());
     }
+    
+    param = confSet->Get("ParamName");
+    if( param != "" ){
+        fFitter->fSignificanceParamName = param;
+    }
+
+    param = confSet->Get("ParamValue");
+    if( param != "" ){
+        fFitter->fSignificanceParamValue = std::stof(param);
+    }
+    
+    param = confSet->Get("OutputPrefixName");
+    if( param != "" ){
+        fFitter->fSignificanceOutputPrefixName = param;
+    }
+
 
     return 0;
 }
