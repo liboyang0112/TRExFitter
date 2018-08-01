@@ -3513,8 +3513,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     h0 = sh->fHist;
                 float tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
                 float scale = 1;
-                if (isPostFit){
-                } else {
+                if (!isPostFit){
                     scale = GetNominalMorphScale(sh);
                 }
                 h_smp[idxVec[i_smp]]->AddBinContent( i_bin,scale*h0->IntegralAndError(1,h0->GetNbinsX(),intErr) );
@@ -3595,8 +3594,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 }
 
                 float scale = 1; 
-                if (isPostFit){
-                } else {
+                if (!isPostFit){
                     scale = GetNominalMorphScale(sh);
                 }
                 h_up[i_np]  ->SetBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()))*scale );
@@ -3628,8 +3626,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
                             }
                         }
                         float scale = 1;
-                        if (isPostFit) {
-                        } else { 
+                        if (!isPostFit) {
                             scale = GetNominalMorphScale(sh);
                         }
                         h_up[i_np]  ->AddBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()))*scale );
@@ -3675,16 +3672,6 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                 h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown_postFit;
                             }
                         }
-                        else {
-                            if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
-                                h_tmp_Up   = sh->fHist;
-                                h_tmp_Down = sh->fHist;
-                            }
-                            else{
-                                h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp;
-                                h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown;
-                            }
-                        }
                     }
                     else {
                         h_tmp_Up   = new TH1F(Form("h_DUMMY_%s_up_%i",  gammaName.c_str(),i_ch-1),"h_dummy",1,0,1);
@@ -3708,16 +3695,6 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                     else{
                                         h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp_postFit;
                                         h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown_postFit;
-                                    }
-                                }
-                                else{
-                                    if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
-                                        h_tmp_Up   = sh->fHist;
-                                        h_tmp_Down = sh->fHist;
-                                    }
-                                    else{
-                                        h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp;
-                                        h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown;
                                     }
                                 }
                                 h_up[i_np]  ->AddBinContent( i_ch,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
@@ -3789,10 +3766,6 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                     if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
                                         h_tmp_Up   = sh->fHist_postFit;
                                         h_tmp_Down = sh->fHist_postFit;
-                                    }
-                                    else{
-                                        h_tmp_Up   = sh->GetSystematic(normName)->fHistUp_postFit;
-                                        h_tmp_Down = sh->GetSystematic(normName)->fHistDown_postFit;
                                     }
                                 }
                                 else{
