@@ -1533,55 +1533,6 @@ void TtHFit::CorrectHistograms(){
     // Smooth systematics
     SmoothSystematics("all");
     
-//     // NEW: scale systematics according to ScaleUp and ScaleDown
-//     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-//         Region *reg = fRegions[i_ch];
-//         //
-//         for(int i_smp=0;i_smp<fNSamples;i_smp++){
-//             Sample *smp = fSamples[i_smp];
-//             //
-//             // eventually skip sample / region combination
-//             if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
-//             //
-//             SampleHist *sh = reg->GetSampleHist(smp->fName);
-//             if(sh==0x0) continue;
-//             //
-//             // Systematics
-//             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
-//                 Systematic *syst = smp->fSystematics[i_syst];
-//                 if(syst==0x0) continue;
-//                 //
-//                 // eventually skip systematic / region combination
-//                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
-//                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
-//                 if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
-//                 //
-//                 SystematicHist *syh = sh->GetSystematic( syst->fName );
-//                 if(syh==0x0) continue;
-//                 //
-//                 if(syh->fScaleUp!=1.){
-//                     TH1* h_tmp = (TH1*)syh->fHistUp->Clone();
-//                     h_tmp->Add(sh->fHist,-1);
-//                     h_tmp->Scale(syh->fScaleUp);
-//                     h_tmp->Add(sh->fHist);
-//                     syh->fHistUp = h_tmp;
-//                     cout << syh->fNormUp << " ";
-//                     syh->fNormUp *= syh->fScaleUp;
-//                     cout << syh->fNormUp << endl;
-//                 }
-//                 //
-//                 if(syh->fScaleDown!=1.){
-//                     TH1* h_tmp = (TH1*)syh->fHistDown->Clone();
-//                     h_tmp->Add(sh->fHist,-1);
-//                     h_tmp->Scale(syh->fScaleDown);
-//                     h_tmp->Add(sh->fHist);
-//                     syh->fHistDown = h_tmp;
-//                     syh->fNormDown *= syh->fScaleDown;
-//                 }
-//             }            
-//         }
-//     }
-    
     // drop normalisation part of systematic according to fDropNormIn
     for(auto reg : fRegions){
         for(auto sh : reg->fSampleHists){
@@ -3595,6 +3546,8 @@ void TtHFit::BuildYieldTable(string opt,string group){
         for(int i_syst=0;i_syst<fNSyst;i_syst++){
             string systName = fSystematics[i_syst]->fName;
             string systNuisPar = systName;
+            // check if the systematic(NP name) has already been processed
+            if (std::find(npNames.begin(), npNames.end(), systNuisPar) != npNames.end()) continue;
             systNames.push_back( systName );
             systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
             npNames.push_back(systNuisPar);
@@ -3640,12 +3593,12 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                     h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                 }
+
                 float scale = 1; 
                 if (isPostFit){
                 } else {
                     scale = GetNominalMorphScale(sh);
                 }
-
                 h_up[i_np]  ->SetBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()))*scale );
                 h_down[i_np]->SetBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*scale );
                 //
@@ -3881,14 +3834,12 @@ void TtHFit::BuildYieldTable(string opt,string group){
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             texout << " & ";
             out << h_smp[i_smp]->GetBinContent(i_bin);
-//             texout << setprecision(3) << h_smp[i_smp]->GetBinContent(i_bin);
             texout << "\\num[round-mode=figures,round-precision=3]{";
             texout << h_smp[i_smp]->GetBinContent(i_bin);
             texout << "}";
             out << " pm ";
             texout << " $\\pm$ ";
             out << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
-//             texout << setprecision(3) << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
             texout << "\\num[round-mode=figures,round-precision=3]{";
             texout << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
             texout << "}";
@@ -3910,11 +3861,11 @@ void TtHFit::BuildYieldTable(string opt,string group){
     //
     //   Build error band
     // build the vectors of variations
-    std::vector< TH1* > h_up;   h_up.clear();
-    std::vector< TH1* > h_down; h_down.clear();
+    std::vector< TH1* > h_up;
+    std::vector< TH1* > h_down;
     TH1* h_tmp_Up;
     TH1* h_tmp_Down;
-    std::vector<string> npNames; npNames.clear();
+    std::vector<string> npNames;
     i_np = -1;
     // actual systematics
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
