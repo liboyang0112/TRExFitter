@@ -3056,7 +3056,7 @@ int ConfigReader::ReadSystOptions(){
             sys->fNuisanceParameter += fFitter->fDecorrSuff;
         }
 
-        // Set paths for data reference sample
+        // Set paths for reference sample
         // Histo:
         if (sys->fHistoPathsUpRefSample.size() == 0) sys->fHistoPathsUpRefSample = sys->fHistoPathsUp;
         if (sys->fHistoPathsDownRefSample.size() == 0) sys->fHistoPathsDownRefSample = sys->fHistoPathsUp;
@@ -3070,6 +3070,19 @@ int ConfigReader::ReadSystOptions(){
         if (sys->fHistoNamesDownRefSample.size() == 0) sys->fHistoNamesDownRefSample = sys->fHistoNamesDown;
         if (sys->fHistoNameSufUpRefSample.size() == 0) sys->fHistoNameSufUpRefSample = sys->fHistoNameSufUp;
         if (sys->fHistoNameSufDownRefSample.size() == 0) sys->fHistoNameSufDownRefSample = sys->fHistoNameSufDown;
+
+        if (sys->fNtuplePathsUpRefSample.size() == 0) sys->fNtuplePathsUpRefSample = sys->fNtuplePathsUp;
+        if (sys->fNtuplePathsDownRefSample.size() == 0) sys->fNtuplePathsDownRefSample = sys->fNtuplePathsDown;
+        if (sys->fNtuplePathSufUpRefSample.size() == 0) sys->fNtuplePathSufUpRefSample = sys->fNtuplePathSufUp;
+        if (sys->fNtuplePathSufDownRefSample.size() == 0) sys->fNtuplePathSufDownRefSample = sys->fNtuplePathSufDown;
+        if (sys->fNtupleFilesUpRefSample.size() == 0) sys->fNtupleFilesUpRefSample = sys->fNtupleFilesUp;
+        if (sys->fNtupleFilesDownRefSample.size() == 0) sys->fNtupleFilesDownRefSample = sys->fNtupleFilesDown;
+        if (sys->fNtupleFileSufUpRefSample.size() == 0) sys->fNtupleFileSufUpRefSample = sys->fNtupleFileSufUp;
+        if (sys->fNtupleFileSufDownRefSample.size() == 0) sys->fNtupleFileSufDownRefSample = sys->fNtupleFileSufDown;
+        if (sys->fNtupleNamesUpRefSample.size() == 0) sys->fNtupleNamesUpRefSample = sys->fNtupleNamesUp;
+        if (sys->fNtupleNamesDownRefSample.size() == 0) sys->fNtupleNamesDownRefSample = sys->fNtupleNamesDown;
+        if (sys->fNtupleNameSufUpRefSample.size() == 0) sys->fNtupleNameSufUpRefSample = sys->fNtupleNameSufUp;
+        if (sys->fNtupleNameSufDownRefSample.size() == 0) sys->fNtupleNameSufDownRefSample = sys->fNtupleNameSufDown;
     }
 
     return 0;

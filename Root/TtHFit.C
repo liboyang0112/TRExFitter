@@ -1145,6 +1145,11 @@ void TtHFit::ReadNtuples(){
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
                         if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
+                            if( reg->GetSampleHist(syst->fReferenceSample) == 0x0 ){
+                                WriteErrorStatus("TtHFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TtHFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
+                                exit(EXIT_FAILURE);
+                            } 
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -1158,8 +1163,14 @@ void TtHFit::ReadNtuples(){
                             float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
                             if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) htmp->Scale( relVar / newVar );
                         }
+
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                         else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                            if( reg->GetSampleHist(syst->fReferenceSample) == 0x0 ){
+                                WriteErrorStatus("TtHFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TtHFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
+                                exit(EXIT_FAILURE);
+                            } 
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;

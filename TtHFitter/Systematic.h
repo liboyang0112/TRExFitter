@@ -73,8 +73,6 @@ public:
 
     // needed for systematics on data - like JER
     // up variation
-    std::string fWeightUpRefSample;
-    std::string fWeightSufUpRefSample;
     std::vector<std::string> fNtuplePathsUpRefSample;
     std::string fNtuplePathSufUpRefSample;
     std::vector<std::string> fNtupleFilesUpRefSample;
@@ -94,8 +92,6 @@ public:
     
     // needed for systematics on data - like JER
     // Down variation
-    std::string fWeightDownRefSample;
-    std::string fWeightSufDownRefSample;
     std::vector<std::string> fNtuplePathsDownRefSample;
     std::string fNtuplePathSufDownRefSample;
     std::vector<std::string> fNtupleFilesDownRefSample;
