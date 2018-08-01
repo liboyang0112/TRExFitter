@@ -50,6 +50,13 @@ Systematic::Systematic(string name,int type,float up,float down){
     fNtupleNamesUp.clear();
     fNtupleNameSufUp = "";
     //
+    fNtuplePathsUpRefSample.clear();
+    fNtuplePathSufUpRefSample = "";
+    fNtupleFilesUpRefSample.clear();
+    fNtupleFileSufUpRefSample = "";
+    fNtupleNamesUpRefSample.clear();
+    fNtupleNameSufUpRefSample = "";
+    //
     fWeightDown = "";
     fWeightSufDown = "";
     fNtuplePathsDown.clear();
@@ -59,6 +66,14 @@ Systematic::Systematic(string name,int type,float up,float down){
     fNtupleNamesDown.clear();
     fNtupleNameSufDown = "";
     //
+    fNtuplePathsDownRefSample.clear();
+    fNtuplePathSufDownRefSample = "";
+    fNtupleFilesDownRefSample.clear();
+    fNtupleFileSufDownRefSample = "";
+    fNtupleNamesDownRefSample.clear();
+    fNtupleNameSufDownRefSample = "";
+    //
+
     fIgnoreWeight = "";
     //
     fHistoPathsUp.clear();
@@ -68,12 +83,12 @@ Systematic::Systematic(string name,int type,float up,float down){
     fHistoNamesUp.clear();
     fHistoNameSufUp = "";
     //
-    fHistoPathsUpData.clear();
-    fHistoPathSufUpData = "";
-    fHistoFilesUpData.clear();
-    fHistoFileSufUpData = "";
-    fHistoNamesUpData.clear();
-    fHistoNameSufUpData = "";
+    fHistoPathsUpRefSample.clear();
+    fHistoPathSufUpRefSample = "";
+    fHistoFilesUpRefSample.clear();
+    fHistoFileSufUpRefSample = "";
+    fHistoNamesUpRefSample.clear();
+    fHistoNameSufUpRefSample = "";
     //
     fHistoPathsDown.clear();
     fHistoPathSufDown = "";
@@ -82,12 +97,12 @@ Systematic::Systematic(string name,int type,float up,float down){
     fHistoNamesDown.clear();
     fHistoNameSufDown = "";
     //
-    fHistoPathsDownData.clear();
-    fHistoPathSufDownData = "";
-    fHistoFilesDownData.clear();
-    fHistoFileSufDownData = "";
-    fHistoNamesDownData.clear();
-    fHistoNameSufDownData = "";
+    fHistoPathsDownRefSample.clear();
+    fHistoPathSufDownRefSample = "";
+    fHistoFilesDownRefSample.clear();
+    fHistoFileSufDownRefSample = "";
+    fHistoNamesDownRefSample.clear();
+    fHistoNameSufDownRefSample = "";
     //
     fRegions.clear();
     fExclude.clear();
@@ -136,6 +151,13 @@ Systematic::Systematic(Systematic &sys) {
     fNtupleNamesUp = sys.fNtupleNamesUp;
     fNtupleNameSufUp = sys.fNtupleNameSufUp;
     //
+    fNtuplePathsUpRefSample = sys.fNtuplePathsUpRefSample;
+    fNtuplePathSufUpRefSample = sys.fNtuplePathSufUpRefSample;
+    fNtupleFilesUpRefSample = sys.fNtupleFilesUpRefSample;
+    fNtupleFileSufUpRefSample = sys.fNtupleFileSufUpRefSample;
+    fNtupleNamesUpRefSample = sys.fNtupleNamesUpRefSample;
+    fNtupleNameSufUpRefSample = sys.fNtupleNameSufUpRefSample;
+    //
     fWeightDown = sys.fWeightDown;
     fWeightSufDown = sys.fWeightSufDown;
     fNtuplePathsDown = sys.fNtuplePathsDown;
@@ -145,6 +167,14 @@ Systematic::Systematic(Systematic &sys) {
     fNtupleNamesDown = sys.fNtupleNamesDown;
     fNtupleNameSufDown = sys.fNtupleNameSufDown;
     //
+    fNtuplePathsDownRefSample = sys.fNtuplePathsDownRefSample;
+    fNtuplePathSufDownRefSample = sys.fNtuplePathSufDownRefSample;
+    fNtupleFilesDownRefSample = sys.fNtupleFilesDownRefSample;
+    fNtupleFileSufDownRefSample = sys.fNtupleFileSufDownRefSample;
+    fNtupleNamesDownRefSample = sys.fNtupleNamesDownRefSample;
+    fNtupleNameSufDownRefSample = sys.fNtupleNameSufDownRefSample;
+    //
+
     fIgnoreWeight = sys.fIgnoreWeight;
     //
     fHistoPathsUp = sys.fHistoPathsUp;
@@ -154,12 +184,12 @@ Systematic::Systematic(Systematic &sys) {
     fHistoNamesUp = sys.fHistoNamesUp;
     fHistoNameSufUp = sys.fHistoNameSufUp;
     //
-    fHistoPathsUpData = sys.fHistoPathsUpData;
-    fHistoPathSufUpData = sys.fHistoPathSufUpData;
-    fHistoFilesUpData = sys.fHistoFilesUpData;
-    fHistoFileSufUpData = sys.fHistoFileSufUpData;
-    fHistoNamesUpData = sys.fHistoNamesUpData;
-    fHistoNameSufUpData = sys.fHistoNameSufUpData;
+    fHistoPathsUpRefSample = sys.fHistoPathsUpRefSample;
+    fHistoPathSufUpRefSample = sys.fHistoPathSufUpRefSample;
+    fHistoFilesUpRefSample = sys.fHistoFilesUpRefSample;
+    fHistoFileSufUpRefSample = sys.fHistoFileSufUpRefSample;
+    fHistoNamesUpRefSample = sys.fHistoNamesUpRefSample;
+    fHistoNameSufUpRefSample = sys.fHistoNameSufUpRefSample;
     //
     fHistoPathsDown = sys.fHistoPathsDown;
     fHistoPathSufDown = sys.fHistoPathSufDown;
@@ -168,12 +198,12 @@ Systematic::Systematic(Systematic &sys) {
     fHistoNamesDown = sys.fHistoNamesDown;
     fHistoNameSufDown = sys.fHistoNameSufDown;
     //
-    fHistoPathsDownData = sys.fHistoPathsDownData;
-    fHistoPathSufDownData = sys.fHistoPathSufDownData;
-    fHistoFilesDownData = sys.fHistoFilesDownData;
-    fHistoFileSufDownData = sys.fHistoFileSufDownData;
-    fHistoNamesDownData = sys.fHistoNamesDownData;
-    fHistoNameSufDownData = sys.fHistoNameSufDownData;
+    fHistoPathsDownRefSample = sys.fHistoPathsDownRefSample;
+    fHistoPathSufDownRefSample = sys.fHistoPathSufDownRefSample;
+    fHistoFilesDownRefSample = sys.fHistoFilesDownRefSample;
+    fHistoFileSufDownRefSample = sys.fHistoFileSufDownRefSample;
+    fHistoNamesDownRefSample = sys.fHistoNamesDownRefSample;
+    fHistoNameSufDownRefSample = sys.fHistoNameSufDownRefSample;
     //
     fRegions = sys.fRegions;
     fExclude = sys.fExclude;
@@ -194,16 +224,22 @@ Systematic::~Systematic(){
     fNtuplePathsDown.clear();
     fNtupleFilesDown.clear();
     fNtupleNamesDown.clear();
+    fNtuplePathsUpRefSample.clear();
+    fNtupleFilesUpRefSample.clear();
+    fNtupleNamesUpRefSample.clear();
+    fNtuplePathsDownRefSample.clear();
+    fNtupleFilesDownRefSample.clear();
+    fNtupleNamesDownRefSample.clear();
     fHistoPathsUp.clear();
     fHistoFilesUp.clear();
     fHistoNamesUp.clear();
-    fHistoPathsUpData.clear();
-    fHistoFilesUpData.clear();
-    fHistoNamesUpData.clear();
+    fHistoPathsUpRefSample.clear();
+    fHistoFilesUpRefSample.clear();
+    fHistoNamesUpRefSample.clear();
     fHistoPathsDown.clear();
     fHistoFilesDown.clear();
     fHistoNamesDown.clear();
-    fHistoPathsDownData.clear();
-    fHistoFilesDownData.clear();
-    fHistoNamesDownData.clear();
+    fHistoPathsDownRefSample.clear();
+    fHistoFilesDownRefSample.clear();
+    fHistoNamesDownRefSample.clear();
 }

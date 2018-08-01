@@ -23,6 +23,7 @@ public:
     void DrawNormFactors(const std::string &path, const std::vector < NormFactor* > &normFactor );
     void DrawGammaPulls(const std::string &path );
     void DrawCorrelationMatrix(std::string path, const double corrMin = -1. );
+    void SetPOIPrecision(const int& precision){fPOIPrecision = precision;}
 
     //
     // Data members
@@ -35,6 +36,8 @@ public:
 
     std::vector < NuisParameter* > fNuisPar;
     CorrelationMatrix *fCorrMatrix;
+
+    int fPOIPrecision;
 
 };
 

@@ -207,7 +207,7 @@ public:
 
     /*
      * Helper function to calculate nominal scale for morphed samples
-     * @param A pointer to SampleHist for wich we need to calcualte the scale factor
+     * @param A pointer to SampleHist for which we need to calculate the scale factor
      * @return A scale factor
      */
     float GetNominalMorphScale(const SampleHist* const sh) const;
@@ -399,6 +399,7 @@ public:
     bool fDoNonProfileFit;
     int fFitToys;
     bool fSmoothMorphingTemplates;
+    int fPOIPrecision;
 };
 
 #endif

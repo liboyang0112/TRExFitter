@@ -213,6 +213,8 @@ TtHFit::TtHFit(string name){
     fDoNonProfileFit = false;
     fFitToys = 0;
     fSmoothMorphingTemplates = false;
+
+    fPOIPrecision = 2;
 }
 
 //__________________________________________________________________________________
@@ -751,11 +753,11 @@ void TtHFit::ReadNtuples(){
                 if(syst->fHasUpVariation){
                     fullMCweight = "1.";
                     fullPaths.clear();
-                    vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ), reg->fNtupleNameSuffs );
+                    vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUpRefSample ), reg->fNtupleNameSuffs );
                     vector<string> NtuplePaths       = fNtuplePaths;
-                      if(smp->fNtuplePaths.size()>0)    NtuplePaths = smp->fNtuplePaths;
-                      if(syst->fNtuplePathsUp.size()>0) NtuplePaths = syst->fNtuplePathsUp;
-                    vector<string> NtuplePathSuffs   = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufUp ) );
+                    if(smp->fNtuplePaths.size()>0)    NtuplePaths = smp->fNtuplePaths;
+                    if(syst->fNtuplePathsUpRefSample.size()>0) NtuplePaths = syst->fNtuplePathsUpRefSample;
+                    vector<string> NtuplePathSuffs   = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufUpRefSample ) );
                     //
                     fullPaths = CreatePathsList(
                                                 // path
@@ -763,17 +765,17 @@ void TtHFit::ReadNtuples(){
                                                 // path suf
                                                 NtuplePathSuffs,
                                                 // file
-                                                syst->fNtupleFilesUp.size()==0 ?
+                                                syst->fNtupleFilesUpRefSample.size()==0 ?
                                                 ( smp->fNtupleFiles.size()>0 ? smp->fNtupleFiles : ToVec(fNtupleFile) ) :
-                                                syst->fNtupleFilesUp ,
+                                                syst->fNtupleFilesUpRefSample,
                                                 // file suf
-                                                syst->fNtupleFileSufUp=="" ?
+                                                syst->fNtupleFileSufUpRefSample=="" ?
                                                 empty :
-                                                ToVec( syst->fNtupleFileSufUp ),
+                                                ToVec( syst->fNtupleFileSufUpRefSample ),
                                                 // name
-                                                syst->fNtupleNamesUp.size()==0 ?
+                                                syst->fNtupleNamesUpRefSample.size()==0 ?
                                                 ( smp->fNtupleNames.size()==0 ? ToVec( fNtupleName ) : smp->fNtupleNames ) :
-                                                syst->fNtupleNamesUp,
+                                                syst->fNtupleNamesUpRefSample,
                                                 // name suf
                                                 NtupleNameSuffsUp.size()>0 ? NtupleNameSuffsUp : empty
                                                 );
@@ -806,11 +808,11 @@ void TtHFit::ReadNtuples(){
                 if(syst->fHasDownVariation){
                     fullMCweight = "1.";
                     fullPaths.clear();
-                    vector<string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDown ), reg->fNtupleNameSuffs );
+                    vector<string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDownRefSample ), reg->fNtupleNameSuffs );
                     vector<string> NtuplePaths          = fNtuplePaths;
                       if(smp->fNtuplePaths.size()>0)      NtuplePaths = smp->fNtuplePaths;
-                      if(syst->fNtuplePathsDown.size()>0) NtuplePaths = syst->fNtuplePathsDown;
-                    vector<string> NtuplePathSuffs      = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufDown ) );
+                      if(syst->fNtuplePathsDownRefSample.size()>0) NtuplePaths = syst->fNtuplePathsDownRefSample;
+                    vector<string> NtuplePathSuffs      = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufDownRefSample ) );
                     //
                     fullPaths = CreatePathsList(
                                                 // path
@@ -818,17 +820,17 @@ void TtHFit::ReadNtuples(){
                                                 // path suf
                                                 NtuplePathSuffs,
                                                 // file
-                                                syst->fNtupleFilesDown.size()==0 ?
+                                                syst->fNtupleFilesDownRefSample.size()==0 ?
                                                 ( smp->fNtupleFiles.size()>0 ? smp->fNtupleFiles : ToVec(fNtupleFile) ) :
-                                                syst->fNtupleFilesDown ,
+                                                syst->fNtupleFilesDownRefSample,
                                                 // file suf
-                                                syst->fNtupleFileSufDown=="" ?
+                                                syst->fNtupleFileSufDownRefSample=="" ?
                                                 empty :
-                                                ToVec( syst->fNtupleFileSufDown ),
+                                                ToVec( syst->fNtupleFileSufDownRefSample ),
                                                 // name
-                                                syst->fNtupleNamesDown.size()==0 ?
+                                                syst->fNtupleNamesDownRefSample.size()==0 ?
                                                 ( smp->fNtupleNames.size()==0 ? ToVec( fNtupleName ) : smp->fNtupleNames ) :
-                                                syst->fNtupleNamesDown,
+                                                syst->fNtupleNamesDownRefSample,
                                                 // name suf
                                                 NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
                                                 );
@@ -1057,7 +1059,7 @@ void TtHFit::ReadNtuples(){
                 }
                 // else ...
                 //
-                if(syst->fReferenceSample!="") smp = GetSample(syst->fReferenceSample);
+                if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar) smp = GetSample(syst->fReferenceSample);
                 //
                 // set selection
                 fullSelection = "1";
@@ -1151,6 +1153,11 @@ void TtHFit::ReadNtuples(){
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
                         if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
+                            if( reg->GetSampleHist(syst->fReferenceSample) == 0x0 ){
+                                WriteErrorStatus("TtHFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TtHFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
+                                exit(EXIT_FAILURE);
+                            } 
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -1164,8 +1171,14 @@ void TtHFit::ReadNtuples(){
                             float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
                             if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) htmp->Scale( relVar / newVar );
                         }
+
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                         else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                            if( reg->GetSampleHist(syst->fReferenceSample) == 0x0 ){
+                                WriteErrorStatus("TtHFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TtHFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
+                                exit(EXIT_FAILURE);
+                            } 
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -1532,55 +1545,6 @@ void TtHFit::CorrectHistograms(){
     // Smooth systematics
     SmoothSystematics("all");
     
-//     // NEW: scale systematics according to ScaleUp and ScaleDown
-//     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-//         Region *reg = fRegions[i_ch];
-//         //
-//         for(int i_smp=0;i_smp<fNSamples;i_smp++){
-//             Sample *smp = fSamples[i_smp];
-//             //
-//             // eventually skip sample / region combination
-//             if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
-//             //
-//             SampleHist *sh = reg->GetSampleHist(smp->fName);
-//             if(sh==0x0) continue;
-//             //
-//             // Systematics
-//             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
-//                 Systematic *syst = smp->fSystematics[i_syst];
-//                 if(syst==0x0) continue;
-//                 //
-//                 // eventually skip systematic / region combination
-//                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
-//                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
-//                 if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
-//                 //
-//                 SystematicHist *syh = sh->GetSystematic( syst->fName );
-//                 if(syh==0x0) continue;
-//                 //
-//                 if(syh->fScaleUp!=1.){
-//                     TH1* h_tmp = (TH1*)syh->fHistUp->Clone();
-//                     h_tmp->Add(sh->fHist,-1);
-//                     h_tmp->Scale(syh->fScaleUp);
-//                     h_tmp->Add(sh->fHist);
-//                     syh->fHistUp = h_tmp;
-//                     cout << syh->fNormUp << " ";
-//                     syh->fNormUp *= syh->fScaleUp;
-//                     cout << syh->fNormUp << endl;
-//                 }
-//                 //
-//                 if(syh->fScaleDown!=1.){
-//                     TH1* h_tmp = (TH1*)syh->fHistDown->Clone();
-//                     h_tmp->Add(sh->fHist,-1);
-//                     h_tmp->Scale(syh->fScaleDown);
-//                     h_tmp->Add(sh->fHist);
-//                     syh->fHistDown = h_tmp;
-//                     syh->fNormDown *= syh->fScaleDown;
-//                 }
-//             }            
-//         }
-//     }
-    
     // drop normalisation part of systematic according to fDropNormIn
     for(auto reg : fRegions){
         for(auto sh : reg->fSampleHists){
@@ -1823,23 +1787,23 @@ void TtHFit::ReadHistograms(){
                                                 // path
                                                 fHistoPaths,
                                                 // path suf
-                                    CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsUpData ),
+                                    CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsUpRefSample ),
                                                 // file
                                                 syst->fHistoFilesUp.size()==0 ?
                                                 histoFiles :
-                                    syst->fHistoFilesUpData ,
+                                    syst->fHistoFilesUpRefSample,
                                                 // file suf
                                                 syst->fHistoFileSufUp=="" ?
                                                 empty :
-                                    ToVec( syst->fHistoFileSufUpData ) ,
+                                    ToVec( syst->fHistoFileSufUpRefSample ) ,
                                                 // name
                                                 syst->fHistoNamesUp.size()==0 ?
                                                 histoNames :
-                                    syst->fHistoNamesUpData ,
+                                    syst->fHistoNamesUpRefSample ,
                                                 // name suf
                                                 syst->fHistoNameSufUp=="" ?
                                                 empty :
-                                    ToVec( syst->fHistoNameSufUpData )
+                                    ToVec( syst->fHistoNameSufUpRefSample )
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
@@ -1874,23 +1838,23 @@ void TtHFit::ReadHistograms(){
                                                 // path
                                                 fHistoPaths,
                                                 // path suf
-                                    CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDownData ),
+                                    CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDownRefSample ),
                                                 // file
                                                 syst->fHistoFilesDown.size()==0 ?
                                                 histoFiles :
-                                    syst->fHistoFilesDownData ,
+                                    syst->fHistoFilesDownRefSample ,
                                                 // file suf
                                                 syst->fHistoFileSufDown=="" ?
                                                 empty :
-                                    ToVec( syst->fHistoFileSufDownData ) ,
+                                    ToVec( syst->fHistoFileSufDownRefSample ) ,
                                                 // name
                                                 syst->fHistoNamesDown.size()==0 ?
                                                 histoNames :
-                                    syst->fHistoNamesDownData ,
+                                    syst->fHistoNamesDownRefSample ,
                                                 // name suf
                                                 syst->fHistoNameSufDown=="" ?
                                                 empty :
-                                    ToVec( syst->fHistoNameSufDownData )
+                                    ToVec( syst->fHistoNameSufDownRefSample )
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
@@ -3499,12 +3463,8 @@ void TtHFit::BuildYieldTable(string opt,string group){
     //
     std::vector<int> regionVec; regionVec.clear();
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-//         if(!checkVR && fRegions[i_ch]->fRegionType!=Region::VALIDATION){
             if(group!="" && fRegions[i_ch]->fGroup!=group) continue;
             regionVec.push_back(i_ch);
-//         } else if(checkVR && fRegions[i_ch]->fRegionType==Region::VALIDATION){
-//             regionVec.push_back(i_ch);
-//         }
     }
     if(regionVec.size()==0) return;
     int Nbin = regionVec.size();
@@ -3564,7 +3524,11 @@ void TtHFit::BuildYieldTable(string opt,string group){
                 else
                     h0 = sh->fHist;
                 float tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
-                h_smp[idxVec[i_smp]]->AddBinContent( i_bin,h0->IntegralAndError(1,h0->GetNbinsX(),intErr) );
+                float scale = 1;
+                if (!isPostFit){
+                    scale = GetNominalMorphScale(sh);
+                }
+                h_smp[idxVec[i_smp]]->AddBinContent( i_bin,scale*h0->IntegralAndError(1,h0->GetNbinsX(),intErr) );
                 if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
                     h_smp[idxVec[i_smp]]->SetBinError(i_bin,0.);
                 else
@@ -3578,23 +3542,23 @@ void TtHFit::BuildYieldTable(string opt,string group){
     int i_np = -1;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
-        name = fSamples[i_smp]->fName;
         if(idxVec[i_smp]!=i_smp) continue;
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
+        name = fSamples[i_smp]->fName;
         // build the vectors of variations
-        std::vector< TH1* > h_up;   h_up.clear();
-        std::vector< TH1* > h_down; h_down.clear();
+        std::vector< TH1* > h_up;
+        std::vector< TH1* > h_down;
         TH1* h_tmp_Up;
         TH1* h_tmp_Down;
         std::vector<string> systNames;
         std::vector<string> npNames;
-        systNames.clear();
-        npNames.clear();
         i_np = -1;
         // actual systematics
         for(int i_syst=0;i_syst<fNSyst;i_syst++){
             string systName = fSystematics[i_syst]->fName;
             string systNuisPar = systName;
+            // check if the systematic(NP name) has already been processed
+            if (std::find(npNames.begin(), npNames.end(), systNuisPar) != npNames.end()) continue;
             systNames.push_back( systName );
             systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
             npNames.push_back(systNuisPar);
@@ -3640,8 +3604,13 @@ void TtHFit::BuildYieldTable(string opt,string group){
                     h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                     h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                 }
-                h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
-                h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+
+                float scale = 1; 
+                if (!isPostFit){
+                    scale = GetNominalMorphScale(sh);
+                }
+                h_up[i_np]  ->SetBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()))*scale );
+                h_down[i_np]->SetBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*scale );
                 //
                 // eventually add any other samples with the same title
                 for(int j_smp=0;j_smp<fNSamples;j_smp++){
@@ -3668,8 +3637,12 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                 h_tmp_Down = sh->GetSystematic(systName)->fHistDown;
                             }
                         }
-                        h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-                        h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
+                        float scale = 1;
+                        if (!isPostFit) {
+                            scale = GetNominalMorphScale(sh);
+                        }
+                        h_up[i_np]  ->AddBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()))*scale );
+                        h_down[i_np]->AddBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*scale );
                     }
                 }
             }
@@ -3711,16 +3684,6 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                 h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown_postFit;
                             }
                         }
-                        else {
-                            if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
-                                h_tmp_Up   = sh->fHist;
-                                h_tmp_Down = sh->fHist;
-                            }
-                            else{
-                                h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp;
-                                h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown;
-                            }
-                        }
                     }
                     else {
                         h_tmp_Up   = new TH1F(Form("h_DUMMY_%s_up_%i",  gammaName.c_str(),i_ch-1),"h_dummy",1,0,1);
@@ -3744,16 +3707,6 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                     else{
                                         h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp_postFit;
                                         h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown_postFit;
-                                    }
-                                }
-                                else{
-                                    if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
-                                        h_tmp_Up   = sh->fHist;
-                                        h_tmp_Down = sh->fHist;
-                                    }
-                                    else{
-                                        h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp;
-                                        h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown;
                                     }
                                 }
                                 h_up[i_np]  ->AddBinContent( i_ch,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
@@ -3826,10 +3779,6 @@ void TtHFit::BuildYieldTable(string opt,string group){
                                         h_tmp_Up   = sh->fHist_postFit;
                                         h_tmp_Down = sh->fHist_postFit;
                                     }
-                                    else{
-                                        h_tmp_Up   = sh->GetSystematic(normName)->fHistUp_postFit;
-                                        h_tmp_Down = sh->GetSystematic(normName)->fHistDown_postFit;
-                                    }
                                 }
                                 else{
                                     if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
@@ -3870,14 +3819,12 @@ void TtHFit::BuildYieldTable(string opt,string group){
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             texout << " & ";
             out << h_smp[i_smp]->GetBinContent(i_bin);
-//             texout << setprecision(3) << h_smp[i_smp]->GetBinContent(i_bin);
             texout << "\\num[round-mode=figures,round-precision=3]{";
             texout << h_smp[i_smp]->GetBinContent(i_bin);
             texout << "}";
             out << " pm ";
             texout << " $\\pm$ ";
             out << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
-//             texout << setprecision(3) << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
             texout << "\\num[round-mode=figures,round-precision=3]{";
             texout << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
             texout << "}";
@@ -3899,11 +3846,11 @@ void TtHFit::BuildYieldTable(string opt,string group){
     //
     //   Build error band
     // build the vectors of variations
-    std::vector< TH1* > h_up;   h_up.clear();
-    std::vector< TH1* > h_down; h_down.clear();
+    std::vector< TH1* > h_up;
+    std::vector< TH1* > h_down;
     TH1* h_tmp_Up;
     TH1* h_tmp_Down;
-    std::vector<string> npNames; npNames.clear();
+    std::vector<string> npNames;
     i_np = -1;
     // actual systematics
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
@@ -5980,6 +5927,7 @@ void TtHFit::ReadFitResults(const string& fileName){
     WriteInfoStatus("TtHFit::ReadFitResults",  "Reading fit results from file ");
     delete fFitResults;
     fFitResults = new FitResults();
+    fFitResults->SetPOIPrecision(fPOIPrecision);
     if(fileName.find(".txt")!=string::npos){
         fFitResults->ReadFromTXT(fileName);
     }
@@ -7961,8 +7909,11 @@ void TtHFit::RunToys(RooWorkspace* ws){
 //
 float TtHFit::GetNominalMorphScale(const SampleHist* const sh) const {
     float scale = 1.;
+    if (sh == nullptr) return 1.;
+    if (sh->fSample == nullptr) return 1.;
     for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
         NormFactor *nf = sh->fSample->fNormFactors[i_nf];
+        if (nf == nullptr) continue;
         std::string nfName = nf->fName;
 
         if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
@@ -7972,6 +7923,8 @@ float TtHFit::GetNominalMorphScale(const SampleHist* const sh) const {
             TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
             scale *= f_morph->Eval(nf->fNominal);
             delete f_morph;
+        } else {
+            scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
         }
     }
 
