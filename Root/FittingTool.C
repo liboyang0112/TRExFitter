@@ -108,7 +108,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 
     if (m_debug < 1) std::cout.setstate(std::ios_base::failbit);
     WriteDebugStatus("FittingTool::FitPDF", "-> Entering in FitPDF function");
-    
+
     //
     // Printing the whole model for information
     //
@@ -156,7 +156,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     if (m_debug < 1) std::cout.clear();
     WriteDebugStatus("FittingTool::FitPDF", "Setting starting mu = " + std::to_string(m_valPOI));
     if (m_debug < 1) std::cout.setstate(std::ios_base::failbit);
-    
+
     // randomize the POI
     if(!m_constPOI && m_randomize){
         poi->setVal( m_valPOI + m_randomNP*(gRandom->Uniform(2)-1.) );
@@ -243,19 +243,22 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 
     //
     // Safe fit loop
-    static int nrItr = 0;
-    const int maxRetries = 3;
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer(m_minimType);
     int strat = ROOT::Math::MinimizerOptions::DefaultStrategy();
     if(TtHFitter::OPTION["FitStrategy"]!=0){
         strat = TtHFitter::OPTION["FitStrategy"];
         if(TtHFitter::OPTION["FitStrategy"]<0) strat = 0;
+        if(TtHFitter::OPTION["FitStrategy"]>3){
+            WriteWarningStatus("FittingTool::FitPDF","Set strategy > 3. Setting to default (1)");
+            strat = 1;
+        }
     }
-    int save_strat = strat;
     RooMinimizer minim(*nll);
     minim.setStrategy(strat);
     minim.setPrintLevel(1);
     minim.setEps(1);
+    // it doesn't make sense to try more than 2 additional strategies
+    const int maxRetries = 3 - strat;
 
     // experimental - playing around fit minimisation precision
 //     minim.setEps(100);
@@ -265,12 +268,11 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
 //     minim.setMaxFunctionCalls(500*200*10);
 //     minim.setOffsetting(true);
 
-    //
     // fast fit - e.g. for ranking
     if(fastFit){
         minim.setStrategy(0);  // to be the same as ttH comb
-//         minim.setEps(0.1);  // to balance and not to have crazy results...
         minim.setPrintLevel(0);
+//         minim.setEps(0.1);  // to balance and not to have crazy results...
 //         minim.setMaxIterations(100*10);
 //         minim.setMaxFunctionCalls(100*10);
 //         minim.setMaxIterations(100*minim.getNPar());
@@ -284,143 +286,106 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     m_edm = -99;
     RooFitResult *r = nullptr;
 
-//     if (m_debug < 2) std::cout.clear();
-    while (nrItr<maxRetries && status!=0 && status!=1){
+    // always run one fit
+    WriteInfoStatus("FittingTool::FitPDF", "");
+    WriteInfoStatus("FittingTool::FitPDF", "");
+    WriteInfoStatus("FittingTool::FitPDF", "");
+    WriteInfoStatus("FittingTool::FitPDF", "Fit try no." + std::to_string(1));
+    WriteInfoStatus("FittingTool::FitPDF", "======================");
+    WriteInfoStatus("FittingTool::FitPDF", "");
 
-        WriteInfoStatus("FittingTool::FitPDF", "");
-        WriteInfoStatus("FittingTool::FitPDF", "");
-        WriteInfoStatus("FittingTool::FitPDF", "");
-        WriteInfoStatus("FittingTool::FitPDF", "Fit try no." + std::to_string(nrItr+1));
-        WriteInfoStatus("FittingTool::FitPDF", "======================");
-        WriteInfoStatus("FittingTool::FitPDF", "");
+    ROOT::Math::MinimizerOptions::SetDefaultStrategy(strat);
+    status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(),ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+    m_hessStatus= minim.hesse();
+    r = minim.save();
+    m_edm = r->edm();
 
-        ROOT::Math::MinimizerOptions::SetDefaultStrategy(save_strat);
-        status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(),ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+    // check if the fit converged
+    bool FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>0.001);
+
+    // if not, loop maximum 2 times with increased strategy
+    int nrItr = 0;
+    while (nrItr<maxRetries && FitIsNotGood){
+        WriteWarningStatus("FittingTool::FitPDF", "");
+        WriteWarningStatus("FittingTool::FitPDF", "   *******************************");
+        WriteWarningStatus("FittingTool::FitPDF", "   * Increasing Minuit strategy (was " + std::to_string(strat) + ")");
+        strat++;
+        WriteWarningStatus("FittingTool::FitPDF", "   * Fit failed with : ");
+        WriteWarningStatus("FittingTool::FitPDF", "      - minuit status " + std::to_string(status));
+        WriteWarningStatus("FittingTool::FitPDF", "      - hess status " + std::to_string(m_hessStatus));
+        WriteWarningStatus("FittingTool::FitPDF", "      - Edm = " + std::to_string(m_edm));
+        WriteWarningStatus("FittingTool::FitPDF", "   * Retrying with strategy " + std::to_string(strat));
+        WriteWarningStatus("FittingTool::FitPDF", "   ********************************");
+        WriteWarningStatus("FittingTool::FitPDF", "");
+        minim.setStrategy(strat);
+        status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
         m_hessStatus= minim.hesse();
         r = minim.save();
         m_edm = r->edm();
 
-        //up the strategy
-        bool FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>1.0);
-        if (FitIsNotGood && strat < 2){
-            WriteInfoStatus("FittingTool::FitPDF", "");
-            WriteInfoStatus("FittingTool::FitPDF", "   *******************************");
-            WriteInfoStatus("FittingTool::FitPDF", "   * Increasing Minuit strategy (was " + std::to_string(strat) + ")");
-            strat++;
-            WriteInfoStatus("FittingTool::FitPDF", "   * Fit failed with : ");
-            WriteInfoStatus("FittingTool::FitPDF", "      - minuit status " + std::to_string(status));
-            WriteInfoStatus("FittingTool::FitPDF", "      - hess status " + std::to_string(m_hessStatus));
-            WriteInfoStatus("FittingTool::FitPDF", "      - Edm = " + std::to_string(m_edm));
-            WriteInfoStatus("FittingTool::FitPDF", "   * Retrying with strategy " + std::to_string(strat));
-            WriteInfoStatus("FittingTool::FitPDF", "   ********************************");
-            WriteInfoStatus("FittingTool::FitPDF", "");
-            minim.setStrategy(strat);
-            status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
-            m_hessStatus= minim.hesse();
-            r = minim.save();
-            m_edm = r->edm();
-        }
-
-        FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>1.0);
-        if (FitIsNotGood && strat < 2){
-            WriteInfoStatus("FittingTool::FitPDF", "");
-            WriteInfoStatus("FittingTool::FitPDF", "   ********************************");
-            WriteInfoStatus("FittingTool::FitPDF", "   * Increasing Minuit strategy (was " + std::to_string(strat) + ")");
-            strat++;
-            WriteInfoStatus("FittingTool::FitPDF", "   * Fit failed with : ");
-            WriteInfoStatus("FittingTool::FitPDF", "      - minuit status " + std::to_string(status));
-            WriteInfoStatus("FittingTool::FitPDF", "      - hess status " + std::to_string(m_hessStatus));
-            WriteInfoStatus("FittingTool::FitPDF", "      - Edm = " + std::to_string(m_edm));
-            WriteInfoStatus("FittingTool::FitPDF", "   * Retrying with strategy " + std::to_string(strat));
-            WriteInfoStatus("FittingTool::FitPDF", "   ********************************");
-            WriteInfoStatus("FittingTool::FitPDF", "");
-            minim.setStrategy(strat);
-            status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
-            r = minim.save();
-            m_edm = r->edm();
-        }
-
-        FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>1.0);
-        if (FitIsNotGood && strat < 2){
-            WriteInfoStatus("FittingTool::FitPDF", "");
-            WriteInfoStatus("FittingTool::FitPDF", "   ********************************");
-            WriteInfoStatus("FittingTool::FitPDF", "   * Increasing Minuit strategy (was " + std::to_string(strat) + ")");
-            strat++;
-            WriteInfoStatus("FittingTool::FitPDF", "   * Fit failed with : ");
-            WriteInfoStatus("FittingTool::FitPDF", "      - minuit status " + std::to_string(status));
-            WriteInfoStatus("FittingTool::FitPDF", "      - hess status " + std::to_string(m_hessStatus));
-            WriteInfoStatus("FittingTool::FitPDF", "      - Edm = " + std::to_string(m_edm));
-            WriteInfoStatus("FittingTool::FitPDF", "   * Retrying with strategy " + std::to_string(strat));
-            WriteInfoStatus("FittingTool::FitPDF", "   ********************************");
-            WriteInfoStatus("FittingTool::FitPDF", "");
-            minim.setStrategy(strat);
-            status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
-            m_hessStatus= minim.hesse();
-            r = minim.save();
-            m_edm = r->edm();
-        }
-
-        if(m_useMinos){
-            TIterator* it3 = model->GetNuisanceParameters()->createIterator();
-            TIterator* it4 = model->GetParametersOfInterest()->createIterator();
-            RooArgSet* SliceNPs = new RooArgSet( *(model->GetNuisanceParameters()) );
-            SliceNPs->add(*(model->GetParametersOfInterest()));
-            RooRealVar* var = NULL;
-            RooRealVar* var2 = NULL;
-            WriteDebugStatus("FittingTool::FitPDF", "Size of variables for MINOS: " + std::to_string(m_varMinos.size()));
-
-            if (m_varMinos.at(0)!="all"){
-                while( (var = (RooRealVar*) it3->Next()) ){
-                    TString vname=var->GetName();
-                    bool isthere=false;
-                    for (unsigned int m=0;m<m_varMinos.size();++m){
-                        //std::cout << "MINOS var: " << m_varMinos.at(m) << std::endl;
-                        if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
-                        //cout << " --> NP: " << vname << endl;
-                    }
-                    if (!isthere) SliceNPs->remove(*var, true, true);
-                }
-                while( (var2 = (RooRealVar*) it4->Next()) ){
-                    TString vname=var2->GetName();
-                    bool isthere=false;
-                    for (unsigned int m=0;m<m_varMinos.size();++m){
-                        //std::cout << "MINOS var: " << m_varMinos.at(m) << std::endl;
-                        if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
-                        //cout << " --> POI: " << vname << endl;
-                    }
-                    if (!isthere) SliceNPs->remove(*var2, true, true);
-                }
-                minim.minos(*SliceNPs);
-            }
-            else
-                minim.minos();
-
-            delete SliceNPs;
-            delete it3;
-            delete it4;
-        }//end useMinos
-
-        FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>1.0);
-        if ( FitIsNotGood ) nrItr++;
-        if (nrItr == maxRetries) {
-            WriteWarningStatus("FittingTool::FitPDF", "");
-            WriteWarningStatus("FittingTool::FitPDF", "");
-            WriteWarningStatus("FittingTool::FitPDF", "");
-            WriteWarningStatus("FittingTool::FitPDF", "");
-            WriteWarningStatus("FittingTool::FitPDF", "***********************************************************");
-            WriteWarningStatus("FittingTool::FitPDF", "Fit failure unresolved with status " + std::to_string(status));
-            WriteWarningStatus("FittingTool::FitPDF", "   Please investigate your workspace");
-            WriteWarningStatus("FittingTool::FitPDF", "   Find a wall : you will need it to crash your head on it");
-            WriteWarningStatus("FittingTool::FitPDF", "***********************************************************");
-            WriteWarningStatus("FittingTool::FitPDF", "");
-            WriteWarningStatus("FittingTool::FitPDF", "");
-            WriteWarningStatus("FittingTool::FitPDF", "");
-            m_minuitStatus = status;
-            m_fitResult = 0;
-            return 0;
-        }
-
+        FitIsNotGood = ((status!=0 && status!=1) || (m_hessStatus!=0 && m_hessStatus!=1) || m_edm>0.001);
+        nrItr++;
     }
+
+    // if the fit is not good even after retries print an error message
+    if (FitIsNotGood) {
+        WriteErrorStatus("FittingTool::FitPDF", "");
+        WriteErrorStatus("FittingTool::FitPDF", "");
+        WriteErrorStatus("FittingTool::FitPDF", "");
+        WriteErrorStatus("FittingTool::FitPDF", "");
+        WriteErrorStatus("FittingTool::FitPDF", "***********************************************************");
+        WriteErrorStatus("FittingTool::FitPDF", "Fit failure unresolved with status " + std::to_string(status));
+        WriteErrorStatus("FittingTool::FitPDF", "   Please investigate your workspace");
+        WriteErrorStatus("FittingTool::FitPDF", "   Find a wall : you will need it to crash your head on it");
+        WriteErrorStatus("FittingTool::FitPDF", "***********************************************************");
+        WriteErrorStatus("FittingTool::FitPDF", "");
+        WriteErrorStatus("FittingTool::FitPDF", "");
+        WriteErrorStatus("FittingTool::FitPDF", "");
+        m_minuitStatus = status;
+        m_fitResult = 0;
+
+        delete r;
+        delete nll;
+
+        return 0;
+    }
+
+    if(m_useMinos){
+        TIterator* it3 = model->GetNuisanceParameters()->createIterator();
+        TIterator* it4 = model->GetParametersOfInterest()->createIterator();
+        RooArgSet* SliceNPs = new RooArgSet( *(model->GetNuisanceParameters()) );
+        SliceNPs->add(*(model->GetParametersOfInterest()));
+        RooRealVar* var = NULL;
+        RooRealVar* var2 = NULL;
+        WriteDebugStatus("FittingTool::FitPDF", "Size of variables for MINOS: " + std::to_string(m_varMinos.size()));
+
+        if (m_varMinos.at(0)!="all"){
+            while( (var = (RooRealVar*) it3->Next()) ){
+                TString vname=var->GetName();
+                bool isthere=false;
+                for (unsigned int m=0;m<m_varMinos.size();++m){
+                    if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+                }
+                if (!isthere) SliceNPs->remove(*var, true, true);
+            }
+            while( (var2 = (RooRealVar*) it4->Next()) ){
+                TString vname=var2->GetName();
+                bool isthere=false;
+                for (unsigned int m=0;m<m_varMinos.size();++m){
+                    if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+                }
+                if (!isthere) SliceNPs->remove(*var2, true, true);
+            }
+            minim.minos(*SliceNPs);
+        }
+        else {
+            minim.minos();
+        }
+
+        delete SliceNPs;
+        delete it3;
+        delete it4;
+    }//end useMinos
 
     r = minim.save();
     WriteInfoStatus("FittingTool::FitPDF", "");
@@ -463,12 +428,12 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
         WriteInfoStatus("FittingTool::FitPDF", "   -> Final value of the NLL = " + std::to_string(nllval));
         WriteInfoStatus("FittingTool::FitPDF", "   -> Final value of offset = " + std::to_string(nlloffset));
         WriteInfoStatus("FittingTool::FitPDF", "   -> Final NLL - offset = " + std::to_string(nllval-nlloffset));
-        
-        std::cout << resetiosflags( ios::fixed | ios::showpoint );        
+
+        std::cout << resetiosflags( ios::fixed | ios::showpoint );
         std::cout << std::setprecision(ss);
     }
-    delete nll;
     if (m_debug < 1) std::cout.clear();
+    delete nll;
     return nllval;
 }
 
@@ -478,6 +443,7 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName )
 {
     if(!m_fitResult){
         WriteErrorStatus("FittingTool::ExportFitResultInTextFile", "The FitResultObject seems not to be defined.");
+        return;
     }
 
     //
@@ -578,7 +544,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     // repeat the nominal fit - done so that the initial randomization is the exact same as for the following fit(s)
     // this should help avoid issues with fits ending up in different local minima for groups with very small impact on the POI
     FitExcludingGroup(false, false, fitdata, fitpdf, constrainedParams, model, ws, "Nominal", associatedParams);  // nothing held constant -> "snapshot_AfterFit_POI_Nominal"
-    
+
     //
     // eventually do it once more
     if(TtHFitter::OPTION["GroupedImpactMoreFit"]>0){
@@ -720,7 +686,7 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     RooRealVar * thePOI = dynamic_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
 
     bool HessStatus= minim2.hesse();
-        
+
     RooArgSet minosSet(*thePOI);
     if(m_useMinos && (m_varMinos.at(0)=="all" || find(m_varMinos.begin(),m_varMinos.end(),thePOI->GetName())<m_varMinos.end())){
         minim2.minos(minosSet);
