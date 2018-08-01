@@ -752,11 +752,11 @@ void TtHFit::ReadNtuples(){
                 if(syst->fHasUpVariation){
                     fullMCweight = "1.";
                     fullPaths.clear();
-                    vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ), reg->fNtupleNameSuffs );
+                    vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUpRefSample ), reg->fNtupleNameSuffs );
                     vector<string> NtuplePaths       = fNtuplePaths;
-                      if(smp->fNtuplePaths.size()>0)    NtuplePaths = smp->fNtuplePaths;
-                      if(syst->fNtuplePathsUp.size()>0) NtuplePaths = syst->fNtuplePathsUp;
-                    vector<string> NtuplePathSuffs   = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufUp ) );
+                    if(smp->fNtuplePaths.size()>0)    NtuplePaths = smp->fNtuplePaths;
+                    if(syst->fNtuplePathsUpRefSample.size()>0) NtuplePaths = syst->fNtuplePathsUpRefSample;
+                    vector<string> NtuplePathSuffs   = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufUpRefSample ) );
                     //
                     fullPaths = CreatePathsList(
                                                 // path
@@ -764,17 +764,17 @@ void TtHFit::ReadNtuples(){
                                                 // path suf
                                                 NtuplePathSuffs,
                                                 // file
-                                                syst->fNtupleFilesUp.size()==0 ?
+                                                syst->fNtupleFilesUpRefSample.size()==0 ?
                                                 ( smp->fNtupleFiles.size()>0 ? smp->fNtupleFiles : ToVec(fNtupleFile) ) :
-                                                syst->fNtupleFilesUp ,
+                                                syst->fNtupleFilesUpRefSample,
                                                 // file suf
-                                                syst->fNtupleFileSufUp=="" ?
+                                                syst->fNtupleFileSufUpRefSample=="" ?
                                                 empty :
-                                                ToVec( syst->fNtupleFileSufUp ),
+                                                ToVec( syst->fNtupleFileSufUpRefSample ),
                                                 // name
-                                                syst->fNtupleNamesUp.size()==0 ?
+                                                syst->fNtupleNamesUpRefSample.size()==0 ?
                                                 ( smp->fNtupleNames.size()==0 ? ToVec( fNtupleName ) : smp->fNtupleNames ) :
-                                                syst->fNtupleNamesUp,
+                                                syst->fNtupleNamesUpRefSample,
                                                 // name suf
                                                 NtupleNameSuffsUp.size()>0 ? NtupleNameSuffsUp : empty
                                                 );
@@ -807,11 +807,11 @@ void TtHFit::ReadNtuples(){
                 if(syst->fHasDownVariation){
                     fullMCweight = "1.";
                     fullPaths.clear();
-                    vector<string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDown ), reg->fNtupleNameSuffs );
+                    vector<string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDownRefSample ), reg->fNtupleNameSuffs );
                     vector<string> NtuplePaths          = fNtuplePaths;
                       if(smp->fNtuplePaths.size()>0)      NtuplePaths = smp->fNtuplePaths;
-                      if(syst->fNtuplePathsDown.size()>0) NtuplePaths = syst->fNtuplePathsDown;
-                    vector<string> NtuplePathSuffs      = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufDown ) );
+                      if(syst->fNtuplePathsDownRefSample.size()>0) NtuplePaths = syst->fNtuplePathsDownRefSample;
+                    vector<string> NtuplePathSuffs      = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufDownRefSample ) );
                     //
                     fullPaths = CreatePathsList(
                                                 // path
@@ -819,17 +819,17 @@ void TtHFit::ReadNtuples(){
                                                 // path suf
                                                 NtuplePathSuffs,
                                                 // file
-                                                syst->fNtupleFilesDown.size()==0 ?
+                                                syst->fNtupleFilesDownRefSample.size()==0 ?
                                                 ( smp->fNtupleFiles.size()>0 ? smp->fNtupleFiles : ToVec(fNtupleFile) ) :
-                                                syst->fNtupleFilesDown ,
+                                                syst->fNtupleFilesDownRefSample,
                                                 // file suf
-                                                syst->fNtupleFileSufDown=="" ?
+                                                syst->fNtupleFileSufDownRefSample=="" ?
                                                 empty :
-                                                ToVec( syst->fNtupleFileSufDown ),
+                                                ToVec( syst->fNtupleFileSufDownRefSample ),
                                                 // name
-                                                syst->fNtupleNamesDown.size()==0 ?
+                                                syst->fNtupleNamesDownRefSample.size()==0 ?
                                                 ( smp->fNtupleNames.size()==0 ? ToVec( fNtupleName ) : smp->fNtupleNames ) :
-                                                syst->fNtupleNamesDown,
+                                                syst->fNtupleNamesDownRefSample,
                                                 // name suf
                                                 NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
                                                 );
@@ -1058,7 +1058,7 @@ void TtHFit::ReadNtuples(){
                 }
                 // else ...
                 //
-                if(syst->fReferenceSample!="") smp = GetSample(syst->fReferenceSample);
+                if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar) smp = GetSample(syst->fReferenceSample);
                 //
                 // set selection
                 fullSelection = "1";
@@ -1152,6 +1152,11 @@ void TtHFit::ReadNtuples(){
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
                         if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
+                            if( reg->GetSampleHist(syst->fReferenceSample) == 0x0 ){
+                                WriteErrorStatus("TtHFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TtHFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
+                                exit(EXIT_FAILURE);
+                            } 
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -1165,8 +1170,14 @@ void TtHFit::ReadNtuples(){
                             float newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
                             if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) htmp->Scale( relVar / newVar );
                         }
+
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                         else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                            if( reg->GetSampleHist(syst->fReferenceSample) == 0x0 ){
+                                WriteErrorStatus("TtHFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TtHFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
+                                exit(EXIT_FAILURE);
+                            } 
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -1824,23 +1835,23 @@ void TtHFit::ReadHistograms(){
                                                 // path
                                                 fHistoPaths,
                                                 // path suf
-                                    CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsUpData ),
+                                    CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsUpRefSample ),
                                                 // file
                                                 syst->fHistoFilesUp.size()==0 ?
                                                 histoFiles :
-                                    syst->fHistoFilesUpData ,
+                                    syst->fHistoFilesUpRefSample,
                                                 // file suf
                                                 syst->fHistoFileSufUp=="" ?
                                                 empty :
-                                    ToVec( syst->fHistoFileSufUpData ) ,
+                                    ToVec( syst->fHistoFileSufUpRefSample ) ,
                                                 // name
                                                 syst->fHistoNamesUp.size()==0 ?
                                                 histoNames :
-                                    syst->fHistoNamesUpData ,
+                                    syst->fHistoNamesUpRefSample ,
                                                 // name suf
                                                 syst->fHistoNameSufUp=="" ?
                                                 empty :
-                                    ToVec( syst->fHistoNameSufUpData )
+                                    ToVec( syst->fHistoNameSufUpRefSample )
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
@@ -1875,23 +1886,23 @@ void TtHFit::ReadHistograms(){
                                                 // path
                                                 fHistoPaths,
                                                 // path suf
-                                    CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDownData ),
+                                    CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDownRefSample ),
                                                 // file
                                                 syst->fHistoFilesDown.size()==0 ?
                                                 histoFiles :
-                                    syst->fHistoFilesDownData ,
+                                    syst->fHistoFilesDownRefSample ,
                                                 // file suf
                                                 syst->fHistoFileSufDown=="" ?
                                                 empty :
-                                    ToVec( syst->fHistoFileSufDownData ) ,
+                                    ToVec( syst->fHistoFileSufDownRefSample ) ,
                                                 // name
                                                 syst->fHistoNamesDown.size()==0 ?
                                                 histoNames :
-                                    syst->fHistoNamesDownData ,
+                                    syst->fHistoNamesDownRefSample ,
                                                 // name suf
                                                 syst->fHistoNameSufDown=="" ?
                                                 empty :
-                                    ToVec( syst->fHistoNameSufDownData )
+                                    ToVec( syst->fHistoNameSufDownRefSample )
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;

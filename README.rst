@@ -389,18 +389,30 @@ NB: note the *blank* line between the objects!
      * KeepNormForSamples  : list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
      * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
      * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
-     * HistoPathUpData     : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder for the up variation reference sample (Data) when using HIST
-     * HistoPathDownData   : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder for the down variation reference sample (Data) when using HIST
-     * HistoPathSufUpData  : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder suffixes for the up variation reference sample (Data) when using HIST
-     * HistoPathSufDownData: When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo folder suffixes for the down variation reference sample (Data) when using HIST
-     * HistoFileUpData     : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file path for the up variation reference sample (Data) when using HIST
-     * HistoFileDownData   : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file path for the down variation reference sample (Data) when using HIST
-     * HistoFileUpSufData  : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file suff path for the up variation reference sample (Data) when using HIST
-     * HistoFileDoSufwnData: When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo file suff path for the down variation reference sample (Data) when using HIST
-     * HistoNameUpData     : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path inside the file for the up variation reference sample (Data) when using HIST
-     * HistoNameDownData   : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path inside the file for the down variation reference sample (Data) when using HIST
-     * HistoNameSufUpData  : When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path suff inside the file for the up variation reference sample (Data) when using HIST
-     * HistoNameSufDownData: When option SubtractRefSampleVar is set to TRUE you can specify the path to the histo path suff inside the file for the down variation reference sample (Data) when using HIST
+     * HistoPathUpRefSample       : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file path for systematic up variation
+     * HistoPathDownRefSample     : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file path for systematic down variation
+     * HistoPathSufUpRefSample    : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic up variation
+     * HistoPathSufDownRefSample  : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic down variation
+     * HistoFileUpRefSample       : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file name for systematic up variation
+     * HistoFileDownRefSample     : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file name for systematic down variation
+     * HistoFileSufUpRefSample    : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic up variation
+     * HistoFileSufDownRefSample  : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic down variation
+     * HistoNameUpRefSample       : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram name for systematic up variation
+     * HistoNameDownRefSample     : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram name for systematic down variation
+     * HistoNameSufUpRefSample    : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram names for systematic up variation
+     * HistoNameSufDownRefSample  : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram names for systematic down variation
+     * NtuplePath(s)UpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file path(s) for systematic up variation
+     * NtuplePath(s)DownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file path(s) for systematic down variation
+     * NtuplePathSufUpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file paths for systematic up variation
+     * NtuplePathSufDownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file paths for systematic down variation
+     * NtupleFile(s)UpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file name(s) for systematic up variation
+     * NtupleFile(s)DownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file name(s) for systematic down variation
+     * NtupleFileSufUpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file names for systematic up variation
+     * NtupleFileSufDownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file names for systematic down variation
+     * NtupleName(s)UpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple name(s) for systematic up variation
+     * NtupleName(s)DownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple name(s) for systematic down variation
+     * NtupleNameSufUpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic up variation
+     * NtupleNameSufDownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic down variation
      * Decorrelate         : decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects)
 
 
