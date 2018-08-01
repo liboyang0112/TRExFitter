@@ -220,43 +220,48 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 === DEBUG::TtHFit::DumpData: Activating binned likelihood attribute for SR_2_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
-  1) 0x4bf2cb0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
-  2) 0x4bf69f0 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
-  3) 0x4bf08b0 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
-  4) 0x4bd8b00 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
-  5) 0x4bdcd70 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
-  6) 0x4be06e0 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
-  7) 0x4be40b0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
-  8) 0x4e79d00 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
-  9) 0x4e7fc20 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
- 10) 0x4e83560 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
- 11) 0x4e86ea0 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
-[1;32m=== INFO::RunSig::RunSig: Setting max function calls[0m
+  1) 0x4ab6170 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  2) 0x4ab9eb0 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  3) 0x4ab3d70 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  4) 0x4cd22b0 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  5) 0x4cd5b90 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  6) 0x4cd9560 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  7) 0x4cdcf30 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  8) 0x4d4be20 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+  9) 0x4d51d40 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 10) 0x4d55680 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 11) 0x4d58fc0 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+Setting max function calls
 [#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name conditionalNuis_0 is available
 [#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
 [#1] INFO:Minization --  Including the following contraint terms in minimization: (alpha_JESConstraint,alpha_Bkg1XsecConstraint,alpha_Bkg2XsecConstraint,gamma_stat_SR_1_bin_0_constraint,gamma_stat_SR_1_bin_1_constraint,gamma_stat_SR_1_bin_2_constraint,gamma_stat_SR_1_bin_3_constraint,gamma_stat_SR_2_bin_0_constraint,gamma_stat_SR_2_bin_1_constraint,gamma_stat_SR_2_bin_2_constraint,gamma_stat_SR_2_bin_3_constraint)
-[1;32m=== INFO::RunSig::RunSig: Asimov data doesn't exist! Please, allow me to build one for you...[0m
-[1;32m=== INFO::RunSig::makeAsimovData: Creating asimov data at mu = 1.000000, profiling at mu = 1.000000[0m
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
-=== DEBUG::RunSig::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
+Asimov data doesn't exist! Please, allow me to build one for you...
+Creating asimov data at mu = 1, profiling at mu = 1
+Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
+Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
+Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
+Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
+Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
+Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
+Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
+Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
+Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
+Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
+Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
 [#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name nominalGlobs is available
-[1;32m=== INFO::RunSig::makeAsimovData: nominalGlobs doesn't exist. Saving snapshot.[0m
+nominalGlobs doesn't exist. Saving snapshot.
 [#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name nominalNuis is available
-[1;32m=== INFO::RunSig::makeAsimovData: nominalNuis doesn't exist. Saving snapshot.[0m
+nominalNuis doesn't exist. Saving snapshot.
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_ttHFitterData_with_constr) Summation contains a RooNLLVar, using its error level
-Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
 RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4 dataset entries)
 [#1] INFO:Fitting -- RooAbsTestStatistic::initSimMode: created 2 slave calculators.
+[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_1_Hist_alphanominal,Bkg1_SR_1_Hist_alpha_0low,Bkg1_SR_1_Hist_alpha_0high,Bkg2_SR_1_nominal,Signal_SR_1_Hist_alphanominal,Signal_SR_1_Hist_alpha_0low,Signal_SR_1_Hist_alpha_0high)
+[#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (mc_stat_SR_1,Bkg1_SR_1_Hist_alpha,Signal_SR_1_Hist_alpha)
+[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_2_Hist_alphanominal,Bkg1_SR_2_Hist_alpha_0low,Bkg1_SR_2_Hist_alpha_0high,Bkg2_SR_2_nominal,Signal_SR_2_Hist_alphanominal,Signal_SR_2_Hist_alpha_0low,Signal_SR_2_Hist_alpha_0high)
+[#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (mc_stat_SR_2,Bkg1_SR_2_Hist_alpha,Signal_SR_2_Hist_alpha)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_1_bin_0_constraint_Int[gamma_stat_SR_1_bin_0]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_1_bin_0)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_1_bin_1_constraint_Int[gamma_stat_SR_1_bin_1]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_1_bin_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_1_bin_2_constraint_Int[gamma_stat_SR_1_bin_2]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_1_bin_2)
@@ -288,133 +293,138 @@ gamma_stat_SR_2_bin_0	  = 0.99942	 +/-  0.0287774	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02877	 +/-  0.043716	(limited)
 gamma_stat_SR_2_bin_2	  = 0.989297	 +/-  0.0780982	(limited)
 gamma_stat_SR_2_bin_3	  = 0.919522	 +/-  0.12172	(limited)
-[1;32m=== INFO::RunSig::makeAsimovData: Saving conditional snapshots[0m
-[1;32m=== INFO::RunSig::makeAsimovData: Glob snapshot name = conditionalGlobs_1[0m
-[1;32m=== INFO::RunSig::makeAsimovData: Nuis snapshot name = conditionalNuis_1[0m
-=== DEBUG::RunSig::makeAsimovData: Making asimov
+Making asimov
 [#0] WARNING:InputArguments -- RooWorkspace::defineSet(combined) WARNING redefining previously defined named set obsAndWeight
 RooArgSet::dependents = (obs_x_SR_1)
-=== DEBUG::RunSig::makeAsimovData: on type: SR_1 1
+on type SR_1 1
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.431 weighted)
-=== DEBUG::RunSig::makeAsimovData: sum entries 317.430720
-=== DEBUG::RunSig::makeAsimovData: channel: SR_1, data: 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.431 weighted)
-=== DEBUG::RunSig::makeAsimovData: 
+sum entries 317.431
+channel: SR_1, data: RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.431 weighted)
+
 RooArgSet::dependents = (obs_x_SR_2)
-=== DEBUG::RunSig::makeAsimovData: on type: SR_2 2
+on type SR_2 2
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
 RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (313.838 weighted)
-=== DEBUG::RunSig::makeAsimovData: sum entries 313.838032
-=== DEBUG::RunSig::makeAsimovData: channel: SR_2, data: 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (313.838 weighted)
-=== DEBUG::RunSig::makeAsimovData: 
+sum entries 313.838
+channel: SR_2, data: RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (313.838 weighted)
+
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset asimovData_1
 [#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
 [#1] INFO:Minization --  Including the following contraint terms in minimization: (alpha_JESConstraint,alpha_Bkg1XsecConstraint,alpha_Bkg2XsecConstraint,gamma_stat_SR_1_bin_0_constraint,gamma_stat_SR_1_bin_1_constraint,gamma_stat_SR_1_bin_2_constraint,gamma_stat_SR_1_bin_3_constraint,gamma_stat_SR_2_bin_0_constraint,gamma_stat_SR_2_bin_1_constraint,gamma_stat_SR_2_bin_2_constraint,gamma_stat_SR_2_bin_3_constraint)
-  1) 0x4f0bf10 RooRealVar::             nom_alpha_JES = -0.0257124 C  L(-10 - 10)  "nom_alpha_JES"
-  2) 0x4bf50a0 RooRealVar::        nom_alpha_Bkg1Xsec = 0.219353 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
-  3) 0x4f0ae50 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0442307 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
-  4) 0x4bdadc0 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 1089.3 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_0"
-  5) 0x4bdf350 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 362.273 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_1"
-  6) 0x4be2d20 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 90.8654 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_2"
-  7) 0x4be66f0 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 39.4278 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_3"
-  8) 0x4e7c2f0 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 1091.44 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_0"
-  9) 0x4e80950 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 363.507 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_1"
- 10) 0x4e84290 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 91.1267 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_2"
- 11) 0x4e87bd0 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 39.5675 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_3"
-[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_asimovData_1_with_constr) Summation contains a RooNLLVar, using its error level
-Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
 RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
 RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4 dataset entries)
 [#1] INFO:Fitting -- RooAbsTestStatistic::initSimMode: created 2 slave calculators.
-MnSeedGenerator: for initial parameters FCN = 451.0895510471
-MnSeedGenerator: Initial state:   - FCN =   451.0895510471 Edm =     0.439513 NCalls =     23
+[#1] INFO:Eval -- RooAbsTestStatistic::initMPMode: started 3 remote server process.
+  1) 0x4dde030 RooRealVar::             nom_alpha_JES = -0.0257124 C  L(-10 - 10)  "nom_alpha_JES"
+  2) 0x4ab8560 RooRealVar::        nom_alpha_Bkg1Xsec = 0.219353 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
+  3) 0x4ddcf70 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0442307 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
+  4) 0x4cd4840 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 1089.3 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_0"
+  5) 0x4cd81d0 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 362.273 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_1"
+  6) 0x4cdbba0 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 90.8654 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_2"
+  7) 0x4cdf570 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 39.4278 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_3"
+  8) 0x4d4e410 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 1091.44 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_0"
+  9) 0x4d52a70 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 363.507 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_1"
+ 10) 0x4d563b0 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 91.1267 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_2"
+ 11) 0x4d59cf0 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 39.5675 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_3"
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_asimovData_1_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
+[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_2_Hist_alphanominal,Bkg1_SR_2_Hist_alpha_0low,Bkg1_SR_2_Hist_alpha_0high,Bkg2_SR_2_nominal,Signal_SR_2_Hist_alphanominal,Signal_SR_2_Hist_alpha_0low,Signal_SR_2_Hist_alpha_0high)
+[#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (mc_stat_SR_2,Bkg1_SR_2_Hist_alpha,Signal_SR_2_Hist_alpha)
+[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_1_Hist_alphanominal,Bkg1_SR_1_Hist_alpha_0low,Bkg1_SR_1_Hist_alpha_0high,Bkg2_SR_1_nominal,Signal_SR_1_Hist_alphanominal,Signal_SR_1_Hist_alpha_0low,Signal_SR_1_Hist_alpha_0high)
+[#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (mc_stat_SR_1,Bkg1_SR_1_Hist_alpha,Signal_SR_1_Hist_alpha)
+[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 229.844
+[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 232.35
+MnSeedGenerator: for initial parameters FCN = -11.10415537945
+MnSeedGenerator: Initial state:   - FCN =  -11.10415537945 Edm =     0.439495 NCalls =     45
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   451.0895510471 Edm =     0.439513 NCalls =     23
-VariableMetric: Iteration #   0 - FCN =   451.0895510471 Edm =     0.439513 NCalls =     23
-VariableMetric: Iteration #   1 - FCN =   450.8574455963 Edm =    0.0199805 NCalls =     47
-VariableMetric: Iteration #   2 - FCN =   450.8382959156 Edm =  0.000627933 NCalls =     70
-VariableMetric: Iteration #   3 - FCN =   450.8373393084 Edm =  0.000132225 NCalls =     94
+VariableMetric: Initial state   - FCN =  -11.10415537945 Edm =     0.439495 NCalls =     45
+VariableMetric: Iteration #   0 - FCN =  -11.10415537945 Edm =     0.439495 NCalls =     45
+VariableMetric: Iteration #   1 - FCN =  -11.33626176908 Edm =     0.019982 NCalls =     69
+VariableMetric: Iteration #   2 - FCN =  -11.35541079331 Edm =  0.000628079 NCalls =     92
+VariableMetric: Iteration #   3 - FCN =  -11.35636734619 Edm =  0.000132123 NCalls =    116
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 450.837339308437549
-Edm   = 0.000132224934742255942
-Nfcn  = 94
-alpha_Bkg1Xsec	  = 0.258185	 +/-  0.601415	(limited)
-alpha_Bkg2Xsec	  = 0.0605247	 +/-  0.378704	(limited)
-alpha_JES	  = 0.0599735	 +/-  0.250873	(limited)
-gamma_stat_SR_1_bin_0	  = 0.998486	 +/-  0.0278381	(limited)
-gamma_stat_SR_1_bin_1	  = 1.02218	 +/-  0.0481338	(limited)
-gamma_stat_SR_1_bin_2	  = 0.982976	 +/-  0.0808335	(limited)
-gamma_stat_SR_1_bin_3	  = 0.94347	 +/-  0.118544	(limited)
+FVAL  = -11.3563673461941494
+Edm   = 0.000132122543409445405
+Nfcn  = 116
+alpha_Bkg1Xsec	  = 0.25818	 +/-  0.601418	(limited)
+alpha_Bkg2Xsec	  = 0.0605232	 +/-  0.378705	(limited)
+alpha_JES	  = 0.0599719	 +/-  0.250869	(limited)
+gamma_stat_SR_1_bin_0	  = 0.998486	 +/-  0.0278382	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02218	 +/-  0.0481341	(limited)
+gamma_stat_SR_1_bin_2	  = 0.982976	 +/-  0.0808339	(limited)
+gamma_stat_SR_1_bin_3	  = 0.94347	 +/-  0.118545	(limited)
 gamma_stat_SR_2_bin_0	  = 1.00058	 +/-  0.0288827	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02602	 +/-  0.0480181	(limited)
-gamma_stat_SR_2_bin_2	  = 0.986166	 +/-  0.0800337	(limited)
+gamma_stat_SR_2_bin_2	  = 0.986165	 +/-  0.0800337	(limited)
 gamma_stat_SR_2_bin_3	  = 0.947451	 +/-  0.117822	(limited)
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_asimovData_1_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
-MnSeedGenerator: for initial parameters FCN = 450.7131407524
-MnSeedGenerator: Initial state:   - FCN =   450.7131407524 Edm =  4.67335e-10 NCalls =     23
+MnSeedGenerator: for initial parameters FCN = -11.48056567412
+MnSeedGenerator: Initial state:   - FCN =  -11.48056567412 Edm =  3.44318e-13 NCalls =     45
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   450.7131407524 Edm =  4.67335e-10 NCalls =     23
-VariableMetric: Iteration #   0 - FCN =   450.7131407524 Edm =  4.67335e-10 NCalls =     23
-Info in <Minuit2>: DavidonErrorUpdator: delgam < 0 : first derivatives increasing along search line
-VariableMetric: Iteration #   1 - FCN =   450.7131407524 Edm =  4.80156e-10 NCalls =     56
+VariableMetric: Initial state   - FCN =  -11.48056567412 Edm =  3.44318e-13 NCalls =     45
+VariableMetric: Iteration #   0 - FCN =  -11.48056567412 Edm =  3.44318e-13 NCalls =     45
+VariableMetric: Iteration #   1 - FCN =  -11.48056567412 Edm =  3.06954e-13 NCalls =     74
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 450.713140752392974
-Edm   = 4.80156079199552661e-10
-Nfcn  = 56
-alpha_Bkg1Xsec	  = 0.219353	 +/-  0.614611	(limited)
-alpha_Bkg2Xsec	  = -0.0442307	 +/-  0.405841	(limited)
-alpha_JES	  = -0.0257124	 +/-  0.234628	(limited)
-gamma_stat_SR_1_bin_0	  = 0.997462	 +/-  0.0268216	(limited)
-gamma_stat_SR_1_bin_1	  = 1.02528	 +/-  0.0389596	(limited)
-gamma_stat_SR_1_bin_2	  = 0.98646	 +/-  0.0740403	(limited)
-gamma_stat_SR_1_bin_3	  = 0.916276	 +/-  0.0879258	(limited)
-gamma_stat_SR_2_bin_0	  = 0.99942	 +/-  0.0270887	(limited)
-gamma_stat_SR_2_bin_1	  = 1.02877	 +/-  0.0401897	(limited)
-gamma_stat_SR_2_bin_2	  = 0.989297	 +/-  0.0742567	(limited)
-gamma_stat_SR_2_bin_3	  = 0.919522	 +/-  0.0966487	(limited)
+FVAL  = -11.4805656741228521
+Edm   = 3.06954488307759625e-13
+Nfcn  = 74
+alpha_Bkg1Xsec	  = 0.219353	 +/-  0.617313	(limited)
+alpha_Bkg2Xsec	  = -0.0442307	 +/-  0.387196	(limited)
+alpha_JES	  = -0.0257124	 +/-  0.222157	(limited)
+gamma_stat_SR_1_bin_0	  = 0.997462	 +/-  0.0291567	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02528	 +/-  0.0473289	(limited)
+gamma_stat_SR_1_bin_2	  = 0.98646	 +/-  0.0769126	(limited)
+gamma_stat_SR_1_bin_3	  = 0.916276	 +/-  0.113421	(limited)
+gamma_stat_SR_2_bin_0	  = 0.99942	 +/-  0.0293233	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02877	 +/-  0.0478202	(limited)
+gamma_stat_SR_2_bin_2	  = 0.989297	 +/-  0.077336	(limited)
+gamma_stat_SR_2_bin_3	  = 0.919522	 +/-  0.113997	(limited)
 [#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name conditionalNuis_0 is available
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_ttHFitterData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
-MnSeedGenerator: for initial parameters FCN = 456.8992156238
-MnSeedGenerator: Initial state:   - FCN =   456.8992156238 Edm =     0.395401 NCalls =     23
+MnSeedGenerator: for initial parameters FCN = 456.8992157112
+MnSeedGenerator: Initial state:   - FCN =   456.8992157112 Edm =     0.395403 NCalls =     23
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   456.8992156238 Edm =     0.395401 NCalls =     23
-VariableMetric: Iteration #   0 - FCN =   456.8992156238 Edm =     0.395401 NCalls =     23
-VariableMetric: Iteration #   1 - FCN =   456.6902023717 Edm =    0.0192833 NCalls =     47
-VariableMetric: Iteration #   2 - FCN =   456.6720140141 Edm =  0.000498133 NCalls =     70
-VariableMetric: Iteration #   3 - FCN =   456.6712012812 Edm =  0.000153754 NCalls =     94
+VariableMetric: Initial state   - FCN =   456.8992157112 Edm =     0.395403 NCalls =     23
+VariableMetric: Iteration #   0 - FCN =   456.8992157112 Edm =     0.395403 NCalls =     23
+VariableMetric: Iteration #   1 - FCN =   456.6902024224 Edm =    0.0192833 NCalls =     47
+VariableMetric: Iteration #   2 - FCN =   456.6720140508 Edm =  0.000498153 NCalls =     70
+VariableMetric: Iteration #   3 - FCN =   456.6712012824 Edm =  0.000153756 NCalls =     94
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 456.671201281205697
-Edm   = 0.000153753750349918717
+FVAL  = 456.671201282426409
+Edm   = 0.000153755778586159216
 Nfcn  = 94
 alpha_Bkg1Xsec	  = 0.264772	 +/-  0.611855	(limited)
-alpha_Bkg2Xsec	  = 0.0409927	 +/-  0.388826	(limited)
-alpha_JES	  = 0.0574346	 +/-  0.282802	(limited)
+alpha_Bkg2Xsec	  = 0.0409927	 +/-  0.388825	(limited)
+alpha_JES	  = 0.0574347	 +/-  0.282801	(limited)
 gamma_stat_SR_1_bin_0	  = 0.998796	 +/-  0.0278477	(limited)
-gamma_stat_SR_1_bin_1	  = 1.02206	 +/-  0.0480569	(limited)
-gamma_stat_SR_1_bin_2	  = 0.984262	 +/-  0.0785358	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02206	 +/-  0.048057	(limited)
+gamma_stat_SR_1_bin_2	  = 0.984262	 +/-  0.0785359	(limited)
 gamma_stat_SR_1_bin_3	  = 0.944106	 +/-  0.119003	(limited)
-gamma_stat_SR_2_bin_0	  = 1.00079	 +/-  0.0290725	(limited)
+gamma_stat_SR_2_bin_0	  = 1.00079	 +/-  0.0290724	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02613	 +/-  0.0478413	(limited)
-gamma_stat_SR_2_bin_2	  = 0.98728	 +/-  0.0777128	(limited)
+gamma_stat_SR_2_bin_2	  = 0.98728	 +/-  0.0777129	(limited)
 gamma_stat_SR_2_bin_3	  = 0.947635	 +/-  0.11785	(limited)
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_ttHFitterData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 Minuit2Minimizer: Minimize with max-calls 6000 convergence for edm < 1 strategy 0
-MnSeedGenerator: for initial parameters FCN = 456.6712012812
-MnSeedGenerator: Initial state:   - FCN =   456.6712012812 Edm =     0.209629 NCalls =     27
+MnSeedGenerator: for initial parameters FCN = 456.6712012824
+MnSeedGenerator: Initial state:   - FCN =   456.6712012824 Edm =      0.20963 NCalls =     27
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   456.6712012812 Edm =     0.209629 NCalls =     27
-VariableMetric: Iteration #   0 - FCN =   456.6712012812 Edm =     0.209629 NCalls =     27
-VariableMetric: Iteration #   1 - FCN =    456.473254969 Edm =     0.244625 NCalls =     53
-VariableMetric: Iteration #   2 - FCN =   456.1845568026 Edm =    0.0629408 NCalls =     79
-VariableMetric: Iteration #   3 - FCN =   456.1104439739 Edm =   0.00221584 NCalls =    105
-VariableMetric: Iteration #   4 - FCN =   456.1074219732 Edm =   0.00049341 NCalls =    131
+VariableMetric: Initial state   - FCN =   456.6712012824 Edm =      0.20963 NCalls =     27
+VariableMetric: Iteration #   0 - FCN =   456.6712012824 Edm =      0.20963 NCalls =     27
+VariableMetric: Iteration #   1 - FCN =   456.4732550026 Edm =     0.244625 NCalls =     53
+VariableMetric: Iteration #   2 - FCN =   456.1845568996 Edm =    0.0629409 NCalls =     79
+VariableMetric: Iteration #   3 - FCN =   456.1104439735 Edm =   0.00221584 NCalls =    105
+VariableMetric: Iteration #   4 - FCN =   456.1074219736 Edm =   0.00049341 NCalls =    131
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 456.107421973223325
-Edm   = 0.00049340968839378164
+FVAL  = 456.107421973602641
+Edm   = 0.000493409784970466874
 Nfcn  = 131
 SigXsecOverSM	  = -1.95974	 +/-  1.86313	(limited)
 alpha_Bkg1Xsec	  = 0.342655	 +/-  0.607588	(limited)
@@ -428,7 +438,9 @@ gamma_stat_SR_2_bin_0	  = 1.00316	 +/-  0.0289885	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02071	 +/-  0.0483588	(limited)
 gamma_stat_SR_2_bin_2	  = 0.981226	 +/-  0.0795258	(limited)
 gamma_stat_SR_2_bin_3	  = 1.00642	 +/-  0.131323	(limited)
-[1;32m=== INFO::RunSig::RunSig: Observed significance: -1.061866[0m
-[1;32m=== INFO::RunSig::RunSig: Median test stat val: 0.248397[0m
-[1;32m=== INFO::RunSig::RunSig: Median significance:       0.498395[0m
-Real time 0:00:00, CP time 0.180
+Observed significance: -1.06187
+Observed pValue: 0.855852
+Median test stat val: 0.248397
+Median significance:   0.498394
+Median pValue: 0.309103
+Real time 0:00:00, CP time 0.250
