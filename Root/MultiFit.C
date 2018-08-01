@@ -8,7 +8,7 @@
 #include "TtHFitter/RunAsymptoticsCLs.h"
 #include "TtHFitter/RunAsymptoticsCLs_inject.h"
 
-#include "CommonStatTools/runSig.C"
+#include "CommonStatTools/runSig.h"
 
 //Roofit headers
 #include "RooSimultaneous.h"
