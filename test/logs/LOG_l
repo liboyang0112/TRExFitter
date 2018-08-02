@@ -220,750 +220,1568 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 === DEBUG::TtHFit::DumpData: Activating binned likelihood attribute for SR_2_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
-=== DEBUG::RunAsymptoticsCLs::RunAsymptoticsCLs: get min and max of firstPOI
-=== DEBUG::RunAsymptoticsCLs::RunAsymptoticsCLs: firstPOIMin 0.000000
-=== DEBUG::RunAsymptoticsCLs::RunAsymptoticsCLs: firstPOIMax 100.000000
-[1;32m=== INFO::RunAsymptoticCLs::makeAsimovData: Creating asimov data at mu = 0.000000, profiling at mu = 0.000000[0m
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Making asimov
+Settings:
+  - betterBands is set to 1
+  - betterNegativeBands is set to 0
+  - profileNegativeAtZero is set to 0
+  - defaultMinimizer is set to Minuit2
+  - defaultPrintLevel is set to 1
+  - defaultStrategy is set to 2
+  - killBelowFatal is set to 1
+  - doBlind is set to 0
+  - conditionalExpected is set to 1
+  - doTilde is set to 1
+  - doExp is set to 1
+  - doObs is set to 1
+  - doInj is set to 0
+  - muInjection is set to 0
+  - precision is set to 0.005
+  - debugLevel is set to 1
+  - usePredictiveFit is set to 1
+  - extrapolateSigma is set to 1
+  - maxRetries is set to 3
+  - doPvals is set to 1
+  - NumCPU is set to 4
+  - target_CLs is set to 0.05
+
+Creating asimov data at mu = 1, profiling at mu = 1
+Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
+Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
+Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
+Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
+Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
+Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
+Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
+Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
+Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
+Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
+Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -11.0315244058
+MnSeedGenerator: Initial state:   - FCN =   -11.0315244058 Edm =      1.11703 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =   -11.0315244058 Edm =      1.00241 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   -11.0315244058 Edm =      1.00241 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =   -11.0315244058 Edm =      1.00241 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -12.00021882884 Edm =    0.0133559 NCalls =    172
+VariableMetric: Iteration #   2 - FCN =  -12.01110767985 Edm =  9.05019e-05 NCalls =    196
+VariableMetric: After Hessian   - FCN =  -12.01110767985 Edm =  9.79439e-05 NCalls =    296
+VariableMetric: Iteration #   3 - FCN =  -12.01110767985 Edm =  9.79439e-05 NCalls =    296
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -12.0111076798511185
+Edm   = 9.79439230915315784e-05
+Nfcn  = 296
+alpha_Bkg1Xsec	  = 0.23787	 +/-  0.701349	(limited)
+alpha_Bkg2Xsec	  = -0.0634419	 +/-  0.641698	(limited)
+alpha_JES	  = -0.0147298	 +/-  0.333759	(limited)
+gamma_stat_SR_1_bin_0	  = 0.997854	 +/-  0.0295495	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02422	 +/-  0.0490708	(limited)
+gamma_stat_SR_1_bin_2	  = 0.986597	 +/-  0.0841876	(limited)
+gamma_stat_SR_1_bin_3	  = 0.91558	 +/-  0.118178	(limited)
+gamma_stat_SR_2_bin_0	  = 0.999818	 +/-  0.0292923	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02802	 +/-  0.0480662	(limited)
+gamma_stat_SR_2_bin_2	  = 0.98946	 +/-  0.0848298	(limited)
+gamma_stat_SR_2_bin_3	  = 0.918498	 +/-  0.118083	(limited)
+Making asimov
 RooArgSet::dependents = (obs_x_SR_1)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_1 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (316.702 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 316.702465
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_1, data: 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (316.702 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: 
+on type SR_1 1
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.485 weighted)
+sum entries 317.485
+channel: SR_1, data: RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.485 weighted)
+
 RooArgSet::dependents = (obs_x_SR_2)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_2 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (312.384 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 312.383689
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_2, data: 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (312.384 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: 
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 0.247809
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435754
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.360748, mu_pre = 3.304216, qmu = 2.705543, qmu95 = 4.435754, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.021804
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478875
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.790019, mu_pre = 4.360748, qmu = 4.712373, qmu95 = 3.478875, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.018950
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987772
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.017967, mu_pre = 3.790019, qmu = 3.559594, qmu95 = 3.987772, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.020090
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779618
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.906973, mu_pre = 4.017967, qmu = 4.000649, qmu95 = 3.779618, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.019535
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871836
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.953021, mu_pre = 3.906973, qmu = 3.782671, qmu95 = 3.871836, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.019765
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845075
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.939093, mu_pre = 3.953021, qmu = 3.872361, qmu95 = 3.845075, sigma_obs_extrap = 2.008821, sigma = 2.008821, direction*mu*prec = 0.019695
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.839482
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  3.939093[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.008821[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.008821[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.309311[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.839482[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            0.247809[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.071721[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.333209[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.307623
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435554
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.701603, mu_pre = 3.562588, qmu = 2.705543, qmu95 = 4.435554, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.023508
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478954
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.086400, mu_pre = 4.701603, qmu = 4.712110, qmu95 = 3.478954, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.020432
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987752
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.332137, mu_pre = 4.086400, qmu = 3.559633, qmu95 = 3.987752, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.021661
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779629
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.212483, mu_pre = 4.332137, qmu = 4.000625, qmu95 = 3.779629, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.021062
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871831
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.262123, mu_pre = 4.212483, qmu = 3.782681, qmu95 = 3.871831, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.021311
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845078
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.247111, mu_pre = 4.262123, qmu = 3.872356, qmu95 = 3.845078, sigma_obs_extrap = 2.165899, sigma = 2.165899, direction*mu*prec = 0.021236
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.119107
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_0_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.939093[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.165899[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.165899[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.034480[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.500000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.068959[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.119107[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.307623[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.307623[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.021236[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.308017[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.247111[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 1 of nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.786522
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435554
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.737847, mu_pre = 3.590051, qmu = 2.705543, qmu95 = 4.435554, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.023689
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478954
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.117901, mu_pre = 4.737847, qmu = 4.712110, qmu95 = 3.478954, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.020590
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987752
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.365533, mu_pre = 4.117901, qmu = 3.559633, qmu95 = 3.987752, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.021828
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779629
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.244956, mu_pre = 4.365533, qmu = 4.000625, qmu95 = 3.779629, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.021225
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871831
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.294978, mu_pre = 4.244956, qmu = 3.782681, qmu95 = 3.871831, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.021475
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845078
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.279851, mu_pre = 4.294978, qmu = 3.872356, qmu95 = 3.845078, sigma_obs_extrap = 2.182596, sigma = 2.182596, direction*mu*prec = 0.021399
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.869841
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_0_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.247111[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.182596[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.182596[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.025833[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.500000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.051667[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.869841[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.786522[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.786522[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.021399[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.032740[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.279851[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 2 of nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.838894
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435754
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.741824, mu_pre = 3.592964, qmu = 2.705543, qmu95 = 4.435754, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.023709
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478875
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.121220, mu_pre = 4.741824, qmu = 4.712373, qmu95 = 3.478875, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.020606
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987772
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.369088, mu_pre = 4.121220, qmu = 3.559594, qmu95 = 3.987772, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.021845
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779618
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.248395, mu_pre = 4.369088, qmu = 4.000649, qmu95 = 3.779618, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.021242
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871836
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.298466, mu_pre = 4.248395, qmu = 3.782671, qmu95 = 3.871836, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.021492
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.845075
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.283322, mu_pre = 4.298466, qmu = 3.872361, qmu95 = 3.845075, sigma_obs_extrap = 2.184367, sigma = 2.184367, direction*mu*prec = 0.021417
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.842707
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_0_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.279851[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.184367[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.184367[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.025038[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.500000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.050077[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.842707[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.838894[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.838894[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.021417[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.003471[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.283322[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.283322[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 3 iterations. [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.987394
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.583726
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.818791, mu_pre = 3.700190, qmu = 2.856585, qmu95 = 4.583726, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.024094
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.651492
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.225343, mu_pre = 4.818791, qmu = 4.844792, qmu95 = 3.651492, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.021127
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.139270
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.460318, mu_pre = 4.225343, qmu = 3.724971, qmu95 = 4.139270, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.022302
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.941767
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.348014, mu_pre = 4.460318, qmu = 4.150789, qmu95 = 3.941767, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.021740
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.028094
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.394143, mu_pre = 4.348014, qmu = 3.944399, qmu95 = 4.028094, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.021971
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.002703
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.380054, mu_pre = 4.394143, qmu = 4.028538, qmu95 = 4.002703, sigma_obs_extrap = 2.189276, sigma = 2.189276, direction*mu*prec = 0.021900
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.016857
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  4.380054[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.189276[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.189276[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.022921[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.016857[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.987394[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.498468[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.045702[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 4.000905
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.583932
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.820031, mu_pre = 3.701041, qmu = 2.856585, qmu95 = 4.583932, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.024100
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.651411
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.226290, mu_pre = 4.820031, qmu = 4.845059, qmu95 = 3.651411, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.021131
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.139291
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.461357, mu_pre = 4.226290, qmu = 3.724929, qmu95 = 4.139291, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.022307
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.941756
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.349007, mu_pre = 4.461357, qmu = 4.150814, qmu95 = 3.941756, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.021745
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.028099
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.395156, mu_pre = 4.349007, qmu = 3.944388, qmu95 = 4.028099, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.021976
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.002700
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.381058, mu_pre = 4.395156, qmu = 4.028543, qmu95 = 4.002700, sigma_obs_extrap = 2.189779, sigma = 2.189779, direction*mu*prec = 0.021905
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.017885
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_0_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.380054[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.189779[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.189779[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.022738[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.500000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.045476[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.017885[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            4.000905[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          4.000905[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.021905[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.001005[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      4.381058[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.381058[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 1 iterations. [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Found N * sigma = 2 * 2.190529[0m
-[1;32m=== INFO::RunAsymptoticCLs::makeAsimovData: Creating asimov data at mu = 4.381058, profiling at mu = 4.381058[0m
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Making asimov
+on type SR_2 2
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (313.541 weighted)
+sum entries 313.541
+channel: SR_2, data: RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (313.541 weighted)
+
+Creating asimov data at mu = 0, profiling at mu = 0
+Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
+Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
+Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
+Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
+Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
+Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
+Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
+Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
+Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
+Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
+Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -12.43842410555
+MnSeedGenerator: Initial state:   - FCN =  -12.43842410555 Edm =     0.397664 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -12.43842410555 Edm =     0.221207 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -12.43842410555 Edm =     0.221207 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -12.43842410555 Edm =     0.221207 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -12.66373891459 Edm =  0.000240021 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -12.66373891459 Edm =  0.000264251 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -12.66373891459 Edm =  0.000264251 NCalls =    268
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -12.6637389145858332
+Edm   = 0.000264251110947493287
+Nfcn  = 268
+alpha_Bkg1Xsec	  = 0.26915	 +/-  0.701448	(limited)
+alpha_Bkg2Xsec	  = 0.0228946	 +/-  0.64416	(limited)
+alpha_JES	  = 0.0619015	 +/-  0.328864	(limited)
+gamma_stat_SR_1_bin_0	  = 0.998624	 +/-  0.0295508	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02186	 +/-  0.0489507	(limited)
+gamma_stat_SR_1_bin_2	  = 0.984955	 +/-  0.0838449	(limited)
+gamma_stat_SR_1_bin_3	  = 0.942765	 +/-  0.121725	(limited)
+gamma_stat_SR_2_bin_0	  = 1.00082	 +/-  0.0293	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02635	 +/-  0.0479729	(limited)
+gamma_stat_SR_2_bin_2	  = 0.988271	 +/-  0.084533	(limited)
+gamma_stat_SR_2_bin_3	  = 0.946538	 +/-  0.121667	(limited)
+Making asimov
 RooArgSet::dependents = (obs_x_SR_1)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_1 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (320.354 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 320.353932
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_1, data: 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (320.354 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: 
+on type SR_1 1
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (316.55 weighted)
+sum entries 316.55
+channel: SR_1, data: RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (316.55 weighted)
+
 RooArgSet::dependents = (obs_x_SR_2)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_2 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.906 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 317.906034
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_2, data: 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.906 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: 
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.743290
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.009293, mu_pre = 7.984158, qmu = 2.705543, qmu95 = 2.743290, sigma_obs_extrap = 2.190529, sigma = 2.190529, direction*mu*prec = 0.040046
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_4.3811_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 11.253979
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.761628
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.348829, mu_pre = 8.308126, qmu = 2.705543, qmu95 = 2.761628, sigma_obs_extrap = 2.387488, sigma = 2.387488, direction*mu*prec = 0.041744
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.759427
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  8.348829[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.387488[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.387488[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.381058[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.000397[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.759427[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            11.253979[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.443455[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.000714[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_4.3811_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.200757
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 12.040631
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.742876
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.810753, mu_pre = 8.780401, qmu = 2.705543, qmu95 = 2.742876, sigma_obs_extrap = 2.674610, sigma = 2.406029, direction*mu*prec = 0.044054
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.762942
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_4.3811_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  8.348829[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.674610[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.406029[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.381058[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.068972[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.023491[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.070631[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.762942[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.200757[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          12.040631[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.044054[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.461924[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      8.810753[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 1 of nll_simPdf_asimovData_4.3811_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.687163
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 13.134421
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.744656
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.858005, mu_pre = 8.825877, qmu = 2.705543, qmu95 = 2.744656, sigma_obs_extrap = 2.702258, sigma = 2.431127, direction*mu*prec = 0.044290
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.745255
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_4.3811_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  8.810753[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.702258[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.431127[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.381058[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.050580[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.023579[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.051801[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.745255[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.687163[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          13.134421[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.044290[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.047252[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      8.858005[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 2 of nll_simPdf_asimovData_4.3811_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.739312
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 13.247701
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.744848
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 8.862643, mu_pre = 8.830325, qmu = 2.705543, qmu95 = 2.744848, sigma_obs_extrap = 2.704962, sigma = 2.433692, direction*mu*prec = 0.044313
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.743767
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_4.3811_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  8.858005[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.704962[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.433692[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          4.381058[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.048953[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.023592[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.050136[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.743767[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.739312[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          13.247701[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.044313[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.004638[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      8.862643[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_4.3811_with_constr: 8.862643[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 3 iterations. [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.113058
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.945516
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.733169, mu_pre = 0.984606, qmu = 0.225846, qmu95 = 1.945516, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.023666
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.259262
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.484147, mu_pre = 4.733169, qmu = 5.219054, qmu95 = 0.259262, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.012421
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.679000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.828718, mu_pre = 2.484147, qmu = 1.437614, qmu95 = 0.679000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.009144
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.249000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.380238, mu_pre = 1.828718, qmu = 0.779078, qmu95 = 1.249000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.011901
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.742000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.859180, mu_pre = 2.380238, qmu = 1.319861, qmu95 = 0.742000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.009296
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.219000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.336818, mu_pre = 1.859180, qmu = 0.805250, qmu95 = 1.219000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.011684
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.771000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.876537, mu_pre = 2.336818, qmu = 1.272148, qmu95 = 0.771000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.009383
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.201000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.311893, mu_pre = 1.876537, qmu = 0.820355, qmu95 = 1.201000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.011559
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.789000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.888419, mu_pre = 2.311893, qmu = 1.245155, qmu95 = 0.789000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.009442
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.189000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.295553, mu_pre = 1.888419, qmu = 0.830777, qmu95 = 1.189000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.011478
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.801000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.896683, mu_pre = 2.295553, qmu = 1.227615, qmu95 = 0.801000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.009483
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.181000
-=== DEBUG::RunAsymptoticCLs::findCrossing: Changing damping factor to 0.800000, nrDamping = 1
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.207132, mu_pre = 1.896683, qmu = 0.838064, qmu95 = 1.181000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.011036
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.872000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.002640, mu_pre = 2.207132, qmu = 1.134866, qmu95 = 0.872000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010013
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.073000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.121544, mu_pre = 2.002640, qmu = 0.934315, qmu95 = 1.073000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010608
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.950000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.041780, mu_pre = 2.121544, qmu = 1.048557, qmu95 = 0.950000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010209
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.032000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.092915, mu_pre = 2.041780, qmu = 0.971194, qmu95 = 1.032000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010465
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.979000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.058911, mu_pre = 2.092915, qmu = 1.020448, qmu95 = 0.979000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010295
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.014000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.080962, mu_pre = 2.058911, qmu = 0.987559, qmu95 = 1.014000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010405
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.991000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.066254, mu_pre = 2.080962, qmu = 1.008825, qmu95 = 0.991000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010331
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.006000
-=== DEBUG::RunAsymptoticCLs::findCrossing: Changing damping factor to 0.640000, nrDamping = 2
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.072309, mu_pre = 2.066254, qmu = 0.994615, qmu95 = 1.006000, sigma_obs_extrap = 2.071840, sigma = 2.071840, direction*mu*prec = 0.010362
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.000000
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  2.072309[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.071840[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.071840[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.145366[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          1.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            1.113058[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.522445[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.304396[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_0_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.007004
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.946000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.718799, mu_pre = 0.981398, qmu = 0.225846, qmu95 = 1.946000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.023594
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.259221
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.476534, mu_pre = 4.718799, qmu = 5.221380, qmu95 = 0.259221, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.012383
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.679000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.822886, mu_pre = 2.476534, qmu = 1.438173, qmu95 = 0.679000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009114
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.248000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.371274, mu_pre = 1.822886, qmu = 0.779187, qmu95 = 1.248000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.011856
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.743000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.853757, mu_pre = 2.371274, qmu = 1.318518, qmu95 = 0.743000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009269
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.218000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.327891, mu_pre = 1.853757, qmu = 0.805802, qmu95 = 1.218000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.011639
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.772000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.871080, mu_pre = 2.327891, qmu = 1.270714, qmu95 = 0.772000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009355
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.201000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.304208, mu_pre = 1.871080, qmu = 0.820932, qmu95 = 1.201000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.011521
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.789000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.882239, mu_pre = 2.304208, qmu = 1.244990, qmu95 = 0.789000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009411
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.189000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.288080, mu_pre = 1.882239, qmu = 0.830753, qmu95 = 1.189000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.011440
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.801000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.890504, mu_pre = 2.288080, qmu = 1.227622, qmu95 = 0.801000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009453
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.181000
-=== DEBUG::RunAsymptoticCLs::findCrossing: Changing damping factor to 0.800000, nrDamping = 1
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.199941, mu_pre = 1.890504, qmu = 0.838065, qmu95 = 1.181000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.011000
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.872000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 1.996115, mu_pre = 2.199941, qmu = 1.134866, qmu95 = 0.872000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.009981
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.073000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.114632, mu_pre = 1.996115, qmu = 0.934315, qmu95 = 1.073000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010573
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.950000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.035128, mu_pre = 2.114632, qmu = 1.048557, qmu95 = 0.950000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010176
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.032000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.086096, mu_pre = 2.035128, qmu = 0.971194, qmu95 = 1.032000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010430
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.979000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.052203, mu_pre = 2.086096, qmu = 1.020448, qmu95 = 0.979000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010261
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.014000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.074181, mu_pre = 2.052203, qmu = 0.987559, qmu95 = 1.014000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010371
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.991000
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.059522, mu_pre = 2.074181, qmu = 1.008825, qmu95 = 0.991000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010298
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 1.006000
-=== DEBUG::RunAsymptoticCLs::findCrossing: Changing damping factor to 0.640000, nrDamping = 2
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.065557, mu_pre = 2.059522, qmu = 0.994615, qmu95 = 1.006000, sigma_obs_extrap = 2.065089, sigma = 2.065089, direction*mu*prec = 0.010328
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 0.993000
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_0_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  2.072309[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.065089[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.065089[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.157811[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.500000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.315622[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          0.993000[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            1.007004[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          1.007004[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.010328[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.006752[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      2.065557[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_0_with_constr: 2.065557[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 1 iterations. [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Found N * sigma = 1 * 2.065557[0m
-[1;32m=== INFO::RunAsymptoticCLs::makeAsimovData: Creating asimov data at mu = 2.065557, profiling at mu = 2.065557[0m
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: Making asimov
+on type SR_2 2
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (312.089 weighted)
+sum entries 312.089
+channel: SR_2, data: RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (312.089 weighted)
+
+Calculating Expected Limit
+------------------------
+Getting limit for nll: nll_simPdf_asimovData_0_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -10.71756702868
+MnSeedGenerator: Initial state:   - FCN =  -10.71756702868 Edm =     0.438782 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.71756702868 Edm =     0.241913 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -10.71756702868 Edm =     0.241913 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.71756702868 Edm =     0.241913 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.95375507153 Edm =  0.000494873 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -10.95375507153 Edm =   0.00043357 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -10.95375507153 Edm =   0.00043357 NCalls =    268
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -10.9537550715263308
+Edm   = 0.000433570468304979957
+Nfcn  = 268
+alpha_Bkg1Xsec	  = 0.239811	 +/-  0.707178	(limited)
+alpha_Bkg2Xsec	  = -0.0900661	 +/-  0.636377	(limited)
+alpha_JES	  = -0.0250263	 +/-  0.330429	(limited)
+gamma_stat_SR_1_bin_0	  = 0.99774	 +/-  0.0295421	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02513	 +/-  0.0491357	(limited)
+gamma_stat_SR_1_bin_2	  = 0.988929	 +/-  0.084267	(limited)
+gamma_stat_SR_1_bin_3	  = 0.915706	 +/-  0.11812	(limited)
+gamma_stat_SR_2_bin_0	  = 0.999726	 +/-  0.0292841	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02911	 +/-  0.0481087	(limited)
+gamma_stat_SR_2_bin_2	  = 0.991757	 +/-  0.084895	(limited)
+gamma_stat_SR_2_bin_3	  = 0.918556	 +/-  0.118002	(limited)
+Initial guess:  3.93191
+Sigma(obs):     2.00516
+Sigma(mu,0):    2.00516
+muhat:          0
+qmu95:          3.83948
+qmu:            0.248716
+pmu:            0.30899
+1-pb:           0.0718453
+CLs:            0.332908
+
+----------------------
+Starting iteration 0 of nll_simPdf_asimovData_0_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -6.399748234438
+MnSeedGenerator: Initial state:   - FCN =  -6.399748234438 Edm =      6.07594 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -6.399748234438 Edm =      3.28849 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -6.399748234438 Edm =      3.28849 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -6.399748234438 Edm =      3.28849 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.392585960216 Edm =    0.0578502 NCalls =    177
+VariableMetric: Iteration #   2 - FCN =  -9.427122199442 Edm =   0.00111879 NCalls =    201
+VariableMetric: Iteration #   3 - FCN =  -9.428034003105 Edm =  2.03547e-05 NCalls =    225
+VariableMetric: After Hessian   - FCN =  -9.428034003105 Edm =  1.67978e-05 NCalls =    325
+VariableMetric: Iteration #   4 - FCN =  -9.428034003105 Edm =  1.67978e-05 NCalls =    325
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.42803400310454798
+Edm   = 1.67978145606357209e-05
+Nfcn  = 325
+alpha_Bkg1Xsec	  = 0.162539	 +/-  0.706162	(limited)
+alpha_Bkg2Xsec	  = -0.34	 +/-  0.628686	(limited)
+alpha_JES	  = -0.220092	 +/-  0.342092	(limited)
+gamma_stat_SR_1_bin_0	  = 0.995771	 +/-  0.0295384	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03217	 +/-  0.0495253	(limited)
+gamma_stat_SR_1_bin_2	  = 0.992536	 +/-  0.0849265	(limited)
+gamma_stat_SR_1_bin_3	  = 0.840038	 +/-  0.108133	(limited)
+gamma_stat_SR_2_bin_0	  = 0.997167	 +/-  0.029256	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03481	 +/-  0.0484547	(limited)
+gamma_stat_SR_2_bin_2	  = 0.9942	 +/-  0.0854048	(limited)
+gamma_stat_SR_2_bin_3	  = 0.841338	 +/-  0.10799	(limited)
+NLL:            nll_simPdf_asimovData_0_with_constr
+Previous guess: 3.93191
+Sigma(obs):     2.16439
+Sigma(mu,0):    2.16439
+muhat:          0
+pmu:            0.0346366
+1-pb:           0.5
+CLs:            0.0692732
+qmu95:          4.12301
+qmu:            3.30016
+qmuA0:          3.30016
+Precision:      0.0212208
+Correction:    0.312247
+New guess:      4.24416
+
+----------------------
+Starting iteration 1 of nll_simPdf_asimovData_0_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -9.184853043343
+MnSeedGenerator: Initial state:   - FCN =  -9.184853043343 Edm =  0.000466698 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.184853043343 Edm =  0.000382758 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -9.184853043343 Edm =  0.000382758 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.184853043343 Edm =  0.000382758 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.185236047755 Edm =  6.26384e-10 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.185236047755 Edm =  6.31964e-10 NCalls =    280
+VariableMetric: Iteration #   2 - FCN =  -9.185236047755 Edm =  6.31964e-10 NCalls =    280
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.18523604775520042
+Edm   = 6.319635074519522e-10
+Nfcn  = 280
+alpha_Bkg1Xsec	  = 0.154678	 +/-  0.70569	(limited)
+alpha_Bkg2Xsec	  = -0.367096	 +/-  0.627928	(limited)
+alpha_JES	  = -0.235769	 +/-  0.343008	(limited)
+gamma_stat_SR_1_bin_0	  = 0.995637	 +/-  0.0295386	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03276	 +/-  0.049557	(limited)
+gamma_stat_SR_1_bin_2	  = 0.992416	 +/-  0.0849194	(limited)
+gamma_stat_SR_1_bin_3	  = 0.831997	 +/-  0.107061	(limited)
+gamma_stat_SR_2_bin_0	  = 0.996961	 +/-  0.0292524	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03528	 +/-  0.0484827	(limited)
+gamma_stat_SR_2_bin_2	  = 0.99404	 +/-  0.085389	(limited)
+gamma_stat_SR_2_bin_3	  = 0.833229	 +/-  0.106925	(limited)
+NLL:            nll_simPdf_asimovData_0_with_constr
+Previous guess: 4.24416
+Sigma(obs):     2.1813
+Sigma(mu,0):    2.1813
+muhat:          0
+pmu:            0.0258453
+1-pb:           0.5
+CLs:            0.0516906
+qmu95:          3.87024
+qmu:            3.78575
+qmuA0:          3.78575
+Precision:      0.0213865
+Correction:    0.0331509
+New guess:      4.27731
+
+----------------------
+Starting iteration 2 of nll_simPdf_asimovData_0_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -9.158536528202
+MnSeedGenerator: Initial state:   - FCN =  -9.158536528202 Edm =  0.000310641 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.158536528202 Edm =  0.000175524 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -9.158536528202 Edm =  0.000175524 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.158536528202 Edm =  0.000175524 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.158711984708 Edm =  7.01894e-11 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.158711984708 Edm =  6.88246e-11 NCalls =    296
+VariableMetric: Iteration #   2 - FCN =  -9.158711984708 Edm =  6.88246e-11 NCalls =    296
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.15871198470823877
+Edm   = 6.88245861210028612e-11
+Nfcn  = 296
+alpha_Bkg1Xsec	  = 0.154044	 +/-  0.705655	(limited)
+alpha_Bkg2Xsec	  = -0.369842	 +/-  0.627861	(limited)
+alpha_JES	  = -0.23751	 +/-  0.343103	(limited)
+gamma_stat_SR_1_bin_0	  = 0.99562	 +/-  0.0295386	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03282	 +/-  0.0495603	(limited)
+gamma_stat_SR_1_bin_2	  = 0.992417	 +/-  0.0849204	(limited)
+gamma_stat_SR_1_bin_3	  = 0.831171	 +/-  0.106952	(limited)
+gamma_stat_SR_2_bin_0	  = 0.996938	 +/-  0.029252	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03533	 +/-  0.0484858	(limited)
+gamma_stat_SR_2_bin_2	  = 0.994033	 +/-  0.0853883	(limited)
+gamma_stat_SR_2_bin_3	  = 0.832393	 +/-  0.106816	(limited)
+NLL:            nll_simPdf_asimovData_0_with_constr
+Previous guess: 4.27731
+Sigma(obs):     2.18309
+Sigma(mu,0):    2.18309
+muhat:          0
+pmu:            0.0250396
+1-pb:           0.5
+CLs:            0.0500793
+qmu95:          3.84275
+qmu:            3.8388
+qmuA0:          3.8388
+Precision:      0.0214041
+Correction:    0.00352152
+New guess:      4.28083
+
+Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.28083
+Finished in 3 iterations.
+NLL is 451.926
+
+------------------------
+Getting limit for nll: nll_simPdf_asimovData_0_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -9.08319963354
+MnSeedGenerator: Initial state:   - FCN =   -9.08319963354 Edm =   0.00237399 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =   -9.08319963354 Edm =   0.00134126 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   -9.08319963354 Edm =   0.00134126 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =   -9.08319963354 Edm =   0.00134126 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.084539541776 Edm =  3.81417e-09 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.084539541776 Edm =  3.79031e-09 NCalls =    284
+VariableMetric: Iteration #   2 - FCN =  -9.084539541776 Edm =  3.79031e-09 NCalls =    284
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.08453954177595513
+Edm   = 3.7903125248125314e-09
+Nfcn  = 284
+alpha_Bkg1Xsec	  = 0.152327	 +/-  0.705558	(limited)
+alpha_Bkg2Xsec	  = -0.377464	 +/-  0.627679	(limited)
+alpha_JES	  = -0.24231	 +/-  0.343362	(limited)
+gamma_stat_SR_1_bin_0	  = 0.995571	 +/-  0.0295384	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03299	 +/-  0.0495696	(limited)
+gamma_stat_SR_1_bin_2	  = 0.992417	 +/-  0.0849223	(limited)
+gamma_stat_SR_1_bin_3	  = 0.828888	 +/-  0.106648	(limited)
+gamma_stat_SR_2_bin_0	  = 0.996876	 +/-  0.0292509	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03547	 +/-  0.0484941	(limited)
+gamma_stat_SR_2_bin_2	  = 0.99401	 +/-  0.085386	(limited)
+gamma_stat_SR_2_bin_3	  = 0.830082	 +/-  0.106512	(limited)
+Initial guess:  4.37764
+Sigma(obs):     2.18807
+Sigma(mu,0):    2.18807
+muhat:          0
+qmu95:          4.01686
+qmu:            3.98715
+pmu:            0.0229243
+1-pb:           0.498443
+CLs:            0.0457063
+
+----------------------
+Starting iteration 0 of nll_simPdf_asimovData_0_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -5.412611009382
+MnSeedGenerator: Initial state:   - FCN =  -5.412611009382 Edm =      7.43562 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -5.412611009382 Edm =      4.01752 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -5.412611009382 Edm =      4.01752 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -5.412611009382 Edm =      4.01752 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.023112849561 Edm =    0.0928143 NCalls =    177
+VariableMetric: Iteration #   2 - FCN =  -9.075937949933 Edm =   0.00205224 NCalls =    201
+VariableMetric: Iteration #   3 - FCN =   -9.07755021188 Edm =  4.55723e-05 NCalls =    225
+VariableMetric: After Hessian   - FCN =   -9.07755021188 Edm =  3.71977e-05 NCalls =    325
+VariableMetric: Iteration #   4 - FCN =   -9.07755021188 Edm =  3.71977e-05 NCalls =    325
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.07755021187969469
+Edm   = 3.71976893758535379e-05
+Nfcn  = 325
+alpha_Bkg1Xsec	  = 0.155105	 +/-  0.705813	(limited)
+alpha_Bkg2Xsec	  = -0.376847	 +/-  0.627735	(limited)
+alpha_JES	  = -0.244434	 +/-  0.343399	(limited)
+gamma_stat_SR_1_bin_0	  = 0.99551	 +/-  0.0295372	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03301	 +/-  0.0495714	(limited)
+gamma_stat_SR_1_bin_2	  = 0.992665	 +/-  0.0849533	(limited)
+gamma_stat_SR_1_bin_3	  = 0.828991	 +/-  0.106663	(limited)
+gamma_stat_SR_2_bin_0	  = 0.996851	 +/-  0.0292507	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03552	 +/-  0.0484968	(limited)
+gamma_stat_SR_2_bin_2	  = 0.994199	 +/-  0.085409	(limited)
+gamma_stat_SR_2_bin_3	  = 0.830127	 +/-  0.106519	(limited)
+NLL:            nll_simPdf_asimovData_0_with_constr
+Previous guess: 4.37764
+Sigma(obs):     2.18851
+Sigma(mu,0):    2.18851
+muhat:          0
+pmu:            0.0227349
+1-pb:           0.5
+CLs:            0.0454699
+qmu95:          4.01776
+qmu:            4.00113
+qmuA0:          4.00113
+Precision:      0.0218926
+Correction:    0.00088363
+New guess:      4.37852
+
+Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.37852
+Finished in 1 iterations.
+NLL is 452.022
+
+
+Found N * sigma = 2 * 2.18926
+Creating asimov data at mu = 4.37852, profiling at mu = 4.37852
+Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
+Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
+Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
+Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
+Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
+Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
+Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
+Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
+Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
+Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
+Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
+Making asimov
 RooArgSet::dependents = (obs_x_SR_1)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_1 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.952 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 317.952036
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_1, data: 
-RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.952 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: 
+on type SR_1 1
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (320.258 weighted)
+sum entries 320.258
+channel: SR_1, data: RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (320.258 weighted)
+
 RooArgSet::dependents = (obs_x_SR_2)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: on type SR_2 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (314.898 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: sum entries 314.897984
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: channel: SR_2, data: 
-RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (314.898 weighted)
-=== DEBUG::RunAsymptoticCLs::makeAsimovData: 
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.032036
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.668095, mu_pre = 5.463095, qmu = 2.705543, qmu95 = 3.032036, sigma_obs_extrap = 2.065557, sigma = 2.065557, direction*mu*prec = 0.028340
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.970819
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.626012, mu_pre = 5.668095, qmu = 3.041886, qmu95 = 2.970819, sigma_obs_extrap = 2.065557, sigma = 2.065557, direction*mu*prec = 0.028130
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.981252
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.632015, mu_pre = 5.626012, qmu = 2.971234, qmu95 = 2.981252, sigma_obs_extrap = 2.065557, sigma = 2.065557, direction*mu*prec = 0.028160
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_asimovData_2.0656_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 6.222740
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.090028
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.043073, mu_pre = 5.779200, qmu = 2.705543, qmu95 = 3.090028, sigma_obs_extrap = 2.257735, sigma = 2.257735, direction*mu*prec = 0.030215
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.006702
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.980927, mu_pre = 6.043073, qmu = 3.103688, qmu95 = 3.006702, sigma_obs_extrap = 2.257735, sigma = 2.257735, direction*mu*prec = 0.029905
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.029382
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 5.995198, mu_pre = 5.980927, qmu = 3.007460, qmu95 = 3.029382, sigma_obs_extrap = 2.257735, sigma = 2.257735, direction*mu*prec = 0.029976
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.025455
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  5.995198[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.257735[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.257735[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          2.065557[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.006306[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.025455[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            6.222740[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.436101[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.011183[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_asimovData_2.0656_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.690028
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 6.928029
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.036964
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.247892, mu_pre = 6.006514, qmu = 2.705543, qmu95 = 3.036964, sigma_obs_extrap = 2.395932, sigma = 2.277711, direction*mu*prec = 0.031239
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.971345
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.195893, mu_pre = 6.247892, qmu = 3.047114, qmu95 = 2.971345, sigma_obs_extrap = 2.395932, sigma = 2.277711, direction*mu*prec = 0.030979
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.983078
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.203720, mu_pre = 6.195893, qmu = 2.971816, qmu95 = 2.983078, sigma_obs_extrap = 2.395932, sigma = 2.277711, direction*mu*prec = 0.031019
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.040152
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_2.0656_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  5.995198[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.395932[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.277711[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          2.065557[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.050489[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.160603[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.060149[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.040152[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.690028[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          6.928029[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.031019[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.208522[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      6.203720[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 1 of nll_simPdf_asimovData_2.0656_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.954284
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 7.344710
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.040010
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.270460, mu_pre = 6.025680, qmu = 2.705543, qmu95 = 3.040010, sigma_obs_extrap = 2.407584, sigma = 2.289100, direction*mu*prec = 0.031352
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.973263
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.217330, mu_pre = 6.270460, qmu = 3.050347, qmu95 = 2.973263, sigma_obs_extrap = 2.407584, sigma = 2.289100, direction*mu*prec = 0.031087
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.985267
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 6.225370, mu_pre = 6.217330, qmu = 2.973750, qmu95 = 2.985267, sigma_obs_extrap = 2.407584, sigma = 2.289100, direction*mu*prec = 0.031127
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 2.988414
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_asimovData_2.0656_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  6.203720[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.407584[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.289100[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          2.065557[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.042825[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.160767[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.051029[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          2.988414[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            2.954284[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          7.344710[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.031127[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     0.021651[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      6.225370[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_asimovData_2.0656_with_constr: 6.225370[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 2 iterations. [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ------------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Getting limit for nll: nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.844570
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.435540
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.742290, mu_pre = 3.593490, qmu = 2.705543, qmu95 = 4.435540, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.023711
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.478800
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.121728, mu_pre = 4.742290, qmu = 4.712091, qmu95 = 3.478800, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.020609
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.987582
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.369563, mu_pre = 4.121728, qmu = 3.559497, qmu95 = 3.987582, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.021848
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.779480
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.248889, mu_pre = 4.369563, qmu = 4.000453, qmu95 = 3.779480, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.021244
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.871661
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.298946, mu_pre = 4.248889, qmu = 3.782532, qmu95 = 3.871661, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.021495
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.844904
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 4.283802, mu_pre = 4.298946, qmu = 3.872186, qmu95 = 3.844904, sigma_obs_extrap = 2.184524, sigma = 2.184524, direction*mu*prec = 0.021419
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.839322
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Initial guess:  4.283802[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     2.184524[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.184524[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.024954[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.839322[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            3.844570[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.499912[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.049899[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 0 of nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 7.983221
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 3.845644
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.200625
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.643795, mu_pre = 2.493946, qmu = 2.705543, qmu95 = 5.200625, sigma_obs_extrap = 1.516049, sigma = 2.184464, direction*mu*prec = 0.018219
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.395070
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.208277, mu_pre = 3.643795, qmu = 5.775873, qmu95 = 4.395070, sigma_obs_extrap = 1.516049, sigma = 2.184464, direction*mu*prec = 0.016041
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.729156
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.298393, mu_pre = 3.208277, qmu = 4.477595, qmu95 = 4.729156, sigma_obs_extrap = 1.516049, sigma = 2.184464, direction*mu*prec = 0.016492
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.662917
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.274082, mu_pre = 3.298393, qmu = 4.732689, qmu95 = 4.662917, sigma_obs_extrap = 1.516049, sigma = 2.184464, direction*mu*prec = 0.016370
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.680935
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.280316, mu_pre = 3.274082, qmu = 4.663174, qmu95 = 4.680935, sigma_obs_extrap = 1.516049, sigma = 2.184464, direction*mu*prec = 0.016402
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 3.839213
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_ttHFitterData_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  4.283802[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.516049[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.184464[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.001281[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.854276[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.008789[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          3.839213[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            7.983221[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          3.845644[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.016402[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -1.003486[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      3.280316[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 1 of nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 5.629121
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.371504
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.293882
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.361988, mu_pre = 2.274251, qmu = 2.705543, qmu95 = 5.293882, sigma_obs_extrap = 1.382484, sigma = 2.130119, direction*mu*prec = 0.016810
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.549471
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.974398, mu_pre = 3.361988, qmu = 5.912935, qmu95 = 4.549471, sigma_obs_extrap = 1.382484, sigma = 2.130119, direction*mu*prec = 0.014872
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.841653
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.043025, mu_pre = 2.974398, qmu = 4.628071, qmu95 = 4.841653, sigma_obs_extrap = 1.382484, sigma = 2.130119, direction*mu*prec = 0.015215
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.792113
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.026692, mu_pre = 3.043025, qmu = 4.844117, qmu95 = 4.792113, sigma_obs_extrap = 1.382484, sigma = 2.130119, direction*mu*prec = 0.015133
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.803987
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.030397, mu_pre = 3.026692, qmu = 4.792253, qmu95 = 4.803987, sigma_obs_extrap = 1.382484, sigma = 2.130119, direction*mu*prec = 0.015152
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.613742
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_ttHFitterData_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.280316[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.382484[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.130119[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.004693[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.854901[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.032344[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.613742[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            5.629121[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          2.371504[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.015152[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.249919[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      3.030397[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 2 of nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 5.080710
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 2.049284
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.321813
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.280573, mu_pre = 2.211459, qmu = 2.705543, qmu95 = 5.321813, sigma_obs_extrap = 1.344309, sigma = 2.116891, direction*mu*prec = 0.016403
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.597618
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.906866, mu_pre = 3.280573, qmu = 5.954298, qmu95 = 4.597618, sigma_obs_extrap = 1.344309, sigma = 2.116891, direction*mu*prec = 0.014534
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.876721
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.969608, mu_pre = 2.906866, qmu = 4.674897, qmu95 = 4.876721, sigma_obs_extrap = 1.344309, sigma = 2.116891, direction*mu*prec = 0.014848
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.831790
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.955272, mu_pre = 2.969608, qmu = 4.878899, qmu95 = 4.831790, sigma_obs_extrap = 1.344309, sigma = 2.116891, direction*mu*prec = 0.014776
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.787514
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_ttHFitterData_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  3.030397[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.344309[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.116891[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.006381[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.855156[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.044055[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.787514[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            5.080710[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          2.049284[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.014776[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.075125[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      2.955272[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 3 of nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 4.918182
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.956482
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.330458
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.255175, mu_pre = 2.191978, qmu = 2.705543, qmu95 = 5.330458, sigma_obs_extrap = 1.332465, sigma = 2.112806, direction*mu*prec = 0.016276
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.612554
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.885733, mu_pre = 3.255175, qmu = 5.967130, qmu95 = 4.612554, sigma_obs_extrap = 1.332465, sigma = 2.112806, direction*mu*prec = 0.014429
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.887738
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.946744, mu_pre = 2.885733, qmu = 4.689429, qmu95 = 4.887738, sigma_obs_extrap = 1.332465, sigma = 2.112806, direction*mu*prec = 0.014734
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.844160
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.932983, mu_pre = 2.946744, qmu = 4.889835, qmu95 = 4.844160, sigma_obs_extrap = 1.332465, sigma = 2.112806, direction*mu*prec = 0.014665
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.838010
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_ttHFitterData_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  2.955272[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.332465[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.112806[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.006996[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.855132[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.048296[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.838010[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            4.918182[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          1.956482[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.014665[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.022289[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      2.932983[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: ----------------------[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Starting iteration 4 of nll_simPdf_ttHFitterData_with_constr[0m
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 4.870388
-=== DEBUG::RunAsymptoticCLs::getLimit: qmu= 1.929079
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 5.333149
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 3.247522, mu_pre = 2.186092, qmu = 2.705543, qmu95 = 5.333149, sigma_obs_extrap = 1.328887, sigma = 2.111711, direction*mu*prec = 0.016238
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.617216
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.879376, mu_pre = 3.247522, qmu = 5.971127, qmu95 = 4.617216, sigma_obs_extrap = 1.328887, sigma = 2.111711, direction*mu*prec = 0.014397
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.891181
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.939859, mu_pre = 2.879376, qmu = 4.693964, qmu95 = 4.891181, sigma_obs_extrap = 1.328887, sigma = 2.111711, direction*mu*prec = 0.014699
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.848019
-=== DEBUG::RunAsymptoticCLs::findCrossing: mu_guess = 2.926272, mu_pre = 2.939859, qmu = 4.893253, qmu95 = 4.848019, sigma_obs_extrap = 1.328887, sigma = 2.111711, direction*mu*prec = 0.014631
-=== DEBUG::RunAsymptoticCLs::getQmu95: Returning qmu95 = 4.852963
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: NLL             nll_simPdf_ttHFitterData_with_constr[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Previous guess  2.932983[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(obs):     1.328887[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Sigma(mu,0):    2.111711[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: muhat:          0.000268[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: pmu:            0.007187[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: 1-pb:           0.855167[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: CLs:            0.049624[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu95:          4.852963[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmu:            4.870388[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: qmuA0:          1.929079[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Precision:      0.014631[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Correction:     -0.006711[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: New guess:      2.926272[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Found limit for nll nll_simPdf_ttHFitterData_with_constr: 2.926272[0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: Finished in 5 iterations. [0m
-[1;32m=== INFO::RunAsymptoticCLs::getLimit: [0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Guess for bands[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +2sigma:  7.991336[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +1sigma:  5.961144[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -1sigma:  3.086370[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -2sigma:  2.298969[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Correct bands[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +2sigma:  8.862643[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: +1sigma:  6.225370[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -1sigma:  3.086370[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: -2sigma:  2.298969[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Median:    4.283322[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Observed:  2.926272[0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
-[1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Finished with 33 calls to minimize(nll)[0m
-Real time 0:00:01, CP time 1.070
+on type SR_2 2
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.701 weighted)
+sum entries 317.701
+channel: SR_2, data: RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (317.701 weighted)
+
+------------------------
+Getting limit for nll: nll_simPdf_asimovData_4.3785_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -3.652333753994
+MnSeedGenerator: Initial state:   - FCN =  -3.652333753994 Edm =       3.2643 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -3.652333753994 Edm =      1.86691 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -3.652333753994 Edm =      1.86691 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -3.652333753994 Edm =      1.86691 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -5.442268768197 Edm =    0.0104501 NCalls =    172
+VariableMetric: Iteration #   2 - FCN =  -5.450786770075 Edm =  8.82882e-05 NCalls =    196
+VariableMetric: After Hessian   - FCN =  -5.450786770075 Edm =  7.63592e-05 NCalls =    296
+VariableMetric: Iteration #   3 - FCN =  -5.450786770075 Edm =  7.63592e-05 NCalls =    296
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -5.45078677007473722
+Edm   = 7.63591980175512683e-05
+Nfcn  = 296
+alpha_Bkg1Xsec	  = 0.0959985	 +/-  0.700105	(limited)
+alpha_Bkg2Xsec	  = -0.661582	 +/-  0.627217	(limited)
+alpha_JES	  = -0.401113	 +/-  0.350547	(limited)
+gamma_stat_SR_1_bin_0	  = 0.993954	 +/-  0.0295278	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03834	 +/-  0.0498592	(limited)
+gamma_stat_SR_1_bin_2	  = 0.988701	 +/-  0.0844263	(limited)
+gamma_stat_SR_1_bin_3	  = 0.744785	 +/-  0.0954405	(limited)
+gamma_stat_SR_2_bin_0	  = 0.994802	 +/-  0.0291961	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03987	 +/-  0.0487529	(limited)
+gamma_stat_SR_2_bin_2	  = 0.989559	 +/-  0.0847193	(limited)
+gamma_stat_SR_2_bin_3	  = 0.745224	 +/-  0.0953307	(limited)
+Initial guess:  8.34387
+Sigma(obs):     2.38603
+Sigma(mu,0):    2.38603
+muhat:          4.37852
+qmu95:          2.75942
+qmu:            11.2547
+pmu:            0.000397118
+1-pb:           0.443474
+CLs:            0.000713567
+
+----------------------
+Starting iteration 0 of nll_simPdf_asimovData_4.3785_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -7.804929665213
+MnSeedGenerator: Initial state:   - FCN =  -7.804929665213 Edm =      4.19615 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -7.804929665213 Edm =      2.37836 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -7.804929665213 Edm =      2.37836 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -7.804929665213 Edm =      2.37836 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.08418653108 Edm =    0.0119048 NCalls =    172
+VariableMetric: Iteration #   2 - FCN =   -10.0941520256 Edm =  0.000116025 NCalls =    196
+VariableMetric: After Hessian   - FCN =   -10.0941520256 Edm =   9.8313e-05 NCalls =    296
+VariableMetric: Iteration #   3 - FCN =   -10.0941520256 Edm =   9.8313e-05 NCalls =    296
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -10.0941520256026784
+Edm   = 9.83129908913598532e-05
+Nfcn  = 296
+alpha_Bkg1Xsec	  = 0.0788708	 +/-  0.698009	(limited)
+alpha_Bkg2Xsec	  = -0.711293	 +/-  0.642024	(limited)
+alpha_JES	  = -0.454637	 +/-  0.347376	(limited)
+gamma_stat_SR_1_bin_0	  = 0.993387	 +/-  0.0294935	(limited)
+gamma_stat_SR_1_bin_1	  = 1.04047	 +/-  0.0499232	(limited)
+gamma_stat_SR_1_bin_2	  = 0.992759	 +/-  0.0847662	(limited)
+gamma_stat_SR_1_bin_3	  = 0.741801	 +/-  0.0948968	(limited)
+gamma_stat_SR_2_bin_0	  = 0.994105	 +/-  0.0291656	(limited)
+gamma_stat_SR_2_bin_1	  = 1.04171	 +/-  0.0488135	(limited)
+gamma_stat_SR_2_bin_2	  = 0.993331	 +/-  0.0850435	(limited)
+gamma_stat_SR_2_bin_3	  = 0.742035	 +/-  0.0947836	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -5.042038803193
+MnSeedGenerator: Initial state:   - FCN =  -5.042038803193 Edm =    0.0147493 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -5.042038803193 Edm =    0.0152143 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -5.042038803193 Edm =    0.0152143 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -5.042038803193 Edm =    0.0152143 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -5.057254526909 Edm =  1.22852e-07 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -5.057254526909 Edm =  1.20335e-07 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -5.057254526909 Edm =  1.20335e-07 NCalls =    268
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -5.057254526908606
+Edm   = 1.20335216650364193e-07
+Nfcn  = 268
+alpha_Bkg1Xsec	  = 0.0891977	 +/-  0.699435	(limited)
+alpha_Bkg2Xsec	  = -0.680575	 +/-  0.627181	(limited)
+alpha_JES	  = -0.411957	 +/-  0.350986	(limited)
+gamma_stat_SR_1_bin_0	  = 0.993867	 +/-  0.0295278	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03863	 +/-  0.0498761	(limited)
+gamma_stat_SR_1_bin_2	  = 0.987604	 +/-  0.0843077	(limited)
+gamma_stat_SR_1_bin_3	  = 0.737285	 +/-  0.0944434	(limited)
+gamma_stat_SR_2_bin_0	  = 0.994653	 +/-  0.0291907	(limited)
+gamma_stat_SR_2_bin_1	  = 1.04006	 +/-  0.0487668	(limited)
+gamma_stat_SR_2_bin_2	  = 0.988421	 +/-  0.0845886	(limited)
+gamma_stat_SR_2_bin_3	  = 0.737695	 +/-  0.0943396	(limited)
+NLL:            nll_simPdf_asimovData_4.3785_with_constr
+Previous guess: 8.34387
+Sigma(obs):     2.67223
+Sigma(mu,0):    2.40449
+muhat:          4.37852
+pmu:            0.0689161
+1-pb:           0.0235053
+CLs:            0.070575
+qmu95:          2.76292
+qmu:            2.202
+qmuA0:          12.0417
+Precision:      0.0440215
+Correction:    0.460423
+New guess:      8.80429
+
+----------------------
+Starting iteration 1 of nll_simPdf_asimovData_4.3785_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -9.850203450081
+MnSeedGenerator: Initial state:   - FCN =  -9.850203450081 Edm =  0.000768442 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.850203450081 Edm =   0.00060232 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -9.850203450081 Edm =   0.00060232 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.850203450081 Edm =   0.00060232 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =   -9.85080547092 Edm =  1.93485e-09 NCalls =    168
+VariableMetric: After Hessian   - FCN =   -9.85080547092 Edm =  1.88487e-09 NCalls =    278
+VariableMetric: Iteration #   2 - FCN =   -9.85080547092 Edm =  1.88487e-09 NCalls =    278
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.85080547091985359
+Edm   = 1.88486741498826695e-09
+Nfcn  = 278
+alpha_Bkg1Xsec	  = 0.0691876	 +/-  0.697009	(limited)
+alpha_Bkg2Xsec	  = -0.740365	 +/-  0.643185	(limited)
+alpha_JES	  = -0.47349	 +/-  0.348411	(limited)
+gamma_stat_SR_1_bin_0	  = 0.993226	 +/-  0.0294932	(limited)
+gamma_stat_SR_1_bin_1	  = 1.04103	 +/-  0.0499529	(limited)
+gamma_stat_SR_1_bin_2	  = 0.991713	 +/-  0.0846402	(limited)
+gamma_stat_SR_1_bin_3	  = 0.731991	 +/-  0.0935989	(limited)
+gamma_stat_SR_2_bin_0	  = 0.993854	 +/-  0.0291573	(limited)
+gamma_stat_SR_2_bin_1	  = 1.04212	 +/-  0.0488395	(limited)
+gamma_stat_SR_2_bin_2	  = 0.992235	 +/-  0.0849017	(limited)
+gamma_stat_SR_2_bin_3	  = 0.732192	 +/-  0.0934944	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -4.487057209812
+MnSeedGenerator: Initial state:   - FCN =  -4.487057209812 Edm =      0.02225 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -4.487057209812 Edm =    0.0249025 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -4.487057209812 Edm =    0.0249025 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -4.487057209812 Edm =    0.0249025 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =   -4.51166328153 Edm =    8.151e-06 NCalls =    168
+VariableMetric: After Hessian   - FCN =   -4.51166328153 Edm =  7.86265e-06 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =   -4.51166328153 Edm =  7.86265e-06 NCalls =    268
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -4.51166328153008145
+Edm   = 7.86264739027494697e-06
+Nfcn  = 268
+alpha_Bkg1Xsec	  = 0.0823891	 +/-  0.698627	(limited)
+alpha_Bkg2Xsec	  = -0.712155	 +/-  0.628192	(limited)
+alpha_JES	  = -0.427767	 +/-  0.351602	(limited)
+gamma_stat_SR_1_bin_0	  = 0.993716	 +/-  0.0295267	(limited)
+gamma_stat_SR_1_bin_1	  = 1.0391	 +/-  0.0499017	(limited)
+gamma_stat_SR_1_bin_2	  = 0.986447	 +/-  0.0841648	(limited)
+gamma_stat_SR_1_bin_3	  = 0.727366	 +/-  0.0931253	(limited)
+gamma_stat_SR_2_bin_0	  = 0.994444	 +/-  0.0291832	(limited)
+gamma_stat_SR_2_bin_1	  = 1.04041	 +/-  0.0487887	(limited)
+gamma_stat_SR_2_bin_2	  = 0.987192	 +/-  0.0844268	(limited)
+gamma_stat_SR_2_bin_3	  = 0.727725	 +/-  0.0930262	(limited)
+NLL:            nll_simPdf_asimovData_4.3785_with_constr
+Previous guess: 8.80429
+Sigma(obs):     2.6991
+Sigma(mu,0):    2.42949
+muhat:          4.37852
+pmu:            0.0505315
+1-pb:           0.0236161
+CLs:            0.0517537
+qmu95:          2.74528
+qmu:            2.68869
+qmuA0:          13.1329
+Precision:      0.0442515
+Correction:    0.0459979
+New guess:      8.85029
+
+----------------------
+Starting iteration 2 of nll_simPdf_asimovData_4.3785_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -9.825166863886
+MnSeedGenerator: Initial state:   - FCN =  -9.825166863886 Edm =  0.000447441 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.825166863886 Edm =  0.000258707 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -9.825166863886 Edm =  0.000258707 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.825166863886 Edm =  0.000258707 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.825425557846 Edm =  2.61948e-10 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.825425557846 Edm =  2.49479e-10 NCalls =    288
+VariableMetric: Iteration #   2 - FCN =  -9.825425557846 Edm =  2.49479e-10 NCalls =    288
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.82542555784574567
+Edm   = 2.49479484473119742e-10
+Nfcn  = 288
+alpha_Bkg1Xsec	  = 0.0684274	 +/-  0.696917	(limited)
+alpha_Bkg2Xsec	  = -0.743878	 +/-  0.643428	(limited)
+alpha_JES	  = -0.475463	 +/-  0.348522	(limited)
+gamma_stat_SR_1_bin_0	  = 0.993207	 +/-  0.0294931	(limited)
+gamma_stat_SR_1_bin_1	  = 1.0411	 +/-  0.0499561	(limited)
+gamma_stat_SR_1_bin_2	  = 0.991647	 +/-  0.0846303	(limited)
+gamma_stat_SR_1_bin_3	  = 0.73106	 +/-  0.0934756	(limited)
+gamma_stat_SR_2_bin_0	  = 0.993828	 +/-  0.0291564	(limited)
+gamma_stat_SR_2_bin_1	  = 1.04217	 +/-  0.0488424	(limited)
+gamma_stat_SR_2_bin_2	  = 0.992161	 +/-  0.0848898	(limited)
+gamma_stat_SR_2_bin_3	  = 0.731256	 +/-  0.0933716	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -4.441932326203
+MnSeedGenerator: Initial state:   - FCN =  -4.441932326203 Edm =    0.0121666 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -4.441932326203 Edm =    0.0145679 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -4.441932326203 Edm =    0.0145679 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -4.441932326203 Edm =    0.0145679 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =   -4.45648287893 Edm =  3.55402e-07 NCalls =    168
+VariableMetric: After Hessian   - FCN =   -4.45648287893 Edm =  3.45726e-07 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =   -4.45648287893 Edm =  3.45726e-07 NCalls =    268
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -4.45648287892993178
+Edm   = 3.4572619271565286e-07
+Nfcn  = 268
+alpha_Bkg1Xsec	  = 0.081939	 +/-  0.698545	(limited)
+alpha_Bkg2Xsec	  = -0.715891	 +/-  0.628321	(limited)
+alpha_JES	  = -0.429601	 +/-  0.351662	(limited)
+gamma_stat_SR_1_bin_0	  = 0.993695	 +/-  0.0295264	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03916	 +/-  0.0499049	(limited)
+gamma_stat_SR_1_bin_2	  = 0.986423	 +/-  0.0841586	(limited)
+gamma_stat_SR_1_bin_3	  = 0.726641	 +/-  0.0930274	(limited)
+gamma_stat_SR_2_bin_0	  = 0.994419	 +/-  0.0291822	(limited)
+gamma_stat_SR_2_bin_1	  = 1.04046	 +/-  0.0487917	(limited)
+gamma_stat_SR_2_bin_2	  = 0.98716	 +/-  0.0844184	(limited)
+gamma_stat_SR_2_bin_3	  = 0.72699	 +/-  0.092928	(limited)
+NLL:            nll_simPdf_asimovData_4.3785_with_constr
+Previous guess: 8.85029
+Sigma(obs):     2.70177
+Sigma(mu,0):    2.43198
+muhat:          4.37852
+pmu:            0.0489493
+1-pb:           0.0236279
+CLs:            0.0501338
+qmu95:          2.74382
+qmu:            2.73945
+qmuA0:          13.2433
+Precision:      0.0442743
+Correction:    0.00457207
+New guess:      8.85486
+
+Found limit for nll nll_simPdf_asimovData_4.3785_with_constr: 8.85486
+Finished in 3 iterations.
+NLL is 461.145
+
+------------------------
+Getting limit for nll: nll_simPdf_asimovData_0_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -3.896108853909
+MnSeedGenerator: Initial state:   - FCN =  -3.896108853909 Edm =      12.3701 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -3.896108853909 Edm =      6.87043 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -3.896108853909 Edm =      6.87043 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -3.896108853909 Edm =      6.87043 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.174953809743 Edm =      4.50817 NCalls =    173
+VariableMetric: Iteration #   2 - FCN =  -10.49790282427 Edm =    0.0181272 NCalls =    197
+VariableMetric: Iteration #   3 - FCN =  -10.52124245664 Edm =  0.000347752 NCalls =    221
+VariableMetric: After Hessian   - FCN =  -10.52124245664 Edm =  0.000427351 NCalls =    321
+VariableMetric: Iteration #   4 - FCN =  -10.52124245664 Edm =  0.000427351 NCalls =    321
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -10.5212424566371858
+Edm   = 0.000427351460034541733
+Nfcn  = 321
+alpha_Bkg1Xsec	  = 0.191335	 +/-  0.70634	(limited)
+alpha_Bkg2Xsec	  = -0.188076	 +/-  0.633883	(limited)
+alpha_JES	  = -0.105764	 +/-  0.336146	(limited)
+gamma_stat_SR_1_bin_0	  = 0.997109	 +/-  0.0295489	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02811	 +/-  0.0492981	(limited)
+gamma_stat_SR_1_bin_2	  = 0.989728	 +/-  0.0845152	(limited)
+gamma_stat_SR_1_bin_3	  = 0.883493	 +/-  0.113889	(limited)
+gamma_stat_SR_2_bin_0	  = 0.998668	 +/-  0.0292767	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03131	 +/-  0.048247	(limited)
+gamma_stat_SR_2_bin_2	  = 0.992191	 +/-  0.0851068	(limited)
+gamma_stat_SR_2_bin_3	  = 0.885785	 +/-  0.113789	(limited)
+Initial guess:  2.07047
+Sigma(obs):     2.07
+Sigma(mu,0):    2.07
+muhat:          0
+qmu95:          1
+qmu:            1.11374
+pmu:            0.145288
+1-pb:           0.522581
+CLs:            0.30432
+
+----------------------
+Starting iteration 0 of nll_simPdf_asimovData_0_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -9.635435154691
+MnSeedGenerator: Initial state:   - FCN =  -9.635435154691 Edm =      1.79644 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.635435154691 Edm =     0.982454 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -9.635435154691 Edm =     0.982454 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.635435154691 Edm =     0.982454 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.56777257325 Edm =     0.009914 NCalls =    170
+VariableMetric: Iteration #   2 - FCN =  -10.57525501183 Edm =  0.000103709 NCalls =    194
+VariableMetric: After Hessian   - FCN =  -10.57525501183 Edm =  8.72569e-05 NCalls =    294
+VariableMetric: Iteration #   3 - FCN =  -10.57525501183 Edm =  8.72569e-05 NCalls =    294
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -10.5752550118252628
+Edm   = 8.72568804867862569e-05
+Nfcn  = 294
+alpha_Bkg1Xsec	  = 0.203736	 +/-  0.707205	(limited)
+alpha_Bkg2Xsec	  = -0.174067	 +/-  0.634645	(limited)
+alpha_JES	  = -0.105332	 +/-  0.335423	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996944	 +/-  0.0295414	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02798	 +/-  0.0492963	(limited)
+gamma_stat_SR_1_bin_2	  = 0.99046	 +/-  0.0845846	(limited)
+gamma_stat_SR_1_bin_3	  = 0.886873	 +/-  0.114336	(limited)
+gamma_stat_SR_2_bin_0	  = 0.998657	 +/-  0.0292745	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03133	 +/-  0.0482479	(limited)
+gamma_stat_SR_2_bin_2	  = 0.992735	 +/-  0.0851509	(limited)
+gamma_stat_SR_2_bin_3	  = 0.888924	 +/-  0.11419	(limited)
+NLL:            nll_simPdf_asimovData_0_with_constr
+Previous guess: 2.07047
+Sigma(obs):     2.06457
+Sigma(mu,0):    2.06457
+muhat:          0
+pmu:            0.157966
+1-pb:           0.5
+CLs:            0.315931
+qmu95:          0.994
+qmu:            1.00572
+qmuA0:          1.00572
+Precision:      0.0103252
+Correction:     -0.00542488
+New guess:      2.06504
+
+Found limit for nll nll_simPdf_asimovData_0_with_constr: 2.06504
+Finished in 1 iterations.
+NLL is 450.156
+
+
+Found N * sigma = 1 * 2.06504
+Creating asimov data at mu = 2.06504, profiling at mu = 2.06504
+Pairing nui: alpha_JES, with glob: nom_alpha_JES, from constraint: alpha_JESConstraint
+Pairing nui: alpha_Bkg1Xsec, with glob: nom_alpha_Bkg1Xsec, from constraint: alpha_Bkg1XsecConstraint
+Pairing nui: alpha_Bkg2Xsec, with glob: nom_alpha_Bkg2Xsec, from constraint: alpha_Bkg2XsecConstraint
+Pairing nui: gamma_stat_SR_1_bin_0_poisMean, with glob: nom_gamma_stat_SR_1_bin_0, from constraint: gamma_stat_SR_1_bin_0_constraint
+Pairing nui: gamma_stat_SR_1_bin_1_poisMean, with glob: nom_gamma_stat_SR_1_bin_1, from constraint: gamma_stat_SR_1_bin_1_constraint
+Pairing nui: gamma_stat_SR_1_bin_2_poisMean, with glob: nom_gamma_stat_SR_1_bin_2, from constraint: gamma_stat_SR_1_bin_2_constraint
+Pairing nui: gamma_stat_SR_1_bin_3_poisMean, with glob: nom_gamma_stat_SR_1_bin_3, from constraint: gamma_stat_SR_1_bin_3_constraint
+Pairing nui: gamma_stat_SR_2_bin_0_poisMean, with glob: nom_gamma_stat_SR_2_bin_0, from constraint: gamma_stat_SR_2_bin_0_constraint
+Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_1, from constraint: gamma_stat_SR_2_bin_1_constraint
+Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
+Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
+Making asimov
+RooArgSet::dependents = (obs_x_SR_1)
+on type SR_1 1
+RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (318.035 weighted)
+sum entries 318.035
+channel: SR_1, data: RooDataSet::combAsimovData1[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (318.035 weighted)
+
+RooArgSet::dependents = (obs_x_SR_2)
+on type SR_2 2
+RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (314.668 weighted)
+sum entries 314.668
+channel: SR_2, data: RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] = 4 entries (314.668 weighted)
+
+------------------------
+Getting limit for nll: nll_simPdf_asimovData_2.065_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -5.899508362091
+MnSeedGenerator: Initial state:   - FCN =  -5.899508362091 Edm =      3.95853 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -5.899508362091 Edm =      2.18475 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -5.899508362091 Edm =      2.18475 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -5.899508362091 Edm =      2.18475 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -7.957447867919 Edm =   0.00987123 NCalls =    173
+VariableMetric: Iteration #   2 - FCN =  -7.965242971284 Edm =   0.00011204 NCalls =    197
+VariableMetric: After Hessian   - FCN =  -7.965242971284 Edm =  8.91737e-05 NCalls =    297
+VariableMetric: Iteration #   3 - FCN =  -7.965242971284 Edm =  8.91737e-05 NCalls =    297
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -7.96524297128375736
+Edm   = 8.91736749721748674e-05
+Nfcn  = 297
+alpha_Bkg1Xsec	  = 0.134478	 +/-  0.704288	(limited)
+alpha_Bkg2Xsec	  = -0.476892	 +/-  0.625926	(limited)
+alpha_JES	  = -0.30265	 +/-  0.346437	(limited)
+gamma_stat_SR_1_bin_0	  = 0.994914	 +/-  0.0295345	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03502	 +/-  0.049683	(limited)
+gamma_stat_SR_1_bin_2	  = 0.991826	 +/-  0.0848729	(limited)
+gamma_stat_SR_1_bin_3	  = 0.797564	 +/-  0.102479	(limited)
+gamma_stat_SR_2_bin_0	  = 0.996087	 +/-  0.0292343	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03718	 +/-  0.0485974	(limited)
+gamma_stat_SR_2_bin_2	  = 0.9931	 +/-  0.0852724	(limited)
+gamma_stat_SR_2_bin_3	  = 0.798305	 +/-  0.102334	(limited)
+Initial guess:  5.99268
+Sigma(obs):     2.25663
+Sigma(mu,0):    2.25663
+muhat:          2.06504
+qmu95:          3.02534
+qmu:            6.22574
+pmu:            0.00629531
+1-pb:           0.436265
+CLs:            0.0111671
+
+----------------------
+Starting iteration 0 of nll_simPdf_asimovData_2.065_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -7.169411648245
+MnSeedGenerator: Initial state:   - FCN =  -7.169411648245 Edm =      5.05261 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -7.169411648245 Edm =      2.78434 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -7.169411648245 Edm =      2.78434 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -7.169411648245 Edm =      2.78434 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.771761404068 Edm =    0.0163112 NCalls =    173
+VariableMetric: Iteration #   2 - FCN =  -9.784336075855 Edm =  0.000255081 NCalls =    197
+VariableMetric: After Hessian   - FCN =  -9.784336075855 Edm =  0.000198692 NCalls =    297
+VariableMetric: Iteration #   3 - FCN =  -9.784336075855 Edm =  0.000198692 NCalls =    297
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.78433607585487408
+Edm   = 0.000198692007587485071
+Nfcn  = 297
+alpha_Bkg1Xsec	  = 0.119858	 +/-  0.702676	(limited)
+alpha_Bkg2Xsec	  = -0.514188	 +/-  0.628014	(limited)
+alpha_JES	  = -0.343497	 +/-  0.344049	(limited)
+gamma_stat_SR_1_bin_0	  = 0.994479	 +/-  0.0295145	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03656	 +/-  0.0497358	(limited)
+gamma_stat_SR_1_bin_2	  = 0.993951	 +/-  0.085024	(limited)
+gamma_stat_SR_1_bin_3	  = 0.790278	 +/-  0.101481	(limited)
+gamma_stat_SR_2_bin_0	  = 0.995542	 +/-  0.0292118	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03846	 +/-  0.0486448	(limited)
+gamma_stat_SR_2_bin_2	  = 0.994978	 +/-  0.0853955	(limited)
+gamma_stat_SR_2_bin_3	  = 0.790695	 +/-  0.101321	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -7.608761898239
+MnSeedGenerator: Initial state:   - FCN =  -7.608761898239 Edm =   0.00481813 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -7.608761898239 Edm =   0.00424296 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -7.608761898239 Edm =   0.00424296 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -7.608761898239 Edm =   0.00424296 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -7.613009720167 Edm =  5.90247e-08 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -7.613009720167 Edm =  5.92717e-08 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -7.613009720167 Edm =  5.92717e-08 NCalls =    268
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -7.61300972016699085
+Edm   = 5.92717247435035456e-08
+Nfcn  = 268
+alpha_Bkg1Xsec	  = 0.124489	 +/-  0.703419	(limited)
+alpha_Bkg2Xsec	  = -0.507415	 +/-  0.625695	(limited)
+alpha_JES	  = -0.319536	 +/-  0.347219	(limited)
+gamma_stat_SR_1_bin_0	  = 0.994788	 +/-  0.0295347	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03567	 +/-  0.0497148	(limited)
+gamma_stat_SR_1_bin_2	  = 0.991514	 +/-  0.0848201	(limited)
+gamma_stat_SR_1_bin_3	  = 0.789764	 +/-  0.101435	(limited)
+gamma_stat_SR_2_bin_0	  = 0.995868	 +/-  0.0292288	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03767	 +/-  0.0486247	(limited)
+gamma_stat_SR_2_bin_2	  = 0.992747	 +/-  0.0852079	(limited)
+gamma_stat_SR_2_bin_3	  = 0.790553	 +/-  0.101311	(limited)
+NLL:            nll_simPdf_asimovData_2.065_with_constr
+Previous guess: 5.99268
+Sigma(obs):     2.39259
+Sigma(mu,0):    2.2764
+muhat:          2.06504
+pmu:            0.0503383
+1-pb:           0.160856
+CLs:            0.0599877
+qmu95:          3.03989
+qmu:            2.69479
+qmuA0:          6.93021
+Precision:      0.0309891
+Correction:    0.205133
+New guess:      6.19781
+
+----------------------
+Starting iteration 1 of nll_simPdf_asimovData_2.065_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -9.654170082951
+MnSeedGenerator: Initial state:   - FCN =  -9.654170082951 Edm =   0.00035752 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.654170082951 Edm =  0.000334697 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -9.654170082951 Edm =  0.000334697 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.654170082951 Edm =  0.000334697 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.654505086461 Edm =  1.01736e-09 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.654505086461 Edm =  1.00609e-09 NCalls =    288
+VariableMetric: Iteration #   2 - FCN =  -9.654505086461 Edm =  1.00609e-09 NCalls =    288
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.65450508646102001
+Edm   = 1.0060890142151686e-09
+Nfcn  = 288
+alpha_Bkg1Xsec	  = 0.109934	 +/-  0.701892	(limited)
+alpha_Bkg2Xsec	  = -0.532409	 +/-  0.628414	(limited)
+alpha_JES	  = -0.355322	 +/-  0.344716	(limited)
+gamma_stat_SR_1_bin_0	  = 0.994425	 +/-  0.0295155	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03705	 +/-  0.049758	(limited)
+gamma_stat_SR_1_bin_2	  = 0.99385	 +/-  0.0849937	(limited)
+gamma_stat_SR_1_bin_3	  = 0.786734	 +/-  0.101003	(limited)
+gamma_stat_SR_2_bin_0	  = 0.995389	 +/-  0.0292083	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03881	 +/-  0.0486632	(limited)
+gamma_stat_SR_2_bin_2	  = 0.994878	 +/-  0.0853633	(limited)
+gamma_stat_SR_2_bin_3	  = 0.787292	 +/-  0.100872	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -7.404397743834
+MnSeedGenerator: Initial state:   - FCN =  -7.404397743834 Edm =    0.0028612 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -7.404397743834 Edm =   0.00349854 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -7.404397743834 Edm =   0.00349854 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -7.404397743834 Edm =   0.00349854 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -7.407882454289 Edm =  1.44676e-07 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -7.407882454289 Edm =  1.42584e-07 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -7.407882454289 Edm =  1.42584e-07 NCalls =    268
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -7.40788245428942638
+Edm   = 1.42584430545475189e-07
+Nfcn  = 268
+alpha_Bkg1Xsec	  = 0.121121	 +/-  0.703098	(limited)
+alpha_Bkg2Xsec	  = -0.522961	 +/-  0.625612	(limited)
+alpha_JES	  = -0.328341	 +/-  0.34762	(limited)
+gamma_stat_SR_1_bin_0	  = 0.9947	 +/-  0.0295342	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03596	 +/-  0.0497309	(limited)
+gamma_stat_SR_1_bin_2	  = 0.991265	 +/-  0.0847889	(limited)
+gamma_stat_SR_1_bin_3	  = 0.784941	 +/-  0.100792	(limited)
+gamma_stat_SR_2_bin_0	  = 0.995752	 +/-  0.0292258	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03791	 +/-  0.0486389	(limited)
+gamma_stat_SR_2_bin_2	  = 0.992457	 +/-  0.0851671	(limited)
+gamma_stat_SR_2_bin_3	  = 0.785693	 +/-  0.10067	(limited)
+NLL:            nll_simPdf_asimovData_2.065_with_constr
+Previous guess: 6.19781
+Sigma(obs):     2.40438
+Sigma(mu,0):    2.28758
+muhat:          2.06504
+pmu:            0.0428206
+1-pb:           0.160971
+CLs:            0.0510359
+qmu95:          2.98883
+qmu:            2.95445
+qmuA0:          7.34046
+Precision:      0.0310979
+Correction:    0.0217717
+New guess:      6.21958
+
+Found limit for nll nll_simPdf_asimovData_2.065_with_constr: 6.21958
+Finished in 2 iterations.
+NLL is 455.654
+
+Calculating Observed Limit
+------------------------
+Getting limit for nll: nll_simPdf_ttHFitterData_with_constr
+Minuit2Minimizer: Minimize with max-calls 6000 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = 0.1301957093519
+MnSeedGenerator: Initial state:   - FCN =  0.1301957093519 Edm =      23.1501 NCalls =     49
+MnSeedGenerator: run Hesse - new state:   - FCN =  0.1301957093519 Edm =      10.7042 NCalls =    164
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  0.1301957093519 Edm =      10.7042 NCalls =    164
+VariableMetric: Iteration #   0 - FCN =  0.1301957093519 Edm =      10.7042 NCalls =    164
+VariableMetric: Iteration #   1 - FCN =  -10.58871736195 Edm =      1.92043 NCalls =    209
+VariableMetric: Iteration #   2 - FCN =  -11.94120612583 Edm =     0.279902 NCalls =    239
+VariableMetric: Iteration #   3 - FCN =  -12.40039763932 Edm =     0.143404 NCalls =    267
+VariableMetric: Iteration #   4 - FCN =  -12.62190507633 Edm =    0.0382062 NCalls =    295
+VariableMetric: Iteration #   5 - FCN =  -12.64904394481 Edm =    0.0152213 NCalls =    323
+VariableMetric: Iteration #   6 - FCN =  -12.66322149934 Edm =  0.000665364 NCalls =    349
+VariableMetric: After Hessian   - FCN =  -12.66322149934 Edm =  0.000776323 NCalls =    464
+VariableMetric: Iteration #   7 - FCN =  -12.66322149934 Edm =  0.000776323 NCalls =    464
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -12.6632214993378884
+Edm   = 0.000776322809989894681
+Nfcn  = 464
+SigXsecOverSM	  = 0.000357923	 +/-  0.889862	(limited)
+alpha_Bkg1Xsec	  = 0.257166	 +/-  0.700636	(limited)
+alpha_Bkg2Xsec	  = 0.0299707	 +/-  0.646582	(limited)
+alpha_JES	  = 0.0712038	 +/-  0.329865	(limited)
+gamma_stat_SR_1_bin_0	  = 0.998838	 +/-  0.0295564	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02175	 +/-  0.0489511	(limited)
+gamma_stat_SR_1_bin_2	  = 0.984346	 +/-  0.0838362	(limited)
+gamma_stat_SR_1_bin_3	  = 0.943676	 +/-  0.121892	(limited)
+gamma_stat_SR_2_bin_0	  = 1.00094	 +/-  0.0293049	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02603	 +/-  0.047965	(limited)
+gamma_stat_SR_2_bin_2	  = 0.987475	 +/-  0.0845096	(limited)
+gamma_stat_SR_2_bin_3	  = 0.947288	 +/-  0.121819	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -5.528131137858
+MnSeedGenerator: Initial state:   - FCN =  -5.528131137858 Edm =      7.34923 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -5.528131137858 Edm =      3.97763 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -5.528131137858 Edm =      3.97763 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -5.528131137858 Edm =      3.97763 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.102020198465 Edm =    0.0922229 NCalls =    177
+VariableMetric: Iteration #   2 - FCN =  -9.154314942108 Edm =   0.00192975 NCalls =    201
+VariableMetric: Iteration #   3 - FCN =  -9.155851322452 Edm =  4.27619e-05 NCalls =    225
+VariableMetric: After Hessian   - FCN =  -9.155851322452 Edm =  3.48748e-05 NCalls =    325
+VariableMetric: Iteration #   4 - FCN =  -9.155851322452 Edm =  3.48748e-05 NCalls =    325
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.1558513224521878
+Edm   = 3.48748495124597655e-05
+Nfcn  = 325
+alpha_Bkg1Xsec	  = 0.156743	 +/-  0.705902	(limited)
+alpha_Bkg2Xsec	  = -0.3688	 +/-  0.627935	(limited)
+alpha_JES	  = -0.239318	 +/-  0.343126	(limited)
+gamma_stat_SR_1_bin_0	  = 0.995564	 +/-  0.0295374	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03283	 +/-  0.0495617	(limited)
+gamma_stat_SR_1_bin_2	  = 0.992655	 +/-  0.0849503	(limited)
+gamma_stat_SR_1_bin_3	  = 0.831397	 +/-  0.106984	(limited)
+gamma_stat_SR_2_bin_0	  = 0.996918	 +/-  0.0292519	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03537	 +/-  0.0484879	(limited)
+gamma_stat_SR_2_bin_2	  = 0.994218	 +/-  0.085411	(limited)
+gamma_stat_SR_2_bin_3	  = 0.832562	 +/-  0.106839	(limited)
+Initial guess:  4.28139
+Sigma(obs):     2.18327
+Sigma(mu,0):    2.18327
+muhat:          0.000357923
+qmu95:          3.83927
+qmu:            3.84452
+pmu:            0.0249544
+1-pb:           0.499897
+CLs:            0.0498984
+
+----------------------
+Starting iteration 0 of nll_simPdf_ttHFitterData_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -5.318599559702
+MnSeedGenerator: Initial state:   - FCN =  -5.318599559702 Edm =      6.73289 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -5.318599559702 Edm =      3.65348 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -5.318599559702 Edm =      3.65348 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -5.318599559702 Edm =      3.65348 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -8.639646054519 Edm =     0.055765 NCalls =    177
+VariableMetric: Iteration #   2 - FCN =  -8.673422241201 Edm =   0.00154032 NCalls =    201
+VariableMetric: Iteration #   3 - FCN =  -8.674573372573 Edm =  3.45039e-05 NCalls =    225
+VariableMetric: After Hessian   - FCN =  -8.674573372573 Edm =  2.85461e-05 NCalls =    325
+VariableMetric: Iteration #   4 - FCN =  -8.674573372573 Edm =  2.85461e-05 NCalls =    325
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -8.67457337257275896
+Edm   = 2.85460521429804622e-05
+Nfcn  = 325
+alpha_Bkg1Xsec	  = 0.173662	 +/-  0.700053	(limited)
+alpha_Bkg2Xsec	  = -0.343729	 +/-  0.633332	(limited)
+alpha_JES	  = -0.200421	 +/-  0.344695	(limited)
+gamma_stat_SR_1_bin_0	  = 0.99594	 +/-  0.0295455	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03111	 +/-  0.0494683	(limited)
+gamma_stat_SR_1_bin_2	  = 0.988188	 +/-  0.0847136	(limited)
+gamma_stat_SR_1_bin_3	  = 0.82744	 +/-  0.106474	(limited)
+gamma_stat_SR_2_bin_0	  = 0.997424	 +/-  0.0292681	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03393	 +/-  0.0484461	(limited)
+gamma_stat_SR_2_bin_2	  = 0.98999	 +/-  0.0852202	(limited)
+gamma_stat_SR_2_bin_3	  = 0.828874	 +/-  0.106361	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -9.14233143989
+MnSeedGenerator: Initial state:   - FCN =   -9.14233143989 Edm =    0.0147936 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =   -9.14233143989 Edm =    0.0131907 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   -9.14233143989 Edm =    0.0131907 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =   -9.14233143989 Edm =    0.0131907 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.155431671734 Edm =  1.76178e-06 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.155431671734 Edm =  1.71928e-06 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -9.155431671734 Edm =  1.71928e-06 NCalls =    268
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.15543167173369454
+Edm   = 1.71927537254917828e-06
+Nfcn  = 268
+alpha_Bkg1Xsec	  = 0.154184	 +/-  0.705655	(limited)
+alpha_Bkg2Xsec	  = -0.370878	 +/-  0.627809	(limited)
+alpha_JES	  = -0.23794	 +/-  0.343102	(limited)
+gamma_stat_SR_1_bin_0	  = 0.995613	 +/-  0.0295384	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03284	 +/-  0.0495607	(limited)
+gamma_stat_SR_1_bin_2	  = 0.992455	 +/-  0.0849218	(limited)
+gamma_stat_SR_1_bin_3	  = 0.8311	 +/-  0.106942	(limited)
+gamma_stat_SR_2_bin_0	  = 0.996934	 +/-  0.0292519	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03535	 +/-  0.0484863	(limited)
+gamma_stat_SR_2_bin_2	  = 0.994069	 +/-  0.0853893	(limited)
+gamma_stat_SR_2_bin_3	  = 0.832317	 +/-  0.106805	(limited)
+NLL:            nll_simPdf_ttHFitterData_with_constr
+Previous guess: 4.28139
+Sigma(obs):     1.51573
+Sigma(mu,0):    2.18331
+muhat:          0.000357923
+pmu:            0.00128698
+1-pb:           0.853955
+CLs:            0.00881223
+qmu95:          3.83936
+qmu:            7.9773
+qmuA0:          3.84536
+Precision:      0.0163974
+Correction:     -1.00191
+New guess:      3.27948
+
+----------------------
+Starting iteration 1 of nll_simPdf_ttHFitterData_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -9.847171964863
+MnSeedGenerator: Initial state:   - FCN =  -9.847171964863 Edm =    0.0039194 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.847171964863 Edm =   0.00256382 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -9.847171964863 Edm =   0.00256382 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.847171964863 Edm =   0.00256382 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.849730523891 Edm =  4.00445e-08 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.849730523891 Edm =  3.96453e-08 NCalls =    274
+VariableMetric: Iteration #   2 - FCN =  -9.849730523891 Edm =  3.96453e-08 NCalls =    274
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.84973052389101689
+Edm   = 3.96452566782671689e-08
+Nfcn  = 274
+alpha_Bkg1Xsec	  = 0.187206	 +/-  0.700537	(limited)
+alpha_Bkg2Xsec	  = -0.262734	 +/-  0.635202	(limited)
+alpha_JES	  = -0.151389	 +/-  0.342115	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996475	 +/-  0.0295477	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02945	 +/-  0.0493751	(limited)
+gamma_stat_SR_1_bin_2	  = 0.988415	 +/-  0.0846628	(limited)
+gamma_stat_SR_1_bin_3	  = 0.853208	 +/-  0.109908	(limited)
+gamma_stat_SR_2_bin_0	  = 0.998053	 +/-  0.0292768	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03252	 +/-  0.0483588	(limited)
+gamma_stat_SR_2_bin_2	  = 0.990486	 +/-  0.0852124	(limited)
+gamma_stat_SR_2_bin_3	  = 0.85502	 +/-  0.109802	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -9.768008588578
+MnSeedGenerator: Initial state:   - FCN =  -9.768008588578 Edm =     0.199735 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.768008588578 Edm =     0.122289 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -9.768008588578 Edm =     0.122289 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.768008588578 Edm =     0.122289 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =   -9.89191118774 Edm =  7.08554e-05 NCalls =    168
+VariableMetric: After Hessian   - FCN =   -9.89191118774 Edm =  7.59883e-05 NCalls =    274
+VariableMetric: Iteration #   2 - FCN =   -9.89191118774 Edm =  7.59883e-05 NCalls =    274
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -9.89191118774003364
+Edm   = 7.59882858489692014e-05
+Nfcn  = 274
+alpha_Bkg1Xsec	  = 0.175124	 +/-  0.706564	(limited)
+alpha_Bkg2Xsec	  = -0.285549	 +/-  0.63029	(limited)
+alpha_JES	  = -0.180808	 +/-  0.339946	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996194	 +/-  0.0295403	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03079	 +/-  0.0494501	(limited)
+gamma_stat_SR_1_bin_2	  = 0.991955	 +/-  0.0848324	(limited)
+gamma_stat_SR_1_bin_3	  = 0.855364	 +/-  0.110164	(limited)
+gamma_stat_SR_2_bin_0	  = 0.997679	 +/-  0.0292634	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03365	 +/-  0.0483864	(limited)
+gamma_stat_SR_2_bin_2	  = 0.993856	 +/-  0.0853473	(limited)
+gamma_stat_SR_2_bin_3	  = 0.856938	 +/-  0.110026	(limited)
+NLL:            nll_simPdf_ttHFitterData_with_constr
+Previous guess: 3.27948
+Sigma(obs):     1.38236
+Sigma(mu,0):    2.12917
+muhat:          0.000357923
+pmu:            0.00470534
+1-pb:           0.854631
+CLs:            0.0323682
+qmu95:          4.61326
+qmu:            5.62698
+qmuA0:          2.3724
+Precision:      0.01515
+Correction:     -0.249487
+New guess:      3.03
+
+----------------------
+Starting iteration 2 of nll_simPdf_ttHFitterData_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -10.12377701969
+MnSeedGenerator: Initial state:   - FCN =  -10.12377701969 Edm =  2.85402e-05 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.12377701969 Edm =  1.68789e-05 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -10.12377701969 Edm =  1.68789e-05 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.12377701969 Edm =  1.68789e-05 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.12379389993 Edm =  6.36883e-13 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -10.12379389993 Edm =  4.56783e-13 NCalls =    304
+VariableMetric: Iteration #   2 - FCN =  -10.12379389993 Edm =  4.56783e-13 NCalls =    304
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -10.123793899931373
+Edm   = 4.56782894932445247e-13
+Nfcn  = 304
+alpha_Bkg1Xsec	  = 0.191599	 +/-  0.700676	(limited)
+alpha_Bkg2Xsec	  = -0.241708	 +/-  0.635809	(limited)
+alpha_JES	  = -0.138428	 +/-  0.341376	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996609	 +/-  0.029548	(limited)
+gamma_stat_SR_1_bin_1	  = 1.029	 +/-  0.0493499	(limited)
+gamma_stat_SR_1_bin_2	  = 0.988413	 +/-  0.0846403	(limited)
+gamma_stat_SR_1_bin_3	  = 0.859817	 +/-  0.110788	(limited)
+gamma_stat_SR_2_bin_0	  = 0.998221	 +/-  0.0292787	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03214	 +/-  0.0483353	(limited)
+gamma_stat_SR_2_bin_2	  = 0.990551	 +/-  0.0851991	(limited)
+gamma_stat_SR_2_bin_3	  = 0.861726	 +/-  0.110683	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -10.04531678324
+MnSeedGenerator: Initial state:   - FCN =  -10.04531678324 Edm =   0.00809241 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.04531678324 Edm =   0.00746866 NCalls =    147
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -10.04531678324 Edm =   0.00746866 NCalls =    147
+VariableMetric: Iteration #   0 - FCN =  -10.04531678324 Edm =   0.00746866 NCalls =    147
+VariableMetric: Iteration #   1 - FCN =  -10.05273809391 Edm =  8.45042e-07 NCalls =    170
+VariableMetric: After Hessian   - FCN =  -10.05273809391 Edm =  8.25721e-07 NCalls =    272
+VariableMetric: Iteration #   2 - FCN =  -10.05273809391 Edm =  8.25721e-07 NCalls =    272
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -10.0527380939052513
+Edm   = 8.25721098840910776e-07
+Nfcn  = 272
+alpha_Bkg1Xsec	  = 0.179945	 +/-  0.706686	(limited)
+alpha_Bkg2Xsec	  = -0.26395	 +/-  0.630979	(limited)
+alpha_JES	  = -0.166849	 +/-  0.339104	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996337	 +/-  0.0295407	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03029	 +/-  0.0494218	(limited)
+gamma_stat_SR_1_bin_2	  = 0.991855	 +/-  0.0848045	(limited)
+gamma_stat_SR_1_bin_3	  = 0.86277	 +/-  0.11115	(limited)
+gamma_stat_SR_2_bin_0	  = 0.99786	 +/-  0.0292657	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03323	 +/-  0.0483608	(limited)
+gamma_stat_SR_2_bin_2	  = 0.993827	 +/-  0.0853303	(limited)
+gamma_stat_SR_2_bin_3	  = 0.864449	 +/-  0.111012	(limited)
+NLL:            nll_simPdf_ttHFitterData_with_constr
+Previous guess: 3.03
+Sigma(obs):     1.34434
+Sigma(mu,0):    2.11585
+muhat:          0.000357923
+pmu:            0.00639955
+1-pb:           0.854805
+CLs:            0.0440756
+qmu95:          4.78672
+qmu:            5.07886
+qmuA0:          2.05075
+Precision:      0.0147756
+Correction:     -0.0748705
+New guess:      2.95512
+
+----------------------
+Starting iteration 3 of nll_simPdf_ttHFitterData_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -10.20446508751
+MnSeedGenerator: Initial state:   - FCN =  -10.20446508751 Edm =  1.12936e-07 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.20446508751 Edm =  7.87202e-08 NCalls =    165
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -10.20446508751 Edm =  7.87202e-08 NCalls =    165
+VariableMetric: Iteration #   0 - FCN =  -10.20446508751 Edm =  7.87202e-08 NCalls =    165
+VariableMetric: Iteration #   1 - FCN =  -10.20446516621 Edm =  1.70226e-13 NCalls =    188
+VariableMetric: After Hessian   - FCN =  -10.20446516621 Edm =  7.33204e-14 NCalls =    334
+VariableMetric: Iteration #   2 - FCN =  -10.20446516621 Edm =  7.33204e-14 NCalls =    334
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -10.2044651662145487
+Edm   = 7.33203902056353156e-14
+Nfcn  = 334
+alpha_Bkg1Xsec	  = 0.192969	 +/-  0.700739	(limited)
+alpha_Bkg2Xsec	  = -0.235385	 +/-  0.636122	(limited)
+alpha_JES	  = -0.134459	 +/-  0.341297	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996649	 +/-  0.0295484	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02886	 +/-  0.0493428	(limited)
+gamma_stat_SR_1_bin_2	  = 0.988406	 +/-  0.0846327	(limited)
+gamma_stat_SR_1_bin_3	  = 0.861811	 +/-  0.111056	(limited)
+gamma_stat_SR_2_bin_0	  = 0.998272	 +/-  0.029657	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03203	 +/-  0.0483283	(limited)
+gamma_stat_SR_2_bin_2	  = 0.990564	 +/-  0.0851945	(limited)
+gamma_stat_SR_2_bin_3	  = 0.863751	 +/-  0.11095	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -10.09147454763
+MnSeedGenerator: Initial state:   - FCN =  -10.09147454763 Edm =   0.00857418 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.09147454763 Edm =    0.0076537 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -10.09147454763 Edm =    0.0076537 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.09147454763 Edm =    0.0076537 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.09907794929 Edm =  9.18265e-07 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -10.09907794929 Edm =  8.96588e-07 NCalls =    272
+VariableMetric: Iteration #   2 - FCN =  -10.09907794929 Edm =  8.96588e-07 NCalls =    272
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -10.0990779492936511
+Edm   = 8.96588279841136077e-07
+Nfcn  = 272
+alpha_Bkg1Xsec	  = 0.181652	 +/-  0.706728	(limited)
+alpha_Bkg2Xsec	  = -0.257403	 +/-  0.631206	(limited)
+alpha_JES	  = -0.162241	 +/-  0.338836	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996384	 +/-  0.0295407	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03012	 +/-  0.0494126	(limited)
+gamma_stat_SR_1_bin_2	  = 0.991785	 +/-  0.0847921	(limited)
+gamma_stat_SR_1_bin_3	  = 0.864703	 +/-  0.111406	(limited)
+gamma_stat_SR_2_bin_0	  = 0.99792	 +/-  0.0292665	(limited)
+gamma_stat_SR_2_bin_1	  = 1.0331	 +/-  0.0483526	(limited)
+gamma_stat_SR_2_bin_2	  = 0.993781	 +/-  0.0853213	(limited)
+gamma_stat_SR_2_bin_3	  = 0.866414	 +/-  0.111268	(limited)
+NLL:            nll_simPdf_ttHFitterData_with_constr
+Previous guess: 2.95512
+Sigma(obs):     1.33245
+Sigma(mu,0):    2.11184
+muhat:          0.000357923
+pmu:            0.00700952
+1-pb:           0.85485
+CLs:            0.0482916
+qmu95:          4.83714
+qmu:            4.91751
+qmuA0:          1.95807
+Precision:      0.0146639
+Correction:     -0.0223434
+New guess:      2.93278
+
+----------------------
+Starting iteration 4 of nll_simPdf_ttHFitterData_with_constr
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -10.22831127992
+MnSeedGenerator: Initial state:   - FCN =  -10.22831127992 Edm =   0.00014942 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.22831127992 Edm =  8.42212e-05 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -10.22831127992 Edm =  8.42212e-05 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.22831127992 Edm =  8.42212e-05 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.22839552342 Edm =  2.14816e-11 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -10.22839552342 Edm =   2.0366e-11 NCalls =    300
+VariableMetric: Iteration #   2 - FCN =  -10.22839552342 Edm =   2.0366e-11 NCalls =    300
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -10.2283955234190564
+Edm   = 2.0365964715012039e-11
+Nfcn  = 300
+alpha_Bkg1Xsec	  = 0.193382	 +/-  0.700727	(limited)
+alpha_Bkg2Xsec	  = -0.233496	 +/-  0.636051	(limited)
+alpha_JES	  = -0.133267	 +/-  0.341075	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996662	 +/-  0.0295481	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02882	 +/-  0.0493398	(limited)
+gamma_stat_SR_1_bin_2	  = 0.988403	 +/-  0.0846298	(limited)
+gamma_stat_SR_1_bin_3	  = 0.862407	 +/-  0.111133	(limited)
+gamma_stat_SR_2_bin_0	  = 0.998287	 +/-  0.0292795	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03199	 +/-  0.0483259	(limited)
+gamma_stat_SR_2_bin_2	  = 0.990567	 +/-  0.0851923	(limited)
+gamma_stat_SR_2_bin_3	  = 0.864355	 +/-  0.111028	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -10.1060384634
+MnSeedGenerator: Initial state:   - FCN =   -10.1060384634 Edm =   0.00682812 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =   -10.1060384634 Edm =   0.00673425 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   -10.1060384634 Edm =   0.00673425 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =   -10.1060384634 Edm =   0.00673425 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.11273377128 Edm =  6.71698e-07 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -10.11273377128 Edm =  6.57162e-07 NCalls =    270
+VariableMetric: Iteration #   2 - FCN =  -10.11273377128 Edm =  6.57162e-07 NCalls =    270
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -10.1127337712752841
+Edm   = 6.57161636719767936e-07
+Nfcn  = 270
+alpha_Bkg1Xsec	  = 0.182136	 +/-  0.70674	(limited)
+alpha_Bkg2Xsec	  = -0.255359	 +/-  0.631285	(limited)
+alpha_JES	  = -0.16083	 +/-  0.338758	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996398	 +/-  0.0295408	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03007	 +/-  0.0494099	(limited)
+gamma_stat_SR_1_bin_2	  = 0.991756	 +/-  0.0847878	(limited)
+gamma_stat_SR_1_bin_3	  = 0.86527	 +/-  0.111482	(limited)
+gamma_stat_SR_2_bin_0	  = 0.997939	 +/-  0.0292667	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03305	 +/-  0.0483501	(limited)
+gamma_stat_SR_2_bin_2	  = 0.993759	 +/-  0.085318	(limited)
+gamma_stat_SR_2_bin_3	  = 0.866991	 +/-  0.111344	(limited)
+NLL:            nll_simPdf_ttHFitterData_with_constr
+Previous guess: 2.93278
+Sigma(obs):     1.32886
+Sigma(mu,0):    2.11065
+muhat:          0.000357923
+pmu:            0.00720173
+1-pb:           0.854864
+CLs:            0.0496204
+qmu95:          4.85204
+qmu:            4.86965
+qmuA0:          1.93076
+Precision:      0.0146301
+Correction:     -0.00676266
+New guess:      2.92602
+
+Found limit for nll nll_simPdf_ttHFitterData_with_constr: 2.92602
+Finished in 5 iterations.
+NLL is 459.114
+
+Guess for bands
++2sigma:  7.98668
++1sigma:  5.95767
+-1sigma:  3.08457
+-2sigma:  2.29763
+
+Correct bands
++2sigma:  8.85486
++1sigma:  6.21958
+-1sigma:  3.08457
+-2sigma:  2.29763
+Injected: 0
+Median:   4.28083
+Observed: 2.92602
+
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -10.40439686456
+MnSeedGenerator: Initial state:   - FCN =  -10.40439686456 Edm =      1.11761 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.40439686456 Edm =     0.901335 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -10.40439686456 Edm =     0.901335 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.40439686456 Edm =     0.901335 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -11.32338645799 Edm =    0.0049982 NCalls =    168
+VariableMetric: Iteration #   2 - FCN =  -11.32884099589 Edm =  8.06526e-05 NCalls =    191
+VariableMetric: After Hessian   - FCN =  -11.32884099589 Edm =  8.88314e-05 NCalls =    291
+VariableMetric: Iteration #   3 - FCN =  -11.32884099589 Edm =  8.88314e-05 NCalls =    291
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -11.3288409958941809
+Edm   = 8.88314436791330962e-05
+Nfcn  = 291
+alpha_Bkg1Xsec	  = 0.177254	 +/-  0.700173	(limited)
+alpha_Bkg2Xsec	  = 0.0612915	 +/-  0.644819	(limited)
+alpha_JES	  = 0.030754	 +/-  0.323605	(limited)
+gamma_stat_SR_1_bin_0	  = 1.00082	 +/-  0.0295755	(limited)
+gamma_stat_SR_1_bin_1	  = 1.00498	 +/-  0.0485459	(limited)
+gamma_stat_SR_1_bin_2	  = 0.993369	 +/-  0.0841195	(limited)
+gamma_stat_SR_1_bin_3	  = 0.999476	 +/-  0.125578	(limited)
+gamma_stat_SR_2_bin_0	  = 1.00049	 +/-  0.02928	(limited)
+gamma_stat_SR_2_bin_1	  = 1.00493	 +/-  0.0474545	(limited)
+gamma_stat_SR_2_bin_2	  = 0.993961	 +/-  0.0846179	(limited)
+gamma_stat_SR_2_bin_3	  = 1.0003	 +/-  0.12527	(limited)
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -10.76050779588
+MnSeedGenerator: Initial state:   - FCN =  -10.76050779588 Edm =     0.442917 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.76050779588 Edm =     0.438597 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -10.76050779588 Edm =     0.438597 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.76050779588 Edm =     0.438597 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -11.19836949671 Edm =   0.00190851 NCalls =    168
+VariableMetric: Iteration #   2 - FCN =  -11.20024350871 Edm =  1.36331e-05 NCalls =    191
+VariableMetric: After Hessian   - FCN =  -11.20024350871 Edm =  1.35009e-05 NCalls =    291
+VariableMetric: Iteration #   3 - FCN =  -11.20024350871 Edm =  1.35009e-05 NCalls =    291
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -11.2002435087090682
+Edm   = 1.35009091063476795e-05
+Nfcn  = 291
+alpha_Bkg1Xsec	  = 0.1409	 +/-  0.700029	(limited)
+alpha_Bkg2Xsec	  = -0.0399921	 +/-  0.639848	(limited)
+alpha_JES	  = -0.0605888	 +/-  0.328572	(limited)
+gamma_stat_SR_1_bin_0	  = 0.999911	 +/-  0.0295725	(limited)
+gamma_stat_SR_1_bin_1	  = 1.00817	 +/-  0.0487161	(limited)
+gamma_stat_SR_1_bin_2	  = 0.996994	 +/-  0.084624	(limited)
+gamma_stat_SR_1_bin_3	  = 0.972232	 +/-  0.122129	(limited)
+gamma_stat_SR_2_bin_0	  = 0.999305	 +/-  0.0292686	(limited)
+gamma_stat_SR_2_bin_1	  = 1.0075	 +/-  0.0476023	(limited)
+gamma_stat_SR_2_bin_2	  = 0.997059	 +/-  0.0850666	(limited)
+gamma_stat_SR_2_bin_3	  = 0.972236	 +/-  0.121796	(limited)
+****************************
+Expected P-value Calculation 
+****************************
+Asimov q0: -0.257195
+Med sig: -0.507144
+Med pval: 0.693973
+****************************
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -12.66373891459
+MnSeedGenerator: Initial state:   - FCN =  -12.66373891459 Edm =  0.000354342 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -12.66373891459 Edm =  0.000264251 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -12.66373891459 Edm =  0.000264251 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -12.66373891459 Edm =  0.000264251 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -12.66400361866 Edm =  2.42346e-09 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -12.66400361866 Edm =  2.43608e-09 NCalls =    278
+VariableMetric: Iteration #   2 - FCN =  -12.66400361866 Edm =  2.43608e-09 NCalls =    278
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -12.6640036186583789
+Edm   = 2.43608180551785539e-09
+Nfcn  = 278
+alpha_Bkg1Xsec	  = 0.264765	 +/-  0.701305	(limited)
+alpha_Bkg2Xsec	  = 0.032491	 +/-  0.645942	(limited)
+alpha_JES	  = 0.0628727	 +/-  0.329213	(limited)
+gamma_stat_SR_1_bin_0	  = 0.998657	 +/-  0.0295522	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02179	 +/-  0.0489497	(limited)
+gamma_stat_SR_1_bin_2	  = 0.984407	 +/-  0.0838126	(limited)
+gamma_stat_SR_1_bin_3	  = 0.943262	 +/-  0.12181	(limited)
+gamma_stat_SR_2_bin_0	  = 1.00082	 +/-  0.0293005	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02621	 +/-  0.0479697	(limited)
+gamma_stat_SR_2_bin_2	  = 0.987682	 +/-  0.0844977	(limited)
+gamma_stat_SR_2_bin_3	  = 0.94706	 +/-  0.121759	(limited)
+Minuit2Minimizer: Minimize with max-calls 6000 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -12.61289354032
+MnSeedGenerator: Initial state:   - FCN =  -12.61289354032 Edm =    0.0481505 NCalls =     49
+MnSeedGenerator: run Hesse - new state:   - FCN =  -12.61289354032 Edm =    0.0457235 NCalls =    164
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -12.61289354032 Edm =    0.0457235 NCalls =    164
+VariableMetric: Iteration #   0 - FCN =  -12.61289354032 Edm =    0.0457235 NCalls =    164
+VariableMetric: Iteration #   1 - FCN =  -12.66264601225 Edm =   0.00123345 NCalls =    192
+VariableMetric: Iteration #   2 - FCN =  -12.66395369039 Edm =  4.68602e-05 NCalls =    217
+VariableMetric: After Hessian   - FCN =  -12.66395369039 Edm =  5.00061e-05 NCalls =    336
+VariableMetric: Iteration #   3 - FCN =  -12.66395369039 Edm =  5.00061e-05 NCalls =    336
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -12.6639536903897358
+Edm   = 5.00061192684298986e-05
+Nfcn  = 336
+SigXsecOverSM	  = 9.09659e-05	 +/-  0.918618	(limited)
+alpha_Bkg1Xsec	  = 0.264709	 +/-  0.701299	(limited)
+alpha_Bkg2Xsec	  = 0.0323416	 +/-  0.645886	(limited)
+alpha_JES	  = 0.0627029	 +/-  0.329199	(limited)
+gamma_stat_SR_1_bin_0	  = 0.998656	 +/-  0.0295521	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02179	 +/-  0.0489499	(limited)
+gamma_stat_SR_1_bin_2	  = 0.984417	 +/-  0.0838124	(limited)
+gamma_stat_SR_1_bin_3	  = 0.943238	 +/-  0.121807	(limited)
+gamma_stat_SR_2_bin_0	  = 1.00081	 +/-  0.0293004	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02622	 +/-  0.0479698	(limited)
+gamma_stat_SR_2_bin_2	  = 0.987691	 +/-  0.0844973	(limited)
+gamma_stat_SR_2_bin_3	  = 0.947034	 +/-  0.121756	(limited)
+****************************
+Observed P-value Calculation 
+****************************
+Obs q0: -9.98565e-05
+Obs sig: -0.00999282
+Obs pval: 0.503986
+****************************
+Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -11.80469887103
+MnSeedGenerator: Initial state:   - FCN =  -11.80469887103 Edm =     0.382501 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -11.80469887103 Edm =     0.210494 NCalls =    145
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -11.80469887103 Edm =     0.210494 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -11.80469887103 Edm =     0.210494 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -12.01094144183 Edm =  0.000293182 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -12.01094144183 Edm =  0.000263808 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -12.01094144183 Edm =  0.000263808 NCalls =    268
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -12.0109414418323457
+Edm   = 0.000263808102690197145
+Nfcn  = 268
+alpha_Bkg1Xsec	  = 0.240321	 +/-  0.70139	(limited)
+alpha_Bkg2Xsec	  = -0.0726296	 +/-  0.640318	(limited)
+alpha_JES	  = -0.0142391	 +/-  0.333548	(limited)
+gamma_stat_SR_1_bin_0	  = 0.997859	 +/-  0.0295492	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02461	 +/-  0.0491032	(limited)
+gamma_stat_SR_1_bin_2	  = 0.987185	 +/-  0.0842327	(limited)
+gamma_stat_SR_1_bin_3	  = 0.914657	 +/-  0.118039	(limited)
+gamma_stat_SR_2_bin_0	  = 0.999844	 +/-  0.0292927	(limited)
+gamma_stat_SR_2_bin_1	  = 1.0286	 +/-  0.0481104	(limited)
+gamma_stat_SR_2_bin_2	  = 0.990042	 +/-  0.0848736	(limited)
+gamma_stat_SR_2_bin_3	  = 0.917624	 +/-  0.117949	(limited)
+Minuit2Minimizer: Minimize with max-calls 6000 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -12.01094144183
+MnSeedGenerator: Initial state:   - FCN =  -12.01094144183 Edm =     0.282639 NCalls =     49
+MnSeedGenerator: run Hesse - new state:   - FCN =  -12.01094144183 Edm =     0.508273 NCalls =    164
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -12.01094144183 Edm =     0.508273 NCalls =    164
+VariableMetric: Iteration #   0 - FCN =  -12.01094144183 Edm =     0.508273 NCalls =    164
+VariableMetric: Iteration #   1 - FCN =  -12.57274494029 Edm =    0.0539083 NCalls =    192
+VariableMetric: Iteration #   2 - FCN =  -12.64624974507 Edm =    0.0134009 NCalls =    220
+VariableMetric: Iteration #   3 - FCN =  -12.66337667646 Edm =   0.00059393 NCalls =    246
+VariableMetric: After Hessian   - FCN =  -12.66337667646 Edm =  0.000625691 NCalls =    361
+VariableMetric: Iteration #   4 - FCN =  -12.66337667646 Edm =  0.000625691 NCalls =    361
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -12.6633766764634448
+Edm   = 0.000625691346833121952
+Nfcn  = 361
+SigXsecOverSM	  = 6.74327e-05	 +/-  0.879551	(limited)
+alpha_Bkg1Xsec	  = 0.266649	 +/-  0.701516	(limited)
+alpha_Bkg2Xsec	  = 0.0371307	 +/-  0.647869	(limited)
+alpha_JES	  = 0.06761	 +/-  0.329821	(limited)
+gamma_stat_SR_1_bin_0	  = 0.998704	 +/-  0.0295547	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02161	 +/-  0.0489475	(limited)
+gamma_stat_SR_1_bin_2	  = 0.984175	 +/-  0.0838315	(limited)
+gamma_stat_SR_1_bin_3	  = 0.944509	 +/-  0.122018	(limited)
+gamma_stat_SR_2_bin_0	  = 1.00088	 +/-  0.0293035	(limited)
+gamma_stat_SR_2_bin_1	  = 1.02607	 +/-  0.047969	(limited)
+gamma_stat_SR_2_bin_2	  = 0.987476	 +/-  0.0845224	(limited)
+gamma_stat_SR_2_bin_3	  = 0.948366	 +/-  0.121971	(limited)
+****************************
+Observed P-value Calculation 
+****************************
+Obs q0: 1.30487
+Obs sig: 1.14231
+Obs pval: 0.126663
+****************************
+************************
+*-* Expected Pvalues *-*
+************************
+pb = 0.693973
+CLb = (1-pb) = 0.306027
+CLsb = 0.5
+CLs = 1.63384
+************************
+
+************************
+*-* Observed Pvalues *-*
+************************
+pb = 0.503986
+CLb = (1-pb) = 0.496014
+CLsb = 0.126663
+CLs = 0.255361
+************************
+Finished with 38 calls to minimize(nll)
+Real time 0:00:02, CP time 2.120
