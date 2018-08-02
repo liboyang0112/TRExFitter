@@ -235,10 +235,18 @@ NB: note the *blank* line between the objects!
      * LimitBlind       : can be TRUE or FALSE (TRUE means that ALL regions are blinded)
      * POIAsimov        : value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
      * SignalInjection  : if set to TRUE, expected signal with signal injection is evaluated
+     * SignalInjectionValue: float. Value for the injected signal
+     * ParamName        : string. Name for the parameter in the output ROOT file
+     * ParamValue       : float. Value of the parameter in the output file (e.g. 172.5 for top mass)
+     * OutputPrefixName : string. Prefix for the output ROOT file
+     * ConfidenceLevel  : float. Confidence level for the CLs. Default is 0.95
 
   * Significance:
      * SignificanceBlind: can be TRUE or FALSE (TRUE means that ALL regions are blinded)
      * POIAsimov        : value of the POI to inject in the Asimov dataset in SignificanceBlind is set to TRUE
+     * ParamName        : string. Name for the parameter in the output ROOT file
+     * ParamValue       : float. Value of the parameter in the output file (e.g. 172.5 for top mass)
+     * OutputPrefixName : string. Prefix for the output ROOT file
 
   * Options:
      * additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...
@@ -552,7 +560,6 @@ Multi-Fit options
    * POIPrecision     : string, set precision of the POI
    * DataName         : can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used
    * FitType          : can be SPLUSB or BONLY
-   * SignalInjection  : can be TRUE or FALSE
    * CombineChByCH    : can be TRUE or FALSE, set to true to combine channel by channel
    * NPCategories     : comma separated list of NP categories
    * SetRandomInitialNPval : provide a float 
@@ -588,6 +595,24 @@ Multi-Fit options
    * POIName          : the name of the POI
    * Directory        : the path to the directory
    * InputName        : the name of the input
+
+* Limit:
+   * LimitType        : can be ASYMPTOTIC or TOYS (the latter is not yet supported)
+   * LimitBlind       : can be TRUE or FALSE (TRUE means that ALL regions are blinded)
+   * POIAsimov        : value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
+   * SignalInjection  : if set to TRUE, expected signal with signal injection is evaluated
+   * SignalInjectionValue: float. Value for the injected signal
+   * ParamName        : string. Name for the parameter in the output ROOT file
+   * ParamValue       : float. Value of the parameter in the output file (e.g. 172.5 for top mass)
+   * OutputPrefixName : string. Prefix for the output ROOT file
+   * ConfidenceLevel  : float. Confidence level for the CLs. Default is 0.95
+
+* Significance:
+   * SignificanceBlind: can be TRUE or FALSE (TRUE means that ALL regions are blinded)
+   * POIAsimov        : value of the POI to inject in the Asimov dataset in SignificanceBlind is set to TRUE
+   * ParamName        : string. Name for the parameter in the output ROOT file
+   * ParamValue       : float. Value of the parameter in the output file (e.g. 172.5 for top mass)
+   * OutputPrefixName : string. Prefix for the output ROOT file
 
 
 Input File Merging with hupdate
