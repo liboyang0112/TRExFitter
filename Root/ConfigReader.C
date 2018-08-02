@@ -621,21 +621,6 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fBootstrap = param;
     }
 
-    // Set RunROOTMacros
-    param = confSet->Get("RunROOTMacros");
-    if ( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE"){
-            fFitter->fRunROOTMacros = true;
-        }
-        else if (param == "FALSE"){
-            fFitter->fRunROOTMacros = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
-            fFitter->fRunROOTMacros = false;
-        }
-    }
-
     // Set DecorrSuff
     param = confSet->Get("DecorrSuff");
     if( param != ""){

@@ -10,6 +10,7 @@
 #include "TtHFitter/RunAsymptoticsCLs_inject.h"
 
 #include "CommonStatTools/runSig.h"
+#include "CommonStatTools/runAsymptoticsCLs.h"
 
 //Roofit headers
 #include "RooSimultaneous.h"
@@ -56,8 +57,6 @@ TtHFit::TtHFit(string name){
     fLumi = 1.;
     fLumiErr = 0.000001;
     fLumiScale = 1.;
-
-    fRunROOTMacros = false;
 
     fThresholdSystPruning_Normalisation = -1;
     fThresholdSystPruning_Shape = -1;
@@ -5723,27 +5722,15 @@ void TtHFit::GetLimit(){
         }
     }
 
-    string cmd;
-
     //
     // If a workspace file name is specified, do simple limit
     //
+    int sigDebug = 3 - TtHFitter::DEBUGLEVEL;
+    if (sigDebug < 0) sigDebug = 0;
     if(fWorkspaceFileName!=""){
         string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
-        if(fSignalInjection){
-            if (!fRunROOTMacros){
-                 LimitsCLs_inject::RunAsymptoticsCLs_inject(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
-            } 
-            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-        }
-        else{
-            if (!fRunROOTMacros){
-                LimitsCLs::RunAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
-            }
-            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-        }
-
+        runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "bla", 0, "WS", (fName+"/Limits/").c_str(), fLimitIsBlind, 0.95, "asimovData_0", fSignalInjection, 1, sigDebug); 
     }
 
     else{
@@ -5808,27 +5795,10 @@ void TtHFit::GetLimit(){
         originalMeasurement -> Write();
         ws_forLimit -> Write();
         f_clone -> Close();
-        if(fSignalInjection){
-            if (!fRunROOTMacros){
-                std::string outputName_s = static_cast<std::string> (outputName);
-                LimitsCLs_inject::RunAsymptoticsCLs_inject(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
-            }
-            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-        }
-        else{
-            if (!fRunROOTMacros){
-                std::string outputName_s = static_cast<std::string> (outputName);
-                LimitsCLs::RunAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
-            }
-            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-        }
+        std::string outputName_s = static_cast<std::string> (outputName);
+        runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "bla", 0, "WS", (fName+"/Limits/").c_str(), fLimitIsBlind, 0.95, "asimovData_0", fSignalInjection, 1, sigDebug); 
     }
 
-    //
-    // Finally computing the limit
-    //
-
-    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________
