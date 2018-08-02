@@ -350,6 +350,11 @@ public:
     bool fLimitIsBlind;
     double fLimitPOIAsimov;
     bool fSignalInjection;
+    float fSignalInjectionValue;
+    std::string fLimitParamName;
+    float fLimitParamValue;
+    std::string fLimitOutputPrefixName;
+    float fLimitsConfidence;
 
     //
     // Significance parameters

@@ -1159,7 +1159,38 @@ int ConfigReader::ReadLimitOptions(){
             fFitter->fSignalInjection = false;
         }
     }
+    
+    // Set SignalInjectionValue
+    param = confSet->Get("SignalInjectionValue");
+    if( param != "" ){
+        fFitter->fSignalInjectionValue = std::stof(param);
+    }
+    
+    param = confSet->Get("ParamName");
+    if( param != "" ){
+        fFitter->fLimitParamName = param;
+    }
 
+    param = confSet->Get("ParamValue");
+    if( param != "" ){
+        fFitter->fLimitParamValue = std::stof(param);
+    }
+    
+    param = confSet->Get("OutputPrefixName");
+    if( param != "" ){
+        fFitter->fLimitOutputPrefixName = param;
+    }
+
+    param = confSet->Get("ConfidenceLevel");
+    if( param != "" ){
+        float conf = std::stof(param);
+        if (conf <= 0 || conf >= 1){
+            WriteWarningStatus("ConfigReader::ReadLimitOptions", "Confidence level is <= 0 or >=1. Setting to default 0.95");
+            conf = 0.95;
+        }
+        fFitter->fLimitsConfidence = conf;
+    }
+    
     return 0;
 }
 

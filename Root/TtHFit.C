@@ -148,6 +148,11 @@ TtHFit::TtHFit(string name){
     fLimitIsBlind = false;
     fLimitPOIAsimov = 0;
     fSignalInjection = false;
+    fSignalInjectionValue = 0;
+    fLimitParamName = "parameter";
+    fLimitParamValue = 0;
+    fLimitOutputPrefixName = "myLimit";
+    fLimitsConfidence = 0.95;
 
     // 
     // Significance parameters
@@ -5728,7 +5733,7 @@ void TtHFit::GetLimit(){
     if(fWorkspaceFileName!=""){
         string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
-        runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "bla", 0, "WS", (fName+"/Limits/").c_str(), fLimitIsBlind, 0.95, "asimovData_0", fSignalInjection, 1, sigDebug); 
+        runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
     }
 
     else{
@@ -5794,7 +5799,7 @@ void TtHFit::GetLimit(){
         ws_forLimit -> Write();
         f_clone -> Close();
         std::string outputName_s = static_cast<std::string> (outputName);
-        runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "bla", 0, "WS", (fName+"/Limits/").c_str(), fLimitIsBlind, 0.95, "asimovData_0", fSignalInjection, 1, sigDebug); 
+        runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
     }
 
 }
