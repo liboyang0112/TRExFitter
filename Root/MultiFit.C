@@ -91,6 +91,28 @@ MultiFit::MultiFit(string name){
     //
     fPOIName = "#mu";
     fPOINominal = 1;
+    
+    //
+    // Limit type
+    //
+    fLimitIsBlind = false;
+    fLimitPOIAsimov = 0;
+    fSignalInjection = false;
+    fSignalInjectionValue = 0;
+    fLimitParamName = "parameter";
+    fLimitParamValue = 0;
+    fLimitOutputPrefixName = "myLimit";
+    fLimitsConfidence = 0.95;
+
+    // 
+    // Significance parameters
+    //
+    fSignificanceIsBlind = false;
+    fSignificancePOIAsimov = 0;
+    fSignificanceParamName = "parameter";
+    fSignificanceParamValue = 0;
+    fSignificanceOutputPrefixName = "mySignificance"; 
+
 }
 
 //__________________________________________________________________________________
@@ -451,7 +473,7 @@ void MultiFit::GetCombinedLimit(string inputData){
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
     int sigDebug = 3 - TtHFitter::DEBUGLEVEL;
     if (sigDebug < 0) sigDebug = 0;
-    runAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "bla", 0, "WS", (fOutDir+"/Limits/").c_str(), true, 0.95, "asimovData_0", fSignalInjection, 1, sigDebug); 
+    runAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fOutDir+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
 }
 //__________________________________________________________________________________
 //
@@ -463,7 +485,9 @@ void MultiFit::GetCombinedSignificance(string inputData){
     //
     // Finally computing the significance
     //
-    runSig(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "bla", 0, "ws", (fOutDir+"/Significance").c_str(), true, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, 1, 2);
+    int sigDebug = 3 - TtHFitter::DEBUGLEVEL;
+    if (sigDebug < 0) sigDebug = 0;
+    runSig(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fOutDir+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, fSignificancePOIAsimov, sigDebug);
 }
 //__________________________________________________________________________________
 //

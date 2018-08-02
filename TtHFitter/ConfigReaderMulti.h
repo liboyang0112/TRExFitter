@@ -52,6 +52,18 @@ class ConfigReaderMulti {
           * @return int status code
           */
         int ReadJobOptions();
+        
+        /**
+          * Helper function to read Limit settings
+          * @return int status code
+          */
+        int ReadLimitOptions();
+        
+        /**
+          * Helper function to read Significance settings
+          * @return int status code
+          */
+        int ReadSignificanceOptions();
 
         /**
           * Helper function to read Fit settings
