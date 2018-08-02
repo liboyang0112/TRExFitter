@@ -6,8 +6,6 @@
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/HistoTools.h"
 #include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/RunAsymptoticsCLs.h"
-#include "TtHFitter/RunAsymptoticsCLs_inject.h"
 
 #include "CommonStatTools/runSig.h"
 #include "CommonStatTools/runAsymptoticsCLs.h"

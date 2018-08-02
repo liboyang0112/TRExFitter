@@ -108,8 +108,6 @@ public:
     std::vector<std::string> fVarNameLH;
     bool fDoGroupedSystImpactTable;
     
-    bool fRunROOTMacros;
-
     std::string fPOIName;
     float fPOINominal;
 };

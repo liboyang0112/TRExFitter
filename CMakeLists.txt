@@ -89,8 +89,6 @@ set( lib_headers
   TtHFitter/NuisParameter.h
   TtHFitter/OverallSyst.h
   TtHFitter/Region.h
-  TtHFitter/RunAsymptoticsCLs.h
-  TtHFitter/RunAsymptoticsCLs_inject.h
   TtHFitter/Sample.h
   TtHFitter/SampleHist.h
   TtHFitter/ShapeFactor.h
@@ -114,8 +112,6 @@ set( lib_sources
   Root/NormFactor.C
   Root/NuisParameter.C
   Root/Region.C
-  Root/RunAsymptoticsCLs.C
-  Root/RunAsymptoticsCLs_inject.C
   Root/Sample.C
   Root/SampleHist.C
   Root/ShapeFactor.C

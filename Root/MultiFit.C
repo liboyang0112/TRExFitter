@@ -5,10 +5,9 @@
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/StatusLogbook.h"
 #include "TtHFitter/Region.h"
-#include "TtHFitter/RunAsymptoticsCLs.h"
-#include "TtHFitter/RunAsymptoticsCLs_inject.h"
 
 #include "CommonStatTools/runSig.h"
+#include "CommonStatTools/runAsymptoticsCLs.h"
 
 //Roofit headers
 #include "RooSimultaneous.h"
@@ -90,7 +89,6 @@ MultiFit::MultiFit(string name){
     //
     fDoGroupedSystImpactTable = false;
     //
-    fRunROOTMacros = true; // FIXME: had to temporary set it to true by default, otherwise it crashes...
     fPOIName = "#mu";
     fPOINominal = 1;
 }
@@ -451,23 +449,9 @@ void MultiFit::GetCombinedLimit(string inputData){
     WriteInfoStatus("MultiFit::GetCombinedLimit", "Runing runAsymptoticsCLs macro...");
     
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
-    string cmd;
-    if(fSignalInjection){
-        if (!fRunROOTMacros){
-            LimitsCLs_inject::RunAsymptoticsCLs_inject(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "asimovData_0", (fOutDir+"/Limits/").c_str(),(fName+fSaveSuf).c_str(),0.95);
-        }
-        cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
-    }
-    else{
-        if (!fRunROOTMacros){
-            LimitsCLs::RunAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "asimovData_0", (fOutDir+"/Limits/").c_str(),(fName+fSaveSuf).c_str(),0.95);
-        }
-        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
-    }
-    //
-    // Finally computing the limit
-    //
-    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
+    int sigDebug = 3 - TtHFitter::DEBUGLEVEL;
+    if (sigDebug < 0) sigDebug = 0;
+    runAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "bla", 0, "WS", (fOutDir+"/Limits/").c_str(), true, 0.95, "asimovData_0", fSignalInjection, 1, sigDebug); 
 }
 //__________________________________________________________________________________
 //

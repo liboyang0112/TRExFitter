@@ -438,21 +438,6 @@ int ConfigReaderMulti::ReadJobOptions(){
         if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
     }
 
-    // Set RunROOTMacros
-    param = confSet->Get("RunROOTMacros");
-    if ( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE"){
-            fMultiFitter->fRunROOTMacros = true;
-        }
-        else if (param == "FALSE"){
-            fMultiFitter->fRunROOTMacros = false;
-        } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
-            fMultiFitter->fRunROOTMacros = false;
-        }
-    }
-    
     return 0;
 }
 
