@@ -673,7 +673,7 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
-    // Set DecorrSysts
+    // Set RankingPOIName
     param = confSet->Get("RankingPOIName");
     if( param != ""){
         fFitter->fRankingPOIName = param;
