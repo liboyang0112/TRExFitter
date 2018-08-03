@@ -2,6 +2,12 @@
 #include "TtHFitter/SampleHist.h"
 #include "TtHFitter/StatusLogbook.h"
 
+#include "TLine.h"
+#include "TSystem.h"
+#include "TLegend.h"
+#include "TLatex.h"
+#include "TStyle.h"
+
 using namespace std;
 
 // -------------------------------------------------------------------------------------------------

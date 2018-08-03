@@ -1,6 +1,13 @@
 #include "TtHFitter/FitResults.h"
 #include "TtHFitter/StatusLogbook.h"
 
+#include "TLatex.h"
+#include "TPad.h"
+#include "TLine.h"
+#include "TCanvas.h"
+#include "TBox.h"
+#include "TGraphAsymmErrors.h"
+
 using namespace std;
 
 //__________________________________________________________________________________

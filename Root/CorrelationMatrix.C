@@ -1,6 +1,10 @@
 #include "TtHFitter/CorrelationMatrix.h"
 #include "TtHFitter/StatusLogbook.h"
+
 #include "TH2F.h"
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TPad.h"
 
 using namespace std;
 

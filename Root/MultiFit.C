@@ -20,6 +20,16 @@
 #include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
 #include "RooStats/AsymptoticCalculator.h"
 
+#include "TSystem.h"
+#include "TStyle.h"
+#include "TLatex.h"
+#include "TFrame.h"
+
+// ATLAS stuff
+#include "AtlasUtils/AtlasStyle.h"
+#include "AtlasUtils/AtlasLabels.h"
+#include "AtlasUtils/AtlasUtils.h"
+
 using namespace std;
 using namespace RooFit;
 using namespace RooStats;
@@ -34,7 +44,6 @@ MultiFit::MultiFit(string name){
     fName = name;
     fDir = "";
     fOutDir = "";
-//     fLabel = name;
     fLabel = "";
     fShowObserved = false;
     fLimitTitle = "95% CL limit on #sigma/#sigma_{SM}(t#bar{t}H) at m_{H} = 125 GeV";

@@ -61,8 +61,8 @@ target_link_libraries( CommonSystSmoothingTool ${ROOT_LIBRARIES} )
 # Handle the build of the three auxiliary classes for ATLAS-type
 # labels etc. We don't want to throw this into the TRExFitter
 # library object.
-set( _atlas_utils_headers AtlasLabels.h AtlasStyle.h AtlasUtils.h )
-set( _atlas_utils_sources AtlasLabels.C AtlasStyle.C AtlasUtils.C )
+set( _atlas_utils_headers AtlasUtils/AtlasLabels.h AtlasUtils/AtlasStyle.h AtlasUtils/AtlasUtils.h )
+set( _atlas_utils_sources AtlasUtils/AtlasLabels.C AtlasUtils/AtlasStyle.C AtlasUtils/AtlasUtils.C )
 add_library( AtlasUtils SHARED ${_atlas_utils_headers} ${_atlas_utils_sources} )
 target_include_directories( AtlasUtils
    PUBLIC ${ROOT_INCLUDE_DIRS}
