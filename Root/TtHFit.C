@@ -23,7 +23,17 @@
 #include "TtHFitter/TtHFit.h"
 #include "TtHFitter/Region.h"
 
+// ATLAS stuff
+#include "AtlasUtils/AtlasStyle.h"
+#include "AtlasUtils/AtlasLabels.h"
+#include "AtlasUtils/AtlasUtils.h"
+
 #include "TFormula.h"
+#include "TH2F.h"
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TLatex.h"
+#include "TGraphErrors.h"
 
 using namespace std;
 using namespace RooFit;

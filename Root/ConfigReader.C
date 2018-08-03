@@ -10,6 +10,8 @@
 #include "TtHFitter/Systematic.h"
 #include "TtHFitter/HistoTools.h"
 
+#include "TSystem.h"
+
 //__________________________________________________________________________________
 //
 ConfigReader::ConfigReader(TtHFit *fitter){

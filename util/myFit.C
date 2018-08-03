@@ -7,6 +7,13 @@
 #include "TtHFitter/ConfigParser.h"
 #include "TtHFitter/MultiFit.h"
 
+// ATLAS stuff
+#include "AtlasUtils/AtlasStyle.h"
+#include "AtlasUtils/AtlasLabels.h"
+#include "AtlasUtils/AtlasUtils.h"
+
+#include "TSystem.h"
+
 #include <string>
 
 // -------------------------------------------------------

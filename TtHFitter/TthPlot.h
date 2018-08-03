@@ -2,6 +2,12 @@
 #define TTHPLOT_H
 
 #include "TtHFitter/Common.h"
+#include "TGraphAsymmErrors.h"
+#include "TH1.h"
+#include "TCanvas.h"
+#include "TLegend.h"
+#include "TPad.h"
+#include "THStack.h"
 
 const int MAXbins = 1000;
 const int MAXSAMPLES = 100;

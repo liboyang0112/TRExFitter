@@ -12,45 +12,11 @@
 #include <map>
 #include <set>
 
-// ROOT stuff
-#include "TArrow.h"
-#include "TCanvas.h"
-#include "TChain.h"
-#include "TDirectory.h"
-#include "TFile.h"
-#include "TFrame.h"
-#include "TGraph.h"
-#include "TGraphAsymmErrors.h"
-#include "TGraphErrors.h"
-#include "TH1.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "THStack.h"
-#include "TLatex.h"
-#include "TLegend.h"
-#include "TLine.h"
-#include "TList.h"
-#include "TMath.h"
-#include "TNamed.h"
-#include "TObject.h"
-#include "TPad.h"
-#include "TRandom3.h"
-#include "TROOT.h"
-#include "TString.h"
-#include "TStyle.h"
-#include "TSystem.h"
-#include "TTree.h"
-#include "TF1.h"
-
 // RooStats stuff
 #include "RooStats/HistFactory/Measurement.h"
 #include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
 #include "RooStats/RooStatsUtils.h"
 
-// ATLAS stuff
-#include "AtlasStyle.h"
-#include "AtlasLabels.h"
-#include "AtlasUtils.h"
 
 namespace TtHFitter{
     extern int DEBUGLEVEL;

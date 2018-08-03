@@ -2,6 +2,22 @@
 #include "TtHFitter/HistoTools.h"
 #include "TtHFitter/StatusLogbook.h"
 
+// ATLAS stuff
+#include "AtlasUtils/AtlasStyle.h"
+#include "AtlasUtils/AtlasLabels.h"
+#include "AtlasUtils/AtlasUtils.h"
+
+// ROOT stuff
+#include "TChain.h"
+#include "TDirectory.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TMath.h"
+#include "TObject.h"
+#include "TString.h"
+
 using namespace std;
 
 //----------------------------------------------------------------------------------
@@ -499,7 +515,6 @@ bool SmoothHistogram( TH1* h, float nsigma ){
         bool changesApplied = false;
         for(int i_bin=1;i_bin<=nbinsx;i_bin++){
             if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > nsigma*h0->GetBinError(i_bin) ){
-//           if( TMath::Abs(h->GetBinContent(i_bin) - h_orig->GetBinContent(i_bin)) > nsigma*h_orig->GetBinError(i_bin) ){ // this should be better...
                 h->SetBinContent(i_bin,h0->GetBinContent(i_bin));
             }
             else{
@@ -509,7 +524,6 @@ bool SmoothHistogram( TH1* h, float nsigma ){
             if(h->GetBinContent(i_bin)<1e-06) h->SetBinContent(i_bin,1e-06);
         }
         if(!changesApplied) break;
-//       h0->~TH1();
         delete h0;
     }
 

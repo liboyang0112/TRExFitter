@@ -3,6 +3,8 @@
 #include "TtHFitter/MultiFit.h"
 #include "TtHFitter/StatusLogbook.h"
 
+#include "TSystem.h"
+
 //_______________________________________________________________________________________
 //
 ConfigReaderMulti::ConfigReaderMulti(MultiFit *multiFitter){
