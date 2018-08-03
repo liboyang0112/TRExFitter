@@ -214,6 +214,8 @@ TtHFit::TtHFit(string name){
     fSmoothMorphingTemplates = false;
 
     fPOIPrecision = 2;
+
+    fRankingPOIName = "#mu";
 }
 
 //__________________________________________________________________________________
@@ -6407,8 +6409,6 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     // trick to merge the ranking outputs produced in parallel:
     string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; then";
     cmd       += " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+".txt` == \"\" ]] ; then";
-//     cmd       += " then rm "+fileToRead+" ; ";
-//     cmd       += " cat "+fName+"/Fits/NPRanking"+fLoadSuf+"_* > "+fileToRead+" ; ";
     cmd       += " cat "+fName+"/Fits/NPRanking_* > "+fileToRead+" ; ";
     cmd       += " fi ;";
     cmd       += " fi ;";
@@ -6558,8 +6558,6 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     string parTitle;
 
     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
-//         if(isNF[i]) g->SetPoint(idx, nuhat[i]-1,idx+0.5);
-//         else        
         g->SetPoint(idx, nuhat[i],  idx+0.5);
         g->SetPointEXhigh(      idx, nuerrhi[i]);
         g->SetPointEXlow(       idx, nuerrlo[i]);
@@ -6589,7 +6587,6 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         g2a->SetPointEYlow( idx, 0.4);
 
         if(parname[i].find("gamma")!=string::npos){
-//               gamma_stat_HThad_ge6jge4b_bin_2
             // get name of the region
             std::vector<std::string> tmpVec = Vectorize(parname[i],'_');
             int nWords = tmpVec.size();
@@ -6607,19 +6604,9 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
             }
             // build the title of the nuis par
             parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1] + ")";
-//             string tmpTitle=parname[i];
-//             tmpTitle=ReplaceString(tmpTitle,"gamma_stat_","");
-//             tmpTitle=ReplaceString(tmpTitle,"_"," ");
-//             parTitle="#gamma ("+tmpTitle+")";
         }
         else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
         
-//         if(parTitle==""){
-//             for(auto syst : fSystematics){
-//                 if(syst->fNuisanceParameter == parname[i]) parTitle = TtHFitter::SYSTMAP[ syst->fName ];
-//             }
-//         }
-
         Names.push_back(parTitle);
 
         idx ++;
@@ -6686,7 +6673,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     axis_up->SetLabelFont(   gStyle->GetTextFont() );
     axis_up->Draw();
     axis_up->CenterTitle();
-    axis_up->SetTitle("#Delta#mu");
+    axis_up->SetTitle(("#Delta"+fRankingPOIName).c_str());
     if(SIZE==20) axis_up->SetTitleOffset(1.5);
     axis_up->SetTitleSize(   h_dummy->GetXaxis()->GetLabelSize() );
     axis_up->SetTitleFont(   gStyle->GetTextFont() );
@@ -6695,30 +6682,24 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     pad1->Draw();
 
     pad1->cd();
-    TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,"Pre-fit impact on #mu:");
+    TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,("Pre-fit impact on "+fRankingPOIName+":").c_str());
     leg1->SetFillStyle(0);
     leg1->SetBorderSize(0);
-//     leg1->SetMargin(0.33);
     leg1->SetMargin(0.25);
     leg1->SetNColumns(2);
     leg1->SetTextFont(gStyle->GetTextFont());
     leg1->SetTextSize(gStyle->GetTextSize());
-//     leg1->AddEntry(g1a,"#theta_{0}=+#Delta#theta","f");
-//     leg1->AddEntry(g2a,"#theta_{0}=-#Delta#theta","f");
     leg1->AddEntry(g1a,"#theta = #hat{#theta}+#Delta#theta","f");
     leg1->AddEntry(g2a,"#theta = #hat{#theta}-#Delta#theta","f");
     leg1->Draw();
 
-    TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,"Post-fit impact on #mu:");
+    TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,("Post-fit impact on "+fRankingPOIName+":").c_str());
     leg2->SetFillStyle(0);
     leg2->SetBorderSize(0);
-//     leg2->SetMargin(0.33);
     leg2->SetMargin(0.25);
     leg2->SetNColumns(2);
     leg2->SetTextFont(gStyle->GetTextFont());
     leg2->SetTextSize(gStyle->GetTextSize());
-//     leg2->AddEntry(g1,"#theta_{0}=+#Delta#hat{#theta}","f");
-//     leg2->AddEntry(g2,"#theta_{0}=-#Delta#hat{#theta}","f");
     leg2->AddEntry(g1,"#theta = #hat{#theta}+#Delta#hat{#theta}","f");
     leg2->AddEntry(g2,"#theta = #hat{#theta}-#Delta#hat{#theta}","f");
     leg2->Draw();

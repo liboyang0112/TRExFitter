@@ -400,6 +400,8 @@ public:
     int fFitToys;
     bool fSmoothMorphingTemplates;
     int fPOIPrecision;
+
+    std::string fRankingPOIName;
 };
 
 #endif

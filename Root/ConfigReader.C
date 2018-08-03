@@ -663,7 +663,7 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
-    // Set DecorrSysts
+    // Set POIPrecision
     param = confSet->Get("POIPrecision");
     if( param != ""){
         fFitter->fPOIPrecision = stoi(param);
@@ -672,6 +672,13 @@ int ConfigReader::ReadJobOptions(){
             fFitter->fPOIPrecision = 2;
         }
     }
+
+    // Set DecorrSysts
+    param = confSet->Get("RankingPOIName");
+    if( param != ""){
+        fFitter->fRankingPOIName = param;
+    }
+
     // success
     return 0;
 }
