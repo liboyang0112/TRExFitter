@@ -339,6 +339,9 @@ public:
     float fRndRange;
     long int fRndSeed;
     std::vector<std::string> fVarNameLH;
+    float fLHscanMin; 
+    float fLHscanMax;
+    int fLHscanSteps; 
     std::vector<std::string> fVarNameMinos;
     std::vector<std::string> fVarNameHide;
     std::string fWorkspaceFileName;

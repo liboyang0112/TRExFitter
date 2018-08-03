@@ -106,6 +106,9 @@ public:
     bool fGetGoodnessOfFit;
 
     std::vector<std::string> fVarNameLH;
+    float fLHscanMin; 
+    float fLHscanMax;
+    int fLHscanSteps; 
     bool fDoGroupedSystImpactTable;
     
     bool fRunROOTMacros;

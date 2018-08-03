@@ -137,6 +137,9 @@ TtHFit::TtHFit(string name){
     fRndRange = 0.1;
     fRndSeed = -999;
     fVarNameLH.clear();
+    fLHscanMin = 999999;
+    fLHscanMax = -999999;
+    fLHscanSteps = 30;
     fVarNameMinos.clear();
     fVarNameHide.clear();
     fWorkspaceFileName = "";
@@ -7246,6 +7249,14 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
         }
     }
 
+    if (fLHscanMin < 99999) { // is actually set
+        minVal = fLHscanMin;
+    }
+    
+    if (fLHscanMax > -99999) { // is actually set
+        maxVal = fLHscanMax;
+    }
+
     if (isPoI){
         TIterator* it = mc->GetParametersOfInterest()->createIterator();
         while( (var = (RooRealVar*) it->Next()) ){
@@ -7277,36 +7288,21 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     }
     WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
 
-    //TF1* poly = new TF1("poly2","[0]+[1]*x+[2]*x*x",0,10);
     TCanvas* can = new TCanvas("NLLscan");
 
     RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
 
     TString tag("");
     RooAbsReal* pll = nll->createProfile(*var);
-//     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(-1.5,3.5));
-    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(minVal, maxVal));
+    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
     pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TtHFitter::NCPU));
     RooCurve* curve = frameLH->getCurve();
     curve->Draw();
 
-    //float val = var->getVal();
     frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
 
-//     // fit function
-//     for( int par(0); par<3; par++) { poly->SetParameter(par,0); }
-//     curve->Fit(poly,"RQN"); // R=range, Q=quiet, N=do not draw
-//     TString fitStr = Form("%5.2f + %5.2fx + %5.2fx^{2}", poly->GetParameter(0), poly->GetParameter(1), poly->GetParameter(2));
-//     TLatex* latex = new TLatex();
-//     latex->SetNDC(); // latex->SetTextSize(0.055);
-//   latex->SetTextSize(gStyle->GetTextSize());
-//     latex->SetTextAlign(32);
-//     latex->SetText(0.925,0.925, fitStr);
-
-  // y axis
-  //frameLH->updateYAxis(minVal,maxVal,"");
+    // y axis
     frameLH->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
-//     if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
     if(TtHFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[varName].c_str());
     else if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
 
@@ -7318,7 +7314,6 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     can->SetName(cname);
     can->cd();
     frameLH->Draw();
-//   latex->Draw("same");
 
     TLatex *tex = new TLatex();
     tex->SetTextColor(kGray+2);
