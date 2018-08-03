@@ -1029,6 +1029,40 @@ int ConfigReader::ReadFitOptions(){
         fFitter->fVarNameLH = Vectorize(param,',');
     }
 
+    // Set LHscanMin
+    param = confSet->Get("LHscanMin");
+    if ( param != "" ) {
+        if (fFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanMin' option but didnt set doLHscan. Ignoring");
+        } else {
+            fFitter->fLHscanMin = std::stof(param);
+        }
+    }
+
+    // Set LHscanMax
+    param = confSet->Get("LHscanMax");
+    if ( param != "" ) {
+        if (fFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanMax' option but didnt set doLHscan. Ignoring");
+        } else {
+            fFitter->fLHscanMax = std::stof(param);
+        }
+    }
+
+    // Set LHscanSteps
+    param = confSet->Get("LHscanSteps");
+    if ( param != "" ) {
+        if (fFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanSteps' option but didnt set doLHscan. Ignoring");
+        } else {
+            fFitter->fLHscanSteps = std::stoi(param);
+            if(fFitter->fLHscanSteps < 3 || fFitter->fLHscanSteps > 100){
+                WriteWarningStatus("ConfigReader::ReadFitOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
+                fFitter->fLHscanSteps = 30;
+            }
+        }
+    }
+
     // Set UseMinos
     param = confSet->Get("UseMinos");
     if( param != "" ){

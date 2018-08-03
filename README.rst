@@ -222,6 +222,9 @@ NB: note the *blank* line between the objects!
      * NPValues         : values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
      * FixNPs           : values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
      * doLHscan         : comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled
+     * LHscanMin        : minimum value for the LH scan on x-axis (default it Norm min)
+     * LHscanMax        : maximum value for the LH scan on x-axis (default is Norm max)
+     * LHscanSteps      : number of steps on the LH scan (default is 30)
      * UseMinos         : comma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs
      * SetRandomInitialNPval : useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits
      * SetRandomInitialNPvalSeed : seed used to determine initial NP settings in minimization process if SetRandomInitialNPval option is enabled
