@@ -86,6 +86,9 @@ MultiFit::MultiFit(string name){
     fBonlySuffix = "";
     fShowSystForPOI = false;
     fVarNameLH.clear();
+    fLHscanMin = 999999;
+    fLHscanMax = -999999;
+    fLHscanSteps = 30;
     //
     fDoGroupedSystImpactTable = false;
     //
@@ -2148,6 +2151,14 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
         }
     }
 
+    if (fLHscanMin < 99999) { // is actually set
+        minVal = fLHscanMin;
+    }
+    
+    if (fLHscanMax > -99999) { // is actually set
+        maxVal = fLHscanMax;
+    }
+
     if (isPoI){
         TIterator* it = mc->GetParametersOfInterest()->createIterator();
         while( (var = (RooRealVar*) it->Next()) ){
@@ -2182,7 +2193,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     TCanvas* can = new TCanvas("NLLscan");
     can->SetTopMargin(0.1);
     RooCurve* curve;
-    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(minVal, maxVal));
+    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
     
     if(recreate){
         RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
@@ -2200,11 +2211,9 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     curve->Draw();
     
     // take the LH curves also for other fits
-    //RooCurve *curve_statOnly; // to implement
     std::vector<RooCurve*> curve_fit;
     std::vector<RooCurve*> curve_fit_statOnly; // to implement
     TLegend *leg = new TLegend(0.5,0.85-0.06*(fFitList.size()+1),0.75,0.85);
-//     leg->SetFillStyle(0);
     leg->SetFillColor(kWhite);
     leg->SetBorderSize(0);
     leg->SetTextSize(gStyle->GetTextSize());
@@ -2213,7 +2222,6 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
         for(auto fit : fFitList){
             TFile *f = 0x0;
             if(fit->fFitResultsFile!=""){
-                // sm4top2017_multifit_ljets_dilep_new/Fits/sm4top2017_multifit_ljets_dilep_new.txt
                 std::vector<std::string> v = Vectorize(fit->fFitResultsFile,'/');
                 f = new TFile(v[0]+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
@@ -2238,9 +2246,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
 
     // y axis
-    //frameLH->updateYAxis(minVal,maxVal,"");
     frameLH->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
-//     if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
     if(TtHFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[varName].c_str());
     else if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
 

@@ -574,6 +574,9 @@ Multi-Fit options
    * ShowSystForPOI   : can be TRUE or FALSE, set to true if you want to show systematics for POI
    * GetGoodnessOfFit : can be TRUE or FALSE, set to true to get chi2/NDF for the fit
    * doLHscan         : comma separeted list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP
+   * LHscanMin        : minimum value for the LH scan on x-axis (default it Norm min)
+   * LHscanMax        : maximum value for the LH scan on x-axis (default is Norm max)
+   * LHscanSteps      : number of steps on the LH scan (default is 30)
    * PlotOptions      : same as for "standard" fits
    * Logo             : can be TRUE or FALSE, use true to show TRExFitter logo
    * DebugLevel       : set level of debug output
