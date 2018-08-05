@@ -1,7 +1,10 @@
 #ifndef SYSTEMATIC_H
 #define SYSTEMATIC_H
 
-#include "TtHFitter/Common.h"
+/// c++ includes
+#include <map>
+#include <string>
+#include <vector>
 
 class Systematic {
 public:

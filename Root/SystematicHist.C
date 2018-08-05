@@ -1,6 +1,15 @@
+// Class include
 #include "TtHFitter/SystematicHist.h"
+
+// Framework includes
+#include "TtHFitter/Common.h"
 #include "TtHFitter/HistoTools.h"
 #include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/Systematic.h"
+
+// ROOT includes
+#include "TFile.h"
+#include "TH1F.h"
 
 using namespace std;
 

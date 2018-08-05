@@ -1,4 +1,19 @@
+// Class include
 #include "TtHFitter/Sample.h"
+
+// Framework includes
+#include "TtHFitter/NormFactor.h"
+#include "TtHFitter/ShapeFactor.h"
+#include "TtHFitter/Systematic.h"
+
+// ROOT includes
+#include "TFile.h"
+#include "TH1.h"
+#include "THStack.h"
+#include "TGraphAsymmErrors.h"
+#include "TCanvas.h"
+#include "TChain.h"
+
 
 // -------------------------------------------------------------------------------------------------
 // Sample

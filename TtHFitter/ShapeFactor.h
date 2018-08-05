@@ -1,7 +1,9 @@
 #ifndef SHAPEFACTOR_H
 #define SHAPEFACTOR_H
 
-#include "TtHFitter/Common.h"
+/// c++ includes
+#include <string>
+#include <vector>
 
 class ShapeFactor{
 public:

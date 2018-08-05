@@ -1,6 +1,10 @@
+// Class include
 #include "TtHFitter/StatusLogbook.h"
+
+// Framework includes
 #include "TtHFitter/Common.h"
 
+// c++ includes
 #include <iostream>
 
 int fMaxStrLen  = 54000;

@@ -1,10 +1,14 @@
+// Class include
 #include "TtHFitter/CorrelationMatrix.h"
+
+// Framework includes
 #include "TtHFitter/StatusLogbook.h"
 
-#include "TH2F.h"
+// ROOT includes
 #include "TCanvas.h"
-#include "TStyle.h"
+#include "TH2F.h"
 #include "TPad.h"
+#include "TStyle.h"
 
 using namespace std;
 

@@ -1,7 +1,8 @@
 #ifndef NUISPARAMETER_H
 #define NUISPARAMETER_H
 
-#include "TtHFitter/Common.h"
+/// c++ includes
+#include <string>
 
 class NuisParameter {
 public:

@@ -1,22 +1,16 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-// c++ stuff
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <cstdlib>
+/// c++ stuff
 #include <string>
 #include <vector>
-#include <utility>
 #include <map>
 #include <set>
 
-// RooStats stuff
-#include "RooStats/HistFactory/Measurement.h"
-#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
-#include "RooStats/RooStatsUtils.h"
-
+/// Forward class declaration
+class TFile;
+class TH1;
+class TH1F;
 
 namespace TtHFitter{
     extern int DEBUGLEVEL;

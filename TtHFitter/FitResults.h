@@ -1,10 +1,15 @@
 #ifndef FITRESULTS_H
 #define FITRESULTS_H
 
-#include "TtHFitter/Common.h"
-#include "TtHFitter/NuisParameter.h"
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/CorrelationMatrix.h"
+/// c++ includes
+#include <map>
+#include <string>
+#include <vector>
+
+/// Forward class declaration
+class CorrelationMatrix;
+class NormFactor;
+class NuisParameter;
 
 class FitResults {
 public:

@@ -1,11 +1,23 @@
-#include <cctype>
-#include <iomanip>
+// Class include
+#include "TtHFitter/TtHFit.h"
 
-//TtHFitter headers
+// Framework includes
+#include "TtHFitter/Common.h"
+#include "TtHFitter/ConfigParser.h"
 #include "TtHFitter/ConfigReader.h"
+#include "TtHFitter/FitResults.h"
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/HistoTools.h"
+#include "TtHFitter/NormFactor.h"
+#include "TtHFitter/NuisParameter.h"
+#include "TtHFitter/Sample.h"
+#include "TtHFitter/SampleHist.h"
+#include "TtHFitter/ShapeFactor.h"
 #include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/Systematic.h"
+#include "TtHFitter/SystematicHist.h"
+#include "TtHFitter/TthPlot.h"
+#include "TtHFitter/Region.h"
 #include "TtHFitter/RunSig.h"
 #include "TtHFitter/RunAsymptoticsCLs.h"
 #include "TtHFitter/RunAsymptoticsCLs_inject.h"
@@ -17,23 +29,38 @@
 #include "RooRealSumPdf.h"
 
 //HistFactory headers
+#include "RooStats/AsymptoticCalculator.h"
 #include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
-
-//Corresponding header
-#include "TtHFitter/TtHFit.h"
-#include "TtHFitter/Region.h"
+#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
+#include "RooStats/HistFactory/Measurement.h"
 
 // ATLAS stuff
 #include "AtlasUtils/AtlasStyle.h"
 #include "AtlasUtils/AtlasLabels.h"
 #include "AtlasUtils/AtlasUtils.h"
 
+// ROOT includes
+#include "Math/DistFunc.h"
+#include "TCanvas.h"
+#include "TChain.h"
+#include "TF1.h"
+#include "TFile.h"
 #include "TFormula.h"
+#include "TGaxis.h"
+#include "TGraphErrors.h"
 #include "TH2F.h"
+#include "TLatex.h"
+#include "TLegend.h"
+#include "TPad.h"
+#include "TPie.h"
+#include "TRandom3.h"
 #include "TROOT.h"
 #include "TSystem.h"
-#include "TLatex.h"
-#include "TGraphErrors.h"
+
+// c++ includes
+#include <algorithm>
+#include <cctype>
+#include <iomanip>
 
 using namespace std;
 using namespace RooFit;

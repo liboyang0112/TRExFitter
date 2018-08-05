@@ -1,16 +1,22 @@
+// Class include
 #include "TtHFitter/ConfigReader.h"
 
-#include "TtHFitter/TtHFit.h"
-#include "TtHFitter/StatusLogbook.h"
+// Framework inclused
 #include "TtHFitter/Common.h"
+#include "TtHFitter/HistoTools.h"
+#include "TtHFitter/NormFactor.h"
 #include "TtHFitter/Region.h"
 #include "TtHFitter/Sample.h"
-#include "TtHFitter/NormFactor.h"
 #include "TtHFitter/ShapeFactor.h"
+#include "TtHFitter/StatusLogbook.h"
 #include "TtHFitter/Systematic.h"
-#include "TtHFitter/HistoTools.h"
+#include "TtHFitter/TtHFit.h"
 
+// ROOT includes
 #include "TSystem.h"
+
+// c++ includes
+#include <algorithm>
 
 //__________________________________________________________________________________
 //
