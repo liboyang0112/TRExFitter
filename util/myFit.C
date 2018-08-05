@@ -8,8 +8,6 @@
 #include "TtHFitter/TtHFit.h"
 
 // RooStatsIncludes
-//#include "RooStats/HistFactory/Measurement.h"
-//#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
 #include "RooStats/RooStatsUtils.h"
 
 // ATLAS stuff
