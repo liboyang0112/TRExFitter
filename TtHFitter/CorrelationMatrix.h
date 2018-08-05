@@ -1,7 +1,13 @@
 #ifndef CORRELATIONMATRIX_H
 #define CORRELATIONMATRIX_H
 
+/// Framework includes
 #include "TtHFitter/Common.h"
+
+/// c++ includes
+#include <string>
+#include <vector>
+#include <map>
 
 class CorrelationMatrix {
 

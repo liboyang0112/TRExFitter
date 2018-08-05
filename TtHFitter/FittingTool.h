@@ -7,14 +7,15 @@
 #ifndef FITTINGTOOL_H
 #define FITTINGTOOL_H
 
-#include "TtHFitter/Common.h"
+/// RooStats include
+#include "RooStats/ModelConfig.h"
 
+// c++ includes
 #include <string>
 #include <map>
 #include <vector>
-#include "RooStats/ModelConfig.h"
-#include "TVirtualFitter.h"
 
+/// Forward declaration
 class RooFitResult;
 class TString;
 class RooAbsPdf;

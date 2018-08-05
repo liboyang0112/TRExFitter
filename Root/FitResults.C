@@ -1,12 +1,26 @@
+// Class include
 #include "TtHFitter/FitResults.h"
+
+// framework includes
+#include "TtHFitter/Common.h"
+#include "TtHFitter/CorrelationMatrix.h"
+#include "TtHFitter/NuisParameter.h"
+#include "TtHFitter/NormFactor.h"
 #include "TtHFitter/StatusLogbook.h"
 
-#include "TLatex.h"
-#include "TPad.h"
-#include "TLine.h"
-#include "TCanvas.h"
+// ROOT includes
 #include "TBox.h"
+#include "TCanvas.h"
 #include "TGraphAsymmErrors.h"
+#include "TH1F.h"
+#include "TLatex.h"
+#include "TLine.h"
+#include "TPad.h"
+
+//c++ includes
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 

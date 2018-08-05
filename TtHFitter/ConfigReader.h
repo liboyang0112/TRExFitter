@@ -1,15 +1,15 @@
 #ifndef CONFIGREADER_H
 #define CONFIGREADER_H
 
-// TtHFitter class includes
+// Framework includes
 #include "TtHFitter/ConfigParser.h"
 
-// standard c++ includes
+/// c++ includes
 #include <string>
-#include <iostream>
-#include <fstream>
+#include <vector>
 
-//Forward class declaration
+///Forward class declaration
+class ConfigSet;
 class TtHFit;
 class Region;
 class Systematic;

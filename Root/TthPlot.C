@@ -1,4 +1,8 @@
+// Class include
 #include "TtHFitter/TthPlot.h"
+
+// Framework includes
+#include "TtHFitter/Common.h"
 #include "TtHFitter/StatusLogbook.h"
 
 // ATLAS stuff
@@ -6,10 +10,23 @@
 #include "AtlasUtils/AtlasLabels.h"
 #include "AtlasUtils/AtlasUtils.h"
 
-#include "TLatex.h"
+// ROOT includes
 #include "TArrow.h"
-#include "TStyle.h"
+#include "TCanvas.h"
+#include "TFile.h"
 #include "TFrame.h"
+#include "TGraphAsymmErrors.h"
+#include "TH1.h"
+#include "TH1F.h"
+#include "THStack.h"
+#include "TLatex.h"
+#include "TLegend.h"
+#include "TMath.h"
+#include "TPad.h"
+#include "TStyle.h"
+
+// c++ includes
+#include <algorithm>
 
 using namespace std;
 

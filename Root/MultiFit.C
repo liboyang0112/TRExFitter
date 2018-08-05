@@ -1,34 +1,51 @@
+// Class include
 #include "TtHFitter/MultiFit.h"
 
-#include "TtHFitter/ConfigReader.h"
+// Framework onncludes
 #include "TtHFitter/ConfigParser.h"
+#include "TtHFitter/ConfigReader.h"
+#include "TtHFitter/CorrelationMatrix.h"
+#include "TtHFitter/FitResults.h"
 #include "TtHFitter/FittingTool.h"
-#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/NormFactor.h"
+#include "TtHFitter/NuisParameter.h"
 #include "TtHFitter/Region.h"
+#include "TtHFitter/Sample.h"
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/Systematic.h"
+#include "TtHFitter/TtHFit.h"
 #include "TtHFitter/RunSig.h"
 #include "TtHFitter/RunAsymptoticsCLs.h"
 #include "TtHFitter/RunAsymptoticsCLs_inject.h"
 
-//Roofit headers
-#include "RooSimultaneous.h"
-#include "RooDataSet.h"
+// Roofit includes
 #include "RooCategory.h"
 #include "RooDataSet.h"
+#include "RooSimultaneous.h"
 #include "RooStats/ModelConfig.h"
 
-//HistFactory headers
-#include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
+// HistFactory includes
 #include "RooStats/AsymptoticCalculator.h"
-
-#include "TSystem.h"
-#include "TStyle.h"
-#include "TLatex.h"
-#include "TFrame.h"
+#include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
+#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
+#include "RooStats/HistFactory/Measurement.h"
 
 // ATLAS stuff
 #include "AtlasUtils/AtlasStyle.h"
 #include "AtlasUtils/AtlasLabels.h"
 #include "AtlasUtils/AtlasUtils.h"
+
+// ROOT includes
+#include "TCanvas.h"
+#include "TFile.h"
+#include "TFrame.h"
+#include "TGaxis.h"
+#include "THStack.h"
+#include "TLatex.h"
+#include "TLegend.h"
+#include "TLine.h"
+#include "TSystem.h"
+#include "TStyle.h"
 
 using namespace std;
 using namespace RooFit;

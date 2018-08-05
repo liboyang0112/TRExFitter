@@ -1,14 +1,25 @@
 #ifndef SAMPLEHIST_H
 #define SAMPLEHIST_H
 
-#include "RooStats/HistFactory/Measurement.h"
-#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
-
-#include "TtHFitter/Common.h"
-
-#include "TtHFitter/SystematicHist.h"
-#include "TtHFitter/Sample.h"
+/// Framework includes
 #include "TtHFitter/HistoTools.h"
+
+/// ROOT includes
+#include "Rtypes.h"
+
+/// c++ includes
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
+
+/// Forward class declaration
+class TFile;
+class TH1;
+class Sample;
+class NormFactor;
+class ShapeFactor;
+class SystematicHist;
 
 class SampleHist {
 public:

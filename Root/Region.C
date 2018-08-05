@@ -1,9 +1,38 @@
-#include <iomanip>
+// Class include
 #include "TtHFitter/Region.h"
-#include "TtHFitter/StatusLogbook.h"
 
+// Framework includes
+#include "TtHFitter/Common.h"
+#include "TtHFitter/CorrelationMatrix.h"
+#include "TtHFitter/FitResults.h"
+#include "TtHFitter/NormFactor.h"
+#include "TtHFitter/Sample.h"
+#include "TtHFitter/SampleHist.h"
+#include "TtHFitter/ShapeFactor.h"
+#include "TtHFitter/Systematic.h"
+#include "TtHFitter/SystematicHist.h"
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/TthPlot.h"
+
+// ROOT includes
+#include "Math/DistFunc.h"
+#include "TBox.h"
+#include "TCanvas.h"
+#include "TChain.h"
+#include "TF1.h"
+#include "TFile.h"
+#include "TGraphAsymmErrors.h"
+#include "TH1.h"
+#include "THStack.h"
+#include "TMath.h"
 #include "TMatrixD.h"
+#include "TPaveText.h"
 #include "TSystem.h"
+
+// c++ includes
+#include <iomanip>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 

@@ -1,8 +1,13 @@
 #ifndef SYSTEMATICHIST_H
 #define SYSTEMATICHIST_H
 
-#include "TtHFitter/Common.h"
-#include "TtHFitter/Systematic.h"
+/// c++ includes 
+#include <string>
+
+/// Forwards class declaration
+class TFile;
+class TH1;
+class Systematic;
 
 class SystematicHist {
 public:

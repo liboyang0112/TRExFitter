@@ -16,15 +16,23 @@
 
  */
 
-#include <iostream>
+// Class include
+#include "TtHFitter/HistoTools.h"
+
+// framework includes
+#include "TtHFitter/Common.h"
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/SystematicHist.h"
+
+// CommonStatTools includes
+#include "CommonSystSmoothingTool/SmoothSystematics/SmoothHist.h"
+
+// ROOT includes
 #include "TH1.h"
 
-#include "TtHFitter/HistoTools.h"
-#include "TtHFitter/Common.h"
-#include "TtHFitter/SystematicHist.h"
-#include "TtHFitter/StatusLogbook.h"
-
-#include "CommonSystSmoothingTool/SmoothSystematics/SmoothHist.h"
+// c++ includes
+#include <iostream>
+#include <algorithm>
 
 using namespace std;
 

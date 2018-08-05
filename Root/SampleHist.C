@@ -1,12 +1,24 @@
-#include "TtHFitter/HistoTools.h"
+// Class include
 #include "TtHFitter/SampleHist.h"
-#include "TtHFitter/StatusLogbook.h"
 
-#include "TLine.h"
-#include "TSystem.h"
-#include "TLegend.h"
+// Framework includes
+#include "TtHFitter/Common.h"
+#include "TtHFitter/NormFactor.h"
+#include "TtHFitter/Sample.h"
+#include "TtHFitter/ShapeFactor.h"
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/Systematic.h"
+#include "TtHFitter/SystematicHist.h"
+
+// ROOT includes
+#include "TCanvas.h"
+#include "TH1.h"
 #include "TLatex.h"
+#include "TLegend.h"
+#include "TLine.h"
+#include "TPad.h"
 #include "TStyle.h"
+#include "TSystem.h"
 
 using namespace std;
 

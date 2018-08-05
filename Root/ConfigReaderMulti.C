@@ -1,9 +1,17 @@
-#include "TtHFitter/ConfigReaderMulti.h"
-
+// Class include
 #include "TtHFitter/MultiFit.h"
-#include "TtHFitter/StatusLogbook.h"
 
+// Framework includes
+#include "TtHFitter/ConfigParser.h"
+#include "TtHFitter/ConfigReaderMulti.h"
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/TtHFit.h"
+
+// ROOT includes
 #include "TSystem.h"
+
+// c++ includes
+#include <algorithm>
 
 //_______________________________________________________________________________________
 //

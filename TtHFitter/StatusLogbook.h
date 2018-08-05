@@ -1,6 +1,7 @@
 #ifndef STATUSLOGBOOK_H
 #define STATUSLOGBOOK_H
 
+/// c++ includes
 #include <string>
 
 void WriteErrorStatus(const std::string&, const std::string&);

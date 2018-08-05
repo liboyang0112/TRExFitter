@@ -1,4 +1,7 @@
+// Class include
 #include "TtHFitter/ShapeFactor.h"
+
+// Framework includes
 #include "TtHFitter/StatusLogbook.h"
 
 // -------------------------------------------------------------------------------------------------

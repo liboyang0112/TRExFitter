@@ -1,27 +1,27 @@
 #ifndef TTHFIT_H
 #define TTHFIT_H
 
-#include "TtHFitter/Common.h"
-
-#include "TGaxis.h"
-#include "TPad.h"
-#include "TPie.h"
-#include "TF1.h"
-#include "TRandom3.h"
-
-#include "TtHFitter/TthPlot.h"
-#include "TtHFitter/FitResults.h"
-#include "TtHFitter/Sample.h"
-#include "TtHFitter/Systematic.h"
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/ShapeFactor.h"
-#include "TtHFitter/ConfigParser.h"
+/// Framework includes
 #include "TtHFitter/HistoTools.h"
-#include "TtHFitter/SampleHist.h"
 
+/// c++ includes
+#include <map>
+#include <string>
+#include <vector>
+
+/// Forwards class declaration
+class ConfigParser;
+class FitResults;
+class NormFactor;
 class RooDataSet;
 class RooWorkspace;
 class Region;
+class Sample;
+class SampleHist;
+class ShapeFactor;
+class Systematic;
+class TthPlot;
+class TFile;
 
 class TtHFit {
 public:
@@ -93,7 +93,6 @@ public:
 
     // create new root file with all the histograms
     void CreateRootFiles();
-//     void CloseRootFiles();
     void WriteHistos();
 
     void DrawSystPlots();
