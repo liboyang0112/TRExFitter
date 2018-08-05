@@ -211,6 +211,7 @@ NB: note the *blank* line between the objects!
      * SummaryPrefix    : adds a prefix to summary and merge plots
      * AllowWrongRegionSample    : Can be TRUE(default) or FALSE. When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined.
      * POIPrecision     : Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm facotr mean value and uncertainty. Default is 2
+     * RankingPOIName   : Custom name for the POI for ranking plots. Default is "#mu"
 
   * Fit:
      * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -220,6 +221,9 @@ NB: note the *blank* line between the objects!
      * NPValues         : values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
      * FixNPs           : values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
      * doLHscan         : comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled
+     * LHscanMin        : minimum value for the LH scan on x-axis (default it Norm min)
+     * LHscanMax        : maximum value for the LH scan on x-axis (default is Norm max)
+     * LHscanSteps      : number of steps on the LH scan (default is 30)
      * UseMinos         : comma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs
      * SetRandomInitialNPval : useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits
      * SetRandomInitialNPvalSeed : seed used to determine initial NP settings in minimization process if SetRandomInitialNPval option is enabled
@@ -576,6 +580,9 @@ Multi-Fit options
    * ShowSystForPOI   : can be TRUE or FALSE, set to true if you want to show systematics for POI
    * GetGoodnessOfFit : can be TRUE or FALSE, set to true to get chi2/NDF for the fit
    * doLHscan         : comma separeted list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP
+   * LHscanMin        : minimum value for the LH scan on x-axis (default it Norm min)
+   * LHscanMax        : maximum value for the LH scan on x-axis (default is Norm max)
+   * LHscanSteps      : number of steps on the LH scan (default is 30)
    * PlotOptions      : same as for "standard" fits
    * Logo             : can be TRUE or FALSE, use true to show TRExFitter logo
    * DebugLevel       : set level of debug output

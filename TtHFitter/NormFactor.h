@@ -1,7 +1,9 @@
 #ifndef NORMFACTOR_H
 #define NORMFACTOR_H
 
-#include "TtHFitter/Common.h"
+/// c++ includes
+#include <string>
+#include <vector>
 
 class NormFactor{
 public:

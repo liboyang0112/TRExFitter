@@ -1,13 +1,27 @@
+// Framework includes
 #include "TtHFitter/Common.h"
-
-#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/ConfigParser.h"
 #include "TtHFitter/ConfigReader.h"
 #include "TtHFitter/ConfigReaderMulti.h"
-#include "TtHFitter/TtHFit.h"
-#include "TtHFitter/ConfigParser.h"
 #include "TtHFitter/MultiFit.h"
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/TtHFit.h"
 
+// RooStatsIncludes
+#include "RooStats/RooStatsUtils.h"
+
+// ATLAS stuff
+#include "AtlasUtils/AtlasStyle.h"
+#include "AtlasUtils/AtlasLabels.h"
+#include "AtlasUtils/AtlasUtils.h"
+
+// ROOT includes
+#include "TH1.h"
+#include "TSystem.h"
+
+// c++ includes
 #include <string>
+#include <fstream>
 
 // -------------------------------------------------------
 // -------------------------------------------------------

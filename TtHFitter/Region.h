@@ -1,31 +1,28 @@
 #ifndef REGION_H
 #define REGION_H
 
-#include <map>
-
-#include "TFile.h"
-#include "TH1.h"
-#include "THStack.h"
-#include "TGraphAsymmErrors.h"
-#include "TCanvas.h"
-#include "TChain.h"
-#include "TMath.h"
-#include "TPaveText.h"
-#include "TBox.h"
-
-#include "RooStats/HistFactory/Measurement.h"
-#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
-
+/// Framework includes
 #include "TtHFitter/Common.h"
-#include "TtHFitter/Sample.h"
-#include "TtHFitter/SampleHist.h"
-#include "TtHFitter/FitResults.h"
-
-#include "TtHFitter/TthPlot.h"
 #include "TtHFitter/TtHFit.h"
 
+/// c++ includes
+#include <map>
+#include <string>
+#include <vector>
 
+/// Forwards class declaration
+class FitResults;
+class Sample;
 class Systematic;
+class TH1;
+class THStack;
+class TGraphAsymmErrors;
+class TthPlot;
+class TtHFit;
+class SampleHist;
+class ShapeFactor;
+class CorrelationMatrix;
+class TFile;
 
 class Region {
 public:

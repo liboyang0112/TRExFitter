@@ -1,7 +1,15 @@
+// Class include
 #include "TtHFitter/ConfigParser.h"
+
+// Framework includes
 #include "TtHFitter/StatusLogbook.h"
-#include <map>
+
+// c++ includes
+#include <algorithm>
 #include <exception>
+#include <fstream>
+#include <iostream>
+#include <map>
 
 using namespace std;
 

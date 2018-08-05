@@ -1,11 +1,18 @@
 #ifndef MULTIFIT_H
 #define MULTIFIT_H
 
+/// Framework includes
 #include "TtHFitter/Common.h"
 
-#include "TtHFitter/TtHFit.h"
+/// c++ includes
+#include <map>
 
+/// Forwards declaration
+class ConfigParser;
+class RooDataSet;
 class RooWorkspace;
+class TH1F;
+class TtHFit;
 
 class MultiFit {
 public:
@@ -105,6 +112,9 @@ public:
     bool fGetGoodnessOfFit;
 
     std::vector<std::string> fVarNameLH;
+    float fLHscanMin; 
+    float fLHscanMax;
+    int fLHscanSteps; 
     bool fDoGroupedSystImpactTable;
     
     std::string fPOIName;

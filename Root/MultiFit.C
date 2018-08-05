@@ -1,24 +1,52 @@
+// Class include
 #include "TtHFitter/MultiFit.h"
 
-#include "TtHFitter/ConfigReader.h"
+// Framework onncludes
 #include "TtHFitter/ConfigParser.h"
+#include "TtHFitter/ConfigReader.h"
+#include "TtHFitter/CorrelationMatrix.h"
+#include "TtHFitter/FitResults.h"
 #include "TtHFitter/FittingTool.h"
-#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/NormFactor.h"
+#include "TtHFitter/NuisParameter.h"
 #include "TtHFitter/Region.h"
+#include "TtHFitter/Sample.h"
+#include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/Systematic.h"
+#include "TtHFitter/TtHFit.h"
 
+// CommonStatTools include
 #include "CommonStatTools/runSig.h"
 #include "CommonStatTools/runAsymptoticsCLs.h"
 
-//Roofit headers
-#include "RooSimultaneous.h"
-#include "RooDataSet.h"
+// Roofit includes
 #include "RooCategory.h"
 #include "RooDataSet.h"
+#include "RooSimultaneous.h"
 #include "RooStats/ModelConfig.h"
 
-//HistFactory headers
-#include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
+// HistFactory includes
 #include "RooStats/AsymptoticCalculator.h"
+#include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
+#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
+#include "RooStats/HistFactory/Measurement.h"
+
+// ATLAS stuff
+#include "AtlasUtils/AtlasStyle.h"
+#include "AtlasUtils/AtlasLabels.h"
+#include "AtlasUtils/AtlasUtils.h"
+
+// ROOT includes
+#include "TCanvas.h"
+#include "TFile.h"
+#include "TFrame.h"
+#include "TGaxis.h"
+#include "THStack.h"
+#include "TLatex.h"
+#include "TLegend.h"
+#include "TLine.h"
+#include "TSystem.h"
+#include "TStyle.h"
 
 using namespace std;
 using namespace RooFit;
@@ -34,7 +62,6 @@ MultiFit::MultiFit(string name){
     fName = name;
     fDir = "";
     fOutDir = "";
-//     fLabel = name;
     fLabel = "";
     fShowObserved = false;
     fLimitTitle = "95% CL limit on #sigma/#sigma_{SM}(t#bar{t}H) at m_{H} = 125 GeV";
@@ -86,6 +113,9 @@ MultiFit::MultiFit(string name){
     fBonlySuffix = "";
     fShowSystForPOI = false;
     fVarNameLH.clear();
+    fLHscanMin = 999999;
+    fLHscanMax = -999999;
+    fLHscanSteps = 30;
     //
     fDoGroupedSystImpactTable = false;
     //
@@ -2152,6 +2182,14 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
         }
     }
 
+    if (fLHscanMin < 99999) { // is actually set
+        minVal = fLHscanMin;
+    }
+    
+    if (fLHscanMax > -99999) { // is actually set
+        maxVal = fLHscanMax;
+    }
+
     if (isPoI){
         TIterator* it = mc->GetParametersOfInterest()->createIterator();
         while( (var = (RooRealVar*) it->Next()) ){
@@ -2186,7 +2224,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     TCanvas* can = new TCanvas("NLLscan");
     can->SetTopMargin(0.1);
     RooCurve* curve;
-    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(minVal, maxVal));
+    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
     
     if(recreate){
         RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
@@ -2204,11 +2242,9 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     curve->Draw();
     
     // take the LH curves also for other fits
-    //RooCurve *curve_statOnly; // to implement
     std::vector<RooCurve*> curve_fit;
     std::vector<RooCurve*> curve_fit_statOnly; // to implement
     TLegend *leg = new TLegend(0.5,0.85-0.06*(fFitList.size()+1),0.75,0.85);
-//     leg->SetFillStyle(0);
     leg->SetFillColor(kWhite);
     leg->SetBorderSize(0);
     leg->SetTextSize(gStyle->GetTextSize());
@@ -2217,7 +2253,6 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
         for(auto fit : fFitList){
             TFile *f = 0x0;
             if(fit->fFitResultsFile!=""){
-                // sm4top2017_multifit_ljets_dilep_new/Fits/sm4top2017_multifit_ljets_dilep_new.txt
                 std::vector<std::string> v = Vectorize(fit->fFitResultsFile,'/');
                 f = new TFile(v[0]+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
@@ -2242,9 +2277,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
 
     // y axis
-    //frameLH->updateYAxis(minVal,maxVal,"");
     frameLH->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
-//     if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
     if(TtHFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[varName].c_str());
     else if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
 

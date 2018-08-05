@@ -1,5 +1,32 @@
+// Class include
 #include "TtHFitter/TthPlot.h"
+
+// Framework includes
+#include "TtHFitter/Common.h"
 #include "TtHFitter/StatusLogbook.h"
+
+// ATLAS stuff
+#include "AtlasUtils/AtlasStyle.h"
+#include "AtlasUtils/AtlasLabels.h"
+#include "AtlasUtils/AtlasUtils.h"
+
+// ROOT includes
+#include "TArrow.h"
+#include "TCanvas.h"
+#include "TFile.h"
+#include "TFrame.h"
+#include "TGraphAsymmErrors.h"
+#include "TH1.h"
+#include "TH1F.h"
+#include "THStack.h"
+#include "TLatex.h"
+#include "TLegend.h"
+#include "TMath.h"
+#include "TPad.h"
+#include "TStyle.h"
+
+// c++ includes
+#include <algorithm>
 
 using namespace std;
 
@@ -10,8 +37,6 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     c = new TCanvas(fName.c_str(),fName.c_str(),canvasWidth,canvasHeight);
     //
     pad0 = new TPad("pad0","pad0",0,0.20,1,1,0,0,0);
-//     pad0->SetTickx(false);
-//     pad0->SetTicky(false);
     pad0->SetTicks(1,1);
     pad0->SetTopMargin(0.05);
     pad0->SetBottomMargin(0.1);
@@ -21,8 +46,6 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
     pad0->SetFillStyle(0);
     //
     pad1 = new TPad("pad1","pad1",0,0,1,0.28,0,0,0);
-//     pad1->SetTickx(false);
-//     pad1->SetTicky(false);
     pad1->SetTicks(1,1);
     pad1->SetTopMargin(0.0);
     pad1->SetBottomMargin(0.37);

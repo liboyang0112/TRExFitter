@@ -1,35 +1,33 @@
-//
-// Tool extracted from FitCrossCheckForLimits.C tool provided by the ATLAS Statistical Forum
-// https://svnweb.cern.ch/cern/wsvn/atlasphys/Physics/StatForum/NuisanceCheck/trunk/FitCrossCheckForLimits.C
-//
+// Class include 
+#include "TtHFitter/FittingTool.h"
 
-//Standard headers
-#include <iostream>
-#include <fstream>
-#include <iomanip>
+//Framework includes
+#include "TtHFitter/Common.h"
+#include "TtHFitter/StatusLogbook.h"
 
-//Root headers
-#include "TFile.h"
+//ROOR includes
 #include "TCanvas.h"
+#include "TFile.h"
 #include "TH2.h"
 #include "TRandom3.h"
 
-//Roostats headers
-#include "RooStats/ModelConfig.h"
-#include "RooStats/AsymptoticCalculator.h"
-#include "Math/MinimizerOptions.h"
+//Roostats includes
 #include "RooMinimizer.h"
+#include "Math/MinimizerOptions.h"
+#include "RooStats/AsymptoticCalculator.h"
+#include "RooStats/ModelConfig.h"
 
-//Roofit headers
+//Roofit includes
 #include "RooDataSet.h"
 #include "RooRealVar.h"
 #include "RooMinimizer.h"
 #include "RooFitResult.h"
 #include "RooArgSet.h"
 
-//TtHFitter includes
-#include "TtHFitter/FittingTool.h"
-#include "TtHFitter/StatusLogbook.h"
+//c++ includes
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 
 using namespace std;
 

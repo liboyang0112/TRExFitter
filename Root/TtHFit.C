@@ -1,12 +1,25 @@
-#include <cctype>
-#include <iomanip>
+// Class include
+#include "TtHFitter/TtHFit.h"
 
-//TtHFitter headers
+// Framework includes
+#include "TtHFitter/Common.h"
+#include "TtHFitter/ConfigParser.h"
 #include "TtHFitter/ConfigReader.h"
+#include "TtHFitter/FitResults.h"
 #include "TtHFitter/FittingTool.h"
 #include "TtHFitter/HistoTools.h"
+#include "TtHFitter/NormFactor.h"
+#include "TtHFitter/NuisParameter.h"
+#include "TtHFitter/Sample.h"
+#include "TtHFitter/SampleHist.h"
+#include "TtHFitter/ShapeFactor.h"
 #include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/Systematic.h"
+#include "TtHFitter/SystematicHist.h"
+#include "TtHFitter/TthPlot.h"
+#include "TtHFitter/Region.h"
 
+// CommonStatTiils includes
 #include "CommonStatTools/runSig.h"
 #include "CommonStatTools/runAsymptoticsCLs.h"
 
@@ -17,13 +30,38 @@
 #include "RooRealSumPdf.h"
 
 //HistFactory headers
+#include "RooStats/AsymptoticCalculator.h"
 #include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
+#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
+#include "RooStats/HistFactory/Measurement.h"
 
-//Corresponding header
-#include "TtHFitter/TtHFit.h"
-#include "TtHFitter/Region.h"
+// ATLAS stuff
+#include "AtlasUtils/AtlasStyle.h"
+#include "AtlasUtils/AtlasLabels.h"
+#include "AtlasUtils/AtlasUtils.h"
 
+// ROOT includes
+#include "Math/DistFunc.h"
+#include "TCanvas.h"
+#include "TChain.h"
+#include "TF1.h"
+#include "TFile.h"
 #include "TFormula.h"
+#include "TGaxis.h"
+#include "TGraphErrors.h"
+#include "TH2F.h"
+#include "TLatex.h"
+#include "TLegend.h"
+#include "TPad.h"
+#include "TPie.h"
+#include "TRandom3.h"
+#include "TROOT.h"
+#include "TSystem.h"
+
+// c++ includes
+#include <algorithm>
+#include <cctype>
+#include <iomanip>
 
 using namespace std;
 using namespace RooFit;
@@ -135,6 +173,9 @@ TtHFit::TtHFit(string name){
     fRndRange = 0.1;
     fRndSeed = -999;
     fVarNameLH.clear();
+    fLHscanMin = 999999;
+    fLHscanMax = -999999;
+    fLHscanSteps = 30;
     fVarNameMinos.clear();
     fVarNameHide.clear();
     fWorkspaceFileName = "";
@@ -220,6 +261,8 @@ TtHFit::TtHFit(string name){
     fSmoothMorphingTemplates = false;
 
     fPOIPrecision = 2;
+
+    fRankingPOIName = "#mu";
 }
 
 //__________________________________________________________________________________
@@ -6378,8 +6421,6 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     // trick to merge the ranking outputs produced in parallel:
     string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; then";
     cmd       += " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+".txt` == \"\" ]] ; then";
-//     cmd       += " then rm "+fileToRead+" ; ";
-//     cmd       += " cat "+fName+"/Fits/NPRanking"+fLoadSuf+"_* > "+fileToRead+" ; ";
     cmd       += " cat "+fName+"/Fits/NPRanking_* > "+fileToRead+" ; ";
     cmd       += " fi ;";
     cmd       += " fi ;";
@@ -6529,8 +6570,6 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     string parTitle;
 
     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
-//         if(isNF[i]) g->SetPoint(idx, nuhat[i]-1,idx+0.5);
-//         else        
         g->SetPoint(idx, nuhat[i],  idx+0.5);
         g->SetPointEXhigh(      idx, nuerrhi[i]);
         g->SetPointEXlow(       idx, nuerrlo[i]);
@@ -6560,7 +6599,6 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         g2a->SetPointEYlow( idx, 0.4);
 
         if(parname[i].find("gamma")!=string::npos){
-//               gamma_stat_HThad_ge6jge4b_bin_2
             // get name of the region
             std::vector<std::string> tmpVec = Vectorize(parname[i],'_');
             int nWords = tmpVec.size();
@@ -6578,19 +6616,9 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
             }
             // build the title of the nuis par
             parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1] + ")";
-//             string tmpTitle=parname[i];
-//             tmpTitle=ReplaceString(tmpTitle,"gamma_stat_","");
-//             tmpTitle=ReplaceString(tmpTitle,"_"," ");
-//             parTitle="#gamma ("+tmpTitle+")";
         }
         else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
         
-//         if(parTitle==""){
-//             for(auto syst : fSystematics){
-//                 if(syst->fNuisanceParameter == parname[i]) parTitle = TtHFitter::SYSTMAP[ syst->fName ];
-//             }
-//         }
-
         Names.push_back(parTitle);
 
         idx ++;
@@ -6657,7 +6685,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     axis_up->SetLabelFont(   gStyle->GetTextFont() );
     axis_up->Draw();
     axis_up->CenterTitle();
-    axis_up->SetTitle("#Delta#mu");
+    axis_up->SetTitle(("#Delta"+fRankingPOIName).c_str());
     if(SIZE==20) axis_up->SetTitleOffset(1.5);
     axis_up->SetTitleSize(   h_dummy->GetXaxis()->GetLabelSize() );
     axis_up->SetTitleFont(   gStyle->GetTextFont() );
@@ -6666,30 +6694,24 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     pad1->Draw();
 
     pad1->cd();
-    TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,"Pre-fit impact on #mu:");
+    TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,("Pre-fit impact on "+fRankingPOIName+":").c_str());
     leg1->SetFillStyle(0);
     leg1->SetBorderSize(0);
-//     leg1->SetMargin(0.33);
     leg1->SetMargin(0.25);
     leg1->SetNColumns(2);
     leg1->SetTextFont(gStyle->GetTextFont());
     leg1->SetTextSize(gStyle->GetTextSize());
-//     leg1->AddEntry(g1a,"#theta_{0}=+#Delta#theta","f");
-//     leg1->AddEntry(g2a,"#theta_{0}=-#Delta#theta","f");
     leg1->AddEntry(g1a,"#theta = #hat{#theta}+#Delta#theta","f");
     leg1->AddEntry(g2a,"#theta = #hat{#theta}-#Delta#theta","f");
     leg1->Draw();
 
-    TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,"Post-fit impact on #mu:");
+    TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,("Post-fit impact on "+fRankingPOIName+":").c_str());
     leg2->SetFillStyle(0);
     leg2->SetBorderSize(0);
-//     leg2->SetMargin(0.33);
     leg2->SetMargin(0.25);
     leg2->SetNColumns(2);
     leg2->SetTextFont(gStyle->GetTextFont());
     leg2->SetTextSize(gStyle->GetTextSize());
-//     leg2->AddEntry(g1,"#theta_{0}=+#Delta#hat{#theta}","f");
-//     leg2->AddEntry(g2,"#theta_{0}=-#Delta#hat{#theta}","f");
     leg2->AddEntry(g1,"#theta = #hat{#theta}+#Delta#hat{#theta}","f");
     leg2->AddEntry(g2,"#theta = #hat{#theta}-#Delta#hat{#theta}","f");
     leg2->Draw();
@@ -7236,6 +7258,14 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
         }
     }
 
+    if (fLHscanMin < 99999) { // is actually set
+        minVal = fLHscanMin;
+    }
+    
+    if (fLHscanMax > -99999) { // is actually set
+        maxVal = fLHscanMax;
+    }
+
     if (isPoI){
         TIterator* it = mc->GetParametersOfInterest()->createIterator();
         while( (var = (RooRealVar*) it->Next()) ){
@@ -7267,36 +7297,21 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     }
     WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
 
-    //TF1* poly = new TF1("poly2","[0]+[1]*x+[2]*x*x",0,10);
     TCanvas* can = new TCanvas("NLLscan");
 
     RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
 
     TString tag("");
     RooAbsReal* pll = nll->createProfile(*var);
-//     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(-1.5,3.5));
-    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(30),Range(minVal, maxVal));
+    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
     pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TtHFitter::NCPU));
     RooCurve* curve = frameLH->getCurve();
     curve->Draw();
 
-    //float val = var->getVal();
     frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
 
-//     // fit function
-//     for( int par(0); par<3; par++) { poly->SetParameter(par,0); }
-//     curve->Fit(poly,"RQN"); // R=range, Q=quiet, N=do not draw
-//     TString fitStr = Form("%5.2f + %5.2fx + %5.2fx^{2}", poly->GetParameter(0), poly->GetParameter(1), poly->GetParameter(2));
-//     TLatex* latex = new TLatex();
-//     latex->SetNDC(); // latex->SetTextSize(0.055);
-//   latex->SetTextSize(gStyle->GetTextSize());
-//     latex->SetTextAlign(32);
-//     latex->SetText(0.925,0.925, fitStr);
-
-  // y axis
-  //frameLH->updateYAxis(minVal,maxVal,"");
+    // y axis
     frameLH->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
-//     if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
     if(TtHFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[varName].c_str());
     else if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
 
@@ -7308,7 +7323,6 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     can->SetName(cname);
     can->cd();
     frameLH->Draw();
-//   latex->Draw("same");
 
     TLatex *tex = new TLatex();
     tex->SetTextColor(kGray+2);

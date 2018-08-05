@@ -1,10 +1,11 @@
 #ifndef HISTOTOOLS_H
 #define HISTOTOOLS_H
 
+/// c++ includes
 #include <vector>
 #include <string>
 
-//foward declarations
+/// Foward class declaration
 class TH1;
 class TH1F;
 class SystematicHist;

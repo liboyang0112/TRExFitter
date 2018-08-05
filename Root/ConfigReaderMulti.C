@@ -1,7 +1,17 @@
-#include "TtHFitter/ConfigReaderMulti.h"
-
+// Class include
 #include "TtHFitter/MultiFit.h"
+
+// Framework includes
+#include "TtHFitter/ConfigParser.h"
+#include "TtHFitter/ConfigReaderMulti.h"
 #include "TtHFitter/StatusLogbook.h"
+#include "TtHFitter/TtHFit.h"
+
+// ROOT includes
+#include "TSystem.h"
+
+// c++ includes
+#include <algorithm>
 
 //_______________________________________________________________________________________
 //
@@ -421,6 +431,40 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("doLHscan");
     if( param != "" ){
         fMultiFitter->fVarNameLH = Vectorize(param,',');
+    }
+
+    // Set LHscanMin
+    param = confSet->Get("LHscanMin");
+    if ( param != "" ) {
+        if (fMultiFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMin' option but didnt set doLHscan. Ignoring");
+        } else {
+            fMultiFitter->fLHscanMin = std::stof(param);
+        }
+    }
+
+    // Set LHscanMax
+    param = confSet->Get("LHscanMax");
+    if ( param != "" ) {
+        if (fMultiFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMax' option but didnt set doLHscan. Ignoring");
+        } else {
+            fMultiFitter->fLHscanMax = std::stof(param);
+        }
+    }
+
+    // Set LHscanSteps
+    param = confSet->Get("LHscanSteps");
+    if ( param != "" ) {
+        if (fMultiFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanSteps' option but didnt set doLHscan. Ignoring");
+        } else {
+            fMultiFitter->fLHscanSteps = std::stoi(param);
+            if(fMultiFitter->fLHscanSteps < 3 || fMultiFitter->fLHscanSteps > 100){
+                WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
+                fMultiFitter->fLHscanSteps = 30;
+            }
+        }
     }
 
     // Set PlotOptions

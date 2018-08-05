@@ -1,7 +1,18 @@
 #ifndef TTHPLOT_H
 #define TTHPLOT_H
 
-#include "TtHFitter/Common.h"
+/// c++ includes
+#include <string>
+#include <vector>
+
+/// Forwards class declaration
+class TCanvas;
+class TGraphAsymmErrors;
+class TH1;
+class TH1F;
+class THStack;
+class TLegend;
+class TPad;
 
 const int MAXbins = 1000;
 const int MAXSAMPLES = 100;

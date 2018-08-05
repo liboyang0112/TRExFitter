@@ -1,14 +1,22 @@
+// Class include
 #include "TtHFitter/ConfigReader.h"
 
-#include "TtHFitter/TtHFit.h"
-#include "TtHFitter/StatusLogbook.h"
+// Framework inclused
 #include "TtHFitter/Common.h"
+#include "TtHFitter/HistoTools.h"
+#include "TtHFitter/NormFactor.h"
 #include "TtHFitter/Region.h"
 #include "TtHFitter/Sample.h"
-#include "TtHFitter/NormFactor.h"
 #include "TtHFitter/ShapeFactor.h"
+#include "TtHFitter/StatusLogbook.h"
 #include "TtHFitter/Systematic.h"
-#include "TtHFitter/HistoTools.h"
+#include "TtHFitter/TtHFit.h"
+
+// ROOT includes
+#include "TSystem.h"
+
+// c++ includes
+#include <algorithm>
 
 //__________________________________________________________________________________
 //
@@ -648,7 +656,7 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
-    // Set DecorrSysts
+    // Set POIPrecision
     param = confSet->Get("POIPrecision");
     if( param != ""){
         fFitter->fPOIPrecision = stoi(param);
@@ -657,6 +665,13 @@ int ConfigReader::ReadJobOptions(){
             fFitter->fPOIPrecision = 2;
         }
     }
+
+    // Set RankingPOIName
+    param = confSet->Get("RankingPOIName");
+    if( param != ""){
+        fFitter->fRankingPOIName = param;
+    }
+
     // success
     return 0;
 }
@@ -1005,6 +1020,40 @@ int ConfigReader::ReadFitOptions(){
     param = confSet->Get("doLHscan");
     if( param != "" ){
         fFitter->fVarNameLH = Vectorize(param,',');
+    }
+
+    // Set LHscanMin
+    param = confSet->Get("LHscanMin");
+    if ( param != "" ) {
+        if (fFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanMin' option but didnt set doLHscan. Ignoring");
+        } else {
+            fFitter->fLHscanMin = std::stof(param);
+        }
+    }
+
+    // Set LHscanMax
+    param = confSet->Get("LHscanMax");
+    if ( param != "" ) {
+        if (fFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanMax' option but didnt set doLHscan. Ignoring");
+        } else {
+            fFitter->fLHscanMax = std::stof(param);
+        }
+    }
+
+    // Set LHscanSteps
+    param = confSet->Get("LHscanSteps");
+    if ( param != "" ) {
+        if (fFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanSteps' option but didnt set doLHscan. Ignoring");
+        } else {
+            fFitter->fLHscanSteps = std::stoi(param);
+            if(fFitter->fLHscanSteps < 3 || fFitter->fLHscanSteps > 100){
+                WriteWarningStatus("ConfigReader::ReadFitOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
+                fFitter->fLHscanSteps = 30;
+            }
+        }
     }
 
     // Set UseMinos

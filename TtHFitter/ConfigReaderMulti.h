@@ -1,13 +1,11 @@
 #ifndef CONFIGREADERMULTI_H
 #define CONFIGREADERMULTI_H
 
-// TtHFitter class includes
-#include "TtHFitter/ConfigParser.h"
-
-// standard c++ includes
+/// c++ includes
 #include <string>
 
-//Forward class declaration
+/// Forward class declaration
+class ConfigParser;
 class MultiFit;
 
 /**

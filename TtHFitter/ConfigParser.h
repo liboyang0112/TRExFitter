@@ -1,11 +1,9 @@
 #ifndef CONFIGPARSER_H
 #define CONFIGPARSER_H
 
-#include <algorithm>
+/// c++ includes
 #include <string>
 #include <vector>
-#include <iostream>
-#include <fstream>
 
 const int MAXconfig = 2000;
 

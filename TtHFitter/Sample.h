@@ -1,20 +1,15 @@
 #ifndef SAMPLE_H
 #define SAMPLE_H
 
-#include "TFile.h"
-#include "TH1.h"
-#include "THStack.h"
-#include "TGraphAsymmErrors.h"
-#include "TCanvas.h"
-#include "TChain.h"
+/// c++ includes
+#include <map>
+#include <string>
+#include <vector>
 
-#include "RooStats/HistFactory/Measurement.h"
-#include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
-
-#include "TtHFitter/Common.h"
-#include "TtHFitter/Systematic.h"
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/ShapeFactor.h"
+/// Forward class declaration
+class NormFactor;
+class ShapeFactor;
+class Systematic;
 
 class Sample {
 public:
