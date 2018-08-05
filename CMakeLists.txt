@@ -87,7 +87,6 @@ set( lib_headers
   TtHFitter/MultiFit.h
   TtHFitter/NormFactor.h
   TtHFitter/NuisParameter.h
-  TtHFitter/OverallSyst.h
   TtHFitter/Region.h
   TtHFitter/RunAsymptoticsCLs.h
   TtHFitter/RunAsymptoticsCLs_inject.h
