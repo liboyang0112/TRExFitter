@@ -67,6 +67,7 @@ std::vector<std::string> ToVec(std::string s);
 // string RemovePrefix(string s,string prefix);
 std::string ReplaceString(std::string subject, const std::string& search,
                      const std::string& replace);
+std::vector< std::pair< std::string,std::vector<double> > > processString(std::string target);
 
 bool StringsMatch(std::string s1,std::string s2);
 int wildcmp(const char *wild, const char *string);

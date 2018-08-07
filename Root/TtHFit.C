@@ -4794,8 +4794,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     }
     for(auto nf : fNormFactors){
         if(nf->fExpression.first!=""){
-            meas.AddPreprocessFunction(nf->fName,nf->fExpression.first,
-                                       nf->fExpression.second+"["+std::to_string(nf->fNominal)+","+std::to_string(nf->fMin)+","+std::to_string(nf->fMax)+"]");
+            meas.AddPreprocessFunction(nf->fName,nf->fExpression.first,nf->fExpression.second);
         }
     }
     //
@@ -7939,10 +7938,21 @@ float TtHFit::GetNominalMorphScale(const SampleHist* const sh) const {
         if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
             std::string formula = TtHFitter::SYSTMAP[nfName];
             std::string name = TtHFitter::NPMAP[nfName];
-            formula = ReplaceString(formula,name,"x");
-            TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
-            scale *= f_morph->Eval(nf->fNominal);
-            delete f_morph;
+	    WriteDebugStatus("Region::GetNominalMorphScale", "formula: " +formula);
+	    WriteDebugStatus("Region::GetNominalMorphScale", "name: " +name);
+	    std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+	    std::vector <double> nfNominalvec;
+	    for (unsigned int j = 0; j<nameS.size(); j++){
+	      formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+	      nfNominalvec.push_back(nameS[j].second[0]);
+	    }
+	    double *nfNominal = nfNominalvec.data();
+	    WriteDebugStatus("Region::GetNominalMorphScale", "formula: " +formula);
+	    for(unsigned int j = 0; j<nameS.size(); j++) 
+	      WriteDebugStatus("Region::GetNominalMorphScale", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
+	    TFormula* f_morph = new TFormula ("f_morph",formula.c_str());
+	    scale *= f_morph->EvalPar(nfNominal,nullptr);                    
+	    delete f_morph;
         } else {
             scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
         }

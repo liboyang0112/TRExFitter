@@ -21,6 +21,8 @@
 #include "TObject.h"
 #include "TString.h"
 
+#include <sstream>
+
 using namespace std;
 
 //----------------------------------------------------------------------------------
@@ -261,6 +263,33 @@ string ReplaceString(string subject, const string& search,
         pos += replace.length();
     }
     return subject;
+}
+
+//__________________________________________________________________________________
+//
+vector< pair < string,vector<double> > > processString(string target) {
+  size_t pos = 0;
+  vector<pair <string,vector<double> > > output;
+  while((pos = target.find("[",pos)) !=string::npos) {
+    pair <string, vector<double> > onePair;
+    vector<double> values;
+    double oneValue;
+    int length = target.find("]",pos) - pos;
+    std::stringstream ss(target.substr(pos+1,length-1));
+    //std::cout << ss.str() << std::endl;
+    while (ss>>oneValue){
+      values.push_back(oneValue);
+      if (ss.peek() == ','){
+	ss.ignore();
+      }
+    }
+    onePair.first = target.substr(0,pos);
+    onePair.second = values;
+    output.push_back(onePair);
+    target.erase(0,pos+length+2);
+    pos = 0;
+  }
+  return output; 
 }
 
 //__________________________________________________________________________________
