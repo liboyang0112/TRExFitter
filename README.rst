@@ -47,7 +47,7 @@ How to
 ---------
 To run the code, after compiling (see "Setup"), use the command::
 
-    ./myFit.exe  <action(s)>  [<config file>]  [<update>]  [<options>]
+    ./build/bin/myFit.exe  <action(s)>  [<config file>]  [<update>]  [<options>]
 
 The configuration file (<config file>) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
 By default the file  ``config/myFit.config``  is loaded.
@@ -445,7 +445,7 @@ Currently the supported options are:
 Note: the wild-card * is supported, but only as last character.
 Example::
 
-     ./myFit.exe  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
+     ./build/bin/myFit.exe  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
 
 
 Ranking Plot
@@ -458,12 +458,12 @@ Ranking Plot
 - Examples::
 
      # this runs the ranking in one go
-     ./myFit.exe  r  <config>
+     ./build/bin/myFit.exe  r  <config>
      #these commands will first create the inputs for the ranking one by one and then merge them in the plot
-     ./myFit.exe  r  <config> Ranking=Lumi
-     ./myFit.exe  r  <config> Ranking=JES1
-     ./myFit.exe  r  <config> Ranking=ttXsec
-     ./myFit.exe  r  <config> Ranking=plot
+     ./build/bin/myFit.exe  r  <config> Ranking=Lumi
+     ./build/bin/myFit.exe  r  <config> Ranking=JES1
+     ./build/bin/myFit.exe  r  <config> Ranking=ttXsec
+     ./build/bin/myFit.exe  r  <config> Ranking=plot
 
 
 Grouped Impact
@@ -478,14 +478,14 @@ Grouped Impact
 * Example::
 
     # evaluate impact of all groups sequentially
-    ./myFit.exe i <config>
+    ./build/bin/myFit.exe i <config>
 
     # evaluate only the impact of Gammas
-    ./myFit.exe i <config> GroupedImpact="Gammas"
+    ./build/bin/myFit.exe i <config> GroupedImpact="Gammas"
 
 * When the calculations are parallelized, combine the results by running the following at the end::
 
-    ./myFit.exe i <config> GroupedImpact="combine"
+    ./build/bin/myFit.exe i <config> GroupedImpact="combine"
 
 
 Multi-Fit
@@ -519,13 +519,13 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
 
 - This config file can be run with the command line::
 
-    ./myFit  m  config/myTopWS_multifit.config
+    ./build/bin/myFit  m  config/myTopWS_multifit.config
 
   This will compare the fit results in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the fly when running his multi-fit option).
 
 - To make a real combination, one needs to use the usual command options "w", "f" and "l" together with the flag "Combine: TRUE" in the config above. Example::
 
-    ./myFit  mwf  config/myTopWS_multifit.config
+    ./build/bin/myFit  mwf  config/myTopWS_multifit.config
 
   This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
@@ -610,12 +610,12 @@ Input File Merging with hupdate
 - Example usage, combined with the usage of SaveSuffix::
 
     make hupdate.exe
-    ./bin/myFit.exe n ../config/ttH2015.config Systematics=BTag_B_NP1:SaveSuffix=_BTag_B_NP1
-    ./bin/myFit.exe n ../config/ttH2015.config Exclude=BTag_B_NP1:SaveSuffix=_rest
-    ./bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_4j2b_histos.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_rest.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_BTag_B_NP1.root
-    ./bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_5j3b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos_BTag_B_NP1.root
-    ./bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_BTag_B_NP1.root
-    ./bin/myFit.exe dwf ../config/ttH2015.config
+    ./build/bin/myFit.exe n ../config/ttH2015.config Systematics=BTag_B_NP1:SaveSuffix=_BTag_B_NP1
+    ./build/bin/myFit.exe n ../config/ttH2015.config Exclude=BTag_B_NP1:SaveSuffix=_rest
+    ./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_4j2b_histos.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_rest.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_BTag_B_NP1.root
+    ./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_5j3b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos_BTag_B_NP1.root
+    ./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_BTag_B_NP1.root
+    ./build/bin/myFit.exe dwf ../config/ttH2015.config
 
 
 Output Directories Structure
@@ -631,6 +631,7 @@ Output Directories Structure
   * Limits/             : contains the outputs from the limit-setting code
   * Significance/       : contains the outputs from the significance code
   * Systematics/        : contains the plots for the syst variations
+  * Toys/               : contains the plots and ROOT files with pseudoexperiments output
   * Histograms/         : contains the root file(s) with all the inputs
   * LHoodPlots/         : contains the likelihood scan with respect to the specified parameter
 
@@ -638,7 +639,7 @@ Output Directories Structure
 ShapeFactor example
 -------------------
 
-* The following scripts create example histograms in :code:`exampleDataDriven` directory and execute  :code:`myFit.exe` using :code:`config/dataDriven.config`
+* The following scripts create example histograms in :code:`exampleDataDriven` directory and execute  :code:`build/bin/myFit.exe` using :code:`config/dataDriven.config`
 * The example contains a control region and signal region with two bins. The shape of one of the background samples is estimated using the ShapeFactor::
 
     python makeDataDriven.py
