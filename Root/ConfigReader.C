@@ -17,6 +17,7 @@
 
 // c++ includes
 #include <algorithm>
+#include <iostream>
 
 //__________________________________________________________________________________
 //
@@ -42,7 +43,6 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     ConfigParser refConfig;
     refConfig.ReadFile(gSystem->ExpandPathName("$TREXFITTER_HOME/jobSchema.config"));
     int sc = fParser.CheckSyntax(&refConfig);
-    //int sc = 0;
 
     if (sc != 0) return sc;
 
@@ -51,9 +51,9 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     if (option != ""){
         sc+= ReadCommandLineOptions(option);
     }
-
+    
     sc+= ReadJobOptions();
-
+    
     sc+= ReadGeneralOptions();
 
     sc+= ReadFitOptions();
@@ -79,7 +79,7 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 
 //__________________________________________________________________________________
 //
-int ConfigReader::ReadCommandLineOptions(std::string option){
+int ConfigReader::ReadCommandLineOptions(const std::string& option){
     std::vector< std::string > optVec = Vectorize(option,':');
     std::map< std::string,std::string > optMap;
 
@@ -199,7 +199,7 @@ int ConfigReader::ReadJobOptions(){
     // Set outputDir
     param = confSet->Get("OutputDir");
     if(param != ""){
-      fFitter->fDir = param;
+      fFitter->fDir = RemoveQuotes(param);
       if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
       fFitter->fName = fFitter->fDir + fFitter->fName;
       gSystem->mkdir((fFitter->fName).c_str(), true);
@@ -207,13 +207,13 @@ int ConfigReader::ReadJobOptions(){
 
     // Set Label
     param = confSet->Get("Label");
-    if(param!="") fFitter->fLabel = param;
+    if(param!="") fFitter->fLabel = RemoveQuotes(param);
     else          fFitter->fLabel = fFitter->fName;
 
     // Set POI
     fFitter->SetPOI(CheckName(confSet->Get("POI")));
 
-    //Set reading option
+    // Set reading option
     param = confSet->Get("ReadFrom");
     std::transform(param.begin(), param.end(), param.begin(), ::toupper);
     if(      param=="HIST" || param=="HISTOGRAMS")  fFitter->fInputType = 0;
@@ -239,10 +239,9 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
-    //Set paths
+    // Set paths
     // HIST option only
     if(fFitter->fInputType==0){
-        fFitter->AddHistoPath( confSet->Get("HistoPath") );
         if (confSet->Get("NtuplePath") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePath:' option, ignoring.");
         }
@@ -258,15 +257,23 @@ int ConfigReader::ReadJobOptions(){
         if (confSet->Get("NtupleName") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtupleName:' option, ignoring.");
         }
+        //
+        param = confSet->Get("HistoPath");
+        fFitter->AddHistoPath( CheckName(param) );
     }
     // Setting for NTUP only
     if(fFitter->fInputType==1){
         if (confSet->Get("HistoPath") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoPath:' option, ignoring.");
         }
-        fFitter->SetNtupleFile( confSet->Get("NtupleFile") );
-        if(confSet->Get("NtuplePath")!="") {
-            fFitter->AddNtuplePath( confSet->Get("NtuplePath") );
+        //
+        param = confSet->Get("NtupleFile");
+        if( param != "" ){
+            fFitter->SetNtupleFile( CheckName(param) );
+        }
+        param = confSet->Get("NtuplePath");
+        if( param != "" ) {
+            fFitter->AddNtuplePath( CheckName(param) );
         }
         param = confSet->Get("NtuplePaths");
         if( param != "" ){
@@ -276,11 +283,11 @@ int ConfigReader::ReadJobOptions(){
             }
         }
         param = confSet->Get("MCweight");
-        if(param!="") fFitter->SetMCweight(param);
-
+        if(param!="") fFitter->SetMCweight( RemoveQuotes(param) );
         param = confSet->Get("Selection");
-        if(param!="") fFitter->SetSelection(param);
-        fFitter->SetNtupleName( confSet->Get("NtupleName") );
+        if(param!="") fFitter->SetSelection( RemoveQuotes(param) );
+        param = confSet->Get("NtupleName");
+        fFitter->SetNtupleName( CheckName(param) );
     }
 
     // Set lumi
@@ -358,7 +365,7 @@ int ConfigReader::ReadJobOptions(){
 
     //Set MCstatConstraint
     param = confSet->Get("MCstatConstraint");
-    if( param != "")  fFitter->fStatErrCons = param;
+    if( param != "") fFitter->fStatErrCons = RemoveQuotes(param);
 
     // Set UseGammaPulls
     param = confSet->Get("UseGammaPulls");
@@ -378,7 +385,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("TableOptions");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        fFitter->fTableOptions = param;
+        fFitter->fTableOptions = RemoveQuotes(param);
     }
 
     // Set CorrelationThreshold
@@ -400,11 +407,11 @@ int ConfigReader::ReadJobOptions(){
 
     // Set LumiLabel
     param = confSet->Get("LumiLabel");
-    if( param != "") fFitter->fLumiLabel = param;
+    if( param != "") fFitter->fLumiLabel = RemoveQuotes(param);
 
     // Set CmeLabel
     param = confSet->Get("CmeLabel");
-    if( param != "") fFitter->fCmeLabel = param;
+    if( param != "") fFitter->fCmeLabel = RemoveQuotes(param);
 
     // Set SplitHistoFiles
     param = confSet->Get("SplitHistoFiles");
@@ -474,19 +481,19 @@ int ConfigReader::ReadJobOptions(){
     // Set InputFolder
     param = confSet->Get("InputFolder");
     if( param != "" ){
-        fFitter->fInputFolder = param;
+        fFitter->fInputFolder = RemoveQuotes(param);
     }
 
     // Set InputName
     param = confSet->Get("InputName");
     if( param != "" ){
-        fFitter->fInputName = param;
+        fFitter->fInputName = RemoveQuotes(param);
     }
 
     // Set WorkspaceFileName
     param = confSet->Get("WorkspaceFileName");
     if( param != "" ){
-        fFitter->fWorkspaceFileName = param;
+        fFitter->fWorkspaceFileName = RemoveQuotes(param);
     }
 
     // Set KeepPruning
@@ -504,7 +511,7 @@ int ConfigReader::ReadJobOptions(){
     // Set AtlasLabel
     param = confSet->Get("AtlasLabel");
     if( param != "" ){
-        fFitter->fAtlasLabel = param;
+        fFitter->fAtlasLabel = RemoveQuotes(param);
     }
 
     // Set CleanTables
@@ -534,13 +541,13 @@ int ConfigReader::ReadJobOptions(){
     // Set Suffix
     param = confSet->Get("Suffix");
     if( param != "" ){
-        fFitter->fSuffix = param;
+        fFitter->fSuffix = RemoveQuotes(param);
     }
 
     // Set SaveSuffix
     param = confSet->Get("SaveSuffix");
     if( param != "" ){
-        fFitter->fSaveSuffix = param;
+        fFitter->fSaveSuffix = RemoveQuotes(param);
     }
 
     // Set HideNP
@@ -571,7 +578,7 @@ int ConfigReader::ReadJobOptions(){
     // Set CustomAsimov
     param = confSet->Get("CustomAsimov");
     if( param != "" ){
-        fFitter->fCustomAsimov = param;
+        fFitter->fCustomAsimov = RemoveQuotes(param);
     }
 
     // Set RandomPOISeed
@@ -626,7 +633,7 @@ int ConfigReader::ReadJobOptions(){
     // Set Bootstrap
     param = confSet->Get("Bootstrap");
     if( param != "" ){
-        fFitter->fBootstrap = param;
+        fFitter->fBootstrap = RemoveQuotes(param);
     }
 
     // Set RunROOTMacros
@@ -647,7 +654,7 @@ int ConfigReader::ReadJobOptions(){
     // Set DecorrSuff
     param = confSet->Get("DecorrSuff");
     if( param != ""){
-        fFitter->fDecorrSuff = param;
+        fFitter->fDecorrSuff = RemoveQuotes(param);
     }
 
     // Set DecorrSysts
@@ -684,7 +691,7 @@ int ConfigReader::ReadJobOptions(){
     // Set RankingPOIName
     param = confSet->Get("RankingPOIName");
     if( param != ""){
-        fFitter->fRankingPOIName = param;
+        fFitter->fRankingPOIName = RemoveQuotes(param);
     }
 
     // success
@@ -699,7 +706,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     std::string param = confSet->Get("PlotOptions");
     std::vector<std::string> vec;
     if( param != ""){
-        vec = Vectorize(param,',');
+        vec = Vectorize(RemoveQuotes(param),',');
         if( std::find(vec.begin(), vec.end(), "YIELDS") !=vec.end() )  TtHFitter::SHOWYIELDS     = true;
         if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TtHFitter::SHOWSTACKSIG   = false;
         if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG    = true;
@@ -715,7 +722,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     // Set PlotOptionsSummary
     param = confSet->Get("PlotOptionsSummary");
     if( param != ""){
-        vec = Vectorize(param,',');
+        vec = Vectorize(RemoveQuotes(param),',');
         if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TtHFitter::SHOWSTACKSIG_SUMMARY   = false;
         if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG_SUMMARY    = true;
         if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG_SUMMARY = true;
@@ -909,7 +916,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     // Set RankingPlot
     param = confSet->Get("RankingPlot");
     if( param != ""){
-        fFitter->fRankingPlot = param;
+        fFitter->fRankingPlot = RemoveQuotes(param);
     }
 
     return 0;
@@ -943,7 +950,7 @@ int ConfigReader::ReadFitOptions(){
         return 0; // it is ok to not have Fit set up
     }
 
-    //Set FitType
+    // Set FitType
     param = confSet->Get("FitType");
     if( param != "" && fFitter->fFitType == TtHFit::UNDEFINED ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -1006,7 +1013,7 @@ int ConfigReader::ReadFitOptions(){
     // Set NPValues
     param = confSet->Get("NPValues");
     if( param != "" ){
-        std::vector < std::string > temp_vec = Vectorize(param,',');
+        std::vector < std::string > temp_vec = Vectorize(param,',',false);
         for(std::string iNP : temp_vec){
             std::vector < std::string > np_value = Vectorize(iNP,':');
             if(np_value.size()==2){
@@ -1020,7 +1027,7 @@ int ConfigReader::ReadFitOptions(){
     // Set FixNPs
     param = confSet->Get("FixNPs");
     if( param != "" ){
-        std::vector < std::string > temp_fixedNPs = Vectorize(param,',');
+        std::vector < std::string > temp_fixedNPs = Vectorize(param,',',false);
         for(std::string iNP : temp_fixedNPs){
             std::vector < std::string > fixed_nps = Vectorize(iNP,':');
             if(fixed_nps.size()==2){
@@ -1274,19 +1281,18 @@ int ConfigReader::ReadRegionOptions(){
         if (confSet == nullptr) break;
 
         nReg++;
-        if(fOnlyRegions.size()>0 && FindInStringVector(fOnlyRegions,confSet->GetValue())<0) continue;
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
-        fRegNames.push_back( CheckName(confSet->GetValue()) ); //why the CheckName is needed?? A: cs->GetValue() might have leading/trailing spaces...
-
-        reg = fFitter->NewRegion((confSet->GetValue()));
-        fRegions.emplace_back(confSet->GetValue());
+        if(fOnlyRegions.size()>0 && FindInStringVector(fOnlyRegions,RemoveQuotes(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
+        fRegNames.push_back( CheckName(confSet->GetValue()) );
+        reg = fFitter->NewRegion(CheckName(confSet->GetValue()));
+        fRegions.emplace_back( CheckName(confSet->GetValue()) );
         reg->fGetChi2 = fFitter->fGetChi2;
-        reg->SetVariableTitle(confSet->Get("VariableTitle"));
-        reg->SetLabel(confSet->Get("Label"),confSet->Get("ShortLabel"));
+        reg->SetVariableTitle(RemoveQuotes(confSet->Get("VariableTitle")));
+        reg->SetLabel(RemoveQuotes(confSet->Get("Label")),RemoveQuotes(confSet->Get("ShortLabel")));
 
         // Set axisTitle
         param = confSet->Get("YaxisTitle");
-        if( param != "") reg->fYTitle = param;
+        if( param != "") reg->fYTitle = RemoveQuotes(param);
 
         // Set YmaxScale
         param = confSet->Get("YmaxScale");
@@ -1324,16 +1330,16 @@ int ConfigReader::ReadRegionOptions(){
 
         // Set TexLabel
         param = confSet->Get("TexLabel");
-        if( param != "") reg->fTexLabel = param;
+        if( param != "") reg->fTexLabel = RemoveQuotes(param);
 
         // Set LumiLabel
         param = confSet->Get("LumiLabel");
-        if( param != "") reg->fLumiLabel = param;
+        if( param != "") reg->fLumiLabel = RemoveQuotes(param);
         else reg->fLumiLabel = fFitter->fLumiLabel;
 
         // Set CmeLabel
         param = confSet->Get("CmeLabel");
-        if( param != "") reg->fCmeLabel = param;
+        if( param != "") reg->fCmeLabel = RemoveQuotes(param);
         else reg->fCmeLabel = fFitter->fCmeLabel;
 
         // Set LogScale
@@ -1350,7 +1356,7 @@ int ConfigReader::ReadRegionOptions(){
 
         // Set Group
         param = confSet->Get("Group");
-        if( param != "") reg->fGroup = param;
+        if( param != "") reg->fGroup = RemoveQuotes(param);
 
         // Setting based on input type
         if (fFitter->fInputType == 0){
@@ -1504,17 +1510,17 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
 
     // Set HistoFile
     param = confSet->Get("HistoFile");
-    if(param!="") reg->fHistoFiles.push_back( param );
+    if(param!="") reg->fHistoFiles.push_back( RemoveQuotes(param) );
 
     // Set HistoName
     param = confSet->Get("HistoName");
-    if(param!="") reg->SetHistoName( param );
+    if(param!="") reg->SetHistoName( RemoveQuotes(param) );
 
     // Set HistoPathSuff
     param = confSet->Get("HistoPathSuff");
     if(param !="") {
         reg->fHistoPathSuffs.clear();
-        reg->fHistoPathSuffs.push_back( Fix(param) );
+        reg->fHistoPathSuffs.push_back( RemoveQuotes(param) );
     }
 
     // Set HistoPathSuffs
@@ -1523,7 +1529,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
         reg->fHistoPathSuffs.clear();
         std::vector<std::string> paths = Vectorize( param,',' );
         for(std::string ipath : paths){
-            reg->fHistoPathSuffs.push_back( Fix(ipath) );
+            reg->fHistoPathSuffs.push_back( RemoveQuotes(ipath) );
         }
     }
 
@@ -1581,7 +1587,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     // Set VariableForSample
     param = confSet->Get("VariableForSample");
     if( param != "" ){
-        std::vector < std::string > temp_samplesAndVars = Vectorize(param,',');
+        std::vector < std::string > temp_samplesAndVars = Vectorize(param,',',false);
         for(std::string ivar : temp_samplesAndVars){
           std::vector < std::string > vars = Vectorize(ivar,':');
             if(vars.size()==2){
@@ -1592,13 +1598,12 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
 
     // Set Selection
     param = confSet->Get("Selection");
-    if(param != "")
-    reg->AddSelection( param );
+    if(param != "") reg->AddSelection( RemoveQuotes(param) );
 
     // Set SelectionForSample
     param = confSet->Get("SelectionForSample");
     if( param != "" ){
-        std::vector < std::string > temp_samplesAndSels = Vectorize(param,',');
+        std::vector < std::string > temp_samplesAndSels = Vectorize(param,',',false);
         for(std::string ivar : temp_samplesAndSels){
           std::vector < std::string > vars = Vectorize(ivar,':');
             if(vars.size()==2){
@@ -1611,14 +1616,14 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     param = confSet->Get("NtupleName");
     if(param!="") {
         reg->fNtupleNames.clear();
-        reg->fNtupleNames.push_back(param);
+        reg->fNtupleNames.push_back( RemoveQuotes(param) );
     }
 
     // Set NtupleNameSuff
     param = confSet->Get("NtupleNameSuff");
     if(param!="") {
         reg->fNtupleNameSuffs.clear();
-        reg->fNtupleNameSuffs.push_back( param );
+        reg->fNtupleNameSuffs.push_back( RemoveQuotes(param) );
     }
 
     // Set NtupleNameSuffs
@@ -1630,13 +1635,13 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
 
     // Set MCweight
     param = confSet->Get("MCweight");
-    if (param != "") reg->fMCweight = param; // this will override the global MCweight, if any
+    if (param != "") reg->fMCweight = RemoveQuotes(param); // this will override the global MCweight, if any
 
     // Set NtuplePathSuff
     param = confSet->Get("NtuplePathSuff");
     if(param != "") {
         reg->fNtuplePathSuffs.clear();
-        reg->fNtuplePathSuffs.push_back( param );
+        reg->fNtuplePathSuffs.push_back( RemoveQuotes(param) );
     }
 
     // Set NtuplePathSuffs
@@ -1670,8 +1675,8 @@ int ConfigReader::ReadSampleOptions(){
         if (confSet == nullptr) break;
         nSmp++;
 
-        if(fOnlySamples.size()>0 && FindInStringVector(fOnlySamples,confSet->GetValue())<0) continue;
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
+        if(fOnlySamples.size()>0 && FindInStringVector(fOnlySamples,RemoveQuotes(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
         type = Sample::BACKGROUND;
 
         // Set Type
@@ -1700,36 +1705,36 @@ int ConfigReader::ReadSampleOptions(){
             else {
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'Type' option in sample but didnt provide valid parameter. Using default (BACKGROUND)");
             }
-            if(fOnlySignal != "" && type==Sample::SIGNAL && confSet->GetValue()!=fOnlySignal) continue;
+            if(fOnlySignal != "" && type==Sample::SIGNAL && CheckName(confSet->GetValue())!=fOnlySignal) continue;
         }
-        sample = fFitter->NewSample((confSet->GetValue()),type);
-        fSamples.emplace_back(confSet->GetValue());
+        sample = fFitter->NewSample(CheckName(confSet->GetValue()),type);
+        fSamples.emplace_back(CheckName(confSet->GetValue()));
 
         // Set Title
         param = confSet->Get("Title");
-        if (param != "") sample->SetTitle(param);
+        if (param != "") sample->SetTitle(RemoveQuotes(param));
 
         // Set TexTitle
         param = confSet->Get("TexTitle");
-        if(param!="") sample->fTexTitle = param;
+        if(param!="") sample->fTexTitle = RemoveQuotes(param);
 
         // Set Group
         param = confSet->Get("Group");
-        if(param!="") sample->fGroup = param;
+        if(param!="") sample->fGroup = RemoveQuotes(param);
 
         // HIST input
         if (fFitter->fInputType == 0){
             // Set HistoFile
             param = confSet->Get("HistoFile");
-            if(param!="") sample->AddHistoFile( param );
+            if(param!="") sample->AddHistoFile( RemoveQuotes(param) );
 
             // Set HistoName
             param = confSet->Get("HistoName");
-            if(param!="") sample->fHistoNames.push_back( param );
+            if(param!="") sample->fHistoNames.push_back( RemoveQuotes(param) );
 
             // Set HistoPath
             param = confSet->Get("HistoPath");
-            if(param!="") sample->AddHistoPath( param );
+            if(param!="") sample->AddHistoPath( RemoveQuotes(param) );
 
             if (ConfigHasNTUP(confSet)){
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You provided some NTUP options but your input type is HIST. Options will be ingored");
@@ -1737,7 +1742,7 @@ int ConfigReader::ReadSampleOptions(){
         } else if (fFitter->fInputType == 1){ // NTUP input
             // Set NtupleFile
             param = confSet->Get("NtupleFile");
-            if(param!="") sample->AddNtupleFile( param );
+            if(param!="") sample->AddNtupleFile( RemoveQuotes(param) );
 
             // Set NtupleFiles
             param = confSet->Get("NtupleFiles");
@@ -1745,7 +1750,7 @@ int ConfigReader::ReadSampleOptions(){
 
             // Set NtupleName
             param = confSet->Get("NtupleName");
-            if(param!="") sample->AddNtupleName( param );
+            if(param!="") sample->AddNtupleName( RemoveQuotes(param) );
 
             // Set NtupleNames
             param = confSet->Get("NtupleNames");
@@ -1753,7 +1758,7 @@ int ConfigReader::ReadSampleOptions(){
 
             // Set NtuplePath
             param = confSet->Get("NtuplePath");
-            if(param!="") sample->AddNtuplePath( param );
+            if(param!="") sample->AddNtuplePath( RemoveQuotes(param) );
 
             // Set NtuplePaths
             param = confSet->Get("NtuplePaths");
@@ -1763,7 +1768,7 @@ int ConfigReader::ReadSampleOptions(){
             param = confSet->Get("NtupleNameSuff");
             if(param != "") {
                 sample->fNtupleNameSuffs.clear();
-                sample->fNtupleNameSuffs.push_back( param );
+                sample->fNtupleNameSuffs.push_back( RemoveQuotes(param) );
             }
 
             // Set NtupleNameSuffs
@@ -1878,12 +1883,11 @@ int ConfigReader::ReadSampleOptions(){
         // Set MCweight and Selection
         if(fFitter->fInputType==1){
             param = confSet->Get("MCweight");
-            if(param != "") sample->SetMCweight( param );
+            if(param != "") sample->SetMCweight( RemoveQuotes(param) );
 
             param = confSet->Get("Selection");
-            if(param!="") sample->SetSelection( param );
+            if(param!="") sample->SetSelection( RemoveQuotes(param) );
         }
-
 
         // to specify only certain regions
         std::string regions_str = confSet->Get("Regions");
@@ -1894,18 +1898,18 @@ int ConfigReader::ReadSampleOptions(){
 
         if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
                 return 1;
             }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions to exclude set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions to exclude set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has regions to exclude set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions to exclude set up that do not exist");
                 return 1;
             }
         }
@@ -1948,7 +1952,7 @@ int ConfigReader::ReadSampleOptions(){
         // to skip global & region weights for this sample
         param = confSet->Get("IgnoreWeight");
         if(param!=""){
-            sample->fIgnoreWeight = param;
+            sample->fIgnoreWeight = RemoveQuotes(param);
         }
 
         // Set UseMCstat
@@ -1983,43 +1987,43 @@ int ConfigReader::ReadSampleOptions(){
         // Set DivideBy
         param = confSet->Get("DivideBy");;
         if (param != ""){
-            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for DivideBy that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for DivideBy that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for DivideBy that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for DivideBy that do not exist");
                     return 1;
                 }
             }
-            sample->fDivideBy = param;
+            sample->fDivideBy = RemoveQuotes(param);
         }
 
         // Set MultiplyBy
         param = confSet->Get("MultiplyBy");
         if (param != ""){
-            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for MultiplyBy that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for MultiplyBy that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for MultiplyBy that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for MultiplyBy that do not exist");
                     return 1;
                 }
             }
-            sample->fMultiplyBy = param;
+            sample->fMultiplyBy = RemoveQuotes(param);
         }
 
         // Set SubtractSample
         param = confSet->Get("SubtractSample");
         if(param!=""){
-            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSample that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSample that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSample that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSample that do not exist");
                     return 1;
                 }
             }
-            sample->fSubtractSamples.push_back(param);
+            sample->fSubtractSamples.push_back( RemoveQuotes(param) );
         }
 
         // Set SubtractSamples
@@ -2028,9 +2032,9 @@ int ConfigReader::ReadSampleOptions(){
             std::vector<std::string> tmp = Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fSamples)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSamples that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSamples that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for SubtractSamples that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSamples that do not exist");
                     return 1;
                 }
             }
@@ -2040,15 +2044,15 @@ int ConfigReader::ReadSampleOptions(){
         // Set AddSample
         param = confSet->Get("AddSample");
         if(param != ""){
-            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSample that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSample that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSample that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSample that do not exist");
                     return 1;
                 }
             }
-            sample->fAddSamples.push_back(param);
+            sample->fAddSamples.push_back( RemoveQuotes(param) );
         }
 
         // Set AddSamples
@@ -2057,9 +2061,9 @@ int ConfigReader::ReadSampleOptions(){
             std::vector<std::string> tmp = Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fSamples)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSamples that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSamples that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for AddSamples that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSamples that do not exist");
                     return 1;
                 }
             }
@@ -2069,15 +2073,15 @@ int ConfigReader::ReadSampleOptions(){
         // Set NormToSample
         param = confSet->Get("NormToSample");
         if(param != ""){
-            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for NormToSample that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for NormToSample that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has samples set up for NormToSample that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for NormToSample that do not exist");
                     return 1;
                 }
             }
-            sample->fNormToSample = param;
+            sample->fNormToSample = RemoveQuotes(param);
         }
 
         // Set BuildPullTable
@@ -2121,9 +2125,9 @@ int ConfigReader::ReadSampleOptions(){
                 std::string tmp = Vectorize(param,',')[1];
                 if (std::find(fSamples.begin(), fSamples.end(), tmp) == fSamples.end()){
                     if (fAllowWrongRegionSample){
-                        WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has sample set up for AsimovReplacementFor that does not exist");
+                        WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has sample set up for AsimovReplacementFor that does not exist");
                     } else {
-                        WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + confSet->GetValue() + " has sample set up for AsimovReplacementFor that does not exist");
+                        WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has sample set up for AsimovReplacementFor that does not exist");
                         return 1;
                     }
                 }
@@ -2153,7 +2157,7 @@ int ConfigReader::ReadSampleOptions(){
         // in the form    CorrelateGammasInRegions: SR1:SR2,CR1:CR2:CR3
         param = confSet->Get("CorrelateGammasInRegions");
         if(param != ""){
-            std::vector<std::string> sets = Vectorize(param,',');
+            std::vector<std::string> sets = Vectorize(param,',',false);
             for(std::string set : sets){
                 std::vector<std::string> regions = Vectorize(set,':');
                 WriteDebugStatus("ConfigReader::ReadSampleOptions", "Correlating gammas for this sample in regions " + set);
@@ -2218,7 +2222,7 @@ int ConfigReader::ReadNormFactorOptions(){
         if (confSet == nullptr) break;
         nNorm++;
 
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
 
         std::string samples_str = confSet->Get("Samples");
         std::string regions_str = confSet->Get("Regions");
@@ -2231,27 +2235,27 @@ int ConfigReader::ReadNormFactorOptions(){
         
         if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
                 return 1;
             }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
+                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
                 return 1;
             }
         }
 
         if (samples.size() > 0 && !CheckPresence(samples, fSamples)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has samples set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + confSet->GetValue() + " has samples set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
                 return 1;
             }
         }
@@ -2271,7 +2275,7 @@ int ConfigReader::ReadNormFactorOptions(){
         // Set NuisanceParameter
         param = confSet->Get("NuisanceParameter");
         if(param != ""){
-            nfactor->fNuisanceParameter = param;
+            nfactor->fNuisanceParameter = RemoveQuotes(param);
             TtHFitter::NPMAP[nfactor->fName] = nfactor->fNuisanceParameter;
         }
         else{
@@ -2293,22 +2297,22 @@ int ConfigReader::ReadNormFactorOptions(){
 
         // Set Category
         param = confSet->Get("Category");
-        if(param != "") nfactor->fCategory = param;
+        if(param != "") nfactor->fCategory = RemoveQuotes(param);
 
         // Set SubCategory
         param = confSet->Get("SubCategory");
-        if(param != "") nfactor->fSubCategory = param;
+        if(param != "") nfactor->fSubCategory = RemoveQuotes(param);
 
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            nfactor->fTitle = param;
+            nfactor->fTitle = RemoveQuotes(param);
             TtHFitter::SYSTMAP[nfactor->fName] = nfactor->fTitle;
         }
 
         // Set TexTitle
         param = confSet->Get("TexTitle");
-        if(param != "") TtHFitter::SYSTTEX[nfactor->fName] = param;
+        if(param != "") TtHFitter::SYSTTEX[nfactor->fName] = RemoveQuotes(param);
 
         // Set Min
         param = confSet->Get("Min");
@@ -2351,7 +2355,6 @@ int ConfigReader::ReadNormFactorOptions(){
         if (regions.size() == 0 || exclude.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or excude region size is equal to zero. Please check this");
                 return 1;
-
         }
         if(regions[0] != "all") nfactor->fRegions = regions;
         if(exclude[0] != "")    nfactor->fExclude = exclude;
@@ -2381,7 +2384,7 @@ int ConfigReader::ReadShapeFactorOptions(){
         if (confSet == nullptr) break;
         nShape++;
 
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
         std::string samples_str = confSet->Get("Samples");
         std::string regions_str = confSet->Get("Regions");
         std::string exclude_str = confSet->Get("Exclude");
@@ -2393,27 +2396,27 @@ int ConfigReader::ReadShapeFactorOptions(){
 
         if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
                 return 1;
             }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
+                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has regions set up for excluding that do not exist");
+                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
                 return 1;
             }
         }
 
         if (samples.size() > 0 && !CheckPresence(samples, fSamples)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has samples set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + confSet->GetValue() + " has samples set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
                 return 1;
             }
         }
@@ -2431,7 +2434,7 @@ int ConfigReader::ReadShapeFactorOptions(){
         // Set NuisanceParameter
         param = confSet->Get("NuisanceParameter");
         if(param != ""){
-            sfactor->fNuisanceParameter = param;
+            sfactor->fNuisanceParameter = RemoveQuotes(param);
             TtHFitter::NPMAP[sfactor->fName] = sfactor->fNuisanceParameter;
         }
         else{
@@ -2453,16 +2456,16 @@ int ConfigReader::ReadShapeFactorOptions(){
 
         // Set Category
         param = confSet->Get("Category");
-        if(param!="") sfactor->fCategory = param;
+        if(param!="") sfactor->fCategory = RemoveQuotes(param);
 
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            sfactor->fTitle = param;
+            sfactor->fTitle = RemoveQuotes(param);
             TtHFitter::SYSTMAP[sfactor->fName] = sfactor->fTitle;
         }
         param = confSet->Get("TexTitle");
-        if(param != "") TtHFitter::SYSTTEX[sfactor->fName] = param;
+        if(param != "") TtHFitter::SYSTTEX[sfactor->fName] = RemoveQuotes(param);
 
         // Set Min
         param = confSet->Get("Min");
@@ -2532,8 +2535,8 @@ int ConfigReader::ReadSystOptions(){
         if (confSet == nullptr) break;
         nSys++;
 
-        if(fOnlySystematics.size()>0 && FindInStringVector(fOnlySystematics,confSet->GetValue())<0) continue;
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
+        if(fOnlySystematics.size()>0 && FindInStringVector(fOnlySystematics,CheckName(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
         std::string samples_str = confSet->Get("Samples");
         std::string regions_str = confSet->Get("Regions");
         std::string exclude_str = confSet->Get("Exclude");
@@ -2546,27 +2549,27 @@ int ConfigReader::ReadSystOptions(){
 
         if (regions.size() > 0 && !CheckPresence(regions, fRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
                 return 1;
             }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fRegions, fSamples)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples/regions set up for excluding that do not exist");
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples/regions set up for excluding that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples/regions set up for excluding that do not exist");
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples/regions set up for excluding that do not exist");
                 return 1;
             }
         }
 
         if (samples.size() > 0 && !CheckPresence(samples, fSamples)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
                 return 1;
             }
         }
@@ -2591,14 +2594,14 @@ int ConfigReader::ReadSystOptions(){
         // SetCategory
         param = confSet->Get("Category");
         if(param != ""){
-            sys->fCategory = param;
-            sys->fSubCategory = param; //SubCategory defaults to the Category setting, if the Category is explicitly set
+            sys->fCategory = RemoveQuotes(param);
+            sys->fSubCategory = RemoveQuotes(param); //SubCategory defaults to the Category setting, if the Category is explicitly set
         }
 
         // SetSubCategory
         param = confSet->Get("SubCategory");
         if (param != ""){
-            sys->fSubCategory = param; // note this needs to happen after Category was set, in order to overwrite the default if required
+            sys->fSubCategory = RemoveQuotes(param); // note this needs to happen after Category was set, in order to overwrite the default if required
         }
 
         // Set IsFreeParameter
@@ -2617,277 +2620,344 @@ int ConfigReader::ReadSystOptions(){
         // Set StoredName
         // New: name to use when writing / reading the Histograms file
         param = confSet->Get("StoredName");
-        if(param != "") sys->fStoredName = param;
+        if(param != "") sys->fStoredName = RemoveQuotes(param);
 
         bool hasUp   = false;
         bool hasDown = false;
         if(type==Systematic::HISTO || type==Systematic::SHAPE){
             if(fFitter->fInputType==0){ // HIST input
-                if(confSet->Get("HistoPathUp")!=""){
-                    sys->fHistoPathsUp.push_back(confSet->Get("HistoPathUp"));
+                param = confSet->Get("HistoPathUp");
+                if(param!=""){
+                    sys->fHistoPathsUp.push_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoPathDown")!=""){
-                    sys->fHistoPathsDown.push_back(confSet->Get("HistoPathDown"));
+                param = confSet->Get("HistoPathDown");
+                if(param!=""){
+                    sys->fHistoPathsDown.push_back(RemoveQuotes(param));
                     hasDown = true;
                 }
-                if(confSet->Get("HistoPathSufUp")!=""){
-                    sys->fHistoPathSufUp = confSet->Get("HistoPathSufUp");
+                param = confSet->Get("HistoPathSufUp");
+                if(param!=""){
+                    sys->fHistoPathSufUp = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoPathSufDown")!=""){
-                    sys->fHistoPathSufDown = confSet->Get("HistoPathSufDown");
+                param = confSet->Get("HistoPathSufDown");
+                if(param!=""){
+                    sys->fHistoPathSufDown = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("HistoFileUp")!=""){
-                    sys->fHistoFilesUp.push_back(confSet->Get("HistoFileUp"));
+                param = confSet->Get("HistoFileUp");
+                if(param!=""){
+                    sys->fHistoFilesUp.push_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoFileDown")!=""){
-                    sys->fHistoFilesDown.push_back(confSet->Get("HistoFileDown"));
+                param = confSet->Get("HistoFileDown");
+                if(param!=""){
+                    sys->fHistoFilesDown.push_back(RemoveQuotes(param));
                     hasDown = true;
                 }
-                if(confSet->Get("HistoFileSufUp")!=""){
-                    sys->fHistoFileSufUp = confSet->Get("HistoFileSufUp");
+                param = confSet->Get("HistoFileSufUp");
+                if(param!=""){
+                    sys->fHistoFileSufUp = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoFileSufDown")!=""){
-                    sys->fHistoFileSufDown = confSet->Get("HistoFileSufDown");
+                param = confSet->Get("HistoFileSufDown");
+                if(param!=""){
+                    sys->fHistoFileSufDown = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("HistoNameUp")!=""){
-                    sys->fHistoNamesUp.push_back(confSet->Get("HistoNameUp"));
+                param = confSet->Get("HistoNameUp");
+                if(param!=""){
+                    sys->fHistoNamesUp.push_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoNameDown")!=""){
-                    sys->fHistoNamesDown.push_back(confSet->Get("HistoNameDown"));
+                param = confSet->Get("HistoNameDown");
+                if(param!=""){
+                    sys->fHistoNamesDown.push_back(RemoveQuotes(param));
                     hasDown = true;
                 }
-                if(confSet->Get("HistoNameSufUp")!=""){
-                    sys->fHistoNameSufUp = confSet->Get("HistoNameSufUp");
+                param = confSet->Get("HistoNameSufUp");
+                if(param!=""){
+                    sys->fHistoNameSufUp = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoNameSufDown")!=""){
-                    sys->fHistoNameSufDown = confSet->Get("HistoNameSufDown");
+                param = confSet->Get("HistoNameSufDown");
+                if(param!=""){
+                    sys->fHistoNameSufDown = RemoveQuotes(param);
                     hasDown = true;
                 }
                 // For reference file when using systematics on it - like JER on data
-                if(confSet->Get("HistoPathUpRefSample")!=""){
-                    sys->fHistoPathsUpRefSample.push_back(confSet->Get("HistoPathUpRefSample"));
+                param = confSet->Get("HistoPathUpRefSample");
+                if(param!=""){
+                    sys->fHistoPathsUpRefSample.push_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoPathDownRefSample")!=""){
-                    sys->fHistoPathsDownRefSample.push_back(confSet->Get("HistoPathDownRefSample"));
+                param = confSet->Get("HistoPathDownRefSample");
+                if(param!=""){
+                    sys->fHistoPathsDownRefSample.push_back(RemoveQuotes(param));
                     hasDown   = true;
                 }
-                if(confSet->Get("HistoPathSufUpRefSample")!=""){
-                    sys->fHistoPathSufUpRefSample = confSet->Get("HistoPathSufUpRefSample");
+                param = confSet->Get("HistoPathSufUpRefSample");
+                if(param!=""){
+                    sys->fHistoPathSufUpRefSample = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoPathSufDownRefSample")!=""){
-                    sys->fHistoPathSufDownRefSample = confSet->Get("HistoPathSufDownRefSample");
+                param = confSet->Get("HistoPathSufDownRefSample");
+                if(param!=""){
+                    sys->fHistoPathSufDownRefSample = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("HistoFileUpRefSample")!=""){
-                    sys->fHistoFilesUpRefSample.push_back(confSet->Get("HistoFileUpRefSample"));
+                param = confSet->Get("HistoFileUpRefSample");
+                if(param!=""){
+                    sys->fHistoFilesUpRefSample.push_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoFileDownRefSample")!=""){
-                    sys->fHistoFilesDownRefSample.push_back(confSet->Get("HistoFileDownRefSample"));
+                param = confSet->Get("HistoFileDownRefSample");
+                if(param!=""){
+                    sys->fHistoFilesDownRefSample.push_back(RemoveQuotes(param));
                     hasDown = true;
                 }
-                if(confSet->Get("HistoFileSufUpRefSample")!=""){
-                    sys->fHistoFileSufUpRefSample = confSet->Get("HistoFileSufUpRefSample");
+                param = confSet->Get("HistoFileSufUpRefSample");
+                if(param!=""){
+                    sys->fHistoFileSufUpRefSample = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoFileSufDownRefSample")!=""){
-                    sys->fHistoFileSufDownRefSample = confSet->Get("HistoFileSufDownRefSample");
+                param = confSet->Get("HistoFileSufDownRefSample");
+                if(param!=""){
+                    sys->fHistoFileSufDown = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("HistoNameUpRefSample")!=""){
-                    sys->fHistoNamesUpRefSample.push_back(confSet->Get("HistoNameUpRefSample"));
+                param = confSet->Get("HistoNameUpRefSample");
+                if(param!=""){
+                    sys->fHistoNamesUp.push_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoNameDownRefSample")!=""){
-                    sys->fHistoNamesDownRefSample.push_back(confSet->Get("HistoNameDownRefSample"));
+                param = confSet->Get("HistoNameDownRefSample");
+                if(param!=""){
+                    sys->fHistoNamesDown.push_back(RemoveQuotes(param));
                     hasDown = true;
                 }
-                if(confSet->Get("HistoNameSufUpRefSample")!=""){
-                    sys->fHistoNameSufUpRefSample = confSet->Get("HistoNameSufUpRefSample");
+                param = confSet->Get("HistoNameSufUpRefSample");
+                if(param!=""){
+                    sys->fHistoNameSufUpRefSample = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("HistoNameSufDownRefSample")!=""){
-                    sys->fHistoNameSufDownRefSample = confSet->Get("HistoNameSufDownRefSample");
+                param = confSet->Get("HistoNameSufDownRefSample");
+                if(param!=""){
+                    sys->fHistoNameSufDownRefSample = RemoveQuotes(param);
                     hasDown = true;
                 }
             }
             else if(fFitter->fInputType==1){ // NTUP option
-                if(confSet->Get("NtuplePathUp")!=""){
-                    sys->fNtuplePathsUp.push_back(confSet->Get("NtuplePathUp"));
+                param = confSet->Get("NtuplePathUp");
+                if(param!=""){
+                    sys->fNtuplePathsUp.push_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
-                if(confSet->Get("NtuplePathDown")!=""){
-                    sys->fNtuplePathsDown.push_back(confSet->Get("NtuplePathDown"));
+                param = confSet->Get("NtuplePathDown");
+                if(param!=""){
+                    sys->fNtuplePathsDown.push_back(RemoveQuotes(param));
                     hasDown = true;
                 }
-                if(confSet->Get("NtuplePathsUp")!=""){
-                    sys->fNtuplePathsUp = Vectorize(confSet->Get("NtuplePathsUp"),',');
+                param = confSet->Get("NtuplePathsUp");
+                if(param!=""){
+                    sys->fNtuplePathsUp = Vectorize(param,',');
                     hasUp   = true;
                 }
-                if(confSet->Get("NtuplePathsDown")!=""){
-                    sys->fNtuplePathsDown = Vectorize(confSet->Get("NtuplePathsDown"),',');
+                param = confSet->Get("NtuplePathsDown");
+                if(param!=""){
+                    sys->fNtuplePathsDown = Vectorize(param,',');
                     hasDown = true;
                 }
-                if(confSet->Get("NtuplePathSufUp")!=""){
-                    sys->fNtuplePathSufUp = confSet->Get("NtuplePathSufUp");
+                param = confSet->Get("NtuplePathSufUp");
+                if(param!=""){
+                    sys->fNtuplePathSufUp = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("NtuplePathSufDown")!=""){
-                    sys->fNtuplePathSufDown = confSet->Get("NtuplePathSufDown");
+                param = confSet->Get("NtuplePathSufDown");
+                if(param!=""){
+                    sys->fNtuplePathSufDown = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleFileUp")!=""){
-                    sys->fNtupleFilesUp.push_back(confSet->Get("NtupleFileUp"));
+                param = confSet->Get("NtupleFileUp");
+                if(param!=""){
+                    sys->fNtupleFilesUp.push_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleFileDown")!=""){
-                    sys->fNtupleFilesDown .push_back(confSet->Get("NtupleFileDown"));
+                param = confSet->Get("NtupleFileDown");
+                if(param!=""){
+                    sys->fNtupleFilesDown.push_back(RemoveQuotes(param));
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleFilesUp")!=""){
-                    sys->fNtupleFilesUp = Vectorize(confSet->Get("NtupleFilesUp"),',');
+                param = confSet->Get("NtupleFilesUp");
+                if(param!=""){
+                    sys->fNtupleFilesUp = Vectorize(param,',');
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleFilesDown")!=""){
-                    sys->fNtupleFilesDown = Vectorize(confSet->Get("NtupleFilesDown"),',');
+                param = confSet->Get("NtupleFilesDown");
+                if(param!=""){
+                    sys->fNtupleFilesDown = Vectorize(param,',');
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleFileSufUp")!=""){
-                    sys->fNtupleFileSufUp = confSet->Get("NtupleFileSufUp");
+                param = confSet->Get("NtupleFileSufUp");
+                if(param!=""){
+                    sys->fNtupleFileSufUp = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleFileSufDown")!=""){
-                    sys->fNtupleFileSufDown = confSet->Get("NtupleFileSufDown");
+                param = confSet->Get("NtupleFileSufDown");
+                if(param!=""){
+                    sys->fNtupleFileSufDown = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleNameUp")!=""){
-                    sys->fNtupleNamesUp.push_back(confSet->Get("NtupleNameUp"));
+                param = confSet->Get("NtupleNameUp");
+                if(param!=""){
+                    sys->fNtupleNamesUp.push_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleNameDown")!=""){
-                    sys->fNtupleNamesDown.push_back( confSet->Get("NtupleNameDown"));
+                param = confSet->Get("NtupleNameDown");
+                if(param!=""){
+                    sys->fNtupleNamesDown.push_back(RemoveQuotes(param));
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleNamesUp")!=""){
-                    sys->fNtupleNamesUp = Vectorize(confSet->Get("NtupleNamesUp"),',');
+                param = confSet->Get("NtupleNamesUp");
+                if(param!=""){
+                    sys->fNtupleNamesUp = Vectorize(param,',');
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleNamesDown")!=""){
-                    sys->fNtupleNamesDown = Vectorize(confSet->Get("NtupleNamesDown"),',');
+                param = confSet->Get("NtupleNamesDown");
+                if(param!=""){
+                    sys->fNtupleNamesDown = Vectorize(param,',');
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleNameSufUp")!=""){
-                    sys->fNtupleNameSufUp = confSet->Get("NtupleNameSufUp");
+                param = confSet->Get("NtupleNameSufUp");
+                if(param!=""){
+                    sys->fNtupleNameSufUp = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleNameSufDown")!=""){
-                    sys->fNtupleNameSufDown = confSet->Get("NtupleNameSufDown");
+                param = confSet->Get("NtupleNameSufDown");
+                if(param!=""){
+                    sys->fNtupleNameSufDown = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("WeightUp")!=""){
-                    sys->fWeightUp = confSet->Get("WeightUp");
+                param = confSet->Get("WeightUp");
+                if(param!=""){
+                    sys->fWeightUp = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("WeightDown")!=""){
-                    sys->fWeightDown = confSet->Get("WeightDown");
+                param = confSet->Get("WeightDown");
+                if(param!=""){
+                    sys->fWeightDown = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("WeightSufUp")!=""){
-                    sys->fWeightSufUp = confSet->Get("WeightSufUp");
+                param = confSet->Get("WeightSufUp");
+                if(param!=""){
+                    sys->fWeightSufUp = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("WeightSufDown")!=""){
-                    sys->fWeightSufDown = confSet->Get("WeightSufDown");
+                param = confSet->Get("WeightSufDown");
+                if(param!=""){
+                    sys->fWeightSufDown = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("IgnoreWeight")!="") sys->fIgnoreWeight = confSet->Get("IgnoreWeight");
+                param = confSet->Get("IgnoreWeight");
+                if(param!=""){
+                    sys->fIgnoreWeight = RemoveQuotes(param);
+                }
                 // For reference file when using systematics on it - like JER on data
-                if(confSet->Get("NtuplePathUpRefSample")!=""){
-                    sys->fNtuplePathsUpRefSample.push_back(confSet->Get("NtuplePathUpRefSample"));
+                param = confSet->Get("NtuplePathUpRefSample");
+                if(param!=""){
+                    sys->fNtuplePathsUpRefSample.push_back( RemoveQuotes(param) );
                     hasUp   = true;
                 }
-                if(confSet->Get("NtuplePathDownRefSample")!=""){
-                    sys->fNtuplePathsDownRefSample.push_back(confSet->Get("NtuplePathDownRefSample"));
+                param = confSet->Get("NtuplePathDownRefSample");
+                if(param!=""){
+                    sys->fNtuplePathsDownRefSample.push_back( RemoveQuotes(param) );
                     hasDown = true;
                 }
-                if(confSet->Get("NtuplePathsUpRefSample")!=""){
-                    sys->fNtuplePathsUpRefSample = Vectorize(confSet->Get("NtuplePathsUpRefSample"),',');
+                param = confSet->Get("NtuplePathsUpRefSample");
+                if(param!=""){
+                    sys->fNtuplePathsUpRefSample = Vectorize(param,',');
                     hasUp   = true;
                 }
-                if(confSet->Get("NtuplePathsDownRefSample")!=""){
-                    sys->fNtuplePathsDownRefSample = Vectorize(confSet->Get("NtuplePathsDownRefSample"),',');
+                param = confSet->Get("NtuplePathsDownRefSample");
+                if(param!=""){
+                    sys->fNtuplePathsDownRefSample = Vectorize(param,',');
                     hasDown = true;
                 }
-                if(confSet->Get("NtuplePathSufUpRefSample")!=""){
-                    sys->fNtuplePathSufUpRefSample = confSet->Get("NtuplePathSufUpRefSample");
+                param = confSet->Get("NtuplePathSufUpRefSample");
+                if(param!=""){
+                    sys->fNtuplePathSufUpRefSample = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("NtuplePathSufDownRefSample")!=""){
-                    sys->fNtuplePathSufDownRefSample = confSet->Get("NtuplePathSufDownRefSample");
+                param = confSet->Get("NtuplePathSufDownRefSample");
+                if(param!=""){
+                    sys->fNtuplePathSufDownRefSample = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleFileUpRefSample")!=""){
-                    sys->fNtupleFilesUpRefSample.push_back(confSet->Get("NtupleFileUpRefSample"));
+                param = confSet->Get("NtupleFileUpRefSample");
+                if(param!=""){
+                    sys->fNtupleFilesUpRefSample.push_back( RemoveQuotes(param) );
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleFileDownRefSample")!=""){
-                    sys->fNtupleFilesDownRefSample.push_back(confSet->Get("NtupleFileDownRefSample"));
+                param = confSet->Get("NtupleFileDownRefSample");
+                if(param!=""){
+                    sys->fNtupleFilesDownRefSample.push_back( RemoveQuotes(param) );
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleFilesUpRefSample")!=""){
-                    sys->fNtupleFilesUpRefSample = Vectorize(confSet->Get("NtupleFilesUpRefSample"),',');
+                param = confSet->Get("NtupleFilesUpRefSample");
+                if(param!=""){
+                    sys->fNtupleFilesUpRefSample = Vectorize(param,',');
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleFilesDownRefSample")!=""){
-                    sys->fNtupleFilesDownRefSample = Vectorize(confSet->Get("NtupleFilesDownRefSample"),',');
+                param = confSet->Get("NtupleFilesDownRefSample");
+                if(param!=""){
+                    sys->fNtupleFilesDownRefSample = Vectorize(param,',');
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleFileSufUpRefSample")!=""){
-                    sys->fNtupleFileSufUpRefSample = confSet->Get("NtupleFileSufUpRefSample");
+                param = confSet->Get("NtupleFileSufUpRefSample");
+                if(param!=""){
+                    sys->fNtupleFileSufUpRefSample = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleFileSufDownRefSample")!=""){
-                    sys->fNtupleFileSufDownRefSample = confSet->Get("NtupleFileSufDownRefSample");
+                param = confSet->Get("NtupleFileSufDownRefSample");
+                if(param!=""){
+                    sys->fNtupleFileSufDownRefSample = RemoveQuotes(param);
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleNameUpRefSample")!=""){
-                    sys->fNtupleNamesUpRefSample.push_back(confSet->Get("NtupleNameUpRefSample"));
+                param = confSet->Get("NtupleNameUpRefSample");
+                if(param!=""){
+                    sys->fNtupleNamesUpRefSample.push_back( RemoveQuotes(param) );
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleNameDownRefSample")!=""){
-                    sys->fNtupleNamesDownRefSample.push_back( confSet->Get("NtupleNameDownRefSample"));
+                param = confSet->Get("NtupleNameDownRefSample");
+                if(param!=""){
+                    sys->fNtupleNamesDownRefSample.push_back( RemoveQuotes(param) );
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleNamesUpRefSample")!=""){
-                    sys->fNtupleNamesUpRefSample = Vectorize(confSet->Get("NtupleNamesUpRefSample"),',');
+                param = confSet->Get("NtupleNamesUpRefSample");
+                if(param!=""){
+                    sys->fNtupleNamesUpRefSample = Vectorize(param,',');
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleNamesDownRefSample")!=""){
-                    sys->fNtupleNamesDownRefSample = Vectorize(confSet->Get("NtupleNamesDownRefSample"),',');
+                param = confSet->Get("NtupleNamesDownRefSample");
+                if(param!=""){
+                    sys->fNtupleNamesDownRefSample = Vectorize(param,',');
                     hasDown = true;
                 }
-                if(confSet->Get("NtupleNameSufUpRefSample")!=""){
-                    sys->fNtupleNameSufUpRefSample = confSet->Get("NtupleNameSufUpRefSample");
+                param = confSet->Get("NtupleNameSufUpRefSample");
+                if(param!=""){
+                    sys->fNtupleNameSufUpRefSample = RemoveQuotes(param);
                     hasUp   = true;
                 }
-                if(confSet->Get("NtupleNameSufDownRefSample")!=""){
-                    sys->fNtupleNameSufDownRefSample = confSet->Get("NtupleNameSufDownRefSample");
+                param = confSet->Get("NtupleNameSufDownRefSample");
+                if(param!=""){
+                    sys->fNtupleNameSufDownRefSample = RemoveQuotes(param);
                     hasDown = true;
                 }                
             }
             sys->fHasUpVariation   = hasUp  ;
             sys->fHasDownVariation = hasDown;
-
+            
             // Set Symmetrisation
             param = confSet->Get("Symmetrisation");
             if(param != ""){
@@ -2929,7 +2999,7 @@ int ConfigReader::ReadSystOptions(){
         // Set ScaleUp
         param = confSet->Get("ScaleUp");
         if(param!=""){
-            std::vector < std::string > temp_vec = Vectorize(param,',');
+            std::vector < std::string > temp_vec = Vectorize(param,',',false);
             if(temp_vec.size()==1 && Vectorize(temp_vec[0],':').size()==1){
                 sys->fScaleUp = atof(param.c_str());
             }
@@ -2946,7 +3016,7 @@ int ConfigReader::ReadSystOptions(){
         // Set ScaleDown
         param = confSet->Get("ScaleDown");
         if(param!=""){
-            std::vector < std::string > temp_vec = Vectorize(param,',');
+            std::vector < std::string > temp_vec = Vectorize(param,',',false);
             if(temp_vec.size()==1 && Vectorize(temp_vec[0],':').size()==1){
                 sys->fScaleDown = atof(param.c_str());
             }
@@ -2965,44 +3035,44 @@ int ConfigReader::ReadSystOptions(){
         // --> this can be used only if this systematic is applied to a single sample
         param = confSet->Get("SampleUp");
         if(param!=""){
-            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleUp that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleUp that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleUp that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleUp that do not exist");
                     return 1;
                 }
             }
-            sys->fSampleUp = param;
+            sys->fSampleUp = RemoveQuotes(param);
         }
 
         // Set SampleDown
         param = confSet->Get("SampleDown");
         if(param!=""){
-            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleDown that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleDown that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in SampleDown that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleDown that do not exist");
                     return 1;
                 }
             }
-            sys->fSampleDown = param;
+            sys->fSampleDown = RemoveQuotes(param);
         }
 
         // Set ReferenceSample
         // this to obtain syst variation relatively to given sample
         param = confSet->Get("ReferenceSample");
         if(param!=""){
-            if (std::find(fSamples.begin(), fSamples.end(), param) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in ReferenceSample that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSample that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in ReferenceSample that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSample that do not exist");
                     return 1;
                 }
             }
-            sys->fReferenceSample = param;
+            sys->fReferenceSample = RemoveQuotes(param);
         }
 
         // Set KeepReferenceOverallVar
@@ -3023,9 +3093,9 @@ int ConfigReader::ReadSystOptions(){
             std::vector<std::string> tmp = Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fRegions)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropShapeIn that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropShapeIn that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropShapeIn that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropShapeIn that do not exist");
                     return 1;
                 }
             }
@@ -3038,9 +3108,9 @@ int ConfigReader::ReadSystOptions(){
             std::vector<std::string> tmp = Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fRegions)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropNorm that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has regions set up in DropNorm that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
                     return 1;
                 }
             }
@@ -3053,9 +3123,9 @@ int ConfigReader::ReadSystOptions(){
             std::vector<std::string> tmp = Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fSamples)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in KeepNormForSamples that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in KeepNormForSamples that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + confSet->GetValue() + " has samples set up in KeepNormForSamples that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in KeepNormForSamples that do not exist");
                     return 1;
                 }
             }
@@ -3157,7 +3227,7 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
     // Set NuisanceParameter
     std::string param = confSet->Get("NuisanceParameter");
     if(param!=""){
-        sys->fNuisanceParameter = param;
+        sys->fNuisanceParameter = RemoveQuotes(param);
         TtHFitter::NPMAP[sys->fName] = sys->fNuisanceParameter;
     }
     else{
@@ -3168,13 +3238,13 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
-        sys->fTitle = param;
+        sys->fTitle = RemoveQuotes(param);
         TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
     }
 
     // Set TexTitle
     param = confSet->Get("TexTitle");
-    if(param!="") TtHFitter::SYSTTEX[sys->fName] = param;
+    if(param!="") TtHFitter::SYSTTEX[sys->fName] = RemoveQuotes(param);
 
     // attach the syst to the proper samples
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
@@ -3537,7 +3607,7 @@ std::string ConfigReader::CheckName( const std::string &name ){
         WriteErrorStatus("ConfigReader::CheckName", "           The code is about to crash.");
         std::abort();
     } else {
-        return name;
+        return RemoveQuotes(name);
     }
 }
 

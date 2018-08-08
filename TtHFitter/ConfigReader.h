@@ -49,7 +49,7 @@ class ConfigReader {
           * @param string config options
           * @return int status code
           */
-        int ReadCommandLineOptions(std::string option);
+        int ReadCommandLineOptions(const std::string& option);
         
         /**
           * Helper function to read JOB settings
