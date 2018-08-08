@@ -467,7 +467,7 @@ int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std
     }
     //
     // there is nothing to check if the reference setting is simply 'std::string'
-    if (ref_param == "std::string") return 0;
+    if (ref_param == "string") return 0;
     //
     // need to check the consistency of the provided settings
     // first check the number of provided parameters
@@ -538,7 +538,7 @@ bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, cons
     //
     // check setting by setting
     for (unsigned int iparam = 0; iparam < possible_vec.size(); iparam++){
-        if (possible_vec.at(iparam) == "std::string"){
+        if (possible_vec.at(iparam) == "string"){
             continue; // nothing to check
         } else if (possible_vec.at(iparam) == "int"){
             try {
