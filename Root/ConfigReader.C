@@ -239,10 +239,9 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
-    //Set paths
+    // Set paths
     // HIST option only
     if(fFitter->fInputType==0){
-        fFitter->AddHistoPath( confSet->Get("HistoPath") );
         if (confSet->Get("NtuplePath") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePath:' option, ignoring.");
         }
@@ -258,15 +257,20 @@ int ConfigReader::ReadJobOptions(){
         if (confSet->Get("NtupleName") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtupleName:' option, ignoring.");
         }
+        //
+        param = confSet->Get("HistoPath");
+        fFitter->AddHistoPath( CheckName(param) );
     }
     // Setting for NTUP only
     if(fFitter->fInputType==1){
         if (confSet->Get("HistoPath") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoPath:' option, ignoring.");
         }
-        fFitter->SetNtupleFile( confSet->Get("NtupleFile") );
+        //
+        param = confSet->Get("NtupleFile");
+        fFitter->SetNtupleFile( CheckName(param) );
         if(confSet->Get("NtuplePath")!="") {
-            fFitter->AddNtuplePath( confSet->Get("NtuplePath") );
+            fFitter->AddNtuplePath( CheckName(confSet->Get("NtuplePath")) );
         }
         param = confSet->Get("NtuplePaths");
         if( param != "" ){
@@ -277,10 +281,10 @@ int ConfigReader::ReadJobOptions(){
         }
         param = confSet->Get("MCweight");
         if(param!="") fFitter->SetMCweight( RemoveQuotes(param) );
-
         param = confSet->Get("Selection");
         if(param!="") fFitter->SetSelection( RemoveQuotes(param) );
-        fFitter->SetNtupleName( CheckName(confSet->Get("NtupleName")) );
+        param = confSet->Get("NtupleName");
+        fFitter->SetNtupleName( CheckName(param) );
     }
 
     // Set lumi
@@ -943,7 +947,7 @@ int ConfigReader::ReadFitOptions(){
         return 0; // it is ok to not have Fit set up
     }
 
-    //Set FitType
+    // Set FitType
     param = confSet->Get("FitType");
     if( param != "" && fFitter->fFitType == TtHFit::UNDEFINED ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -1274,8 +1278,8 @@ int ConfigReader::ReadRegionOptions(){
         if (confSet == nullptr) break;
 
         nReg++;
-        if(fOnlyRegions.size()>0 && FindInStringVector(fOnlyRegions,confSet->GetValue())<0) continue;
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
+        if(fOnlyRegions.size()>0 && FindInStringVector(fOnlyRegions,RemoveQuotes(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
         fRegNames.push_back( CheckName(confSet->GetValue()) );
         reg = fFitter->NewRegion(CheckName(confSet->GetValue()));
         fRegions.emplace_back( CheckName(confSet->GetValue()) );
@@ -1668,8 +1672,8 @@ int ConfigReader::ReadSampleOptions(){
         if (confSet == nullptr) break;
         nSmp++;
 
-        if(fOnlySamples.size()>0 && FindInStringVector(fOnlySamples,confSet->GetValue())<0) continue;
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,confSet->GetValue())>=0) continue;
+        if(fOnlySamples.size()>0 && FindInStringVector(fOnlySamples,RemoveQuotes(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
         type = Sample::BACKGROUND;
 
         // Set Type
