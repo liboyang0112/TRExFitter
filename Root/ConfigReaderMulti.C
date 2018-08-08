@@ -36,7 +36,6 @@ int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::st
     ConfigParser refConfig;
     refConfig.ReadFile(gSystem->ExpandPathName("$TREXFITTER_HOME/multiFitSchema.config"));
     int sc = fParser.CheckSyntax(&refConfig);
-//     int sc = 0;
 
     if (sc != 0) return sc;
 
@@ -63,7 +62,6 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
     // Syntax: .. .. Regions=ge4jge2b:Exclude=singleTop,wjets
     std::map< std::string,std::string > optMap;
     std::vector< std::string > optVec;
-
 
     optVec = Vectorize(option,':');
     for(const std::string& iopt : optVec){
@@ -521,11 +519,11 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
         else fullOptions = options;
 
         // name
-        fMultiFitter->fFitNames.push_back(confSet->GetValue());
+        fMultiFitter->fFitNames.push_back(CheckName(confSet->GetValue()));
 
         // Set Label
         param = confSet->Get("Label");
-        std::string label = confSet->GetValue();
+        std::string label = CheckName(confSet->GetValue());
         if(param!="") label = RemoveQuotes(param);
 
         // Set suf

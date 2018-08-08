@@ -297,7 +297,7 @@ void Region::BuildPreFitErrorHist(){
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType == Sample::GHOST) continue;
-        if(fSampleHists[i]->fSample->fType == Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
+//         if(fSampleHists[i]->fSample->fType == Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
 
         //
         // Systematics

@@ -11,7 +11,7 @@
 #include <iostream>
 #include <map>
 
-using namespace std;
+// using namespace std;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -21,9 +21,9 @@ using namespace std;
 
 //__________________________________________________________________________________
 // Removes leading and trailing white spaces
-string RemoveSpaces(string s){
+std::string RemoveSpaces(const std::string& s){
     if(s=="") return "";
-    string ss = s;
+    std::string ss = s;
     if (ss.find_first_not_of(' ')>0){
         ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' '));
     }
@@ -35,9 +35,9 @@ string RemoveSpaces(string s){
 
 //__________________________________________________________________________________
 // Removes everything after '%' or '#', but only if not inside quotation marks!!
-string RemoveComments(string s){
+std::string RemoveComments(const std::string& s){
     if(s=="") return "";
-    string ss = "";
+    std::string ss = "";
     bool insideQuotes = false;
     for(unsigned long i=0;i<s.size();i++){
         if(s[i]=='"'){
@@ -52,18 +52,18 @@ string RemoveComments(string s){
 
 //__________________________________________________________________________________
 // Removes '"'
-string RemoveQuotes(string s){
+std::string RemoveQuotes(const std::string& s){
     if(s=="") return "";
-    string ss = s;
+    std::string ss = s;
     replace( ss.begin(), ss.end(), '"', ' ');
     return RemoveSpaces(ss);
 }
 
 //__________________________________________________________________________________
 // Removes leading and trailing white spaces, removes everything after "%", removes '"'
-string Fix(string s){ 
+std::string Fix(const std::string& s){ 
     if(s=="") return "";
-    string ss = s.substr( 0, s.find_first_of('%') );
+    std::string ss = s.substr( 0, s.find_first_of('%') );
     replace( ss.begin(), ss.end(), '"', ' ');
     if (ss.find_first_not_of(' ')>0){
         ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' '));
@@ -76,16 +76,15 @@ string Fix(string s){
 
 //__________________________________________________________________________________
 //
-vector<string> Vectorize(string s,char c,bool removeQuotes){
-    vector<string> v;
+std::vector<std::string> Vectorize(const std::string& s,char c,bool removeQuotes){
+    std::vector<std::string> v;
     v.clear();
-    string ss = RemoveComments(s);
+    std::string ss = RemoveComments(s);
     if(ss==""){
         v.push_back("");
         return v;
     }
-    // new way: split only if , is outside ""
-    string t;
+    std::string t;
     bool insideQuotes = false;
     for(unsigned long i=0;i<ss.size();i++){
         if(!insideQuotes && ss[i]==c){
@@ -114,18 +113,17 @@ vector<string> Vectorize(string s,char c,bool removeQuotes){
 
 //__________________________________________________________________________________
 //
-string First(string s){
-    string first;
+std::string First(const std::string& s){
+    std::string first;
     first = s.substr( 0, s.find_first_of(':') );
     return Fix(first);
 }
 
 //__________________________________________________________________________________
 //
-string Second(string s){
-    string second;
-    second = s.substr( s.find_first_of(':')+1,string::npos );
-//     return Fix(second);
+std::string Second(const std::string& s){
+    std::string second;
+    second = s.substr( s.find_first_of(':')+1,std::string::npos );
     return RemoveComments(second);
 }
 
@@ -142,7 +140,7 @@ void ReplaceStringInPlace(std::string& subject, const std::string& search,
 
 //_______________________________________________________________________________________
 // used to pre-read a config file to check single option values
-std::string ReadValueFromConfig(std::string fileName,std::string option){
+std::string ReadValueFromConfig(const std::string& fileName,const std::string& option){
     std::string value = "";
     std::ifstream file(fileName.c_str());
     if(!file.is_open()) return value;
@@ -194,7 +192,7 @@ ConfigSet::~ConfigSet(){}
 
 //__________________________________________________________________________________
 //
-void ConfigSet::SetConfig(string name,string value){
+void ConfigSet::SetConfig(const std::string& name,const std::string& value){
     // check if is name is there
     bool isThere = false;
     int index = -1;
@@ -217,7 +215,7 @@ void ConfigSet::SetConfig(string name,string value){
 
 //__________________________________________________________________________________
 //
-string ConfigSet::Get(string name){
+std::string ConfigSet::Get(const std::string& name){
     for(int i=0;i<fN;i++){
         if(fConfig[i].fName == name){
             return fConfig[i].fValue;
@@ -228,7 +226,7 @@ string ConfigSet::Get(string name){
 
 //__________________________________________________________________________________
 //
-string ConfigSet::operator[](string name){
+std::string ConfigSet::operator[](const std::string& name){
     return Get(name);
 }
 
@@ -240,13 +238,13 @@ Config ConfigSet::GetConfig(int i){
 
 //__________________________________________________________________________________
 //
-string ConfigSet::GetConfigName(int i){
+std::string ConfigSet::GetConfigName(int i){
     return fConfig[i].fName;
 }
 
 //__________________________________________________________________________________
 //
-string ConfigSet::GetConfigValue(int i){
+std::string ConfigSet::GetConfigValue(int i){
     return fConfig[i].fValue;
 }
 
@@ -264,20 +262,20 @@ int ConfigSet::size(){
 
 //__________________________________________________________________________________
 //
-void ConfigSet::Set(string name,string value){
+void ConfigSet::Set(const std::string& name,const std::string& value){
     fName = name;
     fValue = value;
 }
 
 //__________________________________________________________________________________
 //
-string ConfigSet::GetName(){
+std::string ConfigSet::GetName(){
     return fName;
 }
 
 //__________________________________________________________________________________
 //
-string ConfigSet::GetValue(){
+std::string ConfigSet::GetValue(){
     return fValue;
 }
 
@@ -298,35 +296,35 @@ ConfigParser::~ConfigParser(){
 
 //__________________________________________________________________________________
 //
-void ConfigParser::ReadFile(string fileName){
+void ConfigParser::ReadFile(const std::string& fileName){
     WriteInfoStatus("ConfigParser::ReadFile", "Reading config file: " + fileName);
-    ifstream file(fileName.c_str());
+    std::ifstream file(fileName.c_str());
     if(!file.is_open()){
         WriteErrorStatus("ConfigParser::ReadFile", "The config file cannot be opened!");
         exit(-1);
     }
-    string str, val;
+    std::string str, val;
     //
-    map<string,string> fReplacement;
-    string replacementFileName="";
+    std::map<std::string,std::string> fReplacement;
+    std::string replacementFileName="";
     // loop over the file once to automatically find the replacement fileName
     while (getline(file, str)){
         replace( str.begin(), str.end(), '\n', ' ');
         replace( str.begin(), str.end(), '\r', ' ');
         replace( str.begin(), str.end(), '\t', ' ');
-//         if ( str.find("%")!=string::npos || str.find("#")!=string::npos) continue; // why this is needed?
+//         if ( str.find("%")!=std::string::npos || str.find("#")!=std::string::npos) continue; // why this is needed?
         if(str[str.find_first_not_of(' ')]=='%') continue;
         if(str[str.find_first_not_of(' ')]=='#') continue;
-        if ( str.find("ReplacementFile")==string::npos ) continue;
+        if ( str.find("ReplacementFile")==std::string::npos ) continue;
         replacementFileName=Second(str);
         break;
     }
     file.close();
     file.clear();
-    if (replacementFileName!="" && (fileName.find("jobSchema.config") == string::npos)) {
+    if (replacementFileName!="" && (fileName.find("jobSchema.config") == std::string::npos)) {
         WriteInfoStatus("ConfigParser::ReadFile", "Opening replacement file: " + replacementFileName + " to fill the map");
         ////replacementFileName="Common_XS_unc_Replacement.txt";
-        ifstream fileR(replacementFileName.c_str());
+        std::ifstream fileR(replacementFileName.c_str());
         if(!fileR.is_open()){
             WriteErrorStatus("ConfigParser::ReadFile", "The replacement file: " + replacementFileName + " cannot be opend!");
             exit(-1);
@@ -335,7 +333,7 @@ void ConfigParser::ReadFile(string fileName){
             replace( str.begin(), str.end(), '\n', ' ');
             replace( str.begin(), str.end(), '\r', ' ');
             replace( str.begin(), str.end(), '\t', ' ');
-            if ( str.find("%")!=string::npos || str.find("#")!=string::npos) continue;
+            if ( str.find("%")!=std::string::npos || str.find("#")!=std::string::npos) continue;
             WriteInfoStatus("ConfigParser::ReadFile", "putting in the map: [" + First(str) + "]=" + Second(str));
             fReplacement[First(str)]=Second(str);
         }
@@ -343,7 +341,7 @@ void ConfigParser::ReadFile(string fileName){
     }
     //
     file.open(fileName.c_str());
-    vector<string> valVec;
+    std::vector<std::string> valVec;
     bool reading = false;
     int n = 1;
     int k = 0;
@@ -354,12 +352,12 @@ void ConfigParser::ReadFile(string fileName){
         if(str[str.find_first_not_of(' ')]=='%') continue;
         if(str[str.find_first_not_of(' ')]=='#') continue;
         //
-        if (str.find("XXX")!=string::npos) {
+        if (str.find("XXX")!=std::string::npos) {
             WriteInfoStatus("ConfigParser::ReadFile", "BEFORE replacement: " + str);
-            map<string,string>::iterator itr=fReplacement.begin();
+            std::map<std::string,std::string>::iterator itr=fReplacement.begin();
             for ( ;itr!=fReplacement.end();++itr) {
-                string oldV=itr->first;
-                string newV=itr->second;
+                std::string oldV=itr->first;
+                std::string newV=itr->second;
                 //std::cout << "VALERIO: " << oldV << " , " << newV << std::endl;
                 //replace( str.begin(), str.end(), oldV, newV);
                 ReplaceStringInPlace(str, oldV, newV);
@@ -367,7 +365,7 @@ void ConfigParser::ReadFile(string fileName){
             WriteInfoStatus("ConfigParser::ReadFile", " AFTER replacement: " + str);
         }
         //
-        if(str.find_first_not_of(' ')==string::npos){
+        if(str.find_first_not_of(' ')==std::string::npos){
             reading = false;
         }
         else{
@@ -376,7 +374,6 @@ void ConfigParser::ReadFile(string fileName){
                 n = valVec.size();
                 for(k=0;k<n;k++){
                     fConfSets[fN] = new ConfigSet();
-//                     fConfSets[fN]->Set( First(str),Fix(valVec[k]) );
                     fConfSets[fN]->Set( First(str),RemoveSpaces(valVec[k]) );
                     fN++;
                 }
@@ -386,7 +383,6 @@ void ConfigParser::ReadFile(string fileName){
                 for(k=0;k<n;k++){
                     if(k>=(int)valVec.size()) val = valVec[valVec.size()-1];
                     else                      val = valVec[k];
-//                     fConfSets[fN-n+k]->SetConfig(First(str),Fix(val) );
                     fConfSets[fN-n+k]->SetConfig(First(str),RemoveSpaces(val) );
                 }
             }
@@ -403,7 +399,7 @@ ConfigSet *ConfigParser::GetConfigSet(int i){
 
 //__________________________________________________________________________________
 // Returns the i-th configSet with given name
-ConfigSet *ConfigParser::GetConfigSet(string name,int i){
+ConfigSet *ConfigParser::GetConfigSet(const std::string& name,int i){
     int k = 0;
     for(int j=0;j<fN;j++){
         if(fConfSets[j]->GetName() == name){
@@ -470,8 +466,8 @@ int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std
         return 1;
     }
     //
-    // there is nothing to check if the reference setting is simply 'string'
-    if (ref_param == "string") return 0;
+    // there is nothing to check if the reference setting is simply 'std::string'
+    if (ref_param == "std::string") return 0;
     //
     // need to check the consistency of the provided settings
     // first check the number of provided parameters
@@ -513,7 +509,7 @@ int ConfigParser::CheckParameters(std::string current, const std::vector<std::st
         bool isFound = false;
         std::transform(current.begin(), current.end(), current.begin(), ::toupper);
         for (const std::string& isetting : possible_settings){
-            // for string
+            // for std::string
             if(SettingMultipleParamIsOK(setting_set, current, isetting)){
                 isFound = true;
                 break;
@@ -542,7 +538,7 @@ bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, cons
     //
     // check setting by setting
     for (unsigned int iparam = 0; iparam < possible_vec.size(); iparam++){
-        if (possible_vec.at(iparam) == "string"){
+        if (possible_vec.at(iparam) == "std::string"){
             continue; // nothing to check
         } else if (possible_vec.at(iparam) == "int"){
             try {
