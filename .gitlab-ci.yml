@@ -150,7 +150,7 @@ significance:
 draw_prefit:
     stage: draw
     script:
-      - trex-fitter config/myFit.config >& LOG_d
+      - trex-fitter d config/myFit.config >& LOG_d
       - cat LOG_d | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_d
       - ls
       - set -e
