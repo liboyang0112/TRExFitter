@@ -157,7 +157,7 @@ macro( TRExFitter_add_executable name )
     RUNTIME DESTINATION bin )
 endmacro( TRExFitter_add_executable )
 
-TRExFitter_add_executable( myFit.exe util/myFit.C )
+TRExFitter_add_executable( trex-fitter util/trex-fitter.C )
 
 # Compile the util/hupdate.C executable.
 add_executable( hupdate.exe util/hupdate.C )

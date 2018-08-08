@@ -59,7 +59,7 @@ input_prod:
 histograms:
     stage: hstep
     script:
-      - ./build/bin/myFit.exe h config/myFit.config
+      - trex-fitter h config/myFit.config
       - ls
       - ls FitExample/Histograms/
     artifacts:
@@ -73,7 +73,7 @@ histograms:
 workspace:
     stage: wstep
     script:
-      - ./build/bin/myFit.exe w config/myFit.config >& LOG_w
+      - trex-fitter w config/myFit.config >& LOG_w
       - cat LOG_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_w
       - ls
       - set -e
@@ -92,7 +92,7 @@ workspace:
 fit:
     stage: flsstep
     script:
-      - ./build/bin/myFit.exe f config/myFit.config >& LOG_f
+      - trex-fitter f config/myFit.config >& LOG_f
       - cat LOG_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_f
       - ls
       - set -e
@@ -112,7 +112,7 @@ fit:
 limit:
     stage: flsstep
     script:
-      - ./build/bin/myFit.exe l config/myFit.config >& LOG_l
+      - trex-fitter l config/myFit.config >& LOG_l
       - cat LOG_l | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_l
       - ls
       - set -e
@@ -131,7 +131,7 @@ limit:
 significance:
     stage: flsstep
     script:
-      - ./build/bin/myFit.exe s config/myFit.config >& LOG_s
+      - trex-fitter s config/myFit.config >& LOG_s
       - cat LOG_s | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_s
       - ls
       - set -e
@@ -150,7 +150,7 @@ significance:
 draw_prefit:
     stage: draw
     script:
-      - ./build/bin/myFit.exe d config/myFit.config >& LOG_d
+      - trex-fitter config/myFit.config >& LOG_d
       - cat LOG_d | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_d
       - ls
       - set -e
@@ -169,7 +169,7 @@ draw_prefit:
 draw_postfit:
     stage: draw
     script:
-      - ./build/bin/myFit.exe p config/myFit.config >& LOG_p
+      - trex-fitter p config/myFit.config >& LOG_p
       - cat LOG_p | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_p
       - ls
       - set -e
