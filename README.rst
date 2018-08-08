@@ -39,15 +39,18 @@ To compile:
 3) Compile the code with ``cmake --build ./``
 4) The binary file will appear in ``bin/`` directory
 
-(this will take as main code the file util/myFit.C)
+(this will take as main code the file util/trex-fitter.C)
+
+The setup script also adds a path to the binary into your PATH and you can execute the code with ``trex-fitter``
 
 **IMPORTANT!** For the first time use you need to type ``git submodule init`` followed by ``git submodule update``
+Everytime the submodules change you need to run ``git submodule update``
 
 How to
 ---------
 To run the code, after compiling (see "Setup"), use the command::
 
-    ./build/bin/myFit.exe  <action(s)>  [<config file>]  [<update>]  [<options>]
+    trex-fitter  <action(s)>  [<config file>]  [<update>]  [<options>]
 
 The configuration file (<config file>) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
 By default the file  ``config/myFit.config``  is loaded.
@@ -57,7 +60,7 @@ Most of the time, the only file the user has to modify to obtain their desired r
 
 The only mandatory argument, <action(s)>, tells TRExFitter which operation(s) to perform.
 The possible operations are defined in the main file (e.g. util/myFit.C).
-For instance, if you use the default file ``util/myFit.C``, the available options are:
+For instance, if you use the default file ``util/trex-fitter.C``, the available options are:
 
 * h : read input histograms (valid only if the proper option is specified in the config file)
 * n : read input ntuples (valid only if the proper option is specified in the config file)
@@ -445,25 +448,25 @@ Currently the supported options are:
 Note: the wild-card * is supported, but only as last character.
 Example::
 
-     ./build/bin/myFit.exe  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
+     trex-fitter  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
 
 
 Ranking Plot
 ---------
 
-- The ranking plot can be created in one go, with just the command line argument "r" (after having run the nominal fit fit "f").
+- The ranking plot can be created in one go, with just the command line argument "r" (after having run the nominal fit "f").
 - Since this can take too much time (and memory), for complicated fits it's better to run it in several steps:
    by specifying the command-line option "Ranking=<name/index>", one can produce the txt input for the ranking only for a specific line of the ranking, i.e. for a single NP (specified either through its name or index). Once all the needed txt files are created (e.g. in parallel through batch jobs) with the option "Ranking=plot" they are merged to create the final plot.
 
 - Examples::
 
      # this runs the ranking in one go
-     ./build/bin/myFit.exe  r  <config>
+     trex-fitter  r  <config>
      #these commands will first create the inputs for the ranking one by one and then merge them in the plot
-     ./build/bin/myFit.exe  r  <config> Ranking=Lumi
-     ./build/bin/myFit.exe  r  <config> Ranking=JES1
-     ./build/bin/myFit.exe  r  <config> Ranking=ttXsec
-     ./build/bin/myFit.exe  r  <config> Ranking=plot
+     trex-fitter  r  <config> Ranking=Lumi
+     trex-fitter  r  <config> Ranking=JES1
+     trex-fitter  r  <config> Ranking=ttXsec
+     trex-fitter  r  <config> Ranking=plot
 
 
 Grouped Impact
@@ -478,14 +481,14 @@ Grouped Impact
 * Example::
 
     # evaluate impact of all groups sequentially
-    ./build/bin/myFit.exe i <config>
+    trex-fitter i <config>
 
     # evaluate only the impact of Gammas
-    ./build/bin/myFit.exe i <config> GroupedImpact="Gammas"
+    trex-fitter i <config> GroupedImpact="Gammas"
 
 * When the calculations are parallelized, combine the results by running the following at the end::
 
-    ./build/bin/myFit.exe i <config> GroupedImpact="combine"
+    trex-fitter i <config> GroupedImpact="combine"
 
 
 Multi-Fit
@@ -519,13 +522,13 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
 
 - This config file can be run with the command line::
 
-    ./build/bin/myFit  m  config/myTopWS_multifit.config
+    trex-fitter  m  config/myTopWS_multifit.config
 
   This will compare the fit results in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the fly when running his multi-fit option).
 
 - To make a real combination, one needs to use the usual command options "w", "f" and "l" together with the flag "Combine: TRUE" in the config above. Example::
 
-    ./build/bin/myFit  mwf  config/myTopWS_multifit.config
+    trex-fitter  mwf  config/myTopWS_multifit.config
 
   This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
@@ -610,12 +613,12 @@ Input File Merging with hupdate
 - Example usage, combined with the usage of SaveSuffix::
 
     make hupdate.exe
-    ./build/bin/myFit.exe n ../config/ttH2015.config Systematics=BTag_B_NP1:SaveSuffix=_BTag_B_NP1
+    trex-fitter n ../config/ttH2015.config Systematics=BTag_B_NP1:SaveSuffix=_BTag_B_NP1
     ./build/bin/myFit.exe n ../config/ttH2015.config Exclude=BTag_B_NP1:SaveSuffix=_rest
     ./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_4j2b_histos.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_rest.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_BTag_B_NP1.root
     ./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_5j3b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos_BTag_B_NP1.root
     ./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_BTag_B_NP1.root
-    ./build/bin/myFit.exe dwf ../config/ttH2015.config
+    trex-fitter dwf ../config/ttH2015.config
 
 
 Output Directories Structure
@@ -639,7 +642,7 @@ Output Directories Structure
 ShapeFactor example
 -------------------
 
-* The following scripts create example histograms in :code:`exampleDataDriven` directory and execute  :code:`build/bin/myFit.exe` using :code:`config/dataDriven.config`
+* The following scripts create example histograms in :code:`exampleDataDriven` directory and execute  :code:`trex-fitter` using :code:`config/dataDriven.config`
 * The example contains a control region and signal region with two bins. The shape of one of the background samples is estimated using the ShapeFactor::
 
     python makeDataDriven.py
