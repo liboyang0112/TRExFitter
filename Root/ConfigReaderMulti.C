@@ -101,12 +101,12 @@ int ConfigReaderMulti::ReadJobOptions(){
         return 1;
     }
 
-    fMultiFitter->fName = confSet->GetValue();
+    fMultiFitter->fName = CheckName(confSet->GetValue());
 
     // Set OutputDir
     param = confSet->Get("OutputDir");
     if(param !=""){
-        fMultiFitter->fDir = param;
+        fMultiFitter->fDir = CheckName(param);
         if(fMultiFitter->fDir.back() != '/') fMultiFitter->fDir += '/';
         fMultiFitter->fOutDir = fMultiFitter->fDir + fMultiFitter->fName;
         gSystem->mkdir((fMultiFitter->fOutDir).c_str(), true);
@@ -117,19 +117,19 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set Label
     param = confSet->Get("Label");
-    if( param != "") fMultiFitter->fLabel = param;
+    if( param != "") fMultiFitter->fLabel = RemoveQuotes(param);
 
     // Set LumiLabel
     param = confSet->Get("LumiLabel");
-    if( param != "") fMultiFitter->fLumiLabel = param;
+    if( param != "") fMultiFitter->fLumiLabel = RemoveQuotes(param);
 
     // Set CmeLabel
     param = confSet->Get("CmeLabel");
-    if( param != "") fMultiFitter->fCmeLabel = param;
+    if( param != "") fMultiFitter->fCmeLabel = RemoveQuotes(param);
 
     // Set SaveSuf
     param = confSet->Get("SaveSuf");
-    if( param != "") fMultiFitter->fSaveSuf = param;
+    if( param != "") fMultiFitter->fSaveSuf = RemoveQuotes(param);
     else fMultiFitter->fSaveSuf             = fGlobalSuffix;
 
     // Set ShowObserved
@@ -146,14 +146,16 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set LimitTitle
     param = confSet->Get("LimitTitle");
-    if( param != "") fMultiFitter->fLimitTitle = param;
+    if( param != "") fMultiFitter->fLimitTitle = RemoveQuotes(param);
+    // --- these lines should be removed at some point, since now we protect the text inside ""
     if(fMultiFitter->fLimitTitle.find("95CL")!=std::string::npos){
          fMultiFitter->fLimitTitle.replace(fMultiFitter->fLimitTitle.find("95CL"),4,"95% CL");
     }
+    // ---
 
     // Ser POITitle
     param = confSet->Get("POITitle");
-    if( param != "") fMultiFitter->fPOITitle = param;
+    if( param != "") fMultiFitter->fPOITitle = RemoveQuotes(param);
 
     // Set CompareLimits
     param = confSet->Get("CompareLimits");
@@ -253,11 +255,11 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set POIName
     param = confSet->Get("POIName");
-    if( param != "" ) fMultiFitter->fPOI = param;
+    if( param != "" ) fMultiFitter->fPOI = RemoveQuotes(param);
 
     // Set POILabel
     param = confSet->Get("POILabel");
-    if( param != "" ) fMultiFitter->fPOIName = param;
+    if( param != "" ) fMultiFitter->fPOIName = RemoveQuotes(param);
 
     // Set POINominal
     param = confSet->Get("POINominal");
@@ -288,11 +290,11 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set POIPrecision
     param = confSet->Get("POIPrecision");
-    if( param != "" ) fMultiFitter->fPOIPrecision = param.c_str();
+    if( param != "" ) fMultiFitter->fPOIPrecision = RemoveQuotes(param).c_str();
 
     //Set DataName
     param = confSet->Get("DataName");
-    if( param != "" ) fMultiFitter->fDataName = param;
+    if( param != "" ) fMultiFitter->fDataName = RemoveQuotes(param);
 
     // Set FitType
     param = confSet->Get("FitType");
@@ -382,7 +384,7 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set NuisParListFile
     param = confSet->Get("NuisParListFile");
-    if( param != "" ) fMultiFitter->fNuisParListFile = param;
+    if( param != "" ) fMultiFitter->fNuisParListFile = RemoveQuotes(param);
 
     // Set PlotSoverB
     param = confSet->Get("PlotSoverB");
@@ -397,19 +399,19 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set SignalTitle
     param = confSet->Get("SignalTitle");
-    if( param != "" ) fMultiFitter->fSignalTitle = param;
+    if( param != "" ) fMultiFitter->fSignalTitle = RemoveQuotes(param);
 
     // Set FitResultsFile
     param = confSet->Get("FitResultsFile");
-    if( param != "" ) fMultiFitter->fFitResultsFile = param;
+    if( param != "" ) fMultiFitter->fFitResultsFile = RemoveQuotes(param);
 
     // Set LimitsFile
     param = confSet->Get("LimitsFile");
-    if( param != "" ) fMultiFitter->fLimitsFile = param;
+    if( param != "" ) fMultiFitter->fLimitsFile = RemoveQuotes(param);
 
     // Set BonlySuffix
     param = confSet->Get("BonlySuffix");
-    if( param != "" ) fMultiFitter->fBonlySuffix = param;
+    if( param != "" ) fMultiFitter->fBonlySuffix = RemoveQuotes(param);
 
     // Set ShowSystForPOI
     param = confSet->Get("ShowSystForPOI");
@@ -514,8 +516,8 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
         // Set Options
         std::string fullOptions;
         param = confSet->Get("Options");
-        if(param!="" && options!="") fullOptions = options+";"+param;
-        else if(param!="") fullOptions = param;
+        if(param!="" && options!="") fullOptions = options+";"+RemoveQuotes(param);
+        else if(param!="") fullOptions = RemoveQuotes(param);
         else fullOptions = options;
 
         // name
@@ -524,23 +526,23 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
         // Set Label
         param = confSet->Get("Label");
         std::string label = confSet->GetValue();
-        if(param!="") label = param;
+        if(param!="") label = RemoveQuotes(param);
 
         // Set suf
         param = confSet->Get("LoadSuf");
         std::string loadSuf = "";
-        if(param!="") loadSuf = param;
+        if(param!="") loadSuf = RemoveQuotes(param);
         else          loadSuf = fGlobalSuffix;
 
         // config file
         std::string confFile = "";
         param = confSet->Get("ConfigFile");
-        if(param!="") confFile = param;
+        if(param!="") confFile = RemoveQuotes(param);
 
         // workspace
         std::string wsFile = "";
         param = confSet->Get("Workspace");
-        if(param!="") wsFile = param;
+        if(param!="") wsFile = RemoveQuotes(param);
 
         // show obs
         param = confSet->Get("ShowObserved");
@@ -558,24 +560,24 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
 
         // Set FitResultsFile
         param = confSet->Get("FitResultsFile");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fFitResultsFile = param;
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fFitResultsFile = RemoveQuotes(param);
         fMultiFitter->fLimitsFiles.push_back("");
 
         // Set LimitsFile
         param = confSet->Get("LimitsFile");
-        if( param != "" ) fMultiFitter->fLimitsFiles[fMultiFitter->fFitList.size()-1] = param;
+        if( param != "" ) fMultiFitter->fLimitsFiles[fMultiFitter->fFitList.size()-1] = RemoveQuotes(param);
 
         // Set POIName
         param = confSet->Get("POIName");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fPOI = param;
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fPOI = RemoveQuotes(param);
 
         // Set Directory
         param = confSet->Get("Directory");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fName = param;
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fName = RemoveQuotes(param);
 
         // Set InputName
         param = confSet->Get("InputName");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fInputName = param;
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fInputName = RemoveQuotes(param);
     }
 
     if (nFit == 0){
@@ -584,4 +586,17 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
     }
 
     return 0;
+}
+
+//__________________________________________________________________________________
+//
+std::string ConfigReaderMulti::CheckName( const std::string &name ){
+    if( std::isdigit( name.at(0) ) ){
+        WriteErrorStatus("ConfigReaderMulti::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
+        WriteErrorStatus("ConfigReaderMulti::CheckName", "           This can lead to unexpected behaviours in HistFactory. Please change the name. ");
+        WriteErrorStatus("ConfigReaderMulti::CheckName", "           The code is about to crash.");
+        std::abort();
+    } else {
+        return RemoveQuotes(name);
+    }
 }

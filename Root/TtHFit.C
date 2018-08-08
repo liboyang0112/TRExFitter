@@ -3472,6 +3472,7 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
 void TtHFit::BuildYieldTable(string opt,string group){
     WriteInfoStatus("TtHFit::BuildYieldTable", "-------------------------------------------");
     WriteInfoStatus("TtHFit::BuildYieldTable", "Building Yields Table...");
+    if(!TtHFitter::SHOWSTACKSIG) WriteWarningStatus("TtHFit::BuildYieldTable", "Signal samples not added to \"Tot\" because of \"PlotOptions\" in config file.");
     bool isPostFit = opt.find("post")!=string::npos;
     ofstream out;
     ofstream texout;
@@ -4084,9 +4085,11 @@ void TtHFit::BuildYieldTable(string opt,string group){
     if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix );
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames );
     //
-    out << " | Total | ";
+    if(TtHFitter::SHOWSTACKSIG) out << " | Total | ";
+    else                        out << " | Tot.Bkg. | ";
     texout << "\\hline " << endl;
-    texout << "  Total ";
+    if(TtHFitter::SHOWSTACKSIG) texout << "  Total ";
+    else                        texout << "  Total background ";
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         texout << " & ";
         out << h_tot->GetBinContent(i_bin);
@@ -5147,13 +5150,11 @@ void TtHFit::Fit(){
         // Creating the combined model with the regions to fit only
         //
         if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-
         ws = PerformWorkspaceCombination( regionsToFit );
-
         //
         // If needed (only if needed), create a RooDataset object
         //
-            data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
         //
         // Calls the PerformFit() function to actually do the fit
         //
@@ -5540,8 +5541,9 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
             WriteWarningStatus("TtHFit::PerformFit", "No observedData found => will use the Asimov data !");
             data = (RooDataSet*)ws->data("asimovData");
         }
+        inputData = data;
     }
-
+    
     //
     // For stat-only fit on data:
     // - read fit resutls
@@ -5814,12 +5816,15 @@ void TtHFit::GetLimit(){
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
+            WriteInfoStatus("TtHFit::GetLimit","Creating ws for regions with real data only...");
             RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
 
             //
             // Calls the PerformFit() function to actually do the fit
             //
+            WriteInfoStatus("TtHFit::GetLimit","Performing a fit in reagions with real data only...");
             npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TtHFitter::DEBUGLEVEL);
+            WriteInfoStatus("TtHFit::GetLimit","Now will use the fit results to create the Asimov in the regions without real data!");
         }
 
         //
@@ -5865,7 +5870,6 @@ void TtHFit::GetLimit(){
     //
     // Finally computing the limit
     //
-
     if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
@@ -5890,8 +5894,8 @@ void TtHFit::GetSignificance(){
         string dataName = "obsData";
         if(!hasData || fFitIsBlind) dataName = "asimovData";
         if (!fRunROOTMacros){
-        RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
-    }
+            RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
+        }
         cmd = "root -l -b -q 'runSig.C(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
     }
 
@@ -5924,12 +5928,15 @@ void TtHFit::GetSignificance(){
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
+            WriteInfoStatus("TtHFit::GetSignificance","Creating ws for regions with real data only...");
             RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
 
             //
             // Calls the PerformFit() function to actually do the fit
             //
+            WriteInfoStatus("TtHFit::GetSignificance","Performing a fit in reagions with real data only...");
             npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TtHFitter::DEBUGLEVEL);
+            WriteInfoStatus("TtHFit::GetSignificance","Now will use the fit results to create the Asimov in the regions without real data!");
         }
 
         //

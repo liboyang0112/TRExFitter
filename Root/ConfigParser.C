@@ -20,13 +20,51 @@ using namespace std;
 //----------------------------------------------------------------------------------
 
 //__________________________________________________________________________________
-//
-string Fix(string s){ // removes leading and trailing white spaces, remove everything after "%", remove '"'...
+// Removes leading and trailing white spaces
+string RemoveSpaces(string s){
+    if(s=="") return "";
+    string ss = s;
+    if (ss.find_first_not_of(' ')>0){
+        ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' '));
+    }
+    else{
+        ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' ')+1);
+    }
+    return ss;
+}
+
+//__________________________________________________________________________________
+// Removes everything after '%' or '#', but only if not inside quotation marks!!
+string RemoveComments(string s){
+    if(s=="") return "";
+    string ss = "";
+    bool insideQuotes = false;
+    for(unsigned long i=0;i<s.size();i++){
+        if(s[i]=='"'){
+            if(!insideQuotes) insideQuotes = true;
+            else              insideQuotes = false;
+        }
+        if((s[i]=='%' || s[i]=='#') && !insideQuotes) break;
+        ss += s[i];
+    }
+    return RemoveSpaces(ss);
+}
+
+//__________________________________________________________________________________
+// Removes '"'
+string RemoveQuotes(string s){
+    if(s=="") return "";
+    string ss = s;
+    replace( ss.begin(), ss.end(), '"', ' ');
+    return RemoveSpaces(ss);
+}
+
+//__________________________________________________________________________________
+// Removes leading and trailing white spaces, removes everything after "%", removes '"'
+string Fix(string s){ 
+    if(s=="") return "";
     string ss = s.substr( 0, s.find_first_of('%') );
     replace( ss.begin(), ss.end(), '"', ' ');
-//   if(ss.find("#PERCENT#")!=string::npos) ss.replace( ss.find("#PERCENT#"), 9, "%");
-//   ss = ss.substr( ss.find_first_not_of(' '),ss.find_last_not_of(' ')+1 );
-    // Fix by Arthur
     if (ss.find_first_not_of(' ')>0){
         ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' '));
     }
@@ -38,19 +76,38 @@ string Fix(string s){ // removes leading and trailing white spaces, remove every
 
 //__________________________________________________________________________________
 //
-vector<string> Vectorize(string s,char c){
+vector<string> Vectorize(string s,char c,bool removeQuotes){
     vector<string> v;
     v.clear();
-    if(s==""){
+    string ss = RemoveComments(s);
+    if(ss==""){
         v.push_back("");
         return v;
     }
+    // new way: split only if , is outside ""
     string t;
-    while(true){
-        t = s.substr(0,s.find_first_of(c));
-        v.push_back(Fix(t));
-        if(t==s) break;
-        s = s.substr(s.find_first_of(c)+1,string::npos);
+    bool insideQuotes = false;
+    for(unsigned long i=0;i<ss.size();i++){
+        if(!insideQuotes && ss[i]==c){
+            if(removeQuotes) v.push_back(RemoveQuotes(t));
+            else             v.push_back(RemoveSpaces(t));
+            t = "";
+        }
+        else if(!insideQuotes && ss[i]=='"'){
+            insideQuotes = true;
+            t += ss[i];
+        }
+        else if(insideQuotes && ss[i]=='"'){
+            insideQuotes = false;
+            t += ss[i];
+        }
+        else{
+            t += ss[i];
+        }
+    }
+    if(RemoveQuotes(t)!=""){
+        if(removeQuotes) v.push_back(RemoveQuotes(t));
+        else             v.push_back(RemoveSpaces(t));
     }
     return v;
 }
@@ -68,7 +125,8 @@ string First(string s){
 string Second(string s){
     string second;
     second = s.substr( s.find_first_of(':')+1,string::npos );
-    return Fix(second);
+//     return Fix(second);
+    return RemoveComments(second);
 }
 
 //_______________________________________________________________________________________
@@ -248,15 +306,17 @@ void ConfigParser::ReadFile(string fileName){
         exit(-1);
     }
     string str, val;
-
+    //
     map<string,string> fReplacement;
     string replacementFileName="";
-    //loop over the file once to automatically find the replacement fileName
+    // loop over the file once to automatically find the replacement fileName
     while (getline(file, str)){
         replace( str.begin(), str.end(), '\n', ' ');
         replace( str.begin(), str.end(), '\r', ' ');
         replace( str.begin(), str.end(), '\t', ' ');
-        if ( str.find("%")!=string::npos || str.find("#")!=string::npos) continue;
+//         if ( str.find("%")!=string::npos || str.find("#")!=string::npos) continue; // why this is needed?
+        if(str[str.find_first_not_of(' ')]=='%') continue;
+        if(str[str.find_first_not_of(' ')]=='#') continue;
         if ( str.find("ReplacementFile")==string::npos ) continue;
         replacementFileName=Second(str);
         break;
@@ -281,7 +341,7 @@ void ConfigParser::ReadFile(string fileName){
         }
         fileR.close();
     }
-
+    //
     file.open(fileName.c_str());
     vector<string> valVec;
     bool reading = false;
@@ -290,10 +350,10 @@ void ConfigParser::ReadFile(string fileName){
     while (getline(file, str)){
         replace( str.begin(), str.end(), '\n', ' ');
         replace( str.begin(), str.end(), '\r', ' ');
-//       if(str[0]=='%') continue;
+        replace( str.begin(), str.end(), '\t', ' ');
         if(str[str.find_first_not_of(' ')]=='%') continue;
         if(str[str.find_first_not_of(' ')]=='#') continue;
-
+        //
         if (str.find("XXX")!=string::npos) {
             WriteInfoStatus("ConfigParser::ReadFile", "BEFORE replacement: " + str);
             map<string,string>::iterator itr=fReplacement.begin();
@@ -306,17 +366,18 @@ void ConfigParser::ReadFile(string fileName){
             }
             WriteInfoStatus("ConfigParser::ReadFile", " AFTER replacement: " + str);
         }
-
+        //
         if(str.find_first_not_of(' ')==string::npos){
             reading = false;
         }
         else{
-            valVec = Vectorize(Second(str),';');
+            valVec = Vectorize(Second(str),';',false);
             if(!reading){
                 n = valVec.size();
                 for(k=0;k<n;k++){
                     fConfSets[fN] = new ConfigSet();
-                    fConfSets[fN]->Set( First(str),Fix(valVec[k]) );
+//                     fConfSets[fN]->Set( First(str),Fix(valVec[k]) );
+                    fConfSets[fN]->Set( First(str),RemoveSpaces(valVec[k]) );
                     fN++;
                 }
                 reading = true;
@@ -324,8 +385,9 @@ void ConfigParser::ReadFile(string fileName){
             else{
                 for(k=0;k<n;k++){
                     if(k>=(int)valVec.size()) val = valVec[valVec.size()-1];
-                    else                                            val = valVec[k];
-                    fConfSets[fN-n+k]->SetConfig(First(str),Fix(val) );
+                    else                      val = valVec[k];
+//                     fConfSets[fN-n+k]->SetConfig(First(str),Fix(val) );
+                    fConfSets[fN-n+k]->SetConfig(First(str),RemoveSpaces(val) );
                 }
             }
         }
@@ -334,14 +396,14 @@ void ConfigParser::ReadFile(string fileName){
 }
 
 //__________________________________________________________________________________
-//
-ConfigSet *ConfigParser::GetConfigSet(int i){ // returns the i-th configSet
+// Returns the i-th configSet
+ConfigSet *ConfigParser::GetConfigSet(int i){
     return fConfSets[i];
 }
 
 //__________________________________________________________________________________
-//
-ConfigSet *ConfigParser::GetConfigSet(string name,int i){ // returns the i-th configSet with given name
+// Returns the i-th configSet with given name
+ConfigSet *ConfigParser::GetConfigSet(string name,int i){
     int k = 0;
     for(int j=0;j<fN;j++){
         if(fConfSets[j]->GetName() == name){
@@ -375,9 +437,7 @@ int ConfigParser::SettingIsValid(ConfigSet *cs, ConfigParser *refConfigParser, c
         WriteErrorStatus("ConfigParser::SettingIsPresentAndValid", "Invalid pointer to the reference ConfigParser. Please check this!");
         exit(EXIT_FAILURE);
     }
-
     ConfigSet *cs_ref = nullptr;
-
     bool refIsFound = false;
     // check if the setting type exists in the reference
     for (int i_cs =0; i_cs < refConfigParser->fN; i_cs++){
@@ -387,16 +447,15 @@ int ConfigParser::SettingIsValid(ConfigSet *cs, ConfigParser *refConfigParser, c
             break;
         }
     }
-
+    //
     // config set is not present in the reference
     if (!refIsFound){
         WriteErrorStatus("ConfigParser::SettingIsValid", "Cannot find config set '" + setting_set + "' in reference config. Please check this!");
         return 1;
     }
-
+    //
     // check the validity of the single setting
     if(CheckSingleSetting(cs, cs_ref, setting_set, setting)) return 1;
-
     return 0;
 }
 
@@ -405,29 +464,27 @@ int ConfigParser::SettingIsValid(ConfigSet *cs, ConfigParser *refConfigParser, c
 int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std::string &setting_set, const std::string &setting) const {
     std::string param = cs->Get(setting);
     std::string ref_param = cs_ref->Get(setting);
-
+    //
     if (ref_param == ""){
         WriteErrorStatus("ConfigParser::CheckSingleSetting", "Cannot find setting '" + setting + "' for setting set " + setting_set +  " in reference config. Please check this!");
         return 1;
     }
-
+    //
     // there is nothing to check if the reference setting is simply 'string'
     if (ref_param == "string") return 0;
-
+    //
     // need to check the consistency of the provided settings
     // first check the number of provided parameters
     std::vector<std::string> current_settings = Vectorize(param,',');
-
     std::vector<std::string> possible_settings = Vectorize(ref_param,'/');
     std::vector<unsigned int> possible_sizes;
-
+    //
     for (const std::string &ioption : possible_settings){
         possible_sizes.push_back( Vectorize(ioption,',').size() );
     }
-
     unsigned int current_setting_size = current_settings.size();
+    //
     // search the vector for the possible sizes
-
     auto it = std::find(possible_sizes.begin(), possible_sizes.end(), current_setting_size);
     if (it == possible_sizes.end()){
         WriteErrorStatus("ConfigParser::CheckSingleSetting", "You provided " + std::to_string(current_setting_size) +" parameters, for setting set '" + setting_set + "' and setting '" + setting );
@@ -439,10 +496,9 @@ int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std
         WriteErrorStatus("ConfigParser::CheckSingleSetting", tmp );
         return 1;
     }
-
+    //
     // sizes are correct, not we need to check the actual input
     if(CheckParameters(param, possible_settings, setting_set, setting)) return 1;
-
     return 0;
 }
 
@@ -474,19 +530,16 @@ int ConfigParser::CheckParameters(std::string current, const std::vector<std::st
             return 1;
         }
     }
-
     return 0;
 }
 
 //_______________________________________________________________________________________
 //
 bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, const std::string& current, const std::string& possible, const char delimiter) const{
-
     std::vector<std::string> current_vec = Vectorize(current, delimiter);
     std::vector<std::string> possible_vec = Vectorize(possible, delimiter);
-    
     if (current_vec.size() != possible_vec.size()) return false;
-
+    //
     // check setting by setting
     for (unsigned int iparam = 0; iparam < possible_vec.size(); iparam++){
         if (possible_vec.at(iparam) == "string"){
@@ -511,6 +564,5 @@ bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, cons
             }
         }
     }
-
     return true;
 }

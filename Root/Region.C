@@ -761,7 +761,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     for(int i_sample=0;i_sample<fNSamples;i_sample++){
         if(fSampleHists[i_sample]->fSample->fType == Sample::DATA) continue;
         if(fSampleHists[i_sample]->fSample->fType == Sample::GHOST) continue;
-        if(fSampleHists[i_sample]->fSample->fType == Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
+//         if(fSampleHists[i_sample]->fSample->fType == Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
 
         //
         // Norm factors
