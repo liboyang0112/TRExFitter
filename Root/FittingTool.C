@@ -1,9 +1,9 @@
 // Class include 
-#include "TtHFitter/FittingTool.h"
+#include "TRExFitter/FittingTool.h"
 
 //Framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/StatusLogbook.h"
 
 //ROOR includes
 #include "TCanvas.h"
@@ -128,7 +128,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     //
     // Create the likelihood based on fitpdf, fitData and the parameters
     //
-    RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), RooFit::NumCPU(TtHFitter::NCPU,RooFit::Hybrid) );
+    RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), RooFit::NumCPU(TRExFitter::NCPU,RooFit::Hybrid) );
 
     //
     // Needed for Ranking plot, but also to set random initial values for the NPs
@@ -243,10 +243,10 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     // Safe fit loop
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer(m_minimType);
     int strat = ROOT::Math::MinimizerOptions::DefaultStrategy();
-    if(TtHFitter::OPTION["FitStrategy"]!=0){
-        strat = TtHFitter::OPTION["FitStrategy"];
-        if(TtHFitter::OPTION["FitStrategy"]<0) strat = 0;
-        if(TtHFitter::OPTION["FitStrategy"]>3){
+    if(TRExFitter::OPTION["FitStrategy"]!=0){
+        strat = TRExFitter::OPTION["FitStrategy"];
+        if(TRExFitter::OPTION["FitStrategy"]<0) strat = 0;
+        if(TRExFitter::OPTION["FitStrategy"]>3){
             WriteWarningStatus("FittingTool::FitPDF","Set strategy > 3. Setting to default (1)");
             strat = 1;
         }
@@ -522,7 +522,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 
     RooRealVar * poi = (RooRealVar*) model->GetParametersOfInterest()->first();
     if(!poi){
-        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         WriteErrorStatus("FittingTool::GetGroupedImpact", "Cannot find the parameter of interest !");
         return -1;
     }
@@ -545,7 +545,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 
     //
     // eventually do it once more
-    if(TtHFitter::OPTION["GroupedImpactMoreFit"]>0){
+    if(TRExFitter::OPTION["GroupedImpactMoreFit"]>0){
         ws->saveSnapshot("snapshot_AfterFit_POI", *(model->GetParametersOfInterest()) );
         ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters())   );
         ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())    );
@@ -675,7 +675,7 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
 
     //constrainedParams->Print("v");
     // repeat the fit here ....
-    RooAbsReal* nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1),  NumCPU(TtHFitter::NCPU,RooFit::Hybrid) );
+    RooAbsReal* nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1),  NumCPU(TRExFitter::NCPU,RooFit::Hybrid) );
     RooMinimizer minim2(*nll);
     minim2.setStrategy(1);
     minim2.setPrintLevel(1); // set to -1 to reduce output

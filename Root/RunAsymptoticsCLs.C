@@ -80,9 +80,9 @@ This version is functionally fully consistent with the previous tag.
 
 NOTE: The script runs significantly faster when compiled
 */
-#include "TtHFitter/RunAsymptoticsCLs.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/Common.h"
+#include "TRExFitter/RunAsymptoticsCLs.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/Common.h"
 
 #include "TMath.h"
 #include "Math/ProbFuncMathCore.h"
@@ -191,7 +191,7 @@ void LimitsCLs::RunAsymptoticsCLs(const char* infile,
     TStopwatch timer;
     timer.Start();
 
-    if (TtHFitter::DEBUGLEVEL < 2){
+    if (TRExFitter::DEBUGLEVEL < 2){
         gErrorIgnoreLevel = kError;
         RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
     }
@@ -762,7 +762,7 @@ double LimitsCLs::getQmu95(double sigma, double mu){
         double qmu95_pre = qmu95_guess - 10*2*qmu95_guess*precision;
         while (fabs(qmu95_guess-qmu95_pre) > 2*qmu95_guess*precision){
             qmu95_pre = qmu95_guess;
-            if (TtHFitter::DEBUGLEVEL > 2){
+            if (TRExFitter::DEBUGLEVEL > 2){
                 WriteVerboseStatus("RunAsymptoticCLs::getQmu95", "qmu95_guess = " + std::to_string(qmu95_guess));
                 WriteVerboseStatus("RunAsymptoticCLs::getQmu95", "CLs =         " + std::to_string(calcCLs(qmu95_guess, sigma, mu)));
                 WriteVerboseStatus("RunAsymptoticCLs::getQmu95", "Derivative =  " + std::to_string(calcDerCLs(qmu95_guess, sigma, mu)));
@@ -772,7 +772,7 @@ double LimitsCLs::getQmu95(double sigma, double mu){
             for (map<double, double>::iterator itr=guess_to_corr.begin();itr!=guess_to_corr.end();itr++){
                 if (fabs(itr->first - qmu95_guess) < 2*qmu95_guess*precision) {
                     damping_factor *= 0.8;
-                    if (TtHFitter::DEBUGLEVEL > 2) WriteVerboseStatus("RunAsymptoticCLs::getQmu95", "Changing damping factor to " + std::to_string(damping_factor) + ", nrDamping = " + std::to_string(nrDamping));
+                    if (TRExFitter::DEBUGLEVEL > 2) WriteVerboseStatus("RunAsymptoticCLs::getQmu95", "Changing damping factor to " + std::to_string(damping_factor) + ", nrDamping = " + std::to_string(nrDamping));
                     if (nrDamping++ > 10){
                         nrDamping = 1;
                         damping_factor = 1.0;
@@ -784,7 +784,7 @@ double LimitsCLs::getQmu95(double sigma, double mu){
             guess_to_corr[qmu95_guess] = corr;
             qmu95_guess = qmu95_guess - corr;
 
-            if (TtHFitter::DEBUGLEVEL > 2) {
+            if (TRExFitter::DEBUGLEVEL > 2) {
                 WriteVerboseStatus("RunAsymptoticCLs::getQmu95", "next guess = " + std::to_string(qmu95_guess));
                 WriteVerboseStatus("RunAsymptoticCLs::getQmu95", "precision =  " + std::to_string(2*qmu95_guess*precision));
             }
@@ -808,7 +808,7 @@ double LimitsCLs::getQmu95(double sigma, double mu){
 double LimitsCLs::calcCLs(double qmu_tilde, double sigma, double mu){
     double pmu = calcPmu(qmu_tilde, sigma, mu);
     double pb = calcPb(qmu_tilde, sigma, mu);
-    if (TtHFitter::DEBUGLEVEL > 2){ // need to explicitelly do this otherwise the code is super slow
+    if (TRExFitter::DEBUGLEVEL > 2){ // need to explicitelly do this otherwise the code is super slow
         WriteVerboseStatus("RunAsymptoticCLs::calcCLs", "pmu = " + std::to_string(pmu));
         WriteVerboseStatus("RunAsymptoticCLs::calcCLs", "pb =  " + std::to_string(pb));
     }
@@ -824,7 +824,7 @@ double LimitsCLs::calcPmu(double qmu, double sigma, double mu){
     else{
         pmu = 1-ROOT::Math::gaussian_cdf((qmu+mu*mu/(sigma*sigma))/(2*fabs(mu/sigma)));
     }
-    if (TtHFitter::DEBUGLEVEL > 2) WriteVerboseStatus("RunAsymptoticCLs::calcPmu", "for pmu, qmu = " + std::to_string(qmu) + ", sigma = " + std::to_string(sigma) + ", mu = " + std::to_string(mu) + ", pmu = " + std::to_string(pmu));
+    if (TRExFitter::DEBUGLEVEL > 2) WriteVerboseStatus("RunAsymptoticCLs::calcPmu", "for pmu, qmu = " + std::to_string(qmu) + ", sigma = " + std::to_string(sigma) + ", mu = " + std::to_string(mu) + ", pmu = " + std::to_string(pmu));
     return pmu;
 }
 
@@ -1421,7 +1421,7 @@ RooDataSet* LimitsCLs::makeAsimovData(bool doConditional, RooNLLVar* conditionin
         // Generate observables defined by the pdf associated with this state
         RooArgSet* obstmp = pdftmp->getObservables(*mc->GetObservables()) ;
 
-        if (TtHFitter::DEBUGLEVEL > 1){
+        if (TRExFitter::DEBUGLEVEL > 1){
             obstmp->Print();
         }
 
@@ -1441,7 +1441,7 @@ RooDataSet* LimitsCLs::makeAsimovData(bool doConditional, RooNLLVar* conditionin
             if (thisNorm*expectedEvents > 0 && thisNorm*expectedEvents < pow(10.0, 18)) asimovData->add(*mc->GetObservables(), thisNorm*expectedEvents);
         }
 
-        if (TtHFitter::DEBUGLEVEL > 1){
+        if (TRExFitter::DEBUGLEVEL > 1){
             asimovData->Print();
             WriteDebugStatus("RunAsymptoticCLs::makeAsimovData", "sum entries " + std::to_string(asimovData->sumEntries()));
         }
@@ -1454,7 +1454,7 @@ RooDataSet* LimitsCLs::makeAsimovData(bool doConditional, RooNLLVar* conditionin
 
         w->import(*asimovData);
 
-        if (TtHFitter::DEBUGLEVEL > 1){
+        if (TRExFitter::DEBUGLEVEL > 1){
             asimovData->Print();
             WriteDebugStatus("RunAsymptoticCLs::makeAsimovData", "");
         }
@@ -1481,7 +1481,7 @@ RooDataSet* LimitsCLs::makeAsimovData(bool doConditional, RooNLLVar* conditionin
             // Generate observables defined by the pdf associated with this state
             RooArgSet* obstmp = pdftmp->getObservables(*mc->GetObservables()) ;
 
-            if (TtHFitter::DEBUGLEVEL > 1){
+            if (TRExFitter::DEBUGLEVEL > 1){
                 obstmp->Print();
                 std::string s = channelCat->getLabel();
                 WriteDebugStatus("RunAsymptoticCLs::makeAsimovData", "on type " + s + " ");
@@ -1498,7 +1498,7 @@ RooDataSet* LimitsCLs::makeAsimovData(bool doConditional, RooNLLVar* conditionin
                 if (thisNorm*expectedEvents > 0 && thisNorm*expectedEvents < pow(10.0, 18)) obsDataUnbinned->add(*mc->GetObservables(), thisNorm*expectedEvents);
             }
 
-            if (TtHFitter::DEBUGLEVEL > 1){
+            if (TRExFitter::DEBUGLEVEL > 1){
                 obsDataUnbinned->Print();
                 WriteDebugStatus("RunAsymptoticCLs::makeAsimovData", "sum entries " + std::to_string(obsDataUnbinned->sumEntries()));
             }
@@ -1511,7 +1511,7 @@ RooDataSet* LimitsCLs::makeAsimovData(bool doConditional, RooNLLVar* conditionin
 
             asimovDataMap[string(channelCat->getLabel())] = obsDataUnbinned;//tempData;
 
-            if (TtHFitter::DEBUGLEVEL > 1){
+            if (TRExFitter::DEBUGLEVEL > 1){
                 std::string s = channelCat->getLabel();
                 WriteDebugStatus("RunAsymptoticCLs::makeAsimovData", "channel: " + s + ", data: ");
                 obsDataUnbinned->Print();

@@ -1,11 +1,11 @@
 // Class include
-#include "TtHFitter/SystematicHist.h"
+#include "TRExFitter/SystematicHist.h"
 
 // Framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/HistoTools.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/Systematic.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/HistoTools.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/Systematic.h"
 
 // ROOT includes
 #include "TFile.h"

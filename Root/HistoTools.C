@@ -9,7 +9,7 @@
     -> Smoothing of systematics
 
  Call of the functions:
-    -> #include "TtHFitter/HistoTools.C"
+    -> #include "TRExFitter/HistoTools.C"
     -> Call of the function with HistoTools:: (Helps readability)
 
  Contact: Loic Valery <lvalery@cern.ch>
@@ -17,12 +17,12 @@
  */
 
 // Class include
-#include "TtHFitter/HistoTools.h"
+#include "TRExFitter/HistoTools.h"
 
 // framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/SystematicHist.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/SystematicHist.h"
 
 // CommonStatTools includes
 #include "CommonSystSmoothingTool/SmoothSystematics/SmoothHist.h"

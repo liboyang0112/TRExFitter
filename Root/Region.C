@@ -1,18 +1,18 @@
 // Class include
-#include "TtHFitter/Region.h"
+#include "TRExFitter/Region.h"
 
 // Framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/CorrelationMatrix.h"
-#include "TtHFitter/FitResults.h"
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/Sample.h"
-#include "TtHFitter/SampleHist.h"
-#include "TtHFitter/ShapeFactor.h"
-#include "TtHFitter/Systematic.h"
-#include "TtHFitter/SystematicHist.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/TthPlot.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/CorrelationMatrix.h"
+#include "TRExFitter/FitResults.h"
+#include "TRExFitter/NormFactor.h"
+#include "TRExFitter/Sample.h"
+#include "TRExFitter/SampleHist.h"
+#include "TRExFitter/ShapeFactor.h"
+#include "TRExFitter/Systematic.h"
+#include "TRExFitter/SystematicHist.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/TRExPlot.h"
 
 // ROOT includes
 #include "Math/DistFunc.h"
@@ -69,15 +69,15 @@ Region::Region(string name){
     string cName = "c_"+fName;
     int canvasWidth = 600;
     int canvasHeight = 700;
-    if(TtHFitter::OPTION["CanvasWidth"]!=0)  canvasWidth  = TtHFitter::OPTION["CanvasWidth"];
-    if(TtHFitter::OPTION["CanvasHeight"]!=0) canvasHeight = TtHFitter::OPTION["CanvasHeight"];
-    if(canvasWidth!=600 || canvasHeight!=700) fPlotPreFit = new TthPlot(cName,canvasWidth,canvasHeight);
-    else                                      fPlotPreFit = new TthPlot(cName);
-    fPlotPreFit->fShowYields = TtHFitter::SHOWYIELDS;
+    if(TRExFitter::OPTION["CanvasWidth"]!=0)  canvasWidth  = TRExFitter::OPTION["CanvasWidth"];
+    if(TRExFitter::OPTION["CanvasHeight"]!=0) canvasHeight = TRExFitter::OPTION["CanvasHeight"];
+    if(canvasWidth!=600 || canvasHeight!=700) fPlotPreFit = new TRExPlot(cName,canvasWidth,canvasHeight);
+    else                                      fPlotPreFit = new TRExPlot(cName);
+    fPlotPreFit->fShowYields = TRExFitter::SHOWYIELDS;
     cName = "c_"+fName+"_postFit";
-    if(canvasWidth!=600 || canvasHeight!=700) fPlotPostFit = new TthPlot(cName,canvasWidth,canvasHeight);
-    else                                      fPlotPostFit = new TthPlot(cName);
-    fPlotPostFit->fShowYields = TtHFitter::SHOWYIELDS;
+    if(canvasWidth!=600 || canvasHeight!=700) fPlotPostFit = new TRExPlot(cName,canvasWidth,canvasHeight);
+    else                                      fPlotPostFit = new TRExPlot(cName);
+    fPlotPostFit->fShowYields = TRExFitter::SHOWYIELDS;
 
     fSampleHists.clear();
     fSamples.clear();
@@ -95,7 +95,7 @@ Region::Region(string name){
     fCorrVar2 = "";
 
     fFitName = "";
-    fFitType = TtHFit::SPLUSB;
+    fFitType = TRExFit::SPLUSB;
     fPOI = "";
     fFitLabel = "";
 
@@ -297,7 +297,7 @@ void Region::BuildPreFitErrorHist(){
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType == Sample::GHOST) continue;
-//         if(fSampleHists[i]->fSample->fType == Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
+//         if(fSampleHists[i]->fSample->fType == Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
 
         //
         // Systematics
@@ -327,7 +327,7 @@ void Region::BuildPreFitErrorHist(){
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
 
         WriteDebugStatus("Region::BuildPreFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
 
@@ -396,8 +396,8 @@ void Region::BuildPreFitErrorHist(){
                     NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf];
                     // if this norm factor is a morphing one
                     if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-                        std::string formula = TtHFitter::SYSTMAP[nf->fName];
-                        std::string name = TtHFitter::NPMAP[nf->fName];
+                        std::string formula = TRExFitter::SYSTMAP[nf->fName];
+                        std::string name = TRExFitter::NPMAP[nf->fName];
                         formula = ReplaceString(formula,name,"x");
                         TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                         scale *= f_morph->Eval(nf->fNominal);
@@ -411,7 +411,7 @@ void Region::BuildPreFitErrorHist(){
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
                 if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
                 // get SystematicHist
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
@@ -435,24 +435,24 @@ void Region::BuildPreFitErrorHist(){
         // look for all the already stored systematics, to find if one had the same NP
         bool found = false;
         for(int j_syst=0;j_syst<i_syst;j_syst++){
-            if(TtHFitter::NPMAP[fSystNames[i_syst]]==TtHFitter::NPMAP[fSystNames[j_syst]]){
+            if(TRExFitter::NPMAP[fSystNames[i_syst]]==TRExFitter::NPMAP[fSystNames[j_syst]]){
                 found = true;
-//                 h_up[   FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotUp[  i_syst]);
-//                 h_down[ FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotDown[i_syst]);
-                int whichsyst = FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]]);
+//                 h_up[   FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotUp[  i_syst]);
+//                 h_down[ FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotDown[i_syst]);
+                int whichsyst = FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
                 TH1*h_diff_up   = (TH1*) h_up[whichsyst]  ->Clone(Form("%s_%s","clone_",h_up[whichsyst]  ->GetName()));
                 TH1*h_diff_down = (TH1*) h_down[whichsyst]->Clone(Form("%s_%s","clone_",h_down[whichsyst]->GetName()));
                 h_diff_up  ->Add(fTotUp[  i_syst],fTot,1,-1);
                 h_diff_down->Add(fTotDown[i_syst],fTot,1,-1);
-                h_up[   FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_up);
-                h_down[ FindInStringVector(fNpNames,TtHFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_down);
+                h_up[   FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_up);
+                h_down[ FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_down);
                 break;
             }
         }
         if(found) continue;
         //
         // if shape-only systematics to show, normalize each syst variation
-        if(TtHFitter::OPTION["ShapeOnlySystBand"]>0){
+        if(TRExFitter::OPTION["ShapeOnlySystBand"]>0){
             fTotUp[i_syst]  ->Scale(fTot->Integral()/fTotUp[i_syst]  ->Integral());
             fTotDown[i_syst]->Scale(fTot->Integral()/fTotDown[i_syst]->Integral());
         }
@@ -494,9 +494,9 @@ void Region::BuildPreFitErrorHist(){
 
 //__________________________________________________________________________________
 //
-TthPlot* Region::DrawPreFit(string opt){
+TRExPlot* Region::DrawPreFit(string opt){
 
-    TthPlot *p = fPlotPreFit;
+    TRExPlot *p = fPlotPreFit;
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;
@@ -507,22 +507,22 @@ TthPlot* Region::DrawPreFit(string opt){
     if(fYTitle!="") p->SetYaxis(fYTitle);
     //
     // For 4-top-style plots
-    if(TtHFitter::OPTION["FourTopStyle"]>0){
+    if(TRExFitter::OPTION["FourTopStyle"]>0){
         if(fRegionType==CONTROL) p->AddLabel("#font[62]{Control Region}");
         else if(fRegionType==SIGNAL) p->AddLabel("#font[62]{Signal Region}");
         else if(fRegionType==VALIDATION) p->AddLabel("#font[62]{Validation Region}");
         else p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         p->AddLabel("#font[52]{Pre-fit}");
-        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumns"];
+        p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     //
     // old-style plots
     else{
         p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
-        if(TtHFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Pre-Fit");
-        if(TtHFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TtHFitter::OPTION["LegendNColumns"];
+        if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Pre-Fit");
+        if(TRExFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     //
     p->SetLumi(fLumiLabel);
@@ -562,8 +562,8 @@ TthPlot* Region::DrawPreFit(string opt){
             NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf];
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-                std::string formula = TtHFitter::SYSTMAP[nf->fName];
-                std::string name = TtHFitter::NPMAP[nf->fName];
+                std::string formula = TRExFitter::SYSTMAP[nf->fName];
+                std::string name = TRExFitter::NPMAP[nf->fName];
                 formula = ReplaceString(formula,name,"x");
                 TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                 float scale = f_morph->Eval(nf->fNominal);
@@ -576,17 +576,17 @@ TthPlot* Region::DrawPreFit(string opt){
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
             }
         }
-        if(TtHFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
-        if(TtHFitter::SHOWNORMSIG){
-            if( (TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
-             || !TtHFitter::OPTION["NormSigSRonly"] )
+        if(TRExFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
+        if(TRExFitter::SHOWNORMSIG){
+            if( (TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
+             || !TRExFitter::OPTION["NormSigSRonly"] )
                 p->AddNormSignal(h,title);
         }
         else{
-            if(TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(h,title);
+            if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(h,title);
         }
-        if(TtHFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
-        if(TtHFitter::SHOWSTACKSIG){
+        if(TRExFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
+        if(TRExFitter::SHOWSTACKSIG){
             if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
             else          fTot->Add(h);
         }
@@ -610,8 +610,8 @@ TthPlot* Region::DrawPreFit(string opt){
             NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf];
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-                std::string formula = TtHFitter::SYSTMAP[nf->fName];
-                std::string name = TtHFitter::NPMAP[nf->fName];
+                std::string formula = TRExFitter::SYSTMAP[nf->fName];
+                std::string name = TRExFitter::NPMAP[nf->fName];
                 formula = ReplaceString(formula,name,"x");
                 TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                 float scale = f_morph->Eval(nf->fNominal);
@@ -655,10 +655,10 @@ TthPlot* Region::DrawPreFit(string opt){
     //
     // Print chi2 info
     //
-    if(fGetChi2 && TtHFitter::SHOWCHI2)  p->SetChi2KS(fChi2prob,-1,fChi2val,fNDF);
+    if(fGetChi2 && TRExFitter::SHOWCHI2)  p->SetChi2KS(fChi2prob,-1,fChi2val,fNDF);
 
     //
-    // Sets the last ingredients in the TthPlot object
+    // Sets the last ingredients in the TRExPlot object
     //
     p->SetTotBkgAsym(fErr);
     p->fATLASlabel = fATLASlabel;
@@ -761,7 +761,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     for(int i_sample=0;i_sample<fNSamples;i_sample++){
         if(fSampleHists[i_sample]->fSample->fType == Sample::DATA) continue;
         if(fSampleHists[i_sample]->fSample->fType == Sample::GHOST) continue;
-//         if(fSampleHists[i_sample]->fSample->fType == Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
+//         if(fSampleHists[i_sample]->fSample->fType == Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
 
         //
         // Norm factors
@@ -771,7 +771,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             systName = nf->fName;
 //             // if this norm factor is a morphing one => save the nuis.par
             // skip POI if B-only fit FIXME
-            if(fFitType==TtHFit::BONLY && systName==fPOI) continue;
+            if(fFitType==TRExFit::BONLY && systName==fPOI) continue;
             if(nf->fConst) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
@@ -848,10 +848,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         // Get fit result
         //
         systName    = fSystNames[i_syst];
-        if(TtHFitter::NPMAP[systName]=="") TtHFitter::NPMAP[systName] = systName;
-        systValue   = fitRes->GetNuisParValue(TtHFitter::NPMAP[systName]);
-        systErrUp   = fitRes->GetNuisParErrUp(TtHFitter::NPMAP[systName]);
-        systErrDown = fitRes->GetNuisParErrDown(TtHFitter::NPMAP[systName]);
+        if(TRExFitter::NPMAP[systName]=="") TRExFitter::NPMAP[systName] = systName;
+        systValue   = fitRes->GetNuisParValue(TRExFitter::NPMAP[systName]);
+        systErrUp   = fitRes->GetNuisParErrUp(TRExFitter::NPMAP[systName]);
+        systErrDown = fitRes->GetNuisParErrDown(TRExFitter::NPMAP[systName]);
 
         WriteVerboseStatus("Region::BuildPostFitErrorHist", "      alpha = " + std::to_string(systValue) + " +" + std::to_string(systErrUp) + " " + std::to_string(systErrDown));
 
@@ -958,8 +958,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 else if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
                     // if this norm factor is a morphing one
                     if(fSystNames[i_syst].find("morph_")!=string::npos || fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fExpression.first!=""){
-                        std::string formula = TtHFitter::SYSTMAP[fSystNames[i_syst]];
-                        std::string name = TtHFitter::NPMAP[fSystNames[i_syst]];
+                        std::string formula = TRExFitter::SYSTMAP[fSystNames[i_syst]];
+                        std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
                         formula = ReplaceString(formula,name,"x");
                         TF1* f_morph = new TF1("f_morph",formula.c_str(),fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax);
                         float scaleUp   = f_morph->Eval(systValue+systErrUp);
@@ -1000,8 +1000,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
                     std::ofstream dummy;
                     double multNom  = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal );
-                    double multUp   = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TtHFitter::NPMAP[systName], true);
-                    double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TtHFitter::NPMAP[systName], false);
+                    double multUp   = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TRExFitter::NPMAP[systName], true);
+                    double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TRExFitter::NPMAP[systName], false);
                     if (isMorph){
                         morph_up_postfit.at(i_bin-1)+=(multUp/multNom)*yieldNominal_postFit;
                         morph_down_postfit.at(i_bin-1)+= (multDown/multNom)*yieldNominal_postFit;
@@ -1085,9 +1085,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
                 if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
                 // skip signal if Bkg only
-                if(fFitType==TtHFit::BONLY && fSampleHists[i]->fSample->fType==Sample::SIGNAL) continue;
+                if(fFitType==TRExFit::BONLY && fSampleHists[i]->fSample->fType==Sample::SIGNAL) continue;
                 // get SystematicHist
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
@@ -1112,7 +1112,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
         h_up.  push_back( fTotUp_postFit[i_syst]   );
         h_down.push_back( fTotDown_postFit[i_syst] );
-        systNuisPars.push_back(TtHFitter::NPMAP[fSystNames[i_syst]]);
+        systNuisPars.push_back(TRExFitter::NPMAP[fSystNames[i_syst]]);
     }
     fErr_postFit = BuildTotError( fTot_postFit, h_up, h_down, systNuisPars, fitRes->fCorrMatrix );
     fErr_postFit->SetName("g_totErr_postFit");
@@ -1150,13 +1150,13 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
 //__________________________________________________________________________________
 //
-TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::vector<std::string> &morph_names, string opt){
+TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::vector<std::string> &morph_names, string opt){
 
-    if(TtHFitter::PREFITONPOSTFIT){
+    if(TRExFitter::PREFITONPOSTFIT){
         fPlotPostFit->h_tot_bkg_prefit = (TH1*)fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit");
     }
 
-    TthPlot *p = fPlotPostFit;
+    TRExPlot *p = fPlotPostFit;
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;
@@ -1167,7 +1167,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::ve
     if(fYTitle!="") p->SetYaxis(fYTitle);
     //
     // For 4-top-style plots
-    if(TtHFitter::OPTION["FourTopStyle"]>0){
+    if(TRExFitter::OPTION["FourTopStyle"]>0){
         if(fRegionType==CONTROL) p->AddLabel("#font[62]{Control Region}");
         else if(fRegionType==SIGNAL) p->AddLabel("#font[62]{Signal Region}");
         else if(fRegionType==VALIDATION) p->AddLabel("#font[62]{Validation Region}");
@@ -1175,15 +1175,15 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::ve
         p->AddLabel(fLabel);
 //         p->AddLabel("#font[52]{B-only fit}");
         p->AddLabel("#font[52]{Post-fit}");
-        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumns"];
+        p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     //
     // old-style plots
     else{
         p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
-        if(TtHFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Post-Fit");
-        if(TtHFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TtHFitter::OPTION["LegendNColumns"];
+        if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Post-Fit");
+        if(TRExFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
@@ -1271,12 +1271,12 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::ve
             nfName = nf->fName;
 //             nfName = nf->fNuisanceParameter; // not implemeted yet...
             if(nf->fConst) nfValue = nf->fNominal;
-            else           nfValue = fitRes->GetNuisParValue(TtHFitter::NPMAP[nfName]);
+            else           nfValue = fitRes->GetNuisParValue(TRExFitter::NPMAP[nfName]);
             //
             // if this norm factor is a morphing one
             if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-                std::string formula = TtHFitter::SYSTMAP[nfName];
-                std::string name = TtHFitter::NPMAP[nfName];
+                std::string formula = TRExFitter::SYSTMAP[nfName];
+                std::string name = TRExFitter::NPMAP[nfName];
                 formula = ReplaceString(formula,name,"x");
                 TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                 float scale = f_morph->Eval(nfValue);
@@ -1342,16 +1342,16 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::ve
     for(int i=0;i<fNSig;i++){
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
-        if(TtHFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
-        if(TtHFitter::SHOWNORMSIG){
-            if( (TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
-             || !TtHFitter::OPTION["NormSigSRonly"] )
+        if(TRExFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
+        if(TRExFitter::SHOWNORMSIG){
+            if( (TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
+             || !TRExFitter::OPTION["NormSigSRonly"] )
                 p->AddNormSignal(hSigNew[i],title);
         }
         else{
-            if(TtHFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
+            if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
         }
-        if(TtHFitter::SHOWOVERLAYSIG)  p->AddOverSignal(hSigNew[i],title);
+        if(TRExFitter::SHOWOVERLAYSIG)  p->AddOverSignal(hSigNew[i],title);
     }
     for(int i=0;i<fNBkg;i++){
         title = fBkg[i]->fSample->fTitle;
@@ -1367,7 +1367,7 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::ve
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TtHFitter::SHOWSTACKSIG) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
         if(j==0) fTot_postFit = (TH1*)hSmpNew[i]->Clone("h_tot_postFit");
         else fTot_postFit->Add(hSmpNew[i]);
         j++;
@@ -1402,10 +1402,10 @@ TthPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::ve
     //
     // Print chi2 info
     //
-    if(fGetChi2 && TtHFitter::SHOWCHI2)  p->SetChi2KS(fChi2prob,-1,fChi2val,fNDF);
+    if(fGetChi2 && TRExFitter::SHOWCHI2)  p->SetChi2KS(fChi2prob,-1,fChi2val,fNDF);
 
     //
-    // 5) Finishes configuration of TthPlot objects
+    // 5) Finishes configuration of TRExPlot objects
     //
     p->SetTotBkgAsym(fErr_postFit);
     p->fATLASlabel = fATLASlabel;
@@ -1695,11 +1695,11 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
     }
 
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
-        if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!="") out << " | " << TtHFitter::SYSTMAP[fSystNames[i_syst]];
+        if(TRExFitter::SYSTMAP[fSystNames[i_syst]]!="") out << " | " << TRExFitter::SYSTMAP[fSystNames[i_syst]];
         else                                           out << " | " << fSystNames[i_syst];
-        if(TtHFitter::SYSTTEX[fSystNames[i_syst]]!="")      texout << "  " << TtHFitter::SYSTTEX[fSystNames[i_syst]];
-        else if(TtHFitter::SYSTMAP[fSystNames[i_syst]]!=""){
-            string fixedTitle = TtHFitter::SYSTMAP[fSystNames[i_syst]];
+        if(TRExFitter::SYSTTEX[fSystNames[i_syst]]!="")      texout << "  " << TRExFitter::SYSTTEX[fSystNames[i_syst]];
+        else if(TRExFitter::SYSTMAP[fSystNames[i_syst]]!=""){
+            string fixedTitle = TRExFitter::SYSTMAP[fSystNames[i_syst]];
             fixedTitle = ReplaceString(fixedTitle,"#geq","$\\geq$");
             texout << "  " << fixedTitle;
         }
@@ -2001,11 +2001,11 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
         ibin++;
     }
     //
-    if(TtHFitter::DEBUGLEVEL) C.Print();
+    if(TRExFitter::DEBUGLEVEL) C.Print();
     //
     // Invert the matrix
     C.Invert();
-    if(TtHFitter::DEBUGLEVEL) C.Print();
+    if(TRExFitter::DEBUGLEVEL) C.Print();
     //
     double chi2 = 0.;
     ibin = 0;
@@ -2101,14 +2101,14 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
             std::string systName    = fSystNames[i_syst];
-            if(TtHFitter::NPMAP[systName]=="") TtHFitter::NPMAP[systName] = systName;
-            float systValue   = fitRes->GetNuisParValue(TtHFitter::NPMAP[systName]);
+            if(TRExFitter::NPMAP[systName]=="") TRExFitter::NPMAP[systName] = systName;
+            float systValue   = fitRes->GetNuisParValue(TRExFitter::NPMAP[systName]);
 
             if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
                 // if this norm factor is a morphing one
                 if(fSystNames[i_syst].find("morph_")!=string::npos || fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fExpression.first!=""){
-                    std::string formula = TtHFitter::SYSTMAP[fSystNames[i_syst]];
-                    std::string name = TtHFitter::NPMAP[fSystNames[i_syst]];
+                    std::string formula = TRExFitter::SYSTMAP[fSystNames[i_syst]];
+                    std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
                     formula = ReplaceString(formula,name,"x");
                     TF1* f_morph = new TF1("f_morph",formula.c_str(),fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax);
                     float scaleNom  = f_morph->Eval(systValue);
@@ -2120,8 +2120,8 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                 NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf];
                 // if this norm factor is a morphing one
                 if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-                    std::string formula = TtHFitter::SYSTMAP[nf->fName];
-                    std::string name = TtHFitter::NPMAP[nf->fName];
+                    std::string formula = TRExFitter::SYSTMAP[nf->fName];
+                    std::string name = TRExFitter::NPMAP[nf->fName];
                     formula = ReplaceString(formula,name,"x");
                     TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
                     morph_scale_nominal->emplace_back(f_morph->Eval(nf->fNominal));

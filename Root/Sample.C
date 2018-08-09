@@ -1,10 +1,10 @@
 // Class include
-#include "TtHFitter/Sample.h"
+#include "TRExFitter/Sample.h"
 
 // Framework includes
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/ShapeFactor.h"
-#include "TtHFitter/Systematic.h"
+#include "TRExFitter/NormFactor.h"
+#include "TRExFitter/ShapeFactor.h"
+#include "TRExFitter/Systematic.h"
 
 // ROOT includes
 #include "TFile.h"

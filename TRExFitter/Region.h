@@ -2,8 +2,8 @@
 #define REGION_H
 
 /// Framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/TtHFit.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/TRExFit.h"
 
 /// c++ includes
 #include <map>
@@ -17,8 +17,8 @@ class Systematic;
 class TH1;
 class THStack;
 class TGraphAsymmErrors;
-class TthPlot;
-class TtHFit;
+class TRExPlot;
+class TRExFit;
 class SampleHist;
 class ShapeFactor;
 class CorrelationMatrix;
@@ -50,7 +50,7 @@ public:
     SampleHist* GetSampleHist(std::string &sampleName);
 
     void BuildPreFitErrorHist();
-    TthPlot* DrawPreFit(std::string opt="");
+    TRExPlot* DrawPreFit(std::string opt="");
     double GetMultFactors( FitResults *fitRes, 
                                 std::ofstream& pullTex,
                                 const int i /*sample*/, const int i_bin /*bin number*/,
@@ -59,7 +59,7 @@ public:
                                 const bool isUp = true);
 
     void BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names);
-    TthPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex, const std::vector<std::string>& morph_names, std::string opt="");
+    TRExPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex, const std::vector<std::string>& morph_names, std::string opt="");
 
     void SetBinning(int N, double *bins);
     void Rebin(int N);
@@ -185,8 +185,8 @@ public:
     std::vector < ShapeFactor* > fShapeFactors;
 
     // plot objects
-    TthPlot *fPlotPreFit;
-    TthPlot *fPlotPostFit;
+    TRExPlot *fPlotPreFit;
+    TRExPlot *fPlotPostFit;
 
     bool fUseStatErr;
 
@@ -196,7 +196,7 @@ public:
     std::vector< std::string > fSystNames;
     std::vector< std::string > fNpNames;
 
-    TtHFit::FitType fFitType;
+    TRExFit::FitType fFitType;
     std::string fPOI;
     std::string fFitLabel;
 

@@ -1,11 +1,11 @@
 // Class include
-#include "TtHFitter/MultiFit.h"
+#include "TRExFitter/MultiFit.h"
 
 // Framework includes
-#include "TtHFitter/ConfigParser.h"
-#include "TtHFitter/ConfigReaderMulti.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/TtHFit.h"
+#include "TRExFitter/ConfigParser.h"
+#include "TRExFitter/ConfigReaderMulti.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/TRExFit.h"
 
 // ROOT includes
 #include "TSystem.h"
@@ -354,7 +354,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     // Set NumCPU
     param = confSet->Get("NumCPU");
     if( param != "" ){
-        TtHFitter::NCPU = atoi( param.c_str());
+        TRExFitter::NCPU = atoi( param.c_str());
     }
 
     // Set FastFit
@@ -479,7 +479,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("PlotOptions");
     if( param != ""){
         std::vector<std::string> vec = Vectorize(param,',');
-        if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
+        if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TRExFitter::PREFITONPOSTFIT= true;
     }
 
     // Set RunROOTMacros
