@@ -5484,6 +5484,14 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     //
     /////////////////////////////////
 
+    // prepare vectors for starting point of normfactors
+    std::vector<std::string> NPnames;
+    std::vector<double> NPvalues;
+    for(int i_norm=0;i_norm<fNNorm;i_norm++){
+        if (fNormFactors[i_norm]->fName == fPOI) continue;
+        NPnames. emplace_back( fNormFactors[i_norm]->fName);
+        NPvalues.emplace_back( fNormFactors[i_norm]->fNominal);
+    }
     //
     // Fit configuration (SPLUSB or BONLY)
     //
@@ -5496,6 +5504,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         fitTool -> ValPOI(fFitPOIAsimov);
         fitTool -> ConstPOI(false);
     }
+    fitTool -> SetNPs( NPnames,NPvalues );
     fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
     if(fStatOnly){
       fitTool -> NoGammas();
