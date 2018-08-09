@@ -624,7 +624,7 @@ Input File Merging with hupdate
 Output Directories Structure
 ---------
 
-* For each TtHFit object, a directory is created, with the same name as the Fit Name
+* For each TRExFit object, a directory is created, with the same name as the Fit Name
 * Inside this direcotry, at every step, some outputs are created, following the structure described above
 
   * Plots/              : contains the data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots
