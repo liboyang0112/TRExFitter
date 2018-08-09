@@ -2,7 +2,7 @@
 #define SAMPLEHIST_H
 
 /// Framework includes
-#include "TtHFitter/HistoTools.h"
+#include "TRExFitter/HistoTools.h"
 
 /// ROOT includes
 #include "Rtypes.h"

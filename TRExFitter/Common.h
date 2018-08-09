@@ -12,7 +12,7 @@ class TFile;
 class TH1;
 class TH1F;
 
-namespace TtHFitter{
+namespace TRExFitter{
     extern int DEBUGLEVEL;
     void SetDebugLevel(int level=0);
     extern bool SHOWYIELDS; // flag to show or not yields in plots

@@ -1,9 +1,9 @@
 // Class include
-#include "TtHFitter/TthPlot.h"
+#include "TRExFitter/TRExPlot.h"
 
 // Framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/StatusLogbook.h"
 
 // ATLAS stuff
 #include "AtlasUtils/AtlasStyle.h"
@@ -32,7 +32,7 @@ using namespace std;
 
 //_____________________________________________________________________________
 //
-TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
+TRExPlot::TRExPlot(string name,int canvasWidth,int canvasHeight){
     fName = name;
     c = new TCanvas(fName.c_str(),fName.c_str(),canvasWidth,canvasHeight);
     //
@@ -116,69 +116,69 @@ TthPlot::TthPlot(string name,int canvasWidth,int canvasHeight){
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetChannel(string name){
+void TRExPlot::SetChannel(string name){
     fLabels.clear();
     fLabels.push_back(name);
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::AddLabel(string name){
+void TRExPlot::AddLabel(string name){
     fLabels.push_back(name);
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetLumi(string name){
+void TRExPlot::SetLumi(string name){
     fLumi = name;
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetLumiScale(float scale){
+void TRExPlot::SetLumiScale(float scale){
     fLumiScale = scale;
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetCME(string name){
+void TRExPlot::SetCME(string name){
     fCME = name;
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetXaxis(string name,bool isNjet){
+void TRExPlot::SetXaxis(string name,bool isNjet){
     xtitle = name;
     fIsNjet = isNjet;
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetYaxis(string name){
+void TRExPlot::SetYaxis(string name){
     ytitle = name;
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetYmaxScale(float scale){
+void TRExPlot::SetYmaxScale(float scale){
     yMaxScale = scale;
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetBinLabel(int bin,string name){
+void TRExPlot::SetBinLabel(int bin,string name){
     fBinLabel[bin] = name;
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetBinWidth(float width){
+void TRExPlot::SetBinWidth(float width){
     fBinWidth = width;
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetData(TH1* h,string name){
+void TRExPlot::SetData(TH1* h,string name){
     h_data = (TH1*)h->Clone();
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
@@ -187,7 +187,7 @@ void TthPlot::SetData(TH1* h,string name){
 
 //_____________________________________________________________________________
 //
-void TthPlot::AddSignal(TH1* h,string name){
+void TRExPlot::AddSignal(TH1* h,string name){
     // if already there...
 //     if(std::find(fSigNames.begin(),fSigNames.end(),name)!=fSigNames.end()){
 //         h_signal[fSigNames.size()-1]->Add(h,fLumiScale);
@@ -207,7 +207,7 @@ void TthPlot::AddSignal(TH1* h,string name){
 
 //_____________________________________________________________________________
 //
-void TthPlot::AddNormSignal(TH1* h,string name){
+void TRExPlot::AddNormSignal(TH1* h,string name){
     // if already there...
 //     if(std::find(fNormSigNames.begin(),fNormSigNames.end(),name)!=fNormSigNames.end()){
 //         h_normsig[fNormSigNames.size()-1]->Add(h,fLumiScale);
@@ -227,7 +227,7 @@ void TthPlot::AddNormSignal(TH1* h,string name){
 
 //_____________________________________________________________________________
 //
-void TthPlot::AddOverSignal(TH1* h,string name){
+void TRExPlot::AddOverSignal(TH1* h,string name){
     // if already there...
 //     if(std::find(fOverSigNames.begin(),fOverSigNames.end(),name)!=fOverSigNames.end()){
 //         h_oversig[fOverSigNames.size()-1]->Add(h,fLumiScale);
@@ -247,7 +247,7 @@ void TthPlot::AddOverSignal(TH1* h,string name){
 
 //_____________________________________________________________________________
 //
-void TthPlot::AddBackground(TH1* h,string name){
+void TRExPlot::AddBackground(TH1* h,string name){
     if(h_tot==0x0) h_tot = (TH1*)h->Clone();
     else h_tot->Add(h);
     // if already there...
@@ -280,7 +280,7 @@ void TthPlot::AddBackground(TH1* h,string name){
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetTotBkg(TH1* h){
+void TRExPlot::SetTotBkg(TH1* h){
     h_tot = (TH1*)h->Clone();
     h_tot->Scale(fLumiScale);
     g_tot = new TGraphAsymmErrors(h);
@@ -295,7 +295,7 @@ void TthPlot::SetTotBkg(TH1* h){
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetTotBkgAsym(TGraphAsymmErrors* g){
+void TRExPlot::SetTotBkgAsym(TGraphAsymmErrors* g){
     g_tot = (TGraphAsymmErrors*)g->Clone();
     for(int i=0;i<g_tot->GetN();i++){
         g_tot->GetY()[i] *= fLumiScale;
@@ -309,7 +309,7 @@ void TthPlot::SetTotBkgAsym(TGraphAsymmErrors* g){
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetChi2KS(float chi2prob,float ksprob,float chi2val,int ndf){
+void TRExPlot::SetChi2KS(float chi2prob,float ksprob,float chi2val,int ndf){
     Chi2prob = chi2prob;
     KSprob = ksprob;
     Chi2val = chi2val;
@@ -318,7 +318,7 @@ void TthPlot::SetChi2KS(float chi2prob,float ksprob,float chi2val,int ndf){
 
 //_____________________________________________________________________________
 //
-void TthPlot::BlindData(){
+void TRExPlot::BlindData(){
     //
     // Eventually blind bins
     //
@@ -328,26 +328,26 @@ void TthPlot::BlindData(){
                 BlindDataHisto( h_data,h_blinding );
             }
             else{
-                h_blinding = BlindDataHisto( h_data, TthPlot::GetTotBkg(), h_signal[0], fBlindingThreshold );
+                h_blinding = BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[0], fBlindingThreshold );
                 // if more than one signal:
                 if(fSigNames.size()>1){
                     for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
-                        h_blinding->Add( BlindDataHisto( h_data, TthPlot::GetTotBkg(), h_signal[i_sig], fBlindingThreshold ) );
+                        h_blinding->Add( BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[i_sig], fBlindingThreshold ) );
                         h_blinding->Scale(2.);
                     }
                 }
             }
         }
         else{
-            WriteWarningStatus("TthPlot::BlindData", "Either h_data, h_signal, h_tot not defined.");
-            WriteWarningStatus("TthPlot::BlindData", " Blidning not possible. Skipped.");
+            WriteWarningStatus("TRExPlot::BlindData", "Either h_data, h_signal, h_tot not defined.");
+            WriteWarningStatus("TRExPlot::BlindData", " Blidning not possible. Skipped.");
         }
     }
 }
 
 //_____________________________________________________________________________
 //
-TH1* TthPlot::GetTotBkg() const{
+TH1* TRExPlot::GetTotBkg() const{
   TH1* h = (TH1*)h_tot->Clone("h_tot_bkg");
   for (unsigned int i=0; i<fSigNames.size(); ++i) {
     h->Add( h_signal[i], -1);
@@ -357,7 +357,7 @@ TH1* TthPlot::GetTotBkg() const{
 
 //_____________________________________________________________________________
 //
-void TthPlot::Draw(string options){
+void TRExPlot::Draw(string options){
 
     /////////////////////////
     //
@@ -371,7 +371,7 @@ void TthPlot::Draw(string options){
     // Draws an empty histogram to reserve the upper pad and set style
     //
     gStyle->SetEndErrorSize(4.);
-    if(TtHFitter::NOENDERR) gStyle->SetEndErrorSize(0);
+    if(TRExFitter::NOENDERR) gStyle->SetEndErrorSize(0);
     pad0->cd();
     TH1* h_dummy = (TH1*)h_tot->Clone("h_dummy");
     h_dummy->Scale(0);
@@ -427,7 +427,7 @@ void TthPlot::Draw(string options){
     //
     h_stack->Draw("HIST same");
 
-    if( TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit ) {
+    if( TRExFitter::PREFITONPOSTFIT && h_tot_bkg_prefit ) {
       h_tot_bkg_prefit->SetFillColor(0);
       h_tot_bkg_prefit->SetLineStyle(kDashed);
       h_tot_bkg_prefit->SetLineColor(kBlue);
@@ -439,7 +439,7 @@ void TthPlot::Draw(string options){
     // Total error bands style setting
     //
     g_tot->SetFillStyle(3354);
-    if(TtHFitter::OPTION["SystFillStyle"]!=0) g_tot->SetFillStyle(TtHFitter::OPTION["SystFillStyle"]);
+    if(TRExFitter::OPTION["SystFillStyle"]!=0) g_tot->SetFillStyle(TRExFitter::OPTION["SystFillStyle"]);
     g_tot->SetFillColor(kBlue-7);
     g_tot->SetLineColor(kWhite);
     g_tot->SetLineWidth(0);
@@ -453,7 +453,7 @@ void TthPlot::Draw(string options){
     //if(h_normsig!=0x0){
         for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
             signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
-            WriteInfoStatus("TthPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale));
+            WriteInfoStatus("TRExPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale));
             h_normsig[i_smp]->Scale(signalScale);
             h_normsig[i_smp]->SetLineColor(h_normsig[i_smp]->GetFillColor());
             h_normsig[i_smp]->SetFillColor(0);
@@ -526,7 +526,7 @@ void TthPlot::Draw(string options){
     pad0->RedrawAxis();
 
     float textHeight = 0.05*(672./pad0->GetWh());
-//     if(TtHFitter::OPTION["TtHbbStyle"]>0) textHeight *= 0.85;
+//     if(TRExFitter::OPTION["TRExbbStyle"]>0) textHeight *= 0.85;
 
     //
     // ATLAS labels
@@ -542,15 +542,15 @@ void TthPlot::Draw(string options){
     }
 
     float legX1 = 1-0.41*(596./pad0->GetWw())-0.08;
-    if(TtHFitter::OPTION["FourTopStyle"]!=0 || TtHFitter::OPTION["TtHbbStyle"]!=0){
+    if(TRExFitter::OPTION["FourTopStyle"]!=0 || TRExFitter::OPTION["TRExbbStyle"]!=0){
         legX1 = 1-0.5*(596./pad0->GetWw())-0.08;
     }
-    if(TtHFitter::OPTION["LegendX1"]!=0){
-        legX1 = TtHFitter::OPTION["LegendX1"];
+    if(TRExFitter::OPTION["LegendX1"]!=0){
+        legX1 = TRExFitter::OPTION["LegendX1"];
     }
     float legX2 = 0.94;
-    if(TtHFitter::OPTION["LegendX2"]!=0){
-        legX2 = TtHFitter::OPTION["LegendX2"];
+    if(TRExFitter::OPTION["LegendX2"]!=0){
+        legX2 = TRExFitter::OPTION["LegendX2"];
     }
     float legXmid = legX1+0.5*(legX2-legX1);
 
@@ -588,11 +588,11 @@ void TthPlot::Draw(string options){
         }
         leg->AddEntry((TObject*)0,"Total","");
         leg1->AddEntry((TObject*)0,Form("%.1f",h_tot->Integral()),"");
-        if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
         else leg->AddEntry(g_tot,"Uncertainty","f");
         leg1->AddEntry((TObject*)0," ","");
 
-        if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) {
+        if(TRExFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) {
           leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
           leg1->AddEntry((TObject*)0," ","");
         }
@@ -600,18 +600,18 @@ void TthPlot::Draw(string options){
         leg->Draw();
         leg1->Draw();
     }
-    else if(fLegendNColumns==1){   //TtHFitter::OPTION["LegendNColumns"]==1){
+    else if(fLegendNColumns==1){   //TRExFitter::OPTION["LegendNColumns"]==1){
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
-        if(TtHFitter::OPTION["TtHbbStyle"]>0)
+        if(TRExFitter::OPTION["TRExbbStyle"]>0)
             leg  = new TLegend(legXmid+0.1*(legX2-legXmid),0.92-Nrows*textHeight*0.8, legX2,0.92);
         else
             leg  = new TLegend(legXmid+0.1*(legX2-legXmid),0.92-Nrows*textHeight, legX2,0.92);
         leg->SetFillStyle(0);
-        leg->SetBorderSize(0);        if(TtHFitter::OPTION["TtHbbStyle"]>0)
+        leg->SetBorderSize(0);        if(TRExFitter::OPTION["TRExbbStyle"]>0)
 
-        if(!TtHFitter::LEGENDLEFT) leg->SetTextAlign(32);
+        if(!TRExFitter::LEGENDLEFT) leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
           leg->SetTextSize(gStyle->GetTextSize());
 //         leg->SetMargin(0.18);
@@ -620,45 +620,45 @@ void TthPlot::Draw(string options){
         //Draws data in the legend only is real data
         if(hasData){
 //           leg->AddEntry(h_data,fDataName.c_str(),"lep");
-            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
+            if(TRExFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
             else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
 
         //Signal and background legend
         for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
 //         for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
-        if(TtHFitter::OPTION["TtHbbStyle"]==0){
+        if(TRExFitter::OPTION["TRExbbStyle"]==0){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
         for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
-        if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
         else leg->AddEntry(g_tot,"Uncertainty","f");
-        if(TtHFitter::OPTION["TtHbbStyle"]!=0){
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm.)").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
         
-        if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TRExFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
         
         leg->Draw();
     }
-    else if(fLegendNColumns==3){ //TtHFitter::OPTION["LegendNColumns"]==3){
+    else if(fLegendNColumns==3){ //TRExFitter::OPTION["LegendNColumns"]==3){
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
-//         if(TtHFitter::OPTION["TtHbbStyle"]>0)
+//         if(TRExFitter::OPTION["TRExbbStyle"]>0)
 //             leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
-//         else if(TtHFitter::OPTION["FourTopStyle"]>0)
+//         else if(TRExFitter::OPTION["FourTopStyle"]>0)
 //             leg  = new TLegend(0.6,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
 //         else
 //             leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
-        if(TtHFitter::OPTION["LegendX1"]==0) legX1 = legX2 - 3*(legX2-legXmid+0.1*(legX2-legXmid));
+        if(TRExFitter::OPTION["LegendX1"]==0) legX1 = legX2 - 3*(legX2-legXmid+0.1*(legX2-legXmid));
         leg = new TLegend(legX1,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
         leg->SetNColumns(3);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
-        if(!TtHFitter::LEGENDLEFT) leg->SetTextAlign(32);
+        if(!TRExFitter::LEGENDLEFT) leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
         leg->SetTextSize(gStyle->GetTextSize());
 //         leg->SetMargin(0.20);
@@ -667,25 +667,25 @@ void TthPlot::Draw(string options){
         //Draws data in the legend only is real data
         if(hasData){
 //             leg->AddEntry(h_data,fDataName.c_str(),"lep");
-            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
+            if(TRExFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
             else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
 
         //Signal and background legend
         for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
-        if(TtHFitter::OPTION["TtHbbStyle"]==0){
+        if(TRExFitter::OPTION["TRExbbStyle"]==0){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
         for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
-        if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
         else leg->AddEntry(g_tot,"Uncertainty","f");
-        if(TtHFitter::OPTION["TtHbbStyle"]!=0){
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
 
-        if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TRExFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
         
         leg->Draw();
     }
@@ -693,14 +693,14 @@ void TthPlot::Draw(string options){
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
-        if(TtHFitter::OPTION["TtHbbStyle"]>0)
+        if(TRExFitter::OPTION["TRExbbStyle"]>0)
             leg  = new TLegend(0.5,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
         else
             leg  = new TLegend(0.5,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
         leg->SetNColumns(4);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
-        if(!TtHFitter::LEGENDLEFT) leg->SetTextAlign(32);
+        if(!TRExFitter::LEGENDLEFT) leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
         leg->SetTextSize(gStyle->GetTextSize());
         leg->SetMargin(0.18);
@@ -708,25 +708,25 @@ void TthPlot::Draw(string options){
         //Draws data in the legend only is real data
         if(hasData){
 //             leg->AddEntry(h_data,fDataName.c_str(),"lep");
-            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
+            if(TRExFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
             else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
         
         //Signal and background legend
         for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
-        if(TtHFitter::OPTION["TtHbbStyle"]==0){
+        if(TRExFitter::OPTION["TRExbbStyle"]==0){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
         for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
-        if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
         else leg->AddEntry(g_tot,"Uncertainty","f");
-        if(TtHFitter::OPTION["TtHbbStyle"]!=0){
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
 
-        if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TRExFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
         
         leg->Draw();
     }
@@ -734,8 +734,8 @@ void TthPlot::Draw(string options){
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
-        if(TtHFitter::OPTION["TtHbbStyle"]>0) legX1 = 0.43; // FIXME
-        if(TtHFitter::OPTION["TtHbbStyle"]>0)
+        if(TRExFitter::OPTION["TRExbbStyle"]>0) legX1 = 0.43; // FIXME
+        if(TRExFitter::OPTION["TRExbbStyle"]>0)
             leg  = new TLegend(legX1,0.8-((Nrows+1)/2)*0.05, legX2,0.8);
         else
             leg  = new TLegend(legX1,0.93-((Nrows+1)/2)*0.05, legX2,0.93);
@@ -750,29 +750,29 @@ void TthPlot::Draw(string options){
         //Draws data in the legend only is real data
         if(hasData){
 //             leg->AddEntry(h_data,fDataName.c_str(),"lep");
-            if(TtHFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
+            if(TRExFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
             else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
 
         //Signal and background legend
         for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
-        if(TtHFitter::OPTION["TtHbbStyle"]==0){
+        if(TRExFitter::OPTION["TRExbbStyle"]==0){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
         for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
-        if(TtHFitter::OPTION["TtHbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
         else leg->AddEntry(g_tot,"Uncertainty","f");
-        if(TtHFitter::OPTION["TtHbbStyle"]!=0){
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
 
-        if(TtHFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
+        if(TRExFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
         
         leg->Draw();
 
-        if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
+        if(TRExFitter::OPTION["TRExbbStyle"]==0 && fNormSigNames.size()>0)
             myText(legX1,0.93-((Nrows+1)/2)*0.05 - 0.05,  1,"*: normalised to total Bkg.");
     }
 
@@ -793,7 +793,7 @@ void TthPlot::Draw(string options){
     //    h_ratio2: is a MC/MC ratio to plot the uncertainty band
     //
     TH1* h_ratio = 0x0;
-    if(TtHFitter::OPTION["SoverBinRatio"]){
+    if(TRExFitter::OPTION["SoverBinRatio"]){
         if(fSigNames.size()>0) h_ratio = (TH1*)h_signal[0]->Clone("h_ratio");
         else if(fNormSigNames.size()>0) h_ratio = (TH1*)h_normsig[0]->Clone("h_ratio");
         else if(fOverSigNames.size()>0) h_ratio = (TH1*)h_oversig[0]->Clone("h_ratio");
@@ -812,14 +812,14 @@ void TthPlot::Draw(string options){
     //
     h_dummy2->SetTitle("Data/MC");
 //     h_dummy2->GetYaxis()->CenterTitle();
-    if(TtHFitter::OPTION["SoverBinRatio"]) h_dummy2->GetYaxis()->SetTitle("S / B");
+    if(TRExFitter::OPTION["SoverBinRatio"]) h_dummy2->GetYaxis()->SetTitle("S / B");
     else                                   h_dummy2->GetYaxis()->SetTitle("Data / Pred. ");
     h_dummy2->GetYaxis()->SetLabelSize(0.8*h_ratio->GetYaxis()->GetLabelSize());
     if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetLabelOffset(0.01);
     else                              h_dummy2->GetYaxis()->SetLabelOffset(0.02);
     h_dummy2->GetYaxis()->SetNdivisions(504,false);
     gStyle->SetEndErrorSize(4.);
-    if(TtHFitter::NOENDERR) gStyle->SetEndErrorSize(0);
+    if(TRExFitter::NOENDERR) gStyle->SetEndErrorSize(0);
 //     pad1 -> SetTicky();
 
     //
@@ -833,7 +833,7 @@ void TthPlot::Draw(string options){
     TGraphAsymmErrors *g_ratio = histToGraph(h_ratio);
     for(int i_bin=1;i_bin<=h_ratio->GetNbinsX();i_bin++){
         //For the ratio plot, the error is just to illustrate the "poisson uncertainty on the data"
-        if(TtHFitter::REMOVEXERRORS){
+        if(TRExFitter::REMOVEXERRORS){
             g_ratio->SetPointEXhigh( i_bin-1, 0. );
             g_ratio->SetPointEXlow(  i_bin-1, 0. );
         }
@@ -868,7 +868,7 @@ void TthPlot::Draw(string options){
     hline->SetLineColor(kBlack);
     hline->SetLineWidth(2);
     hline->SetLineStyle(2);
-    if(TtHFitter::OPTION["SoverBinRatio"]){
+    if(TRExFitter::OPTION["SoverBinRatio"]){
         h_ratio->SetFillStyle(0);
         h_ratio->SetLineColor(h_ratio->GetLineColor());
         h_ratio->Draw("HIST same");
@@ -1038,7 +1038,7 @@ void TthPlot::Draw(string options){
     }
     
     // turn off x-error bars
-    if(TtHFitter::REMOVEXERRORS){
+    if(TRExFitter::REMOVEXERRORS){
         for (UInt_t i=0; i< (UInt_t)g_data->GetN(); i++) {
             g_data->SetPointEXlow(i,0);
             g_data->SetPointEXhigh(i,0);
@@ -1090,19 +1090,19 @@ void TthPlot::Draw(string options){
         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
     }
     
-//     if(TtHFitter::OPTION["TtHbbStyle"]==0 && fNormSigNames.size()>0)
+//     if(TRExFitter::OPTION["TRExbbStyle"]==0 && fNormSigNames.size()>0)
 //         myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SaveAs(string name){
+void TRExPlot::SaveAs(string name){
     c->SaveAs(name.c_str());
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::WriteToFile(string name){
+void TRExPlot::WriteToFile(string name){
     TDirectory *here = gDirectory;
     TFile *f = new TFile(name.c_str(),"RECREATE");
     f->cd();
@@ -1124,28 +1124,28 @@ void TthPlot::WriteToFile(string name){
 
 //_____________________________________________________________________________
 //
-TCanvas* TthPlot::GetCanvas(){
+TCanvas* TRExPlot::GetCanvas(){
     return c;
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetBinBlinding(bool on,float threshold){
+void TRExPlot::SetBinBlinding(bool on,float threshold){
     fBlindingThreshold = threshold;
     if(!on) fBlindingThreshold = -1;
-    WriteInfoStatus("TthPlot::SetBinBlinding", "Setting blinding threshold = " + std::to_string(fBlindingThreshold));
+    WriteInfoStatus("TRExPlot::SetBinBlinding", "Setting blinding threshold = " + std::to_string(fBlindingThreshold));
 }
 
 //_____________________________________________________________________________
 //
-void TthPlot::SetBinBlinding(bool on,TH1F* h_blind){
+void TRExPlot::SetBinBlinding(bool on,TH1F* h_blind){
     h_blinding = h_blind;
     if(!on) fBlindingThreshold = -1;
     std::string temp = "Setting blinding bins:";
     for(int i_bin=1;i_bin<h_blinding->GetNbinsX()+1;i_bin++){
         temp+= " " + std::to_string(h_blinding->GetBinContent(i_bin));
     }
-    WriteDebugStatus("TthPlot::SetBinBlinding", temp);
+    WriteDebugStatus("TRExPlot::SetBinBlinding", temp);
 }
 
 

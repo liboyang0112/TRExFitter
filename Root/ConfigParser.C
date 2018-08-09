@@ -1,8 +1,8 @@
 // Class include
-#include "TtHFitter/ConfigParser.h"
+#include "TRExFitter/ConfigParser.h"
 
 // Framework includes
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/StatusLogbook.h"
 
 // c++ includes
 #include <algorithm>

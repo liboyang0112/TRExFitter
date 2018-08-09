@@ -1,14 +1,14 @@
 // Class include
-#include "TtHFitter/SampleHist.h"
+#include "TRExFitter/SampleHist.h"
 
 // Framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/Sample.h"
-#include "TtHFitter/ShapeFactor.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/Systematic.h"
-#include "TtHFitter/SystematicHist.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/NormFactor.h"
+#include "TRExFitter/Sample.h"
+#include "TRExFitter/ShapeFactor.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/Systematic.h"
+#include "TRExFitter/SystematicHist.h"
 
 // ROOT includes
 #include "TCanvas.h"
@@ -446,7 +446,7 @@ void SampleHist::WriteToFile(TFile *f){
         gamma->fRegions.push_back(fRegionName);
         SystematicHist *syh = AddHistoSyst(systName,htempUp,htempDown);
         gamma->fNuisanceParameter = gamma->fName;
-        TtHFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
+        TRExFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
         syh->fSystematic = gamma;
     }
     //
@@ -522,7 +522,7 @@ void SampleHist::FixEmptyBins(const bool suppress){
             }
             // set nominal to 10^-6
             fHist->SetBinContent(i_bin,1e-6);
-            if(!TtHFitter::GUESSMCSTATERROR){
+            if(!TRExFitter::GUESSMCSTATERROR){
                 fHist -> SetBinError(i_bin, 1e-06);
             } else {
                 // if error defined, use it
@@ -763,9 +763,9 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 h_1->GetYaxis()->SetTitle("#frac{Syst.-Nom.}{Nom.} [%]");
                 h_1->GetYaxis()->SetTitleOffset(1.6);
                 h_1->GetXaxis()->SetTitleOffset(3.);
-                if(TtHFitter::OPTION["SystPlotRatioRange"]!=0){
-                    h_1->SetMinimum(-TtHFitter::OPTION["SystPlotRatioRange"]);
-                    h_1->SetMaximum( TtHFitter::OPTION["SystPlotRatioRange"]);
+                if(TRExFitter::OPTION["SystPlotRatioRange"]!=0){
+                    h_1->SetMinimum(-TRExFitter::OPTION["SystPlotRatioRange"]);
+                    h_1->SetMaximum( TRExFitter::OPTION["SystPlotRatioRange"]);
                 }
                 else{
                     h_1->SetMinimum(-ymax*1.5);
@@ -775,7 +775,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_1->GetXaxis()->SetTitle(fVariableTitle.c_str());
 
             h_1->Draw("HIST");
-            if(TtHFitter::SYSTERRORBARS){
+            if(TRExFitter::SYSTERRORBARS){
                 h_syst_down_orig->SetMarkerSize(0);
                 h_syst_up_orig->SetMarkerSize(0);
                 h_syst_down_orig->DrawCopy("same E");
@@ -894,9 +894,9 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
         gSystem->mkdir((fFitName+"/Systematics").c_str());
         gSystem->mkdir((fFitName+"/Systematics/"+fSyst[i_syst]->fName).c_str());
 
-        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-            if(SumAndData) c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(), fName.c_str(), TtHFitter::IMAGEFORMAT[i_format].c_str()));
-            else c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), TtHFitter::IMAGEFORMAT[i_format].c_str()));
+        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+            if(SumAndData) c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(), fName.c_str(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
+            else c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
         }
     }
     delete c;
@@ -1021,7 +1021,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         // Perform a check of the output histograms (check for 0 bins and other pathologic behaviours)
         //
 //         HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, true /*cause crash if problem*/);
-        HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
+        HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, TRExFitter::HISTOCHECKCRASH /*cause crash if problem*/);
 
         //
         // Normalisation component first

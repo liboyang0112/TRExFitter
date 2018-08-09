@@ -10,9 +10,9 @@ to choose which mu value to profile observed data at before generating expected
 
 */
 
-#include "TtHFitter/RunSig.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/Common.h"
+#include "TRExFitter/RunSig.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/Common.h"
 
 #include "RooWorkspace.h"
 #include "RooDataSet.h"
@@ -49,7 +49,7 @@ void RunSig(const char* inFileName,
     string smass,
     string folder){
 
-    if (TtHFitter::DEBUGLEVEL < 2){
+    if (TRExFitter::DEBUGLEVEL < 2){
         gErrorIgnoreLevel = kError;
         RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
     }
@@ -682,7 +682,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
         // Generate observables defined by the pdf associated with this state
         RooArgSet* obstmp = pdftmp->getObservables(*mc->GetObservables()) ;
 
-        if (TtHFitter::DEBUGLEVEL > 1){
+        if (TRExFitter::DEBUGLEVEL > 1){
             obstmp->Print();
         }
 
@@ -702,7 +702,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
             if (thisNorm*expectedEvents > 0 && thisNorm*expectedEvents < pow(10.0, 18)) asimovData->add(*mc->GetObservables(), thisNorm*expectedEvents);
         }
 
-        if (TtHFitter::DEBUGLEVEL > 1){
+        if (TRExFitter::DEBUGLEVEL > 1){
             asimovData->Print();
         }
         WriteDebugStatus("RunSig::makeAsimovData", "sum entries " + std::to_string(asimovData->sumEntries()));
@@ -715,7 +715,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
 
         w->import(*asimovData);
 
-        if (TtHFitter::DEBUGLEVEL > 1){
+        if (TRExFitter::DEBUGLEVEL > 1){
             asimovData->Print();
         }
         WriteDebugStatus("RunSig::makeAsimovData", "");
@@ -742,7 +742,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
             // Generate observables defined by the pdf associated with this state
             RooArgSet* obstmp = pdftmp->getObservables(*mc->GetObservables()) ;
 
-            if (TtHFitter::DEBUGLEVEL > 1){
+            if (TRExFitter::DEBUGLEVEL > 1){
                 obstmp->Print();
                 std::string s = channelCat->getLabel();
                 WriteDebugStatus("RunSig::makeAsimovData", "on type: " + s + " " + std::to_string(iFrame) );
@@ -759,7 +759,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
                 if (thisNorm*expectedEvents > 0 && thisNorm*expectedEvents < pow(10.0, 18)) obsDataUnbinned->add(*mc->GetObservables(), thisNorm*expectedEvents);
             }
 
-            if (TtHFitter::DEBUGLEVEL > 1){
+            if (TRExFitter::DEBUGLEVEL > 1){
                 obsDataUnbinned->Print();
                 WriteDebugStatus("RunSig::makeAsimovData", "sum entries " + std::to_string(obsDataUnbinned->sumEntries()));
             }
@@ -772,7 +772,7 @@ RooDataSet* makeAsimovData(ModelConfig* mc, bool doConditional, RooWorkspace* w,
 
             asimovDataMap[string(channelCat->getLabel())] = obsDataUnbinned;//tempData;
 
-            if (TtHFitter::DEBUGLEVEL > 1){
+            if (TRExFitter::DEBUGLEVEL > 1){
                 std::string s = channelCat->getLabel();
                 WriteDebugStatus("RunSig::makeAsimovData", "channel: " + s + ", data: ");
                 obsDataUnbinned->Print();

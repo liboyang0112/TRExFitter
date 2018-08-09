@@ -1,16 +1,16 @@
 // Class include
-#include "TtHFitter/ConfigReader.h"
+#include "TRExFitter/ConfigReader.h"
 
 // Framework inclused
-#include "TtHFitter/Common.h"
-#include "TtHFitter/HistoTools.h"
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/Region.h"
-#include "TtHFitter/Sample.h"
-#include "TtHFitter/ShapeFactor.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/Systematic.h"
-#include "TtHFitter/TtHFit.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/HistoTools.h"
+#include "TRExFitter/NormFactor.h"
+#include "TRExFitter/Region.h"
+#include "TRExFitter/Sample.h"
+#include "TRExFitter/ShapeFactor.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/Systematic.h"
+#include "TRExFitter/TRExFit.h"
 
 // ROOT includes
 #include "TSystem.h"
@@ -21,7 +21,7 @@
 
 //__________________________________________________________________________________
 //
-ConfigReader::ConfigReader(TtHFit *fitter){
+ConfigReader::ConfigReader(TRExFit *fitter){
     fFitter = fitter;
     fNonGhostIsSet = false;
     fAllowWrongRegionSample = true;
@@ -125,8 +125,8 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         fFitter->fFitResultsFile = optMap["FitResults"];
     }
     if(optMap["FitType"]!=""){
-        if(optMap["FitType"]=="SPLUSB") fFitter->SetFitType(TtHFit::SPLUSB);
-        if(optMap["FitType"]=="BONLY")  fFitter->SetFitType(TtHFit::BONLY);
+        if(optMap["FitType"]=="SPLUSB") fFitter->SetFitType(TRExFit::SPLUSB);
+        if(optMap["FitType"]=="BONLY")  fFitter->SetFitType(TRExFit::BONLY);
     }
     if(optMap["LumiScale"]!=""){
         fFitter->fLumiScale = atof(optMap["LumiScale"].c_str());
@@ -187,7 +187,7 @@ int ConfigReader::ReadJobOptions(){
 
     //Set DebugLevel
     param = confSet->Get("DebugLevel");
-    if( param != "")  TtHFitter::SetDebugLevel( atoi(param.c_str()) );
+    if( param != "")  TRExFitter::SetDebugLevel( atoi(param.c_str()) );
     
     param = confSet->Get("AllowWrongRegionSample");
     if( param != "") {
@@ -224,18 +224,18 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // set default MERGEUNDEROVERFLOW
-    if(fFitter->fInputType==0)      TtHFitter::MERGEUNDEROVERFLOW = false;
-    else if(fFitter->fInputType==1) TtHFitter::MERGEUNDEROVERFLOW = true;
+    if(fFitter->fInputType==0)      TRExFitter::MERGEUNDEROVERFLOW = false;
+    else if(fFitter->fInputType==1) TRExFitter::MERGEUNDEROVERFLOW = true;
 
     // Set MergeUnderOverFlow from config
     param = confSet->Get("MergeUnderOverFlow");
     if(param!=""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  TtHFitter::MERGEUNDEROVERFLOW = true;
-        else if( param == "FALSE" ) TtHFitter::MERGEUNDEROVERFLOW = false;
+        if(      param == "TRUE" )  TRExFitter::MERGEUNDEROVERFLOW = true;
+        else if( param == "FALSE" ) TRExFitter::MERGEUNDEROVERFLOW = false;
         else {
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'MergeUnderOverFlow' option but you didn't provide valid setting. Using default (FALSE)");
-            TtHFitter::MERGEUNDEROVERFLOW = false;
+            TRExFitter::MERGEUNDEROVERFLOW = false;
         }
     }
 
@@ -391,7 +391,7 @@ int ConfigReader::ReadJobOptions(){
     // Set CorrelationThreshold
     param = confSet->Get("CorrelationThreshold");
     if( param != ""){
-        TtHFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
+        TRExFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
     }
 
     // Set HistoChecks
@@ -399,7 +399,7 @@ int ConfigReader::ReadJobOptions(){
     if(param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "NOCRASH" ){
-            TtHFitter::HISTOCHECKCRASH = false;
+            TRExFitter::HISTOCHECKCRASH = false;
         } else {
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'HistoChecks' option but you didn't set it to NOCRASH.");
         }
@@ -418,12 +418,12 @@ int ConfigReader::ReadJobOptions(){
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
-            TtHFitter::SPLITHISTOFILES = true;
+            TRExFitter::SPLITHISTOFILES = true;
         } else if (param == "FALSE") {
-            TtHFitter::SPLITHISTOFILES = false;
+            TRExFitter::SPLITHISTOFILES = false;
         } else {
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'SplitHistoFiles' option but you didn't provide valid setting. Using default (false)");
-            TtHFitter::SPLITHISTOFILES = false;
+            TRExFitter::SPLITHISTOFILES = false;
         }
     }
 
@@ -447,7 +447,7 @@ int ConfigReader::ReadJobOptions(){
         else {
             WriteErrorStatus("ConfigReader::ReadJobOptions", "You specified 'ImageFormat' option but we cannot split the setting. Please check");
         }
-        TtHFitter::IMAGEFORMAT = tmp;
+        TRExFitter::IMAGEFORMAT = tmp;
     }
 
     // Set StatOnly
@@ -707,31 +707,31 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     std::vector<std::string> vec;
     if( param != ""){
         vec = Vectorize(RemoveQuotes(param),',');
-        if( std::find(vec.begin(), vec.end(), "YIELDS") !=vec.end() )  TtHFitter::SHOWYIELDS     = true;
-        if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TtHFitter::SHOWSTACKSIG   = false;
-        if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG    = true;
-        if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG = true;
-        if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TtHFitter::LEGENDLEFT     = true;
-        if( std::find(vec.begin(), vec.end(), "CHI2")   !=vec.end() )  TtHFitter::SHOWCHI2       = true;
-        if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
-        if( std::find(vec.begin(), vec.end(), "POISSONIZE")        !=vec.end() )  TtHFitter::POISSONIZE     = true;
-        if( std::find(vec.begin(), vec.end(), "NOXERR") !=vec.end() )  TtHFitter::REMOVEXERRORS  = true;
-        if( std::find(vec.begin(), vec.end(), "NOENDERR") !=vec.end() )TtHFitter::NOENDERR       = true;
+        if( std::find(vec.begin(), vec.end(), "YIELDS") !=vec.end() )  TRExFitter::SHOWYIELDS     = true;
+        if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TRExFitter::SHOWSTACKSIG   = false;
+        if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TRExFitter::SHOWNORMSIG    = true;
+        if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TRExFitter::SHOWOVERLAYSIG = true;
+        if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TRExFitter::LEGENDLEFT     = true;
+        if( std::find(vec.begin(), vec.end(), "CHI2")   !=vec.end() )  TRExFitter::SHOWCHI2       = true;
+        if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TRExFitter::PREFITONPOSTFIT= true;
+        if( std::find(vec.begin(), vec.end(), "POISSONIZE")        !=vec.end() )  TRExFitter::POISSONIZE     = true;
+        if( std::find(vec.begin(), vec.end(), "NOXERR") !=vec.end() )  TRExFitter::REMOVEXERRORS  = true;
+        if( std::find(vec.begin(), vec.end(), "NOENDERR") !=vec.end() )TRExFitter::NOENDERR       = true;
     }
 
     // Set PlotOptionsSummary
     param = confSet->Get("PlotOptionsSummary");
     if( param != ""){
         vec = Vectorize(RemoveQuotes(param),',');
-        if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TtHFitter::SHOWSTACKSIG_SUMMARY   = false;
-        if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TtHFitter::SHOWNORMSIG_SUMMARY    = true;
-        if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TtHFitter::SHOWOVERLAYSIG_SUMMARY = true;
+        if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TRExFitter::SHOWSTACKSIG_SUMMARY   = false;
+        if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TRExFitter::SHOWNORMSIG_SUMMARY    = true;
+        if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TRExFitter::SHOWOVERLAYSIG_SUMMARY = true;
     }
     else{
         WriteDebugStatus("ConfigReader::SetJobPlot", "PlotOptionsSummary not specified setting Summary values to 'PlotOptions'");
-        TtHFitter::SHOWSTACKSIG_SUMMARY   = TtHFitter::SHOWSTACKSIG    ;
-        TtHFitter::SHOWNORMSIG_SUMMARY    = TtHFitter::SHOWNORMSIG     ;
-        TtHFitter::SHOWOVERLAYSIG_SUMMARY = TtHFitter::SHOWOVERLAYSIG  ;
+        TRExFitter::SHOWSTACKSIG_SUMMARY   = TRExFitter::SHOWSTACKSIG    ;
+        TRExFitter::SHOWNORMSIG_SUMMARY    = TRExFitter::SHOWNORMSIG     ;
+        TRExFitter::SHOWOVERLAYSIG_SUMMARY = TRExFitter::SHOWOVERLAYSIG  ;
     }
 
     // Set SystControlPlots
@@ -739,12 +739,12 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
-            TtHFitter::SYSTCONTROLPLOTS = true;
+            TRExFitter::SYSTCONTROLPLOTS = true;
         } else if (param == "FALSE"){
-            TtHFitter::SYSTCONTROLPLOTS = false;
+            TRExFitter::SYSTCONTROLPLOTS = false;
         } else {
             WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystControlPlots' option but you didn't provide valid setting. Using default (FALSE)");
-            TtHFitter::SYSTCONTROLPLOTS = false;
+            TRExFitter::SYSTCONTROLPLOTS = false;
         }
     }
 
@@ -753,14 +753,14 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
-            TtHFitter::SYSTDATAPLOT = true;
+            TRExFitter::SYSTDATAPLOT = true;
             fFitter->fSystDataPlot_upFrame=false;
         } else if( param == "FILLUPFRAME" ){
-            TtHFitter::SYSTDATAPLOT = true;
+            TRExFitter::SYSTDATAPLOT = true;
             fFitter->fSystDataPlot_upFrame=true;
         } else {
             WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystDataPlots' option but the value is not 'TRUE' nor 'FILLUPFRAME'. Setting SystDataPlot and SystDataPlot_upFrame to false");
-            TtHFitter::SYSTDATAPLOT = false;
+            TRExFitter::SYSTDATAPLOT = false;
             fFitter->fSystDataPlot_upFrame=false;
         }
     }
@@ -770,12 +770,12 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(param == "TRUE" ){
-            TtHFitter::SYSTERRORBARS = true;
+            TRExFitter::SYSTERRORBARS = true;
         } else if (param == "FALSE"){
-            TtHFitter::SYSTERRORBARS = false;
+            TRExFitter::SYSTERRORBARS = false;
         } else {
             WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystErrorBars' option but you didn't provide valid setting. Using default (FALSE)");
-            TtHFitter::SYSTERRORBARS = false;
+            TRExFitter::SYSTERRORBARS = false;
         }
     }
 
@@ -784,12 +784,12 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
-            TtHFitter::GUESSMCSTATERROR = true;
+            TRExFitter::GUESSMCSTATERROR = true;
         } else if (param == "FALSE") {
-            TtHFitter::GUESSMCSTATERROR = false;
+            TRExFitter::GUESSMCSTATERROR = false;
         } else {
             WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'GuessMCStatEmptyBins' option but you didn't provide valid setting. Using default (FALSE)");
-            TtHFitter::GUESSMCSTATERROR = false;
+            TRExFitter::GUESSMCSTATERROR = false;
         }
     }
 
@@ -929,7 +929,7 @@ int ConfigReader::ReadGeneralOptions(){
     if (confSet != nullptr){
         for(int i=0; i < confSet->GetN(); i++){
             if(confSet->GetConfigValue(i) != ""){
-                TtHFitter::OPTION[confSet->GetConfigName(i)] = atof(confSet->GetConfigValue(i).c_str());
+                TRExFitter::OPTION[confSet->GetConfigName(i)] = atof(confSet->GetConfigValue(i).c_str());
             }
         }
     } else {
@@ -952,22 +952,22 @@ int ConfigReader::ReadFitOptions(){
 
     // Set FitType
     param = confSet->Get("FitType");
-    if( param != "" && fFitter->fFitType == TtHFit::UNDEFINED ){
+    if( param != "" && fFitter->fFitType == TRExFit::UNDEFINED ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "SPLUSB" ){
-            fFitter->SetFitType(TtHFit::SPLUSB);
+            fFitter->SetFitType(TRExFit::SPLUSB);
         }
         else if( param == "BONLY" ){
-            fFitter->SetFitType(TtHFit::BONLY);
+            fFitter->SetFitType(TRExFit::BONLY);
         }
         else{
             WriteErrorStatus("ConfigReader::ReadFitOptions", "Unknown FitType argument : " + confSet->Get("FitType"));
             return 1;
         }
     }
-    else if( fFitter->fFitType == TtHFit::UNDEFINED ){
+    else if( fFitter->fFitType == TRExFit::UNDEFINED ){
         WriteInfoStatus("ConfigReader::ReadFitOptions","Setting default fit Type SPLUSB");
-        fFitter->SetFitType(TtHFit::SPLUSB);
+        fFitter->SetFitType(TRExFit::SPLUSB);
     }
 
     // Set FitRegion
@@ -975,13 +975,13 @@ int ConfigReader::ReadFitOptions(){
     std::transform(param.begin(), param.end(), param.begin(), ::toupper);
     if( param != "" ){
         if( param == "CRONLY" ){
-            fFitter->SetFitRegion(TtHFit::CRONLY);
+            fFitter->SetFitRegion(TRExFit::CRONLY);
         }
         else if( param == "CRSR" ){
-            fFitter->SetFitRegion(TtHFit::CRSR);
+            fFitter->SetFitRegion(TRExFit::CRSR);
         }
         else{
-            fFitter->SetFitRegion(TtHFit::USERSPECIFIC);
+            fFitter->SetFitRegion(TRExFit::USERSPECIFIC);
             fFitter->fFitRegionsToFit = Vectorize(param,',');
             if(fFitter->fFitRegionsToFit.size()==0){
                 WriteErrorStatus("ConfigReader::ReadFitOptions", "Unknown FitRegion argument : " + confSet->Get("FitRegion"));
@@ -1100,7 +1100,7 @@ int ConfigReader::ReadFitOptions(){
     // Set NumCPU
     param = confSet->Get("NumCPU");
     if( param != "" ){
-        TtHFitter::NCPU = std::atoi( param.c_str());
+        TRExFitter::NCPU = std::atoi( param.c_str());
     }
 
     // Set StatOnlyFit
@@ -1156,14 +1156,14 @@ int ConfigReader::ReadFitOptions(){
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if (param == "LINEAR"){
-            fFitter->fTemplateInterpolationOption = TtHFit::LINEAR;
+            fFitter->fTemplateInterpolationOption = TRExFit::LINEAR;
         } else if (param == "SMOOTHLINEAR"){
-            fFitter->fTemplateInterpolationOption = TtHFit::SMOOTHLINEAR;
+            fFitter->fTemplateInterpolationOption = TRExFit::SMOOTHLINEAR;
         } else if (param == "SQUAREROOT"){
-            fFitter->fTemplateInterpolationOption = TtHFit::SQUAREROOT;
+            fFitter->fTemplateInterpolationOption = TRExFit::SQUAREROOT;
         } else {
             WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'TemplateInterpolationOption' option but didnt provide valid parameter. Using default (LINEAR)");
-            fFitter->fTemplateInterpolationOption = TtHFit::LINEAR;
+            fFitter->fTemplateInterpolationOption = TRExFit::LINEAR;
         }
     }
 
@@ -1186,10 +1186,10 @@ int ConfigReader::ReadLimitOptions(){
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "ASYMPTOTIC" ){
-            fFitter->SetLimitType(TtHFit::ASYMPTOTIC);
+            fFitter->SetLimitType(TRExFit::ASYMPTOTIC);
         }
         else if( param == "TOYS" ){
-            fFitter->SetLimitType(TtHFit::TOYS);
+            fFitter->SetLimitType(TRExFit::TOYS);
         }
         else{
             WriteErrorStatus("ConfigReader::ReadLimitOptions", "Unknown LimitType argument : " + confSet->Get("LimitType"));
@@ -2262,7 +2262,7 @@ int ConfigReader::ReadNormFactorOptions(){
 
         nfactor = new NormFactor(CheckName(confSet->GetValue()));
 
-        TtHFitter::SYSTMAP[nfactor->fName] = nfactor->fName;
+        TRExFitter::SYSTMAP[nfactor->fName] = nfactor->fName;
         if( FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
             fFitter->fNormFactors.push_back( nfactor );
             fFitter->fNormFactorNames.push_back( nfactor->fName );
@@ -2276,11 +2276,11 @@ int ConfigReader::ReadNormFactorOptions(){
         param = confSet->Get("NuisanceParameter");
         if(param != ""){
             nfactor->fNuisanceParameter = RemoveQuotes(param);
-            TtHFitter::NPMAP[nfactor->fName] = nfactor->fNuisanceParameter;
+            TRExFitter::NPMAP[nfactor->fName] = nfactor->fNuisanceParameter;
         }
         else{
             nfactor->fNuisanceParameter = nfactor->fName;
-            TtHFitter::NPMAP[nfactor->fName] = nfactor->fName;
+            TRExFitter::NPMAP[nfactor->fName] = nfactor->fName;
         }
 
         // Set Constant
@@ -2307,12 +2307,12 @@ int ConfigReader::ReadNormFactorOptions(){
         param = confSet->Get("Title");
         if(param != ""){
             nfactor->fTitle = RemoveQuotes(param);
-            TtHFitter::SYSTMAP[nfactor->fName] = nfactor->fTitle;
+            TRExFitter::SYSTMAP[nfactor->fName] = nfactor->fTitle;
         }
 
         // Set TexTitle
         param = confSet->Get("TexTitle");
-        if(param != "") TtHFitter::SYSTTEX[nfactor->fName] = RemoveQuotes(param);
+        if(param != "") TRExFitter::SYSTTEX[nfactor->fName] = RemoveQuotes(param);
 
         // Set Min
         param = confSet->Get("Min");
@@ -2337,10 +2337,10 @@ int ConfigReader::ReadNormFactorOptions(){
             nfactor->fExpression = std::make_pair(v[0],v[1]);
             // title will contain the expression FIXME
             nfactor->fTitle = v[0];
-            TtHFitter::SYSTMAP[nfactor->fName] = v[0];
+            TRExFitter::SYSTMAP[nfactor->fName] = v[0];
             // nuis-par will contain the nuis-par of the norm factor the expression depends on FIXME
             nfactor->fNuisanceParameter = v[1];
-            TtHFitter::NPMAP[nfactor->fName] = v[1];
+            TRExFitter::NPMAP[nfactor->fName] = v[1];
             // set nominal, min and max according to the norm factor the expression depends on FIXME
             for(NormFactor *nf : fFitter->fNormFactors){
                 if(nf->fNuisanceParameter == v[1]){
@@ -2435,11 +2435,11 @@ int ConfigReader::ReadShapeFactorOptions(){
         param = confSet->Get("NuisanceParameter");
         if(param != ""){
             sfactor->fNuisanceParameter = RemoveQuotes(param);
-            TtHFitter::NPMAP[sfactor->fName] = sfactor->fNuisanceParameter;
+            TRExFitter::NPMAP[sfactor->fName] = sfactor->fNuisanceParameter;
         }
         else{
             sfactor->fNuisanceParameter = sfactor->fName;
-            TtHFitter::NPMAP[sfactor->fName] = sfactor->fName;
+            TRExFitter::NPMAP[sfactor->fName] = sfactor->fName;
         }
 
         // Set Constant
@@ -2462,10 +2462,10 @@ int ConfigReader::ReadShapeFactorOptions(){
         param = confSet->Get("Title");
         if(param != ""){
             sfactor->fTitle = RemoveQuotes(param);
-            TtHFitter::SYSTMAP[sfactor->fName] = sfactor->fTitle;
+            TRExFitter::SYSTMAP[sfactor->fName] = sfactor->fTitle;
         }
         param = confSet->Get("TexTitle");
-        if(param != "") TtHFitter::SYSTTEX[sfactor->fName] = RemoveQuotes(param);
+        if(param != "") TRExFitter::SYSTTEX[sfactor->fName] = RemoveQuotes(param);
 
         // Set Min
         param = confSet->Get("Min");
@@ -2520,7 +2520,7 @@ int ConfigReader::ReadSystOptions(){
         sysd->fScaleUp   = 1.;
         sysd->fScaleDown   = 1.;
         fFitter->fSystematics.push_back( sysd );
-        TtHFitter::SYSTMAP[sysd->fName] = "Dummy";
+        TRExFitter::SYSTMAP[sysd->fName] = "Dummy";
         fFitter->fNSyst++;
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
             sample = fFitter->fSamples[i_smp];
@@ -2588,7 +2588,7 @@ int ConfigReader::ReadSystOptions(){
         std::string decorrelate = confSet->Get("Decorrelate");
 
         sys = new Systematic(CheckName(confSet->GetValue()),type);
-        TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
+        TRExFitter::SYSTMAP[sys->fName] = sys->fTitle;
         if(param == "OVERALL") sys->fIsNormOnly=true;
 
         // SetCategory
@@ -3228,23 +3228,23 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
     std::string param = confSet->Get("NuisanceParameter");
     if(param!=""){
         sys->fNuisanceParameter = RemoveQuotes(param);
-        TtHFitter::NPMAP[sys->fName] = sys->fNuisanceParameter;
+        TRExFitter::NPMAP[sys->fName] = sys->fNuisanceParameter;
     }
     else{
         sys->fNuisanceParameter = sys->fName;
-        TtHFitter::NPMAP[sys->fName] = sys->fName;
+        TRExFitter::NPMAP[sys->fName] = sys->fName;
     }
 
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
         sys->fTitle = RemoveQuotes(param);
-        TtHFitter::SYSTMAP[sys->fName] = sys->fTitle;
+        TRExFitter::SYSTMAP[sys->fName] = sys->fTitle;
     }
 
     // Set TexTitle
     param = confSet->Get("TexTitle");
-    if(param!="") TtHFitter::SYSTTEX[sys->fName] = RemoveQuotes(param);
+    if(param!="") TRExFitter::SYSTTEX[sys->fName] = RemoveQuotes(param);
 
     // attach the syst to the proper samples
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
@@ -3314,17 +3314,17 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
                 param = confSet->Get("NuisanceParameter");
                 if(param != ""){
                     mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+ireg+"_bin"+std::to_string(i_bin);
-                    TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                    TRExFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
                 } else {
                     mySys->fNuisanceParameter = mySys->fName;
-                    TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+                    TRExFitter::NPMAP[mySys->fName] = mySys->fName;
                 }
 
                 // Set Title
                 param = confSet->Get("Title");
                 if(param != ""){
                     mySys->fTitle = (sys->fTitle)+"_"+ireg+"_bin"+std::to_string(i_bin);
-                    TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+                    TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
                 }
                 fFitter->fNSyst++;
                 for (int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
@@ -3351,18 +3351,18 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
             param = confSet->Get("NuisanceParameter");
             if(param != ""){
                 mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+ireg;
-                TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                TRExFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
             }
             else{
                 mySys->fNuisanceParameter = mySys->fName;
-                TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+                TRExFitter::NPMAP[mySys->fName] = mySys->fName;
             }
 
             // Set Title
             param = confSet->Get("Title");
             if(param != ""){
                 mySys->fTitle = (sys->fTitle)+"_"+ireg;
-                TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+                TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
             }
             fFitter->fNSyst++;
             //
@@ -3426,18 +3426,18 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         param = confSet->Get("NuisanceParameter");
         if(param != ""){
             mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+sam->fName;
-            TtHFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+            TRExFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
         }
         else{
             mySys->fNuisanceParameter = mySys->fName;
-            TtHFitter::NPMAP[mySys->fName] = mySys->fName;
+            TRExFitter::NPMAP[mySys->fName] = mySys->fName;
         }
 
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
             mySys->fTitle = (sys->fTitle)+"_"+sam->fName;
-            TtHFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
+            TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
         }
         fFitter->fNSyst++;
         sam->AddSystematic(mySys);
@@ -3463,18 +3463,18 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
     param = confSet->Get("NuisanceParameter");
     if(param != ""){
         mySys1->fNuisanceParameter = (sys->fNuisanceParameter)+"_Acc";
-        TtHFitter::NPMAP[mySys1->fName] = sys->fNuisanceParameter;
+        TRExFitter::NPMAP[mySys1->fName] = sys->fNuisanceParameter;
     }
     else{
         mySys1->fNuisanceParameter = mySys1->fName;
-        TtHFitter::NPMAP[mySys1->fName] = mySys1->fName;
+        TRExFitter::NPMAP[mySys1->fName] = mySys1->fName;
     }
 
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
         mySys1->fTitle = (sys->fTitle)+"_Acc";
-        TtHFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
+        TRExFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
     }
     fFitter->fNSyst++;
 
@@ -3506,18 +3506,18 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         param = confSet->Get("NuisanceParameter");
         if(param != ""){
             mySys2->fNuisanceParameter = (sys->fNuisanceParameter)+"_Shape";
-            TtHFitter::NPMAP[mySys2->fName] = sys->fNuisanceParameter;
+            TRExFitter::NPMAP[mySys2->fName] = sys->fNuisanceParameter;
         }
         else{
             mySys2->fNuisanceParameter = mySys2->fName;
-            TtHFitter::NPMAP[mySys2->fName] = mySys2->fName;
+            TRExFitter::NPMAP[mySys2->fName] = mySys2->fName;
         }
 
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
             mySys2->fTitle = (sys->fTitle)+"_Shape";
-            TtHFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
+            TRExFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
         }
         fFitter->fNSyst++;
 
@@ -3550,22 +3550,22 @@ int ConfigReader::PostConfig(){
 
     // add nuisance parameter - systematic title correspondence
     for(auto syst : fFitter->fSystematics){
-        if(syst->fNuisanceParameter!=syst->fName) TtHFitter::SYSTMAP[syst->fNuisanceParameter] = syst->fTitle;
+        if(syst->fNuisanceParameter!=syst->fName) TRExFitter::SYSTMAP[syst->fNuisanceParameter] = syst->fTitle;
     }
     // add nuisance parameter - norm-factor title correspondence & fix nuisance parameter
     for(auto norm : fFitter->fNormFactors){
-        if(TtHFitter::NPMAP[norm->fName]=="") TtHFitter::NPMAP[norm->fName] = norm->fName;
-        if(norm->fNuisanceParameter!=norm->fName) TtHFitter::SYSTMAP[norm->fNuisanceParameter] = norm->fTitle;
+        if(TRExFitter::NPMAP[norm->fName]=="") TRExFitter::NPMAP[norm->fName] = norm->fName;
+        if(norm->fNuisanceParameter!=norm->fName) TRExFitter::SYSTMAP[norm->fNuisanceParameter] = norm->fTitle;
     }
 
     // morphing
     if (fFitter->fMorphParams.size()!=0){
         // template fitting stuff
         fFitter->fTemplateWeightVec = fFitter->GetTemplateWeightVec(fFitter->fTemplateInterpolationOption);
-        for(const TtHFit::TemplateWeight& itemp : fFitter->fTemplateWeightVec){
+        for(const TRExFit::TemplateWeight& itemp : fFitter->fTemplateWeightVec){
             std::string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
-            TtHFitter::SYSTMAP[normName] = itemp.function;
-            TtHFitter::NPMAP[normName]   = itemp.name;
+            TRExFitter::SYSTMAP[normName] = itemp.function;
+            TRExFitter::NPMAP[normName]   = itemp.name;
             // get the norm factor corresponding to each template
             for(auto norm : fFitter->fNormFactors){
                 if(norm->fName == normName){

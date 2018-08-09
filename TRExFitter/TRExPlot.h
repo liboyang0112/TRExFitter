@@ -1,5 +1,5 @@
-#ifndef TTHPLOT_H
-#define TTHPLOT_H
+#ifndef TRExPLOT_H
+#define TRExPLOT_H
 
 /// c++ includes
 #include <string>
@@ -17,10 +17,10 @@ class TPad;
 const int MAXbins = 1000;
 const int MAXSAMPLES = 100;
 
-class TthPlot {
+class TRExPlot {
   public:
-    TthPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700);
-    ~TthPlot(){};
+    TRExPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700);
+    ~TRExPlot(){};
 
     void SetChannel(std::string name);
     void AddLabel(std::string name);

@@ -1,5 +1,5 @@
 // Class includes
-#include "TtHFitter/NuisParameter.h"
+#include "TRExFitter/NuisParameter.h"
 
 //__________________________________________________________________________________
 //

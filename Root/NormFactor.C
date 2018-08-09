@@ -1,8 +1,8 @@
 // Class include
-#include "TtHFitter/NormFactor.h"
+#include "TRExFitter/NormFactor.h"
 
 // Framework includes
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/StatusLogbook.h"
 
 // -------------------------------------------------------------------------------------------------
 // class NormFactor

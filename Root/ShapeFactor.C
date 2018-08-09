@@ -1,8 +1,8 @@
 // Class include
-#include "TtHFitter/ShapeFactor.h"
+#include "TRExFitter/ShapeFactor.h"
 
 // Framework includes
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/StatusLogbook.h"
 
 // -------------------------------------------------------------------------------------------------
 // class ShapeFactor

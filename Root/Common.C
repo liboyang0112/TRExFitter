@@ -1,9 +1,9 @@
 // Header include
-#include "TtHFitter/Common.h"
+#include "TRExFitter/Common.h"
 
 // Framework includes
-#include "TtHFitter/HistoTools.h"
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/HistoTools.h"
+#include "TRExFitter/StatusLogbook.h"
 
 // ATLAS stuff
 #include "AtlasUtils/AtlasStyle.h"
@@ -28,36 +28,36 @@ using namespace std;
 // VARIABLES
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
-int TtHFitter::DEBUGLEVEL = 1;
-bool TtHFitter::SHOWYIELDS = false;
-bool TtHFitter::SHOWSTACKSIG = true;
-bool TtHFitter::SHOWNORMSIG = false;
-bool TtHFitter::SHOWOVERLAYSIG = false;
-bool TtHFitter::SHOWCHI2 = false;
-bool TtHFitter::SHOWSTACKSIG_SUMMARY = true;
-bool TtHFitter::SHOWNORMSIG_SUMMARY = false;
-bool TtHFitter::SHOWOVERLAYSIG_SUMMARY = false;
-bool TtHFitter::LEGENDLEFT = false;
-bool TtHFitter::PREFITONPOSTFIT = false;
-bool TtHFitter::POISSONIZE = false;
-bool TtHFitter::SYSTCONTROLPLOTS = false;
-bool TtHFitter::SYSTERRORBARS = true;
-bool TtHFitter::SYSTDATAPLOT = false;
-bool TtHFitter::SPLITHISTOFILES = false;
-bool TtHFitter::HISTOCHECKCRASH = true;
-bool TtHFitter::GUESSMCSTATERROR = true;
-bool TtHFitter::REMOVEXERRORS = false;
-bool TtHFitter::NOENDERR = false;
-float TtHFitter::CORRELATIONTHRESHOLD = -1;
-bool TtHFitter::MERGEUNDEROVERFLOW = false;
-std::map <string,string> TtHFitter::SYSTMAP;
-std::map <string,string> TtHFitter::SYSTTEX;
-std::map <string,string> TtHFitter::NPMAP;
-std::vector <string> TtHFitter::IMAGEFORMAT;
-int TtHFitter::NCPU = 1;
+int TRExFitter::DEBUGLEVEL = 1;
+bool TRExFitter::SHOWYIELDS = false;
+bool TRExFitter::SHOWSTACKSIG = true;
+bool TRExFitter::SHOWNORMSIG = false;
+bool TRExFitter::SHOWOVERLAYSIG = false;
+bool TRExFitter::SHOWCHI2 = false;
+bool TRExFitter::SHOWSTACKSIG_SUMMARY = true;
+bool TRExFitter::SHOWNORMSIG_SUMMARY = false;
+bool TRExFitter::SHOWOVERLAYSIG_SUMMARY = false;
+bool TRExFitter::LEGENDLEFT = false;
+bool TRExFitter::PREFITONPOSTFIT = false;
+bool TRExFitter::POISSONIZE = false;
+bool TRExFitter::SYSTCONTROLPLOTS = false;
+bool TRExFitter::SYSTERRORBARS = true;
+bool TRExFitter::SYSTDATAPLOT = false;
+bool TRExFitter::SPLITHISTOFILES = false;
+bool TRExFitter::HISTOCHECKCRASH = true;
+bool TRExFitter::GUESSMCSTATERROR = true;
+bool TRExFitter::REMOVEXERRORS = false;
+bool TRExFitter::NOENDERR = false;
+float TRExFitter::CORRELATIONTHRESHOLD = -1;
+bool TRExFitter::MERGEUNDEROVERFLOW = false;
+std::map <string,string> TRExFitter::SYSTMAP;
+std::map <string,string> TRExFitter::SYSTTEX;
+std::map <string,string> TRExFitter::NPMAP;
+std::vector <string> TRExFitter::IMAGEFORMAT;
+int TRExFitter::NCPU = 1;
 //
-std::map <string,float> TtHFitter::OPTION;
-std::map<string,TFile*> TtHFitter::TFILEMAP;
+std::map <string,float> TRExFitter::OPTION;
+std::map<string,TFile*> TRExFitter::TFILEMAP;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
     h->Sumw2();
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
     t->Draw(drawVariable, drawWeight, "goff");
-    if(TtHFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
+    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     delete t;
     return h;
 }
@@ -92,7 +92,7 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
     h->Sumw2();
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
     t->Draw(drawVariable, drawWeight, "goff");
-    if(TtHFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
+    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     delete t;
     return h;
 }
@@ -100,11 +100,11 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
 //__________________________________________________________________________________
 //
 TFile* GetFile(string fileName){
-    auto it = TtHFitter::TFILEMAP.find(fileName);
-    if(it != TtHFitter::TFILEMAP.end()) return it->second;
+    auto it = TRExFitter::TFILEMAP.find(fileName);
+    if(it != TRExFitter::TFILEMAP.end()) return it->second;
     else {
        TFile *f = new TFile(fileName.c_str());
-       TtHFitter::TFILEMAP.insert(std::pair<string,TFile*>(fileName,f));
+       TRExFitter::TFILEMAP.insert(std::pair<string,TFile*>(fileName,f));
        return f;
     }
 }
@@ -139,7 +139,7 @@ TH1* HistFromFile(string fileName,string histoName){
     }
     h = static_cast<TH1*>(h->Clone());
     if(h!=0x0) h->SetDirectory(0);
-    if(TtHFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
+    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     return h;
 }
 
@@ -247,7 +247,7 @@ vector<string> ToVec(string s){
 
 //__________________________________________________________________________________
 //
-void TtHFitter::SetDebugLevel(int level){
+void TRExFitter::SetDebugLevel(int level){
     DEBUGLEVEL = level;
 }
 
@@ -581,11 +581,11 @@ float CorrectIntegral(TH1* h,float *err){
 void CloseFiles( const std::set < std::string> &files_names ){
     for( const auto &fullName : files_names ){
         std::string file = fullName.substr(0,fullName.find_last_of(".")+5);
-        auto it = TtHFitter::TFILEMAP.find(file);
-        if(it != TtHFitter::TFILEMAP.end()){
+        auto it = TRExFitter::TFILEMAP.find(file);
+        if(it != TRExFitter::TFILEMAP.end()){
             //the file exists. Let's close it, and delete the pointer
             it->second->Close();
-            TtHFitter::TFILEMAP.erase(file);
+            TRExFitter::TFILEMAP.erase(file);
         }
     }
 }
