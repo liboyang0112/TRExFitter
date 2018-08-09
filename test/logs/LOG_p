@@ -14,40 +14,40 @@ Applying ATLAS style settings...
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
 [1;32m=== INFO::myFit::FitExample: Successfully read config file.[0m
-[1;32m=== INFO::TtHFit::ReadHistos: -----------------------------[0m
-[1;32m=== INFO::TtHFit::ReadHistos: Reading histograms from file FitExample/Histograms/FitExample_histos.root ...[0m
-=== DEBUG::TtHFit::ReadHistos:   Reading region SR_1
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Data
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg1
-=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
-=== DEBUG::TtHFit::ReadHistos:       Reading syst Bkg1Xsec
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg2
-=== DEBUG::TtHFit::ReadHistos:       Reading syst Bkg2Xsec
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Signal
-=== DEBUG::TtHFit::ReadHistos:       Reading norm SigXsecOverSM
-=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
-=== DEBUG::TtHFit::ReadHistos:   Reading region SR_2
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Data
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg1
-=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg2
-=== DEBUG::TtHFit::ReadHistos:       Reading syst Bkg2Xsec
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Signal
-=== DEBUG::TtHFit::ReadHistos:       Reading norm SigXsecOverSM
-=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
-=== DEBUG::TtHFit::ReadHistos:   Reading region VR
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Data
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg1
-=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
-=== DEBUG::TtHFit::ReadHistos:       Reading syst Bkg1Xsec
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Bkg2
-=== DEBUG::TtHFit::ReadHistos:       Reading syst Bkg2Xsec
-=== DEBUG::TtHFit::ReadHistos:     Reading sample Signal
-=== DEBUG::TtHFit::ReadHistos:       Reading norm SigXsecOverSM
-=== DEBUG::TtHFit::ReadHistos:       Reading syst JES
+[1;32m=== INFO::TRExFit::ReadHistos: -----------------------------[0m
+[1;32m=== INFO::TRExFit::ReadHistos: Reading histograms from file FitExample/Histograms/FitExample_histos.root ...[0m
+=== DEBUG::TRExFit::ReadHistos:   Reading region SR_1
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg1Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:   Reading region SR_2
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:   Reading region VR
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg1Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
 Drawing post-fit plots...
-[1;32m=== INFO::TtHFit::ReadFitResults: ------------------------------------------------------[0m
-[1;32m=== INFO::TtHFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
 === DEBUG::FitResults::ReadFromTXT: --------------------
@@ -133,25 +133,25 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been cr
 === DEBUG::Region::DrawPostFit: 4:	62.746445 +11.147523 -11.147523
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/VR_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/VR_postFit.png has been created
-[1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
-[1;32m=== INFO::TtHFit::DrawSummary: Building Summary Plot...[0m
-=== DEBUG::TtHFit::DrawSummary: Adding Data:   Data 2015
-=== DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
-=== DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
-=== DEBUG::TtHFit::DrawSummary: Adding Signal: Signal
-=== DEBUG::TtHFit::DrawSummary: 1:	316.504791	+15.538572	-15.538572
-=== DEBUG::TtHFit::DrawSummary: 2:	312.174561	+12.720721	-12.720721
+[1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
+=== DEBUG::TRExFit::DrawSummary: Adding Data:   Data 2015
+=== DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
+=== DEBUG::TRExFit::DrawSummary: 1:	316.504791	+15.538572	-15.538572
+=== DEBUG::TRExFit::DrawSummary: 2:	312.174561	+12.720721	-12.720721
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
-[1;32m=== INFO::TtHFit::DrawSummary: -------------------------------------------[0m
-[1;32m=== INFO::TtHFit::DrawSummary: Building Summary Plot...[0m
-=== DEBUG::TtHFit::DrawSummary: Adding Data:   Data 2015
-=== DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
-=== DEBUG::TtHFit::DrawSummary: Adding Bkg:    Background
-=== DEBUG::TtHFit::DrawSummary: Adding Signal: Signal
+[1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
+=== DEBUG::TRExFit::DrawSummary: Adding Data:   Data 2015
+=== DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
 Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
-=== DEBUG::TtHFit::DrawSummary: 1:	845.515381	+44.061489	-44.061489
+=== DEBUG::TRExFit::DrawSummary: 1:	845.515381	+44.061489	-44.061489
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has been created
-[1;32m=== INFO::TtHFit::BuildYieldTable: -------------------------------------------[0m
-[1;32m=== INFO::TtHFit::BuildYieldTable: Building Yields Table...[0m
-[1;32m=== INFO::TtHFit::PrintSystTables: Printing syt tables[0m
+[1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
+[1;32m=== INFO::TRExFit::PrintSystTables: Printing syt tables[0m
 Info in <TCanvas::Print>: png file FitExample/PieChart_postFit.png has been created

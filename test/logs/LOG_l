@@ -210,14 +210,14 @@ Nuisance Parameters:     RooArgSet:: = (alpha_Bkg1Xsec,alpha_Bkg2Xsec,alpha_JES,
 Global Observables:      RooArgSet:: = (nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
 PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 3.62858e-05
 
-=== DEBUG::TtHFit::DumpData: Dumping data with the following parameters
-=== DEBUG::TtHFit::DumpData:     * Regions data type 
-=== DEBUG::TtHFit::DumpData:        - Region: SR_1       DataType: 0
-=== DEBUG::TtHFit::DumpData:        - Region: SR_2       DataType: 0
-=== DEBUG::TtHFit::DumpData:     * No NP values injected 
-=== DEBUG::TtHFit::DumpData:     * POI value: 0.000000
-=== DEBUG::TtHFit::DumpData: Activating binned likelihood attribute for SR_1_model
-=== DEBUG::TtHFit::DumpData: Activating binned likelihood attribute for SR_2_model
+=== DEBUG::TRExFit::DumpData: Dumping data with the following parameters
+=== DEBUG::TRExFit::DumpData:     * Regions data type 
+=== DEBUG::TRExFit::DumpData:        - Region: SR_1       DataType: 0
+=== DEBUG::TRExFit::DumpData:        - Region: SR_2       DataType: 0
+=== DEBUG::TRExFit::DumpData:     * No NP values injected 
+=== DEBUG::TRExFit::DumpData:     * POI value: 0.000000
+=== DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_1_model
+=== DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_2_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
 === DEBUG::RunAsymptoticsCLs::RunAsymptoticsCLs: get min and max of firstPOI
@@ -966,4 +966,4 @@ RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCat,weight:weightVar] =
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Observed:  2.926272[0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: [0m
 [1;32m=== INFO::RunAsymptoticsCLs::RunAsymptoticsCLs: Finished with 33 calls to minimize(nll)[0m
-Real time 0:00:01, CP time 1.070
+Real time 0:00:03, CP time 2.800
