@@ -1,23 +1,23 @@
 // Class include
-#include "TtHFitter/TtHFit.h"
+#include "TRExFitter/TRExFit.h"
 
 // Framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/ConfigParser.h"
-#include "TtHFitter/ConfigReader.h"
-#include "TtHFitter/FitResults.h"
-#include "TtHFitter/FittingTool.h"
-#include "TtHFitter/HistoTools.h"
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/NuisParameter.h"
-#include "TtHFitter/Sample.h"
-#include "TtHFitter/SampleHist.h"
-#include "TtHFitter/ShapeFactor.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/Systematic.h"
-#include "TtHFitter/SystematicHist.h"
-#include "TtHFitter/TthPlot.h"
-#include "TtHFitter/Region.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/ConfigParser.h"
+#include "TRExFitter/ConfigReader.h"
+#include "TRExFitter/FitResults.h"
+#include "TRExFitter/FittingTool.h"
+#include "TRExFitter/HistoTools.h"
+#include "TRExFitter/NormFactor.h"
+#include "TRExFitter/NuisParameter.h"
+#include "TRExFitter/Sample.h"
+#include "TRExFitter/SampleHist.h"
+#include "TRExFitter/ShapeFactor.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/Systematic.h"
+#include "TRExFitter/SystematicHist.h"
+#include "TRExFitter/TRExPlot.h"
+#include "TRExFitter/Region.h"
 
 // CommonStatTiils includes
 #include "CommonStatTools/runSig.h"
@@ -67,11 +67,11 @@ using namespace std;
 using namespace RooFit;
 
 // -------------------------------------------------------------------------------------------------
-// class TtHFit
+// class TRExFit
 
 //__________________________________________________________________________________
 //
-TtHFit::TtHFit(string name){
+TRExFit::TRExFit(string name){
     fTtresSmoothing = false;
     fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
     fDir = "";
@@ -205,8 +205,8 @@ TtHFit::TtHFit(string name){
     fSignificanceOutputPrefixName = "mySignificance"; 
 
     fImageFormat = "png";
-    TtHFitter::IMAGEFORMAT.clear();
-    TtHFitter::IMAGEFORMAT.push_back("png");
+    TRExFitter::IMAGEFORMAT.clear();
+    TRExFitter::IMAGEFORMAT.push_back("png");
 
     //
     fSystematics.clear();
@@ -248,7 +248,7 @@ TtHFit::TtHFit(string name){
     fSuppressNegativeBinWarnings = false;
 
     fMorphParams.clear();
-    fTemplateInterpolationOption = TtHFit::LINEAR;
+    fTemplateInterpolationOption = TRExFit::LINEAR;
     
     fBootstrap = "";
     fBootstrapIdx = -1;
@@ -267,7 +267,7 @@ TtHFit::TtHFit(string name){
 
 //__________________________________________________________________________________
 //
-TtHFit::~TtHFit(){
+TRExFit::~TRExFit(){
     if(fFitResults) delete fFitResults;
 
     for(unsigned int i =0 ; i < fRegions.size(); ++i){
@@ -287,13 +287,13 @@ TtHFit::~TtHFit(){
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetPOI(string name){
+void TRExFit::SetPOI(string name){
     fPOI = name;
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetStatErrorConfig(bool useIt, float thres, string cons){
+void TRExFit::SetStatErrorConfig(bool useIt, float thres, string cons){
     fUseStatErr = useIt;
     fStatErrThres = thres;
     fStatErrCons = cons;
@@ -301,37 +301,37 @@ void TtHFit::SetStatErrorConfig(bool useIt, float thres, string cons){
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetLumiErr(float err){
+void TRExFit::SetLumiErr(float err){
     fLumiErr = err;
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetLumi(const float lumi){
+void TRExFit::SetLumi(const float lumi){
     fLumi = lumi;
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetFitType(FitType type){
+void TRExFit::SetFitType(FitType type){
     fFitType = type;
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetLimitType(LimitType type){
+void TRExFit::SetLimitType(LimitType type){
     fLimitType = type;
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetFitRegion(FitRegion region){
+void TRExFit::SetFitRegion(FitRegion region){
     fFitRegion = region;
 }
 
 //__________________________________________________________________________________
 //
-Sample* TtHFit::NewSample(string name,int type){
+Sample* TRExFit::NewSample(string name,int type){
     fSamples.push_back(new Sample(name,type));
     //
     fNSamples ++;
@@ -340,7 +340,7 @@ Sample* TtHFit::NewSample(string name,int type){
 
 //__________________________________________________________________________________
 //
-Systematic* TtHFit::NewSystematic(string name){
+Systematic* TRExFit::NewSystematic(string name){
     fSystematics.push_back(new Systematic(name));
     fNSyst ++;
     return fSystematics[fNSyst-1];
@@ -348,7 +348,7 @@ Systematic* TtHFit::NewSystematic(string name){
 
 //__________________________________________________________________________________
 //
-Region* TtHFit::NewRegion(string name){
+Region* TRExFit::NewRegion(string name){
     fRegions.push_back(new Region(name));
     //
     fRegions[fNRegions]->fFitName = fName;
@@ -372,37 +372,37 @@ Region* TtHFit::NewRegion(string name){
 
 //__________________________________________________________________________________
 //
-void TtHFit::AddNtuplePath(string path){
+void TRExFit::AddNtuplePath(string path){
     fNtuplePaths.push_back(path);
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetMCweight(string weight){
+void TRExFit::SetMCweight(string weight){
     fMCweight = weight;
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetSelection(string selection){
+void TRExFit::SetSelection(string selection){
     fSelection = selection;
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetNtupleName(string name){
+void TRExFit::SetNtupleName(string name){
     fNtupleName = name;
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::SetNtupleFile(string name){
+void TRExFit::SetNtupleFile(string name){
     fNtupleFile = name;
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::AddHistoPath(string path){
+void TRExFit::AddHistoPath(string path){
     fHistoPaths.push_back(path);
 }
 
@@ -410,9 +410,9 @@ void TtHFit::AddHistoPath(string path){
 
 //__________________________________________________________________________________
 // apply smoothing to systematics
-void TtHFit::SmoothSystematics(string syst){
-    WriteInfoStatus("TtHFit::SmoothSystematics", "-------------------------------------------");
-    WriteInfoStatus("TtHFit::SmoothSystematics", "Smoothing and/or Symmetrising Systematic Variations ...");
+void TRExFit::SmoothSystematics(string syst){
+    WriteInfoStatus("TRExFit::SmoothSystematics", "-------------------------------------------");
+    WriteInfoStatus("TRExFit::SmoothSystematics", "Smoothing and/or Symmetrising Systematic Variations ...");
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
 //             if(fRegions[i_ch]->fSampleHists[i_smp]==0x0) continue;
@@ -428,12 +428,12 @@ void TtHFit::SmoothSystematics(string syst){
 // Try to split root file creation and histogram wiriting
 //__________________________________________________________________________________
 // create new root file(s)
-void TtHFit::CreateRootFiles(){
+void TRExFit::CreateRootFiles(){
     bool recreate = !fUpdate;
     gSystem->mkdir( fName.c_str());
     gSystem->mkdir( (fName + "/Histograms/").c_str() );
     string fileName = "";
-    bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
+    bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
         if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos" + fSaveSuffix + ".root";
@@ -442,11 +442,11 @@ void TtHFit::CreateRootFiles(){
         if(fBootstrap!="" && fBootstrapIdx>=0){
             fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
         }
-        WriteInfoStatus("TtHFit::CreateRootFiles","-------------------------------------------");
-        WriteInfoStatus("TtHFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
+        WriteInfoStatus("TRExFit::CreateRootFiles","-------------------------------------------");
+        WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
         if(recreate) fFiles.push_back(new TFile(fileName.c_str(),"RECREATE"));
         else         fFiles.push_back(new TFile(fileName.c_str(),"UPDATE"));
-        TtHFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1]));
+        TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1]));
     }
     else{
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -456,32 +456,32 @@ void TtHFit::CreateRootFiles(){
             if(fBootstrap!="" && fBootstrapIdx>=0){
                 fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
             }
-            WriteInfoStatus("TtHFit::CreateRootFiles","-------------------------------------------");
-            WriteInfoStatus("TtHFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
+            WriteInfoStatus("TRExFit::CreateRootFiles","-------------------------------------------");
+            WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
             if(recreate) fFiles.push_back(new TFile(fileName.c_str(),"RECREATE"));
             else         fFiles.push_back(new TFile(fileName.c_str(),"UPDATE"));
-            TtHFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1]));
+            TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1]));
         }
     }
 }
 
 //__________________________________________________________________________________
 // fill files with all the histograms
-void TtHFit::WriteHistos(){
-    bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
+void TRExFit::WriteHistos(){
+    bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     SampleHist* sh;
     string fileName = "";
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         //
         if(singleOutputFile) fileName = fFiles[0]   ->GetName();
         else                 fileName = fFiles[i_ch]->GetName();
-        WriteInfoStatus("TtHFit::WriteHistos","-------------------------------------------");
-        WriteInfoStatus("TtHFit::WriteHistos","Writing histograms to file " + fileName + " ...");
+        WriteInfoStatus("TRExFit::WriteHistos","-------------------------------------------");
+        WriteInfoStatus("TRExFit::WriteHistos","Writing histograms to file " + fileName + " ...");
         //
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
             if(sh == 0x0){
-                WriteDebugStatus("TtHFit::WriteHistos", "SampleHist[" + std::to_string(i_smp) + "] for sample " + fSamples[i_smp]->fName + " not there.");
+                WriteDebugStatus("TRExFit::WriteHistos", "SampleHist[" + std::to_string(i_smp) + "] for sample " + fSamples[i_smp]->fName + " not there.");
                 continue;
             }
             // set file and histo names for nominal
@@ -506,19 +506,19 @@ void TtHFit::WriteHistos(){
             else                 sh->WriteToFile(fFiles[i_ch]);
         }
     }
-    WriteInfoStatus("TtHFit::WriteHistos","-------------------------------------------");
+    WriteInfoStatus("TRExFit::WriteHistos","-------------------------------------------");
 }
 
 // //__________________________________________________________________________________
 // // create new root file with all the histograms
-// void TtHFit::WriteHistos(/*string fileName*/){
+// void TRExFit::WriteHistos(/*string fileName*/){
 //     bool recreate = !fUpdate;
 //     gSystem->mkdir( fName.c_str());
 //     gSystem->mkdir( (fName + "/Histograms/").c_str() );
 //     string fileName = "";
 //     TDirectory *dir = gDirectory;
 //     TFile *f;
-//     bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
+//     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
 //     //
 //     if(singleOutputFile){
 //         if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos" + fSaveSuffix + ".root";
@@ -550,7 +550,7 @@ void TtHFit::WriteHistos(){
 //         for(int i_smp=0;i_smp<fNSamples;i_smp++){
 //             sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
 //             if(sh == 0x0){
-//               if(TtHFitter::DEBUGLEVEL>0) std::cout << "SampleHist[" << i_smp << "] for sample " << fSamples[i_smp]->fName << " not there." << std::endl;
+//               if(TRExFitter::DEBUGLEVEL>0) std::cout << "SampleHist[" << i_smp << "] for sample " << fSamples[i_smp]->fName << " not there." << std::endl;
 //                 continue;
 //             }
 //             // set file and histo names for nominal
@@ -577,7 +577,7 @@ void TtHFit::WriteHistos(){
 
 //__________________________________________________________________________________
 // Draw syst plots
-void TtHFit::DrawSystPlots(){
+void TRExFit::DrawSystPlots(){
     SampleHist* sh;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
@@ -589,9 +589,9 @@ void TtHFit::DrawSystPlots(){
 
 //__________________________________________________________________________________
 // Draw syst plots
-void TtHFit::DrawSystPlotsSumSamples(){
-    WriteInfoStatus("TtHFit::DrawSystPlotsSumSamples", "-------------------------------------------");
-    WriteInfoStatus("TtHFit::DrawSystPlotsSumSamples", "Drawing combined plots of syst effects on data...");
+void TRExFit::DrawSystPlotsSumSamples(){
+    WriteInfoStatus("TRExFit::DrawSystPlotsSumSamples", "-------------------------------------------");
+    WriteInfoStatus("TRExFit::DrawSystPlotsSumSamples", "Drawing combined plots of syst effects on data...");
     TH1* h_dataCopy = nullptr;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         SampleHist* hist = new SampleHist();
@@ -622,9 +622,9 @@ void TtHFit::DrawSystPlotsSumSamples(){
 }
 
 // for each region, add a SampleHist for each Sample in the Fit, reading from ntuples
-void TtHFit::ReadNtuples(){
-    WriteInfoStatus("TtHFit::ReadNtuples", "-------------------------------------------");
-    WriteInfoStatus("TtHFit::ReadNtuples", "Reading ntuples...");
+void TRExFit::ReadNtuples(){
+    WriteInfoStatus("TRExFit::ReadNtuples", "-------------------------------------------");
+    WriteInfoStatus("TRExFit::ReadNtuples", "Reading ntuples...");
     TH1F* h = 0x0;
     TH1F* hUp = 0x0;
     TH1F* hDown = 0x0;
@@ -638,7 +638,7 @@ void TtHFit::ReadNtuples(){
     // Import custom functions from .C files
     //
     for(auto file : fCustomFunctions){
-        WriteInfoStatus("TtHFit::ReadNtuples", "  Loading function from " + file + " ...");
+        WriteInfoStatus("TRExFit::ReadNtuples", "  Loading function from " + file + " ...");
 //         gROOT->ProcessLineSync((".x "+file+"+").c_str());
         gROOT->ProcessLineSync((".L "+file+"+").c_str());
     }
@@ -646,28 +646,28 @@ void TtHFit::ReadNtuples(){
     // Loop on regions and samples
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        WriteInfoStatus("TtHFit::ReadNtuples", "  Region " + fRegions[i_ch]->fName + " ...");
+        WriteInfoStatus("TRExFit::ReadNtuples", "  Region " + fRegions[i_ch]->fName + " ...");
         //
-        if(TtHFitter::SPLITHISTOFILES) fFiles[i_ch]->cd();
+        if(TRExFitter::SPLITHISTOFILES) fFiles[i_ch]->cd();
         //
         if(fRegions[i_ch]->fBinTransfo != "")  ComputeBining(i_ch);
         if(fRegions[i_ch]->fCorrVar1 != ""){
             if(fRegions[i_ch]->fCorrVar2 == ""){
-                WriteWarningStatus("TtHFit::ReadNtuples", "Only first correlation variable defined, do not read region : " + fRegions[i_ch]->fName);
+                WriteWarningStatus("TRExFit::ReadNtuples", "Only first correlation variable defined, do not read region : " + fRegions[i_ch]->fName);
                 continue;
             }
-            WriteDebugStatus("TtHFit::ReadNtuples", "calling the function 'defineVariable(i_ch)'");
+            WriteDebugStatus("TRExFit::ReadNtuples", "calling the function 'defineVariable(i_ch)'");
             defineVariable(i_ch);
         }
         else if(fRegions[i_ch]->fCorrVar2 != ""){
-            WriteWarningStatus("TtHFit::ReadNtuples", "Only second correlation variable defined, do not read region : " + fRegions[i_ch]->fName);
+            WriteWarningStatus("TRExFit::ReadNtuples", "Only second correlation variable defined, do not read region : " + fRegions[i_ch]->fName);
             continue;
         }
 
         // first loop on Data samples
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if(fSamples[i_smp]->fType!=Sample::DATA) continue;
-            WriteDebugStatus("TtHFit::ReadNtuples","   Reading DATA sample " + fSamples[i_smp]->fName);
+            WriteDebugStatus("TRExFit::ReadNtuples","   Reading DATA sample " + fSamples[i_smp]->fName);
             //
             // eventually skip sample / region combination
             //
@@ -760,7 +760,7 @@ void TtHFit::ReadNtuples(){
             // Save the original histogram
             TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
             //
-            // Importing the histogram in TtHFitter
+            // Importing the histogram in TRExFitter
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
@@ -778,7 +778,7 @@ void TtHFit::ReadNtuples(){
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("TtHFit::ReadNtuples", "Adding DATA syst " + syst->fName);
+                WriteDebugStatus("TRExFit::ReadNtuples", "Adding DATA syst " + syst->fName);
                 //
                 Region *reg = fRegions[i_ch];
                 Sample *smp = fSamples[i_smp];
@@ -841,7 +841,7 @@ void TtHFit::ReadNtuples(){
                             if(reg->fHistoNBinsRebin != -1) htmp = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin));
                         }
                         //
-                        // Importing histogram in TtHFitter
+                        // Importing histogram in TRExFitter
                         if(i_path==0){
                             hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
@@ -899,7 +899,7 @@ void TtHFit::ReadNtuples(){
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                         else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
                         //
-                        // Importing histogram in TtHFitter
+                        // Importing histogram in TRExFitter
                         if(i_path==0){
                             hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
@@ -926,7 +926,7 @@ void TtHFit::ReadNtuples(){
         // Then loop again on non-data samples
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if(fSamples[i_smp]->fType==Sample::DATA) continue;
-            WriteDebugStatus("TtHFit::ReadNtuples", "  Reading " + fSamples[i_smp]->fName);
+            WriteDebugStatus("TRExFit::ReadNtuples", "  Reading " + fSamples[i_smp]->fName);
             //
             // eventually skip sample / region combination
             //
@@ -1027,7 +1027,7 @@ void TtHFit::ReadNtuples(){
             // Save the original histogram
             TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
             //
-            // Importing the histogram in TtHFitter
+            // Importing the histogram in TRExFitter
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
@@ -1046,7 +1046,7 @@ void TtHFit::ReadNtuples(){
                 if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( nf->fExclude.size()>0 && FindInStringVector(nf->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("TtHFit::ReadNtuples", "Adding norm " + nf->fName);
+                WriteDebugStatus("TRExFit::ReadNtuples", "Adding norm " + nf->fName);
                 //
                 sh->AddNormFactor( nf );
             }
@@ -1062,7 +1062,7 @@ void TtHFit::ReadNtuples(){
                 if( sf->fRegions.size()>0 && FindInStringVector(sf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( sf->fExclude.size()>0 && FindInStringVector(sf->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("TtHFit::ReadNtuples", "Adding shape " + sf->fName);
+                WriteDebugStatus("TRExFit::ReadNtuples", "Adding shape " + sf->fName);
                 //
                 sh->AddShapeFactor( sf );
             }
@@ -1079,7 +1079,7 @@ void TtHFit::ReadNtuples(){
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("TtHFit::ReadNtuples", "Adding syst " + syst->fName);
+                WriteDebugStatus("TRExFit::ReadNtuples", "Adding syst " + syst->fName);
                 //
                 Region *reg = fRegions[i_ch];
                 Sample *smp = fSamples[i_smp];
@@ -1151,7 +1151,7 @@ void TtHFit::ReadNtuples(){
                     if(fBootstrap!="" && fBootstrapIdx>=0){
                         fullMCweight += " * ("+ReplaceString(fBootstrap,"x",Form("%d",fBootstrapIdx))+")";
                     }
-                    WriteDebugStatus("TtHFit::ReadNtuples", "  Syst Up full weight: " + fullMCweight);
+                    WriteDebugStatus("TRExFit::ReadNtuples", "  Syst Up full weight: " + fullMCweight);
                     //
                     fullPaths.clear();
                     vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ), reg->fNtupleNameSuffs );
@@ -1202,8 +1202,8 @@ void TtHFit::ReadNtuples(){
                         // & try to keep also the same total relative variation
                         if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
                             if( reg->GetSampleHist(syst->fReferenceSample) == 0x0 ){
-                                WriteErrorStatus("TtHFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
-                                WriteErrorStatus("TtHFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
+                                WriteErrorStatus("TRExFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TRExFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
                                 exit(EXIT_FAILURE);
                             } 
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
@@ -1223,8 +1223,8 @@ void TtHFit::ReadNtuples(){
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                         else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
                             if( reg->GetSampleHist(syst->fReferenceSample) == 0x0 ){
-                                WriteErrorStatus("TtHFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
-                                WriteErrorStatus("TtHFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
+                                WriteErrorStatus("TRExFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TRExFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
                                 exit(EXIT_FAILURE);
                             } 
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
@@ -1245,7 +1245,7 @@ void TtHFit::ReadNtuples(){
                             delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
-                        // Importing histogram in TtHFitter
+                        // Importing histogram in TRExFitter
                         if(i_path==0){
                             hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
@@ -1368,7 +1368,7 @@ void TtHFit::ReadNtuples(){
                             delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
-                        // Importing histogram in TtHFitter
+                        // Importing histogram in TRExFitter
                         if(i_path==0){
                             hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
@@ -1400,7 +1400,7 @@ void TtHFit::ReadNtuples(){
 
 //__________________________________________________________________________________
 // this method takes care of rebinning, smoothing, fixing
-void TtHFit::CorrectHistograms(){
+void TRExFit::CorrectHistograms(){
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         Region *reg = fRegions[i_ch];
@@ -1452,29 +1452,29 @@ void TtHFit::CorrectHistograms(){
             // ---> NEED TO MOVE TO READNTUPLES? -- FIXME
             // Subtraction / Addition of sample
             for(auto sample : fSamples[i_smp]->fSubtractSamples){
-                WriteDebugStatus("TtHFit::CorrectHistograms"," subtracting sample " + sample + " from sample " + fSamples[i_smp]->fName);
+                WriteDebugStatus("TRExFit::CorrectHistograms"," subtracting sample " + sample + " from sample " + fSamples[i_smp]->fName);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(sample);
                 if(smph0!=0x0) sh->Add(smph0,-1);
             }
             for(auto sample : fSamples[i_smp]->fAddSamples){
-                WriteDebugStatus("TtHFit::CorrectHistograms", "adding sample " + sample + " to sample " + fSamples[i_smp]->fName);
+                WriteDebugStatus("TRExFit::CorrectHistograms", "adding sample " + sample + " to sample " + fSamples[i_smp]->fName);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(sample);
                 if(smph0!=0x0) sh->Add(smph0);
             }
             // Division & Multiplication by other samples
             if(fSamples[i_smp]->fMultiplyBy!=""){
-                WriteDebugStatus("TtHFit::CorrectHistograms", "multiplying " + fSamples[i_smp]->fName  + " by sample " + fSamples[i_smp]->fMultiplyBy);
+                WriteDebugStatus("TRExFit::CorrectHistograms", "multiplying " + fSamples[i_smp]->fName  + " by sample " + fSamples[i_smp]->fMultiplyBy);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fMultiplyBy);
                 if(smph0!=0x0) sh->Multiply(smph0);
             }
             if(fSamples[i_smp]->fDivideBy!=""){
-                WriteDebugStatus("TtHFit::CorrectHistograms", "dividing " + fSamples[i_smp]->fName  + "by sample " + fSamples[i_smp]->fDivideBy + " from sample " + fSamples[i_smp]->fName);
+                WriteDebugStatus("TRExFit::CorrectHistograms", "dividing " + fSamples[i_smp]->fName  + "by sample " + fSamples[i_smp]->fDivideBy + " from sample " + fSamples[i_smp]->fName);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
                 if(smph0!=0x0) sh->Divide(smph0);
             }
             // Norm to sample
             if(fSamples[i_smp]->fNormToSample!=""){
-                WriteDebugStatus("TtHFit::CorrectHistograms", "normalizing " + fSamples[i_smp]->fName  + "to sample " + fSamples[i_smp]->fDivideBy);                
+                WriteDebugStatus("TRExFit::CorrectHistograms", "normalizing " + fSamples[i_smp]->fName  + "to sample " + fSamples[i_smp]->fDivideBy);                
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fNormToSample);
                 if(smph0!=0x0) sh->Scale(smph0->fHist->Integral()/sh->fHist->Integral());
             }
@@ -1580,7 +1580,7 @@ void TtHFit::CorrectHistograms(){
                 HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
                                             sh->GetSystematic( smp->fSystematics[i_syst]->fName ) /*systematic*/,
                                             fSamples[i_smp]->fType!=Sample::SIGNAL/*check bins with content=0*/,
-                                            TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
+                                            TRExFitter::HISTOCHECKCRASH /*cause crash if problem*/);
             }
 
             // set the fill color
@@ -1605,7 +1605,7 @@ void TtHFit::CorrectHistograms(){
                     SystematicHist* syh = sh->GetSystematic(syst->fName);
                     if(syh==0x0) continue;
                     if(sh->fHist->Integral()!=0){
-                        WriteDebugStatus("TtHFit::CorrectHistograms", "  Normalising syst " + syst->fName + " for sample " + sh->fSample->fName);
+                        WriteDebugStatus("TRExFit::CorrectHistograms", "  Normalising syst " + syst->fName + " for sample " + sh->fSample->fName);
                         if(syh->fHistUp  !=0x0) syh->fHistUp  ->Scale(sh->fHist->Integral()/syh->fHistUp  ->Integral());
                         if(syh->fHistDown!=0x0) syh->fHistDown->Scale(sh->fHist->Integral()/syh->fHistDown->Integral());
                     }
@@ -1645,8 +1645,8 @@ void TtHFit::CorrectHistograms(){
                     if(sh==0x0) continue;
                     SystematicHist *syh = sh->GetSystematic(fSystematics[i_sys]->fName);
                     if(syh==0x0) continue;
-                    WriteDebugStatus("TtHFit::CorrectHistograms", "  Normalising syst " + fSystematics[i_sys]->fName + " for sample " + fSamples[i_smp]->fName);
-                    WriteDebugStatus("TtHFit::CorrectHistograms", "scaling by " + std::to_string(yieldNominal/yieldUp) + " (up), " + std::to_string(yieldNominal/yieldDown) + " (down)");
+                    WriteDebugStatus("TRExFit::CorrectHistograms", "  Normalising syst " + fSystematics[i_sys]->fName + " for sample " + fSamples[i_smp]->fName);
+                    WriteDebugStatus("TRExFit::CorrectHistograms", "scaling by " + std::to_string(yieldNominal/yieldUp) + " (up), " + std::to_string(yieldNominal/yieldDown) + " (down)");
                     syh->fHistUp  ->Scale(yieldNominal/yieldUp);
                     syh->fHistDown->Scale(yieldNominal/yieldDown);
                 }
@@ -1675,13 +1675,13 @@ void TtHFit::CorrectHistograms(){
     
     // 
     // Poissonize data
-    if(hasData && TtHFitter::OPTION["PoissonizeData"]!=0){
+    if(hasData && TRExFitter::OPTION["PoissonizeData"]!=0){
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
             Region *reg = fRegions[i_ch];
             if(reg->fData!=0x0){
                 if(reg->fData->fHist!=0x0){
                     TH1 *hdata = reg->fData->fHist;
-                    if(TtHFitter::OPTION["PoissonizeData"]>0) gRandom->SetSeed(TtHFitter::OPTION["PoissonizeData"]);
+                    if(TRExFitter::OPTION["PoissonizeData"]>0) gRandom->SetSeed(TRExFitter::OPTION["PoissonizeData"]);
                     for(int i_bin=1;i_bin<=hdata->GetNbinsX();i_bin++){
                         hdata->SetBinContent(i_bin,gRandom->Poisson( hdata->GetBinContent(i_bin) ));
                         hdata->SetBinError(i_bin,sqrt(hdata->GetBinContent(i_bin)));
@@ -1724,7 +1724,7 @@ void TtHFit::CorrectHistograms(){
     // Morph smoothing (linear)
     if(fSmoothMorphingTemplates){
         for(auto par : fMorphParams){
-            WriteInfoStatus("TtHFit::CorrectHistograms","Smoothing morphing templates for parameter "+par);
+            WriteInfoStatus("TRExFit::CorrectHistograms","Smoothing morphing templates for parameter "+par);
             SmoothMorphTemplates(par);
         }
     }
@@ -1732,7 +1732,7 @@ void TtHFit::CorrectHistograms(){
 
 //__________________________________________________________________________________
 //
-void TtHFit::ReadHistograms(){
+void TRExFit::ReadHistograms(){
     TH1F* h = 0x0;
     TH1F* hUp = 0x0;
     TH1F* hDown = 0x0;
@@ -1745,15 +1745,15 @@ void TtHFit::ReadHistograms(){
     // Loop on regions and samples
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        WriteInfoStatus("TtHFit::ReadHistograms", "  Region " + fRegions[i_ch]->fName + " ...");
+        WriteInfoStatus("TRExFit::ReadHistograms", "  Region " + fRegions[i_ch]->fName + " ...");
         //
-        if(TtHFitter::SPLITHISTOFILES) fFiles[i_ch]->cd();
+        if(TRExFitter::SPLITHISTOFILES) fFiles[i_ch]->cd();
         //
         if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch);
         // first we must read the DATA samples
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if(fSamples[i_smp]->fType!=Sample::DATA) continue;
-            WriteDebugStatus("TtHFit::ReadHistograms", "  Reading DATA sample " + fSamples[i_smp]->fName);
+            WriteDebugStatus("TRExFit::ReadHistograms", "  Reading DATA sample " + fSamples[i_smp]->fName);
             //
             // eventually skip sample / region combination
             //
@@ -1803,7 +1803,7 @@ void TtHFit::ReadHistograms(){
             // Save the original histogram
             TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
             //
-            // Importing the histogram in TtHFitter
+            // Importing the histogram in TRExFitter
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
@@ -1821,7 +1821,7 @@ void TtHFit::ReadHistograms(){
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("TtHFit::ReadHistograms", "Adding syst " + syst->fName);
+                WriteDebugStatus("TRExFit::ReadHistograms", "Adding syst " + syst->fName);
                 //
                 Region *reg = fRegions[i_ch];
                 Sample *smp = fSamples[i_smp];
@@ -1868,7 +1868,7 @@ void TtHFit::ReadHistograms(){
                         //
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                         else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
-                        // Importing histogram in TtHFitter
+                        // Importing histogram in TRExFitter
                         if(i_path==0){
                             hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
@@ -1920,7 +1920,7 @@ void TtHFit::ReadHistograms(){
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                         else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
                         //
-                        // Importing histogram in TtHFitter
+                        // Importing histogram in TRExFitter
                         if(i_path==0){
                             hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
@@ -1949,7 +1949,7 @@ void TtHFit::ReadHistograms(){
         std::set < std::string > files_names;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if(fSamples[i_smp]->fType==Sample::DATA) continue;
-            WriteDebugStatus("TthFit::ReadHistograms", "  Reading " + fSamples[i_smp]->fName);
+            WriteDebugStatus("TRExFit::ReadHistograms", "  Reading " + fSamples[i_smp]->fName);
             //
             // eventually skip sample / region combination
             //
@@ -2003,7 +2003,7 @@ void TtHFit::ReadHistograms(){
             // Save the original histogram
             TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
             //
-            // Importing the histogram in TtHFitter
+            // Importing the histogram in TRExFitter
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
@@ -2022,7 +2022,7 @@ void TtHFit::ReadHistograms(){
                 if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( nf->fExclude.size()>0 && FindInStringVector(nf->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("TtHFit::ReadHistograms", "Adding norm " + nf->fName);
+                WriteDebugStatus("TRExFit::ReadHistograms", "Adding norm " + nf->fName);
                 //
                 sh->AddNormFactor( nf );
             }
@@ -2038,7 +2038,7 @@ void TtHFit::ReadHistograms(){
                 if( sf->fRegions.size()>0 && FindInStringVector(sf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
                 if( sf->fExclude.size()>0 && FindInStringVector(sf->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("TtHFit::ReadHistograms", "Adding shape " + sf->fName);
+                WriteDebugStatus("TRExFit::ReadHistograms", "Adding shape " + sf->fName);
                 //
                 sh->AddShapeFactor( sf );
             }
@@ -2055,7 +2055,7 @@ void TtHFit::ReadHistograms(){
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("TtHFit::ReadHistograms", "Adding syst " + syst->fName);
+                WriteDebugStatus("TRExFit::ReadHistograms", "Adding syst " + syst->fName);
                 //
                 Region *reg = fRegions[i_ch];
                 Sample *smp = fSamples[i_smp];
@@ -2129,7 +2129,7 @@ void TtHFit::ReadHistograms(){
                         if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
                             // check if the reference sample exists
                             if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
-                                WriteErrorStatus("TtHFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TRExFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
                                 exit(EXIT_FAILURE);
                             }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
@@ -2149,7 +2149,7 @@ void TtHFit::ReadHistograms(){
                         else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
                             // check if the reference sample exists
                             if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
-                                WriteErrorStatus("TtHFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TRExFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
                                 exit(EXIT_FAILURE);
                             }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
@@ -2170,7 +2170,7 @@ void TtHFit::ReadHistograms(){
                             delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
-                        // Importing histogram in TtHFitter
+                        // Importing histogram in TRExFitter
                         if(i_path==0){
                             hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
@@ -2229,7 +2229,7 @@ void TtHFit::ReadHistograms(){
                         if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
                             // check if the reference sample exists
                             if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
-                                WriteErrorStatus("TtHFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TRExFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
                                 exit(EXIT_FAILURE);
                             }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
@@ -2249,7 +2249,7 @@ void TtHFit::ReadHistograms(){
                         else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
                             // check if the reference sample exists
                             if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
-                                WriteErrorStatus("TtHFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
+                                WriteErrorStatus("TRExFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
                                 exit(EXIT_FAILURE);
                             }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
@@ -2270,7 +2270,7 @@ void TtHFit::ReadHistograms(){
                             delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
-                        // Importing histogram in TtHFitter
+                        // Importing histogram in TRExFitter
                         if(i_path==0){
                             hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
@@ -2303,7 +2303,7 @@ void TtHFit::ReadHistograms(){
 
 //__________________________________________________________________________________
 //
-void TtHFit::ReadHistos(/*string fileName*/){
+void TRExFit::ReadHistos(/*string fileName*/){
     string fileName = "";
     SampleHist *sh;
     SystematicHist *syh;
@@ -2313,7 +2313,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
     string shapeName;
     string systName;
     //
-    bool singleOutputFile = !TtHFitter::SPLITHISTOFILES;
+    bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     if(singleOutputFile){
         if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos.root";
         else                 fileName = fName + "/Histograms/" + fInputName + "_histos.root";
@@ -2321,8 +2321,8 @@ void TtHFit::ReadHistos(/*string fileName*/){
         if(fBootstrap!="" && fBootstrapIdx>=0){
             fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
         }
-        WriteInfoStatus("TtHFit::ReadHistos", "-----------------------------");
-        WriteInfoStatus("TtHFit::ReadHistos", "Reading histograms from file " + fileName + " ...");
+        WriteInfoStatus("TRExFit::ReadHistos", "-----------------------------");
+        WriteInfoStatus("TRExFit::ReadHistos", "Reading histograms from file " + fileName + " ...");
     }
     //
     vector< TH2F* > histPrun;
@@ -2379,7 +2379,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
             histPrun.push_back( (TH2F*)filePrun->Get( Form("h_prun_%s_toSave", fRegions[i_ch]->fName.c_str()) ) );
         }
         regionName = fRegions[i_ch]->fName;
-        WriteDebugStatus("TtHFit::ReadHistos","  Reading region " + regionName);
+        WriteDebugStatus("TRExFit::ReadHistos","  Reading region " + regionName);
         //
         if(!singleOutputFile){
             if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_" + regionName + "_histos.root";
@@ -2388,8 +2388,8 @@ void TtHFit::ReadHistos(/*string fileName*/){
             if(fBootstrap!="" && fBootstrapIdx>=0){
                 fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
             }
-            WriteInfoStatus("TtHFit::ReadHistos", "-----------------------------");
-            WriteInfoStatus("TtHFit::ReadHistos", "Reading histograms from file " + fileName + " ...");
+            WriteInfoStatus("TRExFit::ReadHistos", "-----------------------------");
+            WriteInfoStatus("TRExFit::ReadHistos", "Reading histograms from file " + fileName + " ...");
         }
         //
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -2399,7 +2399,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
             if( FindInStringVector(fSamples[i_smp]->fRegions,regionName)<0 && fSamples[i_smp]->fName.find("customAsimov_")==std::string::npos ) continue;
             //
             sampleName = fSamples[i_smp]->fName;
-            WriteDebugStatus("TtHFit::ReadHistos", "    Reading sample " + sampleName);
+            WriteDebugStatus("TRExFit::ReadHistos", "    Reading sample " + sampleName);
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp],regionName+"_"+sampleName,fileName);
             sh = fRegions[i_ch]->GetSampleHist(sampleName);
             //
@@ -2407,26 +2407,26 @@ void TtHFit::ReadHistos(/*string fileName*/){
             if(fSamples[i_smp]->fSeparateGammas){
                 std::string systName = "stat_"+fSamples[i_smp]->fName;
                 std::string systStoredName = systName;
-                WriteDebugStatus("TtHFit::ReadHistos", "adding separate gammas as SHAPE systematic " + systName);
+                WriteDebugStatus("TRExFit::ReadHistos", "adding separate gammas as SHAPE systematic " + systName);
                 SystematicHist *syh = sh->AddHistoSyst(systName,
                                                         Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                         Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                         0
                                                         );
                 if(syh==0x0){
-                    WriteWarningStatus("TtHFit::ReadHistos", "No histogram found for separate gamma, but may be you will create it right now.");
+                    WriteWarningStatus("TRExFit::ReadHistos", "No histogram found for separate gamma, but may be you will create it right now.");
                 }
                 else{
                     Systematic *gamma = 0x0;
                     if(FindInStringVector(fSystematicNames,systName)>=0) gamma = fSystematics[FindInStringVector(fSystematicNames,systName)];  //GetSystematic(systName);
                     if(gamma==0x0) gamma = NewSystematic(systName);
-                    WriteDebugStatus("TtHFit::ReadHistos", "adding separate gammas as SHAPE systematic " + systName);
+                    WriteDebugStatus("TRExFit::ReadHistos", "adding separate gammas as SHAPE systematic " + systName);
                     gamma->fType = Systematic::SHAPE;
                     gamma->fRegions.clear();
                     gamma->fRegions.push_back(fRegions[i_ch]->fName);
                     syh->fSystematic = gamma;
                     gamma->fNuisanceParameter = gamma->fName;
-                    TtHFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
+                    TRExFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
                 }
             }
             //
@@ -2438,7 +2438,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 if( fSamples[i_smp]->fNormFactors[i_norm]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fNormFactors[i_norm]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
                 normName = fSamples[i_smp]->fNormFactors[i_norm]->fName;
-                WriteDebugStatus("TtHFit::ReadHistos", "      Reading norm " + normName);
+                WriteDebugStatus("TRExFit::ReadHistos", "      Reading norm " + normName);
                 // norm only
                 sh->AddNormFactor(fSamples[i_smp]->fNormFactors[i_norm]);
             }
@@ -2451,7 +2451,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
                 if( fSamples[i_smp]->fShapeFactors[i_shape]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fShapeFactors[i_shape]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 //
                 shapeName = fSamples[i_smp]->fShapeFactors[i_shape]->fName;
-                WriteDebugStatus("TtHFit::ReadHistos", "      Reading shape " + shapeName);
+                WriteDebugStatus("TRExFit::ReadHistos", "      Reading shape " + shapeName);
                 // shape only
                 sh->AddShapeFactor(fSamples[i_smp]->fShapeFactors[i_shape]);
             }
@@ -2476,12 +2476,12 @@ void TtHFit::ReadHistos(/*string fileName*/){
                     bin = histPrun[i_ch]->GetBin(xbin,ybin);
                     binContent = histPrun[i_ch]->GetBinContent(bin);
                     if( binContent <= -4 || binContent == -1 || binContent >= 3 ){
-                        WriteDebugStatus("TtHFit::ReadHistos", "SKIPPING systematic " + systName);
+                        WriteDebugStatus("TRExFit::ReadHistos", "SKIPPING systematic " + systName);
                         continue;
                     }
                     //{kBlack,6,kBlue, kGray, 8, kYellow, kOrange-3, kRed}
                 }
-                WriteDebugStatus("TtHFit::ReadHistos", "      Reading syst " + systName);
+                WriteDebugStatus("TRExFit::ReadHistos", "      Reading syst " + systName);
                 // norm only
                 if(fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::OVERALL){
                     if( fKeepPruning ){
@@ -2516,7 +2516,7 @@ void TtHFit::ReadHistos(/*string fileName*/){
                                           pruned
                                           );
                     if(syh==0x0){
-                        if (!pruned) WriteWarningStatus("TtHFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
+                        if (!pruned) WriteWarningStatus("TRExFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
                             continue;
                         }
                     }
@@ -2550,10 +2550,10 @@ void TtHFit::ReadHistos(/*string fileName*/){
 
 //__________________________________________________________________________________
 //
-void TtHFit::CloseInputFiles(){
+void TRExFit::CloseInputFiles(){
     //
     // Close all input files
-    for(auto it : TtHFitter::TFILEMAP){
+    for(auto it : TRExFitter::TFILEMAP){
         TDirectory *dir = gDirectory;
         TFile *f = it.second;
         if(f!=0x0)
@@ -2561,17 +2561,17 @@ void TtHFit::CloseInputFiles(){
         f->Close();
         delete f;
     }
-    TtHFitter::TFILEMAP.clear();
+    TRExFitter::TFILEMAP.clear();
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::DrawAndSaveAll(string opt){
-    TthPlot *p;
+void TRExFit::DrawAndSaveAll(string opt){
+    TRExPlot *p;
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
     bool isPostFit = opt.find("post")!=string::npos;
-    if(TtHFitter::POISSONIZE) opt += " poissonize";
+    if(TRExFitter::POISSONIZE) opt += " poissonize";
     if(isPostFit){
         if(fFitResultsFile!="")
             ReadFitResults(fFitResultsFile);
@@ -2581,7 +2581,7 @@ void TtHFit::DrawAndSaveAll(string opt){
         if(fRandomPOISeed>=0){
             gRandom->SetSeed(fRandomPOISeed); float rnd = 1./pow(gRandom->Uniform(0,2),2);
             if(fFitResults->fNuisParIsThere[fPOI]){
-                WriteDebugStatus("TtHFit::DrawAndSaveAll", "Scaling POI " + fPOI + " by the secret random number XXX...");
+                WriteDebugStatus("TRExFit::DrawAndSaveAll", "Scaling POI " + fPOI + " by the secret random number XXX...");
                 NuisParameter* np = fFitResults->fNuisPar[fFitResults->fNuisParIdx[fPOI]];
                 np->fFitValue*=rnd;
                 np->fPostFitUp*=rnd;
@@ -2597,11 +2597,11 @@ void TtHFit::DrawAndSaveAll(string opt){
             std::string name = "customAsimov_"+fCustomAsimov;
             SampleHist* cash = fRegions[i_ch]->GetSampleHist(name);
             if(cash==0x0){
-                WriteWarningStatus("TtHFit::DrawAndSaveAll", "No Custom Asimov " + fCustomAsimov + " available. Taking regular Asimov.");
+                WriteWarningStatus("TRExFit::DrawAndSaveAll", "No Custom Asimov " + fCustomAsimov + " available. Taking regular Asimov.");
             }
             else{
                 std::string s = cash->fHist->GetName();
-                WriteDebugStatus("TtHFit::DrawAndSaveAll", "  Adding Custom-Asimov Data: " + s);
+                WriteDebugStatus("TRExFit::DrawAndSaveAll", "  Adding Custom-Asimov Data: " + s);
                 fRegions[i_ch]->fData = cash;
             }
         }
@@ -2626,8 +2626,8 @@ void TtHFit::DrawAndSaveAll(string opt){
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,opt);
-            for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-                p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
+            for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+                p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
 
             if(fWithPullTables){
                 pullTex << "\\hline\\hline\n" << endl;
@@ -2639,21 +2639,21 @@ void TtHFit::DrawAndSaveAll(string opt){
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPreFit(opt);
-            for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-                p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
+            for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+                p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
         }
     }
 }
 
 //__________________________________________________________________________________
 //
-TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
-    WriteInfoStatus("TtHFit::DrawSummary", "-------------------------------------------");
-    WriteInfoStatus("TtHFit::DrawSummary", "Building Summary Plot...");
+TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
+    WriteInfoStatus("TRExFit::DrawSummary", "-------------------------------------------");
+    WriteInfoStatus("TRExFit::DrawSummary", "Building Summary Plot...");
     gSystem->mkdir(fName.c_str(),true);
     const bool isPostFit = opt.find("post")!=string::npos;
     const bool checkVR = opt.find("valid")!=string::npos;
-    if(TtHFitter::POISSONIZE) opt += " poissonize";
+    if(TRExFitter::POISSONIZE) opt += " poissonize";
     // build one bin per region
     TH1F* h_data = 0;
     TH1F* h_sig[MAXsamples];
@@ -2751,7 +2751,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
         if(fSamples[i_smp]->fType==Sample::SIGNAL){
             h_sig[Nsig] = new TH1F(name.c_str(),title.c_str(), Nbin,0,Nbin);
             std::string temp_string = h_sig[Nsig]->GetTitle();
-            WriteDebugStatus("TtHFit::DrawSummary", "Adding Signal: " + temp_string);
+            WriteDebugStatus("TRExFit::DrawSummary", "Adding Signal: " + temp_string);
             h_sig[Nsig]->SetLineColor(lineColor);
             h_sig[Nsig]->SetFillColor(fillColor);
             h_sig[Nsig]->SetLineWidth(lineWidth);
@@ -2766,7 +2766,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
-                            WriteDebugStatus("TtHFit::DrawSummary", "Scaling " + sh->fSample->fName + " by " + std::to_string(sh->fSample->fNormFactors[i_nf]->fNominal));
+                            WriteDebugStatus("TRExFit::DrawSummary", "Scaling " + sh->fSample->fName + " by " + std::to_string(sh->fSample->fNormFactors[i_nf]->fNominal));
                         }
                     }
                     //
@@ -2787,7 +2787,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
         else if(fSamples[i_smp]->fType==Sample::BACKGROUND){
             h_bkg[Nbkg] = new TH1F(name.c_str(),title.c_str(), Nbin,0,Nbin);
             std::string temp_string = h_bkg[Nbkg]->GetTitle();
-            WriteDebugStatus("TtHFit::DrawSummary", "Adding Bkg:    " + temp_string);
+            WriteDebugStatus("TRExFit::DrawSummary", "Adding Bkg:    " + temp_string);
             h_bkg[Nbkg]->SetLineColor(lineColor);
             h_bkg[Nbkg]->SetFillColor(fillColor);
             h_bkg[Nbkg]->SetLineWidth(lineWidth);
@@ -2802,7 +2802,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
-                            WriteDebugStatus("TtHFit::DrawSummary", "Scaling " + sh->fSample->fName + " by " + std::to_string(sh->fSample->fNormFactors[i_nf]->fNominal));
+                            WriteDebugStatus("TRExFit::DrawSummary", "Scaling " + sh->fSample->fName + " by " + std::to_string(sh->fSample->fNormFactors[i_nf]->fNominal));
                         }
                     }
                     //
@@ -2824,7 +2824,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
         else if(fSamples[i_smp]->fType==Sample::DATA){
             h_data = new TH1F(name.c_str(),title.c_str(), Nbin,0,Nbin);
             std::string temp_string = h_data->GetTitle();
-            WriteDebugStatus("TtHFit::DrawSummary", "Adding Data:   " + temp_string);
+            WriteDebugStatus("TRExFit::DrawSummary", "Adding Data:   " + temp_string);
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
                 if(fRegions[regionVec[i_bin-1]]->fRegionDataType==Region::ASIMOVDATA)
                     h_data->SetBinContent( i_bin,0 );
@@ -2834,18 +2834,18 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
         }
     }
     //
-    TthPlot *p;
+    TRExPlot *p;
     //
     // For 4-top-style plots
-    if(TtHFitter::OPTION["FourTopStyle"]>0){
-//         p = new TthPlot(fName+"_summary",900.*TtHFitter::OPTION["CanvasWidth"]/600.,TtHFitter::OPTION["CanvasHeight"]);
-        p = new TthPlot(fInputName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
+    if(TRExFitter::OPTION["FourTopStyle"]>0){
+//         p = new TRExPlot(fName+"_summary",900.*TRExFitter::OPTION["CanvasWidth"]/600.,TRExFitter::OPTION["CanvasHeight"]);
+        p = new TRExPlot(fInputName+"_summary",TRExFitter::OPTION["CanvasWidthSummary"],TRExFitter::OPTION["CanvasHeight"]);
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
         else         p->SetYmaxScale(3);
         p->SetXaxis("",false);
-        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsSummary"];
+        p->fLegendNColumns = TRExFitter::OPTION["LegendNColumnsSummary"];
         if(!checkVR && fSummaryPlotLabels.size()>0){
 //             if(isPostFit) p->AddLabel("#font[52]{B-only fit}");
             if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
@@ -2864,15 +2864,15 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
         }
     }
     // TThbb style
-    else if(TtHFitter::OPTION["TtHbbStyle"]>0){
-        p = new TthPlot(fInputName+"_summary",TtHFitter::OPTION["CanvasWidthSummary"],TtHFitter::OPTION["CanvasHeight"]);
+    else if(TRExFitter::OPTION["TRExbbStyle"]>0){
+        p = new TRExPlot(fInputName+"_summary",TRExFitter::OPTION["CanvasWidthSummary"],TRExFitter::OPTION["CanvasHeight"]);
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
         else         p->SetYmaxScale(3);
         p->SetXaxis("",false);
         p->SetYaxis("Events / bin");
-        p->fLegendNColumns = TtHFitter::OPTION["LegendNColumnsSummary"];
+        p->fLegendNColumns = TRExFitter::OPTION["LegendNColumnsSummary"];
         p->AddLabel(fLabel);
         if(isPostFit) p->AddLabel("Post-Fit");
         else          p->AddLabel("Pre-Fit");
@@ -2880,14 +2880,14 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
     //
     // normal-/old-style plots
     else{
-        p = new TthPlot(fInputName+"_summary",900,700);
+        p = new TRExPlot(fInputName+"_summary",900,700);
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
         else         p->SetYmaxScale(2);
         p->SetXaxis("",false);
         p->AddLabel(fLabel);
-        if(TtHFitter::OPTION["NoPrePostFit"]==0){
+        if(TRExFitter::OPTION["NoPrePostFit"]==0){
             if(isPostFit) p->AddLabel("Post-Fit");
             else          p->AddLabel("Pre-Fit");
         }
@@ -2909,16 +2909,16 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
     for(int i=0;i<Nsig;i++){
-        if(TtHFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig[i],h_sig[i]->GetTitle());
-        if(TtHFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i],((string)h_sig[i]->GetTitle()));
-        if(TtHFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i],(h_sig[i]->GetTitle()));
+        if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig[i],h_sig[i]->GetTitle());
+        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i],((string)h_sig[i]->GetTitle()));
+        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i],(h_sig[i]->GetTitle()));
     }
     for(int i=0;i<Nbkg;i++){
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
     }
 
 
-    if( TtHFitter::PREFITONPOSTFIT and isPostFit) {
+    if( TRExFitter::PREFITONPOSTFIT and isPostFit) {
       p->h_tot_bkg_prefit = (TH1*)prefit_plot->GetTotBkg()->Clone("h_tot_bkg_prefit");
     }
     
@@ -2962,7 +2962,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
             // find the systematic in the region
             int syst_idx = -1;
             for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
-                if(systNuisPar==TtHFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
+                if(systNuisPar==TRExFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
                     syst_idx = j_syst;
                 }
             }
@@ -2997,7 +2997,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
             // look for other syst with the same np
             for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
                 if(j_syst==syst_idx) continue;
-                if(systNuisPar==TtHFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
+                if(systNuisPar==TRExFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
                     TH1* h_tmp = 0x0;
                     if(isPostFit){
                         h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst];
@@ -3206,20 +3206,20 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
     }
     //
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
-        WriteDebugStatus("TtHFit::DrawSummary", std::to_string(i_bin) + ":\t" + std::to_string(h_tot->GetBinContent(i_bin)) + "\t+" +
+        WriteDebugStatus("TRExFit::DrawSummary", std::to_string(i_bin) + ":\t" + std::to_string(h_tot->GetBinContent(i_bin)) + "\t+" +
              std::to_string(g_err->GetErrorYhigh(i_bin-1)) + "\t-" + std::to_string(g_err->GetErrorYlow(i_bin-1)));
     }
     //
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
         if(fSummaryPrefix!=""){
-            if(isPostFit)  p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
-            else           p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+            if(isPostFit)  p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+            else           p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
         }
         else{
-            if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
-            else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+            if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+            else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
         }
     }
     //
@@ -3235,7 +3235,7 @@ TthPlot* TtHFit::DrawSummary(string opt, TthPlot* prefit_plot){
 
 //__________________________________________________________________________________
 //
-void TtHFit::DrawMergedPlot(std::string opt,std::string group){
+void TRExFit::DrawMergedPlot(std::string opt,std::string group){
     std::vector<Region*> regions;
     if(group=="") regions = fRegions;
     else{
@@ -3245,7 +3245,7 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     }
     bool isPostFit = false;
     if(opt.find("post")!=string::npos) isPostFit = true;
-    if(TtHFitter::POISSONIZE) opt += " poissonize";
+    if(TRExFitter::POISSONIZE) opt += " poissonize";
     // start with total prediction, which should be always there
     // build a vector of histograms
     int i_ch = 0;
@@ -3279,8 +3279,8 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
         // set max for first hist
         if(ymax0<0){
             ymax0 = ymaxTmp;
-            if(TtHFitter::OPTION["MergeYfrac"]==0) TtHFitter::OPTION["MergeYfrac"] = 0.66;
-            ymax  = TtHFitter::OPTION["MergeYfrac"]*ymax0;
+            if(TRExFitter::OPTION["MergeYfrac"]==0) TRExFitter::OPTION["MergeYfrac"] = 0.66;
+            ymax  = TRExFitter::OPTION["MergeYfrac"]*ymax0;
         }
         hTotVec.push_back(h_tmp);
             if(i_ch>0) edges.push_back(h_tmp->GetXaxis()->GetBinUpEdge(h_tmp->GetNbinsX())-h_tmp->GetXaxis()->GetBinLowEdge(1) + edges[i_ch-1]);
@@ -3343,14 +3343,14 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     }
     //
     // merge andplot them
-    TthPlot *p;
+    TRExPlot *p;
     int cWeidthMerge = 1200;
     int cHeightMerge = 600;
     int lNcolumnsMerge = 3;
-    if(TtHFitter::OPTION["CanvasWidthMerge"]!=0)    cWeidthMerge   = TtHFitter::OPTION["CanvasWidthMerge"];
-    if(TtHFitter::OPTION["CanvasHeight"]!=0)        cHeightMerge   = TtHFitter::OPTION["CanvasHeight"];
-    if(TtHFitter::OPTION["LegendNColumnsMerge"]!=0) lNcolumnsMerge = TtHFitter::OPTION["LegendNColumnsMerge"];
-    p = new TthPlot(fInputName+"_merge",cWeidthMerge,cHeightMerge);
+    if(TRExFitter::OPTION["CanvasWidthMerge"]!=0)    cWeidthMerge   = TRExFitter::OPTION["CanvasWidthMerge"];
+    if(TRExFitter::OPTION["CanvasHeight"]!=0)        cHeightMerge   = TRExFitter::OPTION["CanvasHeight"];
+    if(TRExFitter::OPTION["LegendNColumnsMerge"]!=0) lNcolumnsMerge = TRExFitter::OPTION["LegendNColumnsMerge"];
+    p = new TRExPlot(fInputName+"_merge",cWeidthMerge,cHeightMerge);
     p->fLegendNColumns = lNcolumnsMerge;
     //
     p->SetData(MergeHistograms(hDataVec),"");
@@ -3362,8 +3362,8 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     p->SetLumi(fLumiLabel);
     p->fATLASlabel = fAtlasLabel;
     
-    if(TtHFitter::OPTION["MergeYmaxScale"]==0) TtHFitter::OPTION["MergeYmaxScale"] = 1.25;
-    p->fYmax = TtHFitter::OPTION["MergeYmaxScale"]*ymax0;
+    if(TRExFitter::OPTION["MergeYmaxScale"]==0) TRExFitter::OPTION["MergeYmaxScale"] = 1.25;
+    p->fYmax = TRExFitter::OPTION["MergeYmaxScale"]*ymax0;
     if(fRatioYmax>0) p->fRatioYmax = fRatioYmax;
     if(fRatioYmin>0) p->fRatioYmin = fRatioYmin;
     if(isPostFit && fRatioYmaxPostFit>0) p->fRatioYmax = fRatioYmaxPostFit;
@@ -3387,7 +3387,7 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     p->pad0->cd();
     for(auto edge : edges){
         TLine *l_tmp = new TLine(edge,0,edge,1.25*ymax);
-        if(TtHFitter::OPTION["MergeScaleY"]!=0) l_tmp->SetLineStyle(kDashed);
+        if(TRExFitter::OPTION["MergeScaleY"]!=0) l_tmp->SetLineStyle(kDashed);
         l_tmp->Draw("same");
     }
     //
@@ -3436,7 +3436,7 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
         if(fRatioYmin!=0) { ga->SetY1(fRatioYmin); ga->SetY2(fRatioYmin); }
         if(isPostFit && fRatioYminPostFit!=0) { ga->SetY1(fRatioYminPostFit); ga->SetY2(fRatioYminPostFit); }
         ga->SetTitle(regions[i_reg]->fVariableTitle.c_str());
-        ga->SetTitleOffset(h_dummy2->GetXaxis()->GetTitleOffset()*0.45*(1200./600.)*(TtHFitter::OPTION["CanvasHeight"]/TtHFitter::OPTION["CanvasWidthMerge"]));
+        ga->SetTitleOffset(h_dummy2->GetXaxis()->GetTitleOffset()*0.45*(1200./600.)*(TRExFitter::OPTION["CanvasHeight"]/TRExFitter::OPTION["CanvasWidthMerge"]));
         ga->SetTitleSize(gStyle->GetTextSize());
         ga->SetTitleFont(gStyle->GetTextFont());
         // the following lines require newer version of ROOT
@@ -3469,16 +3469,17 @@ void TtHFit::DrawMergedPlot(std::string opt,std::string group){
     if(group!="") saveName += "_"+group;
     if(isPostFit) saveName += "_postFit";
     saveName += fSuffix;
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        p->SaveAs((saveName+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+        p->SaveAs((saveName+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::BuildYieldTable(string opt,string group){
-    WriteInfoStatus("TtHFit::BuildYieldTable", "-------------------------------------------");
-    WriteInfoStatus("TtHFit::BuildYieldTable", "Building Yields Table...");
+void TRExFit::BuildYieldTable(string opt,string group){
+    WriteInfoStatus("TRExFit::BuildYieldTable", "-------------------------------------------");
+    WriteInfoStatus("TRExFit::BuildYieldTable", "Building Yields Table...");
+    if(!TRExFitter::SHOWSTACKSIG) WriteWarningStatus("TRExFit::BuildYieldTable", "Signal samples not added to \"Tot\" because of \"PlotOptions\" in config file.");
     bool isPostFit = opt.find("post")!=string::npos;
     ofstream out;
     ofstream texout;
@@ -3951,7 +3952,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
             // look for other syst with the same np
             for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
                 if(j_syst==syst_idx) continue;
-                if(systNuisPar==TtHFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
+                if(systNuisPar==TRExFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
                     TH1* h_tmp = 0x0;
                     if(isPostFit){
                         h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst];
@@ -4091,9 +4092,11 @@ void TtHFit::BuildYieldTable(string opt,string group){
     if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix );
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames );
     //
-    out << " | Total | ";
+    if(TRExFitter::SHOWSTACKSIG) out << " | Total | ";
+    else                        out << " | Tot.Bkg. | ";
     texout << "\\hline " << endl;
-    texout << "  Total ";
+    if(TRExFitter::SHOWSTACKSIG) texout << "  Total ";
+    else                        texout << "  Total background ";
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         texout << " & ";
         out << h_tot->GetBinContent(i_bin);
@@ -4167,7 +4170,7 @@ void TtHFit::BuildYieldTable(string opt,string group){
 
 //__________________________________________________________________________________
 //
-void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
+void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows){
     std::vector< Region* > vRegions;
     vRegions.clear();
     if(fRegionsToPlot.size()>0){
@@ -4176,7 +4179,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
         // first loop
         int nRegInRow = 0;
         for(unsigned int i=0;i<fRegionsToPlot.size();i++){
-            WriteDebugStatus("TtHFit::DrawSignalRegionsPlot", "Regions to Plot: " + fRegionsToPlot[i]);
+            WriteDebugStatus("TRExFit::DrawSignalRegionsPlot", "Regions to Plot: " + fRegionsToPlot[i]);
             if(fRegionsToPlot[i].find("ENDL")!=string::npos){
                 nRows++;
                 if(nRegInRow>nCols) nCols = nRegInRow;
@@ -4196,20 +4199,20 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows){
 
 //__________________________________________________________________________________
 //
-void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > &regions){
+void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > &regions){
     gSystem->mkdir(fName.c_str(), true);
     float Hp = 250; // height of one mini-plot, in pixels
     float Wp = 200; // width of one mini-plot, in pixels
     float H0 = 100; // height of the top label pad
-    if(TtHFitter::OPTION["FourTopStyle"]!=0) H0 = 75; // height of the top label pad
-    if(TtHFitter::OPTION["FourTopStyle"]!=0) Hp = 200;
-    if(TtHFitter::OPTION["SignalRegionSize"]!=0){
-        Hp = TtHFitter::OPTION["SignalRegionSize"];
-        Wp = (200./250.)*TtHFitter::OPTION["SignalRegionSize"];
+    if(TRExFitter::OPTION["FourTopStyle"]!=0) H0 = 75; // height of the top label pad
+    if(TRExFitter::OPTION["FourTopStyle"]!=0) Hp = 200;
+    if(TRExFitter::OPTION["SignalRegionSize"]!=0){
+        Hp = TRExFitter::OPTION["SignalRegionSize"];
+        Wp = (200./250.)*TRExFitter::OPTION["SignalRegionSize"];
     }
     float H = H0 + nRows*Hp; // tot height of the canvas
     float W = nCols*Wp; // tot width of the canvas
-    if(TtHFitter::OPTION["FourTopStyle"]!=0) W += 50.; // FIXME
+    if(TRExFitter::OPTION["FourTopStyle"]!=0) W += 50.; // FIXME
     else W += 0.1; // to fix eps format (why is this needed?)
 
     TCanvas *c = new TCanvas("c","c",W,H);
@@ -4221,7 +4224,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     if(fLabel!="-") myText(    0.1/(W/200.),1.-0.9*(100./H0),1,Form("%s",fLabel.c_str()));
 
     TLegend *leg = 0x0;
-    if(TtHFitter::OPTION["FourTopStyle"]!=0){
+    if(TRExFitter::OPTION["FourTopStyle"]!=0){
         leg = new TLegend(0.35,1.-0.6*(100./H0),1,1.-0.3*(100./H0));
         leg->SetNColumns(3);
         leg->SetFillStyle(0.);
@@ -4293,15 +4296,15 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
     for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==0x0) continue;
         pBottom->cd(i+1);
-        if(TtHFitter::OPTION["LogSignalRegionPlot"]) gPad->SetLogy();
-        if(TtHFitter::OPTION["FourTopStyle"]!=0){
+        if(TRExFitter::OPTION["LogSignalRegionPlot"]) gPad->SetLogy();
+        if(TRExFitter::OPTION["FourTopStyle"]!=0){
             gPad->SetLeftMargin(0.1);
             gPad->SetRightMargin(0.);
         }
         string label = regions[i]->fShortLabel;
         h[i] = new TH1F(Form("h[%d]",i),label.c_str(),3,xbins);
         h[i]->SetBinContent(2,S[i]/sqrt(B[i]));
-        if(TtHFitter::OPTION["FourTopStyle"]==0) h[i]->GetYaxis()->SetTitle("S / #sqrt{B}");
+        if(TRExFitter::OPTION["FourTopStyle"]==0) h[i]->GetYaxis()->SetTitle("S / #sqrt{B}");
         h[i]->GetYaxis()->CenterTitle();
         //     h[i]->GetYaxis()->SetTitleSize(0.14);
 //         h[i]->GetYaxis()->SetLabelOffset(1.5*h[i]->GetYaxis()->GetLabelOffset());
@@ -4309,10 +4312,10 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         h[i]->GetYaxis()->SetTitleOffset(9*nRows/4. );
         if(Wp<200) h[i]->GetYaxis()->SetTitleOffset( h[i]->GetYaxis()->GetTitleOffset()*0.90 );
         h[i]->GetYaxis()->SetLabelSize( h[i]->GetYaxis()->GetLabelSize() * (Wp/200.) );
-        if(TtHFitter::OPTION["FourTopStyle"]!=0) h[i]->GetYaxis()->SetLabelSize( h[i]->GetYaxis()->GetLabelSize() * 1.1 );
+        if(TRExFitter::OPTION["FourTopStyle"]!=0) h[i]->GetYaxis()->SetLabelSize( h[i]->GetYaxis()->GetLabelSize() * 1.1 );
         h[i]->GetXaxis()->SetTickLength(0);
-        if(TtHFitter::OPTION["LogSignalRegionPlot"]==0) h[i]->GetYaxis()->SetNdivisions(3);
-//         if(TtHFitter::OPTION["LogSignalRegionPlot"]==0) //h[i]->GetYaxis()->SetMaxDigits(3);
+        if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) h[i]->GetYaxis()->SetNdivisions(3);
+//         if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) //h[i]->GetYaxis()->SetMaxDigits(3);
         else //h[i]->GetYaxis()->SetNdivisions(2);
           TGaxis::SetMaxDigits(5);
         yMax = TMath::Max(yMax,h[i]->GetMaximum());
@@ -4332,12 +4335,12 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         gPad->SetRightMargin(gPad->GetRightMargin()*0.1);
         gPad->SetTicky(0);
         gPad->RedrawAxis();
-        if(TtHFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.85,label.c_str());
+        if(TRExFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.85,label.c_str());
         else                                     tex->DrawLatex(0.27,0.85,label.c_str());
         float SoB = S[i]/B[i];
         string SB = Form("%.1f%%",(100.*SoB));
 //         if(Wp<200) SB = Form("#scale[0.75]{S/B=}%.1f%%",(100.*SoB));
-        if(TtHFitter::OPTION["FourTopStyle"]!=0){
+        if(TRExFitter::OPTION["FourTopStyle"]!=0){
             if( (100.*SoB)<0.1 ){
 //                 SB = Form("S/B = %.0e%%",(100.*SoB));
                 SB = Form("%.0e%%",SoB);
@@ -4348,13 +4351,13 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
             }
         }
         SB = "#scale[0.75]{S/B} = "+SB;
-        if(TtHFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.72,SB.c_str());
+        if(TRExFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.72,SB.c_str());
         else                                     tex->DrawLatex(0.27,0.72,SB.c_str());
     }
     //
     for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==0x0) continue;
-        if(TtHFitter::OPTION["LogSignalRegionPlot"]!=0){
+        if(TRExFitter::OPTION["LogSignalRegionPlot"]!=0){
             h[i]->SetMaximum(yMax*200);
             h[i]->SetMinimum(2e-4);
         }
@@ -4364,8 +4367,8 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
         }
     }
     //
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs((fName+"/SignalRegions"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs((fName+"/SignalRegions"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
 
     //
     delete [] S;
@@ -4375,7 +4378,7 @@ void TtHFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > 
 
 //__________________________________________________________________________________
 //
-void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows){
+void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows){
 
     std::vector< Region* > vRegions;
     vRegions.clear();
@@ -4385,7 +4388,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows){
         // first loop
         int nRegInRow = 0;
         for(unsigned int i=0;i<fRegionsToPlot.size();i++){
-            WriteDebugStatus("TtHFit::DrawPieChartPlot", "Regions to plot: " + fRegionsToPlot[i]);
+            WriteDebugStatus("TRExFit::DrawPieChartPlot", "Regions to plot: " + fRegionsToPlot[i]);
             if(fRegionsToPlot[i].find("ENDL")!=string::npos){
                 nRows++;
                 if(nRegInRow>nCols) nCols = nRegInRow;
@@ -4407,16 +4410,16 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows){
 
 //__________________________________________________________________________________
 //
-void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions ){
+void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions ){
 
     float Hp = 250; // height of one mini-plot, in pixels
     float Wp = 250; // width of one mini-plot, in pixels
     float H0 = 100; // height of the top label pad
-    if(TtHFitter::OPTION["FourTopStyle"]>0) H0 = 75; // height of the top label pad
+    if(TRExFitter::OPTION["FourTopStyle"]>0) H0 = 75; // height of the top label pad
 
-    if(TtHFitter::OPTION["PieChartSize"]!=0){
-        Hp = TtHFitter::OPTION["PieChartSize"];
-        Wp = TtHFitter::OPTION["PieChartSize"];
+    if(TRExFitter::OPTION["PieChartSize"]!=0){
+        Hp = TRExFitter::OPTION["PieChartSize"];
+        Wp = TRExFitter::OPTION["PieChartSize"];
     }
 
     float H = H0 + nRows*Hp; // tot height of the canvas
@@ -4432,7 +4435,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
     pTop->Draw();
     pTop->cd();
 
-    if(TtHFitter::OPTION["FourTopStyle"]>0){
+    if(TRExFitter::OPTION["FourTopStyle"]>0){
         ATLASLabel(0.1/(W/200.),1.-0.3*(100./H0),fAtlasLabel.c_str());
         myText(    0.1/(W/200.),1.-0.6*(100./H0),1,Form("#sqrt{s} = %s",fCmeLabel.c_str()));
         if(fLabel!="-") myText(    0.1/(W/200.),1.-0.9*(100./H0),1,Form("%s",fLabel.c_str()));
@@ -4534,7 +4537,7 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
     //
     pTop->cd();
     TLegend *leg;
-    if(TtHFitter::OPTION["FourTopStyle"]>0 || TtHFitter::OPTION["TtHbbStyle"]>0){
+    if(TRExFitter::OPTION["FourTopStyle"]>0 || TRExFitter::OPTION["TRExbbStyle"]>0){
         leg = new TLegend(0.5,0.1,0.95,0.90);
         leg -> SetNColumns(3);
     }
@@ -4573,8 +4576,8 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
     //
     // Stores the pie chart in the desired format
     //
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs((fName+"/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+        c->SaveAs((fName+"/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
 
     //
@@ -4583,8 +4586,8 @@ void TtHFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::
 
 //__________________________________________________________________________________
 // called before w in case of CustomAsimov
-void TtHFit::CreateCustomAsimov(){
-    WriteDebugStatus("TtHFit::CreateCustomAsimov", "Running CreateCustomAsimov");
+void TRExFit::CreateCustomAsimov(){
+    WriteDebugStatus("TRExFit::CreateCustomAsimov", "Running CreateCustomAsimov");
     // get a list of all CustomAsimov to create
     std::vector<std::string> customAsimovList;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -4594,7 +4597,7 @@ void TtHFit::CreateCustomAsimov(){
     //
     // fill a different CustomAsimov data-set for each element in the list
     for(auto customAsimov : customAsimovList){
-        WriteDebugStatus("TtHFit::CreateCustomAsimov", "CustomAsimov: " + customAsimov);
+        WriteDebugStatus("TRExFit::CreateCustomAsimov", "CustomAsimov: " + customAsimov);
         Sample *ca = GetSample("customAsimov_"+customAsimov);
         // create a new data sample taking the nominal S and B
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -4616,7 +4619,7 @@ void TtHFit::CreateCustomAsimov(){
                 // bug-fix: change normalisation factors to nominal value!
                 float factor = 1.;
                 for(auto norm : fSamples[i_smp]->fNormFactors){
-                    WriteDebugStatus("TtHFit::CreateCustomAsimov", "setting norm factor to " + std::to_string(norm->fNominal));
+                    WriteDebugStatus("TRExFit::CreateCustomAsimov", "setting norm factor to " + std::to_string(norm->fNominal));
                     factor *= norm->fNominal;
                 }
                 //
@@ -4629,12 +4632,12 @@ void TtHFit::CreateCustomAsimov(){
 
 //__________________________________________________________________________________
 // turn to RooStat::HistFactory
-void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
+void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 
-    WriteInfoStatus("TtHFit::ToRooStat", "-------------------------------------------");
-    WriteInfoStatus("TtHFit::ToRooStat", "Exporting to RooStats...");
+    WriteInfoStatus("TRExFit::ToRooStat", "-------------------------------------------");
+    WriteInfoStatus("TRExFit::ToRooStat", "Exporting to RooStats...");
 
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 
     //Suffix used for the regular bin transformed histogram
     const std::string suffix_regularBinning = "_regBin";
@@ -4655,7 +4658,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 
         if(fRegions[i_ch]->fRegionType==Region::VALIDATION) continue;
 
-        WriteDebugStatus("TtHFit::ToRooStat", "Adding Channel: " + fRegions[i_ch]->fName);
+        WriteDebugStatus("TRExFit::ToRooStat", "Adding Channel: " + fRegions[i_ch]->fName);
         RooStats::HistFactory::Channel chan(fRegions[i_ch]->fName.c_str());
 
         //Checks if a data sample exists
@@ -4670,19 +4673,19 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
             std::string name = "customAsimov_"+fCustomAsimov;
             SampleHist* cash = fRegions[i_ch]->GetSampleHist(name);
             if(cash==0x0){
-                if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
-                WriteWarningStatus("TtHFit::ToRooStat", "No Custom Asimov " + fCustomAsimov + " available. Taking regular Asimov.");
-                if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+                if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+                WriteWarningStatus("TRExFit::ToRooStat", "No Custom Asimov " + fCustomAsimov + " available. Taking regular Asimov.");
+                if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             }
             else{
                 std::string temp_string = cash->fHist->GetName();
-                WriteDebugStatus("TtHFit::ToRooStat", "  Adding Custom-Asimov Data: " + temp_string);
+                WriteDebugStatus("TRExFit::ToRooStat", "  Adding Custom-Asimov Data: " + temp_string);
                 chan.SetData(cash->fHistoName+suffix_regularBinning, cash->fFileName);
             }
         }
         else if(hasData){
             std::string temp_string = fRegions[i_ch]->fData->fHist->GetName();
-            WriteDebugStatus("TtHFit::ToRooStat", "  Adding Data: " + temp_string);
+            WriteDebugStatus("TRExFit::ToRooStat", "  Adding Data: " + temp_string);
             chan.SetData(fRegions[i_ch]->fData->fHistoName+suffix_regularBinning, fRegions[i_ch]->fData->fFileName);
         } else {
             chan.SetData("", "");
@@ -4696,7 +4699,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
             if( h != 0x0 && h->fSample->fType!=Sample::DATA && h->fSample->fType!=Sample::GHOST ){
-                WriteDebugStatus("TTHFit::ToRooStat", "  Adding Sample: " + fSamples[i_smp]->fName);
+                WriteDebugStatus("TRExFit::ToRooStat", "  Adding Sample: " + fSamples[i_smp]->fName);
                 RooStats::HistFactory::Sample sample(fSamples[i_smp]->fName.c_str());
                 if(fUseStatErr && fSamples[i_smp]->fUseMCStat) sample.ActivateStatError();
                 sample.SetHistoName(h->fHistoName+suffix_regularBinning);
@@ -4704,7 +4707,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 sample.SetNormalizeByTheory(fSamples[i_smp]->fNormalizedByTheory);
                 // norm factors
                 for(int i_norm=0;i_norm<h->fNNorm;i_norm++){
-                    WriteDebugStatus("TTHFit::ToRooStat", "    Adding NormFactor: " + h->fNormFactors[i_norm]->fName + ", " + std::to_string(h->fNormFactors[i_norm]->fNominal));
+                    WriteDebugStatus("TRExFit::ToRooStat", "    Adding NormFactor: " + h->fNormFactors[i_norm]->fName + ", " + std::to_string(h->fNormFactors[i_norm]->fNominal));
                     sample.AddNormFactor( h->fNormFactors[i_norm]->fName,
                                          h->fNormFactors[i_norm]->fNominal,
                                          h->fNormFactors[i_norm]->fMin,
@@ -4715,7 +4718,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     // radom POI tricK: if this norm factor is te POI, add another (fixed) norm factor equal to a random number generated from the given seed
                     if (fRandomPOISeed>=0){
                         if ( h->fNormFactors[i_norm]->fName == fPOI ){
-                            WriteDebugStatus("TTHFit::ToRooStat", "    Scaling POI by random secret number XXX ;)");
+                            WriteDebugStatus("TRExFit::ToRooStat", "    Scaling POI by random secret number XXX ;)");
                             gRandom->SetSeed(fRandomPOISeed); float rnd = 1./pow(gRandom->Uniform(0,2),2);
                             sample.AddNormFactor( "POIScale",rnd,rnd-1,rnd+1);
                             meas.AddConstantParam( "POIScale" );
@@ -4724,7 +4727,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 }
                 // shape factors
                 for(int i_shape=0;i_shape<h->fNShape;i_shape++){
-                    WriteDebugStatus("TTHFit::ToRooStat", "    Adding ShapeFactor: " + h->fShapeFactors[i_shape]->fName + ", " + std::to_string(h->fShapeFactors[i_shape]->fNominal));
+                    WriteDebugStatus("TRExFit::ToRooStat", "    Adding ShapeFactor: " + h->fShapeFactors[i_shape]->fName + ", " + std::to_string(h->fShapeFactors[i_shape]->fNominal));
                     sample.AddShapeFactor( h->fShapeFactors[i_shape]->fName );
                     if (h->fShapeFactors[i_shape]->fConst) meas.AddConstantParam( h->fShapeFactors[i_shape]->fName );
                     if (fStatOnly && fFixNPforStatOnlyFit && h->fShapeFactors[i_shape]->fName!=fPOI)
@@ -4734,7 +4737,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 if(!fStatOnly){
                     for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
                         // add normalization part
-                        WriteDebugStatus("TTHFit::ToRooStat", "    Adding Systematic: " + h->fSyst[i_syst]->fName);
+                        WriteDebugStatus("TRExFit::ToRooStat", "    Adding Systematic: " + h->fSyst[i_syst]->fName);
                         if ( h->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
                             std::string npName = "shape_";
                             npName += h->fSyst[i_syst]->fSystematic->fNuisanceParameter+"_";
@@ -4761,7 +4764,7 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                 !h->fSyst[i_syst]->fBadNorm
                               ) {
                                 if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter=="ttXsec"){
-                                    WriteDebugStatus("TtHFit::ToRooStat", "Syst norm up: " + std::to_string(h->fSyst[i_syst]->fNormUp));
+                                    WriteDebugStatus("TRExFit::ToRooStat", "Syst norm up: " + std::to_string(h->fSyst[i_syst]->fNormUp));
                                 }
                                 sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
                                                       1+h->fSyst[i_syst]->fNormDown,
@@ -4794,9 +4797,9 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddUniformSyst(fSystematics[i_syst]->fName.c_str());
     }
     // morphing
-    for(const TtHFit::TemplateWeight& itemp : fTemplateWeightVec){
+    for(const TRExFit::TemplateWeight& itemp : fTemplateWeightVec){
         string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
-        WriteDebugStatus("TtHFit::ToRooStat", "Morhing: normName: " + normName);
+        WriteDebugStatus("TRExFit::ToRooStat", "Morhing: normName: " + normName);
         meas.AddPreprocessFunction(normName, itemp.function, itemp.range);
     }
     for(auto nf : fNormFactors){
@@ -4813,16 +4816,16 @@ void TtHFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 
     if(makeWorkspace) RooStats::HistFactory::MakeModelAndMeasurementFast(meas);
 
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::DrawPruningPlot(){
-    WriteInfoStatus("TtHFit::DrawPruningPlot", "------------------------------------------------------");
-    WriteInfoStatus("TtHFit::DrawPruningPlot", "Drawing Pruning Plot ...");
+void TRExFit::DrawPruningPlot(){
+    WriteInfoStatus("TRExFit::DrawPruningPlot", "------------------------------------------------------");
+    WriteInfoStatus("TRExFit::DrawPruningPlot", "Drawing Pruning Plot ...");
     if(fSystematics.size()==0 || fStatOnly){
-        WriteInfoStatus("TtHFit::DrawPruningPlot", "Stat only fit => No Pruning plot generated.");
+        WriteInfoStatus("TRExFit::DrawPruningPlot", "Stat only fit => No Pruning plot generated.");
         return;
     }
     //
@@ -4970,7 +4973,7 @@ void TtHFit::DrawPruningPlot(){
         }
         for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsY();i_bin++){
             if(i_reg==0) {
-                histPrun[i_reg]       ->GetYaxis()->SetBinLabel(i_bin,TtHFitter::SYSTMAP[fSystematics[i_bin-1]->fName].c_str());
+                histPrun[i_reg]       ->GetYaxis()->SetBinLabel(i_bin,TRExFitter::SYSTMAP[fSystematics[i_bin-1]->fName].c_str());
             }
             else {
                 histPrun[i_reg]->GetYaxis()->SetBinLabel(i_bin,"");
@@ -5037,8 +5040,8 @@ void TtHFit::DrawPruningPlot(){
     leg->SetTextSize(0.85*gStyle->GetTextSize());
     leg->Draw();
     //
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/Pruning"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/Pruning"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
 
     //
     // Save prunign hist for future usage
@@ -5065,7 +5068,7 @@ void TtHFit::DrawPruningPlot(){
 
 //__________________________________________________________________________________
 //
-void TtHFit::Fit(){
+void TRExFit::Fit(){
 
     //
     //Checks if a data sample exists
@@ -5085,7 +5088,7 @@ void TtHFit::Fit(){
     // If fDoNonProfileFit => set stat-only
     //
     if(fDoNonProfileFit){
-        WriteInfoStatus("TtHFit::Fit","In non-profile mode => Setting to stat-only.");
+        WriteInfoStatus("TRExFit::Fit","In non-profile mode => Setting to stat-only.");
         fStatOnly = true;
     }
     
@@ -5093,25 +5096,25 @@ void TtHFit::Fit(){
     // If there's a workspace specified, go on with simple fit, without looking for separate workspaces per region
     //
     if(fWorkspaceFileName!=""){
-        WriteInfoStatus("TtHFit::Fit","");
-        WriteInfoStatus("TtHFit::Fit","-------------------------------------------");
-        WriteInfoStatus("TtHFit::Fit","Performing nominal fit on pre-specified workspace...");
+        WriteInfoStatus("TRExFit::Fit","");
+        WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
+        WriteInfoStatus("TRExFit::Fit","Performing nominal fit on pre-specified workspace...");
         TFile *rootFile = new TFile(fWorkspaceFileName.c_str(),"read");
         ws = (RooWorkspace*) rootFile->Get("combined");
         if(!ws){
-            WriteErrorStatus("TtHFit::Fit", "The workspace (\"combined\") cannot be found in file " + fWorkspaceFileName + ". Please check !");
+            WriteErrorStatus("TRExFit::Fit", "The workspace (\"combined\") cannot be found in file " + fWorkspaceFileName + ". Please check !");
         }
         if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
         else                        data = (RooDataSet*)ws->data("asimovData");
-        PerformFit( ws, data, fFitType, true, TtHFitter::DEBUGLEVEL );
+        PerformFit( ws, data, fFitType, true, TRExFitter::DEBUGLEVEL );
     }
     //
     // Otherwise go on with normal fit
     //
     else{
-        WriteInfoStatus("TtHFit::Fit","");
-        WriteInfoStatus("TtHFit::Fit","-------------------------------------------");
-        WriteInfoStatus("TtHFit::Fit","Performing nominal fit...");
+        WriteInfoStatus("TRExFit::Fit","");
+        WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
+        WriteInfoStatus("TRExFit::Fit","Performing nominal fit...");
         //
         // Fills a vector of regions to consider for fit
         //
@@ -5153,19 +5156,17 @@ void TtHFit::Fit(){
         //
         // Creating the combined model with the regions to fit only
         //
-        if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         ws = PerformWorkspaceCombination( regionsToFit );
-
         //
         // If needed (only if needed), create a RooDataset object
         //
-            data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
         //
         // Calls the PerformFit() function to actually do the fit
         //
-        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
-        PerformFit( ws, data, fFitType, true, TtHFitter::DEBUGLEVEL);
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+        PerformFit( ws, data, fFitType, true, TRExFitter::DEBUGLEVEL);
     }
 
     //
@@ -5179,9 +5180,9 @@ void TtHFit::Fit(){
     // Fit result on Asimov with shifted systematics
     //
     if(fDoNonProfileFit){
-        WriteInfoStatus("TtHFit::Fit","");
-        WriteInfoStatus("TtHFit::Fit","-------------------------------------------");
-        WriteInfoStatus("TtHFit::Fit","Scan of systematics for non-profile fit...");
+        WriteInfoStatus("TRExFit::Fit","");
+        WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
+        WriteInfoStatus("TRExFit::Fit","Scan of systematics for non-profile fit...");
         ofstream out;
         std::vector < std:: string > regionsToFit;
         out.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
@@ -5199,9 +5200,9 @@ void TtHFit::Fit(){
         RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
         ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
         ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
-        WriteInfoStatus("TtHFit::Fit","Fitting nominal Asimov...");
+        WriteInfoStatus("TRExFit::Fit","Fitting nominal Asimov...");
         data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
-        npValues = PerformFit( ws, data, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
+        npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
         float nominalPOIval = npValues[fPOI];
         RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
         float statUp = poiVar->getErrorHi();
@@ -5224,12 +5225,12 @@ void TtHFit::Fit(){
                     npVal = fFitNPValues;
                     if(ud==0) npVal["alpha_"+syst->fNuisanceParameter] =  1;
                     if(ud==1) npVal["alpha_"+syst->fNuisanceParameter] = -1;
-                    WriteInfoStatus("TtHFit::Fit","Systematic "+syst->fNuisanceParameter+"...");
+                    WriteInfoStatus("TRExFit::Fit","Systematic "+syst->fNuisanceParameter+"...");
                     data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
                     // - again a stat-only fit to that Asimov
                     fFitFixedNPs[syst->fNuisanceParameter] = 0;
                     fFitFixedNPs["alpha_"+syst->fNuisanceParameter] = 0;
-                    npValues = PerformFit( ws, data, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
+                    npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                     float newPOIval = npValues[fPOI];
                     if(ud==0) newPOIvalUp[syst->fNuisanceParameter] = newPOIval;
                     if(ud==1) newPOIvalDo[syst->fNuisanceParameter] = newPOIval;
@@ -5283,11 +5284,11 @@ void TtHFit::Fit(){
         // 
         // Don't do it if you did a non-profile fit (FIXME)
         if(fDoNonProfileFit){
-            WriteWarningStatus("TtHFit::Fit","Better not to perform LH scan if you did non-profile fit with scan on systematics. Skipping LH scan.");
+            WriteWarningStatus("TRExFit::Fit","Better not to perform LH scan if you did non-profile fit with scan on systematics. Skipping LH scan.");
         }
         else{
         if (fVarNameLH[0]=="all"){
-            for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
+            for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
                 GetLikelihoodScan( ws, it->first, data);
             }
         }
@@ -5302,29 +5303,29 @@ void TtHFit::Fit(){
 
 //__________________________________________________________________________________
 //
-RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue  ){
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue  ){
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 
     //
     // This function dumps a RooDataSet object using the input informations provided by the user
     //    |-> Used when testing Fit response (inject one NP in data and check fit result)
     //    |-> Used when using fit results in some regions to generate Asimov data in blinded regions
     //
-    WriteDebugStatus("TtHFit::DumpData", "Dumping data with the following parameters");
-    WriteDebugStatus("TtHFit::DumpData", "    * Regions data type ");
+    WriteDebugStatus("TRExFit::DumpData", "Dumping data with the following parameters");
+    WriteDebugStatus("TRExFit::DumpData", "    * Regions data type ");
         for( const std::pair < std::string, int > dataType : regionDataType ){
-        WriteDebugStatus("TtHFit::DumpData", "       - Region: " + dataType.first + "       DataType: " + std::to_string(dataType.second));
+        WriteDebugStatus("TRExFit::DumpData", "       - Region: " + dataType.first + "       DataType: " + std::to_string(dataType.second));
         }
         if(npValues.size()){
-        WriteDebugStatus("TtHFit::DumpData", "    * Injected NP values ");
+        WriteDebugStatus("TRExFit::DumpData", "    * Injected NP values ");
             for ( const std::pair < std::string, double > npValue : npValues ){
-            WriteDebugStatus("TtHFit::DumpData", "       - NP: " + npValue.first + "       Value: " + std::to_string(npValue.second));
+            WriteDebugStatus("TRExFit::DumpData", "       - NP: " + npValue.first + "       Value: " + std::to_string(npValue.second));
             }
     }
     else {
-        WriteDebugStatus("TtHFit::DumpData", "    * No NP values injected ");
+        WriteDebugStatus("TRExFit::DumpData", "    * No NP values injected ");
     }
-    WriteDebugStatus("TtHFit::DumpData", "    * POI value: " + std::to_string(poiValue) );
+    WriteDebugStatus("TRExFit::DumpData", "    * POI value: " + std::to_string(poiValue) );
 
     RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
 
@@ -5347,7 +5348,7 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
         if (arg->IsA() == RooRealSumPdf::Class()) {
             arg->setAttribute("BinnedLikelihood");
             std::string temp_string = arg->GetName();
-            WriteDebugStatus("TtHFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
+            WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
         }
     }
 
@@ -5378,8 +5379,8 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
     //-- POI
     RooRealVar * poi = (RooRealVar*) mc->GetParametersOfInterest()->first();
     if (poi == nullptr){
-        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
-        WriteErrorStatus("TtHFit::DumpData", "Cannot find POI in workspace, exitting...");
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+        WriteErrorStatus("TRExFit::DumpData", "Cannot find POI in workspace, exitting...");
         exit(EXIT_FAILURE);
     }
     poi -> setVal(poiValue);
@@ -5413,10 +5414,10 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
         std::map < std::string, int >::const_iterator it_dataType = regionDataType.find( channelCat->getLabel() );
         if( it_dataType == regionDataType.end() ){
             std::string temp_string = channelCat->getLabel();
-            if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
-            WriteWarningStatus("TtHFit::DumpData", "The following region is not specified in the inputs to the function (" + temp_string + "): use Asimov");
-            WriteWarningStatus("TtHFit::DumpData", "   This SHOULD NOT HAPPEN ! Please check if everying is fine !");
-            if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+            WriteWarningStatus("TRExFit::DumpData", "The following region is not specified in the inputs to the function (" + temp_string + "): use Asimov");
+            WriteWarningStatus("TRExFit::DumpData", "   This SHOULD NOT HAPPEN ! Please check if everying is fine !");
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         }
         else {
             dataType = regionDataType[channelCat->getLabel()];
@@ -5425,9 +5426,9 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
         //A protection: if there is no real observed data, use only ASIMOV (but print a warning)
         if(dataType==Region::REALDATA && !realData){
             std::string temp_string = channelCat->getLabel();
-            if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
-            WriteWarningStatus("TtHFit::DumpData", "You want real data for channel " + temp_string + " but none is available in the workspace. Using Asimov instead.");
-            if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+            WriteWarningStatus("TRExFit::DumpData", "You want real data for channel " + temp_string + " but none is available in the workspace. Using Asimov instead.");
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             dataType = Region::ASIMOVDATA;
         }
 
@@ -5472,14 +5473,14 @@ RooDataSet* TtHFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &
         ws->loadSnapshot("InitialStateModelNuis");
     }
 
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     
     return asimovData;
 }
 
 //__________________________________________________________________________________
 //
-std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType, bool save, int debugLevel ){
+std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType, bool save, int debugLevel ){
 
     if (debugLevel < 1) std::cout.setstate(std::ios_base::failbit);
     std::map < std::string, double > result;
@@ -5490,6 +5491,14 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     //
     /////////////////////////////////
 
+    // prepare vectors for starting point of normfactors
+    std::vector<std::string> NPnames;
+    std::vector<double> NPvalues;
+    for(int i_norm=0;i_norm<fNNorm;i_norm++){
+        if (fNormFactors[i_norm]->fName == fPOI) continue;
+        NPnames. emplace_back( fNormFactors[i_norm]->fName);
+        NPvalues.emplace_back( fNormFactors[i_norm]->fNominal);
+    }
     //
     // Fit configuration (SPLUSB or BONLY)
     //
@@ -5502,6 +5511,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
         fitTool -> ValPOI(fFitPOIAsimov);
         fitTool -> ConstPOI(false);
     }
+    fitTool -> SetNPs( NPnames,NPvalues );
     fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
     if(fStatOnly){
       fitTool -> NoGammas();
@@ -5524,7 +5534,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     //
     // Set Minos
     if(fVarNameMinos.size()>0){
-        WriteDebugStatus("TtHFit::PerformFit", "Setting the variables to use MINOS with");
+        WriteDebugStatus("TRExFit::PerformFit", "Setting the variables to use MINOS with");
         fitTool -> UseMinos(fVarNameMinos);
     }
 
@@ -5541,21 +5551,22 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     if(inputData){
         data = inputData;
     } else {
-        WriteWarningStatus("TtHFit::PerformFit", "You didn't provide inputData => will use the observed data !");
+        WriteWarningStatus("TRExFit::PerformFit", "You didn't provide inputData => will use the observed data !");
         data = (RooDataSet*)ws->data("obsData");
         if(data==0x0){
-            WriteWarningStatus("TtHFit::PerformFit", "No observedData found => will use the Asimov data !");
+            WriteWarningStatus("TRExFit::PerformFit", "No observedData found => will use the Asimov data !");
             data = (RooDataSet*)ws->data("asimovData");
         }
+        inputData = data;
     }
-
+    
     //
     // For stat-only fit on data:
     // - read fit resutls
     // - fix all NP to fitted ones before fitting
     if(fStatOnlyFit){
-        WriteDebugStatus("TtHFit::PerformFit", "Fitting stat-only: reading fit results from full fit from file: ");
-        WriteDebugStatus("TtHFit::PerformFit", "  " + fName+"/Fits/"+fInputName+fSuffix+".txt");
+        WriteDebugStatus("TRExFit::PerformFit", "Fitting stat-only: reading fit results from full fit from file: ");
+        WriteDebugStatus("TRExFit::PerformFit", "  " + fName+"/Fits/"+fInputName+fSuffix+".txt");
         ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
         std::vector<std::string> npNames;
         std::vector<double> npValues;
@@ -5613,16 +5624,16 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
     if(fGetGoodnessOfFit){
         float deltaNLL = nll-nll0;
         double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
-        WriteInfoStatus("TtHFit::PerformFit", "----------------------- -------------------------- -----------------------");
-        WriteInfoStatus("TtHFit::PerformFit", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
-        WriteInfoStatus("TtHFit::PerformFit", "  NLL0        = " + std::to_string(nll0));
-        WriteInfoStatus("TtHFit::PerformFit", "  NLL         = " + std::to_string(nll));
-        WriteInfoStatus("TtHFit::PerformFit", "  ndof        = " + std::to_string(ndof));
-        WriteInfoStatus("TtHFit::PerformFit", "  dNLL        = " + std::to_string(deltaNLL));
-        WriteInfoStatus("TtHFit::PerformFit", "  2dNLL/nof   = " + std::to_string(2.*deltaNLL/ndof));
-        WriteInfoStatus("TtHFit::PerformFit", "  probability = " + std::to_string(prob));
-        WriteInfoStatus("TtHFit::PerformFit", "----------------------- -------------------------- -----------------------");
-        WriteInfoStatus("TtHFit::PerformFit", "----------------------- -------------------------- -----------------------");
+        WriteInfoStatus("TRExFit::PerformFit", "----------------------- -------------------------- -----------------------");
+        WriteInfoStatus("TRExFit::PerformFit", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
+        WriteInfoStatus("TRExFit::PerformFit", "  NLL0        = " + std::to_string(nll0));
+        WriteInfoStatus("TRExFit::PerformFit", "  NLL         = " + std::to_string(nll));
+        WriteInfoStatus("TRExFit::PerformFit", "  ndof        = " + std::to_string(ndof));
+        WriteInfoStatus("TRExFit::PerformFit", "  dNLL        = " + std::to_string(deltaNLL));
+        WriteInfoStatus("TRExFit::PerformFit", "  2dNLL/nof   = " + std::to_string(2.*deltaNLL/ndof));
+        WriteInfoStatus("TRExFit::PerformFit", "  probability = " + std::to_string(prob));
+        WriteInfoStatus("TRExFit::PerformFit", "----------------------- -------------------------- -----------------------");
+        WriteInfoStatus("TRExFit::PerformFit", "----------------------- -------------------------- -----------------------");
     }
 
     //
@@ -5645,7 +5656,7 @@ std::map < std::string, double > TtHFit::PerformFit( RooWorkspace *ws, RooDataSe
 
 //__________________________________________________________________________________
 //
-RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ){
+RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ){
 
     //
     // Definition of the fit regions
@@ -5671,7 +5682,7 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
             TFile *rootFile = new TFile(fileName.c_str(),"read");
             RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get((fRegions[i_ch]->fName).c_str());
             if(!m_ws){
-                WriteErrorStatus("TtHFit::PerformWorkspaceCombination", "The workspace (\"" + fRegions[i_ch] -> fName + "\") cannot be found in file " + fileName + ". Please check !");
+                WriteErrorStatus("TRExFit::PerformWorkspaceCombination", "The workspace (\"" + fRegions[i_ch] -> fName + "\") cannot be found in file " + fileName + ". Please check !");
             }
             vec_ws.push_back(m_ws);
             vec_chName.push_back(fRegions[i_ch] -> fName);
@@ -5686,10 +5697,10 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
     // Create the HistoToWorkspaceFactoryFast object to perform safely the combination
     //
     if(!measurement){
-        WriteErrorStatus("TtHFit::PerformWorkspaceCombination", "The measurement object has not been retrieved ! Please check.");
+        WriteErrorStatus("TRExFit::PerformWorkspaceCombination", "The measurement object has not been retrieved ! Please check.");
         return 0;
     }
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     RooStats::HistFactory::HistoToWorkspaceFactoryFast factory(*measurement);
 
     // Creating the combined model
@@ -5697,16 +5708,16 @@ RooWorkspace* TtHFit::PerformWorkspaceCombination( std::vector < std::string > &
 
     // Configure the workspace
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     return ws;
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::PlotFittedNP(){
+void TRExFit::PlotFittedNP(){
     if(fStatOnly || fStatOnlyFit){
-        WriteInfoStatus("TtHFit::PlotFittedNP", "Stat only fit => No NP Pull plots generated.");
+        WriteInfoStatus("TRExFit::PlotFittedNP", "Stat only fit => No NP Pull plots generated.");
         return;
     }
     //
@@ -5719,10 +5730,10 @@ void TtHFit::PlotFittedNP(){
         for(unsigned int i=0;i<fSystematics.size();i++){
             npCategories.insert(fSystematics[i]->fCategory);
         }
-        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-          fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],"all",fNormFactors);
-          fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]);
-          fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],fNormFactors);
+        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+          fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],"all",fNormFactors);
+          fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]);
+          fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors);
         }
         if(npCategories.size()>1){
             for( const std::string cat : npCategories ){
@@ -5731,8 +5742,8 @@ void TtHFit::PlotFittedNP(){
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '#', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
-                for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],cat,fNormFactors);
+                for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],cat,fNormFactors);
                 }
             }
         }
@@ -5741,23 +5752,23 @@ void TtHFit::PlotFittedNP(){
 
 //__________________________________________________________________________________
 //
-void TtHFit::PlotCorrelationMatrix(){
+void TRExFit::PlotCorrelationMatrix(){
     if(fStatOnly || fStatOnlyFit){
-        WriteInfoStatus("TtHFit::PlotCorrelationMatrix", "Stat only fit => No Correlation Matrix generated.");
+        WriteInfoStatus("TRExFit::PlotCorrelationMatrix", "Stat only fit => No Correlation Matrix generated.");
         return;
     }
-    //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
+    //plot the correlation matrix (considering only correlations larger than TRExFitter::CORRELATIONTHRESHOLD)
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
     if(fFitResults){
         fFitResults->fNuisParToHide = fVarNameHide;
-        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-            fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format],TtHFitter::CORRELATIONTHRESHOLD);
+        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+            fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],TRExFitter::CORRELATIONTHRESHOLD);
     }
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::GetLimit(){
+void TRExFit::GetLimit(){
 
     //Checks if a data sample exists
     bool hasData = false;
@@ -5771,7 +5782,7 @@ void TtHFit::GetLimit(){
     //
     // If a workspace file name is specified, do simple limit
     //
-    int sigDebug = 3 - TtHFitter::DEBUGLEVEL;
+    int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
     if (sigDebug < 0) sigDebug = 0;
     if(fWorkspaceFileName!=""){
         string dataName = "obsData";
@@ -5809,12 +5820,15 @@ void TtHFit::GetLimit(){
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
+            WriteInfoStatus("TRExFit::GetLimit","Creating ws for regions with real data only...");
             RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
 
             //
             // Calls the PerformFit() function to actually do the fit
             //
-            npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TtHFitter::DEBUGLEVEL);
+            WriteInfoStatus("TRExFit::GetLimit","Performing a fit in reagions with real data only...");
+            npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
+            WriteInfoStatus("TRExFit::GetLimit","Now will use the fit results to create the Asimov in the regions without real data!");
         }
 
         //
@@ -5844,12 +5858,11 @@ void TtHFit::GetLimit(){
         std::string outputName_s = static_cast<std::string> (outputName);
         runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
     }
-
 }
 
 //__________________________________________________________________________________
 //
-void TtHFit::GetSignificance(){
+void TRExFit::GetSignificance(){
 
     //Checks if a data sample exists
     bool hasData = false;
@@ -5863,7 +5876,7 @@ void TtHFit::GetSignificance(){
     //
     // If a workspace file name is specified, do simple significance
     //
-    int sigDebug = 3 - TtHFitter::DEBUGLEVEL;
+    int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
     if (sigDebug < 0) sigDebug = 0;
     if(fWorkspaceFileName!=""){
         string dataName = "obsData";
@@ -5900,12 +5913,15 @@ void TtHFit::GetSignificance(){
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
+            WriteInfoStatus("TRExFit::GetSignificance","Creating ws for regions with real data only...");
             RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
 
             //
             // Calls the PerformFit() function to actually do the fit
             //
-            npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TtHFitter::DEBUGLEVEL);
+            WriteInfoStatus("TRExFit::GetSignificance","Performing a fit in reagions with real data only...");
+            npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
+            WriteInfoStatus("TRExFit::GetSignificance","Now will use the fit results to create the Asimov in the regions without real data!");
         }
 
         //
@@ -5943,9 +5959,9 @@ void TtHFit::GetSignificance(){
 
 //__________________________________________________________________________________
 //
-void TtHFit::ReadFitResults(const string& fileName){
-    WriteInfoStatus("TtHFit::ReadFitResults", "------------------------------------------------------");
-    WriteInfoStatus("TtHFit::ReadFitResults",  "Reading fit results from file ");
+void TRExFit::ReadFitResults(const string& fileName){
+    WriteInfoStatus("TRExFit::ReadFitResults", "------------------------------------------------------");
+    WriteInfoStatus("TRExFit::ReadFitResults",  "Reading fit results from file ");
     delete fFitResults;
     fFitResults = new FitResults();
     fFitResults->SetPOIPrecision(fPOIPrecision);
@@ -5980,30 +5996,30 @@ void TtHFit::ReadFitResults(const string& fileName){
 
 //__________________________________________________________________________________
 //
-void TtHFit::Print(){
-    WriteInfoStatus("TtHFit::Print", "-------------------------------------------");
-    WriteInfoStatus("TtHFit::Print", fInputName);
-    WriteInfoStatus("TtHFit::Print", "      NtuplePaths = ");
+void TRExFit::Print(){
+    WriteInfoStatus("TRExFit::Print", "-------------------------------------------");
+    WriteInfoStatus("TRExFit::Print", fInputName);
+    WriteInfoStatus("TRExFit::Print", "      NtuplePaths = ");
     for(int i=0;i<(int)fNtuplePaths.size();i++){
-        WriteInfoStatus("TtHFit::Print", " " + fNtuplePaths[i]);
+        WriteInfoStatus("TRExFit::Print", " " + fNtuplePaths[i]);
     }
-    WriteInfoStatus("TtHFit::Print", "      NtupleName  = " + fNtupleName);
-    WriteInfoStatus("TtHFit::Print", "      MCweight    = " + fMCweight);
-    WriteInfoStatus("TtHFit::Print", "      Selection   = " + fSelection);
-    WriteInfoStatus("TtHFit::Print", "      HistoPaths  = " + fSelection);
+    WriteInfoStatus("TRExFit::Print", "      NtupleName  = " + fNtupleName);
+    WriteInfoStatus("TRExFit::Print", "      MCweight    = " + fMCweight);
+    WriteInfoStatus("TRExFit::Print", "      Selection   = " + fSelection);
+    WriteInfoStatus("TRExFit::Print", "      HistoPaths  = " + fSelection);
     for(int i=0;i<(int)fHistoPaths.size();i++){
-        WriteInfoStatus("TtHFit::Print", " " + fHistoPaths[i]);
+        WriteInfoStatus("TRExFit::Print", " " + fHistoPaths[i]);
     }
-    WriteInfoStatus("TtHFit::Print", "      HistoName   = " + fHistoName);
+    WriteInfoStatus("TRExFit::Print", "      HistoName   = " + fHistoName);
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->Print();
     }
-    WriteInfoStatus("TtHFit::Print", "-------------------------------------------");
+    WriteInfoStatus("TRExFit::Print", "-------------------------------------------");
 }
 
 //__________________________________________________________________________________
 //
-Region* TtHFit::GetRegion(string name){
+Region* TRExFit::GetRegion(string name){
     for(unsigned int i=0;i<fRegions.size();i++){
         if(fRegions[i]->fName == name) return fRegions[i];
     }
@@ -6012,7 +6028,7 @@ Region* TtHFit::GetRegion(string name){
 
 //__________________________________________________________________________________
 //
-Sample* TtHFit::GetSample(string name){
+Sample* TRExFit::GetSample(string name){
     for(unsigned int i=0;i<fSamples.size();i++){
         if(fSamples[i]->fName == name) return fSamples[i];
     }
@@ -6021,7 +6037,7 @@ Sample* TtHFit::GetSample(string name){
 
 //__________________________________________________________________________________
 //
-void TtHFit::DrawAndSaveSeparationPlots(){
+void TRExFit::DrawAndSaveSeparationPlots(){
 //     std::cout << "In DrawAndSaveSeparationPlots:" << endl;
 
     gSystem->mkdir(fName.c_str());
@@ -6036,7 +6052,7 @@ void TtHFit::DrawAndSaveSeparationPlots(){
         dummy3->cd();
 
         if(fRegions[i_ch]->fNSig==0){
-            WriteErrorStatus("TtHFit::DrawAndSaveSeparationPlots", "No Signal Found");
+            WriteErrorStatus("TRExFit::DrawAndSaveSeparationPlots", "No Signal Found");
             continue;
         }
 
@@ -6147,8 +6163,8 @@ void TtHFit::DrawAndSaveSeparationPlots(){
 //         ls4.DrawLatex(0.20, 0.69, SEP.str().c_str());
         myText(0.55,0.73,1,SEP.str().c_str());
 
-        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-            dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format] ).c_str());
+        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+            dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
 
     }// regions
 
@@ -6157,10 +6173,10 @@ void TtHFit::DrawAndSaveSeparationPlots(){
 
 //____________________________________________________________________________________
 //
-void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
+void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 
     if(fFitType==BONLY){
-        WriteErrorStatus("TtHFit::ProduceNPRanking", "For ranking plots, the SPLUSB FitType is needed.");
+        WriteErrorStatus("TRExFit::ProduceNPRanking", "For ranking plots, the SPLUSB FitType is needed.");
         abort();
     }
 
@@ -6294,7 +6310,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     // Initialize the FittingTool object
     //
     FittingTool *fitTool = new FittingTool();
-    fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
+    fitTool -> SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool -> ValPOI(1.);
     fitTool -> ConstPOI(false);
     if(fStatOnly){
@@ -6312,7 +6328,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
         down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
         //// Thomas : We should be careful with changing naming convention compared to RooFit !!
-        // TtHFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
+        // TRExFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
         // Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
         if( (nuisPars[i].find("_bin_")!=string::npos) ){
             nuisPars[i] = "gamma_" + nuisPars[i];
@@ -6320,9 +6336,9 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         //
         // Experimental: reduce the range of ranking
-        if(TtHFitter::OPTION["ReduceRanking"]!=0){
-            up   *= TtHFitter::OPTION["ReduceRanking"];
-            down *= TtHFitter::OPTION["ReduceRanking"];
+        if(TRExFitter::OPTION["ReduceRanking"]!=0){
+            up   *= TRExFitter::OPTION["ReduceRanking"];
+            down *= TRExFitter::OPTION["ReduceRanking"];
         }
         //
         // Set the NP to its post-fit *up* variation and refit to get the fitted POI
@@ -6343,9 +6359,9 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         dMuDown = muVarDown[nuisPars[i]]-muhat;
         //
         // Experimental: reduce the range of ranking
-        if(TtHFitter::OPTION["ReduceRanking"]!=0){
-            dMuUp   /= TtHFitter::OPTION["ReduceRanking"];
-            dMuDown /= TtHFitter::OPTION["ReduceRanking"];
+        if(TRExFitter::OPTION["ReduceRanking"]!=0){
+            dMuUp   /= TRExFitter::OPTION["ReduceRanking"];
+            dMuDown /= TRExFitter::OPTION["ReduceRanking"];
         }
         //
         outName_file << dMuUp << "   " << dMuDown << "  ";
@@ -6359,9 +6375,9 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             down = 1.;
             //
             // Experimental: reduce the range of ranking
-            if(TtHFitter::OPTION["ReduceRanking"]!=0){
-                up   *= TtHFitter::OPTION["ReduceRanking"];
-                down *= TtHFitter::OPTION["ReduceRanking"];
+            if(TRExFitter::OPTION["ReduceRanking"]!=0){
+                up   *= TRExFitter::OPTION["ReduceRanking"];
+                down *= TRExFitter::OPTION["ReduceRanking"];
             }
             //
             // Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
@@ -6383,9 +6399,9 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         dMuDown = muVarNomDown[nuisPars[i]]-muhat;
         //
         // Experimental: reduce the range of ranking
-        if(TtHFitter::OPTION["ReduceRanking"]!=0){
-            dMuUp   /= TtHFitter::OPTION["ReduceRanking"];
-            dMuDown /= TtHFitter::OPTION["ReduceRanking"];
+        if(TRExFitter::OPTION["ReduceRanking"]!=0){
+            dMuUp   /= TRExFitter::OPTION["ReduceRanking"];
+            dMuDown /= TRExFitter::OPTION["ReduceRanking"];
         }
         //
        outName_file << dMuUp << "   " << dMuDown << " "<<endl;
@@ -6406,7 +6422,7 @@ void TtHFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 
 //____________________________________________________________________________________
 //
-void TtHFit::PlotNPRankingManager(){
+void TRExFit::PlotNPRankingManager(){
   if(fRankingPlot=="Merge"  || fRankingPlot=="all") PlotNPRanking(true,true);
   if(fRankingPlot=="Systs"  || fRankingPlot=="all") PlotNPRanking(true,false);
   if(fRankingPlot=="Gammas" || fRankingPlot=="all") PlotNPRanking(false,true);
@@ -6414,7 +6430,7 @@ void TtHFit::PlotNPRankingManager(){
 
 //____________________________________________________________________________________
 //
-void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
+void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     //
     string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
     //
@@ -6450,14 +6466,14 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     std::string temp_string = "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"";
     if (paramname=="Luminosity"){
-        WriteErrorStatus("TtHFit::PlotNPRanking", temp_string);
+        WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     }
     while (!fin.eof()){
         if(paramname.find("gamma")!=string::npos && !flagGammas){
             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
             if (paramname=="Luminosity"){
-                WriteErrorStatus("TtHFit::PlotNPRanking", temp_string);
+                WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
                 fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
             }
             continue;
@@ -6465,7 +6481,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         if(paramname.find("gamma")==string::npos && !flagSysts){
             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
             if (paramname=="Luminosity"){
-                WriteErrorStatus("TtHFit::PlotNPRanking", temp_string);
+                WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
                 fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
             }
             continue;
@@ -6480,13 +6496,13 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         poinomdown.push_back(PoiNomDown);
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
         if (paramname=="Luminosity"){
-            WriteErrorStatus("TtHFit::PlotNPRanking", temp_string);
+            WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
         }
     }
 
     unsigned int SIZE = parname.size();
-    WriteDebugStatus("TtHFit::PlotNPRanking", "NP ordering...");
+    WriteDebugStatus("TRExFit::PlotNPRanking", "NP ordering...");
     number.push_back(0.5);
     for (unsigned int i=1;i<SIZE;i++){
         number.push_back(i+0.5);
@@ -6545,7 +6561,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     // Restrict to the first N
     if(SIZE>maxNP) SIZE = maxNP;
 
-    // Graphical part - rewritten taking DrawPulls in TtHFitter
+    // Graphical part - rewritten taking DrawPulls in TRExFitter
     float lineHeight  =  30;
     float offsetUp    =  60; // external
     float offsetDown  =  60;
@@ -6617,7 +6633,7 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
             // build the title of the nuis par
             parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1] + ")";
         }
-        else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
+        else parTitle = TRExFitter::SYSTMAP[ parname[i] ];
         
         Names.push_back(parTitle);
 
@@ -6749,21 +6765,21 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     gPad->RedrawAxis();
 
     if(flagGammas && flagSysts){
-      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/Ranking"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/Ranking"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else if(flagGammas){
-      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/RankingGammas"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/RankingGammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else if(flagSysts){
-      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/RankingSysts"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/RankingSysts"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else{
-        WriteWarningStatus("TtHFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
-      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/RankingUnknown"+fSuffix+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+        WriteWarningStatus("TRExFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
+      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fName+"/RankingUnknown"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     //
     delete c;
@@ -6771,8 +6787,8 @@ void TtHFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 
 //____________________________________________________________________________________
 //
-void TtHFit::PrintSystTables(string opt){
-    WriteInfoStatus("TtHFit::PrintSystTables", "Printing syt tables");
+void TRExFit::PrintSystTables(string opt){
+    WriteInfoStatus("TRExFit::PrintSystTables", "Printing syt tables");
     if(fCleanTables) opt += "clean";
     if(fSystCategoryTables) opt += "category";
     if(fTableOptions.find("STANDALONE")!=string::npos) opt += "standalone";
@@ -6786,7 +6802,7 @@ void TtHFit::PrintSystTables(string opt){
 
 //____________________________________________________________________________________
 // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
-void TtHFit::MergeSystematics(){
+void TRExFit::MergeSystematics(){
     // loop on systematics, see if any of them has name != nuisance
     for(auto syst : fSystematics){
         if(syst->fName!=syst->fNuisanceParameter){
@@ -6795,9 +6811,9 @@ void TtHFit::MergeSystematics(){
                 if(syst->fName==syst1->fName) continue;
                 if(!(syst->fNuisanceParameter==syst1->fName && syst1->fNuisanceParameter==syst1->fName)) continue;
                 // now merge all SystematicHist in all regions                
-                WriteDebugStatus("TtHFit::MergeSsystematics", "Found NP(syst) " + syst->fNuisanceParameter + "(" + syst->fName + ") = to syst name " + syst1->fName );
+                WriteDebugStatus("TRExFit::MergeSsystematics", "Found NP(syst) " + syst->fNuisanceParameter + "(" + syst->fName + ") = to syst name " + syst1->fName );
                 for(auto reg : fRegions){
-                    WriteDebugStatus("TtHFit::MergeSsystematics", "Region: " + reg->fName);
+                    WriteDebugStatus("TRExFit::MergeSsystematics", "Region: " + reg->fName);
                     for(auto sh : reg->fSampleHists){
                         SystematicHist *syh  = sh->GetSystematic(syst ->fName);
                         SystematicHist *syh1 = sh->GetSystematic(syst1->fName);
@@ -6811,8 +6827,8 @@ void TtHFit::MergeSystematics(){
 //                             else{
                                 syh1 ->Add(syh);
                                 syh1 ->Add(sh->fHist,-1);
-                                WriteDebugStatus("TtHFit::MergeSsystematics", "Adding syst of " + syh->fName +  " to " + syh1->fName);
-                                WriteDebugStatus("TtHFit::MergeSsystematics", "Setting to 0 all Up/Down of " +  syh->fName);
+                                WriteDebugStatus("TRExFit::MergeSsystematics", "Adding syst of " + syh->fName +  " to " + syh1->fName);
+                                WriteDebugStatus("TRExFit::MergeSsystematics", "Setting to 0 all Up/Down of " +  syh->fName);
 //                             }
 //                             //
 //                             // up variation
@@ -6860,7 +6876,7 @@ void TtHFit::MergeSystematics(){
 
 //____________________________________________________________________________________
 //
-void TtHFit::ComputeBining(int regIter){
+void TRExFit::ComputeBining(int regIter){
     //
     //Creating histograms to rebin
     TH1F* hsig = 0x0;
@@ -6877,19 +6893,19 @@ void TtHFit::ComputeBining(int regIter){
     if(fRegions[regIter]->fRegionType==Region::CONTROL) bkgReg=true;
     if(bkgReg && fRegions[regIter]->fTransfoDzSig<1e-3) flatBkg=true;
     //
-    WriteDebugStatus("TtHFit::ComputeBining", "Will compute binning with the following options:");
+    WriteDebugStatus("TRExFit::ComputeBining", "Will compute binning with the following options:");
 
     std::string tmp_string = std::to_string(fRegions[regIter]->fTransfoFzSig);
     if((fRegions[regIter]->fTransfoDzSig>1e-3 || fRegions[regIter]->fTransfoDzBkg>1e-3) )
-        WriteDebugStatus("TtHFit::ComputeBining", " TransfoD - zSig=" + tmp_string + " - zBkg=" + std::to_string(fRegions[regIter]->fTransfoDzBkg));
+        WriteDebugStatus("TRExFit::ComputeBining", " TransfoD - zSig=" + tmp_string + " - zBkg=" + std::to_string(fRegions[regIter]->fTransfoDzBkg));
     if((fRegions[regIter]->fTransfoFzSig>1e-3 || fRegions[regIter]->fTransfoFzBkg>1e-3) )
-        WriteDebugStatus("TtHFit::ComputeBining", " TransfoF - zSig=" + tmp_string + " - zBkg=" + std::to_string(fRegions[regIter]->fTransfoFzBkg));
+        WriteDebugStatus("TRExFit::ComputeBining", " TransfoF - zSig=" + tmp_string + " - zBkg=" + std::to_string(fRegions[regIter]->fTransfoFzBkg));
     if((fRegions[regIter]->fTransfoJpar1>1e-3 || fRegions[regIter]->fTransfoJpar2>1e-3 || fRegions[regIter]->fTransfoJpar3>1e-3) )
-        WriteDebugStatus("TtHFit::ComputeBining", " TransfoJ - z1=" + std::to_string(fRegions[regIter]->fTransfoJpar1)
+        WriteDebugStatus("TRExFit::ComputeBining", " TransfoJ - z1=" + std::to_string(fRegions[regIter]->fTransfoJpar1)
              + " - z2=" + std::to_string(fRegions[regIter]->fTransfoJpar2) + " - z3=" + std::to_string(fRegions[regIter]->fTransfoJpar3));
 
-    if(bkgReg) WriteDebugStatus("TtHFit::ComputeBining", " - bkg reg");
-    else WriteDebugStatus("TtHFit::ComputeBining", " - sig reg");
+    if(bkgReg) WriteDebugStatus("TRExFit::ComputeBining", " - bkg reg");
+    else WriteDebugStatus("TRExFit::ComputeBining", " - sig reg");
 
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         //
@@ -6933,12 +6949,12 @@ void TtHFit::ComputeBining(int regIter){
                                         NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                         );
               for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                  int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
-                  TtHFitter::SetDebugLevel(0);
+                  int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
+                  TRExFitter::SetDebugLevel(0);
                   htmp = HistFromNtuple( fullPaths[i_path],
                                         fRegions[regIter]->fVariable, 10000, fRegions[regIter]->fXmin, fRegions[regIter]->fXmax,
                                         fullSelection, fullMCweight);
-                  TtHFitter::SetDebugLevel(tmp_debugLevel);
+                  TRExFitter::SetDebugLevel(tmp_debugLevel);
                   //
                   // Pre-processing of histograms (rebinning, lumi scaling)
                   if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -6946,7 +6962,7 @@ void TtHFit::ComputeBining(int regIter){
                   if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
                   else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
                   //
-                  // Importing the histogram in TtHFitter
+                  // Importing the histogram in TRExFitter
                   if(fSamples[i_smp]->fType==Sample::SIGNAL){
                       if(nDefSig){
                           hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
@@ -6964,7 +6980,7 @@ void TtHFit::ComputeBining(int regIter){
                               }
                         }
                         if(usedInSig){
-                            WriteDebugStatus("TtHFit::ComputeBining", "Using " + fSamples[i_smp]->fName + " as signal");
+                            WriteDebugStatus("TRExFit::ComputeBining", "Using " + fSamples[i_smp]->fName + " as signal");
                             if(nDefSig){
                                 hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                                 nDefSig=false;
@@ -7012,10 +7028,10 @@ void TtHFit::ComputeBining(int regIter){
                         );
 
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                int tmp_debugLevel=TtHFitter::DEBUGLEVEL;
-                TtHFitter::SetDebugLevel(0);
+                int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
+                TRExFitter::SetDebugLevel(0);
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-                TtHFitter::SetDebugLevel(tmp_debugLevel);
+                TRExFitter::SetDebugLevel(tmp_debugLevel);
                 //
                 // Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[regIter]->fHistoBins){
@@ -7053,7 +7069,7 @@ void TtHFit::ComputeBining(int regIter){
                     }
                 }
                 if(usedInSig){
-                    WriteDebugStatus("TtHFit::ComputeBinning", "Using " + fSamples[i_smp]->fName + " as signal");
+                    WriteDebugStatus("TRExFit::ComputeBinning", "Using " + fSamples[i_smp]->fName + " as signal");
                     if(nDefSig){
                         hsig = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                         nDefSig=false;
@@ -7092,7 +7108,7 @@ void TtHFit::ComputeBining(int regIter){
     bins_vec.clear();
     //
     if (!hbkg || !hsig) {
-        WriteErrorStatus("TtHFit::ComputeBinning", "Please provide signal and background histograms!");
+        WriteErrorStatus("TRExFit::ComputeBinning", "Please provide signal and background histograms!");
         gSystem -> Exit(1);
     }
     int iBin2 = 0;
@@ -7167,7 +7183,7 @@ void TtHFit::ComputeBining(int regIter){
                 }
             }
             else{
-                WriteErrorStatus("TtHFit::ComputeBinning", "transformation method '" + fRegions[regIter]->fBinTransfo + "' unknown, try again!");
+                WriteErrorStatus("TRExFit::ComputeBinning", "transformation method '" + fRegions[regIter]->fBinTransfo + "' unknown, try again!");
                 exit(1);
             }
             if (!(pass && dist > distPrev)) {
@@ -7199,12 +7215,12 @@ void TtHFit::ComputeBining(int regIter){
         bins[i] = hbkg->GetBinLowEdge(bins_vec[nBins-i-1]);
     }
     bins[nBins-1]=hbkg->GetBinLowEdge( hbkg->GetNbinsX() + 1 );
-    WriteInfoStatus("TtHFit::ComputeBinning", "Your final binning from automatic binning function is:");
+    WriteInfoStatus("TRExFit::ComputeBinning", "Your final binning from automatic binning function is:");
     std::string temp_string = "";
     for(unsigned int i_bins=0; i_bins<bins_vec.size(); ++i_bins){
       temp_string+= std::to_string(bins[i_bins]) + " - ";
     }
-    WriteInfoStatus("TtHFit::ComputeBinning", "  " + temp_string);
+    WriteInfoStatus("TRExFit::ComputeBinning", "  " + temp_string);
     //
     delete hsig;
     delete hbkg;
@@ -7215,13 +7231,13 @@ void TtHFit::ComputeBining(int regIter){
 
 //__________________________________________________________________________________
 //
-void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data){
-    WriteInfoStatus("TtHFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
+void TRExFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data){
+    WriteInfoStatus("TRExFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
   
     // shut-up RooFit!
-    if(TtHFitter::DEBUGLEVEL<=1){
-        if(TtHFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else if(TtHFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+    if(TRExFitter::DEBUGLEVEL<=1){
+        if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
+        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL) ;
         RooMsgService::instance().getStream(1).removeTopic(Generation) ;
         RooMsgService::instance().getStream(1).removeTopic(Plotting) ;
@@ -7272,7 +7288,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
             vname=var->GetName();
             vname_s=var->GetName();
             if (vname.Contains(varName.c_str())) {
-                WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
+                WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
                 foundSyst=true;
                 break;
             }
@@ -7284,7 +7300,7 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
         vname=var->GetName();
             vname_s=var->GetName();
             if (vname.Contains(varName.c_str())) {
-                WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
+                WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
                 foundSyst=true;
                 break;
             }
@@ -7292,19 +7308,19 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
     }
 
     if(!foundSyst){
-        WriteWarningStatus("TtHFit::GetLikelihoodScan", "systematic " + varName + " not found (most probably due to Pruning), skip LHscan !");
+        WriteWarningStatus("TRExFit::GetLikelihoodScan", "systematic " + varName + " not found (most probably due to Pruning), skip LHscan !");
         return;
     }
-    WriteInfoStatus("TtHFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
+    WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
 
     TCanvas* can = new TCanvas("NLLscan");
 
-    RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
+    RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TRExFitter::NCPU, RooFit::Hybrid));
 
     TString tag("");
     RooAbsReal* pll = nll->createProfile(*var);
     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
-    pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TtHFitter::NCPU));
+    pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TRExFitter::NCPU));
     RooCurve* curve = frameLH->getCurve();
     curve->Draw();
 
@@ -7312,8 +7328,8 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
 
     // y axis
     frameLH->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
-    if(TtHFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[varName].c_str());
-    else if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
+    if(TRExFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TRExFitter::SYSTMAP[varName].c_str());
+    else if(TRExFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TRExFitter::NPMAP[varName].c_str());
 
     TString cname="";
     cname.Append("NLLscan_");
@@ -7367,8 +7383,8 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
 
     can->RedrawAxis();
     
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TtHFitter::IMAGEFORMAT[i_format] );
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TRExFitter::IMAGEFORMAT[i_format] );
     
     // write it to a ROOT file as well
     TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
@@ -7380,10 +7396,10 @@ void TtHFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* da
 
 //____________________________________________________________________________________
 //
-void TtHFit::defineVariable(int regIter){
+void TRExFit::defineVariable(int regIter){
     TH1::StatOverflows(true);  //////  What is the defaut in root for this ???
-    WriteDebugStatus("TtHFit::defineVariable", "//////// --------");
-    WriteDebugStatus("TtHFit::defineVariable", "// DEBUG CORR VAR");
+    WriteDebugStatus("TRExFit::defineVariable", "//////// --------");
+    WriteDebugStatus("TRExFit::defineVariable", "// DEBUG CORR VAR");
     TH1* h1 = new TH1D("h1","h1",1,-2000.,1000.);
     TH1* h2 = new TH1D("h2","h2",1,-2000.,1000.);
     string fullSelection;
@@ -7393,10 +7409,10 @@ void TtHFit::defineVariable(int regIter){
 
     // copy of NtupleReading function.
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        WriteDebugStatus("TtHFit::defineVariable", "Processing sample : " + fSamples[i_smp]->fName);
+        WriteDebugStatus("TRExFit::defineVariable", "Processing sample : " + fSamples[i_smp]->fName);
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
         if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[regIter]->fName)<0 ) continue;
-        WriteDebugStatus("TtHFit::defineVariable", " -> is used in the considered region");
+        WriteDebugStatus("TRExFit::defineVariable", " -> is used in the considered region");
         fullSelection = "1";
         if(fSamples[i_smp]->fIgnoreSelection!="TRUE" && fSelection!="" && fSelection!="1")
             fullSelection += " && ("+fSelection+")";
@@ -7432,7 +7448,7 @@ void TtHFit::defineVariable(int regIter){
                                     );
         //
         for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-            WriteDebugStatus("TtHFit::defineVariable", " -> Retriving : " + fRegions[regIter]->fCorrVar1 +
+            WriteDebugStatus("TRExFit::defineVariable", " -> Retriving : " + fRegions[regIter]->fCorrVar1 +
                                                         " w/ weight " + fullMCweight + "*" + fullSelection  +
                                                         " from " +  fullPaths[i_path]);
             TH1* htmp1 = new TH1D("htmp1","htmp1",1,-2000.,1000.);
@@ -7466,7 +7482,7 @@ void TtHFit::defineVariable(int regIter){
     double mean2 = h2->GetMean();
     double rms2 = h2->GetRMS();
 
-    WriteDebugStatus("TtHFit::defineVariable", "the new variable : ( ( (" + fRegions[regIter]->fCorrVar1 + ") - " + std::to_string(mean1) + " )*( (" +fRegions[regIter]->fCorrVar2 + ")-" + std::to_string(mean2) + " ) )/( " + std::to_string(rms1) + " * " + std::to_string(rms2) + ")");
+    WriteDebugStatus("TRExFit::defineVariable", "the new variable : ( ( (" + fRegions[regIter]->fCorrVar1 + ") - " + std::to_string(mean1) + " )*( (" +fRegions[regIter]->fCorrVar2 + ")-" + std::to_string(mean2) + " ) )/( " + std::to_string(rms1) + " * " + std::to_string(rms2) + ")");
 
     fRegions[regIter]->fVariable = Form("( ( (%s)-%f )*( (%s)-%f ) )/( %f * %f )",fRegions[regIter]->fCorrVar1.c_str(),mean1,fRegions[regIter]->fCorrVar2.c_str(),mean2,rms1,rms2);
 
@@ -7477,18 +7493,18 @@ void TtHFit::defineVariable(int regIter){
 }
 //__________________________________________________________________________________
 //
-void TtHFit::AddTemplateWeight(const std::string& name, float value){
+void TRExFit::AddTemplateWeight(const std::string& name, float value){
     std::pair<float, std::string> temp = std::make_pair(value, name);
     fTemplatePair.push_back(temp);
 }
 
 //__________________________________________________________________________________
 //
-std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::TemplateInterpolationOption& opt){
-    std::vector<TtHFit::TemplateWeight> vec;
+std::vector<TRExFit::TemplateWeight> TRExFit::GetTemplateWeightVec(const TRExFit::TemplateInterpolationOption& opt){
+    std::vector<TRExFit::TemplateWeight> vec;
     // first sort vector of inputs for templates
     if (fTemplatePair.size() < 2){
-        WriteErrorStatus("TtHFit::GetTemplateWeightVec", "You need to provide at least 2 templates for template fit to work, but you provided: " + std::to_string(fTemplatePair.size()));
+        WriteErrorStatus("TRExFit::GetTemplateWeightVec", "You need to provide at least 2 templates for template fit to work, but you provided: " + std::to_string(fTemplatePair.size()));
         return vec;
     }
     std::sort(fTemplatePair.begin(), fTemplatePair.end());
@@ -7496,14 +7512,14 @@ std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::T
     float min = fTemplatePair.at(0).first;
     float max = fTemplatePair.at(fTemplatePair.size() -1).first;
     for (unsigned int itemp = 0; itemp < (fTemplatePair.size() ); itemp++){
-        WriteDebugStatus("TtHFit::GetTemplateWeightVec", "Morphing: Template " + std::to_string(itemp));
-        TtHFit::TemplateWeight tmp;
+        WriteDebugStatus("TRExFit::GetTemplateWeightVec", "Morphing: Template " + std::to_string(itemp));
+        TRExFit::TemplateWeight tmp;
         tmp.name = fTemplatePair.at(itemp).second;
         tmp.value = fTemplatePair.at(itemp).first;
-        WriteDebugStatus("TtHFit::GetTemplateWeightVec", "Morphing:   " + tmp.name + " = " + std::to_string(tmp.value));
+        WriteDebugStatus("TRExFit::GetTemplateWeightVec", "Morphing:   " + tmp.name + " = " + std::to_string(tmp.value));
         tmp.range = tmp.name+"["+std::to_string(min)+","+std::to_string(min)+","+std::to_string(max)+"]";
         // calculate the actual function
-        tmp.function = TtHFit::GetWeightFunction(itemp, opt);
+        tmp.function = TRExFit::GetWeightFunction(itemp, opt);
         vec.push_back(tmp);
     }
     return vec;
@@ -7511,7 +7527,7 @@ std::vector<TtHFit::TemplateWeight> TtHFit::GetTemplateWeightVec(const TtHFit::T
 
 //__________________________________________________________________________________
 //
-std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::TemplateInterpolationOption& opt) const{
+std::string TRExFit::GetWeightFunction(unsigned int itemp, const TRExFit::TemplateInterpolationOption& opt) const{
     std::string fun = "";
     float x_i;
     float deltaXp = -1; // |x(i+1)-x(i)| 
@@ -7523,7 +7539,7 @@ std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::Template
     }
     else return fun;
     //
-    if (opt == TtHFit::LINEAR){
+    if (opt == TRExFit::LINEAR){
         if ((itemp+1) < fTemplatePair.size() ){
             deltaXp = std::fabs(fTemplatePair.at(itemp+1).first - fTemplatePair.at(itemp).first);
         }
@@ -7531,7 +7547,7 @@ std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::Template
             deltaXm = std::fabs(fTemplatePair.at(itemp-1).first - fTemplatePair.at(itemp).first);
         }
         if(deltaXp<0 && deltaXm<0){
-            WriteErrorStatus("TtHFit::GetWeightFunction", "Morphing: delta X = " + std::to_string(deltaXp) + ", " + std::to_string(deltaXm));
+            WriteErrorStatus("TRExFit::GetWeightFunction", "Morphing: delta X = " + std::to_string(deltaXp) + ", " + std::to_string(deltaXm));
             return fun;
         }
         fun  = "(";
@@ -7541,22 +7557,22 @@ std::string TtHFit::GetWeightFunction(unsigned int itemp, const TtHFit::Template
         if(deltaXp>0) fun += "((("+name+"-"+std::to_string(x_i)+")>=0)&&(fabs("+name+"-"+std::to_string(x_i)+")<"+std::to_string(deltaXp)+"))*(1.-(fabs("+name+"-"+std::to_string(x_i)+"))/"+std::to_string(deltaXp)+")";
         else fun += "0.";
         fun += ")";
-    } else if (opt == TtHFit::SMOOTHLINEAR) {
+    } else if (opt == TRExFit::SMOOTHLINEAR) {
         // this will return a string that represents integral of hyperbolic tangent function that
         // approximates absolute value
         fun = GetSmoothLinearInterpolation(itemp);
-    } else if (opt == TtHFit::SQUAREROOT) {
+    } else if (opt == TRExFit::SQUAREROOT) {
         fun = GetSquareRootLinearInterpolation(itemp);
     }
     // ...
     fun = ReplaceString(fun,"--","+");
-    WriteDebugStatus("TtHFit::GetWeightFunction", "Morphing:   weight function = " + fun);
+    WriteDebugStatus("TRExFit::GetWeightFunction", "Morphing:   weight function = " + fun);
     return fun;
 }
 
 //__________________________________________________________________________________
 //
-std::string TtHFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
+std::string TRExFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
     // The idea is simple: use integral of hyperbolic tangent 
     //
     // -2/width*(1/k)*corr*(log(e^(k*(x-x_mean)+e^(-(k*(x-x_mean))))) - ln(2)) + 1
@@ -7636,7 +7652,7 @@ std::string TtHFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
 
 //__________________________________________________________________________________
 //
-double TtHFit::GetCorrection(float k, float width, float x_mean, float x_left, float init) const {
+double TRExFit::GetCorrection(float k, float width, float x_mean, float x_left, float init) const {
     double logterm = 0;
     double corr = 0;
 
@@ -7659,7 +7675,7 @@ double TtHFit::GetCorrection(float k, float width, float x_mean, float x_left, f
 
 //__________________________________________________________________________________
 //
-std::string TtHFit::GetSquareRootLinearInterpolation(unsigned int itemp) const {
+std::string TRExFit::GetSquareRootLinearInterpolation(unsigned int itemp) const {
     double epsilon = 0.0000001;
     
     float x_i = fTemplatePair.at(itemp).first;
@@ -7711,7 +7727,7 @@ std::string TtHFit::GetSquareRootLinearInterpolation(unsigned int itemp) const {
 
 //__________________________________________________________________________________
 //
-void TtHFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const {
+void TRExFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const {
     if (x_left == 0) {
         x_left = 2*x_i;
     }
@@ -7724,7 +7740,7 @@ void TtHFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left, 
 
 //__________________________________________________________________________________
 //
-void TtHFit::SmoothMorphTemplates(std::string name){
+void TRExFit::SmoothMorphTemplates(std::string name){
     TCanvas *c = new TCanvas("c","c",600,600);
     // get one histogram per bin (per region)
     for(auto reg : fRegions){
@@ -7760,7 +7776,7 @@ void TtHFit::SmoothMorphTemplates(std::string name){
             l->SetLineColor(kRed);
             l->Draw("same");
             gSystem->mkdir((fName+"/Morphing/").c_str());
-            for(auto format : TtHFitter::IMAGEFORMAT) c->SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+to_string(i_bin)+"."+format).c_str());
+            for(auto format : TRExFitter::IMAGEFORMAT) c->SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+to_string(i_bin)+"."+format).c_str());
             for(auto vh : hMap){
                 vh.second->SetBinContent(i_bin,l->Eval(vh.first));
             }
@@ -7770,7 +7786,7 @@ void TtHFit::SmoothMorphTemplates(std::string name){
 
 //____________________________________________________________________________________
 //
-bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float value) const {
+bool TRExFit::MorphIsAlreadyPresent(const std::string& name, const float value) const {
     for (const std::pair<float, std::string> itemp : fTemplatePair){
         if ((itemp.second == name) && (itemp.first == value)){
             return true;
@@ -7781,8 +7797,8 @@ bool TtHFit::MorphIsAlreadyPresent(const std::string& name, const float value) c
 
 //____________________________________________________________________________________
 // create a map associating parameters to their SubCategory
-void TtHFit::ProduceSystSubCategoryMap(){
-   WriteDebugStatus("TtHFit::ProduceSystSubCategoryMap", "filling SubCategory map");
+void TRExFit::ProduceSystSubCategoryMap(){
+   WriteDebugStatus("TRExFit::ProduceSystSubCategoryMap", "filling SubCategory map");
 
    // special treatment needed for two cases:
    // 1) stat-only fit where all parameters are fixed, see FittingTool::GetGroupedImpact()
@@ -7793,14 +7809,14 @@ void TtHFit::ProduceSystSubCategoryMap(){
    // add all systematics, here an "alpha_" prefix is needed
    for(int i_syst=0;i_syst<fNSyst;i_syst++){
        if(fSystematics[i_syst]->fSubCategory=="Gammas" or fSystematics[i_syst]->fSubCategory=="FullSyst" or fSystematics[i_syst]->fSubCategory=="combine")
-            WriteWarningStatus("TtHFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
+            WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
        fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fNuisanceParameter).c_str(), fSystematics[i_syst]->fSubCategory));
    }
 
    // also add norm factors, no "alpha_" needed
    for(int i_nf=0;i_nf<fNNorm;i_nf++){
        if(fNormFactors[i_nf]->fSubCategory=="Gammas" or fNormFactors[i_nf]->fSubCategory=="FullSyst" or fNormFactors[i_nf]->fSubCategory=="combine")
-            WriteWarningStatus("TtHFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
+            WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
        if (fNormFactors[i_nf]->fName != fPOI) {
            fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fNuisanceParameter, fNormFactors[i_nf]->fSubCategory));
        }
@@ -7809,12 +7825,12 @@ void TtHFit::ProduceSystSubCategoryMap(){
 
 //____________________________________________________________________________________
 // combine individual results from grouped impact evaluation into one table
-void TtHFit::BuildGroupedImpactTable(){
-    WriteInfoStatus("TtHFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
+void TRExFit::BuildGroupedImpactTable(){
+    WriteInfoStatus("TRExFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
     std::string targetName = fName+"/Fits/GroupedImpact"+fSuffix+".txt";
 
     if(std::ifstream(targetName).good()){
-        WriteWarningStatus("TtHFit::BuildGroupedImpactTable","file " + targetName + " already exists, will not overwrite");
+        WriteWarningStatus("TRExFit::BuildGroupedImpactTable","file " + targetName + " already exists, will not overwrite");
     }
     else{
         std::string cmd = " if [[ `ls "+fName+"/Fits/GroupedImpact"+fSuffix+"_*` != \"\" ]] ; then";
@@ -7826,15 +7842,15 @@ void TtHFit::BuildGroupedImpactTable(){
 
 //____________________________________________________________________________________
 //
-void TtHFit::RunToys(RooWorkspace* ws){
+void TRExFit::RunToys(RooWorkspace* ws){
         gSystem->mkdir( (fName+"/Toys").c_str());
         // temporary switch off minos (not needed)
         std::vector<std::string> varMinosTmp = fVarNameMinos;
         fVarNameMinos.clear();
-        WriteInfoStatus("TtHFit::RunToys","");
-        WriteInfoStatus("TtHFit::RunToys","-------------------------------------------");
-        WriteInfoStatus("TtHFit::RunToys","Generating and fitting toys...");
-        WriteInfoStatus("TtHFit::RunToys","-------------------------------------------");
+        WriteInfoStatus("TRExFit::RunToys","");
+        WriteInfoStatus("TRExFit::RunToys","-------------------------------------------");
+        WriteInfoStatus("TRExFit::RunToys","Generating and fitting toys...");
+        WriteInfoStatus("TRExFit::RunToys","-------------------------------------------");
         // set all regions as ASIMOVDATA and create combined ws
         std::vector < std:: string > regionsToFit;
         std::map < std::string, int > regionDataType;
@@ -7860,17 +7876,17 @@ void TtHFit::RunToys(RooWorkspace* ws){
             // setting POI to constant, not to allow it to fluctuate in toy creation
             poiVar->setConstant(1);
             poiVar->setVal(fFitPOIAsimov);
-            WriteInfoStatus("TtHFit::RunToys","Generating toy n. " + std::to_string(i_toy+1) + " out of " + std::to_string(fFitToys) + " toys");
+            WriteInfoStatus("TRExFit::RunToys","Generating toy n. " + std::to_string(i_toy+1) + " out of " + std::to_string(fFitToys) + " toys");
             RooDataSet *toyData = pdf->generate( obsSet, RooFit::Extended() );
             // re-set POI to free-floating, and to nominal value
             poiVar->setConstant(0);
             poiVar->setVal(POInf.fNominal);
             // extract POI from fit result and fill histogram
-            WriteInfoStatus("TtHFit::RunToys","Fitting toy n. " + std::to_string(i_toy+1));
-            npValues = PerformFit( ws, toyData, fFitType, false, TtHFitter::DEBUGLEVEL<2 ? 0 : TtHFitter::DEBUGLEVEL);
+            WriteInfoStatus("TRExFit::RunToys","Fitting toy n. " + std::to_string(i_toy+1));
+            npValues = PerformFit( ws, toyData, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
             if(npValues.size()>0){
                 h_toys.Fill(npValues[fPOI]);
-                WriteInfoStatus("TtHFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value: " + std::to_string(npValues[fPOI]));
+                WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value: " + std::to_string(npValues[fPOI]));
             }
             delete toyData;
         }
@@ -7881,12 +7897,12 @@ void TtHFit::RunToys(RooWorkspace* ws){
         g.SetLineColor(kRed);
         h_toys.Fit("g","RQ");
         g.Draw("same");
-        h_toys.GetXaxis()->SetTitle(TtHFitter::SYSTMAP[fPOI].c_str());
+        h_toys.GetXaxis()->SetTitle(TRExFitter::SYSTMAP[fPOI].c_str());
         h_toys.GetYaxis()->SetTitle("Pseudo-experiements");
         myText(0.60,0.90,1,Form("Mean  = %.2f #pm %.2f",g.GetParameter(1), g.GetParError(1)));
         myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g.GetParameter(2),g.GetParError(2)));
         myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g.GetChisquare(),g.GetNDF()));
-        for(auto format : TtHFitter::IMAGEFORMAT) c.SaveAs((fName+"/Toys/ToysPlot."+format).c_str());
+        for(auto format : TRExFitter::IMAGEFORMAT) c.SaveAs((fName+"/Toys/ToysPlot."+format).c_str());
         fVarNameMinos = varMinosTmp; // retore Minos settings
 
         // Also create a ROOT file
@@ -7899,7 +7915,7 @@ void TtHFit::RunToys(RooWorkspace* ws){
 
 //____________________________________________________________________________________
 //
-float TtHFit::GetNominalMorphScale(const SampleHist* const sh) const {
+float TRExFit::GetNominalMorphScale(const SampleHist* const sh) const {
     float scale = 1.;
     if (sh == nullptr) return 1.;
     if (sh->fSample == nullptr) return 1.;
@@ -7909,8 +7925,8 @@ float TtHFit::GetNominalMorphScale(const SampleHist* const sh) const {
         std::string nfName = nf->fName;
 
         if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-            std::string formula = TtHFitter::SYSTMAP[nfName];
-            std::string name = TtHFitter::NPMAP[nfName];
+            std::string formula = TRExFitter::SYSTMAP[nfName];
+            std::string name = TRExFitter::NPMAP[nfName];
             formula = ReplaceString(formula,name,"x");
             TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
             scale *= f_morph->Eval(nf->fNominal);

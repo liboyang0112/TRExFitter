@@ -1,8 +1,8 @@
-#ifndef TTHFIT_H
-#define TTHFIT_H
+#ifndef TRExFIT_H
+#define TRExFIT_H
 
 /// Framework includes
-#include "TtHFitter/HistoTools.h"
+#include "TRExFitter/HistoTools.h"
 
 /// c++ includes
 #include <map>
@@ -20,10 +20,10 @@ class Sample;
 class SampleHist;
 class ShapeFactor;
 class Systematic;
-class TthPlot;
+class TRExPlot;
 class TFile;
 
-class TtHFit {
+class TRExFit {
 public:
 
     enum FitType {
@@ -61,8 +61,8 @@ public:
         float value;
     };
 
-    TtHFit(std::string name="MyMeasurement");
-    ~TtHFit();
+    TRExFit(std::string name="MyMeasurement");
+    ~TRExFit();
 
     void SetPOI(std::string name="SigXsecOverSM");
     void SetStatErrorConfig(bool useIt=true, float thres=0.05, std::string cons="Poisson");
@@ -110,7 +110,7 @@ public:
     // separation plots
     void DrawAndSaveSeparationPlots();
 
-    TthPlot* DrawSummary(std::string opt="", TthPlot* = 0);
+    TRExPlot* DrawSummary(std::string opt="", TRExPlot* = 0);
     void DrawMergedPlot(std::string opt="",std::string group="");
     void BuildYieldTable(std::string opt="",std::string group="");
 
@@ -395,7 +395,7 @@ public:
 
     std::vector<std::string> fMorphParams;
     std::vector<std::pair<float,std::string> > fTemplatePair;
-    std::vector<TtHFit::TemplateWeight> fTemplateWeightVec;
+    std::vector<TRExFit::TemplateWeight> fTemplateWeightVec;
     TemplateInterpolationOption fTemplateInterpolationOption;
 
     std::string fBootstrap;

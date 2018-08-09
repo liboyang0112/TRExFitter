@@ -15,9 +15,9 @@ Applying ATLAS style settings...
 === DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
 [1;32m=== INFO::myFit::FitExample: Successfully read config file.[0m
 Fitting...
-[1;32m=== INFO::TtHFit::Fit: [0m
-[1;32m=== INFO::TtHFit::Fit: -------------------------------------------[0m
-[1;32m=== INFO::TtHFit::Fit: Performing nominal fit...[0m
+[1;32m=== INFO::TRExFit::Fit: [0m
+[1;32m=== INFO::TRExFit::Fit: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::Fit: Performing nominal fit...[0m
 full list of observables:
 RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
 [#0] ERROR:InputArguments -- RooArgSet::checkForDup: ERROR argument with name nom_alpha_JES is already in this set
@@ -213,14 +213,14 @@ Nuisance Parameters:     RooArgSet:: = (alpha_Bkg1Xsec,alpha_Bkg2Xsec,alpha_JES,
 Global Observables:      RooArgSet:: = (nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
 PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 3.62858e-05
 
-=== DEBUG::TtHFit::DumpData: Dumping data with the following parameters
-=== DEBUG::TtHFit::DumpData:     * Regions data type 
-=== DEBUG::TtHFit::DumpData:        - Region: SR_1       DataType: 0
-=== DEBUG::TtHFit::DumpData:        - Region: SR_2       DataType: 0
-=== DEBUG::TtHFit::DumpData:     * No NP values injected 
-=== DEBUG::TtHFit::DumpData:     * POI value: 0.000000
-=== DEBUG::TtHFit::DumpData: Activating binned likelihood attribute for SR_1_model
-=== DEBUG::TtHFit::DumpData: Activating binned likelihood attribute for SR_2_model
+=== DEBUG::TRExFit::DumpData: Dumping data with the following parameters
+=== DEBUG::TRExFit::DumpData:     * Regions data type 
+=== DEBUG::TRExFit::DumpData:        - Region: SR_1       DataType: 0
+=== DEBUG::TRExFit::DumpData:        - Region: SR_2       DataType: 0
+=== DEBUG::TRExFit::DumpData:     * No NP values injected 
+=== DEBUG::TRExFit::DumpData:     * POI value: 0.000000
+=== DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_1_model
+=== DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_2_model
 === DEBUG::FittingTool::FitPDF: -> Entering in FitPDF function
 
 === Using the following for ModelConfig ===
@@ -242,18 +242,18 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.163
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.163
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 499.588076
-  1) 0x50925e0 RooRealVar::         SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
-  2) 0x5017bc0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
-  3) 0x5019130 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
-  4) 0x5016010 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
-  5) 0x501bb40 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
-  6) 0x501e4b0 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
-  7) 0x5021920 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
-  8) 0x5024d30 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
-  9) 0x5098020 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
- 10) 0x509bd50 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
- 11) 0x509f160 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
- 12) 0x50a2570 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+  1) 0x61638e0 RooRealVar::         SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
+  2) 0x60e90e0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  3) 0x60ea650 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  4) 0x60e7420 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  5) 0x60ed060 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  6) 0x60ef760 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  7) 0x60f2b70 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  8) 0x60f5f80 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  9) 0x6169300 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+ 10) 0x616d0a0 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 11) 0x6170510 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 12) 0x6173920 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -300,7 +300,7 @@ Info in <Minuit2>: Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000613[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
-Real time 0:00:00, CP time 0.140
+Real time 0:00:00, CP time 0.180
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -308,8 +308,8 @@ Real time 0:00:00, CP time 0.140
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = 498.965928[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = 468.325256[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 30.640672[0m
-[1;32m=== INFO::TtHFit::ReadFitResults: ------------------------------------------------------[0m
-[1;32m=== INFO::TtHFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
 === DEBUG::FitResults::ReadFromTXT: --------------------
@@ -322,8 +322,8 @@ Info in <TCanvas::Print>: png file FitExample/Gammas.png has been created
 Info in <TCanvas::Print>: png file FitExample/NormFactors.png has been created
 Info in <TCanvas::Print>: png file FitExample/NuisPar_Instrumental.png has been created
 Info in <TCanvas::Print>: png file FitExample/NuisPar_t_bar_t__uncertainty.png has been created
-[1;32m=== INFO::TtHFit::ReadFitResults: ------------------------------------------------------[0m
-[1;32m=== INFO::TtHFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
 === DEBUG::FitResults::ReadFromTXT: --------------------

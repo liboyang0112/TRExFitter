@@ -1,12 +1,12 @@
 // Class include
-#include "TtHFitter/FitResults.h"
+#include "TRExFitter/FitResults.h"
 
 // framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/CorrelationMatrix.h"
-#include "TtHFitter/NuisParameter.h"
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/CorrelationMatrix.h"
+#include "TRExFitter/NuisParameter.h"
+#include "TRExFitter/NormFactor.h"
+#include "TRExFitter/StatusLogbook.h"
 
 // ROOT includes
 #include "TBox.h"
@@ -166,7 +166,7 @@ void FitResults::ReadFromTXT(string fileName){
             iss >> value >> up >> down;
             np = fNuisPar[fNuisParIdx[name]];
             // set the title of this NP if there in the stored map
-            //if(TtHFitter::SYSTMAP[name]!="") np->fTitle = TtHFitter::SYSTMAP[name];
+            //if(TRExFitter::SYSTMAP[name]!="") np->fTitle = TRExFitter::SYSTMAP[name];
             //
             np->fFitValue = value;
             np->fPostFitUp = up;

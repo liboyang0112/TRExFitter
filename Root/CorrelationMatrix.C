@@ -1,8 +1,8 @@
 // Class include
-#include "TtHFitter/CorrelationMatrix.h"
+#include "TRExFitter/CorrelationMatrix.h"
 
 // Framework includes
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/StatusLogbook.h"
 
 // ROOT includes
 #include "TCanvas.h"
@@ -128,9 +128,9 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     for(unsigned int iNP = 0; iNP < vec_NP.size(); ++iNP){//line number
         const string iSystName = vec_NP[iNP];
 
-        if(TtHFitter::SYSTMAP[iSystName]!=""){
-            h_corr->GetXaxis()->SetBinLabel(iNP+1,(TString)TtHFitter::SYSTMAP[iSystName]);
-            h_corr->GetYaxis()->SetBinLabel(N-iNP,(TString)TtHFitter::SYSTMAP[iSystName]);
+        if(TRExFitter::SYSTMAP[iSystName]!=""){
+            h_corr->GetXaxis()->SetBinLabel(iNP+1,(TString)TRExFitter::SYSTMAP[iSystName]);
+            h_corr->GetYaxis()->SetBinLabel(N-iNP,(TString)TRExFitter::SYSTMAP[iSystName]);
         }
         else{
             h_corr->GetXaxis()->SetBinLabel(iNP+1,(TString)iSystName);

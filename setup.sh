@@ -72,5 +72,7 @@ fi
 echo "Setting up cmake with: lsetup cmake"
 lsetup cmake
 
+export PATH=${PATH}${PATH:+:}${TREXFITTER_HOME}/build/bin
+
 echo -e "\nIf everything went smoothly, continue by compiling via cmake (in a dedicated build directory):"
 echo -e "--> mkdir -p build && cd build && cmake .. && cmake --build ."

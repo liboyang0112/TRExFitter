@@ -2,7 +2,7 @@
 #define CORRELATIONMATRIX_H
 
 /// Framework includes
-#include "TtHFitter/Common.h"
+#include "TRExFitter/Common.h"
 
 /// c++ includes
 #include <string>

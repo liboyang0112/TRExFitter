@@ -2,7 +2,7 @@
 #define MULTIFIT_H
 
 /// Framework includes
-#include "TtHFitter/Common.h"
+#include "TRExFitter/Common.h"
 
 /// c++ includes
 #include <map>
@@ -12,7 +12,7 @@ class ConfigParser;
 class RooDataSet;
 class RooWorkspace;
 class TH1F;
-class TtHFit;
+class TRExFit;
 
 class MultiFit {
 public:
@@ -44,7 +44,7 @@ public:
     TH1F* Rebin(TH1F* h,std::vector<float> vec, bool isData=true);
     
     std::vector< std::string > fFitNames;
-    std::vector< TtHFit* > fFitList;
+    std::vector< TRExFit* > fFitList;
     std::vector< std::string > fFitLabels;
     std::vector< std::string > fFitSuffs;
     std::vector< std::string > fWsFiles;

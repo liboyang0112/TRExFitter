@@ -1,19 +1,19 @@
 // Class include
-#include "TtHFitter/MultiFit.h"
+#include "TRExFitter/MultiFit.h"
 
-// Framework onncludes
-#include "TtHFitter/ConfigParser.h"
-#include "TtHFitter/ConfigReader.h"
-#include "TtHFitter/CorrelationMatrix.h"
-#include "TtHFitter/FitResults.h"
-#include "TtHFitter/FittingTool.h"
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/NuisParameter.h"
-#include "TtHFitter/Region.h"
-#include "TtHFitter/Sample.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/Systematic.h"
-#include "TtHFitter/TtHFit.h"
+// Framework inncludes
+#include "TRExFitter/ConfigParser.h"
+#include "TRExFitter/ConfigReader.h"
+#include "TRExFitter/CorrelationMatrix.h"
+#include "TRExFitter/FitResults.h"
+#include "TRExFitter/FittingTool.h"
+#include "TRExFitter/NormFactor.h"
+#include "TRExFitter/NuisParameter.h"
+#include "TRExFitter/Region.h"
+#include "TRExFitter/Sample.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/Systematic.h"
+#include "TRExFitter/TRExFit.h"
 
 // CommonStatTools include
 #include "CommonStatTools/runSig.h"
@@ -155,9 +155,9 @@ MultiFit::~MultiFit(){
 //
 void MultiFit::AddFitFromConfig(string configFile,string options,string label,string loadSuf,string wsFile){
     // keep debug level
-    int debug = TtHFitter::DEBUGLEVEL;
+    int debug = TRExFitter::DEBUGLEVEL;
 
-    fFitList.push_back(new TtHFit());
+    fFitList.push_back(new TRExFit());
 
     // initialize config reader 
     ConfigReader reader(fFitList[fFitList.size()-1]);
@@ -171,7 +171,7 @@ void MultiFit::AddFitFromConfig(string configFile,string options,string label,st
     fFitSuffs.push_back(loadSuf);
     fWsFiles.push_back(wsFile);
     
-    TtHFitter::DEBUGLEVEL = debug;
+    TRExFitter::DEBUGLEVEL = debug;
 }
 
 //__________________________________________________________________________________
@@ -180,7 +180,7 @@ RooWorkspace* MultiFit::CombineWS(){
     WriteInfoStatus("MultiFit::CombineWS", "....................................");
     WriteInfoStatus("MultiFit::CombineWS", "Combining workspaces...");
 
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 
     std::vector < RooWorkspace* > vec_ws;
     std::vector < std::string > vec_chName;
@@ -251,7 +251,7 @@ RooWorkspace* MultiFit::CombineWS(){
     // Configure the workspace
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
 
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     return ws;
 }
@@ -259,7 +259,7 @@ RooWorkspace* MultiFit::CombineWS(){
 //__________________________________________________________________________________
 //
 void MultiFit::SaveCombinedWS(){
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     //
     // Creating the rootfile
     //
@@ -274,13 +274,13 @@ void MultiFit::SaveCombinedWS(){
     f->cd();
     ws->Write("combWS");
     f->Close();
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 }
 
 //__________________________________________________________________________________
 //
 std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inputData, bool performFit){
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
 
@@ -296,7 +296,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     // Fit configuration (1: SPLUSB or 2: BONLY)
     //
     FittingTool *fitTool = new FittingTool();
-    fitTool->SetDebug(TtHFitter::DEBUGLEVEL);
+    fitTool->SetDebug(TRExFitter::DEBUGLEVEL);
     if(fitType==2){
         fitTool -> ValPOI(0.);
         fitTool -> ConstPOI(true);
@@ -353,14 +353,14 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     else if(inputData!=""){
         data = (RooDataSet*)ws->data( inputData.c_str() );
     } else {
-        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         WriteWarningStatus("MultiFit::FitCombinedWS", "You didn't specify inputData => will try with observed data !");
-        if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         data = (RooDataSet*)ws->data("obsData");
         if(!data){
-            if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteWarningStatus("MultiFit::FitCombinedWS", "Observed data not present => will use with asimov data !");
-            if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             data = (RooDataSet*)ws->data("asimovData");
         }
     }
@@ -396,7 +396,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         ndof -= nfList.size();
         
         fitTool -> MinimType("Minuit2");
-        if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 
         // Full fit
         float nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
@@ -408,7 +408,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         if(fGetGoodnessOfFit){
             float deltaNLL = nll-nll0;
             double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
-            if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL0        = " + std::to_string(nll0));
@@ -419,7 +419,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
             WriteInfoStatus("MultiFit::FitCombinedWS", "  probability = " + std::to_string(prob));
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
-            if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         }
 
         //
@@ -450,7 +450,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     //
     if(fVarNameLH.size()>0){
         if (fVarNameLH[0]=="all"){
-            for(map<string,string>::iterator it=TtHFitter::SYSTMAP.begin(); it!=TtHFitter::SYSTMAP.end(); ++it){
+            for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
                 GetLikelihoodScan( ws, it->first, data, true, fCompare);
             }
         }
@@ -466,10 +466,10 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         // - read fit resutls
         // - fix all NP to fitted ones before fitting
         if(fIncludeStatOnly){
-            if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteInfoStatus("MultiFit::FitCombinedWS", "Fitting stat-only: reading fit results from full fit from file:");
             WriteInfoStatus("MultiFit::FitCombinedWS", "  " + (fOutDir+"/Fits/"+fName+fSaveSuf+".txt"));
-            if (TtHFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
             std::vector<std::string> npNames;
             std::vector<double> npValues;
@@ -491,7 +491,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
             fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
         }
     }
-    if (TtHFitter::DEBUGLEVEL < 2) std::cout.clear();
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     
     return result;
 }
@@ -501,7 +501,7 @@ void MultiFit::GetCombinedLimit(string inputData){
     WriteInfoStatus("MultiFit::GetCombinedLimit", "Runing runAsymptoticsCLs macro...");
     
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
-    int sigDebug = 3 - TtHFitter::DEBUGLEVEL;
+    int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
     if (sigDebug < 0) sigDebug = 0;
     runAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fOutDir+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
 }
@@ -515,7 +515,7 @@ void MultiFit::GetCombinedSignificance(string inputData){
     //
     // Finally computing the significance
     //
-    int sigDebug = 3 - TtHFitter::DEBUGLEVEL;
+    int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
     if (sigDebug < 0) sigDebug = 0;
     runSig(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fOutDir+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, fSignificancePOIAsimov, sigDebug);
 }
@@ -574,7 +574,7 @@ void MultiFit::ComparePOI(string POI){
     bool isComb = false;
 
     // get values
-    TtHFit *fit = 0x0;
+    TRExFit *fit = 0x0;
     for(int i=0;i<N;i++){
         if(fCombine && i==N-1) isComb = true;
         else                   isComb = false;
@@ -661,7 +661,7 @@ void MultiFit::ComparePOI(string POI){
     g_stat->SetMarkerStyle(kOpenCircle);
     g_tot->SetLineWidth(3);
     g_tot->SetMarkerStyle(kOpenCircle);
-    if(TtHFitter::OPTION["FourTopStyle"]){
+    if(TRExFitter::OPTION["FourTopStyle"]){
         g_tot->SetLineColor(kAzure);
         g_tot->SetFillColor(kAzure);
         g_stat->SetLineColor(kCyan);
@@ -682,7 +682,7 @@ void MultiFit::ComparePOI(string POI){
         g_stat->SetMarkerSize(0);
         g_tot->SetLineColor(kBlack);
     }
-    if(TtHFitter::OPTION["FourTopStyle"]){
+    if(TRExFitter::OPTION["FourTopStyle"]){
         g_central->SetMarkerColor(kWhite);
         g_central->SetMarkerStyle(kFullCircle);
         g_central->SetMarkerSize(1.);
@@ -744,7 +744,7 @@ void MultiFit::ComparePOI(string POI){
         l_h->Draw("same");
     }
 
-    if(TtHFitter::OPTION["FourTopStyle"]){
+    if(TRExFitter::OPTION["FourTopStyle"]){
         g_tot->Draw("E2 same");
         g_stat->Draw("PE2 same");
         g_central->Draw("P same");
@@ -800,8 +800,8 @@ void MultiFit::ComparePOI(string POI){
 //     myText(0.75,0.4,kBlack,"Stat. only");
 
 //     c->SaveAs( (fName+"/POI.png").c_str() );
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs( (fOutDir+"/POI"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+        c->SaveAs( (fOutDir+"/POI"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     delete c;
 }
@@ -978,9 +978,9 @@ void MultiFit::CompareLimit(){
 
 //     myText(0.75,0.4,kBlack,"Stat. only");
 
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-//         c->SaveAs( (fOutDir+"/Limits" + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
-        c->SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+//         c->SaveAs( (fOutDir+"/Limits" + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c->SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     delete c;
 }
@@ -1249,9 +1249,9 @@ void MultiFit::ComparePulls(string category){
 
     gPad->RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c->SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c->SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+        if(category=="") c->SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+        else             c->SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
     delete c;
 }
@@ -1505,9 +1505,9 @@ void MultiFit::CompareNormFactors(string category){
 
     gPad->RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c->SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c->SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TtHFitter::IMAGEFORMAT[i_format]).c_str());
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+        if(category=="") c->SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+        else             c->SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
     delete c;
 }
@@ -1515,16 +1515,16 @@ void MultiFit::CompareNormFactors(string category){
 //__________________________________________________________________________________
 //
 void MultiFit::PlotCombinedCorrelationMatrix(){
-    TtHFit *fit = fFitList[0];
+    TRExFit *fit = fFitList[0];
     if(fit->fStatOnly){
         WriteInfoStatus("MultiFit::PlotCombinedCorrelationMatrix", "Stat only fit => No Correlation Matrix generated.");
         return;
     }
-    //plot the correlation matrix (considering only correlations larger than TtHFitter::CORRELATIONTHRESHOLD)
+    //plot the correlation matrix (considering only correlations larger than TRExFitter::CORRELATIONTHRESHOLD)
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     if(fit->fFitResults){
-        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-            fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+TtHFitter::IMAGEFORMAT[i_format],TtHFitter::CORRELATIONTHRESHOLD);
+        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+            fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format],TRExFitter::CORRELATIONTHRESHOLD);
     }
 }
 
@@ -1681,11 +1681,11 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     // Initialize the FittingTool object
     //
     FittingTool *fitTool = new FittingTool();
-    fitTool -> SetDebug(TtHFitter::DEBUGLEVEL);
+    fitTool -> SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool -> ValPOI(1.);
     fitTool -> ConstPOI(false);
 
-    TtHFit *fit = fFitList[fFitList.size()-1];
+    TRExFit *fit = fFitList[fFitList.size()-1];
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     muhat = fit->fFitResults -> GetNuisParValue( fPOI );
 
@@ -1890,7 +1890,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     // Resttrict to the first N
     if(SIZE>maxNP) SIZE = maxNP;
 
-    // Graphical part - rewritten taking DrawPulls in TtHFitter
+    // Graphical part - rewritten taking DrawPulls in TRExFitter
     float lineHeight  =  30;
     float offsetUp    =  60; // external
     float offsetDown  =  60;
@@ -1966,11 +1966,11 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
             // build the title of the nuis par
             parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1] + ")";
         }
-        else parTitle = TtHFitter::SYSTMAP[ parname[i] ];
+        else parTitle = TRExFitter::SYSTMAP[ parname[i] ];
 
 //         if(parTitle==""){
 //             for(auto syst : fSystematics){
-//                 if(syst->fNuisanceParameter == parname[i]) parTitle = TtHFitter::SYSTMAP[ syst->fName ];
+//                 if(syst->fNuisanceParameter == parname[i]) parTitle = TRExFitter::SYSTMAP[ syst->fName ];
 //             }
 //         }
         if(parTitle==""){
@@ -2114,21 +2114,21 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     gPad->RedrawAxis();
 
     if(flagGammas && flagSysts){
-      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fOutDir+"/Ranking."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fOutDir+"/Ranking."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else if(flagGammas){
-      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fOutDir+"/RankingGammas."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fOutDir+"/RankingGammas."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else if(flagSysts){
-      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fOutDir+"/RankingSysts."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fOutDir+"/RankingSysts."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else{
       WriteWarningStatus("MultiFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
-      for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fOutDir+"/RankingUnknown."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fOutDir+"/RankingUnknown."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     //
     delete c;
@@ -2141,9 +2141,9 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     TString LHDir("LHoodPlots/");
     
     // shut-up RooFit!
-    if(TtHFitter::DEBUGLEVEL<=1){
-        if(TtHFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else if(TtHFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+    if(TRExFitter::DEBUGLEVEL<=1){
+        if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
+        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL) ;
         RooMsgService::instance().getStream(1).removeTopic(Generation) ;
         RooMsgService::instance().getStream(1).removeTopic(Plotting) ;
@@ -2227,10 +2227,10 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
     
     if(recreate){
-        RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TtHFitter::NCPU, RooFit::Hybrid));
+        RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TRExFitter::NCPU, RooFit::Hybrid));
         TString tag("");
         RooAbsReal* pll = nll->createProfile(*var);
-        pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TtHFitter::NCPU));
+        pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TRExFitter::NCPU));
         curve = frameLH->getCurve();
     }
     else{
@@ -2278,8 +2278,8 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
 
     // y axis
     frameLH->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
-    if(TtHFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::SYSTMAP[varName].c_str());
-    else if(TtHFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TtHFitter::NPMAP[varName].c_str());
+    if(TRExFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TRExFitter::SYSTMAP[varName].c_str());
+    else if(TRExFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TRExFitter::NPMAP[varName].c_str());
 
     TString cname="";
     cname.Append("NLLscan_");
@@ -2342,8 +2342,8 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     can->RedrawAxis();
     curve->Draw("same");
     
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TtHFitter::IMAGEFORMAT[i_format] );
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TRExFitter::IMAGEFORMAT[i_format] );
     
     if(recreate){
         // write it to a ROOT file as well
@@ -2494,7 +2494,7 @@ void MultiFit::PlotSummarySoverB(){
             }
         }
 
-        if(TtHFitter::PREFITONPOSTFIT)
+        if(TRExFitter::PREFITONPOSTFIT)
           h_tot_bkg_prefit[i_hist] = (TH1F*)file[i_hist]->Get("h_tot_bkg_prefit");
 
         //
@@ -2533,7 +2533,7 @@ void MultiFit::PlotSummarySoverB(){
     TH1F* h_sig_comb  = Combine(h_sig);
     TH1F* h_data_comb = Combine(h_data);
     TH1F* h_tot_bkg_prefit_comb = 0x0;
-    if(TtHFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_comb = Combine(h_tot_bkg_prefit);
+    if(TRExFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_comb = Combine(h_tot_bkg_prefit);
 
 
     std::vector<TH1F*> h_syst_up_comb  (Nsyst);
@@ -2558,7 +2558,7 @@ void MultiFit::PlotSummarySoverB(){
     TH1F* h_sig_ord  = Rebin(h_sig_comb,SoverSqrtB,false);
     TH1F* h_data_ord = Rebin(h_data_comb,SoverSqrtB);
     TH1F* h_tot_bkg_prefit_ord = 0x0;
-    if(TtHFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_ord = Rebin(h_tot_bkg_prefit_comb,SoverSqrtB,false);
+    if(TRExFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_ord = Rebin(h_tot_bkg_prefit_comb,SoverSqrtB,false);
 
     std::vector<TH1F*> h_syst_up_ord  (Nsyst);
     std::vector<TH1F*> h_syst_down_ord(Nsyst);
@@ -2656,7 +2656,7 @@ void MultiFit::PlotSummarySoverB(){
         h_bkgBonly_ord->Draw("HISTsame ][");
     }
 
-    if(TtHFitter::PREFITONPOSTFIT) {
+    if(TRExFitter::PREFITONPOSTFIT) {
       h_tot_bkg_prefit_ord->SetLineColor(kBlue);
       h_tot_bkg_prefit_ord->SetLineStyle(kDashed);
       h_tot_bkg_prefit_ord->Draw("HISTsame ][");
@@ -2675,7 +2675,7 @@ void MultiFit::PlotSummarySoverB(){
     leg->AddEntry(h_bkg_ord,"Background","f");
     leg->AddEntry(h_err,"Bkgd. Unc.","f");
     if(includeBonly) leg->AddEntry(h_bkgBonly_ord,("Bkgd. ("+fPOIName+"=0)").c_str(),"l");
-    if(TtHFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit_comb,"Pre-Fit Bkgd.","l");
+    if(TRExFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit_comb,"Pre-Fit Bkgd.","l");
     leg->Draw();
 
     ATLASLabelNew(0.17,0.87, (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
@@ -2785,8 +2785,8 @@ void MultiFit::PlotSummarySoverB(){
     pad0->RedrawAxis();
     pad1->RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fOutDir+"/SoverB_postFit."+TtHFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+        c->SaveAs( (fOutDir+"/SoverB_postFit."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
 
     delete c;
 }
@@ -2864,11 +2864,11 @@ TH1F* MultiFit::Rebin(TH1F* h,vector<float> vec, bool isData){
 //____________________________________________________________________________________
 // combine individual results from grouped impact evaluation into one table
 void MultiFit::BuildGroupedImpactTable(){
-    WriteInfoStatus("TtHFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
+    WriteInfoStatus("TRExFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
     std::string targetName = fOutDir+"/Fits/GroupedImpact"+fSaveSuf+".txt";
 
     if(std::ifstream(targetName).good()){
-        WriteWarningStatus("TtHFit::BuildGroupedImpactTable","file " + targetName + " already exists, will not overwrite");
+        WriteWarningStatus("TRExFit::BuildGroupedImpactTable","file " + targetName + " already exists, will not overwrite");
     }
     else{
         std::string cmd = " if [[ `ls "+fOutDir+"/Fits/GroupedImpact"+fSaveSuf+"_*` != \"\" ]] ; then";

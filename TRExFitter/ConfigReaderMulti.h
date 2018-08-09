@@ -35,6 +35,13 @@ class ConfigReaderMulti {
           * @return int status code
           */ 
         int ReadFullConfig(const std::string& fileName, const std::string& option);
+    
+        /**
+          * Helper function to check the consistency of the input
+          * @param string Input parameter
+          * @return string Corrected parameter
+          */
+        std::string CheckName(const std::string &name);
 
     private:
 

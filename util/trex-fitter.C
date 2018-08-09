@@ -1,11 +1,11 @@
 // Framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/ConfigParser.h"
-#include "TtHFitter/ConfigReader.h"
-#include "TtHFitter/ConfigReaderMulti.h"
-#include "TtHFitter/MultiFit.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/TtHFit.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/ConfigParser.h"
+#include "TRExFitter/ConfigReader.h"
+#include "TRExFitter/ConfigReaderMulti.h"
+#include "TRExFitter/MultiFit.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/TRExFit.h"
 
 // RooStatsIncludes
 #include "RooStats/RooStatsUtils.h"
@@ -34,7 +34,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     // pre-read the config just to extract the debug level
     std::string debugStr = ReadValueFromConfig(configFile,"DebugLevel");
     if(debugStr=="") WriteWarningStatus("", "Not able to pre-read the DebugLevel => keep the default (1).");
-    else if(debugStr!="1") TtHFitter::DEBUGLEVEL = atoi(debugStr.c_str());
+    else if(debugStr!="1") TRExFitter::DEBUGLEVEL = atoi(debugStr.c_str());
 
     // pre-read the logo option
     std::string logoStr = ReadValueFromConfig(configFile,"Logo");
@@ -50,13 +50,13 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         std::cout << logo << std::endl;
     }
     
-    if(TtHFitter::DEBUGLEVEL<=0)      gErrorIgnoreLevel = kError;
-    else if(TtHFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+    if(TRExFitter::DEBUGLEVEL<=0)      gErrorIgnoreLevel = kError;
+    else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
     
     // now can set ATLAS style
-    if(TtHFitter::DEBUGLEVEL<=0) std::cout.setstate(std::ios_base::failbit);
+    if(TRExFitter::DEBUGLEVEL<=0) std::cout.setstate(std::ios_base::failbit);
     SetAtlasStyle();
-    if(TtHFitter::DEBUGLEVEL<=0) std::cout.clear();
+    if(TRExFitter::DEBUGLEVEL<=0) std::cout.clear();
     
     RooStats::UseNLLOffset(true);
     
@@ -115,7 +115,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             if(groupedImpact){
                 std::cout << "Getting combined grouped systematic impact..." << std::endl;
                 myMultiFit->fDoGroupedSystImpactTable = true;
-                if(myMultiFit->fGroupedImpactCategory!="combine") myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName ); // this calls TtHFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
+                if(myMultiFit->fGroupedImpactCategory!="combine") myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName ); // this calls TRExFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
                 else                                              myMultiFit->BuildGroupedImpactTable(); // combine the results into one table with option "combine"
             }
         }
@@ -144,7 +144,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     
     // proceed if not multi-fit
     
-    TtHFit *myFit = new TtHFit();
+    TRExFit *myFit = new TRExFit();
 
     // initialize config reader 
     ConfigReader reader(myFit);
@@ -158,17 +158,17 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     
     WriteInfoStatus("myFit::FitExample", "Successfully read config file.");
     
-    if (TtHFitter::DEBUGLEVEL < 2){
+    if (TRExFitter::DEBUGLEVEL < 2){
         gErrorIgnoreLevel = kError;
         RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
     }
 
     // check compatibility between run option and config file
-    if(readHistograms && myFit->fInputType!=TtHFit::HIST){
+    if(readHistograms && myFit->fInputType!=TRExFit::HIST){
         WriteErrorStatus("myFit::FitExample", "Option \"h\" asked but no HISTO InputType specified in the configuration file. Aborting.");
         return;
     }
-    if(readNtuples && myFit->fInputType!=TtHFit::NTUP){
+    if(readNtuples && myFit->fInputType!=TRExFit::NTUP){
         WriteErrorStatus("myFit::FitExample", "Option \"n\" asked but no NTUP InputType specified in the configuration file. Aborting.");
         return;
     }
@@ -184,8 +184,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
         myFit->WriteHistos();
-        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
+        if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
     else if(readNtuples){
         std::cout << "Reading ntuples..." << std::endl;
@@ -196,8 +196,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
         myFit->WriteHistos();
-        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
+        if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
     else{
         if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->ReadHistos();
@@ -214,8 +214,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
         myFit->WriteHistos();
-        if(TtHFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
-        if(TtHFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
+        if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
+        if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
 
     if(createWorkspace){
@@ -250,20 +250,20 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     if(groupedImpact){
         std::cout << "Doing grouped systematics impact table..." << std::endl;
         myFit->fDoGroupedSystImpactTable = true;
-        if(myFit->fGroupedImpactCategory!="combine") myFit->Fit(); // this calls TtHFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
+        if(myFit->fGroupedImpactCategory!="combine") myFit->Fit(); // this calls TRExFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
         else                                         myFit->BuildGroupedImpactTable(); // combine the results into one table with option "combine"
     }
 
-    TthPlot* prefit_plot = 0;
-    TthPlot* prefit_plot_valid = 0;
-    if( drawPostFit and TtHFitter::PREFITONPOSTFIT ) {
+    TRExPlot* prefit_plot = 0;
+    TRExPlot* prefit_plot_valid = 0;
+    if( drawPostFit and TRExFitter::PREFITONPOSTFIT ) {
       drawPreFit = true;
       //DrawSummary depends on DrawAndSaveAll to have been executed first. so might as well do the whole drawprefit block to avoid duplication
     }
     
     if(drawPreFit){
         std::cout << "Drawing pre-fit plots..." << std::endl;
-        if(TtHFitter::OPTION["PrefitRatioMax"]==2){
+        if(TRExFitter::OPTION["PrefitRatioMax"]==2){
             myFit->DrawAndSaveAll("prefit");
             if(myFit->fDoMergedPlot){
                 if(myFit->fRegionGroups.size()==0)
@@ -360,7 +360,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 // -------------------------------------------------------
 
 int main(int argc, char **argv){
-  std::string version = "3.25";
+  std::string version = "4.01";
   std::cout << "\033[1mTRExFitter v" << version << " -- Developed by Michele Pinamonti, Loic Valery, Alexander Held, Tomas Dado\033[0m" << std::endl;
   std::cout << "                    No rights reserved, feel free to use and modify it ;)" << std::endl;
   

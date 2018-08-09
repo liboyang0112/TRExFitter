@@ -2,7 +2,7 @@
 #define CONFIGREADER_H
 
 // Framework includes
-#include "TtHFitter/ConfigParser.h"
+#include "TRExFitter/ConfigParser.h"
 
 /// c++ includes
 #include <string>
@@ -10,7 +10,7 @@
 
 ///Forward class declaration
 class ConfigSet;
-class TtHFit;
+class TRExFit;
 class Region;
 class Systematic;
 
@@ -25,9 +25,9 @@ class ConfigReader {
 
         /**
           * The default constructor.
-          * @param fitter A pointer to TtHFit class
+          * @param fitter A pointer to TRExFit class
           */
-        ConfigReader(TtHFit * fitter);
+        ConfigReader(TRExFit * fitter);
 
         /**
           * The default destructor
@@ -35,7 +35,7 @@ class ConfigReader {
         ~ConfigReader();
 
         /**
-          * Reads the config and passes parameters to TtHFit
+          * Reads the config and passes parameters to TRExFit
           * @param string Config path 
           * @param string Additional options
           * @return int status code
@@ -49,7 +49,7 @@ class ConfigReader {
           * @param string config options
           * @return int status code
           */
-        int ReadCommandLineOptions(std::string option);
+        int ReadCommandLineOptions(const std::string& option);
         
         /**
           * Helper function to read JOB settings
@@ -217,9 +217,9 @@ class ConfigReader {
         bool CheckPresence(const std::vector<std::string> &v1, const std::vector<std::string> &v2, const std::vector<std::string> &v3);
 
         /**
-          * Pointer to TtHFit class, set during initialization
+          * Pointer to TRExFit class, set during initialization
           */
-        TtHFit *fFitter;
+        TRExFit *fFitter;
     
         /**
           * Instance of ConfigParser used to parse the text
