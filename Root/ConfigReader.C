@@ -2,6 +2,7 @@
 #include "TRExFitter/ConfigReader.h"
 
 // Framework inclused
+#include "TRExFitter/ConfigParser.h"
 #include "TRExFitter/Common.h"
 #include "TRExFitter/HistoTools.h"
 #include "TRExFitter/NormFactor.h"
@@ -25,24 +26,26 @@ ConfigReader::ConfigReader(TRExFit *fitter){
     fFitter = fitter;
     fNonGhostIsSet = false;
     fAllowWrongRegionSample = true;
+    fParser = new ConfigParser();
     WriteInfoStatus("ConfigReader::ConfigReader", "Started reading the config");
 }
 
 //__________________________________________________________________________________
 //
 ConfigReader::~ConfigReader(){
+    delete fParser;
 }
 
 //__________________________________________________________________________________
 // Read the full config file
 int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string& option){
     // initialize ConfigParser for the actual config
-    fParser.ReadFile(fileName);
+    fParser->ReadFile(fileName);
 
     // initialize checker COnfigParser to cross check the input
     ConfigParser refConfig;
     refConfig.ReadFile(gSystem->ExpandPathName("$TREXFITTER_HOME/jobSchema.config"));
-    int sc = fParser.CheckSyntax(&refConfig);
+    int sc = fParser->CheckSyntax(&refConfig);
 
     if (sc != 0) return sc;
 
@@ -176,7 +179,7 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
 int ConfigReader::ReadJobOptions(){
     std::string param = ""; // helper string
 
-    ConfigSet *confSet = fParser.GetConfigSet("Job");
+    ConfigSet *confSet = fParser->GetConfigSet("Job");
     if (confSet == nullptr){
         WriteErrorStatus("ConfigReader::ReadJobOptions", "You need to provide JOB settings!");
         return 1;
@@ -925,7 +928,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadGeneralOptions(){
-    ConfigSet* confSet = fParser.GetConfigSet("Options");
+    ConfigSet* confSet = fParser->GetConfigSet("Options");
     if (confSet != nullptr){
         for(int i=0; i < confSet->GetN(); i++){
             if(confSet->GetConfigValue(i) != ""){
@@ -944,7 +947,7 @@ int ConfigReader::ReadGeneralOptions(){
 int ConfigReader::ReadFitOptions(){
     std::string param = "";
 
-    ConfigSet *confSet = fParser.GetConfigSet("Fit");
+    ConfigSet *confSet = fParser->GetConfigSet("Fit");
     if (confSet == nullptr){
         WriteInfoStatus("ConfigReader::ReadFitOptions", "You do not have Fit option in the config. It is ok, we just want to let you know.");
         return 0; // it is ok to not have Fit set up
@@ -1175,7 +1178,7 @@ int ConfigReader::ReadFitOptions(){
 int ConfigReader::ReadLimitOptions(){
     std::string param = "";
 
-    ConfigSet* confSet = fParser.GetConfigSet("Limit");
+    ConfigSet* confSet = fParser->GetConfigSet("Limit");
     if (confSet == nullptr){
         WriteDebugStatus("ConfigReader::ReadLimitOptions", "You do not have Limit option in the config. It is ok, we just want to let you know.");
         return 0; // it is ok to not have Fit set up
@@ -1239,7 +1242,7 @@ int ConfigReader::ReadLimitOptions(){
 int ConfigReader::ReadSignificanceOptions(){
     std::string param = "";
 
-    ConfigSet* confSet = fParser.GetConfigSet("Significance");
+    ConfigSet* confSet = fParser->GetConfigSet("Significance");
     if (confSet == nullptr){
         WriteDebugStatus("ConfigReader::ReadSignificanceOptions", "You do not have Significance option in the config. It is ok, we just want to let you know.");
         return 0; // it is ok to not have Fit set up
@@ -1277,7 +1280,7 @@ int ConfigReader::ReadRegionOptions(){
     Region *reg;
 
     while(true){
-        ConfigSet *confSet = fParser.GetConfigSet("Region",nReg);
+        ConfigSet *confSet = fParser->GetConfigSet("Region",nReg);
         if (confSet == nullptr) break;
 
         nReg++;
@@ -1671,7 +1674,7 @@ int ConfigReader::ReadSampleOptions(){
     std::string param = "";
 
     while(true){
-        ConfigSet *confSet = fParser.GetConfigSet("Sample",nSmp);
+        ConfigSet *confSet = fParser->GetConfigSet("Sample",nSmp);
         if (confSet == nullptr) break;
         nSmp++;
 
@@ -2218,7 +2221,7 @@ int ConfigReader::ReadNormFactorOptions(){
     Sample *sample = nullptr;
 
     while(true){
-        ConfigSet *confSet = fParser.GetConfigSet("NormFactor", nNorm);
+        ConfigSet *confSet = fParser->GetConfigSet("NormFactor", nNorm);
         if (confSet == nullptr) break;
         nNorm++;
 
@@ -2380,7 +2383,7 @@ int ConfigReader::ReadShapeFactorOptions(){
     Sample *sample = nullptr;
 
     while(true){
-        ConfigSet *confSet = fParser.GetConfigSet("ShapeFactor",nShape);
+        ConfigSet *confSet = fParser->GetConfigSet("ShapeFactor",nShape);
         if (confSet == nullptr) break;
         nShape++;
 
@@ -2531,7 +2534,7 @@ int ConfigReader::ReadSystOptions(){
     }
 
     while(true){
-        ConfigSet *confSet = fParser.GetConfigSet("Systematic",nSys);
+        ConfigSet *confSet = fParser->GetConfigSet("Systematic",nSys);
         if (confSet == nullptr) break;
         nSys++;
 

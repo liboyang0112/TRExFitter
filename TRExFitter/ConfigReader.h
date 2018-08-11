@@ -1,14 +1,12 @@
 #ifndef CONFIGREADER_H
 #define CONFIGREADER_H
 
-// Framework includes
-#include "TRExFitter/ConfigParser.h"
-
 /// c++ includes
 #include <string>
 #include <vector>
 
 ///Forward class declaration
+class ConfigParser;
 class ConfigSet;
 class TRExFit;
 class Region;
@@ -222,9 +220,9 @@ class ConfigReader {
         TRExFit *fFitter;
     
         /**
-          * Instance of ConfigParser used to parse the text
+          * Pointer to ConfigParser used to parse the text
           */
-        ConfigParser fParser;
+        ConfigParser *fParser;
 
         /**
           * flag to control if wrong samples/regions are ok
