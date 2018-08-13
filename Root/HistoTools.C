@@ -114,9 +114,9 @@ void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, T
     //##################################################
     if( histOps % 10 == SYMMETRIZEONESIDED ) {
         bool isUp = true; //is the provided uncertainty the up or down variation (based on yield)
-        if     (originUp==0x0 && originDown!=0x0) isUp = false;
-        else if(originUp!=0x0 && originDown==0x0) isUp = true;
-        else if(originUp==0x0 && originDown==0x0){
+        if     (originUp==nullptr && originDown!=nullptr) isUp = false;
+        else if(originUp!=nullptr && originDown==nullptr) isUp = true;
+        else if(originUp==nullptr && originDown==nullptr){
             WriteErrorStatus("HistoTools::SymmetrizeHistograms", "both up and down variations are empty.");
             return;
         }

@@ -63,8 +63,8 @@ TRExPlot::TRExPlot(string name,int canvasWidth,int canvasHeight){
     pad0->Draw();
     pad0->cd();
     h_stack = new THStack("h_stack","h_stack");
-    h_tot = 0x0;
-    g_tot = 0x0;
+    h_tot = nullptr;
+    g_tot = nullptr;
     xtitle = "Variable [GeV]";
     ytitle = "Events";
     fLabels.clear();
@@ -77,13 +77,13 @@ TRExPlot::TRExPlot(string name,int canvasWidth,int canvasHeight){
     Chi2prob = -1;
     KSprob = -1;
     //
-    h_data = 0x0;
-    g_data = 0x0;
+    h_data = nullptr;
+    g_data = nullptr;
     for(int i_smp=0;i_smp<MAXSAMPLES;i_smp++){
-        h_bkg[i_smp]     = 0x0;
-        h_signal[i_smp]  = 0x0;
-        h_normsig[i_smp] = 0x0;
-        h_oversig[i_smp] = 0x0;
+        h_bkg[i_smp]     = nullptr;
+        h_signal[i_smp]  = nullptr;
+        h_normsig[i_smp] = nullptr;
+        h_oversig[i_smp] = nullptr;
     }
 
     //
@@ -109,9 +109,9 @@ TRExPlot::TRExPlot(string name,int canvasWidth,int canvasHeight){
     fRatioYmin = 0.;
     fRatioYmax = 2.;
     
-    h_blinding = 0x0;
+    h_blinding = nullptr;
     
-    h_tot_bkg_prefit = 0x0;
+    h_tot_bkg_prefit = nullptr;
 }
 
 //_____________________________________________________________________________
@@ -248,7 +248,7 @@ void TRExPlot::AddOverSignal(TH1* h,string name){
 //_____________________________________________________________________________
 //
 void TRExPlot::AddBackground(TH1* h,string name){
-    if(h_tot==0x0) h_tot = (TH1*)h->Clone();
+    if(h_tot==nullptr) h_tot = (TH1*)h->Clone();
     else h_tot->Add(h);
     // if already there...
 //     if(std::find(fBkgNames.begin(),fBkgNames.end(),name)!=fBkgNames.end()){
@@ -323,8 +323,8 @@ void TRExPlot::BlindData(){
     // Eventually blind bins
     //
     if(fBlindingThreshold>=0){
-        if(h_data!=0x0 && fSigNames.size()>0 && h_tot!=0x0){
-            if(h_blinding!=0x0){
+        if(h_data!=nullptr && fSigNames.size()>0 && h_tot!=nullptr){
+            if(h_blinding!=nullptr){
                 BlindDataHisto( h_data,h_blinding );
             }
             else{
@@ -382,7 +382,7 @@ void TRExPlot::Draw(string options){
     h_dummy->Draw("HIST");
     if(options.find("log")!=string::npos) pad0->SetLogy();
 
-    if(g_tot==0x0) g_tot = new TGraphAsymmErrors(h_tot);
+    if(g_tot==nullptr) g_tot = new TGraphAsymmErrors(h_tot);
 
     //
     // Determines if the data is real (and computes the poisson uncertainty) or not
@@ -450,7 +450,7 @@ void TRExPlot::Draw(string options){
     // Draw a normalized signal distribution
     //
     double signalScale = 1.;
-    //if(h_normsig!=0x0){
+    //if(h_normsig!=nullptr){
         for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
             signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
             WriteInfoStatus("TRExPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale));
@@ -467,7 +467,7 @@ void TRExPlot::Draw(string options){
     //
     // Draw a overlayed signal distribution
     //
-    //if(h_oversig!=0x0){
+    //if(h_oversig!=nullptr){
         for(int i_smp=fOverSigNames.size()-1;i_smp>=0;i_smp--){
             h_oversig[i_smp]->SetLineColor(h_oversig[i_smp]->GetFillColor());
             h_oversig[i_smp]->SetFillColor(0);
@@ -486,8 +486,8 @@ void TRExPlot::Draw(string options){
     //
     // Draw blinding markers
     //
-    TH1F* h_blind = 0x0;
-    if(h_blinding!=0x0){
+    TH1F* h_blind = nullptr;
+    if(h_blinding!=nullptr){
         h_blind = (TH1F*)h_blinding->Clone("h_blind");
         h_blind->SetLineWidth(0);
         h_blind->SetLineColor(kGray);
@@ -792,7 +792,7 @@ void TRExPlot::Draw(string options){
     //    h_ratio: is the real Data/MC ratio
     //    h_ratio2: is a MC/MC ratio to plot the uncertainty band
     //
-    TH1* h_ratio = 0x0;
+    TH1* h_ratio = nullptr;
     if(TRExFitter::OPTION["SoverBinRatio"]){
         if(fSigNames.size()>0) h_ratio = (TH1*)h_signal[0]->Clone("h_ratio");
         else if(fNormSigNames.size()>0) h_ratio = (TH1*)h_normsig[0]->Clone("h_ratio");
@@ -905,7 +905,7 @@ void TRExPlot::Draw(string options){
     //
     // Mark blinded bins in ratio pad as  well
     //
-    if(h_blind!=0x0){
+    if(h_blind!=nullptr){
         TH1F* h_blindratio = (TH1F*)h_blind->Clone("h_blindratio");
         h_blindratio->Scale(2.);
         h_blindratio->Draw("HIST same");
@@ -1054,7 +1054,7 @@ void TRExPlot::Draw(string options){
 //         y = h_tot->GetBinContent(i_bin)+g_tot->GetEYhigh()[i_bin-1]; // creating problems
         y = h_tot->GetBinContent(i_bin);
         if(y>yMax) yMax = y;
-        if(hasData && h_data!=0x0 && g_data!=0x0){
+        if(hasData && h_data!=nullptr && g_data!=nullptr){
             if(h_data->Integral()>0 && h_data->GetBinContent(i_bin)>0 && g_data->GetY()[i_bin-1]>0 && g_data->GetEYhigh()[i_bin-1]>0){
                 y = h_data->GetBinContent(i_bin)+g_data->GetEYhigh()[i_bin-1];
                 if(y>yMax) yMax = y;
@@ -1075,7 +1075,7 @@ void TRExPlot::Draw(string options){
         else         h_dummy->SetMinimum(1.);
     }
     
-    if(h_blind!=0x0){
+    if(h_blind!=nullptr){
         h_blind->Scale(h_dummy->GetMaximum());
     }
 

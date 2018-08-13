@@ -407,7 +407,7 @@ ConfigSet *ConfigParser::GetConfigSet(const std::string& name,int i){
             k++;
         }
     }
-    return 0x0;
+    return nullptr;
 }
 
 //__________________________________________________________________________________
