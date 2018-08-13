@@ -601,6 +601,11 @@ void SampleHist::Rebin(int ngroup, const Double_t* xbins){
 //_____________________________________________________________________________
 // this draws the control plots (for each systematic) with the syst variations for this region & all sample
 void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData, bool bothPanels ){
+    if (SumAndData && h_data == nullptr){
+        WriteWarningStatus("SampleHist::DrawSystPlot", "Data histogram passed is nullptr and you want to plot syst effect on data, returning.");
+        WriteWarningStatus("SampleHist::DrawSystPlot", "Maybe you do not have data sample defined?");
+        return;
+    }
 
     //
     // Draw the distributions for nominal, syst (before and after smoothing)
@@ -674,13 +679,6 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
             h_syst_up_orig = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
             h_syst_down_orig = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
-//             if(FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, "all" )>=0 ||
-//                FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, fRegionName )>=0){ // FIXME
-//                h_syst_up->Scale(h_nominal->Integral()/h_syst_up->Integral());
-//                h_syst_down->Scale(h_nominal->Integral()/h_syst_down->Integral());
-//                h_syst_up_orig->Scale(h_nominal->Integral()/h_syst_up_orig->Integral());
-//                h_syst_down_orig->Scale(h_nominal->Integral()/h_syst_down_orig->Integral());
-//             }
             h_syst_up->SetLineColor(kRed);
             h_syst_up->SetLineWidth(2);
             h_syst_up->SetLineStyle(1);
@@ -698,10 +696,6 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_syst_down_orig->SetLineStyle(2);
             h_syst_down_orig->SetFillStyle(0);
 
-//             yield_nominal = h_nominal->Integral();
-//             yield_syst_up = h_syst_up->Integral();
-//             yield_syst_down = h_syst_down->Integral();
-//             if(SumAndData) yield_data = h_dataCopy->Integral();
             yield_nominal = CorrectIntegral(h_nominal);
             yield_syst_up = CorrectIntegral(h_syst_up);
             yield_syst_down = CorrectIntegral(h_syst_down);
@@ -851,7 +845,6 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 leg->Draw();
 
                 //Legend to define the line style
-//                 TLegend *leg2 = new TLegend(0.605,0.69,0.9,0.74);
                 TLegend *leg2 = new TLegend(0.65,0.64,0.9,0.7);
                 leg2->SetFillStyle(0);
                 leg2->SetBorderSize(0);
@@ -879,7 +872,6 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                     leg3->SetMargin(0.2);
 		    		leg3->AddEntry(h_dataCopy,"Data","p");
 		    		leg3->AddEntry(h_nominal,"Total prediction","l");
-                    //leg3->AddEntry(h_dataCopy,Form("data (%s%.1f %%)",sign_data.c_str(),TMath::Abs(acc_data*100)),"l");
                     leg3 -> Draw();
                 }
             } else {

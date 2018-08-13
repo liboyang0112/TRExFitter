@@ -297,7 +297,6 @@ void Region::BuildPreFitErrorHist(){
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType == Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType == Sample::GHOST) continue;
-//         if(fSampleHists[i]->fSample->fType == Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
 
         //
         // Systematics
@@ -437,8 +436,6 @@ void Region::BuildPreFitErrorHist(){
         for(int j_syst=0;j_syst<i_syst;j_syst++){
             if(TRExFitter::NPMAP[fSystNames[i_syst]]==TRExFitter::NPMAP[fSystNames[j_syst]]){
                 found = true;
-//                 h_up[   FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotUp[  i_syst]);
-//                 h_down[ FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]) ]->Add(fTotDown[i_syst]);
                 int whichsyst = FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
                 TH1*h_diff_up   = (TH1*) h_up[whichsyst]  ->Clone(Form("%s_%s","clone_",h_up[whichsyst]  ->GetName()));
                 TH1*h_diff_down = (TH1*) h_down[whichsyst]->Clone(Form("%s_%s","clone_",h_down[whichsyst]->GetName()));
@@ -467,6 +464,11 @@ void Region::BuildPreFitErrorHist(){
     // Goodness of pre-fit
     if(fGetChi2){
         // remove blinded bins
+        if (!fHasData){
+            WriteWarningStatus("Region::BuildPreFitErrorHist", "Data histogram is nullptr, cannot calculate Chi2 agreement.");
+            WriteWarningStatus("Region::BuildPreFitErrorHist", "Maybe you do not have data sample defined?");
+            return;
+        }
         TH1* h_data = (TH1*)fData->fHist->Clone();
         if(fBlindedBins!=nullptr){
             for(int i_bin=1;i_bin<=h_data->GetNbinsX();i_bin++){
@@ -1121,6 +1123,11 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     //
     // Goodness of post-fit
     if(fGetChi2){
+        if (!fHasData){
+            WriteWarningStatus("Region::BuildPostFitErrorHist", "Data histogram is nullptr, cannot calculate Chi2 agreement.");
+            WriteWarningStatus("Region::BuildPostFitErrorHist", "Maybe you do not have data sample defined?");
+            return;
+        }
         // remove blinded bins
         TH1* h_data = (TH1*)fData->fHist->Clone();
         if(fBlindedBins!=nullptr){
@@ -1134,16 +1141,16 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
-        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
-        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- POST-FIT AGREEMENT EVALUATION -----------------------");
+        WriteInfoStatus("Region::BuildPostFitErrorHist", "----------------------- ---------------------------- -----------------------");
+        WriteInfoStatus("Region::BuildPostFitErrorHist", "----------------------- POST-FIT AGREEMENT EVALUATION -----------------------");
         if(fGetChi2==1)
-        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- -------- STAT-ONLY --------- -----------------------");
-        WriteInfoStatus("Region::BuildPreFitErrorHist", "--- REGION " + fName + ":");
-        WriteInfoStatus("Region::BuildPreFitErrorHist", "  chi2        = " + std::to_string(fChi2val));
-        WriteInfoStatus("Region::BuildPreFitErrorHist", "  ndof        = " + std::to_string(fNDF));
-        WriteInfoStatus("Region::BuildPreFitErrorHist", "  probability = " + std::to_string(fChi2prob));
-        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
-        WriteInfoStatus("Region::BuildPreFitErrorHist", "----------------------- ---------------------------- -----------------------");
+        WriteInfoStatus("Region::BuildPostFitErrorHist", "----------------------- -------- STAT-ONLY --------- -----------------------");
+        WriteInfoStatus("Region::BuildPostFitErrorHist", "--- REGION " + fName + ":");
+        WriteInfoStatus("Region::BuildPostFitErrorHist", "  chi2        = " + std::to_string(fChi2val));
+        WriteInfoStatus("Region::BuildPostFitErrorHist", "  ndof        = " + std::to_string(fNDF));
+        WriteInfoStatus("Region::BuildPostFitErrorHist", "  probability = " + std::to_string(fChi2prob));
+        WriteInfoStatus("Region::BuildPostFitErrorHist", "----------------------- ---------------------------- -----------------------");
+        WriteInfoStatus("Region::BuildPostFitErrorHist", "----------------------- ---------------------------- -----------------------");
     }
 
 }
@@ -1173,7 +1180,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         else if(fRegionType==VALIDATION) p->AddLabel("#font[62]{Validation Region}");
         else p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
-//         p->AddLabel("#font[52]{B-only fit}");
         p->AddLabel("#font[52]{Post-fit}");
         p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
@@ -2050,13 +2056,8 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         corr = 0;
         // yieldNominal = h_nominal->GetBinContent(i_bin);
         // - loop on the syst, two by two, to include the correlations
-//         std::vector<string> systNames_unique;
         for(unsigned int i_syst=0;i_syst<fSystNames.size();i_syst++){
-//             if (std::find(systNames_unique.begin(), systNames_unique.end(), fSystNames[i_syst]) == systNames_unique.end())
-//                 systNames_unique.push_back(fSystNames[i_syst]);
-//             else continue;
             for(unsigned int j_syst=0;j_syst<fSystNames.size();j_syst++){
-//                 if (fSystNames[i_syst]==fSystNames[j_syst] && i_syst!=j_syst) continue;
                 if(matrix!=nullptr){
                     corr = matrix->GetCorrelation(fSystNames[i_syst],fSystNames[j_syst]);
                 }
