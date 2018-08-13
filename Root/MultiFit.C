@@ -162,7 +162,7 @@ RooWorkspace* MultiFit::CombineWS(){
 
     std::vector < RooWorkspace* > vec_ws;
     std::vector < std::string > vec_chName;
-    RooStats::HistFactory::Measurement *measurement = 0x0;
+    RooStats::HistFactory::Measurement *measurement = nullptr;
 
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         std::string fitName = fFitList[i_fit]->fInputName;
@@ -569,7 +569,7 @@ void MultiFit::ComparePOI(string POI){
     bool isComb = false;
 
     // get values
-    TRExFit *fit = 0x0;
+    TRExFit *fit = nullptr;
     for(int i=0;i<N;i++){
         if(fCombine && i==N-1) isComb = true;
         else                   isComb = false;
@@ -2246,7 +2246,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     leg->SetTextFont(gStyle->GetTextFont());
     if(compare){
         for(auto fit : fFitList){
-            TFile *f = 0x0;
+            TFile *f = nullptr;
             if(fit->fFitResultsFile!=""){
                 std::vector<std::string> v = Vectorize(fit->fFitResultsFile,'/');
                 f = new TFile(v[0]+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
@@ -2254,8 +2254,8 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
             else{
                 f = new TFile(fit->fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
-            if(f!=0x0) curve_fit.push_back((RooCurve*)f->Get("LHscan"));
-            else       curve_fit.push_back(0x0);
+            if(f!=nullptr) curve_fit.push_back((RooCurve*)f->Get("LHscan"));
+            else       curve_fit.push_back(nullptr);
         }
         //
         int idx = 0;
@@ -2422,8 +2422,8 @@ void MultiFit::PlotSummarySoverB(){
 
     // get histos
     for(int i_hist=0;i_hist<Nhist;i_hist++){
-        TH1F* h_tmp = 0x0;
-        TH1F* h_tmpBonly = 0x0;
+        TH1F* h_tmp = nullptr;
+        TH1F* h_tmpBonly = nullptr;
         WriteDebugStatus("MultiFit::PlotSummarySoverB",  "Opening file " + fileNames[i_hist]);
         file.push_back(new TFile(fileNames[i_hist].c_str()));
         if(includeBonly){
@@ -2432,22 +2432,22 @@ void MultiFit::PlotSummarySoverB(){
         }
         //
         // initialize null histogram pointers
-        h_sig.push_back(0x0);
-        h_bkg.push_back(0x0);
-        h_bkgBonly.push_back(0x0);
-        h_tot_bkg_prefit.push_back(0x0);
-        h_data.push_back(0x0);
+        h_sig.push_back(nullptr);
+        h_bkg.push_back(nullptr);
+        h_bkgBonly.push_back(nullptr);
+        h_tot_bkg_prefit.push_back(nullptr);
+        h_data.push_back(nullptr);
         for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
-            h_syst_up  [i_syst][i_hist] = 0x0;
-            h_syst_down[i_syst][i_hist] = 0x0;
+            h_syst_up  [i_syst][i_hist] = nullptr;
+            h_syst_down[i_syst][i_hist] = nullptr;
         }
         //
         for(unsigned int i_sig=0;i_sig<sigList.size();i_sig++){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "  Getting histogram h_"+sigList[i_sig]+"_postFit");
             h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+sigList[i_sig]+"_postFit").c_str() );
-            if(h_tmp!=0x0){
+            if(h_tmp!=nullptr){
                 WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... FOUND");
-                if(h_sig[i_hist]==0x0) h_sig[i_hist] = h_tmp;
+                if(h_sig[i_hist]==nullptr) h_sig[i_hist] = h_tmp;
                 else                   h_sig[i_hist]->Add(h_tmp);
             }
         }
@@ -2455,36 +2455,36 @@ void MultiFit::PlotSummarySoverB(){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "  Getting histogram h_"+bkgList[i_bkg]+"_postFit");
             h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
             if(includeBonly) h_tmpBonly = (TH1F*)fileBonly[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
-            if(h_tmp!=0x0){
+            if(h_tmp!=nullptr){
                 WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... FOUND");
-                if(h_bkg[i_hist]==0x0) h_bkg[i_hist] = h_tmp;
+                if(h_bkg[i_hist]==nullptr) h_bkg[i_hist] = h_tmp;
                 else                   h_bkg[i_hist]->Add(h_tmp);
             }
-            if(h_tmpBonly!=0x0){
+            if(h_tmpBonly!=nullptr){
                 WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... B-only FOUND");
-                if(h_bkgBonly[i_hist]==0x0) h_bkgBonly[i_hist] = h_tmpBonly;
+                if(h_bkgBonly[i_hist]==nullptr) h_bkgBonly[i_hist] = h_tmpBonly;
                 else                        h_bkgBonly[i_hist]->Add(h_tmpBonly);
             }
             // syst variations
             for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
                 // up
                 h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Up_postFit").c_str() );
-                if(h_tmp!=0x0){
-                    if(h_syst_up[i_syst][i_hist]==0x0)   h_syst_up[i_syst][i_hist] = h_tmp;
+                if(h_tmp!=nullptr){
+                    if(h_syst_up[i_syst][i_hist]==nullptr)   h_syst_up[i_syst][i_hist] = h_tmp;
                     else                                 h_syst_up[i_syst][i_hist]->Add(h_tmp);
                 }
                 // down
-                if(h_tmp!=0x0){
+                if(h_tmp!=nullptr){
                     h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Down_postFit").c_str() );
-                    if(h_syst_down[i_syst][i_hist]==0x0) h_syst_down[i_syst][i_hist] = h_tmp;
+                    if(h_syst_down[i_syst][i_hist]==nullptr) h_syst_down[i_syst][i_hist] = h_tmp;
                     else                                 h_syst_down[i_syst][i_hist]->Add(h_tmp);
                 }
             }
         }
         for(unsigned int i_data=0;i_data<dataList.size();i_data++){
             h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+dataList[i_data]).c_str() );
-            if(h_tmp!=0x0){
-                if(h_data[i_hist]==0x0) h_data[i_hist] = h_tmp;
+            if(h_tmp!=nullptr){
+                if(h_data[i_hist]==nullptr) h_data[i_hist] = h_tmp;
                 else                    h_data[i_hist]->Add(h_tmp);
             }
         }
@@ -2494,17 +2494,17 @@ void MultiFit::PlotSummarySoverB(){
 
         //
         // Fix eventually empty histograms
-        if(h_sig[i_hist] ==0x0){
+        if(h_sig[i_hist] ==nullptr){
             h_sig[i_hist]  = (TH1F*)h_bkg[i_hist]->Clone(Form("h_sig[%d]", i_hist));
             h_sig[i_hist]->Scale(0.);
         }
-        if(h_data[i_hist]==0x0){
+        if(h_data[i_hist]==nullptr){
             h_data[i_hist] = (TH1F*)h_bkg[i_hist]->Clone(Form("h_data[%d]",i_hist));
             h_data[i_hist]->Scale(0.);
         }
         for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
             // up
-            if(h_syst_up[i_syst][i_hist]==0x0){
+            if(h_syst_up[i_syst][i_hist]==nullptr){
                 h_syst_up[i_syst][i_hist] = (TH1F*)h_bkg[i_hist]->Clone(Form("h_syst_up[%d][%d]", i_syst,i_hist));
                 h_syst_up[i_syst][i_hist]->Scale(0.);
             }
@@ -2512,7 +2512,7 @@ void MultiFit::PlotSummarySoverB(){
                 h_syst_up[i_syst][i_hist]->Add(h_bkg[i_hist],-1);
             }
             // down
-            if(h_syst_down[i_syst][i_hist]==0x0){
+            if(h_syst_down[i_syst][i_hist]==nullptr){
                 h_syst_down[i_syst][i_hist] = (TH1F*)h_bkg[i_hist]->Clone(Form("h_syst_down[%d][%d]", i_syst,i_hist));
                 h_syst_down[i_syst][i_hist]->Scale(0.);
             }
@@ -2524,10 +2524,10 @@ void MultiFit::PlotSummarySoverB(){
 
     // create combined histogram
     TH1F* h_bkg_comb  = Combine(h_bkg);
-    TH1F* h_bkgBonly_comb = 0x0; if(includeBonly) h_bkgBonly_comb = Combine(h_bkgBonly);
+    TH1F* h_bkgBonly_comb = nullptr; if(includeBonly) h_bkgBonly_comb = Combine(h_bkgBonly);
     TH1F* h_sig_comb  = Combine(h_sig);
     TH1F* h_data_comb = Combine(h_data);
-    TH1F* h_tot_bkg_prefit_comb = 0x0;
+    TH1F* h_tot_bkg_prefit_comb = nullptr;
     if(TRExFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_comb = Combine(h_tot_bkg_prefit);
 
 
@@ -2549,10 +2549,10 @@ void MultiFit::PlotSummarySoverB(){
     }
 
     TH1F* h_bkg_ord  = Rebin(h_bkg_comb,SoverSqrtB,false);
-    TH1F* h_bkgBonly_ord = 0x0; if(includeBonly) h_bkgBonly_ord = Rebin(h_bkgBonly_comb,SoverSqrtB,false);
+    TH1F* h_bkgBonly_ord = nullptr; if(includeBonly) h_bkgBonly_ord = Rebin(h_bkgBonly_comb,SoverSqrtB,false);
     TH1F* h_sig_ord  = Rebin(h_sig_comb,SoverSqrtB,false);
     TH1F* h_data_ord = Rebin(h_data_comb,SoverSqrtB);
-    TH1F* h_tot_bkg_prefit_ord = 0x0;
+    TH1F* h_tot_bkg_prefit_ord = nullptr;
     if(TRExFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_ord = Rebin(h_tot_bkg_prefit_comb,SoverSqrtB,false);
 
     std::vector<TH1F*> h_syst_up_ord  (Nsyst);
@@ -2699,7 +2699,7 @@ void MultiFit::PlotSummarySoverB(){
         h_den->SetBinError(i_bin,0);
     }
 
-    TH1F *h_ratioBonly = 0x0;
+    TH1F *h_ratioBonly = nullptr;
     if(includeBonly){
 //         h_ratioBonly = (TH1F*)h_data_ord->Clone("h_ratioBonly");
 //         h_ratioBonly->Divide(h_bkgBonly_ord);
@@ -2792,7 +2792,7 @@ TH1F* MultiFit::Combine(vector<TH1F*> h){
     int Nbins = 0;
     int Nhist = h.size();
     for(int i_hist=0;i_hist<Nhist;i_hist++){
-        if(h[i_hist]==0x0) WriteWarningStatus("MultiFit::Combine", "empty histgram " + std::to_string(i_hist));
+        if(h[i_hist]==nullptr) WriteWarningStatus("MultiFit::Combine", "empty histgram " + std::to_string(i_hist));
         else Nbins += h[i_hist]->GetNbinsX();
     }
     TH1F* h_new = new TH1F(Form("%s_comb",h[0]->GetName()),Form("%s_comb",h[0]->GetTitle()),Nbins,0,Nbins);

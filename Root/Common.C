@@ -120,25 +120,25 @@ TH1* HistFromFile(string fullName){
 //__________________________________________________________________________________
 //
 TH1* HistFromFile(string fileName,string histoName){
-    if(fileName=="") return 0x0;
-    if(histoName=="") return 0x0;
+    if(fileName=="") return nullptr;
+    if(histoName=="") return nullptr;
     bool hasCustomAsimov = false;
     if (fileName.find("customAsimov") != std::string::npos) hasCustomAsimov = true;
     WriteVerboseStatus("Common::HistFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
-    TH1 *h = 0x0;
+    TH1 *h = nullptr;
     TFile *f = GetFile(fileName);
-    if(f == 0x0){
+    if(f == nullptr){
             WriteErrorStatus("Common::HistFromFile", "cannot find input file '" + fileName + "'");
             return h;
     }
     h = static_cast<TH1*>(f->Get(histoName.c_str()));
-    if(h == 0x0){
+    if(h == nullptr){
             if (!hasCustomAsimov) WriteErrorStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "'");
             else WriteDebugStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "', but its customAsimov histogram so this should not be a problem");
             return h;
     }
     h = static_cast<TH1*>(h->Clone());
-    if(h!=0x0) h->SetDirectory(0);
+    if(h!=nullptr) h->SetDirectory(0);
     if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     return h;
 }
@@ -593,8 +593,8 @@ void CloseFiles( const std::set < std::string> &files_names ){
 //__________________________________________________________________________________
 //
 TH1F* MergeHistograms(vector<TH1*> hVec){
-    if(hVec.size()==0) return 0x0;
-    if(hVec[0]==0x0) return 0x0;
+    if(hVec.size()==0) return nullptr;
+    if(hVec[0]==nullptr) return nullptr;
     // get total number of bins
     int Nbins = 0;
     for(auto h : hVec){

@@ -54,13 +54,11 @@ float CorrelationMatrix::GetCorrelation(string p0,string p1){
     if (p0.find("morph_") != std::string::npos) isMorph_p0 = true;
     if (p1.find("morph_") != std::string::npos) isMorph_p1 = true;
     if(!fNuisParIsThere[p0]){
-//         if(!isMorph_p0) WriteWarningStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. Returning correlation = 0.");
         if(!isMorph_p0) WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. Returning correlation = 0.");
         else WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. The NP is for morphing. Returning correlation = 0.");
         return 0.;
     }
     if(!fNuisParIsThere[p1]){
-//         if(!isMorph_p1) WriteWarningStatus("CorrelationMatrix::GetCorrelation", "NP " + p1 + " not found in correlation matrix. Returning correlation = 0.");
         if(!isMorph_p1) WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p1 + " not found in correlation matrix. Returning correlation = 0.");
         else WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. The NP is for morphing. Returning correlation = 0.");
         return 0.;

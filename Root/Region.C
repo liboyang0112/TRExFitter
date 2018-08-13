@@ -128,7 +128,7 @@ Region::Region(string name){
     fSuffix = "";
     fGroup = "";
 
-    fBlindedBins = 0x0;
+    fBlindedBins = nullptr;
     fKeepPrefitBlindedBins = false;
     fGetChi2 = 0;
 
@@ -142,7 +142,7 @@ Region::Region(string name){
 
     fUseGammaPulls = false;
 
-    fTot = 0x0;
+    fTot = nullptr;
 }
 
 //__________________________________________________________________________________
@@ -269,7 +269,7 @@ SampleHist* Region::GetSampleHist(string &sampleName){
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSampleHists[i_smp]->fName == sampleName) return fSampleHists[i_smp];
     }
-    return 0x0;
+    return nullptr;
 }
 
 //__________________________________________________________________________________
@@ -284,11 +284,11 @@ void Region::BuildPreFitErrorHist(){
     fNpNames.clear();
     std::map<string,bool> systIsThere;
     systIsThere.clear();
-    TH1* hUp = 0x0;
-    TH1* hDown = 0x0;
+    TH1* hUp = nullptr;
+    TH1* hDown = nullptr;
     string systName = "";
     string systNuisPar = "";
-    SystematicHist *sh = 0x0;
+    SystematicHist *sh = nullptr;
 
     //
     // Collect all the systematics on all the samples
@@ -308,7 +308,7 @@ void Region::BuildPreFitErrorHist(){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
             }
-            if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0)
+            if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr)
                 systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
             if(FindInStringVector(fNpNames,systNuisPar)<0){
                 fNpNames.push_back(systNuisPar);
@@ -340,7 +340,7 @@ void Region::BuildPreFitErrorHist(){
             sh = fSampleHists[i]->GetSystematic(systName);
 
             // hack: add a systematic hist if not there... FIXME
-            if(sh==0x0){
+            if(sh==nullptr){
                 fSampleHists[i]->AddHistoSyst(systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // initialize the up and down variation histograms
@@ -353,16 +353,16 @@ void Region::BuildPreFitErrorHist(){
             for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
                 diffUp = 0.;
                 diffDown = 0.;
-                hUp = 0x0;
-                hDown = 0x0;
+                hUp = nullptr;
+                hDown = nullptr;
                 yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
                 // if it's a systematic (NB: skip Norm-Factors!!)
                 if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
                     hUp   = sh->fHistUp;
                     hDown = sh->fHistDown;
-                    if(hUp!=0x0)    yieldUp     = hUp  ->GetBinContent(i_bin);
+                    if(hUp!=nullptr)    yieldUp     = hUp  ->GetBinContent(i_bin);
                     else            yieldUp     = yieldNominal;
-                    if(hDown!=0x0)  yieldDown   = hDown->GetBinContent(i_bin);
+                    if(hDown!=nullptr)  yieldDown   = hDown->GetBinContent(i_bin);
                     else            yieldDown   = yieldNominal;
                     diffUp   += yieldUp   - yieldNominal;
                     diffDown += yieldDown - yieldNominal;
@@ -468,7 +468,7 @@ void Region::BuildPreFitErrorHist(){
     if(fGetChi2){
         // remove blinded bins
         TH1* h_data = (TH1*)fData->fHist->Clone();
-        if(fBlindedBins!=0x0){
+        if(fBlindedBins!=nullptr){
             for(int i_bin=1;i_bin<=h_data->GetNbinsX();i_bin++){
                 if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
                 if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
@@ -539,9 +539,9 @@ TRExPlot* Region::DrawPreFit(string opt){
     //
     // build h_tot
     //
-    fTot = 0x0;
+    fTot = nullptr;
     string title;
-    TH1* h = 0x0;
+    TH1* h = nullptr;
     if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist,fData->fSample->fTitle);
     for(int i=0;i<fNSig;i++){
         title = fSig[i]->fSample->fTitle;
@@ -587,7 +587,7 @@ TRExPlot* Region::DrawPreFit(string opt){
         }
         if(TRExFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
         if(TRExFitter::SHOWSTACKSIG){
-            if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
+            if(fTot==nullptr) fTot = (TH1*)h->Clone("h_tot");
             else          fTot->Add(h);
         }
     }
@@ -624,7 +624,7 @@ TRExPlot* Region::DrawPreFit(string opt){
             }
         }
         p->AddBackground(h,title);
-        if(fTot==0x0) fTot = (TH1*)h->Clone("h_tot");
+        if(fTot==nullptr) fTot = (TH1*)h->Clone("h_tot");
         else          fTot->Add(h);
     }
 
@@ -680,9 +680,9 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
     for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
         std::string systName = fSampleHists[i]->fSyst[i_syst]->fName;
         TString systNameNew(systName); // used in pull tables
-        if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0)
+        if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr)
             systName = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
-        if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=0x0){
+        if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr){
             if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
                 continue;
             }
@@ -750,11 +750,11 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     float systValue(0.);
     float systErrUp(0.);
     float systErrDown(0.);
-    //TH1* hUp = 0x0;
-    //TH1* hDown = 0x0;
+    //TH1* hUp = nullptr;
+    //TH1* hDown = nullptr;
     string systName = "";
     string systNuisPar = "";
-    SystematicHist *sh = 0x0;
+    SystematicHist *sh = nullptr;
     string systNameSF = "";
     int iBinSF = 0;
 
@@ -807,7 +807,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
             systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
-//             if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic!=0x0)
+//             if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic!=nullptr)
 //                 systName = fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
@@ -878,7 +878,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
             // this to include (prefit) error from SHAPE syst
             if(fSampleHists[i]->GetSystematic(systName)){
-                if(fSampleHists[i]->GetSystematic(systName)->fSystematic!=0x0){
+                if(fSampleHists[i]->GetSystematic(systName)->fSystematic!=nullptr){
                     if(fSampleHists[i]->GetSystematic(systName)->fSystematic->fType==Systematic::SHAPE){
                         systValue   = 0;
                         systErrUp   = 1;
@@ -893,7 +893,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             sh = fSampleHists[i]->GetSystematic(systName);
 
             // hack: add a systematic hist if not there
-            if(sh==0x0){
+            if(sh==nullptr){
                 fSampleHists[i]->AddHistoSyst(systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
                 sh = fSampleHists[i]->GetSystematic(systName);
             }
@@ -918,8 +918,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
                 diffUp = 0.;
                 diffDown = 0.;
-                //hUp = 0x0;
-                //hDown = 0x0;
+                //hUp = nullptr;
+                //hDown = nullptr;
                 double yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
 
@@ -1031,7 +1031,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             sh = fSampleHists[morph_index]->GetSystematic(systName);
 
             // hack: add a systematic hist if not there
-            if(sh==0x0){
+            if(sh==nullptr){
                 fSampleHists[morph_index]->AddHistoSyst(systName,fSampleHists[morph_index]->fHist,fSampleHists[morph_index]->fHist);
                 sh = fSampleHists[morph_index]->GetSystematic(systName);
             }
@@ -1123,7 +1123,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     if(fGetChi2){
         // remove blinded bins
         TH1* h_data = (TH1*)fData->fHist->Clone();
-        if(fBlindedBins!=0x0){
+        if(fBlindedBins!=nullptr){
             for(int i_bin=1;i_bin<=h_data->GetNbinsX();i_bin++){
                 if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
                 if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
@@ -1390,7 +1390,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     //
     if(fBlindingThreshold>=0){
         p->SetBinBlinding(true,fBlindingThreshold);
-        if(fKeepPrefitBlindedBins && fBlindedBins!=0x0) p->SetBinBlinding(true,fBlindedBins);
+        if(fKeepPrefitBlindedBins && fBlindedBins!=nullptr) p->SetBinBlinding(true,fBlindedBins);
     }
     p->BlindData();
 
@@ -1622,9 +1622,9 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
             texout_cat.open((fFitName+"/Tables/"+fName+fSuffix+"_syst_category.tex").c_str());
         }
     }
-    Sample *s = 0x0;
-    SampleHist *sh = 0x0;
-    SystematicHist *syh = 0x0;
+    Sample *s = nullptr;
+    SampleHist *sh = nullptr;
+    SystematicHist *syh = nullptr;
 
 
     out << " | ";
@@ -1710,7 +1710,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
             if(s->fType==Sample::DATA) continue;
             if(s->fType==Sample::GHOST) continue;
             syh = sh->GetSystematic(fSystNames[i_syst]);
-            if(syh==0x0){
+            if(syh==nullptr){
                 out << " |    nan   ";
                 texout << " &    nan   ";
             }
@@ -1988,7 +1988,7 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
                     // more than Bill's suggestion: add correlation between systematics!!
                     double corr = 0.;
                     if(n==m) corr = 1.;
-                    else if(matrix!=0x0) corr = matrix->GetCorrelation(fSystNames[n],fSystNames[m]);
+                    else if(matrix!=nullptr) corr = matrix->GetCorrelation(fSystNames[n],fSystNames[m]);
                     else continue;
                     sum += (ysyst_i_n-ynom_i) * corr * (ysyst_j_m-ynom_j);
                 }
@@ -2034,7 +2034,7 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
 // - a nominal histo (tot exepcted)
 // - syst variation histos (eventually already scaled by post-fit pulls)
 // - correlation matrix
-// Note: if matrix = 0x0 => no correlation, i.e. matrix = 1 (used for pre-fit, or to neglect correlation)
+// Note: if matrix = nullptr => no correlation, i.e. matrix = 1 (used for pre-fit, or to neglect correlation)
 TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
     TGraphAsymmErrors *g_totErr = new TGraphAsymmErrors( h_nominal );
     float finalErrPlus(0.);
@@ -2057,7 +2057,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
 //             else continue;
             for(unsigned int j_syst=0;j_syst<fSystNames.size();j_syst++){
 //                 if (fSystNames[i_syst]==fSystNames[j_syst] && i_syst!=j_syst) continue;
-                if(matrix!=0x0){
+                if(matrix!=nullptr){
                     corr = matrix->GetCorrelation(fSystNames[i_syst],fSystNames[j_syst]);
                 }
                 else{
