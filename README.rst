@@ -585,7 +585,8 @@ Multi-Fit options
    * DebugLevel       : set level of debug output
    * RunROOTMacros    : can be TRUE or FALSE, set to true to run the common scripts in root interpreter in stead of running the directly compiled version (FALSE, default)
    * POILabel         : name of the POI shwon on plots, default is `#\mu`
-   * POINominal       : value of the nominal (SM) prediction for POI, defaults is `1`
+   * POINominal       : value of the nominal (SM) prediction for POI, default is `1`
+   * ShowTotalOnly    : If set to TRUE will show only total uncertainty on the POI plots. Default is FALSE
 
 * Fit:
    * Options          : additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...

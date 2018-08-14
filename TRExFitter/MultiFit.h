@@ -122,6 +122,8 @@ public:
 
     std::string fPOIName;
     float fPOINominal;
+
+    bool fShowTotalOnly;
 };
 
 #endif
