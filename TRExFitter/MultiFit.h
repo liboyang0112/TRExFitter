@@ -140,6 +140,8 @@ public:
     std::string fSignificanceParamName;
     float fSignificanceParamValue;
     std::string fSignificanceOutputPrefixName;
+
+    bool fShowTotalOnly;
 };
 
 #endif

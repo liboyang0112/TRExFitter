@@ -20,7 +20,7 @@ using namespace std;
 //
 SystematicHist::SystematicHist(string name){
     fName = name;
-    fSystematic = 0x0;
+    fSystematic = nullptr;
 
     fIsOverall = false;
     fIsShape = false;
@@ -32,25 +32,25 @@ SystematicHist::SystematicHist(string name){
     fBadShape    = false;
     fBadNorm     = false;
 
-    fHistUp = 0x0;
-    fHistUp_orig = 0x0;
-    fHistShapeUp = 0x0;
+    fHistUp = nullptr;
+    fHistUp_orig = nullptr;
+    fHistShapeUp = nullptr;
     fNormUp = 0;
     fFileNameUp = "";
     fHistoNameUp = "";
     fFileNameShapeUp = "";
     fHistoNameShapeUp = "";
-    fHistUp_postFit = 0x0;
+    fHistUp_postFit = nullptr;
 
-    fHistDown = 0x0;
-    fHistDown_orig = 0x0;
-    fHistShapeDown = 0x0;
+    fHistDown = nullptr;
+    fHistDown_orig = nullptr;
+    fHistShapeDown = nullptr;
     fNormDown = 0;
     fFileNameDown = "";
     fHistoNameDown = "";
     fFileNameShapeDown = "";
     fHistoNameShapeDown = "";
-    fHistDown_postFit = 0x0;
+    fHistDown_postFit = nullptr;
 
     fScaleUp   = 1.;
     fScaleDown = 1.;
@@ -68,7 +68,7 @@ SystematicHist::~SystematicHist(){
 //_____________________________________________________________________________
 //
 void SystematicHist::WriteToFile(TFile *f){
-    if(f==0x0){
+    if(f==nullptr){
         WriteHistToFile(fHistUp,fFileNameUp);
         WriteHistToFile(fHistDown,fFileNameDown);
         WriteHistToFile(fHistUp_orig,fFileNameUp);
@@ -107,18 +107,18 @@ void SystematicHist::WriteToFile(TFile *f){
 void SystematicHist::ReadFromFile(){
     fHistUp      = HistFromFile(fFileNameUp,fHistoNameUp);
     fHistUp_orig = HistFromFile(fFileNameUp,fHistoNameUp+"_orig");
-    if(fHistUp_orig==0x0) fHistUp_orig = fHistUp;
+    if(fHistUp_orig==nullptr) fHistUp_orig = fHistUp;
     fHistShapeUp = HistFromFile(fFileNameShapeUp,fHistoNameShapeUp);
     fHistDown      = HistFromFile(fFileNameDown,fHistoNameDown);
     fHistDown_orig = HistFromFile(fFileNameDown,fHistoNameDown+"_orig");
-    if(fHistDown_orig==0x0) fHistDown_orig = fHistDown;
+    if(fHistDown_orig==nullptr) fHistDown_orig = fHistDown;
     fHistShapeDown = HistFromFile(fFileNameShapeDown,fHistoNameShapeDown);
 }
 
 //_____________________________________________________________________________
 //
 bool SystematicHist::IsShape(){
-    if(fHistUp!=0x0 || fHistDown!=0x0) return true;
+    if(fHistUp!=nullptr || fHistDown!=nullptr) return true;
     return false;
 }
 
@@ -126,7 +126,7 @@ bool SystematicHist::IsShape(){
 //
 void SystematicHist::Print(){
     std::string temp = "        Systematic: " + fName;
-    if(fHistShapeUp==0x0 && fHistShapeDown==0x0 && fHistUp==0x0 && fHistDown==0x0) temp + Form("\toverall (%.3f,%.3f)",fNormUp,fNormDown);
+    if(fHistShapeUp==nullptr && fHistShapeDown==nullptr && fHistUp==nullptr && fHistDown==nullptr) temp + Form("\toverall (%.3f,%.3f)",fNormUp,fNormDown);
     WriteInfoStatus("SystematicHist::Print", temp);
 }
 
@@ -134,52 +134,52 @@ void SystematicHist::Print(){
 //
 void SystematicHist::Divide(TH1 *h){
     fHistUp->Divide(h);
-    if(fHistShapeUp!=0x0)   fHistShapeUp->Divide(h);
+    if(fHistShapeUp!=nullptr)   fHistShapeUp->Divide(h);
     fHistDown->Divide(h);
-    if(fHistShapeDown!=0x0) fHistShapeDown->Divide(h);
+    if(fHistShapeDown!=nullptr) fHistShapeDown->Divide(h);
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Divide(SystematicHist *syh){
     fHistUp->Divide(       syh->fHistUp);
-    if(fHistShapeUp!=0x0)   fHistShapeUp->Divide(  syh->fHistShapeUp);
+    if(fHistShapeUp!=nullptr)   fHistShapeUp->Divide(  syh->fHistShapeUp);
     fHistDown->Divide(     syh->fHistDown);
-    if(fHistShapeDown!=0x0) fHistShapeDown->Divide(syh->fHistShapeDown);
+    if(fHistShapeDown!=nullptr) fHistShapeDown->Divide(syh->fHistShapeDown);
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Multiply(TH1 *h){
     fHistUp->Multiply(h);
-    if(fHistShapeUp!=0x0)   fHistShapeUp->Multiply(h);
+    if(fHistShapeUp!=nullptr)   fHistShapeUp->Multiply(h);
     fHistDown->Multiply(h);
-    if(fHistShapeDown!=0x0) fHistShapeDown->Multiply(h);
+    if(fHistShapeDown!=nullptr) fHistShapeDown->Multiply(h);
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Multiply(SystematicHist *syh){
     fHistUp->Multiply(       syh->fHistUp);
-    if(fHistShapeUp!=0x0)   fHistShapeUp->Multiply(  syh->fHistShapeUp);
+    if(fHistShapeUp!=nullptr)   fHistShapeUp->Multiply(  syh->fHistShapeUp);
     fHistDown->Multiply(     syh->fHistDown);
-    if(fHistShapeDown!=0x0) fHistShapeDown->Multiply(syh->fHistShapeDown);
+    if(fHistShapeDown!=nullptr) fHistShapeDown->Multiply(syh->fHistShapeDown);
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Add(TH1 *h,float scale){
     fHistUp->Add(h,scale);
-    if(fHistShapeUp!=0x0)   fHistShapeUp->Add(h,scale);
+    if(fHistShapeUp!=nullptr)   fHistShapeUp->Add(h,scale);
     fHistDown->Add(h,scale);
-    if(fHistShapeDown!=0x0) fHistShapeDown->Add(h,scale);
+    if(fHistShapeDown!=nullptr) fHistShapeDown->Add(h,scale);
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Add(SystematicHist *syh,float scale){
     fHistUp->Add(       syh->fHistUp,scale);
-    if(fHistShapeUp!=0x0)   fHistShapeUp->Add(  syh->fHistShapeUp,scale);
+    if(fHistShapeUp!=nullptr)   fHistShapeUp->Add(  syh->fHistShapeUp,scale);
     fHistDown->Add(     syh->fHistDown,scale);
-    if(fHistShapeDown!=0x0) fHistShapeDown->Add(syh->fHistShapeDown,scale);
+    if(fHistShapeDown!=nullptr) fHistShapeDown->Add(syh->fHistShapeDown,scale);
 }

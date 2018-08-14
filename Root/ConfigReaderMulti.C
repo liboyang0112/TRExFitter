@@ -453,6 +453,17 @@ int ConfigReaderMulti::ReadJobOptions(){
         }
     }
 
+    // Set ShowTotalOnly
+    param = confSet->Get("ShowTotalOnly");
+    if ( param != "" ) {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fMultiFitter->fShowTotalOnly = true;
+        } else if (param == "FALSE"){
+            fMultiFitter->fShowTotalOnly = false;
+        }
+    }
+
     // Set LHscanSteps
     param = confSet->Get("LHscanSteps");
     if ( param != "" ) {

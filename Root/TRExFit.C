@@ -230,7 +230,7 @@ TRExFit::TRExFit(string name){
     ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
     
     fKeepPrefitBlindedBins = false;
-    fBlindedBins = 0x0;
+    fBlindedBins = nullptr;
     
     fRatioYmax = 1.5;
     fRatioYmin = 0.5;
@@ -415,8 +415,8 @@ void TRExFit::SmoothSystematics(string syst){
     WriteInfoStatus("TRExFit::SmoothSystematics", "Smoothing and/or Symmetrising Systematic Variations ...");
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
-//             if(fRegions[i_ch]->fSampleHists[i_smp]==0x0) continue;
-//             if(fRegions[i_ch]->fSampleHists[i_smp]->fSample!=0x0){
+//             if(fRegions[i_ch]->fSampleHists[i_smp]==nullptr) continue;
+//             if(fRegions[i_ch]->fSampleHists[i_smp]->fSample!=nullptr){
 //                 if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::DATA) continue;
 //             }
             fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false, fTtresSmoothing);
@@ -480,7 +480,7 @@ void TRExFit::WriteHistos(){
         //
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-            if(sh == 0x0){
+            if(sh == nullptr){
                 WriteDebugStatus("TRExFit::WriteHistos", "SampleHist[" + std::to_string(i_smp) + "] for sample " + fSamples[i_smp]->fName + " not there.");
                 continue;
             }
@@ -489,8 +489,8 @@ void TRExFit::WriteHistos(){
             sh->fFileName = fileName;
             // set file and histo names for systematics
             for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
-                if(sh->fSyst[i_syst]->fHistUp  ==0x0) continue;
-                if(sh->fSyst[i_syst]->fHistDown==0x0) continue;
+                if(sh->fSyst[i_syst]->fHistUp  ==nullptr) continue;
+                if(sh->fSyst[i_syst]->fHistDown==nullptr) continue;
                 sh->fSyst[i_syst]->fFileNameUp    = fileName;
                 sh->fSyst[i_syst]->fHistoNameUp   = sh->fSyst[i_syst]->fHistUp->GetName();
                 sh->fSyst[i_syst]->fFileNameDown  = fileName;
@@ -549,7 +549,7 @@ void TRExFit::WriteHistos(){
 //         //
 //         for(int i_smp=0;i_smp<fNSamples;i_smp++){
 //             sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-//             if(sh == 0x0){
+//             if(sh == nullptr){
 //               if(TRExFitter::DEBUGLEVEL>0) std::cout << "SampleHist[" << i_smp << "] for sample " << fSamples[i_smp]->fName << " not there." << std::endl;
 //                 continue;
 //             }
@@ -625,10 +625,10 @@ void TRExFit::DrawSystPlotsSumSamples(){
 void TRExFit::ReadNtuples(){
     WriteInfoStatus("TRExFit::ReadNtuples", "-------------------------------------------");
     WriteInfoStatus("TRExFit::ReadNtuples", "Reading ntuples...");
-    TH1F* h = 0x0;
-    TH1F* hUp = 0x0;
-    TH1F* hDown = 0x0;
-    TH1F* htmp = 0x0;
+    TH1F* h = nullptr;
+    TH1F* hUp = nullptr;
+    TH1F* hDown = nullptr;
+    TH1F* htmp = nullptr;
     string fullSelection;
     string fullMCweight;
     vector<string> fullPaths;
@@ -724,8 +724,8 @@ void TRExFit::ReadNtuples(){
                                          NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
                                          NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                          );
-            htmp = 0x0;
-            h = 0x0;
+            htmp = nullptr;
+            h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 if(fRegions[i_ch]->fHistoBins){
                     htmp = HistFromNtupleBinArr( fullPaths[i_path],
@@ -797,7 +797,7 @@ void TRExFit::ReadNtuples(){
                 //
                 // Up
                 //
-                hUp = 0x0;
+                hUp = nullptr;
                 if(syst->fHasUpVariation){
                     fullMCweight = "1.";
                     fullPaths.clear();
@@ -852,7 +852,7 @@ void TRExFit::ReadNtuples(){
                 //
                 // Down
                 //
-                hDown = 0x0;
+                hDown = nullptr;
                 if(syst->fHasDownVariation){
                     fullMCweight = "1.";
                     fullPaths.clear();
@@ -908,8 +908,8 @@ void TRExFit::ReadNtuples(){
                     }
                 }
                 //
-                if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hUp==nullptr)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hDown==nullptr) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
@@ -998,8 +998,8 @@ void TRExFit::ReadNtuples(){
                                          NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
                                          NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                          );
-            htmp = 0x0;
-            h = 0x0;
+            htmp = nullptr;
+            h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 if(fRegions[i_ch]->fHistoBins){
                     htmp = HistFromNtupleBinArr( fullPaths[i_path],
@@ -1122,7 +1122,7 @@ void TRExFit::ReadNtuples(){
                 //
                 // Up
                 //
-                hUp = 0x0;
+                hUp = nullptr;
                 if(syst->fHasUpVariation){
                     // Note: no need to change selection for systematics. If needed, can be done via weight (partially...)
                     fullMCweight = "1.";
@@ -1201,7 +1201,7 @@ void TRExFit::ReadNtuples(){
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
                         if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
-                            if( reg->GetSampleHist(syst->fReferenceSample) == 0x0 ){
+                            if( reg->GetSampleHist(syst->fReferenceSample) == nullptr ){
                                 WriteErrorStatus("TRExFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
                                 WriteErrorStatus("TRExFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
                                 exit(EXIT_FAILURE);
@@ -1222,7 +1222,7 @@ void TRExFit::ReadNtuples(){
 
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                         else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
-                            if( reg->GetSampleHist(syst->fReferenceSample) == 0x0 ){
+                            if( reg->GetSampleHist(syst->fReferenceSample) == nullptr ){
                                 WriteErrorStatus("TRExFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
                                 WriteErrorStatus("TRExFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
                                 exit(EXIT_FAILURE);
@@ -1256,7 +1256,7 @@ void TRExFit::ReadNtuples(){
                 //
                 // Down
                 //
-                hDown = 0x0;
+                hDown = nullptr;
                 if(syst->fHasDownVariation){
                     //
                     // Note: no need to change selection for systematics. If needed, can be done via weight (partially...)
@@ -1377,8 +1377,8 @@ void TRExFit::ReadNtuples(){
                     }
                 }
                 //
-                if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hUp==nullptr)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hDown==nullptr) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
@@ -1431,7 +1431,7 @@ void TRExFit::CorrectHistograms(){
                 // get the original syst histograms & reset the syst histograms
                 SystematicHist *syh = sh->GetSystematic( syst->fName );
                 //
-                if(syh==0x0) continue;
+                if(syh==nullptr) continue;
                 TH1* hUp_orig   = syh->fHistUp_orig;
                 TH1* hDown_orig = syh->fHistDown_orig;
                 //
@@ -1454,29 +1454,29 @@ void TRExFit::CorrectHistograms(){
             for(auto sample : fSamples[i_smp]->fSubtractSamples){
                 WriteDebugStatus("TRExFit::CorrectHistograms"," subtracting sample " + sample + " from sample " + fSamples[i_smp]->fName);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(sample);
-                if(smph0!=0x0) sh->Add(smph0,-1);
+                if(smph0!=nullptr) sh->Add(smph0,-1);
             }
             for(auto sample : fSamples[i_smp]->fAddSamples){
                 WriteDebugStatus("TRExFit::CorrectHistograms", "adding sample " + sample + " to sample " + fSamples[i_smp]->fName);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(sample);
-                if(smph0!=0x0) sh->Add(smph0);
+                if(smph0!=nullptr) sh->Add(smph0);
             }
             // Division & Multiplication by other samples
             if(fSamples[i_smp]->fMultiplyBy!=""){
                 WriteDebugStatus("TRExFit::CorrectHistograms", "multiplying " + fSamples[i_smp]->fName  + " by sample " + fSamples[i_smp]->fMultiplyBy);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fMultiplyBy);
-                if(smph0!=0x0) sh->Multiply(smph0);
+                if(smph0!=nullptr) sh->Multiply(smph0);
             }
             if(fSamples[i_smp]->fDivideBy!=""){
                 WriteDebugStatus("TRExFit::CorrectHistograms", "dividing " + fSamples[i_smp]->fName  + "by sample " + fSamples[i_smp]->fDivideBy + " from sample " + fSamples[i_smp]->fName);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fDivideBy);
-                if(smph0!=0x0) sh->Divide(smph0);
+                if(smph0!=nullptr) sh->Divide(smph0);
             }
             // Norm to sample
             if(fSamples[i_smp]->fNormToSample!=""){
                 WriteDebugStatus("TRExFit::CorrectHistograms", "normalizing " + fSamples[i_smp]->fName  + "to sample " + fSamples[i_smp]->fDivideBy);                
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fNormToSample);
-                if(smph0!=0x0) sh->Scale(smph0->fHist->Integral()/sh->fHist->Integral());
+                if(smph0!=nullptr) sh->Scale(smph0->fHist->Integral()/sh->fHist->Integral());
             }
 
             //
@@ -1509,7 +1509,7 @@ void TRExFit::CorrectHistograms(){
 
             //
             // Eventually smooth nominal histogram  (use with caution...)
-            TH1* h_correction = 0x0;
+            TH1* h_correction = nullptr;
             bool isFlat = false;
             if(smp->fSmooth && !reg->fSkipSmoothing){
 //                 h_correction = SmoothHistogram( h );
@@ -1528,7 +1528,7 @@ void TRExFit::CorrectHistograms(){
             // Systematics
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
                 Systematic * syst = smp->fSystematics[i_syst];
-                if(syst==0x0) continue;
+                if(syst==nullptr) continue;
                 //
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
@@ -1536,13 +1536,13 @@ void TRExFit::CorrectHistograms(){
                 if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
                 SystematicHist *syh = sh->GetSystematic( syst->fName );
-                if(syh==0x0) continue;
+                if(syh==nullptr) continue;
                 TH1* hUp   = syh->fHistUp;
                 TH1* hDown = syh->fHistDown;
                 //
                 // if Overall only, re-create it if smoothing was applied
                 if(syst->fType==Systematic::OVERALL){
-                    if(h_correction!=0x0 && fSamples[i_smp]->fSmooth){
+                    if(h_correction!=nullptr && fSamples[i_smp]->fSmooth){
                         for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
                             hUp  ->SetBinContent(i_bin,h->GetBinContent(i_bin)*(1.+syst->fOverallUp));
                             hDown->SetBinContent(i_bin,h->GetBinContent(i_bin)*(1.+syst->fOverallDown));
@@ -1552,11 +1552,11 @@ void TRExFit::CorrectHistograms(){
                 }
                 //
                 // correct according to the sample nominal smoothing
-                if(h_correction!=0x0 && fSamples[i_smp]->fSmooth){
-//                     if(hUp!=0x0  ) hUp  ->Multiply(h_correction);
-//                     if(hDown!=0x0) hDown->Multiply(h_correction);
-                    if(hUp!=0x0  ) SmoothHistogram( hUp  , isFlat );
-                    if(hDown!=0x0) SmoothHistogram( hDown, isFlat );
+                if(h_correction!=nullptr && fSamples[i_smp]->fSmooth){
+//                     if(hUp!=nullptr  ) hUp  ->Multiply(h_correction);
+//                     if(hDown!=nullptr) hDown->Multiply(h_correction);
+                    if(hUp!=nullptr  ) SmoothHistogram( hUp  , isFlat );
+                    if(hDown!=nullptr) SmoothHistogram( hDown, isFlat );
                 }
 
                 //
@@ -1575,7 +1575,7 @@ void TRExFit::CorrectHistograms(){
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
                 if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
-                if( sh->GetSystematic( smp->fSystematics[i_syst]->fName )==0x0 ) continue;
+                if( sh->GetSystematic( smp->fSystematics[i_syst]->fName )==nullptr ) continue;
                 //
                 HistoTools::CheckHistograms( fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName)->fHist /*nominal*/,
                                             sh->GetSystematic( smp->fSystematics[i_syst]->fName ) /*systematic*/,
@@ -1596,18 +1596,18 @@ void TRExFit::CorrectHistograms(){
     // drop normalisation part of systematic according to fDropNormIn
     for(auto reg : fRegions){
         for(auto sh : reg->fSampleHists){
-            if(sh->fHist==0x0) continue;
+            if(sh->fHist==nullptr) continue;
             for(auto syst : fSystematics){
                 if(  FindInStringVector(syst->fDropNormIn, reg->fName)>=0
                   || FindInStringVector(syst->fDropNormIn, sh->fSample->fName)>=0
                   || FindInStringVector(syst->fDropNormIn, "all")>=0
                   ){
                     SystematicHist* syh = sh->GetSystematic(syst->fName);
-                    if(syh==0x0) continue;
+                    if(syh==nullptr) continue;
                     if(sh->fHist->Integral()!=0){
                         WriteDebugStatus("TRExFit::CorrectHistograms", "  Normalising syst " + syst->fName + " for sample " + sh->fSample->fName);
-                        if(syh->fHistUp  !=0x0) syh->fHistUp  ->Scale(sh->fHist->Integral()/syh->fHistUp  ->Integral());
-                        if(syh->fHistDown!=0x0) syh->fHistDown->Scale(sh->fHist->Integral()/syh->fHistDown->Integral());
+                        if(syh->fHistUp  !=nullptr) syh->fHistUp  ->Scale(sh->fHist->Integral()/syh->fHistUp  ->Integral());
+                        if(syh->fHistDown!=nullptr) syh->fHistDown->Scale(sh->fHist->Integral()/syh->fHistDown->Integral());
                     }
                 }
             }
@@ -1631,9 +1631,9 @@ void TRExFit::CorrectHistograms(){
                 for(int i_smp=0;i_smp<fNSamples;i_smp++){
                     if(FindInStringVector(subSamples,fSamples[i_smp]->fName)<0) continue;
                     SampleHist *sh = reg->GetSampleHist(fSamples[i_smp]->fName);
-                    if(sh==0x0) continue;
+                    if(sh==nullptr) continue;
                     SystematicHist *syh = sh->GetSystematic(fSystematics[i_sys]->fName);
-                    if(syh==0x0) continue;
+                    if(syh==nullptr) continue;
                     yieldNominal += sh ->fHist    ->Integral();
                     yieldUp      += syh->fHistUp  ->Integral();
                     yieldDown    += syh->fHistDown->Integral();
@@ -1642,9 +1642,9 @@ void TRExFit::CorrectHistograms(){
                 for(int i_smp=0;i_smp<fNSamples;i_smp++){
                     if(FindInStringVector(subSamples,fSamples[i_smp]->fName)<0) continue;
                     SampleHist *sh = reg->GetSampleHist(fSamples[i_smp]->fName);
-                    if(sh==0x0) continue;
+                    if(sh==nullptr) continue;
                     SystematicHist *syh = sh->GetSystematic(fSystematics[i_sys]->fName);
-                    if(syh==0x0) continue;
+                    if(syh==nullptr) continue;
                     WriteDebugStatus("TRExFit::CorrectHistograms", "  Normalising syst " + fSystematics[i_sys]->fName + " for sample " + fSamples[i_smp]->fName);
                     WriteDebugStatus("TRExFit::CorrectHistograms", "scaling by " + std::to_string(yieldNominal/yieldUp) + " (up), " + std::to_string(yieldNominal/yieldDown) + " (down)");
                     syh->fHistUp  ->Scale(yieldNominal/yieldUp);
@@ -1667,8 +1667,8 @@ void TRExFit::CorrectHistograms(){
     if(hasData){
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
             Region *reg = fRegions[i_ch];
-            if(reg->fData!=0x0){
-                if(reg->fData->fHist_orig!=0x0 && reg->fData->fHist!=0x0) reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
+            if(reg->fData!=nullptr){
+                if(reg->fData->fHist_orig!=nullptr && reg->fData->fHist!=nullptr) reg->fData->fHist = (TH1F*)reg->fData->fHist_orig->Clone(reg->fData->fHist->GetName());
             }
         }
     }
@@ -1678,8 +1678,8 @@ void TRExFit::CorrectHistograms(){
     if(hasData && TRExFitter::OPTION["PoissonizeData"]!=0){
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
             Region *reg = fRegions[i_ch];
-            if(reg->fData!=0x0){
-                if(reg->fData->fHist!=0x0){
+            if(reg->fData!=nullptr){
+                if(reg->fData->fHist!=nullptr){
                     TH1 *hdata = reg->fData->fHist;
                     if(TRExFitter::OPTION["PoissonizeData"]>0) gRandom->SetSeed(TRExFitter::OPTION["PoissonizeData"]);
                     for(int i_bin=1;i_bin<=hdata->GetNbinsX();i_bin++){
@@ -1701,7 +1701,7 @@ void TRExFit::CorrectHistograms(){
                 // eventually skip sample / region combination
                 if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
                 SampleHist *sh = reg->GetSampleHist(smp->fName);
-                if(sh==0x0) continue;
+                if(sh==nullptr) continue;
                 DropBins(sh->fHist,reg->fDropBins);
                 for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
                     Systematic *syst = smp->fSystematics[i_syst];
@@ -1710,7 +1710,7 @@ void TRExFit::CorrectHistograms(){
                     if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
                     if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                     SystematicHist *syh = sh->GetSystematic( syst->fName );
-                    if(syh==0x0) continue;
+                    if(syh==nullptr) continue;
                     DropBins(syh->fHistUp,  reg->fDropBins);
                     DropBins(syh->fHistDown,reg->fDropBins);
                     if(syh->fHistShapeUp)   DropBins(syh->fHistShapeUp,  reg->fDropBins);
@@ -1733,10 +1733,10 @@ void TRExFit::CorrectHistograms(){
 //__________________________________________________________________________________
 //
 void TRExFit::ReadHistograms(){
-    TH1F* h = 0x0;
-    TH1F* hUp = 0x0;
-    TH1F* hDown = 0x0;
-    TH1F* htmp = 0x0;
+    TH1F* h = nullptr;
+    TH1F* hUp = nullptr;
+    TH1F* hDown = nullptr;
+    TH1F* htmp = nullptr;
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
     SampleHist *sh;
@@ -1776,8 +1776,8 @@ void TRExFit::ReadHistograms(){
                                          histoFiles, empty, // no histo file suffs for nominal (syst only)
                                          histoNames, empty  // same for histo name
                                         );
-            htmp = 0x0;
-            h = 0x0;
+            htmp = nullptr;
+            h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
                 //Pre-processing of histograms (rebinning, lumi scaling)
@@ -1828,7 +1828,7 @@ void TRExFit::ReadHistograms(){
                 //
                 // Up
                 //
-                hUp = 0x0;
+                hUp = nullptr;
                 if(syst->fHasUpVariation){
                     fullPaths.clear();
                     fullPaths = CreatePathsList(
@@ -1879,7 +1879,7 @@ void TRExFit::ReadHistograms(){
                 //
                 // Down
                 //
-                hDown = 0x0;
+                hDown = nullptr;
                 if(syst->fHasDownVariation){
                     fullPaths.clear();
                     fullPaths = CreatePathsList(
@@ -1929,8 +1929,8 @@ void TRExFit::ReadHistograms(){
                     }
                 }
                 //
-                if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hUp==nullptr)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hDown==nullptr) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
@@ -1972,8 +1972,8 @@ void TRExFit::ReadHistograms(){
                                          histoFiles, empty, // no histo file suffs for nominal (syst only)
                                          histoNames, empty  // same for histo name
                                         );
-            htmp = 0x0;
-            h = 0x0;
+            htmp = nullptr;
+            h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 files_names.insert(fullPaths[i_path]);
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
@@ -2081,7 +2081,7 @@ void TRExFit::ReadHistograms(){
                 //
                 // Up
                 //
-                hUp = 0x0;
+                hUp = nullptr;
                 if(syst->fHasUpVariation){
                     fullPaths.clear();
                     fullPaths = CreatePathsList(
@@ -2181,7 +2181,7 @@ void TRExFit::ReadHistograms(){
                 //
                 // Down
                 //
-                hDown = 0x0;
+                hDown = nullptr;
                 if(syst->fHasDownVariation){
                     fullPaths.clear();
                     fullPaths = CreatePathsList(
@@ -2279,8 +2279,8 @@ void TRExFit::ReadHistograms(){
                     }
                 }
                 //
-                if(hUp==0x0)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                if(hDown==0x0) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hUp==nullptr)   hUp   = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hDown==nullptr) hDown = (TH1F*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
@@ -2326,7 +2326,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
     }
     //
     vector< TH2F* > histPrun;
-    TFile *filePrun = 0x0;
+    TFile *filePrun = nullptr;
     if( fKeepPruning ){
 //         filePrun = new TFile( (fName+"/Pruning"+fSuffix+".root").c_str() );
         filePrun = new TFile( (fName+"/Pruning.root").c_str() );
@@ -2413,13 +2413,13 @@ void TRExFit::ReadHistos(/*string fileName*/){
                                                         Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                         0
                                                         );
-                if(syh==0x0){
+                if(syh==nullptr){
                     WriteWarningStatus("TRExFit::ReadHistos", "No histogram found for separate gamma, but may be you will create it right now.");
                 }
                 else{
-                    Systematic *gamma = 0x0;
+                    Systematic *gamma = nullptr;
                     if(FindInStringVector(fSystematicNames,systName)>=0) gamma = fSystematics[FindInStringVector(fSystematicNames,systName)];  //GetSystematic(systName);
-                    if(gamma==0x0) gamma = NewSystematic(systName);
+                    if(gamma==nullptr) gamma = NewSystematic(systName);
                     WriteDebugStatus("TRExFit::ReadHistos", "adding separate gammas as SHAPE systematic " + systName);
                     gamma->fType = Systematic::SHAPE;
                     gamma->fRegions.clear();
@@ -2470,7 +2470,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 // eventually skip systematics if pruned
                 int xbin,ybin,bin;
                 int binContent = 0;
-                if( fKeepPruning && histPrun[i_ch]!=0x0 ){
+                if( fKeepPruning && histPrun[i_ch]!=nullptr ){
                     xbin = histPrun[i_ch]->GetXaxis()->FindBin( sampleName.c_str() ); // sample
                     ybin = histPrun[i_ch]->GetYaxis()->FindBin( systName.c_str() ); // syst
                     bin = histPrun[i_ch]->GetBin(xbin,ybin);
@@ -2515,7 +2515,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                           pruned
                                           );
-                    if(syh==0x0){
+                    if(syh==nullptr){
                         if (!pruned) WriteWarningStatus("TRExFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
                             continue;
                         }
@@ -2556,7 +2556,7 @@ void TRExFit::CloseInputFiles(){
     for(auto it : TRExFitter::TFILEMAP){
         TDirectory *dir = gDirectory;
         TFile *f = it.second;
-        if(f!=0x0)
+        if(f!=nullptr)
         dir->cd();
         f->Close();
         delete f;
@@ -2596,7 +2596,7 @@ void TRExFit::DrawAndSaveAll(string opt){
         if(fCustomAsimov!=""){
             std::string name = "customAsimov_"+fCustomAsimov;
             SampleHist* cash = fRegions[i_ch]->GetSampleHist(name);
-            if(cash==0x0){
+            if(cash==nullptr){
                 WriteWarningStatus("TRExFit::DrawAndSaveAll", "No Custom Asimov " + fCustomAsimov + " available. Taking regular Asimov.");
             }
             else{
@@ -2727,22 +2727,22 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
     if(regionVec.size()==0) return 0;
     //
     int Nbin = (int)regionVec.size();
-    if(Nbin<=0) return 0x0;
+    if(Nbin<=0) return nullptr;
     //
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
-        SampleHist *sh = 0x0;
+        SampleHist *sh = nullptr;
         name = (fSamples[i_smp]->fName).c_str();
         title = fSamples[i_smp]->fTitle.c_str();
         if(fSamples[i_smp]->fGroup != "") title = fSamples[i_smp]->fGroup.c_str();
         // look for the first SampleHist defined for this sample
         for(int i_ch=0;i_ch<(int)regionVec.size();i_ch++){
             sh = fRegions[regionVec[i_ch]]->GetSampleHist( name );
-            if(sh!=0x0) break;
+            if(sh!=nullptr) break;
         }
         // skip sample if no SampleHist found
-        if(sh==0x0) continue;
-        if(sh->fHist==0x0) continue;
+        if(sh==nullptr) continue;
+        if(sh->fHist==nullptr) continue;
         //
         lineColor = sh->fHist->GetLineColor();
         fillColor = sh->fHist->GetFillColor();
@@ -2757,7 +2757,7 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
             h_sig[Nsig]->SetLineWidth(lineWidth);
             for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
-                if(sh!=0x0){
+                if(sh!=nullptr){
                     if(isPostFit)  h = (TH1F*)sh->fHist_postFit->Clone(); // Michele
                     else           h = (TH1F*)sh->fHist->Clone(); // Michele
                     //
@@ -2793,7 +2793,7 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
             h_bkg[Nbkg]->SetLineWidth(lineWidth);
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
-                if(sh!=0x0){
+                if(sh!=nullptr){
                     if(isPostFit)  h = (TH1F*)sh->fHist_postFit->Clone(); // Michele
                     else           h = (TH1F*)sh->fHist->Clone(); // Michele
                     //
@@ -2950,7 +2950,7 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
         string systName = fSystematics[i_syst]->fName;
         string systNuisPar = systName;
         systNames.push_back( systName );
-        if(fSystematics[i_syst]!=0x0)
+        if(fSystematics[i_syst]!=nullptr)
             systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
         if(FindInStringVector(npNames,systNuisPar)<0){
             npNames.push_back(systNuisPar);
@@ -2998,7 +2998,7 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
             for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
                 if(j_syst==syst_idx) continue;
                 if(systNuisPar==TRExFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
-                    TH1* h_tmp = 0x0;
+                    TH1* h_tmp = nullptr;
                     if(isPostFit){
                         h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst];
                         h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[j_syst];
@@ -3020,8 +3020,8 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
         // loop on regions
         for(int i_ch=1;i_ch<=Nbin;i_ch++){
             Region *region = fRegions[regionVec[i_ch-1]];
-            if(region==0x0) continue;
-            if(region->fTot_postFit==0x0) continue;
+            if(region==nullptr) continue;
+            if(region->fTot_postFit==nullptr) continue;
             // loop on bins
             for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
                 // set gamma name
@@ -3056,8 +3056,8 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
         // loop on regions
         for(int i_ch=1;i_ch<=Nbin;i_ch++){
             Region *region = fRegions[regionVec[i_ch-1]];
-            if(region==0x0) continue;
-            if(region->fTot_postFit==0x0) continue;
+            if(region==nullptr) continue;
+            if(region->fTot_postFit==nullptr) continue;
             // loop on bins
             for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
                 for(auto sample : fSamples){
@@ -3258,11 +3258,11 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group){
     float ymax  = -1;
     float ymaxTmp = -1;
     for(auto region : regions){
-        TH1* h_tmp  = 0x0;
+        TH1* h_tmp  = nullptr;
         if(isPostFit) h_tmp = (TH1*)region->fTot_postFit->Clone();
         else          h_tmp = (TH1*)region->fTot->Clone();
-        TH1* h_data = 0x0;
-        if(region->fData!=0x0) h_data = (TH1*)region->fData->fHist->Clone();
+        TH1* h_data = nullptr;
+        if(region->fData!=nullptr) h_data = (TH1*)region->fData->fHist->Clone();
         //
         for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
             if(isPostFit) h_tmp->SetBinError( i_bin,region->fErr_postFit->GetErrorY(i_bin-1) );
@@ -3272,7 +3272,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group){
         ymaxTmp = 0;
         for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
             if(h_tmp->GetBinContent(i_bin)>ymaxTmp) ymaxTmp = h_tmp->GetBinContent(i_bin);
-            if(h_data!=0x0)
+            if(h_data!=nullptr)
                 if(h_data->GetBinContent(i_bin)+h_data->GetBinError(i_bin)>ymaxTmp) ymaxTmp = h_data->GetBinContent(i_bin)+h_data->GetBinError(i_bin);
         }
         h_tmp->SetMaximum(ymaxTmp);
@@ -3302,20 +3302,20 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group){
         vector<TH1*> tmpVec;
         i_ch = 0;
         for(auto region : regions){
-            TH1* h_tmp = 0x0;
+            TH1* h_tmp = nullptr;
             for(auto sampleHist : region->fSampleHists){
                 if(sampleHist->fSample->fName == sample->fName){
                     if(isPostFit && sample->fType!=Sample::DATA){
-                        if(sampleHist->fHist_postFit!=0x0) h_tmp = (TH1*)sampleHist->fHist_postFit->Clone();
+                        if(sampleHist->fHist_postFit!=nullptr) h_tmp = (TH1*)sampleHist->fHist_postFit->Clone();
                     }
                     else{
-                        if(sampleHist->fHist!=0x0)         h_tmp = (TH1*)sampleHist->fHist->Clone();
+                        if(sampleHist->fHist!=nullptr)         h_tmp = (TH1*)sampleHist->fHist->Clone();
                     }
                     break;
                 }
             }
             // if the sample was not in the region...
-            if(h_tmp==0x0){
+            if(h_tmp==nullptr){
                 h_tmp = (TH1*)hTotVec[i_ch]->Clone();
                 h_tmp->Scale(0);
             }
@@ -3552,7 +3552,7 @@ void TRExFit::BuildYieldTable(string opt,string group){
     //
     std::vector< string > titleVec;
     std::vector< int > idxVec;
-    SampleHist *sh = 0x0;
+    SampleHist *sh = nullptr;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         name = fSamples[i_smp]->fName;
         title = fSamples[i_smp]->fTitle;
@@ -3567,7 +3567,7 @@ void TRExFit::BuildYieldTable(string opt,string group){
         }
         for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
             sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
-            if(sh!=0x0){
+            if(sh!=nullptr){
                 if(isPostFit && fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::GHOST)
                     h0 = sh->fHist_postFit;
                 else
@@ -3623,9 +3623,9 @@ void TRExFit::BuildYieldTable(string opt,string group){
                     }
                 }
                 //
-                if(sh!=0x0){
+                if(sh!=nullptr){
                     if(isPostFit){
-                        if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
+                        if(syst_idx<0 || sh->GetSystematic(systName)==nullptr){
                             h_tmp_Up   = sh->fHist_postFit;
                             h_tmp_Down = sh->fHist_postFit;
                         }
@@ -3635,7 +3635,7 @@ void TRExFit::BuildYieldTable(string opt,string group){
                         }
                     }
                     else {
-                        if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
+                        if(syst_idx<0 || sh->GetSystematic(systName)==nullptr){
                             h_tmp_Up   = sh->fHist;
                             h_tmp_Down = sh->fHist;
                         }
@@ -3664,10 +3664,10 @@ void TRExFit::BuildYieldTable(string opt,string group){
                 // eventually add any other samples with the same title
                 for(int j_smp=0;j_smp<fNSamples;j_smp++){
                     sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( fSamples[j_smp]->fName );
-                    if(sh==0x0) continue;
+                    if(sh==nullptr) continue;
                     if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                         if(isPostFit){
-                            if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
+                            if(syst_idx<0 || sh->GetSystematic(systName)==nullptr){
                                 h_tmp_Up   = sh->fHist_postFit;
                                 h_tmp_Down = sh->fHist_postFit;
                             }
@@ -3677,7 +3677,7 @@ void TRExFit::BuildYieldTable(string opt,string group){
                             }
                         }
                         else{
-                            if(syst_idx<0 || sh->GetSystematic(systName)==0x0){
+                            if(syst_idx<0 || sh->GetSystematic(systName)==nullptr){
                                 h_tmp_Up   = sh->fHist;
                                 h_tmp_Down = sh->fHist;
                             }
@@ -3701,8 +3701,8 @@ void TRExFit::BuildYieldTable(string opt,string group){
             // loop on regions
             for(int i_ch=1;i_ch<=Nbin;i_ch++){
                 Region *region = fRegions[regionVec[i_ch-1]];
-                if(region==0x0) continue;
-                if(region->fTot_postFit==0x0) continue;
+                if(region==nullptr) continue;
+                if(region->fTot_postFit==nullptr) continue;
                 // loop on bins
                 for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
                     // set gamma name
@@ -3722,9 +3722,9 @@ void TRExFit::BuildYieldTable(string opt,string group){
                         }
                     }
                     //
-                    if(sh!=0x0){
+                    if(sh!=nullptr){
                         if(isPostFit){
-                            if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
+                            if(syst_idx<0 || sh->GetSystematic(gammaName)==nullptr){
                                 h_tmp_Up   = sh->fHist_postFit;
                                 h_tmp_Down = sh->fHist_postFit;
                             }
@@ -3749,7 +3749,7 @@ void TRExFit::BuildYieldTable(string opt,string group){
                         if(sh!=0){
                             if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                                 if(isPostFit){
-                                    if(syst_idx<0 || sh->GetSystematic(gammaName)==0x0){
+                                    if(syst_idx<0 || sh->GetSystematic(gammaName)==nullptr){
                                         h_tmp_Up   = sh->fHist_postFit;
                                         h_tmp_Down = sh->fHist_postFit;
                                     }
@@ -3785,9 +3785,9 @@ void TRExFit::BuildYieldTable(string opt,string group){
                         }
                     }
                     //
-                    if(sh!=0x0){
+                    if(sh!=nullptr){
                         if(isPostFit){
-                            if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
+                            if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
                                 h_tmp_Up   = sh->fHist_postFit;
                                 h_tmp_Down = sh->fHist_postFit;
                             }
@@ -3797,7 +3797,7 @@ void TRExFit::BuildYieldTable(string opt,string group){
                             }
                         }
                         else {
-                            if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
+                            if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
                                 h_tmp_Up   = sh->fHist;
                                 h_tmp_Down = sh->fHist;
                             }
@@ -3824,13 +3824,13 @@ void TRExFit::BuildYieldTable(string opt,string group){
                         if(sh!=0){
                             if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                                 if(isPostFit){
-                                    if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
+                                    if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
                                         h_tmp_Up   = sh->fHist_postFit;
                                         h_tmp_Down = sh->fHist_postFit;
                                     }
                                 }
                                 else{
-                                    if(syst_idx<0 || sh->GetSystematic(normName)==0x0){
+                                    if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
                                         h_tmp_Up   = sh->fHist;
                                         h_tmp_Down = sh->fHist;
                                     }
@@ -3905,7 +3905,7 @@ void TRExFit::BuildYieldTable(string opt,string group){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         string systName = fSystematics[i_syst]->fName;
         string systNuisPar = systName;
-        if(fSystematics[i_syst]!=0x0)
+        if(fSystematics[i_syst]!=nullptr)
             systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
         if(FindInStringVector(npNames,systNuisPar)<0){
             npNames.push_back(systNuisPar);
@@ -3953,7 +3953,7 @@ void TRExFit::BuildYieldTable(string opt,string group){
             for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
                 if(j_syst==syst_idx) continue;
                 if(systNuisPar==TRExFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
-                    TH1* h_tmp = 0x0;
+                    TH1* h_tmp = nullptr;
                     if(isPostFit){
                         h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst];
                         h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[j_syst];
@@ -3975,8 +3975,8 @@ void TRExFit::BuildYieldTable(string opt,string group){
         // loop on regions
         for(int i_ch=1;i_ch<=Nbin;i_ch++){
             Region *region = fRegions[regionVec[i_ch-1]];
-            if(region==0x0) continue;
-            if(region->fTot_postFit==0x0) continue;
+            if(region==nullptr) continue;
+            if(region->fTot_postFit==nullptr) continue;
             // loop on bins
             for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
                 // set gamma name
@@ -4010,8 +4010,8 @@ void TRExFit::BuildYieldTable(string opt,string group){
         // loop on regions
         for(int i_ch=1;i_ch<=Nbin;i_ch++){
             Region *region = fRegions[regionVec[i_ch-1]];
-            if(region==0x0) continue;
-            if(region->fTot_postFit==0x0) continue;
+            if(region==nullptr) continue;
+            if(region->fTot_postFit==nullptr) continue;
             // loop on bins
             for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
                 for(auto sample : fSamples){
@@ -4223,7 +4223,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
     myText(    0.1/(W/200.),1.-0.6*(100./H0),1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(fLabel!="-") myText(    0.1/(W/200.),1.-0.9*(100./H0),1,Form("%s",fLabel.c_str()));
 
-    TLegend *leg = 0x0;
+    TLegend *leg = nullptr;
     if(TRExFitter::OPTION["FourTopStyle"]!=0){
         leg = new TLegend(0.35,1.-0.6*(100./H0),1,1.-0.3*(100./H0));
         leg->SetNColumns(3);
@@ -4271,12 +4271,12 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
     for(unsigned int i=0;i<Nreg;i++){
         S[i] = 0.;
         B[i] = 0.;
-        if(regions[i]==0x0) continue;
+        if(regions[i]==nullptr) continue;
         for(int i_sig=0;i_sig<regions[i]->fNSig;i_sig++)
-            if(regions[i]->fSig[i_sig]!=0x0)
+            if(regions[i]->fSig[i_sig]!=nullptr)
                 S[i] += regions[i]->fSig[i_sig]->fHist->Integral();
         for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
-            if(regions[i]->fBkg[i_bkg]!=0x0)
+            if(regions[i]->fBkg[i_bkg]!=nullptr)
                 B[i] += regions[i]->fBkg[i_bkg]->fHist->Integral();
         }
         // to avoid nan or inf...
@@ -4294,7 +4294,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
     bool hasCR = false;
     bool hasVR = false;
     for(unsigned int i=0;i<Nreg;i++){
-        if(regions[i]==0x0) continue;
+        if(regions[i]==nullptr) continue;
         pBottom->cd(i+1);
         if(TRExFitter::OPTION["LogSignalRegionPlot"]) gPad->SetLogy();
         if(TRExFitter::OPTION["FourTopStyle"]!=0){
@@ -4325,7 +4325,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         if(regions[i]->fRegionType==Region::SIGNAL)          h[i]->SetFillColor(kRed+1);
         else if(regions[i]->fRegionType==Region::VALIDATION) h[i]->SetFillColor(kGray);
         else                                                 h[i]->SetFillColor(kAzure-4);
-        if(leg!=0x0){
+        if(leg!=nullptr){
             if(regions[i]->fRegionType==Region::CONTROL && !hasCR)    { leg->AddEntry(h[i],"Control Regions","f");    hasCR = true; }
             if(regions[i]->fRegionType==Region::VALIDATION && !hasVR) { leg->AddEntry(h[i],"Validation Regions","f"); hasVR = true; }
             if(regions[i]->fRegionType==Region::SIGNAL && !hasSR)     { leg->AddEntry(h[i],"Signal Regions","f");     hasSR = true; }
@@ -4356,7 +4356,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
     }
     //
     for(unsigned int i=0;i<Nreg;i++){
-        if(regions[i]==0x0) continue;
+        if(regions[i]==nullptr) continue;
         if(TRExFitter::OPTION["LogSignalRegionPlot"]!=0){
             h[i]->SetMaximum(yMax*200);
             h[i]->SetMinimum(2e-4);
@@ -4473,9 +4473,9 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
         std::map < std::string, double > temp_map_for_region;
         std::map < std::string, int > temp_map_for_region_color;
 
-        if(regions[i]!=0x0){
+        if(regions[i]!=nullptr){
             for(int i_bkg=regions[i]->fNBkg-1;i_bkg>=0;i_bkg--){
-                if(regions[i]->fBkg[i_bkg]!=0x0){
+                if(regions[i]->fBkg[i_bkg]!=nullptr){
                     std::string title = regions[i]->fBkg[i_bkg]->fSample->fTitle;
                     if(regions[i]->fBkg[i_bkg]->fSample->fGroup != "") title = regions[i]->fBkg[i_bkg]->fSample->fGroup.c_str();
 
@@ -4501,7 +4501,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     // Finally writting the pie chart
     //
     for(int i=0;i<Nreg;i++){
-        if(regions[i]==0x0) continue;
+        if(regions[i]==nullptr) continue;
         pBottom->cd(i+1);
         string label = regions[i]->fShortLabel;
 
@@ -4672,7 +4672,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         if(fCustomAsimov!=""){
             std::string name = "customAsimov_"+fCustomAsimov;
             SampleHist* cash = fRegions[i_ch]->GetSampleHist(name);
-            if(cash==0x0){
+            if(cash==nullptr){
                 if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
                 WriteWarningStatus("TRExFit::ToRooStat", "No Custom Asimov " + fCustomAsimov + " available. Taking regular Asimov.");
                 if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
@@ -4698,7 +4698,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-            if( h != 0x0 && h->fSample->fType!=Sample::DATA && h->fSample->fType!=Sample::GHOST ){
+            if( h != nullptr && h->fSample->fType!=Sample::DATA && h->fSample->fType!=Sample::GHOST ){
                 WriteDebugStatus("TRExFit::ToRooStat", "  Adding Sample: " + fSamples[i_smp]->fName);
                 RooStats::HistFactory::Sample sample(fSamples[i_smp]->fName.c_str());
                 if(fUseStatErr && fSamples[i_smp]->fUseMCStat) sample.ActivateStatError();
@@ -4858,7 +4858,7 @@ void TRExFit::DrawPruningPlot(){
                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), -1 );
                 }
                 SampleHist *sh = fRegions[i_reg]->GetSampleHist(samplesVec[i_smp]->fName);
-                if(sh!=0x0){
+                if(sh!=nullptr){
                     for(int i_syst=0;i_syst<fNSyst;i_syst++){
                         out << " --->>  " << fSystematics[i_syst]->fName << "     " ;
                         if( sh->HasSyst(fSystematics[i_syst]->fName) ) {
@@ -5081,8 +5081,8 @@ void TRExFit::Fit(){
         }
     }
 
-    RooDataSet* data = 0x0;
-    RooWorkspace* ws = 0x0;
+    RooDataSet* data = nullptr;
+    RooWorkspace* ws = nullptr;
 
     //
     // If fDoNonProfileFit => set stat-only
@@ -5547,13 +5547,13 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     //
     // Creates the data object
     //
-    RooDataSet* data = 0x0;
+    RooDataSet* data = nullptr;
     if(inputData){
         data = inputData;
     } else {
         WriteWarningStatus("TRExFit::PerformFit", "You didn't provide inputData => will use the observed data !");
         data = (RooDataSet*)ws->data("obsData");
-        if(data==0x0){
+        if(data==nullptr){
             WriteWarningStatus("TRExFit::PerformFit", "No observedData found => will use the Asimov data !");
             data = (RooDataSet*)ws->data("asimovData");
         }
@@ -5667,7 +5667,7 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
     //
     // Take the measurement from the combined workspace, to be sure to have all the systematics (even the ones which are not there in the first region)
     TFile *rootFileCombined = new TFile( (fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read");
-    if(rootFileCombined!=0x0) measurement = (RooStats::HistFactory::Measurement*) rootFileCombined -> Get( (fInputName+fSuffix).c_str());
+    if(rootFileCombined!=nullptr) measurement = (RooStats::HistFactory::Measurement*) rootFileCombined -> Get( (fInputName+fSuffix).c_str());
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         bool isToFit = false;
@@ -6023,7 +6023,7 @@ Region* TRExFit::GetRegion(string name){
     for(unsigned int i=0;i<fRegions.size();i++){
         if(fRegions[i]->fName == name) return fRegions[i];
     }
-    return 0x0;
+    return nullptr;
 }
 
 //__________________________________________________________________________________
@@ -6032,7 +6032,7 @@ Sample* TRExFit::GetSample(string name){
     for(unsigned int i=0;i<fSamples.size();i++){
         if(fSamples[i]->fName == name) return fSamples[i];
     }
-    return 0x0;
+    return nullptr;
 }
 
 //__________________________________________________________________________________
@@ -6817,7 +6817,7 @@ void TRExFit::MergeSystematics(){
                     for(auto sh : reg->fSampleHists){
                         SystematicHist *syh  = sh->GetSystematic(syst ->fName);
                         SystematicHist *syh1 = sh->GetSystematic(syst1->fName);
-                        if(syh!=0x0 && syh1!=0x0){
+                        if(syh!=nullptr && syh1!=nullptr){
                             // FIXME...
                             // the issue here is that to combine uncertainties one has to act differently depending on the fact that the different sources come from a multiplication/division or not...
 //                             if(sh->fSample->fMultiplyBy!="" && sh->fSample->fDivideBy!=""){
@@ -6879,9 +6879,9 @@ void TRExFit::MergeSystematics(){
 void TRExFit::ComputeBining(int regIter){
     //
     //Creating histograms to rebin
-    TH1F* hsig = 0x0;
-    TH1F* hbkg = 0x0;
-    TH1F* htmp = 0x0;
+    TH1F* hsig = nullptr;
+    TH1F* hbkg = nullptr;
+    TH1F* htmp = nullptr;
     bool nDefSig=true;
     bool nDefBkg=true;
     string fullSelection;
@@ -7745,7 +7745,7 @@ void TRExFit::SmoothMorphTemplates(std::string name){
     // get one histogram per bin (per region)
     for(auto reg : fRegions){
         std::map<float,TH1*> hMap; // map (paramater-value,histogram)
-        TH1* h_tmp = 0x0;
+        TH1* h_tmp = nullptr;
         int nTemplates = 0;
         float min = -999.;
         float max = -999.;
@@ -7760,7 +7760,7 @@ void TRExFit::SmoothMorphTemplates(std::string name){
                 h_tmp = sh->fHist;
             }
         }
-        if(h_tmp==0x0) return;
+        if(h_tmp==nullptr) return;
         for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
             TGraphErrors* g_bin = new TGraphErrors(nTemplates);
             int i_pt = 0;

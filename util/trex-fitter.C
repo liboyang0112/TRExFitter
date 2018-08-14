@@ -38,6 +38,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 
     // pre-read the logo option
     std::string logoStr = ReadValueFromConfig(configFile,"Logo");
+    std::transform(logoStr.begin(), logoStr.end(), logoStr.begin(), ::toupper);
     if(logoStr=="TRUE"){
         std::ifstream logoFile(gSystem->ExpandPathName("$TREXFITTER_HOME/logo.txt"));
         std::string str;
