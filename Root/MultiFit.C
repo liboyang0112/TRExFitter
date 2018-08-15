@@ -2217,12 +2217,17 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
             else{
                 f = new TFile(fit->fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
-            if(f!=nullptr) curve_fit.push_back((RooCurve*)f->Get("LHscan"));
-            else       curve_fit.push_back(nullptr);
+            if(f!=nullptr) {
+                curve_fit.push_back((RooCurve*)f->Get("LHscan"));
+            }
+            else {
+                curve_fit.push_back(nullptr);
+            }
         }
         //
         int idx = 0;
         for(auto crv : curve_fit){
+            if (crv == nullptr) continue;
             if(idx==0) crv->SetLineColor(kBlue);
             if(idx==1) crv->SetLineColor(kGreen);
             frameLH->addPlotable(crv,"same");
