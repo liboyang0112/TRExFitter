@@ -6215,7 +6215,6 @@ void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     std::vector< bool > isNF;
     std::vector<string> systNames_unique;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-//         if(NPnames=="all" || NPnames==fSystematics[i_syst]->fName ||
         if(NPnames=="all" || NPnames==fSystematics[i_syst]->fNuisanceParameter ||
             ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
             ){
@@ -6223,7 +6222,6 @@ void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             if (std::find(systNames_unique.begin(), systNames_unique.end(), fSystematics[i_syst]->fNuisanceParameter) == systNames_unique.end())
                 systNames_unique.push_back(fSystematics[i_syst]->fNuisanceParameter);
             else continue;
-//             nuisPars.push_back( fSystematics[i_syst]->fName );
             nuisPars.push_back( fSystematics[i_syst]->fNuisanceParameter );
             isNF.push_back( false );
         }
@@ -6437,14 +6435,6 @@ void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     }
     outName_file.close();
     ws->loadSnapshot("tmp_snapshot");
-
-//     //
-//     // Creating the rootfile
-//     //
-//     TFile *f_clone = new TFile( "ws_forRanking.root", "recreate" );
-//     ws -> import(*data,Rename("ttHFitterData"));
-//     ws -> Write();
-//     f_clone -> Close();
 
 }
 

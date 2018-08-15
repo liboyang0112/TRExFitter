@@ -1846,7 +1846,6 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 
     double poimax = 0;
     for (unsigned int i=0;i<SIZE;i++) {
-//     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
         poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poinomup[i]),TMath::Abs(poinomdown[i]) ));
         nuerrlo[i] = TMath::Abs(nuerrlo[i]);
@@ -1854,7 +1853,6 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     poimax *= 1.2;
 
     for (unsigned int i=0;i<SIZE;i++) {
-//     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
         poiup[i]     *= (2./poimax);
         poidown[i]   *= (2./poimax);
         poinomup[i]  *= (2./poimax);
@@ -1916,7 +1914,6 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
         g2a->SetPointEXlow( idx, 0.);
         g2a->SetPointEYhigh(idx, 0.4);
         g2a->SetPointEYlow( idx, 0.4);
-//         if(parname[i].find("gamma")!=string::npos){
         if(parname[i].find("gamma")!=string::npos || parname[i].find("stat_")!=string::npos){
             // get name of the region
             std::vector<std::string> tmpVec = Vectorize(parname[i],'_');
@@ -2010,7 +2007,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     axis_up->SetLabelFont(   gStyle->GetTextFont() );
     axis_up->Draw();
     axis_up->CenterTitle();
-    axis_up->SetTitle("#Delta#mu");
+    axis_up->SetTitle(("#Delta"+fPOIName).c_str());
     if(SIZE==20) axis_up->SetTitleOffset(1.5);
     if(SIZE==10) axis_up->SetTitleOffset(1.25);
     axis_up->SetTitleSize(   h_dummy->GetXaxis()->GetLabelSize() );
