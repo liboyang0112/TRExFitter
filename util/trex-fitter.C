@@ -30,7 +30,7 @@
 // int doBanner(){ return 0; }
 
 void FitExample(std::string opt="h",std::string configFile="config/myFit.config",std::string options=""){
-    
+
     // pre-read the config just to extract the debug level
     std::string debugStr = ReadValueFromConfig(configFile,"DebugLevel");
     if(debugStr=="") WriteWarningStatus("", "Not able to pre-read the DebugLevel => keep the default (1).");
@@ -50,17 +50,17 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         }
         std::cout << logo << std::endl;
     }
-    
+
     if(TRExFitter::DEBUGLEVEL<=0)      gErrorIgnoreLevel = kError;
     else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
-    
+
     // now can set ATLAS style
     if(TRExFitter::DEBUGLEVEL<=0) std::cout.setstate(std::ios_base::failbit);
     SetAtlasStyle();
     if(TRExFitter::DEBUGLEVEL<=0) std::cout.clear();
-    
+
     RooStats::UseNLLOffset(true);
-    
+
     // interpret opt
     bool readHistograms  = opt.find("h")!=std::string::npos;
     bool readNtuples     = opt.find("n")!=std::string::npos;
@@ -74,18 +74,18 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     bool drawPostFit     = opt.find("p")!=std::string::npos;
     bool drawSeparation  = opt.find("a")!=std::string::npos;
     bool groupedImpact   = opt.find("i")!=std::string::npos;
-    
+
     if(!readNtuples && !rebinAndSmooth){
         TH1::AddDirectory(kFALSE); // FIXME: it would be nice to have a solution which works always
     }
-    
+
     // multi-fit
     bool isMultiFit      = opt.find("m")!=std::string::npos;
     if(isMultiFit){
         MultiFit *myMultiFit = new MultiFit();
         ConfigReaderMulti confReaderMulti(myMultiFit);
         int sc = confReaderMulti.ReadFullConfig(configFile,options) ;
-    
+
         if (sc != 0){
             WriteErrorStatus("myFit::FitExample", "Failed to read the config file for multifit.");
             exit(EXIT_FAILURE);
@@ -142,23 +142,23 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         //
         return;
     }
-    
+
     // proceed if not multi-fit
-    
+
     TRExFit *myFit = new TRExFit();
 
-    // initialize config reader 
+    // initialize config reader
     ConfigReader reader(myFit);
-    
+
     // read the actual config
     int sc = reader.ReadFullConfig(configFile,options);
     if(sc!=0){
         WriteErrorStatus("myFit::FitExample", "Failed to read the config file.");
         exit(EXIT_FAILURE);
     }
-    
+
     WriteInfoStatus("myFit::FitExample", "Successfully read config file.");
-    
+
     if (TRExFitter::DEBUGLEVEL < 2){
         gErrorIgnoreLevel = kError;
         RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
@@ -173,7 +173,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         WriteErrorStatus("myFit::FitExample", "Option \"n\" asked but no NTUP InputType specified in the configuration file. Aborting.");
         return;
     }
-      
+
     // -------------------------------------------------------
 
     if(readHistograms){
@@ -203,7 +203,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     else{
         if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->ReadHistos();
     }
-    
+
     // new
     if(rebinAndSmooth){
         std::cout << "Rebinning and smoothing..." << std::endl;
@@ -237,12 +237,12 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         if(myFit->fRankingOnly!="plot")  myFit->ProduceNPRanking( myFit->fRankingOnly );
         if(myFit->fRankingOnly=="all" || myFit->fRankingOnly=="plot")  myFit->PlotNPRankingManager();
     }
-    
+
     if(doLimit){
         std::cout << "Extracting limit..." << std::endl;
         myFit->GetLimit();
     }
-    
+
     if(doSignificance){
         std::cout << "Extracting significance..." << std::endl;
         myFit->GetSignificance();
@@ -261,7 +261,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
       drawPreFit = true;
       //DrawSummary depends on DrawAndSaveAll to have been executed first. so might as well do the whole drawprefit block to avoid duplication
     }
-    
+
     if(drawPreFit){
         std::cout << "Drawing pre-fit plots..." << std::endl;
         if(TRExFitter::OPTION["PrefitRatioMax"]==2){
@@ -310,7 +310,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         if(myFit->fDoSignalRegionsPlot) myFit->DrawSignalRegionsPlot(nCols,nRows);
         if(myFit->fDoPieChartPlot)      myFit->DrawPieChartPlot("pre",nCols,nRows);
     }
-    
+
     if(drawPostFit){
         std::cout << "Drawing post-fit plots..." << std::endl;
         myFit->DrawAndSaveAll("post");
@@ -349,9 +349,9 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     //    myFit->ListOfBestSeparationVariables(); // for the future list of best separation variables
     //    myFit->ListOfBestDataMCVariables();     // for the future list of best data-mc agreement variables based on KS test
     }
-    
+
     if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->CloseInputFiles();
-  
+
 }
 
 // -------------------------------------------------------
@@ -361,20 +361,30 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 // -------------------------------------------------------
 
 int main(int argc, char **argv){
-  std::string version = "4.01";
-  std::cout << "\033[1mTRExFitter v" << version << " -- Developed by Michele Pinamonti, Loic Valery, Alexander Held, Tomas Dado\033[0m" << std::endl;
-  std::cout << "                    No rights reserved, feel free to use and modify it ;)" << std::endl;
-  
-  std::string opt="h";
-  std::string config="config/myFit.config";
-  std::string options="";
-  
-  if(argc>1) opt     = argv[1];
-  if(argc>2) config  = argv[2];
-  if(argc>3) options = argv[3];
+    std::string version = "4.01";
+    std::cout << "\033[1mTRExFitter v" << version << " -- Developed by Michele Pinamonti, Loic Valery, Alexander Held, Tomas Dado\033[0m" << std::endl;
+    std::cout << "                    No rights reserved, feel free to use and modify it ;)" << std::endl;
 
-  // call the function
-  FitExample(opt,config,options);
-  
-  return 0;
+    if (argc == 2){
+        WriteErrorStatus("trex-fitter::main", "You provided 1 parameter, but only 0, 2 or 3 parameters are allowed. Please check this.");
+        return 1;
+    }
+
+    if (argc > 4) {
+        WriteWarningStatus("trex-fitter::main", "You provided " + std::to_string(argc-1) + " parameters, but only 0, 2 or 3 parameters are allowed.");
+        WriteWarningStatus("trex-fitter::main", "Ignoring parameters after third parameter.");
+    }
+
+    std::string opt="h";
+    std::string config="config/myFit.config";
+    std::string options="";
+
+    if(argc>1) opt     = argv[1];
+    if(argc>2) config  = argv[2];
+    if(argc>3) options = argv[3];
+
+    // call the function
+    FitExample(opt,config,options);
+
+    return 0;
 }
