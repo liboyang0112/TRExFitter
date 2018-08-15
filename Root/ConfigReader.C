@@ -89,6 +89,10 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     for(const std::string& iopt : optVec){
         std::vector< std::string > optPair;
         optPair = Vectorize(iopt,'=');
+        if (optPair.size() < 2){
+            WriteErrorStatus("ConfigReader::ReadCommandLineOptions", "Cannot read your command line option, please check this!");
+            return 1;
+        }
         optMap[optPair[0]] = optPair[1];
     }
     if(optMap["Regions"]!=""){
