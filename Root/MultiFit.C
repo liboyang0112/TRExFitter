@@ -308,6 +308,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         }
     }
 
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     if(vVarNameMinos.size()>0){
         WriteDebugStatus("MultiFit::FitCombinedWS", "Setting the variables to use MINOS with:");
         for(unsigned int i_minos=0;i_minos<vVarNameMinos.size();i_minos++){
@@ -319,8 +320,10 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     //
     // Gets needed objects for the fit
     //
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
     RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     //
     // Creates the data object
@@ -328,19 +331,17 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     RooDataSet* data = 0;
     if(inputData=="asimovData"){
         RooArgSet empty;// = RooArgSet();
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         data = (RooDataSet*)RooStats::AsymptoticCalculator::MakeAsimovData( (*mc), RooArgSet(ws->allVars()), (RooArgSet&)empty);
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
     else if(inputData!=""){
         data = (RooDataSet*)ws->data( inputData.c_str() );
     } else {
-        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         WriteWarningStatus("MultiFit::FitCombinedWS", "You didn't specify inputData => will try with observed data !");
-        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         data = (RooDataSet*)ws->data("obsData");
         if(!data){
-            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteWarningStatus("MultiFit::FitCombinedWS", "Observed data not present => will use with asimov data !");
-            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             data = (RooDataSet*)ws->data("asimovData");
         }
     }
@@ -356,6 +357,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     if(performFit){
         //
         // Get initial ikelihood value from Asimov
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         float nll0 = 0.;
         if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
         
@@ -376,9 +378,9 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         ndof -= nfList.size();
         
         fitTool -> MinimType("Minuit2");
-        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 
         // Full fit
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         float nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
         fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
         result = fitTool -> ExportFitResultInMap();
@@ -388,7 +390,6 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         if(fGetGoodnessOfFit){
             float deltaNLL = nll-nll0;
             double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
-            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL0        = " + std::to_string(nll0));
@@ -399,7 +400,6 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
             WriteInfoStatus("MultiFit::FitCombinedWS", "  probability = " + std::to_string(prob));
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
-            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         }
 
         //
@@ -446,10 +446,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         // - read fit resutls
         // - fix all NP to fitted ones before fitting
         if(fIncludeStatOnly){
-            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteInfoStatus("MultiFit::FitCombinedWS", "Fitting stat-only: reading fit results from full fit from file:");
             WriteInfoStatus("MultiFit::FitCombinedWS", "  " + (fOutDir+"/Fits/"+fName+fSaveSuf+".txt"));
-            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
             std::vector<std::string> npNames;
             std::vector<double> npValues;
@@ -471,7 +469,6 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
             fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
         }
     }
-    if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     
     return result;
 }
@@ -1529,7 +1526,6 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     string systName;
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         for(int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
-//             systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
             systName = fFitList[i_fit]->fSystematics[i_syst]->fNuisanceParameter;
             if(FindInStringVector(Names,systName)<0){
                 Names.push_back(systName);
@@ -1719,6 +1715,10 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     }
     outName_file.close();
     ws->loadSnapshot("tmp_snapshot");
+
+    f->Close();
+    delete f;
+    delete fitTool;
 }
 
 //____________________________________________________________________________________

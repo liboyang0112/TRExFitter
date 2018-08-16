@@ -132,7 +132,6 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             if(myMultiFit->fPlotCombCorrMatrix) myMultiFit->PlotCombinedCorrelationMatrix();
             if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI(myMultiFit->fPOI);
             if(myMultiFit->fCompareLimits) myMultiFit->CompareLimit();
-            if(myMultiFit->fVarNameLH.size()>0) myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName, false );
         }
         //
         if(myMultiFit->fPlotSoverB){
