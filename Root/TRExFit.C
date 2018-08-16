@@ -562,7 +562,6 @@ void TRExFit::ReadNtuples(){
     //
     for(auto file : fCustomFunctions){
         WriteInfoStatus("TRExFit::ReadNtuples", "  Loading function from " + file + " ...");
-//         gROOT->ProcessLineSync((".x "+file+"+").c_str());
         gROOT->ProcessLineSync((".L "+file+"+").c_str());
     }
     //
@@ -1058,15 +1057,9 @@ void TRExFit::ReadNtuples(){
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
                         fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"1");
-//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
-//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
-//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
                     if(smp->fIgnoreWeight!=""){
                         fullMCweight=ReplaceString(fullMCweight, smp->fIgnoreWeight,"1");
-//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
-//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
-//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
                     if(syst->fWeightSufUp!="")
                         fullMCweight += " * "+syst->fWeightSufUp;
@@ -1193,15 +1186,9 @@ void TRExFit::ReadNtuples(){
                         fullMCweight += " * "+reg->fMCweight;
                     if(syst->fIgnoreWeight!=""){
                         fullMCweight=ReplaceString(fullMCweight, syst->fIgnoreWeight,"1");
-//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
-//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
-//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
                     if(smp->fIgnoreWeight!=""){
                         fullMCweight=ReplaceString(fullMCweight, smp->fIgnoreWeight,"1");
-//                         fullMCweight=ReplaceString(fullMCweight,"*  *","*");
-//                         fullMCweight=ReplaceString(fullMCweight,"* *","*");
-//                         fullMCweight=ReplaceString(fullMCweight,"**","*");
                     }
                     if(syst->fWeightSufDown!="")
                         fullMCweight += " * "+syst->fWeightSufDown;
@@ -1435,7 +1422,6 @@ void TRExFit::CorrectHistograms(){
             TH1* h_correction = nullptr;
             bool isFlat = false;
             if(smp->fSmooth && !reg->fSkipSmoothing){
-//                 h_correction = SmoothHistogram( h );
                 h_correction = (TH1*)h->Clone( Form("%s_corr",h->GetName()) );
                 TH1* h0 = (TH1*)h->Clone( Form("%s_orig0",h->GetName()) );
                 if (fTtresSmoothing) {
@@ -1476,8 +1462,6 @@ void TRExFit::CorrectHistograms(){
                 //
                 // correct according to the sample nominal smoothing
                 if(h_correction!=nullptr && fSamples[i_smp]->fSmooth){
-//                     if(hUp!=nullptr  ) hUp  ->Multiply(h_correction);
-//                     if(hDown!=nullptr) hDown->Multiply(h_correction);
                     if(hUp!=nullptr  ) SmoothHistogram( hUp  , isFlat );
                     if(hDown!=nullptr) SmoothHistogram( hDown, isFlat );
                 }
@@ -1985,7 +1969,6 @@ void TRExFit::ReadHistograms(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-//                     SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
                     SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
                     syh->fSystematic = syst;
                     syh->fScaleUp = syst->fScaleUp;
@@ -2251,7 +2234,6 @@ void TRExFit::ReadHistos(/*string fileName*/){
     vector< TH2F* > histPrun;
     TFile *filePrun = nullptr;
     if( fKeepPruning ){
-//         filePrun = new TFile( (fName+"/Pruning"+fSuffix+".root").c_str() );
         filePrun = new TFile( (fName+"/Pruning.root").c_str() );
         if(!filePrun) fKeepPruning = false;
     }
@@ -2411,20 +2393,8 @@ void TRExFit::ReadHistos(/*string fileName*/){
                         if( binContent == -2 || binContent == 2 ) continue;
                     }
                     syh = sh->AddOverallSyst(systName,
-//                          fSamples[i_smp]->fSystematics[i_syst]->fOverallUp*fSamples[i_smp]  ->fSystematics[i_syst]->fScaleUp,
-//                          fSamples[i_smp]->fSystematics[i_syst]->fOverallDown*fSamples[i_smp]->fSystematics[i_syst]->fScaleDown);
                          fSamples[i_smp]->fSystematics[i_syst]->fOverallUp,
                          fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
-//                     syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
-//                     syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
-//                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
-//                         if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName]!=0){
-//                             syh->fScaleUp *= fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName];
-//                         }
-//                     syh->fScaleDown = fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
-//                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
-//                         if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[regionName]!=0)
-//                             syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[regionName];
                 }
                 // histo syst
                 else{
@@ -2761,7 +2731,6 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
     //
     // For 4-top-style plots
     if(TRExFitter::OPTION["FourTopStyle"]>0){
-//         p = new TRExPlot(fName+"_summary",900.*TRExFitter::OPTION["CanvasWidth"]/600.,TRExFitter::OPTION["CanvasHeight"]);
         p = new TRExPlot(fInputName+"_summary",TRExFitter::OPTION["CanvasWidthSummary"],TRExFitter::OPTION["CanvasHeight"]);
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
@@ -2770,18 +2739,15 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
         p->SetXaxis("",false);
         p->fLegendNColumns = TRExFitter::OPTION["LegendNColumnsSummary"];
         if(!checkVR && fSummaryPlotLabels.size()>0){
-//             if(isPostFit) p->AddLabel("#font[52]{B-only fit}");
             if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
             else          p->AddLabel("#font[52]{Pre-fit}");
         }
         else if(checkVR && fSummaryPlotValidationLabels.size()>0){
-//                 if(isPostFit) p->AddLabel("#font[52]{B-only fit}");
                 if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
                 else          p->AddLabel("#font[52]{Pre-fit}");
         }
         else{
             p->AddLabel(fLabel);
-//             if(isPostFit) p->AddLabel("#font[52]{B-only fit}");
             if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
             else          p->AddLabel("#font[52]{Pre-fit}");
         }
@@ -4023,14 +3989,12 @@ void TRExFit::BuildYieldTable(string opt,string group){
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         texout << " & ";
         out << h_tot->GetBinContent(i_bin);
-//         texout << setprecision(3) << h_tot->GetBinContent(i_bin);
         texout << "\\num[round-mode=figures,round-precision=3]{";
         texout << h_tot->GetBinContent(i_bin);
         texout << "}";
         out << " pm ";
         texout << " $\\pm$ ";
         out << ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
-//         texout << setprecision(3) << g_err_tot->GetErrorYhigh(i_bin-1);
         texout << "\\num[round-mode=figures,round-precision=3]{";
         texout << ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
         texout << "}";
@@ -4170,7 +4134,6 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
 
     c->cd();
 
-//     TPad *pBottom = new TPad("c1","c1",0,0,1,1-H0/H);
     TPad *pBottom = new TPad("c1","c1",0+(W-nCols*Wp)/W,0,1,1-H0/H);
     pBottom->Draw();
     pBottom->cd();
@@ -4229,8 +4192,6 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         h[i]->SetBinContent(2,S[i]/sqrt(B[i]));
         if(TRExFitter::OPTION["FourTopStyle"]==0) h[i]->GetYaxis()->SetTitle("S / #sqrt{B}");
         h[i]->GetYaxis()->CenterTitle();
-        //     h[i]->GetYaxis()->SetTitleSize(0.14);
-//         h[i]->GetYaxis()->SetLabelOffset(1.5*h[i]->GetYaxis()->GetLabelOffset());
         h[i]->GetYaxis()->SetLabelOffset(1.5*h[i]->GetYaxis()->GetLabelOffset() / (Wp/200.));
         h[i]->GetYaxis()->SetTitleOffset(9*nRows/4. );
         if(Wp<200) h[i]->GetYaxis()->SetTitleOffset( h[i]->GetYaxis()->GetTitleOffset()*0.90 );
@@ -4238,7 +4199,6 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         if(TRExFitter::OPTION["FourTopStyle"]!=0) h[i]->GetYaxis()->SetLabelSize( h[i]->GetYaxis()->GetLabelSize() * 1.1 );
         h[i]->GetXaxis()->SetTickLength(0);
         if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) h[i]->GetYaxis()->SetNdivisions(3);
-//         if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) //h[i]->GetYaxis()->SetMaxDigits(3);
         else //h[i]->GetYaxis()->SetNdivisions(2);
           TGaxis::SetMaxDigits(5);
         yMax = TMath::Max(yMax,h[i]->GetMaximum());
@@ -4262,15 +4222,12 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         else                                     tex->DrawLatex(0.27,0.85,label.c_str());
         float SoB = S[i]/B[i];
         string SB = Form("%.1f%%",(100.*SoB));
-//         if(Wp<200) SB = Form("#scale[0.75]{S/B=}%.1f%%",(100.*SoB));
         if(TRExFitter::OPTION["FourTopStyle"]!=0){
             if( (100.*SoB)<0.1 ){
-//                 SB = Form("S/B = %.0e%%",(100.*SoB));
                 SB = Form("%.0e%%",SoB);
                 if(SB.find("0")!=string::npos)SB.replace(SB.find("0"), 1, "");
                 if(SB.find("e")!=string::npos) SB.replace(SB.find("e"), 1, "#scale[0.75]{#times}10^{");
                 if(SB.find("%")!=string::npos)SB.replace(SB.find("%"), 1, "}");
-//                 SB = Form("S/B = %.0e%%",(100.*SoB));
             }
         }
         SB = "#scale[0.75]{S/B} = "+SB;
@@ -4365,7 +4322,6 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     }
     else{
         ATLASLabel(0.05 / (W/200),0.7,fAtlasLabel.c_str());
-//         myText(    0.05 / (W/200),0.4,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
         myText(    0.05 / (W/200),0.4,1,Form("#sqrt{s} = %s",fCmeLabel.c_str()));
         if(fLabel!="-") myText(    0.05 / (W/200),0.1,1,Form("%s",fLabel.c_str()));
     }
@@ -4480,11 +4436,6 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
 
     std::vector<std::string> legVec; legVec.clear();
     for ( const std::pair < std::string, int > legend_entry : map_for_legend ) {
-//         TH1F *dummy = new TH1F( ("legend_entry_" + legend_entry.first).c_str(), "",1,0,1);
-//         dummy -> SetFillColor(legend_entry.second);
-//         dummy -> SetLineColor(kBlack);
-//         dummy -> SetLineWidth(1);
-//         leg -> AddEntry(dummy,legend_entry.first.c_str(),"f");
         legVec.push_back(legend_entry.first);
     }
     for(int i_leg=legVec.size()-1;i_leg>=0;i_leg--){
@@ -4616,7 +4567,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 
 	// fStatErrCons is upper case after config reading if the MCstatThreshold option is used, otherwise it defaults to "Poisson"
 	// HistFactory expects the constraint not in all uppercase, but in form "Poisson"/"Gaussian" instead
-	if(fStatErrCons=="Poisson" or fStatErrCons=="POISSON") chan.SetStatErrorConfig(fStatErrThres, "Poisson");
+	if(fStatErrCons=="Poisson" || fStatErrCons=="POISSON") chan.SetStatErrorConfig(fStatErrThres, "Poisson");
 	else if(fStatErrCons=="GAUSSIAN")                      chan.SetStatErrorConfig(fStatErrThres, "Gaussian");
 
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -4716,7 +4667,6 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     }
     // Experimental: turn off constraints for given systematics
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-//         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddNoSyst(fSystematics[i_syst]->fName.c_str());
         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddUniformSyst(fSystematics[i_syst]->fName.c_str());
     }
     // morphing
@@ -4867,13 +4817,9 @@ void TRExFit::DrawPruningPlot(){
     TPad *pUp = new TPad("pUp","Pad High",0,(1.*loSize+mainHeight)/(upSize+mainHeight+loSize),1,1);
     pUp->Draw();
     c->cd();
-//     TPad *pLo = new TPad("pLo","Pad Low",0,0,1,(1.*loSize)/(upSize+mainHeight+loSize));
     TPad *pReg[100];
     for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
         c->cd();
-//         pReg[i_reg] = new TPad(Form("pReg[%d]",i_reg),"Pad Region",
-//                               (leftSize+1.*i_reg*(regionSize+separation))           /(leftSize+mainWidth),   (1.*loSize)           /(upSize+mainHeight+loSize),
-//                               (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) );
         if(i_reg==0){
             pReg[i_reg] = new TPad(Form("pReg[%d]",i_reg),"Pad Region",
                                   0,   0,
@@ -4905,10 +4851,7 @@ void TRExFit::DrawPruningPlot(){
         }
         histPrun[i_reg]->Draw("COL");
         histPrun[i_reg]->GetYaxis()->SetLabelOffset(0.03);
-//         histPrun[i_reg]->GetXaxis()->SetLabelOffset(0.05);
         gPad->SetTopMargin(0);
-//         gPad->SetBottomMargin(0);
-//         gPad->SetLeftMargin(0);
         gPad->SetRightMargin(0);
         histPrun[i_reg]->GetXaxis()->LabelsOption("v");
         histPrun[i_reg]->GetXaxis()->SetLabelSize( histPrun[i_reg]->GetXaxis()->GetLabelSize()*0.75 );
@@ -4920,7 +4863,6 @@ void TRExFit::DrawPruningPlot(){
         histPrun[i_reg]->GetYaxis()->SetTickLength(0);
         histPrun[i_reg]->GetXaxis()->SetTickLength(0);
         gPad->SetGrid();
-//         myText(    0.1,1.+(20./mainHeight) ,1,histPrun[i_reg]->GetTitle());
         //
         pUp->cd();
         myText((leftSize+1.*i_reg*(regionSize+separation))/(leftSize+mainWidth),0.1 ,1,histPrun[i_reg]->GetTitle());
@@ -4934,7 +4876,6 @@ void TRExFit::DrawPruningPlot(){
     myText(0.01,0.5,1,fLabel.c_str());
     //
     pLo->cd();
-//     TLegend *leg = new TLegend(0.005,0,(1.*leftSize)/(leftSize+mainWidth),0.95);
     TLegend *leg = new TLegend(0.005,0,0.95,0.95);
     TH1F* hGray   = new TH1F("hGray"  ,"hGray"  ,1,0,1);    hGray->SetFillColor(kGray);         hGray->SetLineWidth(0);
     TH1F* hYellow = new TH1F("hYellow","hYellow",1,0,1);    hYellow->SetFillColor(kYellow);     hYellow->SetLineWidth(0);
@@ -4944,8 +4885,6 @@ void TRExFit::DrawPruningPlot(){
     TH1F* hBlue   = new TH1F("hBlue"  ,"hBlue"  ,1,0,1);    hBlue->SetFillColor(kBlue);         hBlue->SetLineWidth(0);
     TH1F* hPurple = new TH1F("hPurple","hPurple",1,0,1);    hPurple->SetFillColor(6);           hPurple->SetLineWidth(0);
     TH1F* hBlack  = new TH1F("hBlack" ,"hBlack" ,1,0,1);    hBlack->SetFillColor(kBlack);       hBlack->SetLineWidth(0);
-    //char sysLarg [10];
-    //sprintf(sysLarg,"#geq %3.f %%",fThresholdSystLarge*100);
     string sysLarg="Dropped as >"+std::to_string((int)(fThresholdSystLarge*100))+"%";
     leg->SetBorderSize(0);
     leg->SetMargin(0.1);
@@ -4976,9 +4915,7 @@ void TRExFit::DrawPruningPlot(){
         filePrun = new TFile( (fName+"/Pruning.root").c_str() );
     }
     else{
-//     if(!filePrun->IsOpen()){
         filePrun = new TFile( (fName+"/Pruning.root").c_str(),"RECREATE" );
-//         filePrun = new TFile( (fName+"/Pruning"+fSuffix+".root").c_str(),"RECREATE" );
         for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
             histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
         }
@@ -6031,17 +5968,11 @@ void TRExFit::DrawAndSaveSeparationPlots(){
         bkg->SetFillStyle( 0 );
         bkg->SetLineStyle( 1 );
 
-//         TLegend *legend3=new TLegend(0.48,0.72,0.94,0.87);
         TLegend *legend3=new TLegend(0.55,0.77,0.94,0.87);
-//         legend3->SetTextFont(42);
-//         legend3->SetTextSize(0.043);
         legend3->SetTextFont(gStyle->GetTextFont());
         legend3->SetTextSize(gStyle->GetTextSize());
         legend3->AddEntry(bkg, "Total background" , "l");
-//         legend3->AddEntry(sig, "t#bar{t}H (m_{H} = 125 GeV)" , "l");
         legend3->AddEntry(sig, fRegions[i_ch]->fSig[0]->fSample->fTitle.c_str() , "l");
-//         legend3->SetFillColor(0) ;
-//         legend3->SetLineColor(0) ;
         legend3->SetFillStyle(0) ;
         legend3->SetBorderSize(0);
 
@@ -6078,47 +6009,19 @@ void TRExFit::DrawAndSaveSeparationPlots(){
 
         legend3->Draw("same");
 
-//         std::string identS = fRegions[i_ch]->fLabel;
-//         TLatex ls;
-//         ls.SetNDC();
-//         ls.SetTextSize(0.03);
-//         ls.SetTextColor(kBlack);
-//         ls.SetTextFont(42);
-//         ls.DrawLatex(0.20,0.73,identS.c_str());
-
-//         TLatex ls2;
-//         ls2.SetNDC();
-//         ls2.SetTextSize(0.03);
-//         ls2.SetTextColor(kBlack);
-//         ls2.SetTextFont(62);
-// //         ls2.DrawLatex(0.20,0.78,"Single lepton");
-//         ls2.DrawLatex(0.20,0.78,fLabel.c_str());
         myText(0.20,0.78,1,fLabel.c_str());
         myText(0.20,0.73,1,fRegions[i_ch]->fLabel.c_str());
 
         std::string cme = fRegions[i_ch]->fCmeLabel;
         std::string lumi = fRegions[i_ch]->fLumiLabel;
 
-//         TLatex ls3;
-//         ls3.SetNDC();
-//         ls3.SetTextSize(0.03);
-//         ls3.SetTextColor(kBlack);
-//         ls3.SetTextFont(42);
-//         ls3.DrawLatex(0.20,0.83, Form("#sqrt{s} = %s, %s", cme.c_str(), lumi.c_str()));
         myText(0.20,0.83,1,Form("#sqrt{s} = %s, %s", cme.c_str(), lumi.c_str()));
 
-//         ATLASLabelNew(0.20, 0.90,(char*)" Internal Simulation",kBlack, 0.03);
         if(fAtlasLabel!="none") ATLASLabelNew(0.20,0.84+0.04,(char*)(fAtlasLabel+"  Simulation").c_str(), kBlack, gStyle->GetTextSize());
         
-//         TLatex ls4;
-//         ls4.SetNDC();
-//         ls4.SetTextSize(0.03);
-//         ls4.SetTextColor(kBlack);
-//         ls4.SetTextFont(42);
         ostringstream SEP;
         SEP.precision(3);
         SEP << "Separation: " << GetSeparation(sig,bkg)*100 << "%";
-//         ls4.DrawLatex(0.20, 0.69, SEP.str().c_str());
         myText(0.55,0.73,1,SEP.str().c_str());
 
         for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
@@ -6768,41 +6671,10 @@ void TRExFit::MergeSystematics(){
                         if(syh!=nullptr && syh1!=nullptr){
                             // FIXME...
                             // the issue here is that to combine uncertainties one has to act differently depending on the fact that the different sources come from a multiplication/division or not...
-//                             if(sh->fSample->fMultiplyBy!="" && sh->fSample->fDivideBy!=""){
-//                                 syh1 ->Multiply(syh);
-//                                 syh1 ->Divide(sh->fHist);
-//                             }
-//                             else{
-                                syh1 ->Add(syh);
-                                syh1 ->Add(sh->fHist,-1);
-                                WriteDebugStatus("TRExFit::MergeSsystematics", "Adding syst of " + syh->fName +  " to " + syh1->fName);
-                                WriteDebugStatus("TRExFit::MergeSsystematics", "Setting to 0 all Up/Down of " +  syh->fName);
-//                             }
-//                             //
-//                             // up variation
-//                             TH1* htmpUp   = (TH1*)syh->fHistUp->Clone();
-//                             htmpUp->Add(sh->fHist,-1);
-//                             htmpUp->Divide(sh->fHist);
-//                             TH1* htmpUp1   = (TH1*)syh1->fHistUp->Clone();
-//                             htmpUp1->Add(sh->fHist,-1);
-//                             htmpUp1->Divide(sh->fHist);
-//                             htmpUp->Add(htmpUp1);
-//                             htmpUp->Multiply(sh->fHist);
-//                             htmpUp->Add(sh->fHist);
-//                             syh1->fHistUp = (TH1*)htmpUp->Clone();
-//                             delete htmpUp;
-//                             // down variation
-//                             TH1* htmpDown   = (TH1*)syh->fHistDown->Clone();
-//                             htmpDown->Add(sh->fHist,-1);
-//                             htmpDown->Divide(sh->fHist);
-//                             TH1* htmpDown1   = (TH1*)syh1->fHistDown->Clone();
-//                             htmpDown1->Add(sh->fHist,-1);
-//                             htmpDown1->Divide(sh->fHist);
-//                             htmpDown->Add(htmpDown1);
-//                             htmpDown->Multiply(sh->fHist);
-//                             htmpDown->Add(sh->fHist);
-//                             syh1->fHistDown = (TH1*)htmpDown->Clone();
-//                             delete htmpDown;
+                            syh1 ->Add(syh);
+                            syh1 ->Add(sh->fHist,-1);
+                            WriteDebugStatus("TRExFit::MergeSsystematics", "Adding syst of " + syh->fName +  " to " + syh1->fName);
+                            WriteDebugStatus("TRExFit::MergeSsystematics", "Setting to 0 all Up/Down of " +  syh->fName);
                             //
                             // set to zero the other syst
                             syh->fHistUp   = (TH1*)sh->fHist->Clone(syh->fHistUp  ->GetName());

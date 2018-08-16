@@ -44,14 +44,6 @@ TH1F* HistoTools::TranformHistogramBinning(TH1* originalHist){
     // In RooStats, input histogram variable binning is not supported => convert to a constant binning
     // by creating an histogram with the same number of bins but with constant binning between 0 and 1
     //
-//     const unsigned int nBins = originalHist -> GetNbinsX();
-//     TH1F *hFinal = new TH1F(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBins,0,1);
-//     hFinal -> SetDirectory(0);
-//     for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
-//         hFinal -> SetBinContent(iBin,originalHist->GetBinContent(iBin));
-//         hFinal -> SetBinError(iBin,originalHist->GetBinError(iBin));
-//     }
-    // Updated:
     // - now in case some bins are < 0 (due to bin drop functionality), they are ignored for the regBin histos
     const unsigned int nBins = originalHist -> GetNbinsX();
     unsigned int nBinsNew = 0;
@@ -374,9 +366,6 @@ double HistoTools::avgError(std::vector<Bin> &hist, bool independentVar) {
     avg += dM/hist[k].N;
   }
   std::sort(errs.begin(), errs.end());
-  //int s = errs.size();
-  //if (s % 2 == 0) return (errs[s/2-1] + errs[s/2+1])/2.0;
-  //return errs[s/2];
   return avg/((double) Nbins);
 }
 
