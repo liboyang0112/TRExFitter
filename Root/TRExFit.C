@@ -3757,16 +3757,21 @@ void TRExFit::BuildYieldTable(string opt,string group){
         if(fSamples[i_smp]->fTexTitle!="") texout << "  " << fSamples[i_smp]->fTexTitle << "  ";
         else                               texout << "  " << fSamples[i_smp]->fTitle << "  ";
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
+            double mean = h_smp[i_smp]->GetBinContent(i_bin);
+            double uncertainty = ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
+            if (fUseATLASRounding){
+                ApplyATLASrounding(mean, uncertainty);
+            }
             texout << " & ";
-            out << h_smp[i_smp]->GetBinContent(i_bin);
+            out << mean;
             texout << "\\num[round-mode=figures,round-precision=3]{";
-            texout << h_smp[i_smp]->GetBinContent(i_bin);
+            texout << mean;
             texout << "}";
             out << " pm ";
             texout << " $\\pm$ ";
-            out << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
+            out << uncertainty;
             texout << "\\num[round-mode=figures,round-precision=3]{";
-            texout << ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
+            texout << uncertainty;
             texout << "}";
             out << " | ";
         }
@@ -3989,16 +3994,21 @@ void TRExFit::BuildYieldTable(string opt,string group){
     if(TRExFitter::SHOWSTACKSIG) texout << "  Total ";
     else                        texout << "  Total background ";
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
+        double mean = h_tot->GetBinContent(i_bin);
+        double uncertainty = ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
+        if (fUseATLASRounding){
+            ApplyATLASrounding(mean, uncertainty);
+        }
         texout << " & ";
-        out << h_tot->GetBinContent(i_bin);
+        out << mean;
         texout << "\\num[round-mode=figures,round-precision=3]{";
-        texout << h_tot->GetBinContent(i_bin);
+        texout << mean;
         texout << "}";
         out << " pm ";
         texout << " $\\pm$ ";
-        out << ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
+        out << uncertainty;
         texout << "\\num[round-mode=figures,round-precision=3]{";
-        texout << ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
+        texout << uncertainty;
         texout << "}";
         out << " | ";
     }

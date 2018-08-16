@@ -613,7 +613,7 @@ int ApplyErrorRounding(double& error){
     int iterations = 0;
     int sig = 0;
 
-    while (error < 1000) {
+    while (error < 100) {
         error*= 10;
         iterations++;
         if (iterations > 15){
@@ -622,7 +622,7 @@ int ApplyErrorRounding(double& error){
         }
     }
 
-    while (error > 100) {
+    while (error >= 1000) {
         error/= 10;
         iterations--;
         if (iterations < -15){
@@ -630,9 +630,6 @@ int ApplyErrorRounding(double& error){
             return 999;
         }
     }
-
-    // have three significant digits, now round
-    error = std::round(error);
 
     // PDG rounding rules
     if (error >= 100 && error < 354){
@@ -647,22 +644,33 @@ int ApplyErrorRounding(double& error){
         return 999;
     }
 
+    // have three significant digits, now round
+    // according to the number of decimal places
+    error/= std::pow(10, (3-sig));
+    error = std::round(error);
+    error*= std::pow(10, (3-sig));
+    
     // now we need to get back to original value
     // this is not optimal but should be optimized by compiler
     error/= std::pow(10, std::abs(iterations));
 
-    // return number of iterations needed minus number of significant digits
-    return (iterations - sig);
+    // return number of iterations needed minus 2
+    // this will be used to match precision of mean to precision
+    // of rounded error
+    return (iterations - 2);
 }
 
 void RoundToSig(double& value, const int& n){
-    if (n == 0) return;
+    if (n == 0) {
+        value = std::round(value);
+        return;
+    }
 
     if (n > 0) { // will multiply
         value*= std::pow(10,n);
         value = std::round(value);
         value/= std::pow(10,n);
-    } else { // will divide
+    } else if (n < 0) { // will divide
         value/= std::pow(10,std::abs(n));
         value = std::round(value);
         value*= std::pow(10,std::abs(n));
