@@ -408,10 +408,6 @@ void TRExFit::SmoothSystematics(string syst){
     WriteInfoStatus("TRExFit::SmoothSystematics", "Smoothing and/or Symmetrising Systematic Variations ...");
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
-//             if(fRegions[i_ch]->fSampleHists[i_smp]==nullptr) continue;
-//             if(fRegions[i_ch]->fSampleHists[i_smp]->fSample!=nullptr){
-//                 if(fRegions[i_ch]->fSampleHists[i_smp]->fSample->fType==Sample::DATA) continue;
-//             }
             fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false, fTtresSmoothing);
         }
     }
@@ -501,72 +497,6 @@ void TRExFit::WriteHistos(){
     }
     WriteInfoStatus("TRExFit::WriteHistos","-------------------------------------------");
 }
-
-// //__________________________________________________________________________________
-// // create new root file with all the histograms
-// void TRExFit::WriteHistos(/*string fileName*/){
-//     bool recreate = !fUpdate;
-//     gSystem->mkdir( fName.c_str());
-//     gSystem->mkdir( (fName + "/Histograms/").c_str() );
-//     string fileName = "";
-//     TDirectory *dir = gDirectory;
-//     TFile *f;
-//     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
-//     //
-//     if(singleOutputFile){
-//         if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_histos" + fSaveSuffix + ".root";
-//         else                 fileName = fName + "/Histograms/" + fInputName + "_histos" + fSaveSuffix + ".root";
-//         std::cout << "-------------------------------------------" << std::endl;
-//         std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
-//         if(recreate){
-//             f = new TFile(fileName.c_str(),"RECREATE");
-//             f->~TFile();
-//             dir->cd();
-//         }
-//     }
-//     //
-//     SampleHist* sh;
-//     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-//         //
-//         if(!singleOutputFile){
-//             if(fInputFolder!="") fileName = fInputFolder           + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
-//             else                 fileName = fName + "/Histograms/" + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
-//             std::cout << "-------------------------------------------" << std::endl;
-//             std::cout << "Writing histograms to file " << fileName << " ..." << std::endl;
-//             if(recreate){
-//                 f = new TFile(fileName.c_str(),"RECREATE");
-//                 f->~TFile();
-//                 dir->cd();
-//             }
-//         }
-//         //
-//         for(int i_smp=0;i_smp<fNSamples;i_smp++){
-//             sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-//             if(sh == nullptr){
-//               if(TRExFitter::DEBUGLEVEL>0) std::cout << "SampleHist[" << i_smp << "] for sample " << fSamples[i_smp]->fName << " not there." << std::endl;
-//                 continue;
-//             }
-//             // set file and histo names for nominal
-//             sh->fHistoName = sh->fHist->GetName();
-//             sh->fFileName = fileName;
-//             // set file and histo names for systematics
-//             for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
-//                 sh->fSyst[i_syst]->fFileNameUp = fileName;
-//                 sh->fSyst[i_syst]->fHistoNameUp = sh->fSyst[i_syst]->fHistUp->GetName();
-//                 sh->fSyst[i_syst]->fFileNameDown = fileName;
-//                 sh->fSyst[i_syst]->fHistoNameDown = sh->fSyst[i_syst]->fHistDown->GetName();
-//                 if(sh->fSyst[i_syst]->fIsShape){
-//                     sh->fSyst[i_syst]->fFileNameShapeUp = fileName;
-//                     sh->fSyst[i_syst]->fHistoNameShapeUp = sh->fSyst[i_syst]->fHistShapeUp->GetName();
-//                     sh->fSyst[i_syst]->fFileNameShapeDown = fileName;
-//                     sh->fSyst[i_syst]->fHistoNameShapeDown = sh->fSyst[i_syst]->fHistShapeDown->GetName();
-//                 }
-//             }
-//             sh->WriteToFile();
-//         }
-//     }
-//     std::cout << "-------------------------------------------" << endl;
-// }
 
 //__________________________________________________________________________________
 // Draw syst plots
