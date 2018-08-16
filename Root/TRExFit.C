@@ -256,6 +256,8 @@ TRExFit::TRExFit(string name){
     fPOIPrecision = 2;
 
     fRankingPOIName = "#mu";
+    
+    fUseATLASRounding = false;
 }
 
 //__________________________________________________________________________________

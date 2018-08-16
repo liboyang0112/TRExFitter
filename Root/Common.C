@@ -592,3 +592,80 @@ TH1F* MergeHistograms(vector<TH1*> hVec){
     // return
     return hOut;
 }
+
+void ApplyATLASrounding(double &mean, double &error){
+    if (error < 0 ){
+        WriteWarningStatus("Common::ApplyATLASrounding", "Error value is < 0. Not applying rounding.");
+        return;
+    }
+
+    int iterations = ApplyErrorRounding(error);
+    if (iterations > 100) { // something went wrong
+        WriteWarningStatus("Common::ApplyATLASrounding", "Problem with applying PDG rounding rules to error.");
+        return;
+    }
+
+    // now apply the correct rounding for nominal value
+    RoundToSig(mean, iterations);
+}
+
+int ApplyErrorRounding(double& error){
+    int iterations = 0;
+    int sig = 0;
+
+    while (error < 1000) {
+        error*= 10;
+        iterations++;
+        if (iterations > 15){
+            WriteWarningStatus("Common::ApplyErrorRounding", "Too many iterations in determination of decimal places. Not applying rounding");
+            return 999;
+        }
+    }
+
+    while (error > 100) {
+        error/= 10;
+        iterations--;
+        if (iterations < -15){
+            WriteWarningStatus("Common::ApplyErrorRounding", "Too many iterations in determination of decimal places. Not applying rounding");
+            return 999;
+        }
+    }
+
+    // have three significant digits, now round
+    error = std::round(error);
+
+    // PDG rounding rules
+    if (error >= 100 && error < 354){
+        sig = 2;
+    } else if (error >= 355 && error < 949) {
+        sig = 1;
+    } else if (error >= 950 && error <= 999) {
+        error = 1000;
+        sig = 2;
+    } else {
+        WriteWarningStatus("Common::ApplyErrorRounding", "3 significant digit are < 100 or > 999. This should not happen.");
+        return 999;
+    }
+
+    // now we need to get back to original value
+    // this is not optimal but should be optimized by compiler
+    error/= std::pow(10, std::abs(iterations));
+
+    // return number of iterations needed minus number of significant digits
+    return (iterations - sig);
+}
+
+void RoundToSig(double& value, const int& n){
+    if (n == 0) return;
+
+    if (n > 0) { // will multiply
+        value*= std::pow(10,n);
+        value = std::round(value);
+        value/= std::pow(10,n);
+    } else { // will divide
+        value/= std::pow(10,std::abs(n));
+        value = std::round(value);
+        value*= std::pow(10,std::abs(n));
+    }
+}
+

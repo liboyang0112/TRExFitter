@@ -91,4 +91,25 @@ void CloseFiles( const std::set<std::string> &set);
 
 TH1F* MergeHistograms(std::vector<TH1*> hVec);
 
+/**
+  * A function to apply ATLAS/PDG rounding rules to values
+  * @param A reference to mean value
+  * @param A reference to uncertainty
+  */
+void ApplyATLASrounding(double& mean, double& error);
+
+/**
+  * A helper function to round error according to PDG rules
+  * @param The value of error that will be rounded
+  * @return number of iterations of multiplication/division by 10 needed to reach the same precision for nominal value
+  */
+int ApplyErrorRounding(double& error);
+
+/**
+  * A helper function to round value to n decimal palces
+  * @param A value that needs to be rounded
+  * @param Number of multiplications/divisions by 10 needed to get the value that can be rounded
+  */
+void RoundToSig(double& value, const int& n);
+
 #endif
