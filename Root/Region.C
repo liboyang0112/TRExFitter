@@ -763,7 +763,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     for(int i_sample=0;i_sample<fNSamples;i_sample++){
         if(fSampleHists[i_sample]->fSample->fType == Sample::DATA) continue;
         if(fSampleHists[i_sample]->fSample->fType == Sample::GHOST) continue;
-//         if(fSampleHists[i_sample]->fSample->fType == Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
 
         //
         // Norm factors
@@ -771,7 +770,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         for(int i_norm=0;i_norm<fSampleHists[i_sample]->fNNorm;i_norm++){
             NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm];
             systName = nf->fName;
-//             // if this norm factor is a morphing one => save the nuis.par
+            // if this norm factor is a morphing one => save the nuis.par
             // skip POI if B-only fit FIXME
             if(fFitType==TRExFit::BONLY && systName==fPOI) continue;
             if(nf->fConst) continue;
@@ -790,7 +789,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         // loop over shape factors
         for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
             systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
-//             systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fNuisanceParameter;
             // add syst name for each bin
             for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){
                 systNameSF = systName + "_bin_" + std::to_string(i_bin);
@@ -809,8 +807,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
             systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
-//             if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic!=nullptr)
-//                 systName = fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -920,8 +916,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
                 diffUp = 0.;
                 diffDown = 0.;
-                //hUp = nullptr;
-                //hDown = nullptr;
                 double yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
 
@@ -1512,7 +1506,6 @@ void Region::SetAlternativeSelection(string selection,string sample){
 //__________________________________________________________________________________
 //
 bool Region::UseAlternativeVariable(string sample){
-//     if (fAlternativeVariables.find(sample)==fAlternativeVariables.end())
     std::vector<std::string> tmpVec;
     for(auto tmp : fAlternativeVariables){
         tmpVec.push_back(tmp.first);
@@ -1526,7 +1519,6 @@ bool Region::UseAlternativeVariable(string sample){
 //__________________________________________________________________________________
 //
 bool Region::UseAlternativeSelection(string sample){
-//     if (fAlternativeSelections.find(sample)==fAlternativeSelections.end())
     std::vector<std::string> tmpVec;
     for(auto tmp : fAlternativeSelections){
         tmpVec.push_back(tmp.first);

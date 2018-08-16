@@ -208,10 +208,6 @@ void TRExPlot::AddSignal(TH1* h,string name){
 //_____________________________________________________________________________
 //
 void TRExPlot::AddNormSignal(TH1* h,string name){
-    // if already there...
-//     if(std::find(fNormSigNames.begin(),fNormSigNames.end(),name)!=fNormSigNames.end()){
-//         h_normsig[fNormSigNames.size()-1]->Add(h,fLumiScale);
-//     }
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
     unsigned int idx = std::find(fNormSigNames.begin(),fNormSigNames.end(),name) - fNormSigNames.begin();
@@ -228,10 +224,6 @@ void TRExPlot::AddNormSignal(TH1* h,string name){
 //_____________________________________________________________________________
 //
 void TRExPlot::AddOverSignal(TH1* h,string name){
-    // if already there...
-//     if(std::find(fOverSigNames.begin(),fOverSigNames.end(),name)!=fOverSigNames.end()){
-//         h_oversig[fOverSigNames.size()-1]->Add(h,fLumiScale);
-//     }
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
     unsigned int idx = std::find(fOverSigNames.begin(),fOverSigNames.end(),name) - fOverSigNames.begin();
@@ -250,20 +242,6 @@ void TRExPlot::AddOverSignal(TH1* h,string name){
 void TRExPlot::AddBackground(TH1* h,string name){
     if(h_tot==nullptr) h_tot = (TH1*)h->Clone();
     else h_tot->Add(h);
-    // if already there...
-//     if(std::find(fBkgNames.begin(),fBkgNames.end(),name)!=fBkgNames.end()){
-//         h_bkg[fBkgNames.size()-1]->Add(h,fLumiScale);
-//     }
-//     int idx = -1;
-//     for(int i=0;i<(int)fBkgNames.size();i++){
-//         if(name==fBkgNames.at(ih)){
-//             idx = i;
-//             break;
-//         }
-//     }
-//     if(idx>=0){
-//         h_bkg[idx]->Add(h,fLumiScale);
-//     }
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
     //
@@ -286,8 +264,6 @@ void TRExPlot::SetTotBkg(TH1* h){
     g_tot = new TGraphAsymmErrors(h);
     for(int i=0;i<g_tot->GetN();i++){
         g_tot->GetY()[i]      *= fLumiScale;
-//         g_tot->GetEXlow()[i]  *= fLumiScale;
-//         g_tot->GetEXhigh()[i] *= fLumiScale;
         g_tot->GetEYlow()[i]  *= fLumiScale;
         g_tot->GetEYhigh()[i] *= fLumiScale;
     }
@@ -394,10 +370,6 @@ void TRExPlot::Draw(string options){
         // build asym data
         if(options.find("poiss")!=string::npos) g_data = poissonize(h_data);
         else                                    g_data = histToGraph(h_data); // new TGraphAsymmErrors(h_data);
-//         g_data->SetMarkerSize(h_data->GetMarkerSize());
-//         g_data->SetMarkerColor(h_data->GetMarkerColor());
-//         g_data->SetMarkerStyle(h_data->GetMarkerStyle());
-//         g_data->SetLineWidth(h_data->GetLineWidth());
     }
     else{
         hasData = false;
@@ -493,7 +465,6 @@ void TRExPlot::Draw(string options){
         h_blind->SetLineColor(kGray);
         h_blind->SetFillColor(kGray);
         h_blind->SetFillStyle(3345);
-//         h_blinding->SetFillColorAlpha(kWhite,0.75);
         h_blind->Draw("same HIST");
     }
 
@@ -515,7 +486,6 @@ void TRExPlot::Draw(string options){
         }
     }
     if(fBinLabel[1]!="") h_dummy->GetXaxis()->LabelsOption("d");
-//     float offset = 2.3*(pad0->GetWh()/672.);
     float offset = 2.4*(pad0->GetWh()/672.);
     if(pad0->GetWw() > pad0->GetWh()) offset *= 0.8*596./pad0->GetWw();
     h_dummy->GetYaxis()->SetTitleOffset( offset );
@@ -526,7 +496,6 @@ void TRExPlot::Draw(string options){
     pad0->RedrawAxis();
 
     float textHeight = 0.05*(672./pad0->GetWh());
-//     if(TRExFitter::OPTION["TRExbbStyle"]>0) textHeight *= 0.85;
 
     //
     // ATLAS labels
@@ -614,19 +583,16 @@ void TRExPlot::Draw(string options){
         if(!TRExFitter::LEGENDLEFT) leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
           leg->SetTextSize(gStyle->GetTextSize());
-//         leg->SetMargin(0.18);
         leg->SetMargin(0.22);
 
         //Draws data in the legend only is real data
         if(hasData){
-//           leg->AddEntry(h_data,fDataName.c_str(),"lep");
             if(TRExFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
             else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
 
         //Signal and background legend
         for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
-//         for(int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], fNormSigNames[i_smp].c_str(),"f");
         if(TRExFitter::OPTION["TRExbbStyle"]==0){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
@@ -647,12 +613,6 @@ void TRExPlot::Draw(string options){
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
-//         if(TRExFitter::OPTION["TRExbbStyle"]>0)
-//             leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
-//         else if(TRExFitter::OPTION["FourTopStyle"]>0)
-//             leg  = new TLegend(0.6,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
-//         else
-//             leg  = new TLegend(0.4,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
         if(TRExFitter::OPTION["LegendX1"]==0) legX1 = legX2 - 3*(legX2-legXmid+0.1*(legX2-legXmid));
         leg = new TLegend(legX1,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
         leg->SetNColumns(3);
@@ -661,12 +621,10 @@ void TRExPlot::Draw(string options){
         if(!TRExFitter::LEGENDLEFT) leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
         leg->SetTextSize(gStyle->GetTextSize());
-//         leg->SetMargin(0.20);
         leg->SetMargin(fLegendNColumns*(legX2-legX1)/10.);
 
         //Draws data in the legend only is real data
         if(hasData){
-//             leg->AddEntry(h_data,fDataName.c_str(),"lep");
             if(TRExFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
             else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
@@ -707,7 +665,6 @@ void TRExPlot::Draw(string options){
 
         //Draws data in the legend only is real data
         if(hasData){
-//             leg->AddEntry(h_data,fDataName.c_str(),"lep");
             if(TRExFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
             else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
@@ -749,7 +706,6 @@ void TRExPlot::Draw(string options){
 
         //Draws data in the legend only is real data
         if(hasData){
-//             leg->AddEntry(h_data,fDataName.c_str(),"lep");
             if(TRExFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
             else                         leg->AddEntry(h_data,fDataName.c_str(),"lep");
         }
@@ -811,7 +767,6 @@ void TRExPlot::Draw(string options){
     // Plots style
     //
     h_dummy2->SetTitle("Data/MC");
-//     h_dummy2->GetYaxis()->CenterTitle();
     if(TRExFitter::OPTION["SoverBinRatio"]) h_dummy2->GetYaxis()->SetTitle("S / B");
     else                                   h_dummy2->GetYaxis()->SetTitle("Data / Pred. ");
     h_dummy2->GetYaxis()->SetLabelSize(0.8*h_ratio->GetYaxis()->GetLabelSize());
@@ -820,7 +775,6 @@ void TRExPlot::Draw(string options){
     h_dummy2->GetYaxis()->SetNdivisions(504,false);
     gStyle->SetEndErrorSize(4.);
     if(TRExFitter::NOENDERR) gStyle->SetEndErrorSize(0);
-//     pad1 -> SetTicky();
 
     //
     // Compute Data/MC ratio
@@ -864,7 +818,6 @@ void TRExPlot::Draw(string options){
     // Now draws everything
     //
     TLine *hline = new TLine(h_dummy2->GetXaxis()->GetXmin(),1,h_dummy2->GetXaxis()->GetXmax(),1);
-//     hline->SetLineColor(kRed);
     hline->SetLineColor(kBlack);
     hline->SetLineWidth(2);
     hline->SetLineStyle(2);
@@ -882,12 +835,9 @@ void TRExPlot::Draw(string options){
     h_dummy2->SetMaximum(fRatioYmax);
     //
     h_dummy2->GetXaxis()->SetTitle(h_dummy->GetXaxis()->GetTitle());
-//     h_dummy2->GetXaxis()->SetTitleOffset(5.);
-//     h_dummy2->GetXaxis()->SetTitleOffset(5.*(pad0->GetWw()/596.));
     // FIXME
     h_dummy2->GetXaxis()->SetLabelSize( 0.9*h_dummy2->GetXaxis()->GetLabelSize() );
     h_dummy2->GetXaxis()->SetTitleOffset(5.05*(pad0->GetWw()/596.));
-//     h_dummy2->GetXaxis()->SetTitleSize( h_dummy2->GetXaxis()->GetTitleSize() );
     //
     h_dummy->GetXaxis()->SetTitle("");
     h_dummy->GetXaxis()->SetLabelSize(0);
@@ -920,7 +870,7 @@ void TRExPlot::Draw(string options){
     // to hide the upper limit (label) of the ratio plot
 //     TLine line(0.01,1,0.1,1);
 //     line.SetLineColor(kWhite);
-// //     line.SetLineColor(kRed);
+//     line.SetLineColor(kRed);
 //     line.SetLineWidth(25);
 //     if(pad0->GetWw() >= 2*pad0->GetWh())   line.DrawLineNDC(0.06,1,0.100,1);
 //     else if(pad0->GetWw() > pad0->GetWh()) line.DrawLineNDC(0.05,1,0.088,1);
@@ -948,10 +898,6 @@ void TRExPlot::Draw(string options){
 
         if (isUp!=0) {
             TArrow *arrow;
-//             if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),1.45, h_ratio->GetXaxis()->GetBinCenter(i_bin),1.5,0.030,"|>");
-//             else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),0.55, h_ratio->GetXaxis()->GetBinCenter(i_bin),0.5,0.030,"|>");
-//             if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax-0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax,0.030,"|>");
-//             else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin+0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin,0.030,"|>");
             if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax-0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax,0.030/(pad0->GetWw()/596.),"|>");
             else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin+0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin,0.030/(pad0->GetWw()/596.),"|>");
             arrow->SetFillColor(10);
@@ -959,38 +905,6 @@ void TRExPlot::Draw(string options){
             arrow->SetLineColor(kBlue-7);
             arrow->SetLineWidth(2);
             arrow->SetAngle(40);
-            //       arrow->Draw();
-            //
-            // Note: the following is not needed if using option "0" when Drawing...
-            //       TLine *fix=0;
-            //       TLine *fixUp=0;
-            //       TLine *fixDo=0;
-            //       cout << " bin: " << i_bin << "  with val: " << val << " and lower: " << val-h_ratio->GetBinError(i_bin) <<  endl;
-            //       cout << " bin: " << i_bin << "  with val: " << val << " and upper: " << val+h_ratio->GetBinError(i_bin) <<  endl;
-            //       if (val-h_ratio->GetBinError(i_bin)<1.5) {
-            //         float x = h_ratio->GetXaxis()->GetBinCenter(i_bin);
-            //         float w = h_ratio->GetXaxis()->GetBinWidth(i_bin);
-            //         float y0 = TMath::Max(val-h_ratio->GetBinError(i_bin),0.50);
-            //         float y1 = TMath::Min(val+h_ratio->GetBinError(i_bin),1.50);
-            //         fix = new TLine( x, y0, x, y1 );
-            //         fixUp = new TLine( x-w*0.07, y1, x+w*0.07, y1 );
-            //         fixDo = new TLine( x-w*0.07, y0, x+w*0.07, y0 );
-            //       }
-            //       if (fix!=0) {
-            //         fix->SetLineColor(h_ratio->GetLineColor());
-            //         fixUp->SetLineColor(h_ratio->GetLineColor());
-            //         fixDo->SetLineColor(h_ratio->GetLineColor());
-            //         fix->SetLineWidth(h_ratio->GetLineWidth());
-            //         fixUp->SetLineWidth(h_ratio->GetLineWidth());
-            //         fixDo->SetLineWidth(h_ratio->GetLineWidth());
-            //         fix->Draw("SAME");
-            //         fixUp->SetLineColor(1);
-            //         fixUp->SetLineWidth(1);
-            //         fixUp->Draw("SAME");
-            //         fixDo->SetLineColor(1);
-            //         fixDo->SetLineWidth(1);
-            //         fixDo->Draw("SAME");
-            //       }
             arrow->Draw();
         }
     }
@@ -1051,7 +965,6 @@ void TRExPlot::Draw(string options){
     float y;
     // take into account also total prediction uncertainty
     for(int i_bin=1;i_bin<h_tot->GetNbinsX()+1;i_bin++){
-//         y = h_tot->GetBinContent(i_bin)+g_tot->GetEYhigh()[i_bin-1]; // creating problems
         y = h_tot->GetBinContent(i_bin);
         if(y>yMax) yMax = y;
         if(hasData && h_data!=nullptr && g_data!=nullptr){
@@ -1081,17 +994,12 @@ void TRExPlot::Draw(string options){
 
     //
     // eventually make y-axis labels smaller...
-//     if(pad0->GetWw()<596. && h_dummy->GetMaximum()>10000){
     if(h_dummy->GetMaximum()>10000){
         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.75 );
     }
-//     else if(pad0->GetWw()<596. && h_dummy->GetMaximum()>1000){
     else if(h_dummy->GetMaximum()>1000){
         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
     }
-    
-//     if(TRExFitter::OPTION["TRExbbStyle"]==0 && fNormSigNames.size()>0)
-//         myText(0.4,0.96,  1,"#scale[0.75]{*: signal normalised to total background}");
 }
 
 //_____________________________________________________________________________
@@ -1118,7 +1026,6 @@ void TRExPlot::WriteToFile(string name){
     }
     here->cd();
     f->Close();
-//     f->~TFile();
     delete f;
 }
 
@@ -1170,13 +1077,9 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
     TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
     int hBinCounter = 1;
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
-//         double content = (gr->GetY())[i];
         double content = pow( (gr->GetErrorYhigh(i)) ,2); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
         gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
-        //     if(content==0){
         if(content<0.1){ // FIXME
-//             gr->RemovePoint(i);
-//             i--;
             gr->SetPoint(i,gr->GetX()[i],-1);
             gr->SetPointError(i,0,0,0,0);
         }

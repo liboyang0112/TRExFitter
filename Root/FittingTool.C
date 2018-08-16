@@ -95,7 +95,6 @@ void FittingTool::SetSubCategories() {
     WriteDebugStatus("FittingTool::SetSubCategories", "finding unique SubCategories");
     // loop over m_subCategoryMap to find all unique SubCategories, save in m_subCategories set
     for(std::map<std::string, std::string>::iterator it = m_subCategoryMap.begin(); it != m_subCategoryMap.end(); ++it) {
-        //std::cout << it->first << " " << it->second << endl;
         m_subCategories.insert(it->second);
     }
 }
@@ -456,7 +455,6 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName )
 
         // Not consider nuisance parameter being not associated to syst (yet)
         string varname = (string) var->GetName();
-        //if ((varname.find("gamma_stat")!=string::npos)) continue;
         TString vname=var->GetName();
         vname.ReplaceAll("alpha_","");
 

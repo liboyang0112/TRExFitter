@@ -165,8 +165,6 @@ void FitResults::ReadFromTXT(string fileName){
             AddNuisPar(new NuisParameter(name));
             iss >> value >> up >> down;
             np = fNuisPar[fNuisParIdx[name]];
-            // set the title of this NP if there in the stored map
-            //if(TRExFitter::SYSTMAP[name]!="") np->fTitle = TRExFitter::SYSTMAP[name];
             //
             np->fFitValue = value;
             np->fPostFitUp = up;
@@ -247,7 +245,6 @@ void FitResults::DrawNormFactors( const string &path, const std::vector < NormFa
       selected_norm_factors.push_back(nuis);
       if(2*selected_norm_factors.size() > max)  max = 2*selected_norm_factors.size();
     }
-//     xmax *= (xmax<0 ? 0.5 : 1.5)*2;
     xmax *= (xmax<0 ? 0.5 : 1.5);
     xmin *= (xmin>0 ? 0.5 : 1.5);
     if(xmin>0) xmin = 0.;
@@ -333,8 +330,6 @@ void FitResults::DrawGammaPulls( const string &path ){
         idx ++;
         if(idx > max)  max = idx;
     }
-//     xmax *= (1.5-(xmax<0));
-//     xmin *= (0.5+(xmin<0));
     xmax *= (1.2-(xmax<0));
     xmin *= (0.8+(xmin<0));
 
@@ -433,12 +428,9 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-//     TCanvas *c = new TCanvas("c","c",600,newHeight);
     TCanvas *c = new TCanvas("c","c",800,newHeight);
     c->SetTicks(1,0);
-//     gPad->SetLeftMargin(0.05);
     gPad->SetLeftMargin(0.05/(8./6.));
-//     gPad->SetRightMargin(0.33);
     gPad->SetRightMargin(0.5);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
@@ -482,7 +474,6 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
 
     if(category!="all"){
         TLatex *cat_legend = new TLatex();
-//         cat_legend -> DrawLatexNDC(0.5,0.8,category.c_str());
         cat_legend -> DrawLatexNDC(0.5,1-0.8*offsetUp/newHeight,category.c_str());
     }
 

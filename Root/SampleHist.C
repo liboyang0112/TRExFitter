@@ -86,7 +86,6 @@ SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
     fHist = HistFromFile(fileName,histoName);
     fHist_orig = HistFromFile(fileName,histoName+"_orig");
     if(fHist_orig==nullptr) fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
-//     if(fHist_orig==nullptr) fHist_orig = (TH1*)fHist->Clone( (TString)fHist->GetName() + "_orig" );
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
@@ -129,8 +128,6 @@ SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
         fNSyst ++;
     }
     //
-//     syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_Up",fHist->GetName(),name.c_str()));
-//     syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
     syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
     syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
     syh->fHistUp  ->Scale(1.+up);
@@ -815,8 +812,6 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 if(SumAndData) {
                     if(fSyst[i_syst]->fSystematic!=nullptr) tex->DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fSystematic->fTitle.c_str()));
                     else                                tex->DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fName.c_str()));
-                    //if(fSyst[i_syst]->fSystematic!=nullptr) tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),"all samples"));
-                    //else                                tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fName.c_str(),"all samples"));
                 }
                 else{
                     if(fSyst[i_syst]->fSystematic!=nullptr) tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
@@ -825,8 +820,8 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 tex->DrawLatex(0.17,0.72,fRegionLabel.c_str());
 
                 //Legend of the histograms
-		TLegend *leg;
-		if(SumAndData) leg = new TLegend(0.7,0.71,0.9,0.9);
+		        TLegend *leg;
+		        if(SumAndData) leg = new TLegend(0.7,0.71,0.9,0.9);
                 else leg = new TLegend(0.7,0.71,0.9,0.85);
                 leg->SetFillStyle(0);
                 leg->SetBorderSize(0);
@@ -912,8 +907,6 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 
         h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
-        // h_syst_up = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
-        // h_syst_down = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
 
         if(fSyst[i_syst]->fSystematic->fPreSmoothing){
             TH1* h_tmp_up   = h_syst_up!=nullptr   ? (TH1*)h_syst_up  ->Clone() : nullptr;
@@ -1004,15 +997,12 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         //
         // Save stuff
         //
-//         fSyst[i_syst]->fHistUp_orig = (TH1*)fSyst[i_syst]->fHistUp->Clone();
         fSyst[i_syst]->fHistUp = (TH1*)h_syst_up->Clone(fSyst[i_syst]->fHistUp->GetName());
-//         fSyst[i_syst]->fHistDown_orig = (TH1*)fSyst[i_syst]->fHistDown->Clone();
         fSyst[i_syst]->fHistDown = (TH1*)h_syst_down->Clone(fSyst[i_syst]->fHistUp->GetName());
 
         //
         // Perform a check of the output histograms (check for 0 bins and other pathologic behaviours)
         //
-//         HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, true /*cause crash if problem*/);
         HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, TRExFitter::HISTOCHECKCRASH /*cause crash if problem*/);
 
         //
@@ -1154,7 +1144,6 @@ void SampleHist::Divide(SampleHist *sh){
      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
-//        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==nullptr){
@@ -1192,7 +1181,6 @@ void SampleHist::Multiply(SampleHist *sh){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = fSyst[i_syst]->fName;
-//        SystematicHist *syh = sh->GetSystematic( systName );
         string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==nullptr){
@@ -1211,7 +1199,6 @@ void SampleHist::Multiply(SampleHist *sh){
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
-//        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==nullptr){
@@ -1241,7 +1228,6 @@ void SampleHist::Add(SampleHist *sh,float scale){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = fSyst[i_syst]->fName;
-//        SystematicHist *syh = sh->GetSystematic( systName );
         string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==nullptr){
@@ -1260,7 +1246,6 @@ void SampleHist::Add(SampleHist *sh,float scale){
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
-//        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==nullptr){

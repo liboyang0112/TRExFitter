@@ -150,7 +150,6 @@ void WriteHistToFile(TH1* h,string fileName,string option){
     TFile *f = new TFile(fileName.c_str(),option.c_str());
     h->Write("",TObject::kOverwrite);
     h->SetDirectory(0);
-//     h->AddDirectory(0);
     delete f;
     dir->cd();
 }
@@ -162,7 +161,6 @@ void WriteHistToFile(TH1* h,TFile *f){
     f->cd();
     h->Write("",TObject::kOverwrite);
     h->SetDirectory(0);
-//     h->AddDirectory(0);
     dir->cd();
 }
 
@@ -308,50 +306,12 @@ int wildcmp(const char *wild, const char *string) {
 int FindInStringVector(std::vector< string > v, string s){
     int idx = -1;
     string s1;
-//     string s2;
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i];
         if(StringsMatch(s1,s)){
             idx = (int)i;
             break;
         }
-/*        
-        if(s1==s){
-            idx = (int)i;
-            break;
-        }
-//       // if there is a "*"...
-//       int wildcard_pos = s.find("*");
-//       if(wildcard_pos!=string::npos){
-//               int foo = s1.find(s.substr(0,wildcard_pos)), bar = s1.find(s.substr(wildcard_pos+1));
-//               if(foo!=string::npos && bar!=string::npos)
-//                       idx = (int)i;
-//                       break;
-//       }
-        // if both first and last character are "*"...
-        if(s1[0]=='*' && s1[s1.size()-1]=='*'){
-            s2 = s1.substr(1,s1.size()-1);
-                if(s.find(s2)!=string::npos){
-                    idx = (int)i;
-                    break;
-                }
-        }
-        // if last character is "*"...
-        else if(s1[s1.size()-1]=='*'){
-            s2 = s1.substr(0,s1.size()-1);
-            if(s.find(s2)!=string::npos && s2[0]==s[0]){
-                idx = (int)i;
-                break;
-            }
-        }
-        // if first character is "*"...
-        else if(s1[0]=='*'){
-            s2 = s1.substr(1,s1.size());
-            if(s.find(s2)!=string::npos && s2[s2.size()-1]==s[s.size()-1]){
-                idx = (int)i;
-                break;
-            }
-        }*/
     }
     return idx;
 }
@@ -367,7 +327,6 @@ int FindInStringVectorOfVectors(std::vector< std::vector<string> > v, string s, 
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i][0];
         s2 = v[i][1];
-//         if(s1==s && s2==ss){
         if(StringsMatch(s1,s) && StringsMatch(s2,ss)){
             idx = (int)i;
             break;
@@ -474,11 +433,6 @@ struct BinNom {
 //
 bool systFluctuationNominal(std::vector<BinNom> &hist) {
     auto dM = [](const BinNom &b) { return sqrt(b.dN2); };
-    //auto dMoverN = [dM](const BinNom &b) {
-    //    double N = b.N;
-    //    if (N == 0) N = 1e-16;
-    //    return dM(b)/N;
-    //};
     auto N = [](const BinNom &b) {
         return b.N;
     };

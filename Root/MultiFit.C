@@ -941,12 +941,6 @@ void MultiFit::CompareLimit(){
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
     h_dummy->GetXaxis()->SetTitle(fLimitTitle.c_str());
 
-//     ATLASLabel(0.02,0.93,"    Internal",kBlack);
-//     myText(0.35,0.93,kBlack,process.c_str());
-//     myText(0.65,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
-//     ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
-//     if(process!="") myText(0.60,0.93,kBlack,Form("%s, #sqrt{s} = %s, %s",process.c_str(),fCmeLabel.c_str(),fLumiLabel.c_str()));
-//     else            myText(0.70,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
     myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
@@ -964,10 +958,7 @@ void MultiFit::CompareLimit(){
     if(fSignalInjection) leg->AddEntry(g_inj,("Expected ("+fPOIName+"=1)").c_str(),"l");
     leg->Draw();
 
-//     myText(0.75,0.4,kBlack,"Stat. only");
-
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-//         c->SaveAs( (fOutDir+"/Limits" + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
         c->SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     delete c;
@@ -979,13 +970,11 @@ void MultiFit::ComparePulls(string category){
     float ydist = 0.2;
 
     // Fit titles
-    vector<string> dirs;   dirs.clear();
-    vector<string> names;  names.clear();
-    vector<string> suffs;  suffs.clear();
-    vector<string> titles; titles.clear();
-    vector<float>  yshift; yshift.clear();
-//     vector<int>    color;  color.clear();
-//     vector<int>    style;  style.clear();
+    vector<string> dirs;
+    vector<string> names;
+    vector<string> suffs;
+    vector<string> titles;
+    vector<float>  yshift;
     int color[] = {kBlack,kRed,kBlue,kViolet};
 
     int style[] = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
@@ -1013,7 +1002,6 @@ void MultiFit::ComparePulls(string category){
     float xmin = -2.9;
     float xmax = 2.9;
     float max = 0;
-//     string npToExclude[] = {"SigXsecOverSM","gamma_","stat_"};
     string npToExclude[] = {"gamma_","stat_"};
     bool brazilian = true;
 
@@ -1025,7 +1013,6 @@ void MultiFit::ComparePulls(string category){
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
         for(int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
-//             systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
             systName = fFitList[i_fit]->fSystematics[i_syst]->fNuisanceParameter;
             if(systName == "") systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
             if(FindInStringVector(Names,systName)<0){
@@ -1044,8 +1031,6 @@ void MultiFit::ComparePulls(string category){
     NuisParameter *par;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
-//         fFitList[i_fit]->ReadFitResults(names[i_fit]+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0"+suffs[i_fit]+".txt");
-//         fFitList[i_fit]->ReadFitResults(dirs[i_fit]+"/Fits/"+names[i_fit]+suffs[i_fit]+".txt");
         if(fFitList[i_fit]->fFitResultsFile!="") fFitList[i_fit]->ReadFitResults(fFitList[i_fit]->fFitResultsFile);
         else                                     fFitList[i_fit]->ReadFitResults(dirs[i_fit]+"/Fits/"+names[i_fit]+suffs[i_fit]+".txt");
     }
@@ -1124,7 +1109,6 @@ void MultiFit::ComparePulls(string category){
         std::map<string,float> centralMap; centralMap.clear();
         std::map<string,float> errUpMap;   errUpMap.clear();
         std::map<string,float> errDownMap; errDownMap.clear();
-//         fFitList[i_fit]->ReadFitResults(names[i_fit]+"/FitResults/TextFileFitResult/GlobalFit_fitres_unconditionnal_mu0"+suffs[i_fit]+".txt");
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
@@ -1147,10 +1131,7 @@ void MultiFit::ComparePulls(string category){
         for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
             systName = Names[i_syst];
             if(centralMap[systName]!=0 || (errUpMap[systName]!=0 || errDownMap[systName]!=0)){
-//                 g[i_fit]->SetPoint(i_syst,centralMap[systName],i_syst+0.5+yshift[i_fit]);
                 g[i_fit]->SetPoint(i_syst,centralMap[systName],(Nsyst-i_syst-1)+0.5+yshift[i_fit]);
-//                 g[i_fit]->SetPointEXhigh(i_syst,  errUpMap[systName]  <1 ?  errUpMap[systName]   : 1);
-//                 g[i_fit]->SetPointEXlow( i_syst, -errDownMap[systName]<1 ? -errDownMap[systName] : 1);
                 g[i_fit]->SetPointEXhigh(i_syst,  errUpMap[systName]);
                 g[i_fit]->SetPointEXlow( i_syst, -errDownMap[systName]);
             }
@@ -1165,17 +1146,13 @@ void MultiFit::ComparePulls(string category){
     max = Nsyst;
 
     int lineHeight = 20;
-//     int offsetUp = 10;
     int offsetUp = 50;
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-//     TCanvas *c = new TCanvas("c","c",600,newHeight);
     TCanvas *c = new TCanvas("c","c",800,newHeight);
     c->SetTicks(1,0);
-//     gPad->SetLeftMargin(0.05);
     gPad->SetLeftMargin(0.05/(8./6.));
-//     gPad->SetRightMargin(0.33);
     gPad->SetRightMargin(0.5);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
@@ -1216,19 +1193,16 @@ void MultiFit::ComparePulls(string category){
     TLatex *systs = new TLatex();
     systs->SetTextSize( systs->GetTextSize()*0.8 );
     for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
-//         systs->DrawLatex(3.,i_syst+0.25,Titles[i_syst].c_str());
         systs->DrawLatex(3.,(Nsyst-i_syst-1)+0.25,Titles[i_syst].c_str());
     }
     h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
 
     TLegend *leg;
-//     leg = new TLegend(0.01,1.-0.03*(30./max),0.99,0.99);
     leg = new TLegend(0.01,1.-0.03*(30./max),0.75,0.99);
     leg->SetTextSize(gStyle->GetTextSize());
     leg->SetTextFont(gStyle->GetTextFont());
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
-//     leg->SetNColumns(4);
     leg->SetNColumns(N);
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         leg->AddEntry(g[i_fit],titles[i_fit].c_str(),"lp");
@@ -2662,8 +2636,6 @@ void MultiFit::PlotSummarySoverB(){
 
     TH1F *h_ratioBonly = nullptr;
     if(includeBonly){
-//         h_ratioBonly = (TH1F*)h_data_ord->Clone("h_ratioBonly");
-//         h_ratioBonly->Divide(h_bkgBonly_ord);
         h_ratioBonly = (TH1F*)h_bkgBonly_ord->Clone("h_ratioBonly");
         h_ratioBonly->Divide(h_den);
         h_ratioBonly->SetLineStyle(kDashed);
@@ -2784,11 +2756,7 @@ TH1F* MultiFit::OrderBins(TH1F* h,vector<float> vec){
 //____________________________________________________________________________________
 // merge bins in bins of SoverSqrtB
 TH1F* MultiFit::Rebin(TH1F* h,vector<float> vec, bool isData){
-//     TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),18,-4,-0.5);
     TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),17,-3.8,-0.5);
-//     TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),18,-3.8,-0.3);
-    // works for l+jets
-    //15,-3.75,-0.6);
     h_new->Sumw2();
     // new way
     for(int j_bin=1;j_bin<=h->GetNbinsX();j_bin++){

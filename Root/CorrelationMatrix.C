@@ -139,7 +139,6 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
             const string jSystName = vec_NP[jNP];
 
             h_corr -> SetBinContent(iNP+1,N-jNP,100.*GetCorrelation(iSystName, jSystName));
-//             h_corr -> SetBinContent(N-jNP,iNP+1,100.*GetCorrelation(iSystName, jSystName));
 
         }
     }
@@ -160,8 +159,6 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     gStyle->SetPaintTextFormat(".1f");
     gPad->SetLeftMargin(0.5*600/(size+300));
     gPad->SetBottomMargin(0.5*600/(size+300));
-//     gPad->SetRightMargin(0.1*600/(size+100));
-//     gPad->SetTopMargin(0.1*600/(size+100));
     gPad->SetRightMargin(0.);
     gPad->SetTopMargin(0.);
 
@@ -176,7 +173,6 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     h_corr->Draw("col TEXT");
     c1->RedrawAxis("g");
 
-//     c1 -> Print((TString)folder + "/CorrMatrix"+fSaveSuf+".png");
     c1->SaveAs(path.c_str());
     delete c1;
 }
