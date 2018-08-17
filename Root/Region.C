@@ -1211,7 +1211,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     // 1) Propagates the post-fit NP values to the central value (pulls)
     //
     string systName;
-    TH1* hNew = nullptr;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
@@ -1221,6 +1220,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             pullTex << "\\hline\n" << endl;
             pullTex << "{\\color{blue}{$\\rightarrow \\,$ "<< sampleTex << "}} & \\\\\n"<< endl;
         }
+        TH1* hNew = nullptr;
         hNew = (TH1*)hSmpNew[i]->Clone();
         for(int i_bin=1;i_bin<=hNew->GetNbinsX();i_bin++){
             double binContent0 = hSmpNew[i]->GetBinContent(i_bin);
@@ -1254,8 +1254,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         fSampleHists[i]->fHist_postFit = hSmpNew[i];
         delete hNew;
     }
-    delete hNew;
-
     //
     // 2) Scale all samples by norm factors
     //    Done after the propagation of the NP (avoids nans due to "0" value of some NormFactors)

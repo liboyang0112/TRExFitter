@@ -469,7 +469,7 @@ void TRExFit::WriteHistos(){
         //
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             sh = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-            if(sh == nullptr){
+            if(!sh){
                 WriteDebugStatus("TRExFit::WriteHistos", "SampleHist[" + std::to_string(i_smp) + "] for sample " + fSamples[i_smp]->fName + " not there.");
                 continue;
             }
@@ -551,7 +551,6 @@ void TRExFit::ReadNtuples(){
     TH1F* h = nullptr;
     TH1F* hUp = nullptr;
     TH1F* hDown = nullptr;
-    TH1F* htmp = nullptr;
     string fullSelection;
     string fullMCweight;
     vector<string> fullPaths;
@@ -646,9 +645,9 @@ void TRExFit::ReadNtuples(){
                                          NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
                                          NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                          );
-            htmp = nullptr;
             h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
+                TH1F* htmp = nullptr;
                 if(fRegions[i_ch]->fHistoBins){
                     htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                  variable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
@@ -750,6 +749,7 @@ void TRExFit::ReadNtuples(){
                                                 NtupleNameSuffsUp.size()>0 ? NtupleNameSuffsUp : empty
                                                 );
                     for(int i_path=0;i_path<(int)fullPaths.size();i_path++){
+                        TH1F* htmp = nullptr;
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                         variable, reg->fHistoNBinsRebin, reg->fHistoBins,
@@ -805,6 +805,7 @@ void TRExFit::ReadNtuples(){
                                                 NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
+                        TH1F* htmp = nullptr;
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                         variable, reg->fHistoNBinsRebin, reg->fHistoBins,
@@ -920,9 +921,9 @@ void TRExFit::ReadNtuples(){
                                          NtupleNames.size()>0 ? NtupleNames : ToVec( fNtupleName ),
                                          NtupleNameSuffs.size()>0 ? NtupleNameSuffs : empty  // NEW
                                          );
-            htmp = nullptr;
             h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
+                TH1F* htmp = nullptr;
                 if(fRegions[i_ch]->fHistoBins){
                     htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                  variable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
@@ -1097,6 +1098,7 @@ void TRExFit::ReadNtuples(){
                                                 NtupleNameSuffsUp.size()>0 ? NtupleNameSuffsUp : empty
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
+                        TH1F* htmp = nullptr;
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                         variable, reg->fHistoNBinsRebin, reg->fHistoBins,
@@ -1225,6 +1227,7 @@ void TRExFit::ReadNtuples(){
                                                 NtupleNameSuffsDown.size()>0 ? NtupleNameSuffsDown : empty
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
+                        TH1F* htmp = nullptr;
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                         variable, reg->fHistoNBinsRebin, reg->fHistoBins,
@@ -1305,7 +1308,6 @@ void TRExFit::ReadNtuples(){
             //
         }
     }
-    delete htmp;
 }
 
 //__________________________________________________________________________________
@@ -1643,7 +1645,6 @@ void TRExFit::ReadHistograms(){
     TH1F* h = nullptr;
     TH1F* hUp = nullptr;
     TH1F* hDown = nullptr;
-    TH1F* htmp = nullptr;
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
     SampleHist *sh;
@@ -1683,11 +1684,10 @@ void TRExFit::ReadHistograms(){
                                          histoFiles, empty, // no histo file suffs for nominal (syst only)
                                          histoNames, empty  // same for histo name
                                         );
-            htmp = nullptr;
             h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-                if (htmp == nullptr) {
+                TH1F* htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                if (!htmp) {
                     WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
                     exit(EXIT_FAILURE);
                 }
@@ -1765,8 +1765,8 @@ void TRExFit::ReadHistograms(){
                                     ToVec( syst->fHistoNameSufUpRefSample )
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                        htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-                        if (htmp == nullptr) {
+                        TH1F* htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                        if (!htmp) {
                             WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
                             exit(EXIT_FAILURE);
                         }
@@ -1774,7 +1774,6 @@ void TRExFit::ReadHistograms(){
                         if(reg->fHistoBins){
                             TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
-                            delete htmp;
                             htmp = (TH1F*)htmp2->Clone();
                             delete htmp2;
                             htmp->SetName(hname);
@@ -1820,8 +1819,8 @@ void TRExFit::ReadHistograms(){
                                     ToVec( syst->fHistoNameSufDownRefSample )
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                        htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
-                        if (htmp == nullptr) {
+                        TH1F* htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
+                        if (!htmp) {
                             WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
                             exit(EXIT_FAILURE);
                         }
@@ -1891,12 +1890,11 @@ void TRExFit::ReadHistograms(){
                                          histoFiles, empty, // no histo file suffs for nominal (syst only)
                                          histoNames, empty  // same for histo name
                                         );
-            htmp = nullptr;
             h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 files_names.insert(fullPaths[i_path]);
-                htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-                if (htmp == nullptr) {
+                TH1F* htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                if (!htmp) {
                     WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
                     exit(EXIT_FAILURE);
                 }
@@ -1904,7 +1902,6 @@ void TRExFit::ReadHistograms(){
                 if(fRegions[i_ch]->fHistoBins){
                     TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
                     const char *hname = htmp->GetName();
-                    delete htmp;
                     htmp = (TH1F*)htmp2->Clone();
                     delete htmp2;
                     htmp->SetName(hname);
@@ -2030,8 +2027,8 @@ void TRExFit::ReadHistograms(){
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         files_names.insert(fullPaths[i_path]);
-                        htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-                        if (htmp == nullptr) {
+                        TH1F* htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                        if (!htmp) {
                             WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
                             exit(EXIT_FAILURE);
                         }
@@ -2039,7 +2036,6 @@ void TRExFit::ReadHistograms(){
                         if(reg->fHistoBins){
                             TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
-                            delete htmp;
                             htmp = (TH1F*)htmp2->Clone();
                             delete htmp2;
                             htmp->SetName(hname);
@@ -2134,8 +2130,8 @@ void TRExFit::ReadHistograms(){
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         files_names.insert(fullPaths[i_path]);
-                        htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
-                        if (htmp == nullptr) {
+                        TH1* htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
+                        if (!htmp) {
                             WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
                             exit(EXIT_FAILURE);
                         }
@@ -2143,7 +2139,6 @@ void TRExFit::ReadHistograms(){
                         if(reg->fHistoBins){
                             TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
-                            delete htmp;
                             htmp = (TH1F*)htmp2->Clone();
                             delete htmp2;
                             htmp->SetName(hname);
@@ -2228,7 +2223,6 @@ void TRExFit::ReadHistograms(){
             files_names.clear();
         }
     }
-    delete htmp;
 }
 
 //__________________________________________________________________________________
@@ -5262,7 +5256,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
 
     //-- POI
     RooRealVar * poi = (RooRealVar*) mc->GetParametersOfInterest()->first();
-    if (poi == nullptr){
+    if (!poi){
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         WriteErrorStatus("TRExFit::DumpData", "Cannot find POI in workspace, exitting...");
         exit(EXIT_FAILURE);
@@ -6725,7 +6719,6 @@ void TRExFit::ComputeBining(int regIter){
     //Creating histograms to rebin
     TH1F* hsig = nullptr;
     TH1F* hbkg = nullptr;
-    TH1F* htmp = nullptr;
     bool nDefSig=true;
     bool nDefBkg=true;
     string fullSelection;
@@ -6795,6 +6788,7 @@ void TRExFit::ComputeBining(int regIter){
               for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                   int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
                   TRExFitter::SetDebugLevel(0);
+                  TH1F* htmp = nullptr;
                   htmp = HistFromNtuple( fullPaths[i_path],
                                         fRegions[regIter]->fVariable, 10000, fRegions[regIter]->fXmin, fRegions[regIter]->fXmax,
                                         fullSelection, fullMCweight);
@@ -6874,8 +6868,8 @@ void TRExFit::ComputeBining(int regIter){
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
                 TRExFitter::SetDebugLevel(0);
-                htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
-                if (htmp == nullptr) {
+                TH1F* htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                if (!htmp) {
                     WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is mpty cannot continue running the code");
                     exit(EXIT_FAILURE);
                 }
@@ -6885,7 +6879,6 @@ void TRExFit::ComputeBining(int regIter){
                 if(fRegions[regIter]->fHistoBins){
                     TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin,"htmp2",fRegions[regIter]->fHistoBins));
                     const char *hname = htmp->GetName();
-                    delete htmp;
                     htmp = (TH1F*)htmp2->Clone();
                     delete htmp2;
                     htmp->SetName(hname);
@@ -7072,7 +7065,6 @@ void TRExFit::ComputeBining(int regIter){
     //
     delete hsig;
     delete hbkg;
-    delete htmp;
     fRegions[regIter]->SetBinning(nBins-1, bins);
     delete[] bins;
 }
@@ -7762,11 +7754,11 @@ void TRExFit::RunToys(RooWorkspace* ws){
 //
 float TRExFit::GetNominalMorphScale(const SampleHist* const sh) const {
     float scale = 1.;
-    if (sh == nullptr) return 1.;
-    if (sh->fSample == nullptr) return 1.;
+    if (!sh) return 1.;
+    if (!(sh->fSample)) return 1.;
     for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
         NormFactor *nf = sh->fSample->fNormFactors[i_nf];
-        if (nf == nullptr) continue;
+        if (!nf) continue;
         std::string nfName = nf->fName;
 
         if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
