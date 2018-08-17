@@ -224,7 +224,7 @@ For each object type (also called "block"), here is the list of available proper
 | GetGoodnessOfFit | set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods) |
 | DoNonProfileFit  | [EXPERIMENTAL] if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time |
 | FitToys          | [EXPERIMENTAL] if set to N > 0, N stat-ony toys are generated and fitted |
-| TemplateInterpolationOption: Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt(x^2+\epsilon)`$ to achieve smooth transitions (first derivative) between the templates |
+| TemplateInterpolationOption | Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt{x^2+\epsilon}`$ to achieve smooth transitions (first derivative) between the templates |
 
 * **Limit:**
 
@@ -242,98 +242,110 @@ For each object type (also called "block"), here is the list of available proper
 | SignificanceBlind | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
 | POIAsimov         | value of the POI to inject in the Asimov dataset in SignificanceBlind is set to TRUE |
 
-* Options:
+* **Options**:
   * additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...
 
-* Region:
-  * VariableTitle    : it's the label which will be displayed on the x-axis in the plots
-  * Label            : it's the label which will be showed on the plots and specifies which region is shown
-  * TexLabel         : label for tex files
-  * ShortLabel       : same as above, but a shorter version for plots with smaller available place
-  * LumiLabel        : label for luminosity to be put on plots
-  * CmeLabel         : label for center-of-mass energy to be put on plots
-  * LogScale         : set it to true to have log-scale when plotting this region
-  * HistoFile        : only for option HIST, the file name to be used
-  * HistoName        : only for option HIST, the histogram name to be used
-  * HistoPathSuff(s) : only for option HIST, the path suffix (or suffixes, comma-separated) where to find the histogram files for this region
-  * Variable         : only for option NTUP, the variable (or expression) inside the ntuple to plot can define a variable as X|Y to do the correlation plot between X and Y
-  * VariableForSample: only for option NTUP, allows to set exceptions for Variable. This is a very useful feature when using TRF only in some samples. Comma-separated list of sample:variable (e.g. wjets:met_met/1e3,zjets:Mbbb/1e).
-  * Selection        : only for option NTUP, the selection done on the ntuple for this region
-  * NtupleName       : only for option NTUP, the name of the tree for this region
-  * NtuplePathSuff(s): only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region
-  * MCweight         : only for option NTUP, the additional weight used in this region (for MC samples only)
-  * Rebin            : if specified, the histograms will be rebinned merging N bins together, where N is the argument (int)
-  * Binning          : if specified, the histograms will be rebinned according to the new binning specified, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions or define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning.
-  * BinWidth         : if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number
-  * BinLabels        : if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins)
-  * Type             : can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL
-  * DataType         : ASIMOV or DATA. Is Asimov is set, the limits and significances are computed without taking into account the data in these region, but a projection of the fit performed in the regions with DATA
-  * Ymax             : if set, it will force the plot to use this value as max y-maxis value
-  * Ymin             : if set, it will force the plot to use this value as min y-maxis value
-  * RatioYmax        : if set, it will specify the max of the range of the ratio plot for this region only
-  * RatioYmin        : if set, it will specify the min of the range of the ratio plot for this region only
-  * RatioYmaxPostFit : if set, it will specify the max of the range of the ratio plot for this region only, for post-fit only
-  * RatioYminPostFit : if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only
-  * DropBins         : allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 0 for the index
-  * Group            : if specified, regions of the same group appear together in several places, see RegionGroups option
-  * YaxisTitle       : title of y-axis used for plots of the region
-  * YmaxScale        : scales range of y-axis (default: 2.0, meaning the maximum axis value is twice the largest yield in any bin)
-  * Ymax             : maximum value on y-axis
-  * SkipSmoothing    : if smoothing of nominal samples is used, this option can be used to disable smoothing per region (default: FALSE)
+* **Region**:
 
-* Sample:
-  * Type             : can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace
-  * Title            : title shown on the legends
-  * TexTitle         : title shown on tex tables
-  * Group            : if specified, sample will be grouped with other samples with same group and this label will be used in plots
-  * HistoFile        : valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path
-  * HistoName        : valid only for option HIST; name of histogram to read
-  * HistoPath        : valid only for option HIST; it's the path where the input root files containing the histograms are stored
-  * NtupleFile(s)    : valid only for option NTUP; it's the file name(s) where the input ntuples are stored
-  * NtupleName(s)    : valid only for option NTUP; name(s) of tree to read
-  * NtuplePath(s)    : valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
-  * NtupleNameSuff(s): valid only for option NTUP; suffix(es) for the name of tree to read
-  * FillColor        : histogram fill color (not valid for data)
-  * LineColor        : histogram line color
-  * NormFactor       : NormalisationFactor (free parameter in the fit); in the format <name>,nominal,min,max
-  * ShapeFactor      : ShapeFactor added
-  * NormalizedByTheory: set it to false for data-driven backgrounds (MCweight, Lumi and LumiScale from Job and Region will be ignored)
-  * MCweight         : only for option NTUP, the additional weight used in this sample (for all types of samples!! Not only MC)
-  * Selection        : valid only for option NTUP; additional selection for this region
-  * Regions          : set this to have the sample only in some regions
-  * Exclude          : set this to exclude the sample in some regions
-  * LumiScale(s)     : set this to scale the sample by a number; if more numbers are set, use a different one for each file / name / path...
-  * IgnoreSelection  : if set, selection from Job and Region will be ignored
-  * UseMCstat        : if set to FALSE, makes the fitter ignore the stat uncertainty for this sample
-  * UseSystematics   : has to be set to TRUE to allow systematics on the GHOST samples
-  * MultiplyBy       : if specified, each sample hist is multiplied bin-by-bin by another sample hist, in each of the regions
-  * DivideBy         : if specified, each sample hist is divided bin-by-bin by another sample hist, in each of the regions
-  * AddSample(s)     : if specified, each sample hist gets added bin-by-bin another sample hist, in each of the regions
-  * SubtractSample(s): if specified, each sample hist gets subtracted bin-by-bin another sample hist, in each of the regions
-  * Smooth           : if set to TRUE, the nominal histograms are smoothed (based on TH1::Smooth but taking into account the original stat uncertainty)
-  * AsimovReplacementFor: only for GHOST samples; if set, the creation of custom Asimov data-set(s) is triggered; use as 'AsimovReplacementFor: "dataset","sample"', where "dataset" is the name of a custom Asimov dataset one wants to create (the same name will have to be set under Job->CustomAsimov in order to use it) and "sample" is the sample this GHOST sample will supercede
-  * SeparateGammas   : if set to TRUE, the sample will not contribute to the overall gamma factors for MC stat, but a separate set of them will be added for this sample (through the SHAPE systematic technology); NB: you need to re-run at least the "b" step if you want to decorrelate the gammas on existing inputs (wf is not enough)
-  * CorrelateGammasInRegions: to be used only together with SeparateGammas; can be used to correlate MC stat across regions; example: "SR1:SR2,CR1:CR2:CR3" will use the same NP for the MC stat in each bin of SR1 and SR2 and in each bin of CR1, CR2 and CR3
-  * Morphing         : add this to each template you have, to do a template fit / morphing; syntax is `<name-of-parameter>,<value-corresponding-to-this-template>`; the POI should be set to `<name-of-parameter>`
-  * BuildPullTable: if set to TRUE or NORM-ONLY, create tables showing the post-fit acceptance effect of nuisance parameter pulls for this sample, set to NORM+SHAPE to include the bin-by-bin effect
+| **Option** | **Function** |
+| ---------- | ------------ |
+| VariableTitle    | it's the label which will be displayed on the x-axis in the plots |
+| Label            | it's the label which will be showed on the plots and specifies which region is shown |
+| TexLabel         | label for tex files |
+| ShortLabel       | same as above, but a shorter version for plots with smaller available place |
+| LumiLabel        | label for luminosity to be put on plots |
+| CmeLabel         | label for center-of-mass energy to be put on plots |
+| LogScale         | set it to true to have log-scale when plotting this region |
+| HistoFile        | only for option HIST, the file name to be used |
+| HistoName        | only for option HIST, the histogram name to be used |
+| HistoPathSuff(s) | only for option HIST, the path suffix (or suffixes, comma-separated) where to find the histogram files for this region |
+| Variable         | only for option NTUP, the variable (or expression) inside the ntuple to plot can define a variable as X|Y to do the correlation plot between X and Y |
+| VariableForSample| only for option NTUP, allows to set exceptions for Variable. This is a very useful feature when using TRF only in some samples. Comma-separated list of sample:variable (e.g. wjets:met_met/1e3,zjets:Mbbb/1e). |
+| Selection        | only for option NTUP, the selection done on the ntuple for this region |
+| NtupleName       | only for option NTUP, the name of the tree for this region |
+| NtuplePathSuff(s)| only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region |
+| MCweight         | only for option NTUP, the additional weight used in this region (for MC samples only) |
+| Rebin            | if specified, the histograms will be rebinned merging N bins together, where N is the argument (int) |
+| Binning          | if specified, the histograms will be rebinned according to the new binning specified, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions or define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning. |
+| BinWidth         | if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number |
+| BinLabels        | if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins) |
+| Type             | can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL |
+| DataType         | ASIMOV or DATA. Is Asimov is set, the limits and significances are computed without taking into account the data in these region, but a projection of the fit performed in the regions with DATA |
+| Ymax             | if set, it will force the plot to use this value as max y-maxis value |
+| Ymin             | if set, it will force the plot to use this value as min y-maxis value |
+| RatioYmax        | if set, it will specify the max of the range of the ratio plot for this region only |
+| RatioYmin        | if set, it will specify the min of the range of the ratio plot for this region only |
+| RatioYmaxPostFit | if set, it will specify the max of the range of the ratio plot for this region only, for post-fit only |
+| RatioYminPostFit | if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only |
+| DropBins         | allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 0 for the index |
+| Group            | if specified, regions of the same group appear together in several places, see RegionGroups option |
+| YaxisTitle       | title of y-axis used for plots of the region |
+| YmaxScale        | scales range of y-axis (default: 2.0, meaning the maximum axis value is twice the largest yield in any bin) |
+| Ymax             | maximum value on y-axis |
+| SkipSmoothing    | if smoothing of nominal samples is used, this option can be used to disable smoothing per region (default: FALSE) |
 
-* NormFactor:
-  * Samples          : comma-separated list of samples on which to apply the norm factor
-  * Regions          : comma-separated list of regions where to apply the norm factor
-  * Exclude          : comma-separated list of samples/regions to exclude
-  * Title            : title of the norm factor
-  * Nominal          : nominal value
-  * Min              : min value
-  * Max              : max value
-  * Constant         : set to TRUE to have a fixed norm factor
-  * Category         : major category to which the NormFactor belongs (instrumental, theory, ttbar, ...)
-  * SubCategory      : minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality)
-  * Expression       : a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form `<expression>,<dependency>`, where `<dependency>` should contain the name(s) of the norm factor the expression depends on [example: `"1.-SigXsecOverSM","SigXsecOverSM"`]
+* **Sample:**
 
-* ShapeFactor:
-  * Samples          : comma-separated list of samples on which to apply the shape factor
-  * Regions          : comma-separated list of regions where to apply the shape factor
-  * Title            : title of the shape factor
+| **Option** | **Function** |
+| ---------- | ------------ |
+| Type             | can be SIGNAL, BACKGROUND, DATA or GHOST; default is BACKGROUND; GHOST means: no syst, not drawn, not propagated to workspace |
+| Title            | title shown on the legends |
+| TexTitle         | title shown on tex tables |
+| Group            | if specified, sample will be grouped with other samples with same group and this label will be used in plots |
+| HistoFile        | valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path |
+| HistoName        | valid only for option HIST; name of histogram to read |
+| HistoPath        | valid only for option HIST; it's the path where the input root files containing the histograms are stored |
+| NtupleFile(s)    | valid only for option NTUP; it's the file name(s) where the input ntuples are stored |
+| NtupleName(s)    | valid only for option NTUP; name(s) of tree to read |
+| NtuplePath(s)    | valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored |
+| NtupleNameSuff(s)| valid only for option NTUP; suffix(es) for the name of tree to read |
+| FillColor        | histogram fill color (not valid for data) |
+| LineColor        | histogram line color |
+| NormFactor       | NormalisationFactor (free parameter in the fit); in the format \<name\>,nominal,min,max |
+| ShapeFactor      | ShapeFactor added |
+| NormalizedByTheory | set it to false for data-driven backgrounds (MCweight, Lumi and LumiScale from Job and Region will be ignored) |
+| MCweight         | only for option NTUP, the additional weight used in this sample (for all types of samples!! Not only MC) |
+| Selection        | valid only for option NTUP; additional selection for this region |
+| Regions          | set this to have the sample only in some regions |
+| Exclude          | set this to exclude the sample in some regions |
+| LumiScale(s)     | set this to scale the sample by a number; if more numbers are set, use a different one for each file / name / path... |
+| IgnoreSelection  | if set, selection from Job and Region will be ignored |
+| UseMCstat        | if set to FALSE, makes the fitter ignore the stat uncertainty for this sample |
+| UseSystematics   | has to be set to TRUE to allow systematics on the GHOST samples |
+| MultiplyBy       | if specified, each sample hist is multiplied bin-by-bin by another sample hist, in each of the regions |
+| DivideBy         | if specified, each sample hist is divided bin-by-bin by another sample hist, in each of the regions |
+| AddSample(s)     | if specified, each sample hist gets added bin-by-bin another sample hist, in each of the regions |
+| SubtractSample(s)| if specified, each sample hist gets subtracted bin-by-bin another sample hist, in each of the regions |
+| Smooth           | if set to TRUE, the nominal histograms are smoothed (based on TH1::Smooth but taking into account the original stat uncertainty) |
+| AsimovReplacementFor | only for GHOST samples; if set, the creation of custom Asimov data-set(s) is triggered; use as 'AsimovReplacementFor: "dataset","sample"', where "dataset" is the name of a custom Asimov dataset one wants to create (the same name will have to be set under Job->CustomAsimov in order to use it) and "sample" is the sample this GHOST sample will supersede |
+| SeparateGammas   | if set to TRUE, the sample will not contribute to the overall gamma factors for MC stat, but a separate set of them will be added for this sample (through the SHAPE systematic technology); NB: you need to re-run at least the "b" step if you want to decorrelate the gammas on existing inputs (wf is not enough) |
+| CorrelateGammasInRegions | to be used only together with SeparateGammas; can be used to correlate MC stat across regions; example: "SR1:SR2,CR1:CR2:CR3" will use the same NP for the MC stat in each bin of SR1 and SR2 and in each bin of CR1, CR2 and CR3 |
+| Morphing         | add this to each template you have, to do a template fit / morphing; syntax is `<name-of-parameter>,<value-corresponding-to-this-template>`; the POI should be set to `<name-of-parameter>` |
+| BuildPullTable   | if set to TRUE or NORM-ONLY, create tables showing the post-fit acceptance effect of nuisance parameter pulls for this sample, set to NORM+SHAPE to include the bin-by-bin effect |
+
+* **NormFactor:**
+
+| **Option** | **Function** |
+| ---------- | ------------ |
+| Samples          | comma-separated list of samples on which to apply the norm factor |
+| Regions          | comma-separated list of regions where to apply the norm factor |
+| Exclude          | comma-separated list of samples/regions to exclude |
+| Title            | title of the norm factor |
+| Nominal          | nominal value |
+| Min              | min value |
+| Max              | max value |
+| Constant         | set to TRUE to have a fixed norm factor |
+| Category         | major category to which the NormFactor belongs (instrumental, theory, ttbar, ...) |
+| SubCategory      | minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
+| Expression       | a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form `<expression>,<dependency>`, where `<dependency>` should contain the name(s) of the norm factor the expression depends on [example: `"1.-SigXsecOverSM","SigXsecOverSM"`] |
+
+* **ShapeFactor:**
+
+| **Option** | **Function** |
+| ---------- | ------------ |
+| Samples          | comma-separated list of samples on which to apply the shape factor |
+| Regions          | comma-separated list of regions where to apply the shape factor |
+| Title            | title of the shape factor |
 
 * Systematic:
   * Samples             : comma-separated list of samples on which to apply the systematic
