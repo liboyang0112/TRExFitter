@@ -150,13 +150,13 @@ TRExFit::TRExFit(string name){
     fYmax = 0;
 
     fFitResultsFile = "";
-    
+
     fDoSummaryPlot = true;
     fDoMergedPlot = false;
     fDoTables = true;
     fDoSignalRegionsPlot = true;
     fDoPieChartPlot = true;
-    
+
     fSummaryPrefix = "";
 
     fGroupedImpactCategory = "all";
@@ -191,7 +191,7 @@ TRExFit::TRExFit(string name){
     fLimitPOIAsimov = 0;
     fSignalInjection = false;
 
-    // 
+    //
     // Significance parameters
     //
     fSignificanceIsBlind = false;
@@ -221,34 +221,34 @@ TRExFit::TRExFit(string name){
 
     // Increase the limit for formula evaluations
     ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
-    
+
     fKeepPrefitBlindedBins = false;
     fBlindedBins = nullptr;
-    
+
     fRatioYmax = 1.5;
     fRatioYmin = 0.5;
     fRatioYmaxPostFit = 1.5;
     fRatioYminPostFit = 0.5;
-    
+
     fCustomAsimov = "";
     fRandomPOISeed = -1;
     fTableOptions = "STANDALONE";
-    
+
     fGetGoodnessOfFit = false;
     fGetChi2 = 0; // 0: no, 1: stat-only, 2: with syst
-    
+
     fCustomFunctions.clear();
     fSuppressNegativeBinWarnings = false;
 
     fMorphParams.clear();
     fTemplateInterpolationOption = TRExFit::LINEAR;
-    
+
     fBootstrap = "";
     fBootstrapIdx = -1;
 
     fDecorrSysts.clear();
     fDecorrSuff = "_decor";
-    
+
     fDoNonProfileFit = false;
     fFitToys = 0;
     fSmoothMorphingTemplates = false;
@@ -686,7 +686,7 @@ void TRExFit::ReadNtuples(){
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
-            
+
             // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
             // so we need to get its systematics first
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
@@ -1121,7 +1121,7 @@ void TRExFit::ReadNtuples(){
                                 WriteErrorStatus("TRExFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
                                 WriteErrorStatus("TRExFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
                                 exit(EXIT_FAILURE);
-                            } 
+                            }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -1142,7 +1142,7 @@ void TRExFit::ReadNtuples(){
                                 WriteErrorStatus("TRExFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
                                 WriteErrorStatus("TRExFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
                                 exit(EXIT_FAILURE);
-                            } 
+                            }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -1150,14 +1150,14 @@ void TRExFit::ReadNtuples(){
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            
+
                             // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
                             TH1* href_up_Tmp = (TH1*)href_up->Clone(Form("%s_Tmp", href_up->GetName()));
                             href_up_Tmp->Divide(href);
                             href_up_Tmp->Multiply(hnom);
                             htmp->Add(hnom);
                             htmp->Add(href_up_Tmp,-1);
-                            
+
                             delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
@@ -1267,14 +1267,14 @@ void TRExFit::ReadNtuples(){
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            
+
                             // Formula: UpHisto = [1+(down-nom)/nom-(DataDown-Data)/Data]*nom = down+nom+DataDown/Data*nom
                             TH1* href_down_Tmp = (TH1*) href_down->Clone(Form("%s_Tmp", href_down->GetName()));
                             href_down_Tmp->Divide(href);
                             href_down_Tmp->Multiply(hnom);
                             htmp->Add(hnom);
                             htmp->Add(href_down_Tmp,-1);
-                            
+
                             delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
@@ -1384,7 +1384,7 @@ void TRExFit::CorrectHistograms(){
             }
             // Norm to sample
             if(fSamples[i_smp]->fNormToSample!=""){
-                WriteDebugStatus("TRExFit::CorrectHistograms", "normalizing " + fSamples[i_smp]->fName  + "to sample " + fSamples[i_smp]->fDivideBy);                
+                WriteDebugStatus("TRExFit::CorrectHistograms", "normalizing " + fSamples[i_smp]->fName  + "to sample " + fSamples[i_smp]->fDivideBy);
                 SampleHist *smph0 = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fNormToSample);
                 if(smph0!=nullptr) sh->Scale(smph0->fHist->Integral()/sh->fHist->Integral());
             }
@@ -1410,7 +1410,7 @@ void TRExFit::CorrectHistograms(){
                     syh->fSystematic = syst;
                 }
             }
-            
+
             //
             // Fix empty bins
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::SIGNAL){
@@ -1499,7 +1499,7 @@ void TRExFit::CorrectHistograms(){
     //
     // Smooth systematics
     SmoothSystematics("all");
-    
+
     // drop normalisation part of systematic according to fDropNormIn
     for(auto reg : fRegions){
         for(auto sh : reg->fSampleHists){
@@ -1520,7 +1520,7 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
-    
+
     //
     // NEW: artifificially set all systematics not to affect overall normalisation for sample or set of samples
     // (the form should be KeepNormForSamples: ttlight+ttc+ttb,wjets
@@ -1560,7 +1560,7 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
-    
+
     //
     // For data: restore original data sample (needed if bins were dropped previously)
     //Checks if a data sample exists
@@ -1579,8 +1579,8 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
-    
-    // 
+
+    //
     // Poissonize data
     if(hasData && TRExFitter::OPTION["PoissonizeData"]!=0){
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -1597,7 +1597,7 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
-    
+
     //
     // Drop bins
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -1626,7 +1626,7 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
-    
+
     //
     // Morph smoothing (linear)
     if(fSmoothMorphingTemplates){
@@ -1647,7 +1647,7 @@ void TRExFit::ReadHistograms(){
     vector<string> fullPaths;
     vector<string> empty; empty.clear();
     SampleHist *sh;
- 
+
     //
     // Loop on regions and samples
     //
@@ -1714,8 +1714,8 @@ void TRExFit::ReadHistograms(){
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
-            
-            
+
+
             // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
                 Systematic *syst = fSamples[i_smp]->fSystematics[i_syst];
@@ -2065,14 +2065,14 @@ void TRExFit::ReadHistograms(){
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            
+
                             // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
                             TH1* href_up_Tmp = (TH1*) href_up->Clone(Form("%s_Tmp", href_up->GetName()));
                             href_up_Tmp->Divide(href);
                             href_up_Tmp->Multiply(hnom);
                             htmp->Add(hnom);
                             htmp->Add(href_up_Tmp,-1);
-                            
+
                             delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
@@ -2165,14 +2165,14 @@ void TRExFit::ReadHistograms(){
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            
+
                             // Formula: UpHisto = [1+(down-nom)/nom-(DataDown-Data)/Data]*nom = down+nom+DataDown/Data*nom
                             TH1* href_down_Tmp = (TH1*) href_down->Clone(Form("%s_Tmp", href_down->GetName()));
                             href_down_Tmp->Divide(href);
                             href_down_Tmp->Multiply(hnom);
                             htmp->Add(hnom);
                             htmp->Add(href_down_Tmp,-1);
-                            
+
                             delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
                         //
@@ -2655,7 +2655,7 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
                     else           h = (TH1F*)sh->fHist->Clone(); // Michele
                     //
                     if(!isPostFit){
-                        // FIXME SF 
+                        // FIXME SF
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
@@ -2691,7 +2691,7 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
                     else           h = (TH1F*)sh->fHist->Clone(); // Michele
                     //
                     if(!isPostFit){
-                        // FIXME SF 
+                        // FIXME SF
                         // scale it according to NormFactors
                         for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
                             h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
@@ -2810,7 +2810,7 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
     if( TRExFitter::PREFITONPOSTFIT and isPostFit) {
       p->h_tot_bkg_prefit = (TH1*)prefit_plot->GetTotBkg()->Clone("h_tot_bkg_prefit");
     }
-    
+
     //
     // Build tot
     //
@@ -3250,7 +3250,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group){
     p->SetCME(fCmeLabel);
     p->SetLumi(fLumiLabel);
     p->fATLASlabel = fAtlasLabel;
-    
+
     if(TRExFitter::OPTION["MergeYmaxScale"]==0) TRExFitter::OPTION["MergeYmaxScale"] = 1.25;
     p->fYmax = TRExFitter::OPTION["MergeYmaxScale"]*ymax0;
     if(fRatioYmax>0) p->fRatioYmax = fRatioYmax;
@@ -3269,7 +3269,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group){
                                  edge,((TH1*)p->pad1->GetPrimitive("h_dummy2"))->GetMaximum());
         l_tmp->SetLineStyle(kDashed);
         l_tmp->Draw("same");
-        l.push_back(l_tmp);        
+        l.push_back(l_tmp);
     }
     //
     // (dahsed) line in main pad
@@ -3350,7 +3350,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group){
     float textHeight = 0.05*(672./p->pad0->GetWh());
     if(isPostFit) tex->DrawLatex(0.33,0.88-textHeight,"Post-fit");
     else          tex->DrawLatex(0.33,0.88-textHeight,"Pre-fit");
-    // 
+    //
     // save image
     std::string saveName = fName+"/Plots/";
     if(fSummaryPrefix!="") saveName += fSummaryPrefix+"_";
@@ -3419,12 +3419,12 @@ void TRExFit::BuildYieldTable(string opt,string group){
         texout << "\\begin{document}" << endl;
     }
     if(fTableOptions.find("LANDSCAPE")!=string::npos){
-        texout << "\\begin{landscape}" << endl;        
+        texout << "\\begin{landscape}" << endl;
     }
     texout << "\\begin{table}[htbp]" << endl;
     texout << "\\begin{center}" << endl;
     if(fTableOptions.find("FOOTNOTESIZE")!=string::npos){
-        texout << "\\footnotesize" << endl;        
+        texout << "\\footnotesize" << endl;
     }
     texout << "\\begin{tabular}{|c" ;
     for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
@@ -3543,7 +3543,7 @@ void TRExFit::BuildYieldTable(string opt,string group){
                     h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                 }
 
-                float scale = 1; 
+                float scale = 1;
                 if (!isPostFit){
                     scale = GetNominalMorphScale(sh);
                 }
@@ -4034,7 +4034,7 @@ void TRExFit::BuildYieldTable(string opt,string group){
     texout << "\\end{center} " << endl;
     texout << "\\end{table} " << endl;
     if(fTableOptions.find("LANDSCAPE")!=string::npos){
-        texout << "\\end{landscape}" << endl;        
+        texout << "\\end{landscape}" << endl;
     }
     if(fTableOptions.find("STANDALONE")!=string::npos){
         texout << "\\end{document}" << endl;
@@ -4404,7 +4404,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
         for(int iEntry = 0; iEntry < pie->GetEntries(); ++iEntry) pie -> SetEntryLabel(iEntry,"");
         pie -> Draw();
         tex->DrawLatex(0.1,0.85,label.c_str());
-        
+
         delete [] values;
         delete [] colors;
     }
@@ -4951,7 +4951,7 @@ void TRExFit::Fit(){
         WriteInfoStatus("TRExFit::Fit","In non-profile mode => Setting to stat-only.");
         fStatOnly = true;
     }
-    
+
     //
     // If there's a workspace specified, go on with simple fit, without looking for separate workspaces per region
     //
@@ -5035,7 +5035,7 @@ void TRExFit::Fit(){
     if(fFitToys>0){
         RunToys(ws);
     }
-    
+
     //
     // Fit result on Asimov with shifted systematics
     //
@@ -5141,7 +5141,7 @@ void TRExFit::Fit(){
     // Calls the  function to create LH scan with respect to a parameter
     //
     if(fVarNameLH.size()>0){
-        // 
+        //
         // Don't do it if you did a non-profile fit (FIXME)
         if(fDoNonProfileFit){
             WriteWarningStatus("TRExFit::Fit","Better not to perform LH scan if you did non-profile fit with scan on systematics. Skipping LH scan.");
@@ -5334,7 +5334,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     }
 
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
-    
+
     return asimovData;
 }
 
@@ -5419,7 +5419,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         }
         inputData = data;
     }
-    
+
     //
     // For stat-only fit on data:
     // - read fit resutls
@@ -5454,7 +5454,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // Get initial ikelihood value from Asimov
     float nll0 = 0.;
     if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
-    
+
     //
     // Get number of degrees of freedom
     // - number of bins
@@ -5467,7 +5467,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         nNF++;
     }
     ndof -= nNF;
-    
+
     // Performs the fit
     fitTool -> MinimType("Minuit2");
     float nll = fitTool -> FitPDF( mc, simPdf, data );
@@ -5650,7 +5650,7 @@ void TRExFit::GetLimit(){
         if(fSignalInjection){
             if (!fRunROOTMacros){
                  LimitsCLs_inject::RunAsymptoticsCLs_inject(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
-            } 
+            }
             cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
         }
         else{
@@ -5879,7 +5879,7 @@ void TRExFit::ReadFitResults(const string& fileName){
                 fFitResults->fNuisPar[i]->fCategory = fNormFactors[j]->fCategory;
             }
         }
-	// FIXME SF probably there are several NPs associated to it 
+	// FIXME SF probably there are several NPs associated to it
         for(unsigned int j=0;j<fShapeFactors.size();j++){
             if(fShapeFactors[j]->fName == fFitResults->fNuisPar[i]->fName){
                 fFitResults->fNuisPar[i]->fTitle = fShapeFactors[j]->fTitle;
@@ -6018,7 +6018,7 @@ void TRExFit::DrawAndSaveSeparationPlots(){
         myText(0.20,0.83,1,Form("#sqrt{s} = %s, %s", cme.c_str(), lumi.c_str()));
 
         if(fAtlasLabel!="none") ATLASLabelNew(0.20,0.84+0.04,(char*)(fAtlasLabel+"  Simulation").c_str(), kBlack, gStyle->GetTextSize());
-        
+
         ostringstream SEP;
         SEP.precision(3);
         SEP << "Separation: " << GetSeparation(sig,bkg)*100 << "%";
@@ -6485,7 +6485,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas){
             parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1] + ")";
         }
         else parTitle = TRExFitter::SYSTMAP[ parname[i] ];
-        
+
         Names.push_back(parTitle);
 
         idx ++;
@@ -6661,10 +6661,10 @@ void TRExFit::MergeSystematics(){
             for(auto syst1 : fSystematics){
                 if(syst->fName==syst1->fName) continue;
                 if(!(syst->fNuisanceParameter==syst1->fName && syst1->fNuisanceParameter==syst1->fName)) continue;
-                // now merge all SystematicHist in all regions                
-                WriteDebugStatus("TRExFit::MergeSsystematics", "Found NP(syst) " + syst->fNuisanceParameter + "(" + syst->fName + ") = to syst name " + syst1->fName );
+                // now merge all SystematicHist in all regions
+                WriteDebugStatus("TRExFit::MergeSystematics", "Found NP(syst) " + syst->fNuisanceParameter + "(" + syst->fName + ") = to syst name " + syst1->fName );
                 for(auto reg : fRegions){
-                    WriteDebugStatus("TRExFit::MergeSsystematics", "Region: " + reg->fName);
+                    WriteDebugStatus("TRExFit::MergeSystematics", "Region: " + reg->fName);
                     for(auto sh : reg->fSampleHists){
                         SystematicHist *syh  = sh->GetSystematic(syst ->fName);
                         SystematicHist *syh1 = sh->GetSystematic(syst1->fName);
@@ -6673,8 +6673,8 @@ void TRExFit::MergeSystematics(){
                             // the issue here is that to combine uncertainties one has to act differently depending on the fact that the different sources come from a multiplication/division or not...
                             syh1 ->Add(syh);
                             syh1 ->Add(sh->fHist,-1);
-                            WriteDebugStatus("TRExFit::MergeSsystematics", "Adding syst of " + syh->fName +  " to " + syh1->fName);
-                            WriteDebugStatus("TRExFit::MergeSsystematics", "Setting to 0 all Up/Down of " +  syh->fName);
+                            WriteDebugStatus("TRExFit::MergeSystematics", "Adding syst of " + syh->fName +  " to " + syh1->fName);
+                            WriteDebugStatus("TRExFit::MergeSystematics", "Setting to 0 all Up/Down of " +  syh->fName);
                             //
                             // set to zero the other syst
                             syh->fHistUp   = (TH1*)sh->fHist->Clone(syh->fHistUp  ->GetName());
@@ -7053,23 +7053,23 @@ void TRExFit::ComputeBining(int regIter){
 //
 void TRExFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data){
     WriteInfoStatus("TRExFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
-  
+
     // shut-up RooFit!
     if(TRExFitter::DEBUGLEVEL<=1){
         if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
         else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
-        RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL) ;
-        RooMsgService::instance().getStream(1).removeTopic(Generation) ;
-        RooMsgService::instance().getStream(1).removeTopic(Plotting) ;
-        RooMsgService::instance().getStream(1).removeTopic(LinkStateMgmt) ;
-        RooMsgService::instance().getStream(1).removeTopic(Eval) ;  
-        RooMsgService::instance().getStream(1).removeTopic(Caching) ;  
-        RooMsgService::instance().getStream(1).removeTopic(Optimization) ;  
-        RooMsgService::instance().getStream(1).removeTopic(ObjectHandling) ;  
-        RooMsgService::instance().getStream(1).removeTopic(InputArguments) ;  
-        RooMsgService::instance().getStream(1).removeTopic(Tracing) ;  
-        RooMsgService::instance().getStream(1).removeTopic(Contents) ;  
-        RooMsgService::instance().getStream(1).removeTopic(DataHandling) ;  
+        RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
+        RooMsgService::instance().getStream(1).removeTopic(Generation);
+        RooMsgService::instance().getStream(1).removeTopic(Plotting);
+        RooMsgService::instance().getStream(1).removeTopic(LinkStateMgmt);
+        RooMsgService::instance().getStream(1).removeTopic(Eval);
+        RooMsgService::instance().getStream(1).removeTopic(Caching);
+        RooMsgService::instance().getStream(1).removeTopic(Optimization);
+        RooMsgService::instance().getStream(1).removeTopic(ObjectHandling);
+        RooMsgService::instance().getStream(1).removeTopic(InputArguments);
+        RooMsgService::instance().getStream(1).removeTopic(Tracing);
+        RooMsgService::instance().getStream(1).removeTopic(Contents);
+        RooMsgService::instance().getStream(1).removeTopic(DataHandling);
         RooMsgService::instance().setStreamStatus(1,false);
     }
 
@@ -7097,7 +7097,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* d
     if (fLHscanMin < 99999) { // is actually set
         minVal = fLHscanMin;
     }
-    
+
     if (fLHscanMax > -99999) { // is actually set
         maxVal = fLHscanMax;
     }
@@ -7162,7 +7162,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* d
 
     TLatex *tex = new TLatex();
     tex->SetTextColor(kGray+2);
-    
+
     TLine *l1s = new TLine(minVal,0.5,maxVal,0.5);
     l1s->SetLineStyle(kDashed);
     l1s->SetLineColor(kGray);
@@ -7171,7 +7171,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* d
     l1s->Draw();
     tex->DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
     }
-    
+
     if(isPoI){
         if(frameLH->GetMaximum()>2){
             TLine *l2s = new TLine(minVal,2,maxVal,2);
@@ -7202,10 +7202,10 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* d
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
     can->RedrawAxis();
-    
+
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
         can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TRExFitter::IMAGEFORMAT[i_format] );
-    
+
     // write it to a ROOT file as well
     TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
     f->cd();
@@ -7350,7 +7350,7 @@ std::vector<TRExFit::TemplateWeight> TRExFit::GetTemplateWeightVec(const TRExFit
 std::string TRExFit::GetWeightFunction(unsigned int itemp, const TRExFit::TemplateInterpolationOption& opt) const{
     std::string fun = "";
     float x_i;
-    float deltaXp = -1; // |x(i+1)-x(i)| 
+    float deltaXp = -1; // |x(i+1)-x(i)|
     float deltaXm = -1; // |x(i-1)-x(i)|
     std::string name;
     if (itemp < fTemplatePair.size()){
@@ -7393,10 +7393,10 @@ std::string TRExFit::GetWeightFunction(unsigned int itemp, const TRExFit::Templa
 //__________________________________________________________________________________
 //
 std::string TRExFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
-    // The idea is simple: use integral of hyperbolic tangent 
+    // The idea is simple: use integral of hyperbolic tangent
     //
     // -2/width*(1/k)*corr*(log(e^(k*(x-x_mean)+e^(-(k*(x-x_mean))))) - ln(2)) + 1
-    // 
+    //
     // but the function is split into two parts to allow also non-equal steps in
     // the templates used for the template fit
     // "width" represents the x-axis size that is used for that particular function
@@ -7444,7 +7444,7 @@ std::string TRExFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
     corr_right= 1+GetCorrection(k_right, width_right, x_mean, x_right);
     corr_right+= GetCorrection(k_right, width_right, x_mean, x_right, corr_right);
     corr_right+= GetCorrection(k_right, width_right, x_mean, x_right, corr_right);
-    
+
     // prepare the actual string as "function" + "step function"
     std::string name = fTemplatePair.at(itemp).second;
     std::string step_left = "";
@@ -7479,7 +7479,7 @@ double TRExFit::GetCorrection(float k, float width, float x_mean, float x_left, 
     // since we are calculating logarithm of potentially wery large numbers (e^20)
     // we need to help the code in case we get overflow, when this happens we simply discard
     // the smaller contribution and set log(e^(x)) = x manually;
-    
+
     //check if the number is inf
     if (exp(k*(x_left-x_mean)) > exp(k*(x_left-x_mean))) {
         logterm = k*(x_left-x_mean);
@@ -7497,7 +7497,7 @@ double TRExFit::GetCorrection(float k, float width, float x_mean, float x_left, 
 //
 std::string TRExFit::GetSquareRootLinearInterpolation(unsigned int itemp) const {
     double epsilon = 0.0000001;
-    
+
     float x_i = fTemplatePair.at(itemp).first;
     float x_left = -99999;
     float x_right = -99999;
@@ -7551,7 +7551,7 @@ void TRExFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left,
     if (x_left == 0) {
         x_left = 2*x_i;
     }
-    
+
     // this can be analytically calculated
     double k = std::sqrt(((x_i - x_left)*(x_i - x_left)/epsilon) + 1);
     *b = k/(k-1);
@@ -7611,7 +7611,7 @@ bool TRExFit::MorphIsAlreadyPresent(const std::string& name, const float value) 
         if ((itemp.second == name) && (itemp.first == value)){
             return true;
         }
-    }    
+    }
     return false;
 }
 
