@@ -527,7 +527,7 @@ This will create a combined ws starting from the individual ws for the different
 Multi-Fit options
 ---------
 
-**Job block"**
+* **Job block:**
 
 | Option | Function |
 | ------ | -------- |
@@ -582,7 +582,7 @@ Multi-Fit options
 | POINominal       | value of the nominal (SM) prediction for POI, default is `1` |
 | ShowTotalOnly    | If set to TRUE will show only total uncertainty on the POI plots. Default is FALSE |
 
-**Fit block:**
+* **Fit block:**
 
 | Option | Function |
 | ------ | -------- |
