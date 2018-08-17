@@ -1,4 +1,4 @@
-# TRExFitter
+# TRExFitter [![build status](https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg "build status")](https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master)
 
 This package provides a framework to perform profile likelihood fits. In addition to that, many convenient features are available. TRExFitter was previously also known as TtHFitter. Here are a few important references to make use of:
 
@@ -7,11 +7,7 @@ This package provides a framework to perform profile likelihood fits. In additio
 * TRExFitter mailing list: [atlas-phys-stat-tthfitter](https://e-groups.cern.ch/e-groups/EgroupsSubscription.do?egroupName=atlas-phys-stat-tthfitter)
 
 
-### Build status
-[![build status](https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg "build status")](https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master)
-
-
-### Getting the code
+## Getting the code
 To get the code, use the following command:
 ```
   git clone ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git
@@ -21,7 +17,8 @@ To get a specific tag, do the following:
   cd TRExFitter && git checkout <tag number> && cd -
 ```
 
-### Setup
+
+## Setup
 To setup just use the script (from any location):
 ```
   source setup.sh
@@ -42,14 +39,15 @@ The setup script also adds a path to the binary into your PATH and you can execu
 **IMPORTANT!** For the first time use you need to type `git submodule init` followed by `git submodule update`
 Everytime the submodules change you need to run `git submodule update`
 
-### How to
-To run the code, after compiling (see "Setup"), use the command:
+
+## How to
+To run the code, after compiling (see [Setup](README.md#setup)), use the command:
 ```
     trex-fitter  <action(s)>  [<config file>]  [<update>]  [<options>]
 ```
 The configuration file (`<config file>`) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
 By default, the file  `config/myFit.config`  is loaded.
-See the section [Config File](README.md#Config-File) for more details.
+See the section [Config File](README.md#config-file) for more details.
 Take a look at `config/myFit.config` or `config/ttH2015.config` to see some example config files.
 Most of the time, the only file the user has to modify to obtain their desired results is the configuration file.
 
@@ -79,7 +77,7 @@ It is a string (so make sure to use " or ' to enclose the string if you use more
 See the section "Command line options" below.
 
 
-### Config File
+## Config File
 
 The structure of the file should be the following:
 ```
@@ -415,7 +413,7 @@ For each object type (also called "block"), here is the list of available proper
   * Decorrelate         : decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects)
 
 
-### Command line options
+## Command line options
 Currently the supported options are:
 
 * Regions:     to limit the regions to use to the list specified
@@ -441,7 +439,7 @@ Example:
      trex-fitter  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
 ```
 
-### Ranking Plot
+## Ranking Plot
 * The ranking plot can be created in one go, with just the command line argument `r` (after having run the nominal fit `f`).
 * Since this can take too much time (and memory), for complicated fits it's better to run it in several steps:
    by specifying the command-line option `Ranking=<name/index>`, one can produce the txt input for the ranking only for a specific line of the ranking, i.e. for a single NP (specified either through its name or index). Once all the needed txt files are created (e.g. in parallel through batch jobs) with the option "Ranking=plot" they are merged to create the final plot.
@@ -457,7 +455,7 @@ Example:
      trex-fitter  r  <config> Ranking=plot
 ```
 
-### Grouped Impact
+## Grouped Impact
 * The command line argument `i` is used to evaluate the combined impact of groups of nuisance parameters on the POI.
 * Specify groups using the `SubCategory` option (for Systematics and NormFactors).
 * Two groups are defined by default: "Gammas" (MC stat. impact) and "FullSyst" (full systematics impact with statistical component subtracted).
@@ -477,7 +475,7 @@ Example:
     trex-fitter i <config> GroupedImpact="combine"
 ```
 
-### Multi-Fit
+## Multi-Fit
 The Multi-Fit functionality can be used to compare fit results or even to combine fit inputs from different configuration files / Jobs.
 
 To use it you need a dedicated config file, with a structure similar to the usual ones. Example:
@@ -586,7 +584,7 @@ Multi-Fit options
   * InputName        : the name of the input
 
 
-### Input File Merging with hupdate
+## Input File Merging with hupdate
 A macro `hupdate` is included, which mimics hadd functionality, but without adding histograms if they have the same name.
 This is useful for running different systematics in different steps (like different batch jobs) and then merging results afterwards.
 `hupdate` is compiled automatically when using cmake. To explicitly request compilation, execute the following in the build folder:
@@ -604,23 +602,25 @@ Example usage, combined with the usage of SaveSuffix:
     trex-fitter dwf ../config/ttH2015.config
 ```
 
-### Output Directories Structure
+## Output Directories Structure
 For each TRExFit object, a directory is created, with the same name as the Fit Name.
 Inside this direcotry, at every step, some outputs are created, following the structure described above
 
-* `Plots/`              : contains the data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots
-* `Tables/`             : contains the tables in txt and tex format
-* `RooStats/`           : contains the workspace(s) and the xmls
-* `Fits/`               : contains the output from fits
-* `Limits/`             : contains the outputs from the limit-setting code
-* `Significance/`       : contains the outputs from the significance code
-* `Systematics/`        : contains the plots for the syst variations
-* `Toys/`               : contains the plots and ROOT files with pseudoexperiments output
-* `Histograms/`         : contains the root file(s) with all the inputs
-* `LHoodPlots/`         : contains the likelihood scan with respect to the specified parameter
+| Folder | Content | 
+| ------ | ------- | 
+| `Plots/`              | data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots |
+| `Tables/`             | tables in txt and tex format |
+| `RooStats/`           | workspace(s) and the xmls |
+| `Fits/`               | output from fits |
+| `Limits/`             | outputs from the limit-setting code |
+| `Significance/`       | outputs from the significance code |
+| `Systematics/`        | plots for the syst variations |
+| `Toys/`               | plots and ROOT files with pseudoexperiments output |
+| `Histograms/`         | root file(s) with all the inputs |
+| `LHoodPlots/`         | likelihood scan with respect to the specified parameter |
 
 
-### ShapeFactor example
+## ShapeFactor example
 * The following scripts create example histograms in `exampleDataDriven` directory and execute `trex-fitter` using `config/dataDriven.config`
 * The example contains a control region and signal region with two bins. The shape of one of the background samples is estimated using the ShapeFactor:
 ```
@@ -630,7 +630,7 @@ Inside this direcotry, at every step, some outputs are created, following the st
 The results are in `JobDataDriven`
 
 
-### Replacement file
+## Replacement file
 You can define placeholders in your config file, which are replaced with values specified in an external file, which is read at the beginning of TRExFitter execution. This requires adding an additional option into your config, as part of the Job block:
 ```
   ReplacementFile: path/to/file.txt
@@ -650,13 +650,13 @@ Note that all placeholders must start with ``XXX``. In your config file, you can
 If you would like to ensure that the replacement works correctly, set your DebugLevel to a minimum value of 1 and check the output of the framework.
 
 
-### TRExFitter package authors
+## TRExFitter package authors
 Managers:
 
-* Michele Pinamonti (michele.pinamonti@gmail.com)
-* Loic Valery (loic.valery@cern.ch)
+* Michele Pinamonti [michele.pinamonti@gmail.com](michele.pinamonti@gmail.com)
+* Loic Valery [loic.valery@cern.ch](loic.valery@cern.ch)
 
 Development and support team:
 
-* Alexander Held (alexander.held@cern.ch)
-* Tomas Dado (tomas.dado@cern.ch)
+* Alexander Held [alexander.held@cern.ch](alexander.held@cern.ch)
+* Tomas Dado [tomas.dado@cern.ch](tomas.dado@cern.ch)
