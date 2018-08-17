@@ -1,4 +1,4 @@
-# TRExFitter [![build status](https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg "build status")](https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master)
+# TRExFitter   [![build status](https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg "build status")](https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master)
 
 This package provides a framework to perform profile likelihood fits. In addition to that, many convenient features are available. TRExFitter was previously also known as TtHFitter. Here are a few important references to make use of:
 
@@ -55,43 +55,45 @@ The only mandatory argument, `<action(s)>`, tells TRExFitter which operation(s) 
 The possible operations are defined in the main file (e.g. `util/trex-fitter.C`).
 For instance, if you use the default file `util/trex-fitter.C`, the available options are:
 
-* h : read input histograms (valid only if the proper option is specified in the config file)
-* n : read input ntuples (valid only if the proper option is specified in the config file)
-* w : create the RooStats xmls and workspace
-* f : fit the workspace
-* l : calculate exclusion limit
-* s : calculate significance
-* d : draw pre-fit plots
-* p : draw post-fit plots
-* a : draw separation plots
-* r : draw ranking plot (see later)
-* b : re-run smoothing (in the future also rebinning)
-* m : multi-fit (see later)
-* i : grouped impact evaluation (see below)
+| Option | Action |
+| ------ | ------ |
+| `h` | read input histograms (valid only if the proper option is specified in the config file) |
+| `n` | read input ntuples (valid only if the proper option is specified in the config file) |
+| `w` | create the RooStats xmls and workspace |
+| `f` | fit the workspace |
+| `l` | calculate exclusion limit |
+| `s` | calculate significance |
+| `d` | draw pre-fit plots |
+| `p` | draw post-fit plots |
+| `a` | draw separation plots |
+| `r` | draw ranking plot (see [Ranking Plot](README.md#ranking-plot)) |
+| `b` | re-run smoothing (in the future also rebinning) |
+| `m` | multi-fit (see [Multi-Fit](README.md#multi-fit)) |
+| `i` | grouped impact evaluation (see [Grouped Impact](README.md#grouped-impact)) |
 
 New optional argument: `<options>`.
 It is a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form:
 ```
-    "<option1>=<value1>,<value2>,...:<option2>=..."
+"<option1>=<value1>,<value2>,...:<option2>=..."
 ```
-See the section "Command line options" below.
+See the section [Command line options](README.md#command-line-options) below.
 
 
 ## Config File
 
 The structure of the file should be the following:
 ```
-     <ObjectType>: <ObjectName>
-       <ObjectProperty>: <Value>
-       <ObjectProperty>: <Value>
-       ...
+<ObjectType>: <ObjectName>
+  <ObjectProperty>: <Value>
+  <ObjectProperty>: <Value>
+  ...
 
-     <ObjectType>: <ObjectName>
-       <ObjectProperty>: <Value>
-       <ObjectProperty>: <Value>
-       ...
+<ObjectType>: <ObjectName>
+  <ObjectProperty>: <Value>
+  <ObjectProperty>: <Value>
+  ...
 
-     ...
+...
 ```
 NB: note the **blank** line between the objects!
 
@@ -416,43 +418,45 @@ For each object type (also called "block"), here is the list of available proper
 ## Command line options
 Currently the supported options are:
 
-* Regions:     to limit the regions to use to the list specified
-* Samples:     to limit the samples to use to the list specified
-* Systematics: to limit the systematics to use to the list specified
-* Signal:      in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance)
-* Exclude:     to exclude certain Regions / Samples / Systematics
-* Suffix:      used for: plots, workspace, fit results, etc
-* SaveSuffix:  used for: saving histograms with a suffix (to be merged / renamed later, see last section on hupdate)
-* Update:      if TRUE, the output .root file is updated, otherwise is overwrote
-* StatOnlyFit: if TRUE, the same as Fit->StatOnlyFit
-* StatOnly:    if TRUE, no systematics nor norm factors will be considered (equivalent to set StatOnly: TRUE in the config)
-* Ranking:     see Ranking section
-* FitResults:  the specified fit results file will be used, for instance for post-fit plots (instead of the file jobName/Fits/jobName.txt)
-* FitType:     can be set to SPLUSB or BONLY to replace the option in the config file
-* LumiScale:   as the options in config file
-* BootstrapIdx: see description of Bootstrap option in config (under Job)
-* GroupedImpact: see Grouped Impact section
+| Option | Effect |
+| ------ | ------ |
+| `Regions`       | to limit the regions to use to the list specified |
+| `Samples`       | to limit the samples to use to the list specified |
+| `Systematics`   | to limit the systematics to use to the list specified |
+| `Signal`        | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance) |
+| `Exclude`       | to exclude certain Regions / Samples / Systematics |
+| `Suffix`        | used for: plots, workspace, fit results, etc |
+| `SaveSuffix`    | used for: saving histograms with a suffix (to be merged / renamed later, see last section on hupdate) |
+| `Update`        | if TRUE, the output .root file is updated, otherwise is overwrote |
+| `StatOnlyFit`   | if TRUE, the same as Fit->StatOnlyFit |
+| `StatOnly`      | if TRUE, no systematics nor norm factors will be considered (equivalent to set StatOnly: TRUE in the config) |
+| `Ranking`       | see Ranking section |
+| `FitResults`    | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
+| `FitType`       | can be set to SPLUSB or BONLY to replace the option in the config file |
+| `LumiScale`     | as the options in config file |
+| `BootstrapIdx`  | see description of Bootstrap option in config (under Job) |
+| `GroupedImpact` | see Grouped Impact section |
 
-Note: the wild-card * is supported, but only as last character.
+Note: the wild-card `*` is supported, but only as last character.
 Example:
 ```
-     trex-fitter  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
+trex-fitter  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
 ```
 
 ## Ranking Plot
 * The ranking plot can be created in one go, with just the command line argument `r` (after having run the nominal fit `f`).
 * Since this can take too much time (and memory), for complicated fits it's better to run it in several steps:
-   by specifying the command-line option `Ranking=<name/index>`, one can produce the txt input for the ranking only for a specific line of the ranking, i.e. for a single NP (specified either through its name or index). Once all the needed txt files are created (e.g. in parallel through batch jobs) with the option "Ranking=plot" they are merged to create the final plot.
+   by specifying the command-line option `Ranking=<name/index>`, one can produce the txt input for the ranking only for a specific line of the ranking, i.e. for a single NP (specified either through its name or index). Once all the needed txt files are created (e.g. in parallel through batch jobs) with the option `Ranking=plot` they are merged to create the final plot.
 
 * Examples:
 ```
-     # this runs the ranking in one go
-     trex-fitter  r  <config>
-     #these commands will first create the inputs for the ranking one by one and then merge them in the plot
-     trex-fitter  r  <config> Ranking=Lumi
-     trex-fitter  r  <config> Ranking=JES1
-     trex-fitter  r  <config> Ranking=ttXsec
-     trex-fitter  r  <config> Ranking=plot
+# this runs the ranking in one go
+trex-fitter  r  <config>
+#these commands will first create the inputs for the ranking one by one and then merge them in the plot
+trex-fitter  r  <config> Ranking=Lumi
+trex-fitter  r  <config> Ranking=JES1
+trex-fitter  r  <config> Ranking=ttXsec
+trex-fitter  r  <config> Ranking=plot
 ```
 
 ## Grouped Impact
@@ -464,15 +468,15 @@ Example:
 * The results are saved in `Fits/GroupedImpact*`.
 * Example:
 ```
-    # evaluate impact of all groups sequentially
-    trex-fitter i <config>
+# evaluate impact of all groups sequentially
+trex-fitter i <config>
 
-    # evaluate only the impact of Gammas
-    trex-fitter i <config> GroupedImpact="Gammas"
+# evaluate only the impact of Gammas
+trex-fitter i <config> GroupedImpact="Gammas"
 ```
 * When the calculations are parallelized, combine the results by running the following at the end:
 ```
-    trex-fitter i <config> GroupedImpact="combine"
+trex-fitter i <config> GroupedImpact="combine"
 ```
 
 ## Multi-Fit
@@ -480,37 +484,37 @@ The Multi-Fit functionality can be used to compare fit results or even to combin
 
 To use it you need a dedicated config file, with a structure similar to the usual ones. Example:
 ```
-    MultiFit: "myTopWS_multifit"
-      Label: "My Label"
-      Combine: FALSE
-      Compare: TRUE
-      CmeLabel: "13 TeV"
-      LumiLabel: "85 pb^{-1}"
-      ComparePOI: TRUE
-      ComparePulls: TRUE
-      CompareLimits: TRUE
-      POIName: "SigXsecOverSM"
-      POIRange: -10,30
-      DataName: "obsData"
-      CombineChByCh: TRUE
+MultiFit: "myTopWS_multifit"
+  Label: "My Label"
+  Combine: FALSE
+  Compare: TRUE
+  CmeLabel: "13 TeV"
+  LumiLabel: "85 pb^{-1}"
+  ComparePOI: TRUE
+  ComparePulls: TRUE
+  CompareLimits: TRUE
+  POIName: "SigXsecOverSM"
+  POIRange: -10,30
+  DataName: "obsData"
+  CombineChByCh: TRUE
 
-    Fit: "CR"
-      ConfigFile: config/myTopWS_CR.config
-      Label: "CR-only"
+Fit: "CR"
+  ConfigFile: config/myTopWS_CR.config
+  Label: "CR-only"
 
-    Fit: "SR"
-      ConfigFile: config/myTopWS_SR.config
-      Label: "SR"
+Fit: "SR"
+  ConfigFile: config/myTopWS_SR.config
+  Label: "SR"
 ```
 This config file can be run with the command line:
 ```
-    trex-fitter  m  config/myTopWS_multifit.config
+trex-fitter  m  config/myTopWS_multifit.config
 ```
   This will compare the fit results in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the fly when running his multi-fit option).
 
 To make a real combination, one needs to use the usual command options `w`, `f` and `l` together with the flag "Combine: TRUE" in the config above. Example:
 ```
-    trex-fitter  mwf  config/myTopWS_multifit.config
+trex-fitter  mwf  config/myTopWS_multifit.config
 ```
 This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
@@ -518,70 +522,74 @@ This will create a combined ws starting from the individual ws for the different
 Multi-Fit options
 ---------
 
-* Job:
-  * Label            : the label which will be shown on plots
-  * OutputDir        : the name of the output directory
-  * LumiLabel        : the luminosity label that will be shown on the pltos
-  * CMELabel         : the center of mass energy label that will be shown on the plots
-  * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
-  * ShowObserved     : can be TRUE or FALSE, flag to turn on/off the observed values on the plots
-  * LimitTitle       : the title for limit that will be shwon on the plots
-  * POITitle         : the title of the POI that will be shown on X axis 
-  * CompareLimits    : can be TRUE or FALSE, flag to compare to Limit values
-  * ComparePOI       : can be TRUE or FALSE, flag to compare to POI values
-  * ComparePulls     : can be TRUE or FALSE, flag to compare to pulls values
-  * PlotCombCorrMatrix : can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics
-  * Combine          : can be TRUE or FALSE, set to true if you want to perfom actual combination (followed by `mwf`)
-  * Compare          : can be TRUE or FALSE, set to true if you want to compare values
-  * StatOnly         : can be TRUE or FALSE, set to true if the fits are stat only fits
-  * IncludeStatOnly  : can be TRUE or FALSE, set to true if you want to include stat only fits
-  * POIName          : the name of the POI in the configs
-  * POIRange         : the range of the chosen POI
-  * LimitMax         : set maximum value for the limit
-  * POIVal           : the value of the POI (for ASIMOV)
-  * POIPrecision     : string, set precision of the POI
-  * DataName         : can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used
-  * FitType          : can be SPLUSB or BONLY
-  * SignalInjection  : can be TRUE or FALSE
-  * CombineChByCH    : can be TRUE or FALSE, set to true to combine channel by channel
-  * NPCategories     : comma separated list of NP categories
-  * SetRandomInitialNPval : provide a float 
-  * SetRandomInitialNPvalSeed : provide an int
-  * NumCPU           : a number of CPU cores used for the fit
-  * FastFit          : can be TRUE or FALSE
-  * FastFitForRanking : can be TRUE or FALSE
-  * NuisParListFile  : 
-  * PlotSoverB       : if set to TRUE will plot signal over background plots
-  * SignalTitle      : a title of the signal for the plots
-  * FitResultsFile   : a name of the file with fit results
-  * LimitsFile       : a name of the file with limits results
-  * BonlySufix       : a suffix of the background only fits
-  * ShowSystForPOI   : can be TRUE or FALSE, set to true if you want to show systematics for POI
-  * GetGoodnessOfFit : can be TRUE or FALSE, set to true to get chi2/NDF for the fit
-  * doLHscan         : comma separeted list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP
-  * LHscanMin        : minimum value for the LH scan on x-axis (default it Norm min)
-  * LHscanMax        : maximum value for the LH scan on x-axis (default is Norm max)
-  * LHscanSteps      : number of steps on the LH scan (default is 30)
-  * PlotOptions      : same as for "standard" fits
-  * Logo             : can be TRUE or FALSE, use true to show TRExFitter logo
-  * DebugLevel       : set level of debug output
-  * RunROOTMacros    : can be TRUE or FALSE, set to true to run the common scripts in root interpreter in stead of running the directly compiled version (FALSE, default)
-  * POILabel         : name of the POI shwon on plots, default is `#\mu`
-  * POINominal       : value of the nominal (SM) prediction for POI, default is `1`
-  * ShowTotalOnly    : If set to TRUE will show only total uncertainty on the POI plots. Default is FALSE
+* **Job block**:
+  | Option | Function |
+  | ------ | -------- |
+  | Label            | the label which will be shown on plots |
+  | OutputDir        | the name of the output directory |
+  | LumiLabel        | the luminosity label that will be shown on the pltos |
+  | CMELabel         | the center of mass energy label that will be shown on the plots |
+  | SaveSuffix       | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
+  | ShowObserved     | can be TRUE or FALSE, flag to turn on/off the observed values on the plots |
+  | LimitTitle       | the title for limit that will be shwon on the plots |
+  | POITitle         | the title of the POI that will be shown on X axis  |
+  | CompareLimits    | can be TRUE or FALSE, flag to compare to Limit values |
+  | ComparePOI       | can be TRUE or FALSE, flag to compare to POI values |
+  | ComparePulls     | can be TRUE or FALSE, flag to compare to pulls values |
+  | PlotCombCorrMatrix | can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics |
+  | Combine          | can be TRUE or FALSE, set to true if you want to perfom actual combination (followed by `mwf`) |
+  | Compare          | can be TRUE or FALSE, set to true if you want to compare values |
+  | StatOnly         | can be TRUE or FALSE, set to true if the fits are stat only fits |
+  | IncludeStatOnly  | can be TRUE or FALSE, set to true if you want to include stat only fits |
+  | POIName          | the name of the POI in the configs |
+  | POIRange         | the range of the chosen POI |
+  | LimitMax         | set maximum value for the limit |
+  | POIVal           | the value of the POI (for ASIMOV) |
+  | POIPrecision     | string, set precision of the POI |
+  | DataName         | can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used |
+  | FitType          | can be SPLUSB or BONLY |
+  | SignalInjection  | can be TRUE or FALSE |
+  | CombineChByCH    | can be TRUE or FALSE, set to true to combine channel by channel |
+  | NPCategories     | comma separated list of NP categories |
+  | SetRandomInitialNPval | provide a float  |
+  | SetRandomInitialNPvalSeed | provide an int |
+  | NumCPU           | a number of CPU cores used for the fit |
+  | FastFit          | can be TRUE or FALSE |
+  | FastFitForRanking| can be TRUE or FALSE |
+  | NuisParListFile  |
+  | PlotSoverB       | if set to TRUE will plot signal over background plots |
+  | SignalTitle      | a title of the signal for the plots |
+  | FitResultsFile   | a name of the file with fit results |
+  | LimitsFile       | a name of the file with limits results |
+  | BonlySufix       | a suffix of the background only fits |
+  | ShowSystForPOI   | can be TRUE or FALSE, set to true if you want to show systematics for POI |
+  | GetGoodnessOfFit | can be TRUE or FALSE, set to true to get chi2/NDF for the fit |
+  | doLHscan         | comma separeted list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP |
+  | LHscanMin        | minimum value for the LH scan on x-axis (default it Norm min) |
+  | LHscanMax        | maximum value for the LH scan on x-axis (default is Norm max) |
+  | LHscanSteps      | number of steps on the LH scan (default is 30) |
+  | PlotOptions      | same as for "standard" fits |
+  | Logo             | can be TRUE or FALSE, use true to show TRExFitter logo |
+  | DebugLevel       | set level of debug output |
+  | RunROOTMacros    | can be TRUE or FALSE, set to true to run the common scripts in root interpreter in stead of running the directly compiled version (FALSE, default) |
+  | POILabel         | name of the POI shwon on plots, default is `#\mu` |
+  | POINominal       | value of the nominal (SM) prediction for POI, default is `1` |
+  | ShowTotalOnly    | If set to TRUE will show only total uncertainty on the POI plots. Default is FALSE |
 
-* Fit:
-  * Options          : additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...
-  * Label            : the label of the values from this config that will be shown on the plots
-  * LoadSuf          :
-  * ConfigFile       : the path to the config file that you want to combine/compare
-  * Workspace        : the path to the worskapce that you want to combine/compare
-  * ShowObserved     : can be TRUE or FALSE, set to true to show the observed values of POI
-  * FitResultsFile   : the path to the file with fit results
-  * LimitsFile       : the path to the file with limits results
-  * POIName          : the name of the POI
-  * Directory        : the path to the directory
-  * InputName        : the name of the input
+* **Fit block:**
+  | Option | Function |
+  | ------ | -------- |
+  | Options          | additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ... |
+  | Label            | the label of the values from this config that will be shown on the plots |
+  | LoadSuf          |
+  | ConfigFile       | the path to the config file that you want to combine/compare |
+  | Workspace        | the path to the worskapce that you want to combine/compare |
+  | ShowObserved     | can be TRUE or FALSE, set to true to show the observed values of POI |
+  | FitResultsFile   | the path to the file with fit results |
+  | LimitsFile       | the path to the file with limits results |
+  | POIName          | the name of the POI |
+  | Directory        | the path to the directory |
+  | InputName        | the name of the input |
 
 
 ## Input File Merging with hupdate
@@ -606,8 +614,8 @@ Example usage, combined with the usage of SaveSuffix:
 For each TRExFit object, a directory is created, with the same name as the Fit Name.
 Inside this direcotry, at every step, some outputs are created, following the structure described above
 
-| Folder | Content | 
-| ------ | ------- | 
+| Folder | Content |
+| ------ | ------- |
 | `Plots/`              | data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots |
 | `Tables/`             | tables in txt and tex format |
 | `RooStats/`           | workspace(s) and the xmls |
