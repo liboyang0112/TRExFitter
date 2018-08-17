@@ -202,36 +202,45 @@ For each object type (also called "block"), here is the list of available proper
 | POIPrecision     | Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm facotr mean value and uncertainty. Default is 2 |
 | RankingPOIName   | Custom name for the POI for ranking plots. Default is `#mu` |
 
-* Fit:
-  * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
-  * FitRegion        : can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions. You can also specify a comma-separated list of regions to use in the fit
-  * FitBlind         : specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind.
-  * POIAsimov        : value of the parameter of interest in the AsimovDataset used in the fit
-  * NPValues         : values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
-  * FixNPs           : values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5)
-  * doLHscan         : comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled
-  * LHscanMin        : minimum value for the LH scan on x-axis (default it Norm min)
-  * LHscanMax        : maximum value for the LH scan on x-axis (default is Norm max)
-  * LHscanSteps      : number of steps on the LH scan (default is 30)
-  * UseMinos         : comma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs
-  * SetRandomInitialNPval : useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits
-  * SetRandomInitialNPvalSeed : seed used to determine initial NP settings in minimization process if SetRandomInitialNPval option is enabled
-  * NumCPU           : specify the number of CPU to use for the minimization (default = 1)
-  * StatOnlyFit      : if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the `_statOnly` suffix (also possible to use it from command line)
-  * GetGoodnessOfFit : set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods)
-  * DoNonProfileFit  : [EXPERIMENTAL] if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time
-  * FitToys          : [EXPERIMENTAL] if set to N > 0, N stat-ony toys are generated and fitted
-  * TemplateInterpolationOption: Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by \sqrt(x^2+epsilon) to achieve smooth transitions (first derivative) between the templates
+* **Fit:**
 
-* Limit:
-  * LimitType        : can be ASYMPTOTIC or TOYS (the latter is not yet supported)
-  * LimitBlind       : can be TRUE or FALSE (TRUE means that ALL regions are blinded)
-  * POIAsimov        : value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE
-  * SignalInjection  : if set to TRUE, expected signal with signal injection is evaluated
+| **Option** | **Function** |
+| ---------- | ------------ |
+| FitType          | can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis |
+| FitRegion        | can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions. You can also specify a comma-separated list of regions to use in the fit |
+| FitBlind         | specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind. |
+| POIAsimov        | value of the parameter of interest in the AsimovDataset used in the fit |
+| NPValues         | values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5) |
+| FixNPs           | values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5) |
+| doLHscan         | comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled |
+| LHscanMin        | minimum value for the LH scan on x-axis (default it Norm min) |
+| LHscanMax        | maximum value for the LH scan on x-axis (default is Norm max) |
+| LHscanSteps      | number of steps on the LH scan (default is 30) |
+| UseMinos         | comma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs |
+| SetRandomInitialNPval | useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits |
+| SetRandomInitialNPvalSeed | seed used to determine initial NP settings in minimization process if SetRandomInitialNPval option is enabled |
+| NumCPU           | specify the number of CPU to use for the minimization (default = 1) |
+| StatOnlyFit      | if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the `_statOnly` suffix (also possible to use it from command line) |
+| GetGoodnessOfFit | set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods) |
+| DoNonProfileFit  | [EXPERIMENTAL] if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time |
+| FitToys          | [EXPERIMENTAL] if set to N > 0, N stat-ony toys are generated and fitted |
+| TemplateInterpolationOption: Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt(x^2+\epsilon)`$ to achieve smooth transitions (first derivative) between the templates |
 
-* Significance:
-  * SignificanceBlind: can be TRUE or FALSE (TRUE means that ALL regions are blinded)
-  * POIAsimov        : value of the POI to inject in the Asimov dataset in SignificanceBlind is set to TRUE
+* **Limit:**
+
+| **Option** | **Function** |
+| ---------- | ------------ |
+| LimitType        | can be ASYMPTOTIC or TOYS (the latter is not yet supported) |
+| LimitBlind       | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
+| POIAsimov        | value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE |
+| SignalInjection  | if set to TRUE, expected signal with signal injection is evaluated |
+
+* **Significance:**
+
+| **Option** | **Function** |
+| ---------- | ------------ |
+| SignificanceBlind | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
+| POIAsimov         | value of the POI to inject in the Asimov dataset in SignificanceBlind is set to TRUE |
 
 * Options:
   * additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...
