@@ -127,12 +127,12 @@ TH1* HistFromFile(const string& fileName, const string& histoName){
     WriteVerboseStatus("Common::HistFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
     TH1 *h = nullptr;
     TFile *f = GetFile(fileName);
-    if(f == nullptr){
+    if(!f){
             WriteErrorStatus("Common::HistFromFile", "cannot find input file '" + fileName + "'");
             return h;
     }
     h = static_cast<TH1*>(f->Get(histoName.c_str()));
-    if(h == nullptr){
+    if(!h){
             if (!hasCustomAsimov) WriteErrorStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "'");
             else WriteDebugStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "', but its customAsimov histogram so this should not be a problem");
             return h;

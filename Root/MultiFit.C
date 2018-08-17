@@ -346,7 +346,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         }
     }
     
-    if (data == nullptr){
+    if (!data){
         WriteErrorStatus("MultiFit::FitCombinedWS", "Data returns null ptr, probably wrong name in DataName?");
         exit(EXIT_FAILURE);
     }
@@ -2201,7 +2201,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
         //
         int idx = 0;
         for(auto crv : curve_fit){
-            if (crv == nullptr) continue;
+            if (!crv) continue;
             if(idx==0) crv->SetLineColor(kBlue);
             if(idx==1) crv->SetLineColor(kGreen);
             frameLH->addPlotable(crv,"same");
@@ -2302,6 +2302,10 @@ void MultiFit::PlotSummarySoverB(){
 
     fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     float muFit = fFitList[0]->fFitResults->GetNuisParValue(fPOI);
+    if (HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" ) == nullptr) {
+        WriteWarningStatus("TRExFit::PlotSummarySoverB", "Histo pointer is nullptr, skipping plotting.");
+        return;
+    }
     float muLimit = HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
 
     std::vector<string> fileNames; fileNames.clear();
