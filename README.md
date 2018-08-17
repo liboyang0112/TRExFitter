@@ -55,8 +55,8 @@ The only mandatory argument, `<action(s)>`, tells TRExFitter which operation(s) 
 The possible operations are defined in the main file (e.g. `util/trex-fitter.C`).
 For instance, if you use the default file `util/trex-fitter.C`, the available options are:
 
-| Option | Action |
-| ------ | ------ |
+| **Option** | **Action** |
+| ---------- | ---------- |
 | `h` | read input histograms (valid only if the proper option is specified in the config file) |
 | `n` | read input ntuples (valid only if the proper option is specified in the config file) |
 | `w` | create the RooStats xmls and workspace |
@@ -418,24 +418,24 @@ For each object type (also called "block"), here is the list of available proper
 ## Command line options
 Currently the supported options are:
 
-| Option | Effect |
-| ------ | ------ |
-| `Regions`       | to limit the regions to use to the list specified |
-| `Samples`       | to limit the samples to use to the list specified |
-| `Systematics`   | to limit the systematics to use to the list specified |
-| `Signal`        | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance) |
-| `Exclude`       | to exclude certain Regions / Samples / Systematics |
-| `Suffix`        | used for: plots, workspace, fit results, etc |
-| `SaveSuffix`    | used for: saving histograms with a suffix (to be merged / renamed later, see last section on hupdate) |
-| `Update`        | if TRUE, the output .root file is updated, otherwise is overwrote |
-| `StatOnlyFit`   | if TRUE, the same as Fit->StatOnlyFit |
-| `StatOnly`      | if TRUE, no systematics nor norm factors will be considered (equivalent to set StatOnly: TRUE in the config) |
-| `Ranking`       | see Ranking section |
-| `FitResults`    | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
-| `FitType`       | can be set to SPLUSB or BONLY to replace the option in the config file |
-| `LumiScale`     | as the options in config file |
-| `BootstrapIdx`  | see description of Bootstrap option in config (under Job) |
-| `GroupedImpact` | see Grouped Impact section |
+| **Option** | **Effect** |
+| ---------- | ---------- |
+| **Regions**       | to limit the regions to use to the list specified |
+| **Samples**       | to limit the samples to use to the list specified |
+| **Systematics**   | to limit the systematics to use to the list specified |
+| **Signal**        | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance) |
+| **Exclude**       | to exclude certain Regions / Samples / Systematics |
+| **Suffix**        | used for: plots, workspace, fit results, etc |
+| **SaveSuffix**    | used for: saving histograms with a suffix (to be merged / renamed later, see last section on hupdate) |
+| **Update**        | if TRUE, the output .root file is updated, otherwise is overwrote |
+| **StatOnlyFit**   | if TRUE, the same as Fit->StatOnlyFit |
+| **StatOnly**      | if TRUE, no systematics nor norm factors will be considered (equivalent to set StatOnly: TRUE in the config) |
+| **Ranking**       | see Ranking section |
+| **FitResults**    | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
+| **FitType**       | can be set to SPLUSB or BONLY to replace the option in the config file |
+| **LumiScale**     | as the options in config file |
+| **BootstrapIdx**  | see description of Bootstrap option in config (under Job) |
+| **GroupedImpact** | see Grouped Impact section |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
@@ -621,8 +621,8 @@ trex-fitter dwf ../config/ttH2015.config
 For each TRExFit object, a directory is created, with the same name as the Fit Name.
 Inside this directory, at every step, some outputs are created, following the structure described above:
 
-| Folder | Content |
-| ------ | ------- |
+| **Folder** | **Content** |
+| ---------- | ----------- |
 | `Plots/`              | data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots |
 | `Tables/`             | tables in txt and tex format |
 | `RooStats/`           | workspace(s) and the xmls |
