@@ -67,7 +67,7 @@ std::map<string,TFile*> TRExFitter::TFILEMAP;
 
 //__________________________________________________________________________________
 //
-TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight){
+TH1F* HistFromNtuple(const string& ntuple, const string& variable, int nbin, float xmin, float xmax, const string& selection, const string& weight){
     TH1F* h = new TH1F("h","h",nbin,xmin,xmax);
     WriteVerboseStatus("Common::HistFromNtuple", "    Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtuple", "        with weight  (" + weight + ")*("+selection+")  ...");
@@ -83,7 +83,7 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
 
 //__________________________________________________________________________________
 //
-TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight){
+TH1F* HistFromNtupleBinArr(const string& ntuple, const string& variable, int nbin, double *bins, const string& selection, const string& weight){
     TH1F* h = new TH1F("h","h",nbin,bins);
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
@@ -99,7 +99,7 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
 
 //__________________________________________________________________________________
 //
-TFile* GetFile(string fileName){
+TFile* GetFile(const string& fileName){
     auto it = TRExFitter::TFILEMAP.find(fileName);
     if(it != TRExFitter::TFILEMAP.end()) return it->second;
     else {
@@ -111,7 +111,7 @@ TFile* GetFile(string fileName){
 
 //__________________________________________________________________________________
 //
-TH1* HistFromFile(string fullName){
+TH1* HistFromFile(const string& fullName){
     string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
     string histoName = fullName.substr(fullName.find_last_of(".")+6,string::npos);
     return HistFromFile(fileName,histoName);
@@ -119,7 +119,7 @@ TH1* HistFromFile(string fullName){
 
 //__________________________________________________________________________________
 //
-TH1* HistFromFile(string fileName,string histoName){
+TH1* HistFromFile(const string& fileName, const string& histoName){
     if(fileName=="") return nullptr;
     if(histoName=="") return nullptr;
     bool hasCustomAsimov = false;
@@ -145,7 +145,7 @@ TH1* HistFromFile(string fileName,string histoName){
 
 //__________________________________________________________________________________
 //
-void WriteHistToFile(TH1* h,string fileName,string option){
+void WriteHistToFile(TH1* h, const string& fileName, string option){
     TDirectory *dir = gDirectory;
     TFile *f = new TFile(fileName.c_str(),option.c_str());
     h->Write("",TObject::kOverwrite);
@@ -236,7 +236,7 @@ vector<string> CombinePathSufs( vector<string> pathSufs, vector<string> newPathS
 
 //__________________________________________________________________________________
 //
-vector<string> ToVec(string s){
+vector<string> ToVec(const string& s){
     vector<string> output;
     output.clear();
     output.push_back(s);
@@ -263,7 +263,7 @@ string ReplaceString(string subject, const string& search,
 
 //__________________________________________________________________________________
 // taking into account wildcards on both
-bool StringsMatch(std::string s1,std::string s2){
+bool StringsMatch(const std::string& s1, const std::string& s2){
     if(wildcmp(s1.c_str(),s2.c_str())>0 || wildcmp(s2.c_str(),s1.c_str())>0) return true;
     return false;
 }
@@ -303,7 +303,7 @@ int wildcmp(const char *wild, const char *string) {
 
 //__________________________________________________________________________________
 //
-int FindInStringVector(std::vector< string > v, string s){
+int FindInStringVector(const std::vector<string>& v, const string& s){
     int idx = -1;
     string s1;
     for(unsigned int i=0;i<v.size();i++){
@@ -318,7 +318,7 @@ int FindInStringVector(std::vector< string > v, string s){
 
 //__________________________________________________________________________________
 //
-int FindInStringVectorOfVectors(std::vector< std::vector<string> > v, string s, string ss){
+int FindInStringVectorOfVectors(const std::vector< std::vector<string> >& v, const string& s, const string& ss){
     int idx = -1;
     string s1;
     string s11;
