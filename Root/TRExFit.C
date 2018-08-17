@@ -554,7 +554,7 @@ void TRExFit::ReadNtuples(){
     string fullSelection;
     string fullMCweight;
     vector<string> fullPaths;
-    vector<string> empty; empty.clear();
+    vector<string> empty;
     SampleHist *sh;
     //
     // Import custom functions from .C files
@@ -1694,7 +1694,6 @@ void TRExFit::ReadHistograms(){
                 if(fRegions[i_ch]->fHistoBins){
                     TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
                     const char *hname = htmp->GetName();
-                    delete htmp;
                     htmp = (TH1F*)htmp2->Clone();
                     delete htmp2;
                     htmp->SetName(hname);
@@ -5949,7 +5948,6 @@ Sample* TRExFit::GetSample(string name){
 //__________________________________________________________________________________
 //
 void TRExFit::DrawAndSaveSeparationPlots(){
-//     std::cout << "In DrawAndSaveSeparationPlots:" << endl;
 
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
@@ -7243,7 +7241,7 @@ void TRExFit::defineVariable(int regIter){
     string fullSelection;
     string fullMCweight;
     vector<string> fullPaths;
-    vector<string> empty; empty.clear();
+    vector<string> empty;
 
     // copy of NtupleReading function.
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
