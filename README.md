@@ -112,102 +112,95 @@ At the beginning of TRExFitter execution, the config file used will be checked a
 
 For each object type (also called "block"), here is the list of available properties:
 
-* Job:
-  * Label            : the label which will be shown on plots
-  * POI: the name of the parameter of interest; this should correspond to a NormFactor defined below
-  * ReadFrom         : can be HIST or NTUP; default is HIST
-  * HistoPath        : valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stored
-  * NtuplePath(s)    : valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored
-  * MCweight         : only for option NTUP; string defining the weight (for MC samples only)
-  * Selection        : only for option NTUP; string defining the selection
-  * NtupleName       : default name of the tree
-  * Lumi             : value to scale all the "NormalizedByTheory" samples
-  * LumiScale        : additional value to scale 'after' histogram creation (for fast scaling) IMPORTANT: use it only if you know what you are doing!!
-  * SystPruningShape : Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
-  * SystPruningNorm  : Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%)
-  * SystLarge        : all systematics above this threshold will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%)
-  * IntCodeOverall   : interpolation code used for the normalization component of systematics (should match the one used in RooStats)
-  * IntCodeShape     : interpolation code used for the shape component of systematics (should match the one used in RooStats)
-  * MCstatThreshold  : by default, the MC stat uncertainty is included in the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative) if the option is set to a float (default: no threshold); can also set to NONE in order to disable MC stat uncertainty completely
-  * MCstatConstraint : constraint used for MC stat uncertainties, can be set to 'GAUSSIAN' or 'POISSON' (default)
-  * DebugLevel       : 0 = prints only Warning and Errors, 1 = additionally prints Info messages, 2 = additionally prints Debug messages, >2 additionally prints Verbose messages. For option <2 RooFit/Roostats messages will be heavily suppressed
-  * Logo             : is set to TRUE will print the TRExFitter logo
-  * PlotOptions      : a set of options for plotting:
-     * YIELDS : if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields
-     * NORMSIG : add normlised signal to plots
-     * NOSIG: don't show signal in stack
-     * OVERSIG: overlay signal (not normalised)
-     * CHI2: the chi2/ndf and chi2 prob will be printed on each plot, provided that the option GetChi2 is set
-     * PREFITONPOSTFIT: draw a dashed line on the postfit plot that indicates the sum of prefit background
-     * NOXERR: removes the horizontal error bars on the data and the ratio plots
-  * PlotOptionsSummary: the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used)
-  * TableOptions      : a set of options for tables:
-     * STANDALONE : default! If not set, no "\begin{document}"
-     * FOOTNOTESIZE : -> \footnotesize
-     * LANDSCAPE : -> \begin{landscape}
-  * SystControlPlots : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation)
-  * SystDataPlots    : if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame.
-  * CorrelationThreshold : Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05:5%)
-  * SignalRegionsPlot: list of regions to put in SignalRegionsPlot and PieChartPlots; use "EMPTY" to put an empty entry, "ENDL" to specify end of line. This specifies the order of regions plotted in signal region S/B plots and pie chart plots, as well as number of regions per row.
-  * HistoChecks      : NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem
-  * LumiLabel        : label for luminosity to be put on plots
-  * CmeLabel         : label for center-of-mass energy to be put on plots
-  * SplitHistoFiles  : set this to true to have histogram files split by region (useful with many regions and/or run in parallel)
-  * BlindingThreshold: bins with S/B > this number will be blinded
-  * KeepPrefitBlindedBins : if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots
-  * RankingMaxNP     : max number of NP to show in ranking plot
-  * RankingPlot      : NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots.
-  * ImageFormat      : png, pdf or eps
-  * StatOnly         : the code ignores systematics and MC stat uncertainties from all computations (limits, significances, fit, ...); need to re-create ws in case of limit and significance
-  * SystErrorBars    : TRUE by default to add stat error bars to syst variations in syst plots, set to FALSE to disable
-  * SummaryPlotRegions : list of regions to be shown in summary plot (useful to specify a custom order)
-  * FixNPforStatOnly : if set to TRUE, when running stat-only (with either of the two options) also the norm factors other than the POI are kept fixed
-  * InputFolder      : specify it to read fit input histograms from a different directory than `<jobName>/Histograms/`
-  * InputName        : specify it to read fit input histograms from files with different name than `<jobName>_blabla.root`
-  * OutputDir        : specify it to write everything in a different directory than `<jobName>`
-  * WorkspaceFileName : if specified, an external ws can be used as input for fitting (not 100% supported)
-  * KeepPruning      : if set to TRUE, the first time the ws is created (option w) a Pruning.root file is created under `<jobName>/` and used for future operations to skip pruned systematics (makes operations much faster in case many syst are pruned)
-  * AtlasLabel       : to specify Internal, Preliminary, etc...
-  * CleanTables      : if set to TRUE, a cleaned version of the tex tables is created (basically removing the "#") - to be expanded
-  * SystCategoryTables : if set to TRUE, additional syst tables with systematics grouped by category are created
-  * SummaryPlotYmax  : if set, it will force the summary plot to use this value as max y-maxis value
-  * SummaryPlotYmin  : if set, it will force the summary plot to use this value as min y-maxis value
-  * RatioYmax        : if set, it will specify the max of the range of the ratio plots
-  * RatioYmin        : if set, it will specify the min of the range of the ratio plots
-  * RatioYmaxPostFit : if set, it will specify the max of the range of the ratio plots, for post-fit only
-  * RatioYminPostFit : if set, it will specify the min of the range of the ratio plots, for post-fit only
-  * CustomAsimov     : if set, the workspace will be created with an AsimovData built according to Sample->AsimovReplacementFor option (see below) instead of data
-  * RandomPOISeed    : if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated starting from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number)
-  * GetChi2          : if set to TRUE (or STAT+SYST), for pre- and post-fit plots the extended chi2 test is done, and results are printed on the screen for each plot when running d and/or p; can be set to STAT (or STAT-ONLY) for stat-only chi2
-  * TtresSmoothing   : if set to TRUE, the systematic uncertainty smoothing will use the ttbar resonances convention for the smoothing. The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal or 400 to treat it as uncorrelated with the nominal.
-  * SmoothingOption  : Choose which smoothing option to use, allowed parameters are: MAXVARIATION (default), TTBARRESONANCE, COMMONTOOLSMOOTHMONOTONIC, COMMONTOOLSMOOTHPARABOLIC, KERNELRATIOUNIFORM, KERNELDELTAGAUSS or KERNELRATIOGAUSS.
-  * UseGammaPulls    : if set to TRUE, the fit results in terms of gamma parameter pulls, constraints and correlations are propagated to the post-fit plots, when possible (i.e. not for validation plots of course)
-  * GuessMCStatEmptyBins: if set to FALSE, for empty (or negative) bins, the fitter will assume that the stat uncertainty is equal to its content (i.e. both set to 1e-06). If set to TRUE (default), the MC stat uncertainty is taken from the last non-empty bin.
-  * MergeUnderOverFlow : if set to TRUE, the underflow content of each histogram is added to the first bin and the overflow to the last one (default is FALSE for HIST inputs and TRUE for NTUP inputs)
-  * DoSummaryPlot    : if set to FALSE, no summary plot is created
-  * DoMergedPlot     : if set to TRUE, a merged plot of all the region groups specified with the RegionGroups option is created
-  * DoTables         : if set to FALSE, no tables are created
-  * DoSignalRegionsPlot : if set to FALSE, no signal regions plot is created
-  * DoPieChartPlot   : if set to FALSE, no background composition pie-chart plot is created
-  * CustomFunctions  : list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values)
-  * SuppressNegativeBinWarnings  : If set to true will suppress warning messages about negative or 0 content in bins
-  * Bootstrap        : (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like `bsWeight(x,eventNumber,mcChannelNumber)`, where `bsWeight` should be loaded with `CustomFunctions: "bsWeight.C"` and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option `BootstrapIdx=<i>` should be given, with `<i>=0,1,2,3...`
-  * RunROOTMacros    : If set to True will run ROOT macros for limits and significa, otherwise (default) will run version which is compiled and has updated messaging. The functunality is the same.
-  * DecorrSysts      : comma-separated list of systematics which you want to decorrelate from another channel (this is don by automatically attaching a suffix to the NormFactor for each of them); can use wildcards
-  * DecorrSuff       : the suffix to attach when using DecorrSysts
-  * RegionGroups     : groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE
-  * ReplacementFile  : allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see dedicated section on this option below
-  * Suffix           : added to file names of plots, workspace, fit results etc. (equivalent to command line option)
-  * SaveSuffix       : added to file name of histograms, for usage with hupdate (equivalent to command line option)
-  * HideNP           : comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix
-  * SummaryPlotLabels : labels to be used per region in summary plot
-  * SummaryPlotValidationRegions : regions to be included in validation region summary plot (default: all)
-  * SummaryPlotValidationLabels : labels to be used per region in validation region summary plot
-  * SmoothMorphingTemplates : if set to TRUE (default is FALSE), the templates used for morphig are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory)
-  * SummaryPrefix    : adds a prefix to summary and merge plots
-  * AllowWrongRegionSample    : Can be TRUE(default) or FALSE. When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined.
-  * POIPrecision     : Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm facotr mean value and uncertainty. Default is 2
-  * RankingPOIName   : Custom name for the POI for ranking plots. Default is `#mu`
+* **Job:**
+
+| **Option** | **Function** |
+| ---------- | ------------ |
+| Label            | the label which will be shown on plots |
+| POI              | the name of the parameter of interest; this should correspond to a NormFactor defined below |
+| ReadFrom         | can be HIST or NTUP; default is HIST |
+| HistoPath        | valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stored |
+| NtuplePath(s)    | valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored |
+| MCweight         | only for option NTUP; string defining the weight (for MC samples only) |
+| Selection        | only for option NTUP; string defining the selection |
+| NtupleName       | default name of the tree |
+| Lumi             | value to scale all the "NormalizedByTheory" samples |
+| LumiScale        | additional value to scale 'after' histogram creation (for fast scaling) IMPORTANT: use it only if you know what you are doing!! |
+| SystPruningShape | Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%) |
+| SystPruningNorm  | Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%) |
+| SystLarge        | all systematics above this threshold will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%) |
+| IntCodeOverall   | interpolation code used for the normalization component of systematics (should match the one used in RooStats) |
+| IntCodeShape     | interpolation code used for the shape component of systematics (should match the one used in RooStats) |
+| MCstatThreshold  | by default, the MC stat uncertainty is included in the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative) if the option is set to a float (default: no threshold); can also set to NONE in order to disable MC stat uncertainty completely |
+| MCstatConstraint | constraint used for MC stat uncertainties, can be set to 'GAUSSIAN' or 'POISSON' (default) |
+| DebugLevel       | 0 = prints only Warning and Errors, 1 = additionally prints Info messages, 2 = additionally prints Debug messages, >2 additionally prints Verbose messages. For option <2 RooFit/Roostats messages will be heavily suppressed |
+| Logo             | is set to TRUE will print the TRExFitter logo |
+| PlotOptions      | a set of options for plotting:<br>&nbsp; &nbsp; **YIELDS**: if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields<br>&nbsp; &nbsp; **NORMSIG**: add normlised signal to plots<br>&nbsp; &nbsp; **NOSIG**: don't show signal in stack<br>&nbsp; &nbsp; **OVERSIG**: overlay signal (not normalised)<br>&nbsp; &nbsp; **CHI2**: the chi2/ndf and chi2 prob will be printed on each plot, provided that the option GetChi2 is set<br>&nbsp; &nbsp; **PREFITONPOSTFIT**: draw a dashed line on the postfit plot that indicates the sum of prefit background<br>&nbsp; &nbsp; **NOXERR**: removes the horizontal error bars on the data and the ratio plots |
+| PlotOptionsSummary | the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used) |
+| TableOptions      | a set of options for tables:<br>&nbsp; &nbsp; **STANDALONE**: default! If not set, no "\begin{document}"<br>&nbsp; &nbsp; **FOOTNOTESIZE**: -> \footnotesize <br>&nbsp; &nbsp; **LANDSCAPE**: -> \begin{landscape} |
+| SystControlPlots | if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) |
+| SystDataPlots    | if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame. |
+| CorrelationThreshold | Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05:5%) |
+| SignalRegionsPlot| list of regions to put in SignalRegionsPlot and PieChartPlots; use "EMPTY" to put an empty entry, "ENDL" to specify end of line. This specifies the order of regions plotted in signal region S/B plots and pie chart plots, as well as number of regions per row. |
+| HistoChecks      | NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem |
+| LumiLabel        | label for luminosity to be put on plots |
+| CmeLabel         | label for center-of-mass energy to be put on plots |
+| SplitHistoFiles  | set this to true to have histogram files split by region (useful with many regions and/or run in parallel) |
+| BlindingThreshold| bins with S/B > this number will be blinded |
+| KeepPrefitBlindedBins | if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots |
+| RankingMaxNP     | max number of NP to show in ranking plot |
+| RankingPlot      | NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots. |
+| ImageFormat      | png, pdf or eps |
+| StatOnly         | the code ignores systematics and MC stat uncertainties from all computations (limits, significances, fit, ...); need to re-create ws in case of limit and significance |
+| SystErrorBars    | TRUE by default to add stat error bars to syst variations in syst plots, set to FALSE to disable |
+| SummaryPlotRegions | list of regions to be shown in summary plot (useful to specify a custom order) |
+| FixNPforStatOnly | if set to TRUE, when running stat-only (with either of the two options) also the norm factors other than the POI are kept fixed |
+| InputFolder      | specify it to read fit input histograms from a different directory than `<jobName>/Histograms/` |
+| InputName        | specify it to read fit input histograms from files with different name than `<jobName>_blabla.root` |
+| OutputDir        | specify it to write everything in a different directory than `<jobName>` |
+| WorkspaceFileName | if specified, an external ws can be used as input for fitting (not 100% supported) |
+| KeepPruning      | if set to TRUE, the first time the ws is created (option w) a Pruning.root file is created under `<jobName>/` and used for future operations to skip pruned systematics (makes operations much faster in case many syst are pruned) |
+| AtlasLabel       | to specify Internal, Preliminary, etc... |
+| CleanTables      | if set to TRUE, a cleaned version of the tex tables is created (basically removing the "#") - to be expanded |
+| SystCategoryTables | if set to TRUE, additional syst tables with systematics grouped by category are created |
+| SummaryPlotYmax  | if set, it will force the summary plot to use this value as max y-maxis value |
+| SummaryPlotYmin  | if set, it will force the summary plot to use this value as min y-maxis value |
+| RatioYmax        | if set, it will specify the max of the range of the ratio plots |
+| RatioYmin        | if set, it will specify the min of the range of the ratio plots |
+| RatioYmaxPostFit | if set, it will specify the max of the range of the ratio plots, for post-fit only |
+| RatioYminPostFit | if set, it will specify the min of the range of the ratio plots, for post-fit only |
+| CustomAsimov     | if set, the workspace will be created with an AsimovData built according to Sample->AsimovReplacementFor option (see below) instead of data |
+| RandomPOISeed    | if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated starting from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number) |
+| GetChi2          | if set to TRUE (or STAT+SYST), for pre- and post-fit plots the extended chi2 test is done, and results are printed on the screen for each plot when running d and/or p; can be set to STAT (or STAT-ONLY) for stat-only chi2 |
+| TtresSmoothing   | if set to TRUE, the systematic uncertainty smoothing will use the ttbar resonances convention for the smoothing. The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal or 400 to treat it as uncorrelated with the nominal. |
+| SmoothingOption  | Choose which smoothing option to use, allowed parameters are: MAXVARIATION (default), TTBARRESONANCE, COMMONTOOLSMOOTHMONOTONIC, COMMONTOOLSMOOTHPARABOLIC, KERNELRATIOUNIFORM, KERNELDELTAGAUSS or KERNELRATIOGAUSS. |
+| UseGammaPulls    | if set to TRUE, the fit results in terms of gamma parameter pulls, constraints and correlations are propagated to the post-fit plots, when possible (i.e. not for validation plots of course) |
+| GuessMCStatEmptyBins | if set to FALSE, for empty (or negative) bins, the fitter will assume that the stat uncertainty is equal to its content (i.e. both set to 1e-06). If set to TRUE (default), the MC stat uncertainty is taken from the last non-empty bin. |
+| MergeUnderOverFlow | if set to TRUE, the underflow content of each histogram is added to the first bin and the overflow to the last one (default is FALSE for HIST inputs and TRUE for NTUP inputs) |
+| DoSummaryPlot    | if set to FALSE, no summary plot is created |
+| DoMergedPlot     | if set to TRUE, a merged plot of all the region groups specified with the RegionGroups option is created |
+| DoTables         | if set to FALSE, no tables are created |
+| DoSignalRegionsPlot | if set to FALSE, no signal regions plot is created |
+| DoPieChartPlot   | if set to FALSE, no background composition pie-chart plot is created |
+| CustomFunctions  | list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values) |
+| SuppressNegativeBinWarnings | If set to true will suppress warning messages about negative or 0 content in bins |
+| Bootstrap        | (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like `bsWeight(x,eventNumber,mcChannelNumber)`, where `bsWeight` should be loaded with `CustomFunctions: "bsWeight.C"` and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option `BootstrapIdx=<i>` should be given, with `<i>=0,1,2,3...` |
+| RunROOTMacros    | If set to True will run ROOT macros for limits and significa, otherwise (default) will run version which is compiled and has updated messaging. The functunality is the same. |
+| DecorrSysts      | comma-separated list of systematics which you want to decorrelate from another channel (this is don by automatically attaching a suffix to the NormFactor for each of them); can use wildcards |
+| DecorrSuff       | the suffix to attach when using DecorrSysts |
+| RegionGroups     | groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE |
+| ReplacementFile  | allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see dedicated section on this option below |
+| Suffix           | added to file names of plots, workspace, fit results etc. (equivalent to command line option) |
+| SaveSuffix       | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
+| HideNP           | comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix |
+| SummaryPlotLabels | labels to be used per region in summary plot |
+| SummaryPlotValidationRegions | regions to be included in validation region summary plot (default: all) |
+| SummaryPlotValidationLabels | labels to be used per region in validation region summary plot |
+| SmoothMorphingTemplates | if set to TRUE (default is FALSE), the templates used for morphig are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory) |
+| SummaryPrefix    | adds a prefix to summary and merge plots |
+| AllowWrongRegionSample| Can be TRUE(default) or FALSE. When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined. |
+| POIPrecision     | Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm facotr mean value and uncertainty. Default is 2 |
+| RankingPOIName   | Custom name for the POI for ranking plots. Default is `#mu` |
 
 * Fit:
   * FitType          : can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis
@@ -529,8 +522,8 @@ Multi-Fit options
 
 * **Job block:**
 
-| Option | Function |
-| ------ | -------- |
+| **Option** | **Function** |
+| ---------- | ------------ |
 | Label            | the label which will be shown on plots |
 | OutputDir        | the name of the output directory |
 | LumiLabel        | the luminosity label that will be shown on the pltos |
@@ -584,8 +577,8 @@ Multi-Fit options
 
 * **Fit block:**
 
-| Option | Function |
-| ------ | -------- |
+| **Option** | **Function** |
+| ---------- | ------------ |
 | Options          | additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ... |
 | Label            | the label of the values from this config that will be shown on the plots |
 | LoadSuf          |
