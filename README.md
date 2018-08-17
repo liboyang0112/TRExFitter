@@ -10,11 +10,11 @@ This package provides a framework to perform profile likelihood fits. In additio
 ## Getting the code
 To get the code, use the following command:
 ```
-  git clone ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git
+git clone ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git
 ```
 To get a specific tag, do the following:
 ```
-  cd TRExFitter && git checkout <tag number> && cd -
+cd TRExFitter && git checkout \<tag number\> && cd -
 ```
 
 
@@ -43,7 +43,7 @@ Everytime the submodules change you need to run `git submodule update`
 ## How to
 To run the code, after compiling (see [Setup](README.md#setup)), use the command:
 ```
-    trex-fitter  <action(s)>  [<config file>]  [<update>]  [<options>]
+trex-fitter  <action(s)>  [<config file>]  [<update>]  [<options>]
 ```
 The configuration file (`<config file>`) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
 By default, the file  `config/myFit.config`  is loaded.
@@ -419,7 +419,7 @@ For each object type (also called "block"), here is the list of available proper
 Currently the supported options are:
 
 | Option | Effect |
-| ------ | ------ |
+| -------- | -------- |
 | `Regions`       | to limit the regions to use to the list specified |
 | `Samples`       | to limit the samples to use to the list specified |
 | `Systematics`   | to limit the systematics to use to the list specified |
@@ -469,15 +469,15 @@ trex-fitter  r  <config> Ranking=plot
 * Example:
 ```
 \# evaluate impact of all groups sequentially
-trex-fitter i <config>
+trex-fitter i \<config\>
 
 \# evaluate only the impact of Gammas
-trex-fitter i <config> GroupedImpact="Gammas"
+trex-fitter i \<config\> GroupedImpact="Gammas"
 ```
 
 * When the calculations are parallelized, combine the results by running the following at the end:
 ```
-trex-fitter i <config> GroupedImpact="combine"
+trex-fitter i \<config\> GroupedImpact="combine"
 ```
 
 ## Multi-Fit
