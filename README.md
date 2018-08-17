@@ -347,86 +347,89 @@ For each object type (also called "block"), here is the list of available proper
 | Regions          | comma-separated list of regions where to apply the shape factor |
 | Title            | title of the shape factor |
 
-* Systematic:
-  * Samples             : comma-separated list of samples on which to apply the systematic
-  * Regions             : comma-separated list of regions where to apply the systematic
-  * Exclude             : comma-separated list of samples/regions to exclude
-  * ExcludeRegionSample : comma-separated list of region:sample to exclude
-  * Type                : can be HISTO, OVERALL, SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin) or STAT (this refers to auto-creation of one systematic from stat uncertainty for each bin of corresponding region)
-  * Title               : title of the systematic (will be shown in plots)
-  * StoredName          : if specified, will be used to read and write histograms in the root files under Histograms/ intead of the syst name; useful to decorrelate without re-creating histograms
-  * NuisancaParameter   : if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics
-  * IsFreeParameter     : if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution)
-  * Category            : major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category
-  * SubCategory         : minor category for the systematic, used to evaluate impact on POI per SubCategory in "i" step, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality)
-  * HistoPathUp         : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation
-  * HistoPathDown       : only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation
-  * HistoPathSufUp      : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation
-  * HistoPathSufDown    : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic down variation
-  * HistoFileUp         : only for option HIST, for HISTO or SHAPE systematic: histogram file name for systematic up variation
-  * HistoFileDown       : only for option HIST, for HISTO or SHAPE systematic: histogram file name for systematic down variation
-  * HistoFileSufUp      : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation
-  * HistoFileSufDown    : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic down variation
-  * HistoNameUp         : only for option HIST, for HISTO or SHAPE systematic: histogram name for systematic up variation
-  * HistoNameDown       : only for option HIST, for HISTO or SHAPE systematic: histogram name for systematic down variation
-  * HistoNameSufUp      : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram names for systematic up variation
-  * HistoNameSufDown    : only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram names for systematic down variation
-  * NtuplePath(s)Up     : only for option NTUP, for HISTO or SHAPE systematic: ntuple file path(s) for systematic up variation
-  * NtuplePath(s)Down   : only for option NTUP, for HISTO or SHAPE systematic: ntuple file path(s) for systematic down variation
-  * NtuplePathSufUp     : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file paths for systematic up variation
-  * NtuplePathSufDown   : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file paths for systematic down variation
-  * NtupleFile(s)Up     : only for option NTUP, for HISTO or SHAPE systematic: ntuple file name(s) for systematic up variation
-  * NtupleFile(s)Down   : only for option NTUP, for HISTO or SHAPE systematic: ntuple file name(s) for systematic down variation
-  * NtupleFileSufUp     : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file names for systematic up variation
-  * NtupleFileSufDown   : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file names for systematic down variation
-  * NtupleName(s)Up     : only for option NTUP, for HISTO or SHAPE systematic: ntuple name(s) for systematic up variation
-  * NtupleName(s)Down   : only for option NTUP, for HISTO or SHAPE systematic: ntuple name(s) for systematic down variation
-  * NtupleNameSufUp     : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic up variation
-  * NtupleNameSufDown   : only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic down variation
-  * SampleUp            : if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only
-  * SampleDown          : if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only
-  * WeightUp            : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic up variation (the MCweight applied on the nominal sample is not multiplied with this, only WeightUp will be applied on the systematic sample if this is used)
-  * WeightDown          : only for option NTUP, for HISTO or SHAPE systematic: weight for systematic down variation (the MCweight applied on the nominal sample is not multiplied with this, only WeightDown will be applied on the systematic sample if this is used)
-  * WeightSufUp         : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation (multiplied with the MCWeight acting on the nominal sample)
-  * WeightSufDown       : only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation (multiplied with the MCWeight acting on the nominal sample)
-  * IgnoreWeight        : only for option NTUP: if set, the corresponding weight (present in Job, Sample or Region) will be ignored for this systematic
-  * Symmetrisation      : can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line
-  * Smoothing           : smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line
-  * OverallUp           : for OVERALL systematic: the relative "up" shift (0.1 means +10%)
-  * OverallDown         : for OVERALL systematic: the relative "down" shift (-0.1 means -10%)
-  * ScaleUp             : for OVERALL, HISTO or SHAPE systematic: scale difference between "up" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9`
-  * ScaleDown           : for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9`
-  * ReferenceSample     : if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated
-  * DropShapeIn         : specify regions where you want the smoothing / pruning to be forced to drop the shape and keep only norm
-  * DropNorm            : the same as the previous one, but to drop the norm and keep only the shape
-  * KeepNormForSamples  : list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region
-  * PreSmoothing        : if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set)
-  * SubtractRefSampleVar: if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample
-  * HistoPathUpRefSample       : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file path for systematic up variation
-  * HistoPathDownRefSample     : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file path for systematic down variation
-  * HistoPathSufUpRefSample    : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic up variation
-  * HistoPathSufDownRefSample  : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic down variation
-  * HistoFileUpRefSample       : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file name for systematic up variation
-  * HistoFileDownRefSample     : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file name for systematic down variation
-  * HistoFileSufUpRefSample    : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic up variation
-  * HistoFileSufDownRefSample  : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic down variation
-  * HistoNameUpRefSample       : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram name for systematic up variation
-  * HistoNameDownRefSample     : only for option HIST, for HISTO or SHAPE systematic: reference sample histogram name for systematic down variation
-  * HistoNameSufUpRefSample    : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram names for systematic up variation
-  * HistoNameSufDownRefSample  : only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram names for systematic down variation
-  * NtuplePath(s)UpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file path(s) for systematic up variation
-  * NtuplePath(s)DownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file path(s) for systematic down variation
-  * NtuplePathSufUpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file paths for systematic up variation
-  * NtuplePathSufDownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file paths for systematic down variation
-  * NtupleFile(s)UpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file name(s) for systematic up variation
-  * NtupleFile(s)DownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file name(s) for systematic down variation
-  * NtupleFileSufUpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file names for systematic up variation
-  * NtupleFileSufDownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file names for systematic down variation
-  * NtupleName(s)UpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple name(s) for systematic up variation
-  * NtupleName(s)DownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple name(s) for systematic down variation
-  * NtupleNameSufUpRefSample   : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic up variation
-  * NtupleNameSufDownRefSample : only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic down variation
-  * Decorrelate         : decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects)
+* **Systematic:**
+
+| **Option** | **Function** |
+| ---------- | ------------ |
+| Samples             | comma-separated list of samples on which to apply the systematic |
+| Regions             | comma-separated list of regions where to apply the systematic |
+| Exclude             | comma-separated list of samples/regions to exclude |
+| ExcludeRegionSample | comma-separated list of region:sample to exclude |
+| Type                | can be HISTO, OVERALL, SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin) or STAT (this refers to auto-creation of one systematic from stat uncertainty for each bin of corresponding region) |
+| Title               | title of the systematic (will be shown in plots) |
+| StoredName          | if specified, will be used to read and write histograms in the root files under Histograms/ intead of the syst name; useful to decorrelate without re-creating histograms |
+| NuisancaParameter   | if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics |
+| IsFreeParameter     | if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution) |
+| Category            | major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category |
+| SubCategory         | minor category for the systematic, used to evaluate impact on POI per SubCategory in "i" step, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
+| HistoPathUp         | only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation |
+| HistoPathDown       | only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation |
+| HistoPathSufUp      | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation |
+| HistoPathSufDown    | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic down variation |
+| HistoFileUp         | only for option HIST, for HISTO or SHAPE systematic: histogram file name for systematic up variation |
+| HistoFileDown       | only for option HIST, for HISTO or SHAPE systematic: histogram file name for systematic down variation |
+| HistoFileSufUp      | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation |
+| HistoFileSufDown    | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic down variation |
+| HistoNameUp         | only for option HIST, for HISTO or SHAPE systematic: histogram name for systematic up variation |
+| HistoNameDown       | only for option HIST, for HISTO or SHAPE systematic: histogram name for systematic down variation |
+| HistoNameSufUp      | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram names for systematic up variation |
+| HistoNameSufDown    | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram names for systematic down variation |
+| NtuplePath(s)Up     | only for option NTUP, for HISTO or SHAPE systematic: ntuple file path(s) for systematic up variation |
+| NtuplePath(s)Down   | only for option NTUP, for HISTO or SHAPE systematic: ntuple file path(s) for systematic down variation |
+| NtuplePathSufUp     | only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file paths for systematic up variation |
+| NtuplePathSufDown   | only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file paths for systematic down variation |
+| NtupleFile(s)Up     | only for option NTUP, for HISTO or SHAPE systematic: ntuple file name(s) for systematic up variation |
+| NtupleFile(s)Down   | only for option NTUP, for HISTO or SHAPE systematic: ntuple file name(s) for systematic down variation |
+| NtupleFileSufUp     | only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file names for systematic up variation |
+| NtupleFileSufDown   | only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple file names for systematic down variation |
+| NtupleName(s)Up     | only for option NTUP, for HISTO or SHAPE systematic: ntuple name(s) for systematic up variation |
+| NtupleName(s)Down   | only for option NTUP, for HISTO or SHAPE systematic: ntuple name(s) for systematic down variation |
+| NtupleNameSufUp     | only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic up variation |
+| NtupleNameSufDown   | only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic down variation |
+| SampleUp            | if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only |
+| SampleDown          | if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only |
+| WeightUp            | only for option NTUP, for HISTO or SHAPE systematic: weight for systematic up variation (the MCweight applied on the nominal sample is not multiplied with this, only WeightUp will be applied on the systematic sample if this is used) |
+| WeightDown          | only for option NTUP, for HISTO or SHAPE systematic: weight for systematic down variation (the MCweight applied on the nominal sample is not multiplied with this, only WeightDown will be applied on the systematic sample if this is used) |
+| WeightSufUp         | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation (multiplied with the MCWeight acting on the nominal sample) |
+| WeightSufDown       | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation (multiplied with the MCWeight acting on the nominal sample) |
+| IgnoreWeight        | only for option NTUP: if set, the corresponding weight (present in Job, Sample or Region) will be ignored for this systematic |
+| Symmetrisation      | can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line |
+| Smoothing           | smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line |
+| OverallUp           | for OVERALL systematic: the relative "up" shift (0.1 means +10%) |
+| OverallDown         | for OVERALL systematic: the relative "down" shift (-0.1 means -10%) |
+| ScaleUp             | for OVERALL, HISTO or SHAPE systematic: scale difference between "up" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9` |
+| ScaleDown           | for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9` |
+| ReferenceSample     | if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated |
+| DropShapeIn         | specify regions where you want the smoothing / pruning to be forced to drop the shape and keep only norm |
+| DropNorm            | the same as the previous one, but to drop the norm and keep only the shape |
+| KeepNormForSamples  | list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region |
+| PreSmoothing        | if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set) |
+| SubtractRefSampleVar| if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample |
+| HistoPathUpRefSample       | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file path for systematic up variation |
+| HistoPathDownRefSample     | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file path for systematic down variation |
+| HistoPathSufUpRefSample    | only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic up variation |
+| HistoPathSufDownRefSample  | only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic down variation |
+| HistoFileUpRefSample       | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file name for systematic up variation |
+| HistoFileDownRefSample     | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file name for systematic down variation |
+| HistoFileSufUpRefSample    | only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic up variation |
+| HistoFileSufDownRefSample  | only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic down variation |
+| HistoNameUpRefSample       | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram name for systematic up variation |
+| HistoNameDownRefSample     | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram name for systematic down variation |
+| HistoNameSufUpRefSample    | only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram names for systematic up variation |
+| HistoNameSufDownRefSample  | only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram names for systematic down variation |
+| NtuplePath(s)UpRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file path(s) for systematic up variation |
+| NtuplePath(s)DownRefSample | only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file path(s) for systematic down variation |
+| NtuplePathSufUpRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file paths for systematic up variation |
+| NtuplePathSufDownRefSample | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file paths for systematic down variation |
+| NtupleFile(s)UpRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file name(s) for systematic up variation |
+| NtupleFile(s)DownRefSample | only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple file name(s) for systematic down variation |
+| NtupleFileSufUpRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file names for systematic up variation |
+| NtupleFileSufDownRefSample | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple file names for systematic down variation |
+| NtupleName(s)UpRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple name(s) for systematic up variation |
+| NtupleName(s)DownRefSample | only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple name(s) for systematic down variation |
+| NtupleNameSufUpRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic up variation |
+| NtupleNameSufDownRefSample | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic down variation |
+| Decorrelate         | decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects) |
 
 
 ## Command line options
