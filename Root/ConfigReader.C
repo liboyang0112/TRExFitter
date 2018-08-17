@@ -2166,9 +2166,9 @@ int ConfigReader::ReadSampleOptions(){
         if(param != ""){
             std::vector<std::string> sets = Vectorize(param,',',false);
             for(std::string set : sets){
-                std::vector<std::string> regions = Vectorize(set,':');
+                std::vector<std::string> regions_corr = Vectorize(set,':');
                 WriteDebugStatus("ConfigReader::ReadSampleOptions", "Correlating gammas for this sample in regions " + set);
-                sample->fCorrelateGammasInRegions.push_back(regions);
+                sample->fCorrelateGammasInRegions.push_back(regions_corr);
             }
         }
 

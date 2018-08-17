@@ -202,12 +202,12 @@ RooWorkspace* MultiFit::CombineWS(){
             for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
                 Region *reg = fFitList[i_fit]->fRegions[i_reg];
                 if(reg->fRegionType==Region::VALIDATION) continue;
-                std::string fileName = fitDir + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
-                WriteDebugStatus("MultiFit::CombineWS", "  Opening file " + fileName );
-                TFile *rootFile = new TFile(fileName.c_str(),"read");
-                RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get(reg->fName.c_str());
+                std::string fileName_tmp = fitDir + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
+                WriteDebugStatus("MultiFit::CombineWS", "  Opening file " + fileName_tmp );
+                TFile *rootFile_tmp = new TFile(fileName_tmp.c_str(),"read");
+                RooWorkspace* m_ws_tmp = (RooWorkspace*) rootFile_tmp->Get(reg->fName.c_str());
                 WriteDebugStatus("MultiFit::CombineWS", "  Getting " + reg->fName );
-                vec_ws.push_back(m_ws);
+                vec_ws.push_back(m_ws_tmp);
                 vec_chName.push_back(reg->fName);
             }
         }

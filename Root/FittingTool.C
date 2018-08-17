@@ -133,7 +133,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     // Needed for Ranking plot, but also to set random initial values for the NPs
     //
     if(m_randSeed == -999){
-        gRandom->SetSeed(time(NULL));
+        gRandom->SetSeed(time(nullptr));
     }
     else{
         gRandom->SetSeed(m_randSeed);
@@ -352,18 +352,18 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
         TIterator* it4 = model->GetParametersOfInterest()->createIterator();
         RooArgSet* SliceNPs = new RooArgSet( *(model->GetNuisanceParameters()) );
         SliceNPs->add(*(model->GetParametersOfInterest()));
-        RooRealVar* var = NULL;
-        RooRealVar* var2 = NULL;
+        RooRealVar* var_tmp = nullptr;
+        RooRealVar* var2 = nullptr;
         WriteDebugStatus("FittingTool::FitPDF", "Size of variables for MINOS: " + std::to_string(m_varMinos.size()));
 
         if (m_varMinos.at(0)!="all"){
-            while( (var = (RooRealVar*) it3->Next()) ){
-                TString vname=var->GetName();
+            while( (var_tmp = (RooRealVar*) it3->Next()) ){
+                TString vname=var_tmp->GetName();
                 bool isthere=false;
                 for (unsigned int m=0;m<m_varMinos.size();++m){
                     if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
                 }
-                if (!isthere) SliceNPs->remove(*var, true, true);
+                if (!isthere) SliceNPs->remove(*var_tmp, true, true);
             }
             while( (var2 = (RooRealVar*) it4->Next()) ){
                 TString vname=var2->GetName();
@@ -647,7 +647,7 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     WriteInfoStatus("FittingTool::FitExcludingGroup", "-----------------------------------------------------");
 
     TIterator* it = mc->GetNuisanceParameters()->createIterator();
-    RooRealVar* var2 = NULL;
+    RooRealVar* var2 = nullptr;
 
     while( (var2 = (RooRealVar*) it->Next()) ){
         string varname = (string) var2->GetName();
