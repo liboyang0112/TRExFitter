@@ -41,13 +41,13 @@ Everytime the submodules change you need to run `git submodule update`
 
 
 ## How to
-To run the code, after compiling (see [Setup](README.md#setup)), use the command:
+To run the code, after compiling (see [Setup](#setup)), use the command:
 ```
 trex-fitter  <action(s)>  [<config file>]  [<update>]  [<options>]
 ```
 The configuration file (`<config file>`) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
 By default, the file  `config/myFit.config`  is loaded.
-See the section [Config File](README.md#config-file) for more details.
+See the section [Config File](#config-file) for more details.
 Take a look at `config/myFit.config` or `config/ttH2015.config` to see some example config files.
 Most of the time, the only file the user has to modify to obtain their desired results is the configuration file.
 
@@ -66,17 +66,17 @@ For instance, if you use the default file `util/trex-fitter.C`, the available op
 | `d` | draw pre-fit plots |
 | `p` | draw post-fit plots |
 | `a` | draw separation plots |
-| `r` | draw ranking plot (see [Ranking Plot](README.md#ranking-plot)) |
+| `r` | draw ranking plot (see [Ranking Plot](#ranking-plot)) |
 | `b` | re-run smoothing (in the future also rebinning) |
-| `m` | multi-fit (see [Multi-Fit](README.md#multi-fit)) |
-| `i` | grouped impact evaluation (see [Grouped Impact](README.md#grouped-impact)) |
+| `m` | multi-fit (see [Multi-Fit](#multi-fit)) |
+| `i` | grouped impact evaluation (see [Grouped Impact](#grouped-impact)) |
 
 New optional argument: `<options>`.
 It is a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form:
 ```
 "<option1>=<value1>,<value2>,...:<option2>=..."
 ```
-See the section [Command line options](README.md#command-line-options) below.
+See the section [Command line options](#command-line-options) below.
 
 
 ## Config File
