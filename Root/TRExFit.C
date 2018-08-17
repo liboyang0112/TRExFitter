@@ -1009,7 +1009,6 @@ void TRExFit::ReadNtuples(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-//                     SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp*syst->fScaleUp,syst->fOverallDown*syst->fScaleDown);
                     SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
                     syh->fSystematic = syst;
                     syh->fScaleUp = syst->fScaleUp;
@@ -2228,14 +2227,13 @@ void TRExFit::ReadHistograms(){
 //__________________________________________________________________________________
 //
 void TRExFit::ReadHistos(/*string fileName*/){
-    string fileName = "";
-    SampleHist *sh;
-    SystematicHist *syh;
-    string regionName;
-    string sampleName;
-    string normName;
-    string shapeName;
-    string systName;
+    std::string fileName = "";
+    SampleHist *sh = nullptr;
+    SystematicHist *syh = nullptr;
+    std::string regionName;
+    std::string sampleName;
+    std::string normName;
+    std::string shapeName;
     //
     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     if(singleOutputFile){
@@ -2331,12 +2329,12 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 std::string systName = "stat_"+fSamples[i_smp]->fName;
                 std::string systStoredName = systName;
                 WriteDebugStatus("TRExFit::ReadHistos", "adding separate gammas as SHAPE systematic " + systName);
-                SystematicHist *syh = sh->AddHistoSyst(systName,
+                SystematicHist *syh_tmp = sh->AddHistoSyst(systName,
                                                         Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                         Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                         0
                                                         );
-                if(syh==nullptr){
+                if(syh_tmp==nullptr){
                     WriteWarningStatus("TRExFit::ReadHistos", "No histogram found for separate gamma, but may be you will create it right now.");
                 }
                 else{
@@ -2347,7 +2345,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                     gamma->fType = Systematic::SHAPE;
                     gamma->fRegions.clear();
                     gamma->fRegions.push_back(fRegions[i_ch]->fName);
-                    syh->fSystematic = gamma;
+                    syh_tmp->fSystematic = gamma;
                     gamma->fNuisanceParameter = gamma->fName;
                     TRExFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
                 }
@@ -2387,8 +2385,8 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 if( fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fSamples[i_smp]->fSystematics[i_syst]->fExclude,fRegions[i_ch]->fName)>=0 ) continue;
                 if( fSamples[i_smp]->fSystematics[i_syst]->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(fSamples[i_smp]->fSystematics[i_syst]->fExcludeRegionSample,fRegions[i_ch]->fName, fSamples[i_smp]->fName)>=0 ) continue;
                 //
-                systName              = fSamples[i_smp]->fSystematics[i_syst]->fName;
-                string systStoredName = fSamples[i_smp]->fSystematics[i_syst]->fStoredName; // if no StoredName specified in the config, this should be == fName
+                std::string systName       = fSamples[i_smp]->fSystematics[i_syst]->fName;
+                std::string systStoredName = fSamples[i_smp]->fSystematics[i_syst]->fStoredName; // if no StoredName specified in the config, this should be == fName
                 //
                 // eventually skip systematics if pruned
                 int xbin,ybin,bin;
@@ -3238,15 +3236,15 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group){
     }
     //
     // scale them (but the first region
-    for(unsigned int i_ch=1;i_ch<regions.size();i_ch++){
-        float scale = ymax/hTotVec[i_ch]->GetMaximum();
-        hTotVec[i_ch]->Scale( scale );
-        for(int i_bin=1;i_bin<=hDataVec[i_ch]->GetNbinsX();i_bin++){
-            hDataVec[i_ch]->SetBinError(i_bin,sqrt(hDataVec[i_ch]->GetBinContent(i_bin)));
+    for(unsigned int i_channel=1;i_channel<regions.size();i_channel++){
+        float scale = ymax/hTotVec[i_channel]->GetMaximum();
+        hTotVec[i_channel]->Scale( scale );
+        for(int i_bin=1;i_bin<=hDataVec[i_channel]->GetNbinsX();i_bin++){
+            hDataVec[i_channel]->SetBinError(i_bin,sqrt(hDataVec[i_channel]->GetBinContent(i_bin)));
         }
-        hDataVec[i_ch]->Scale( scale );
-        for(auto hVec : hSignalVec)     hVec[i_ch]->Scale( scale );
-        for(auto hVec : hBackgroundVec) hVec[i_ch]->Scale( scale );
+        hDataVec[i_channel]->Scale( scale );
+        for(auto hVec : hSignalVec)     hVec[i_channel]->Scale( scale );
+        for(auto hVec : hBackgroundVec) hVec[i_channel]->Scale( scale );
     }
     //
     // merge andplot them
@@ -3358,9 +3356,9 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group){
     TLatex *tex = new TLatex();
     tex->SetTextSize(gStyle->GetTextSize());
     tex->SetTextFont(gStyle->GetTextFont());
-    for(unsigned int i_ch=0;i_ch<regions.size();i_ch++){
+    for(unsigned int i_channel=0;i_channel<regions.size();i_channel++){
         tex->SetNDC(0);
-        tex->DrawLatex(edges[i_ch],1.15*ymax,("#kern[-1]{"+regions[i_ch]->fLabel+" }").c_str());
+        tex->DrawLatex(edges[i_channel],1.15*ymax,("#kern[-1]{"+regions[i_channel]->fLabel+" }").c_str());
     }
     //
     tex->SetNDC(1);
@@ -3593,12 +3591,12 @@ void TRExFit::BuildYieldTable(string opt,string group){
                                 h_tmp_Down = sh->GetSystematic(systName)->fHistDown;
                             }
                         }
-                        float scale = 1;
+                        float morph_scale = 1;
                         if (!isPostFit) {
-                            scale = GetNominalMorphScale(sh);
+                            morph_scale = GetNominalMorphScale(sh);
                         }
-                        h_up[i_np]  ->AddBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()))*scale );
-                        h_down[i_np]->AddBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*scale );
+                        h_up[i_np]  ->AddBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()))*morph_scale );
+                        h_down[i_np]->AddBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*morph_scale );
                     }
                 }
             }

@@ -256,7 +256,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 
     TRExPlot* prefit_plot = 0;
     TRExPlot* prefit_plot_valid = 0;
-    if( drawPostFit and TRExFitter::PREFITONPOSTFIT ) {
+    if( drawPostFit && TRExFitter::PREFITONPOSTFIT ) {
       drawPreFit = true;
       //DrawSummary depends on DrawAndSaveAll to have been executed first. so might as well do the whole drawprefit block to avoid duplication
     }
@@ -345,12 +345,9 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     if(drawSeparation){
         std::cout << "Drawing separation plots..." << std::endl;
         myFit->DrawAndSaveSeparationPlots();
-    //    myFit->ListOfBestSeparationVariables(); // for the future list of best separation variables
-    //    myFit->ListOfBestDataMCVariables();     // for the future list of best data-mc agreement variables based on KS test
     }
 
     if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->CloseInputFiles();
-
 }
 
 // -------------------------------------------------------
