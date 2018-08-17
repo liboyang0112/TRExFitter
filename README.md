@@ -466,7 +466,9 @@ trex-fitter  r  <config> Ranking=plot
 * The impact is calculated by performing a fit where the nuisance parameters in the group are fixed to their best-fit values, and then the subtracting the resulting uncertainty on the POI in quadrature from the uncertainty from the nominal fit.
 * The command line parameter `GroupedImpact` can be used to parallelize the impact calculations. If it is not specified, all existing groups are evaluated sequentially.
 * The results are saved in `Fits/GroupedImpact*`.
+
 Examples:
+
 ```
 # evaluate impact of all groups sequentially
 trex-fitter i <config>
@@ -474,7 +476,9 @@ trex-fitter i <config>
 # evaluate only the impact of Gammas
 trex-fitter i <config> GroupedImpact="Gammas"
 ```
+
 If the calculations are parallelized, combine the results by running the following at the end:
+
 ```
 trex-fitter i <config> GroupedImpact="combine"
 ```
