@@ -800,7 +800,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 }
             }
         }
-        hSFTmp->~TH1();
+        delete hSFTmp;
 
         //
         // Systematics
@@ -1252,7 +1252,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         }
         hSmpNew[i] = (TH1*)hNew->Clone();
         fSampleHists[i]->fHist_postFit = hSmpNew[i];
-        hNew->~TH1();
+        delete hNew;
     }
     delete hNew;
 

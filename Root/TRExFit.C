@@ -676,7 +676,7 @@ void TRExFit::ReadNtuples(){
                 //
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
-                htmp->~TH1F();
+                delete htmp;
             }
             //
             // Save the original histogram
@@ -768,7 +768,7 @@ void TRExFit::ReadNtuples(){
                             hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
                         else hUp->Add(htmp);
-                        htmp->~TH1F();
+                        delete htmp;
                     }
                 }
                 //
@@ -826,7 +826,7 @@ void TRExFit::ReadNtuples(){
                             hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
                         else hDown->Add(htmp);
-                        htmp->~TH1F();
+                        delete htmp;
                     }
                 }
                 //
@@ -943,7 +943,7 @@ void TRExFit::ReadNtuples(){
                 //
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
-                htmp->~TH1F();
+                delete htmp;
             }
             //
             // Save the original histogram
@@ -1166,7 +1166,7 @@ void TRExFit::ReadNtuples(){
                             hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
                         else hUp->Add(htmp);
-                        htmp->~TH1F();
+                        delete htmp;
                     }
                 }
                 //
@@ -1283,7 +1283,7 @@ void TRExFit::ReadNtuples(){
                             hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
                         else hDown->Add(htmp);
-                        htmp->~TH1F();
+                        delete htmp;
                     }
                 }
                 //
@@ -1687,11 +1687,15 @@ void TRExFit::ReadHistograms(){
             h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                if (htmp == nullptr) {
+                    WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
+                    exit(EXIT_FAILURE);
+                }
                 //Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[i_ch]->fHistoBins){
                     TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
                     const char *hname = htmp->GetName();
-                    htmp->~TH1F();
+                    delete htmp;
                     htmp = (TH1F*)htmp2->Clone();
                     delete htmp2;
                     htmp->SetName(hname);
@@ -1704,7 +1708,7 @@ void TRExFit::ReadHistograms(){
 
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
-                htmp->~TH1F();
+                delete htmp;
             }
             //
             // Save the original histogram
@@ -1762,11 +1766,15 @@ void TRExFit::ReadHistograms(){
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                        if (htmp == nullptr) {
+                            WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
+                            exit(EXIT_FAILURE);
+                        }
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
                             TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
-                            htmp->~TH1F();
+                            delete htmp;
                             htmp = (TH1F*)htmp2->Clone();
                             delete htmp2;
                             htmp->SetName(hname);
@@ -1780,7 +1788,7 @@ void TRExFit::ReadHistograms(){
                             hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
                         else hUp->Add(htmp);
-                        htmp->~TH1F();
+                        delete htmp;
                     }
                 }
                 //
@@ -1813,11 +1821,15 @@ void TRExFit::ReadHistograms(){
                                                 );
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
+                        if (htmp == nullptr) {
+                            WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
+                            exit(EXIT_FAILURE);
+                        }
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
                             TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
-                            htmp->~TH1F();
+                            delete htmp;
                             htmp = (TH1F*)htmp2->Clone();
                             delete htmp2;
                             htmp->SetName(hname);
@@ -1832,7 +1844,7 @@ void TRExFit::ReadHistograms(){
                             hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
                         else hDown->Add(htmp);
-                        htmp->~TH1F();
+                        delete htmp;
                     }
                 }
                 //
@@ -1884,11 +1896,15 @@ void TRExFit::ReadHistograms(){
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 files_names.insert(fullPaths[i_path]);
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                if (htmp == nullptr) {
+                    WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
+                    exit(EXIT_FAILURE);
+                }
                 //Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[i_ch]->fHistoBins){
                     TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
                     const char *hname = htmp->GetName();
-                    htmp->~TH1F();
+                    delete htmp;
                     htmp = (TH1F*)htmp2->Clone();
                     delete htmp2;
                     htmp->SetName(hname);
@@ -1904,7 +1920,7 @@ void TRExFit::ReadHistograms(){
 
                 if(i_path==0) h = (TH1F*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
-                htmp->~TH1F();
+                delete htmp;
             }
             //
             // Save the original histogram
@@ -2015,11 +2031,15 @@ void TRExFit::ReadHistograms(){
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         files_names.insert(fullPaths[i_path]);
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                        if (htmp == nullptr) {
+                            WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
+                            exit(EXIT_FAILURE);
+                        }
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
                             TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
-                            htmp->~TH1F();
+                            delete htmp;
                             htmp = (TH1F*)htmp2->Clone();
                             delete htmp2;
                             htmp->SetName(hname);
@@ -2081,7 +2101,7 @@ void TRExFit::ReadHistograms(){
                             hUp = (TH1F*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
                         else hUp->Add(htmp);
-                        htmp->~TH1F();
+                        delete htmp;
                     }
                 }
                 //
@@ -2115,11 +2135,15 @@ void TRExFit::ReadHistograms(){
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         files_names.insert(fullPaths[i_path]);
                         htmp = (TH1F*)HistFromFile( fullPaths[i_path] ) ;
+                        if (htmp == nullptr) {
+                            WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
+                            exit(EXIT_FAILURE);
+                        }
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
                             TH1F* htmp2 = (TH1F*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
-                            htmp->~TH1F();
+                            delete htmp;
                             htmp = (TH1F*)htmp2->Clone();
                             delete htmp2;
                             htmp->SetName(hname);
@@ -2181,7 +2205,7 @@ void TRExFit::ReadHistograms(){
                             hDown = (TH1F*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
                         }
                         else hDown->Add(htmp);
-                        htmp->~TH1F();
+                        delete htmp;
                     }
                 }
                 //
@@ -6823,7 +6847,7 @@ void TRExFit::ComputeBining(int regIter){
                         else hbkg->Add(htmp);
                     }
                 }
-                htmp->~TH1F();
+                delete htmp;
             }
         }
         //
@@ -6851,13 +6875,17 @@ void TRExFit::ComputeBining(int regIter){
                 int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
                 TRExFitter::SetDebugLevel(0);
                 htmp = (TH1F*)HistFromFile( fullPaths[i_path] );
+                if (htmp == nullptr) {
+                    WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is mpty cannot continue running the code");
+                    exit(EXIT_FAILURE);
+                }
                 TRExFitter::SetDebugLevel(tmp_debugLevel);
                 //
                 // Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[regIter]->fHistoBins){
                     TH1F* htmp2 = (TH1F*)(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin,"htmp2",fRegions[regIter]->fHistoBins));
                     const char *hname = htmp->GetName();
-                    htmp->~TH1F();
+                    delete htmp;
                     htmp = (TH1F*)htmp2->Clone();
                     delete htmp2;
                     htmp->SetName(hname);
@@ -6913,7 +6941,7 @@ void TRExFit::ComputeBining(int regIter){
             }
           }
           //
-          htmp->~TH1F();
+          delete htmp;
         }
       }
     }
@@ -7277,7 +7305,6 @@ void TRExFit::defineVariable(int regIter){
             t->Add(fullPaths[i_path].c_str());
             t->Draw( Form("%s>>htmp1",fRegions[regIter]->fCorrVar1.c_str()), Form("(%s)*(%s)",fullMCweight.c_str(),fullSelection.c_str()), "goff");
             t->Draw( Form("%s>>htmp2",fRegions[regIter]->fCorrVar2.c_str()), Form("(%s)*(%s)",fullMCweight.c_str(),fullSelection.c_str()), "goff");
-//             t->~TChain();
             delete t;
             //
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp1 -> Scale(fLumi);
@@ -7290,8 +7317,6 @@ void TRExFit::defineVariable(int regIter){
             //
             h1->Add(htmp1);
             h2->Add(htmp2);
-//             htmp1->~TH1();
-//             htmp2->~TH1();
             delete htmp1;
             delete htmp2;
         }

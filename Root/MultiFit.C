@@ -2302,6 +2302,10 @@ void MultiFit::PlotSummarySoverB(){
 
     fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     float muFit = fFitList[0]->fFitResults->GetNuisParValue(fPOI);
+    if (HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" ) == nullptr) {
+        WriteWarningStatus("TRExFit::PlotSummarySoverB", "Histo pointer is nullptr, skipping plotting.");
+        return;
+    }
     float muLimit = HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
 
     std::vector<string> fileNames; fileNames.clear();
