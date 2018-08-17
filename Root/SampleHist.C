@@ -84,6 +84,10 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
 SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
     fSample = sample;
     fHist = HistFromFile(fileName,histoName);
+    if (fHist == nullptr) {
+        WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+        exit(EXIT_FAILURE);
+    }
     fHist_orig = HistFromFile(fileName,histoName+"_orig");
     if(fHist_orig==nullptr) fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
     fHist->SetFillColor(fSample->fFillColor);
@@ -444,6 +448,10 @@ void SampleHist::WriteToFile(TFile *f){
         SystematicHist *syh = AddHistoSyst(systName,htempUp,htempDown);
         gamma->fNuisanceParameter = gamma->fName;
         TRExFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
+        if (syh ==nullptr) {
+            WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+            exit(EXIT_FAILURE);
+        }
         syh->fSystematic = gamma;
     }
     //
@@ -1161,6 +1169,10 @@ void SampleHist::Divide(SampleHist *sh){
             hDown->Add(fHist,2);
             //
             syh = AddHistoSyst(systName,hUp,hDown);
+            if (syh == nullptr) {
+                WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+                exit(EXIT_FAILURE);
+            }
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
@@ -1208,6 +1220,10 @@ void SampleHist::Multiply(SampleHist *sh){
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp   );
             hDown->Multiply( sh->fSyst[i_syst]->fHistDown );
             syh = AddHistoSyst(systName,hUp,hDown);
+            if (syh == nullptr) {
+                WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+                exit(EXIT_FAILURE);
+            }
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
@@ -1255,6 +1271,10 @@ void SampleHist::Add(SampleHist *sh,float scale){
             hUp  ->Add( sh->fSyst[i_syst]->fHistUp  ,scale );
             hDown->Add( sh->fSyst[i_syst]->fHistDown,scale );
             syh = AddHistoSyst(systName,hUp,hDown);
+            if (syh == nullptr) {
+                WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+                exit(EXIT_FAILURE);
+            }
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             syh->fSystematic = sh->fSyst[i_syst]->fSystematic;

@@ -73,13 +73,13 @@ void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* 
 
     //Sanity checks
     if( histOps % 10 > 2){
-        WriteErrorStatus("HistoTools::ManageHistograms", "histOpt %10 > 2 - the operations to perform are not allowed ");
-        WriteErrorStatus("HistoTools::ManageHistograms", "   two different symmetrisations ! Please check.");
+        WriteWarningStatus("HistoTools::ManageHistograms", "histOpt %10 > 2 - the operations to perform are not allowed ");
+        WriteWarningStatus("HistoTools::ManageHistograms", "   two different symmetrisations ! Please check.");
         return;
     }
     if( histOps/10 > 99 ){
-        WriteErrorStatus("HistoTools::ManageHistograms", "histOpt/10 > 99 - the operations to perform are not allowed ");
-        WriteErrorStatus("HistoTools::ManageHistograms", "   two different symmetrisations ! Please check.");
+        WriteWarningStatus("HistoTools::ManageHistograms", "histOpt/10 > 99 - the operations to perform are not allowed ");
+        WriteWarningStatus("HistoTools::ManageHistograms", "   two different symmetrisations ! Please check.");
         return;
     }
 
@@ -109,7 +109,8 @@ void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, T
         if     (originUp==nullptr && originDown!=nullptr) isUp = false;
         else if(originUp!=nullptr && originDown==nullptr) isUp = true;
         else if(originUp==nullptr && originDown==nullptr){
-            WriteErrorStatus("HistoTools::SymmetrizeHistograms", "both up and down variations are empty.");
+            WriteWarningStatus("HistoTools::SymmetrizeHistograms", "Both up and down variations are empty.");
+            WriteWarningStatus("HistoTools::SymmetrizeHistograms", "Will not symmetrize.");
             return;
         }
         // if both are non-empty, check the differences with the nominal
@@ -154,10 +155,10 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom,
     // SECOND STEP: SMOOTHING
     //
     //##################################################
-    
+
     // Initialize common smoothing tool
     SmoothHist smoothTool;
-    
+
     if(hNom->GetNbinsX()==1){
         std::string temp =  hNom->GetName();
         WriteDebugStatus("HistoTools::SmoothHistograms", "In HistoTools::ManageHistograms(): skipping smoothing for systematics on \"" + temp + "\" since just 1 bin.");
@@ -207,7 +208,7 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom,
     } else {
         WriteWarningStatus("HistoTools::SmoothHistograms", "Unknown smoothing option. Please check the config file.");
         WriteWarningStatus("HistoTools::SmoothHistograms", "No smoothing will be applied.");
-        return; 
+        return;
     }
 }
 
@@ -224,10 +225,10 @@ TH1F* HistoTools::SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp ){
     if(Separation(h_nominal,h_syst)<1e-05){
         std::string temp1 =  h_nominal -> GetName();
         std::string temp2 =  h_syst -> GetName();
-        WriteErrorStatus("HistoTools::SymmetrizeOneSided", "The two histograms for one-sided symmetrisation are the same ...");
-        WriteErrorStatus("HistoTools::SymmetrizeOneSided", "Please check.");
-        WriteErrorStatus("HistoTools::SymmetrizeOneSided", "      --> Nominal : " + temp1);
-        WriteErrorStatus("HistoTools::SymmetrizeOneSided", "      --> Syst    : " + temp2);
+        WriteWarningStatus("HistoTools::SymmetrizeOneSided", "The two histograms for one-sided symmetrisation are the same (difference is < 1e-5)");
+        WriteWarningStatus("HistoTools::SymmetrizeOneSided", "Will not symmetrize");
+        WriteWarningStatus("HistoTools::SymmetrizeOneSided", "      --> Nominal : " + temp1);
+        WriteWarningStatus("HistoTools::SymmetrizeOneSided", "      --> Syst    : " + temp2);
     }
 
     return InvertShift(h_syst,h_nominal);
@@ -439,24 +440,33 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
     //
     // 1) Checks that the histograms exist
     //
-    if(!nom){
-        WriteErrorStatus("HistoTools::CheckHistograms", "The nominal histogram doesn't seem to exist !");
-        if(causeCrash) abort();
-        isGood = false;
-        return isGood;
-    }
-    if(sh){
-        if(!sh->fHistUp){
-            WriteErrorStatus("HistoTools::CheckHistograms", "The up variation histogram doesn't seem to exist !");
-            if(causeCrash) abort();
-            isGood = false;
-            return isGood;
+    if(nom == nullptr){
+        if (causeCrash){
+            WriteErrorStatus("HistoTools::CheckHistograms", "The nominal histogram doesn't seem to exist !");
+            exit(EXIT_FAILURE);
+        } else {
+            WriteWarningStatus("HistoTools::CheckHistograms", "The nominal histogram doesn't seem to exist !");
         }
-        if(!sh->fHistDown){
-            WriteErrorStatus("HistoTools::CheckHistograms", "The down variation histogram doesn't seem to exist !");
-            if(causeCrash) abort();
-            isGood = false;
-            return isGood;
+        return false;
+    }
+    if(sh != nullptr){
+        if(sh->fHistUp == nullptr){
+            if (causeCrash){
+                WriteErrorStatus("HistoTools::CheckHistograms", "The up variation histogram doesn't seem to exist !");
+                exit(EXIT_FAILURE);
+            } else {
+                WriteWarningStatus("HistoTools::CheckHistograms", "The up variation histogram doesn't seem to exist !");
+            }
+            return false;
+        }
+        if(sh->fHistDown == nullptr){
+            if (causeCrash) {
+                WriteErrorStatus("HistoTools::CheckHistograms", "The down variation histogram doesn't seem to exist !");
+                exit(EXIT_FAILURE);
+            } else {
+                WriteWarningStatus("HistoTools::CheckHistograms", "The down variation histogram doesn't seem to exist !");
+            }
+            return false;
         }
     }
     else return false;
@@ -468,10 +478,13 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
     const int NbinsUp   = sh->fHistUp->GetNbinsX();
     const int NbinsDown = sh->fHistDown->GetNbinsX();
     if( (NbinsNom != NbinsUp) || (NbinsNom != NbinsDown) || (NbinsUp != NbinsDown) ){
-        WriteErrorStatus("HistoTools::CheckHistograms", "The number of bins is found inconsistent ! Please check!");
-        if(causeCrash) abort();
-        isGood = false;
-        return isGood;
+        if (causeCrash) {
+            WriteErrorStatus("HistoTools::CheckHistograms", "The number of bins is found inconsistent ! Please check!");
+            exit(EXIT_FAILURE);
+        } else {
+            WriteWarningStatus("HistoTools::CheckHistograms", "The number of bins is found inconsistent ! Please check!");
+        }
+        return false;
     }
 
     for( int iBin = 1; iBin <= NbinsNom; ++iBin ){
@@ -480,10 +493,13 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         double lowEdgeDown  = sh->fHistDown->GetBinLowEdge(iBin);
 
         if( abs(lowEdgeNom-lowEdgeUp)>1e-05 || abs(lowEdgeNom-lowEdgeDown)>1e-05 || abs(lowEdgeDown-lowEdgeUp)>1e-05 ){
-            WriteErrorStatus("HistoTools::CheckHistograms", "The bin low edges are not consistent ! Please check !");
-            if(causeCrash) abort();
-            isGood = false;
-            return isGood;
+            if (causeCrash) {
+                WriteErrorStatus("HistoTools::CheckHistograms", "The bin low edges are not consistent ! Please check !");
+                exit(EXIT_FAILURE);
+            } else {
+                WriteWarningStatus("HistoTools::CheckHistograms", "The bin low edges are not consistent ! Please check !");
+            }
+            return false;
         }
 
         double binWidthNom   = nom->GetBinWidth(iBin);
@@ -491,10 +507,13 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         double binWidthDown  = sh->fHistDown->GetBinWidth(iBin);
 
         if( abs(binWidthNom-binWidthUp)>1e-05 || abs(binWidthNom-binWidthDown)>1e-05 || abs(binWidthDown-binWidthUp)>1e-05 ){
-            WriteErrorStatus("HistoTools::CheckHistograms", "The bin widths are not consistent ! Please check !");
-            if(causeCrash) abort();
-            isGood = false;
-            return isGood;
+            if (causeCrash) {
+                WriteErrorStatus("HistoTools::CheckHistograms", "The bin widths are not consistent ! Please check !");
+                exit(EXIT_FAILURE);
+            } else {
+                WriteWarningStatus("HistoTools::CheckHistograms", "The bin widths are not consistent ! Please check !");
+            }
+            return false;
         }
     }
 
@@ -505,12 +524,14 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         double content = nom->GetBinContent(iBin);
         if( ( checkNullContent && content<=0 ) || ( !checkNullContent && content<0 ) ){
             std::string temp = nom->GetName();
-            WriteErrorStatus("HistoTools::CheckHistograms", "In histo \"" + temp + "\", bin " + std::to_string(iBin) + " has 0 content ! Please check");
-            WriteInfoStatus("HistoTools::CheckHistograms", "Nominal: " + std::to_string(content));
             isGood = false;
-            if(causeCrash){
-              abort();
+            if(causeCrash) {
+                WriteErrorStatus("HistoTools::CheckHistograms", "In histo \"" + temp + "\", bin " + std::to_string(iBin) + " has 0 content ! Please check");
+                WriteErrorStatus("HistoTools::CheckHistograms", "Nominal: " + std::to_string(content));
+              exit(EXIT_FAILURE);
             } else {
+              WriteWarningStatus("HistoTools::CheckHistograms", "In histo \"" + temp + "\", bin " + std::to_string(iBin) + " has 0 content ! Please check");
+              WriteWarningStatus("HistoTools::CheckHistograms", "Nominal: " + std::to_string(content));
               //Corrects the nominal
               WriteWarningStatus("HistoTools::CheckHistograms", "I set the bin content to 1e-05 pm 1e-06 ! Please check !");
               nom -> SetBinContent(iBin,1e-05);
@@ -542,27 +563,38 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         //
         if(contentUp<0){
             std::string temp_string = sh->fHistUp->GetName();
-            WriteErrorStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has negative content ! Please check");
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
             isGood = false;
-            if(causeCrash) abort();
-            else{
-                WriteDebugStatus("HistoTools::CheckHistograms", "  => Setting Up to 1e-06");
+            if(causeCrash){
+                WriteErrorStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has negative content ! Please check");
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
+                exit(EXIT_FAILURE);
+            } else {
+                WriteWarningStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has negative content ! Please check");
+                WriteWarningStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
+                WriteWarningStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
+                WriteWarningStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
+                WriteWarningStatus("HistoTools::CheckHistograms", "  => Setting Up to 1e-06");
                 sh->fHistUp->SetBinContent(iBin,1e-06);
             }
         }
         if(contentDown<0){
             std::string temp_string = sh->fHistDown->GetName();
-            WriteErrorStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has negative content ! Please check");
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
             isGood = false;
-            if(causeCrash) abort();
+            if(causeCrash) {
+                WriteErrorStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has negative content ! Please check");
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
+                exit(EXIT_FAILURE);
+            }
             else{
-                WriteDebugStatus("HistoTools::CheckHistograms", "  => Setting Up to 1e-06");
+                WriteWarningStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has negative content ! Please check");
+                WriteWarningStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
+                WriteWarningStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
+                WriteWarningStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
+                WriteWarningStatus("HistoTools::CheckHistograms", "  => Setting Up to 1e-06");
                 sh->fHistDown->SetBinContent(iBin,1e-06);
             }
         }
@@ -591,24 +623,36 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         // * third check is for abnormal systematic/nominal values (ratio > 100)
         if( (ratioUp!=ratioUp) || (ratioUp < 0) || (abs(ratioUp-1.) >= 100) ){
             std::string temp_string = sh->fHistUp->GetName();
-            WriteErrorStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has weird content ! Please check");
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
             isGood = false;
-            if(causeCrash) abort();
+            if(causeCrash) {
+                WriteErrorStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has weird content ! Please check");
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
+                exit(EXIT_FAILURE);
+            }
+            WriteWarningStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has weird content ! Please check");
+            WriteWarningStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
+            WriteWarningStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
+            WriteWarningStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
             // try to fix it, if not aborting
             if(ratioUp!=ratioUp) sh->fHistUp->SetBinContent(iBin,contentNom);
             else return isGood;
         }
         if( (ratioDown!=ratioDown) || (ratioDown < 0) || (abs(ratioDown-1.) >= 100) ){
             std::string temp_string = sh->fHistDown->GetName();
-            WriteErrorStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has weird content ! Please check");
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
-            WriteDebugStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
             isGood = false;
-            if(causeCrash) abort();
+            if(causeCrash) {
+                WriteErrorStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has weird content ! Please check");
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
+                WriteErrorStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
+                exit(EXIT_FAILURE);
+            }
+            WriteWarningStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string + "\", bin " + std::to_string(iBin) + " has weird content ! Please check");
+            WriteWarningStatus("HistoTools::CheckHistograms", "  Nominal: " + std::to_string(contentNom));
+            WriteWarningStatus("HistoTools::CheckHistograms", "  Up: " + std::to_string(contentUp));
+            WriteWarningStatus("HistoTools::CheckHistograms", "  Down: " + std::to_string(contentDown));
             // try to fix it, if not aborting
             if(ratioDown!=ratioDown) sh->fHistDown->SetBinContent(iBin,contentNom);
             else return isGood;
@@ -626,9 +670,9 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         std::string temp2 = sh->fHistUp -> GetName();
         std::string temp3 = sh->fHistDown -> GetName();
         WriteWarningStatus("HistoTools::CheckHistograms", "Underflow detected ! This will not be taken into account.");
-        WriteDebugStatus("HistoTools::CheckHistograms", "Nominal (" + temp1 + "): " + std::to_string(underflowNom));
-        WriteDebugStatus("HistoTools::CheckHistograms", "Nominal (" + temp2 + "): " + std::to_string(underflowUp));
-        WriteDebugStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(underflowDown));
+        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp1 + "): " + std::to_string(underflowNom));
+        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp2 + "): " + std::to_string(underflowUp));
+        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(underflowDown));
     }
 
     double overflowNom      = nom -> GetBinContent(NbinsNom+1);
@@ -639,9 +683,9 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         std::string temp2 = sh->fHistUp -> GetName();
         std::string temp3 = sh->fHistDown -> GetName();
         WriteWarningStatus("HistoTools::CheckHistograms", "Overflowflow detected ! This will not be taken into account.");
-        WriteDebugStatus("HistoTools::CheckHistograms", "Nominal (" + temp1 + "): " + std::to_string(overflowNom));
-        WriteDebugStatus("HistoTools::CheckHistograms", "Nominal (" + temp2 + "): " + std::to_string(overflowUp));
-        WriteDebugStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(overflowDown));
+        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp1 + "): " + std::to_string(overflowNom));
+        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp2 + "): " + std::to_string(overflowUp));
+        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(overflowDown));
     }
     return isGood;
 }
