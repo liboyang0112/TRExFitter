@@ -418,7 +418,7 @@ For each object type (also called "block"), here is the list of available proper
 ## Command line options
 Currently the supported options are:
 
-| Option | Effect |
+| Option &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | Effect |
 | ------ | ------ |
 | `Regions`       | to limit the regions to use to the list specified |
 | `Samples`       | to limit the samples to use to the list specified |
@@ -466,21 +466,21 @@ trex-fitter  r  <config> Ranking=plot
 * The impact is calculated by performing a fit where the nuisance parameters in the group are fixed to their best-fit values, and then the subtracting the resulting uncertainty on the POI in quadrature from the uncertainty from the nominal fit.
 * The command line parameter `GroupedImpact` can be used to parallelize the impact calculations. If it is not specified, all existing groups are evaluated sequentially.
 * The results are saved in `Fits/GroupedImpact*`.
-* Example:
+* Example 1:
 ```
 # evaluate impact of all groups sequentially
 trex-fitter i <config>
 ```
-
+* Example 2:
 ```
 # evaluate only the impact of Gammas
 trex-fitter i <config> GroupedImpact="Gammas"
 ```
-
 * When the calculations are parallelized, combine the results by running the following at the end:
 ```
 trex-fitter i <config> GroupedImpact="combine"
 ```
+
 
 ## Multi-Fit
 The Multi-Fit functionality can be used to compare fit results or even to combine fit inputs from different configuration files / Jobs.
@@ -526,7 +526,7 @@ Multi-Fit options
 ---------
 
 * **Job block**:
-  | Option | Function |
+  | Option &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | Function |
   | ------ | -------- |
   | Label            | the label which will be shown on plots |
   | OutputDir        | the name of the output directory |
@@ -580,7 +580,7 @@ Multi-Fit options
   | ShowTotalOnly    | If set to TRUE will show only total uncertainty on the POI plots. Default is FALSE |
 
 * **Fit block:**
-  | Option | Function |
+  | Option &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | Function |
   | ------ | -------- |
   | Options          | additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ... |
   | Label            | the label of the values from this config that will be shown on the plots |
@@ -617,7 +617,7 @@ trex-fitter dwf ../config/ttH2015.config
 For each TRExFit object, a directory is created, with the same name as the Fit Name.
 Inside this direcotry, at every step, some outputs are created, following the structure described above
 
-| Folder | Content |
+| Folder &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | Content |
 | ------ | ------- |
 | `Plots/`              | data/MC plots, pre- and post-fit, for all the Signal, Control and Validation regions, including the summary plots |
 | `Tables/`             | tables in txt and tex format |
