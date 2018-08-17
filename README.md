@@ -468,10 +468,10 @@ trex-fitter  r  <config> Ranking=plot
 * The results are saved in `Fits/GroupedImpact*`.
 * Example:
 ```
-# evaluate impact of all groups sequentially
+\# evaluate impact of all groups sequentially
 trex-fitter i <config>
 
-# evaluate only the impact of Gammas
+\# evaluate only the impact of Gammas
 trex-fitter i <config> GroupedImpact="Gammas"
 ```
 
@@ -598,17 +598,17 @@ A macro `hupdate` is included, which mimics hadd functionality, but without addi
 This is useful for running different systematics in different steps (like different batch jobs) and then merging results afterwards.
 `hupdate` is compiled automatically when using cmake. To explicitly request compilation, execute the following in the build folder:
 ```
-    make hupdate.exe
+make hupdate.exe
 ```
 Example usage, combined with the usage of SaveSuffix:
 ```
-    make hupdate.exe
-    trex-fitter n ../config/ttH2015.config Systematics=BTag_B_NP1:SaveSuffix=_BTag_B_NP1
-    ./build/bin/myFit.exe n ../config/ttH2015.config Exclude=BTag_B_NP1:SaveSuffix=_rest
-    ./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_4j2b_histos.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_rest.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_BTag_B_NP1.root
-    ./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_5j3b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos_BTag_B_NP1.root
-    ./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_BTag_B_NP1.root
-    trex-fitter dwf ../config/ttH2015.config
+make hupdate.exe
+trex-fitter n ../config/ttH2015.config Systematics=BTag_B_NP1:SaveSuffix=_BTag_B_NP1
+./build/bin/myFit.exe n ../config/ttH2015.config Exclude=BTag_B_NP1:SaveSuffix=_rest
+./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_4j2b_histos.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_rest.root ttH2015/Histograms/ttH2015_HThad_4j2b_histos_BTag_B_NP1.root
+./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_5j3b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos.root ttH2015/Histograms/ttH2015_HThad_5j3b_histos_BTag_B_NP1.root
+./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_BTag_B_NP1.root
+trex-fitter dwf ../config/ttH2015.config
 ```
 
 ## Output Directories Structure
@@ -633,8 +633,8 @@ Inside this direcotry, at every step, some outputs are created, following the st
 * The following scripts create example histograms in `exampleDataDriven` directory and execute `trex-fitter` using `config/dataDriven.config`
 * The example contains a control region and signal region with two bins. The shape of one of the background samples is estimated using the ShapeFactor:
 ```
-    python makeDataDriven.py
-    python runDataDrivenExample.py
+python makeDataDriven.py
+python runDataDrivenExample.py
 ```
 The results are in `JobDataDriven`
 
@@ -642,19 +642,19 @@ The results are in `JobDataDriven`
 ## Replacement file
 You can define placeholders in your config file, which are replaced with values specified in an external file, which is read at the beginning of TRExFitter execution. This requires adding an additional option into your config, as part of the Job block:
 ```
-  ReplacementFile: path/to/file.txt
+ReplacementFile: path/to/file.txt
 ```
 The replacement file should have the following structure:
 ```
-  # comment
-  XXX_placeholder: 0.1
-  XXX_another_placeholder: 0.2
-  % also a comment
+\# comment
+XXX_placeholder: 0.1
+XXX_another_placeholder: 0.2
+% also a comment
 ```
 Note that all placeholders must start with ``XXX``. In your config file, you can then refer to the placeholders like this:
 ```
-  Sample: "ttbar"
-    MCweight: XXX_placeholder
+Sample: "ttbar"
+  MCweight: XXX_placeholder
 ```
 If you would like to ensure that the replacement works correctly, set your DebugLevel to a minimum value of 1 and check the output of the framework.
 
