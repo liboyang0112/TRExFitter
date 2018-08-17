@@ -474,6 +474,7 @@ trex-fitter i <config>
 # evaluate only the impact of Gammas
 trex-fitter i <config> GroupedImpact="Gammas"
 ```
+
 * When the calculations are parallelized, combine the results by running the following at the end:
 ```
 trex-fitter i <config> GroupedImpact="combine"
