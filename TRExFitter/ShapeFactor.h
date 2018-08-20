@@ -12,7 +12,7 @@ public:
     ~ShapeFactor();
     void Set(const std::string& name, float nominal=1, float min=0, float max=10, bool isConst=false);
 
-    void Print();
+    void Print() const;
 
     std::string fName;
     std::string fNuisanceParameter;

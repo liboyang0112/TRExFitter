@@ -36,7 +36,7 @@ void ShapeFactor::Set(const std::string& name, float nominal, float min, float m
 
 //__________________________________________________________________________________
 //
-void ShapeFactor::Print(){
+void ShapeFactor::Print() const{
     if (!fConst) WriteDebugStatus("ShapeFactor::Print", "        ShapeFactor: " + fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax));
     else WriteDebugStatus("ShapeFactor::Print", "        ShapeFactor: " + fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax) + "(CONSTANT)");
 }
