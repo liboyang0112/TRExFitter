@@ -265,7 +265,7 @@ void Region::SetRegionDataType( DataType type ){
 
 //__________________________________________________________________________________
 //
-SampleHist* Region::GetSampleHist(string &sampleName){
+SampleHist* Region::GetSampleHist(const std::string &sampleName) const{
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSampleHists[i_smp]->fName == sampleName) return fSampleHists[i_smp];
     }
@@ -675,7 +675,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
                                 const int i /*sample*/, const int i_bin /*bin number*/,
                                 const double binContent0,
                                 const std::string &var_syst_name,
-                                const bool isUp ){
+                                const bool isUp ) const{
 
     double multNorm(1.), multShape(0.);
     float systValue = 0;
@@ -1459,7 +1459,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
 
 //__________________________________________________________________________________
 //
-void Region::AddSelection(string selection){
+void Region::AddSelection(const std::string& selection){
     if(selection=="") return;
     if(fSelection=="1" || fSelection=="") fSelection = selection;
     else fSelection += " && "+selection;
@@ -1467,7 +1467,7 @@ void Region::AddSelection(string selection){
 
 //__________________________________________________________________________________
 //
-void Region::AddMCweight(string weight){
+void Region::AddMCweight(const std::string& weight){
     if(weight=="") return;
     if(fMCweight=="1" || fMCweight=="") fMCweight = weight;
     else fMCweight += " * "+weight;
@@ -1475,7 +1475,7 @@ void Region::AddMCweight(string weight){
 
 //__________________________________________________________________________________
 //
-void Region::SetVariable(string variable,int nbin,float xmin,float xmax,string corrVar1,string corrVar2){
+void Region::SetVariable(const std::string& variable,int nbin,float xmin,float xmax,string corrVar1,string corrVar2){
     fVariable = variable;
     fCorrVar1 = corrVar1;
     fCorrVar2 = corrVar2;
@@ -1486,45 +1486,49 @@ void Region::SetVariable(string variable,int nbin,float xmin,float xmax,string c
 
 //__________________________________________________________________________________
 //
-void Region::SetAlternativeVariable(string variable,string sample){
+void Region::SetAlternativeVariable(const std::string& variable, const std::string& sample){
     fAlternativeVariables[sample] = variable;
 }
 
 //__________________________________________________________________________________
 //
-void Region::SetAlternativeSelection(string selection,string sample){
+void Region::SetAlternativeSelection(const std::string& selection, const std::string& sample){
     fAlternativeSelections[sample] = selection;
 }
 
 //__________________________________________________________________________________
 //
-bool Region::UseAlternativeVariable(string sample){
+bool Region::UseAlternativeVariable(const std::string& sample){
     std::vector<std::string> tmpVec;
     for(auto tmp : fAlternativeVariables){
         tmpVec.push_back(tmp.first);
     }
-    if (FindInStringVector(tmpVec,sample))
+    if (FindInStringVector(tmpVec,sample)){
         return false;
-    else
+    }
+    else {
         return true;
+    }
 }
 
 //__________________________________________________________________________________
 //
-bool Region::UseAlternativeSelection(string sample){
+bool Region::UseAlternativeSelection(const std::string& sample){
     std::vector<std::string> tmpVec;
     for(auto tmp : fAlternativeSelections){
         tmpVec.push_back(tmp.first);
     }
-    if (FindInStringVector(tmpVec,sample))
+    if (FindInStringVector(tmpVec,sample)){
         return false;
-    else
+    }
+    else {
         return true;
+    }
 }
 
 //__________________________________________________________________________________
 //
-std::string Region::GetAlternativeVariable(string sample){
+std::string Region::GetAlternativeVariable(const std::string& sample) const{
     std::vector<std::string> tmpVec;
     std::vector<std::string> tmpVec2;
     for(auto tmp : fAlternativeVariables){
@@ -1532,13 +1536,17 @@ std::string Region::GetAlternativeVariable(string sample){
         tmpVec2.push_back(tmp.second);
     }
     int idx = FindInStringVector(tmpVec,sample);
-    if(idx<0) return "";
-    else return tmpVec2[idx];
+    if(idx<0){
+        return "";
+    }
+    else {
+        return tmpVec2[idx];
+    }
 }
 
 //__________________________________________________________________________________
 //
-std::string Region::GetAlternativeSelection(string sample){
+std::string Region::GetAlternativeSelection(const std::string& sample) const{
     std::vector<std::string> tmpVec;
     std::vector<std::string> tmpVec2;
     for(auto tmp : fAlternativeSelections){
@@ -1546,27 +1554,30 @@ std::string Region::GetAlternativeSelection(string sample){
         tmpVec2.push_back(tmp.second);
     }
     int idx = FindInStringVector(tmpVec,sample);
-    if(idx<0) return "";
-    else return tmpVec2[idx];
+    if(idx<0){
+        return "";
+    }
+    else {
+        return tmpVec2[idx];
+    }
 }
 
 //__________________________________________________________________________________
 //
-void Region::SetHistoName(string name){
-//     fHistoName = name;
+void Region::SetHistoName(const std::string& name){
     fHistoNames.clear();
     fHistoNames.push_back(name);
 }
 
 //__________________________________________________________________________________
 //
-void Region::SetVariableTitle(string name){
+void Region::SetVariableTitle(const std::string& name){
     fVariableTitle = name;
 }
 
 //__________________________________________________________________________________
 //
-void Region::SetLabel(string label,string shortLabel){
+void Region::SetLabel(const std::string& label, std::string shortLabel){
     fLabel = label;
     if(shortLabel=="") fShortLabel = label;
     else fShortLabel = shortLabel;
@@ -1574,7 +1585,7 @@ void Region::SetLabel(string label,string shortLabel){
 
 //__________________________________________________________________________________
 //
-void Region::Print(){
+void Region::Print() const{
     WriteInfoStatus("Region::Print", "    Region: " + fName);
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         fSampleHists[i_smp]->Print();
@@ -1583,7 +1594,7 @@ void Region::Print(){
 
 //__________________________________________________________________________________
 //
-void Region::PrintSystTable(FitResults *fitRes, string opt){
+void Region::PrintSystTable(FitResults *fitRes, string opt) const{
     bool isPostFit  = false; if(opt.find("post")!=string::npos)     isPostFit  = true;
     bool doClean    = false; if(opt.find("clean")!=string::npos)    doClean    = true;
     bool doCategory = false; if(opt.find("category")!=string::npos) doCategory = true;
@@ -2080,7 +2091,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
 }
 
 //--------------- ~ ---------------
-void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal){
+void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal) const{
     for(int i=0;i<fNSamples;i++){
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
