@@ -33,7 +33,7 @@ NormFactor::~NormFactor(){}
 
 //__________________________________________________________________________________
 //
-void NormFactor::Print(){
+void NormFactor::Print() const{
     if (fConst) WriteInfoStatus("NormFactor::Print", fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax) + "  (CONSTANT)");
     else WriteInfoStatus("NormFactor::Print", fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax));
 }
