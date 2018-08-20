@@ -157,7 +157,8 @@ public:
     std::string fCorrVar1;
     std::string fCorrVar2;
     int fNbins;
-    float fXmin, fXmax;
+    float fXmin;
+    float fXmax;
     std::string fSelection;
     std::string fMCweight;
     std::vector<std::string> fNtuplePaths;
@@ -218,7 +219,7 @@ public:
 
     std::string fGroup; // used to split yield tables
 
-    TH1F* fBlindedBins;
+    TH1D* fBlindedBins;
     bool fKeepPrefitBlindedBins;
     int fGetChi2;
 
@@ -237,8 +238,8 @@ public:
 // Functions
 
 // for post-fit plots
-float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode=4);
-std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_errUp, float alpha_errDown, float Iz, float Ip, float Imi, int intCode);
+double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode=4);
+std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_errUp, double alpha_errDown, double Iz, double Ip, double Imi, int intCode);
 
 
 // To build the total error band

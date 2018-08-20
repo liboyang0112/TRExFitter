@@ -9,7 +9,7 @@
 class TCanvas;
 class TGraphAsymmErrors;
 class TH1;
-class TH1F;
+class TH1D;
 class THStack;
 class TLegend;
 class TPad;
@@ -51,9 +51,8 @@ class TRExPlot {
     TCanvas* GetCanvas();
 
     void SetBinBlinding(bool on,float threshold=0.02);
-    void SetBinBlinding(bool on,TH1F*h_blind);
+    void SetBinBlinding(bool on,TH1D*h_blind);
 
-//   private:
     std::string fName;
     TH1* h_data;
     TGraphAsymmErrors* g_data;
@@ -65,7 +64,7 @@ class TRExPlot {
     THStack* h_stack;
     TH1* h_tot;
     TGraphAsymmErrors* g_tot;
-    TH1F* h_blinding;
+    TH1D* h_blinding;
     TH1* h_tot_bkg_prefit;
 
     TCanvas* c;

@@ -12,7 +12,7 @@
 #include "TBox.h"
 #include "TCanvas.h"
 #include "TGraphAsymmErrors.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TLatex.h"
 #include "TLine.h"
 #include "TPad.h"
@@ -262,7 +262,7 @@ void FitResults::DrawNormFactors( const string &path, const std::vector < NormFa
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1F *h_dummy = new TH1F( "h_dummy_norm","h_dummy_norm",10,xmin,xmax);
+    TH1D *h_dummy = new TH1D( "h_dummy_norm","h_dummy_norm",10,xmin,xmax);
     h_dummy->SetMaximum(max);
     h_dummy->SetLineWidth(0);
     h_dummy->SetFillStyle(0);
@@ -345,7 +345,7 @@ void FitResults::DrawGammaPulls( const string &path ){
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1F *h_dummy = new TH1F( "h_dummy_gamma","h_dummy_gamma",10,xmin,xmax);
+    TH1D *h_dummy = new TH1D( "h_dummy_gamma","h_dummy_gamma",10,xmin,xmax);
     h_dummy->SetMaximum(max);
     h_dummy->SetLineWidth(0);
     h_dummy->SetFillStyle(0);
@@ -435,7 +435,7 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1F *h_dummy = new TH1F( ("h_dummy"+category).c_str(),("h_dummy"+category).c_str(),10,xmin,xmax);
+    TH1D *h_dummy = new TH1D( ("h_dummy"+category).c_str(),("h_dummy"+category).c_str(),10,xmin,xmax);
     h_dummy->SetMaximum(max);
     h_dummy->SetLineWidth(0);
     h_dummy->SetFillStyle(0);

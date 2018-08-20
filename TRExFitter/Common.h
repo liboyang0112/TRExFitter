@@ -10,7 +10,7 @@
 /// Forward class declaration
 class TFile;
 class TH1;
-class TH1F;
+class TH1D;
 
 namespace TRExFitter{
     extern int DEBUGLEVEL;
@@ -52,8 +52,8 @@ const int MAXsyst = 500;
 const int MAXnorm = 10;
 
 TFile* GetFile(const std::string& fileName);
-TH1F* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, float xmin, float xmax, const std::string& selection, const std::string& weight);
-TH1F* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight);
+TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, float xmin, float xmax, const std::string& selection, const std::string& weight);
+TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight);
 TH1* HistFromFile(const std::string& fullName);
 TH1* HistFromFile(const std::string& fileName, const std::string& histoName);
 void WriteHistToFile(TH1* h, const std::string& fileName, std::string option="UPDATE");
@@ -72,9 +72,9 @@ int wildcmp(const char *wild, const char *string);
 
 int FindInStringVector(const std::vector<std::string>& v, const std::string& s);
 int FindInStringVectorOfVectors(const std::vector<std::vector<std::string> >& v, const std::string& s, const std::string& ss);
-double GetSeparation( TH1F* S1, TH1F* B1 );
+double GetSeparation( TH1D* S1, TH1D* B1 );
 
-TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
+TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
 void BlindDataHisto( TH1* h_data, TH1* h_blind );
 double convertStoD(std::string toConvert);
 
@@ -83,10 +83,10 @@ void SmoothHistogramTtres( TH1* h);
 
 void DropBins(TH1* h, const std::vector<int> &v);
 
-float CorrectIntegral(TH1* h,float *err=0);
+double CorrectIntegral(TH1* h, double *err=0);
 
 void CloseFiles( const std::set<std::string> &set);
 
-TH1F* MergeHistograms(std::vector<TH1*> hVec);
+TH1D* MergeHistograms(std::vector<TH1*> hVec);
 
 #endif

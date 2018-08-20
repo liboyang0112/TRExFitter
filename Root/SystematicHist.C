@@ -9,7 +9,7 @@
 
 // ROOT includes
 #include "TFile.h"
-#include "TH1F.h"
+#include "TH1.h"
 
 using namespace std;
 

@@ -6,7 +6,7 @@
 
 // ROOT includes
 #include "TCanvas.h"
-#include "TH2F.h"
+#include "TH2D.h"
 #include "TPad.h"
 #include "TStyle.h"
 
@@ -120,7 +120,7 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     //
     // 1) Performs the plot
     //
-    TH2F *h_corr = new TH2F("h_corr","",N,0,N,N,0,N);
+    TH2D *h_corr = new TH2D("h_corr","",N,0,N,N,0,N);
     h_corr->SetDirectory(0);
 
     for(unsigned int iNP = 0; iNP < vec_NP.size(); ++iNP){//line number

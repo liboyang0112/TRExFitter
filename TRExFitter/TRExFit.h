@@ -367,7 +367,7 @@ public:
     std::vector< std::string > fRegionGroups;
 
     bool fKeepPrefitBlindedBins;
-    TH1F* fBlindedBins;
+    TH1D* fBlindedBins;
 
     std::string fCustomAsimov;
 
@@ -386,7 +386,6 @@ public:
 
     std::vector<std::string> fCustomFunctions;
 
-//     bool fRunMorphing;
     std::vector<std::string> fMorphParams;
     std::vector<std::pair<float,std::string> > fTemplatePair;
     std::vector<TRExFit::TemplateWeight> fTemplateWeightVec;

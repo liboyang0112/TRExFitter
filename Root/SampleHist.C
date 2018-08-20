@@ -255,8 +255,8 @@ SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string
     sh->fHistDown_orig = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig");
     if(sh->fHistUp   == nullptr) return nullptr;
     if(sh->fHistDown == nullptr) return nullptr;
-    if(sh->fHistUp_orig  ==nullptr) sh->fHistUp_orig   = (TH1F*)sh->fHistUp->Clone(  Form("%s_orig",sh->fHistUp->GetName()  ));
-    if(sh->fHistDown_orig==nullptr) sh->fHistDown_orig = (TH1F*)sh->fHistDown->Clone(Form("%s_orig",sh->fHistDown->GetName()));
+    if(sh->fHistUp_orig  ==nullptr) sh->fHistUp_orig   = (TH1D*)sh->fHistUp->Clone(  Form("%s_orig",sh->fHistUp->GetName()  ));
+    if(sh->fHistDown_orig==nullptr) sh->fHistDown_orig = (TH1D*)sh->fHistDown->Clone(Form("%s_orig",sh->fHistDown->GetName()));
     //
     if(normOnly){
         sh->fIsShape   = false;
@@ -854,9 +854,9 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 leg2->SetNColumns(2);
                 leg2->SetTextSize(gStyle->GetTextSize());
                 leg2->SetTextFont(gStyle->GetTextFont());
-                TH1F* h_syst_up_black = (TH1F*)h_syst_up -> Clone();
+                TH1D* h_syst_up_black = (TH1D*)h_syst_up -> Clone();
                 h_syst_up_black -> SetLineColor(kBlack);
-                TH1F* h_syst_up_origin_black = (TH1F*)h_syst_up_orig -> Clone();
+                TH1D* h_syst_up_origin_black = (TH1D*)h_syst_up_orig -> Clone();
                 h_syst_up_origin_black -> SetLineColor(kBlack);
                 leg2->AddEntry(h_syst_up_origin_black,"Original","l");
                 leg2->AddEntry(h_syst_up_black,"Modified","l");
@@ -929,7 +929,6 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                     h_tmp_up->Add(h_tmp_nominal,-1);
                     h_tmp_up->Divide(h_tmp_nominal);
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_up->AddBinContent(i_bin, 100.);
-//                     SmoothHistogram(h_tmp_up,-1,3);
                     h_tmp_up->Smooth();
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_up->AddBinContent(i_bin,-100.);
                     h_tmp_up->Multiply(h_tmp_nominal);
@@ -943,7 +942,6 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                     h_tmp_up->Divide(h_tmp_nominal);
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_down->AddBinContent(i_bin, 100.);
                     h_tmp_down->Smooth();
-//                     SmoothHistogram(h_tmp_down,-1,3);
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_down->AddBinContent(i_bin,-100.);
                     h_tmp_up->Multiply(h_tmp_nominal);
                     h_tmp_down->Add(h_tmp_nominal, 1);

@@ -38,7 +38,7 @@ using namespace std;
 
 //_________________________________________________________________________
 //
-TH1F* HistoTools::TranformHistogramBinning(TH1* originalHist){
+TH1D* HistoTools::TranformHistogramBinning(TH1* originalHist){
 
     //
     // In RooStats, input histogram variable binning is not supported => convert to a constant binning
@@ -50,7 +50,7 @@ TH1F* HistoTools::TranformHistogramBinning(TH1* originalHist){
     for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
         if(originalHist->GetBinContent(iBin)>=0) nBinsNew++;
     }
-    TH1F *hFinal = new TH1F(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBinsNew,0,1);
+    TH1D *hFinal = new TH1D(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBinsNew,0,1);
     hFinal -> SetDirectory(0);
     unsigned int iBinNew = 1;
     for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
@@ -122,7 +122,7 @@ void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, T
         }
 
 
-        TH1F* temp;
+        TH1D* temp;
         if(isUp){
             temp = SymmetrizeOneSided(hNom, originUp, isUp);
             modifiedUp = (TH1*)originUp -> Clone();
@@ -214,7 +214,7 @@ void HistoTools::SmoothHistograms( int histOps,  TH1* hNom,
 
 //_________________________________________________________________________
 //
-TH1F* HistoTools::SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp ){
+TH1D* HistoTools::SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp ){
 
     float yield_nominal     = h_nominal->Integral();
     float yield_syst        = h_syst->Integral();
@@ -236,7 +236,7 @@ TH1F* HistoTools::SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp ){
 
 //_________________________________________________________________________
 //
-TH1F* HistoTools::InvertShift(TH1* h_syst, TH1* h_nominal){
+TH1D* HistoTools::InvertShift(TH1* h_syst, TH1* h_nominal){
 
     //Sanity check
     if(!h_syst || !h_nominal) return 0;
@@ -246,7 +246,7 @@ TH1F* HistoTools::InvertShift(TH1* h_syst, TH1* h_nominal){
     if(!h_syst->GetSumw2())h_syst -> Sumw2();
 
     //Compute the symmetric histogram
-    TH1F* result = (TH1F*)h_nominal -> Clone();
+    TH1D* result = (TH1D*)h_nominal -> Clone();
     result -> SetDirectory(0);
     result -> Add(h_syst,-1);
     result -> Add(h_nominal,1);
@@ -276,26 +276,26 @@ float HistoTools::Separation(TH1* h1,TH1* h2){
 
 //_________________________________________________________________________
 //
-TH1F* HistoTools::SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom) {
+TH1D* HistoTools::SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom) {
 
     //
     // Symmetrize a variation that is already two sided to smooth out possible fluctuations
     //
     //Nominal
-    TH1F* nom = (TH1F*)hnom->Clone();
+    TH1D* nom = (TH1D*)hnom->Clone();
 
     //Up variation
-    TH1F* tmp1 = (TH1F* )var1->Clone();
+    TH1D* tmp1 = (TH1D* )var1->Clone();
     tmp1->Divide(nom);
     if(!tmp1->GetSumw2())tmp1->Sumw2();
 
     //Down variation
-    TH1F* tmp2 = (TH1F* )var2->Clone();
+    TH1D* tmp2 = (TH1D* )var2->Clone();
     tmp2->Divide(nom);
     if(!tmp2->GetSumw2())tmp2->Sumw2();
 
     //Flat (content = 0) histogram to substract
-    TH1F* unit = (TH1F* )nom->Clone();
+    TH1D* unit = (TH1D* )nom->Clone();
     if(!unit->GetSumw2())unit->Sumw2();
     for (int bin=1; bin<= unit->GetNbinsX(); bin++){
         unit->SetBinContent(bin,1);

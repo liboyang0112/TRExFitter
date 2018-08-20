@@ -11,7 +11,7 @@
 class ConfigParser;
 class RooDataSet;
 class RooWorkspace;
-class TH1F;
+class TH1D;
 class TRExFit;
 
 class MultiFit {
@@ -39,9 +39,9 @@ public:
     void GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data,bool recreate=true,bool compare=false);
     void BuildGroupedImpactTable();
 
-    TH1F* Combine(std::vector<TH1F*>);
-    TH1F* OrderBins(TH1F* h,std::vector<float> vec);
-    TH1F* Rebin(TH1F* h,std::vector<float> vec, bool isData=true);
+    TH1D* Combine(std::vector<TH1D*>);
+    TH1D* OrderBins(TH1D* h,std::vector<float> vec);
+    TH1D* Rebin(TH1D* h,std::vector<float> vec, bool isData=true);
     
     std::vector< std::string > fFitNames;
     std::vector< TRExFit* > fFitList;

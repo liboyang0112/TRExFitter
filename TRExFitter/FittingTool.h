@@ -78,7 +78,7 @@ public:
     //
     // Specific functions
     //
-    float FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit = false, bool noFit = false );
+    double FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit = false, bool noFit = false );
     void ExportFitResultInTextFile( const std::string &finaName );
     std::map < std::string, double > ExportFitResultInMap();
 

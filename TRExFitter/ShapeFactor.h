@@ -8,9 +8,9 @@
 class ShapeFactor{
 public:
     ShapeFactor();
-    ShapeFactor(std::string name, float nominal=1, float min=0, float max=10, bool isConst=false);
+    ShapeFactor(const std::string& name, float nominal=1, float min=0, float max=10, bool isConst=false);
     ~ShapeFactor();
-    void Set(std::string name, float nominal=1, float min=0, float max=10, bool isConst=false);
+    void Set(const std::string& name, float nominal=1, float min=0, float max=10, bool isConst=false);
 
     void Print();
 

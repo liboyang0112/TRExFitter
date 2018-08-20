@@ -17,7 +17,7 @@
 #include "TFrame.h"
 #include "TGraphAsymmErrors.h"
 #include "TH1.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "THStack.h"
 #include "TLatex.h"
 #include "TLegend.h"
@@ -373,7 +373,7 @@ void TRExPlot::Draw(string options){
     }
     else{
         hasData = false;
-        h_data = (TH1F*)h_tot->Clone("dummyData");//tajes data = total
+        h_data = (TH1D*)h_tot->Clone("dummyData");//tajes data = total
         h_data->SetTitle("Asimov Data");
         g_data = new TGraphAsymmErrors(h_data);
     }
@@ -458,9 +458,9 @@ void TRExPlot::Draw(string options){
     //
     // Draw blinding markers
     //
-    TH1F* h_blind = nullptr;
+    TH1D* h_blind = nullptr;
     if(h_blinding!=nullptr){
-        h_blind = (TH1F*)h_blinding->Clone("h_blind");
+        h_blind = (TH1D*)h_blinding->Clone("h_blind");
         h_blind->SetLineWidth(0);
         h_blind->SetLineColor(kGray);
         h_blind->SetFillColor(kGray);
@@ -856,7 +856,7 @@ void TRExPlot::Draw(string options){
     // Mark blinded bins in ratio pad as  well
     //
     if(h_blind!=nullptr){
-        TH1F* h_blindratio = (TH1F*)h_blind->Clone("h_blindratio");
+        TH1D* h_blindratio = (TH1D*)h_blind->Clone("h_blindratio");
         h_blindratio->Scale(2.);
         h_blindratio->Draw("HIST same");
     }
@@ -1045,7 +1045,7 @@ void TRExPlot::SetBinBlinding(bool on,float threshold){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetBinBlinding(bool on,TH1F* h_blind){
+void TRExPlot::SetBinBlinding(bool on,TH1D* h_blind){
     h_blinding = h_blind;
     if(!on) fBlindingThreshold = -1;
     std::string temp = "Setting blinding bins:";

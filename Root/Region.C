@@ -277,8 +277,8 @@ SampleHist* Region::GetSampleHist(string &sampleName){
 void Region::BuildPreFitErrorHist(){
     WriteInfoStatus("Region::BuildPreFitErrorHist", "Building pre-fit plot for region " + fName + " ...");
     //
-    float yieldNominal(0.), yieldUp(0.), yieldDown(0.);
-    float diffUp(0.), diffDown(0.);
+    double yieldNominal(0.), yieldUp(0.), yieldDown(0.);
+    double diffUp(0.), diffDown(0.);
     //
     fSystNames.clear();
     fNpNames.clear();
@@ -703,10 +703,9 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         // Normalisation component: use the exponential interpolation and the multiplicative combination
         //
         if(fSampleHists[i]->fSyst[i_syst]->fIsOverall){
-            float binContentUp   = (fSampleHists[i]->fSyst[i_syst]->fNormUp+1) * binContent0;
-            float binContentDown = (fSampleHists[i]->fSyst[i_syst]->fNormDown+1) * binContent0;
-//             multNorm *= (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall));
-            float factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall);
+            double binContentUp   = (fSampleHists[i]->fSyst[i_syst]->fNormUp+1) * binContent0;
+            double binContentDown = (fSampleHists[i]->fSyst[i_syst]->fNormDown+1) * binContent0;
+            double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall);
             multNorm *= factor;
             if (fSampleHists[i]->fSample->fBuildPullTable>0){
                 if (((factor > 1.01) || (factor < 0.99)) && (i_bin==1)) {
@@ -720,10 +719,9 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         // Shape component: use the linear interpolation and the additive combination
         //
         if(fSampleHists[i]->fSyst[i_syst]->fIsShape){
-            float binContentUp   = fSampleHists[i]->fSyst[i_syst]->fHistShapeUp->GetBinContent(i_bin);
-            float binContentDown = fSampleHists[i]->fSyst[i_syst]->fHistShapeDown->GetBinContent(i_bin);
-//             multShape += (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 );
-            float factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape);
+            double binContentUp   = fSampleHists[i]->fSyst[i_syst]->fHistShapeUp->GetBinContent(i_bin);
+            double binContentDown = fSampleHists[i]->fSyst[i_syst]->fHistShapeDown->GetBinContent(i_bin);
+            double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape);
             multShape += factor - 1;
             if (fSampleHists[i]->fSample->fBuildPullTable==2){
                 if (((factor-1) > 0.03) || ((factor-1) < - 0.03)) {
@@ -741,7 +739,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
 void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names){
 
     WriteInfoStatus("Region::BuildPostFitErrorHist", "Building post-fit plot for region " + fName + " ...");
-    float diffUp(0.), diffDown(0.);
+    double diffUp(0.), diffDown(0.);
 
     //
     // 0) Collect all the systematics on all the samples
@@ -749,11 +747,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     fSystNames.clear();
     std::map<string,bool> systIsThere;
     systIsThere.clear();
-    float systValue(0.);
-    float systErrUp(0.);
-    float systErrDown(0.);
-    //TH1* hUp = nullptr;
-    //TH1* hDown = nullptr;
+    double systValue(0.);
+    double systErrUp(0.);
+    double systErrDown(0.);
     string systName = "";
     string systNuisPar = "";
     SystematicHist *sh = nullptr;
@@ -1267,7 +1263,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
             NormFactor *nf = fSampleHists[i]->fNormFactors[i_norm];
             nfName = nf->fName;
-//             nfName = nf->fNuisanceParameter; // not implemeted yet...
             if(nf->fConst) nfValue = nf->fNominal;
             else           nfValue = fitRes->GetNuisParValue(TRExFitter::NPMAP[nfName]);
             //
@@ -1711,8 +1706,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
                 texout << " &    nan   ";
             }
             else{
-              float normUp;
-              float normDown;
+              double normUp;
+              double normDown;
               if(isPostFit){
                 normUp   = (syh->fHistUp_postFit->Integral()   - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
                 normDown = (syh->fHistDown_postFit->Integral() - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
@@ -1868,12 +1863,12 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
 
 // --------------- Functions --------------- //
 
-float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
+double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode){
     // protection against negative values
     if(Ip<=0)  Ip  = 0.00000001*Iz;
     if(Imi<=0) Imi = 0.00000001*Iz;
 
-    float deltaN = 0.;
+    double deltaN = 0.;
     if(alpha>0)      deltaN = Ip;
     else if(alpha<0) deltaN = Imi;
     else             return 1.;
@@ -1891,23 +1886,23 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
             deltaN /= Iz; // divide h_tmp by the nominal
             deltaN = pow( deltaN, TMath::Abs(alpha) );  // d -> d^(|a|)
         } else {
-            float logImiIz = TMath::Log(Imi/Iz);
-            float logImiIzSqr = logImiIz*logImiIz;
-            float logIpIz = TMath::Log(Ip/Iz);
-            float logIpIzSqr = logIpIz*logIpIz;
+            double logImiIz = TMath::Log(Imi/Iz);
+            double logImiIzSqr = logImiIz*logImiIz;
+            double logIpIz = TMath::Log(Ip/Iz);
+            double logIpIzSqr = logIpIz*logIpIz;
             // polinomial: equations solved with Mathematica
-            float a1 = -(15*Imi - 15*Ip - 7*Imi*logImiIz + Imi*logImiIzSqr + 7*Ip*logIpIz - Ip*logIpIzSqr)/(16.*Iz);
-            float a2 = -3 + (3*Imi)/(2.*Iz) + (3*Ip)/(2.*Iz) - (9*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) -
+            double a1 = -(15*Imi - 15*Ip - 7*Imi*logImiIz + Imi*logImiIzSqr + 7*Ip*logIpIz - Ip*logIpIzSqr)/(16.*Iz);
+            double a2 = -3 + (3*Imi)/(2.*Iz) + (3*Ip)/(2.*Iz) - (9*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) -
             (9*Ip*logIpIz)/(16.*Iz) + (Ip*logIpIzSqr)/(16.*Iz);
-            float a3 = (5*Imi)/(8.*Iz) - (5*Ip)/(8.*Iz) - (5*Imi*logImiIz)/(8.*Iz) + (Imi*logImiIzSqr)/(8.*Iz) + (5*Ip*logIpIz)/(8.*Iz) -
+            double a3 = (5*Imi)/(8.*Iz) - (5*Ip)/(8.*Iz) - (5*Imi*logImiIz)/(8.*Iz) + (Imi*logImiIzSqr)/(8.*Iz) + (5*Ip*logIpIz)/(8.*Iz) -
             (Ip*logIpIzSqr)/(8.*Iz);
-            float a4 = 3 - (3*Imi)/(2.*Iz) - (3*Ip)/(2.*Iz) + (7*Imi*logImiIz)/(8.*Iz) -
+            double a4 = 3 - (3*Imi)/(2.*Iz) - (3*Ip)/(2.*Iz) + (7*Imi*logImiIz)/(8.*Iz) -
             (Imi*logImiIzSqr)/(8.*Iz) + (7*Ip*logIpIz)/(8.*Iz) - (Ip*logIpIzSqr)/(8.*Iz);
-            float a5 = (-3*Imi)/(16.*Iz) + (3*Ip)/(16.*Iz) + (3*Imi*logImiIz)/(16.*Iz) - (Imi*logImiIzSqr)/(16.*Iz) -
+            double a5 = (-3*Imi)/(16.*Iz) + (3*Ip)/(16.*Iz) + (3*Imi*logImiIz)/(16.*Iz) - (Imi*logImiIzSqr)/(16.*Iz) -
             (3*Ip*logIpIz)/(16.*Iz) + (Ip*logIpIzSqr)/(16.*Iz);
-            float a6 = -1 + Imi/(2.*Iz) + Ip/(2.*Iz) - (5*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) - (5*Ip*logIpIz)/(16.*Iz) +
+            double a6 = -1 + Imi/(2.*Iz) + Ip/(2.*Iz) - (5*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) - (5*Ip*logIpIz)/(16.*Iz) +
             (Ip*logIpIzSqr)/(16.*Iz);
-            float a = alpha;
+            double a = alpha;
             deltaN = 1 + a1*a + a2*a*a + a3*a*a*a + a4*a*a*a*a + a5*a*a*a*a*a + a6*a*a*a*a*a*a;
         }
 
@@ -1943,7 +1938,7 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
 
 //___________________________________________________________
 //
-std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_errUp, float alpha_errDown, float Iz, float Ip, float Imi, int intCode){
+std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_errUp, double alpha_errDown, double Iz, double Ip, double Imi, int intCode){
     double nominal = GetDeltaN(alpha, Iz, Ip, Imi, intCode);
     double up = GetDeltaN(alpha+alpha_errUp, Iz, Ip, Imi, intCode);
     double down = GetDeltaN(alpha+alpha_errDown, Iz, Ip, Imi, intCode);
