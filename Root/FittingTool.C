@@ -508,7 +508,7 @@ std::map < std::string, double > FittingTool::ExportFitResultInMap(){
 
 //____________________________________________________________________________________
 //
-int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, std::string categoryOfInterest, std::string outFileName ){
+int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, const std::string& categoryOfInterest, const std::string& outFileName ) const{
     // file to save results to
     std::ofstream outFile;
     outFile.open(outFileName.c_str());
@@ -559,7 +559,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 
         // find all associated parameters per SubCategory
         associatedParams.clear();
-        for(std::map<std::string, std::string>::iterator itSysts = m_subCategoryMap.begin(); itSysts != m_subCategoryMap.end(); ++itSysts) {
+        for(auto itSysts = m_subCategoryMap.begin(); itSysts != m_subCategoryMap.end(); ++itSysts) {
             if (itSysts->second == *itCategories) {
                 //WriteDebugStatus("FittingTool::GetGroupedImpact","  associated parameter: " + itSysts->first);
                 associatedParams.push_back(itSysts->first);
@@ -634,7 +634,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 //
 // perform a fit where all parameters in "affectedParams" (usually coming from SubGroup "category") are set to constant, optionally also gammas or all parameters
 void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
-                                    RooStats::ModelConfig* mc, RooWorkspace* ws, std::string category, std::vector<std::string> affectedParams) {
+                                    RooStats::ModelConfig* mc, RooWorkspace* ws, const std::string& category, const std::vector<std::string>& affectedParams) const {
 
     // (VD): use this to fix nuisance parameter before the fit
     const RooArgSet* glbObs = mc->GetGlobalObservables();

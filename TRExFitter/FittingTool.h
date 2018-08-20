@@ -40,17 +40,15 @@ public:
     inline void MinimType ( const TString &type ){ m_minimType = type; }
     inline TString GetMinimType(){ return m_minimType; }
 
-    inline int GetMinuitStatus() { return m_minuitStatus; }
-    inline int GetHessStatus() { return m_hessStatus; }
-    inline double GetEDM() { return m_edm; }
+    inline int GetMinuitStatus() const { return m_minuitStatus; }
+    inline int GetHessStatus() const { return m_hessStatus; }
+    inline double GetEDM() const { return m_edm; }
 
     inline void ValPOI( const double value ) { m_valPOI = value; }
-    inline double GetValPOI() { return m_valPOI; }
-
-    //inline void UseMinos( const bool use ) { m_useMinos = use; }
+    inline double GetValPOI() const { return m_valPOI; }
 
     inline void ConstPOI( const bool constant ) { m_constPOI = constant; }
-    inline double GetConstPOI() { return m_constPOI; }
+    inline double GetConstPOI() const { return m_constPOI; }
 
     inline void NoGammas()      { m_noGammas=true;      }
     inline void NoSystematics() { m_noSystematics=true; }
@@ -68,7 +66,7 @@ public:
     inline void FixNPs( std::vector<std::string> nps, std::vector<double> values ) { m_constNP = nps; m_constNPvalue = values; }
     inline void SetNPs( std::vector<std::string> nps, std::vector<double> values ) { m_initialNP = nps; m_initialNPvalue = values; }
 
-    inline RooFitResult* GetFitResult() { return m_fitResult; }
+    inline RooFitResult* GetFitResult() const { return m_fitResult; }
 
     inline void RangePOI_up( const double value){m_RangePOI_up = value;}
     inline void RangePOI_down( const double value){m_RangePOI_down = value;}
@@ -82,9 +80,9 @@ public:
     void ExportFitResultInTextFile( const std::string &finaName );
     std::map < std::string, double > ExportFitResultInMap();
 
-    int GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, std::string categoryOfInterest, std::string outFileName );
+    int GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, const std::string& categoryOfInterest, const std::string& outFileName ) const;
     void FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
-                           RooStats::ModelConfig* mc, RooWorkspace* ws, std::string category, std::vector<std::string> affectedParams);
+                           RooStats::ModelConfig* mc, RooWorkspace* ws, const std::string& category, const std::vector<std::string>& affectedParams) const;
 
 private:
     TString m_minimType;
@@ -107,8 +105,6 @@ private:
     double m_randomNP;
     long int m_randSeed;
 
-//     TString m_constNP;
-//     double m_constNPvalue;
     std::vector<std::string> m_constNP;
     std::vector<double> m_constNPvalue;
     std::vector<std::string> m_initialNP;
