@@ -81,7 +81,7 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
 
 //_____________________________________________________________________________
 //
-SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
+SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::string& fileName){
     fSample = sample;
     fHist = HistFromFile(fileName,histoName);
     if (fHist == nullptr) {
@@ -121,7 +121,7 @@ SampleHist::~SampleHist(){
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
+SystematicHist* SampleHist::AddOverallSyst(const std::string& name,float up,float down){
     SystematicHist *syh;
     // try if it's already there...
     syh = GetSystematic(name);
@@ -147,7 +147,7 @@ SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddStatSyst(string name, int i_bin) {
+SystematicHist* SampleHist::AddStatSyst(const std::string& name, int i_bin) {
     int bin = i_bin+1; // counting of bins in Root starts with 1, in TRExFitter with 0
     SystematicHist *syh;
     // try if it's already there...
@@ -181,7 +181,7 @@ SystematicHist* SampleHist::AddStatSyst(string name, int i_bin) {
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
+SystematicHist* SampleHist::AddHistoSyst(const std::string& name,TH1* h_up,TH1* h_down){
 
     // before doing anything else, check if the sampleHist can be created
     if(h_up  ==nullptr) return nullptr;
@@ -224,7 +224,9 @@ SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down, int pruned/*1: norm only, 2: shape only*/){
+SystematicHist* SampleHist::AddHistoSyst(const std::string& name, const std::string& histoName_up,
+                                         const std::string& fileName_up, const std::string& histoName_down,
+                                         const std:: string& fileName_down, int pruned/*1: norm only, 2: shape only*/){
 
     // before doing anything else, check if the sampleHist can be created
     TH1* hUp   = HistFromFile(fileName_up,  histoName_up);
@@ -309,7 +311,7 @@ NormFactor* SampleHist::AddNormFactor(NormFactor *normFactor){
 
 //_____________________________________________________________________________
 //
-NormFactor* SampleHist::AddNormFactor(string name,float nominal, float min, float max){
+NormFactor* SampleHist::AddNormFactor(const std::string& name,float nominal, float min, float max){
     NormFactor *norm = GetNormFactor(name);
     if(norm==nullptr){
         fNormFactors.push_back(new NormFactor(name,nominal,min,max));
@@ -337,7 +339,7 @@ ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
 
 //_____________________________________________________________________________
 //
-ShapeFactor* SampleHist::AddShapeFactor(string name,float nominal, float min, float max){
+ShapeFactor* SampleHist::AddShapeFactor(const std::string& name,float nominal, float min, float max){
     ShapeFactor *shape = GetShapeFactor(name);
     if(shape==nullptr){
         fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max));
@@ -350,20 +352,17 @@ ShapeFactor* SampleHist::AddShapeFactor(string name,float nominal, float min, fl
 }
 
 //_____________________________________________________________________________
-
-
 //
-SystematicHist* SampleHist::GetSystematic(string systName){
+SystematicHist* SampleHist::GetSystematic(const std::string& systName) const{
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(systName == fSyst[i_syst]->fName) return fSyst[i_syst];
     }
     return nullptr;
 }
 
-
-
+//_____________________________________________________________________________
 //
-SystematicHist* SampleHist::GetSystFromNP(string NuisParName){
+SystematicHist* SampleHist::GetSystFromNP(const std::string& NuisParName) const{
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(NuisParName == fSyst[i_syst]->fSystematic->fNuisanceParameter) return fSyst[i_syst];
     }
@@ -372,7 +371,7 @@ SystematicHist* SampleHist::GetSystFromNP(string NuisParName){
 
 //_____________________________________________________________________________
 //
-NormFactor* SampleHist::GetNormFactor(string name){
+NormFactor* SampleHist::GetNormFactor(const std::string& name) const{
     for(int i_syst=0;i_syst<fNNorm;i_syst++){
         if(name == fNormFactors[i_syst]->fName) return fNormFactors[i_syst];
     }
@@ -381,7 +380,7 @@ NormFactor* SampleHist::GetNormFactor(string name){
 
 //_____________________________________________________________________________
 //
-ShapeFactor* SampleHist::GetShapeFactor(string name){
+ShapeFactor* SampleHist::GetShapeFactor(const std::string& name) const{
     for(int i_syst=0;i_syst<fNShape;i_syst++){
         if(name == fShapeFactors[i_syst]->fName) return fShapeFactors[i_syst];
     }
@@ -390,7 +389,7 @@ ShapeFactor* SampleHist::GetShapeFactor(string name){
 
 //_____________________________________________________________________________
 //
-bool SampleHist::HasSyst(string name){
+bool SampleHist::HasSyst(const std::string& name) const{
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(fSyst[i_syst]->fName == name) return true;
     }
@@ -399,7 +398,7 @@ bool SampleHist::HasSyst(string name){
 
 //_____________________________________________________________________________
 //
-bool SampleHist::HasNorm(string name){
+bool SampleHist::HasNorm(const std::string& name) const{
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         if(fNormFactors[i_norm]->fName == name) return true;
     }
@@ -408,7 +407,7 @@ bool SampleHist::HasNorm(string name){
 
 //_____________________________________________________________________________
 //
-bool SampleHist::HasShapeFactor(string name){
+bool SampleHist::HasShapeFactor(const std::string& name) const{
     for(int i_shape=0;i_shape<fNShape;i_shape++){
         if(fShapeFactors[i_shape]->fName == name) return true;
     }
@@ -565,7 +564,7 @@ void SampleHist::FixEmptyBins(const bool suppress){
 
 //_____________________________________________________________________________
 //
-void SampleHist::Print(){
+void SampleHist::Print() const{
     std::string temp = fHist->GetName();
     WriteDebugStatus("SampleHist::Print", "      Sample: " + fName + "\t" + temp);
     if(fNSyst>0){
@@ -605,7 +604,7 @@ void SampleHist::Rebin(int ngroup, const Double_t* xbins){
 
 //_____________________________________________________________________________
 // this draws the control plots (for each systematic) with the syst variations for this region & all sample
-void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData, bool bothPanels ){
+void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData, bool bothPanels ) const{
     if (SumAndData && h_data == nullptr){
         WriteWarningStatus("SampleHist::DrawSystPlot", "Data histogram passed is nullptr and you want to plot syst effect on data, returning.");
         WriteWarningStatus("SampleHist::DrawSystPlot", "Maybe you do not have data sample defined?");
@@ -1044,7 +1043,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 
 //_____________________________________________________________________________
 //
-void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, float scale){
+void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, float scale){
     fName = h->fName;
     fHist = (TH1*)h->fHist->Clone();
     fHist_orig = (TH1*)h->fHist_orig->Clone();
