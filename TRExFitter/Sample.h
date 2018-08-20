@@ -21,7 +21,7 @@ public:
         GHOST // 3
     };
 
-    Sample(std::string name,int type=0);
+    Sample(const std::string& name,int type=0);
     ~Sample();
 
     // -------
@@ -29,32 +29,32 @@ public:
     // -------
 
     // comsetics
-    void SetTitle(std::string title);
+    void SetTitle(const std::string& title);
     void SetFillColor(int color);
     void SetLineColor(int color);
     void NormalizedByTheory(const bool norm);
 
     // read from ntupes
-    void AddNtuplePath(std::string path);
-    void AddNtupleFile(std::string file);
-    void AddNtupleName(std::string name);
-    void SetMCweight(std::string weight);
-    void SetSelection(std::string selection);
+    void AddNtuplePath(const std::string& path);
+    void AddNtupleFile(const std::string& file);
+    void AddNtupleName(const std::string& name);
+    void SetMCweight(const std::string& weight);
+    void SetSelection(const std::string& selection);
 
     // read from histos
-    void AddHistoPath(std::string path);
-    void AddHistoFile(std::string file);
-    void AddHistoName(std::string name);
+    void AddHistoPath(const std::string& path);
+    void AddHistoFile(const std::string& file);
+    void AddHistoName(const std::string& name);
 
     // norm factors and systs
     void AddNormFactor(NormFactor *factor);
     void AddShapeFactor(ShapeFactor *factor);
     void AddSystematic(Systematic *syst);
-    NormFactor* AddNormFactor(std::string name,float nominal=1,float min=0,float max=10,bool isConst=false);
-    ShapeFactor* AddShapeFactor(std::string name,float nominal=1,float min=0,float max=10,bool isConst=false);
-    Systematic* AddSystematic(std::string name,int type=0,float up=0,float down=0);
-    bool HasNormFactor(std::string name);
-    bool HasSystematic(std::string name);
+    NormFactor* AddNormFactor(const std::string& name,float nominal=1,float min=0,float max=10,bool isConst=false);
+    ShapeFactor* AddShapeFactor(const std::string& name,float nominal=1,float min=0,float max=10,bool isConst=false);
+    Systematic* AddSystematic(const std::string& name,int type=0,float up=0,float down=0);
+    bool HasNormFactor(const std::string& name) const;
+    bool HasSystematic(const std::string& name) const;
 
     // -------
     // Members
