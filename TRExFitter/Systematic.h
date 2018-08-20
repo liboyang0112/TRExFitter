@@ -10,14 +10,14 @@ class Systematic {
 public:
 
     enum SystType{
-        OVERALL, // 0
-        SHAPE, // 1
-        HISTO, // 2
-        STAT // 3
+         OVERALL, // 0
+         SHAPE, // 1
+         HISTO, // 2
+         STAT // 3
     };
 
-    Systematic(std::string name,int type=0,float up=0,float down=0);
-    Systematic( Systematic &sys);  // copy constructor
+    Systematic(const std::string& name,int type=0,float up=0,float down=0);
+    Systematic(const Systematic &sys);  // copy constructor
     ~Systematic();
 
     // -------
