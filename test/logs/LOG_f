@@ -242,18 +242,18 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.163
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.163
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 499.588076
-  1) 0x61638e0 RooRealVar::         SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
-  2) 0x60e90e0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
-  3) 0x60ea650 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
-  4) 0x60e7420 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
-  5) 0x60ed060 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
-  6) 0x60ef760 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
-  7) 0x60f2b70 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
-  8) 0x60f5f80 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
-  9) 0x6169300 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
- 10) 0x616d0a0 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
- 11) 0x6170510 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
- 12) 0x6173920 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+  1) 0x621ff50 RooRealVar::         SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
+  2) 0x61a56e0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  3) 0x61a6c50 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  4) 0x61a3a30 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  5) 0x61a9660 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  6) 0x61abd40 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  7) 0x61af1b0 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  8) 0x61b25c0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  9) 0x6225930 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+ 10) 0x6229670 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 11) 0x622ca80 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 12) 0x622fe90 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -262,21 +262,21 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [1;32m=== INFO::FittingTool::FitPDF: ======================[0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 Minuit2Minimizer: Minimize with max-calls 6000 convergence for edm < 1 strategy 1
-MnSeedGenerator: for initial parameters FCN = 32.27253829841
-MnSeedGenerator: Initial state:   - FCN =   32.27253829841 Edm =      1.82092 NCalls =     49
+MnSeedGenerator: for initial parameters FCN = 32.27253832566
+MnSeedGenerator: Initial state:   - FCN =   32.27253832566 Edm =      1.82092 NCalls =     49
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   32.27253829841 Edm =      1.82092 NCalls =     49
-VariableMetric: Iteration #   0 - FCN =   32.27253829841 Edm =      1.82092 NCalls =     49
-VariableMetric: Iteration #   1 - FCN =    31.0873310104 Edm =     0.404589 NCalls =     77
-VariableMetric: Iteration #   2 - FCN =   30.81294332595 Edm =    0.0607089 NCalls =    103
-VariableMetric: Iteration #   3 - FCN =   30.69524232609 Edm =    0.0315268 NCalls =    129
-VariableMetric: Iteration #   4 - FCN =   30.64598475213 Edm =   0.00351522 NCalls =    155
-VariableMetric: Iteration #   5 - FCN =    30.6406716042 Edm =  0.000468175 NCalls =    181
-VariableMetric: After Hessian   - FCN =    30.6406716042 Edm =  0.000613119 NCalls =    296
-VariableMetric: Iteration #   6 - FCN =    30.6406716042 Edm =  0.000613119 NCalls =    296
+VariableMetric: Initial state   - FCN =   32.27253832566 Edm =      1.82092 NCalls =     49
+VariableMetric: Iteration #   0 - FCN =   32.27253832566 Edm =      1.82092 NCalls =     49
+VariableMetric: Iteration #   1 - FCN =   31.08733104766 Edm =     0.404589 NCalls =     77
+VariableMetric: Iteration #   2 - FCN =   30.81294337214 Edm =    0.0607089 NCalls =    103
+VariableMetric: Iteration #   3 - FCN =   30.69524236586 Edm =    0.0315268 NCalls =    129
+VariableMetric: Iteration #   4 - FCN =   30.64598479289 Edm =   0.00351522 NCalls =    155
+VariableMetric: Iteration #   5 - FCN =   30.64067164423 Edm =  0.000468176 NCalls =    181
+VariableMetric: After Hessian   - FCN =   30.64067164423 Edm =  0.000613119 NCalls =    296
+VariableMetric: Iteration #   6 - FCN =   30.64067164423 Edm =  0.000613119 NCalls =    296
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 30.6406716041989675
-Edm   = 0.000613118735935457818
+FVAL  = 30.6406716442258471
+Edm   = 0.000613118791413553243
 Nfcn  = 296
 SigXsecOverSM	  = 0.000350713	 +/-  0.922074	(limited)
 alpha_Bkg1Xsec	  = 0.263958	 +/-  0.701029	(limited)
@@ -300,11 +300,11 @@ Info in <Minuit2>: Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000613[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
-Real time 0:00:00, CP time 0.180
+Real time 0:00:00, CP time 0.230
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
-[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -999501.03407211136072874069[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -999501.03407207131385803223[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = 498.965928[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = 468.325256[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 30.640672[0m
