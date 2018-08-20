@@ -1529,10 +1529,19 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     //
     std::vector< string > nuisPars;
     std::vector< bool > isNF;
+    std::vector<string> systNames_unique;
     for(int i_syst=0;i_syst< (int) Nsyst;i_syst++){
         if(NPnames=="all" || NPnames==vSystematics[i_syst]->fNuisanceParameter ||
             ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0") ==0 ) )
             ){
+            if(vSystematics[i_syst]->fType == Systematic::SHAPE) continue;
+            if (std::find(systNames_unique.begin(), systNames_unique.end(),
+                vSystematics[i_syst]->fNuisanceParameter) == systNames_unique.end()){
+                systNames_unique.push_back(vSystematics[i_syst]->fNuisanceParameter);
+            }
+            else {
+                continue;
+            }
             nuisPars.push_back( vSystematics[i_syst]->fNuisanceParameter );
             isNF.push_back( false );
         }
