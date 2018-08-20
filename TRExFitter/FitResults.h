@@ -20,14 +20,14 @@ public:
     // Functions
     //
     void AddNuisPar(NuisParameter *par);
-    float GetNuisParValue(std::string p);
-    float GetNuisParErrUp(std::string p);
-    float GetNuisParErrDown(std::string p);
-    void ReadFromTXT(std::string fileName);
-    void DrawNPPulls(const std::string &path, const std::string &category, const std::vector < NormFactor* > &normFactors);
-    void DrawNormFactors(const std::string &path, const std::vector < NormFactor* > &normFactor );
-    void DrawGammaPulls(const std::string &path );
-    void DrawCorrelationMatrix(std::string path, const double corrMin = -1. );
+    float GetNuisParValue(const std::string& p) const;
+    float GetNuisParErrUp(const std::string& p) const;
+    float GetNuisParErrDown(const std::string& p) const;
+    void ReadFromTXT(const std::string& fileName);
+    void DrawNPPulls(const std::string &path, const std::string &category, const std::vector < NormFactor* > &normFactors) const;
+    void DrawNormFactors(const std::string &path, const std::vector < NormFactor* > &normFactor ) const;
+    void DrawGammaPulls(const std::string &path ) const;
+    void DrawCorrelationMatrix(const std::string& path, const double corrMin = -1. ) const;
     void SetPOIPrecision(const int& precision){fPOIPrecision = precision;}
 
     //

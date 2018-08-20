@@ -59,49 +59,49 @@ void FitResults::AddNuisPar(NuisParameter *par){
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParValue(string p){
+float FitResults::GetNuisParValue(const string& p) const{
     int idx = -1;
-    if(fNuisParIsThere[p]){
-        idx = fNuisParIdx[p];
+    if(fNuisParIsThere.at(p)){
+        idx = fNuisParIdx.at(p);
     }
     else{
         WriteVerboseStatus("FitResults::GetNuisParValue", "NP " + p + " not found... Returning 0.");
         return 0.;
     }
-    return fNuisPar[idx]->fFitValue;
+    return fNuisPar.at(idx)->fFitValue;
 }
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParErrUp(string p){
+float FitResults::GetNuisParErrUp(const std::string& p) const{
     int idx = -1;
-    if(fNuisParIsThere[p]){
-        idx = fNuisParIdx[p];
+    if(fNuisParIsThere.at(p)){
+        idx = fNuisParIdx.at(p);
     }
     else{
         WriteVerboseStatus("FitResults::GetNuisParErrUp", "NP " + p + " not found... Returning error = 1.");
         return 1.;
     }
-    return fNuisPar[idx]->fPostFitUp;
+    return fNuisPar.at(idx)->fPostFitUp;
 }
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParErrDown(string p){
+float FitResults::GetNuisParErrDown(const std::string& p) const{
     int idx = -1;
-    if(fNuisParIsThere[p]){
-        idx = fNuisParIdx[p];
+    if(fNuisParIsThere.at(p)){
+        idx = fNuisParIdx.at(p);
     }
     else{
         WriteVerboseStatus("FitResults::GetNuisParErrDown", "NP " + p + " not found... Returning error = 1.");
         return 1.;
     }
-    return fNuisPar[idx]->fPostFitDown;
+    return fNuisPar.at(idx)->fPostFitDown;
 }
 
 //__________________________________________________________________________________
 //
-void FitResults::ReadFromTXT(string fileName){
+void FitResults::ReadFromTXT(const std::string& fileName){
     bool includeCorrelations = true;
     bool invertedCorrMatrix = true;
     bool print = true;
@@ -112,13 +112,13 @@ void FitResults::ReadFromTXT(string fileName){
     // get fitted NP's
     std::ifstream in;
     in.open(fileName.c_str());
-    
+
     if (!in.is_open())	{
       WriteErrorStatus("FitResults::ReadFromTXT","Could not open the file \"" + fileName + "\"");
       delete matrix;
       return;
     }
-    
+
     string input;
     string line;
     bool readingNP = false;
@@ -210,7 +210,8 @@ void FitResults::ReadFromTXT(string fileName){
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawNormFactors( const string &path, const std::vector < NormFactor* > &normFactors ){
+void FitResults::DrawNormFactors( const string &path,
+                                  const std::vector < NormFactor* > &normFactors ) const {
     float xmin = 1000;
     float xmax = -1000;
     float max = 0;
@@ -300,7 +301,7 @@ void FitResults::DrawNormFactors( const string &path, const std::vector < NormFa
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawGammaPulls( const string &path ){
+void FitResults::DrawGammaPulls( const string &path ) const {
     float xmin = 10;
     float xmax = -10;
     float max = 0;
@@ -378,7 +379,7 @@ void FitResults::DrawGammaPulls( const string &path ){
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawNPPulls( const string &path, const string &category, const std::vector < NormFactor* > &normFactors ){
+void FitResults::DrawNPPulls( const string &path, const string &category, const std::vector < NormFactor* > &normFactors ) const {
     float xmin = -2.9;
     float xmax = 2.9;
     float max = 0;
@@ -483,7 +484,7 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawCorrelationMatrix(string path, const double corrMin){
+void FitResults::DrawCorrelationMatrix(const std::string& path, const double corrMin) const {
     if(fCorrMatrix){
         fCorrMatrix->fNuisParToHide = fNuisParToHide;
         fCorrMatrix->Draw(path, corrMin);
