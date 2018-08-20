@@ -10,7 +10,7 @@
 #include "TPad.h"
 #include "TStyle.h"
 
-using namespace std;
+using std::string;
 
 //__________________________________________________________________________________
 //
@@ -30,7 +30,7 @@ CorrelationMatrix::~CorrelationMatrix(){
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::AddNuisPar(string p){
+void CorrelationMatrix::AddNuisPar(const string& p){
     fNuisParIdx[p] = (int)fNuisParNames.size();
     fNuisParNames.push_back(p);
     fNuisParIsThere[p] = true;
@@ -38,7 +38,7 @@ void CorrelationMatrix::AddNuisPar(string p){
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::SetCorrelation(string p0,string p1,float corr){
+void CorrelationMatrix::SetCorrelation(const string& p0, const string& p1,float corr){
     if(!fNuisParIsThere[p0]) AddNuisPar(p0);
     if(!fNuisParIsThere[p1]) AddNuisPar(p1);
     int idx0 = fNuisParIdx[p0];
@@ -48,30 +48,30 @@ void CorrelationMatrix::SetCorrelation(string p0,string p1,float corr){
 
 //__________________________________________________________________________________
 //
-float CorrelationMatrix::GetCorrelation(string p0,string p1){
+float CorrelationMatrix::GetCorrelation(const string& p0, const string& p1) const{
     bool isMorph_p0 = false;
     bool isMorph_p1 = false;
     if (p0.find("morph_") != std::string::npos) isMorph_p0 = true;
     if (p1.find("morph_") != std::string::npos) isMorph_p1 = true;
-    if(!fNuisParIsThere[p0]){
+    if(!fNuisParIsThere.at(p0)){
         if(!isMorph_p0) WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. Returning correlation = 0.");
         else WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. The NP is for morphing. Returning correlation = 0.");
         return 0.;
     }
-    if(!fNuisParIsThere[p1]){
+    if(!fNuisParIsThere.at(p1)){
         if(!isMorph_p1) WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p1 + " not found in correlation matrix. Returning correlation = 0.");
         else WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. The NP is for morphing. Returning correlation = 0.");
         return 0.;
     }
-    int idx0 = fNuisParIdx[p0];
-    int idx1 = fNuisParIdx[p1];
+    int idx0 = fNuisParIdx.at(p0);
+    int idx1 = fNuisParIdx.at(p1);
     return fMatrix[idx0][idx1];
 }
 
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::Draw(string path, const double minCorr){
+void CorrelationMatrix::Draw(const string& path, const double minCorr) const{
 
     //
     // 0) Determines the number of lines/columns
