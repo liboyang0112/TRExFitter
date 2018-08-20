@@ -70,7 +70,7 @@ using namespace RooFit;
 
 //__________________________________________________________________________________
 //
-TRExFit::TRExFit(string name){
+TRExFit::TRExFit(std::string name){
     fTtresSmoothing = false;
     fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
     fDir = "";
@@ -280,7 +280,7 @@ TRExFit::~TRExFit(){
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetPOI(string name){
+void TRExFit::SetPOI(std::string name){
     fPOI = name;
 }
 
@@ -324,7 +324,7 @@ void TRExFit::SetFitRegion(FitRegion region){
 
 //__________________________________________________________________________________
 //
-Sample* TRExFit::NewSample(string name,int type){
+Sample* TRExFit::NewSample(const std::string& name,int type){
     fSamples.push_back(new Sample(name,type));
     //
     fNSamples ++;
@@ -333,7 +333,7 @@ Sample* TRExFit::NewSample(string name,int type){
 
 //__________________________________________________________________________________
 //
-Systematic* TRExFit::NewSystematic(string name){
+Systematic* TRExFit::NewSystematic(const std::string& name){
     fSystematics.push_back(new Systematic(name));
     fNSyst ++;
     return fSystematics[fNSyst-1];
@@ -341,7 +341,7 @@ Systematic* TRExFit::NewSystematic(string name){
 
 //__________________________________________________________________________________
 //
-Region* TRExFit::NewRegion(string name){
+Region* TRExFit::NewRegion(const std::string& name){
     fRegions.push_back(new Region(name));
     //
     fRegions[fNRegions]->fFitName = fName;
@@ -365,41 +365,39 @@ Region* TRExFit::NewRegion(string name){
 
 //__________________________________________________________________________________
 //
-void TRExFit::AddNtuplePath(string path){
+void TRExFit::AddNtuplePath(const std::string& path){
     fNtuplePaths.push_back(path);
 }
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetMCweight(string weight){
+void TRExFit::SetMCweight(const std::string &weight){
     fMCweight = weight;
 }
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetSelection(string selection){
+void TRExFit::SetSelection(const std::string& selection){
     fSelection = selection;
 }
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetNtupleName(string name){
+void TRExFit::SetNtupleName(const std::string& name){
     fNtupleName = name;
 }
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetNtupleFile(string name){
+void TRExFit::SetNtupleFile(const std::string& name){
     fNtupleFile = name;
 }
 
 //__________________________________________________________________________________
 //
-void TRExFit::AddHistoPath(string path){
+void TRExFit::AddHistoPath(const std::string& path){
     fHistoPaths.push_back(path);
 }
-
-// ...
 
 //__________________________________________________________________________________
 // apply smoothing to systematics
@@ -456,7 +454,7 @@ void TRExFit::CreateRootFiles(){
 
 //__________________________________________________________________________________
 // fill files with all the histograms
-void TRExFit::WriteHistos(){
+void TRExFit::WriteHistos() const{
     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     SampleHist* sh;
     string fileName = "";
@@ -500,7 +498,7 @@ void TRExFit::WriteHistos(){
 
 //__________________________________________________________________________________
 // Draw syst plots
-void TRExFit::DrawSystPlots(){
+void TRExFit::DrawSystPlots() const{
     SampleHist* sh;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
@@ -511,8 +509,8 @@ void TRExFit::DrawSystPlots(){
 }
 
 //__________________________________________________________________________________
-// Draw syst plots
-void TRExFit::DrawSystPlotsSumSamples(){
+// Draw syst plots for sombined samples
+void TRExFit::DrawSystPlotsSumSamples() const{
     WriteInfoStatus("TRExFit::DrawSystPlotsSumSamples", "-------------------------------------------");
     WriteInfoStatus("TRExFit::DrawSystPlotsSumSamples", "Drawing combined plots of syst effects on data...");
     TH1* h_dataCopy = nullptr;
@@ -2481,10 +2479,12 @@ void TRExFit::DrawAndSaveAll(string opt){
     bool isPostFit = opt.find("post")!=string::npos;
     if(TRExFitter::POISSONIZE) opt += " poissonize";
     if(isPostFit){
-        if(fFitResultsFile!="")
+        if(fFitResultsFile!=""){
             ReadFitResults(fFitResultsFile);
-        else
+        }
+        else {
             ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
+        }
         // scale signal by random number used in the ws creation
         if(fRandomPOISeed>=0){
             gRandom->SetSeed(fRandomPOISeed);
@@ -2556,7 +2556,7 @@ void TRExFit::DrawAndSaveAll(string opt){
 
 //__________________________________________________________________________________
 //
-TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
+TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     WriteInfoStatus("TRExFit::DrawSummary", "-------------------------------------------");
     WriteInfoStatus("TRExFit::DrawSummary", "Building Summary Plot...");
     gSystem->mkdir(fName.c_str(),true);
@@ -2583,8 +2583,8 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
     //
     // Building region - bin correspondence
     //
-    std::vector<int> regionVec;   regionVec.clear();
-    std::vector<int> divisionVec; divisionVec.clear();
+    std::vector<int> regionVec;
+    std::vector<int> divisionVec;
     //
     if(checkVR){
         if(fSummaryPlotValidationRegions.size()==0){
@@ -3140,7 +3140,7 @@ TRExPlot* TRExFit::DrawSummary(string opt, TRExPlot* prefit_plot){
 
 //__________________________________________________________________________________
 //
-void TRExFit::DrawMergedPlot(std::string opt,std::string group){
+void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     std::vector<Region*> regions;
     if(group=="") regions = fRegions;
     else{
@@ -3381,7 +3381,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group){
 
 //__________________________________________________________________________________
 //
-void TRExFit::BuildYieldTable(string opt,string group){
+void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     WriteInfoStatus("TRExFit::BuildYieldTable", "-------------------------------------------");
     WriteInfoStatus("TRExFit::BuildYieldTable", "Building Yields Table...");
     if(!TRExFitter::SHOWSTACKSIG) WriteWarningStatus("TRExFit::BuildYieldTable", "Signal samples not added to \"Tot\" because of \"PlotOptions\" in config file.");
@@ -4073,9 +4073,8 @@ void TRExFit::BuildYieldTable(string opt,string group){
 
 //__________________________________________________________________________________
 //
-void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows){
+void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows) const{
     std::vector< Region* > vRegions;
-    vRegions.clear();
     if(fRegionsToPlot.size()>0){
         nCols = 1;
         nRows = 1;
@@ -4102,7 +4101,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows){
 
 //__________________________________________________________________________________
 //
-void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > &regions){
+void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > &regions) const{
     gSystem->mkdir(fName.c_str(), true);
     float Hp = 250; // height of one mini-plot, in pixels
     float Wp = 200; // width of one mini-plot, in pixels
@@ -4274,7 +4273,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
 
 //__________________________________________________________________________________
 //
-void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows){
+void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows) const{
 
     std::vector< Region* > vRegions;
     vRegions.clear();
@@ -4306,7 +4305,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows){
 
 //__________________________________________________________________________________
 //
-void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions ){
+void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions ) const{
 
     float Hp = 250; // height of one mini-plot, in pixels
     float Wp = 250; // width of one mini-plot, in pixels
@@ -4476,7 +4475,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
 
 //__________________________________________________________________________________
 // called before w in case of CustomAsimov
-void TRExFit::CreateCustomAsimov(){
+void TRExFit::CreateCustomAsimov() const{
     WriteDebugStatus("TRExFit::CreateCustomAsimov", "Running CreateCustomAsimov");
     // get a list of all CustomAsimov to create
     std::vector<std::string> customAsimovList;
@@ -4495,7 +4494,7 @@ void TRExFit::CreateCustomAsimov(){
             SampleHist *cash = reg->SetSampleHist(ca,(TH1*)reg->fData->fHist->Clone());
             cash->fHist->Scale(0.);
             //
-            std::vector<std::string> smpToExclude; smpToExclude.clear();
+            std::vector<std::string> smpToExclude;
             for(int i_smp=0;i_smp<fNSamples;i_smp++){
                 SampleHist* h = reg->GetSampleHist(fSamples[i_smp]->fName);
                 if( h==0 ) continue;
@@ -4710,7 +4709,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 
 //__________________________________________________________________________________
 //
-void TRExFit::DrawPruningPlot(){
+void TRExFit::DrawPruningPlot() const{
     WriteInfoStatus("TRExFit::DrawPruningPlot", "------------------------------------------------------");
     WriteInfoStatus("TRExFit::DrawPruningPlot", "Drawing Pruning Plot ...");
     if(fSystematics.size()==0 || fStatOnly){
@@ -5532,7 +5531,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
 
 //__________________________________________________________________________________
 //
-RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ){
+RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ) const{
 
     //
     // Definition of the fit regions
@@ -5907,7 +5906,7 @@ void TRExFit::ReadFitResults(const string& fileName){
 
 //__________________________________________________________________________________
 //
-void TRExFit::Print(){
+void TRExFit::Print() const{
     WriteInfoStatus("TRExFit::Print", "-------------------------------------------");
     WriteInfoStatus("TRExFit::Print", fInputName);
     WriteInfoStatus("TRExFit::Print", "      NtuplePaths = ");
@@ -5930,7 +5929,7 @@ void TRExFit::Print(){
 
 //__________________________________________________________________________________
 //
-Region* TRExFit::GetRegion(string name){
+Region* TRExFit::GetRegion(const std::string& name) const{
     for(unsigned int i=0;i<fRegions.size();i++){
         if(fRegions[i]->fName == name) return fRegions[i];
     }
@@ -5939,7 +5938,7 @@ Region* TRExFit::GetRegion(string name){
 
 //__________________________________________________________________________________
 //
-Sample* TRExFit::GetSample(string name){
+Sample* TRExFit::GetSample(const std::string& name) const{
     for(unsigned int i=0;i<fSamples.size();i++){
         if(fSamples[i]->fName == name) return fSamples[i];
     }
@@ -5948,7 +5947,7 @@ Sample* TRExFit::GetSample(string name){
 
 //__________________________________________________________________________________
 //
-void TRExFit::DrawAndSaveSeparationPlots(){
+void TRExFit::DrawAndSaveSeparationPlots() const{
 
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
@@ -6288,7 +6287,7 @@ void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 
 //____________________________________________________________________________________
 //
-void TRExFit::PlotNPRankingManager(){
+void TRExFit::PlotNPRankingManager() const{
   if(fRankingPlot=="Merge"  || fRankingPlot=="all") PlotNPRanking(true,true);
   if(fRankingPlot=="Systs"  || fRankingPlot=="all") PlotNPRanking(true,false);
   if(fRankingPlot=="Gammas" || fRankingPlot=="all") PlotNPRanking(false,true);
@@ -6296,7 +6295,7 @@ void TRExFit::PlotNPRankingManager(){
 
 //____________________________________________________________________________________
 //
-void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas){
+void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     //
     string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
     //
@@ -6653,7 +6652,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 
 //____________________________________________________________________________________
 //
-void TRExFit::PrintSystTables(string opt){
+void TRExFit::PrintSystTables(string opt) const{
     WriteInfoStatus("TRExFit::PrintSystTables", "Printing syt tables");
     if(fCleanTables) opt += "clean";
     if(fSystCategoryTables) opt += "category";
@@ -7068,7 +7067,7 @@ void TRExFit::ComputeBining(int regIter){
 
 //__________________________________________________________________________________
 //
-void TRExFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data){
+void TRExFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data) const{
     WriteInfoStatus("TRExFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
 
     // shut-up RooFit!
@@ -7574,7 +7573,7 @@ void TRExFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left,
 
 //__________________________________________________________________________________
 //
-void TRExFit::SmoothMorphTemplates(std::string name){
+void TRExFit::SmoothMorphTemplates(const std::string& name) const{
     TCanvas *c = new TCanvas("c","c",600,600);
     // get one histogram per bin (per region)
     for(auto reg : fRegions){
@@ -7659,7 +7658,7 @@ void TRExFit::ProduceSystSubCategoryMap(){
 
 //____________________________________________________________________________________
 // combine individual results from grouped impact evaluation into one table
-void TRExFit::BuildGroupedImpactTable(){
+void TRExFit::BuildGroupedImpactTable() const{
     WriteInfoStatus("TRExFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
     std::string targetName = fName+"/Fits/GroupedImpact"+fSuffix+".txt";
 
