@@ -116,20 +116,20 @@ TRExPlot::TRExPlot(string name,int canvasWidth,int canvasHeight){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetChannel(string name){
+void TRExPlot::SetChannel(const std::string& name){
     fLabels.clear();
     fLabels.push_back(name);
 }
 
 //_____________________________________________________________________________
 //
-void TRExPlot::AddLabel(string name){
+void TRExPlot::AddLabel(const std::string& name){
     fLabels.push_back(name);
 }
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetLumi(string name){
+void TRExPlot::SetLumi(const std::string& name){
     fLumi = name;
 }
 
@@ -141,20 +141,20 @@ void TRExPlot::SetLumiScale(float scale){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetCME(string name){
+void TRExPlot::SetCME(const std::string& name){
     fCME = name;
 }
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetXaxis(string name,bool isNjet){
+void TRExPlot::SetXaxis(const std::string& name,bool isNjet){
     xtitle = name;
     fIsNjet = isNjet;
 }
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetYaxis(string name){
+void TRExPlot::SetYaxis(const std::string& name){
     ytitle = name;
 }
 
@@ -166,7 +166,7 @@ void TRExPlot::SetYmaxScale(float scale){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetBinLabel(int bin,string name){
+void TRExPlot::SetBinLabel(int bin, const std::string& name){
     fBinLabel[bin] = name;
 }
 
@@ -1004,13 +1004,13 @@ void TRExPlot::Draw(string options){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SaveAs(string name){
+void TRExPlot::SaveAs(const std::string& name) const{
     c->SaveAs(name.c_str());
 }
 
 //_____________________________________________________________________________
 //
-void TRExPlot::WriteToFile(string name){
+void TRExPlot::WriteToFile(const std::string& name) const{
     TDirectory *here = gDirectory;
     TFile *f = new TFile(name.c_str(),"RECREATE");
     f->cd();
@@ -1031,7 +1031,7 @@ void TRExPlot::WriteToFile(string name){
 
 //_____________________________________________________________________________
 //
-TCanvas* TRExPlot::GetCanvas(){
+TCanvas* TRExPlot::GetCanvas() const{
     return c;
 }
 
