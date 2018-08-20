@@ -133,7 +133,8 @@ MultiFit::~MultiFit(){
 
 //__________________________________________________________________________________
 //
-void MultiFit::AddFitFromConfig(string configFile,string options,string label,string loadSuf,string wsFile){
+void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string& options,
+                                const std::string& label, std::string loadSuf, std::string wsFile){
     // keep debug level
     int debug = TRExFitter::DEBUGLEVEL;
 
@@ -156,7 +157,7 @@ void MultiFit::AddFitFromConfig(string configFile,string options,string label,st
 
 //__________________________________________________________________________________
 //
-RooWorkspace* MultiFit::CombineWS(){
+RooWorkspace* MultiFit::CombineWS() const{
     WriteInfoStatus("MultiFit::CombineWS", "....................................");
     WriteInfoStatus("MultiFit::CombineWS", "Combining workspaces...");
 
@@ -238,7 +239,7 @@ RooWorkspace* MultiFit::CombineWS(){
 
 //__________________________________________________________________________________
 //
-void MultiFit::SaveCombinedWS(){
+void MultiFit::SaveCombinedWS() const{
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     //
     // Creating the rootfile
@@ -259,7 +260,7 @@ void MultiFit::SaveCombinedWS(){
 
 //__________________________________________________________________________________
 //
-std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inputData, bool performFit){
+std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inputData, bool performFit) const {
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
@@ -431,12 +432,12 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     if(fVarNameLH.size()>0){
         if (fVarNameLH[0]=="all"){
             for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws, it->first, data, true, fCompare);
+                GetLikelihoodScan( ws, it->first, data, true);
             }
         }
         else{
             for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-                GetLikelihoodScan( ws, fVarNameLH[i], data, true, fCompare);
+                GetLikelihoodScan( ws, fVarNameLH[i], data, true);
             }
         }
     }
@@ -474,7 +475,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
 }
 //__________________________________________________________________________________
 //
-void MultiFit::GetCombinedLimit(string inputData){
+void MultiFit::GetCombinedLimit(string inputData) const{
     WriteInfoStatus("MultiFit::GetCombinedLimit", "Runing runAsymptoticsCLs macro...");
     
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
@@ -498,7 +499,7 @@ void MultiFit::GetCombinedLimit(string inputData){
 }
 //__________________________________________________________________________________
 //
-void MultiFit::GetCombinedSignificance(string inputData){
+void MultiFit::GetCombinedSignificance(string inputData) const{
     WriteInfoStatus("MultiFit::GetCombinedSignificance", "Runing runSig macro...");
   
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
@@ -515,7 +516,7 @@ void MultiFit::GetCombinedSignificance(string inputData){
 }
 //__________________________________________________________________________________
 //
-void MultiFit::ComparePOI(string POI){
+void MultiFit::ComparePOI(const string& POI) const {
     float xmin = 0;
     float xmax = 2;
 
@@ -804,10 +805,10 @@ void MultiFit::CompareLimit(){
     // ---
 
     // Fit titles
-    vector<string> dirs;   dirs.clear();
-    vector<string> names;  names.clear();
-    vector<string> suffs;  suffs.clear();
-    vector<string> titles; titles.clear();
+    vector<string> dirs;
+    vector<string> names;
+    vector<string> suffs;
+    vector<string> titles;
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         WriteInfoStatus("MultiFit::CompareLimit", "Adding Fit: " + fFitList[i_fit]->fInputName + ", " + fFitLabels[i_fit] + ", " + fFitSuffs[i_fit]);
         dirs.push_back( fFitList[i_fit]->fName );
@@ -966,7 +967,7 @@ void MultiFit::CompareLimit(){
 
 //__________________________________________________________________________________
 //
-void MultiFit::ComparePulls(string category){
+void MultiFit::ComparePulls(string category) const{
     float ydist = 0.2;
 
     // Fit titles
@@ -1220,7 +1221,7 @@ void MultiFit::ComparePulls(string category){
 
 //__________________________________________________________________________________
 //
-void MultiFit::CompareNormFactors(string category){
+void MultiFit::CompareNormFactors(string category) const{
     float ydist = 0.2;
 
     // Fit titles
@@ -1466,7 +1467,7 @@ void MultiFit::CompareNormFactors(string category){
 
 //__________________________________________________________________________________
 //
-void MultiFit::PlotCombinedCorrelationMatrix(){
+void MultiFit::PlotCombinedCorrelationMatrix() const{
     TRExFit *fit = fFitList[0];
     if(fit->fStatOnly){
         WriteInfoStatus("MultiFit::PlotCombinedCorrelationMatrix", "Stat only fit => No Correlation Matrix generated.");
@@ -1482,7 +1483,7 @@ void MultiFit::PlotCombinedCorrelationMatrix(){
 
 //____________________________________________________________________________________
 //
-void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
+void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     WriteInfoStatus("MultiFit::ProduceNPRanking", "....................................");
     WriteInfoStatus("MultiFit::ProduceNPRanking", "Producing Ranking...");
 
@@ -1706,7 +1707,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 
 //____________________________________________________________________________________
 //
-void MultiFit::PlotNPRankingManager(){
+void MultiFit::PlotNPRankingManager() const{
   if(fFitList[0]->fRankingPlot=="Merge"  || fFitList[0]->fRankingPlot=="all") PlotNPRanking(true,true);
   if(fFitList[0]->fRankingPlot=="Systs"  || fFitList[0]->fRankingPlot=="all") PlotNPRanking(true,false);
   if(fFitList[0]->fRankingPlot=="Gammas" || fFitList[0]->fRankingPlot=="all") PlotNPRanking(false,true);
@@ -1714,7 +1715,7 @@ void MultiFit::PlotNPRankingManager(){
 
 //____________________________________________________________________________________
 //
-void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
+void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     WriteInfoStatus("MultiFit::PlotNPRanking", "....................................");
     WriteInfoStatus("MultiFit::PlotNPRanking", "Plotting Ranking...");
     //
@@ -2077,7 +2078,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 
 //__________________________________________________________________________________
 //
-void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data,bool recreate,bool compare){
+void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, RooDataSet* data,bool recreate) const{
     WriteInfoStatus("MultiFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
     TString LHDir("LHoodPlots/");
     
@@ -2190,7 +2191,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     leg->SetBorderSize(0);
     leg->SetTextSize(gStyle->GetTextSize());
     leg->SetTextFont(gStyle->GetTextFont());
-    if(compare){
+    if(fCompare){
         for(auto fit : fFitList){
             TFile *f = nullptr;
             if(fit->fFitResultsFile!=""){
@@ -2276,7 +2277,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
 
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
-    if(compare){
+    if(fCompare){
         leg->Draw();
         ATLASLabel(0.15,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
         myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
@@ -2302,7 +2303,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
 
 //____________________________________________________________________________________
 //
-void MultiFit::PlotSummarySoverB(){
+void MultiFit::PlotSummarySoverB() const {
     WriteInfoStatus("MultiFit::PlotSummarySoverB", "....................................");
     WriteInfoStatus("MultiFit::PlotSummarySoverB", "Producing S/B plot...");
 
@@ -2731,7 +2732,7 @@ void MultiFit::PlotSummarySoverB(){
 
 //____________________________________________________________________________________
 //
-TH1D* MultiFit::Combine(vector<TH1D*> h){
+TH1D* MultiFit::Combine(vector<TH1D*> h) const{
     int Nbins = 0;
     int Nhist = h.size();
     for(int i_hist=0;i_hist<Nhist;i_hist++){
@@ -2752,7 +2753,7 @@ TH1D* MultiFit::Combine(vector<TH1D*> h){
 
 //____________________________________________________________________________________
 // order bins of h acording to a[] (increasing order)
-TH1D* MultiFit::OrderBins(TH1D* h,vector<float> vec){
+TH1D* MultiFit::OrderBins(TH1D* h, vector<float> vec) const{
     map<float,int> binIndex;
     int Nbins = h->GetNbinsX();
     for(int i_bin=1;i_bin<=Nbins;i_bin++){
@@ -2768,7 +2769,7 @@ TH1D* MultiFit::OrderBins(TH1D* h,vector<float> vec){
 
 //____________________________________________________________________________________
 // merge bins in bins of SoverSqrtB
-TH1D* MultiFit::Rebin(TH1D* h,vector<float> vec, bool isData){
+TH1D* MultiFit::Rebin(TH1D* h, const vector<float>& vec, bool isData) const{
     TH1D* h_new = new TH1D(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),17,-3.8,-0.5);
     h_new->Sumw2();
     // new way
@@ -2797,7 +2798,7 @@ TH1D* MultiFit::Rebin(TH1D* h,vector<float> vec, bool isData){
 
 //____________________________________________________________________________________
 // combine individual results from grouped impact evaluation into one table
-void MultiFit::BuildGroupedImpactTable(){
+void MultiFit::BuildGroupedImpactTable() const{
     WriteInfoStatus("TRExFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
     std::string targetName = fOutDir+"/Fits/GroupedImpact"+fSaveSuf+".txt";
 

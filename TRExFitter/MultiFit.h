@@ -20,28 +20,29 @@ public:
     MultiFit(std::string name="MyMultiFit");
     ~MultiFit();
 
-    void AddFitFromConfig(std::string configFile,std::string options,std::string label,std::string loadSuf="",std::string wsFile="");
-    RooWorkspace* CombineWS();
-    void SaveCombinedWS();
-    std::map < std::string, double > FitCombinedWS( int fitType=1, std::string inputData="", bool performFit=true );
-    void GetCombinedLimit(std::string inputData="obsData"); // or asimovData
-    void GetCombinedSignificance(std::string inputData="obsData"); // or asimovData
+    void AddFitFromConfig(const std::string& configFile, const std::string& options,
+                          const std::string& label, std::string loadSuf="",std::string wsFile="");
+    RooWorkspace* CombineWS() const;
+    void SaveCombinedWS() const;
+    std::map < std::string, double > FitCombinedWS( int fitType=1, std::string inputData="", bool performFit=true ) const;
+    void GetCombinedLimit(std::string inputData="obsData") const; // or asimovData
+    void GetCombinedSignificance(std::string inputData="obsData") const; // or asimovData
 
-    void ComparePOI(std::string POI);
+    void ComparePOI(const std::string& POI) const;
     void CompareLimit();
-    void ComparePulls(std::string caterogy="");
-    void CompareNormFactors(std::string category="");
-    void PlotCombinedCorrelationMatrix();
-    void ProduceNPRanking(std::string NPnames="all");
-    void PlotNPRankingManager();
-    void PlotNPRanking(bool flagSysts=true, bool flagGammas=false);
-    void PlotSummarySoverB();
-    void GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data,bool recreate=true,bool compare=false);
-    void BuildGroupedImpactTable();
+    void ComparePulls(std::string category="") const;
+    void CompareNormFactors(std::string category="") const;
+    void PlotCombinedCorrelationMatrix() const;
+    void ProduceNPRanking(std::string NPnames="all") const;
+    void PlotNPRankingManager() const;
+    void PlotNPRanking(bool flagSysts=true, bool flagGammas=false) const;
+    void PlotSummarySoverB() const;
+    void GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, RooDataSet* data,bool recreate=true) const;
+    void BuildGroupedImpactTable() const;
 
-    TH1D* Combine(std::vector<TH1D*>);
-    TH1D* OrderBins(TH1D* h,std::vector<float> vec);
-    TH1D* Rebin(TH1D* h,std::vector<float> vec, bool isData=true);
+    TH1D* Combine(std::vector<TH1D*> hists) const;
+    TH1D* OrderBins(TH1D* h, std::vector<float> vec) const;
+    TH1D* Rebin(TH1D* h, const std::vector<float>& vec, bool isData=true) const;
     
     std::vector< std::string > fFitNames;
     std::vector< TRExFit* > fFitList;
