@@ -215,7 +215,7 @@ void ConfigSet::SetConfig(const std::string& name,const std::string& value){
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::Get(const std::string& name){
+std::string ConfigSet::Get(const std::string& name) const{
     for(int i=0;i<fN;i++){
         if(fConfig[i].fName == name){
             return fConfig[i].fValue;
@@ -226,37 +226,37 @@ std::string ConfigSet::Get(const std::string& name){
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::operator[](const std::string& name){
+std::string ConfigSet::operator[](const std::string& name) const{
     return Get(name);
 }
 
 //__________________________________________________________________________________
 //
-Config ConfigSet::GetConfig(int i){
+Config ConfigSet::GetConfig(int i) const{
     return fConfig[i];
 }
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::GetConfigName(int i){
+std::string ConfigSet::GetConfigName(int i) const{
     return fConfig[i].fName;
 }
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::GetConfigValue(int i){
+std::string ConfigSet::GetConfigValue(int i) const{
     return fConfig[i].fValue;
 }
 
 //__________________________________________________________________________________
 //
-int ConfigSet::GetN(){
+int ConfigSet::GetN() const{
     return fN;
 }
 
 //__________________________________________________________________________________
 //
-int ConfigSet::size(){
+int ConfigSet::size() const{
     return fN;
 }
 
@@ -269,13 +269,13 @@ void ConfigSet::Set(const std::string& name,const std::string& value){
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::GetName(){
+std::string ConfigSet::GetName() const{
     return fName;
 }
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::GetValue(){
+std::string ConfigSet::GetValue() const{
     return fValue;
 }
 
