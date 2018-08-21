@@ -33,18 +33,17 @@ public:
     ~ConfigSet();
 
     void SetConfig(const std::string& name,const std::string& value);
-    std::string Get(const std::string& name);
-    std::string operator[](const std::string& name);
-    Config GetConfig(int i);
-    std::string GetConfigName(int i);
-    std::string GetConfigValue(int i);
-    int GetN();
-    int size();
+    std::string Get(const std::string& name) const;
+    std::string operator[](const std::string& name) const;
+    Config GetConfig(int i) const;
+    std::string GetConfigName(int i) const;
+    std::string GetConfigValue(int i) const;
+    int GetN() const;
+    int size() const;
     void Set(const std::string& name,const std::string& value);
-    std::string GetName();
-    std::string GetValue();
+    std::string GetName() const;
+    std::string GetValue() const;
 
-// private:
     int fN;
     std::string fName;
     std::string fValue;

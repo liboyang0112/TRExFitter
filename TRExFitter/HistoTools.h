@@ -7,7 +7,7 @@
 
 /// Foward class declaration
 class TH1;
-class TH1F;
+class TH1D;
 class SystematicHist;
 
 namespace HistoTools {
@@ -36,17 +36,17 @@ namespace HistoTools {
         KERNELRATIOGAUSS = 6
     };
 
-    TH1F* TranformHistogramBinning(TH1* originalHist);
+    TH1D* TranformHistogramBinning(TH1* originalHist);
 
     void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
     void SymmetrizeHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
     void SmoothHistograms(int histOps,  TH1* hNom, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
 
     //Symmetrisation functions
-    TH1F* SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp );
-    TH1F* InvertShift(TH1* h_syst, TH1* h_nominal);
+    TH1D* SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp );
+    TH1D* InvertShift(TH1* h_syst, TH1* h_nominal);
     float Separation(TH1* h1,TH1* h2);
-    TH1F* SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom);
+    TH1D* SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom);
 
     void Scale(TH1* h_syst, TH1* h_nominal, float factor);
 

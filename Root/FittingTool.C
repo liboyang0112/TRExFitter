@@ -101,7 +101,7 @@ void FittingTool::SetSubCategories() {
 
 //________________________________________________________________________
 //
-float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit ) {
+double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit ) {
 
     if (m_debug < 1) std::cout.setstate(std::ios_base::failbit);
     WriteDebugStatus("FittingTool::FitPDF", "-> Entering in FitPDF function");
@@ -508,7 +508,7 @@ std::map < std::string, double > FittingTool::ExportFitResultInMap(){
 
 //____________________________________________________________________________________
 //
-int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, std::string categoryOfInterest, std::string outFileName ){
+int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, const std::string& categoryOfInterest, const std::string& outFileName ) const{
     // file to save results to
     std::ofstream outFile;
     outFile.open(outFileName.c_str());
@@ -559,7 +559,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 
         // find all associated parameters per SubCategory
         associatedParams.clear();
-        for(std::map<std::string, std::string>::iterator itSysts = m_subCategoryMap.begin(); itSysts != m_subCategoryMap.end(); ++itSysts) {
+        for(auto itSysts = m_subCategoryMap.begin(); itSysts != m_subCategoryMap.end(); ++itSysts) {
             if (itSysts->second == *itCategories) {
                 //WriteDebugStatus("FittingTool::GetGroupedImpact","  associated parameter: " + itSysts->first);
                 associatedParams.push_back(itSysts->first);
@@ -595,9 +595,9 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     WriteInfoStatus("FittingTool::GetGroupedImpact", "POI is:   " + std::to_string(poi->getVal()) + " +/- " + std::to_string(poi->getError()) +
                                                      "    ( +" + std::to_string(poi->getErrorHi()) + ", " + std::to_string(poi->getErrorLo()) + " )");
 
-    float NomUp2=(poi->getErrorHi()*poi->getErrorHi());
-    float NomLo2=(poi->getErrorLo()*poi->getErrorLo());
-    float Nom2  =(poi->getError()*poi->getError());
+    double NomUp2=(poi->getErrorHi()*poi->getErrorHi());
+    double NomLo2=(poi->getErrorLo()*poi->getErrorLo());
+    double Nom2  =(poi->getError()*poi->getError());
 
     // report impact calculations, impact is obtained by quadrature subtraction from replicated nominal fit
     for (std::set<std::string>::iterator itCategories = m_subCategories.begin(); itCategories != m_subCategories.end(); ++itCategories){
@@ -634,7 +634,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 //
 // perform a fit where all parameters in "affectedParams" (usually coming from SubGroup "category") are set to constant, optionally also gammas or all parameters
 void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
-                                    RooStats::ModelConfig* mc, RooWorkspace* ws, std::string category, std::vector<std::string> affectedParams) {
+                                    RooStats::ModelConfig* mc, RooWorkspace* ws, const std::string& category, const std::vector<std::string>& affectedParams) const {
 
     // (VD): use this to fix nuisance parameter before the fit
     const RooArgSet* glbObs = mc->GetGlobalObservables();
@@ -690,17 +690,17 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
 
     if (status!=0) WriteErrorStatus("FittingTool::FitExcludingGroup", "unable to perform fit correctly! HessStatus: " + std::to_string(HessStatus));
 
-    float newPOIerr =thePOI->getError();
-    float newPOIerrU=thePOI->getErrorHi();
-    float newPOIerrD=thePOI->getErrorLo();
+    double newPOIerr =thePOI->getError();
+    double newPOIerrU=thePOI->getErrorHi();
+    double newPOIerrD=thePOI->getErrorLo();
 
     std::string snapshotName = "snapshot_AfterFit_POI_" + category;
     ws->saveSnapshot(snapshotName.c_str(), *mc->GetParametersOfInterest() );
 
     ws->loadSnapshot("snapshot_AfterFit_POI_Nominal");
-    float oldPOIerr =thePOI->getError();
-    float oldPOIerrU=thePOI->getErrorHi();
-    float oldPOIerrD=thePOI->getErrorLo();
+    double oldPOIerr =thePOI->getError();
+    double oldPOIerrU=thePOI->getErrorHi();
+    double oldPOIerrD=thePOI->getErrorLo();
 
     // check if uncertainties have increased compared to nominal fit, with 0.5% tolerance
     if ( (std::fabs(newPOIerrU)>std::fabs(oldPOIerrU)*1.005) || (std::fabs(newPOIerrD)>std::fabs(oldPOIerrD)*1.005) ) {

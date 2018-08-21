@@ -72,31 +72,31 @@ public:
     void SetLimitType( LimitType type );
     void SetFitRegion(FitRegion region);
 
-    Sample* NewSample(std::string name,int type=0);
-    Systematic* NewSystematic(std::string name);
-    Region* NewRegion(std::string name);
+    Sample* NewSample(const std::string& name,int type=0);
+    Systematic* NewSystematic(const std::string& name);
+    Region* NewRegion(const std::string& name);
 
     // ntuple stuff
-    void AddNtuplePath(std::string path);
-    void SetMCweight(std::string weight);
-    void SetSelection(std::string selection);
-    void SetNtupleName(std::string name);
-    void SetNtupleFile(std::string name);
+    void AddNtuplePath(const std::string& path);
+    void SetMCweight(const std::string& weight);
+    void SetSelection(const std::string& selection);
+    void SetNtupleName(const std::string& name);
+    void SetNtupleFile(const std::string& name);
     void ComputeBining(int regIter);
     void defineVariable(int regIter);
 
     // histogram stuff
-    void AddHistoPath(std::string path);
-    void SetHistoName(std::string name);
+    void AddHistoPath(const std::string& path);
+    void SetHistoName(const std::string& name);
 
     void SmoothSystematics(std::string syst="all");
 
     // create new root file with all the histograms
     void CreateRootFiles();
-    void WriteHistos();
+    void WriteHistos() const;
 
-    void DrawSystPlots();
-    void DrawSystPlotsSumSamples();
+    void DrawSystPlots() const;
+    void DrawSystPlotsSumSamples() const;
 
     // read from ..
     void ReadNtuples();
@@ -108,57 +108,59 @@ public:
     void DrawAndSaveAll(std::string opt="");
 
     // separation plots
-    void DrawAndSaveSeparationPlots();
+    void DrawAndSaveSeparationPlots() const;
 
-    TRExPlot* DrawSummary(std::string opt="", TRExPlot* = 0);
-    void DrawMergedPlot(std::string opt="",std::string group="");
-    void BuildYieldTable(std::string opt="",std::string group="");
+    TRExPlot* DrawSummary(std::string opt="", TRExPlot* = 0) ;
+    void DrawMergedPlot(std::string opt="",std::string group="") const;
+    void BuildYieldTable(std::string opt="",std::string group="") const;
 
     // regions examples:
     // ...
-    void DrawSignalRegionsPlot(int nCols=0,int nRows=0);
-    void DrawSignalRegionsPlot(int nRows,int nCols, std::vector < Region* > &regions);
-    void DrawPieChartPlot(const std::string &opt="", int nCols=0,int nRows=0);
-    void DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions);
+    void DrawSignalRegionsPlot(int nCols=0,int nRows=0) const;
+    void DrawSignalRegionsPlot(int nRows,int nCols, std::vector < Region* > &regions) const;
+    void DrawPieChartPlot(const std::string &opt="", int nCols=0,int nRows=0) const;
+    void DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions) const;
 
-    void CreateCustomAsimov();
+    void CreateCustomAsimov() const;
 
     // turn to RooStat::HistFactory
     void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
 
-    void DrawPruningPlot();
+    void DrawPruningPlot() const;
 
     // fit etc...
     void Fit();
     RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue);
     std::map < std::string, double > PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType=SPLUSB, bool save=false, int debugLevel=1 );
-    RooWorkspace* PerformWorkspaceCombination( std::vector < std::string > &regionsToFit );
+    RooWorkspace* PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ) const;
 
     void PlotFittedNP();
     void PlotCorrelationMatrix();
     void GetLimit();
     void GetSignificance();
-    void GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data);
+    void GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data) const;
 
     // get fit results from txt file
     void ReadFitResults(const std::string& fileName);
 
-    void Print();
+    void Print() const;
 
-    Region* GetRegion(std::string name);
-    Sample* GetSample(std::string name);
+    Region* GetRegion(const std::string& name) const;
+    Sample* GetSample(const std::string& name) const;
 
     void ProduceNPRanking(std::string NPnames="all");
-    void PlotNPRanking(bool flagSysts=true, bool flagGammas=true);
-    void PlotNPRankingManager();
+    void PlotNPRanking(bool flagSysts=true, bool flagGammas=true) const;
+    void PlotNPRankingManager() const;
 
-    void PrintSystTables(std::string opt="");
+    void PrintSystTables(std::string opt="") const;
 
     void MergeSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
 
     // for template fitting
     void AddTemplateWeight(const std::string& name, float);
+    
     std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
+    
     std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt) const;
 
     /*
@@ -197,12 +199,14 @@ public:
      */
     void GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const;
 
-    void SmoothMorphTemplates(std::string name);
+    void SmoothMorphTemplates(const std::string& name) const;
+    
     bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
     // for grouped impact evaluation
     void ProduceSystSubCategoryMap();
-    void BuildGroupedImpactTable();
+
+    void BuildGroupedImpactTable() const;
 
     /*
      * Helper function to calculate nominal scale for morphed samples
@@ -367,7 +371,7 @@ public:
     std::vector< std::string > fRegionGroups;
 
     bool fKeepPrefitBlindedBins;
-    TH1F* fBlindedBins;
+    TH1D* fBlindedBins;
 
     std::string fCustomAsimov;
 
@@ -386,7 +390,6 @@ public:
 
     std::vector<std::string> fCustomFunctions;
 
-//     bool fRunMorphing;
     std::vector<std::string> fMorphParams;
     std::vector<std::pair<float,std::string> > fTemplatePair;
     std::vector<TRExFit::TemplateWeight> fTemplateWeightVec;

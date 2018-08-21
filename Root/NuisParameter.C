@@ -3,7 +3,7 @@
 
 //__________________________________________________________________________________
 //
-NuisParameter::NuisParameter(std::string name){
+NuisParameter::NuisParameter(const std::string& name){
     fName = name;
     fTitle = name;
     fCategory = "";

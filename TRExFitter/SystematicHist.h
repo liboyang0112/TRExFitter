@@ -11,14 +11,14 @@ class Systematic;
 
 class SystematicHist {
 public:
-    SystematicHist(std::string name);
+    SystematicHist(const std::string& name);
     ~SystematicHist();
 
-    void WriteToFile(TFile *f=0x0);
+    void WriteToFile(TFile *f=0x0) const;
     void ReadFromFile();
-    bool IsShape();
+    bool IsShape() const;
 
-    void Print();
+    void Print() const;
 
     void Divide(TH1* h);
     void Divide(SystematicHist *syh);

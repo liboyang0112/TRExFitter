@@ -12,7 +12,7 @@
 #include "TBox.h"
 #include "TCanvas.h"
 #include "TGraphAsymmErrors.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TLatex.h"
 #include "TLine.h"
 #include "TPad.h"
@@ -59,7 +59,7 @@ void FitResults::AddNuisPar(NuisParameter *par){
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParValue(string p){
+float FitResults::GetNuisParValue(const string& p){
     int idx = -1;
     if(fNuisParIsThere[p]){
         idx = fNuisParIdx[p];
@@ -73,7 +73,7 @@ float FitResults::GetNuisParValue(string p){
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParErrUp(string p){
+float FitResults::GetNuisParErrUp(const std::string& p){
     int idx = -1;
     if(fNuisParIsThere[p]){
         idx = fNuisParIdx[p];
@@ -87,7 +87,7 @@ float FitResults::GetNuisParErrUp(string p){
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParErrDown(string p){
+float FitResults::GetNuisParErrDown(const std::string& p){
     int idx = -1;
     if(fNuisParIsThere[p]){
         idx = fNuisParIdx[p];
@@ -101,7 +101,7 @@ float FitResults::GetNuisParErrDown(string p){
 
 //__________________________________________________________________________________
 //
-void FitResults::ReadFromTXT(string fileName){
+void FitResults::ReadFromTXT(const std::string& fileName){
     bool includeCorrelations = true;
     bool invertedCorrMatrix = true;
     bool print = true;
@@ -112,13 +112,13 @@ void FitResults::ReadFromTXT(string fileName){
     // get fitted NP's
     std::ifstream in;
     in.open(fileName.c_str());
-    
+
     if (!in.is_open())	{
       WriteErrorStatus("FitResults::ReadFromTXT","Could not open the file \"" + fileName + "\"");
       delete matrix;
       return;
     }
-    
+
     string input;
     string line;
     bool readingNP = false;
@@ -210,7 +210,8 @@ void FitResults::ReadFromTXT(string fileName){
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawNormFactors( const string &path, const std::vector < NormFactor* > &normFactors ){
+void FitResults::DrawNormFactors( const string &path,
+                                  const std::vector < NormFactor* > &normFactors ) const {
     float xmin = 1000;
     float xmax = -1000;
     float max = 0;
@@ -262,7 +263,7 @@ void FitResults::DrawNormFactors( const string &path, const std::vector < NormFa
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1F *h_dummy = new TH1F( "h_dummy_norm","h_dummy_norm",10,xmin,xmax);
+    TH1D *h_dummy = new TH1D( "h_dummy_norm","h_dummy_norm",10,xmin,xmax);
     h_dummy->SetMaximum(max);
     h_dummy->SetLineWidth(0);
     h_dummy->SetFillStyle(0);
@@ -300,7 +301,7 @@ void FitResults::DrawNormFactors( const string &path, const std::vector < NormFa
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawGammaPulls( const string &path ){
+void FitResults::DrawGammaPulls( const string &path ) const {
     float xmin = 10;
     float xmax = -10;
     float max = 0;
@@ -345,7 +346,7 @@ void FitResults::DrawGammaPulls( const string &path ){
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1F *h_dummy = new TH1F( "h_dummy_gamma","h_dummy_gamma",10,xmin,xmax);
+    TH1D *h_dummy = new TH1D( "h_dummy_gamma","h_dummy_gamma",10,xmin,xmax);
     h_dummy->SetMaximum(max);
     h_dummy->SetLineWidth(0);
     h_dummy->SetFillStyle(0);
@@ -378,7 +379,7 @@ void FitResults::DrawGammaPulls( const string &path ){
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawNPPulls( const string &path, const string &category, const std::vector < NormFactor* > &normFactors ){
+void FitResults::DrawNPPulls( const string &path, const string &category, const std::vector < NormFactor* > &normFactors ) const {
     float xmin = -2.9;
     float xmax = 2.9;
     float max = 0;
@@ -435,7 +436,7 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1F *h_dummy = new TH1F( ("h_dummy"+category).c_str(),("h_dummy"+category).c_str(),10,xmin,xmax);
+    TH1D *h_dummy = new TH1D( ("h_dummy"+category).c_str(),("h_dummy"+category).c_str(),10,xmin,xmax);
     h_dummy->SetMaximum(max);
     h_dummy->SetLineWidth(0);
     h_dummy->SetFillStyle(0);
@@ -483,7 +484,7 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawCorrelationMatrix(string path, const double corrMin){
+void FitResults::DrawCorrelationMatrix(const std::string& path, const double corrMin){
     if(fCorrMatrix){
         fCorrMatrix->fNuisParToHide = fNuisParToHide;
         fCorrMatrix->Draw(path, corrMin);

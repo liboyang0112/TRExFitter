@@ -133,7 +133,8 @@ MultiFit::~MultiFit(){
 
 //__________________________________________________________________________________
 //
-void MultiFit::AddFitFromConfig(string configFile,string options,string label,string loadSuf,string wsFile){
+void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string& options,
+                                const std::string& label, std::string loadSuf, std::string wsFile){
     // keep debug level
     int debug = TRExFitter::DEBUGLEVEL;
 
@@ -156,7 +157,7 @@ void MultiFit::AddFitFromConfig(string configFile,string options,string label,st
 
 //__________________________________________________________________________________
 //
-RooWorkspace* MultiFit::CombineWS(){
+RooWorkspace* MultiFit::CombineWS() const{
     WriteInfoStatus("MultiFit::CombineWS", "....................................");
     WriteInfoStatus("MultiFit::CombineWS", "Combining workspaces...");
 
@@ -238,7 +239,7 @@ RooWorkspace* MultiFit::CombineWS(){
 
 //__________________________________________________________________________________
 //
-void MultiFit::SaveCombinedWS(){
+void MultiFit::SaveCombinedWS() const{
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     //
     // Creating the rootfile
@@ -259,7 +260,7 @@ void MultiFit::SaveCombinedWS(){
 
 //__________________________________________________________________________________
 //
-std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inputData, bool performFit){
+std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inputData, bool performFit) const {
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
@@ -358,7 +359,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         //
         // Get initial ikelihood value from Asimov
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        float nll0 = 0.;
+        double nll0 = 0.;
         if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
         
         //
@@ -381,14 +382,14 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
 
         // Full fit
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
-        float nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
+        double nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
         fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
         result = fitTool -> ExportFitResultInMap();
 
         //
         // Goodness of fit
         if(fGetGoodnessOfFit){
-            float deltaNLL = nll-nll0;
+            double deltaNLL = nll-nll0;
             double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
             WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
@@ -431,12 +432,12 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     if(fVarNameLH.size()>0){
         if (fVarNameLH[0]=="all"){
             for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws, it->first, data, true, fCompare);
+                GetLikelihoodScan( ws, it->first, data, true);
             }
         }
         else{
             for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-                GetLikelihoodScan( ws, fVarNameLH[i], data, true, fCompare);
+                GetLikelihoodScan( ws, fVarNameLH[i], data, true);
             }
         }
     }
@@ -474,7 +475,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
 }
 //__________________________________________________________________________________
 //
-void MultiFit::GetCombinedLimit(string inputData){
+void MultiFit::GetCombinedLimit(string inputData) const{
     WriteInfoStatus("MultiFit::GetCombinedLimit", "Runing runAsymptoticsCLs macro...");
     
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
@@ -498,7 +499,7 @@ void MultiFit::GetCombinedLimit(string inputData){
 }
 //__________________________________________________________________________________
 //
-void MultiFit::GetCombinedSignificance(string inputData){
+void MultiFit::GetCombinedSignificance(string inputData) const{
     WriteInfoStatus("MultiFit::GetCombinedSignificance", "Runing runSig macro...");
   
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
@@ -515,7 +516,7 @@ void MultiFit::GetCombinedSignificance(string inputData){
 }
 //__________________________________________________________________________________
 //
-void MultiFit::ComparePOI(string POI){
+void MultiFit::ComparePOI(const string& POI) const {
     float xmin = 0;
     float xmax = 2;
 
@@ -681,7 +682,7 @@ void MultiFit::ComparePOI(string POI){
     }
     g_tot->SetMarkerSize(0);
 
-    TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,xmin,xmax);
+    TH1D* h_dummy = new TH1D("h_dummy","h_dummy",1,xmin,xmax);
     h_dummy->Draw();
     h_dummy->SetMinimum(ymin);
     h_dummy->SetMaximum(ymax);
@@ -804,10 +805,10 @@ void MultiFit::CompareLimit(){
     // ---
 
     // Fit titles
-    vector<string> dirs;   dirs.clear();
-    vector<string> names;  names.clear();
-    vector<string> suffs;  suffs.clear();
-    vector<string> titles; titles.clear();
+    vector<string> dirs;
+    vector<string> names;
+    vector<string> suffs;
+    vector<string> titles;
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         WriteInfoStatus("MultiFit::CompareLimit", "Adding Fit: " + fFitList[i_fit]->fInputName + ", " + fFitLabels[i_fit] + ", " + fFitSuffs[i_fit]);
         dirs.push_back( fFitList[i_fit]->fName );
@@ -912,7 +913,7 @@ void MultiFit::CompareLimit(){
 
     if(fLimitMax!=0) xmax = fLimitMax;
 
-    TH1F* h_dummy = new TH1F("h_dummy","h_dummy",1,0,xmax);
+    TH1D* h_dummy = new TH1D("h_dummy","h_dummy",1,0,xmax);
     h_dummy->Draw();
     h_dummy->SetMinimum(ymin);
     h_dummy->SetMaximum(ymax);
@@ -966,7 +967,7 @@ void MultiFit::CompareLimit(){
 
 //__________________________________________________________________________________
 //
-void MultiFit::ComparePulls(string category){
+void MultiFit::ComparePulls(string category) const{
     float ydist = 0.2;
 
     // Fit titles
@@ -1106,9 +1107,9 @@ void MultiFit::ComparePulls(string category){
     std::vector< TGraphAsymmErrors* > g;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         // create maps for NP's
-        std::map<string,float> centralMap; centralMap.clear();
-        std::map<string,float> errUpMap;   errUpMap.clear();
-        std::map<string,float> errDownMap; errDownMap.clear();
+        std::map<string,float> centralMap;
+        std::map<string,float> errUpMap;
+        std::map<string,float> errDownMap;
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
@@ -1157,7 +1158,7 @@ void MultiFit::ComparePulls(string category){
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1F *h_dummy = new TH1F("h_dummy","h_dummy",10,xmin,xmax);
+    TH1D *h_dummy = new TH1D("h_dummy","h_dummy",10,xmin,xmax);
     h_dummy->SetMaximum(max);
     h_dummy->SetLineWidth(0);
     h_dummy->SetFillStyle(0);
@@ -1220,7 +1221,7 @@ void MultiFit::ComparePulls(string category){
 
 //__________________________________________________________________________________
 //
-void MultiFit::CompareNormFactors(string category){
+void MultiFit::CompareNormFactors(string category) const{
     float ydist = 0.2;
 
     // Fit titles
@@ -1405,7 +1406,7 @@ void MultiFit::CompareNormFactors(string category){
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1F *h_dummy = new TH1F("h_dummy","h_dummy",10,xmin,xmax);
+    TH1D *h_dummy = new TH1D("h_dummy","h_dummy",10,xmin,xmax);
     h_dummy->SetMaximum(max);
     h_dummy->SetLineWidth(0);
     h_dummy->SetFillStyle(0);
@@ -1466,7 +1467,7 @@ void MultiFit::CompareNormFactors(string category){
 
 //__________________________________________________________________________________
 //
-void MultiFit::PlotCombinedCorrelationMatrix(){
+void MultiFit::PlotCombinedCorrelationMatrix() const{
     TRExFit *fit = fFitList[0];
     if(fit->fStatOnly){
         WriteInfoStatus("MultiFit::PlotCombinedCorrelationMatrix", "Stat only fit => No Correlation Matrix generated.");
@@ -1482,7 +1483,7 @@ void MultiFit::PlotCombinedCorrelationMatrix(){
 
 //____________________________________________________________________________________
 //
-void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
+void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     WriteInfoStatus("MultiFit::ProduceNPRanking", "....................................");
     WriteInfoStatus("MultiFit::ProduceNPRanking", "Producing Ranking...");
 
@@ -1564,14 +1565,14 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     outName += ".txt";
     ofstream outName_file(outName.c_str());
     //
-    float central;
-    float up;
-    float down;
-    float muhat;
-    std::map< string,float > muVarUp;
-    std::map< string,float > muVarDown;
-    std::map< string,float > muVarNomUp;
-    std::map< string,float > muVarNomDown;
+    double central;
+    double up;
+    double down;
+    double muhat;
+    std::map< string,double > muVarUp;
+    std::map< string,double > muVarDown;
+    std::map< string,double > muVarNomUp;
+    std::map< string,double > muVarNomDown;
 
     //
     // Get the combined model
@@ -1706,7 +1707,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ){
 
 //____________________________________________________________________________________
 //
-void MultiFit::PlotNPRankingManager(){
+void MultiFit::PlotNPRankingManager() const{
   if(fFitList[0]->fRankingPlot=="Merge"  || fFitList[0]->fRankingPlot=="all") PlotNPRanking(true,true);
   if(fFitList[0]->fRankingPlot=="Systs"  || fFitList[0]->fRankingPlot=="all") PlotNPRanking(true,false);
   if(fFitList[0]->fRankingPlot=="Gammas" || fFitList[0]->fRankingPlot=="all") PlotNPRanking(false,true);
@@ -1714,7 +1715,7 @@ void MultiFit::PlotNPRankingManager(){
 
 //____________________________________________________________________________________
 //
-void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
+void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     WriteInfoStatus("MultiFit::PlotNPRanking", "....................................");
     WriteInfoStatus("MultiFit::PlotNPRanking", "Plotting Ranking...");
     //
@@ -1937,7 +1938,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1F *h_dummy = new TH1F("h_dummy","h_dummy",10,xmin,xmax);
+    TH1D *h_dummy = new TH1D("h_dummy","h_dummy",10,xmin,xmax);
     h_dummy->SetMaximum( SIZE + offsetUp1/lineHeight   );
     h_dummy->SetMinimum(      - offsetDown1/lineHeight );
     h_dummy->SetLineWidth(0);
@@ -2077,7 +2078,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas){
 
 //__________________________________________________________________________________
 //
-void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data,bool recreate,bool compare){
+void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, RooDataSet* data,bool recreate) const{
     WriteInfoStatus("MultiFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
     TString LHDir("LHoodPlots/");
     
@@ -2190,7 +2191,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
     leg->SetBorderSize(0);
     leg->SetTextSize(gStyle->GetTextSize());
     leg->SetTextFont(gStyle->GetTextFont());
-    if(compare){
+    if(fCompare){
         for(auto fit : fFitList){
             TFile *f = nullptr;
             if(fit->fFitResultsFile!=""){
@@ -2276,7 +2277,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
 
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
-    if(compare){
+    if(fCompare){
         leg->Draw();
         ATLASLabel(0.15,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
         myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
@@ -2302,7 +2303,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* 
 
 //____________________________________________________________________________________
 //
-void MultiFit::PlotSummarySoverB(){
+void MultiFit::PlotSummarySoverB() const {
     WriteInfoStatus("MultiFit::PlotSummarySoverB", "....................................");
     WriteInfoStatus("MultiFit::PlotSummarySoverB", "Producing S/B plot...");
 
@@ -2364,18 +2365,18 @@ void MultiFit::PlotSummarySoverB(){
 
     std::vector<TFile*> file;
     std::vector<TFile*> fileBonly;
-    std::vector<TH1F* > h_sig;
-    std::vector<TH1F* > h_bkg;
-    std::vector<TH1F* > h_bkgBonly;
-    std::vector<TH1F* > h_tot_bkg_prefit;
-    std::vector<TH1F* > h_data;
-    std::vector<std::vector<TH1F*> > h_syst_up  (Nsyst,std::vector<TH1F*>(Nhist));
-    std::vector<std::vector<TH1F*> > h_syst_down(Nsyst,std::vector<TH1F*>(Nhist));
+    std::vector<TH1D* > h_sig;
+    std::vector<TH1D* > h_bkg;
+    std::vector<TH1D* > h_bkgBonly;
+    std::vector<TH1D* > h_tot_bkg_prefit;
+    std::vector<TH1D* > h_data;
+    std::vector<std::vector<TH1D*> > h_syst_up  (Nsyst,std::vector<TH1D*>(Nhist));
+    std::vector<std::vector<TH1D*> > h_syst_down(Nsyst,std::vector<TH1D*>(Nhist));
 
     // get histos
     for(int i_hist=0;i_hist<Nhist;i_hist++){
-        TH1F* h_tmp = nullptr;
-        TH1F* h_tmpBonly = nullptr;
+        TH1D* h_tmp = nullptr;
+        TH1D* h_tmpBonly = nullptr;
         WriteDebugStatus("MultiFit::PlotSummarySoverB",  "Opening file " + fileNames[i_hist]);
         file.push_back(new TFile(fileNames[i_hist].c_str()));
         if(includeBonly){
@@ -2396,7 +2397,7 @@ void MultiFit::PlotSummarySoverB(){
         //
         for(unsigned int i_sig=0;i_sig<sigList.size();i_sig++){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "  Getting histogram h_"+sigList[i_sig]+"_postFit");
-            h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+sigList[i_sig]+"_postFit").c_str() );
+            h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+sigList[i_sig]+"_postFit").c_str() );
             if(h_tmp!=nullptr){
                 WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... FOUND");
                 if(h_sig[i_hist]==nullptr) h_sig[i_hist] = h_tmp;
@@ -2405,8 +2406,8 @@ void MultiFit::PlotSummarySoverB(){
         }
         for(unsigned int i_bkg=0;i_bkg<bkgList.size();i_bkg++){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "  Getting histogram h_"+bkgList[i_bkg]+"_postFit");
-            h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
-            if(includeBonly) h_tmpBonly = (TH1F*)fileBonly[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
+            h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
+            if(includeBonly) h_tmpBonly = (TH1D*)fileBonly[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
             if(h_tmp!=nullptr){
                 WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... FOUND");
                 if(h_bkg[i_hist]==nullptr) h_bkg[i_hist] = h_tmp;
@@ -2420,21 +2421,21 @@ void MultiFit::PlotSummarySoverB(){
             // syst variations
             for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
                 // up
-                h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Up_postFit").c_str() );
+                h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Up_postFit").c_str() );
                 if(h_tmp!=nullptr){
                     if(h_syst_up[i_syst][i_hist]==nullptr)   h_syst_up[i_syst][i_hist] = h_tmp;
                     else                                 h_syst_up[i_syst][i_hist]->Add(h_tmp);
                 }
                 // down
                 if(h_tmp!=nullptr){
-                    h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Down_postFit").c_str() );
+                    h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Down_postFit").c_str() );
                     if(h_syst_down[i_syst][i_hist]==nullptr) h_syst_down[i_syst][i_hist] = h_tmp;
                     else                                 h_syst_down[i_syst][i_hist]->Add(h_tmp);
                 }
             }
         }
         for(unsigned int i_data=0;i_data<dataList.size();i_data++){
-            h_tmp = (TH1F*)file[i_hist]->Get( ("h_"+dataList[i_data]).c_str() );
+            h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+dataList[i_data]).c_str() );
             if(h_tmp!=nullptr){
                 if(h_data[i_hist]==nullptr) h_data[i_hist] = h_tmp;
                 else                    h_data[i_hist]->Add(h_tmp);
@@ -2442,22 +2443,22 @@ void MultiFit::PlotSummarySoverB(){
         }
 
         if(TRExFitter::PREFITONPOSTFIT)
-          h_tot_bkg_prefit[i_hist] = (TH1F*)file[i_hist]->Get("h_tot_bkg_prefit");
+          h_tot_bkg_prefit[i_hist] = (TH1D*)file[i_hist]->Get("h_tot_bkg_prefit");
 
         //
         // Fix eventually empty histograms
         if(h_sig[i_hist] ==nullptr){
-            h_sig[i_hist]  = (TH1F*)h_bkg[i_hist]->Clone(Form("h_sig[%d]", i_hist));
+            h_sig[i_hist]  = (TH1D*)h_bkg[i_hist]->Clone(Form("h_sig[%d]", i_hist));
             h_sig[i_hist]->Scale(0.);
         }
         if(h_data[i_hist]==nullptr){
-            h_data[i_hist] = (TH1F*)h_bkg[i_hist]->Clone(Form("h_data[%d]",i_hist));
+            h_data[i_hist] = (TH1D*)h_bkg[i_hist]->Clone(Form("h_data[%d]",i_hist));
             h_data[i_hist]->Scale(0.);
         }
         for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
             // up
             if(h_syst_up[i_syst][i_hist]==nullptr){
-                h_syst_up[i_syst][i_hist] = (TH1F*)h_bkg[i_hist]->Clone(Form("h_syst_up[%d][%d]", i_syst,i_hist));
+                h_syst_up[i_syst][i_hist] = (TH1D*)h_bkg[i_hist]->Clone(Form("h_syst_up[%d][%d]", i_syst,i_hist));
                 h_syst_up[i_syst][i_hist]->Scale(0.);
             }
             else{
@@ -2465,7 +2466,7 @@ void MultiFit::PlotSummarySoverB(){
             }
             // down
             if(h_syst_down[i_syst][i_hist]==nullptr){
-                h_syst_down[i_syst][i_hist] = (TH1F*)h_bkg[i_hist]->Clone(Form("h_syst_down[%d][%d]", i_syst,i_hist));
+                h_syst_down[i_syst][i_hist] = (TH1D*)h_bkg[i_hist]->Clone(Form("h_syst_down[%d][%d]", i_syst,i_hist));
                 h_syst_down[i_syst][i_hist]->Scale(0.);
             }
             else{
@@ -2475,16 +2476,16 @@ void MultiFit::PlotSummarySoverB(){
     }
 
     // create combined histogram
-    TH1F* h_bkg_comb  = Combine(h_bkg);
-    TH1F* h_bkgBonly_comb = nullptr; if(includeBonly) h_bkgBonly_comb = Combine(h_bkgBonly);
-    TH1F* h_sig_comb  = Combine(h_sig);
-    TH1F* h_data_comb = Combine(h_data);
-    TH1F* h_tot_bkg_prefit_comb = nullptr;
+    TH1D* h_bkg_comb  = Combine(h_bkg);
+    TH1D* h_bkgBonly_comb = nullptr; if(includeBonly) h_bkgBonly_comb = Combine(h_bkgBonly);
+    TH1D* h_sig_comb  = Combine(h_sig);
+    TH1D* h_data_comb = Combine(h_data);
+    TH1D* h_tot_bkg_prefit_comb = nullptr;
     if(TRExFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_comb = Combine(h_tot_bkg_prefit);
 
 
-    std::vector<TH1F*> h_syst_up_comb  (Nsyst);
-    std::vector<TH1F*> h_syst_down_comb(Nsyst);
+    std::vector<TH1D*> h_syst_up_comb  (Nsyst);
+    std::vector<TH1D*> h_syst_down_comb(Nsyst);
     for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
         h_syst_up_comb  [i_syst] = Combine(h_syst_up  [i_syst]);
         h_syst_down_comb[i_syst] = Combine(h_syst_down[i_syst]);
@@ -2500,18 +2501,18 @@ void MultiFit::PlotSummarySoverB(){
   //      SoverSqrtB.push_back(sig/sqrt(bkg));
     }
 
-    TH1F* h_bkg_ord  = Rebin(h_bkg_comb,SoverSqrtB,false);
-    TH1F* h_bkgBonly_ord = nullptr; if(includeBonly) h_bkgBonly_ord = Rebin(h_bkgBonly_comb,SoverSqrtB,false);
-    TH1F* h_sig_ord  = Rebin(h_sig_comb,SoverSqrtB,false);
-    TH1F* h_data_ord = Rebin(h_data_comb,SoverSqrtB);
-    TH1F* h_tot_bkg_prefit_ord = nullptr;
+    TH1D* h_bkg_ord  = Rebin(h_bkg_comb,SoverSqrtB,false);
+    TH1D* h_bkgBonly_ord = nullptr; if(includeBonly) h_bkgBonly_ord = Rebin(h_bkgBonly_comb,SoverSqrtB,false);
+    TH1D* h_sig_ord  = Rebin(h_sig_comb,SoverSqrtB,false);
+    TH1D* h_data_ord = Rebin(h_data_comb,SoverSqrtB);
+    TH1D* h_tot_bkg_prefit_ord = nullptr;
     if(TRExFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_ord = Rebin(h_tot_bkg_prefit_comb,SoverSqrtB,false);
 
-    std::vector<TH1F*> h_syst_up_ord  (Nsyst);
-    std::vector<TH1F*> h_syst_down_ord(Nsyst);
+    std::vector<TH1D*> h_syst_up_ord  (Nsyst);
+    std::vector<TH1D*> h_syst_down_ord(Nsyst);
     for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
-        h_syst_up_ord  [i_syst] = Rebin((TH1F*)(h_syst_up_comb  [i_syst]),SoverSqrtB,false);
-        h_syst_down_ord[i_syst] = Rebin((TH1F*)(h_syst_down_comb[i_syst]),SoverSqrtB,false);
+        h_syst_up_ord  [i_syst] = Rebin((TH1D*)(h_syst_up_comb  [i_syst]),SoverSqrtB,false);
+        h_syst_down_ord[i_syst] = Rebin((TH1D*)(h_syst_down_comb[i_syst]),SoverSqrtB,false);
     }
 
     float errUp, errDown, err, err_tot;
@@ -2562,11 +2563,11 @@ void MultiFit::PlotSummarySoverB(){
     h_sig_ord->SetLineColor(kRed);
     h_sig_ord->SetFillColor(kRed);
 
-    TH1F* h_sig_ord_lim = (TH1F*)h_sig_ord->Clone("h_sig_ord_lim");
+    TH1D* h_sig_ord_lim = (TH1D*)h_sig_ord->Clone("h_sig_ord_lim");
     h_sig_ord_lim->Scale(muLimit/muFit);
     h_sig_ord_lim->SetFillColor(kOrange);
     h_sig_ord_lim->SetLineColor(kOrange);
-    TH1F* h_sig_ord_lim_diff = (TH1F*)h_sig_ord_lim->Clone("h_sig_ord_lim_diff");
+    TH1D* h_sig_ord_lim_diff = (TH1D*)h_sig_ord_lim->Clone("h_sig_ord_lim_diff");
     h_sig_ord_lim_diff->Add(h_sig_ord,-1);
 
     THStack *h_s = new THStack();
@@ -2576,7 +2577,7 @@ void MultiFit::PlotSummarySoverB(){
     h_data_ord->Draw("EX0");
 
     h_s->Draw("HISTsame ][");
-    TH1F* h_err = (TH1F*)h_bkg_ord->Clone("h_err");
+    TH1D* h_err = (TH1D*)h_bkg_ord->Clone("h_err");
     h_err->SetMarkerSize(0);
     h_err->SetFillColor(kBlack);
     h_err->SetFillStyle(3454);
@@ -2641,28 +2642,28 @@ void MultiFit::PlotSummarySoverB(){
 
     pad1->cd();
     pad1->GetFrame()->SetY1(2);
-    TH1F *h_ratio   = (TH1F*)h_data_ord->Clone("h_ratio");
-    TH1F *h_den     = (TH1F*)h_bkg_ord ->Clone("h_den");
+    TH1D *h_ratio   = (TH1D*)h_data_ord->Clone("h_ratio");
+    TH1D *h_den     = (TH1D*)h_bkg_ord ->Clone("h_den");
     for(int i_bin=0;i_bin<h_den->GetNbinsX()+2;i_bin++){
         h_den->SetBinError(i_bin,0);
     }
 
-    TH1F *h_ratioBonly = nullptr;
+    TH1D *h_ratioBonly = nullptr;
     if(includeBonly){
-        h_ratioBonly = (TH1F*)h_bkgBonly_ord->Clone("h_ratioBonly");
+        h_ratioBonly = (TH1D*)h_bkgBonly_ord->Clone("h_ratioBonly");
         h_ratioBonly->Divide(h_den);
         h_ratioBonly->SetLineStyle(kDashed);
         h_ratioBonly->SetLineColor(kBlack);
     }
 
-    TH1F* h_stackSig = (TH1F*)h_sig_ord ->Clone("h_sig_ratio");
+    TH1D* h_stackSig = (TH1D*)h_sig_ord ->Clone("h_sig_ratio");
     h_stackSig->Add(h_bkg_ord);
     h_stackSig->Divide(h_den);
     h_stackSig->SetFillColor(0);
     h_stackSig->SetFillStyle(0);
     h_stackSig->SetLineColor(kRed);
 
-    TH1F* h_stackSigLim = (TH1F*)h_sig_ord_lim ->Clone("h_sig_lim_ratio");
+    TH1D* h_stackSigLim = (TH1D*)h_sig_ord_lim ->Clone("h_sig_lim_ratio");
     h_stackSigLim->Add(h_bkg_ord);
     h_stackSigLim->Divide(h_den);
     h_stackSigLim->SetFillColor(0);
@@ -2670,7 +2671,7 @@ void MultiFit::PlotSummarySoverB(){
     h_stackSigLim->SetLineStyle(kDashed);
     h_stackSigLim->SetLineColor(kOrange+1);
 
-    TH1F *h_ratio2  = (TH1F*)h_err->Clone("h_ratio2");
+    TH1D *h_ratio2  = (TH1D*)h_err->Clone("h_ratio2");
     h_ratio2->SetMarkerSize(0);
     h_ratio->SetTitle("Data/MC");
     h_ratio->GetYaxis()->SetTitle("Data / Bkgd.");
@@ -2731,14 +2732,14 @@ void MultiFit::PlotSummarySoverB(){
 
 //____________________________________________________________________________________
 //
-TH1F* MultiFit::Combine(vector<TH1F*> h){
+TH1D* MultiFit::Combine(vector<TH1D*> h) const{
     int Nbins = 0;
     int Nhist = h.size();
     for(int i_hist=0;i_hist<Nhist;i_hist++){
         if(h[i_hist]==nullptr) WriteWarningStatus("MultiFit::Combine", "empty histgram " + std::to_string(i_hist));
         else Nbins += h[i_hist]->GetNbinsX();
     }
-    TH1F* h_new = new TH1F(Form("%s_comb",h[0]->GetName()),Form("%s_comb",h[0]->GetTitle()),Nbins,0,Nbins);
+    TH1D* h_new = new TH1D(Form("%s_comb",h[0]->GetName()),Form("%s_comb",h[0]->GetTitle()),Nbins,0,Nbins);
     int bin = 0;
     for(int i_hist=0;i_hist<Nhist;i_hist++){
         for(int i_bin=1;i_bin<=h[i_hist]->GetNbinsX();i_bin++){
@@ -2752,14 +2753,14 @@ TH1F* MultiFit::Combine(vector<TH1F*> h){
 
 //____________________________________________________________________________________
 // order bins of h acording to a[] (increasing order)
-TH1F* MultiFit::OrderBins(TH1F* h,vector<float> vec){
+TH1D* MultiFit::OrderBins(TH1D* h, vector<float> vec) const{
     map<float,int> binIndex;
     int Nbins = h->GetNbinsX();
     for(int i_bin=1;i_bin<=Nbins;i_bin++){
         binIndex[vec[i_bin-1]] = i_bin;
     }
     sort(vec.begin(),vec.end());
-    TH1F *h_new = (TH1F*)h->Clone();
+    TH1D *h_new = (TH1D*)h->Clone();
     for(int i_bin=1;i_bin<=Nbins;i_bin++){
         h_new->SetBinContent(i_bin,h->GetBinContent(binIndex[vec[i_bin-1]]));
     }
@@ -2768,8 +2769,8 @@ TH1F* MultiFit::OrderBins(TH1F* h,vector<float> vec){
 
 //____________________________________________________________________________________
 // merge bins in bins of SoverSqrtB
-TH1F* MultiFit::Rebin(TH1F* h,vector<float> vec, bool isData){
-    TH1F* h_new = new TH1F(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),17,-3.8,-0.5);
+TH1D* MultiFit::Rebin(TH1D* h, const vector<float>& vec, bool isData) const{
+    TH1D* h_new = new TH1D(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),17,-3.8,-0.5);
     h_new->Sumw2();
     // new way
     for(int j_bin=1;j_bin<=h->GetNbinsX();j_bin++){
@@ -2797,7 +2798,7 @@ TH1F* MultiFit::Rebin(TH1F* h,vector<float> vec, bool isData){
 
 //____________________________________________________________________________________
 // combine individual results from grouped impact evaluation into one table
-void MultiFit::BuildGroupedImpactTable(){
+void MultiFit::BuildGroupedImpactTable() const{
     WriteInfoStatus("TRExFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
     std::string targetName = fOutDir+"/Fits/GroupedImpact"+fSaveSuf+".txt";
 

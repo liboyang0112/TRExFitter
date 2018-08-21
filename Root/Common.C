@@ -15,13 +15,11 @@
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TH1.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TH2F.h"
 #include "TMath.h"
 #include "TObject.h"
 #include "TString.h"
-
-using namespace std;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -50,14 +48,14 @@ bool TRExFitter::REMOVEXERRORS = false;
 bool TRExFitter::NOENDERR = false;
 float TRExFitter::CORRELATIONTHRESHOLD = -1;
 bool TRExFitter::MERGEUNDEROVERFLOW = false;
-std::map <string,string> TRExFitter::SYSTMAP;
-std::map <string,string> TRExFitter::SYSTTEX;
-std::map <string,string> TRExFitter::NPMAP;
-std::vector <string> TRExFitter::IMAGEFORMAT;
+std::map <std::string,std::string> TRExFitter::SYSTMAP;
+std::map <std::string,std::string> TRExFitter::SYSTTEX;
+std::map <std::string,std::string> TRExFitter::NPMAP;
+std::vector <std::string> TRExFitter::IMAGEFORMAT;
 int TRExFitter::NCPU = 1;
 //
-std::map <string,float> TRExFitter::OPTION;
-std::map<string,TFile*> TRExFitter::TFILEMAP;
+std::map<std::string,float> TRExFitter::OPTION;
+std::map<std::string,TFile*> TRExFitter::TFILEMAP;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -67,8 +65,9 @@ std::map<string,TFile*> TRExFitter::TFILEMAP;
 
 //__________________________________________________________________________________
 //
-TH1F* HistFromNtuple(const string& ntuple, const string& variable, int nbin, float xmin, float xmax, const string& selection, const string& weight){
-    TH1F* h = new TH1F("h","h",nbin,xmin,xmax);
+TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, float xmin,
+                     float xmax, const std::string& selection, const std::string& weight){
+    TH1D* h = new TH1D("h","h",nbin,xmin,xmax);
     WriteVerboseStatus("Common::HistFromNtuple", "    Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtuple", "        with weight  (" + weight + ")*("+selection+")  ...");
     TChain *t = new TChain();
@@ -83,8 +82,9 @@ TH1F* HistFromNtuple(const string& ntuple, const string& variable, int nbin, flo
 
 //__________________________________________________________________________________
 //
-TH1F* HistFromNtupleBinArr(const string& ntuple, const string& variable, int nbin, double *bins, const string& selection, const string& weight){
-    TH1F* h = new TH1F("h","h",nbin,bins);
+TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins,
+                           const std::string& selection, const std::string& weight){
+    TH1D* h = new TH1D("h","h",nbin,bins);
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
     TChain *t = new TChain();
@@ -99,27 +99,27 @@ TH1F* HistFromNtupleBinArr(const string& ntuple, const string& variable, int nbi
 
 //__________________________________________________________________________________
 //
-TFile* GetFile(const string& fileName){
+TFile* GetFile(const std::string& fileName){
     auto it = TRExFitter::TFILEMAP.find(fileName);
     if(it != TRExFitter::TFILEMAP.end()) return it->second;
     else {
        TFile *f = new TFile(fileName.c_str());
-       TRExFitter::TFILEMAP.insert(std::pair<string,TFile*>(fileName,f));
+       TRExFitter::TFILEMAP.insert(std::pair<std::string,TFile*>(fileName,f));
        return f;
     }
 }
 
 //__________________________________________________________________________________
 //
-TH1* HistFromFile(const string& fullName){
-    string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
-    string histoName = fullName.substr(fullName.find_last_of(".")+6,string::npos);
+TH1* HistFromFile(const std::string& fullName){
+    std::string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
+    std::string histoName = fullName.substr(fullName.find_last_of(".")+6,std::string::npos);
     return HistFromFile(fileName,histoName);
 }
 
 //__________________________________________________________________________________
 //
-TH1* HistFromFile(const string& fileName, const string& histoName){
+TH1* HistFromFile(const std::string& fileName, const std::string& histoName){
     if(fileName=="") return nullptr;
     if(histoName=="") return nullptr;
     bool hasCustomAsimov = false;
@@ -145,7 +145,7 @@ TH1* HistFromFile(const string& fileName, const string& histoName){
 
 //__________________________________________________________________________________
 //
-void WriteHistToFile(TH1* h, const string& fileName, string option){
+void WriteHistToFile(TH1* h, const std::string& fileName, std::string option){
     TDirectory *dir = gDirectory;
     TFile *f = new TFile(fileName.c_str(),option.c_str());
     h->Write("",TObject::kOverwrite);
@@ -179,9 +179,9 @@ void MergeUnderOverFlow(TH1* h){
 
 //__________________________________________________________________________________
 //
-vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs,
-                                vector<string> files, vector<string> fileSufs,
-                                vector<string> names, vector<string> nameSufs){
+std::vector<std::string> CreatePathsList( std::vector<std::string> paths, std::vector<std::string> pathSufs,
+                                std::vector<std::string> files, std::vector<std::string> fileSufs,
+                                std::vector<std::string> names, std::vector<std::string> nameSufs){
     // turn the empty vectors into vectors containing one "" entry
     if(paths.size()==0) paths.push_back("");
     if(pathSufs.size()==0) pathSufs.push_back("");
@@ -190,27 +190,26 @@ vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs,
     if(names.size()==0) names.push_back("");
     if(nameSufs.size()==0) nameSufs.push_back("");
     //
-    vector<string> output;
-    string fullPath;
-    output.clear();
-    for(int i_path=0;i_path<(int)paths.size();i_path++){
-        for(int i_pathSuf=0;i_pathSuf<(int)pathSufs.size();i_pathSuf++){
-            for(int i_file=0;i_file<(int)files.size();i_file++){
-                for(int i_fileSuf=0;i_fileSuf<(int)fileSufs.size();i_fileSuf++){
-                    for(int i_name=0;i_name<(int)names.size();i_name++){
-                        for(int i_nameSuf=0;i_nameSuf<(int)nameSufs.size();i_nameSuf++){
-                            fullPath    = paths[i_path];
-                            fullPath += pathSufs[i_pathSuf];
+    std::vector<std::string> output;
+    std::string fullPath;
+    for (const auto& ipath : paths) {
+        for(const auto& ipathSuf : pathSufs){
+            for(const auto& ifile : files){
+                for(const auto& ifileSuf : fileSufs){
+                    for(const auto& iname : names){
+                        for(const auto& inameSuf : nameSufs){
+                            fullPath    = ipath;
+                            fullPath += ipathSuf;
                             fullPath += "/";
-                            fullPath += files[i_file];
-                            fullPath += fileSufs[i_fileSuf];
+                            fullPath += ifile;
+                            fullPath += ifileSuf;
                             fullPath += ".root";
-                            if(names[i_name]!="" || nameSufs[i_nameSuf]!=""){
+                            if(iname !="" || inameSuf!=""){
                                 fullPath += "/";
-                                fullPath += names[i_name];
-                                fullPath += nameSufs[i_nameSuf];
+                                fullPath += iname;
+                                fullPath += inameSuf;
                             }
-                            output.push_back( fullPath );
+                            output.emplace_back( fullPath );
                         }
                     }
                 }
@@ -222,8 +221,9 @@ vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs,
 
 //__________________________________________________________________________________
 //
-vector<string> CombinePathSufs( vector<string> pathSufs, vector<string> newPathSufs ){
-    vector<string> output; output.clear();
+std::vector<std::string> CombinePathSufs( std::vector<std::string> pathSufs,
+                                          std::vector<std::string> newPathSufs ){
+    std::vector<std::string> output;
     if(pathSufs.size()==0) pathSufs.push_back("");
     if(newPathSufs.size()==0) newPathSufs.push_back("");
     for(int i=0;i<(int)pathSufs.size();i++){
@@ -236,8 +236,8 @@ vector<string> CombinePathSufs( vector<string> pathSufs, vector<string> newPathS
 
 //__________________________________________________________________________________
 //
-vector<string> ToVec(const string& s){
-    vector<string> output;
+std::vector<std::string> ToVec(const std::string& s){
+    std::vector<std::string> output;
     output.clear();
     output.push_back(s);
     return output;
@@ -251,10 +251,10 @@ void TRExFitter::SetDebugLevel(int level){
 
 //__________________________________________________________________________________
 //
-string ReplaceString(string subject, const string& search,
-                                     const string& replace) {
+std::string ReplaceString(std::string subject, const std::string& search,
+                          const std::string& replace) {
     size_t pos = 0;
-    while((pos = subject.find(search, pos)) != string::npos) {
+    while((pos = subject.find(search, pos)) != std::string::npos) {
         subject.replace(pos, search.length(), replace);
         pos += replace.length();
     }
@@ -303,9 +303,9 @@ int wildcmp(const char *wild, const char *string) {
 
 //__________________________________________________________________________________
 //
-int FindInStringVector(const std::vector<string>& v, const string& s){
+int FindInStringVector(const std::vector<std::string>& v, const std::string& s){
     int idx = -1;
-    string s1;
+    std::string s1;
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i];
         if(StringsMatch(s1,s)){
@@ -318,12 +318,12 @@ int FindInStringVector(const std::vector<string>& v, const string& s){
 
 //__________________________________________________________________________________
 //
-int FindInStringVectorOfVectors(const std::vector< std::vector<string> >& v, const string& s, const string& ss){
+int FindInStringVectorOfVectors(const std::vector< std::vector<std::string> >& v, const std::string& s, const std::string& ss){
     int idx = -1;
-    string s1;
-    string s11;
-    string s2;
-    string s21;
+    std::string s1;
+    std::string s11;
+    std::string s2;
+    std::string s21;
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i][0];
         s2 = v[i][1];
@@ -337,10 +337,10 @@ int FindInStringVectorOfVectors(const std::vector< std::vector<string> >& v, con
 
 //__________________________________________________________________________________
 //
-double GetSeparation( TH1F* S1, TH1F* B1 ) {
+double GetSeparation( TH1D* S1, TH1D* B1 ) {
     // taken from TMVA!!!
-    TH1F* S=new TH1F(*S1);
-    TH1F* B=new TH1F(*B1);
+    TH1D* S=new TH1D(*S1);
+    TH1D* B=new TH1D(*B1);
     Double_t separation = 0;
     if ((S->GetNbinsX() != B->GetNbinsX()) || (S->GetNbinsX() <= 0)) {
         WriteErrorStatus("Common::GetSeparation", "signal and background histograms have different number of bins: " + std::to_string(S->GetNbinsX()) + " : " + std::to_string(B->GetNbinsX()));
@@ -375,8 +375,8 @@ double GetSeparation( TH1F* S1, TH1F* B1 ) {
 // Code to blind bins with S/B > threshold
 // - the code kills this kind of bins in data
 // - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
-TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
-    TH1F* h_blind = (TH1F*)h_data->Clone("h_blind");
+TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
+    TH1D* h_blind = (TH1D*)h_data->Clone("h_blind");
     for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
         if( h_sig->GetBinContent(i_bin) / h_bkg->GetBinContent(i_bin) > threshold ){
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
@@ -403,19 +403,19 @@ void BlindDataHisto( TH1* h_data, TH1* h_blind ) {
 
 //__________________________________________________________________________________
 //
-double convertStoD(string toConvert){
+double convertStoD(std::string toConvert){
     double converted;
     std::string::size_type pos;
     try{
         converted = std::stod(toConvert, &pos);
         if(pos != toConvert.size()){
             WriteErrorStatus("Common::BlindDataHisto", "Convert string -> double, partially converted object: " +  toConvert);
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     }
     catch(const std::exception& err){
         WriteErrorStatus("Common::BlindDataHisto", "Convert string -> double, exception catched: " + toConvert +    " " + err.what());
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     return converted;
 }
@@ -432,14 +432,16 @@ struct BinNom {
 //__________________________________________________________________________________
 //
 bool systFluctuationNominal(std::vector<BinNom> &hist) {
-    auto dM = [](const BinNom &b) { return sqrt(b.dN2); };
+    auto dM = [](const BinNom &b) {
+        return sqrt(b.dN2);
+    };
     auto N = [](const BinNom &b) {
         return b.N;
     };
     int Nbins = hist.size();
     for (int k = 1; k < Nbins; ++k) {
-        double variation_prev = fabs(N(hist[k]) - N(hist[k-1]));
-        double err = max(dM(hist[k]), dM(hist[k-1]));
+        double variation_prev = std::fabs(N(hist[k]) - N(hist[k-1]));
+        double err = std::max(dM(hist[k]), dM(hist[k-1]));
         if (variation_prev < err) return true;
     }
     return false;
@@ -517,7 +519,7 @@ void DropBins(TH1* h,const std::vector<int> &v){
 
 //__________________________________________________________________________________
 //
-float CorrectIntegral(TH1* h,float *err){
+double CorrectIntegral(TH1* h, double *err){
     float integral = 0.;
     float error = 0.;
     for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
@@ -546,7 +548,7 @@ void CloseFiles( const std::set < std::string> &files_names ){
 
 //__________________________________________________________________________________
 //
-TH1F* MergeHistograms(vector<TH1*> hVec){
+TH1D* MergeHistograms(std::vector<TH1*> hVec){
     if(hVec.size()==0) return nullptr;
     if(hVec[0]==nullptr) return nullptr;
     // get total number of bins
@@ -572,7 +574,7 @@ TH1F* MergeHistograms(vector<TH1*> hVec){
         }
     }
     // create the new histogram
-    TH1F *hOut = new TH1F("h_merge","h_merge",Nbins,bins);
+    TH1D *hOut = new TH1D("h_merge","h_merge",Nbins,bins);
     hOut->SetTitle(hVec[0]->GetTitle());
     hOut->SetLineColor(hVec[0]->GetLineColor());
     hOut->SetLineStyle(hVec[0]->GetLineStyle());

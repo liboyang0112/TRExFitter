@@ -9,7 +9,7 @@
 class TCanvas;
 class TGraphAsymmErrors;
 class TH1;
-class TH1F;
+class TH1D;
 class THStack;
 class TLegend;
 class TPad;
@@ -22,15 +22,15 @@ class TRExPlot {
     TRExPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700);
     ~TRExPlot(){};
 
-    void SetChannel(std::string name);
-    void AddLabel(std::string name);
-    void SetLumi(std::string name);
+    void SetChannel(const std::string& name);
+    void AddLabel(const std::string& name);
+    void SetLumi(const std::string& name);
     void SetLumiScale(float scale);
-    void SetCME(std::string name);
-    void SetXaxis(std::string name,bool isNjet=false);
-    void SetYaxis(std::string name);
+    void SetCME(const std::string& name);
+    void SetXaxis(const std::string& name,bool isNjet=false);
+    void SetYaxis(const std::string& name);
     void SetYmaxScale(float scale);
-    void SetBinLabel(int bin,std::string name);
+    void SetBinLabel(int bin, const std::string& name);
     void SetBinWidth(float width);
 
     void SetData(TH1* h,std::string name="Data");
@@ -45,15 +45,14 @@ class TRExPlot {
     void BlindData();
 
     void Draw(std::string options="");
-    void SaveAs(std::string name);
-    void WriteToFile(std::string name);
+    void SaveAs(const std::string& name) const;
+    void WriteToFile(const std::string& name) const;
 
-    TCanvas* GetCanvas();
+    TCanvas* GetCanvas() const;
 
     void SetBinBlinding(bool on,float threshold=0.02);
-    void SetBinBlinding(bool on,TH1F*h_blind);
+    void SetBinBlinding(bool on,TH1D*h_blind);
 
-//   private:
     std::string fName;
     TH1* h_data;
     TGraphAsymmErrors* g_data;
@@ -65,7 +64,7 @@ class TRExPlot {
     THStack* h_stack;
     TH1* h_tot;
     TGraphAsymmErrors* g_tot;
-    TH1F* h_blinding;
+    TH1D* h_blinding;
     TH1* h_tot_bkg_prefit;
 
     TCanvas* c;

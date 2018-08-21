@@ -18,10 +18,10 @@ public:
     //
     // Functions
     //
-    void AddNuisPar(std::string p);
-    void SetCorrelation(std::string p0,std::string p1,float corr);
-    float GetCorrelation(std::string p0,std::string p1);
-    void Draw(std::string path, const double corrMin = -1.);
+    void AddNuisPar(const std::string& p);
+    void SetCorrelation(const std::string& p0, const std::string& p1,float corr);
+    double GetCorrelation(const std::string& p0, const std::string& p1);
+    void Draw(const std::string& path, const double corrMin = -1.);
 
     //
     // Data members

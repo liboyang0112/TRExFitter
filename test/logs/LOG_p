@@ -83,10 +83,10 @@ Drawing post-fit plots...
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	111.363930 +8.096821 -8.096821
-=== DEBUG::Region::DrawPostFit: 2:	110.279526 +7.142633 -7.142633
-=== DEBUG::Region::DrawPostFit: 3:	70.438187 +6.359362 -6.359362
-=== DEBUG::Region::DrawPostFit: 4:	24.423138 +4.183325 -4.183325
+=== DEBUG::Region::DrawPostFit: 1:	111.363914 +8.096815 -8.096815
+=== DEBUG::Region::DrawPostFit: 2:	110.279503 +7.142635 -7.142635
+=== DEBUG::Region::DrawPostFit: 3:	70.438171 +6.359361 -6.359361
+=== DEBUG::Region::DrawPostFit: 4:	24.423136 +4.183327 -4.183327
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_1_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been created
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
@@ -117,20 +117,20 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been cr
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	109.028198 +6.483063 -6.483063
-=== DEBUG::Region::DrawPostFit: 2:	108.709229 +5.962680 -5.962680
-=== DEBUG::Region::DrawPostFit: 3:	70.158714 +6.406670 -6.406670
-=== DEBUG::Region::DrawPostFit: 4:	24.278431 +4.157642 -4.157642
+=== DEBUG::Region::DrawPostFit: 1:	109.028191 +6.483069 -6.483069
+=== DEBUG::Region::DrawPostFit: 2:	108.709213 +5.962674 -5.962674
+=== DEBUG::Region::DrawPostFit: 3:	70.158707 +6.406663 -6.406663
+=== DEBUG::Region::DrawPostFit: 4:	24.278429 +4.157643 -4.157643
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_2_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
 [1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region VR ...[0m
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	324.525238 +25.292505 -25.292505
-=== DEBUG::Region::DrawPostFit: 2:	293.790588 +22.330563 -22.330563
-=== DEBUG::Region::DrawPostFit: 3:	164.453079 +19.444214 -19.444214
-=== DEBUG::Region::DrawPostFit: 4:	62.746445 +11.147523 -11.147523
+=== DEBUG::Region::DrawPostFit: 1:	324.525208 +25.292503 -25.292503
+=== DEBUG::Region::DrawPostFit: 2:	293.790527 +22.330589 -22.330589
+=== DEBUG::Region::DrawPostFit: 3:	164.453064 +19.444223 -19.444223
+=== DEBUG::Region::DrawPostFit: 4:	62.746437 +11.147522 -11.147522
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/VR_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/VR_postFit.png has been created
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
@@ -139,8 +139,8 @@ Info in <TCanvas::Print>: png file FitExample/Plots/VR_postFit.png has been crea
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
-=== DEBUG::TRExFit::DrawSummary: 1:	316.504791	+15.538572	-15.538572
-=== DEBUG::TRExFit::DrawSummary: 2:	312.174561	+12.720721	-12.720721
+=== DEBUG::TRExFit::DrawSummary: 1:	316.504725	+15.538585	-15.538585
+=== DEBUG::TRExFit::DrawSummary: 2:	312.174540	+12.720699	-12.720699
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
@@ -149,7 +149,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
 Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
-=== DEBUG::TRExFit::DrawSummary: 1:	845.515381	+44.061489	-44.061489
+=== DEBUG::TRExFit::DrawSummary: 1:	845.515236	+44.061550	-44.061550
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has been created
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
