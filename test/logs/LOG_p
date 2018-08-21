@@ -149,5 +149,9 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
 Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
-terminate called after throwing an instance of 'std::out_of_range'
-  what():  map::at
+=== DEBUG::TRExFit::DrawSummary: 1:	845.515236	+44.061550	-44.061550
+Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has been created
+[1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
+[1;32m=== INFO::TRExFit::PrintSystTables: Printing syt tables[0m
+Info in <TCanvas::Print>: png file FitExample/PieChart_postFit.png has been created
