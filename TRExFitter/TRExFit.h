@@ -161,7 +161,7 @@ public:
     
     std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
     
-    std::string GetWeightFunction(unsigned int itemp, const TemplateInterpolationOption& opt) const;
+    std::string GetWeightFunction(std::vector<std::pair<float,std::string> > templatePair, unsigned int itemp, const TemplateInterpolationOption& opt) const;
 
     /*
      * Function that returns string that represents smoothed abs value function
@@ -199,7 +199,19 @@ public:
      */
     void GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const;
 
-    void SmoothMorphTemplates(const std::string& name) const;
+    /*
+     * Helper function to smooth morphing templates according to a given functional form (bin-by-bin)
+     * @param name of the morphing parameter
+     * @param functional form
+     * @param pointer to an array of parameter values
+     */
+    void SmoothMorphTemplates(const std::string& name,const std::string& formula="pol1",double *p=0x0) const;
+    
+    /*
+     * Helper function that draws plots with morphijng templates
+     * @param name of the morphing parameter
+     */
+    void DrawMorphingPlots(const std::string& name) const;
     
     bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
@@ -403,7 +415,7 @@ public:
 
     bool fDoNonProfileFit;
     int fFitToys;
-    bool fSmoothMorphingTemplates;
+    std::string fSmoothMorphingTemplates;
     int fPOIPrecision;
 
     std::string fRankingPOIName;
