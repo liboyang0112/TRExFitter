@@ -282,7 +282,8 @@ void Region::BuildPreFitErrorHist(){
     //
     fSystNames.clear();
     fNpNames.clear();
-    std::map<string,bool> systIsThere;
+    std::map<std::string,std::string> origShapeSystName;
+    std::map<std::string,bool> systIsThere;
     systIsThere.clear();
     TH1* hUp = nullptr;
     TH1* hDown = nullptr;
@@ -299,10 +300,11 @@ void Region::BuildPreFitErrorHist(){
         if(fSampleHists[i]->fSample->fType == Sample::GHOST) continue;
 
         //
-        // Systematics
+        // non-SHAPE Systematics
         //
         for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
             systName = fSampleHists[i]->fSyst[i_syst]->fName;
+            if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -311,6 +313,28 @@ void Region::BuildPreFitErrorHist(){
                 systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
             if(FindInStringVector(fNpNames,systNuisPar)<0){
                 fNpNames.push_back(systNuisPar);
+            }
+        }
+
+        //
+        // SHAPE Systematics
+        //
+        for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
+            systName = fSampleHists[i]->fSyst[i_syst]->fName;
+            if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType!=Systematic::SHAPE) continue;
+            for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
+                std::string gammaName = Form("shape_%s_%s_bin_%d",systName.c_str(),fName.c_str(),i_bin-1);
+                if(!systIsThere[gammaName]){
+                    fSystNames.push_back(gammaName);
+                    systIsThere[gammaName] = true;
+                    origShapeSystName[gammaName] = systName;
+                    TRExFitter::NPMAP[gammaName] = gammaName;
+                }
+                if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr)
+                    systNuisPar = gammaName;
+                if(FindInStringVector(fNpNames,systNuisPar)<0){
+                    fNpNames.push_back(systNuisPar);
+                }
             }
         }
     }
@@ -363,6 +387,17 @@ void Region::BuildPreFitErrorHist(){
                     else            yieldUp     = yieldNominal;
                     if(hDown!=nullptr)  yieldDown   = hDown->GetBinContent(i_bin);
                     else            yieldDown   = yieldNominal;
+                    diffUp   += yieldUp   - yieldNominal;
+                    diffDown += yieldDown - yieldNominal;
+                }
+                // for shape systematics
+                if(origShapeSystName[systName]!="" && systName.find(Form("%s_bin_%d",fName.c_str(),i_bin-1))!=std::string::npos){
+                    SystematicHist *shOrig = fSampleHists[i]->GetSystematic(origShapeSystName[systName]);
+                    if(!shOrig) continue;
+                    yieldUp   = shOrig->fHistUp->GetBinContent(i_bin);
+                    yieldDown = 2*yieldNominal - yieldUp;
+                    sh->fHistUp  ->SetBinContent(i_bin,yieldUp);
+                    sh->fHistDown->SetBinContent(i_bin,yieldDown);                    
                     diffUp   += yieldUp   - yieldNominal;
                     diffDown += yieldDown - yieldNominal;
                 }
@@ -807,9 +842,25 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
             systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
+            if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
+            }
+        }
+
+        //
+        // SHAPE Systematics
+        //
+        for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
+            systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
+            if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fType!=Systematic::SHAPE) continue;
+            for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
+                std::string gammaName = Form("shape_%s_%s_bin_%d",systName.c_str(),fName.c_str(),i_bin-1);
+                if(!systIsThere[gammaName]){
+                    fSystNames.push_back(gammaName);
+                    systIsThere[gammaName] = true;
+                }
             }
         }
 
@@ -874,17 +925,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
             WriteVerboseStatus("Region::BuildPostFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
 
-            // this to include (prefit) error from SHAPE syst
-            if(fSampleHists[i]->GetSystematic(systName)){
-                if(fSampleHists[i]->GetSystematic(systName)->fSystematic!=nullptr){
-                    if(fSampleHists[i]->GetSystematic(systName)->fSystematic->fType==Systematic::SHAPE){
-                        systValue   = 0;
-                        systErrUp   = 1;
-                        systErrDown = -1;
-                    }
-                }
-            }
-
             //
             // Get SystematicHist
             //
@@ -941,12 +981,31 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 }
                 //
                 // if it's a specific-sample gamma
-                else if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fSeparateGammas){
+                else if(gammaNameShape==fSystNames[i_syst] && fSampleHists[i]->fSample->fSeparateGammas){
                     diffUp   += yieldNominal_postFit*systErrUp;
                     diffDown += yieldNominal_postFit*systErrDown;
                     if (isMorph){
                         morph_up_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrUp+1);
                         morph_down_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrDown+1);
+                    }
+                }
+                //
+                // if it's a shape-systematic gamma
+                else if(fSystNames[i_syst].find("shape_")!=std::string::npos && fSystNames[i_syst].find(Form("%s_bin_%d",fName.c_str(),i_bin-1))!=std::string::npos){
+                    for(auto syh : fSampleHists[i]->fSyst){
+                        Systematic *syst = syh->fSystematic;
+                        if(!syst) continue;
+                        if(syst->fType==Systematic::SHAPE){
+                            std::string gammaNameShapeSyst = Form("shape_%s_%s_bin_%d",syst->fName.c_str(),fName.c_str(),i_bin-1);
+                            if(gammaNameShapeSyst==fSystNames[i_syst]){
+                                diffUp   += yieldNominal_postFit*systErrUp;
+                                diffDown += yieldNominal_postFit*systErrDown;
+                                if (isMorph){
+                                    morph_up_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrUp+1);
+                                    morph_down_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrDown+1);
+                                }
+                            }
+                        }
                     }
                 }
                 //
@@ -1232,7 +1291,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             double binContentNew = binContent0*mult_factor;
 
             //
-            // gammas
+            // stat gammas
             if(fUseGammaPulls && (fSampleHists[i]->fSample->fUseMCStat || fSampleHists[i]->fSample->fSeparateGammas)){
                 // find the gamma for this bin of this distribution in the fit results
                 std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
@@ -1243,6 +1302,19 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
                 WriteDebugStatus("Region::DrawPostFit", "  -->  pull = " + std::to_string(gammaValue));
                 // linear effect
                 if(gammaValue>0) binContentNew *= gammaValue;
+            }
+            // gammas from SHAPE systematics
+            for(auto syh : fSampleHists[i]->fSyst){
+                Systematic *syst = syh->fSystematic;
+                if(!syst) continue;
+                if(syst->fType==Systematic::SHAPE){
+                    std::string gammaName = Form("shape_%s_%s_bin_%d",syst->fName.c_str(),fName.c_str(),i_bin-1);
+                    WriteDebugStatus("Region::DrawPostFit", "Looking for gamma " + gammaName);
+                    float gammaValue = fitRes->GetNuisParValue(gammaName);
+                    WriteDebugStatus("Region::DrawPostFit", "  -->  pull = " + std::to_string(gammaValue));
+                    // linear effect
+                    if(gammaValue>0) binContentNew *= gammaValue;
+                }
             }
 
             //
@@ -2032,6 +2104,18 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
 // - correlation matrix
 // Note: if matrix = nullptr => no correlation, i.e. matrix = 1 (used for pre-fit, or to neglect correlation)
 TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
+    if(!h_nominal){
+        WriteErrorStatus("BuildTotError","h_nominal not defined.");
+        exit(EXIT_FAILURE);
+    }
+    if(h_up.size()!=h_down.size()){
+        WriteErrorStatus("BuildTotError","h_up and h_down have differenze size.");
+        exit(EXIT_FAILURE);
+    }
+    if(h_up.size()!=fSystNames.size()){
+        WriteErrorStatus("BuildTotError","h_up and fSystNames have differenze size.");
+        exit(EXIT_FAILURE);
+    }
     TGraphAsymmErrors *g_totErr = new TGraphAsymmErrors( h_nominal );
     float finalErrPlus(0.);
     float finalErrMinus(0.);

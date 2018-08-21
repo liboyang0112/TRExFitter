@@ -3491,6 +3491,23 @@ void TRExFit::BuildYieldTable(string opt,string group){
         titleVec.push_back(title);
     }
     //
+    // build a global list of systematics (including gammas), from the lists already created from each region
+    // - for pre-fit the list contains only regular systematics and SHAPE systematics (no norm-factors, no stat gammas)
+    // - for post-fit also norm-factors and stat gammas (only in the case of UseGammaPulls)
+    std::vector<std::string> globalSystNames;
+    std::vector<std::string> globalNpNames;
+    for(int i_bin=1;i_bin<=Nbin;i_bin++){
+        Region *reg = fRegions[regionVec[i_bin-1]];
+        for(int i_syst=0;i_syst<(int)reg->fSystNames.size();i_syst++){
+            std::string systName = reg->fSystNames[i_syst];
+            std::string systNuisPar = systName;
+            if(TRExFitter::NPMAP[systName]!="") systNuisPar = TRExFitter::NPMAP[systName];
+            if (std::find(globalNpNames.begin(), globalNpNames.end(), systNuisPar) != globalNpNames.end()) continue;
+            globalSystNames.push_back( systName );
+            globalNpNames.push_back(systNuisPar);
+        }
+    }
+    //
     // add tot uncertainty on each sample
     int i_np = -1;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -3503,18 +3520,18 @@ void TRExFit::BuildYieldTable(string opt,string group){
         std::vector< TH1* > h_down;
         TH1* h_tmp_Up;
         TH1* h_tmp_Down;
-        std::vector<string> systNames;
         std::vector<string> npNames;
         i_np = -1;
-        // actual systematics
-        for(int i_syst=0;i_syst<fNSyst;i_syst++){
-            string systName = fSystematics[i_syst]->fName;
-            string systNuisPar = systName;
-            // check if the systematic(NP name) has already been processed
-            if (std::find(npNames.begin(), npNames.end(), systNuisPar) != npNames.end()) continue;
-            systNames.push_back( systName );
-            systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
-            npNames.push_back(systNuisPar);
+        //
+        // loop on the global list of systematics
+        for(int i_syst=0;i_syst<(int)globalSystNames.size();i_syst++){
+            std::string systName    = globalSystNames.at(i_syst);
+            std::string systNuisPar = globalNpNames.at(i_syst);
+            // if post-fit but no UseGammaPulls, skip stat gammas
+            if(isPostFit && systName.find("stat_")!=std::string::npos && !fUseGammaPulls){
+                continue;
+            }
+            npNames.push_back( systNuisPar );
             i_np++;
             for(int i_bin=1;i_bin<=Nbin;i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
@@ -3557,7 +3574,6 @@ void TRExFit::BuildYieldTable(string opt,string group){
                     h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                     h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                 }
-
                 float scale = 1;
                 if (!isPostFit){
                     scale = GetNominalMorphScale(sh);
@@ -3596,157 +3612,6 @@ void TRExFit::BuildYieldTable(string opt,string group){
                         }
                         h_up[i_np]  ->AddBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()))*morph_scale );
                         h_down[i_np]->AddBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*morph_scale );
-                    }
-                }
-            }
-        }
-        // add the gammas (only if post-fit)
-        if(isPostFit && fUseGammaPulls){
-            // loop on regions
-            for(int i_ch=1;i_ch<=Nbin;i_ch++){
-                Region *region = fRegions[regionVec[i_ch-1]];
-                if(region==nullptr) continue;
-                if(region->fTot_postFit==nullptr) continue;
-                // loop on bins
-                for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
-                    // set gamma name
-                    string gammaName = Form("stat_%s_bin_%d",region->fName.c_str(),i_bin-1);
-                    if(fSamples[i_smp]->fSeparateGammas)
-                        gammaName = Form("shape_stat_%s_%s_bin_%d",fSamples[i_smp]->fName.c_str(),region->fName.c_str(),i_bin-1);
-                    systNames.push_back( gammaName );
-                    npNames.push_back(gammaName);
-                    i_np++;
-                    sh = fRegions[regionVec[i_ch-1]]->GetSampleHist( name );
-                    //
-                    // find the gamma in the region
-                    int syst_idx = -1;
-                    for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_ch-1]]->fSystNames.size();j_syst++){
-                        if(gammaName==fRegions[regionVec[i_ch-1]]->fSystNames[j_syst]){
-                            syst_idx = j_syst;
-                        }
-                    }
-                    //
-                    if(sh!=nullptr){
-                        if(isPostFit){
-                            if(syst_idx<0 || sh->GetSystematic(gammaName)==nullptr){
-                                h_tmp_Up   = sh->fHist_postFit;
-                                h_tmp_Down = sh->fHist_postFit;
-                            }
-                            else{
-                                h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp_postFit;
-                                h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown_postFit;
-                            }
-                        }
-                    }
-                    else {
-                        h_tmp_Up   = new TH1F(Form("h_DUMMY_%s_up_%i",  gammaName.c_str(),i_ch-1),"h_dummy",1,0,1);
-                        h_tmp_Down = new TH1F(Form("h_DUMMY_%s_down_%i",gammaName.c_str(),i_ch-1),"h_dummy",1,0,1);
-                    }
-                    h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),gammaName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),gammaName.c_str()), Nbin,0,Nbin) );
-                    h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),gammaName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),gammaName.c_str()), Nbin,0,Nbin) );
-                    h_up[i_np]  ->SetBinContent( i_ch,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
-                    h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
-                    //
-                    // eventually add any other samples with the same title
-                    for(int j_smp=0;j_smp<fNSamples;j_smp++){
-                        sh = fRegions[regionVec[i_ch-1]]->GetSampleHist( fSamples[j_smp]->fName );
-                        if(sh!=0){
-                            if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
-                                if(isPostFit){
-                                    if(syst_idx<0 || sh->GetSystematic(gammaName)==nullptr){
-                                        h_tmp_Up   = sh->fHist_postFit;
-                                        h_tmp_Down = sh->fHist_postFit;
-                                    }
-                                    else{
-                                        h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp_postFit;
-                                        h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown_postFit;
-                                    }
-                                }
-                                h_up[i_np]  ->AddBinContent( i_ch,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-                                h_down[i_np]->AddBinContent( i_ch,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // Only for post-fit, loop on norm factors as well
-        if(isPostFit){
-            for(int i_norm=0;i_norm<fNNorm;i_norm++){
-                string normName = fNormFactors[i_norm]->fName;
-                systNames.push_back( normName );
-                string systNuisPar = normName;
-                npNames.push_back(systNuisPar);
-                i_np++;
-                for(int i_bin=1;i_bin<=Nbin;i_bin++){
-                    sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
-                    //
-                    // find the normfactor in the region
-                    int syst_idx = -1;
-                    for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
-                        if(normName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
-                            syst_idx = j_syst;
-                        }
-                    }
-                    //
-                    if(sh!=nullptr){
-                        if(isPostFit){
-                            if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
-                                h_tmp_Up   = sh->fHist_postFit;
-                                h_tmp_Down = sh->fHist_postFit;
-                            }
-                            else{
-                                h_tmp_Up   = sh->GetSystematic(normName)->fHistUp_postFit;
-                                h_tmp_Down = sh->GetSystematic(normName)->fHistDown_postFit;
-                            }
-                        }
-                        else {
-                            if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
-                                h_tmp_Up   = sh->fHist;
-                                h_tmp_Down = sh->fHist;
-                            }
-                            else{
-                                h_tmp_Up   = sh->GetSystematic(normName)->fHistUp;
-                                h_tmp_Down = sh->GetSystematic(normName)->fHistDown;
-                            }
-                        }
-                    }
-                    else {
-                        h_tmp_Up   = new TH1F(Form("h_DUMMY_%s_up_%i",  normName.c_str(),i_bin-1),"h_dummy",1,0,1);
-                        h_tmp_Down = new TH1F(Form("h_DUMMY_%s_down_%i",normName.c_str(),i_bin-1),"h_dummy",1,0,1);
-                    }
-                    if(i_bin==1){
-                        h_up.  push_back( new TH1F(Form("h_%s_%s_Up_TMP",  name.c_str(),normName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),normName.c_str()), Nbin,0,Nbin) );
-                        h_down.push_back( new TH1F(Form("h_%s_%s_Down_TMP",name.c_str(),normName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),normName.c_str()), Nbin,0,Nbin) );
-                    }
-                    h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
-                    h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
-                    //
-                    // eventually add any other samples with the same title
-                    for(int j_smp=0;j_smp<fNSamples;j_smp++){
-                        sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( fSamples[j_smp]->fName );
-                        if(sh!=0){
-                            if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
-                                if(isPostFit){
-                                    if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
-                                        h_tmp_Up   = sh->fHist_postFit;
-                                        h_tmp_Down = sh->fHist_postFit;
-                                    }
-                                }
-                                else{
-                                    if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
-                                        h_tmp_Up   = sh->fHist;
-                                        h_tmp_Down = sh->fHist;
-                                    }
-                                    else{
-                                        h_tmp_Up   = sh->GetSystematic(normName)->fHistUp;
-                                        h_tmp_Down = sh->GetSystematic(normName)->fHistDown;
-                                    }
-                                }
-                                h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-                                h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
-                            }
-                        }
                     }
                 }
             }
@@ -3803,20 +3668,19 @@ void TRExFit::BuildYieldTable(string opt,string group){
     std::vector< TH1* > h_down;
     TH1* h_tmp_Up;
     TH1* h_tmp_Down;
-    std::vector<string> npNames;
+    std::vector<std::string> npNames;
     i_np = -1;
-    // actual systematics
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        string systName = fSystematics[i_syst]->fName;
-        string systNuisPar = systName;
-        if(fSystematics[i_syst]!=nullptr)
-            systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
-        if(FindInStringVector(npNames,systNuisPar)<0){
-            npNames.push_back(systNuisPar);
-            i_np++;
-        }
-        else
+    //
+    // loop on the global list of systematics
+    for(int i_syst=0;i_syst<(int)globalSystNames.size();i_syst++){
+        std::string systName    = globalSystNames.at(i_syst);
+        std::string systNuisPar = globalNpNames.at(i_syst);
+        // if post-fit but no UseGammaPulls, skip stat gammas
+        if(isPostFit && systName.find("stat_")!=std::string::npos && !fUseGammaPulls){
             continue;
+        }
+        npNames.push_back( systNuisPar );
+        i_np++;
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             // find the systematic in the region
             int syst_idx = -1;
@@ -3872,124 +3736,6 @@ void TRExFit::BuildYieldTable(string opt,string group){
                     h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral()-h_tmp->Integral() );
                 }
             }
-        }
-    }
-    // add the gammas (only if post-fit)
-    if(isPostFit && fUseGammaPulls){
-        // loop on regions
-        for(int i_ch=1;i_ch<=Nbin;i_ch++){
-            Region *region = fRegions[regionVec[i_ch-1]];
-            if(region==nullptr) continue;
-            if(region->fTot_postFit==nullptr) continue;
-            // loop on bins
-            for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
-                // set gamma name
-                string gammaName = Form("stat_%s_bin_%d",region->fName.c_str(),i_bin-1);
-                npNames.push_back(gammaName);
-                i_np++;
-                // find the systematic in the region
-                int syst_idx = -1;
-                for(int j_syst=0;j_syst<(int)region->fSystNames.size();j_syst++){
-                    if(gammaName==region->fSystNames[j_syst]){
-                        syst_idx = j_syst;
-                    }
-                }
-                if(syst_idx<0){
-                    h_tmp_Up   = region->fTot_postFit;
-                    h_tmp_Down = region->fTot_postFit;
-                }
-                else{
-                    h_tmp_Up   = region->fTotUp_postFit[syst_idx];
-                    h_tmp_Down = region->fTotDown_postFit[syst_idx];
-                }
-                h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
-                h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
-                h_up[i_np]  ->SetBinContent( i_ch,h_tmp_Up  ->Integral() );
-                h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral() );
-            }
-        }
-    }
-    // now sample-specific gammas
-    if(isPostFit && fUseGammaPulls){
-        // loop on regions
-        for(int i_ch=1;i_ch<=Nbin;i_ch++){
-            Region *region = fRegions[regionVec[i_ch-1]];
-            if(region==nullptr) continue;
-            if(region->fTot_postFit==nullptr) continue;
-            // loop on bins
-            for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
-                for(auto sample : fSamples){
-                    if(!sample->fSeparateGammas) continue;
-                    string gammaName = Form("shape_stat_%s_%s_bin_%d",sample->fName.c_str(),region->fName.c_str(),i_bin-1);
-                    npNames.push_back(gammaName);
-                    i_np++;
-                    // find the systematic in the region
-                    int syst_idx = -1;
-                    for(int j_syst=0;j_syst<(int)region->fSystNames.size();j_syst++){
-                        if(gammaName==region->fSystNames[j_syst]){
-                            syst_idx = j_syst;
-                        }
-                    }
-                    if(syst_idx<0){
-                        h_tmp_Up   = region->fTot_postFit;
-                        h_tmp_Down = region->fTot_postFit;
-                    }
-                    else{
-                        h_tmp_Up   = region->fTotUp_postFit[syst_idx];
-                        h_tmp_Down = region->fTotDown_postFit[syst_idx];
-                    }
-                    h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
-                    h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
-                    h_up[i_np]  ->SetBinContent( i_ch,h_tmp_Up  ->Integral() );
-                    h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral() );
-                }
-            }
-        }
-    }
-    // add the norm factors
-    for(int i_norm=0;i_norm<fNNorm;i_norm++){
-        string normName = fNormFactors[i_norm]->fName;
-        if(FindInStringVector(npNames,normName)<0){
-            npNames.push_back(normName);
-            i_np++;
-        }
-        else
-            continue;
-        for(int i_bin=1;i_bin<=Nbin;i_bin++){
-            // find the systematic in the region
-            int syst_idx = -1;
-            for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
-                if(normName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
-                    syst_idx = j_syst;
-                }
-            }
-            //
-            if(isPostFit){
-                if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit;
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit;
-                }
-                else{
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx];
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx];
-                }
-            }
-            else{
-                if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot;
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot;
-                }
-                else{
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx];
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx];
-                }
-            }
-            if(i_bin==1){
-                h_up.  push_back( new TH1F(Form("h_Tot_%s_Up_TMP"  ,normName.c_str()), Form("h_Tot_%s_Up_TMP",  normName.c_str()), Nbin,0,Nbin) );
-                h_down.push_back( new TH1F(Form("h_Tot_%s_Down_TMP",normName.c_str()), Form("h_Tot_%s_Down_TMP",normName.c_str()), Nbin,0,Nbin) );
-            }
-            h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
-            h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
     //
@@ -4580,10 +4326,10 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
             chan.SetData("", "");
         }
 
-	// fStatErrCons is upper case after config reading if the MCstatThreshold option is used, otherwise it defaults to "Poisson"
-	// HistFactory expects the constraint not in all uppercase, but in form "Poisson"/"Gaussian" instead
-	if(fStatErrCons=="Poisson" || fStatErrCons=="POISSON") chan.SetStatErrorConfig(fStatErrThres, "Poisson");
-	else if(fStatErrCons=="GAUSSIAN")                      chan.SetStatErrorConfig(fStatErrThres, "Gaussian");
+        // fStatErrCons is upper case after config reading if the MCstatThreshold option is used, otherwise it defaults to "Poisson"
+        // HistFactory expects the constraint not in all uppercase, but in form "Poisson"/"Gaussian" instead
+        if(fStatErrCons=="Poisson" || fStatErrCons=="POISSON") chan.SetStatErrorConfig(fStatErrThres, "Poisson");
+        else if(fStatErrCons=="GAUSSIAN")                      chan.SetStatErrorConfig(fStatErrThres, "Gaussian");
 
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);

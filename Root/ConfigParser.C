@@ -24,7 +24,10 @@
 std::string RemoveSpaces(const std::string& s){
     if(s=="") return "";
     std::string ss = s;
-    if (ss.find_first_not_of(' ')>0){
+    if (ss.find_first_not_of(' ')>=std::string::npos){
+        ss = "";
+    }
+    else if (ss.find_first_not_of(' ')>0){
         ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' '));
     }
     else{
@@ -65,7 +68,10 @@ std::string Fix(const std::string& s){
     if(s=="") return "";
     std::string ss = s.substr( 0, s.find_first_of('%') );
     replace( ss.begin(), ss.end(), '"', ' ');
-    if (ss.find_first_not_of(' ')>0){
+    if (ss.find_first_not_of(' ')>=std::string::npos){
+        ss = "";
+    }
+    else if (ss.find_first_not_of(' ')>0){
         ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' '));
     }
     else{
@@ -124,7 +130,9 @@ std::string First(const std::string& s){
 std::string Second(const std::string& s){
     std::string second;
     second = s.substr( s.find_first_of(':')+1,std::string::npos );
-    return RemoveComments(second);
+    second = RemoveComments(second);
+    if(second=="") WriteErrorStatus("ConfigParser","No value set for parameter "+First(s)+" in the config. Crash is coming...");
+    return second;
 }
 
 //_______________________________________________________________________________________
