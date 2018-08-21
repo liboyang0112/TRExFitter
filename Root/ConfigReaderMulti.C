@@ -71,12 +71,11 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
     for(const std::string& iopt : optVec){
         std::vector< std::string > optPair;
         optPair = Vectorize(iopt,'=');
-        if (optPair.size() > 1){
-            optMap[optPair[0]] = optPair[1];
-        } else {
-            WriteErrorStatus("ConfigReaderMulti::ReadCommandLineOptions", "Wrong 'Options' input. Please check!");
+        if (optPair.size() < 2){
+            WriteErrorStatus("ConfigReaderMulti::ReadCommandLineOptions", "Cannot read your command line option, please check this!");
             return 1;
         }
+        optMap[optPair[0]] = optPair[1];
     }
 
     if(optMap["Ranking"]!=""){

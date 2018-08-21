@@ -265,7 +265,7 @@ void Region::SetRegionDataType( DataType type ){
 
 //__________________________________________________________________________________
 //
-SampleHist* Region::GetSampleHist(string &sampleName){
+SampleHist* Region::GetSampleHist(const std::string &sampleName) const{
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSampleHists[i_smp]->fName == sampleName) return fSampleHists[i_smp];
     }
@@ -277,8 +277,8 @@ SampleHist* Region::GetSampleHist(string &sampleName){
 void Region::BuildPreFitErrorHist(){
     WriteInfoStatus("Region::BuildPreFitErrorHist", "Building pre-fit plot for region " + fName + " ...");
     //
-    float yieldNominal(0.), yieldUp(0.), yieldDown(0.);
-    float diffUp(0.), diffDown(0.);
+    double yieldNominal(0.), yieldUp(0.), yieldDown(0.);
+    double diffUp(0.), diffDown(0.);
     //
     fSystNames.clear();
     fNpNames.clear();
@@ -675,7 +675,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
                                 const int i /*sample*/, const int i_bin /*bin number*/,
                                 const double binContent0,
                                 const std::string &var_syst_name,
-                                const bool isUp ){
+                                const bool isUp ) const{
 
     double multNorm(1.), multShape(0.);
     float systValue = 0;
@@ -703,10 +703,9 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         // Normalisation component: use the exponential interpolation and the multiplicative combination
         //
         if(fSampleHists[i]->fSyst[i_syst]->fIsOverall){
-            float binContentUp   = (fSampleHists[i]->fSyst[i_syst]->fNormUp+1) * binContent0;
-            float binContentDown = (fSampleHists[i]->fSyst[i_syst]->fNormDown+1) * binContent0;
-//             multNorm *= (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall));
-            float factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall);
+            double binContentUp   = (fSampleHists[i]->fSyst[i_syst]->fNormUp+1) * binContent0;
+            double binContentDown = (fSampleHists[i]->fSyst[i_syst]->fNormDown+1) * binContent0;
+            double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall);
             multNorm *= factor;
             if (fSampleHists[i]->fSample->fBuildPullTable>0){
                 if (((factor > 1.01) || (factor < 0.99)) && (i_bin==1)) {
@@ -720,10 +719,9 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         // Shape component: use the linear interpolation and the additive combination
         //
         if(fSampleHists[i]->fSyst[i_syst]->fIsShape){
-            float binContentUp   = fSampleHists[i]->fSyst[i_syst]->fHistShapeUp->GetBinContent(i_bin);
-            float binContentDown = fSampleHists[i]->fSyst[i_syst]->fHistShapeDown->GetBinContent(i_bin);
-//             multShape += (GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape) -1 );
-            float factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape);
+            double binContentUp   = fSampleHists[i]->fSyst[i_syst]->fHistShapeUp->GetBinContent(i_bin);
+            double binContentDown = fSampleHists[i]->fSyst[i_syst]->fHistShapeDown->GetBinContent(i_bin);
+            double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape);
             multShape += factor - 1;
             if (fSampleHists[i]->fSample->fBuildPullTable==2){
                 if (((factor-1) > 0.03) || ((factor-1) < - 0.03)) {
@@ -741,7 +739,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
 void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names){
 
     WriteInfoStatus("Region::BuildPostFitErrorHist", "Building post-fit plot for region " + fName + " ...");
-    float diffUp(0.), diffDown(0.);
+    double diffUp(0.), diffDown(0.);
 
     //
     // 0) Collect all the systematics on all the samples
@@ -749,11 +747,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     fSystNames.clear();
     std::map<string,bool> systIsThere;
     systIsThere.clear();
-    float systValue(0.);
-    float systErrUp(0.);
-    float systErrDown(0.);
-    //TH1* hUp = nullptr;
-    //TH1* hDown = nullptr;
+    double systValue(0.);
+    double systErrUp(0.);
+    double systErrDown(0.);
     string systName = "";
     string systNuisPar = "";
     SystematicHist *sh = nullptr;
@@ -763,7 +759,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     for(int i_sample=0;i_sample<fNSamples;i_sample++){
         if(fSampleHists[i_sample]->fSample->fType == Sample::DATA) continue;
         if(fSampleHists[i_sample]->fSample->fType == Sample::GHOST) continue;
-//         if(fSampleHists[i_sample]->fSample->fType == Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
 
         //
         // Norm factors
@@ -771,7 +766,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         for(int i_norm=0;i_norm<fSampleHists[i_sample]->fNNorm;i_norm++){
             NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm];
             systName = nf->fName;
-//             // if this norm factor is a morphing one => save the nuis.par
+            // if this norm factor is a morphing one => save the nuis.par
             // skip POI if B-only fit FIXME
             if(fFitType==TRExFit::BONLY && systName==fPOI) continue;
             if(nf->fConst) continue;
@@ -790,7 +785,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         // loop over shape factors
         for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
             systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
-//             systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fNuisanceParameter;
             // add syst name for each bin
             for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){
                 systNameSF = systName + "_bin_" + std::to_string(i_bin);
@@ -802,15 +796,13 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 }
             }
         }
-        hSFTmp->~TH1();
+        delete hSFTmp;
 
         //
         // Systematics
         //
         for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
             systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
-//             if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic!=nullptr)
-//                 systName = fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -920,8 +912,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
                 diffUp = 0.;
                 diffDown = 0.;
-                //hUp = nullptr;
-                //hDown = nullptr;
                 double yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
 
@@ -1217,7 +1207,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     // 1) Propagates the post-fit NP values to the central value (pulls)
     //
     string systName;
-    TH1* hNew = nullptr;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
@@ -1227,6 +1216,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             pullTex << "\\hline\n" << endl;
             pullTex << "{\\color{blue}{$\\rightarrow \\,$ "<< sampleTex << "}} & \\\\\n"<< endl;
         }
+        TH1* hNew = nullptr;
         hNew = (TH1*)hSmpNew[i]->Clone();
         for(int i_bin=1;i_bin<=hNew->GetNbinsX();i_bin++){
             double binContent0 = hSmpNew[i]->GetBinContent(i_bin);
@@ -1258,10 +1248,8 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         }
         hSmpNew[i] = (TH1*)hNew->Clone();
         fSampleHists[i]->fHist_postFit = hSmpNew[i];
-        hNew->~TH1();
+        delete hNew;
     }
-    delete hNew;
-
     //
     // 2) Scale all samples by norm factors
     //    Done after the propagation of the NP (avoids nans due to "0" value of some NormFactors)
@@ -1275,7 +1263,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
             NormFactor *nf = fSampleHists[i]->fNormFactors[i_norm];
             nfName = nf->fName;
-//             nfName = nf->fNuisanceParameter; // not implemeted yet...
             if(nf->fConst) nfValue = nf->fNominal;
             else           nfValue = fitRes->GetNuisParValue(TRExFitter::NPMAP[nfName]);
             //
@@ -1472,7 +1459,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
 
 //__________________________________________________________________________________
 //
-void Region::AddSelection(string selection){
+void Region::AddSelection(const std::string& selection){
     if(selection=="") return;
     if(fSelection=="1" || fSelection=="") fSelection = selection;
     else fSelection += " && "+selection;
@@ -1480,7 +1467,7 @@ void Region::AddSelection(string selection){
 
 //__________________________________________________________________________________
 //
-void Region::AddMCweight(string weight){
+void Region::AddMCweight(const std::string& weight){
     if(weight=="") return;
     if(fMCweight=="1" || fMCweight=="") fMCweight = weight;
     else fMCweight += " * "+weight;
@@ -1488,7 +1475,7 @@ void Region::AddMCweight(string weight){
 
 //__________________________________________________________________________________
 //
-void Region::SetVariable(string variable,int nbin,float xmin,float xmax,string corrVar1,string corrVar2){
+void Region::SetVariable(const std::string& variable,int nbin,float xmin,float xmax,string corrVar1,string corrVar2){
     fVariable = variable;
     fCorrVar1 = corrVar1;
     fCorrVar2 = corrVar2;
@@ -1499,47 +1486,49 @@ void Region::SetVariable(string variable,int nbin,float xmin,float xmax,string c
 
 //__________________________________________________________________________________
 //
-void Region::SetAlternativeVariable(string variable,string sample){
+void Region::SetAlternativeVariable(const std::string& variable, const std::string& sample){
     fAlternativeVariables[sample] = variable;
 }
 
 //__________________________________________________________________________________
 //
-void Region::SetAlternativeSelection(string selection,string sample){
+void Region::SetAlternativeSelection(const std::string& selection, const std::string& sample){
     fAlternativeSelections[sample] = selection;
 }
 
 //__________________________________________________________________________________
 //
-bool Region::UseAlternativeVariable(string sample){
-//     if (fAlternativeVariables.find(sample)==fAlternativeVariables.end())
+bool Region::UseAlternativeVariable(const std::string& sample){
     std::vector<std::string> tmpVec;
     for(auto tmp : fAlternativeVariables){
         tmpVec.push_back(tmp.first);
     }
-    if (FindInStringVector(tmpVec,sample))
+    if (FindInStringVector(tmpVec,sample)){
         return false;
-    else
+    }
+    else {
         return true;
+    }
 }
 
 //__________________________________________________________________________________
 //
-bool Region::UseAlternativeSelection(string sample){
-//     if (fAlternativeSelections.find(sample)==fAlternativeSelections.end())
+bool Region::UseAlternativeSelection(const std::string& sample){
     std::vector<std::string> tmpVec;
     for(auto tmp : fAlternativeSelections){
         tmpVec.push_back(tmp.first);
     }
-    if (FindInStringVector(tmpVec,sample))
+    if (FindInStringVector(tmpVec,sample)){
         return false;
-    else
+    }
+    else {
         return true;
+    }
 }
 
 //__________________________________________________________________________________
 //
-std::string Region::GetAlternativeVariable(string sample){
+std::string Region::GetAlternativeVariable(const std::string& sample) const{
     std::vector<std::string> tmpVec;
     std::vector<std::string> tmpVec2;
     for(auto tmp : fAlternativeVariables){
@@ -1547,13 +1536,17 @@ std::string Region::GetAlternativeVariable(string sample){
         tmpVec2.push_back(tmp.second);
     }
     int idx = FindInStringVector(tmpVec,sample);
-    if(idx<0) return "";
-    else return tmpVec2[idx];
+    if(idx<0){
+        return "";
+    }
+    else {
+        return tmpVec2[idx];
+    }
 }
 
 //__________________________________________________________________________________
 //
-std::string Region::GetAlternativeSelection(string sample){
+std::string Region::GetAlternativeSelection(const std::string& sample) const{
     std::vector<std::string> tmpVec;
     std::vector<std::string> tmpVec2;
     for(auto tmp : fAlternativeSelections){
@@ -1561,27 +1554,30 @@ std::string Region::GetAlternativeSelection(string sample){
         tmpVec2.push_back(tmp.second);
     }
     int idx = FindInStringVector(tmpVec,sample);
-    if(idx<0) return "";
-    else return tmpVec2[idx];
+    if(idx<0){
+        return "";
+    }
+    else {
+        return tmpVec2[idx];
+    }
 }
 
 //__________________________________________________________________________________
 //
-void Region::SetHistoName(string name){
-//     fHistoName = name;
+void Region::SetHistoName(const std::string& name){
     fHistoNames.clear();
     fHistoNames.push_back(name);
 }
 
 //__________________________________________________________________________________
 //
-void Region::SetVariableTitle(string name){
+void Region::SetVariableTitle(const std::string& name){
     fVariableTitle = name;
 }
 
 //__________________________________________________________________________________
 //
-void Region::SetLabel(string label,string shortLabel){
+void Region::SetLabel(const std::string& label, std::string shortLabel){
     fLabel = label;
     if(shortLabel=="") fShortLabel = label;
     else fShortLabel = shortLabel;
@@ -1589,7 +1585,7 @@ void Region::SetLabel(string label,string shortLabel){
 
 //__________________________________________________________________________________
 //
-void Region::Print(){
+void Region::Print() const{
     WriteInfoStatus("Region::Print", "    Region: " + fName);
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         fSampleHists[i_smp]->Print();
@@ -1598,7 +1594,7 @@ void Region::Print(){
 
 //__________________________________________________________________________________
 //
-void Region::PrintSystTable(FitResults *fitRes, string opt){
+void Region::PrintSystTable(FitResults *fitRes, string opt) const{
     bool isPostFit  = false; if(opt.find("post")!=string::npos)     isPostFit  = true;
     bool doClean    = false; if(opt.find("clean")!=string::npos)    doClean    = true;
     bool doCategory = false; if(opt.find("category")!=string::npos) doCategory = true;
@@ -1721,8 +1717,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
                 texout << " &    nan   ";
             }
             else{
-              float normUp;
-              float normDown;
+              double normUp;
+              double normDown;
               if(isPostFit){
                 normUp   = (syh->fHistUp_postFit->Integral()   - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
                 normDown = (syh->fHistDown_postFit->Integral() - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
@@ -1878,12 +1874,12 @@ void Region::PrintSystTable(FitResults *fitRes, string opt){
 
 // --------------- Functions --------------- //
 
-float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
+double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode){
     // protection against negative values
     if(Ip<=0)  Ip  = 0.00000001*Iz;
     if(Imi<=0) Imi = 0.00000001*Iz;
 
-    float deltaN = 0.;
+    double deltaN = 0.;
     if(alpha>0)      deltaN = Ip;
     else if(alpha<0) deltaN = Imi;
     else             return 1.;
@@ -1901,23 +1897,23 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
             deltaN /= Iz; // divide h_tmp by the nominal
             deltaN = pow( deltaN, TMath::Abs(alpha) );  // d -> d^(|a|)
         } else {
-            float logImiIz = TMath::Log(Imi/Iz);
-            float logImiIzSqr = logImiIz*logImiIz;
-            float logIpIz = TMath::Log(Ip/Iz);
-            float logIpIzSqr = logIpIz*logIpIz;
+            double logImiIz = TMath::Log(Imi/Iz);
+            double logImiIzSqr = logImiIz*logImiIz;
+            double logIpIz = TMath::Log(Ip/Iz);
+            double logIpIzSqr = logIpIz*logIpIz;
             // polinomial: equations solved with Mathematica
-            float a1 = -(15*Imi - 15*Ip - 7*Imi*logImiIz + Imi*logImiIzSqr + 7*Ip*logIpIz - Ip*logIpIzSqr)/(16.*Iz);
-            float a2 = -3 + (3*Imi)/(2.*Iz) + (3*Ip)/(2.*Iz) - (9*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) -
+            double a1 = -(15*Imi - 15*Ip - 7*Imi*logImiIz + Imi*logImiIzSqr + 7*Ip*logIpIz - Ip*logIpIzSqr)/(16.*Iz);
+            double a2 = -3 + (3*Imi)/(2.*Iz) + (3*Ip)/(2.*Iz) - (9*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) -
             (9*Ip*logIpIz)/(16.*Iz) + (Ip*logIpIzSqr)/(16.*Iz);
-            float a3 = (5*Imi)/(8.*Iz) - (5*Ip)/(8.*Iz) - (5*Imi*logImiIz)/(8.*Iz) + (Imi*logImiIzSqr)/(8.*Iz) + (5*Ip*logIpIz)/(8.*Iz) -
+            double a3 = (5*Imi)/(8.*Iz) - (5*Ip)/(8.*Iz) - (5*Imi*logImiIz)/(8.*Iz) + (Imi*logImiIzSqr)/(8.*Iz) + (5*Ip*logIpIz)/(8.*Iz) -
             (Ip*logIpIzSqr)/(8.*Iz);
-            float a4 = 3 - (3*Imi)/(2.*Iz) - (3*Ip)/(2.*Iz) + (7*Imi*logImiIz)/(8.*Iz) -
+            double a4 = 3 - (3*Imi)/(2.*Iz) - (3*Ip)/(2.*Iz) + (7*Imi*logImiIz)/(8.*Iz) -
             (Imi*logImiIzSqr)/(8.*Iz) + (7*Ip*logIpIz)/(8.*Iz) - (Ip*logIpIzSqr)/(8.*Iz);
-            float a5 = (-3*Imi)/(16.*Iz) + (3*Ip)/(16.*Iz) + (3*Imi*logImiIz)/(16.*Iz) - (Imi*logImiIzSqr)/(16.*Iz) -
+            double a5 = (-3*Imi)/(16.*Iz) + (3*Ip)/(16.*Iz) + (3*Imi*logImiIz)/(16.*Iz) - (Imi*logImiIzSqr)/(16.*Iz) -
             (3*Ip*logIpIz)/(16.*Iz) + (Ip*logIpIzSqr)/(16.*Iz);
-            float a6 = -1 + Imi/(2.*Iz) + Ip/(2.*Iz) - (5*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) - (5*Ip*logIpIz)/(16.*Iz) +
+            double a6 = -1 + Imi/(2.*Iz) + Ip/(2.*Iz) - (5*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) - (5*Ip*logIpIz)/(16.*Iz) +
             (Ip*logIpIzSqr)/(16.*Iz);
-            float a = alpha;
+            double a = alpha;
             deltaN = 1 + a1*a + a2*a*a + a3*a*a*a + a4*a*a*a*a + a5*a*a*a*a*a + a6*a*a*a*a*a*a;
         }
 
@@ -1953,7 +1949,7 @@ float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode){
 
 //___________________________________________________________
 //
-std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_errUp, float alpha_errDown, float Iz, float Ip, float Imi, int intCode){
+std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_errUp, double alpha_errDown, double Iz, double Ip, double Imi, int intCode){
     double nominal = GetDeltaN(alpha, Iz, Ip, Imi, intCode);
     double up = GetDeltaN(alpha+alpha_errUp, Iz, Ip, Imi, intCode);
     double down = GetDeltaN(alpha+alpha_errDown, Iz, Ip, Imi, intCode);
@@ -2095,7 +2091,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
 }
 
 //--------------- ~ ---------------
-void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal){
+void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal) const{
     for(int i=0;i<fNSamples;i++){
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;

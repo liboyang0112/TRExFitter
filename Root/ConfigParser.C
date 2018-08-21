@@ -215,7 +215,7 @@ void ConfigSet::SetConfig(const std::string& name,const std::string& value){
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::Get(const std::string& name){
+std::string ConfigSet::Get(const std::string& name) const{
     for(int i=0;i<fN;i++){
         if(fConfig[i].fName == name){
             return fConfig[i].fValue;
@@ -226,37 +226,37 @@ std::string ConfigSet::Get(const std::string& name){
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::operator[](const std::string& name){
+std::string ConfigSet::operator[](const std::string& name) const{
     return Get(name);
 }
 
 //__________________________________________________________________________________
 //
-Config ConfigSet::GetConfig(int i){
+Config ConfigSet::GetConfig(int i) const{
     return fConfig[i];
 }
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::GetConfigName(int i){
+std::string ConfigSet::GetConfigName(int i) const{
     return fConfig[i].fName;
 }
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::GetConfigValue(int i){
+std::string ConfigSet::GetConfigValue(int i) const{
     return fConfig[i].fValue;
 }
 
 //__________________________________________________________________________________
 //
-int ConfigSet::GetN(){
+int ConfigSet::GetN() const{
     return fN;
 }
 
 //__________________________________________________________________________________
 //
-int ConfigSet::size(){
+int ConfigSet::size() const{
     return fN;
 }
 
@@ -269,13 +269,13 @@ void ConfigSet::Set(const std::string& name,const std::string& value){
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::GetName(){
+std::string ConfigSet::GetName() const{
     return fName;
 }
 
 //__________________________________________________________________________________
 //
-std::string ConfigSet::GetValue(){
+std::string ConfigSet::GetValue() const{
     return fValue;
 }
 
@@ -312,7 +312,6 @@ void ConfigParser::ReadFile(const std::string& fileName){
         replace( str.begin(), str.end(), '\n', ' ');
         replace( str.begin(), str.end(), '\r', ' ');
         replace( str.begin(), str.end(), '\t', ' ');
-//         if ( str.find("%")!=std::string::npos || str.find("#")!=std::string::npos) continue; // why this is needed?
         if(str[str.find_first_not_of(' ')]=='%') continue;
         if(str[str.find_first_not_of(' ')]=='#') continue;
         if ( str.find("ReplacementFile")==std::string::npos ) continue;
@@ -323,7 +322,6 @@ void ConfigParser::ReadFile(const std::string& fileName){
     file.clear();
     if (replacementFileName!="" && (fileName.find("jobSchema.config") == std::string::npos)) {
         WriteInfoStatus("ConfigParser::ReadFile", "Opening replacement file: " + replacementFileName + " to fill the map");
-        ////replacementFileName="Common_XS_unc_Replacement.txt";
         std::ifstream fileR(replacementFileName.c_str());
         if(!fileR.is_open()){
             WriteErrorStatus("ConfigParser::ReadFile", "The replacement file: " + replacementFileName + " cannot be opend!");
@@ -358,8 +356,6 @@ void ConfigParser::ReadFile(const std::string& fileName){
             for ( ;itr!=fReplacement.end();++itr) {
                 std::string oldV=itr->first;
                 std::string newV=itr->second;
-                //std::cout << "VALERIO: " << oldV << " , " << newV << std::endl;
-                //replace( str.begin(), str.end(), oldV, newV);
                 ReplaceStringInPlace(str, oldV, newV);
             }
             WriteInfoStatus("ConfigParser::ReadFile", " AFTER replacement: " + str);

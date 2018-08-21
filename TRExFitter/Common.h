@@ -10,7 +10,7 @@
 /// Forward class declaration
 class TFile;
 class TH1;
-class TH1F;
+class TH1D;
 
 namespace TRExFitter{
     extern int DEBUGLEVEL;
@@ -51,44 +51,63 @@ const int MAXsamples = 100;
 const int MAXsyst = 500;
 const int MAXnorm = 10;
 
-TFile* GetFile(std::string fileName);
-TH1F* HistFromNtuple(std::string ntuple, std::string variable, int nbin, float xmin, float xmax, std::string selection, std::string weight);
-TH1F* HistFromNtupleBinArr(std::string ntuple, std::string variable, int nbin, double *bins, std::string selection, std::string weight);
-TH1* HistFromFile(std::string fullName);
-TH1* HistFromFile(std::string fileName,std::string histoName);
-void WriteHistToFile(TH1* h,std::string fileName,std::string option="UPDATE");
-void WriteHistToFile(TH1* h,TFile *f);
+TFile* GetFile(const std::string& fileName);
+TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, float xmin, float xmax, const std::string& selection, const std::string& weight);
+TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight);
+TH1* HistFromFile(const std::string& fullName);
+TH1* HistFromFile(const std::string& fileName, const std::string& histoName);
+void WriteHistToFile(TH1* h, const std::string& fileName, std::string option="UPDATE");
+void WriteHistToFile(TH1* h, TFile *f);
 void MergeUnderOverFlow(TH1* h);
-std::vector<std::string> CreatePathsList( std::vector<std::string> paths, std::vector<std::string> pathSufs,
-                                    std::vector<std::string> files, std::vector<std::string> fileSufs,
-                                    std::vector<std::string> names, std::vector<std::string> nameSufs);
-std::vector<std::string> CombinePathSufs( std::vector<std::string> pathSufs, std::vector<std::string> newPathSufs );
-std::vector<std::string> ToVec(std::string s);
-// string RemovePrefix(string s,string prefix);
+std::vector<std::string> CreatePathsList(std::vector<std::string> paths, std::vector<std::string> pathSufs,
+                                         std::vector<std::string> files, std::vector<std::string> fileSufs,
+                                         std::vector<std::string> names, std::vector<std::string> nameSufs);
+std::vector<std::string> CombinePathSufs(std::vector<std::string> pathSufs, std::vector<std::string> newPathSufs );
+std::vector<std::string> ToVec(const std::string& s);
 std::string ReplaceString(std::string subject, const std::string& search,
-                     const std::string& replace);
+                          const std::string& replace);
 
-bool StringsMatch(std::string s1,std::string s2);
+bool StringsMatch(const std::string& s1, const std::string& s2);
 int wildcmp(const char *wild, const char *string);
 
-int FindInStringVector(std::vector<std::string> v, std::string s);
-int FindInStringVectorOfVectors(std::vector<std::vector<std::string> > v, std::string s, std::string ss);
-double GetSeparation( TH1F* S1, TH1F* B1 );
+int FindInStringVector(const std::vector<std::string>& v, const std::string& s);
+int FindInStringVectorOfVectors(const std::vector<std::vector<std::string> >& v, const std::string& s, const std::string& ss);
+double GetSeparation( TH1D* S1, TH1D* B1 );
 
-TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
+TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
 void BlindDataHisto( TH1* h_data, TH1* h_blind );
 double convertStoD(std::string toConvert);
 
-// TH1F* SmoothHistogram( TH1* h );
 bool SmoothHistogram( TH1* h, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
 void SmoothHistogramTtres( TH1* h);
 
 void DropBins(TH1* h, const std::vector<int> &v);
 
-float CorrectIntegral(TH1* h,float *err=0);
+double CorrectIntegral(TH1* h, double *err=0);
 
 void CloseFiles( const std::set<std::string> &set);
 
-TH1F* MergeHistograms(std::vector<TH1*> hVec);
+TH1D* MergeHistograms(std::vector<TH1*> hVec);
+
+/**
+  * A function to apply ATLAS/PDG rounding rules to values
+  * @param A reference to mean value
+  * @param A reference to uncertainty
+  */
+void ApplyATLASrounding(double& mean, double& error);
+
+/**
+  * A helper function to round error according to PDG rules
+  * @param The value of error that will be rounded
+  * @return number of iterations of multiplication/division by 10 needed to reach the same precision for nominal value
+  */
+int ApplyErrorRounding(double& error);
+
+/**
+  * A helper function to round value to n decimal palces
+  * @param A value that needs to be rounded
+  * @param Number of multiplications/divisions by 10 needed to get the value that can be rounded
+  */
+void RoundToSig(double& value, const int& n);
 
 #endif

@@ -26,7 +26,7 @@ set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
 set( CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/lib )  # Needed by ROOT_GENERATE_DICTIONARY()
 
 # Set the warning flag(s) to use.
-set( CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -O3" )
+set( CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -pedantic -O3" )
 
 
 # ------------------------------------------------

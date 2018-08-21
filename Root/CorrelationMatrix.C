@@ -6,11 +6,11 @@
 
 // ROOT includes
 #include "TCanvas.h"
-#include "TH2F.h"
+#include "TH2D.h"
 #include "TPad.h"
 #include "TStyle.h"
 
-using namespace std;
+using std::string;
 
 //__________________________________________________________________________________
 //
@@ -30,7 +30,7 @@ CorrelationMatrix::~CorrelationMatrix(){
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::AddNuisPar(string p){
+void CorrelationMatrix::AddNuisPar(const string& p){
     fNuisParIdx[p] = (int)fNuisParNames.size();
     fNuisParNames.push_back(p);
     fNuisParIsThere[p] = true;
@@ -38,7 +38,7 @@ void CorrelationMatrix::AddNuisPar(string p){
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::SetCorrelation(string p0,string p1,float corr){
+void CorrelationMatrix::SetCorrelation(const string& p0, const string& p1,float corr){
     if(!fNuisParIsThere[p0]) AddNuisPar(p0);
     if(!fNuisParIsThere[p1]) AddNuisPar(p1);
     int idx0 = fNuisParIdx[p0];
@@ -48,7 +48,7 @@ void CorrelationMatrix::SetCorrelation(string p0,string p1,float corr){
 
 //__________________________________________________________________________________
 //
-float CorrelationMatrix::GetCorrelation(string p0,string p1){
+double CorrelationMatrix::GetCorrelation(const string& p0, const string& p1){
     bool isMorph_p0 = false;
     bool isMorph_p1 = false;
     if (p0.find("morph_") != std::string::npos) isMorph_p0 = true;
@@ -71,8 +71,7 @@ float CorrelationMatrix::GetCorrelation(string p0,string p1){
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::Draw(string path, const double minCorr){
-
+void CorrelationMatrix::Draw(const string& path, const double minCorr){
     //
     // 0) Determines the number of lines/columns
     //
@@ -85,7 +84,7 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
                 if(jNP == iNP) continue;
                 const string jSystName = fNuisParNames[jNP];
                 double corr = GetCorrelation(iSystName, jSystName);
-                if(abs(corr)>=minCorr){
+                if(std::fabs(corr)>=minCorr){
                     WriteVerboseStatus("CorrelationMatrix::Draw", iSystName + " " + std::to_string(minCorr) + "    " + std::to_string(corr) + " (" + jSystName + ")");
                     vec_NP.push_back(iSystName);
                     break;
@@ -120,7 +119,7 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     //
     // 1) Performs the plot
     //
-    TH2F *h_corr = new TH2F("h_corr","",N,0,N,N,0,N);
+    TH2D *h_corr = new TH2D("h_corr","",N,0,N,N,0,N);
     h_corr->SetDirectory(0);
 
     for(unsigned int iNP = 0; iNP < vec_NP.size(); ++iNP){//line number
@@ -139,7 +138,6 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
             const string jSystName = vec_NP[jNP];
 
             h_corr -> SetBinContent(iNP+1,N-jNP,100.*GetCorrelation(iSystName, jSystName));
-//             h_corr -> SetBinContent(N-jNP,iNP+1,100.*GetCorrelation(iSystName, jSystName));
 
         }
     }
@@ -160,8 +158,6 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     gStyle->SetPaintTextFormat(".1f");
     gPad->SetLeftMargin(0.5*600/(size+300));
     gPad->SetBottomMargin(0.5*600/(size+300));
-//     gPad->SetRightMargin(0.1*600/(size+100));
-//     gPad->SetTopMargin(0.1*600/(size+100));
     gPad->SetRightMargin(0.);
     gPad->SetTopMargin(0.);
 
@@ -176,7 +172,6 @@ void CorrelationMatrix::Draw(string path, const double minCorr){
     h_corr->Draw("col TEXT");
     c1->RedrawAxis("g");
 
-//     c1 -> Print((TString)folder + "/CorrMatrix"+fSaveSuf+".png");
     c1->SaveAs(path.c_str());
     delete c1;
 }

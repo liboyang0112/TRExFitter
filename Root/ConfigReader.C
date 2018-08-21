@@ -89,6 +89,10 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     for(const std::string& iopt : optVec){
         std::vector< std::string > optPair;
         optPair = Vectorize(iopt,'=');
+        if (optPair.size() < 2){
+            WriteErrorStatus("ConfigReader::ReadCommandLineOptions", "Cannot read your command line option, please check this!");
+            return 1;
+        }
         optMap[optPair[0]] = optPair[1];
     }
     if(optMap["Regions"]!=""){
@@ -673,6 +677,20 @@ int ConfigReader::ReadJobOptions(){
         if (fFitter->fPOIPrecision < 1 || fFitter->fPOIPrecision > 5){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "Parameter POIPrecision has value smaller than 1 or alrger than 5. Using default (2).");
             fFitter->fPOIPrecision = 2;
+        }
+    }
+
+    // Set UseATLASRounding
+    param = confSet->Get("UseATLASRounding");
+    if ( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUseATLASRounding = true;
+        } else if (param == "FALSE") {
+            fFitter->fUseATLASRounding = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified UseATLASRounding option but didnt provide valid parameter. Using default (false)");
+            fFitter->fUseATLASRounding = false;
         }
     }
 
@@ -2194,9 +2212,9 @@ int ConfigReader::ReadSampleOptions(){
         if(param != ""){
             std::vector<std::string> sets = Vectorize(param,',',false);
             for(std::string set : sets){
-                std::vector<std::string> regions = Vectorize(set,':');
+                std::vector<std::string> regions_corr = Vectorize(set,':');
                 WriteDebugStatus("ConfigReader::ReadSampleOptions", "Correlating gammas for this sample in regions " + set);
-                sample->fCorrelateGammasInRegions.push_back(regions);
+                sample->fCorrelateGammasInRegions.push_back(regions_corr);
             }
         }
 

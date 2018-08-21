@@ -9,16 +9,14 @@
 
 // ROOT includes
 #include "TFile.h"
-#include "TH1F.h"
-
-using namespace std;
+#include "TH1.h"
 
 // -------------------------------------------------------------------------------------------------
 // SystematicHist
 
 //_____________________________________________________________________________
 //
-SystematicHist::SystematicHist(string name){
+SystematicHist::SystematicHist(const std::string& name){
     fName = name;
     fSystematic = nullptr;
 
@@ -67,7 +65,7 @@ SystematicHist::~SystematicHist(){
 
 //_____________________________________________________________________________
 //
-void SystematicHist::WriteToFile(TFile *f){
+void SystematicHist::WriteToFile(TFile *f) const{
     if(f==nullptr){
         WriteHistToFile(fHistUp,fFileNameUp);
         WriteHistToFile(fHistDown,fFileNameDown);
@@ -117,14 +115,14 @@ void SystematicHist::ReadFromFile(){
 
 //_____________________________________________________________________________
 //
-bool SystematicHist::IsShape(){
+bool SystematicHist::IsShape() const{
     if(fHistUp!=nullptr || fHistDown!=nullptr) return true;
     return false;
 }
 
 //_____________________________________________________________________________
 //
-void SystematicHist::Print(){
+void SystematicHist::Print() const{
     std::string temp = "        Systematic: " + fName;
     if(fHistShapeUp==nullptr && fHistShapeDown==nullptr && fHistUp==nullptr && fHistDown==nullptr) temp + Form("\toverall (%.3f,%.3f)",fNormUp,fNormDown);
     WriteInfoStatus("SystematicHist::Print", temp);

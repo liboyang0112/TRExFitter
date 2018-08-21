@@ -8,10 +8,10 @@
 class NormFactor{
 public:
     NormFactor();
-    NormFactor(std::string name, float nominal=1, float min=0, float max=10, bool isConst=false, std::string subCategory="NormFactors");
+    NormFactor(const std::string& name, float nominal=1, float min=0, float max=10, bool isConst=false, std::string subCategory="NormFactors");
     ~NormFactor();
 
-    void Print();
+    void Print() const;
 
     std::string fName;
     std::string fNuisanceParameter;

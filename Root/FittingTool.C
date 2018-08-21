@@ -95,14 +95,13 @@ void FittingTool::SetSubCategories() {
     WriteDebugStatus("FittingTool::SetSubCategories", "finding unique SubCategories");
     // loop over m_subCategoryMap to find all unique SubCategories, save in m_subCategories set
     for(std::map<std::string, std::string>::iterator it = m_subCategoryMap.begin(); it != m_subCategoryMap.end(); ++it) {
-        //std::cout << it->first << " " << it->second << endl;
         m_subCategories.insert(it->second);
     }
 }
 
 //________________________________________________________________________
 //
-float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit ) {
+double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit ) {
 
     if (m_debug < 1) std::cout.setstate(std::ios_base::failbit);
     WriteDebugStatus("FittingTool::FitPDF", "-> Entering in FitPDF function");
@@ -134,7 +133,7 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
     // Needed for Ranking plot, but also to set random initial values for the NPs
     //
     if(m_randSeed == -999){
-        gRandom->SetSeed(time(NULL));
+        gRandom->SetSeed(time(nullptr));
     }
     else{
         gRandom->SetSeed(m_randSeed);
@@ -353,18 +352,18 @@ float FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooA
         TIterator* it4 = model->GetParametersOfInterest()->createIterator();
         RooArgSet* SliceNPs = new RooArgSet( *(model->GetNuisanceParameters()) );
         SliceNPs->add(*(model->GetParametersOfInterest()));
-        RooRealVar* var = NULL;
-        RooRealVar* var2 = NULL;
+        RooRealVar* var_tmp = nullptr;
+        RooRealVar* var2 = nullptr;
         WriteDebugStatus("FittingTool::FitPDF", "Size of variables for MINOS: " + std::to_string(m_varMinos.size()));
 
         if (m_varMinos.at(0)!="all"){
-            while( (var = (RooRealVar*) it3->Next()) ){
-                TString vname=var->GetName();
+            while( (var_tmp = (RooRealVar*) it3->Next()) ){
+                TString vname=var_tmp->GetName();
                 bool isthere=false;
                 for (unsigned int m=0;m<m_varMinos.size();++m){
                     if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
                 }
-                if (!isthere) SliceNPs->remove(*var, true, true);
+                if (!isthere) SliceNPs->remove(*var_tmp, true, true);
             }
             while( (var2 = (RooRealVar*) it4->Next()) ){
                 TString vname=var2->GetName();
@@ -456,7 +455,6 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName )
 
         // Not consider nuisance parameter being not associated to syst (yet)
         string varname = (string) var->GetName();
-        //if ((varname.find("gamma_stat")!=string::npos)) continue;
         TString vname=var->GetName();
         vname.ReplaceAll("alpha_","");
 
@@ -510,7 +508,7 @@ std::map < std::string, double > FittingTool::ExportFitResultInMap(){
 
 //____________________________________________________________________________________
 //
-int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, std::string categoryOfInterest, std::string outFileName ){
+int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, const std::string& categoryOfInterest, const std::string& outFileName ) const{
     // file to save results to
     std::ofstream outFile;
     outFile.open(outFileName.c_str());
@@ -561,7 +559,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 
         // find all associated parameters per SubCategory
         associatedParams.clear();
-        for(std::map<std::string, std::string>::iterator itSysts = m_subCategoryMap.begin(); itSysts != m_subCategoryMap.end(); ++itSysts) {
+        for(auto itSysts = m_subCategoryMap.begin(); itSysts != m_subCategoryMap.end(); ++itSysts) {
             if (itSysts->second == *itCategories) {
                 //WriteDebugStatus("FittingTool::GetGroupedImpact","  associated parameter: " + itSysts->first);
                 associatedParams.push_back(itSysts->first);
@@ -597,9 +595,9 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     WriteInfoStatus("FittingTool::GetGroupedImpact", "POI is:   " + std::to_string(poi->getVal()) + " +/- " + std::to_string(poi->getError()) +
                                                      "    ( +" + std::to_string(poi->getErrorHi()) + ", " + std::to_string(poi->getErrorLo()) + " )");
 
-    float NomUp2=(poi->getErrorHi()*poi->getErrorHi());
-    float NomLo2=(poi->getErrorLo()*poi->getErrorLo());
-    float Nom2  =(poi->getError()*poi->getError());
+    double NomUp2=(poi->getErrorHi()*poi->getErrorHi());
+    double NomLo2=(poi->getErrorLo()*poi->getErrorLo());
+    double Nom2  =(poi->getError()*poi->getError());
 
     // report impact calculations, impact is obtained by quadrature subtraction from replicated nominal fit
     for (std::set<std::string>::iterator itCategories = m_subCategories.begin(); itCategories != m_subCategories.end(); ++itCategories){
@@ -636,7 +634,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 //
 // perform a fit where all parameters in "affectedParams" (usually coming from SubGroup "category") are set to constant, optionally also gammas or all parameters
 void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
-                                    RooStats::ModelConfig* mc, RooWorkspace* ws, std::string category, std::vector<std::string> affectedParams) {
+                                    RooStats::ModelConfig* mc, RooWorkspace* ws, const std::string& category, const std::vector<std::string>& affectedParams) const {
 
     // (VD): use this to fix nuisance parameter before the fit
     const RooArgSet* glbObs = mc->GetGlobalObservables();
@@ -649,7 +647,7 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     WriteInfoStatus("FittingTool::FitExcludingGroup", "-----------------------------------------------------");
 
     TIterator* it = mc->GetNuisanceParameters()->createIterator();
-    RooRealVar* var2 = NULL;
+    RooRealVar* var2 = nullptr;
 
     while( (var2 = (RooRealVar*) it->Next()) ){
         string varname = (string) var2->GetName();
@@ -692,17 +690,17 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
 
     if (status!=0) WriteErrorStatus("FittingTool::FitExcludingGroup", "unable to perform fit correctly! HessStatus: " + std::to_string(HessStatus));
 
-    float newPOIerr =thePOI->getError();
-    float newPOIerrU=thePOI->getErrorHi();
-    float newPOIerrD=thePOI->getErrorLo();
+    double newPOIerr =thePOI->getError();
+    double newPOIerrU=thePOI->getErrorHi();
+    double newPOIerrD=thePOI->getErrorLo();
 
     std::string snapshotName = "snapshot_AfterFit_POI_" + category;
     ws->saveSnapshot(snapshotName.c_str(), *mc->GetParametersOfInterest() );
 
     ws->loadSnapshot("snapshot_AfterFit_POI_Nominal");
-    float oldPOIerr =thePOI->getError();
-    float oldPOIerrU=thePOI->getErrorHi();
-    float oldPOIerrD=thePOI->getErrorLo();
+    double oldPOIerr =thePOI->getError();
+    double oldPOIerrU=thePOI->getErrorHi();
+    double oldPOIerrD=thePOI->getErrorLo();
 
     // check if uncertainties have increased compared to nominal fit, with 0.5% tolerance
     if ( (std::fabs(newPOIerrU)>std::fabs(oldPOIerrU)*1.005) || (std::fabs(newPOIerrD)>std::fabs(oldPOIerrD)*1.005) ) {
