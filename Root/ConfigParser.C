@@ -131,7 +131,10 @@ std::string Second(const std::string& s){
     std::string second;
     second = s.substr( s.find_first_of(':')+1,std::string::npos );
     second = RemoveComments(second);
-    if(second=="") WriteErrorStatus("ConfigParser","No value set for parameter "+First(s)+" in the config. Crash is coming...");
+    if(second==""){
+        WriteErrorStatus("ConfigParser","No value set for parameter "+First(s)+" in the config. Crash is coming...");
+        exit(EXIT_FAILURE);
+    }
     return second;
 }
 
