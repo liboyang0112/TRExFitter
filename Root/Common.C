@@ -440,7 +440,7 @@ bool systFluctuationNominal(std::vector<BinNom> &hist) {
     };
     int Nbins = hist.size();
     for (int k = 1; k < Nbins; ++k) {
-        double variation_prev = fabs(N(hist[k]) - N(hist[k-1]));
+        double variation_prev = std::fabs(N(hist[k]) - N(hist[k-1]));
         double err = std::max(dM(hist[k]), dM(hist[k-1]));
         if (variation_prev < err) return true;
     }

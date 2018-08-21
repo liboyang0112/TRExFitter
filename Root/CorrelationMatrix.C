@@ -48,7 +48,7 @@ void CorrelationMatrix::SetCorrelation(const string& p0, const string& p1,float 
 
 //__________________________________________________________________________________
 //
-float CorrelationMatrix::GetCorrelation(const string& p0, const string& p1){
+double CorrelationMatrix::GetCorrelation(const string& p0, const string& p1){
     bool isMorph_p0 = false;
     bool isMorph_p1 = false;
     if (p0.find("morph_") != std::string::npos) isMorph_p0 = true;
@@ -72,7 +72,6 @@ float CorrelationMatrix::GetCorrelation(const string& p0, const string& p1){
 //__________________________________________________________________________________
 //
 void CorrelationMatrix::Draw(const string& path, const double minCorr){
-
     //
     // 0) Determines the number of lines/columns
     //
@@ -85,7 +84,7 @@ void CorrelationMatrix::Draw(const string& path, const double minCorr){
                 if(jNP == iNP) continue;
                 const string jSystName = fNuisParNames[jNP];
                 double corr = GetCorrelation(iSystName, jSystName);
-                if(abs(corr)>=minCorr){
+                if(std::fabs(corr)>=minCorr){
                     WriteVerboseStatus("CorrelationMatrix::Draw", iSystName + " " + std::to_string(minCorr) + "    " + std::to_string(corr) + " (" + jSystName + ")");
                     vec_NP.push_back(iSystName);
                     break;

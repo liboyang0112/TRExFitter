@@ -68,7 +68,7 @@ float FitResults::GetNuisParValue(const string& p){
         WriteVerboseStatus("FitResults::GetNuisParValue", "NP " + p + " not found... Returning 0.");
         return 0.;
     }
-    return fNuisPar.at(idx)->fFitValue;
+    return fNuisPar[idx]->fFitValue;
 }
 
 //__________________________________________________________________________________
@@ -82,7 +82,7 @@ float FitResults::GetNuisParErrUp(const std::string& p){
         WriteVerboseStatus("FitResults::GetNuisParErrUp", "NP " + p + " not found... Returning error = 1.");
         return 1.;
     }
-    return fNuisPar.at(idx)->fPostFitUp;
+    return fNuisPar[idx]->fPostFitUp;
 }
 
 //__________________________________________________________________________________
@@ -96,7 +96,7 @@ float FitResults::GetNuisParErrDown(const std::string& p){
         WriteVerboseStatus("FitResults::GetNuisParErrDown", "NP " + p + " not found... Returning error = 1.");
         return 1.;
     }
-    return fNuisPar.at(idx)->fPostFitDown;
+    return fNuisPar[idx]->fPostFitDown;
 }
 
 //__________________________________________________________________________________
