@@ -59,10 +59,10 @@ void FitResults::AddNuisPar(NuisParameter *par){
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParValue(const string& p) const{
+float FitResults::GetNuisParValue(const string& p){
     int idx = -1;
-    if(fNuisParIsThere.at(p)){
-        idx = fNuisParIdx.at(p);
+    if(fNuisParIsThere[p]){
+        idx = fNuisParIdx[p];
     }
     else{
         WriteVerboseStatus("FitResults::GetNuisParValue", "NP " + p + " not found... Returning 0.");
@@ -73,10 +73,10 @@ float FitResults::GetNuisParValue(const string& p) const{
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParErrUp(const std::string& p) const{
+float FitResults::GetNuisParErrUp(const std::string& p){
     int idx = -1;
-    if(fNuisParIsThere.at(p)){
-        idx = fNuisParIdx.at(p);
+    if(fNuisParIsThere[p]){
+        idx = fNuisParIdx[p];
     }
     else{
         WriteVerboseStatus("FitResults::GetNuisParErrUp", "NP " + p + " not found... Returning error = 1.");
@@ -87,10 +87,10 @@ float FitResults::GetNuisParErrUp(const std::string& p) const{
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParErrDown(const std::string& p) const{
+float FitResults::GetNuisParErrDown(const std::string& p){
     int idx = -1;
-    if(fNuisParIsThere.at(p)){
-        idx = fNuisParIdx.at(p);
+    if(fNuisParIsThere[p]){
+        idx = fNuisParIdx[p];
     }
     else{
         WriteVerboseStatus("FitResults::GetNuisParErrDown", "NP " + p + " not found... Returning error = 1.");
@@ -484,7 +484,7 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawCorrelationMatrix(const std::string& path, const double corrMin) const {
+void FitResults::DrawCorrelationMatrix(const std::string& path, const double corrMin){
     if(fCorrMatrix){
         fCorrMatrix->fNuisParToHide = fNuisParToHide;
         fCorrMatrix->Draw(path, corrMin);

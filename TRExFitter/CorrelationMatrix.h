@@ -20,8 +20,8 @@ public:
     //
     void AddNuisPar(const std::string& p);
     void SetCorrelation(const std::string& p0, const std::string& p1,float corr);
-    float GetCorrelation(const std::string& p0, const std::string& p1) const;
-    void Draw(const std::string& path, const double corrMin = -1.) const;
+    float GetCorrelation(const std::string& p0, const std::string& p1);
+    void Draw(const std::string& path, const double corrMin = -1.);
 
     //
     // Data members
