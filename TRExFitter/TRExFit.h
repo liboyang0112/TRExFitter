@@ -407,6 +407,7 @@ public:
     int fPOIPrecision;
 
     std::string fRankingPOIName;
+    bool fUseATLASRounding;
 };
 
 #endif

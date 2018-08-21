@@ -695,6 +695,20 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set UseATLASRounding
+    param = confSet->Get("UseATLASRounding");
+    if ( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUseATLASRounding = true;
+        } else if (param == "FALSE") {
+            fFitter->fUseATLASRounding = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified UseATLASRounding option but didnt provide valid parameter. Using default (false)");
+            fFitter->fUseATLASRounding = false;
+        }
+    }
+
     // Set RankingPOIName
     param = confSet->Get("RankingPOIName");
     if( param != ""){
