@@ -227,6 +227,7 @@ For each object type (also called "block"), here is the list of available proper
 | AllowWrongRegionSample       | Can be TRUE(default) or FALSE. When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined. |
 | POIPrecision                 | Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm facotr mean value and uncertainty. Default is 2 |
 | RankingPOIName               | Custom name for the POI for ranking plots. Default is `#mu` |
+| UseGammasForCorr             | If set to `TRUE` will add gammas into correlation matrix plot. Default is `FALSE` |
 
 ### `Fit` block options
 

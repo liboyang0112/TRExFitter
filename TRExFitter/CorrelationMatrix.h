@@ -21,7 +21,14 @@ public:
     void AddNuisPar(const std::string& p);
     void SetCorrelation(const std::string& p0, const std::string& p1,float corr);
     double GetCorrelation(const std::string& p0, const std::string& p1);
-    void Draw(const std::string& path, const double corrMin = -1.);
+
+    /**
+      * Function to draw correlation matrix
+      * @param Path to the output file
+      * @param Flag to include gammas on the matrix
+      * @param Minimum correlation considered for plotting
+      */ 
+    void Draw(const std::string& path, const bool& useGammas, const double corrMin = -1.);
 
     //
     // Data members

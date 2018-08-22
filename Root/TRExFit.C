@@ -258,6 +258,8 @@ TRExFit::TRExFit(std::string name){
     fRankingPOIName = "#mu";
     
     fUseATLASRounding = false;
+
+    fuseGammasForCorr = false;
 }
 
 //__________________________________________________________________________________
@@ -5670,7 +5672,8 @@ void TRExFit::PlotCorrelationMatrix(){
     if(fFitResults){
         fFitResults->fNuisParToHide = fVarNameHide;
         for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-            fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],TRExFitter::CORRELATIONTHRESHOLD);
+            fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],
+                                               fuseGammasForCorr, TRExFitter::CORRELATIONTHRESHOLD);
     }
 }
 
