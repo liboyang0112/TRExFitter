@@ -660,7 +660,9 @@ void TRExFit::ReadNtuples(){
                                            variable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
                                            fullSelection, fullMCweight);
                     //Pre-processing of histograms (rebinning, lumi scaling)
-                    if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1D*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                    if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
+                        htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
+                    }
                 }
                 //
                 if(fSamples[i_smp]->fLumiScales.size()>i_path)  htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
@@ -762,7 +764,9 @@ void TRExFit::ReadNtuples(){
                                                   variable, reg->fNbins, reg->fXmin, reg->fXmax,
                                                   fullSelection, fullMCweight);
                             // Pre-processing of histograms (rebinning, lumi scaling)
-                            if(reg->fHistoNBinsRebin != -1) htmp = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                            if(reg->fHistoNBinsRebin != -1){
+                                htmp->Rebin(reg->fHistoNBinsRebin);
+                            }
                         }
                         //
                         // Importing histogram in TRExFitter
@@ -818,7 +822,9 @@ void TRExFit::ReadNtuples(){
                                                   variable, reg->fNbins, reg->fXmin, reg->fXmax,
                                                   fullSelection, fullMCweight);
                             // Pre-processing of histograms (rebinning, lumi scaling)
-                            if(reg->fHistoNBinsRebin != -1) htmp = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                            if(reg->fHistoNBinsRebin != -1){
+                                htmp->Rebin(reg->fHistoNBinsRebin);
+                            }
                         }
                         //
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
@@ -936,7 +942,9 @@ void TRExFit::ReadNtuples(){
                                            variable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
                                            fullSelection, fullMCweight);
                     //Pre-processing of histograms (rebinning, lumi scaling)
-                    if(fRegions[i_ch]->fHistoNBinsRebin != -1) htmp = (TH1D*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                    if(fRegions[i_ch]->fHistoNBinsRebin != -1){
+                        htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
+                    }
                 }
                 //
                 if(fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -1110,7 +1118,9 @@ void TRExFit::ReadNtuples(){
                                                   variable, reg->fNbins, reg->fXmin, reg->fXmax,
                                                   fullSelection, fullMCweight);
                             // Pre-processing of histograms (rebinning, lumi scaling)
-                            if(reg->fHistoNBinsRebin != -1) htmp = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                            if(reg->fHistoNBinsRebin != -1){
+                                htmp->Rebin(reg->fHistoNBinsRebin);
+                            }
                         }
                         //
                         if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -1239,7 +1249,9 @@ void TRExFit::ReadNtuples(){
                                                   variable, reg->fNbins, reg->fXmin, reg->fXmax,
                                                   fullSelection, fullMCweight);
                             // Pre-processing of histograms (rebinning, lumi scaling)
-                            if(reg->fHistoNBinsRebin != -1) htmp = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                            if(reg->fHistoNBinsRebin != -1){
+                                htmp->Rebin(reg->fHistoNBinsRebin);
+                            }
                         }
                         //
                         if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -1701,7 +1713,7 @@ void TRExFit::ReadHistograms(){
                     htmp->SetName(hname);
                 }
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
-                    htmp = (TH1D*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                    htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
                 }
                 if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
                 else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
@@ -1778,7 +1790,9 @@ void TRExFit::ReadHistograms(){
                             delete htmp2;
                             htmp->SetName(hname);
                         }
-                        else if(reg->fHistoNBinsRebin != -1) htmp = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                        else if(reg->fHistoNBinsRebin != -1){
+                            htmp->Rebin(reg->fHistoNBinsRebin);
+                        }
                         //
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                         else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
@@ -1833,7 +1847,9 @@ void TRExFit::ReadHistograms(){
                             delete htmp2;
                             htmp->SetName(hname);
                         }
-                        else if(reg->fHistoNBinsRebin != -1) htmp = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                        else if(reg->fHistoNBinsRebin != -1){
+                            htmp->Rebin(reg->fHistoNBinsRebin);
+                        }
                         //
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                         else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
@@ -1907,7 +1923,7 @@ void TRExFit::ReadHistograms(){
                     htmp->SetName(hname);
                 }
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
-                    htmp = (TH1D*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin));
+                    htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
                 }
 
                 if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
@@ -2040,7 +2056,9 @@ void TRExFit::ReadHistograms(){
                             delete htmp2;
                             htmp->SetName(hname);
                         }
-                        else if(reg->fHistoNBinsRebin != -1) htmp = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                        else if(reg->fHistoNBinsRebin != -1){
+                            htmp->Rebin(reg->fHistoNBinsRebin);
+                        }
                         //
                         if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
@@ -2143,7 +2161,9 @@ void TRExFit::ReadHistograms(){
                             delete htmp2;
                             htmp->SetName(hname);
                         }
-                        else if(reg->fHistoNBinsRebin != -1) htmp = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin));
+                        else if(reg->fHistoNBinsRebin != -1){
+                            htmp->Rebin(reg->fHistoNBinsRebin);
+                        }
                         //
                         if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
@@ -6916,7 +6936,7 @@ void TRExFit::ComputeBining(int regIter){
                     htmp->SetName(hname);
                 }
                 else if(fRegions[regIter]->fHistoNBinsRebin != -1) {
-                    htmp = (TH1D*)(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin));
+                    htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin);
                 }
             //
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
