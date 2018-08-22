@@ -31,8 +31,9 @@
 #include "TH1.h"
 
 // c++ includes
-#include <iostream>
 #include <algorithm>
+#include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -341,10 +342,17 @@ void HistoTools::Scale(TH1* h_syst, TH1* h_nominal, float factor){
     if(!h_nominal->GetSumw2())h_nominal -> Sumw2();
     if(!h_syst->GetSumw2())h_syst -> Sumw2();
 
+    // clone nominal histogram
+    std::unique_ptr<TH1> h_nominal_tmp(static_cast<TH1*>(h_nominal->Clone()));
+    // set errors to zero
+    for(int i_bin=0;i_bin<=h_nominal_tmp->GetNbinsX()+1;i_bin++){
+        h_nominal_tmp->SetBinError(i_bin,0.);
+    }
+
     //scale difference to nominal
-    h_syst -> Add(h_nominal,-1);
+    h_syst -> Add(h_nominal_tmp.get(),-1);
     h_syst -> Scale(factor);
-    h_syst -> Add(h_nominal,1);
+    h_syst -> Add(h_nominal_tmp.get(),1);
 
     //Another sanity check: search for negative bins
     for( int iBin = 1; iBin <= h_syst -> GetNbinsX(); ++iBin ){
