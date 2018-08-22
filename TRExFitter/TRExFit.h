@@ -408,6 +408,7 @@ public:
 
     std::string fRankingPOIName;
     bool fUseATLASRounding;
+    bool fuseGammasForCorr;
 };
 
 #endif

@@ -694,6 +694,20 @@ int ConfigReader::ReadJobOptions(){
             fFitter->fPOIPrecision = 2;
         }
     }
+    
+    // Set UseGammasForCorr
+    param = confSet->Get("UseGammasForCorr");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE"){
+            fFitter->fuseGammasForCorr = true;
+        } else if (param == "FALSE") {
+            fFitter->fuseGammasForCorr = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified UseGammasForCorr option but didnt provide valid parameter. Using default (false)");
+            fFitter->fuseGammasForCorr = false;
+        }
+    }
 
     // Set UseATLASRounding
     param = confSet->Get("UseATLASRounding");

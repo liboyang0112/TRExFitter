@@ -71,7 +71,7 @@ double CorrelationMatrix::GetCorrelation(const string& p0, const string& p1){
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::Draw(const string& path, const double minCorr){
+void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, const double minCorr){
     //
     // 0) Determines the number of lines/columns
     //
@@ -99,15 +99,17 @@ void CorrelationMatrix::Draw(const string& path, const double minCorr){
     //
     std::vector<string> npToExclude = {"gamma_","stat_"};
     bool skip = false;
-    std::vector < string > vec_NP_old = vec_NP;
+    std::vector < std::string > vec_NP_old = vec_NP;
     vec_NP.clear();
     for(unsigned int iNP = 0; iNP < vec_NP_old.size(); ++iNP){
-        const string iSystName = vec_NP_old[iNP];
+        const std::string iSystName = vec_NP_old[iNP];
         skip = false;
-        for(const std::string& ii : npToExclude){
-            if(iSystName.find(ii)!=string::npos){
-                skip = true;
-                continue;
+        if (!useGammas){
+            for(const std::string& ii : npToExclude){
+                if(iSystName.find(ii)!=std::string::npos){
+                    skip = true;
+                    continue;
+                }
             }
         }
         if(skip) continue;
