@@ -256,7 +256,7 @@ TRExFit::TRExFit(std::string name){
     fPOIPrecision = 2;
 
     fRankingPOIName = "#mu";
-    
+
     fUseATLASRounding = false;
 
     fuseGammasForCorr = false;
@@ -1706,11 +1706,12 @@ void TRExFit::ReadHistograms(){
                 }
                 //Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[i_ch]->fHistoBins){
-                    TH1D* htmp2 = (TH1D*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
                     const char *hname = htmp->GetName();
-                    htmp = (TH1D*)htmp2->Clone();
-                    delete htmp2;
+                    TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", fRegions[i_ch]->fHistoBins));
+                    delete htmp;
+                    htmp = tmp_copy;
                     htmp->SetName(hname);
+                    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
                 }
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
                     htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
@@ -1784,11 +1785,12 @@ void TRExFit::ReadHistograms(){
                         }
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
-                            TH1D* htmp2 = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
-                            htmp = (TH1D*)htmp2->Clone();
-                            delete htmp2;
+                            TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(reg->fHistoNBinsRebin, "tmp_copy", reg->fHistoBins));
+                            delete htmp;
+                            htmp = tmp_copy;
                             htmp->SetName(hname);
+                            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
                         }
                         else if(reg->fHistoNBinsRebin != -1){
                             htmp->Rebin(reg->fHistoNBinsRebin);
@@ -1840,12 +1842,12 @@ void TRExFit::ReadHistograms(){
                         }
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
-                            TH1D* htmp2 = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
+                            TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(reg->fHistoNBinsRebin, "tmp_copy", reg->fHistoBins));
                             delete htmp;
-                            htmp = (TH1D*)htmp2->Clone();
-                            delete htmp2;
+                            htmp = tmp_copy;
                             htmp->SetName(hname);
+                            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
                         }
                         else if(reg->fHistoNBinsRebin != -1){
                             htmp->Rebin(reg->fHistoNBinsRebin);
@@ -1916,11 +1918,12 @@ void TRExFit::ReadHistograms(){
                 }
                 //Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[i_ch]->fHistoBins){
-                    TH1D* htmp2 = (TH1D*)(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin,"htmp2",fRegions[i_ch]->fHistoBins));
                     const char *hname = htmp->GetName();
-                    htmp = (TH1D*)htmp2->Clone();
-                    delete htmp2;
+                    TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", fRegions[i_ch]->fHistoBins));
+                    delete htmp;
+                    htmp = tmp_copy;
                     htmp->SetName(hname);
+                    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
                 }
                 else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
                     htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
@@ -2050,11 +2053,12 @@ void TRExFit::ReadHistograms(){
                         }
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
-                            TH1D* htmp2 = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
-                            htmp = (TH1D*)htmp2->Clone();
-                            delete htmp2;
+                            TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(reg->fHistoNBinsRebin, "tmp_copy", reg->fHistoBins));
+                            delete htmp;
+                            htmp = tmp_copy;
                             htmp->SetName(hname);
+                            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
                         }
                         else if(reg->fHistoNBinsRebin != -1){
                             htmp->Rebin(reg->fHistoNBinsRebin);
@@ -2155,11 +2159,12 @@ void TRExFit::ReadHistograms(){
                         }
                         // Pre-processing of histograms (rebinning, lumi scaling)
                         if(reg->fHistoBins){
-                            TH1D* htmp2 = (TH1D*)(htmp->Rebin(reg->fHistoNBinsRebin,"htmp2",reg->fHistoBins));
                             const char *hname = htmp->GetName();
-                            htmp = (TH1D*)htmp2->Clone();
-                            delete htmp2;
+                            TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(reg->fHistoNBinsRebin, "tmp_copy", reg->fHistoBins));
+                            delete htmp;
+                            htmp = tmp_copy;
                             htmp->SetName(hname);
+                            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
                         }
                         else if(reg->fHistoNBinsRebin != -1){
                             htmp->Rebin(reg->fHistoNBinsRebin);
@@ -6929,11 +6934,12 @@ void TRExFit::ComputeBining(int regIter){
                 //
                 // Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[regIter]->fHistoBins){
-                    TH1D* htmp2 = (TH1D*)(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin,"htmp2",fRegions[regIter]->fHistoBins));
                     const char *hname = htmp->GetName();
-                    htmp = (TH1D*)htmp2->Clone();
-                    delete htmp2;
+                    TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin, "tmp_copy", fRegions[regIter]->fHistoBins));
+                    delete htmp;
+                    htmp = tmp_copy;
                     htmp->SetName(hname);
+                    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
                 }
                 else if(fRegions[regIter]->fHistoNBinsRebin != -1) {
                     htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin);
