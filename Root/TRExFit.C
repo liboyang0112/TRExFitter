@@ -62,7 +62,6 @@
 #include <cctype>
 #include <iomanip>
 
-using namespace std;
 using namespace RooFit;
 
 // -------------------------------------------------------------------------------------------------
@@ -288,7 +287,7 @@ void TRExFit::SetPOI(std::string name){
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetStatErrorConfig(bool useIt, float thres, string cons){
+void TRExFit::SetStatErrorConfig(bool useIt, float thres, std::string cons){
     fUseStatErr = useIt;
     fStatErrThres = thres;
     fStatErrCons = cons;
@@ -403,7 +402,7 @@ void TRExFit::AddHistoPath(const std::string& path){
 
 //__________________________________________________________________________________
 // apply smoothing to systematics
-void TRExFit::SmoothSystematics(string syst){
+void TRExFit::SmoothSystematics(std::string syst){
     WriteInfoStatus("TRExFit::SmoothSystematics", "-------------------------------------------");
     WriteInfoStatus("TRExFit::SmoothSystematics", "Smoothing and/or Symmetrising Systematic Variations ...");
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -421,7 +420,7 @@ void TRExFit::CreateRootFiles(){
     bool recreate = !fUpdate;
     gSystem->mkdir( fName.c_str());
     gSystem->mkdir( (fName + "/Histograms/").c_str() );
-    string fileName = "";
+    std::string fileName = "";
     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
@@ -514,7 +513,6 @@ void TRExFit::DrawMorphingPlots(const std::string& name) const{
         int nTemp = 0;
         std::vector<TH1*> hVec;
         std::vector<TH1*> hVecRatio;
-        hVec.clear();
         for(auto sh : reg->fSampleHists){
             Sample* smp = sh->fSample;
             // if the sample has morphing
@@ -1710,7 +1708,7 @@ void TRExFit::ReadHistograms(){
     TH1D* hUp = nullptr;
     TH1D* hDown = nullptr;
     std::vector<std::string> fullPaths;
-    std::vector<std::string> empty; empty.clear();
+    std::vector<std::string> empty;
     SampleHist *sh;
 
     //
@@ -2311,7 +2309,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
         WriteInfoStatus("TRExFit::ReadHistos", "Reading histograms from file " + fileName + " ...");
     }
     //
-    vector< TH2F* > histPrun;
+    std::vector< TH2F* > histPrun;
     TFile *filePrun = nullptr;
     if( fKeepPruning ){
         filePrun = new TFile( (fName+"/Pruning.root").c_str() );
@@ -2583,20 +2581,20 @@ void TRExFit::DrawAndSaveAll(std::string opt){
         }
         //
         if(isPostFit){
-            ofstream pullTex;
+            std::ofstream pullTex;
             if(fWithPullTables){
                 gSystem->mkdir((fName+"/Tables").c_str()); // need to create directory, as it may not exist yet
                 pullTex.open((fName+"/Tables/Pulls_"+fSuffix+fRegions[i_ch]->fName+".tex").c_str());
-                pullTex << "\\documentclass[10pt]{article}" << endl;
-                pullTex << "\\usepackage{siunitx}" << endl;
-                pullTex << "\\usepackage{xcolor}" << endl;
-                pullTex << "\\usepackage[margin=0.1in,landscape,papersize={210mm,100mm}]{geometry}" << endl;
-                pullTex << "\\begin{document}" << endl;
+                pullTex << "\\documentclass[10pt]{article}" << std::endl;
+                pullTex << "\\usepackage{siunitx}" << std::endl;
+                pullTex << "\\usepackage{xcolor}" << std::endl;
+                pullTex << "\\usepackage[margin=0.1in,landscape,papersize={210mm,100mm}]{geometry}" << std::endl;
+                pullTex << "\\begin{document}" << std::endl;
 
-                pullTex << "\\begin{tabular}{|lr|}\n" << endl;
-                pullTex << "\\hline\\hline\n" << endl;
+                pullTex << "\\begin{tabular}{|lr|}\n" << std::endl;
+                pullTex << "\\hline\\hline\n" << std::endl;
                 TString region(fRegions[i_ch]->fName);
-                pullTex << "\\multicolumn{2}{|c|}{" << fRegions[i_ch]->fTexLabel << "} \\\\\n"<< endl;
+                pullTex << "\\multicolumn{2}{|c|}{" << fRegions[i_ch]->fTexLabel << "} \\\\\n"<< std::endl;
             }
 
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
@@ -2606,9 +2604,9 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
 
             if(fWithPullTables){
-                pullTex << "\\hline\\hline\n" << endl;
-                pullTex << "\\end{tabular}"  << endl;
-                pullTex << "\\end{document}" << endl;
+                pullTex << "\\hline\\hline\n" << std::endl;
+                pullTex << "\\end{tabular}"  << std::endl;
+                pullTex << "\\end{document}" << std::endl;
                 pullTex.close();
             }
         }
@@ -2909,12 +2907,12 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     //   Build error band
     // build the vectors of variations
-    std::vector< TH1* > h_up;   h_up.clear();
-    std::vector< TH1* > h_down; h_down.clear();
+    std::vector< TH1* > h_up;
+    std::vector< TH1* > h_down;
     TH1* h_tmp_Up;
     TH1* h_tmp_Down;
-    std::vector<std::string> systNames; systNames.clear();
-    std::vector<std::string> npNames;   npNames.clear();
+    std::vector<std::string> systNames;
+    std::vector<std::string> npNames;
     int i_np = -1;
     // actual systematics
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
@@ -3221,10 +3219,10 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     // start with total prediction, which should be always there
     // build a vector of histograms
     int i_ch = 0;
-    vector<TH1*> hTotVec;
-    vector<float> edges;
-    vector<TGaxis*> xaxis;
-    vector<TGaxis*> yaxis;
+    std::vector<TH1*> hTotVec;
+    std::vector<float> edges;
+    std::vector<TGaxis*> xaxis;
+    std::vector<TGaxis*> yaxis;
     //
     float ymax0 = -1; // ymax0 is the max y of the first region
     float ymax  = -1;
@@ -3266,12 +3264,12 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         i_ch ++;
     }
     // then proceed with data, singnal and bkg
-    vector<TH1*> hDataVec;
-    vector<vector<TH1*>> hSignalVec;
-    vector<vector<TH1*>> hBackgroundVec;
+    std::vector<TH1*> hDataVec;
+    std::vector<std::vector<TH1*>> hSignalVec;
+    std::vector<std::vector<TH1*>> hBackgroundVec;
     for(auto sample : fSamples){
         if(sample->fType==Sample::GHOST) continue;
-        vector<TH1*> tmpVec;
+        std::vector<TH1*> tmpVec;
         i_ch = 0;
         for(auto region : regions){
             TH1* h_tmp = nullptr;
@@ -3346,7 +3344,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     //
     // dahsed line in ratio
     p->pad1->cd();
-    vector<TLine*> l;
+    std::vector<TLine*> l;
     for(auto edge : edges){
         TLine *l_tmp = new TLine(edge,((TH1*)p->pad1->GetPrimitive("h_dummy2"))->GetMinimum(),
                                  edge,((TH1*)p->pad1->GetPrimitive("h_dummy2"))->GetMaximum());
@@ -3453,8 +3451,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     WriteInfoStatus("TRExFit::BuildYieldTable", "Building Yields Table...");
     if(!TRExFitter::SHOWSTACKSIG) WriteWarningStatus("TRExFit::BuildYieldTable", "Signal samples not added to \"Tot\" because of \"PlotOptions\" in config file.");
     bool isPostFit = opt.find("post")!=std::string::npos;
-    ofstream out;
-    ofstream texout;
+    std::ofstream out;
+    std::ofstream texout;
     gSystem->mkdir(fName.c_str(),true);
     gSystem->mkdir((fName+"/Tables").c_str());
     std::string suffix = "";
@@ -3482,7 +3480,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     //
     // Building region - bin correspondence
     //
-    std::vector<int> regionVec; regionVec.clear();
+    std::vector<int> regionVec;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
             if(group!="" && fRegions[i_ch]->fGroup!=group) continue;
             regionVec.push_back(i_ch);
@@ -3494,33 +3492,33 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
         out << fRegions[regionVec[i_bin-1]]->fLabel << " | ";
     }
-    out << endl;
+    out << std::endl;
     if(fTableOptions.find("STANDALONE")!=std::string::npos){
-        texout << "\\documentclass[10pt]{article}" << endl;
-        texout << "\\usepackage{siunitx}" << endl;
-        texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
-        texout << "\\begin{document}" << endl;
+        texout << "\\documentclass[10pt]{article}" << std::endl;
+        texout << "\\usepackage{siunitx}" << std::endl;
+        texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << std::endl;
+        texout << "\\begin{document}" << std::endl;
     }
     if(fTableOptions.find("LANDSCAPE")!=std::string::npos){
-        texout << "\\begin{landscape}" << endl;
+        texout << "\\begin{landscape}" << std::endl;
     }
-    texout << "\\begin{table}[htbp]" << endl;
-    texout << "\\begin{center}" << endl;
+    texout << "\\begin{table}[htbp]" << std::endl;
+    texout << "\\begin{center}" << std::endl;
     if(fTableOptions.find("FOOTNOTESIZE")!=std::string::npos){
-        texout << "\\footnotesize" << endl;
+        texout << "\\footnotesize" << std::endl;
     }
     texout << "\\begin{tabular}{|c" ;
     for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
         texout << "|c";
     }
-    texout << "|}" << endl;
-    texout << "\\hline " << endl;
+    texout << "|}" << std::endl;
+    texout << "\\hline " << std::endl;
     for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
         if(fRegions[regionVec[i_bin-1]]->fTexLabel!="") texout << " & " << fRegions[regionVec[i_bin-1]]->fTexLabel ;
         else                                            texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
     }
-    texout << "\\\\" << endl;
-    texout << "\\hline " << endl;
+    texout << "\\\\" << std::endl;
+    texout << "\\hline " << std::endl;
     //
     std::vector< std::string > titleVec;
     std::vector< int > idxVec;
@@ -3699,7 +3697,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         //
         // print values
         out << " | " << fSamples[i_smp]->fTitle << " | ";
-        if(fSamples[i_smp]->fType==Sample::DATA) texout << "\\hline " << endl;
+        if(fSamples[i_smp]->fType==Sample::DATA) texout << "\\hline " << std::endl;
         if(fSamples[i_smp]->fTexTitle!="") texout << "  " << fSamples[i_smp]->fTexTitle << "  ";
         else                               texout << "  " << fSamples[i_smp]->fTitle << "  ";
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
@@ -3721,9 +3719,9 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             texout << "}";
             out << " | ";
         }
-        out << endl;
+        out << std::endl;
         texout << " \\\\ ";
-        texout << endl;
+        texout << std::endl;
     }
     //
     // Build tot
@@ -3817,7 +3815,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     //
     if(TRExFitter::SHOWSTACKSIG) out << " | Total | ";
     else                        out << " | Tot.Bkg. | ";
-    texout << "\\hline " << endl;
+    texout << "\\hline " << std::endl;
     if(TRExFitter::SHOWSTACKSIG) texout << "  Total ";
     else                        texout << "  Total background ";
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
@@ -3839,14 +3837,14 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         texout << "}";
         out << " | ";
     }
-    out << endl;
+    out << std::endl;
     texout << " \\\\ ";
-    texout << endl;
+    texout << std::endl;
 
     //
     // Print data
     if( !fFitIsBlind ){
-        texout << "\\hline " << endl;
+        texout << "\\hline " << std::endl;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if( fSamples[i_smp]->fType!=Sample::DATA  ) continue;
             if(idxVec[i_smp]!=i_smp) continue;
@@ -3861,22 +3859,22 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                 texout << h_smp[i_smp]->GetBinContent(i_bin);
                 out << " | ";
             }
-            out << endl;
+            out << std::endl;
             texout << " \\\\ ";
-            texout << endl;
+            texout << std::endl;
         }
     }
     //
-    texout << "\\hline " << endl;
-    texout << "\\end{tabular} " << endl;
-    texout << "\\caption{Yields of the analysis} " << endl;
-    texout << "\\end{center} " << endl;
-    texout << "\\end{table} " << endl;
+    texout << "\\hline " << std::endl;
+    texout << "\\end{tabular} " << std::endl;
+    texout << "\\caption{Yields of the analysis} " << std::endl;
+    texout << "\\end{center} " << std::endl;
+    texout << "\\end{table} " << std::endl;
     if(fTableOptions.find("LANDSCAPE")!=std::string::npos){
-        texout << "\\end{landscape}" << endl;
+        texout << "\\end{landscape}" << std::endl;
     }
     if(fTableOptions.find("STANDALONE")!=std::string::npos){
-        texout << "\\end{document}" << endl;
+        texout << "\\end{document}" << std::endl;
     }
     //
     for(int i_syst=0;i_syst<(int)h_up.size();i_syst++){
@@ -4099,7 +4097,6 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
 void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows) const{
 
     std::vector< Region* > vRegions;
-    vRegions.clear();
     if(fRegionsToPlot.size()>0){
         nCols = 1;
         nRows = 1;
@@ -4272,7 +4269,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     leg -> SetTextFont( gStyle->GetTextFont() );
     leg -> SetTextSize( gStyle->GetTextSize() );
 
-    std::vector<std::string> legVec; legVec.clear();
+    std::vector<std::string> legVec;
     for ( const std::pair < std::string, int > legend_entry : map_for_legend ) {
         legVec.push_back(legend_entry.first);
     }
@@ -4540,17 +4537,17 @@ void TRExFit::DrawPruningPlot() const{
         return;
     }
     //
-    ofstream out;
+    std::ofstream out;
     out.open((fName+"/PruningText.txt").c_str());
-    out << "-------///////                 ///////-------" << endl ;
-    out << "-------/////// IN PRUNING PLOT ///////-------" << endl ;
-    out << "-------///////                 ///////-------" << endl ;
+    out << "-------///////                 ///////-------" << std::endl ;
+    out << "-------/////// IN PRUNING PLOT ///////-------" << std::endl ;
+    out << "-------///////                 ///////-------" << std::endl ;
     //
-    vector< TH2F* > histPrun;
-    vector< TH2F* > histPrun_toSave;
+    std::vector< TH2F* > histPrun;
+    std::vector< TH2F* > histPrun_toSave;
     int iReg = 0;
     int nSmp = 0;
-    vector< Sample* > samplesVec;
+    std::vector< Sample* > samplesVec;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
@@ -4560,11 +4557,11 @@ void TRExFit::DrawPruningPlot() const{
     //
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
         if(fRegions[i_reg]->fRegionType!=Region::VALIDATION){
-            out << "In Region : " << fRegions[i_reg]->fName << endl ;
+            out << "In Region : " << fRegions[i_reg]->fName << std::endl ;
             histPrun.push_back( new TH2F(Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, fNSyst,0,fNSyst) );
             histPrun[histPrun.size()-1]->SetDirectory(0);
             for(int i_smp=0;i_smp<nSmp;i_smp++){
-                out << " -> In Sample : " << samplesVec[i_smp]->fName << endl ;
+                out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl ;
                 for(int i_syst=0;i_syst<fNSyst;i_syst++){
                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), -1 );
                 }
@@ -4621,14 +4618,14 @@ void TRExFit::DrawPruningPlot() const{
                                 }
                             }
                         }
-                        if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -1 ) out << " is not present" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 0 ) out << " is kept" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 1 ) out << " is norm only" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 2 ) out << " is shape only" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 3 ) out << " is dropped" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -2 ) out << " has bad norm" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -3 ) out << " has bad shape" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -4 ) out << " is bad" << endl;
+                        if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -1 ) out << " is not present" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 0 ) out << " is kept" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 1 ) out << " is norm only" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 2 ) out << " is shape only" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 3 ) out << " is dropped" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -2 ) out << " has bad norm" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -3 ) out << " has bad shape" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -4 ) out << " is bad" << std::endl;
                     }
                 }
             }
@@ -4881,7 +4878,7 @@ void TRExFit::Fit(){
         WriteInfoStatus("TRExFit::Fit","");
         WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
         WriteInfoStatus("TRExFit::Fit","Scan of systematics for non-profile fit...");
-        ofstream out;
+        std::ofstream out;
         std::vector < std:: string > regionsToFit;
         out.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
         std::map < std::string, int > regionDataType;
@@ -4919,7 +4916,7 @@ void TRExFit::Fit(){
                     ws->loadSnapshot("InitialStateModelGlob");
                     ws->loadSnapshot("InitialStateModelNuis");
                     // - create Asimov with that NP fixed to +/-1sigma
-                    std::map < std::string, double > npVal; npVal.clear();
+                    std::map < std::string, double > npVal;
                     npVal = fFitNPValues;
                     if(ud==0) npVal["alpha_"+syst->fNuisanceParameter] =  1;
                     if(ud==1) npVal["alpha_"+syst->fNuisanceParameter] = -1;
@@ -5717,7 +5714,7 @@ void TRExFit::ReadFitResults(const std::string& fileName){
                 fFitResults->fNuisPar[i]->fCategory = fNormFactors[j]->fCategory;
             }
         }
-	// FIXME SF probably there are several NPs associated to it
+        // FIXME SF probably there are several NPs associated to it
         for(unsigned int j=0;j<fShapeFactors.size();j++){
             if(fShapeFactors[j]->fName == fFitResults->fNuisPar[i]->fName){
                 fFitResults->fNuisPar[i]->fTitle = fShapeFactors[j]->fTitle;
@@ -5856,7 +5853,7 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
 
         if(fAtlasLabel!="none") ATLASLabelNew(0.20,0.84+0.04,(char*)(fAtlasLabel+"  Simulation").c_str(), kBlack, gStyle->GetTextSize());
 
-        ostringstream SEP;
+        std::ostringstream SEP;
         SEP.precision(3);
         SEP << "Separation: " << GetSeparation(sig,bkg)*100 << "%";
         myText(0.55,0.73,1,SEP.str().c_str());
@@ -5912,7 +5909,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     std::string outName = fName+"/Fits/NPRanking"+fSuffix;
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
-    ofstream outName_file(outName.c_str());
+    std::ofstream outName_file(outName.c_str());
     //
     double central;
     double up;
@@ -6100,7 +6097,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             dMuDown /= TRExFitter::OPTION["ReduceRanking"];
         }
         //
-       outName_file << dMuUp << "   " << dMuDown << " "<<endl;
+       outName_file << dMuUp << "   " << dMuDown << " " << std::endl;
 
     }
     outName_file.close();
@@ -6150,7 +6147,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     std::vector<double> poinomdown;
     std::vector<double> number;
 
-    ifstream fin( fileToRead.c_str() );
+    std::ifstream fin( fileToRead.c_str() );
     fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     std::string temp_string = "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"";
     if (paramname=="Luminosity"){
@@ -6202,25 +6199,25 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
             sumii += TMath::Max( TMath::Abs(poiup[i-j]),TMath::Abs(poidown[i-j]) );
             if (sumi<sumii){
                 if (index==-1){
-                    swap(poiup[i],poiup[i-j]);
-                    swap(poidown[i],poidown[i-j]);
-                    swap(poinomup[i],poinomup[i-j]);
-                    swap(poinomdown[i],poinomdown[i-j]);
-                    swap(nuhat[i],nuhat[i-j]);
-                    swap(nuerrhi[i],nuerrhi[i-j]);
-                    swap(nuerrlo[i],nuerrlo[i-j]);
-                    swap(parname[i],parname[i-j]);
+                    std::swap(poiup[i],poiup[i-j]);
+                    std::swap(poidown[i],poidown[i-j]);
+                    std::swap(poinomup[i],poinomup[i-j]);
+                    std::swap(poinomdown[i],poinomdown[i-j]);
+                    std::swap(nuhat[i],nuhat[i-j]);
+                    std::swap(nuerrhi[i],nuerrhi[i-j]);
+                    std::swap(nuerrlo[i],nuerrlo[i-j]);
+                    std::swap(parname[i],parname[i-j]);
                     index=i-j;
                 }
                 else{
-                    swap(poiup[index],poiup[i-j]);
-                    swap(poidown[index],poidown[i-j]);
-                    swap(poinomup[index],poinomup[i-j]);
-                    swap(poinomdown[index],poinomdown[i-j]);
-                    swap(nuhat[index],nuhat[i-j]);
-                    swap(nuerrhi[index],nuerrhi[i-j]);
-                    swap(nuerrlo[index],nuerrlo[i-j]);
-                    swap(parname[index],parname[i-j]);
+                    std::swap(poiup[index],poiup[i-j]);
+                    std::swap(poidown[index],poidown[i-j]);
+                    std::swap(poinomup[index],poinomup[i-j]);
+                    std::swap(poinomdown[index],poinomdown[i-j]);
+                    std::swap(nuhat[index],nuhat[i-j]);
+                    std::swap(nuerrhi[index],nuerrhi[i-j]);
+                    std::swap(nuerrlo[index],nuerrlo[i-j]);
+                    std::swap(parname[index],parname[i-j]);
                     index=i-j;
                 }
             }
@@ -6270,7 +6267,6 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
 
     int idx = 0;
     std::vector< std::string > Names;
-    Names.clear();
     std::string parTitle;
 
     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
@@ -6542,8 +6538,8 @@ void TRExFit::ComputeBining(int regIter){
     bool nDefBkg=true;
     std::string fullSelection;
     std::string fullMCweight;
-    vector<std::string> fullPaths;
-    vector<std::string> empty; empty.clear();
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> empty;
     bool bkgReg=false;
     bool flatBkg=false;
     if(fRegions[regIter]->fRegionType==Region::CONTROL) bkgReg=true;
@@ -6764,8 +6760,7 @@ void TRExFit::ComputeBining(int regIter){
     // starting from highest bin!
     // the numbers give the lowest bin included in the new bin
     // overflowbin+1 and underflow bins are returned as the first and last element in the vector, respectively.
-    vector<int> bins_vec;
-    bins_vec.clear();
+    std::vector<int> bins_vec;
     //
     if (!hbkg || !hsig) {
         WriteErrorStatus("TRExFit::ComputeBinning", "Please provide signal and background histograms!");
@@ -7440,7 +7435,7 @@ void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& fo
             l->SetLineColor(kRed);
             l->Draw("same");
             gSystem->mkdir((fName+"/Morphing/").c_str());
-            for(auto format : TRExFitter::IMAGEFORMAT) c->SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+to_string(i_bin)+"."+format).c_str());
+            for(auto format : TRExFitter::IMAGEFORMAT) c->SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+std::to_string(i_bin)+"."+format).c_str());
             for(auto vh : hMap){
                 vh.second->SetBinContent(i_bin,l->Eval(vh.first));
             }
