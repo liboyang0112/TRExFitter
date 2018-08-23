@@ -62,7 +62,6 @@
 #include <cctype>
 #include <iomanip>
 
-using namespace std;
 using namespace RooFit;
 
 // -------------------------------------------------------------------------------------------------
@@ -251,7 +250,7 @@ TRExFit::TRExFit(std::string name){
 
     fDoNonProfileFit = false;
     fFitToys = 0;
-    fSmoothMorphingTemplates = false;
+    fSmoothMorphingTemplates = "";
 
     fPOIPrecision = 2;
 
@@ -290,7 +289,7 @@ void TRExFit::SetPOI(std::string name){
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetStatErrorConfig(bool useIt, float thres, string cons){
+void TRExFit::SetStatErrorConfig(bool useIt, float thres, std::string cons){
     fUseStatErr = useIt;
     fStatErrThres = thres;
     fStatErrCons = cons;
@@ -405,7 +404,7 @@ void TRExFit::AddHistoPath(const std::string& path){
 
 //__________________________________________________________________________________
 // apply smoothing to systematics
-void TRExFit::SmoothSystematics(string syst){
+void TRExFit::SmoothSystematics(std::string syst){
     WriteInfoStatus("TRExFit::SmoothSystematics", "-------------------------------------------");
     WriteInfoStatus("TRExFit::SmoothSystematics", "Smoothing and/or Symmetrising Systematic Variations ...");
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -423,7 +422,7 @@ void TRExFit::CreateRootFiles(){
     bool recreate = !fUpdate;
     gSystem->mkdir( fName.c_str());
     gSystem->mkdir( (fName + "/Histograms/").c_str() );
-    string fileName = "";
+    std::string fileName = "";
     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
@@ -461,7 +460,7 @@ void TRExFit::CreateRootFiles(){
 void TRExFit::WriteHistos() const{
     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     SampleHist* sh;
-    string fileName = "";
+    std::string fileName = "";
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         //
         if(singleOutputFile) fileName = fFiles[0]   ->GetName();
@@ -498,6 +497,61 @@ void TRExFit::WriteHistos() const{
         }
     }
     WriteInfoStatus("TRExFit::WriteHistos","-------------------------------------------");
+}
+
+//__________________________________________________________________________________
+// Draw morphing plots
+void TRExFit::DrawMorphingPlots(const std::string& name) const{
+    for(auto reg : fRegions){
+        TCanvas *c = new TCanvas("c","c",600,600);
+        TPad *p0 = new TPad("p0","p0",0,0.35,1,1);
+        TPad *p1 = new TPad("p1","p1",0,0,1,0.35);
+        p0->SetBottomMargin(0);
+        p1->SetTopMargin(0);
+        p1->SetBottomMargin(0.3);
+        p0->Draw();
+        p1->Draw();
+        p0->cd();
+        int nTemp = 0;
+        std::vector<TH1*> hVec;
+        std::vector<TH1*> hVecRatio;
+        for(auto sh : reg->fSampleHists){
+            Sample* smp = sh->fSample;
+            // if the sample has morphing
+            if(smp->fIsMorph[name]){
+                TH1* h = (TH1*)sh->fHist->Clone(("h_temp_"+smp->fName).c_str());
+                hVec.push_back(h);
+                if(h->GetFillColor()!=0) h->SetLineColor(h->GetFillColor());
+                h->SetFillStyle(0);
+                h->SetLineWidth(2);
+                h->Scale(1./h->Integral());
+                if(nTemp==0) h->Draw("HIST");
+                else         h->Draw("HIST same");
+                nTemp++;
+            }
+        }
+        if(hVec.size()>0){
+            hVec[0]->SetMaximum(1.25*hVec[0]->GetMaximum());
+            hVec[0]->GetYaxis()->SetTitle("Fraction of events");
+            hVec[0]->GetYaxis()->SetTitleOffset(1.75);
+            // ratio
+            p1->cd();
+            for(auto hh : hVec){
+                hVecRatio.push_back((TH1*)hh->Clone());
+                hVecRatio[hVecRatio.size()-1]->Divide(hVec[0]);
+                if(hVecRatio.size()-1==0) hVecRatio[hVecRatio.size()-1]->Draw("HIST");
+                else                      hVecRatio[hVecRatio.size()-1]->Draw("HIST same");
+            }
+            hVecRatio[0]->SetMinimum(0.91);
+            hVecRatio[0]->SetMaximum(1.09);
+            hVecRatio[0]->GetXaxis()->SetTitle(reg->fVariableTitle.c_str());
+            hVecRatio[0]->GetYaxis()->SetTitle("Ratio");
+            hVecRatio[0]->GetYaxis()->SetTitleOffset(1.75);
+            hVecRatio[0]->GetXaxis()->SetTitleOffset(3);
+            for(auto format : TRExFitter::IMAGEFORMAT) c->SaveAs((fName+"/Morphing/Templates_"+name+"_"+reg->fName+"."+format).c_str());
+        }
+        delete c;
+    }
 }
 
 //__________________________________________________________________________________
@@ -553,10 +607,10 @@ void TRExFit::ReadNtuples(){
     TH1D* h = nullptr;
     TH1D* hUp = nullptr;
     TH1D* hDown = nullptr;
-    string fullSelection;
-    string fullMCweight;
-    vector<string> fullPaths;
-    vector<string> empty;
+    std::string fullSelection;
+    std::string fullMCweight;
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> empty;
     SampleHist *sh;
     //
     // Import custom functions from .C files
@@ -632,14 +686,14 @@ void TRExFit::ReadNtuples(){
             //
             // build a list of ntuples to read
             fullPaths.clear();
-            vector<string> NtupleNames;
+            std::vector<std::string> NtupleNames;
             for(unsigned int ns_ch=0; ns_ch<fRegions[i_ch]->fNtupleNames.size(); ++ns_ch){
                 NtupleNames.push_back(fRegions[i_ch]->fNtupleNames.at(ns_ch));
             }
             for(unsigned int ns_smp=0; ns_smp<fSamples[i_smp]->fNtupleNames.size(); ++ns_smp){
                 NtupleNames.push_back(fSamples[i_smp]->fNtupleNames.at(ns_smp));
             }
-            vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
+            std::vector<std::string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
                                                              fRegions[i_ch]->fNtupleNameSuffs );
             fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
                                          fRegions[i_ch]->fNtuplePathSuffs,
@@ -724,11 +778,11 @@ void TRExFit::ReadNtuples(){
                 if(syst->fHasUpVariation){
                     fullMCweight = "1.";
                     fullPaths.clear();
-                    vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUpRefSample ), reg->fNtupleNameSuffs );
-                    vector<string> NtuplePaths       = fNtuplePaths;
+                    std::vector<std::string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUpRefSample ), reg->fNtupleNameSuffs );
+                    std::vector<std::string> NtuplePaths       = fNtuplePaths;
                     if(smp->fNtuplePaths.size()>0)    NtuplePaths = smp->fNtuplePaths;
                     if(syst->fNtuplePathsUpRefSample.size()>0) NtuplePaths = syst->fNtuplePathsUpRefSample;
-                    vector<string> NtuplePathSuffs   = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufUpRefSample ) );
+                    std::vector<std::string> NtuplePathSuffs   = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufUpRefSample ) );
                     //
                     fullPaths = CreatePathsList(
                                                 // path
@@ -780,11 +834,11 @@ void TRExFit::ReadNtuples(){
                 if(syst->fHasDownVariation){
                     fullMCweight = "1.";
                     fullPaths.clear();
-                    vector<string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDownRefSample ), reg->fNtupleNameSuffs );
-                    vector<string> NtuplePaths          = fNtuplePaths;
-                      if(smp->fNtuplePaths.size()>0)      NtuplePaths = smp->fNtuplePaths;
-                      if(syst->fNtuplePathsDownRefSample.size()>0) NtuplePaths = syst->fNtuplePathsDownRefSample;
-                    vector<string> NtuplePathSuffs      = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufDownRefSample ) );
+                    std::vector<std::string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDownRefSample ), reg->fNtupleNameSuffs );
+                    std::vector<std::string> NtuplePaths          = fNtuplePaths;
+                    if(smp->fNtuplePaths.size()>0)      NtuplePaths = smp->fNtuplePaths;
+                    if(syst->fNtuplePathsDownRefSample.size()>0) NtuplePaths = syst->fNtuplePathsDownRefSample;
+                    std::vector<std::string> NtuplePathSuffs      = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufDownRefSample ) );
                     //
                     fullPaths = CreatePathsList(
                                                 // path
@@ -908,14 +962,14 @@ void TRExFit::ReadNtuples(){
             //
             // build a list of ntuples to read
             fullPaths.clear();
-            vector<string> NtupleNames;
+            std::vector<std::string> NtupleNames;
             for(unsigned int ns_ch=0; ns_ch<fRegions[i_ch]->fNtupleNames.size(); ++ns_ch){
                 NtupleNames.push_back(fRegions[i_ch]->fNtupleNames.at(ns_ch));
             }
             for(unsigned int ns_smp=0; ns_smp<fSamples[i_smp]->fNtupleNames.size(); ++ns_smp){
                 NtupleNames.push_back(fSamples[i_smp]->fNtupleNames.at(ns_smp));
             }
-            vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
+            std::vector<std::string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
                                                              fRegions[i_ch]->fNtupleNameSuffs );
             fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
                                          fRegions[i_ch]->fNtuplePathSuffs,
@@ -1072,11 +1126,11 @@ void TRExFit::ReadNtuples(){
                     WriteDebugStatus("TRExFit::ReadNtuples", "  Syst Up full weight: " + fullMCweight);
                     //
                     fullPaths.clear();
-                    vector<string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ), reg->fNtupleNameSuffs );
-                    vector<string> NtuplePaths       = fNtuplePaths;
+                    std::vector<std::string> NtupleNameSuffsUp = CombinePathSufs( ToVec( syst->fNtupleNameSufUp ), reg->fNtupleNameSuffs );
+                    std::vector<std::string> NtuplePaths       = fNtuplePaths;
                       if(smp->fNtuplePaths.size()>0)    NtuplePaths = smp->fNtuplePaths;
                       if(syst->fNtuplePathsUp.size()>0) NtuplePaths = syst->fNtuplePathsUp;
-                    vector<string> NtuplePathSuffs   = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufUp ) );
+                    std::vector<std::string> NtuplePathSuffs   = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufUp ) );
                     //
                     fullPaths = CreatePathsList(
                                                 // path
@@ -1201,11 +1255,11 @@ void TRExFit::ReadNtuples(){
                     }
                     //
                     fullPaths.clear();
-                    vector<string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDown ), reg->fNtupleNameSuffs );
-                    vector<string> NtuplePaths          = fNtuplePaths;
-                      if(smp->fNtuplePaths.size()>0)      NtuplePaths = smp->fNtuplePaths;
-                      if(syst->fNtuplePathsDown.size()>0) NtuplePaths = syst->fNtuplePathsDown;
-                    vector<string> NtuplePathSuffs      = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufDown ) );
+                    std::vector<std::string> NtupleNameSuffsDown  = CombinePathSufs( ToVec( syst->fNtupleNameSufDown ), reg->fNtupleNameSuffs );
+                    std::vector<std::string> NtuplePaths          = fNtuplePaths;
+                    if(smp->fNtuplePaths.size()>0)      NtuplePaths = smp->fNtuplePaths;
+                    if(syst->fNtuplePathsDown.size()>0) NtuplePaths = syst->fNtuplePathsDown;
+                    std::vector<std::string> NtuplePathSuffs      = CombinePathSufs( reg->fNtuplePathSuffs, ToVec( syst->fNtuplePathSufDown ) );
                     //
                     fullPaths = CreatePathsList(
                                                 // path
@@ -1499,6 +1553,24 @@ void TRExFit::CorrectHistograms(){
         } // end sample loop
         //
     } // end region loop
+   
+    //
+    // Morph smoothing
+    if(fSmoothMorphingTemplates!=""){
+        for(auto par : fMorphParams){
+            WriteInfoStatus("TRExFit::CorrectHistograms","Smoothing morphing templates for parameter "+par);
+            if(fSmoothMorphingTemplates=="TRUE") SmoothMorphTemplates(par);
+            else SmoothMorphTemplates(par,fSmoothMorphingTemplates);
+            // to add: possibility to set initial values of parameters
+        }
+    }
+    
+    //
+    // Plot Mprhing templates
+    for(auto par : fMorphParams){
+        DrawMorphingPlots(par);
+    }
+    
     //
     // Smooth systematics
     SmoothSystematics("all");
@@ -1629,15 +1701,6 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
-
-    //
-    // Morph smoothing (linear)
-    if(fSmoothMorphingTemplates){
-        for(auto par : fMorphParams){
-            WriteInfoStatus("TRExFit::CorrectHistograms","Smoothing morphing templates for parameter "+par);
-            SmoothMorphTemplates(par);
-        }
-    }
 }
 
 //__________________________________________________________________________________
@@ -1646,8 +1709,8 @@ void TRExFit::ReadHistograms(){
     TH1D* h = nullptr;
     TH1D* hUp = nullptr;
     TH1D* hDown = nullptr;
-    vector<string> fullPaths;
-    vector<string> empty; empty.clear();
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> empty;
     SampleHist *sh;
 
     //
@@ -1672,8 +1735,8 @@ void TRExFit::ReadHistograms(){
             //
             // build a list of histograms to read
             fullPaths.clear();
-            std::vector<string> histoFiles;
-            std::vector<string> histoNames;
+            std::vector<std::string> histoFiles;
+            std::vector<std::string> histoNames;
             if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
             else if(fRegions[i_ch]->fHistoFiles.size()>0) histoFiles = fRegions[i_ch]->fHistoFiles;
             else                                          histoFiles = ToVec( fHistoFile );
@@ -1877,8 +1940,8 @@ void TRExFit::ReadHistograms(){
             //
             // build a list of histograms to read
             fullPaths.clear();
-            std::vector<string> histoFiles;
-            std::vector<string> histoNames;
+            std::vector<std::string> histoFiles;
+            std::vector<std::string> histoNames;
             if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
             else if(fRegions[i_ch]->fHistoFiles.size()>0) histoFiles = fRegions[i_ch]->fHistoFiles;
             else                                          histoFiles = ToVec( fHistoFile );
@@ -2248,7 +2311,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
         WriteInfoStatus("TRExFit::ReadHistos", "Reading histograms from file " + fileName + " ...");
     }
     //
-    vector< TH2F* > histPrun;
+    std::vector< TH2F* > histPrun;
     TFile *filePrun = nullptr;
     if( fKeepPruning ){
         filePrun = new TFile( (fName+"/Pruning.root").c_str() );
@@ -2476,11 +2539,11 @@ void TRExFit::CloseInputFiles(){
 
 //__________________________________________________________________________________
 //
-void TRExFit::DrawAndSaveAll(string opt){
+void TRExFit::DrawAndSaveAll(std::string opt){
     TRExPlot *p;
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
-    bool isPostFit = opt.find("post")!=string::npos;
+    bool isPostFit = opt.find("post")!=std::string::npos;
     if(TRExFitter::POISSONIZE) opt += " poissonize";
     if(isPostFit){
         if(fFitResultsFile!=""){
@@ -2520,20 +2583,20 @@ void TRExFit::DrawAndSaveAll(string opt){
         }
         //
         if(isPostFit){
-            ofstream pullTex;
+            std::ofstream pullTex;
             if(fWithPullTables){
                 gSystem->mkdir((fName+"/Tables").c_str()); // need to create directory, as it may not exist yet
                 pullTex.open((fName+"/Tables/Pulls_"+fSuffix+fRegions[i_ch]->fName+".tex").c_str());
-                pullTex << "\\documentclass[10pt]{article}" << endl;
-                pullTex << "\\usepackage{siunitx}" << endl;
-                pullTex << "\\usepackage{xcolor}" << endl;
-                pullTex << "\\usepackage[margin=0.1in,landscape,papersize={210mm,100mm}]{geometry}" << endl;
-                pullTex << "\\begin{document}" << endl;
+                pullTex << "\\documentclass[10pt]{article}" << std::endl;
+                pullTex << "\\usepackage{siunitx}" << std::endl;
+                pullTex << "\\usepackage{xcolor}" << std::endl;
+                pullTex << "\\usepackage[margin=0.1in,landscape,papersize={210mm,100mm}]{geometry}" << std::endl;
+                pullTex << "\\begin{document}" << std::endl;
 
-                pullTex << "\\begin{tabular}{|lr|}\n" << endl;
-                pullTex << "\\hline\\hline\n" << endl;
+                pullTex << "\\begin{tabular}{|lr|}\n" << std::endl;
+                pullTex << "\\hline\\hline\n" << std::endl;
                 TString region(fRegions[i_ch]->fName);
-                pullTex << "\\multicolumn{2}{|c|}{" << fRegions[i_ch]->fTexLabel << "} \\\\\n"<< endl;
+                pullTex << "\\multicolumn{2}{|c|}{" << fRegions[i_ch]->fTexLabel << "} \\\\\n"<< std::endl;
             }
 
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
@@ -2543,9 +2606,9 @@ void TRExFit::DrawAndSaveAll(string opt){
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
 
             if(fWithPullTables){
-                pullTex << "\\hline\\hline\n" << endl;
-                pullTex << "\\end{tabular}"  << endl;
-                pullTex << "\\end{document}" << endl;
+                pullTex << "\\hline\\hline\n" << std::endl;
+                pullTex << "\\end{tabular}"  << std::endl;
+                pullTex << "\\end{document}" << std::endl;
                 pullTex.close();
             }
         }
@@ -2564,8 +2627,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     WriteInfoStatus("TRExFit::DrawSummary", "-------------------------------------------");
     WriteInfoStatus("TRExFit::DrawSummary", "Building Summary Plot...");
     gSystem->mkdir(fName.c_str(),true);
-    const bool isPostFit = opt.find("post")!=string::npos;
-    const bool checkVR = opt.find("valid")!=string::npos;
+    const bool isPostFit = opt.find("post")!=std::string::npos;
+    const bool checkVR = opt.find("valid")!=std::string::npos;
     if(TRExFitter::POISSONIZE) opt += " poissonize";
     // build one bin per region
     TH1D* h_data = 0;
@@ -2576,8 +2639,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     int Nsig = 0;
     int Nbkg = 0;
     //
-    string name;
-    string title;
+    std::string name;
+    std::string title;
     int lineColor;
     int fillColor;
     int lineWidth;
@@ -2819,7 +2882,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     if(h_data) p->SetData(h_data, h_data->GetTitle());
     for(int i=0;i<Nsig;i++){
         if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig[i],h_sig[i]->GetTitle());
-        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i],((string)h_sig[i]->GetTitle()));
+        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i],((std::string)h_sig[i]->GetTitle()));
         if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i],(h_sig[i]->GetTitle()));
     }
     for(int i=0;i<Nbkg;i++){
@@ -2846,18 +2909,18 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     //   Build error band
     // build the vectors of variations
-    std::vector< TH1* > h_up;   h_up.clear();
-    std::vector< TH1* > h_down; h_down.clear();
+    std::vector< TH1* > h_up;
+    std::vector< TH1* > h_down;
     TH1* h_tmp_Up;
     TH1* h_tmp_Down;
-    std::vector<string> systNames; systNames.clear();
-    std::vector<string> npNames;   npNames.clear();
+    std::vector<std::string> systNames;
+    std::vector<std::string> npNames;
     int i_np = -1;
     // actual systematics
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(isPostFit && fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
-        string systName = fSystematics[i_syst]->fName;
-        string systNuisPar = systName;
+        std::string systName = fSystematics[i_syst]->fName;
+        std::string systNuisPar = systName;
         systNames.push_back( systName );
         if(fSystematics[i_syst]!=nullptr)
             systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
@@ -2934,7 +2997,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             // loop on bins
             for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
                 // set gamma name
-                string gammaName = Form("stat_%s_bin_%d",region->fName.c_str(),i_bin-1);
+                std::string gammaName = Form("stat_%s_bin_%d",region->fName.c_str(),i_bin-1);
                 npNames.push_back(gammaName);
                 i_np++;
                 systNames.push_back( gammaName );
@@ -2972,7 +3035,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                 for(auto sample : fSamples){
                     // set gamma name
                     if(!sample->fSeparateGammas) continue;
-                    string gammaName = Form("shape_stat_%s_%s_bin_%d",sample->fName.c_str(),region->fName.c_str(),i_bin-1);
+                    std::string gammaName = Form("shape_stat_%s_%s_bin_%d",sample->fName.c_str(),region->fName.c_str(),i_bin-1);
                     npNames.push_back(gammaName);
                     i_np++;
                     systNames.push_back( gammaName );
@@ -3001,7 +3064,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     }
     // add the norm factors
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
-        string normName = fNormFactors[i_norm]->fName;
+        std::string normName = fNormFactors[i_norm]->fName;
         if(FindInStringVector(npNames,normName)<0){
             npNames.push_back(normName);
             i_np++;
@@ -3153,15 +3216,15 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         }
     }
     bool isPostFit = false;
-    if(opt.find("post")!=string::npos) isPostFit = true;
+    if(opt.find("post")!=std::string::npos) isPostFit = true;
     if(TRExFitter::POISSONIZE) opt += " poissonize";
     // start with total prediction, which should be always there
     // build a vector of histograms
     int i_ch = 0;
-    vector<TH1*> hTotVec;
-    vector<float> edges;
-    vector<TGaxis*> xaxis;
-    vector<TGaxis*> yaxis;
+    std::vector<TH1*> hTotVec;
+    std::vector<float> edges;
+    std::vector<TGaxis*> xaxis;
+    std::vector<TGaxis*> yaxis;
     //
     float ymax0 = -1; // ymax0 is the max y of the first region
     float ymax  = -1;
@@ -3203,12 +3266,12 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         i_ch ++;
     }
     // then proceed with data, singnal and bkg
-    vector<TH1*> hDataVec;
-    vector<vector<TH1*>> hSignalVec;
-    vector<vector<TH1*>> hBackgroundVec;
+    std::vector<TH1*> hDataVec;
+    std::vector<std::vector<TH1*>> hSignalVec;
+    std::vector<std::vector<TH1*>> hBackgroundVec;
     for(auto sample : fSamples){
         if(sample->fType==Sample::GHOST) continue;
-        vector<TH1*> tmpVec;
+        std::vector<TH1*> tmpVec;
         i_ch = 0;
         for(auto region : regions){
             TH1* h_tmp = nullptr;
@@ -3283,7 +3346,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     //
     // dahsed line in ratio
     p->pad1->cd();
-    vector<TLine*> l;
+    std::vector<TLine*> l;
     for(auto edge : edges){
         TLine *l_tmp = new TLine(edge,((TH1*)p->pad1->GetPrimitive("h_dummy2"))->GetMinimum(),
                                  edge,((TH1*)p->pad1->GetPrimitive("h_dummy2"))->GetMaximum());
@@ -3389,12 +3452,12 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     WriteInfoStatus("TRExFit::BuildYieldTable", "-------------------------------------------");
     WriteInfoStatus("TRExFit::BuildYieldTable", "Building Yields Table...");
     if(!TRExFitter::SHOWSTACKSIG) WriteWarningStatus("TRExFit::BuildYieldTable", "Signal samples not added to \"Tot\" because of \"PlotOptions\" in config file.");
-    bool isPostFit = opt.find("post")!=string::npos;
-    ofstream out;
-    ofstream texout;
+    bool isPostFit = opt.find("post")!=std::string::npos;
+    std::ofstream out;
+    std::ofstream texout;
     gSystem->mkdir(fName.c_str(),true);
     gSystem->mkdir((fName+"/Tables").c_str());
-    string suffix = "";
+    std::string suffix = "";
     if(group!="") suffix += "_"+group;
     suffix += fSuffix;
     if(!isPostFit){
@@ -3411,15 +3474,15 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     TGraphAsymmErrors *g_err[MAXsamples];
     TGraphAsymmErrors *g_err_tot;
     //
-    string name;
-    string title;
+    std::string name;
+    std::string title;
     //
     double intErr; // to store the integral error
     TH1* h0; // to store varius histograms temporary
     //
     // Building region - bin correspondence
     //
-    std::vector<int> regionVec; regionVec.clear();
+    std::vector<int> regionVec;
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
             if(group!="" && fRegions[i_ch]->fGroup!=group) continue;
             regionVec.push_back(i_ch);
@@ -3431,35 +3494,35 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
         out << fRegions[regionVec[i_bin-1]]->fLabel << " | ";
     }
-    out << endl;
-    if(fTableOptions.find("STANDALONE")!=string::npos){
-        texout << "\\documentclass[10pt]{article}" << endl;
-        texout << "\\usepackage{siunitx}" << endl;
-        texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << endl;
-        texout << "\\begin{document}" << endl;
+    out << std::endl;
+    if(fTableOptions.find("STANDALONE")!=std::string::npos){
+        texout << "\\documentclass[10pt]{article}" << std::endl;
+        texout << "\\usepackage{siunitx}" << std::endl;
+        texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << std::endl;
+        texout << "\\begin{document}" << std::endl;
     }
-    if(fTableOptions.find("LANDSCAPE")!=string::npos){
-        texout << "\\begin{landscape}" << endl;
+    if(fTableOptions.find("LANDSCAPE")!=std::string::npos){
+        texout << "\\begin{landscape}" << std::endl;
     }
-    texout << "\\begin{table}[htbp]" << endl;
-    texout << "\\begin{center}" << endl;
-    if(fTableOptions.find("FOOTNOTESIZE")!=string::npos){
-        texout << "\\footnotesize" << endl;
+    texout << "\\begin{table}[htbp]" << std::endl;
+    texout << "\\begin{center}" << std::endl;
+    if(fTableOptions.find("FOOTNOTESIZE")!=std::string::npos){
+        texout << "\\footnotesize" << std::endl;
     }
     texout << "\\begin{tabular}{|c" ;
     for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
         texout << "|c";
     }
-    texout << "|}" << endl;
-    texout << "\\hline " << endl;
+    texout << "|}" << std::endl;
+    texout << "\\hline " << std::endl;
     for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
         if(fRegions[regionVec[i_bin-1]]->fTexLabel!="") texout << " & " << fRegions[regionVec[i_bin-1]]->fTexLabel ;
         else                                            texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
     }
-    texout << "\\\\" << endl;
-    texout << "\\hline " << endl;
+    texout << "\\\\" << std::endl;
+    texout << "\\hline " << std::endl;
     //
-    std::vector< string > titleVec;
+    std::vector< std::string > titleVec;
     std::vector< int > idxVec;
     SampleHist *sh = nullptr;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -3525,7 +3588,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         std::vector< TH1* > h_down;
         TH1* h_tmp_Up;
         TH1* h_tmp_Down;
-        std::vector<string> npNames;
+        std::vector<std::string> npNames;
         i_np = -1;
         //
         // loop on the global list of systematics
@@ -3621,160 +3684,6 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                 }
             }
         }
-// <<<<<<< HEAD
-//         // add the gammas (only if post-fit)
-//         if(isPostFit && fUseGammaPulls){
-//             // loop on regions
-//             for(int i_ch=1;i_ch<=Nbin;i_ch++){
-//                 Region *region = fRegions[regionVec[i_ch-1]];
-//                 if(region==nullptr) continue;
-//                 if(region->fTot_postFit==nullptr) continue;
-//                 // loop on bins
-//                 for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
-//                     // set gamma name
-//                     string gammaName = Form("stat_%s_bin_%d",region->fName.c_str(),i_bin-1);
-//                     if(fSamples[i_smp]->fSeparateGammas)
-//                         gammaName = Form("shape_stat_%s_%s_bin_%d",fSamples[i_smp]->fName.c_str(),region->fName.c_str(),i_bin-1);
-//                     systNames.push_back( gammaName );
-//                     npNames.push_back(gammaName);
-//                     i_np++;
-//                     sh = fRegions[regionVec[i_ch-1]]->GetSampleHist( name );
-//                     //
-//                     // find the gamma in the region
-//                     int syst_idx = -1;
-//                     for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_ch-1]]->fSystNames.size();j_syst++){
-//                         if(gammaName==fRegions[regionVec[i_ch-1]]->fSystNames[j_syst]){
-//                             syst_idx = j_syst;
-//                         }
-//                     }
-//                     //
-//                     if(sh!=nullptr){
-//                         if(isPostFit){
-//                             if(syst_idx<0 || sh->GetSystematic(gammaName)==nullptr){
-//                                 h_tmp_Up   = sh->fHist_postFit;
-//                                 h_tmp_Down = sh->fHist_postFit;
-//                             }
-//                             else{
-//                                 h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp_postFit;
-//                                 h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown_postFit;
-//                             }
-//                         }
-//                     }
-//                     else {
-//                         h_tmp_Up   = new TH1D(Form("h_DUMMY_%s_up_%i",  gammaName.c_str(),i_ch-1),"h_dummy",1,0,1);
-//                         h_tmp_Down = new TH1D(Form("h_DUMMY_%s_down_%i",gammaName.c_str(),i_ch-1),"h_dummy",1,0,1);
-//                     }
-//                     h_up.  push_back( new TH1D(Form("h_%s_%s_Up_TMP",  name.c_str(),gammaName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),gammaName.c_str()), Nbin,0,Nbin) );
-//                     h_down.push_back( new TH1D(Form("h_%s_%s_Down_TMP",name.c_str(),gammaName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),gammaName.c_str()), Nbin,0,Nbin) );
-//                     h_up[i_np]  ->SetBinContent( i_ch,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
-//                     h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
-//                     //
-//                     // eventually add any other samples with the same title
-//                     for(int j_smp=0;j_smp<fNSamples;j_smp++){
-//                         sh = fRegions[regionVec[i_ch-1]]->GetSampleHist( fSamples[j_smp]->fName );
-//                         if(sh!=0){
-//                             if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
-//                                 if(isPostFit){
-//                                     if(syst_idx<0 || sh->GetSystematic(gammaName)==nullptr){
-//                                         h_tmp_Up   = sh->fHist_postFit;
-//                                         h_tmp_Down = sh->fHist_postFit;
-//                                     }
-//                                     else{
-//                                         h_tmp_Up   = sh->GetSystematic(gammaName)->fHistUp_postFit;
-//                                         h_tmp_Down = sh->GetSystematic(gammaName)->fHistDown_postFit;
-//                                     }
-//                                 }
-//                                 h_up[i_np]  ->AddBinContent( i_ch,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-//                                 h_down[i_np]->AddBinContent( i_ch,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//         // Only for post-fit, loop on norm factors as well
-//         if(isPostFit){
-//             for(int i_norm=0;i_norm<fNNorm;i_norm++){
-//                 string normName = fNormFactors[i_norm]->fName;
-//                 systNames.push_back( normName );
-//                 string systNuisPar = normName;
-//                 npNames.push_back(systNuisPar);
-//                 i_np++;
-//                 for(int i_bin=1;i_bin<=Nbin;i_bin++){
-//                     sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
-//                     //
-//                     // find the normfactor in the region
-//                     int syst_idx = -1;
-//                     for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
-//                         if(normName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
-//                             syst_idx = j_syst;
-//                         }
-//                     }
-//                     //
-//                     if(sh!=nullptr){
-//                         if(isPostFit){
-//                             if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
-//                                 h_tmp_Up   = sh->fHist_postFit;
-//                                 h_tmp_Down = sh->fHist_postFit;
-//                             }
-//                             else{
-//                                 h_tmp_Up   = sh->GetSystematic(normName)->fHistUp_postFit;
-//                                 h_tmp_Down = sh->GetSystematic(normName)->fHistDown_postFit;
-//                             }
-//                         }
-//                         else {
-//                             if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
-//                                 h_tmp_Up   = sh->fHist;
-//                                 h_tmp_Down = sh->fHist;
-//                             }
-//                             else{
-//                                 h_tmp_Up   = sh->GetSystematic(normName)->fHistUp;
-//                                 h_tmp_Down = sh->GetSystematic(normName)->fHistDown;
-//                             }
-//                         }
-//                     }
-//                     else {
-//                         h_tmp_Up   = new TH1D(Form("h_DUMMY_%s_up_%i",  normName.c_str(),i_bin-1),"h_dummy",1,0,1);
-//                         h_tmp_Down = new TH1D(Form("h_DUMMY_%s_down_%i",normName.c_str(),i_bin-1),"h_dummy",1,0,1);
-//                     }
-//                     if(i_bin==1){
-//                         h_up.  push_back( new TH1D(Form("h_%s_%s_Up_TMP",  name.c_str(),normName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),normName.c_str()), Nbin,0,Nbin) );
-//                         h_down.push_back( new TH1D(Form("h_%s_%s_Down_TMP",name.c_str(),normName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),normName.c_str()), Nbin,0,Nbin) );
-//                     }
-//                     h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()) );
-//                     h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
-//                     //
-//                     // eventually add any other samples with the same title
-//                     for(int j_smp=0;j_smp<fNSamples;j_smp++){
-//                         sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( fSamples[j_smp]->fName );
-//                         if(sh!=0){
-//                             if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
-//                                 if(isPostFit){
-//                                     if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
-//                                         h_tmp_Up   = sh->fHist_postFit;
-//                                         h_tmp_Down = sh->fHist_postFit;
-//                                     }
-//                                 }
-//                                 else{
-//                                     if(syst_idx<0 || sh->GetSystematic(normName)==nullptr){
-//                                         h_tmp_Up   = sh->fHist;
-//                                         h_tmp_Down = sh->fHist;
-//                                     }
-//                                     else{
-//                                         h_tmp_Up   = sh->GetSystematic(normName)->fHistUp;
-//                                         h_tmp_Down = sh->GetSystematic(normName)->fHistDown;
-//                                     }
-//                                 }
-//                                 h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()) );
-//                                 h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()) );
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-// =======
-// >>>>>>> gamma-shape-tables
         //
         if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames, fFitResults->fCorrMatrix );
         else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames );
@@ -3790,7 +3699,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         //
         // print values
         out << " | " << fSamples[i_smp]->fTitle << " | ";
-        if(fSamples[i_smp]->fType==Sample::DATA) texout << "\\hline " << endl;
+        if(fSamples[i_smp]->fType==Sample::DATA) texout << "\\hline " << std::endl;
         if(fSamples[i_smp]->fTexTitle!="") texout << "  " << fSamples[i_smp]->fTexTitle << "  ";
         else                               texout << "  " << fSamples[i_smp]->fTitle << "  ";
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
@@ -3812,9 +3721,9 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             texout << "}";
             out << " | ";
         }
-        out << endl;
+        out << std::endl;
         texout << " \\\\ ";
-        texout << endl;
+        texout << std::endl;
     }
     //
     // Build tot
@@ -3902,134 +3811,13 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             }
         }
     }
-// <<<<<<< HEAD
-//     // add the gammas (only if post-fit)
-//     if(isPostFit && fUseGammaPulls){
-//         // loop on regions
-//         for(int i_ch=1;i_ch<=Nbin;i_ch++){
-//             Region *region = fRegions[regionVec[i_ch-1]];
-//             if(region==nullptr) continue;
-//             if(region->fTot_postFit==nullptr) continue;
-//             // loop on bins
-//             for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
-//                 // set gamma name
-//                 string gammaName = Form("stat_%s_bin_%d",region->fName.c_str(),i_bin-1);
-//                 npNames.push_back(gammaName);
-//                 i_np++;
-//                 // find the systematic in the region
-//                 int syst_idx = -1;
-//                 for(int j_syst=0;j_syst<(int)region->fSystNames.size();j_syst++){
-//                     if(gammaName==region->fSystNames[j_syst]){
-//                         syst_idx = j_syst;
-//                     }
-//                 }
-//                 if(syst_idx<0){
-//                     h_tmp_Up   = region->fTot_postFit;
-//                     h_tmp_Down = region->fTot_postFit;
-//                 }
-//                 else{
-//                     h_tmp_Up   = region->fTotUp_postFit[syst_idx];
-//                     h_tmp_Down = region->fTotDown_postFit[syst_idx];
-//                 }
-//                 h_up.  push_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
-//                 h_down.push_back( new TH1D(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
-//                 h_up[i_np]  ->SetBinContent( i_ch,h_tmp_Up  ->Integral() );
-//                 h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral() );
-//             }
-//         }
-//     }
-//     // now sample-specific gammas
-//     if(isPostFit && fUseGammaPulls){
-//         // loop on regions
-//         for(int i_ch=1;i_ch<=Nbin;i_ch++){
-//             Region *region = fRegions[regionVec[i_ch-1]];
-//             if(region==nullptr) continue;
-//             if(region->fTot_postFit==nullptr) continue;
-//             // loop on bins
-//             for(int i_bin=1;i_bin<=region->fTot_postFit->GetNbinsX();i_bin++){
-//                 for(auto sample : fSamples){
-//                     if(!sample->fSeparateGammas) continue;
-//                     string gammaName = Form("shape_stat_%s_%s_bin_%d",sample->fName.c_str(),region->fName.c_str(),i_bin-1);
-//                     npNames.push_back(gammaName);
-//                     i_np++;
-//                     // find the systematic in the region
-//                     int syst_idx = -1;
-//                     for(int j_syst=0;j_syst<(int)region->fSystNames.size();j_syst++){
-//                         if(gammaName==region->fSystNames[j_syst]){
-//                             syst_idx = j_syst;
-//                         }
-//                     }
-//                     if(syst_idx<0){
-//                         h_tmp_Up   = region->fTot_postFit;
-//                         h_tmp_Down = region->fTot_postFit;
-//                     }
-//                     else{
-//                         h_tmp_Up   = region->fTotUp_postFit[syst_idx];
-//                         h_tmp_Down = region->fTotDown_postFit[syst_idx];
-//                     }
-//                     h_up.  push_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
-//                     h_down.push_back( new TH1D(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
-//                     h_up[i_np]  ->SetBinContent( i_ch,h_tmp_Up  ->Integral() );
-//                     h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral() );
-//                 }
-//             }
-//         }
-//     }
-//     // add the norm factors
-//     for(int i_norm=0;i_norm<fNNorm;i_norm++){
-//         string normName = fNormFactors[i_norm]->fName;
-//         if(FindInStringVector(npNames,normName)<0){
-//             npNames.push_back(normName);
-//             i_np++;
-//         }
-//         else
-//             continue;
-//         for(int i_bin=1;i_bin<=Nbin;i_bin++){
-//             // find the systematic in the region
-//             int syst_idx = -1;
-//             for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
-//                 if(normName==fRegions[regionVec[i_bin-1]]->fSystNames[j_syst]){
-//                     syst_idx = j_syst;
-//                 }
-//             }
-//             //
-//             if(isPostFit){
-//                 if(syst_idx<0){
-//                     h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit;
-//                     h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit;
-//                 }
-//                 else{
-//                     h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx];
-//                     h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx];
-//                 }
-//             }
-//             else{
-//                 if(syst_idx<0){
-//                     h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot;
-//                     h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot;
-//                 }
-//                 else{
-//                     h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx];
-//                     h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx];
-//                 }
-//             }
-//             if(i_bin==1){
-//                 h_up.  push_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,normName.c_str()), Form("h_Tot_%s_Up_TMP",  normName.c_str()), Nbin,0,Nbin) );
-//                 h_down.push_back( new TH1D(Form("h_Tot_%s_Down_TMP",normName.c_str()), Form("h_Tot_%s_Down_TMP",normName.c_str()), Nbin,0,Nbin) );
-//             }
-//             h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
-//             h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
-//         }
-//     }
-// =======
-// >>>>>>> gamma-shape-tables
     //
     if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix );
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames );
     //
     if(TRExFitter::SHOWSTACKSIG) out << " | Total | ";
     else                        out << " | Tot.Bkg. | ";
-    texout << "\\hline " << endl;
+    texout << "\\hline " << std::endl;
     if(TRExFitter::SHOWSTACKSIG) texout << "  Total ";
     else                        texout << "  Total background ";
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
@@ -4051,14 +3839,14 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         texout << "}";
         out << " | ";
     }
-    out << endl;
+    out << std::endl;
     texout << " \\\\ ";
-    texout << endl;
+    texout << std::endl;
 
     //
     // Print data
     if( !fFitIsBlind ){
-        texout << "\\hline " << endl;
+        texout << "\\hline " << std::endl;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if( fSamples[i_smp]->fType!=Sample::DATA  ) continue;
             if(idxVec[i_smp]!=i_smp) continue;
@@ -4073,22 +3861,22 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                 texout << h_smp[i_smp]->GetBinContent(i_bin);
                 out << " | ";
             }
-            out << endl;
+            out << std::endl;
             texout << " \\\\ ";
-            texout << endl;
+            texout << std::endl;
         }
     }
     //
-    texout << "\\hline " << endl;
-    texout << "\\end{tabular} " << endl;
-    texout << "\\caption{Yields of the analysis} " << endl;
-    texout << "\\end{center} " << endl;
-    texout << "\\end{table} " << endl;
-    if(fTableOptions.find("LANDSCAPE")!=string::npos){
-        texout << "\\end{landscape}" << endl;
+    texout << "\\hline " << std::endl;
+    texout << "\\end{tabular} " << std::endl;
+    texout << "\\caption{Yields of the analysis} " << std::endl;
+    texout << "\\end{center} " << std::endl;
+    texout << "\\end{table} " << std::endl;
+    if(fTableOptions.find("LANDSCAPE")!=std::string::npos){
+        texout << "\\end{landscape}" << std::endl;
     }
-    if(fTableOptions.find("STANDALONE")!=string::npos){
-        texout << "\\end{document}" << endl;
+    if(fTableOptions.find("STANDALONE")!=std::string::npos){
+        texout << "\\end{document}" << std::endl;
     }
     //
     for(int i_syst=0;i_syst<(int)h_up.size();i_syst++){
@@ -4117,7 +3905,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows) const{
         int nRegInRow = 0;
         for(unsigned int i=0;i<fRegionsToPlot.size();i++){
             WriteDebugStatus("TRExFit::DrawSignalRegionsPlot", "Regions to Plot: " + fRegionsToPlot[i]);
-            if(fRegionsToPlot[i].find("ENDL")!=string::npos){
+            if(fRegionsToPlot[i].find("ENDL")!=std::string::npos){
                 nRows++;
                 if(nRegInRow>nCols) nCols = nRegInRow;
                 nRegInRow = 0;
@@ -4237,7 +4025,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
             gPad->SetLeftMargin(0.1);
             gPad->SetRightMargin(0.);
         }
-        string label = regions[i]->fShortLabel;
+        std::string label = regions[i]->fShortLabel;
         h[i] = new TH1D(Form("h[%d]",i),label.c_str(),3,xbins);
         h[i]->SetBinContent(2,S[i]/sqrt(B[i]));
         if(TRExFitter::OPTION["FourTopStyle"]==0) h[i]->GetYaxis()->SetTitle("S / #sqrt{B}");
@@ -4271,13 +4059,13 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         if(TRExFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.85,label.c_str());
         else                                     tex->DrawLatex(0.27,0.85,label.c_str());
         float SoB = S[i]/B[i];
-        string SB = Form("%.1f%%",(100.*SoB));
+        std::string SB = Form("%.1f%%",(100.*SoB));
         if(TRExFitter::OPTION["FourTopStyle"]!=0){
             if( (100.*SoB)<0.1 ){
                 SB = Form("%.0e%%",SoB);
-                if(SB.find("0")!=string::npos)SB.replace(SB.find("0"), 1, "");
-                if(SB.find("e")!=string::npos) SB.replace(SB.find("e"), 1, "#scale[0.75]{#times}10^{");
-                if(SB.find("%")!=string::npos)SB.replace(SB.find("%"), 1, "}");
+                if(SB.find("0")!=std::string::npos)SB.replace(SB.find("0"), 1, "");
+                if(SB.find("e")!=std::string::npos) SB.replace(SB.find("e"), 1, "#scale[0.75]{#times}10^{");
+                if(SB.find("%")!=std::string::npos)SB.replace(SB.find("%"), 1, "}");
             }
         }
         SB = "#scale[0.75]{S/B} = "+SB;
@@ -4311,7 +4099,6 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
 void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows) const{
 
     std::vector< Region* > vRegions;
-    vRegions.clear();
     if(fRegionsToPlot.size()>0){
         nCols = 1;
         nRows = 1;
@@ -4319,7 +4106,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows) cons
         int nRegInRow = 0;
         for(unsigned int i=0;i<fRegionsToPlot.size();i++){
             WriteDebugStatus("TRExFit::DrawPieChartPlot", "Regions to plot: " + fRegionsToPlot[i]);
-            if(fRegionsToPlot[i].find("ENDL")!=string::npos){
+            if(fRegionsToPlot[i].find("ENDL")!=std::string::npos){
                 nRows++;
                 if(nRegInRow>nCols) nCols = nRegInRow;
                 nRegInRow = 0;
@@ -4355,7 +4142,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     float H = H0 + nRows*Hp; // tot height of the canvas
     float W = nCols*Wp; // tot width of the canvas
 
-    bool isPostFit = opt.find("post")!=string::npos;
+    bool isPostFit = opt.find("post")!=std::string::npos;
 
     //
     // Create the canvas
@@ -4432,7 +4219,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     for(int i=0;i<Nreg;i++){
         if(regions[i]==nullptr) continue;
         pBottom->cd(i+1);
-        string label = regions[i]->fShortLabel;
+        std::string label = regions[i]->fShortLabel;
 
         const unsigned int back_n = results[i].size();
         float *values = new float[back_n];
@@ -4443,7 +4230,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
         }
 
         int count = 0;
-        for ( std::pair < string, double > temp_pair : results[i] ){
+        for ( std::pair < std::string, double > temp_pair : results[i] ){
             values[count] = temp_pair.second;
             colors[count] = results_color[i][temp_pair.first];
             count++;
@@ -4484,7 +4271,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     leg -> SetTextFont( gStyle->GetTextFont() );
     leg -> SetTextSize( gStyle->GetTextSize() );
 
-    std::vector<std::string> legVec; legVec.clear();
+    std::vector<std::string> legVec;
     for ( const std::pair < std::string, int > legend_entry : map_for_legend ) {
         legVec.push_back(legend_entry.first);
     }
@@ -4666,7 +4453,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                             std::string npName = "shape_";
                             npName += h->fSyst[i_syst]->fSystematic->fNuisanceParameter+"_";
                             std::string regionName = fRegions[i_ch]->fName;
-                            if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter.find("stat_")!=string::npos){
+                            if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter.find("stat_")!=std::string::npos){
                                 // see if there are regions to correlate with others
                                 for(auto set : h->fSample->fCorrelateGammasInRegions){
                                     for(unsigned int i_reg=0;i_reg<set.size();i_reg++){
@@ -4721,7 +4508,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     }
     // morphing
     for(const TRExFit::TemplateWeight& itemp : fTemplateWeightVec){
-        string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
+        std::string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
         WriteDebugStatus("TRExFit::ToRooStat", "Morhing: normName: " + normName);
         meas.AddPreprocessFunction(normName, itemp.function, itemp.range);
     }
@@ -4752,17 +4539,17 @@ void TRExFit::DrawPruningPlot() const{
         return;
     }
     //
-    ofstream out;
+    std::ofstream out;
     out.open((fName+"/PruningText.txt").c_str());
-    out << "-------///////                 ///////-------" << endl ;
-    out << "-------/////// IN PRUNING PLOT ///////-------" << endl ;
-    out << "-------///////                 ///////-------" << endl ;
+    out << "-------///////                 ///////-------" << std::endl ;
+    out << "-------/////// IN PRUNING PLOT ///////-------" << std::endl ;
+    out << "-------///////                 ///////-------" << std::endl ;
     //
-    vector< TH2F* > histPrun;
-    vector< TH2F* > histPrun_toSave;
+    std::vector< TH2F* > histPrun;
+    std::vector< TH2F* > histPrun_toSave;
     int iReg = 0;
     int nSmp = 0;
-    vector< Sample* > samplesVec;
+    std::vector< Sample* > samplesVec;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
@@ -4772,11 +4559,11 @@ void TRExFit::DrawPruningPlot() const{
     //
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
         if(fRegions[i_reg]->fRegionType!=Region::VALIDATION){
-            out << "In Region : " << fRegions[i_reg]->fName << endl ;
+            out << "In Region : " << fRegions[i_reg]->fName << std::endl ;
             histPrun.push_back( new TH2F(Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, fNSyst,0,fNSyst) );
             histPrun[histPrun.size()-1]->SetDirectory(0);
             for(int i_smp=0;i_smp<nSmp;i_smp++){
-                out << " -> In Sample : " << samplesVec[i_smp]->fName << endl ;
+                out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl ;
                 for(int i_syst=0;i_syst<fNSyst;i_syst++){
                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), -1 );
                 }
@@ -4833,14 +4620,14 @@ void TRExFit::DrawPruningPlot() const{
                                 }
                             }
                         }
-                        if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -1 ) out << " is not present" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 0 ) out << " is kept" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 1 ) out << " is norm only" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 2 ) out << " is shape only" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 3 ) out << " is dropped" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -2 ) out << " has bad norm" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -3 ) out << " has bad shape" << endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -4 ) out << " is bad" << endl;
+                        if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -1 ) out << " is not present" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 0 ) out << " is kept" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 1 ) out << " is norm only" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 2 ) out << " is shape only" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 3 ) out << " is dropped" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -2 ) out << " has bad norm" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -3 ) out << " has bad shape" << std::endl;
+                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -4 ) out << " is bad" << std::endl;
                     }
                 }
             }
@@ -4935,7 +4722,7 @@ void TRExFit::DrawPruningPlot() const{
     TH1D* hBlue   = new TH1D("hBlue"  ,"hBlue"  ,1,0,1);    hBlue->SetFillColor(kBlue);         hBlue->SetLineWidth(0);
     TH1D* hPurple = new TH1D("hPurple","hPurple",1,0,1);    hPurple->SetFillColor(6);           hPurple->SetLineWidth(0);
     TH1D* hBlack  = new TH1D("hBlack" ,"hBlack" ,1,0,1);    hBlack->SetFillColor(kBlack);       hBlack->SetLineWidth(0);
-    string sysLarg="Dropped as >"+std::to_string((int)(fThresholdSystLarge*100))+"%";
+    std::string sysLarg="Dropped as >"+std::to_string((int)(fThresholdSystLarge*100))+"%";
     leg->SetBorderSize(0);
     leg->SetMargin(0.1);
     leg->SetFillStyle(0);
@@ -5093,7 +4880,7 @@ void TRExFit::Fit(){
         WriteInfoStatus("TRExFit::Fit","");
         WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
         WriteInfoStatus("TRExFit::Fit","Scan of systematics for non-profile fit...");
-        ofstream out;
+        std::ofstream out;
         std::vector < std:: string > regionsToFit;
         out.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
         std::map < std::string, int > regionDataType;
@@ -5131,7 +4918,7 @@ void TRExFit::Fit(){
                     ws->loadSnapshot("InitialStateModelGlob");
                     ws->loadSnapshot("InitialStateModelNuis");
                     // - create Asimov with that NP fixed to +/-1sigma
-                    std::map < std::string, double > npVal; npVal.clear();
+                    std::map < std::string, double > npVal;
                     npVal = fFitNPValues;
                     if(ud==0) npVal["alpha_"+syst->fNuisanceParameter] =  1;
                     if(ud==1) npVal["alpha_"+syst->fNuisanceParameter] = -1;
@@ -5167,10 +4954,10 @@ void TRExFit::Fit(){
                     if(ud==1) std::cout << "\t" << newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval;
                     if(ud==0) out       << "\t" << newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval;
                     if(ud==1) out       << "\t" << newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval;
-                    if(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval>0) totUp = sqrt(pow(totUp,2)+pow(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval,2));
-                    if(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval<0) totDo = sqrt(pow(totDo,2)+pow(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval,2));
-                    if(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval>0) totUp = sqrt(pow(totUp,2)+pow(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval,2));
-                    if(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval<0) totDo = sqrt(pow(totDo,2)+pow(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval,2));
+                    if(ud==0 && newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval>0) totUp = sqrt(pow(totUp,2)+pow(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval,2));
+                    if(ud==0 && newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval<0) totDo = sqrt(pow(totDo,2)+pow(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval,2));
+                    if(ud==1 && newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval>0) totUp = sqrt(pow(totUp,2)+pow(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval,2));
+                    if(ud==1 && newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval<0) totDo = sqrt(pow(totDo,2)+pow(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval,2));
                 }
                 std::cout << std::endl;
                 out       << std::endl;
@@ -5197,18 +4984,18 @@ void TRExFit::Fit(){
             WriteWarningStatus("TRExFit::Fit","Better not to perform LH scan if you did non-profile fit with scan on systematics. Skipping LH scan.");
         }
         else{
-        if (fVarNameLH[0]=="all"){
-            for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws, it->first, data);
+            if (fVarNameLH[0]=="all"){
+                for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
+                    GetLikelihoodScan( ws, it->first, data);
+                }
             }
-        }
-        else{
-            for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-                GetLikelihoodScan( ws, fVarNameLH[i], data);
+            else{
+                for(unsigned int i=0; i<fVarNameLH.size(); ++i){
+                    GetLikelihoodScan( ws, fVarNameLH[i], data);
+                }
             }
         }
     }
-}
 }
 
 //__________________________________________________________________________________
@@ -5223,14 +5010,14 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     //
     WriteDebugStatus("TRExFit::DumpData", "Dumping data with the following parameters");
     WriteDebugStatus("TRExFit::DumpData", "    * Regions data type ");
-        for( const std::pair < std::string, int > dataType : regionDataType ){
+    for( const std::pair < std::string, int > dataType : regionDataType ){
         WriteDebugStatus("TRExFit::DumpData", "       - Region: " + dataType.first + "       DataType: " + std::to_string(dataType.second));
-        }
-        if(npValues.size()){
+    }
+    if(npValues.size()){
         WriteDebugStatus("TRExFit::DumpData", "    * Injected NP values ");
-            for ( const std::pair < std::string, double > npValue : npValues ){
+        for ( const std::pair < std::string, double > npValue : npValues ){
             WriteDebugStatus("TRExFit::DumpData", "       - NP: " + npValue.first + "       Value: " + std::to_string(npValue.second));
-            }
+        }
     }
     else {
         WriteDebugStatus("TRExFit::DumpData", "    * No NP values injected ");
@@ -5296,17 +5083,17 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     poi -> setVal(poiValue);
 
     //-- Nuisance parameters
-        RooRealVar* var(nullptr);
-        TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
-        while( (var = (RooRealVar*) npIterator->Next()) ){
-          std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
-          if( it_npValue != npValues.end() ){
+    RooRealVar* var(nullptr);
+    TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
+    while( (var = (RooRealVar*) npIterator->Next()) ){
+        std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
+        if( it_npValue != npValues.end() ){
             var -> setVal(it_npValue -> second);
-          }
         }
+    }
 
     //Looping over regions
-    map<string, RooDataSet*> asimovDataMap;
+    std::map<std::string, RooDataSet*> asimovDataMap;
     RooSimultaneous* simPdf = dynamic_cast<RooSimultaneous*>(mc->GetPdf());
     RooCategory* channelCat = (RooCategory*)&simPdf->indexCat();
     TIterator* iter = channelCat->typeIterator() ;
@@ -5363,11 +5150,11 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
             if(obsDataUnbinned->sumEntries()!=obsDataUnbinned->sumEntries()){
                 exit(1);
             }
-            asimovDataMap[string(channelCat->getLabel())] = obsDataUnbinned;
+            asimovDataMap[std::string(channelCat->getLabel())] = obsDataUnbinned;
 
         } else if(dataType==Region::REALDATA) {
             RooAbsData *datatmp = realData->reduce(Form("%s==%s::%s",channelCat->GetName(),channelCat->GetName(),tt->GetName()));
-            asimovDataMap[string(channelCat->getLabel())] = (RooDataSet*)datatmp;
+            asimovDataMap[std::string(channelCat->getLabel())] = (RooDataSet*)datatmp;
         }
     }
 
@@ -5424,8 +5211,8 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     fitTool -> SetNPs( NPnames,NPvalues );
     fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
     if(fStatOnly){
-      fitTool -> NoGammas();
-      fitTool -> NoSystematics();
+        fitTool -> NoGammas();
+        fitTool -> NoSystematics();
     }
 
     //
@@ -5690,13 +5477,13 @@ void TRExFit::GetLimit(){
         }
     }
 
-    string cmd;
+    std::string cmd;
 
     //
     // If a workspace file name is specified, do simple limit
     //
     if(fWorkspaceFileName!=""){
-        string dataName = "obsData";
+        std::string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
         if(fSignalInjection){
             if (!fRunROOTMacros){
@@ -5783,14 +5570,14 @@ void TRExFit::GetLimit(){
                 std::string outputName_s = static_cast<std::string> (outputName);
                 LimitsCLs_inject::RunAsymptoticsCLs_inject(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
             }
-            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
+            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(std::string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
         }
         else{
             if (!fRunROOTMacros){
                 std::string outputName_s = static_cast<std::string> (outputName);
                 LimitsCLs::RunAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
             }
-            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
+            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(std::string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
         }
     }
 
@@ -5818,7 +5605,7 @@ void TRExFit::GetSignificance(){
     // If a workspace file name is specified, do simple significance
     //
     if(fWorkspaceFileName!=""){
-        string dataName = "obsData";
+        std::string dataName = "obsData";
         if(!hasData || fFitIsBlind) dataName = "asimovData";
         if (!fRunROOTMacros){
             RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
@@ -5898,20 +5685,20 @@ void TRExFit::GetSignificance(){
         if (!fRunROOTMacros){
             RunSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fInputName+fSuffix).c_str(), (fName+"/Significance").c_str());
         }
-        cmd = "root -l -b -q 'runSig.C(\""+(string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fInputName+fSuffix+"\",\""+fName+"/Significance\")'";
+        cmd = "root -l -b -q 'runSig.C(\""+(std::string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fInputName+fSuffix+"\",\""+fName+"/Significance\")'";
     }
     if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________
 //
-void TRExFit::ReadFitResults(const string& fileName){
+void TRExFit::ReadFitResults(const std::string& fileName){
     WriteInfoStatus("TRExFit::ReadFitResults", "------------------------------------------------------");
     WriteInfoStatus("TRExFit::ReadFitResults",  "Reading fit results from file ");
     delete fFitResults;
     fFitResults = new FitResults();
     fFitResults->SetPOIPrecision(fPOIPrecision);
-    if(fileName.find(".txt")!=string::npos){
+    if(fileName.find(".txt")!=std::string::npos){
         fFitResults->ReadFromTXT(fileName);
     }
     // make a list of systematics from all samples...
@@ -5930,7 +5717,7 @@ void TRExFit::ReadFitResults(const string& fileName){
                 fFitResults->fNuisPar[i]->fCategory = fNormFactors[j]->fCategory;
             }
         }
-	// FIXME SF probably there are several NPs associated to it
+        // FIXME SF probably there are several NPs associated to it
         for(unsigned int j=0;j<fShapeFactors.size();j++){
             if(fShapeFactors[j]->fName == fFitResults->fNuisPar[i]->fName){
                 fFitResults->fNuisPar[i]->fTitle = fShapeFactors[j]->fTitle;
@@ -6069,7 +5856,7 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
 
         if(fAtlasLabel!="none") ATLASLabelNew(0.20,0.84+0.04,(char*)(fAtlasLabel+"  Simulation").c_str(), kBlack, gStyle->GetTextSize());
 
-        ostringstream SEP;
+        std::ostringstream SEP;
         SEP.precision(3);
         SEP << "Separation: " << GetSeparation(sig,bkg)*100 << "%";
         myText(0.55,0.73,1,SEP.str().c_str());
@@ -6084,7 +5871,7 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
 
 //____________________________________________________________________________________
 //
-void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
+void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
 
     if(fFitType==BONLY){
         WriteErrorStatus("TRExFit::ProduceNPRanking", "For ranking plots, the SPLUSB FitType is needed.");
@@ -6094,9 +5881,9 @@ void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     //
     // List of systematics to check
     //
-    std::vector< string > nuisPars;
+    std::vector< std::string > nuisPars;
     std::vector< bool > isNF;
-    std::vector<string> systNames_unique;
+    std::vector<std::string> systNames_unique;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(NPnames=="all" || NPnames==fSystematics[i_syst]->fNuisanceParameter ||
             ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
@@ -6122,20 +5909,20 @@ void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     //
     // Text files containing information necessary for drawing of ranking plot
     //
-    string outName = fName+"/Fits/NPRanking"+fSuffix;
+    std::string outName = fName+"/Fits/NPRanking"+fSuffix;
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
-    ofstream outName_file(outName.c_str());
+    std::ofstream outName_file(outName.c_str());
     //
     double central;
     double up;
     double down;
     double muhat;
     double dMuUp, dMuDown;
-    std::map< string,double > muVarUp;
-    std::map< string,double > muVarDown;
-    std::map< string,double > muVarNomUp;
-    std::map< string,double > muVarNomDown;
+    std::map< std::string,double > muVarUp;
+    std::map< std::string,double > muVarDown;
+    std::map< std::string,double > muVarNomUp;
+    std::map< std::string,double > muVarNomDown;
 
     //
     // Fills a vector of regions to consider for fit
@@ -6188,15 +5975,15 @@ void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
     RooDataSet* data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
 
     // Loop on NPs to find gammas and add to the list to be ranked
-    if(NPnames=="all" || NPnames.find("gamma")!=string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
+    if(NPnames=="all" || NPnames.find("gamma")!=std::string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
         RooRealVar* var = NULL;
         RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
         if(nuis){
             TIterator* it2 = nuis->createIterator();
             int i_gamma = 0;
             while( (var = (RooRealVar*) it2->Next()) ){
-                string np = var->GetName();
-                if(np.find("gamma")!=string::npos){
+                std::string np = var->GetName();
+                if(np.find("gamma")!=std::string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
                     if(np==NPnames || (atoi(NPnames.c_str())-fNSyst-fNNorm==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
@@ -6239,7 +6026,7 @@ void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
         //// Thomas : We should be careful with changing naming convention compared to RooFit !!
         // TRExFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
         // Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
-        if( (nuisPars[i].find("_bin_")!=string::npos) ){
+        if( (nuisPars[i].find("_bin_")!=std::string::npos) ){
             nuisPars[i] = "gamma_" + nuisPars[i];
         }
         outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
@@ -6313,7 +6100,7 @@ void TRExFit::ProduceNPRanking( string NPnames/*="all"*/ ){
             dMuDown /= TRExFitter::OPTION["ReduceRanking"];
         }
         //
-       outName_file << dMuUp << "   " << dMuDown << " "<<endl;
+       outName_file << dMuUp << "   " << dMuDown << " " << std::endl;
 
     }
     outName_file.close();
@@ -6333,10 +6120,10 @@ void TRExFit::PlotNPRankingManager() const{
 //
 void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     //
-    string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
+    std::string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
     //
     // trick to merge the ranking outputs produced in parallel:
-    string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; then";
+    std::string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; then";
     cmd       += " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+".txt` == \"\" ]] ; then";
     cmd       += " cat "+fName+"/Fits/NPRanking_* > "+fileToRead+" ; ";
     cmd       += " fi ;";
@@ -6345,7 +6132,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     //
     unsigned int maxNP = fRankingMaxNP;
     //
-    string paramname;
+    std::string paramname;
     double nuiphat;
     double nuiperrhi;
     double nuiperrlo;
@@ -6353,7 +6140,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     double PoiDown;
     double PoiNomUp;
     double PoiNomDown;
-    std::vector<string> parname;
+    std::vector<std::string> parname;
     std::vector<double> nuhat;
     std::vector<double> nuerrhi;
     std::vector<double> nuerrlo;
@@ -6363,7 +6150,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     std::vector<double> poinomdown;
     std::vector<double> number;
 
-    ifstream fin( fileToRead.c_str() );
+    std::ifstream fin( fileToRead.c_str() );
     fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     std::string temp_string = "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"";
     if (paramname=="Luminosity"){
@@ -6371,7 +6158,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     }
     while (!fin.eof()){
-        if(paramname.find("gamma")!=string::npos && !flagGammas){
+        if(paramname.find("gamma")!=std::string::npos && !flagGammas){
             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
             if (paramname=="Luminosity"){
                 WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
@@ -6379,7 +6166,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
             }
             continue;
         }
-        if(paramname.find("gamma")==string::npos && !flagSysts){
+        if(paramname.find("gamma")==std::string::npos && !flagSysts){
             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
             if (paramname=="Luminosity"){
                 WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
@@ -6415,25 +6202,25 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
             sumii += TMath::Max( TMath::Abs(poiup[i-j]),TMath::Abs(poidown[i-j]) );
             if (sumi<sumii){
                 if (index==-1){
-                    swap(poiup[i],poiup[i-j]);
-                    swap(poidown[i],poidown[i-j]);
-                    swap(poinomup[i],poinomup[i-j]);
-                    swap(poinomdown[i],poinomdown[i-j]);
-                    swap(nuhat[i],nuhat[i-j]);
-                    swap(nuerrhi[i],nuerrhi[i-j]);
-                    swap(nuerrlo[i],nuerrlo[i-j]);
-                    swap(parname[i],parname[i-j]);
+                    std::swap(poiup[i],poiup[i-j]);
+                    std::swap(poidown[i],poidown[i-j]);
+                    std::swap(poinomup[i],poinomup[i-j]);
+                    std::swap(poinomdown[i],poinomdown[i-j]);
+                    std::swap(nuhat[i],nuhat[i-j]);
+                    std::swap(nuerrhi[i],nuerrhi[i-j]);
+                    std::swap(nuerrlo[i],nuerrlo[i-j]);
+                    std::swap(parname[i],parname[i-j]);
                     index=i-j;
                 }
                 else{
-                    swap(poiup[index],poiup[i-j]);
-                    swap(poidown[index],poidown[i-j]);
-                    swap(poinomup[index],poinomup[i-j]);
-                    swap(poinomdown[index],poinomdown[i-j]);
-                    swap(nuhat[index],nuhat[i-j]);
-                    swap(nuerrhi[index],nuerrhi[i-j]);
-                    swap(nuerrlo[index],nuerrlo[i-j]);
-                    swap(parname[index],parname[i-j]);
+                    std::swap(poiup[index],poiup[i-j]);
+                    std::swap(poidown[index],poidown[i-j]);
+                    std::swap(poinomup[index],poinomup[i-j]);
+                    std::swap(poinomdown[index],poinomdown[i-j]);
+                    std::swap(nuhat[index],nuhat[i-j]);
+                    std::swap(nuerrhi[index],nuerrhi[i-j]);
+                    std::swap(nuerrlo[index],nuerrlo[i-j]);
+                    std::swap(parname[index],parname[i-j]);
                     index=i-j;
                 }
             }
@@ -6482,9 +6269,8 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     TGraphAsymmErrors *g2a = new TGraphAsymmErrors();
 
     int idx = 0;
-    std::vector< string > Names;
-    Names.clear();
-    string parTitle;
+    std::vector< std::string > Names;
+    std::string parTitle;
 
     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
         g->SetPoint(idx, nuhat[i],  idx+0.5);
@@ -6515,7 +6301,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
         g2a->SetPointEYhigh(idx, 0.4);
         g2a->SetPointEYlow( idx, 0.4);
 
-        if(parname[i].find("gamma")!=string::npos){
+        if(parname[i].find("gamma")!=std::string::npos){
             // get name of the region
             std::vector<std::string> tmpVec = Vectorize(parname[i],'_');
             int nWords = tmpVec.size();
@@ -6688,13 +6474,13 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
 
 //____________________________________________________________________________________
 //
-void TRExFit::PrintSystTables(string opt) const{
+void TRExFit::PrintSystTables(std::string opt) const{
     WriteInfoStatus("TRExFit::PrintSystTables", "Printing syt tables");
     if(fCleanTables) opt += "clean";
     if(fSystCategoryTables) opt += "category";
-    if(fTableOptions.find("STANDALONE")!=string::npos) opt += "standalone";
-    if(fTableOptions.find("LANDSCAPE")!=string::npos) opt +="landscape";
-    if(fTableOptions.find("FOOTNOTESIZE")!=string::npos) opt +="footnotesize";
+    if(fTableOptions.find("STANDALONE")!=std::string::npos) opt += "standalone";
+    if(fTableOptions.find("LANDSCAPE")!=std::string::npos) opt +="landscape";
+    if(fTableOptions.find("FOOTNOTESIZE")!=std::string::npos) opt +="footnotesize";
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
         fRegions[i_reg]->PrintSystTable(fFitResults,opt);
     }
@@ -6753,10 +6539,10 @@ void TRExFit::ComputeBining(int regIter){
     TH1D* hbkg = nullptr;
     bool nDefSig=true;
     bool nDefBkg=true;
-    string fullSelection;
-    string fullMCweight;
-    vector<string> fullPaths;
-    vector<string> empty; empty.clear();
+    std::string fullSelection;
+    std::string fullMCweight;
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> empty;
     bool bkgReg=false;
     bool flatBkg=false;
     if(fRegions[regIter]->fRegionType==Region::CONTROL) bkgReg=true;
@@ -6802,14 +6588,14 @@ void TRExFit::ComputeBining(int regIter){
             //
             // build a list of ntuples to read
             fullPaths.clear();
-            vector<string> NtupleNames;
+            std::vector<std::string> NtupleNames;
             for(unsigned int ns_ch=0; ns_ch<fRegions[regIter]->fNtupleNames.size(); ++ns_ch){
                 NtupleNames.push_back(fRegions[regIter]->fNtupleNames.at(ns_ch));
             }
             for(unsigned int ns_smp=0; ns_smp<fSamples[i_smp]->fNtupleNames.size(); ++ns_smp){
                 NtupleNames.push_back(fSamples[i_smp]->fNtupleNames.at(ns_smp));
             }
-            vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
+            std::vector<std::string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
                                                               fRegions[regIter]->fNtupleNameSuffs );
             fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
                                         fRegions[regIter]->fNtuplePathSuffs,
@@ -6884,8 +6670,8 @@ void TRExFit::ComputeBining(int regIter){
             //
             // build a list of histograms to read
             fullPaths.clear();
-            std::vector<string> histoFiles;
-            std::vector<string> histoNames;
+            std::vector<std::string> histoFiles;
+            std::vector<std::string> histoNames;
             if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
             else if(fRegions[regIter]->fHistoFiles.size()>0) histoFiles = fRegions[regIter]->fHistoFiles;
             else                                          histoFiles = ToVec( fHistoFile );
@@ -6977,8 +6763,7 @@ void TRExFit::ComputeBining(int regIter){
     // starting from highest bin!
     // the numbers give the lowest bin included in the new bin
     // overflowbin+1 and underflow bins are returned as the first and last element in the vector, respectively.
-    vector<int> bins_vec;
-    bins_vec.clear();
+    std::vector<int> bins_vec;
     //
     if (!hbkg || !hsig) {
         WriteErrorStatus("TRExFit::ComputeBinning", "Please provide signal and background histograms!");
@@ -7103,7 +6888,7 @@ void TRExFit::ComputeBining(int regIter){
 
 //__________________________________________________________________________________
 //
-void TRExFit::GetLikelihoodScan( RooWorkspace *ws, string varName, RooDataSet* data) const{
+void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data) const{
     WriteInfoStatus("TRExFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
 
     // shut-up RooFit!
@@ -7274,10 +7059,10 @@ void TRExFit::defineVariable(int regIter){
     WriteDebugStatus("TRExFit::defineVariable", "// DEBUG CORR VAR");
     TH1* h1 = new TH1D("h1","h1",1,-2000.,1000.);
     TH1* h2 = new TH1D("h2","h2",1,-2000.,1000.);
-    string fullSelection;
-    string fullMCweight;
-    vector<string> fullPaths;
-    vector<string> empty;
+    std::string fullSelection;
+    std::string fullMCweight;
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> empty;
 
     // copy of NtupleReading function.
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
@@ -7303,14 +7088,14 @@ void TRExFit::defineVariable(int regIter){
             if(fRegions[regIter]->fMCweight!="") fullMCweight += " * " + fRegions[regIter]->fMCweight;
         }
         fullPaths.clear();
-        vector<string> NtupleNames;
+        std::vector<std::string> NtupleNames;
         for(unsigned int ns_ch=0; ns_ch<fRegions[regIter]->fNtupleNames.size(); ++ns_ch){
             NtupleNames.push_back(fRegions[regIter]->fNtupleNames.at(ns_ch));
         }
         for(unsigned int ns_smp=0; ns_smp<fSamples[i_smp]->fNtupleNames.size(); ++ns_smp){
             NtupleNames.push_back(fSamples[i_smp]->fNtupleNames.at(ns_smp));
         }
-        vector<string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
+        std::vector<std::string> NtupleNameSuffs = CombinePathSufs( fSamples[i_smp]->fNtupleNameSuffs,
                                                           fRegions[regIter]->fNtupleNameSuffs );
         fullPaths = CreatePathsList( fSamples[i_smp]->fNtuplePaths.size()>0 ? fSamples[i_smp]->fNtuplePaths : fNtuplePaths,
                                     fRegions[regIter]->fNtuplePathSuffs,
@@ -7371,49 +7156,56 @@ void TRExFit::AddTemplateWeight(const std::string& name, float value){
 //
 std::vector<TRExFit::TemplateWeight> TRExFit::GetTemplateWeightVec(const TRExFit::TemplateInterpolationOption& opt){
     std::vector<TRExFit::TemplateWeight> vec;
-    // first sort vector of inputs for templates
-    if (fTemplatePair.size() < 2){
-        WriteErrorStatus("TRExFit::GetTemplateWeightVec", "You need to provide at least 2 templates for template fit to work, but you provided: " + std::to_string(fTemplatePair.size()));
-        return vec;
-    }
-    std::sort(fTemplatePair.begin(), fTemplatePair.end());
-    // find min and max for range
-    float min = fTemplatePair.at(0).first;
-    float max = fTemplatePair.at(fTemplatePair.size() -1).first;
-    for (unsigned int itemp = 0; itemp < (fTemplatePair.size() ); itemp++){
-        WriteDebugStatus("TRExFit::GetTemplateWeightVec", "Morphing: Template " + std::to_string(itemp));
-        TRExFit::TemplateWeight tmp;
-        tmp.name = fTemplatePair.at(itemp).second;
-        tmp.value = fTemplatePair.at(itemp).first;
-        WriteDebugStatus("TRExFit::GetTemplateWeightVec", "Morphing:   " + tmp.name + " = " + std::to_string(tmp.value));
-        tmp.range = tmp.name+"["+std::to_string(min)+","+std::to_string(min)+","+std::to_string(max)+"]";
-        // calculate the actual function
-        tmp.function = TRExFit::GetWeightFunction(itemp, opt);
-        vec.push_back(tmp);
+    for(auto name : fMorphParams){
+        // create map only for values of the specified parameter
+        std::vector<std::pair<float,std::string> > templatePair; templatePair.clear();
+        for(auto tp : fTemplatePair){
+            if(tp.second==name) templatePair.push_back(tp);
+        }
+        // first sort vector of inputs for templates
+        if (templatePair.size() < 2){
+            WriteErrorStatus("TRExFit::GetTemplateWeightVec", "You need to provide at least 2 templates for template fit to work, but you provided: " + std::to_string(fTemplatePair.size()));
+            return vec;
+        }
+        std::sort(templatePair.begin(), templatePair.end());
+        // find min and max for range
+        double min = templatePair.at(0).first;
+        double max = templatePair.at(templatePair.size() -1).first;
+        for (unsigned int itemp = 0; itemp < (templatePair.size() ); itemp++){
+            WriteDebugStatus("TRExFit::GetTemplateWeightVec", "Morphing: Template " + std::to_string(itemp));
+            TRExFit::TemplateWeight tmp;
+            tmp.name = templatePair.at(itemp).second;
+            tmp.value = templatePair.at(itemp).first;
+            WriteDebugStatus("TRExFit::GetTemplateWeightVec", "Morphing:   " + tmp.name + " = " + std::to_string(tmp.value));
+            tmp.range = tmp.name+"["+std::to_string(min)+","+std::to_string(min)+","+std::to_string(max)+"]";
+            // calculate the actual function
+            tmp.function = TRExFit::GetWeightFunction(templatePair, itemp, opt);
+            vec.push_back(tmp);
+        }
     }
     return vec;
 }
 
 //__________________________________________________________________________________
 //
-std::string TRExFit::GetWeightFunction(unsigned int itemp, const TRExFit::TemplateInterpolationOption& opt) const{
+std::string TRExFit::GetWeightFunction(std::vector<std::pair<float,std::string> > templatePair, unsigned int itemp, const TRExFit::TemplateInterpolationOption& opt) const{
     std::string fun = "";
     float x_i;
     float deltaXp = -1; // |x(i+1)-x(i)|
     float deltaXm = -1; // |x(i-1)-x(i)|
     std::string name;
-    if (itemp < fTemplatePair.size()){
-        x_i = fTemplatePair.at(itemp).first;
-        name = fTemplatePair.at(itemp).second;
+    if (itemp < templatePair.size()){
+        x_i = templatePair.at(itemp).first;
+        name = templatePair.at(itemp).second;
     }
     else return fun;
     //
     if (opt == TRExFit::LINEAR){
-        if ((itemp+1) < fTemplatePair.size() ){
-            deltaXp = std::fabs(fTemplatePair.at(itemp+1).first - fTemplatePair.at(itemp).first);
+        if ((itemp+1) < templatePair.size() ){
+            deltaXp = std::fabs(templatePair.at(itemp+1).first - templatePair.at(itemp).first);
         }
         if (((int)itemp-1) >=0 ){
-            deltaXm = std::fabs(fTemplatePair.at(itemp-1).first - fTemplatePair.at(itemp).first);
+            deltaXm = std::fabs(templatePair.at(itemp-1).first - templatePair.at(itemp).first);
         }
         if(deltaXp<0 && deltaXm<0){
             WriteErrorStatus("TRExFit::GetWeightFunction", "Morphing: delta X = " + std::to_string(deltaXp) + ", " + std::to_string(deltaXm));
@@ -7609,7 +7401,7 @@ void TRExFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left,
 
 //__________________________________________________________________________________
 //
-void TRExFit::SmoothMorphTemplates(const std::string& name) const{
+void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& formula,double *p) const{
     TCanvas *c = new TCanvas("c","c",600,600);
     // get one histogram per bin (per region)
     for(auto reg : fRegions){
@@ -7640,12 +7432,13 @@ void TRExFit::SmoothMorphTemplates(const std::string& name) const{
             }
             c->cd();
             g_bin->Draw("epa");
-            TF1* l = new TF1("l","pol1",min,max);
+            TF1* l = new TF1("l",formula.c_str(),min,max);
+            if(p!=0x0) l->SetParameters(p);
             g_bin->Fit("l","RQN");
             l->SetLineColor(kRed);
             l->Draw("same");
             gSystem->mkdir((fName+"/Morphing/").c_str());
-            for(auto format : TRExFitter::IMAGEFORMAT) c->SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+to_string(i_bin)+"."+format).c_str());
+            for(auto format : TRExFitter::IMAGEFORMAT) c->SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+std::to_string(i_bin)+"."+format).c_str());
             for(auto vh : hMap){
                 vh.second->SetBinContent(i_bin,l->Eval(vh.first));
             }
@@ -7793,7 +7586,7 @@ float TRExFit::GetNominalMorphScale(const SampleHist* const sh) const {
         if (!nf) continue;
         std::string nfName = nf->fName;
 
-        if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
+        if(nfName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
             std::string formula = TRExFitter::SYSTMAP[nfName];
             std::string name = TRExFitter::NPMAP[nfName];
             formula = ReplaceString(formula,name,"x");
