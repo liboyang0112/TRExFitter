@@ -3,11 +3,11 @@
 This package provides a framework to perform profile likelihood fits. In addition to that, many convenient features are available. TRExFitter was previously also known as TtHFitter. Here are a few important references to make use of:
 
 * [TRExFitter twiki page](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TtHFitter) for additional documentation and many references to further details
-* [TRExFitter JIRA](https://its.cern.ch/jira/projects/TTHFITTER/summary>)
+* [TRExFitter JIRA](https://its.cern.ch/jira/projects/TTHFITTER/summary>) (sign up to the mailing list in case you cannot access the JIRA)
 * TRExFitter mailing list: [atlas-phys-stat-tthfitter](https://e-groups.cern.ch/e-groups/EgroupsSubscription.do?egroupName=atlas-phys-stat-tthfitter)
 
 
-### Table of Contents
+## Table of Contents
 1.  [Getting the code](#getting-the-code)
 2.  [Setup](#setup)
 3.  [How to](#how-to)
@@ -25,12 +25,14 @@ This package provides a framework to perform profile likelihood fits. In additio
 6.  [Ranking Plot](#ranking-plot)
 7.  [Grouped Impact](#grouped-impact)
 8.  [Multi-Fit](#multi-fit)
-    * [Multi-Fit options](#multi-fit-options)
+    * [Multi-Fit `Job` block options](#multi-fit-job-block-options)
+    * [Multi-Fit `Fit` block options](#multi-fit-fit-block-options)
 9.  [Input File Merging with hupdate](#input-file-merging-with-hupdate)
 10. [Output Directories Structure](#output-directories-structure)
 11. [ShapeFactor example](#shapefactor-example)
 12. [Replacement file](#replacement-file)
 13. [TRExFitter package authors](#trexfitter-package-authors)
+
 
 
 ## Getting the code
@@ -42,6 +44,7 @@ To get a specific tag, do the following:
 ```
 cd TRExFitter && git checkout <tag number> && cd -
 ```
+
 
 
 ## Setup
@@ -62,8 +65,9 @@ To compile:
 
 The setup script also adds a path to the binary into your PATH and you can execute the code with `trex-fitter`
 
-**IMPORTANT!** For the first time use you need to type `git submodule init` followed by `git submodule update`
-Everytime the submodules change you need to run `git submodule update`
+**IMPORTANT!** For the first time use you need to type `git submodule init` followed by `git submodule update`.
+Every time the submodules change, you need to run `git submodule update`.
+
 
 
 ## How to
@@ -79,7 +83,7 @@ Most of the time, the only file the user has to modify to obtain their desired r
 
 The only mandatory argument, `<action(s)>`, tells TRExFitter which operation(s) to perform.
 The possible operations are defined in the main file (e.g. `util/trex-fitter.C`).
-For instance, if you use the default file `util/trex-fitter.C`, the available options are:
+For instance, if you use the default file `util/trex-fitter.C`, the available actions are:
 
 | **Option** | **Action** |
 | ---------- | ---------- |
@@ -103,6 +107,7 @@ It is a string (so make sure to use " or ' to enclose the string if you use more
 "<option1>=<value1>,<value2>,...:<option2>=..."
 ```
 See the section [Command line options](#command-line-options) below.
+
 
 
 ## Config File
@@ -152,8 +157,8 @@ For each object type (also called "block"), here is the list of available proper
 | NtupleName                   | default name of the tree |
 | Lumi                         | value to scale all the "NormalizedByTheory" samples |
 | LumiScale                    | additional value to scale 'after' histogram creation (for fast scaling) IMPORTANT: use it only if you know what you are doing!! |
-| SystPruningShape             | Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%) |
-| SystPruningNorm              | Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (Ex: 0.02 for 2%) |
+| SystPruningShape             | Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
+| SystPruningNorm              | Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
 | SystLarge                    | all systematics above this threshold will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%) |
 | IntCodeOverall               | interpolation code used for the normalization component of systematics (should match the one used in RooStats) |
 | IntCodeShape                 | interpolation code used for the shape component of systematics (should match the one used in RooStats) |
@@ -164,14 +169,14 @@ For each object type (also called "block"), here is the list of available proper
 | PlotOptions                  | a set of options for plotting:<br>&nbsp; &nbsp; **YIELDS**: if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields<br>&nbsp; &nbsp; **NORMSIG**: add normlised signal to plots<br>&nbsp; &nbsp; **NOSIG**: don't show signal in stack<br>&nbsp; &nbsp; **OVERSIG**: overlay signal (not normalised)<br>&nbsp; &nbsp; **CHI2**: the chi2/ndf and chi2 prob will be printed on each plot, provided that the option GetChi2 is set<br>&nbsp; &nbsp; **PREFITONPOSTFIT**: draw a dashed line on the postfit plot that indicates the sum of prefit background<br>&nbsp; &nbsp; **NOXERR**: removes the horizontal error bars on the data and the ratio plots |
 | PlotOptionsSummary           | the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used) |
 | TableOptions                 | a set of options for tables:<br>&nbsp; &nbsp; **STANDALONE**: default! If not set, no "\begin{document}"<br>&nbsp; &nbsp; **FOOTNOTESIZE**: -> \footnotesize <br>&nbsp; &nbsp; **LANDSCAPE**: -> \begin{landscape} |
-| SystControlPlots             | if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) |
-| SystDataPlots                | if set to true, plots will be dumped showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples.Data are then plotted in the ratio. If the option is set to "fillUpFrame" data will also be plotted in the upper frame. |
-| CorrelationThreshold         | Threshold used to draw the correaltion matrix (only systematics with at least one correlation larger than than draw) (0.05:5%) |
+| SystControlPlots             | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) will be produced |
+| SystDataPlots                | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples will be produced. Data are then plotted in the ratio. If the option is set to "fillUpFrame", data will also be plotted in the upper frame. |
+| CorrelationThreshold         | Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%) |
 | SignalRegionsPlot            | list of regions to put in SignalRegionsPlot and PieChartPlots; use "EMPTY" to put an empty entry, "ENDL" to specify end of line. This specifies the order of regions plotted in signal region S/B plots and pie chart plots, as well as number of regions per row. |
 | HistoChecks                  | NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem |
 | LumiLabel                    | label for luminosity to be put on plots |
 | CmeLabel                     | label for center-of-mass energy to be put on plots |
-| SplitHistoFiles              | set this to true to have histogram files split by region (useful with many regions and/or run in parallel) |
+| SplitHistoFiles              | set this to TRUE to have histogram files split by region (useful with many regions and/or run in parallel) |
 | BlindingThreshold            | bins with S/B > this number will be blinded |
 | KeepPrefitBlindedBins        | if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots |
 | RankingMaxNP                 | max number of NP to show in ranking plot |
@@ -195,7 +200,7 @@ For each object type (also called "block"), here is the list of available proper
 | RatioYmin                    | if set, it will specify the min of the range of the ratio plots |
 | RatioYmaxPostFit             | if set, it will specify the max of the range of the ratio plots, for post-fit only |
 | RatioYminPostFit             | if set, it will specify the min of the range of the ratio plots, for post-fit only |
-| CustomAsimov                 | if set, the workspace will be created with an AsimovData built according to Sample->AsimovReplacementFor option (see below) instead of data |
+| CustomAsimov                 | if set, the workspace will be created with an AsimovData built according to Sample->`AsimovReplacementFor` option (see below) instead of data |
 | RandomPOISeed                | if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated starting from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number) |
 | GetChi2                      | if set to TRUE (or STAT+SYST), for pre- and post-fit plots the extended chi2 test is done, and results are printed on the screen for each plot when running d and/or p; can be set to STAT (or STAT-ONLY) for stat-only chi2 |
 | TtresSmoothing               | if set to TRUE, the systematic uncertainty smoothing will use the ttbar resonances convention for the smoothing. The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal or 400 to treat it as uncorrelated with the nominal. |
@@ -209,12 +214,12 @@ For each object type (also called "block"), here is the list of available proper
 | DoSignalRegionsPlot          | if set to FALSE, no signal regions plot is created |
 | DoPieChartPlot               | if set to FALSE, no background composition pie-chart plot is created |
 | CustomFunctions              | list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values) |
-| SuppressNegativeBinWarnings  | If set to true will suppress warning messages about negative or 0 content in bins |
+| SuppressNegativeBinWarnings  | If set to TRUE, will suppress warning messages about negative or 0 content in bins |
 | Bootstrap                    | (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like `bsWeight(x,eventNumber,mcChannelNumber)`, where `bsWeight` should be loaded with `CustomFunctions: "bsWeight.C"` and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option `BootstrapIdx=<i>` should be given, with `<i>=0,1,2,3...` |
 | DecorrSysts                  | comma-separated list of systematics which you want to decorrelate from another channel (this is don by automatically attaching a suffix to the NormFactor for each of them); can use wildcards |
 | DecorrSuff                   | the suffix to attach when using DecorrSysts |
 | RegionGroups                 | groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE |
-| ReplacementFile              | allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see dedicated section on this option below |
+| ReplacementFile              | allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see [Replacement file](#replacement-file) section |
 | Suffix                       | added to file names of plots, workspace, fit results etc. (equivalent to command line option) |
 | SaveSuffix                   | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
 | HideNP                       | comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix |
@@ -226,8 +231,9 @@ For each object type (also called "block"), here is the list of available proper
 | AllowWrongRegionSample       | Can be TRUE(default) or FALSE. When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined. |
 | POIPrecision                 | Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm facotr mean value and uncertainty. Default is 2 |
 | RankingPOIName               | Custom name for the POI for ranking plots. Default is `#mu` |
+| UseGammasForCorr             | If set to `TRUE` will add gammas into correlation matrix plot. Default is `FALSE` |
 
-### `Fit` block options
+### `Fit` block options:
 
 | **Option** | **Function** |
 | ---------- | ------------ |
@@ -288,7 +294,7 @@ For each object type (also called "block"), here is the list of available proper
 | ShortLabel                   | same as above, but a shorter version for plots with smaller available place |
 | LumiLabel                    | label for luminosity to be put on plots |
 | CmeLabel                     | label for center-of-mass energy to be put on plots |
-| LogScale                     | set it to true to have log-scale when plotting this region |
+| LogScale                     | set it to TRUE to have log-scale when plotting this region |
 | HistoFile                    | only for option HIST, the file name to be used |
 | HistoName                    | only for option HIST, the histogram name to be used |
 | HistoPathSuff(s)             | only for option HIST, the path suffix (or suffixes, comma-separated) where to find the histogram files for this region |
@@ -336,7 +342,7 @@ For each object type (also called "block"), here is the list of available proper
 | LineColor                    | histogram line color |
 | NormFactor                   | NormalisationFactor (free parameter in the fit); in the format \<name\>,nominal,min,max |
 | ShapeFactor                  | ShapeFactor added |
-| NormalizedByTheory           | set it to false for data-driven backgrounds (MCweight, Lumi and LumiScale from Job and Region will be ignored) |
+| NormalizedByTheory           | set it to FALSE for data-driven backgrounds (MCweight, Lumi and LumiScale from Job and Region will be ignored) |
 | MCweight                     | only for option NTUP, the additional weight used in this sample (for all types of samples!! Not only MC) |
 | Selection                    | valid only for option NTUP; additional selection for this region |
 | Regions                      | set this to have the sample only in some regions |
@@ -421,17 +427,17 @@ For each object type (also called "block"), here is the list of available proper
 | NtupleNameSufDown            | only for option NTUP, for HISTO or SHAPE systematic: suffix of the ntuple names for systematic down variation |
 | SampleUp                     | if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only |
 | SampleDown                   | if set, the syst variation will be built comparing the sample with another sample after all corrections are done; NB: can be used only if the syst affects one sample only |
-| WeightUp                     | only for option NTUP, for HISTO or SHAPE systematic: weight for systematic up variation (the MCweight applied on the nominal sample is not multiplied with this, only WeightUp will be applied on the systematic sample if this is used) |
-| WeightDown                   | only for option NTUP, for HISTO or SHAPE systematic: weight for systematic down variation (the MCweight applied on the nominal sample is not multiplied with this, only WeightDown will be applied on the systematic sample if this is used) |
-| WeightSufUp                  | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation (multiplied with the MCWeight acting on the nominal sample) |
-| WeightSufDown                | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation (multiplied with the MCWeight acting on the nominal sample) |
+| WeightUp                     | only for option NTUP, for HISTO or SHAPE systematic: weight for systematic up variation; it will be multiplied with the `MCweight` defined in the Job and Region blocks, however it will not be multiplied with the `MCweight` defined in the sample block of the reference sample (for this, use `WeightSufUp` instead) |
+| WeightDown                   | only for option NTUP, for HISTO or SHAPE systematic: weight for systematic down variation; it will be multiplied with the `MCweight` defined in the Job and Region blocks, however it will not be multiplied with the `MCweight` defined in the sample block of the reference sample (for this, use `WeightSufDown` instead) |
+| WeightSufUp                  | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation (also multiplied with the `MCweight` acting on the nominal sample) |
+| WeightSufDown                | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation (also multiplied with the `MCweight` acting on the nominal sample) |
 | IgnoreWeight                 | only for option NTUP: if set, the corresponding weight (present in Job, Sample or Region) will be ignored for this systematic |
 | Symmetrisation               | can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line |
 | Smoothing                    | smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line |
 | OverallUp                    | for OVERALL systematic: the relative "up" shift (0.1 means +10%) |
 | OverallDown                  | for OVERALL systematic: the relative "down" shift (-0.1 means -10%) |
-| ScaleUp                      | for OVERALL, HISTO or SHAPE systematic: scale difference between "up" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9` |
-| ScaleDown                    | for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9` |
+| ScaleUp                      | for OVERALL, HISTO or SHAPE systematic: scale difference between "up" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9`) |
+| ScaleDown                    | for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9`) |
 | ReferenceSample              | if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated |
 | DropShapeIn                  | specify regions where you want the smoothing / pruning to be forced to drop the shape and keep only norm |
 | DropNorm                     | the same as the previous one, but to drop the norm and keep only the shape |
@@ -465,6 +471,7 @@ For each object type (also called "block"), here is the list of available proper
 | Decorrelate                  | decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects) |
 
 
+
 ## Command line options
 Currently the supported options are:
 
@@ -476,22 +483,24 @@ Currently the supported options are:
 | **Signal**        | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance) |
 | **Exclude**       | to exclude certain Regions / Samples / Systematics |
 | **Suffix**        | used for: plots, workspace, fit results, etc |
-| **SaveSuffix**    | used for: saving histograms with a suffix (to be merged / renamed later, see last section on hupdate) |
+| **SaveSuffix**    | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |
 | **Update**        | if TRUE, the output .root file is updated, otherwise is overwrote |
 | **StatOnlyFit**   | if TRUE, the same as Fit->StatOnlyFit |
 | **StatOnly**      | if TRUE, no systematics nor norm factors will be considered (equivalent to set StatOnly: TRUE in the config) |
-| **Ranking**       | see Ranking section |
+| **Ranking**       | see [Ranking Plot](#ranking-plot) section |
 | **FitResults**    | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
 | **FitType**       | can be set to SPLUSB or BONLY to replace the option in the config file |
 | **LumiScale**     | as the options in config file |
 | **BootstrapIdx**  | see description of Bootstrap option in config (under Job) |
-| **GroupedImpact** | see Grouped Impact section |
+| **GroupedImpact** | see [Grouped Impact](#grouped-impact) section |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
 ```
 trex-fitter  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
 ```
+
+
 
 ## Ranking Plot
 * The ranking plot can be created in one go, with just the command line argument `r` (after having run the nominal fit `f`).
@@ -508,6 +517,8 @@ trex-fitter  r  <config> Ranking=JES1
 trex-fitter  r  <config> Ranking=ttXsec
 trex-fitter  r  <config> Ranking=plot
 ```
+
+
 
 ## Grouped Impact
 * The command line argument `i` is used to evaluate the combined impact of groups of nuisance parameters on the POI.
@@ -532,6 +543,7 @@ If the calculations are parallelized, combine the results by running the followi
 ```
 trex-fitter i <config> GroupedImpact="combine"
 ```
+
 
 
 ## Multi-Fit
@@ -574,10 +586,7 @@ trex-fitter  mwf  config/myTopWS_multifit.config
 This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
 
-Multi-Fit options
----------
-
-* **Job block:**
+### Multi-Fit `Job` block options:
 
 | **Option** | **Function** |
 | ---------- | ------------ |
@@ -593,10 +602,10 @@ Multi-Fit options
 | ComparePOI       | can be TRUE or FALSE, flag to compare to POI values |
 | ComparePulls     | can be TRUE or FALSE, flag to compare to pulls values |
 | PlotCombCorrMatrix | can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics |
-| Combine          | can be TRUE or FALSE, set to true if you want to perfom actual combination (followed by `mwf`) |
-| Compare          | can be TRUE or FALSE, set to true if you want to compare values |
-| StatOnly         | can be TRUE or FALSE, set to true if the fits are stat only fits |
-| IncludeStatOnly  | can be TRUE or FALSE, set to true if you want to include stat only fits |
+| Combine          | can be TRUE or FALSE, set to TRUE if you want to perfom actual combination (followed by `mwf`) |
+| Compare          | can be TRUE or FALSE, set to TRUE if you want to compare values |
+| StatOnly         | can be TRUE or FALSE, set to TRUE if the fits are stat only fits |
+| IncludeStatOnly  | can be TRUE or FALSE, set to TRUE if you want to include stat only fits |
 | POIName          | the name of the POI in the configs |
 | POIRange         | the range of the chosen POI |
 | LimitMax         | set maximum value for the limit |
@@ -604,7 +613,7 @@ Multi-Fit options
 | POIPrecision     | string, set precision of the POI |
 | DataName         | can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used |
 | FitType          | can be SPLUSB or BONLY |
-| CombineChByCH    | can be TRUE or FALSE, set to true to combine channel by channel |
+| CombineChByCH    | can be TRUE or FALSE, set to TRUE to combine channel by channel |
 | NPCategories     | comma separated list of NP categories |
 | SetRandomInitialNPval | provide a float  |
 | SetRandomInitialNPvalSeed | provide an int |
@@ -617,21 +626,21 @@ Multi-Fit options
 | FitResultsFile   | a name of the file with fit results |
 | LimitsFile       | a name of the file with limits results |
 | BonlySufix       | a suffix of the background only fits |
-| ShowSystForPOI   | can be TRUE or FALSE, set to true if you want to show systematics for POI |
-| GetGoodnessOfFit | can be TRUE or FALSE, set to true to get chi2/NDF for the fit |
+| ShowSystForPOI   | can be TRUE or FALSE, set to TRUE if you want to show systematics for POI |
+| GetGoodnessOfFit | can be TRUE or FALSE, set to TRUE to get chi2/NDF for the fit |
 | doLHscan         | comma separeted list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP |
 | LHscanMin        | minimum value for the LH scan on x-axis (default it Norm min) |
 | LHscanMax        | maximum value for the LH scan on x-axis (default is Norm max) |
 | LHscanSteps      | number of steps on the LH scan (default is 30) |
 | PlotOptions      | same as for "standard" fits |
-| Logo             | can be TRUE or FALSE, use true to show TRExFitter logo |
+| Logo             | can be TRUE or FALSE, use TRUE to show TRExFitter logo |
 | DebugLevel       | set level of debug output |
-| RunROOTMacros    | can be TRUE or FALSE, set to true to run the common scripts in root interpreter in stead of running the directly compiled version (FALSE, default) |
+| RunROOTMacros    | can be TRUE or FALSE, set to TRUE to run the common scripts in root interpreter in stead of running the directly compiled version (FALSE, default) |
 | POILabel         | name of the POI shwon on plots, default is `#\mu` |
 | POINominal       | value of the nominal (SM) prediction for POI, default is `1` |
 | ShowTotalOnly    | If set to TRUE will show only total uncertainty on the POI plots. Default is FALSE |
 
-* **Fit block:**
+### Multi-Fit `Fit` block options:
 
 | **Option** | **Function** |
 | ---------- | ------------ |
@@ -640,7 +649,7 @@ Multi-Fit options
 | LoadSuf          |
 | ConfigFile       | the path to the config file that you want to combine/compare |
 | Workspace        | the path to the worskapce that you want to combine/compare |
-| ShowObserved     | can be TRUE or FALSE, set to true to show the observed values of POI |
+| ShowObserved     | can be TRUE or FALSE, set to TRUE to show the observed values of POI |
 | FitResultsFile   | the path to the file with fit results |
 | LimitsFile       | the path to the file with limits results |
 | POIName          | the name of the POI |
@@ -669,6 +678,7 @@ Multi-Fit options
 | ParamValue                   | Value of the parameter in the output file (e.g. 172.5 for top mass) |
 | OutputPrefixName             | Prefix for the output ROOT file |
 
+
 ## Input File Merging with hupdate
 A macro `hupdate` is included, which mimics hadd functionality, but without adding histograms if they have the same name.
 This is useful for running different systematics in different steps (like different batch jobs) and then merging results afterwards.
@@ -686,6 +696,8 @@ trex-fitter n ../config/ttH2015.config Systematics=BTag_B_NP1:SaveSuffix=_BTag_B
 ./build/bin/hupdate.exe ../ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_NEW.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos.root ttH2015/Histograms/ttH2015_HThad_ge6jge4b_histos_BTag_B_NP1.root
 trex-fitter dwf ../config/ttH2015.config
 ```
+
+
 
 ## Output Directories Structure
 For each TRExFit object, a directory is created, with the same name as the Fit Name.
@@ -705,6 +717,7 @@ Inside this directory, at every step, some outputs are created, following the st
 | `LHoodPlots/`         | likelihood scan with respect to the specified parameter |
 
 
+
 ## ShapeFactor example
 * The following scripts create example histograms in `exampleDataDriven` directory and execute `trex-fitter` using `config/dataDriven.config`
 * The example contains a control region and signal region with two bins. The shape of one of the background samples is estimated using the ShapeFactor:
@@ -713,6 +726,7 @@ python makeDataDriven.py
 python runDataDrivenExample.py
 ```
 The results are in `JobDataDriven`
+
 
 
 ## Replacement file
@@ -732,7 +746,8 @@ Note that all placeholders must start with ``XXX``. In your config file, you can
 Sample: "ttbar"
   MCweight: XXX_placeholder
 ```
-If you would like to ensure that the replacement works correctly, set your DebugLevel to a minimum value of 1 and check the output of the framework.
+If you would like to ensure that the replacement works correctly, set your `DebugLevel` to a minimum value of 1 and check the output of the framework.
+
 
 
 ## TRExFitter package authors

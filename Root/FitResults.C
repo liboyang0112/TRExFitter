@@ -484,9 +484,9 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawCorrelationMatrix(const std::string& path, const double corrMin){
+void FitResults::DrawCorrelationMatrix(const std::string& path, const bool& useGammas, const double corrMin){
     if(fCorrMatrix){
         fCorrMatrix->fNuisParToHide = fNuisParToHide;
-        fCorrMatrix->Draw(path, corrMin);
+        fCorrMatrix->Draw(path, useGammas, corrMin);
     }
 }

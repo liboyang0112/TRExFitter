@@ -615,6 +615,11 @@ int ApplyErrorRounding(double& error){
     int iterations = 0;
     int sig = 0;
 
+    if (error == 0) {
+        WriteWarningStatus("Common::ApplyErrorRounding", "Error is zero, you should have a look at this.");
+        return 0;
+    }
+
     while (error < 100) {
         error*= 10;
         iterations++;
@@ -651,7 +656,7 @@ int ApplyErrorRounding(double& error){
     error/= std::pow(10, (3-sig));
     error = std::round(error);
     error*= std::pow(10, (3-sig));
-    
+
     // now we need to get back to original value
     // this is not optimal but should be optimized by compiler
     error/= std::pow(10, std::abs(iterations));

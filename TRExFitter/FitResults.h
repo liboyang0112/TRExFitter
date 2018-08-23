@@ -27,7 +27,14 @@ public:
     void DrawNPPulls(const std::string &path, const std::string &category, const std::vector < NormFactor* > &normFactors) const;
     void DrawNormFactors(const std::string &path, const std::vector < NormFactor* > &normFactor ) const;
     void DrawGammaPulls(const std::string &path ) const;
-    void DrawCorrelationMatrix(const std::string& path, const double corrMin = -1. );
+
+    /**
+      * Function to draw correlation matrix 
+      * @param Path to the output file
+      * @param Flag to include gammas on the matrix
+      * @param Minimum correlation considered for plotting
+      */
+    void DrawCorrelationMatrix(const std::string& path, const bool& useGammas, const double corrMin = -1. );
     void SetPOIPrecision(const int& precision){fPOIPrecision = precision;}
 
     //
