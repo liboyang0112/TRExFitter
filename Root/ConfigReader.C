@@ -25,7 +25,7 @@
 ConfigReader::ConfigReader(TRExFit *fitter){
     fFitter = fitter;
     fNonGhostIsSet = false;
-    fAllowWrongRegionSample = true;
+    fAllowWrongRegionSample = false;
     fParser = new ConfigParser();
     WriteInfoStatus("ConfigReader::ConfigReader", "Started reading the config");
 }
