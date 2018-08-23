@@ -20,6 +20,9 @@
 #include "TStyle.h"
 #include "TSystem.h"
 
+// c++ includes
+#include <iostream>
+
 using namespace std;
 
 // -------------------------------------------------------------------------------------------------
@@ -452,6 +455,9 @@ void SampleHist::WriteToFile(TFile *f){
             exit(EXIT_FAILURE);
         }
         syh->fSystematic = gamma;
+        // setting histo name and file
+        syh->fHistoNameUp = fRegionName+"_"+fSample->fName+"_stat_"+fSample->fName+"_Up";
+        syh->fFileNameUp = fFileName;
     }
     //
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
