@@ -281,14 +281,19 @@ TH1D* HistoTools::SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom) {
 
     // check if the variations are not in the same direction
     for (int ibin = 1; ibin <= hnom->GetNbinsX(); ibin++){
-        // have same sign = same shift
         const double& nom_content = hnom->GetBinContent(ibin);
         const double& nom_error = hnom->GetBinError(ibin);
         const double& up_content = var1->GetBinContent(ibin);
+        const double& up_error = var1->GetBinError(ibin);
         const double& down_content = var2->GetBinContent(ibin);
+        const double& down_error = var2->GetBinError(ibin);
+
+        const double total_uncert_up = std::sqrt(up_error*up_error + nom_error*nom_error);
+        const double total_uncert_down = std::sqrt(down_error * down_error + nom_error*nom_error);
 
         // check if the variations are larger than stat uncertainty
-        if ((std::fabs(up_content - nom_content) > nom_error) && (std::fabs(down_content - nom_content) > nom_error)){
+        // have same sign = same shift
+        if ((std::fabs(up_content - nom_content) > total_uncert_up) && (std::fabs(down_content - nom_content) > total_uncert_down)){
             // check if the variations have the same shift
             if ((up_content - nom_content) * (down_content - nom_content) > 0){
                 const std::string& name_up = var1->GetName();
