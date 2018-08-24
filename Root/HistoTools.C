@@ -295,9 +295,11 @@ TH1D* HistoTools::SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom) {
     tmp2->Divide(nom);
     if(!tmp2->GetSumw2())tmp2->Sumw2();
 
+    std::unique_ptr<TH1D> nom_div(static_cast<TH1D*>(hnom->Clone()));
+    nom_div->Divide(hnom);
     // check if the variations are not in the same direction
     for (int ibin = 1; ibin <= hnom->GetNbinsX(); ibin++){
-        const double& nom_error = hnom->GetBinError(ibin);
+        const double& nom_error = nom_div->GetBinError(ibin);
         const double& up_content = tmp1->GetBinContent(ibin);
         const double& up_error = tmp1->GetBinError(ibin);
         const double& down_content = tmp2->GetBinContent(ibin);
