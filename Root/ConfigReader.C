@@ -790,6 +790,9 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         if( param == "TRUE" ){
             TRExFitter::SYSTDATAPLOT = true;
             fFitter->fSystDataPlot_upFrame=false;
+        } else if( param == "FALSE" ){
+            TRExFitter::SYSTDATAPLOT = false;
+            fFitter->fSystDataPlot_upFrame= false;
         } else if( param == "FILLUPFRAME" ){
             TRExFitter::SYSTDATAPLOT = true;
             fFitter->fSystDataPlot_upFrame=true;

@@ -94,12 +94,13 @@ public:
 
     /**
       * @param string Name of the setting set
-      * @param string Setting in users config
+      * @param string Name of the setting
+      * @param string Setting value in users config
       * @param string Possible setting from reference file
       * @param char Delimiter whn multiple parameters are provided
       * @return bool Is valid setting
       */
-    bool SettingMultipleParamIsOK(const std::string &setting_set, const std::string& current, const std::string& possible, const char delimiter = ',') const;
+    bool SettingMultipleParamIsOK(const std::string &setting_set, const std::string& setting, const std::string& current, const std::string& possible, const char delimiter = ',') const;
 
 // private:
     int fN;
