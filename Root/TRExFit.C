@@ -256,7 +256,8 @@ TRExFit::TRExFit(std::string name){
 
     fRankingPOIName = "#mu";
     
-    fUseATLASRounding = false;
+    fUseATLASRoundingTxt = false;
+    fUseATLASRoundingTex = false;
 
     fuseGammasForCorr = false;
 }
@@ -3498,8 +3499,15 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     if(fTableOptions.find("STANDALONE")!=std::string::npos){
         texout << "\\documentclass[10pt]{article}" << std::endl;
         texout << "\\usepackage{siunitx}" << std::endl;
+        texout << "\\sisetup{separate-uncertainty,table-format=6.3(6)}  % hint: modify table-format to best fit your tables" << std::endl;
         texout << "\\usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}" << std::endl;
         texout << "\\begin{document}" << std::endl;
+    }
+    // if not STANDALONE, add a comment in the tex saying that one needs to include siunitx
+    else{
+        texout << "% NB: add to main document: " << std::endl;
+        texout << "% \\usepackage{siunitx} " << std::endl;
+        texout << "% \\sisetup{separate-uncertainty,table-format=6.3(6)}  % hint: modify table-format to best fit your tables" << std::endl;
     }
     if(fTableOptions.find("LANDSCAPE")!=std::string::npos){
         texout << "\\begin{landscape}" << std::endl;
@@ -3509,15 +3517,15 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     if(fTableOptions.find("FOOTNOTESIZE")!=std::string::npos){
         texout << "\\footnotesize" << std::endl;
     }
-    texout << "\\begin{tabular}{|c" ;
+    texout << "\\begin{tabular}{|l" ;
     for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
-        texout << "|c";
+        texout << "|S";
     }
     texout << "|}" << std::endl;
     texout << "\\hline " << std::endl;
     for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
-        if(fRegions[regionVec[i_bin-1]]->fTexLabel!="") texout << " & " << fRegions[regionVec[i_bin-1]]->fTexLabel ;
-        else                                            texout << " & " << fRegions[regionVec[i_bin-1]]->fLabel ;
+        if(fRegions[regionVec[i_bin-1]]->fTexLabel!="") texout << " & {" << fRegions[regionVec[i_bin-1]]->fTexLabel << "}";
+        else                                            texout << " & {" << fRegions[regionVec[i_bin-1]]->fLabel    << "}";
     }
     texout << "\\\\" << std::endl;
     texout << "\\hline " << std::endl;
@@ -3550,6 +3558,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                     scale = GetNominalMorphScale(sh);
                 }
                 h_smp[idxVec[i_smp]]->AddBinContent( i_bin,scale*h0->IntegralAndError(1,h0->GetNbinsX(),intErr) );
+                intErr*=scale;
                 if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
                     h_smp[idxVec[i_smp]]->SetBinError(i_bin,0.);
                 else
@@ -3705,21 +3714,34 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             double mean = h_smp[i_smp]->GetBinContent(i_bin);
             double uncertainty = ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
-            if (fUseATLASRounding){
-                ApplyATLASrounding(mean, uncertainty);
+            double mean_rounded = mean;
+            double uncertainty_rounded = uncertainty;
+            int n = -1; // this will contain the number of decimal places
+            if (fUseATLASRoundingTxt || fUseATLASRoundingTex){
+                n = ApplyATLASrounding(mean_rounded, uncertainty_rounded);
             }
-            texout << " & ";
-            out << mean;
-            texout << "\\num[round-mode=figures,round-precision=3]{";
-            texout << mean;
-            texout << "}";
-            out << " pm ";
-            texout << " $\\pm$ ";
-            out << uncertainty;
-            texout << "\\num[round-mode=figures,round-precision=3]{";
-            texout << uncertainty;
-            texout << "}";
-            out << " | ";
+            if(fUseATLASRoundingTxt){
+                out << mean_rounded << " pm " << uncertainty_rounded << " | ";
+            }
+            else{
+                out << mean << " pm " << uncertainty << " | ";
+            }
+            if(fUseATLASRoundingTex){
+                texout << " & ";
+                if(n<0) texout << mean_rounded;
+                else    texout << Form(("%."+std::to_string(n)+"f").c_str(),mean_rounded);
+                if(uncertainty==0){ // to fix Latex siunitx issue
+                    if(n<0) texout << " (" << uncertainty_rounded << ")";
+                    else    texout << " (" << Form(("%."+std::to_string(n)+"f").c_str(),uncertainty_rounded) << ")";
+                }
+                else{
+                    if(n<0) texout << " \\pm " << uncertainty_rounded;
+                    else    texout << " \\pm " << Form(("%."+std::to_string(n)+"f").c_str(),uncertainty_rounded);
+                }
+            }
+            else{
+                texout << " & " << mean << " \\pm " << uncertainty;
+            }
         }
         out << std::endl;
         texout << " \\\\ ";
@@ -3816,28 +3838,60 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames );
     //
     if(TRExFitter::SHOWSTACKSIG) out << " | Total | ";
-    else                        out << " | Tot.Bkg. | ";
+    else                         out << " | Tot.Bkg. | ";
     texout << "\\hline " << std::endl;
     if(TRExFitter::SHOWSTACKSIG) texout << "  Total ";
-    else                        texout << "  Total background ";
+    else                         texout << "  Total background ";
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         double mean = h_tot->GetBinContent(i_bin);
         double uncertainty = ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
-        if (fUseATLASRounding){
-            ApplyATLASrounding(mean, uncertainty);
+//         texout << " & ";
+//         out << mean;
+//         out << " pm ";
+//         out << uncertainty;
+//         out << " | ";
+//         int n = -1; // this will contain the number of decimal places
+//         if (fUseATLASRounding){
+//             n = ApplyATLASrounding(mean, uncertainty);
+//         }
+//         if(n<0) texout << mean;
+//         else    texout << Form(("%."+std::to_string(n)+"f").c_str(),mean);
+//         if(uncertainty==0){ // to fix Latex siunitx issue
+//             if(n<0) texout << " (" << uncertainty << ")"; // no rounding
+//             else    texout << " (" << Form(("%."+std::to_string(n)+"f").c_str(),uncertainty) << ")";
+//         }
+//         else{
+//             if(n<0) texout << " \\pm " << uncertainty; // no rounding
+//             else    texout << " \\pm " << Form(("%."+std::to_string(n)+"f").c_str(),uncertainty);
+//         }
+        double mean_rounded = mean;
+        double uncertainty_rounded = uncertainty;
+        int n = -1; // this will contain the number of decimal places
+        if (fUseATLASRoundingTxt || fUseATLASRoundingTex){
+            n = ApplyATLASrounding(mean_rounded, uncertainty_rounded);
         }
-        texout << " & ";
-        out << mean;
-        texout << "\\num[round-mode=figures,round-precision=3]{";
-        texout << mean;
-        texout << "}";
-        out << " pm ";
-        texout << " $\\pm$ ";
-        out << uncertainty;
-        texout << "\\num[round-mode=figures,round-precision=3]{";
-        texout << uncertainty;
-        texout << "}";
-        out << " | ";
+        if(fUseATLASRoundingTxt){
+            out << mean_rounded << " pm " << uncertainty_rounded << " | ";
+        }
+        else{
+            out << mean << " pm " << uncertainty << " | ";
+        }
+        if(fUseATLASRoundingTex){
+            texout << " & ";
+            if(n<0) texout << mean_rounded;
+            else    texout << Form(("%."+std::to_string(n)+"f").c_str(),mean_rounded);
+            if(uncertainty==0){ // to fix Latex siunitx issue
+                if(n<0) texout << " (" << uncertainty_rounded << ")";
+                else    texout << " (" << Form(("%."+std::to_string(n)+"f").c_str(),uncertainty_rounded) << ")";
+            }
+            else{
+                if(n<0) texout << " \\pm " << uncertainty_rounded;
+                else    texout << " \\pm " << Form(("%."+std::to_string(n)+"f").c_str(),uncertainty_rounded);
+            }
+        }
+        else{
+            texout << " & " << mean << " \\pm " << uncertainty;
+        }
     }
     out << std::endl;
     texout << " \\\\ ";
@@ -3858,7 +3912,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             for(int i_bin=1;i_bin<=Nbin;i_bin++){
                 texout << " & ";
                 out << h_smp[i_smp]->GetBinContent(i_bin);
-                texout << h_smp[i_smp]->GetBinContent(i_bin);
+//                 texout << h_smp[i_smp]->GetBinContent(i_bin);
+                texout << Form("%.0f",h_smp[i_smp]->GetBinContent(i_bin));
                 out << " | ";
             }
             out << std::endl;

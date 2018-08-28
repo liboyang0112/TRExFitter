@@ -233,6 +233,9 @@ For each object type (also called "block"), here is the list of available proper
 | POIPrecision                 | Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm facotr mean value and uncertainty. Default is 2 |
 | RankingPOIName               | Custom name for the POI for ranking plots. Default is `#mu` |
 | UseGammasForCorr             | If set to `TRUE` will add gammas into correlation matrix plot. Default is `FALSE` |
+| UseATLASRounding             | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (both .txt and .tex) |
+| UseATLASRoundingTxt          | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (only .txt) |
+| UseATLASRoundingTex          | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (only .tex) |
 
 ### `Fit` block options:
 

@@ -595,25 +595,31 @@ TH1D* MergeHistograms(std::vector<TH1*> hVec){
     return hOut;
 }
 
-void ApplyATLASrounding(double &mean, double &error){
+int ApplyATLASrounding(double &mean, double &error){
     if (error < 0 ){
         WriteWarningStatus("Common::ApplyATLASrounding", "Error value is < 0. Not applying rounding.");
-        return;
+        return -1;
     }
 
-    int iterations = ApplyErrorRounding(error);
+    int sig = 0;
+    int iterations = ApplyErrorRounding(error,sig);
     if (iterations > 100) { // something went wrong
         WriteWarningStatus("Common::ApplyATLASrounding", "Problem with applying PDG rounding rules to error.");
-        return;
+        return -1;
     }
 
     // now apply the correct rounding for nominal value
     RoundToSig(mean, iterations);
+    
+    // return the number of decimal digits (for later printing avoiding exponent...)
+    int decPlaces = iterations;
+    if(iterations<0) decPlaces = 0;
+    return decPlaces;
 }
 
-int ApplyErrorRounding(double& error){
+// FIXME : still to fix the 100
+int ApplyErrorRounding(double& error,int& sig){
     int iterations = 0;
-    int sig = 0;
 
     if (error == 0) {
         WriteWarningStatus("Common::ApplyErrorRounding", "Error is zero, you should have a look at this.");
@@ -639,13 +645,13 @@ int ApplyErrorRounding(double& error){
     }
 
     // PDG rounding rules
-    if (error >= 100 && error < 354){
+    if (error >= 100 && error < 355){
         sig = 2;
-    } else if (error >= 355 && error < 949) {
+    } else if (error >= 355 && error < 950) {
         sig = 1;
-    } else if (error >= 950 && error <= 999) {
+    } else if (error >= 950 && error < 1000) {
         error = 1000;
-        sig = 2;
+        sig = 1;
     } else {
         WriteWarningStatus("Common::ApplyErrorRounding", "3 significant digit are < 100 or > 999. This should not happen.");
         return 999;
@@ -659,12 +665,13 @@ int ApplyErrorRounding(double& error){
 
     // now we need to get back to original value
     // this is not optimal but should be optimized by compiler
-    error/= std::pow(10, std::abs(iterations));
+    if(iterations>0) error/= std::pow(10, std::abs(iterations));
+    if(iterations<0) error*= std::pow(10, std::abs(iterations));
 
     // return number of iterations needed minus 2
     // this will be used to match precision of mean to precision
     // of rounded error
-    return (iterations - 2);
+    return (iterations - 3 + sig);
 }
 
 void RoundToSig(double& value, const int& n){

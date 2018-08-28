@@ -420,6 +420,8 @@ public:
 
     std::string fRankingPOIName;
     bool fUseATLASRounding;
+    bool fUseATLASRoundingTxt;
+    bool fUseATLASRoundingTex;
     bool fuseGammasForCorr;
 };
 
