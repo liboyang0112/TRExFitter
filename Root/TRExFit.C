@@ -3845,25 +3845,6 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         double mean = h_tot->GetBinContent(i_bin);
         double uncertainty = ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
-//         texout << " & ";
-//         out << mean;
-//         out << " pm ";
-//         out << uncertainty;
-//         out << " | ";
-//         int n = -1; // this will contain the number of decimal places
-//         if (fUseATLASRounding){
-//             n = ApplyATLASrounding(mean, uncertainty);
-//         }
-//         if(n<0) texout << mean;
-//         else    texout << Form(("%."+std::to_string(n)+"f").c_str(),mean);
-//         if(uncertainty==0){ // to fix Latex siunitx issue
-//             if(n<0) texout << " (" << uncertainty << ")"; // no rounding
-//             else    texout << " (" << Form(("%."+std::to_string(n)+"f").c_str(),uncertainty) << ")";
-//         }
-//         else{
-//             if(n<0) texout << " \\pm " << uncertainty; // no rounding
-//             else    texout << " \\pm " << Form(("%."+std::to_string(n)+"f").c_str(),uncertainty);
-//         }
         double mean_rounded = mean;
         double uncertainty_rounded = uncertainty;
         int n = -1; // this will contain the number of decimal places
@@ -3912,7 +3893,6 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             for(int i_bin=1;i_bin<=Nbin;i_bin++){
                 texout << " & ";
                 out << h_smp[i_smp]->GetBinContent(i_bin);
-//                 texout << h_smp[i_smp]->GetBinContent(i_bin);
                 texout << Form("%.0f",h_smp[i_smp]->GetBinContent(i_bin));
                 out << " | ";
             }
