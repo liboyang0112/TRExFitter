@@ -675,13 +675,12 @@ int ConfigReader::ReadJobOptions(){
     if ( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if (param == "TRUE"){
-            fFitter->fSmoothMorphingTemplates = true;
+            fFitter->fSmoothMorphingTemplates = "TRUE";
         }
         else if (param == "FALSE"){
-            fFitter->fSmoothMorphingTemplates = false;
+            fFitter->fSmoothMorphingTemplates = "";
         } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified SmoothMorphingTemplates option but didnt provide valid parameter. Using default (false)");
-            fFitter->fSmoothMorphingTemplates = false;
+            fFitter->fSmoothMorphingTemplates = param;
         }
     }
 
