@@ -87,7 +87,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         int sc = confReaderMulti.ReadFullConfig(configFile,options) ;
 
         if (sc != 0){
-            WriteErrorStatus("myFit::FitExample", "Failed to read the config file for multifit.");
+            WriteErrorStatus("trex-fitter::FitExample", "Failed to read the config file for multifit.");
             exit(EXIT_FAILURE);
         }
 
@@ -152,11 +152,11 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     // read the actual config
     int sc = reader.ReadFullConfig(configFile,options);
     if(sc!=0){
-        WriteErrorStatus("myFit::FitExample", "Failed to read the config file.");
+        WriteErrorStatus("trex-fitter::FitExample", "Failed to read the config file.");
         exit(EXIT_FAILURE);
     }
 
-    WriteInfoStatus("myFit::FitExample", "Successfully read config file.");
+    WriteInfoStatus("trex-fitter::FitExample", "Successfully read config file.");
 
     if (TRExFitter::DEBUGLEVEL < 2){
         gErrorIgnoreLevel = kError;
@@ -165,11 +165,11 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 
     // check compatibility between run option and config file
     if(readHistograms && myFit->fInputType!=TRExFit::HIST){
-        WriteErrorStatus("myFit::FitExample", "Option \"h\" asked but no HISTO InputType specified in the configuration file. Aborting.");
+        WriteErrorStatus("trex-fitter::FitExample", "Option \"h\" asked but no HISTO InputType specified in the configuration file. Aborting.");
         return;
     }
     if(readNtuples && myFit->fInputType!=TRExFit::NTUP){
-        WriteErrorStatus("myFit::FitExample", "Option \"n\" asked but no NTUP InputType specified in the configuration file. Aborting.");
+        WriteErrorStatus("trex-fitter::FitExample", "Option \"n\" asked but no NTUP InputType specified in the configuration file. Aborting.");
         return;
     }
 
@@ -178,8 +178,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     if(readHistograms){
         std::cout << "Reading histograms..." << std::endl;
         myFit->CreateRootFiles();
+        myFit->PrintRegionSummary("histograms");
         myFit->ReadHistograms();
-        myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
@@ -190,8 +190,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     else if(readNtuples){
         std::cout << "Reading ntuples..." << std::endl;
         myFit->CreateRootFiles();
+        myFit->PrintRegionSummary("ntuples");
         myFit->ReadNtuples();
-        myFit->Print();
         myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();

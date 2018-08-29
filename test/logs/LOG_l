@@ -13,7 +13,7 @@ Applying ATLAS style settings...
 === DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
-[1;32m=== INFO::myFit::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
 Extracting limit...
 full list of observables:
 RooArgList:: = (obs_x_SR_1,obs_x_SR_2)

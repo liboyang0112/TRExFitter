@@ -143,7 +143,7 @@ public:
     // get fit results from txt file
     void ReadFitResults(const std::string& fileName);
 
-    void Print() const;
+    void PrintRegionSummary(const std::string inputType="ntuples") const;
 
     Region* GetRegion(const std::string& name) const;
     Sample* GetSample(const std::string& name) const;
@@ -158,9 +158,9 @@ public:
 
     // for template fitting
     void AddTemplateWeight(const std::string& name, float);
-    
+
     std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
-    
+
     std::string GetWeightFunction(std::vector<std::pair<float,std::string> > templatePair, unsigned int itemp, const TemplateInterpolationOption& opt) const;
 
     /*
@@ -206,13 +206,13 @@ public:
      * @param pointer to an array of parameter values
      */
     void SmoothMorphTemplates(const std::string& name,const std::string& formula="pol1",double *p=0x0) const;
-    
+
     /*
      * Helper function that draws plots with morphijng templates
      * @param name of the morphing parameter
      */
     void DrawMorphingPlots(const std::string& name) const;
-    
+
     bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
 
     // for grouped impact evaluation
@@ -354,9 +354,9 @@ public:
     float fRndRange;
     long int fRndSeed;
     std::vector<std::string> fVarNameLH;
-    float fLHscanMin; 
+    float fLHscanMin;
     float fLHscanMax;
-    int fLHscanSteps; 
+    int fLHscanSteps;
     std::vector<std::string> fVarNameMinos;
     std::vector<std::string> fVarNameHide;
     std::string fWorkspaceFileName;
