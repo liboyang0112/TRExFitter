@@ -5762,25 +5762,36 @@ void TRExFit::ReadFitResults(const std::string& fileName){
 
 //__________________________________________________________________________________
 //
-void TRExFit::Print() const{
-    WriteInfoStatus("TRExFit::Print", "-------------------------------------------");
-    WriteInfoStatus("TRExFit::Print", fInputName);
-    WriteInfoStatus("TRExFit::Print", "      NtuplePaths = ");
-    for(int i=0;i<(int)fNtuplePaths.size();i++){
-        WriteInfoStatus("TRExFit::Print", " " + fNtuplePaths[i]);
-    }
-    WriteInfoStatus("TRExFit::Print", "      NtupleName  = " + fNtupleName);
-    WriteInfoStatus("TRExFit::Print", "      MCweight    = " + fMCweight);
-    WriteInfoStatus("TRExFit::Print", "      Selection   = " + fSelection);
-    WriteInfoStatus("TRExFit::Print", "      HistoPaths  = " + fSelection);
-    for(int i=0;i<(int)fHistoPaths.size();i++){
-        WriteInfoStatus("TRExFit::Print", " " + fHistoPaths[i]);
-    }
-    WriteInfoStatus("TRExFit::Print", "      HistoName   = " + fHistoName);
+void TRExFit::PrintRegionSummary(const std::string inputType) const{
+    WriteInfoStatus("TRExFit::PrintRegionSummary", "-------------------------------------------");
+    WriteInfoStatus("TRExFit::PrintRegionSummary", fInputName);
+    WriteInfoStatus("TRExFit::PrintRegionSummary", "Reading the following regions:");
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         fRegions[i_ch]->Print();
     }
-    WriteInfoStatus("TRExFit::Print", "-------------------------------------------");
+    WriteInfoStatus("TRExFit::PrintRegionSummary", "With these settings:");
+
+    // only show n-tuple related settings if n-tuples are read
+    if(inputType=="ntuples"){
+        WriteInfoStatus("TRExFit::PrintRegionSummary", "      NtuplePaths = ");
+        for(int i=0;i<(int)fNtuplePaths.size();i++){
+            WriteInfoStatus("TRExFit::PrintRegionSummary", " " + fNtuplePaths[i]);
+        }
+        WriteInfoStatus("TRExFit::PrintRegionSummary", "      NtupleName  = " + fNtupleName);
+    }
+
+    // only show histogram related settings if histograms are read
+    if(inputType=="histograms"){
+        WriteInfoStatus("TRExFit::PrintRegionSummary", "      HistoPaths  = " + fSelection);
+        for(int i=0;i<(int)fHistoPaths.size();i++){
+            WriteInfoStatus("TRExFit::PrintRegionSummary", " " + fHistoPaths[i]);
+        }
+        WriteInfoStatus("TRExFit::PrintRegionSummary", "      HistoName   = " + fHistoName);
+    }
+
+    WriteInfoStatus("TRExFit::PrintRegionSummary", "      MCweight    = " + fMCweight);
+    WriteInfoStatus("TRExFit::PrintRegionSummary", "      Selection   = " + fSelection);
+    WriteInfoStatus("TRExFit::PrintRegionSummary", "-------------------------------------------");
 }
 
 //__________________________________________________________________________________
