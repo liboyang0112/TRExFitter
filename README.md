@@ -68,6 +68,14 @@ The setup script also adds a path to the binary into your PATH and you can execu
 **IMPORTANT!** For the first time use you need to type `git submodule init` followed by `git submodule update`.
 Every time the submodules change, you need to run `git submodule update`.
 
+**Tip:** To recompile the code, directly from the main directory, a simple command is:
+```
+    cd build/ && cmake --build ./ && cd ../
+```
+or simply using the alias defined in the `setup.sh` script:
+```
+    trex-make
+```
 
 
 ## How to

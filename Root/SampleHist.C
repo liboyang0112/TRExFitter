@@ -621,9 +621,9 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
     // Draw the distributions for nominal, syst (before and after smoothing)
     //
     float yield_syst_up = 0;
-	float yield_syst_down = 0;
-	float yield_nominal = 0;
-	float yield_data = 0;
+    float yield_syst_down = 0;
+    float yield_nominal = 0;
+    float yield_data = 0;
     TCanvas *c = new TCanvas("c","c",800,600);
     //
     TPad* pad0 = new TPad("pad0","pad0",0,0.30,1,1,0,0,0);
@@ -800,13 +800,13 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 h_nominal_orig->DrawCopy("same HIST");
             }
             else {
-	        double xmin=h_nominal->GetBinLowEdge(1);
-	        double xmax=h_nominal->GetBinLowEdge(h_nominal->GetNbinsX()+1);
-	        TLine* one= new TLine(xmin,0.,xmax,0.);
-	        one->SetLineColor(kBlack);
-	        //one->SetLineStyle(7);
-	        one->SetLineWidth(2);
-	        one->Draw("same HIST");
+                double xmin=h_nominal->GetBinLowEdge(1);
+                double xmax=h_nominal->GetBinLowEdge(h_nominal->GetNbinsX()+1);
+                TLine* one= new TLine(xmin,0.,xmax,0.);
+                one->SetLineColor(kBlack);
+                //one->SetLineStyle(7);
+                one->SetLineWidth(2);
+                one->Draw("same HIST");
                 h_nominal -> SetFillStyle(3005);
                 h_nominal -> SetFillColor(kBlue);
                 h_nominal -> SetMarkerSize(0);
@@ -833,8 +833,8 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 tex->DrawLatex(0.17,0.72,fRegionLabel.c_str());
 
                 //Legend of the histograms
-		        TLegend *leg;
-		        if(SumAndData) leg = new TLegend(0.7,0.71,0.9,0.9);
+                TLegend *leg;
+                if(SumAndData) leg = new TLegend(0.7,0.71,0.9,0.9);
                 else leg = new TLegend(0.7,0.71,0.9,0.85);
                 leg->SetFillStyle(0);
                 leg->SetBorderSize(0);
@@ -868,8 +868,8 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 leg2 -> Draw();
                 if(SumAndData){
                     float acc_data = 0;
-					if (yield_nominal != 0) acc_data = (yield_data-yield_nominal)/yield_nominal;
-					else acc_data = 99999999;
+                    if (yield_nominal != 0) acc_data = (yield_data-yield_nominal)/yield_nominal;
+                    else acc_data = 99999999;
                     string sign_data =  "+";
                     if(acc_data<0) sign_data = "-";
                     TLegend *leg3 = new TLegend(0.7,0.43,0.9,0.62);
@@ -878,8 +878,8 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                     leg3->SetTextSize(gStyle->GetTextSize());
                     leg3->SetTextFont(gStyle->GetTextFont());
                     leg3->SetMargin(0.2);
-		    		leg3->AddEntry(h_dataCopy,"Data","p");
-		    		leg3->AddEntry(h_nominal,"Total prediction","l");
+                    leg3->AddEntry(h_dataCopy,"Data","p");
+                    leg3->AddEntry(h_nominal,"Total prediction","l");
                     leg3 -> Draw();
                 }
             } else {
@@ -1297,8 +1297,8 @@ void SampleHist::Scale(float scale){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         fSyst[i_syst]->fHistUp->Scale( scale );
-        fSyst[i_syst]->fHistUp_orig->Scale( scale );
+        if(fSyst[i_syst]->fHistShapeUp!=nullptr)   fSyst[i_syst]->fHistShapeUp->Scale( scale );
         fSyst[i_syst]->fHistDown->Scale( scale );
-        fSyst[i_syst]->fHistDown_orig->Scale( scale );
+        if(fSyst[i_syst]->fHistShapeDown!=nullptr) fSyst[i_syst]->fHistShapeDown->Scale( scale );
     }
 }
