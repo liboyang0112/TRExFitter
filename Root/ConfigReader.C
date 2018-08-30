@@ -713,12 +713,39 @@ int ConfigReader::ReadJobOptions(){
     if ( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if (param == "TRUE") {
-            fFitter->fUseATLASRounding = true;
+            fFitter->fUseATLASRoundingTxt = true;
+            fFitter->fUseATLASRoundingTex = true;
         } else if (param == "FALSE") {
-            fFitter->fUseATLASRounding = false;
+            fFitter->fUseATLASRoundingTxt = false;
+            fFitter->fUseATLASRoundingTex = false;
         } else {
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified UseATLASRounding option but didnt provide valid parameter. Using default (false)");
-            fFitter->fUseATLASRounding = false;
+            fFitter->fUseATLASRoundingTxt = false;
+            fFitter->fUseATLASRoundingTex = false;
+        }
+    }
+    param = confSet->Get("UseATLASRoundingTxt");
+    if ( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUseATLASRoundingTxt = true;
+        } else if (param == "FALSE") {
+            fFitter->fUseATLASRoundingTxt = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified UseATLASRoundingTxt option but didnt provide valid parameter. Using default (false)");
+            fFitter->fUseATLASRoundingTxt = false;
+        }
+    }
+    param = confSet->Get("UseATLASRoundingTex");
+    if ( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUseATLASRoundingTex = true;
+        } else if (param == "FALSE") {
+            fFitter->fUseATLASRoundingTex = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified UseATLASRoundingTex option but didnt provide valid parameter. Using default (false)");
+            fFitter->fUseATLASRoundingTex = false;
         }
     }
 
