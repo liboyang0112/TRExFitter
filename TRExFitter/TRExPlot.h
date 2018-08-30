@@ -15,12 +15,12 @@ class TLegend;
 class TPad;
 
 const int MAXbins = 1000;
-const int MAXSAMPLES = 100;
+// const int MAXSAMPLES = 100;
 
 class TRExPlot {
   public:
     TRExPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700);
-    ~TRExPlot(){};
+    ~TRExPlot();
 
     void SetChannel(const std::string& name);
     void AddLabel(const std::string& name);
@@ -57,15 +57,16 @@ class TRExPlot {
     TH1* h_data;
     TGraphAsymmErrors* g_data;
     TH1* h_mc;
-    TH1* h_bkg[MAXSAMPLES];
-    TH1* h_signal[MAXSAMPLES];
-    TH1* h_normsig[MAXSAMPLES];
-    TH1* h_oversig[MAXSAMPLES];
+    std::vector<TH1*> h_bkg;
+    std::vector<TH1*> h_signal;
+    std::vector<TH1*> h_normsig;
+    std::vector<TH1*> h_oversig;
     THStack* h_stack;
     TH1* h_tot;
     TGraphAsymmErrors* g_tot;
     TH1D* h_blinding;
     TH1* h_tot_bkg_prefit;
+    TH1* h_dummy;
 
     TCanvas* c;
     TLegend* leg;
