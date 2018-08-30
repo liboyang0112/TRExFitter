@@ -15,7 +15,6 @@ class TLegend;
 class TPad;
 
 const int MAXbins = 1000;
-// const int MAXSAMPLES = 100;
 
 class TRExPlot {
   public:
