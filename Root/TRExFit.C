@@ -7124,10 +7124,10 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     can->RedrawAxis();
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TRExFitter::IMAGEFORMAT[i_format] );
+        can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
 
     // write it to a ROOT file as well
-    TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
+    TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"_curve.root","UPDATE");
     f->cd();
     curve->Write("LHscan",TObject::kOverwrite);
     f->Close();
@@ -7651,7 +7651,7 @@ void TRExFit::RunToys(RooWorkspace* ws){
         fVarNameMinos = varMinosTmp; // retore Minos settings
 
         // Also create a ROOT file
-        TFile *out = new TFile ((fName+"/Toys/Toys.root").c_str(), "RECREATE");
+        TFile *out = new TFile ((fName+"/Toys/Toys"+fSuffix+".root").c_str(), "RECREATE");
         out->cd();
         h_toys.Write();
         out->Close();
