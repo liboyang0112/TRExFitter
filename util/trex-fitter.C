@@ -357,8 +357,12 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 // -------------------------------------------------------
 
 int main(int argc, char **argv){
-    std::string version = "4.01";
-    std::cout << "\033[1mTRExFitter v" << version << " -- Developed by Michele Pinamonti, Loic Valery, Alexander Held, Tomas Dado\033[0m" << std::endl;
+    std::ifstream in;
+    std::string version;
+    in.open(gSystem->ExpandPathName("${TREXFITTER_HOME}/version.txt"));
+    std::getline(in,version);
+    in.close();
+    std::cout << "\033[1m" << version << " -- Developed by Michele Pinamonti, Loic Valery, Alexander Held, Tomas Dado\033[0m" << std::endl;
     std::cout << "                    No rights reserved, feel free to use and modify it ;)" << std::endl;
 
     if (argc == 2){

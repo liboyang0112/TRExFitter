@@ -81,7 +81,7 @@ or simply using the alias defined in the `setup.sh` script:
 ## How to
 To run the code, after compiling (see [Setup](#setup)), use the command:
 ```
-trex-fitter  <action(s)>  [<config file>]  [<update>]  [<options>]
+trex-fitter  <action(s)>  <config file>  [<options>]
 ```
 The configuration file (`<config file>`) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
 By default, the file  `config/myFit.config`  is loaded.
