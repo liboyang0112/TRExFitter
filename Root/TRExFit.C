@@ -1580,8 +1580,11 @@ void TRExFit::CorrectHistograms(){
     
     //
     // Plot Mprhing templates
-    for(auto par : fMorphParams){
-        DrawMorphingPlots(par);
+    if (fMorphParams.size() > 0){
+        gSystem->mkdir((fName+"/Morphing").c_str());
+        for(const auto& par : fMorphParams){
+            DrawMorphingPlots(par);
+        }
     }
     
     //
