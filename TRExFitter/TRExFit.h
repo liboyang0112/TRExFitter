@@ -415,6 +415,9 @@ public:
 
     bool fDoNonProfileFit;
     int fFitToys;
+    float fToysHistoMin;
+    float fToysHistoMax;
+    int fToysHistoNbins;
     std::string fSmoothMorphingTemplates;
     int fPOIPrecision;
 

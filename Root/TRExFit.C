@@ -250,6 +250,9 @@ TRExFit::TRExFit(std::string name){
 
     fDoNonProfileFit = false;
     fFitToys = 0;
+    fToysHistoMin = 9999;
+    fToysHistoMax = -9999;
+    fToysHistoNbins = 50;
     fSmoothMorphingTemplates = "";
 
     fPOIPrecision = 2;
@@ -7614,7 +7617,13 @@ void TRExFit::RunToys(RooWorkspace* ws){
         std::map < std::string, double > npValues;
         // create histogram to store fitted POI values
         NormFactor POInf = *(fNormFactors[FindInStringVector(fNormFactorNames,fPOI)]);
-        TH1D h_toys ("h_toys","h_toys",50,POInf.fMin,POInf.fMax);
+        float min = POInf.fMin;
+        float max = POInf.fMax;
+        if (fToysHistoMin < 9900 && fToysHistoMax > -9000){
+            min = fToysHistoMin;
+            max = fToysHistoMax;
+        }
+        TH1D h_toys ("h_toys","h_toys",fToysHistoNbins,min,max);
         // get RooStats stuff
         RooStats::ModelConfig mc = *((RooStats::ModelConfig*)ws -> obj("ModelConfig"));
         RooAbsPdf *pdf = mc.GetPdf();
