@@ -1215,6 +1215,33 @@ int ConfigReader::ReadFitOptions(){
         fFitter->fFitToys = std::atoi( param.c_str());
     }
 
+    // Set ToysHistoMin
+    param = confSet->Get("ToysHistoMin");
+    if( param != "" ){
+        fFitter->fToysHistoMin = std::stof( param.c_str());
+    }
+
+    // Set ToysHistoMax
+    param = confSet->Get("ToysHistoMax");
+    if( param != "" ){
+        fFitter->fToysHistoMax = std::stof( param.c_str());
+
+        if (fFitter->fToysHistoMin > fFitter->fToysHistoMax){
+            WriteErrorStatus("ConfigReader::ReadFitOptions", "Minimum for toys is larger than maximuim for toys");
+            return 1;
+        }
+    }
+
+    // Set ToysHistoNbins
+    param = confSet->Get("ToysHistoNbins");
+    if( param != "" ){
+        fFitter->fToysHistoNbins = std::atoi( param.c_str());
+        if (fFitter->fToysHistoNbins < 2){
+            WriteErrorStatus("ConfigReader::ReadFitOptions", "Number of bins for toys is < 2");
+            return 1;
+        }
+    }
+
     // Set FitToys
     param = confSet->Get("TemplateInterpolationOption");
     if( param != "" ){
