@@ -78,7 +78,6 @@ public:
     bool UseAlternativeSelection(const std::string& sample);
     std::string GetAlternativeSelection(const std::string& sample) const;
 
-//     void SetHistoName(const std::string& name); // name of the histogram to read (the same for each sample)
     void AddSystematic(Systematic *syst);
 
     // cosmetics

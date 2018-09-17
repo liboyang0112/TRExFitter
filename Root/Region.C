@@ -1644,13 +1644,6 @@ std::string Region::GetAlternativeSelection(const std::string& sample) const{
         return tmpVec2[idx];
     }
 }
-/*
-//__________________________________________________________________________________
-//
-void Region::SetHistoName(const std::string& name){
-    fHistoNames.clear();
-    fHistoNames.push_back(name);
-}*/
 
 //__________________________________________________________________________________
 //

@@ -273,13 +273,13 @@ public:
     float fThresholdSystLarge;
     std::vector<std::string> fNtuplePaths;
     std::string fNtupleFile;
+    std::string fNtupleName;
     std::string fMCweight;
     std::string fSelection;
-    std::string fNtupleName;
 
     std::vector<std::string> fHistoPaths;
-    std::string fHistoName;
     std::string fHistoFile;
+    std::string fHistoName;
 
     FitResults *fFitResults;
 

@@ -249,12 +249,6 @@ int ConfigReader::ReadJobOptions(){
     // Set paths
     // HIST option only
     if(fFitter->fInputType==0){
-        if (confSet->Get("NtuplePath") != ""){
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePath:' option, ignoring.");
-        }
-        if (confSet->Get("NtuplePaths") != ""){
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePaths:' option, ignoring.");
-        }
         if (confSet->Get("MCweight") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'MCweight:' option, ignoring.");
         }
@@ -264,16 +258,52 @@ int ConfigReader::ReadJobOptions(){
         if (confSet->Get("NtupleName") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtupleName:' option, ignoring.");
         }
+        if (confSet->Get("NtupleFile") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtupleFile:' option, ignoring.");
+        }
+        if (confSet->Get("NtuplePath") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePath:' option, ignoring.");
+        }
+        if (confSet->Get("NtuplePaths") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePaths:' option, ignoring.");
+        }
         //
+        param = confSet->Get("HistoName");
+        if(param!=""){
+            fFitter->fHistoName = CheckName(param);
+        }
+        param = confSet->Get("HistoFile");
+        if(param!=""){
+            fFitter->fHistoFile = CheckName(param);
+        }
         param = confSet->Get("HistoPath");
-        fFitter->AddHistoPath( CheckName(param) );
+        if(param!=""){
+            fFitter->AddHistoPath( CheckName(param) );
+        }
+        param = confSet->Get("HistoPaths");
+        if(param!=""){
+            fFitter->fHistoPaths = Vectorize( param,',' );
+        }
     }
     // Setting for NTUP only
     if(fFitter->fInputType==1){
+        if (confSet->Get("HistoName") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoName:' option, ignoring.");
+        }
+        if (confSet->Get("HistoFile") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoFile:' option, ignoring.");
+        }
         if (confSet->Get("HistoPath") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoPath:' option, ignoring.");
         }
+        if (confSet->Get("HistoPaths") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoPaths:' option, ignoring.");
+        }
         //
+        param = confSet->Get("NtupleName");
+        if(param!=""){
+            fFitter->SetNtupleName( CheckName(param) );
+        }
         param = confSet->Get("NtupleFile");
         if( param != "" ){
             fFitter->SetNtupleFile( CheckName(param) );
@@ -290,11 +320,13 @@ int ConfigReader::ReadJobOptions(){
             }
         }
         param = confSet->Get("MCweight");
-        if(param!="") fFitter->SetMCweight( RemoveQuotes(param) );
+        if(param!=""){
+            fFitter->SetMCweight( RemoveQuotes(param) );
+        }
         param = confSet->Get("Selection");
-        if(param!="") fFitter->SetSelection( RemoveQuotes(param) );
-        param = confSet->Get("NtupleName");
-        fFitter->SetNtupleName( CheckName(param) );
+        if(param!=""){
+            fFitter->SetSelection( RemoveQuotes(param) );
+        }
     }
 
     // Set lumi
@@ -1481,7 +1513,7 @@ int ConfigReader::ReadRegionOptions(){
         if(param != ""){
             std::vector < std::string > vec_bins = Vectorize(param, ',');
             if (vec_bins.size() == 0){
-                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option, but you didn't provide any reasonable option. Check this!");
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Rebinning` option, but you didn't provide any reasonable option. Check this!");
                 return 1;
             }
             // eventually add auto-binning

@@ -1801,14 +1801,22 @@ void TRExFit::ReadHistograms(){
             fullPaths.clear();
             std::vector<std::string> histoFiles;
             std::vector<std::string> histoNames;
+            std::vector<std::string> histoPaths;
+            // precendence:
+            // 1. sample
+            // 2. region
+            // 3. job
             if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
             else if(fRegions[i_ch]->fHistoFiles.size()>0) histoFiles = fRegions[i_ch]->fHistoFiles;
             else                                          histoFiles = ToVec( fHistoFile );
             if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
             else if(fRegions[i_ch]->fHistoNames.size()>0) histoNames = fRegions[i_ch]->fHistoNames;
             else                                          histoNames = ToVec( fHistoName );
+            if(fSamples[i_smp]->fHistoPaths.size()>0)     histoPaths = fSamples[i_smp]->fHistoNames;
+            else if(fRegions[i_ch]->fHistoPaths.size()>0) histoPaths = fRegions[i_ch]->fHistoPaths;
+            else                                          histoPaths = fHistoPaths;
 
-            fullPaths = CreatePathsList( fHistoPaths, CombinePathSufs(fRegions[i_ch]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),
+            fullPaths = CreatePathsList( histoPaths, CombinePathSufs(fRegions[i_ch]->fHistoPathSuffs, fSamples[i_smp]->fHistoPathSuffs),
                                          histoFiles, empty, // no histo file suffs for nominal (syst only)
                                          histoNames, empty  // same for histo name
                                         );
@@ -1872,7 +1880,7 @@ void TRExFit::ReadHistograms(){
                     fullPaths.clear();
                     fullPaths = CreatePathsList(
                                                 // path
-                                                fHistoPaths,
+                                                histoPaths,
                                                 // path suf
                                     CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsUpRefSample ),
                                                 // file
@@ -1929,7 +1937,7 @@ void TRExFit::ReadHistograms(){
                     fullPaths.clear();
                     fullPaths = CreatePathsList(
                                                 // path
-                                                fHistoPaths,
+                                                histoPaths,
                                                 // path suf
                                     CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDownRefSample ),
                                                 // file
@@ -2012,14 +2020,18 @@ void TRExFit::ReadHistograms(){
             fullPaths.clear();
             std::vector<std::string> histoFiles;
             std::vector<std::string> histoNames;
+            std::vector<std::string> histoPaths;
             if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
             else if(fRegions[i_ch]->fHistoFiles.size()>0) histoFiles = fRegions[i_ch]->fHistoFiles;
             else                                          histoFiles = ToVec( fHistoFile );
             if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
             else if(fRegions[i_ch]->fHistoNames.size()>0) histoNames = fRegions[i_ch]->fHistoNames;
             else                                          histoNames = ToVec( fHistoName );
+            if(fSamples[i_smp]->fHistoPaths.size()>0)     histoPaths = fSamples[i_smp]->fHistoPaths;
+            else if(fRegions[i_ch]->fHistoPaths.size()>0) histoPaths = fRegions[i_ch]->fHistoPaths;
+            else                                          histoPaths = fHistoPaths;
 
-            fullPaths = CreatePathsList( fHistoPaths, CombinePathSufs(fRegions[i_ch]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),
+            fullPaths = CreatePathsList( histoPaths, CombinePathSufs(fRegions[i_ch]->fHistoPathSuffs, fSamples[i_smp]->fHistoPathSuffs),
                                          histoFiles, empty, // no histo file suffs for nominal (syst only)
                                          histoNames, empty  // same for histo name
                                         );
@@ -2139,7 +2151,7 @@ void TRExFit::ReadHistograms(){
                     fullPaths.clear();
                     fullPaths = CreatePathsList(
                                                 // path
-                                                fHistoPaths,
+                                                histoPaths,
                                                 // path suf
                                                 CombinePathSufs(reg->fHistoPathSuffs,syst->fHistoPathsUp ),
                                                 // file
@@ -2245,7 +2257,7 @@ void TRExFit::ReadHistograms(){
                     fullPaths.clear();
                     fullPaths = CreatePathsList(
                                                 // path
-                                                fHistoPaths,
+                                                histoPaths,
                                                 // path suf
                                                 CombinePathSufs(reg->fHistoPathSuffs, syst->fHistoPathsDown ),
                                                 // file
@@ -6805,13 +6817,17 @@ void TRExFit::ComputeBining(int regIter){
             fullPaths.clear();
             std::vector<std::string> histoFiles;
             std::vector<std::string> histoNames;
-            if(fSamples[i_smp]->fHistoFiles.size()>0)     histoFiles = fSamples[i_smp]->fHistoFiles;
+            std::vector<std::string> histoPaths;
+            if(fSamples[i_smp]->fHistoFiles.size()>0)        histoFiles = fSamples[i_smp]->fHistoFiles;
             else if(fRegions[regIter]->fHistoFiles.size()>0) histoFiles = fRegions[regIter]->fHistoFiles;
-            else                                          histoFiles = ToVec( fHistoFile );
-            if(fSamples[i_smp]->fHistoNames.size()>0)     histoNames = fSamples[i_smp]->fHistoNames;
+            else                                             histoFiles = ToVec( fHistoFile );
+            if(fSamples[i_smp]->fHistoNames.size()>0)        histoNames = fSamples[i_smp]->fHistoNames;
             else if(fRegions[regIter]->fHistoNames.size()>0) histoNames = fRegions[regIter]->fHistoNames;
-            else                                          histoNames = ToVec( fHistoName );
-            fullPaths = CreatePathsList( fHistoPaths, CombinePathSufs(fRegions[regIter]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),
+            else                                             histoNames = ToVec( fHistoName );
+            if(fSamples[i_smp]->fHistoPaths.size()>0)        histoPaths = fSamples[i_smp]->fHistoPaths;
+            else if(fRegions[regIter]->fHistoPaths.size()>0) histoPaths = fRegions[regIter]->fHistoPaths;
+            else                                             histoPaths = fHistoPaths;
+            fullPaths = CreatePathsList( histoPaths, CombinePathSufs(fRegions[regIter]->fHistoPathSuffs, fSamples[i_smp]->fHistoPaths),
                         histoFiles, empty, // no histo file suffs for nominal (syst only)
                         histoNames, empty  // same for histo name
                         );
