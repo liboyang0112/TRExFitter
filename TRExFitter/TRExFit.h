@@ -93,7 +93,7 @@ public:
 
     // create new root file with all the histograms
     void CreateRootFiles();
-    void WriteHistos() const;
+    void WriteHistos(bool reWriteOrig=true) const;
 
     void DrawSystPlots() const;
     void DrawSystPlotsSumSamples() const;

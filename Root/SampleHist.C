@@ -37,7 +37,8 @@ SampleHist::SampleHist(){
     //
     fHist = nullptr;
     fHist_orig = nullptr;
-    //
+    fHist_regBin = nullptr;
+    fHist_preSmooth = nullptr;
     fHist_postFit = nullptr;
     //
     fHistoName = "";
@@ -139,8 +140,10 @@ SystematicHist* SampleHist::AddOverallSyst(const std::string& name,float up,floa
     syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
     syh->fHistUp  ->Scale(1.+up);
     syh->fHistDown->Scale(1.+down);
-    syh->fHistUp_orig   = (TH1*)syh->fHistUp  ->Clone(Form("%s_orig",syh->fHistUp  ->GetName()));
-    syh->fHistDown_orig = (TH1*)syh->fHistDown->Clone(Form("%s_orig",syh->fHistDown->GetName()));
+    syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistDown_orig = (TH1*)fHist_orig->Clone(Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistUp_orig  ->Scale(1.+up);
+    syh->fHistDown_orig->Scale(1.+down);
     syh->fIsOverall = true;
     syh->fIsShape   = false;
     syh->fNormUp   = up;
@@ -204,6 +207,8 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,TH1* h_up,TH1* 
     syh->fHistDown = (TH1*)h_down->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
     syh->fHistUp_orig   = (TH1*)h_up  ->Clone(Form("%s_%s_Up_orig",  fHist->GetName(),name.c_str()));
     syh->fHistDown_orig = (TH1*)h_down->Clone(Form("%s_%s_Down_orig",fHist->GetName(),name.c_str()));
+    syh->fHistUp_preSmooth   = (TH1*)h_up  ->Clone(Form("%s_%s_Up_preSmooth",  fHist->GetName(),name.c_str()));
+    syh->fHistDown_preSmooth = (TH1*)h_down->Clone(Form("%s_%s_Down_preSmooth",fHist->GetName(),name.c_str()));
     syh->fHistShapeUp   = (TH1*)h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
     syh->fHistShapeDown = (TH1*)h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
     if(syh->fHistShapeUp  ->Integral() > 0. ){
@@ -419,13 +424,13 @@ bool SampleHist::HasShapeFactor(const std::string& name) const{
 
 //_____________________________________________________________________________
 //
-void SampleHist::WriteToFile(TFile *f){
+void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
     if(f==nullptr){
-        if(fHist_orig!=nullptr)   WriteHistToFile(fHist_orig,  fFileName);
+        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig,  fFileName);
         if(fHist!=nullptr)        WriteHistToFile(fHist,       fFileName);
     }
     else{
-        if(fHist_orig!=nullptr)   WriteHistToFile(fHist_orig,  f);
+        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig,  f);
         if(fHist!=nullptr)        WriteHistToFile(fHist,       f);
     }
     // create the regular binning histogram
@@ -440,6 +445,12 @@ void SampleHist::WriteToFile(TFile *f){
             htempUp  ->AddBinContent(i_bin, 1.*fHist->GetBinError(i_bin));
             htempDown->AddBinContent(i_bin,-1.*fHist->GetBinError(i_bin));
         }
+        TH1 *htempUp_orig   = (TH1*)fHist_orig->Clone();
+        TH1 *htempDown_orig = (TH1*)fHist_orig->Clone();
+        for(int i_bin=1;i_bin<=fHist_orig->GetNbinsX();i_bin++){
+            htempUp_orig  ->AddBinContent(i_bin, 1.*fHist_orig->GetBinError(i_bin));
+            htempDown_orig->AddBinContent(i_bin,-1.*fHist_orig->GetBinError(i_bin));
+        }
         std::string systName = "stat_"+fSample->fName;
         Systematic *gamma = nullptr;
         if(GetSystematic(systName)) gamma = GetSystematic(systName)->fSystematic;  //GetSystematic(systName);
@@ -448,6 +459,8 @@ void SampleHist::WriteToFile(TFile *f){
         gamma->fRegions.clear();
         gamma->fRegions.push_back(fRegionName);
         SystematicHist *syh = AddHistoSyst(systName,htempUp,htempDown);
+        syh->fHistUp_orig   = htempUp_orig;
+        syh->fHistDown_orig = htempDown_orig;
         gamma->fNuisanceParameter = gamma->fName;
         TRExFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
         if (syh ==nullptr) {
@@ -466,8 +479,8 @@ void SampleHist::WriteToFile(TFile *f){
         fSyst[i_syst]->fHistDown->SetName( Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
         fSyst[i_syst]->fHistUp_orig  ->SetName( Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
         fSyst[i_syst]->fHistDown_orig->SetName( Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
-        if(f==nullptr) fSyst[i_syst]->WriteToFile();
-        else       fSyst[i_syst]->WriteToFile(f);
+        if(f==nullptr) fSyst[i_syst]->WriteToFile(nullptr,reWriteOrig);
+        else           fSyst[i_syst]->WriteToFile(f,      reWriteOrig);
         // for shape hist, save also the syst(up)-nominal (to feed HistFactory)
         if(fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
             TH1* hVar = HistoTools::TranformHistogramBinning(
@@ -480,7 +493,7 @@ void SampleHist::WriteToFile(TFile *f){
                 if(hVar->GetBinContent(i_bin)<0) hVar->SetBinContent(i_bin,-1.*hVar->GetBinContent(i_bin));
             }
             if(f==nullptr) WriteHistToFile(hVar,fFileName);
-            else       WriteHistToFile(hVar,f);
+            else           WriteHistToFile(hVar,f);
         }
     }
 }
@@ -671,7 +684,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_nominal = (TH1*)fHist->Clone("h_nominal");
             h_nominal->SetLineColor(kBlack);
             h_nominal->SetLineWidth(2);
-            h_nominal_orig = (TH1*)fHist_orig->Clone("h_nominal_orig");
+            h_nominal_orig = (TH1*)fHist_preSmooth->Clone("h_nominal_orig");
             h_nominal_orig->SetLineColor(kBlack);
             h_nominal_orig->SetLineStyle(2);
             h_nominal_orig->SetLineWidth(2);
@@ -687,8 +700,8 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_nominal->SetMaximum(h_nominal->GetMaximum());
             h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
             h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
-            h_syst_up_orig = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
-            h_syst_down_orig = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
+            h_syst_up_orig = (TH1*)fSyst[i_syst]->fHistUp_preSmooth->Clone();
+            h_syst_down_orig = (TH1*)fSyst[i_syst]->fHistDown_preSmooth->Clone();
             h_syst_up->SetLineColor(kRed);
             h_syst_up->SetLineWidth(2);
             h_syst_up->SetLineStyle(1);
@@ -746,7 +759,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 h_syst_up_orig->Scale(100);
                 h_syst_down_orig->Scale(100);
             }
-
+            
             double ymax = 0;
             if(!ratioON) ymax = TMath::Max( ymax,TMath::Abs(h_nominal->GetMaximum()));
             if((ratioON || bothPanels) && SumAndData ) ymax = TMath::Max( ymax,TMath::Abs(h_dataCopy->GetMaximum()));
@@ -1051,9 +1064,11 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 //
 void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, float scale){
     fName = h->fName;
-    fHist = (TH1*)h->fHist->Clone();
-    fHist_orig = (TH1*)h->fHist_orig->Clone();
+    fHist           = (TH1*)h->fHist->Clone();
+    fHist_preSmooth = (TH1*)h->fHist_preSmooth->Clone();
+    fHist_orig      = (TH1*)h->fHist_orig->Clone();
     fHist->Scale(scale);
+    fHist_preSmooth->Scale(scale);
     fHist_orig->Scale(scale);
     fFileName = h->fFileName;
     fHistoName = h->fHistoName;
@@ -1069,6 +1084,10 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
             tmp->Scale(scale);
             syst_tmp->fHistUp = tmp;
 
+            tmp = (TH1*)h->fSyst[i_syst]->fHistUp_preSmooth->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistUp_preSmooth = tmp;
+
             tmp = (TH1*)h->fSyst[i_syst]->fHistUp_orig->Clone();
             tmp->Scale(scale);
             syst_tmp->fHistUp_orig = tmp;
@@ -1076,6 +1095,10 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
             tmp = (TH1*)h->fSyst[i_syst]->fHistDown->Clone();
             tmp->Scale(scale);
             syst_tmp->fHistDown = tmp;
+
+            tmp = (TH1*)h->fSyst[i_syst]->fHistDown_preSmooth->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistDown_preSmooth = tmp;
 
             tmp = (TH1*)h->fSyst[i_syst]->fHistDown_orig->Clone();
             tmp->Scale(scale);
@@ -1088,10 +1111,10 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
         if(notFound){
             SystematicHist* syst_tmp = new SystematicHist("tmp");
             ++fNSyst;
-            syst_tmp->fHistUp = (TH1*)h->fHist->Clone();
-            syst_tmp->fHistUp_orig = (TH1*)h->fHist->Clone();
-            syst_tmp->fHistDown = (TH1*)h->fHist->Clone();
-            syst_tmp->fHistDown_orig = (TH1*)h->fHist->Clone();
+            syst_tmp->fHistUp        = (TH1*)h->fHist->Clone();
+            syst_tmp->fHistUp_orig   = (TH1*)h->fHist_orig->Clone();
+            syst_tmp->fHistDown      = (TH1*)h->fHist->Clone();
+            syst_tmp->fHistDown_orig = (TH1*)h->fHist_orig->Clone();
             syst_tmp->fName = systname;
             fSyst.push_back(syst_tmp);
         }
@@ -1107,24 +1130,33 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
 //_____________________________________________________________________________
 //
 void SampleHist::SampleHistAdd(SampleHist* h, float scale){
-    fHist->Add(h->fHist, scale);
-    fHist_orig->Add(h->fHist_orig, scale);
+    fHist          ->Add(h->fHist,          scale);
+    fHist_preSmooth->Add(h->fHist_preSmooth,scale);
+    fHist_orig     ->Add(h->fHist_orig,     scale);
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        bool wasIn=false;
+        bool wasIn = false;
         for(int j_syst=0;j_syst<h->fNSyst;j_syst++){
             if(fSyst[i_syst]->fName==h->fSyst[j_syst]->fName){
-                fSyst[i_syst]->fHistUp->Add(h->fSyst[j_syst]->fHistUp, scale);
-                fSyst[i_syst]->fHistDown->Add(h->fSyst[j_syst]->fHistDown, scale);
-                fSyst[i_syst]->fHistUp_orig->Add(h->fSyst[j_syst]->fHistUp_orig, scale);
-                fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig, scale);
-                wasIn=true;
+                fSyst[i_syst]->fHistUp  ->Add(h->fSyst[j_syst]->fHistUp,  scale);
+                fSyst[i_syst]->fHistDown->Add(h->fSyst[j_syst]->fHistDown,scale);
+                if(fSyst[i_syst]->fHistUp_preSmooth!=nullptr)   fSyst[i_syst]->fHistUp_preSmooth  ->Add(h->fSyst[j_syst]->fHistUp_preSmooth,  scale);
+                else                                            fSyst[i_syst]->fHistUp_preSmooth   = (TH1*)fHist_preSmooth->Clone();
+                if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fSyst[j_syst]->fHistDown_preSmooth,scale);
+                else                                            fSyst[i_syst]->fHistDown_preSmooth = (TH1*)fHist_preSmooth->Clone();
+                fSyst[i_syst]->fHistUp_orig  ->Add(h->fSyst[j_syst]->fHistUp_orig,  scale);
+                fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig,scale);
+                wasIn = true;
             }
         }
         if(wasIn) continue;
-        fSyst[i_syst]->fHistUp->Add(h->fHist, scale);
-        fSyst[i_syst]->fHistDown->Add(h->fHist, scale);
-        fSyst[i_syst]->fHistUp_orig->Add(h->fHist,scale );
-        fSyst[i_syst]->fHistDown_orig->Add(h->fHist, scale);
+        fSyst[i_syst]->fHistUp  ->Add(h->fHist,scale);
+        fSyst[i_syst]->fHistDown->Add(h->fHist,scale);
+        if(fSyst[i_syst]->fHistUp_preSmooth!=nullptr)   fSyst[i_syst]->fHistUp_preSmooth  ->Add(h->fHist_preSmooth,scale);
+        else                                            fSyst[i_syst]->fHistUp_preSmooth   = (TH1*)fHist_preSmooth->Clone();
+        if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fHist_preSmooth,scale);
+        else                                            fSyst[i_syst]->fHistDown_preSmooth = (TH1*)fHist_preSmooth->Clone();
+        fSyst[i_syst]->fHistUp_orig  ->Add(h->fHist_orig,scale );
+        fSyst[i_syst]->fHistDown_orig->Add(h->fHist_orig,scale);
     }
 }
 

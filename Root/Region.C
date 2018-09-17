@@ -58,6 +58,8 @@ Region::Region(string name){
     fUseStatErr = false;
     fHistoBins = 0;
     fHistoNBinsRebin = -1;
+    fHistoBinsPost = 0;
+    fHistoNBinsRebinPost = -1;
     fYTitle = "";
     fYmaxScale = 0;
     fYmax = 0;
@@ -249,6 +251,14 @@ void Region::SetBinning(int N, double *bins){
 //
 void Region::Rebin(int N){
     fNbins = fHistoNBinsRebin = N;
+}
+
+//__________________________________________________________________________________
+//
+void Region::SetRebinning(int N, double *bins){
+    fHistoNBinsRebinPost = N;
+    fHistoBinsPost = new double[N+1];
+    for(int i=0; i<=N; ++i) fHistoBinsPost[i] = bins[i];
 }
 
 //__________________________________________________________________________________
@@ -869,7 +879,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
                 std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
                 if(fSampleHists[i_sample]->fSample->fSeparateGammas)
-                            gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i_sample]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
+                    gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i_sample]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
                 if(!systIsThere[gammaName]){
                     fSystNames.push_back(gammaName);
                     systIsThere[gammaName] = true;
@@ -972,7 +982,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                     diffUp   += yieldNominal_postFit*systErrUp;
                     diffDown += yieldNominal_postFit*systErrDown;
                     if (isMorph){
-                        morph_up_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrUp+1);
+                        morph_up_postfit.at(i_bin-1)  += yieldNominal_postFit*(systErrUp+1);
                         morph_down_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrDown+1);
                     }
                 }
@@ -982,7 +992,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                     diffUp   += yieldNominal_postFit*systErrUp;
                     diffDown += yieldNominal_postFit*systErrDown;
                     if (isMorph){
-                        morph_up_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrUp+1);
+                        morph_up_postfit.at(i_bin-1)  += yieldNominal_postFit*(systErrUp+1);
                         morph_down_postfit.at(i_bin-1)+= yieldNominal_postFit*(systErrDown+1);
                     }
                 }
@@ -1293,7 +1303,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
                 // find the gamma for this bin of this distribution in the fit results
                 std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
                 if(fSampleHists[i]->fSample->fSeparateGammas)
-                            gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
+                    gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
                 WriteDebugStatus("Region::DrawPostFit", "Looking for gamma " + gammaName);
                 float gammaValue = fitRes->GetNuisParValue(gammaName);
                 WriteDebugStatus("Region::DrawPostFit", "  -->  pull = " + std::to_string(gammaValue));
@@ -1634,13 +1644,13 @@ std::string Region::GetAlternativeSelection(const std::string& sample) const{
         return tmpVec2[idx];
     }
 }
-
+/*
 //__________________________________________________________________________________
 //
 void Region::SetHistoName(const std::string& name){
     fHistoNames.clear();
     fHistoNames.push_back(name);
-}
+}*/
 
 //__________________________________________________________________________________
 //

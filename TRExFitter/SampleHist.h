@@ -49,7 +49,7 @@ public:
     bool HasNorm(const std::string& name) const;
     bool HasShapeFactor(const std::string& name) const;
 
-    void WriteToFile(TFile *f=0x0);
+    void WriteToFile(TFile *f=0x0,bool reWriteOrig=true);
     void ReadFromFile();
 
     void FixEmptyBins(const bool suppress);
@@ -72,8 +72,9 @@ public:
     std::string fName;
     Sample *fSample;
     TH1 *fHist;
-    TH1 *fHist_orig;  // new
-    TH1 *fHist_regBin;  // new
+    TH1 *fHist_orig;
+    TH1 *fHist_regBin;
+    TH1 *fHist_preSmooth; // new - to use only for syst plots
     TH1 *fHist_postFit;
     std::string fFileName;
     std::string fHistoName;

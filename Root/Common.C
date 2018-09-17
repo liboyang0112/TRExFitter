@@ -21,6 +21,8 @@
 #include "TObject.h"
 #include "TString.h"
 
+#include <iostream>
+
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
 // VARIABLES
@@ -551,30 +553,26 @@ void CloseFiles( const std::set < std::string> &files_names ){
 TH1D* MergeHistograms(std::vector<TH1*> hVec){
     if(hVec.size()==0) return nullptr;
     if(hVec[0]==nullptr) return nullptr;
-    // get total number of bins
-    int Nbins = 0;
-    for(auto h : hVec){
-        Nbins += h->GetNbinsX();
-    }
-    // build array of bin edges
-    float *bins = new float[Nbins];
-    // coutner
-    int k_bin = 0;
-    // first edge from first histogram
-    bins[0] = hVec[0]->GetXaxis()->GetBinLowEdge(1);
-    k_bin ++;
+    // build vector of bin edges
+    std::vector<double> binVec;
+    binVec.push_back( hVec[0]->GetXaxis()->GetBinLowEdge(1) );
     // define the offset, which will be increased by the last bin UpEdge of a histogram at the end of the loop on its bins
-    float offset = 0;
+    double offset = 0;
     //
-    for(auto h : hVec){
+    for(unsigned int i_h=0;i_h<hVec.size();i_h++){
+        TH1* h = hVec[i_h];
         for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
-            bins[k_bin] = h->GetXaxis()->GetBinUpEdge(i_bin) + offset;
-            if(i_bin==h->GetNbinsX()) offset += h->GetXaxis()->GetBinUpEdge(i_bin)-h->GetXaxis()->GetBinLowEdge(1);
-            k_bin ++;
+            if(i_h==0) binVec.push_back( h->GetXaxis()->GetBinUpEdge(i_bin) + offset );
+            else       binVec.push_back( h->GetXaxis()->GetBinUpEdge(i_bin) - h->GetXaxis()->GetBinLowEdge(1) + offset );
+            if(i_bin==h->GetNbinsX()){
+                if(i_h==0) offset += h->GetXaxis()->GetBinUpEdge(i_bin);
+                else       offset += h->GetXaxis()->GetBinUpEdge(i_bin) - h->GetXaxis()->GetBinLowEdge(1);
+            }
         }
     }
+    int Nbins = binVec.size()-1;
     // create the new histogram
-    TH1D *hOut = new TH1D("h_merge","h_merge",Nbins,bins);
+    TH1D *hOut = new TH1D("h_merge","h_merge",Nbins,&binVec[0]);
     hOut->SetTitle(hVec[0]->GetTitle());
     hOut->SetLineColor(hVec[0]->GetLineColor());
     hOut->SetLineStyle(hVec[0]->GetLineStyle());
@@ -582,7 +580,7 @@ TH1D* MergeHistograms(std::vector<TH1*> hVec){
     hOut->SetFillColor(hVec[0]->GetFillColor());
     hOut->SetFillStyle(hVec[0]->GetFillStyle());
     // fill it
-    k_bin = 1;
+    int k_bin = 1;
     for(auto h : hVec){
         for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
             hOut->SetBinContent(k_bin,h->GetBinContent(i_bin));
@@ -590,7 +588,6 @@ TH1D* MergeHistograms(std::vector<TH1*> hVec){
             k_bin ++;
         }
     }
-    delete [] bins;
     // return
     return hOut;
 }

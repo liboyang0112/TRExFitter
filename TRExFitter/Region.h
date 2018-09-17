@@ -63,6 +63,7 @@ public:
 
     void SetBinning(int N, double *bins);
     void Rebin(int N);
+    void SetRebinning(int N, double *bins);
     void SetRegionType(RegionType type);
     void SetRegionDataType( DataType type );
     void AddSample(Sample *sample);
@@ -77,7 +78,7 @@ public:
     bool UseAlternativeSelection(const std::string& sample);
     std::string GetAlternativeSelection(const std::string& sample) const;
 
-    void SetHistoName(const std::string& name); // name of the histogram to read (the same for each sample)
+//     void SetHistoName(const std::string& name); // name of the histogram to read (the same for each sample)
     void AddSystematic(Systematic *syst);
 
     // cosmetics
@@ -171,6 +172,8 @@ public:
     // histogram stuff
     double *fHistoBins;
     int fHistoNBinsRebin;
+    double *fHistoBinsPost;
+    int fHistoNBinsRebinPost;
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoPathSuffs;
     std::vector<std::string> fHistoFiles;
