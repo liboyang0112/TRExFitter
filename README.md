@@ -600,8 +600,8 @@ This will create a combined ws starting from the individual ws for the different
 | Label            | the label which will be shown on plots |
 | OutputDir        | the name of the output directory |
 | LumiLabel        | the luminosity label that will be shown on the pltos |
-| CMELabel         | the center of mass energy label that will be shown on the plots |
-| SaveSuffix       | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
+| CmeLabel         | the center of mass energy label that will be shown on the plots |
+| SaveSuf          | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
 | ShowObserved     | can be TRUE or FALSE, flag to turn on/off the observed values on the plots |
 | LimitTitle       | the title for limit that will be shwon on the plots |
 | POITitle         | the title of the POI that will be shown on X axis  |
@@ -621,7 +621,7 @@ This will create a combined ws starting from the individual ws for the different
 | DataName         | can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used |
 | FitType          | can be SPLUSB or BONLY |
 | SignalInjection  | can be TRUE or FALSE |
-| CombineChByCH    | can be TRUE or FALSE, set to TRUE to combine channel by channel |
+| CombineChByCh    | can be TRUE or FALSE, set to TRUE to combine channel by channel |
 | NPCategories     | comma separated list of NP categories |
 | SetRandomInitialNPval | provide a float  |
 | SetRandomInitialNPvalSeed | provide an int |
@@ -633,7 +633,7 @@ This will create a combined ws starting from the individual ws for the different
 | SignalTitle      | a title of the signal for the plots |
 | FitResultsFile   | a name of the file with fit results |
 | LimitsFile       | a name of the file with limits results |
-| BonlySufix       | a suffix of the background only fits |
+| BonlySuffix      | a suffix of the background only fits |
 | ShowSystForPOI   | can be TRUE or FALSE, set to TRUE if you want to show systematics for POI |
 | GetGoodnessOfFit | can be TRUE or FALSE, set to TRUE to get chi2/NDF for the fit |
 | doLHscan         | comma separeted list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP |
