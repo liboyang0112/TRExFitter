@@ -2648,7 +2648,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPreFit(opt);
             // this line to fix the y-axis maximum getting doubled in some cases (FIXME)
-            if((fRegions[i_ch]->fYmin!=0) && (fRegions[i_ch]->fYmax!=0) && (fRegions[i_ch]->fYmaxScale!=0))
+            if((fRegions[i_ch]->fYmin==0) && (fRegions[i_ch]->fYmax==0) && (fRegions[i_ch]->fYmaxScale==0))
               p->h_dummy->GetYaxis()->SetRangeUser(p->h_dummy->GetYaxis()->GetXmin(),p->h_dummy->GetMaximum());
             for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
