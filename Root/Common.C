@@ -688,3 +688,19 @@ void RoundToSig(double& value, const int& n){
     }
 }
 
+unsigned int NCharactersInString(const std::string& s,const char c){
+    unsigned int N = 0;
+    for(unsigned int i_c=0;i_c<s.size();i_c++){
+        if(s[i_c]==c) N++;
+    }
+    return N;
+}
+
+// for the moment just checks the number of parenthesis, but can be expanded
+bool CheckExpression(const std::string& s){
+    int nParOpen = NCharactersInString(s,'(');
+    int nParClose = NCharactersInString(s,')');
+    if(nParOpen!=nParClose) return false;
+    // ...
+    return true;
+}

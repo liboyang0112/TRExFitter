@@ -158,11 +158,14 @@ For each object type (also called "block"), here is the list of available proper
 | Label                        | the label which will be shown on plots |
 | POI                          | the name of the parameter of interest; this should correspond to a NormFactor defined below |
 | ReadFrom                     | can be HIST or NTUP; default is HIST |
-| HistoPath                    | valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stored |
+| HistoPath(s)                 | valid only for option HIST above is selected; it's the path(s) where the input root files containing the histograms are stored |
+| HistoFile(s)                 | valid only for option HIST; it's the file name(s) where the input root files containing the histograms are stored |
+| HistoName(s)                 | valid only for option HIST; it's the histogram name(s) to read from the file(s) |
 | NtuplePath(s)                | valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored |
+| NtupleFile(s)                | valid only for option NTUP; it's the file names(s) where the input root files containing the ntuples are stored |
+| NtupleName(s)                | valid only for option HIST; it's the tree name(s) to read from the file(s) |
 | MCweight                     | only for option NTUP; string defining the weight (for MC samples only) |
 | Selection                    | only for option NTUP; string defining the selection |
-| NtupleName                   | default name of the tree |
 | Lumi                         | value to scale all the "NormalizedByTheory" samples |
 | LumiScale                    | additional value to scale 'after' histogram creation (for fast scaling) IMPORTANT: use it only if you know what you are doing!! |
 | SystPruningShape             | Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
@@ -309,6 +312,7 @@ For each object type (also called "block"), here is the list of available proper
 | VariableForSample            | only for option NTUP, allows to set exceptions for Variable. This is a very useful feature when using TRF only in some samples. Comma-separated list of sample:variable (e.g. wjets:met_met/1e3,zjets:Mbbb/1e). |
 | Selection                    | only for option NTUP, the selection done on the ntuple for this region |
 | NtupleName(s)                | only for option NTUP, the name (or names, comma-separated) of the tree for this region |
+| NtupleFile(s)                | only for option NTUP, the file (or files, comma-separated) of the tree for this region |
 | NtuplePathSuff(s)            | only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region |
 | MCweight                     | only for option NTUP, the additional weight used in this region (for MC samples only) |
 | Rebin                        | if specified, the histograms will be rebinned merging N bins together, where N is the argument (int) |
@@ -339,13 +343,18 @@ For each object type (also called "block"), here is the list of available proper
 | Title                        | title shown on the legends |
 | TexTitle                     | title shown on tex tables |
 | Group                        | if specified, sample will be grouped with other samples with same group and this label will be used in plots |
-| HistoFile(s)                 | valid only for option HIST; which root file(s) to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path |
 | HistoName(s)                 | valid only for option HIST; name(s) of histogram to read |
+| HistoFile(s)                 | valid only for option HIST; which root file(s) to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path |
 | HistoPath(s)                 | valid only for option HIST; it's the path(s) where the input root files containing the histograms are stored |
-| NtupleFile(s)                | valid only for option NTUP; it's the file name(s) where the input ntuples are stored |
+| HistoNameSuff(s)             | valid only for option HIST; suffix(es) for the name of histogram(s) to read |
+| HistoFileSuff(s)             | valid only for option HIST; suffix(es) for the file name of histogram(s) to read |
+| HistoPathSuff(s)             | valid only for option HIST; suffix(es) for the path of histogram(s) to read |
 | NtupleName(s)                | valid only for option NTUP; name(s) of tree to read |
+| NtupleFile(s)                | valid only for option NTUP; it's the file name(s) where the input ntuples are stored |
 | NtuplePath(s)                | valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored |
 | NtupleNameSuff(s)            | valid only for option NTUP; suffix(es) for the name of tree to read |
+| NtupleFileSuff(s)            | valid only for option NTUP; suffix(es) for the file name(s) of tree to read |
+| NtuplePathSuff(s)            | valid only for option NTUP; suffix(es) for the path(s) of tree to read |
 | FillColor                    | histogram fill color (not valid for data) |
 | LineColor                    | histogram line color |
 | NormFactor                   | NormalisationFactor (free parameter in the fit); in the format \<name\>,nominal,min,max |

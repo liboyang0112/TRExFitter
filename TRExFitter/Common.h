@@ -110,4 +110,11 @@ int ApplyErrorRounding(double& error, int& sig);
   */
 void RoundToSig(double& value, const int& n);
 
+TH1* CloneNoError(TH1* h,const char* name="");
+
+unsigned int NCharactersInString(const std::string& s,const char c);
+
+bool CheckExpression(const std::string& s);
+
+
 #endif

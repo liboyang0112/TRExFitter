@@ -174,11 +174,11 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     }
 
     // -------------------------------------------------------
+    myFit->PrintConfigSummary();
 
     if(readHistograms){
         std::cout << "Reading histograms..." << std::endl;
         myFit->CreateRootFiles();
-        myFit->PrintRegionSummary("histograms");
         myFit->ReadHistograms();
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
@@ -190,7 +190,6 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     else if(readNtuples){
         std::cout << "Reading ntuples..." << std::endl;
         myFit->CreateRootFiles();
-        myFit->PrintRegionSummary("ntuples");
         myFit->ReadNtuples();
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
