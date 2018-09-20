@@ -61,6 +61,7 @@ Region::Region(string name){
     fYTitle = "";
     fYmaxScale = 0;
     fYmax = 0;
+    fYmin = 0;
     fRatioYmax = 2.;
     fRatioYmin = 0;
     fRatioYmaxPostFit = 1.5;
