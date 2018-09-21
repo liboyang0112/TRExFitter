@@ -7224,6 +7224,7 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
                 sampleWeight = syst->fWeightUp;
             }
             else if(syst->fWeightSufUp!=""){
+                if(sampleWeight!="") sampleWeight += " * ";
                 sampleWeight += syst->fWeightSufUp;
             }
         }
@@ -7232,6 +7233,7 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
                 sampleWeight = syst->fWeightDown;
             }
             else if(syst->fWeightSufDown!=""){
+                if(sampleWeight!="") sampleWeight += " * ";
                 sampleWeight += syst->fWeightSufDown;
             }
         }
@@ -7246,6 +7248,7 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
         weight += "("+ReplaceString(fBootstrap,"x",Form("%d",fBootstrapIdx))+")";
     }
     // check the final expression
+    WriteDebugStatus("TRExFit::FullWeight","Full weight expression : "+weight);
     if(!CheckExpression(weight)){
         WriteErrorStatus("TRExFit::FullWeight","Full weight expression not valid. Please check: "+weight);
         exit(EXIT_FAILURE);
