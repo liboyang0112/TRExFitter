@@ -621,7 +621,7 @@ This will create a combined ws starting from the individual ws for the different
 | DataName         | can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used |
 | FitType          | can be SPLUSB or BONLY |
 | SignalInjection  | can be TRUE or FALSE |
-| CombineChByCh    | can be TRUE or FALSE, set to TRUE to combine channel by channel |
+| CombineChByCh    | can be TRUE (default) or FALSE, set to TRUE to combine channel by channel |
 | NPCategories     | comma separated list of NP categories |
 | SetRandomInitialNPval | provide a float  |
 | SetRandomInitialNPvalSeed | provide an int |
