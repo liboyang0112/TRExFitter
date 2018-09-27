@@ -219,6 +219,10 @@ int ConfigReader::ReadJobOptions(){
 
     // Set POI
     fFitter->SetPOI(CheckName(confSet->Get("POI")));
+    
+    // POI unit (if any)
+    param = confSet->Get("POIUnit");
+    if(param!="") fFitter->fPOIunit = param;
 
     // Set reading option
     param = confSet->Get("ReadFrom");
@@ -827,7 +831,8 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TRExFitter::PREFITONPOSTFIT= true;
         if( std::find(vec.begin(), vec.end(), "POISSONIZE")        !=vec.end() )  TRExFitter::POISSONIZE     = true;
         if( std::find(vec.begin(), vec.end(), "NOXERR") !=vec.end() )  TRExFitter::REMOVEXERRORS  = true;
-        if( std::find(vec.begin(), vec.end(), "NOENDERR") !=vec.end() )TRExFitter::NOENDERR       = true;
+//         if( std::find(vec.begin(), vec.end(), "NOENDERR") !=vec.end() )TRExFitter::NOENDERR       = true;
+        if( std::find(vec.begin(), vec.end(), "OPRATIO") !=vec.end() ) TRExFitter::OPRATIO        = true;
     }
 
     // Set PlotOptionsSummary

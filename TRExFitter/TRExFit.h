@@ -301,6 +301,7 @@ public:
     int fNNorm;
     int fNShape;
     std::string fPOI;
+    std::string fPOIunit;
     bool fUseStatErr;
     float fStatErrThres;
     std::string fStatErrCons;
@@ -337,6 +338,7 @@ public:
     bool fSystControlPlots;
     bool fSystDataPlot_upFrame;
     bool fStatOnly;
+    bool fGammasInStatOnly;
     bool fStatOnlyFit;
     bool fFixNPforStatOnlyFit;
 

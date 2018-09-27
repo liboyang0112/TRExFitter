@@ -32,7 +32,8 @@ namespace TRExFitter{
     extern bool SPLITHISTOFILES;
     extern bool HISTOCHECKCRASH;
     extern bool REMOVEXERRORS;
-    extern bool NOENDERR;
+//     extern bool NOENDERR;
+    extern bool OPRATIO;
     extern float CORRELATIONTHRESHOLD;
     extern bool MERGEUNDEROVERFLOW;
     extern std::map< std::string,std::string > SYSTMAP;
