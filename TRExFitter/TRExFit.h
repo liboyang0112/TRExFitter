@@ -83,7 +83,7 @@ public:
     void SetNtupleName(const std::string& name);
     void SetNtupleFile(const std::string& name);
     void ComputeBining(int regIter);
-    void defineVariable(int regIter);
+    void DefineVariable(int regIter);
 
     // histogram stuff
     void AddHistoPath(const std::string& path);
@@ -93,7 +93,7 @@ public:
 
     // create new root file with all the histograms
     void CreateRootFiles();
-    void WriteHistos() const;
+    void WriteHistos(bool reWriteOrig=true) const;
 
     void DrawSystPlots() const;
     void DrawSystPlotsSumSamples() const;
@@ -143,7 +143,7 @@ public:
     // get fit results from txt file
     void ReadFitResults(const std::string& fileName);
 
-    void PrintRegionSummary(const std::string inputType="ntuples") const;
+    void PrintConfigSummary() const;
 
     Region* GetRegion(const std::string& name) const;
     Sample* GetSample(const std::string& name) const;
@@ -163,14 +163,14 @@ public:
 
     std::string GetWeightFunction(std::vector<std::pair<float,std::string> > templatePair, unsigned int itemp, const TemplateInterpolationOption& opt) const;
 
-    /*
+    /**
      * Function that returns string that represents smoothed abs value function
      * @param index of the template
      * @return function in the string form
      */
     std::string GetSmoothLinearInterpolation(unsigned int itemp) const;
 
-    /*
+    /**
      * Helper function to calualte numerical correction to the smoothed linear function
      * @param parameter in the argument of the hyperbolic tangent function
      * @param size of the x axis interval
@@ -182,14 +182,14 @@ public:
      */
     double GetCorrection(float k, float width, float x_mean, float x_left, float init = 1) const;
 
-    /*
+    /**
      * Helper function to approximate absolute value by sqrt(x^2+e)
      * @param index of the template
      * @return function in the string form
      */
     std::string GetSquareRootLinearInterpolation(unsigned int itemp) const;
 
-    /*
+    /**
      * Helper function to apply correction to square root aproximation
      * @param will return value for a from -a*sqrt(x^2+epsilon) +b
      * @param will return value for b from -a*sqrt(x^2+epsilon) +b
@@ -199,7 +199,7 @@ public:
      */
     void GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const;
 
-    /*
+    /**
      * Helper function to smooth morphing templates according to a given functional form (bin-by-bin)
      * @param name of the morphing parameter
      * @param functional form
@@ -207,7 +207,7 @@ public:
      */
     void SmoothMorphTemplates(const std::string& name,const std::string& formula="pol1",double *p=0x0) const;
 
-    /*
+    /**
      * Helper function that draws plots with morphijng templates
      * @param name of the morphing parameter
      */
@@ -220,18 +220,60 @@ public:
 
     void BuildGroupedImpactTable() const;
 
-    /*
+    /**
      * Helper function to calculate nominal scale for morphed samples
      * @param A pointer to SampleHist for which we need to calculate the scale factor
      * @return A scale factor
      */
     float GetNominalMorphScale(const SampleHist* const sh) const;
 
-    /*
+    /**
      * Helper function that runs toys experiments
      * @param A pointer to a workspace needed to run the fit
      */
     void RunToys(RooWorkspace* ws);
+    
+    /**
+     * Helper function to compute the variable string to be used when reading ntuples, for a given region, sample combination
+     * @param pointer to the Region
+     * @param pointer to the Sample
+     */
+    std::string Variable(Region *reg,Sample *smp);
+    
+    /**
+     * Helper function to compute the selection string to be used when reading ntuples, for a given region, sample combination
+     * @param pointer to the Region
+     * @param pointer to the Sample
+     */
+    std::string FullSelection(Region *reg,Sample *smp);
+    
+    /**
+     * Helper function to compute the weight string to be used when reading ntuples, for a given region, sample and systematic combination
+     * @param pointer to the Region
+     * @param pointer to the Sample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     */
+    std::string FullWeight(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
+    
+    /**
+     * Helper function to compute the full paths to be used when reading ntuples, for a given region, sample and systematic combination
+     * @param pointer to the Region
+     * @param pointer to the Sample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     */
+    std::vector<std::string> FullNtuplePaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
+    
+    /**
+     * Helper function to compute the full paths to be used when reading histograms, for a given region, sample and systematic combination
+     * @param pointer to the Region
+     * @param pointer to the Sample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     */
+    std::vector<std::string> FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
+
     // -------------------------
 
     std::string fName;
@@ -272,14 +314,14 @@ public:
     float fThresholdSystPruning_Shape;
     float fThresholdSystLarge;
     std::vector<std::string> fNtuplePaths;
-    std::string fNtupleFile;
+    std::vector<std::string> fNtupleFiles;
+    std::vector<std::string> fNtupleNames;
     std::string fMCweight;
     std::string fSelection;
-    std::string fNtupleName;
 
     std::vector<std::string> fHistoPaths;
-    std::string fHistoName;
-    std::string fHistoFile;
+    std::vector<std::string> fHistoFiles;
+    std::vector<std::string> fHistoNames;
 
     FitResults *fFitResults;
 

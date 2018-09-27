@@ -32,6 +32,7 @@ SystematicHist::SystematicHist(const std::string& name){
 
     fHistUp = nullptr;
     fHistUp_orig = nullptr;
+    fHistUp_preSmooth = nullptr;
     fHistShapeUp = nullptr;
     fNormUp = 0;
     fFileNameUp = "";
@@ -42,6 +43,7 @@ SystematicHist::SystematicHist(const std::string& name){
 
     fHistDown = nullptr;
     fHistDown_orig = nullptr;
+    fHistDown_preSmooth = nullptr;
     fHistShapeDown = nullptr;
     fNormDown = 0;
     fFileNameDown = "";
@@ -65,12 +67,12 @@ SystematicHist::~SystematicHist(){
 
 //_____________________________________________________________________________
 //
-void SystematicHist::WriteToFile(TFile *f) const{
+void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
     if(f==nullptr){
         WriteHistToFile(fHistUp,fFileNameUp);
         WriteHistToFile(fHistDown,fFileNameDown);
-        WriteHistToFile(fHistUp_orig,fFileNameUp);
-        WriteHistToFile(fHistDown_orig,fFileNameDown);
+        if(reWriteOrig) WriteHistToFile(fHistUp_orig,fFileNameUp);
+        if(reWriteOrig) WriteHistToFile(fHistDown_orig,fFileNameDown);
         if(fIsShape){
             WriteHistToFile(fHistShapeUp,fFileNameShapeUp);
             WriteHistToFile(fHistShapeDown,fFileNameShapeDown);
@@ -85,8 +87,8 @@ void SystematicHist::WriteToFile(TFile *f) const{
     else{
         WriteHistToFile(fHistUp,f);
         WriteHistToFile(fHistDown,f);
-        WriteHistToFile(fHistUp_orig,f);
-        WriteHistToFile(fHistDown_orig,f);
+        if(reWriteOrig) WriteHistToFile(fHistUp_orig,f);
+        if(reWriteOrig) WriteHistToFile(fHistDown_orig,f);
         if(fIsShape){
             WriteHistToFile(fHistShapeUp,f);
             WriteHistToFile(fHistShapeDown,f);

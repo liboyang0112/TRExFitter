@@ -249,12 +249,6 @@ int ConfigReader::ReadJobOptions(){
     // Set paths
     // HIST option only
     if(fFitter->fInputType==0){
-        if (confSet->Get("NtuplePath") != ""){
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePath:' option, ignoring.");
-        }
-        if (confSet->Get("NtuplePaths") != ""){
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePaths:' option, ignoring.");
-        }
         if (confSet->Get("MCweight") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'MCweight:' option, ignoring.");
         }
@@ -264,19 +258,73 @@ int ConfigReader::ReadJobOptions(){
         if (confSet->Get("NtupleName") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtupleName:' option, ignoring.");
         }
+        if (confSet->Get("NtupleFile") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtupleFile:' option, ignoring.");
+        }
+        if (confSet->Get("NtuplePath") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePath:' option, ignoring.");
+        }
+        if (confSet->Get("NtuplePaths") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified HIST option but you provided 'NtuplePaths:' option, ignoring.");
+        }
         //
+        param = confSet->Get("HistoName");
+        if(param!=""){
+            fFitter->fHistoNames.clear();
+            fFitter->fHistoNames.push_back( CheckName(param) );
+        }
+        param = confSet->Get("HistoNames");
+        if(param!=""){
+            fFitter->fHistoNames = Vectorize( param,',' );
+        }
+        param = confSet->Get("HistoFile");
+        if(param!=""){
+            fFitter->fHistoFiles.clear();
+            fFitter->fHistoFiles.push_back( CheckName(param) );
+        }
+        param = confSet->Get("HistoFiles");
+        if(param!=""){
+            fFitter->fHistoFiles = Vectorize( param,',' );
+        }
         param = confSet->Get("HistoPath");
-        fFitter->AddHistoPath( CheckName(param) );
+        if(param!=""){
+            fFitter->AddHistoPath( CheckName(param) );
+        }
+        param = confSet->Get("HistoPaths");
+        if(param!=""){
+            fFitter->fHistoPaths = Vectorize( param,',' );
+        }
     }
     // Setting for NTUP only
     if(fFitter->fInputType==1){
+        if (confSet->Get("HistoName") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoName:' option, ignoring.");
+        }
+        if (confSet->Get("HistoFile") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoFile:' option, ignoring.");
+        }
         if (confSet->Get("HistoPath") != ""){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoPath:' option, ignoring.");
         }
+        if (confSet->Get("HistoPaths") != ""){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NTUP option but you provided 'HistoPaths:' option, ignoring.");
+        }
         //
+        param = confSet->Get("NtupleName");
+        if(param!=""){
+            fFitter->SetNtupleName( CheckName(param) );
+        }
+        param = confSet->Get("NtupleNames");
+        if(param!=""){
+            fFitter->fNtupleNames = Vectorize( param,',' );
+        }
         param = confSet->Get("NtupleFile");
         if( param != "" ){
             fFitter->SetNtupleFile( CheckName(param) );
+        }
+        param = confSet->Get("NtupleFiles");
+        if(param!=""){
+            fFitter->fNtupleFiles = Vectorize( param,',' );
         }
         param = confSet->Get("NtuplePath");
         if( param != "" ) {
@@ -290,11 +338,13 @@ int ConfigReader::ReadJobOptions(){
             }
         }
         param = confSet->Get("MCweight");
-        if(param!="") fFitter->SetMCweight( RemoveQuotes(param) );
+        if(param!=""){
+            fFitter->SetMCweight( RemoveQuotes(param) );
+        }
         param = confSet->Get("Selection");
-        if(param!="") fFitter->SetSelection( RemoveQuotes(param) );
-        param = confSet->Get("NtupleName");
-        fFitter->SetNtupleName( CheckName(param) );
+        if(param!=""){
+            fFitter->SetSelection( RemoveQuotes(param) );
+        }
     }
 
     // Set lumi
@@ -1475,11 +1525,28 @@ int ConfigReader::ReadRegionOptions(){
         // Set Rebin
         param = confSet->Get("Rebin");
         if(param != "") reg->Rebin(atoi(param.c_str()));
+        
+        // Set post-process rebin ("Rebinning")
+        param = confSet->Get("Rebinning");
+        if(param != ""){
+            std::vector < std::string > vec_bins = Vectorize(param, ',');
+            if (vec_bins.size() == 0){
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Rebinning` option, but you didn't provide any reasonable option. Check this!");
+                return 1;
+            }
+            // eventually add auto-binning
+            const unsigned int nBounds = vec_bins.size();
+            double *bins = new double[nBounds];
+            for (unsigned int iBound = 0; iBound < nBounds; ++iBound){
+                bins[iBound] = atof(vec_bins[iBound].c_str());
+            }
+            reg -> SetRebinning(nBounds-1,bins);
+        }
 
         // Set Binning
         param = confSet->Get("Binning");
         if(param != "" && param !="-"){
-            std::vector < std::string > vec_bins = Vectorize(confSet->Get("Binning"), ',');
+            std::vector < std::string > vec_bins = Vectorize(param, ',');
             if (vec_bins.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option, but you didn't provide any reasonable option. Check this!");
                 return 1;
@@ -1614,22 +1681,75 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
 
     // Set HistoFile
     param = confSet->Get("HistoFile");
-    if(param!="") reg->fHistoFiles.push_back( RemoveQuotes(param) );
+    if(param!=""){
+        reg->fHistoFiles.clear();
+        reg->fHistoFiles.push_back( RemoveQuotes(param) );
+    }
+    // Set HistoFiles
+    param = confSet->Get("HistoFiles");
+    if(param!="") reg->fHistoFiles = Vectorize( param,',' );
 
     // Set HistoName
     param = confSet->Get("HistoName");
-    if(param!="") reg->SetHistoName( RemoveQuotes(param) );
+    if(param!=""){
+        reg->fHistoNames.clear();
+        reg->fHistoNames.push_back( RemoveQuotes(param) );
+    }
+    // Set HistoNames
+    param = confSet->Get("HistoNames");
+    if(param!="") reg->fHistoNames = Vectorize( param,',' );
 
+    // Set HistoPath
+    param = confSet->Get("HistoPath");
+    if(param!=""){
+        reg->fHistoPaths.clear();
+        reg->fHistoPaths.push_back( RemoveQuotes(param) );
+    }
+    // Set HistoFiles
+    param = confSet->Get("HistoPaths");
+    if(param!="") reg->fHistoPaths = Vectorize( param,',' );
+
+    // Set HistoFileSuff
+    param = confSet->Get("HistoFileSuff");
+    if(param !=""){
+        reg->fHistoFileSuffs.clear();
+        reg->fHistoFileSuffs.push_back( RemoveQuotes(param) );
+    }
+    // Set HistoPathSuffs
+    param = confSet->Get("HistoFileSuffs");
+    if(param!=""){
+        reg->fHistoFileSuffs.clear();
+        std::vector<std::string> paths = Vectorize( param,',' );
+        for(std::string ipath : paths){
+            reg->fHistoFileSuffs.push_back( RemoveQuotes(ipath) );
+        }
+    }
+
+    // Set HistoNameSuff
+    param = confSet->Get("HistoNameSuff");
+    if(param !=""){
+        reg->fHistoNameSuffs.clear();
+        reg->fHistoNameSuffs.push_back( RemoveQuotes(param) );
+    }
+    // Set HistoNameSuffs
+    param = confSet->Get("HistoNameSuffs");
+    if(param!=""){
+        reg->fHistoNameSuffs.clear();
+        std::vector<std::string> paths = Vectorize( param,',' );
+        for(std::string ipath : paths){
+            reg->fHistoNameSuffs.push_back( RemoveQuotes(ipath) );
+        }
+    }
+    
     // Set HistoPathSuff
     param = confSet->Get("HistoPathSuff");
-    if(param !="") {
+    if(param !=""){
         reg->fHistoPathSuffs.clear();
         reg->fHistoPathSuffs.push_back( RemoveQuotes(param) );
     }
-
     // Set HistoPathSuffs
     param = confSet->Get("HistoPathSuffs");
-    if( param != "" ){
+    if(param!=""){
         reg->fHistoPathSuffs.clear();
         std::vector<std::string> paths = Vectorize( param,',' );
         for(std::string ipath : paths){
@@ -1716,12 +1836,42 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
         }
     }
 
+    // Set MCweight
+    param = confSet->Get("MCweight");
+    if (param != "") reg->fMCweight = RemoveQuotes(param); // this will override the global MCweight, if any
+
+    // Set NtupleFile
+    param = confSet->Get("NtupleFile");
+    if(param!=""){
+        reg->fNtupleFiles.clear();
+        reg->fNtupleFiles.push_back( RemoveQuotes(param) );
+    }
+    // Set NtupleFiles
+    param = confSet->Get("NtupleFiles");
+    if(param!="") reg->fNtupleFiles = Vectorize( param,',' );
+
+    // Set NtupleFileSuff
+    param = confSet->Get("NtupleFileSuff");
+    if(param!="") {
+        reg->fNtupleFileSuffs.clear();
+        reg->fNtupleFileSuffs.push_back( RemoveQuotes(param) );
+    }
+    // Set NtupleFileSuffs
+    param = confSet->Get("NtupleFileSuffs");
+    if( param != "" ){
+        std::vector<std::string> paths = Vectorize( param,',' );
+        reg->fNtupleFileSuffs = paths;
+    }
+
     // Set NtupleName
     param = confSet->Get("NtupleName");
     if(param!="") {
         reg->fNtupleNames.clear();
         reg->fNtupleNames.push_back( RemoveQuotes(param) );
     }
+    // Set NtupleNames
+    param = confSet->Get("NtupleNames");
+    if(param!="") reg->fNtupleNames = Vectorize( param,',' );
 
     // Set NtupleNameSuff
     param = confSet->Get("NtupleNameSuff");
@@ -1729,17 +1879,22 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
         reg->fNtupleNameSuffs.clear();
         reg->fNtupleNameSuffs.push_back( RemoveQuotes(param) );
     }
-
     // Set NtupleNameSuffs
     param = confSet->Get("NtupleNameSuffs");
     if( param != "" ){
         std::vector<std::string> paths = Vectorize( param,',' );
         reg->fNtupleNameSuffs = paths;
     }
-
-    // Set MCweight
-    param = confSet->Get("MCweight");
-    if (param != "") reg->fMCweight = RemoveQuotes(param); // this will override the global MCweight, if any
+    
+    // Set NtuplePath
+    param = confSet->Get("NtuplePath");
+    if(param!="") {
+        reg->fNtuplePaths.clear();
+        reg->fNtuplePaths.push_back( RemoveQuotes(param) );
+    }
+    // Set NtuplePaths
+    param = confSet->Get("NtuplePaths");
+    if(param!="") reg->fNtuplePaths = Vectorize( param,',' );
 
     // Set NtuplePathSuff
     param = confSet->Get("NtuplePathSuff");
@@ -1747,7 +1902,6 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
         reg->fNtuplePathSuffs.clear();
         reg->fNtuplePathSuffs.push_back( RemoveQuotes(param) );
     }
-
     // Set NtuplePathSuffs
     param = confSet->Get("NtuplePathSuffs");
     if( param != "" ){
@@ -1844,15 +1998,67 @@ int ConfigReader::ReadSampleOptions(){
         if (fFitter->fInputType == 0){
             // Set HistoFile
             param = confSet->Get("HistoFile");
-            if(param!="") sample->AddHistoFile( RemoveQuotes(param) );
+            if(param!="") sample->fHistoFiles.push_back( RemoveQuotes(param) );
+            
+            // Set HistoFiles
+            param = confSet->Get("HistoFiles");
+            if(param!="") sample->fHistoFiles = Vectorize( param, ',' );
+
+            // Set HistoName
+            param = confSet->Get("HistoName");
+            if(param!="") sample->fHistoNames.push_back( RemoveQuotes(param) );
+            
+            // Set HistoNames
+            param = confSet->Get("HistoNames");
+            if(param!="") sample->fHistoNames = Vectorize( param, ',' );
+
+            // Set HistoPath
+            param = confSet->Get("HistoPath");
+            if(param!="") sample->fHistoPaths.push_back( RemoveQuotes(param) );
+            
+            // Set HistoPaths
+            param = confSet->Get("HistoPaths");
+            if(param!="") sample->fHistoPaths = Vectorize( param, ',' );
+            
+            // Set HistoFileSuff
+            param = confSet->Get("HistoFileSuff");
+            if(param!="") sample->fHistoFileSuffs.push_back( RemoveQuotes(param) );            
+            
+            // Set HistoFileSuffs
+            param = confSet->Get("HistoFileSuffs");
+            if(param!="") sample->fHistoFileSuffs = Vectorize( param, ',' );
 
             // Set HistoName
             param = confSet->Get("HistoName");
             if(param!="") sample->fHistoNames.push_back( RemoveQuotes(param) );
 
+            // Set HistoNames
+            param = confSet->Get("HistoNames");
+            if(param!="") sample->fHistoNames = Vectorize( param, ',' );
+
+            // Set HistoNameSuff
+            param = confSet->Get("HistoNameSuff");
+            if(param!="") sample->fHistoNameSuffs.push_back( RemoveQuotes(param) );
+
+            // Set HistoNameSuffs
+            param = confSet->Get("HistoNameSuffs");
+            if(param!="") sample->fHistoNameSuffs = Vectorize( param, ',' );
+
             // Set HistoPath
             param = confSet->Get("HistoPath");
-            if(param!="") sample->AddHistoPath( RemoveQuotes(param) );
+            if(param!="") sample->fHistoPaths.push_back( RemoveQuotes(param) );
+
+            // Set HistoPaths
+            param = confSet->Get("HistoPaths");
+            if(param!="") sample->fHistoPaths = Vectorize( param, ',' );
+
+            // Set HistoPathSuff
+            param = confSet->Get("HistoPathSuff");
+            if(param!="") sample->fHistoPathSuffs.push_back( RemoveQuotes(param) );
+
+            // Set HistoPathSuffs
+            param = confSet->Get("HistoPathSuffs");
+            if(param!="") sample->fHistoPathSuffs = Vectorize( param, ',' );
 
             if (ConfigHasNTUP(confSet)){
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You provided some NTUP options but your input type is HIST. Options will be ingored");
@@ -1860,41 +2066,50 @@ int ConfigReader::ReadSampleOptions(){
         } else if (fFitter->fInputType == 1){ // NTUP input
             // Set NtupleFile
             param = confSet->Get("NtupleFile");
-            if(param!="") sample->AddNtupleFile( RemoveQuotes(param) );
+            if(param!="") sample->fNtupleFiles.push_back( RemoveQuotes(param) );
 
             // Set NtupleFiles
             param = confSet->Get("NtupleFiles");
             if(param!="") sample->fNtupleFiles = Vectorize( param ,',' );
 
+            param = confSet->Get("NtupleFileSuff");
+            if(param!="") sample->fNtupleFileSuffs.push_back( RemoveQuotes(param) );
+
+            // Set NtupleFileSuffs
+            param = confSet->Get("NtupleFileSuffs");
+            if(param!="") sample->fNtupleFileSuffs = Vectorize( param ,',' );
+            
             // Set NtupleName
             param = confSet->Get("NtupleName");
-            if(param!="") sample->AddNtupleName( RemoveQuotes(param) );
+            if(param!="") sample->fNtupleNames.push_back( RemoveQuotes(param) );
 
             // Set NtupleNames
             param = confSet->Get("NtupleNames");
             if(param!="") sample->fNtupleNames = Vectorize( param ,',' );
 
+            // Set NtupleNameSuff
+            param = confSet->Get("NtupleNameSuff");
+            if(param!="") sample->fNtupleNameSuffs.push_back( RemoveQuotes(param) );
+
+            // Set NtupleNameSuffs
+            param = confSet->Get("NtupleNameSuffs");
+            if( param != "" ) sample->fNtupleNameSuffs = Vectorize( param,',' );
+
             // Set NtuplePath
             param = confSet->Get("NtuplePath");
-            if(param!="") sample->AddNtuplePath( RemoveQuotes(param) );
+            if(param!="") sample->fNtuplePaths.push_back( RemoveQuotes(param) );
 
             // Set NtuplePaths
             param = confSet->Get("NtuplePaths");
             if(param != "") sample->fNtuplePaths = Vectorize( param ,',' );
 
-            // Set NtupleNameSuff
-            param = confSet->Get("NtupleNameSuff");
-            if(param != "") {
-                sample->fNtupleNameSuffs.clear();
-                sample->fNtupleNameSuffs.push_back( RemoveQuotes(param) );
-            }
+            // Set NtuplePathSuff
+            param = confSet->Get("NtuplePathSuff");
+            if(param!="") sample->fNtuplePathSuffs.push_back( RemoveQuotes(param) );
 
-            // Set NtupleNameSuffs
-            param = confSet->Get("NtupleNameSuffs");
-            if( param != "" ){
-                std::vector<std::string> paths = Vectorize( param,',' );
-                sample->fNtupleNameSuffs = paths;
-            }
+            // Set NtuplePathSuffs
+            param = confSet->Get("NtuplePathSuffs");
+            if(param != "") sample->fNtuplePathSuffs = Vectorize( param ,',' );
 
             if (ConfigHasHIST(confSet)){
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You provided some HIST options but your input type is NTUP. Options will be ingored");
@@ -2825,6 +3040,16 @@ int ConfigReader::ReadSystOptions(){
                     sys->fHistoPathsDownRefSample.push_back(RemoveQuotes(param));
                     hasDown   = true;
                 }
+                param = confSet->Get("HistoPathsUpRefSample");
+                if(param!=""){
+                    sys->fHistoPathsUpRefSample = Vectorize(param,',');
+                    hasUp   = true;
+                }
+                param = confSet->Get("HistoPathsDownRefSample");
+                if(param!=""){
+                    sys->fHistoPathsDownRefSample = Vectorize(param,',');
+                    hasDown = true;
+                }
                 param = confSet->Get("HistoPathSufUpRefSample");
                 if(param!=""){
                     sys->fHistoPathSufUpRefSample = RemoveQuotes(param);
@@ -2845,6 +3070,16 @@ int ConfigReader::ReadSystOptions(){
                     sys->fHistoFilesDownRefSample.push_back(RemoveQuotes(param));
                     hasDown = true;
                 }
+                param = confSet->Get("HistoFilesUpRefSample");
+                if(param!=""){
+                    sys->fHistoFilesUpRefSample = Vectorize(param,',');
+                    hasUp   = true;
+                }
+                param = confSet->Get("HistoFilesDownRefSample");
+                if(param!=""){
+                    sys->fHistoFilesDownRefSample = Vectorize(param,',');
+                    hasDown = true;
+                }
                 param = confSet->Get("HistoFileSufUpRefSample");
                 if(param!=""){
                     sys->fHistoFileSufUpRefSample = RemoveQuotes(param);
@@ -2852,17 +3087,27 @@ int ConfigReader::ReadSystOptions(){
                 }
                 param = confSet->Get("HistoFileSufDownRefSample");
                 if(param!=""){
-                    sys->fHistoFileSufDown = RemoveQuotes(param);
+                    sys->fHistoFileSufDownRefSample = RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("HistoNameUpRefSample");
                 if(param!=""){
-                    sys->fHistoNamesUp.push_back(RemoveQuotes(param));
+                    sys->fHistoNamesUpRefSample.push_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoNameDownRefSample");
                 if(param!=""){
                     sys->fHistoNamesDown.push_back(RemoveQuotes(param));
+                    hasDown = true;
+                }
+                param = confSet->Get("HistoNamesUpRefSample");
+                if(param!=""){
+                    sys->fHistoNamesUpRefSample = Vectorize(param,',');
+                    hasUp   = true;
+                }
+                param = confSet->Get("HistoNamesDownRefSample");
+                if(param!=""){
+                    sys->fHistoNamesDownRefSample = Vectorize(param,',');
                     hasDown = true;
                 }
                 param = confSet->Get("HistoNameSufUpRefSample");
@@ -3314,31 +3559,31 @@ int ConfigReader::ReadSystOptions(){
 
         // Set paths for reference sample
         // Histo:
-        if (sys->fHistoPathsUpRefSample.size() == 0) sys->fHistoPathsUpRefSample = sys->fHistoPathsUp;
-        if (sys->fHistoPathsDownRefSample.size() == 0) sys->fHistoPathsDownRefSample = sys->fHistoPathsUp;
-        if (sys->fHistoPathSufUpRefSample.size() == 0) sys->fHistoPathSufUpRefSample = sys->fHistoPathSufUp;
+        if (sys->fHistoPathsUpRefSample.size()     == 0) sys->fHistoPathsUpRefSample     = sys->fHistoPathsUp;
+        if (sys->fHistoPathsDownRefSample.size()   == 0) sys->fHistoPathsDownRefSample   = sys->fHistoPathsDown;
+        if (sys->fHistoPathSufUpRefSample.size()   == 0) sys->fHistoPathSufUpRefSample   = sys->fHistoPathSufUp;
         if (sys->fHistoPathSufDownRefSample.size() == 0) sys->fHistoPathSufDownRefSample = sys->fHistoPathSufDown;
-        if (sys->fHistoFilesUpRefSample.size() == 0) sys->fHistoFilesUpRefSample = sys->fHistoFilesUp;
-        if (sys->fHistoFilesDownRefSample.size() == 0) sys->fHistoFilesDownRefSample = sys->fHistoFilesDown;
-        if (sys->fHistoFileSufUpRefSample.size() == 0) sys->fHistoFileSufUpRefSample = sys->fHistoFileSufUp;
+        if (sys->fHistoFilesUpRefSample.size()     == 0) sys->fHistoFilesUpRefSample     = sys->fHistoFilesUp;
+        if (sys->fHistoFilesDownRefSample.size()   == 0) sys->fHistoFilesDownRefSample   = sys->fHistoFilesDown;
+        if (sys->fHistoFileSufUpRefSample.size()   == 0) sys->fHistoFileSufUpRefSample   = sys->fHistoFileSufUp;
         if (sys->fHistoFileSufDownRefSample.size() == 0) sys->fHistoFileSufDownRefSample = sys->fHistoFileSufDown;
-        if (sys->fHistoNamesUpRefSample.size() == 0) sys->fHistoNamesUpRefSample = sys->fHistoNamesUp;
-        if (sys->fHistoNamesDownRefSample.size() == 0) sys->fHistoNamesDownRefSample = sys->fHistoNamesDown;
-        if (sys->fHistoNameSufUpRefSample.size() == 0) sys->fHistoNameSufUpRefSample = sys->fHistoNameSufUp;
+        if (sys->fHistoNamesUpRefSample.size()     == 0) sys->fHistoNamesUpRefSample     = sys->fHistoNamesUp;
+        if (sys->fHistoNamesDownRefSample.size()   == 0) sys->fHistoNamesDownRefSample   = sys->fHistoNamesDown;
+        if (sys->fHistoNameSufUpRefSample.size()   == 0) sys->fHistoNameSufUpRefSample   = sys->fHistoNameSufUp;
         if (sys->fHistoNameSufDownRefSample.size() == 0) sys->fHistoNameSufDownRefSample = sys->fHistoNameSufDown;
 
-        if (sys->fNtuplePathsUpRefSample.size() == 0) sys->fNtuplePathsUpRefSample = sys->fNtuplePathsUp;
-        if (sys->fNtuplePathsDownRefSample.size() == 0) sys->fNtuplePathsDownRefSample = sys->fNtuplePathsDown;
-        if (sys->fNtuplePathSufUpRefSample.size() == 0) sys->fNtuplePathSufUpRefSample = sys->fNtuplePathSufUp;
-        if (sys->fNtuplePathSufDownRefSample.size() == 0) sys->fNtuplePathSufDownRefSample = sys->fNtuplePathSufDown;
-        if (sys->fNtupleFilesUpRefSample.size() == 0) sys->fNtupleFilesUpRefSample = sys->fNtupleFilesUp;
-        if (sys->fNtupleFilesDownRefSample.size() == 0) sys->fNtupleFilesDownRefSample = sys->fNtupleFilesDown;
-        if (sys->fNtupleFileSufUpRefSample.size() == 0) sys->fNtupleFileSufUpRefSample = sys->fNtupleFileSufUp;
-        if (sys->fNtupleFileSufDownRefSample.size() == 0) sys->fNtupleFileSufDownRefSample = sys->fNtupleFileSufDown;
-        if (sys->fNtupleNamesUpRefSample.size() == 0) sys->fNtupleNamesUpRefSample = sys->fNtupleNamesUp;
-        if (sys->fNtupleNamesDownRefSample.size() == 0) sys->fNtupleNamesDownRefSample = sys->fNtupleNamesDown;
-        if (sys->fNtupleNameSufUpRefSample.size() == 0) sys->fNtupleNameSufUpRefSample = sys->fNtupleNameSufUp;
-        if (sys->fNtupleNameSufDownRefSample.size() == 0) sys->fNtupleNameSufDownRefSample = sys->fNtupleNameSufDown;
+        if (sys->fNtuplePathsUpRefSample.size()    == 0) sys->fNtuplePathsUpRefSample     = sys->fNtuplePathsUp;
+        if (sys->fNtuplePathsDownRefSample.size()  == 0) sys->fNtuplePathsDownRefSample   = sys->fNtuplePathsDown;
+        if (sys->fNtuplePathSufUpRefSample.size()  == 0) sys->fNtuplePathSufUpRefSample   = sys->fNtuplePathSufUp;
+        if (sys->fNtuplePathSufDownRefSample.size()== 0) sys->fNtuplePathSufDownRefSample = sys->fNtuplePathSufDown;
+        if (sys->fNtupleFilesUpRefSample.size()    == 0) sys->fNtupleFilesUpRefSample     = sys->fNtupleFilesUp;
+        if (sys->fNtupleFilesDownRefSample.size()  == 0) sys->fNtupleFilesDownRefSample   = sys->fNtupleFilesDown;
+        if (sys->fNtupleFileSufUpRefSample.size()  == 0) sys->fNtupleFileSufUpRefSample   = sys->fNtupleFileSufUp;
+        if (sys->fNtupleFileSufDownRefSample.size()== 0) sys->fNtupleFileSufDownRefSample = sys->fNtupleFileSufDown;
+        if (sys->fNtupleNamesUpRefSample.size()    == 0) sys->fNtupleNamesUpRefSample     = sys->fNtupleNamesUp;
+        if (sys->fNtupleNamesDownRefSample.size()  == 0) sys->fNtupleNamesDownRefSample   = sys->fNtupleNamesDown;
+        if (sys->fNtupleNameSufUpRefSample.size()  == 0) sys->fNtupleNameSufUpRefSample   = sys->fNtupleNameSufUp;
+        if (sys->fNtupleNameSufDownRefSample.size()== 0) sys->fNtupleNameSufDownRefSample = sys->fNtupleNameSufDown;
     }
 
     return 0;

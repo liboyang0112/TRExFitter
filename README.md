@@ -158,11 +158,14 @@ For each object type (also called "block"), here is the list of available proper
 | Label                        | the label which will be shown on plots |
 | POI                          | the name of the parameter of interest; this should correspond to a NormFactor defined below |
 | ReadFrom                     | can be HIST or NTUP; default is HIST |
-| HistoPath                    | valid only for option HIST above is selected; it's the path where the input root files containing the histograms are stored |
+| HistoPath(s)                 | valid only for option HIST above is selected; it's the path(s) where the input root files containing the histograms are stored |
+| HistoFile(s)                 | valid only for option HIST; it's the file name(s) where the input root files containing the histograms are stored |
+| HistoName(s)                 | valid only for option HIST; it's the histogram name(s) to read from the file(s) |
 | NtuplePath(s)                | valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored |
+| NtupleFile(s)                | valid only for option NTUP; it's the file names(s) where the input root files containing the ntuples are stored |
+| NtupleName(s)                | valid only for option HIST; it's the tree name(s) to read from the file(s) |
 | MCweight                     | only for option NTUP; string defining the weight (for MC samples only) |
 | Selection                    | only for option NTUP; string defining the selection |
-| NtupleName                   | default name of the tree |
 | Lumi                         | value to scale all the "NormalizedByTheory" samples |
 | LumiScale                    | additional value to scale 'after' histogram creation (for fast scaling) IMPORTANT: use it only if you know what you are doing!! |
 | SystPruningShape             | Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
@@ -232,9 +235,9 @@ For each object type (also called "block"), here is the list of available proper
 | Suffix                       | added to file names of plots, workspace, fit results etc. (equivalent to command line option) |
 | SaveSuffix                   | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
 | HideNP                       | comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix |
-| SummaryPlotLabels            | labels to be used per region in summary plot |
+| SummaryPlotLabels            | DEPRECATED - labels to be used per region group in summary plot (only if FourTopStyle is set) |
 | SummaryPlotValidationRegions | regions to be included in validation region summary plot (default: all) |
-| SummaryPlotValidationLabels  | labels to be used per region in validation region summary plot |
+| SummaryPlotValidationLabels  | DEPRECATED - labels to be used per set of regions in validation-region summary plot (only if FourTopStyle is set) |
 | SmoothMorphingTemplates      | if set to TRUE (default is FALSE), the templates used for morphig are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory) |
 | SummaryPrefix                | adds a prefix to summary and merge plots |
 | AllowWrongRegionSample       | Can be TRUE or FALSE (default). When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined. |
@@ -267,9 +270,9 @@ For each object type (also called "block"), here is the list of available proper
 | GetGoodnessOfFit             | set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods) |
 | DoNonProfileFit              | [EXPERIMENTAL] if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time |
 | FitToys                      | [EXPERIMENTAL] if set to N > 0, N stat-ony toys are generated and fitted |
-| ToysHistoMin                  | If FitToys is used, set minimum on the output toys histogram X axis |
-| ToysHistoMax                  | If FitToys is used, set maximum on the output toys histogram X axis |
-| ToysHistoNbins                | If FitToys is used, set number of bins for toys histogram output |
+| ToysHistoMin                 | If FitToys is used, set minimum on the output toys histogram X axis |
+| ToysHistoMax                 | If FitToys is used, set maximum on the output toys histogram X axis |
+| ToysHistoNbins               | If FitToys is used, set number of bins for toys histogram output |
 | TemplateInterpolationOption  | Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt{x^2+\epsilon}`$ to achieve smooth transitions (first derivative) between the templates |
 
 ### `Limit` block options:
@@ -302,17 +305,19 @@ For each object type (also called "block"), here is the list of available proper
 | LumiLabel                    | label for luminosity to be put on plots |
 | CmeLabel                     | label for center-of-mass energy to be put on plots |
 | LogScale                     | set it to TRUE to have log-scale when plotting this region |
-| HistoFile                    | only for option HIST, the file name to be used |
-| HistoName                    | only for option HIST, the histogram name to be used |
+| HistoFile(s)                 | only for option HIST, the file name (or names, comma-separated) to be used |
+| HistoName(s)                 | only for option HIST, the histogram name (or names, comma-separated) to be used |
 | HistoPathSuff(s)             | only for option HIST, the path suffix (or suffixes, comma-separated) where to find the histogram files for this region |
 | Variable                     | only for option NTUP, the variable (or expression) inside the ntuple to plot can define a variable as X|Y to do the correlation plot between X and Y |
 | VariableForSample            | only for option NTUP, allows to set exceptions for Variable. This is a very useful feature when using TRF only in some samples. Comma-separated list of sample:variable (e.g. wjets:met_met/1e3,zjets:Mbbb/1e). |
 | Selection                    | only for option NTUP, the selection done on the ntuple for this region |
-| NtupleName                   | only for option NTUP, the name of the tree for this region |
+| NtupleName(s)                | only for option NTUP, the name (or names, comma-separated) of the tree for this region |
+| NtupleFile(s)                | only for option NTUP, the file (or files, comma-separated) of the tree for this region |
 | NtuplePathSuff(s)            | only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region |
 | MCweight                     | only for option NTUP, the additional weight used in this region (for MC samples only) |
 | Rebin                        | if specified, the histograms will be rebinned merging N bins together, where N is the argument (int) |
-| Binning                      | if specified, the histograms will be rebinned according to the new binning specified, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions or define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning. |
+| Binning                      | if specified, the histograms will be binned according to the new binning specified, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions or define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning. |
+| Rebinning                    | if specified, the histograms will be rebinned according to the new binning specified, in the form like (0,10,20,50,100). Differently from the BInning option, this one performs the rebinning aftre the orginal histograms are created. This means that this option can changed (or removed) before running the b step. |
 | BinWidth                     | if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number |
 | BinLabels                    | if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins) |
 | Type                         | can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL |
@@ -338,13 +343,18 @@ For each object type (also called "block"), here is the list of available proper
 | Title                        | title shown on the legends |
 | TexTitle                     | title shown on tex tables |
 | Group                        | if specified, sample will be grouped with other samples with same group and this label will be used in plots |
-| HistoFile                    | valid only for option HIST; which root file to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path |
-| HistoName                    | valid only for option HIST; name of histogram to read |
-| HistoPath                    | valid only for option HIST; it's the path where the input root files containing the histograms are stored |
-| NtupleFile(s)                | valid only for option NTUP; it's the file name(s) where the input ntuples are stored |
+| HistoName(s)                 | valid only for option HIST; name(s) of histogram to read |
+| HistoFile(s)                 | valid only for option HIST; which root file(s) to read (excluding the suffix ".root"); this will be combined with Fit->HistoPath to build the full path |
+| HistoPath(s)                 | valid only for option HIST; it's the path(s) where the input root files containing the histograms are stored |
+| HistoNameSuff(s)             | valid only for option HIST; suffix(es) for the name of histogram(s) to read |
+| HistoFileSuff(s)             | valid only for option HIST; suffix(es) for the file name of histogram(s) to read |
+| HistoPathSuff(s)             | valid only for option HIST; suffix(es) for the path of histogram(s) to read |
 | NtupleName(s)                | valid only for option NTUP; name(s) of tree to read |
+| NtupleFile(s)                | valid only for option NTUP; it's the file name(s) where the input ntuples are stored |
 | NtuplePath(s)                | valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored |
 | NtupleNameSuff(s)            | valid only for option NTUP; suffix(es) for the name of tree to read |
+| NtupleFileSuff(s)            | valid only for option NTUP; suffix(es) for the file name(s) of tree to read |
+| NtuplePathSuff(s)            | valid only for option NTUP; suffix(es) for the path(s) of tree to read |
 | FillColor                    | histogram fill color (not valid for data) |
 | LineColor                    | histogram line color |
 | NormFactor                   | NormalisationFactor (free parameter in the fit); in the format \<name\>,nominal,min,max |
@@ -401,7 +411,7 @@ For each object type (also called "block"), here is the list of available proper
 | Regions                      | comma-separated list of regions where to apply the systematic |
 | Exclude                      | comma-separated list of samples/regions to exclude |
 | ExcludeRegionSample          | comma-separated list of region:sample to exclude |
-| Type                         | can be HISTO, OVERALL, SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin) or STAT (this refers to auto-creation of one systematic from stat uncertainty for each bin of corresponding region) |
+| Type                         | can be HISTO, OVERALL, SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin) or STAT (this refers to auto-creation of one systematic from stat uncertainty for each bin of corresponding region - DEPRECATED) |
 | Title                        | title of the systematic (will be shown in plots) |
 | StoredName                   | if specified, will be used to read and write histograms in the root files under Histograms/ intead of the syst name; useful to decorrelate without re-creating histograms |
 | NuisancaParameter            | if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics |

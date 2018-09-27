@@ -403,6 +403,8 @@ void HistoTools::Scale(TH1* h_syst, TH1* h_nominal, float factor){
     }
 }
 
+//_________________________________________________________________________
+//
 double HistoTools::avgError(std::vector<Bin> &hist, bool independentVar) {
   int Nbins = hist.size();
   double avg = 0;
@@ -418,6 +420,8 @@ double HistoTools::avgError(std::vector<Bin> &hist, bool independentVar) {
   return avg/((double) Nbins);
 }
 
+//_________________________________________________________________________
+//
 bool HistoTools::systSmallerThanStat(std::vector<Bin> &hist, bool independentVar, double avgErr) {
     int Nbins = hist.size();
     for (int k = 0; k < Nbins; ++k) {
@@ -466,7 +470,6 @@ bool HistoTools::HasShape(TH1* hnom, SystematicHist* sh, float threshold){
     }
     return hasShape;
 }
-
 
 //_________________________________________________________________________
 //

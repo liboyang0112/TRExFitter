@@ -64,7 +64,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     // interpret opt
     bool readHistograms  = opt.find("h")!=std::string::npos;
     bool readNtuples     = opt.find("n")!=std::string::npos;
-    bool rebinAndSmooth  = opt.find("b")!=std::string::npos; // new: separated from the input creation
+    bool rebinAndSmooth  = opt.find("b")!=std::string::npos;
     bool createWorkspace = opt.find("w")!=std::string::npos;
     bool doFit           = opt.find("f")!=std::string::npos;
     bool doRanking       = opt.find("r")!=std::string::npos;
@@ -116,8 +116,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             if(groupedImpact){
                 std::cout << "Getting combined grouped systematic impact..." << std::endl;
                 myMultiFit->fDoGroupedSystImpactTable = true;
-                if(myMultiFit->fGroupedImpactCategory!="combine") myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName ); // this calls TRExFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
-                else                                              myMultiFit->BuildGroupedImpactTable(); // combine the results into one table with option "combine"
+                if(myMultiFit->fGroupedImpactCategory!="combine") myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName );
+                else                                              myMultiFit->BuildGroupedImpactTable();
             }
         }
         //
@@ -174,13 +174,13 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     }
 
     // -------------------------------------------------------
+    myFit->PrintConfigSummary();
 
     if(readHistograms){
         std::cout << "Reading histograms..." << std::endl;
         myFit->CreateRootFiles();
-        myFit->PrintRegionSummary("histograms");
         myFit->ReadHistograms();
-        myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
+        myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
         myFit->WriteHistos();
@@ -190,9 +190,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     else if(readNtuples){
         std::cout << "Reading ntuples..." << std::endl;
         myFit->CreateRootFiles();
-        myFit->PrintRegionSummary("ntuples");
         myFit->ReadNtuples();
-        myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
+        myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
         myFit->WriteHistos();
@@ -208,12 +207,12 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         std::cout << "Rebinning and smoothing..." << std::endl;
         bool udpate = myFit->fUpdate;
         myFit->fUpdate = true;
-        myFit->CreateRootFiles();  // ?
+        myFit->CreateRootFiles();
         myFit->fUpdate = udpate;
-        myFit->CorrectHistograms(); // apply rebinning, smoothing etc...
+        myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
-        myFit->WriteHistos();
+        myFit->WriteHistos(false);
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
@@ -250,15 +249,14 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     if(groupedImpact){
         std::cout << "Doing grouped systematics impact table..." << std::endl;
         myFit->fDoGroupedSystImpactTable = true;
-        if(myFit->fGroupedImpactCategory!="combine") myFit->Fit(); // this calls TRExFit::PerformFit(), which then does the calculation if fDoGroupedSystImpactTable==true
-        else                                         myFit->BuildGroupedImpactTable(); // combine the results into one table with option "combine"
+        if(myFit->fGroupedImpactCategory!="combine") myFit->Fit();
+        else                                         myFit->BuildGroupedImpactTable();
     }
 
     TRExPlot* prefit_plot = 0;
     TRExPlot* prefit_plot_valid = 0;
     if( drawPostFit && TRExFitter::PREFITONPOSTFIT ) {
-      drawPreFit = true;
-      //DrawSummary depends on DrawAndSaveAll to have been executed first. so might as well do the whole drawprefit block to avoid duplication
+        drawPreFit = true;
     }
 
     if(drawPreFit){
