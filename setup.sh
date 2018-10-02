@@ -73,6 +73,17 @@ echo "Setting up cmake with: lsetup cmake"
 lsetup cmake
 
 export PATH=${PATH}${PATH:+:}${TREXFITTER_HOME}/build/bin
+alias trex-make='cd build/; cmake --build ./; cd ../'
 
-echo -e "\nIf everything went smoothly, continue by compiling via cmake (in a dedicated build directory):"
-echo -e "--> mkdir -p build && cd build && cmake .. && cmake --build ."
+version=`cat ${TREXFITTER_HOME}/version.txt`
+echo -e "\n\e[1m${version} ready (if everything went smoothly)\e[0m"
+echo -e "************************************************************************"
+echo -e "First time?"
+echo -e "  \e[1mmkdir -p build && cd build && cmake ../ && cmake --build ./ && cd ..\e[0m"
+echo -e "To recompile:"
+echo -e "  \e[1mtrex-make\e[0m"
+echo -e "To run the code:"
+echo -e "  \e[1mtrex-fitter <action(s)> <config file> [<options>]\e[0m"
+echo -e "See README.md for more details."
+echo -e "************************************************************************"
+echo -e "\n"

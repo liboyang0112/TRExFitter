@@ -14,7 +14,7 @@ public:
     SystematicHist(const std::string& name);
     ~SystematicHist();
 
-    void WriteToFile(TFile *f=0x0) const;
+    void WriteToFile(TFile *f=nullptr,bool reWriteOrig=true) const;
     void ReadFromFile();
     bool IsShape() const;
 
@@ -42,6 +42,7 @@ public:
 
     TH1* fHistUp;
     TH1* fHistUp_orig;
+    TH1* fHistUp_preSmooth;
     TH1* fHistShapeUp;
     float fNormUp;
     std::string fFileNameUp;
@@ -53,6 +54,7 @@ public:
 
     TH1* fHistDown;
     TH1* fHistDown_orig;
+    TH1* fHistDown_preSmooth;
     TH1* fHistShapeDown;
     float fNormDown;
     std::string fFileNameDown;

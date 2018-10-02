@@ -316,8 +316,8 @@ int ConfigReaderMulti::ReadJobOptions(){
         if(param == "TRUE") fMultiFitter->fCombineChByCh = true;
         else if(param == "FALSE") fMultiFitter->fCombineChByCh = false;
         else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'CombineChByCh' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fCombineChByCh = false;
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'CombineChByCh' option but you didn't provide valid setting. Using default (TRUE)");
+            fMultiFitter->fCombineChByCh = true;
         }
     }
 

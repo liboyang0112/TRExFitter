@@ -27,12 +27,13 @@
 
 // c++ includes
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
 //_____________________________________________________________________________
 //
-TRExPlot::TRExPlot(string name,int canvasWidth,int canvasHeight){
+TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight){
     fName = name;
     c = new TCanvas(fName.c_str(),fName.c_str(),canvasWidth,canvasHeight);
     //
@@ -79,12 +80,11 @@ TRExPlot::TRExPlot(string name,int canvasWidth,int canvasHeight){
     //
     h_data = nullptr;
     g_data = nullptr;
-    for(int i_smp=0;i_smp<MAXSAMPLES;i_smp++){
-        h_bkg[i_smp]     = nullptr;
-        h_signal[i_smp]  = nullptr;
-        h_normsig[i_smp] = nullptr;
-        h_oversig[i_smp] = nullptr;
-    }
+    
+    h_bkg.clear();
+    h_signal.clear();
+    h_normsig.clear();
+    h_oversig.clear();
 
     //
     fIsNjet = false;
@@ -112,6 +112,30 @@ TRExPlot::TRExPlot(string name,int canvasWidth,int canvasHeight){
     h_blinding = nullptr;
     
     h_tot_bkg_prefit = nullptr;
+    
+    leg = nullptr;
+    leg1 = nullptr;
+}
+
+//_____________________________________________________________________________
+//
+TRExPlot::~TRExPlot(){
+    delete h_data;
+    h_bkg    .clear();
+    h_signal .clear();
+    h_normsig.clear();
+    h_oversig.clear();
+    delete h_stack;
+    delete h_tot;
+    delete g_tot;
+    delete h_blinding;
+    delete h_tot_bkg_prefit;
+    delete h_dummy;
+    if(leg!=nullptr) delete leg;
+    if(leg1!=nullptr) delete leg1;
+    delete pad0;
+    delete pad1;
+    delete c;
 }
 
 //_____________________________________________________________________________
@@ -178,7 +202,7 @@ void TRExPlot::SetBinWidth(float width){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetData(TH1* h,string name){
+void TRExPlot::SetData(TH1* h,std::string name){
     h_data = (TH1*)h->Clone();
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
@@ -187,11 +211,7 @@ void TRExPlot::SetData(TH1* h,string name){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::AddSignal(TH1* h,string name){
-    // if already there...
-//     if(std::find(fSigNames.begin(),fSigNames.end(),name)!=fSigNames.end()){
-//         h_signal[fSigNames.size()-1]->Add(h,fLumiScale);
-//     }
+void TRExPlot::AddSignal(TH1* h,std::string name){
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
     unsigned int idx = std::find(fSigNames.begin(),fSigNames.end(),name) - fSigNames.begin();
@@ -199,7 +219,7 @@ void TRExPlot::AddSignal(TH1* h,string name){
         h_signal[idx]->Add(h,fLumiScale);
     }
     else{
-        h_signal[fSigNames.size()] = (TH1*)h->Clone();
+        h_signal.push_back((TH1*)h->Clone());
         h_signal[fSigNames.size()]->Scale(fLumiScale);
         fSigNames.push_back(name);
     }
@@ -207,7 +227,7 @@ void TRExPlot::AddSignal(TH1* h,string name){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::AddNormSignal(TH1* h,string name){
+void TRExPlot::AddNormSignal(TH1* h,std::string name){
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
     unsigned int idx = std::find(fNormSigNames.begin(),fNormSigNames.end(),name) - fNormSigNames.begin();
@@ -215,7 +235,7 @@ void TRExPlot::AddNormSignal(TH1* h,string name){
         h_normsig[idx]->Add(h,fLumiScale);
     }
     else{
-        h_normsig[fNormSigNames.size()] = (TH1*)h->Clone();
+        h_normsig.push_back((TH1*)h->Clone());
         h_normsig[fNormSigNames.size()]->Scale(fLumiScale);
         fNormSigNames.push_back(name);
     }
@@ -223,7 +243,7 @@ void TRExPlot::AddNormSignal(TH1* h,string name){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::AddOverSignal(TH1* h,string name){
+void TRExPlot::AddOverSignal(TH1* h,std::string name){
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
     unsigned int idx = std::find(fOverSigNames.begin(),fOverSigNames.end(),name) - fOverSigNames.begin();
@@ -231,7 +251,7 @@ void TRExPlot::AddOverSignal(TH1* h,string name){
         h_oversig[idx]->Add(h,fLumiScale);
     }
     else{
-        h_oversig[fOverSigNames.size()] = (TH1*)h->Clone();
+        h_oversig.push_back((TH1*)h->Clone());
         h_oversig[fOverSigNames.size()]->Scale(fLumiScale);
         fOverSigNames.push_back(name);
     }
@@ -239,7 +259,7 @@ void TRExPlot::AddOverSignal(TH1* h,string name){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::AddBackground(TH1* h,string name){
+void TRExPlot::AddBackground(TH1* h,std::string name){
     if(h_tot==nullptr) h_tot = (TH1*)h->Clone();
     else h_tot->Add(h);
     // if no name is given, take the histogram title
@@ -250,7 +270,7 @@ void TRExPlot::AddBackground(TH1* h,string name){
         h_bkg[idx]->Add(h,fLumiScale);
     }
     else{
-        h_bkg[fBkgNames.size()] = (TH1*)h->Clone();
+        h_bkg.push_back((TH1*)h->Clone());
         h_bkg[fBkgNames.size()]->Scale(fLumiScale);
         fBkgNames.push_back(name);
     }
@@ -333,7 +353,7 @@ TH1* TRExPlot::GetTotBkg() const{
 
 //_____________________________________________________________________________
 //
-void TRExPlot::Draw(string options){
+void TRExPlot::Draw(std::string options){
 
     /////////////////////////
     //
@@ -349,14 +369,14 @@ void TRExPlot::Draw(string options){
     gStyle->SetEndErrorSize(4.);
     if(TRExFitter::NOENDERR) gStyle->SetEndErrorSize(0);
     pad0->cd();
-    TH1* h_dummy = (TH1*)h_tot->Clone("h_dummy");
+    h_dummy = (TH1*)h_tot->Clone("h_dummy");
     h_dummy->Scale(0);
     if(pad0->GetWw() > pad0->GetWh()){
         h_dummy->GetYaxis()->SetTickLength(0.01);
         h_dummy->GetXaxis()->SetTickLength(0.02);
     }
     h_dummy->Draw("HIST");
-    if(options.find("log")!=string::npos) pad0->SetLogy();
+    if(options.find("log")!=std::string::npos) pad0->SetLogy();
 
     if(g_tot==nullptr) g_tot = new TGraphAsymmErrors(h_tot);
 
@@ -368,8 +388,8 @@ void TRExPlot::Draw(string options){
         h_data->SetMarkerSize(1.4);
         h_data->SetLineWidth(2);
         // build asym data
-        if(options.find("poiss")!=string::npos) g_data = poissonize(h_data);
-        else                                    g_data = histToGraph(h_data); // new TGraphAsymmErrors(h_data);
+        if(options.find("poiss")!=std::string::npos) g_data = poissonize(h_data);
+        else                                         g_data = histToGraph(h_data);
     }
     else{
         hasData = false;
@@ -846,7 +866,7 @@ void TRExPlot::Draw(string options){
 
     bool customLabels = false;
     for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
-        if(((string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!=""){
+        if(((std::string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!=""){
             h_dummy2->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
             customLabels = true;
         }
@@ -938,7 +958,7 @@ void TRExPlot::Draw(string options){
         if(g_data) SetGraphBinWidth(g_data,fBinWidth);
         // try to guess y axis label...
         if(ytitle=="Events"){
-            if(xtitle.find("GeV")!=string::npos){
+            if(xtitle.find("GeV")!=std::string::npos){
                 if((int)fBinWidth==fBinWidth) ytitle = Form("Events / %.0f GeV",fBinWidth);
                 else if((int)(fBinWidth*10)==(fBinWidth*10)) ytitle = Form("Events / %.1f GeV",fBinWidth);
                 else if((int)(fBinWidth*100)==(fBinWidth*100)) ytitle = Form("Events / %.2f GeV",fBinWidth);
@@ -975,7 +995,7 @@ void TRExPlot::Draw(string options){
         }
     }
     //
-    if(options.find("log")==string::npos){
+    if(options.find("log")==std::string::npos){
         if(fYmax!=0) h_dummy->SetMaximum(fYmax);
         else         h_dummy->SetMaximum(yMaxScale*yMax);
         if(fYmin>0)  h_dummy->SetMinimum(fYmin);

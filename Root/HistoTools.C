@@ -279,6 +279,9 @@ float HistoTools::Separation(TH1* h1,TH1* h2){
 //
 TH1D* HistoTools::SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom) {
 
+    bool isLarge = false;
+    if (std::fabs(var1->Integral()/hnom->Integral()-1) > 0.005) isLarge = true;
+    if (std::fabs(var2->Integral()/hnom->Integral()-1) > 0.005) isLarge = true;
     //
     // Symmetrize a variation that is already two sided to smooth out possible fluctuations
     //
@@ -294,6 +297,43 @@ TH1D* HistoTools::SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom) {
     TH1D* tmp2 = (TH1D* )var2->Clone();
     tmp2->Divide(nom);
     if(!tmp2->GetSumw2())tmp2->Sumw2();
+
+    std::unique_ptr<TH1D> nom_div(static_cast<TH1D*>(hnom->Clone()));
+    nom_div->Divide(hnom);
+
+    if (isLarge){
+        std::vector<int> binSameShift{};
+        // check if the variations are not in the same direction
+        for (int ibin = 1; ibin <= hnom->GetNbinsX(); ibin++){
+            const double& nom_error = nom_div->GetBinError(ibin);
+            const double& up_content = tmp1->GetBinContent(ibin);
+            const double& up_error = tmp1->GetBinError(ibin);
+            const double& down_content = tmp2->GetBinContent(ibin);
+            const double& down_error = tmp2->GetBinError(ibin);
+
+            const double total_uncert_up = std::sqrt(up_error*up_error + nom_error*nom_error);
+            const double total_uncert_down = std::sqrt(down_error*down_error + nom_error*nom_error);
+
+            // check if the variations are larger than stat uncertainty
+            if ((std::fabs(up_content - 1) > total_uncert_up) && (std::fabs(down_content - 1) > total_uncert_down)){
+                // check if the variations have the same shift
+                // have same sign = same shift
+                if ((up_content - 1) * (down_content - 1) > 0){
+                    binSameShift.emplace_back(ibin);
+                }
+            }
+        }
+        if (binSameShift.size() > 0){
+            const std::string& name_up = var1->GetName();
+            const std::string& name_down = var2->GetName();
+            std::string tmp = "";
+            for (const auto& ibin : binSameShift){
+                tmp+= std::to_string(ibin) + " ";
+            }
+            WriteWarningStatus("HistoTools::SymmetrizeTwoSided", "Histograms " + name_up + " and " + name_down + " in bins " + tmp + " have the same shift for up and down variation");
+            WriteWarningStatus("HistoTools::SymmetrizeTwoSided", "You should check this");
+        }
+    }
 
     //Flat (content = 0) histogram to substract
     TH1D* unit = (TH1D* )nom->Clone();
@@ -363,6 +403,8 @@ void HistoTools::Scale(TH1* h_syst, TH1* h_nominal, float factor){
     }
 }
 
+//_________________________________________________________________________
+//
 double HistoTools::avgError(std::vector<Bin> &hist, bool independentVar) {
   int Nbins = hist.size();
   double avg = 0;
@@ -378,6 +420,8 @@ double HistoTools::avgError(std::vector<Bin> &hist, bool independentVar) {
   return avg/((double) Nbins);
 }
 
+//_________________________________________________________________________
+//
 bool HistoTools::systSmallerThanStat(std::vector<Bin> &hist, bool independentVar, double avgErr) {
     int Nbins = hist.size();
     for (int k = 0; k < Nbins; ++k) {
@@ -426,7 +470,6 @@ bool HistoTools::HasShape(TH1* hnom, SystematicHist* sh, float threshold){
     }
     return hasShape;
 }
-
 
 //_________________________________________________________________________
 //

@@ -94,14 +94,14 @@ TH1D* MergeHistograms(std::vector<TH1*> hVec);
   * @param A reference to mean value
   * @param A reference to uncertainty
   */
-void ApplyATLASrounding(double& mean, double& error);
+int ApplyATLASrounding(double& mean, double& error);
 
 /**
   * A helper function to round error according to PDG rules
   * @param The value of error that will be rounded
   * @return number of iterations of multiplication/division by 10 needed to reach the same precision for nominal value
   */
-int ApplyErrorRounding(double& error);
+int ApplyErrorRounding(double& error, int& sig);
 
 /**
   * A helper function to round value to n decimal palces
@@ -109,5 +109,12 @@ int ApplyErrorRounding(double& error);
   * @param Number of multiplications/divisions by 10 needed to get the value that can be rounded
   */
 void RoundToSig(double& value, const int& n);
+
+TH1* CloneNoError(TH1* h,const char* name="");
+
+unsigned int NCharactersInString(const std::string& s,const char c);
+
+bool CheckExpression(const std::string& s);
+
 
 #endif

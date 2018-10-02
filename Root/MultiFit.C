@@ -89,7 +89,7 @@ MultiFit::MultiFit(string name){
     fFitType       = 1; // 1: S+B, 2: B-only
     fSignalInjection = false;
     //
-    fCombineChByCh = false;
+    fCombineChByCh = true;
     //
     fNPCategories.clear();
     fNPCategories.push_back("");

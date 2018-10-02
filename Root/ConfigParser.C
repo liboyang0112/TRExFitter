@@ -509,7 +509,7 @@ int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std
 //
 int ConfigParser::CheckParameters(std::string current, const std::vector<std::string> &possible_settings, const std::string &setting_set, const std::string &setting) const{
     if (possible_settings.size() == 1){
-        if(!SettingMultipleParamIsOK(setting_set, current, possible_settings.at(0))) return 1;
+        if(!SettingMultipleParamIsOK(setting_set, setting, current, possible_settings.at(0))) return 1;
     }
     else {
         // multiple settings are possible
@@ -517,7 +517,7 @@ int ConfigParser::CheckParameters(std::string current, const std::vector<std::st
         std::transform(current.begin(), current.end(), current.begin(), ::toupper);
         for (const std::string& isetting : possible_settings){
             // for std::string
-            if(SettingMultipleParamIsOK(setting_set, current, isetting)){
+            if(SettingMultipleParamIsOK(setting_set, setting, current, isetting)){
                 isFound = true;
                 break;
             }
@@ -538,7 +538,7 @@ int ConfigParser::CheckParameters(std::string current, const std::vector<std::st
 
 //_______________________________________________________________________________________
 //
-bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, const std::string& current, const std::string& possible, const char delimiter) const{
+bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, const std::string& setting, const std::string& current, const std::string& possible, const char delimiter) const{
     std::vector<std::string> current_vec = Vectorize(current, delimiter);
     std::vector<std::string> possible_vec = Vectorize(possible, delimiter);
     if (current_vec.size() != possible_vec.size()) return false;
@@ -551,14 +551,14 @@ bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, cons
             try {
                 std::stoi(current_vec.at(iparam));
             } catch (std::exception &e){
-                WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + current + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
+                WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
                 return false;
             }
         } else if (possible_vec.at(iparam) == "float"){
             try {
                 std::stof(current_vec.at(iparam));
             } catch (std::exception &e){
-                WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + current + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
+                WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
                 return false;
             }
         } else {
