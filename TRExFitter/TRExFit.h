@@ -82,7 +82,7 @@ public:
     void SetSelection(const std::string& selection);
     void SetNtupleName(const std::string& name);
     void SetNtupleFile(const std::string& name);
-    void ComputeBining(int regIter);
+    void ComputeBinning(int regIter);
     void DefineVariable(int regIter);
 
     // histogram stuff

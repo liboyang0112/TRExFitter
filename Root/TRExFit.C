@@ -639,7 +639,7 @@ void TRExFit::ReadNtuples(){
         //
         if(TRExFitter::SPLITHISTOFILES) fFiles[i_ch]->cd();
         //
-        if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch);
+        if(fRegions[i_ch]->fBinTransfo != "") ComputeBinning(i_ch);
         if(fRegions[i_ch]->fCorrVar1 != ""){
             if(fRegions[i_ch]->fCorrVar2 == ""){
                 WriteWarningStatus("TRExFit::ReadNtuples", "Only first correlation variable defined, do not read region : " + fRegions[i_ch]->fName);
@@ -1360,7 +1360,7 @@ void TRExFit::ReadHistograms(){
         //
         if(TRExFitter::SPLITHISTOFILES) fFiles[i_ch]->cd();
         //
-        if(fRegions[i_ch]->fBinTransfo != "") ComputeBining(i_ch);
+        if(fRegions[i_ch]->fBinTransfo != "") ComputeBinning(i_ch);
         // first we must read the DATA samples
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
             if(fSamples[i_smp]->fType!=Sample::DATA) continue;
@@ -4489,15 +4489,6 @@ void TRExFit::Fit(){
         double statUp = poiVar->getErrorHi();
         double statDo = poiVar->getErrorLo();
         // MC stat
-//         fGammasInStatOnly = true;
-//         ws->loadSnapshot("InitialStateModelGlob");
-//         ws->loadSnapshot("InitialStateModelNuis");
-//         WriteInfoStatus("TRExFit::Fit","Fitting nominal Asimov with MC-stat ON...");
-//         npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-//         poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
-//         double MCstatUp = sqrt(pow(poiVar->getErrorHi(),2)-pow(statUp,2));
-//         double MCstatDo = sqrt(pow(poiVar->getErrorLo(),2)-pow(statDo,2));
-//         fGammasInStatOnly = false;
         double MCstatUp = 0.;
         double MCstatDo = 0.;
         if(fUseStatErr){
@@ -4602,7 +4593,7 @@ void TRExFit::Fit(){
         tex       << "  MC-stat & $+" << Form("%.2f",MCstatUp) << "$ / $" << Form("%.2f",MCstatDo) << "$ \\\\" << std::endl;
         tex       << "\\hline" << std::endl;
         totUp = sqrt(pow(totUp,2)+pow(MCstatUp,2));
-        totDo = sqrt(pow(totUp,2)+pow(MCstatDo,2));
+        totDo = sqrt(pow(totDo,2)+pow(MCstatDo,2));
         for(auto syst : fSystematics){
             if(FindInStringVector(npList,syst->fNuisanceParameter)<0){
                 npList.push_back(syst->fNuisanceParameter);
@@ -6204,7 +6195,7 @@ void TRExFit::MergeSystematics(){
 
 //____________________________________________________________________________________
 //
-void TRExFit::ComputeBining(int regIter){
+void TRExFit::ComputeBinning(int regIter){
     //
     //Creating histograms to rebin
     TH1D* hsig = nullptr;
@@ -6220,19 +6211,19 @@ void TRExFit::ComputeBining(int regIter){
     if(fRegions[regIter]->fRegionType==Region::CONTROL) bkgReg=true;
     if(bkgReg && fRegions[regIter]->fTransfoDzSig<1e-3) flatBkg=true;
     //
-    WriteDebugStatus("TRExFit::ComputeBining", "Will compute binning with the following options:");
+    WriteDebugStatus("TRExFit::ComputeBinning", "Will compute binning with the following options:");
 
     std::string tmp_string = std::to_string(fRegions[regIter]->fTransfoFzSig);
     if((fRegions[regIter]->fTransfoDzSig>1e-3 || fRegions[regIter]->fTransfoDzBkg>1e-3) )
-        WriteDebugStatus("TRExFit::ComputeBining", " TransfoD - zSig=" + tmp_string + " - zBkg=" + std::to_string(fRegions[regIter]->fTransfoDzBkg));
+        WriteDebugStatus("TRExFit::ComputeBinning", " TransfoD - zSig=" + tmp_string + " - zBkg=" + std::to_string(fRegions[regIter]->fTransfoDzBkg));
     if((fRegions[regIter]->fTransfoFzSig>1e-3 || fRegions[regIter]->fTransfoFzBkg>1e-3) )
-        WriteDebugStatus("TRExFit::ComputeBining", " TransfoF - zSig=" + tmp_string + " - zBkg=" + std::to_string(fRegions[regIter]->fTransfoFzBkg));
+        WriteDebugStatus("TRExFit::ComputeBinning", " TransfoF - zSig=" + tmp_string + " - zBkg=" + std::to_string(fRegions[regIter]->fTransfoFzBkg));
     if((fRegions[regIter]->fTransfoJpar1>1e-3 || fRegions[regIter]->fTransfoJpar2>1e-3 || fRegions[regIter]->fTransfoJpar3>1e-3) )
-        WriteDebugStatus("TRExFit::ComputeBining", " TransfoJ - z1=" + std::to_string(fRegions[regIter]->fTransfoJpar1)
+        WriteDebugStatus("TRExFit::ComputeBinning", " TransfoJ - z1=" + std::to_string(fRegions[regIter]->fTransfoJpar1)
              + " - z2=" + std::to_string(fRegions[regIter]->fTransfoJpar2) + " - z3=" + std::to_string(fRegions[regIter]->fTransfoJpar3));
 
-    if(bkgReg) WriteDebugStatus("TRExFit::ComputeBining", " - bkg reg");
-    else WriteDebugStatus("TRExFit::ComputeBining", " - sig reg");
+    if(bkgReg) WriteDebugStatus("TRExFit::ComputeBinning", " - bkg reg");
+    else WriteDebugStatus("TRExFit::ComputeBinning", " - sig reg");
 
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         //
@@ -6242,6 +6233,8 @@ void TRExFit::ComputeBining(int regIter){
             if(fSamples[i_smp]->fType==Sample::GHOST) continue;
             if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[regIter]->fName)<0 ) continue;
             //
+            fullSelection = FullSelection(  fRegions[regIter],fSamples[i_smp]);
+            fullMCweight  = FullWeight(     fRegions[regIter],fSamples[i_smp]);
             fullPaths     = FullNtuplePaths(fRegions[regIter],fSamples[i_smp]);
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
@@ -6276,7 +6269,7 @@ void TRExFit::ComputeBining(int regIter){
                             }
                         }
                         if(usedInSig){
-                            WriteDebugStatus("TRExFit::ComputeBining", "Using " + fSamples[i_smp]->fName + " as signal");
+                            WriteDebugStatus("TRExFit::ComputeBinning", "Using " + fSamples[i_smp]->fName + " as signal");
                             if(nDefSig){
                                 hsig = (TH1D*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                                 nDefSig=false;
