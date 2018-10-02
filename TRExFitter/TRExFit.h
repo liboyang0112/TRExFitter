@@ -82,7 +82,7 @@ public:
     void SetSelection(const std::string& selection);
     void SetNtupleName(const std::string& name);
     void SetNtupleFile(const std::string& name);
-    void ComputeBining(int regIter);
+    void ComputeBinning(int regIter);
     void DefineVariable(int regIter);
 
     // histogram stuff
@@ -301,6 +301,7 @@ public:
     int fNNorm;
     int fNShape;
     std::string fPOI;
+    std::string fPOIunit;
     bool fUseStatErr;
     float fStatErrThres;
     std::string fStatErrCons;
@@ -337,6 +338,7 @@ public:
     bool fSystControlPlots;
     bool fSystDataPlot_upFrame;
     bool fStatOnly;
+    bool fGammasInStatOnly;
     bool fStatOnlyFit;
     bool fFixNPforStatOnlyFit;
 

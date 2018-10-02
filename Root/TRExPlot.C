@@ -366,8 +366,7 @@ void TRExPlot::Draw(std::string options){
     //
     // Draws an empty histogram to reserve the upper pad and set style
     //
-    gStyle->SetEndErrorSize(4.);
-    if(TRExFitter::NOENDERR) gStyle->SetEndErrorSize(0);
+    gStyle->SetEndErrorSize(0);
     pad0->cd();
     h_dummy = (TH1*)h_tot->Clone("h_dummy");
     h_dummy->Scale(0);
@@ -793,14 +792,14 @@ void TRExPlot::Draw(std::string options){
     if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetLabelOffset(0.01);
     else                              h_dummy2->GetYaxis()->SetLabelOffset(0.02);
     h_dummy2->GetYaxis()->SetNdivisions(504,false);
-    gStyle->SetEndErrorSize(4.);
-    if(TRExFitter::NOENDERR) gStyle->SetEndErrorSize(0);
+    gStyle->SetEndErrorSize(0);
 
     //
     // Compute Data/MC ratio
     //
     h_ratio->Divide(h_tot_nosyst);
-    h_ratio->SetMarkerStyle(24);
+    if(TRExFitter::OPRATIO) h_ratio->SetMarkerStyle(24);
+    else                    h_ratio->SetMarkerStyle(h_data->GetMarkerStyle());
     h_ratio->SetMarkerSize(1.4);
     h_ratio->SetMarkerColor(kBlack);
     h_ratio->SetLineWidth(2);
@@ -811,16 +810,8 @@ void TRExPlot::Draw(std::string options){
             g_ratio->SetPointEXhigh( i_bin-1, 0. );
             g_ratio->SetPointEXlow(  i_bin-1, 0. );
         }
-        if(h_data->GetBinContent(i_bin)<1 || h_ratio->GetBinContent(i_bin)<0.001){
-            g_ratio->SetPointEYhigh( i_bin-1,0 );
-            g_ratio->SetPointEYlow(  i_bin-1,0 );
-            g_ratio->SetPoint(       i_bin-1,g_ratio->GetX()[i_bin-1],-1 );
-            h_ratio->SetBinError(    i_bin,  0 );
-        }
-        else{
-            g_ratio->SetPointEYhigh( i_bin-1,g_data->GetErrorYhigh(i_bin-1)/h_tot->GetBinContent(i_bin) );
-            g_ratio->SetPointEYlow(  i_bin-1,g_data->GetErrorYlow(i_bin-1) /h_tot->GetBinContent(i_bin) );
-        }
+        g_ratio->SetPointEYhigh( i_bin-1,g_data->GetErrorYhigh(i_bin-1)/h_tot->GetBinContent(i_bin) );
+        g_ratio->SetPointEYlow(  i_bin-1,g_data->GetErrorYlow(i_bin-1) /h_tot->GetBinContent(i_bin) );
     }
 
     //
@@ -1093,17 +1084,14 @@ double GC_down(double data) {
 //_____________________________________________________________________________
 //
 TGraphAsymmErrors* poissonize(TH1 *h) {
-    vector<int> points_to_remove;
     TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
-    int hBinCounter = 1;
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
         double content = pow( (gr->GetErrorYhigh(i)) ,2); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
-        gr->SetPointError(i,0.499*h->GetBinWidth(hBinCounter),0.5*h->GetBinWidth(hBinCounter),GC_down(content),GC_up(content));
-        if(content<0.1){ // FIXME
+        gr->SetPointError(i,0.499*h->GetBinWidth(i+1),0.5*h->GetBinWidth(i+1),GC_down(content),GC_up(content));
+        if(h->GetBinContent(i+1)==0){
             gr->SetPoint(i,gr->GetX()[i],-1);
             gr->SetPointError(i,0,0,0,0);
         }
-        hBinCounter++;
     }
     gr->SetMarkerSize(h->GetMarkerSize());
     gr->SetMarkerColor(h->GetMarkerColor());
@@ -1121,8 +1109,7 @@ TGraphAsymmErrors* histToGraph(TH1* h){
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
         gr->SetPointEXlow(i,0.499*h->GetBinWidth(i+1));
         gr->SetPointEXhigh(i,0.5*h->GetBinWidth(i+1));
-        double content = pow( (gr->GetErrorYhigh(i)) ,2); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
-        if(content<0.000001){ // FIXME
+        if(h->GetBinContent(i+1)==0){
             gr->SetPoint(i,gr->GetX()[i],-1);
             gr->SetPointError(i,0,0,0,0);
         }
