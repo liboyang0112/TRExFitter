@@ -366,8 +366,6 @@ void TRExPlot::Draw(std::string options){
     //
     // Draws an empty histogram to reserve the upper pad and set style
     //
-//     gStyle->SetEndErrorSize(4.);
-//     if(TRExFitter::NOENDERR) 
     gStyle->SetEndErrorSize(0);
     pad0->cd();
     h_dummy = (TH1*)h_tot->Clone("h_dummy");
@@ -795,7 +793,6 @@ void TRExPlot::Draw(std::string options){
     else                              h_dummy2->GetYaxis()->SetLabelOffset(0.02);
     h_dummy2->GetYaxis()->SetNdivisions(504,false);
     gStyle->SetEndErrorSize(0);
-//     gStyle->SetEndErrorSize(4.);
 
     //
     // Compute Data/MC ratio
@@ -813,17 +810,8 @@ void TRExPlot::Draw(std::string options){
             g_ratio->SetPointEXhigh( i_bin-1, 0. );
             g_ratio->SetPointEXlow(  i_bin-1, 0. );
         }
-// //         if(h_data->GetBinContent(i_bin)<1 || h_ratio->GetBinContent(i_bin)<0.001){
-//         if(h_data->GetBinContent(i_bin)<1){
-//             g_ratio->SetPointEYhigh( i_bin-1,0 );
-//             g_ratio->SetPointEYlow(  i_bin-1,0 );
-//             g_ratio->SetPoint(       i_bin-1,g_ratio->GetX()[i_bin-1],-1 );
-//             h_ratio->SetBinError(    i_bin,  0 );
-//         }
-//         else{
         g_ratio->SetPointEYhigh( i_bin-1,g_data->GetErrorYhigh(i_bin-1)/h_tot->GetBinContent(i_bin) );
         g_ratio->SetPointEYlow(  i_bin-1,g_data->GetErrorYlow(i_bin-1) /h_tot->GetBinContent(i_bin) );
-//         }
     }
 
     //
@@ -1121,7 +1109,6 @@ TGraphAsymmErrors* histToGraph(TH1* h){
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
         gr->SetPointEXlow(i,0.499*h->GetBinWidth(i+1));
         gr->SetPointEXhigh(i,0.5*h->GetBinWidth(i+1));
-//         double content = pow( (gr->GetErrorYhigh(i)) ,2); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
         if(h->GetBinContent(i+1)==0){
             gr->SetPoint(i,gr->GetX()[i],-1);
             gr->SetPointError(i,0,0,0,0);

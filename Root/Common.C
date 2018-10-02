@@ -47,7 +47,6 @@ bool TRExFitter::SPLITHISTOFILES = false;
 bool TRExFitter::HISTOCHECKCRASH = true;
 bool TRExFitter::GUESSMCSTATERROR = true;
 bool TRExFitter::REMOVEXERRORS = false;
-// bool TRExFitter::NOENDERR = false;
 float TRExFitter::CORRELATIONTHRESHOLD = -1;
 bool TRExFitter::MERGEUNDEROVERFLOW = false;
 bool TRExFitter::OPRATIO = false;
