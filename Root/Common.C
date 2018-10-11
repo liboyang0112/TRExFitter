@@ -46,6 +46,7 @@ bool TRExFitter::SYSTDATAPLOT = false;
 bool TRExFitter::SPLITHISTOFILES = false;
 bool TRExFitter::HISTOCHECKCRASH = true;
 bool TRExFitter::GUESSMCSTATERROR = true;
+bool TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL = false;
 bool TRExFitter::REMOVEXERRORS = false;
 float TRExFitter::CORRELATIONTHRESHOLD = -1;
 bool TRExFitter::MERGEUNDEROVERFLOW = false;

@@ -507,10 +507,19 @@ void SampleHist::ReadFromFile(){
 
 //_____________________________________________________________________________
 //
+void SampleHist::NegativeTotalYieldWarning(TH1* hist, float yield) const{
+    std::string temp = hist->GetName();
+    WriteWarningStatus("SampleHist::NegativeTotalYieldWarning", "The total yield in " + temp + " is negative: " + std::to_string(yield));
+    WriteWarningStatus("SampleHist::NegativeTotalYieldWarning", "    --> unable to preserve normalization while fixing bins with negative yields!");
+}
+
+//_____________________________________________________________________________
+//
 void SampleHist::FixEmptyBins(const bool suppress){
     //
     // store yields (nominal and systs)
-    float yield = fHist->Integral();
+    float initialYield = fHist->Integral();
+    if (initialYield<0) { NegativeTotalYieldWarning(fHist, initialYield); } // warning if total yield is negative, in which case normalization cannot be preserved
     vector<float> yieldUp;
     vector<float> yieldDown;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
@@ -518,8 +527,17 @@ void SampleHist::FixEmptyBins(const bool suppress){
         if(syh==nullptr) continue;
         if(syh->fHistUp  ==nullptr) continue;
         if(syh->fHistDown==nullptr) continue;
-        yieldUp.push_back(syh->fHistUp->Integral());
-        yieldDown.push_back(syh->fHistDown->Integral());
+        float tmpYieldUp   = syh->fHistUp->Integral();
+        float tmpYieldDown = syh->fHistDown->Integral();
+        yieldUp.push_back(tmpYieldUp);
+        yieldDown.push_back(tmpYieldDown);
+        // warnings if total yield in systematic variations is negative, in which case normalization cannot be preserved
+        if (tmpYieldUp  <0){
+            NegativeTotalYieldWarning(syh->fHistUp,   tmpYieldUp);
+        }
+        if (tmpYieldDown<0){
+            NegativeTotalYieldWarning(syh->fHistDown, tmpYieldDown);
+        }
     }
     //
     // store minimum stat unc for non-zero bins
@@ -545,17 +563,28 @@ void SampleHist::FixEmptyBins(const bool suppress){
             }
             // set nominal to 10^-6
             fHist->SetBinContent(i_bin,1e-6);
-            if(!TRExFitter::GUESSMCSTATERROR){
-                fHist -> SetBinError(i_bin, 1e-06);
-            } else {
+            if(error>0) {
                 // if error defined, use it
-                if(error>0)        fHist -> SetBinError(i_bin, error);
-                // if not, if there was at least one bin with meaningful error, use the smallest
-                else if(minStat>0) fHist -> SetBinError(i_bin, minStat);
-                // if not, give up and assign a meaningless error ;)
-                else               fHist -> SetBinError(i_bin, 1e-06);
+                // this should in general make sense, even if the yield is negative and gets scaled to 1e-6
+                fHist -> SetBinError(i_bin, error);
+            } else {
+                // try to guess stat. uncertainty if GUESSMCSTATERROR is enabled
+                if(TRExFitter::GUESSMCSTATERROR){
+                    if(minStat>0){
+                        // if there was at least one bin with meaningful error, use the smallest
+                        fHist -> SetBinError(i_bin, minStat);
+                    } else {
+                        // if not, give up and assign a meaningless error ;)
+                        fHist -> SetBinError(i_bin, 1e-06);
+                    }
+                } else {
+                    // no guessing, assign a 100% uncertainty
+                    fHist -> SetBinError(i_bin, 1e-06);
+                }
             }
+
             // loop on systematics and set them accordingly
+            // uncertainties are not changed!
             for(int i_syst=0;i_syst<fNSyst;i_syst++){
                 SystematicHist* syh = fSyst[i_syst];
                 if(syh->fHistUp  ->GetBinContent(i_bin)<=0) syh->fHistUp  ->SetBinContent(i_bin,1e-06);
@@ -563,17 +592,28 @@ void SampleHist::FixEmptyBins(const bool suppress){
             }
         }
     }
-    // set to 0 if negative overall
+    // at this stage the integral should be strictly positive
     if(fHist->Integral()<0){
-        for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-            fHist->SetBinContent(i_bin,1e-6);
-            fHist->SetBinError(i_bin,1e-6);
+        WriteErrorStatus("SampleHist::FixEmptyBins", "Protection against negative yields failed, this should not happen");
+        exit(EXIT_FAILURE);
+    }
+    // correct the overall normalization again, so it agrees with the initial status
+    if(fHist->Integral()!=initialYield){
+        if (initialYield>0) {
+            // keep the original overall normalisation if the initial yield was positive
+            float tmpScalingFactor = initialYield/fHist->Integral();
+            for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+                fHist->SetBinContent(i_bin, fHist->GetBinContent(i_bin)*tmpScalingFactor);
+            }
+        } else if (TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL){
+            // if the initial yield was negative, scale such that the total integral is 1e-06
+            float tmpScalingFactor = 1e-6/fHist->Integral();
+            for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+                fHist->SetBinContent(i_bin, fHist->GetBinContent(i_bin)*tmpScalingFactor);
+            }
         }
     }
-    // keep the original overall Normalisation
-    else if(fHist->Integral()!=yield){
-        fHist->Scale(yield/fHist->Integral());
-    }
+    // TODO apply the same logic also for the systematics histograms!
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         SystematicHist* syh = fSyst[i_syst];
         if(syh->fHistUp  ->Integral()!=yieldUp[i_syst]  ) syh->fHistUp  ->Scale(yieldUp[i_syst]  /syh->fHistUp  ->Integral());

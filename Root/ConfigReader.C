@@ -906,8 +906,22 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         } else if (param == "FALSE") {
             TRExFitter::GUESSMCSTATERROR = false;
         } else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'GuessMCStatEmptyBins' option but you didn't provide valid setting. Using default (FALSE)");
-            TRExFitter::GUESSMCSTATERROR = false;
+            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'GuessMCStatEmptyBins' option but you didn't provide valid setting. Using default (TRUE)");
+            TRExFitter::GUESSMCSTATERROR = true;
+        }
+    }
+
+    // Set CorrectNormForNegativeIntegral
+    param = confSet->Get("CorrectNormForNegativeIntegral");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL = true;
+        } else if (param == "FALSE") {
+            TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL = false;
+        } else {
+            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'CorrectNormForNegativeIntegral' option but you didn't provide valid setting. Using default (FALSE)");
+            TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL = false;
         }
     }
 
