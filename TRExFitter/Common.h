@@ -44,6 +44,7 @@ namespace TRExFitter{
     extern std::map< std::string, float > OPTION;
     extern std::map<std::string,TFile*> TFILEMAP;
     extern bool GUESSMCSTATERROR;
+    extern bool CORRECTNORMFORNEGATIVEINTEGRAL;
 }
 
 const int MAXregions = 100;

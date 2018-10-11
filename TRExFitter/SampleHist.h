@@ -53,6 +53,7 @@ public:
     void ReadFromFile();
 
     void FixEmptyBins(const bool suppress);
+    void NegativeTotalYieldWarning(TH1* hist, float yield) const;
 
     void Print() const;
 
