@@ -1345,12 +1345,8 @@ void TRExFit::CorrectHistograms(){
 //__________________________________________________________________________________
 //
 void TRExFit::ReadHistograms(){
-    TH1D* h = nullptr;
     TH1D* hUp = nullptr;
     TH1D* hDown = nullptr;
-    std::vector<std::string> fullPaths;
-    std::vector<std::string> empty;
-    SampleHist *sh;
 
     //
     // Loop on regions and samples
@@ -1372,43 +1368,17 @@ void TRExFit::ReadHistograms(){
             //
             // read nominal
             //
-            fullPaths     = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp]);
+            std::vector<std::string> fullPaths = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp]);
             
-            h = nullptr;
-            for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                TH1D* htmp = (TH1D*)HistFromFile( fullPaths[i_path] );
-                if (!htmp) {
-                    WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
-                    exit(EXIT_FAILURE);
-                }
-                //Pre-processing of histograms (rebinning, lumi scaling)
-                if(fRegions[i_ch]->fHistoBins){
-                    const char *hname = htmp->GetName();
-                    TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", fRegions[i_ch]->fHistoBins));
-                    delete htmp;
-                    htmp = tmp_copy;
-                    htmp->SetName(hname);
-                    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
-                }
-                else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
-                    htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
-                }
-                if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
-                else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
-
-                if(i_path==0) h = (TH1D*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-                else h->Add(htmp);
-                delete htmp;
-            }
+            TH1D* h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, false); // is nominal and not MC
             //
             // Save the original histogram
             TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
             //
             // Importing the histogram in TRExFitter
-            sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
+            SampleHist *sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
-
 
             // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
@@ -1424,93 +1394,45 @@ void TRExFit::ReadHistograms(){
                 //
                 WriteDebugStatus("TRExFit::ReadHistograms", "Adding syst " + syst->fName);
                 //
-                Region *reg = fRegions[i_ch];
-                Sample *smp = fSamples[i_smp];
+
                 //
                 // Up
                 //
                 hUp = nullptr;
                 if(syst->fHasUpVariation){
-                    fullPaths     = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp],syst,true);
-                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                        TH1D* htmp = (TH1D*)HistFromFile( fullPaths[i_path] );
-                        if (!htmp) {
-                            WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
-                            exit(EXIT_FAILURE);
-                        }
-                        // Pre-processing of histograms (rebinning, lumi scaling)
-                        if(reg->fHistoBins){
-                            const char *hname = htmp->GetName();
-                            TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(reg->fHistoNBinsRebin, "tmp_copy", reg->fHistoBins));
-                            delete htmp;
-                            htmp = tmp_copy;
-                            htmp->SetName(hname);
-                            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
-                        }
-                        else if(reg->fHistoNBinsRebin != -1){
-                            htmp->Rebin(reg->fHistoNBinsRebin);
-                        }
-                        //
-                        if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
-                        else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
-                        // Importing histogram in TRExFitter
-                        if(i_path==0){
-                            hUp = (TH1D*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
-                        }
-                        else hUp->Add(htmp);
-                        delete htmp;
-                    }
+                    fullPaths = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp],syst,true);
+                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, false); // is up variation and not MC
                 }
                 //
                 // Down
                 //
                 hDown = nullptr;
                 if(syst->fHasDownVariation){
-                    fullPaths     = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp],syst,false);
-                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                        TH1D* htmp = (TH1D*)HistFromFile( fullPaths[i_path] ) ;
-                        if (!htmp) {
-                            WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
-                            exit(EXIT_FAILURE);
-                        }
-                        // Pre-processing of histograms (rebinning, lumi scaling)
-                        if(reg->fHistoBins){
-                            const char *hname = htmp->GetName();
-                            TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(reg->fHistoNBinsRebin, "tmp_copy", reg->fHistoBins));
-                            delete htmp;
-                            htmp = tmp_copy;
-                            htmp->SetName(hname);
-                            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
-                        }
-                        else if(reg->fHistoNBinsRebin != -1){
-                            htmp->Rebin(reg->fHistoNBinsRebin);
-                        }
-                        //
-                        if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
-                        else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
-                        //
-                        // Importing histogram in TRExFitter
-                        if(i_path==0){
-                            hDown = (TH1D*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
-                        }
-                        else hDown->Add(htmp);
-                        delete htmp;
-                    }
+                    fullPaths = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp],syst,false);
+                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, false); // is down variation and not MC
                 }
                 //
-                if(hUp==nullptr)   hUp   = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                if(hDown==nullptr) hDown = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                if(hUp==nullptr){
+                    hUp   = (TH1D*)fRegions[i_ch]->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                }
+                if(hDown==nullptr){
+                    hDown = (TH1D*)fRegions[i_ch]->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                }
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
-                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
-                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0)
-                        syh->fScaleUp *= fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName];
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0){
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[fRegions[i_ch]->fName]!=0){
+                        syh->fScaleUp *= fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[fRegions[i_ch]->fName];
+                    }
+                }
                 syh->fScaleDown = fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
-                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
-                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName]!=0)
-                        syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName];
+                if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0){
+                    if(fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[fRegions[i_ch]->fName]!=0){
+                        syh->fScaleDown *= fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[fRegions[i_ch]->fName];
+                    }
+                }
             }
         }
 
@@ -1526,43 +1448,17 @@ void TRExFit::ReadHistograms(){
             //
             // read nominal
             //
-            fullPaths     = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp]);
-            h = nullptr;
-            for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                files_names.insert(fullPaths[i_path]);
-                TH1D* htmp = (TH1D*)HistFromFile( fullPaths[i_path] );
-                if (!htmp) {
-                    WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
-                    exit(EXIT_FAILURE);
-                }
-                //Pre-processing of histograms (rebinning, lumi scaling)
-                if(fRegions[i_ch]->fHistoBins){
-                    const char *hname = htmp->GetName();
-                    TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", fRegions[i_ch]->fHistoBins));
-                    delete htmp;
-                    htmp = tmp_copy;
-                    htmp->SetName(hname);
-                    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
-                }
-                else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
-                    htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
-                }
-
-                if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp -> Scale(fLumi);
-
-                if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
-                else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
-
-                if(i_path==0) h = (TH1D*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
-                else h->Add(htmp);
-                delete htmp;
+            std::vector<std::string>fullPaths = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp]);
+            for (const auto& ipath : fullPaths){
+                files_names.insert(ipath);
             }
+            TH1D* h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, true); // is MC
             //
             // Save the original histogram
             TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
             //
             // Importing the histogram in TRExFitter
-            sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
+            SampleHist *sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
@@ -1641,83 +1537,10 @@ void TRExFit::ReadHistograms(){
                 hUp = nullptr;
                 if(syst->fHasUpVariation){
                     fullPaths     = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp],syst,true);
-                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                        files_names.insert(fullPaths[i_path]);
-                        TH1D* htmp = (TH1D*)HistFromFile( fullPaths[i_path] );
-                        if (!htmp) {
-                            WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
-                            exit(EXIT_FAILURE);
-                        }
-                        // Pre-processing of histograms (rebinning, lumi scaling)
-                        if(reg->fHistoBins){
-                            const char *hname = htmp->GetName();
-                            TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(reg->fHistoNBinsRebin, "tmp_copy", reg->fHistoBins));
-                            delete htmp;
-                            htmp = tmp_copy;
-                            htmp->SetName(hname);
-                            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
-                        }
-                        else if(reg->fHistoNBinsRebin != -1){
-                            htmp->Rebin(reg->fHistoNBinsRebin);
-                        }
-                        //
-                        if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
-                        if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
-                        else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
-                        //
-                        // obtain relative variation and apply it to proper sample
-                        // & try to keep also the same total relative variation
-                        if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
-                            // check if the reference sample exists
-                            if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
-                                WriteErrorStatus("TRExFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
-                                exit(EXIT_FAILURE);
-                            }
-                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                            // Protection added: fix empty bins before starting to divide and multiply
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            //
-                            double relVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
-                            htmp->Divide(   href );
-                            htmp->Multiply( hnom );
-                            double newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                            if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
-                        }
-                        // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
-                        else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
-                            // check if the reference sample exists
-                            if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
-                                WriteErrorStatus("TRExFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
-                                exit(EXIT_FAILURE);
-                            }
-                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                            TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
-                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                            // Protection added: fix empty bins before starting to divide and multiply
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-
-                            // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
-                            TH1* href_up_Tmp = (TH1*) href_up->Clone(Form("%s_Tmp", href_up->GetName()));
-                            href_up_Tmp->Divide(href);
-                            href_up_Tmp->Multiply(hnom);
-                            htmp->Add(hnom);
-                            htmp->Add(href_up_Tmp,-1);
-
-                            delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
-                        }
-                        //
-                        // Importing histogram in TRExFitter
-                        if(i_path==0){
-                            hUp = (TH1D*)htmp->Clone(Form("h_%s_%s_%sUp",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
-                        }
-                        else hUp->Add(htmp);
-                        delete htmp;
+                    for (const auto& ipath : fullPaths){
+                        files_names.insert(ipath);
                     }
+                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, true); // isUp and isMC 
                 }
                 //
                 // Down
@@ -1725,83 +1548,10 @@ void TRExFit::ReadHistograms(){
                 hDown = nullptr;
                 if(syst->fHasDownVariation){
                     fullPaths     = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp],syst,false);
-                    for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-                        files_names.insert(fullPaths[i_path]);
-                        TH1* htmp = (TH1D*)HistFromFile( fullPaths[i_path] ) ;
-                        if (!htmp) {
-                            WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is nullptr, cannot continue running the code");
-                            exit(EXIT_FAILURE);
-                        }
-                        // Pre-processing of histograms (rebinning, lumi scaling)
-                        if(reg->fHistoBins){
-                            const char *hname = htmp->GetName();
-                            TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(reg->fHistoNBinsRebin, "tmp_copy", reg->fHistoBins));
-                            delete htmp;
-                            htmp = tmp_copy;
-                            htmp->SetName(hname);
-                            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
-                        }
-                        else if(reg->fHistoNBinsRebin != -1){
-                            htmp->Rebin(reg->fHistoNBinsRebin);
-                        }
-                        //
-                        if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
-                        if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
-                        else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
-                        //
-                        // obtain relative variation and apply it to proper sample
-                        // & try to keep also the same total relative variation
-                        if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
-                            // check if the reference sample exists
-                            if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
-                                WriteErrorStatus("TRExFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
-                                exit(EXIT_FAILURE);
-                            }
-                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                            // Protection added: fix empty bins before starting to divide and multiply
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            //
-                            double relVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
-                            htmp->Divide(   href );
-                            htmp->Multiply( hnom );
-                            double newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                            if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
-                        }
-                        // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
-                        else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
-                            // check if the reference sample exists
-                            if (reg->GetSampleHist(syst->fReferenceSample) == nullptr){
-                                WriteErrorStatus("TRExFit::ReadHistograms", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
-                                exit(EXIT_FAILURE);
-                            }
-                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                            TH1* href_down = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistDown;
-                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                            // Protection added: fix empty bins before starting to divide and multiply
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-
-                            // Formula: UpHisto = [1+(down-nom)/nom-(DataDown-Data)/Data]*nom = down+nom+DataDown/Data*nom
-                            TH1* href_down_Tmp = (TH1*) href_down->Clone(Form("%s_Tmp", href_down->GetName()));
-                            href_down_Tmp->Divide(href);
-                            href_down_Tmp->Multiply(hnom);
-                            htmp->Add(hnom);
-                            htmp->Add(href_down_Tmp,-1);
-
-                            delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
-                        }
-                        //
-                        // Importing histogram in TRExFitter
-                        if(i_path==0){
-                            hDown = (TH1D*)htmp->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()));
-                        }
-                        else hDown->Add(htmp);
-                        delete htmp;
+                    for (const auto& ipath : fullPaths){
+                        files_names.insert(ipath);
                     }
+                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, true); // isUp and isMC 
                 }
                 //
                 if(hUp==nullptr)   hUp   = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -7579,4 +7329,146 @@ std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Sys
     // And finally put everying together
     fullPaths = CreatePathsList( paths,pathSuffs, files,fileSuffs, names,nameSuffs );
     return fullPaths;
+}
+
+TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Systematic* syst,
+ int i_ch, int i_smp, bool isUp, bool isMC){
+    TH1D* h = nullptr;
+    for(unsigned int i_path = 0; i_path < fullPaths.size(); ++i_path){
+        TH1D* htmp = static_cast<TH1D*>(HistFromFile( fullPaths.at(i_path) ));
+        if (!htmp) {
+            WriteErrorStatus("TRExFit::ReadSingleHistogram", "Histo pointer is nullptr, cannot continue running the code");
+            exit(EXIT_FAILURE);
+        }
+        //Pre-processing of histograms (rebinning, lumi scaling)
+        if(fRegions[i_ch]->fHistoBins){
+            const char *hname = htmp->GetName();
+            TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", fRegions[i_ch]->fHistoBins));
+            delete htmp;
+            htmp = tmp_copy;
+            htmp->SetName(hname);
+            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
+        }
+        else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
+            htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
+        }
+
+        if (isMC){
+            if(fSamples[i_smp]->fNormalizedByTheory){
+                htmp -> Scale(fLumi);
+            }
+        }
+
+        if(fSamples[i_smp]->fLumiScales.size()>i_path){
+             htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
+        }
+        else if(fSamples[i_smp]->fLumiScales.size()==1){
+            htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
+        }
+
+        if (isMC && syst != nullptr){
+            // obtain relative variation and apply it to proper sample
+            // & try to keep also the same total relative variation
+            if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
+                // check if the reference sample exists
+                if (fRegions[i_ch]->GetSampleHist(syst->fReferenceSample) == nullptr){
+                    WriteErrorStatus("TRExFit::ReadSingleHistogram", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + fRegions[i_ch]->fName + ". Please check this!");
+                    exit(EXIT_FAILURE);
+                }
+                TH1* href = fRegions[i_ch]->GetSampleHist(syst->fReferenceSample)->fHist;
+                TH1* hnom = fRegions[i_ch]->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                // Protection added: fix empty bins before starting to divide and multiply
+                for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++){
+                    if(href->GetBinContent(i_bin)<=1e-6){
+                        href->SetBinContent(i_bin,1e-6);
+                    }
+                }
+                for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++){
+                    if(htmp->GetBinContent(i_bin)<=1e-6){
+                        htmp->SetBinContent(i_bin,1e-6);
+                    }
+                }
+                for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++){
+                    if(href->GetBinContent(i_bin)<=1e-6){
+                        htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
+                    }
+                }
+                //
+                const double relVar = htmp->Integral(0,htmp->GetNbinsX()+1) /
+                     href->Integral(0,href->GetNbinsX()+1);
+                htmp->Divide(   href );
+                htmp->Multiply( hnom );
+                const double newVar = htmp->Integral(0,htmp->GetNbinsX()+1) /
+                    hnom->Integral(0,hnom->GetNbinsX()+1);
+                if( syst->fKeepReferenceOverallVar && (TMath::Abs(relVar-1) > 0.0001) &&
+                    (TMath::Abs(newVar-1) > 0.0001)){
+                    htmp->Scale( relVar / newVar );
+                }
+            }
+            // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
+            else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                // check if the reference sample exists
+                if (fRegions[i_ch]->GetSampleHist(syst->fReferenceSample) == nullptr){
+                    WriteErrorStatus("TRExFit::ReadSingleHistogram", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + fRegions[i_ch]->fName + ". Please check this!");
+                    exit(EXIT_FAILURE);
+                }
+                TH1* href = fRegions[i_ch]->GetSampleHist(syst->fReferenceSample)->fHist;
+                TH1* href_upDown = nullptr;
+                if (isUp){
+                    href_upDown = fRegions[i_ch]->GetSampleHist(syst->fReferenceSample)->
+                        GetSystematic(syst->fName)->fHistUp;
+                } else {
+                    href_upDown = fRegions[i_ch]->GetSampleHist(syst->fReferenceSample)->
+                        GetSystematic(syst->fName)->fHistDown;
+                }
+                TH1* hnom = fRegions[i_ch]->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                // Protection added: fix empty bins before starting to divide and multiply
+                for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++){
+                    if(href->GetBinContent(i_bin)<=1e-6){
+                        href->SetBinContent(i_bin,1e-6);
+                    }
+                }
+                for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++){
+                    if(htmp->GetBinContent(i_bin)<=1e-6){
+                        htmp->SetBinContent(i_bin,1e-6);
+                    }
+                }
+                for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++){
+                    if(href->GetBinContent(i_bin)<=1e-6){
+                        htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
+                    }
+                }
+                // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
+                TH1* href_upDown_Tmp = static_cast<TH1*>(href_upDown->Clone(
+                    Form("%s_Tmp", href_upDown->GetName())));
+                href_upDown_Tmp->Divide(href);
+                href_upDown_Tmp->Multiply(hnom);
+                htmp->Add(hnom);
+                htmp->Add(href_upDown_Tmp,-1);
+
+                delete href_upDown_Tmp;// it's a clone, and it's the purpose of clones to die
+            }
+        }
+
+        if(i_path == 0){
+            if (syst == nullptr){ // is nominal
+                h = static_cast<TH1D*>(htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),
+                    fSamples[i_smp]->fName.c_str())));
+            } else { // is syst
+                if (isUp){ // up variation
+                    h = static_cast<TH1D*>(htmp->Clone(Form("h_%s_%s_%sUp",fRegions[i_ch]->fName.c_str(),
+                        fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str())));
+                } else { // down variation
+                    h = static_cast<TH1D*>(htmp->Clone(Form("h_%s_%s_%sDown",fRegions[i_ch]->fName.c_str(),
+                        fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str())));
+                }
+            }
+        }
+        else{
+            h->Add(htmp);
+        }
+        delete htmp;
+    }
+    
+    return h;
 }

@@ -274,6 +274,20 @@ public:
      */
     std::vector<std::string> FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
 
+    /**
+     *
+     * A helper function to read singleHistogram from a file
+     * @param vector of histo paths
+     * @param pointer to systematic
+     * @param index of channel
+     * @param index of sample
+     * @param flag if the systematic is up or down
+     * @param flag if we are reading MC or Data
+     * @return the read histogram
+     */ 
+    TH1D* ReadSingleHistogram(const std::vector<std::string>& fullPaths, Systematic* syst,
+        int i_ch, int i_smp, bool isUp, bool isMC);
+
     // -------------------------
 
     std::string fName;
