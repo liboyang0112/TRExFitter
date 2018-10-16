@@ -75,6 +75,7 @@ Sample::Sample(const std::string& name,int type){
 
     fSeparateGammas = false;
     fCorrelateGammasInRegions.clear();
+    fCorrelateGammasWithSample = "";
 }
 
 //__________________________________________________________________________________

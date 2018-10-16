@@ -267,6 +267,7 @@ TRExFit::TRExFit(std::string name){
     fUseATLASRoundingTex = false;
 
     fuseGammasForCorr = false;
+    fPropagateSystsForMorphing = false;
 }
 
 //__________________________________________________________________________________
@@ -1046,6 +1047,36 @@ void TRExFit::CorrectHistograms(){
             }
         }
 
+        // Randomize MC (before add/multiply/scale)
+        if(TRExFitter::OPTION["RandomizeMC"]!=0){
+            gRandom->SetSeed(TRExFitter::OPTION["RandomizeMC"]);
+            for(auto smp : fSamples){
+                //
+                // eventually skip sample / region combination
+                if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
+                //
+                SampleHist *sh = reg->GetSampleHist(smp->fName);
+                if(sh==nullptr) continue;
+                if(sh->fHist==nullptr) continue;
+                //
+                if(smp->fUseMCStat){
+                    TH1* hTmp = sh->fHist;
+                    for(int i_bin=1;i_bin<=hTmp->GetNbinsX();i_bin++){
+                        hTmp->SetBinContent(i_bin,gRandom->Poisson( hTmp->GetBinContent(i_bin) ));
+                    }
+                    for(auto syh : sh->fSyst){
+                        for(int i_ud=0;i_ud<2;i_ud++){
+                            if(i_ud==0) hTmp = syh->fHistUp;
+                            else        hTmp = syh->fHistDown;
+                            for(int i_bin=1;i_bin<=hTmp->GetNbinsX();i_bin++){
+                                hTmp->SetBinContent(i_bin,gRandom->Poisson( hTmp->GetBinContent(i_bin) ));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // 3. Add/Multiply/Scale
         for(auto smp : fSamples){
             //
@@ -1216,7 +1247,7 @@ void TRExFit::CorrectHistograms(){
     }
     
     //
-    // Plot Mprhing templates
+    // Plot Morphing templates
     if (fMorphParams.size() > 0){
         gSystem->mkdir((fName+"/Morphing").c_str());
         for(const auto& par : fMorphParams){
@@ -1250,7 +1281,7 @@ void TRExFit::CorrectHistograms(){
     }
 
     //
-    // NEW: artifificially set all systematics not to affect overall normalisation for sample or set of samples
+    // Artifificially set all systematics not to affect overall normalisation for sample or set of samples
     // (the form should be KeepNormForSamples: ttlight+ttc+ttb,wjets
     //
     for(auto reg : fRegions){
@@ -1288,6 +1319,51 @@ void TRExFit::CorrectHistograms(){
         }
     }
     
+    // Systematics for morphing samples inherited from nominal sample
+    if (fPropagateSystsForMorphing){
+        for(auto par : fMorphParams){
+            for(auto reg : fRegions){
+                // find nominal morphing sample Hist
+                float nominalValue = 0.;
+                for(auto norm : fNormFactors){
+                    if(norm->fName==par) nominalValue = norm->fNominal;
+                }
+                SampleHist *shNominal = nullptr;
+                for(auto sh : reg->fSampleHists){
+                    if(!sh->fSample->fIsMorph[par]) continue;
+                    if(sh->fSample->fMorphValue[par]==nominalValue){ // FIXME: eventually add something to flag a sample as nominal for morphing
+                        shNominal = sh;
+                        break;
+                    }
+                }
+                // loop on all other samples
+                for(auto sh : reg->fSampleHists){
+                    if(!sh->fSample->fIsMorph[par]) continue;
+                    if(sh!=shNominal){
+                        for(auto syh : shNominal->fSyst){
+                            Systematic * syst = syh->fSystematic;
+                            if(syst->fIsNormOnly){
+                                SystematicHist* syhNew = sh->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
+                                syhNew->fSystematic = syst;
+                            }
+                            else{
+                                TH1* hUpNew   = (TH1*)syh->fHistUp->Clone();
+                                TH1* hDownNew = (TH1*)syh->fHistDown->Clone();
+                                hUpNew->Divide(shNominal->fHist);
+                                hUpNew->Multiply(sh->fHist);
+                                hDownNew->Divide(shNominal->fHist);
+                                hDownNew->Multiply(sh->fHist);
+                                SystematicHist* syhNew = sh->AddHistoSyst(syst->fName,hUpNew,hDownNew);
+                                syhNew->fSystematic = syst;
+                                sh->fSample->fUseSystematics = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     //
     // set the hasData flag
     bool hasData = false;
@@ -1297,7 +1373,7 @@ void TRExFit::CorrectHistograms(){
             break;
         }
     }
-
+    
     //
     // Poissonize data
     if(hasData && TRExFitter::OPTION["PoissonizeData"]!=0){
@@ -1896,6 +1972,30 @@ void TRExFit::ReadHistos(/*string fileName*/){
         }
     }
     //
+    // Syst for morphing samples inherited from nominal sample
+    if (fPropagateSystsForMorphing){
+        for(auto par : fMorphParams){
+            float nominalValue = 0.;
+            for(auto norm : fNormFactors){
+                if(norm->fName==par) nominalValue = norm->fNominal;
+            }
+            Sample *smpNominal = nullptr;
+            for(auto smp : fSamples){
+                if(!smp->fIsMorph[par]) continue;
+                if(smp->fMorphValue[par]==nominalValue){ // FIXME: eventually add something to flag a sample as nominal for morphing
+                    smpNominal = smp;
+                    break;
+                }
+            }
+            for(auto smp : fSamples){
+                if(!smp->fIsMorph[par]) continue;
+                for(auto syst : smpNominal->fSystematics){
+                    smp->AddSystematic(syst);
+                }
+            }
+        }
+    }
+    //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         if( fKeepPruning ){
             histPrun.push_back( (TH2F*)filePrun->Get( Form("h_prun_%s_toSave", fRegions[i_ch]->fName.c_str()) ) );
@@ -1924,6 +2024,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
             WriteDebugStatus("TRExFit::ReadHistos", "    Reading sample " + sampleName);
             fRegions[i_ch]->SetSampleHist(fSamples[i_smp],regionName+"_"+sampleName,fileName);
             sh = fRegions[i_ch]->GetSampleHist(sampleName);
+            if(sh==nullptr) continue;
             //
             // separate gammas -> Add systematic
             if(fSamples[i_smp]->fSeparateGammas){
@@ -4037,6 +4138,10 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                                             break;
                                         }
                                     }
+                                }
+                                // eventually correlate MC stat with other samples
+                                if(h->fSample->fCorrelateGammasWithSample!=""){
+                                    npName = "shape_stat_"+h->fSample->fCorrelateGammasWithSample+"_";
                                 }
                             }
                             npName += regionName;
@@ -6996,6 +7101,11 @@ void TRExFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left,
 //
 void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& formula,double *p) const{
     TCanvas *c = new TCanvas("c","c",600,600);
+    // find NF associated to this morph param
+    NormFactor *nf = nullptr;
+    for(auto norm : fNormFactors){
+        if(norm->fName == name) nf = norm;
+    }
     // get one histogram per bin (per region)
     for(auto reg : fRegions){
         std::map<float,TH1*> hMap; // map (paramater-value,histogram)
@@ -7021,6 +7131,8 @@ void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& fo
             for(auto vh : hMap){
                 g_bin->SetPoint(i_pt,vh.first,vh.second->GetBinContent(i_bin));
                 g_bin->SetPointError(i_pt,0,vh.second->GetBinError(i_bin));
+                // if it's the nominal sample, set error to very small value => forced not to change nominal!
+                if(nf!=nullptr) if(nf->fNominal==vh.first) g_bin->SetPointError(i_pt,0,vh.second->GetBinError(i_bin)*0.001);
                 i_pt++;
             }
             c->cd();

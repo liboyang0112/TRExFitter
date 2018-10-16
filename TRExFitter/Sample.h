@@ -116,6 +116,7 @@ public:
 
     bool fSeparateGammas;
     std::vector<std::vector<std::string>> fCorrelateGammasInRegions;
+    std::string fCorrelateGammasWithSample;
 };
 
 #endif
