@@ -2008,22 +2008,6 @@ int ConfigReader::ReadSampleOptions(){
             param = confSet->Get("HistoFiles");
             if(param!="") sample->fHistoFiles = Vectorize( param, ',' );
 
-            // Set HistoName
-            param = confSet->Get("HistoName");
-            if(param!="") sample->fHistoNames.push_back( RemoveQuotes(param) );
-            
-            // Set HistoNames
-            param = confSet->Get("HistoNames");
-            if(param!="") sample->fHistoNames = Vectorize( param, ',' );
-
-            // Set HistoPath
-            param = confSet->Get("HistoPath");
-            if(param!="") sample->fHistoPaths.push_back( RemoveQuotes(param) );
-            
-            // Set HistoPaths
-            param = confSet->Get("HistoPaths");
-            if(param!="") sample->fHistoPaths = Vectorize( param, ',' );
-            
             // Set HistoFileSuff
             param = confSet->Get("HistoFileSuff");
             if(param!="") sample->fHistoFileSuffs.push_back( RemoveQuotes(param) );            
@@ -2035,7 +2019,7 @@ int ConfigReader::ReadSampleOptions(){
             // Set HistoName
             param = confSet->Get("HistoName");
             if(param!="") sample->fHistoNames.push_back( RemoveQuotes(param) );
-
+            
             // Set HistoNames
             param = confSet->Get("HistoNames");
             if(param!="") sample->fHistoNames = Vectorize( param, ',' );
@@ -2051,11 +2035,11 @@ int ConfigReader::ReadSampleOptions(){
             // Set HistoPath
             param = confSet->Get("HistoPath");
             if(param!="") sample->fHistoPaths.push_back( RemoveQuotes(param) );
-
+            
             // Set HistoPaths
             param = confSet->Get("HistoPaths");
             if(param!="") sample->fHistoPaths = Vectorize( param, ',' );
-
+            
             // Set HistoPathSuff
             param = confSet->Get("HistoPathSuff");
             if(param!="") sample->fHistoPathSuffs.push_back( RemoveQuotes(param) );
