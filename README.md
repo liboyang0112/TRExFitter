@@ -504,7 +504,7 @@ Currently the supported options are:
 | **SaveSuffix**    | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |
 | **Update**        | if TRUE, the output .root file is updated, otherwise is overwrote |
 | **StatOnlyFit**   | if TRUE, the same as Fit->StatOnlyFit |
-| **StatOnly**      | if TRUE, no systematics nor norm factors will be considered (equivalent to set StatOnly: TRUE in the config) |
+| **StatOnly**      | if TRUE, no systematics nor MC stat uncertainties will be considered (equivalent to set StatOnly: TRUE in the Job block of the config), use `Systematics=NONE` instead to keep MC stat uncertainties |
 | **Ranking**       | see [Ranking Plot](#ranking-plot) section |
 | **FitResults**    | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
 | **FitType**       | can be set to SPLUSB or BONLY to replace the option in the config file |
