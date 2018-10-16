@@ -356,8 +356,6 @@ public:
     bool fStatOnlyFit;
     bool fFixNPforStatOnlyFit;
 
-    bool fRunROOTMacros;
-
     std::vector<std::string> fRegionsToPlot;
     std::vector<std::string> fSummaryPlotRegions;
     std::vector<std::string> fSummaryPlotLabels;
@@ -428,14 +426,23 @@ public:
     bool fLimitIsBlind;
     double fLimitPOIAsimov;
     bool fSignalInjection;
+    float fSignalInjectionValue;
+    std::string fLimitParamName;
+    float fLimitParamValue;
+    std::string fLimitOutputPrefixName;
+    float fLimitsConfidence;
 
     //
     // Significance parameters
     //
     bool fSignificanceIsBlind;
     double fSignificancePOIAsimov;
+    std::string fSignificanceParamName;
+    float fSignificanceParamValue;
+    std::string fSignificanceOutputPrefixName;
 
     bool fCleanTables;
+    bool bles;
     bool fSystCategoryTables;
 
     std::vector< std::string > fRegionGroups;

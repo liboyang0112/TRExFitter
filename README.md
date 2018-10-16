@@ -228,7 +228,6 @@ For each object type (also called "block"), here is the list of available proper
 | CustomFunctions              | list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values) |
 | SuppressNegativeBinWarnings  | If set to TRUE, will suppress warning messages about negative or 0 content in bins |
 | Bootstrap                    | (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like `bsWeight(x,eventNumber,mcChannelNumber)`, where `bsWeight` should be loaded with `CustomFunctions: "bsWeight.C"` and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option `BootstrapIdx=<i>` should be given, with `<i>=0,1,2,3...` |
-| RunROOTMacros                | If set to True will run ROOT macros for limits and significa, otherwise (default) will run version which is compiled and has updated messaging. The functunality is the same. |
 | DecorrSysts                  | comma-separated list of systematics which you want to decorrelate from another channel (this is don by automatically attaching a suffix to the NormFactor for each of them); can use wildcards |
 | DecorrSuff                   | the suffix to attach when using DecorrSysts |
 | RegionGroups                 | groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE |
@@ -285,6 +284,11 @@ For each object type (also called "block"), here is the list of available proper
 | LimitBlind                   | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
 | POIAsimov                    | value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE |
 | SignalInjection              | if set to TRUE, expected signal with signal injection is evaluated |
+| SignalInjectionValue         | Value for the injected signal |
+| ParamName                    | Name for the parameter in the output ROOT file |
+| ParamValue                   | Value of the parameter in the output file (e.g. 172.5 for top mass) |
+| OutputPrefixName             | Prefix for the output ROOT file |
+| ConfidenceLevel              | Confidence level for the CLs. Default is 0.95 |
 
 ### `Significance` block options:
 
@@ -292,6 +296,9 @@ For each object type (also called "block"), here is the list of available proper
 | ---------- | ------------ |
 | SignificanceBlind            | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
 | POIAsimov                    | value of the POI to inject in the Asimov dataset in SignificanceBlind is set to TRUE |
+| ParamName                    | Name for the parameter in the output ROOT file |
+| ParamValue                   | Value of the parameter in the output file (e.g. 172.5 for top mass) |
+| OutputPrefixName             | Prefix for the output ROOT file |
 
 ### `Options` block options:
   * additional options, accepting only float as arguments - useful for adding your functionalities & flags in a quick way, since they need minimal changes in the code) ...
@@ -677,6 +684,27 @@ This will create a combined ws starting from the individual ws for the different
 | Directory        | the path to the directory |
 | InputName        | the name of the input |
 
+* **Limit block:**
+| **Option** | **Function** |
+| ---------- | ------------ |
+| LimitType                    | can be ASYMPTOTIC or TOYS (the latter is not yet supported) |
+| LimitBlind                   | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
+| POIAsimov                    | value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE |
+| SignalInjection              | if set to TRUE, expected signal with signal injection is evaluated |
+| SignalInjectionValue         | Value for the injected signal |
+| ParamName                    | Name for the parameter in the output ROOT file |
+| ParamValue                   | Value of the parameter in the output file (e.g. 172.5 for top mass) |
+| OutputPrefixName             | Prefix for the output ROOT file |
+| ConfidenceLevel              | Confidence level for the CLs. Default is 0.95 |
+
+* **Significance block:**
+| **Option** | **Function** |
+| ---------- | ------------ |
+| SignificanceBlind            | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
+| POIAsimov                    | value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE |
+| ParamName                    | Name for the parameter in the output ROOT file |
+| ParamValue                   | Value of the parameter in the output file (e.g. 172.5 for top mass) |
+| OutputPrefixName             | Prefix for the output ROOT file |
 
 
 ## Input File Merging with hupdate

@@ -95,7 +95,6 @@ public:
 
     std::string fDataName;
     int fFitType;
-    bool fSignalInjection;
 
     bool fCombineChByCh;
     bool fFastFit;
@@ -119,10 +118,29 @@ public:
     int fLHscanSteps; 
     bool fDoGroupedSystImpactTable;
     
-    bool fRunROOTMacros;
-
     std::string fPOIName;
     float fPOINominal;
+    
+    //
+    // Limit parameters
+    //
+    bool fLimitIsBlind;
+    double fLimitPOIAsimov;
+    bool fSignalInjection;
+    float fSignalInjectionValue;
+    std::string fLimitParamName;
+    float fLimitParamValue;
+    std::string fLimitOutputPrefixName;
+    float fLimitsConfidence;
+
+    //
+    // Significance parameters
+    //
+    bool fSignificanceIsBlind;
+    double fSignificancePOIAsimov;
+    std::string fSignificanceParamName;
+    float fSignificanceParamValue;
+    std::string fSignificanceOutputPrefixName;
 
     bool fShowTotalOnly;
 };

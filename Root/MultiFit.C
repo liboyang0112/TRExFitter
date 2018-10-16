@@ -1,7 +1,7 @@
 // Class include
 #include "TRExFitter/MultiFit.h"
 
-// Framework onncludes
+// Framework inncludes
 #include "TRExFitter/ConfigParser.h"
 #include "TRExFitter/ConfigReader.h"
 #include "TRExFitter/CorrelationMatrix.h"
@@ -14,9 +14,10 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
 #include "TRExFitter/TRExFit.h"
-#include "TRExFitter/RunSig.h"
-#include "TRExFitter/RunAsymptoticsCLs.h"
-#include "TRExFitter/RunAsymptoticsCLs_inject.h"
+
+// CommonStatTools include
+#include "CommonStatTools/runSig.h"
+#include "CommonStatTools/runAsymptoticsCLs.h"
 
 // Roofit includes
 #include "RooCategory.h"
@@ -118,10 +119,30 @@ MultiFit::MultiFit(string name){
     //
     fDoGroupedSystImpactTable = false;
     //
-    fRunROOTMacros = true; // FIXME: had to temporary set it to true by default, otherwise it crashes...
     fPOIName = "#mu";
     fPOINominal = 1;
     
+    //
+    // Limit type
+    //
+    fLimitIsBlind = false;
+    fLimitPOIAsimov = 0;
+    fSignalInjection = false;
+    fSignalInjectionValue = 0;
+    fLimitParamName = "parameter";
+    fLimitParamValue = 0;
+    fLimitOutputPrefixName = "myLimit";
+    fLimitsConfidence = 0.95;
+
+    // 
+    // Significance parameters
+    //
+    fSignificanceIsBlind = false;
+    fSignificancePOIAsimov = 0;
+    fSignificanceParamName = "parameter";
+    fSignificanceParamValue = 0;
+    fSignificanceOutputPrefixName = "mySignificance"; 
+
     fShowTotalOnly = false;
 }
 
@@ -479,23 +500,9 @@ void MultiFit::GetCombinedLimit(string inputData) const{
     WriteInfoStatus("MultiFit::GetCombinedLimit", "Runing runAsymptoticsCLs macro...");
     
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
-    string cmd;
-    if(fSignalInjection){
-        if (!fRunROOTMacros){
-            LimitsCLs_inject::RunAsymptoticsCLs_inject(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "asimovData_0", (fOutDir+"/Limits/").c_str(),(fName+fSaveSuf).c_str(),0.95);
-        }
-        cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
-    }
-    else{
-        if (!fRunROOTMacros){
-            LimitsCLs::RunAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "asimovData_0", (fOutDir+"/Limits/").c_str(),(fName+fSaveSuf).c_str(),0.95);
-        }
-        cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_0\",\""+fOutDir+"/Limits/\",\""+fName+fSaveSuf+"\",0.95)'";
-    }
-    //
-    // Finally computing the limit
-    //
-    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
+    int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
+    if (sigDebug < 0) sigDebug = 0;
+    runAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fOutDir+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
 }
 //__________________________________________________________________________________
 //
@@ -503,16 +510,13 @@ void MultiFit::GetCombinedSignificance(string inputData) const{
     WriteInfoStatus("MultiFit::GetCombinedSignificance", "Runing runSig macro...");
   
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
-    string cmd;
-    cmd = "root -l -b -q 'runSig.C(\""+wsFileName+"\",\"combWS\",\"ModelConfig\",\""+inputData+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSaveSuf+"\",\""+fOutDir+"/Significance\")'";
 
     //
     // Finally computing the significance
     //
-    if (!fRunROOTMacros){
-        RunSig(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSaveSuf).c_str(), (fOutDir+"/Significance").c_str());
-    }
-    else gSystem->Exec(cmd.c_str());
+    int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
+    if (sigDebug < 0) sigDebug = 0;
+    runSig(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fOutDir+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, fSignificancePOIAsimov, sigDebug);
 }
 //__________________________________________________________________________________
 //

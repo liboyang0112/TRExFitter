@@ -88,9 +88,6 @@ set( lib_headers
   TRExFitter/NormFactor.h
   TRExFitter/NuisParameter.h
   TRExFitter/Region.h
-  TRExFitter/RunAsymptoticsCLs.h
-  TRExFitter/RunAsymptoticsCLs_inject.h
-  TRExFitter/RunSig.h
   TRExFitter/Sample.h
   TRExFitter/SampleHist.h
   TRExFitter/ShapeFactor.h
@@ -114,9 +111,6 @@ set( lib_sources
   Root/NormFactor.C
   Root/NuisParameter.C
   Root/Region.C
-  Root/RunAsymptoticsCLs.C
-  Root/RunAsymptoticsCLs_inject.C
-  Root/RunSig.C
   Root/Sample.C
   Root/SampleHist.C
   Root/ShapeFactor.C

@@ -18,9 +18,10 @@
 #include "TRExFitter/SystematicHist.h"
 #include "TRExFitter/TRExPlot.h"
 #include "TRExFitter/Region.h"
-#include "TRExFitter/RunSig.h"
-#include "TRExFitter/RunAsymptoticsCLs.h"
-#include "TRExFitter/RunAsymptoticsCLs_inject.h"
+
+// CommonStatTiils includes
+#include "CommonStatTools/runSig.h"
+#include "CommonStatTools/runAsymptoticsCLs.h"
 
 //Roofit headers
 #include "RooSimultaneous.h"
@@ -92,8 +93,6 @@ TRExFit::TRExFit(std::string name){
     fLumi = 1.;
     fLumiErr = 0.000001;
     fLumiScale = 1.;
-
-    fRunROOTMacros = false;
 
     fThresholdSystPruning_Normalisation = -1;
     fThresholdSystPruning_Shape = -1;
@@ -193,12 +192,20 @@ TRExFit::TRExFit(std::string name){
     fLimitIsBlind = false;
     fLimitPOIAsimov = 0;
     fSignalInjection = false;
+    fSignalInjectionValue = 0;
+    fLimitParamName = "parameter";
+    fLimitParamValue = 0;
+    fLimitOutputPrefixName = "myLimit";
+    fLimitsConfidence = 0.95;
 
     //
     // Significance parameters
     //
     fSignificanceIsBlind = false;
     fSignificancePOIAsimov = 0;
+    fSignificanceParamName = "parameter";
+    fSignificanceParamValue = 0;
+    fSignificanceOutputPrefixName = "mySignificance"; 
 
     fImageFormat = "png";
     TRExFitter::IMAGEFORMAT.clear();
@@ -5000,29 +5007,16 @@ void TRExFit::GetLimit(){
         }
     }
 
-    std::string cmd;
-
     //
     // If a workspace file name is specified, do simple limit
     //
+    int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
+    if (sigDebug < 0) sigDebug = 0;
     if(fWorkspaceFileName!=""){
         std::string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
-        if(fSignalInjection){
-            if (!fRunROOTMacros){
-                 LimitsCLs_inject::RunAsymptoticsCLs_inject(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
-            }
-            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-        }
-        else{
-            if (!fRunROOTMacros){
-                LimitsCLs::RunAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_0", (fName+"/Limits/").c_str(), (fInputName+fSuffix).c_str(), 0.95);
-            }
-            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-        }
-
+        runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
     }
-
     else{
         //
         // Fills a vector of regions to consider for fit
@@ -5088,26 +5082,9 @@ void TRExFit::GetLimit(){
         originalMeasurement -> Write();
         ws_forLimit -> Write();
         f_clone -> Close();
-        if(fSignalInjection){
-            if (!fRunROOTMacros){
-                std::string outputName_s = static_cast<std::string> (outputName);
-                LimitsCLs_inject::RunAsymptoticsCLs_inject(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
-            }
-            cmd = "root -l -b -q 'runAsymptoticsCLs_inject.C+(\""+(std::string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-        }
-        else{
-            if (!fRunROOTMacros){
-                std::string outputName_s = static_cast<std::string> (outputName);
-                LimitsCLs::RunAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_0", (fName+"/Limits/").c_str(),(fInputName+fSuffix).c_str(),0.95);
-            }
-            cmd = "root -l -b -q 'runAsymptoticsCLs.C+(\""+(std::string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_0\",\""+fName+"/Limits/\",\""+fInputName+fSuffix+"\",0.95)'";
-        }
+        std::string outputName_s = static_cast<std::string> (outputName);
+        runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
     }
-
-    //
-    // Finally computing the limit
-    //
-    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________
@@ -5123,19 +5100,16 @@ void TRExFit::GetSignificance(){
         }
     }
 
-    std::string cmd;
     //
     // If a workspace file name is specified, do simple significance
     //
+    int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
+    if (sigDebug < 0) sigDebug = 0;
     if(fWorkspaceFileName!=""){
         std::string dataName = "obsData";
-        if(!hasData || fFitIsBlind) dataName = "asimovData";
-        if (!fRunROOTMacros){
-            RunSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fName+fSuffix).c_str(), (fName+"/Significance").c_str());
-        }
-        cmd = "root -l -b -q 'runSig.C(\""+fWorkspaceFileName+"\",\"combined\",\"ModelConfig\",\""+dataName+"\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fName+fSuffix+"\",\""+fName+"/Significance\")'";
+        if(!hasData || fSignificanceIsBlind) dataName = "asimovData";
+        runSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fName+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, fSignificancePOIAsimov, sigDebug);
     }
-
     else{
         //
         // Fills a vector of regions to consider for fit
@@ -5205,12 +5179,8 @@ void TRExFit::GetSignificance(){
         // Finally computing the significance
         //
         std::string outputName_s = static_cast<std::string> (outputName);
-        if (!fRunROOTMacros){
-            RunSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", "asimovData_1", "conditionalGlobs_1", "nominalGlobs", (fInputName+fSuffix).c_str(), (fName+"/Significance").c_str());
-        }
-        cmd = "root -l -b -q 'runSig.C(\""+(std::string)outputName+"\",\"combined\",\"ModelConfig\",\"ttHFitterData\",\"asimovData_1\",\"conditionalGlobs_1\",\"nominalGlobs\",\""+fInputName+fSuffix+"\",\""+fName+"/Significance\")'";
+        runSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fName+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, fSignificancePOIAsimov, sigDebug);
     }
-    if (fRunROOTMacros) gSystem->Exec(cmd.c_str());
 }
 
 //__________________________________________________________________________________

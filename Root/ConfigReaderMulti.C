@@ -47,6 +47,10 @@ int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::st
 
     sc+= ReadJobOptions();
 
+    sc+= ReadLimitOptions();
+    
+    sc+= ReadSignificanceOptions();
+    
     sc+= ReadFitOptions(option);
 
     // make directory
@@ -305,18 +309,6 @@ int ConfigReaderMulti::ReadJobOptions(){
         }
     }
 
-    // Set SignalInjection
-    param = confSet->Get("SignalInjection");
-    if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") fMultiFitter->fSignalInjection = true;
-        else if (param == "FALSE") fMultiFitter->fSignalInjection = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'SignalInjection' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fSignalInjection = false;
-        }
-    }
-
     // Set CombineChByCh
     param = confSet->Get("CombineChByCh");
     if( param != ""){
@@ -492,21 +484,134 @@ int ConfigReaderMulti::ReadJobOptions(){
         if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TRExFitter::PREFITONPOSTFIT= true;
     }
 
-    // Set RunROOTMacros
-    param = confSet->Get("RunROOTMacros");
-    if ( param != ""){
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReaderMulti::ReadLimitOptions(){
+    std::string param = "";
+
+    ConfigSet* confSet = fParser.GetConfigSet("Limit");
+    if (confSet == nullptr){
+        WriteDebugStatus("ConfigReader::ReadLimitOptions", "You do not have Limit option in the config. It is ok, we just want to let you know.");
+        return 0; // it is ok to not have Fit set up
+    }
+
+    // Set LimitBlind
+    param = confSet->Get("LimitBlind");
+    if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE"){
-            fMultiFitter->fRunROOTMacros = true;
-        }
-        else if (param == "FALSE"){
-            fMultiFitter->fRunROOTMacros = false;
+        if( param == "TRUE" ){
+            fMultiFitter->fLimitIsBlind = true;
+        } else if ( param == "FALSE" ){
+            fMultiFitter->fLimitIsBlind = false;
         } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
-            fMultiFitter->fRunROOTMacros = false;
+            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "You specified 'LimitBlind' option but didnt provide valid parameter. Using default (false)");
+            fMultiFitter->fLimitIsBlind = false;
+        }
+    }
+
+    // Set POIAsimov
+    param = confSet->Get("POIAsimov");
+    if( param != "" ){
+        fMultiFitter->fLimitPOIAsimov = atof(param.c_str());
+    }
+
+    // Set SignalInjection
+    param = confSet->Get("SignalInjection");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fMultiFitter->fSignalInjection = true;
+        } else if ( param == "FALSE" ){
+            fMultiFitter->fSignalInjection = false;
+        } else {
+            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "You specified 'SignalInjection' option but didnt provide valid parameter. Using default (false)");
+            fMultiFitter->fSignalInjection = false;
         }
     }
     
+    // Set SignalInjectionValue
+    param = confSet->Get("SignalInjectionValue");
+    if( param != "" ){
+        fMultiFitter->fSignalInjectionValue = std::stof(param);
+    }
+    
+    param = confSet->Get("ParamName");
+    if( param != "" ){
+        fMultiFitter->fLimitParamName = param;
+    }
+
+    param = confSet->Get("ParamValue");
+    if( param != "" ){
+        fMultiFitter->fLimitParamValue = std::stof(param);
+    }
+    
+    param = confSet->Get("OutputPrefixName");
+    if( param != "" ){
+        fMultiFitter->fLimitOutputPrefixName = param;
+    }
+
+    param = confSet->Get("ConfidenceLevel");
+    if( param != "" ){
+        float conf = std::stof(param);
+        if (conf <= 0 || conf >= 1){
+            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "Confidence level is <= 0 or >=1. Setting to default 0.95");
+            conf = 0.95;
+        }
+        fMultiFitter->fLimitsConfidence = conf;
+    }
+    
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReaderMulti::ReadSignificanceOptions(){
+    std::string param = "";
+
+    ConfigSet* confSet = fParser.GetConfigSet("Significance");
+    if (confSet == nullptr){
+        WriteDebugStatus("ConfigReaderMulti::ReadSignificanceOptions", "You do not have Significance option in the config. It is ok, we just want to let you know.");
+        return 0; // it is ok to not have Fit set up
+    }
+
+    // Set LimitBlind
+    param = confSet->Get("SignificanceBlind");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fMultiFitter->fSignificanceIsBlind = true;
+        } else if ( param == "FALSE" ){
+            fMultiFitter->fSignificanceIsBlind = false;
+        } else {
+            WriteWarningStatus("ConfigReaderMulti::ReadSignificanceOptions", "You specified 'SignificanceBlind' option but didnt provide valid parameter. Using default (false)");
+            fMultiFitter->fSignificanceIsBlind = false;
+        }
+    }
+
+    // Set POIAsimov
+    param = confSet->Get("POIAsimov");
+    if( param != "" ){
+        fMultiFitter->fSignificancePOIAsimov = atof(param.c_str());
+    }
+    
+    param = confSet->Get("ParamName");
+    if( param != "" ){
+        fMultiFitter->fSignificanceParamName = param;
+    }
+
+    param = confSet->Get("ParamValue");
+    if( param != "" ){
+        fMultiFitter->fSignificanceParamValue = std::stof(param);
+    }
+    
+    param = confSet->Get("OutputPrefixName");
+    if( param != "" ){
+        fMultiFitter->fSignificanceOutputPrefixName = param;
+    }
+
     return 0;
 }
 

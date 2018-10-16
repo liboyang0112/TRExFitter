@@ -697,21 +697,6 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fBootstrap = RemoveQuotes(param);
     }
 
-    // Set RunROOTMacros
-    param = confSet->Get("RunROOTMacros");
-    if ( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE"){
-            fFitter->fRunROOTMacros = true;
-        }
-        else if (param == "FALSE"){
-            fFitter->fRunROOTMacros = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
-            fFitter->fRunROOTMacros = false;
-        }
-    }
-
     // Set DecorrSuff
     param = confSet->Get("DecorrSuff");
     if( param != ""){
@@ -1403,7 +1388,38 @@ int ConfigReader::ReadLimitOptions(){
             fFitter->fSignalInjection = false;
         }
     }
+    
+    // Set SignalInjectionValue
+    param = confSet->Get("SignalInjectionValue");
+    if( param != "" ){
+        fFitter->fSignalInjectionValue = std::stof(param);
+    }
+    
+    param = confSet->Get("ParamName");
+    if( param != "" ){
+        fFitter->fLimitParamName = param;
+    }
 
+    param = confSet->Get("ParamValue");
+    if( param != "" ){
+        fFitter->fLimitParamValue = std::stof(param);
+    }
+    
+    param = confSet->Get("OutputPrefixName");
+    if( param != "" ){
+        fFitter->fLimitOutputPrefixName = param;
+    }
+
+    param = confSet->Get("ConfidenceLevel");
+    if( param != "" ){
+        float conf = std::stof(param);
+        if (conf <= 0 || conf >= 1){
+            WriteWarningStatus("ConfigReader::ReadLimitOptions", "Confidence level is <= 0 or >=1. Setting to default 0.95");
+            conf = 0.95;
+        }
+        fFitter->fLimitsConfidence = conf;
+    }
+    
     return 0;
 }
 
@@ -1437,6 +1453,22 @@ int ConfigReader::ReadSignificanceOptions(){
     if( param != "" ){
         fFitter->fSignificancePOIAsimov = atof(param.c_str());
     }
+    
+    param = confSet->Get("ParamName");
+    if( param != "" ){
+        fFitter->fSignificanceParamName = param;
+    }
+
+    param = confSet->Get("ParamValue");
+    if( param != "" ){
+        fFitter->fSignificanceParamValue = std::stof(param);
+    }
+    
+    param = confSet->Get("OutputPrefixName");
+    if( param != "" ){
+        fFitter->fSignificanceOutputPrefixName = param;
+    }
+
 
     return 0;
 }
