@@ -222,7 +222,7 @@ int ConfigReader::ReadJobOptions(){
     
     // POI unit (if any)
     param = confSet->Get("POIUnit");
-    if(param!="") fFitter->fPOIunit = param;
+    if(param!="") fFitter->fPOIunit = RemoveQuotes(param);
 
     // Set reading option
     param = confSet->Get("ReadFrom");
@@ -762,6 +762,20 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set PropagateSystsForMorphing
+    param = confSet->Get("PropagateSystsForMorphing");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE"){
+            fFitter->fPropagateSystsForMorphing = true;
+        } else if (param == "FALSE") {
+            fFitter->fPropagateSystsForMorphing = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PropagateSystsForMorphing option but didnt provide valid parameter. Using default (false)");
+            fFitter->fPropagateSystsForMorphing = false;
+        }
+    }
+    
     // Set UseATLASRounding
     param = confSet->Get("UseATLASRounding");
     if ( param != ""){
@@ -2454,7 +2468,7 @@ int ConfigReader::ReadSampleOptions(){
         // Set AsimovReplacementFor
         // AsimovReplacementFor
         param = confSet->Get("AsimovReplacementFor");
-        if(param != ""){
+        if(RemoveQuotes(param) != ""){
             if(Vectorize(param,',').size() == 2){
                 sample->fAsimovReplacementFor.first  = Vectorize(param,',')[0];
                 std::string tmp = Vectorize(param,',')[1];
@@ -2498,6 +2512,12 @@ int ConfigReader::ReadSampleOptions(){
                 WriteDebugStatus("ConfigReader::ReadSampleOptions", "Correlating gammas for this sample in regions " + set);
                 sample->fCorrelateGammasInRegions.push_back(regions_corr);
             }
+        }
+        
+        // Set CorrelateGammasWithSample
+        param = confSet->Get("CorrelateGammasWithSample");
+        if(param != ""){
+            sample->fCorrelateGammasWithSample = RemoveQuotes(param);
         }
 
         // Set Morphing

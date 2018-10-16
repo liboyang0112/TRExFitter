@@ -484,6 +484,7 @@ public:
     bool fUseATLASRoundingTxt;
     bool fUseATLASRoundingTex;
     bool fuseGammasForCorr;
+    bool fPropagateSystsForMorphing;
 };
 
 #endif
