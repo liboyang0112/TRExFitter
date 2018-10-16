@@ -4006,8 +4006,10 @@ bool ConfigReader::ConfigHasHIST(ConfigSet* confSet){
 bool ConfigReader::CheckPresence(const std::vector<std::string> &v1, const std::vector<std::string> &v2){
     for (const auto& i : v1){
         if (i == "") continue;
-        if (i == "none") continue;
-        if (i == "all") continue;
+        std::string s = i;
+        std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+        if (s == "NONE") continue;
+        if (s == "ALL") continue;
         if (FindInStringVector(v2, i) < 0){
             return false;
         }
@@ -4021,8 +4023,10 @@ bool ConfigReader::CheckPresence(const std::vector<std::string> &v1, const std::
 bool ConfigReader::CheckPresence(const std::vector<std::string> &v1, const std::vector<std::string> &v2, const std::vector<std::string> &v3){
     for (const auto& i : v1){
         if (i == "") continue;
-        if (i == "none") continue;
-        if (i == "all") continue;
+        std::string s = i;
+        std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+        if (s == "NONE") continue;
+        if (s == "ALL") continue;
         if (FindInStringVector(v2, i) < 0){
             if (FindInStringVector(v3, i) < 0){
                 return false;
