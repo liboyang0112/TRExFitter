@@ -2845,7 +2845,7 @@ int ConfigReader::ReadSystOptions(){
             if (fAllowWrongRegionSample){
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You set systematics that do not exist in your command line options");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "You set systeamtics that do not exist in your command line options");
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "You set systematics that do not exist in your command line options");
                 return 1;
             }
         }
@@ -3513,7 +3513,7 @@ int ConfigReader::ReadSystOptions(){
         }
 
         // Set SubtractRefSampleVar
-        // New: for systeamtics which also vary Data (e.g. JER with Full NPs)
+        // New: for systematics which also vary Data (e.g. JER with Full NPs)
         // This will subtract linearly the relative variation on Data from each relative variation on MC
         param = confSet->Get("SubtractRefSampleVar");
         if(param!=""){
