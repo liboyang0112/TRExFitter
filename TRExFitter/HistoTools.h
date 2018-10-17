@@ -52,7 +52,7 @@ namespace HistoTools {
      * @return Modified histogram
      */
     TH1D* SymmetrizeOneSided(const TH1* const h_nominal, const TH1* const h_syst, bool &isUp );
-    
+
     /**
      * A helper function to invert one sided shift
      * @param Systematic histogram
