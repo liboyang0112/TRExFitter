@@ -16,6 +16,8 @@ namespace HistoTools {
         //Symmetrisation operations are units
         SYMMETRIZEONESIDED = 1, //symmetrize one-sided systematics (e.g. JER)
         SYMMETRIZETWOSIDED = 2, // symmetrize two-sided systematics (protects from statistical fluctuations)
+        SYMMETRIZEABSMEAN = 3, // symmetrize two-sided systematics by taking mean ob the aboslute values from up and down shift (protects from statistical fluctuations)
+        SYMMETRIZEMAXIMUM = 4, // symmetrize two-sided systematics by taking the larger variation from up and down and symmetrizing (protects from statistical fluctuations)
 
         //Smoothing operations are 10th
         SMOOTH = 10,
