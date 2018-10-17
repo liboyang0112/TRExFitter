@@ -459,7 +459,7 @@ For each object type (also called "block"), here is the list of available proper
 | WeightSufUp                  | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation (also multiplied with the `MCweight` acting on the nominal sample) |
 | WeightSufDown                | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation (also multiplied with the `MCweight` acting on the nominal sample) |
 | IgnoreWeight                 | only for option NTUP: if set, the corresponding weight (present in Job, Sample or Region) will be ignored for this systematic |
-| Symmetrisation               | can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line |
+| Symmetrisation               | can be ONESIDED, TWOSIDED, ABSMEAN and MAXIMUM (...); for no symmetrisation, skip the line; ONESIDED = only one variation provided (e.g. up variation), down variation will be added as mirrored version, TWOSIDED = (up-down)/2 variation is calcualted bin-by-bin, this is used as up variation and then mirrored to down variation, ABSMEAN = ((abs(up)+abs(down))/2) can be used when both variations have the same sign, USE WITH CAUTION, MAXIMUM = take variations with larger abs value w.r.t nominal and take this in each bin, can be used when both variations have the same sign, USE WITH CAUTION |
 | Smoothing                    | smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line |
 | OverallUp                    | for OVERALL systematic: the relative "up" shift (0.1 means +10%) |
 | OverallDown                  | for OVERALL systematic: the relative "down" shift (-0.1 means -10%) |
