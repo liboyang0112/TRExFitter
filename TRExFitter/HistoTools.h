@@ -14,10 +14,10 @@ namespace HistoTools {
 
     enum SymmetrizationType {
         //Symmetrisation operations are units
-        NOSYMMETRIZATION = 0, //symmetrize one-sided systematics (e.g. JER)
+        NOSYMMETRIZATION = 0, // no symmetrization applied
         SYMMETRIZEONESIDED = 1, //symmetrize one-sided systematics (e.g. JER)
         SYMMETRIZETWOSIDED = 2, // symmetrize two-sided systematics (protects from statistical fluctuations)
-        SYMMETRIZEABSMEAN = 3, // symmetrize two-sided systematics by taking mean ob the aboslute values from up and down shift (protects from statistical fluctuations)
+        SYMMETRIZEABSMEAN = 3, // symmetrize two-sided systematics by taking mean of the absolute values from up and down shift (protects from statistical fluctuations)
         SYMMETRIZEMAXIMUM = 4, // symmetrize two-sided systematics by taking the larger variation from up and down and symmetrizing (protects from statistical fluctuations)
     };
 

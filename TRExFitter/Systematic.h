@@ -1,7 +1,7 @@
 #ifndef SYSTEMATIC_H
 #define SYSTEMATIC_H
 
-/// Framerok includes
+/// Framework includes
 #include "TRExFitter/HistoTools.h"
 
 /// c++ includes
