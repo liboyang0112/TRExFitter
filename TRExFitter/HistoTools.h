@@ -39,8 +39,43 @@ namespace HistoTools {
 
     TH1D* TranformHistogramBinning(TH1* originalHist);
 
+    /**
+     * A helper function to smooth and symmetrize histograms
+     * @param level of smoothing
+     * @param type of symmetrization
+     * @param nominal histogram
+     * @param up variation histogram
+     * @param down variation histogram
+     * @param symmetrized/smoothed up variation
+     * @param symmetrized/smoothed down variation
+     * @param scale for the up variation
+     * @param scale for the down varaition
+     * @param smoothing option
+     * @param apply ttbar resonance smoothing
+     */
     void ManageHistograms(int smoothingLevel, const SymmetrizationType& symType, TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
+    
+    /**
+     * A helper function to symmetrize histograms
+     * @param symmetrization type
+     * @param nominal histogram
+     * @param up variation histogram
+     * @param down variation histogram
+     * @param symmetrized/smoothed up variation
+     * @param symmetrized/smoothed down variation
+     * @param scale for the up variation
+     * @param scale for the down varaition
+     */
     void SymmetrizeHistograms(const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
+    
+    /**
+     * A helper function to smooth histograms
+     * @param level of smoothing
+     * @param symmetrized/smoothed up variation
+     * @param symmetrized/smoothed down variation
+     * @param smooth option
+     * @param apply ttbar resonance smoothing
+     */
     void SmoothHistograms(int smoothingLevels,  TH1* hNom, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
 
     /**
@@ -108,7 +143,6 @@ namespace HistoTools {
     const TH1D* const tmp1, const TH1D* const tmp2);
 
     void Scale(TH1* h_syst, TH1* h_nominal, float factor);
-
 
     struct Bin {
         double N;
