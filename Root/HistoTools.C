@@ -93,6 +93,12 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
     // FIRST STEP: SYMMETRISATION
     //
     //##################################################
+        
+    //Just to be sure, set sumw2() on histograms
+    if(!hNom->GetSumw2())hNom->Sumw2();
+    if(!originUp->GetSumw2())originUp->Sumw2();
+    if(!originDown->GetSumw2())originDown->Sumw2();
+    
     if( symType == SymmetrizationType::SYMMETRIZEONESIDED ) {
         bool isUp = true; //is the provided uncertainty the up or down variation (based on yield)
         if     (originUp==nullptr && originDown!=nullptr) isUp = false;
@@ -113,10 +119,6 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
 
         TH1D* temp = nullptr;
 
-        //Just to be sure, set sumw2() on histograms
-        if(!hNom->GetSumw2())hNom->Sumw2();
-        if(!originUp->GetSumw2())originUp->Sumw2();
-        if(!originDown->GetSumw2())originDown->Sumw2();
 
         if(isUp){
             temp = SymmetrizeOneSided(hNom, originUp, isUp);
