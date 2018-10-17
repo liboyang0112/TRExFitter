@@ -44,11 +44,69 @@ namespace HistoTools {
     void SymmetrizeHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
     void SmoothHistograms(int histOps,  TH1* hNom, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
 
-    //Symmetrisation functions
-    TH1D* SymmetrizeOneSided( TH1* h_nominal, TH1* h_syst, bool &isUp );
-    TH1D* InvertShift(TH1* h_syst, TH1* h_nominal);
-    float Separation(TH1* h1,TH1* h2);
-    TH1D* SymmetrizeTwoSided(TH1* var1, TH1* var2, TH1* hnom);
+    /**
+     * A helper function to Symmetrize systematics using one sided method
+     * @param Nominal histogram
+     * @param Systematic histogram
+     * @param Flag for up/down variation
+     * @return Modified histogram
+     */
+    TH1D* SymmetrizeOneSided(const TH1* const h_nominal, const TH1* const h_syst, bool &isUp );
+    
+    /**
+     * A helper function to invert one sided shift
+     * @param Systematic histogram
+     * @param Nominal histogram
+     * @return Modified histogram
+     */
+    TH1D* InvertShift(const TH1* const h_syst, const TH1* const h_nominal);
+
+    /**
+     * A helper function to calculate separation between histograms
+     * @param First histogram
+     * @param Second histogram
+     * @return Separation value
+     */
+    float Separation(const TH1* const h1, const TH1* const h2);
+
+    /**
+     * A helper function to calculate symmetrization using two sided variation
+     * @param Original variation up histogram
+     * @param Original variation down histogram
+     * @param Nominal histogram
+     * @return Up variation that is calculated, will be ionverted for down  variation later
+     */
+    TH1D* SymmetrizeTwoSided(const TH1* const var1, const TH1* const var2, const TH1* const hnom);
+
+    /**
+     * A helper function to calculate symmetrization using mean of the absolute values
+     * @param Original variation up histogram
+     * @param Original variation down histogram
+     * @param Nominal histogram
+     * @return Up variation that is calculated, will be ionverted for down  variation later
+     */
+    TH1D* SymmetrizeAbsMean(const TH1* const var1, const TH1* const var2, const TH1* const hnom);
+
+    /**
+     * A helper function to calculate symmetrization using maximum variation
+     * @param Original variation up histogram
+     * @param Original variation down histogram
+     * @param Nominal histogram
+     * @return Up variation that is calculated, will be ionverted for down  variation later
+     */
+    TH1D* SymmetrizeMaximum(const TH1* const var1, const TH1* const var2, const TH1* const hnom);
+
+    /**
+     * A helper function to prnt warning if the two variations have the same shift and TwoSided
+     * symmetrization is used.
+     * @param Original variation up
+     * @param Original variation down
+     * @param Nominal histogram
+     * @param Modified syst variation up
+     * @param Modifiec syst variation down
+     */
+    void CheckSameShift(const TH1* const var1, const TH1* const var2, const TH1* const hnom,
+    const TH1D* const tmp1, const TH1D* const tmp2);
 
     void Scale(TH1* h_syst, TH1* h_nominal, float factor);
 
