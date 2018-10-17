@@ -1,6 +1,9 @@
 #ifndef SYSTEMATICHIST_H
 #define SYSTEMATICHIST_H
 
+/// Framework includes
+#include "TRExFitter/HistoTools.h"
+
 /// c++ includes 
 #include <string>
 
@@ -33,7 +36,7 @@ public:
     bool fIsOverall;
     bool fIsShape;
     int fSmoothType;
-    int fSymmetrisationType;
+    HistoTools::SymmetrizationType fSymmetrisationType;
 
     bool fShapePruned;
     bool fNormPruned;

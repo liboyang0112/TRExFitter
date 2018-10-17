@@ -66,46 +66,34 @@ TH1D* HistoTools::TranformHistogramBinning(TH1* originalHist){
 
 //_________________________________________________________________________
 //
-void HistoTools::ManageHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
+void HistoTools::ManageHistograms( int smoothingLevel, const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
                                     TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing) {
     //
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
     //
 
-    //Sanity checks
-    if( histOps % 10 > 4){
-        WriteWarningStatus("HistoTools::ManageHistograms", "histOpt %10 > 4 - the operations to perform are not allowed ");
-        WriteWarningStatus("HistoTools::ManageHistograms", "   two different symmetrisations ! Please check.");
-        return;
-    }
-    if( histOps/10 > 99 ){
-        WriteWarningStatus("HistoTools::ManageHistograms", "histOpt/10 > 99 - the operations to perform are not allowed ");
-        WriteWarningStatus("HistoTools::ManageHistograms", "   two different symmetrisations ! Please check.");
-        return;
-    }
-
     // if one-sided & symmetrization asked, do smoothing first and symmetrization after
-    if( histOps % 10 == SYMMETRIZEONESIDED ){
-        SmoothHistograms(    histOps,hNom,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing);
-        SymmetrizeHistograms(histOps,hNom,modifiedUp,modifiedDown,modifiedUp,modifiedDown,scaleUp,scaleDown);
+    if( symType == SymmetrizationType::SYMMETRIZEONESIDED ){
+        SmoothHistograms(smoothingLevel, hNom, modifiedUp, modifiedDown, smoothOpt, TtresSmoothing);
+        SymmetrizeHistograms(symType, hNom, modifiedUp, modifiedDown, modifiedUp, modifiedDown, scaleUp, scaleDown);
     }
     // otherwise, first symmetrization and then smoothing
     else{
-        SymmetrizeHistograms(histOps,hNom,originUp,originDown,modifiedUp,modifiedDown,scaleUp,scaleDown);
-        SmoothHistograms(    histOps,hNom,modifiedUp,modifiedDown, smoothOpt, TtresSmoothing);
+        SymmetrizeHistograms(symType, hNom, originUp, originDown, modifiedUp, modifiedDown, scaleUp, scaleDown);
+        SmoothHistograms(smoothingLevel, hNom, modifiedUp, modifiedDown, smoothOpt, TtresSmoothing);
     }
 }
 
 //_________________________________________________________________________
 //
-void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, TH1* originDown,
+void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
                                     TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown){
     //##################################################
     //
     // FIRST STEP: SYMMETRISATION
     //
     //##################################################
-    if( histOps % 10 == SYMMETRIZEONESIDED ) {
+    if( symType == SymmetrizationType::SYMMETRIZEONESIDED ) {
         bool isUp = true; //is the provided uncertainty the up or down variation (based on yield)
         if     (originUp==nullptr && originDown!=nullptr) isUp = false;
         else if(originUp!=nullptr && originDown==nullptr) isUp = true;
@@ -140,13 +128,13 @@ void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, T
             modifiedDown = (TH1*)originDown -> Clone();
         }
         delete temp;
-    } else if ( histOps % 10 == SYMMETRIZETWOSIDED ) {
+    } else if ( symType == SymmetrizationType::SYMMETRIZETWOSIDED ) {
         modifiedUp = SymmetrizeTwoSided(originUp, originDown, hNom);
         modifiedDown = InvertShift(modifiedUp,hNom);
-    } else if ( histOps % 10 == SYMMETRIZEABSMEAN ) {
+    } else if ( symType == SymmetrizationType::SYMMETRIZEABSMEAN ) {
         modifiedUp = SymmetrizeAbsMean(originUp, originDown, hNom);
         modifiedDown = InvertShift(modifiedUp,hNom);
-    } else if ( histOps % 10 == SYMMETRIZEMAXIMUM ) {
+    } else if ( symType == SymmetrizationType::SYMMETRIZEMAXIMUM ) {
         modifiedUp = SymmetrizeMaximum(originUp, originDown, hNom);
         modifiedDown = InvertShift(modifiedUp,hNom);
     } else {
@@ -161,63 +149,59 @@ void HistoTools::SymmetrizeHistograms( int histOps,  TH1* hNom, TH1* originUp, T
 
 //_________________________________________________________________________
 //
-void HistoTools::SmoothHistograms( int histOps,  TH1* hNom,
+void HistoTools::SmoothHistograms( int smoothingLevel,  TH1* hNom,
                                     TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing){
     //##################################################
     //
     // SECOND STEP: SMOOTHING
     //
     //##################################################
+    
+    // No smoothing
+    if (smoothingLevel == 0){ 
+        return;
+    }
 
     // Initialize common smoothing tool
     SmoothHist smoothTool;
 
     if(hNom->GetNbinsX()==1){
         std::string temp =  hNom->GetName();
-        WriteDebugStatus("HistoTools::SmoothHistograms", "In HistoTools::ManageHistograms(): skipping smoothing for systematics on \"" + temp + "\" since just 1 bin.");
+        WriteDebugStatus("HistoTools::SmoothHistograms", "Skipping smoothing for systematics on \"" + temp + "\" since just 1 bin.");
         return;
     }
     if (TtresSmoothing || smoothOpt == TTBARRESONANCE) {
-        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
+        if( ( smoothingLevel >= SMOOTHDEPENDENT ) && ( smoothingLevel < SMOOTHINDEPENDENT ) ){
             modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothTtresDependent");
             modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothTtresDependent");
-        } else if( ( histOps - ( histOps % 10 ) ) >= SMOOTH_INDEPENDENT && (histOps - ( histOps % 10 ) ) < UNKNOWN ){
+        } else if( ( smoothingLevel >= SMOOTHINDEPENDENT ) && (smoothingLevel < UNKNOWN) ){
             modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothTtresIndependent");
             modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothTtresIndependent");
+        } else {
+            WriteWarningStatus("HistoTools::SmoothHistograms", "Unknown smoothing level!");
+            return;
         }
     } else if (smoothOpt == MAXVARIATION){
-        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-            smoothTool.setTRExTolerance(0.08); // This was also default before
-            const int smoothingLevel = (histOps - ( histOps % 10 ) ) / 10;
-            smoothTool.setTRExNbins(smoothingLevel);
-            modifiedUp   = smoothTool.Smooth(hNom, modifiedUp,   "smoothTRExDefault");
-            modifiedDown = smoothTool.Smooth(hNom, modifiedDown, "smoothTRExDefault");
-        }
+        smoothTool.setTRExTolerance(0.08); // This was also default before
+        const int lvl = smoothingLevel / 10;
+        smoothTool.setTRExNbins(lvl);
+        modifiedUp   = smoothTool.Smooth(hNom, modifiedUp,   "smoothTRExDefault");
+        modifiedDown = smoothTool.Smooth(hNom, modifiedDown, "smoothTRExDefault");
     } else if (smoothOpt == COMMONTOOLSMOOTHMONOTONIC){
-        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-            modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRebinMonotonic");
-            modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRebinMonotonic");
-        }
+        modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRebinMonotonic");
+        modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRebinMonotonic");
     } else if (smoothOpt == COMMONTOOLSMOOTHPARABOLIC){
-        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-            modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRebinParabolic");
-            modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRebinParabolic");
-        }
+        modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRebinParabolic");
+        modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRebinParabolic");
     } else if (smoothOpt == KERNELRATIOUNIFORM){
-        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-            modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRatioUniformKernel");
-            modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRatioUniformKernel");
-        }
+        modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRatioUniformKernel");
+        modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRatioUniformKernel");
     } else if (smoothOpt == KERNELDELTAGAUSS){
-        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-            modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothDeltaGaussKernel");
-            modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothDeltaGaussKernel");
-        }
+        modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothDeltaGaussKernel");
+        modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothDeltaGaussKernel");
     } else if (smoothOpt == KERNELRATIOGAUSS){
-        if( ( histOps - ( histOps % 10 ) ) >= SMOOTH && (histOps - ( histOps % 10 ) ) < SMOOTH_INDEPENDENT ){
-            modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRatioGaussKernel");
-            modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRatioGaussKernel");
-        }
+        modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRatioGaussKernel");
+        modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRatioGaussKernel");
     } else {
         WriteWarningStatus("HistoTools::SmoothHistograms", "Unknown smoothing option. Please check the config file.");
         WriteWarningStatus("HistoTools::SmoothHistograms", "No smoothing will be applied.");

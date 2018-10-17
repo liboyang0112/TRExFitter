@@ -12,19 +12,18 @@ class SystematicHist;
 
 namespace HistoTools {
 
-    enum HistogramOperations {
+    enum SymmetrizationType {
         //Symmetrisation operations are units
+        NOSYMMETRIZATION = 0, //symmetrize one-sided systematics (e.g. JER)
         SYMMETRIZEONESIDED = 1, //symmetrize one-sided systematics (e.g. JER)
         SYMMETRIZETWOSIDED = 2, // symmetrize two-sided systematics (protects from statistical fluctuations)
         SYMMETRIZEABSMEAN = 3, // symmetrize two-sided systematics by taking mean ob the aboslute values from up and down shift (protects from statistical fluctuations)
         SYMMETRIZEMAXIMUM = 4, // symmetrize two-sided systematics by taking the larger variation from up and down and symmetrizing (protects from statistical fluctuations)
+    };
 
-        //Smoothing operations are 10th
-        SMOOTH = 10,
-
-        SMOOTH_INDEPENDENT = 100,
-
-        //Other (possible) functionnalities
+    enum SmoothLevel {
+        SMOOTHDEPENDENT = 10,
+        SMOOTHINDEPENDENT = 100,
         UNKNOWN = 1000
     };
 
@@ -40,9 +39,9 @@ namespace HistoTools {
 
     TH1D* TranformHistogramBinning(TH1* originalHist);
 
-    void ManageHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
-    void SymmetrizeHistograms(int histOps,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
-    void SmoothHistograms(int histOps,  TH1* hNom, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
+    void ManageHistograms(int smoothingLevel, const SymmetrizationType& symType, TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
+    void SymmetrizeHistograms(const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
+    void SmoothHistograms(int smoothingLevels,  TH1* hNom, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
 
     /**
      * A helper function to Symmetrize systematics using one sided method
