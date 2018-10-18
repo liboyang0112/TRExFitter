@@ -740,3 +740,37 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
     }
     return isGood;
 }
+
+
+//_________________________________________________________________________
+//
+bool HistoTools::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, float threshold){
+    if (!hNom || !hUp || !hDown || !combined) return false;
+
+    if (hUp->GetNbinsX() == 1) return false;
+
+    const double& integralUp = hUp->Integral();
+    const double& integralDown = hDown->Integral();
+    const double& integralCombined = combined->Integral();
+
+    if ((integralUp != integralUp) || integralUp == 0) return false;
+    if ((integralDown != integralDown) || integralDown == 0) return false;
+    if ((integralCombined != integralCombined) || integralCombined == 0) return false;
+
+    bool hasShape = false;
+
+    for (int ibin = 1; ibin <= hUp->GetNbinsX(); ++ibin){
+        const double& nominal  = hNom->GetBinContent(ibin);
+        const double& comb     = combined->GetBinContent(ibin);
+        const double& up       = hUp->GetBinContent(ibin);
+        const double& down     = hDown->GetBinContent(ibin);
+        const double& up_err   = std::fabs((up-nominal)/comb);
+        const double& down_err = std::fabs((down-nominal)/comb);
+        if(up_err>=threshold || down_err>=threshold){
+            hasShape = true;
+            break;
+        }
+    }
+
+    return hasShape;
+}

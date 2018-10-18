@@ -6,6 +6,7 @@
 
 /// c++ includes
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -294,6 +295,13 @@ public:
     TH1D* ReadSingleHistogram(const std::vector<std::string>& fullPaths, Systematic* syst,
         int i_ch, int i_smp, bool isUp, bool isMC);
 
+    /**
+     * A helper function to get combined histogram of samples from one region neede for special prunning
+     * @param Region
+     * @param Vector of samples
+     * @return Combined histogram
+     */ 
+    std::unique_ptr<TH1D> GetCombinedSampleHist(const Region* const reg) const;
     // -------------------------
 
     std::string fName;

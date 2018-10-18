@@ -67,5 +67,7 @@ namespace HistoTools {
 
     //Histograms checker
     bool CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNull = true, bool causeCrash = false);
+
+    bool HasShapeRelative(const TH1* const hNom, const TH1* const up, const TH1* const down, const TH1* const combined, float threshold);
 }
 #endif

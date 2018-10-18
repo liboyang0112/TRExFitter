@@ -205,7 +205,7 @@ TRExFit::TRExFit(std::string name){
     fSignificancePOIAsimov = 0;
     fSignificanceParamName = "parameter";
     fSignificanceParamValue = 0;
-    fSignificanceOutputPrefixName = "mySignificance"; 
+    fSignificanceOutputPrefixName = "mySignificance";
 
     fImageFormat = "png";
     TRExFitter::IMAGEFORMAT.clear();
@@ -269,7 +269,7 @@ TRExFit::TRExFit(std::string name){
     fPOIPrecision = 2;
 
     fRankingPOIName = "#mu";
-    
+
     fUseATLASRoundingTxt = false;
     fUseATLASRoundingTex = false;
 
@@ -1158,7 +1158,7 @@ void TRExFit::CorrectHistograms(){
                     else                        syh->fHistDown_preSmooth = (TH1*)sh->fHist_preSmooth->Clone();
                 }
             }
-            
+
             //
             // Fix empty bins
             if(smp->fType!=Sample::DATA && smp->fType!=Sample::SIGNAL){
@@ -1242,7 +1242,7 @@ void TRExFit::CorrectHistograms(){
         } // end sample loop
         //
     } // end region loop
-   
+
     //
     // Morph smoothing
     if(fSmoothMorphingTemplates!=""){
@@ -1253,7 +1253,7 @@ void TRExFit::CorrectHistograms(){
             // to add: possibility to set initial values of parameters
         }
     }
-    
+
     //
     // Plot Morphing templates
     if (fMorphParams.size() > 0){
@@ -1262,7 +1262,7 @@ void TRExFit::CorrectHistograms(){
             DrawMorphingPlots(par);
         }
     }
-    
+
     //
     // Smooth systematics
     SmoothSystematics("all");
@@ -1326,7 +1326,7 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
-    
+
     // Systematics for morphing samples inherited from nominal sample
     if (fPropagateSystsForMorphing){
         for(auto par : fMorphParams){
@@ -1371,7 +1371,7 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
-    
+
     //
     // set the hasData flag
     bool hasData = false;
@@ -1381,7 +1381,7 @@ void TRExFit::CorrectHistograms(){
             break;
         }
     }
-    
+
     //
     // Poissonize data
     if(hasData && TRExFitter::OPTION["PoissonizeData"]!=0){
@@ -1453,7 +1453,7 @@ void TRExFit::ReadHistograms(){
             // read nominal
             //
             std::vector<std::string> fullPaths = FullHistogramPaths(fRegions[i_ch],fSamples[i_smp]);
-            
+
             TH1D* h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, false); // is nominal and not MC
             //
             // Save the original histogram
@@ -1624,7 +1624,7 @@ void TRExFit::ReadHistograms(){
                     for (const auto& ipath : fullPaths){
                         files_names.insert(ipath);
                     }
-                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, true); // isUp and isMC 
+                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, true); // isUp and isMC
                 }
                 //
                 // Down
@@ -1635,7 +1635,7 @@ void TRExFit::ReadHistograms(){
                     for (const auto& ipath : fullPaths){
                         files_names.insert(ipath);
                     }
-                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, true); // isUp and isMC 
+                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, true); // isUp and isMC
                 }
                 //
                 if(hUp==nullptr)   hUp   = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -4014,6 +4014,13 @@ void TRExFit::DrawPruningPlot() const{
         out << "In Region : " << fRegions[i_reg]->fName << std::endl ;
         histPrun.push_back( new TH2F(Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, NnonGammaSyst,0,NnonGammaSyst) );
         histPrun[histPrun.size()-1]->SetDirectory(0);
+
+        // Get combined histogram needed for some Pruning types
+        std::unique_ptr<TH1D> combined = nullptr;
+        if (fPrunningType !=  SEPARATESAMPLE){
+            combined = GetCombinedSampleHist(fRegions[i_reg]);
+        }
+
         for(int i_smp=0;i_smp<nSmp;i_smp++){
             out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl ;
             for(size_t i_syst=0;i_syst<NnonGammaSyst;i_syst++){
@@ -4030,15 +4037,19 @@ void TRExFit::DrawPruningPlot() const{
                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 0 );
                     //
                     // set to 1 if shape pruned away
-                    if (!syh->fIsShape){
+                    if (FindInStringVector( nonGammaSystematics[i_syst]->fDropShapeIn, fRegions[i_reg]->fName )>=0
+                        || FindInStringVector( nonGammaSystematics[i_syst]->fDropShapeIn, samplesVec[i_smp]->fName )>=0
+                        || !syh->fIsShape){
                         syh->fShapePruned = true;
                         histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
-                    } else {
-                        if(fThresholdSystPruning_Shape>-1 &&
-                            ( !HistoTools::HasShape(sh->fHist, syh,fThresholdSystPruning_Shape)
-                                || FindInStringVector( nonGammaSystematics[i_syst]->fDropShapeIn, fRegions[i_reg]->fName )>=0
-                                || FindInStringVector( nonGammaSystematics[i_syst]->fDropShapeIn, samplesVec[i_smp]->fName )>=0
-                            ) ){
+                    }
+                    if (fPrunningType == SEPARATESAMPLE){
+                        if(fThresholdSystPruning_Shape>-1 && (!HistoTools::HasShape(sh->fHist, syh,fThresholdSystPruning_Shape)) ){
+                            syh->fShapePruned = true;
+                            histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
+                        }
+                    } else { // special pruning
+                        if (fThresholdSystPruning_Shape>-1 && (!HistoTools::HasShapeRelative(sh->fHist, syh->fHistShapeUp, syh->fHistShapeDown, combined.get(), fThresholdSystPruning_Shape))) {
                             syh->fShapePruned = true;
                             histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
                         }
@@ -4046,16 +4057,35 @@ void TRExFit::DrawPruningPlot() const{
 
                     const float normUp=TMath::Abs(sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fNormUp);
                     const float normDo=TMath::Abs(sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fNormDown);
-                    // set to 2 is normalization pruned away
-                    if(    FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, fRegions[i_reg]->fName )>=0
+                    if (FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, fRegions[i_reg]->fName )>=0
                         || FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, samplesVec[i_smp]->fName )>=0
                         || FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, "all" )>=0
-                        || ( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation )
-                        || (normUp!=normUp || normDo!=normDo)
-                        ) {
+                        || (normUp!=normUp || normDo!=normDo)){
                         syh->fNormPruned = true;
                         if(syh->fShapePruned || nonGammaSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 3 );
                         else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
+                    }
+                    if (fPrunningType == SEPARATESAMPLE){
+                        // set to 2 is normalization pruned away
+                        if( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation ) {
+                            syh->fNormPruned = true;
+                            if(syh->fShapePruned || nonGammaSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 3 );
+                            else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
+                        }
+                    } else { // special pruning
+                        if (combined != nullptr){
+                            const double& nominal = sh->fHist->Integral();
+                            const double& integralTotal = combined->Integral();
+                            const double nominalUp   = nominal * (1+normUp);
+                            const double nominalDown = nominal * (1-normDo);
+                            const double ratioUp     = std::fabs((nominalUp   - nominal)/integralTotal);
+                            const double ratioDown   = std::fabs((nominalDown - nominal)/integralTotal);
+                            if (fThresholdSystPruning_Normalisation>-1 && ratioUp<fThresholdSystPruning_Normalisation && ratioDown<fThresholdSystPruning_Normalisation) {
+                                syh->fNormPruned = true;
+                                if(syh->fShapePruned || nonGammaSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 3 );
+                                else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
+                            }
+                        }
                     }
                     //
                     // now check for crazy sys ....
@@ -5024,7 +5054,7 @@ void TRExFit::GetLimit(){
     if(fWorkspaceFileName!=""){
         std::string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
-        runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
+        runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
     }
     else{
         //
@@ -5092,7 +5122,7 @@ void TRExFit::GetLimit(){
         ws_forLimit -> Write();
         f_clone -> Close();
         std::string outputName_s = static_cast<std::string> (outputName);
-        runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
+        runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
     }
 }
 
@@ -7071,7 +7101,7 @@ std::string TRExFit::Variable(Region *reg,Sample *smp){
     //
     return variable;
 }
-            
+
 //__________________________________________________________________________________
 // Computes the full selection string to be used when reading ntuples, for a given region, sample combination
 std::string TRExFit::FullSelection(Region *reg,Sample *smp){
@@ -7273,7 +7303,7 @@ std::vector<std::string> TRExFit::FullNtuplePaths(Region *reg,Sample *smp,System
             if(isUp) pathSuffs = CombinePathSufs( CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs ), ToVec(syst->fNtuplePathSufUp) );
             else     pathSuffs = CombinePathSufs( CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs ), ToVec(syst->fNtuplePathSufDown) );
         }
-    }                                       
+    }
     else{
         pathSuffs = CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs );
     }
@@ -7385,7 +7415,7 @@ std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Sys
             if(isUp) pathSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), ToVec(syst->fHistoPathSufUp) );
             else     pathSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), ToVec(syst->fHistoPathSufDown) );
         }
-    }                                       
+    }
     else{
         pathSuffs = CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs );
     }
@@ -7561,6 +7591,30 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
         }
         delete htmp;
     }
-    
+
     return h;
+}
+
+std::unique_ptr<TH1D> TRExFit::GetCombinedSampleHist(const Region* const reg) const{
+    std::unique_ptr<TH1D> result = nullptr;
+
+    for (int i_smp = 0; i_smp < fNSamples; ++i_smp){
+        Sample* sample = fSamples.at(i_smp);
+        if (sample == nullptr) continue;
+        if (sample->fType == Sample::DATA) continue;
+        if (sample->fType == Sample::GHOST) continue;
+        if (fPrunningType == BACKGROUNDREFERENCE && sample->fType == Sample::SIGNAL) continue;
+        if (!(FindInStringVector( sample->fRegions, reg->fName )>=0)) continue;
+
+        SampleHist *sh = reg->GetSampleHist(sample->fName);
+        if (sh == nullptr) continue;
+        if (sh->fHist == nullptr) continue;
+        if (result == nullptr){
+            result = std::unique_ptr<TH1D>(static_cast<TH1D*>(sh->fHist->Clone()));
+        } else {
+            result->Add(sh->fHist);
+        }
+    }
+
+    return result;
 }
