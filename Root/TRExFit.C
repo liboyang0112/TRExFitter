@@ -1682,9 +1682,9 @@ void TRExFit::ReadHistos(/*string fileName*/){
     }
     //
     std::vector< TH2F* > histPrun;
-    TFile *filePrun = nullptr;
+    std::unique_ptr<TFile> filePrun = nullptr;
     if( fKeepPruning ){
-        filePrun = new TFile( (fName+"/Pruning.root").c_str() );
+        filePrun = std::unique_ptr<TFile>(new TFile( (fName+"/Pruning.root").c_str() ));
         if(!filePrun) fKeepPruning = false;
     }
     //
@@ -1913,6 +1913,10 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 }
             }
         }
+    }
+
+    if (filePrun != nullptr){
+        filePrun->Close();
     }
 }
 
@@ -4004,85 +4008,90 @@ void TRExFit::DrawPruningPlot() const{
     int NnonGammaSyst = nonGammaSystematics.size();
     //
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
-        if(fRegions[i_reg]->fRegionType!=Region::VALIDATION){
-            out << "In Region : " << fRegions[i_reg]->fName << std::endl ;
-            histPrun.push_back( new TH2F(Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, NnonGammaSyst,0,NnonGammaSyst) );
-            histPrun[histPrun.size()-1]->SetDirectory(0);
-            for(int i_smp=0;i_smp<nSmp;i_smp++){
-                out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl ;
-                for(int i_syst=0;i_syst<NnonGammaSyst;i_syst++){
-                   histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), -1 );
-                }
-                SampleHist *sh = fRegions[i_reg]->GetSampleHist(samplesVec[i_smp]->fName);
-                if(sh!=nullptr){
-                    for(int i_syst=0;i_syst<NnonGammaSyst;i_syst++){
-                        out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
-                        if( sh->HasSyst(nonGammaSystematics[i_syst]->fName) ) {
-                            SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
-                            histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 0 );
-                            //
-                            // set to 1 if shape pruned away
-                            if( !sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fIsShape ||
-                                (fThresholdSystPruning_Shape>-1 &&
-                              ( !HistoTools::HasShape(sh->fHist, sh->GetSystematic(nonGammaSystematics[i_syst]->fName),fThresholdSystPruning_Shape)
+        if(fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
+
+        out << "In Region : " << fRegions[i_reg]->fName << std::endl ;
+        histPrun.push_back( new TH2F(Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, NnonGammaSyst,0,NnonGammaSyst) );
+        histPrun[histPrun.size()-1]->SetDirectory(0);
+        for(int i_smp=0;i_smp<nSmp;i_smp++){
+            out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl ;
+            for(int i_syst=0;i_syst<NnonGammaSyst;i_syst++){
+               histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), -1 );
+            }
+
+            SampleHist *sh = fRegions[i_reg]->GetSampleHist(samplesVec[i_smp]->fName);
+            if (sh == nullptr) continue;
+
+            for(int i_syst=0;i_syst<NnonGammaSyst;i_syst++){
+                out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
+                if( sh->HasSyst(nonGammaSystematics[i_syst]->fName) ) {
+                    SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
+                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 0 );
+                    //
+                    // set to 1 if shape pruned away
+                    if (!syh->fIsShape){
+                        syh->fShapePruned = true;
+                        histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
+                    } else {
+                        if(fThresholdSystPruning_Shape>-1 &&
+                            ( !HistoTools::HasShape(sh->fHist, syh,fThresholdSystPruning_Shape)
                                 || FindInStringVector( nonGammaSystematics[i_syst]->fDropShapeIn, fRegions[i_reg]->fName )>=0
                                 || FindInStringVector( nonGammaSystematics[i_syst]->fDropShapeIn, samplesVec[i_smp]->fName )>=0
-                                ) )
-                              ) {
-                                syh->fShapePruned = true;
-                                histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
+                            ) ){
+                            syh->fShapePruned = true;
+                            histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
+                        }
+                    }
+                    const float normUp=TMath::Abs(sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fNormUp);
+                    const float normDo=TMath::Abs(sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fNormDown);
+
+                    // set to 2 is normalization pruned away
+                    if(    FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, fRegions[i_reg]->fName )>=0
+                        || FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, samplesVec[i_smp]->fName )>=0
+                        || FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, "all" )>=0
+                        || ( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation )
+                        || (normUp!=normUp || normDo!=normDo)
+                        ) {
+                        syh->fNormPruned = true;
+                        if(syh->fShapePruned || nonGammaSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 3 );
+                        else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
+                    }
+                    //
+                    // now check for crazy sys ....
+                    if ( fThresholdSystLarge > -1 ) {
+                        // first norm:
+                        if ( normUp>fThresholdSystLarge || normDo>fThresholdSystLarge || normUp!=normUp || normDo!=normDo ) {
+                            syh->fBadNorm = true;
+                            histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-2);
+                        }
+                        //
+                        // then shape
+                        if ( syh->fIsShape && ( HistoTools::HasShape(sh->fHist, syh,fThresholdSystLarge) ) ) {
+                            syh->fBadShape = true;
+                            if ( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )==-2 ) {
+                                histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-4);
                             }
-                            float normUp=TMath::Abs(sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fNormUp);
-                            float normDo=TMath::Abs(sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fNormDown);
-                            // set to 2 is normalization pruned away
-                            if(    FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, fRegions[i_reg]->fName )>=0
-                                || FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, samplesVec[i_smp]->fName )>=0
-                                || FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, "all" )>=0
-                                || ( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation )
-                                || (normUp!=normUp || normDo!=normDo)
-                                ) {
-                                syh->fNormPruned = true;
-                                if(syh->fShapePruned || nonGammaSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 3 );
-                                else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 2 );
-                            }
-                            //
-                            // now check for crazy sys ....
-                            if ( fThresholdSystLarge > -1 ) {
-                                // first norm:
-                                if ( normUp>fThresholdSystLarge || normDo>fThresholdSystLarge || normUp!=normUp || normDo!=normDo ) {
-                                    syh->fBadNorm = true;
-                                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-2);
-                                }
-                                //
-                                // then shape
-                                if ( sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fIsShape && ( HistoTools::HasShape(sh->fHist, sh->GetSystematic(nonGammaSystematics[i_syst]->fName),fThresholdSystLarge) ) ) {
-                                    syh->fBadShape = true;
-                                    if ( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )==-2 ) {
-                                        histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-4);
-                                    }
-                                    else {
-                                        histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-3);
-                                    }
-                                }
+                            else {
+                                histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst),-3);
                             }
                         }
-                        if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -1 ) out << " is not present" << std::endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 0 ) out << " is kept" << std::endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 1 ) out << " is norm only" << std::endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 2 ) out << " is shape only" << std::endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 3 ) out << " is dropped" << std::endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -2 ) out << " has bad norm" << std::endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -3 ) out << " has bad shape" << std::endl;
-                        else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -4 ) out << " is bad" << std::endl;
                     }
                 }
+                if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -1 ) out << " is not present" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 0 ) out << " is kept" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 1 ) out << " is norm only" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 2 ) out << " is shape only" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== 3 ) out << " is dropped" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -2 ) out << " has bad norm" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -3 ) out << " has bad shape" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -4 ) out << " is bad" << std::endl;
             }
-            //
-            histPrun_toSave.push_back( (TH2F*)histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName())) );
-            histPrun_toSave[iReg]->SetDirectory(0);
-            //
-            iReg++;
         }
+        //
+        histPrun_toSave.push_back( (TH2F*)histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName())) );
+        histPrun_toSave[iReg]->SetDirectory(0);
+        //
+        iReg++;
     }
     //
     // draw the histograms
@@ -4190,22 +4199,21 @@ void TRExFit::DrawPruningPlot() const{
 
     //
     // Save prunign hist for future usage
-    TFile *filePrun = nullptr;
+    std::unique_ptr<TFile> filePrun = nullptr;
     // - checking if Pruning.root exists
     // if yes
     if(!gSystem->AccessPathName( (fName+"/Pruning.root").c_str() )){
         // ...
-        filePrun = new TFile( (fName+"/Pruning.root").c_str() );
+        filePrun = std::unique_ptr<TFile>( new TFile( (fName+"/Pruning.root").c_str() ));
     }
     else{
-        filePrun = new TFile( (fName+"/Pruning.root").c_str(),"RECREATE" );
+        filePrun = std::unique_ptr<TFile> (new TFile( (fName+"/Pruning.root").c_str(),"RECREATE" ));
         for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
             histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
         }
     }
     if (filePrun != nullptr){
         filePrun->Close();
-        delete filePrun;
     }
 }
 
