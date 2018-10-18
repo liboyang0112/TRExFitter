@@ -715,7 +715,7 @@ void TRExFit::ReadNtuples(){
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
             // end here if no systematics allowed (e.g. generally for GHOST)
-            if(!fSamples[i_smp]->fUseSystematics) continue;
+            //if(!fSamples[i_smp]->fUseSystematics) continue;
 
             //
             //  -----------------------------------
@@ -842,7 +842,7 @@ void TRExFit::ReadNtuples(){
                         }
 
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
-                        else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                        else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar) {
                             if( reg->GetSampleHist(syst->fReferenceSample) == nullptr ){
                                 WriteErrorStatus("TRExFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
                                 WriteErrorStatus("TRExFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
@@ -919,7 +919,7 @@ void TRExFit::ReadNtuples(){
                             if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
                         }
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
-                        else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                        else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar) {
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* href_down = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistDown;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
