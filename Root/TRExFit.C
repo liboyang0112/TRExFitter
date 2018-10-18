@@ -275,6 +275,7 @@ TRExFit::TRExFit(std::string name){
 
     fuseGammasForCorr = false;
     fPropagateSystsForMorphing = false;
+    fPrunningType = SEPARATESAMPLE;
 }
 
 //__________________________________________________________________________________
@@ -4005,7 +4006,7 @@ void TRExFit::DrawPruningPlot() const{
             nonGammaSystematics.push_back(fSystematics[i_syst]);
         }
     }
-    int NnonGammaSyst = nonGammaSystematics.size();
+    const size_t NnonGammaSyst = nonGammaSystematics.size();
     //
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
         if(fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
@@ -4015,14 +4016,14 @@ void TRExFit::DrawPruningPlot() const{
         histPrun[histPrun.size()-1]->SetDirectory(0);
         for(int i_smp=0;i_smp<nSmp;i_smp++){
             out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl ;
-            for(int i_syst=0;i_syst<NnonGammaSyst;i_syst++){
+            for(size_t i_syst=0;i_syst<NnonGammaSyst;i_syst++){
                histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), -1 );
             }
 
             SampleHist *sh = fRegions[i_reg]->GetSampleHist(samplesVec[i_smp]->fName);
             if (sh == nullptr) continue;
 
-            for(int i_syst=0;i_syst<NnonGammaSyst;i_syst++){
+            for(size_t i_syst=0;i_syst<NnonGammaSyst;i_syst++){
                 out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
                 if( sh->HasSyst(nonGammaSystematics[i_syst]->fName) ) {
                     SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
@@ -4042,9 +4043,9 @@ void TRExFit::DrawPruningPlot() const{
                             histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 1 );
                         }
                     }
+
                     const float normUp=TMath::Abs(sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fNormUp);
                     const float normDo=TMath::Abs(sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fNormDown);
-
                     // set to 2 is normalization pruned away
                     if(    FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, fRegions[i_reg]->fName )>=0
                         || FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, samplesVec[i_smp]->fName )>=0

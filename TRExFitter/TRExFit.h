@@ -54,6 +54,12 @@ public:
         SQUAREROOT = 2
     };
 
+    enum PrunningType{
+        SEPARATESAMPLE = 0,
+        BACKGROUNDREFERENCE = 1,
+        COMBINEDREFERENCE = 2
+    };
+
     struct TemplateWeight{
         std::string function;
         std::string range;
@@ -492,6 +498,7 @@ public:
     bool fUseATLASRoundingTex;
     bool fuseGammasForCorr;
     bool fPropagateSystsForMorphing;
+    PrunningType fPrunningType;
 };
 
 #endif
