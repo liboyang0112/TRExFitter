@@ -714,9 +714,6 @@ void TRExFit::ReadNtuples(){
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
-            // end here if no systematics allowed (e.g. generally for GHOST)
-            //if(!fSamples[i_smp]->fUseSystematics) continue;
-
             //
             //  -----------------------------------
             //
