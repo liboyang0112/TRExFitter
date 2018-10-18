@@ -41,11 +41,6 @@ using namespace std;
 //
 TH1D* HistoTools::TranformHistogramBinning(TH1* originalHist){
 
-    //
-    // In RooStats, input histogram variable binning is not supported => convert to a constant binning
-    // by creating an histogram with the same number of bins but with constant binning between 0 and 1
-    //
-    // - now in case some bins are < 0 (due to bin drop functionality), they are ignored for the regBin histos
     const unsigned int nBins = originalHist -> GetNbinsX();
     unsigned int nBinsNew = 0;
     for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
@@ -116,20 +111,17 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
             if( separationUp < separationDown ) isUp = false;
         }
 
-
-        TH1D* temp = nullptr;
-
+        std::unique_ptr<TH1D> temp = nullptr;
 
         if(isUp){
-            temp = SymmetrizeOneSided(hNom, originUp, isUp);
-            modifiedUp = (TH1*)originUp -> Clone();
-            modifiedDown = (TH1*)temp -> Clone();
+            temp = std::unique_ptr<TH1D>(SymmetrizeOneSided(hNom, originUp, isUp));
+            modifiedUp = static_cast<TH1*>(originUp -> Clone());
+            modifiedDown = static_cast<TH1*>(temp -> Clone());
         } else {
-            temp = SymmetrizeOneSided(hNom, originDown, isUp);
-            modifiedUp = (TH1*)temp -> Clone();
-            modifiedDown = (TH1*)originDown -> Clone();
+            temp = std::unique_ptr<TH1D>(SymmetrizeOneSided(hNom, originDown, isUp));
+            modifiedUp = static_cast<TH1*>(temp -> Clone());
+            modifiedDown = static_cast<TH1*>(originDown -> Clone());
         }
-        delete temp;
     } else if ( symType == SymmetrizationType::SYMMETRIZETWOSIDED ) {
         modifiedUp = SymmetrizeTwoSided(originUp, originDown, hNom);
         modifiedDown = InvertShift(modifiedUp,hNom);
@@ -449,43 +441,6 @@ void HistoTools::Scale(TH1* h_syst, TH1* h_nominal, float factor){
             h_syst -> SetBinContent(iBin, 0.);
         }
     }
-}
-
-//_________________________________________________________________________
-//
-double HistoTools::avgError(std::vector<Bin> &hist, bool independentVar) {
-  int Nbins = hist.size();
-  double avg = 0;
-  std::vector<double> errs;
-  for (int k = 0; k < Nbins; ++k) {
-    double dM = 0;
-    if (independentVar) dM = sqrt(hist[k].dS2 + hist[k].dN2);
-    else dM = max(sqrt(hist[k].dN2), sqrt(hist[k].dS2));
-    errs.push_back(dM/hist[k].N);
-    avg += dM/hist[k].N;
-  }
-  std::sort(errs.begin(), errs.end());
-  return avg/((double) Nbins);
-}
-
-//_________________________________________________________________________
-//
-bool HistoTools::systSmallerThanStat(std::vector<Bin> &hist, bool independentVar, double avgErr) {
-    int Nbins = hist.size();
-    for (int k = 0; k < Nbins; ++k) {
-        double dM = 0;
-        if (independentVar) dM = sqrt(hist[k].dS2 + hist[k].dN2);
-        else dM = max(sqrt(hist[k].dN2), sqrt(hist[k].dS2));
-        if (independentVar) {
-            if (fabs(hist[k].S - hist[k].N) < dM && fabs(hist[k].S - hist[k].N)/hist[k].N > avgErr)
-                //if (fabs(hist[k].S - hist[k].N) < dM)
-                return true;
-        } else {
-            if (fabs(hist[k].S - hist[k].N) < dM)
-                return true;
-        }
-    }
-    return false;
 }
 
 //_________________________________________________________________________

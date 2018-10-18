@@ -12,21 +12,23 @@ class SystematicHist;
 
 namespace HistoTools {
 
+    /// Enum that stores different symmetrization options
     enum SymmetrizationType {
-        //Symmetrisation operations are units
-        NOSYMMETRIZATION = 0, // no symmetrization applied
-        SYMMETRIZEONESIDED = 1, //symmetrize one-sided systematics (e.g. JER)
-        SYMMETRIZETWOSIDED = 2, // symmetrize two-sided systematics (protects from statistical fluctuations)
-        SYMMETRIZEABSMEAN = 3, // symmetrize two-sided systematics by taking mean of the absolute values from up and down shift (protects from statistical fluctuations)
-        SYMMETRIZEMAXIMUM = 4, // symmetrize two-sided systematics by taking the larger variation from up and down and symmetrizing (protects from statistical fluctuations)
+        NOSYMMETRIZATION = 0, /// no symmetrization applied
+        SYMMETRIZEONESIDED = 1, ///symmetrize one-sided systematics (e.g. JER)
+        SYMMETRIZETWOSIDED = 2, /// symmetrize two-sided systematics (protects from statistical fluctuations)
+        SYMMETRIZEABSMEAN = 3, /// symmetrize two-sided systematics by taking mean of the absolute values from up and down shift (protects from statistical fluctuations)
+        SYMMETRIZEMAXIMUM = 4, /// symmetrize two-sided systematics by taking the larger variation from up and down and symmetrizing (protects from statistical fluctuations)
     };
 
+    /// Enum that stores different smoothing level options
     enum SmoothLevel {
         SMOOTHDEPENDENT = 10,
         SMOOTHINDEPENDENT = 100,
         UNKNOWN = 1000
     };
 
+    /// Enum that stores different smoothing options
     enum SmoothOption {
         MAXVARIATION = 0,
         TTBARRESONANCE = 1,
@@ -37,6 +39,13 @@ namespace HistoTools {
         KERNELRATIOGAUSS = 6
     };
 
+    /**
+    * In RooStats, input histogram variable binning is not supported => convert to a constant binning
+    * by creating an histogram with the same number of bins but with constant binning between 0 and 1
+    * - now in case some bins are < 0 (due to bin drop functionality), they are ignored for the regBin histos
+    * @param Original histogram
+    * @return Trasformed histogram
+    */
     TH1D* TranformHistogramBinning(TH1* originalHist);
 
     /**
@@ -53,8 +62,9 @@ namespace HistoTools {
      * @param smoothing option
      * @param apply ttbar resonance smoothing
      */
-    void ManageHistograms(int smoothingLevel, const SymmetrizationType& symType, TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
-    
+    void ManageHistograms(int smoothingLevel, const SymmetrizationType& symType, TH1* hNom, TH1* originUp, TH1* originDown,
+        TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
+
     /**
      * A helper function to symmetrize histograms
      * @param symmetrization type
@@ -66,8 +76,9 @@ namespace HistoTools {
      * @param scale for the up variation
      * @param scale for the down varaition
      */
-    void SymmetrizeHistograms(const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
-    
+    void SymmetrizeHistograms(const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
+        TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
+
     /**
      * A helper function to smooth histograms
      * @param level of smoothing
@@ -76,7 +87,8 @@ namespace HistoTools {
      * @param smooth option
      * @param apply ttbar resonance smoothing
      */
-    void SmoothHistograms(int smoothingLevels,  TH1* hNom, TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
+    void SmoothHistograms(int smoothingLevels,  TH1* hNom, TH1* &modifiedUp, TH1* &modifiedDown,
+        const SmoothOption &smoothOpt, bool TtresSmoothing = false);
 
     /**
      * A helper function to Symmetrize systematics using one sided method
@@ -131,7 +143,7 @@ namespace HistoTools {
     TH1D* SymmetrizeMaximum(const TH1* const var1, const TH1* const var2, const TH1* const hnom);
 
     /**
-     * A helper function to prnt warning if the two variations have the same shift and TwoSided
+     * A helper function to print warning if the two variations have the same shift and TwoSided
      * symmetrization is used.
      * @param Original variation up
      * @param Original variation down
@@ -142,23 +154,31 @@ namespace HistoTools {
     void CheckSameShift(const TH1* const var1, const TH1* const var2, const TH1* const hnom,
     const TH1D* const tmp1, const TH1D* const tmp2);
 
+    /**
+     * A helper function to scale systeamtic histograms
+     * @param Systematic histogram that will be scaled
+     * @param Npminal histogram
+     * @param scale factor
+     */
     void Scale(TH1* h_syst, TH1* h_nominal, float factor);
 
-    struct Bin {
-        double N;
-        double S;
-        double dN2;
-        double dS2;
-        double edge;
-        Bin(double _N, double _S, double _dN2, double _dS2, double _edge) { N = _N; S = _S; dN2 = _dN2; dS2 = _dS2; edge = _edge; }
-    };
-    double avgError(std::vector<Bin> &hist, bool independentVar);
-    bool systSmallerThanStat(std::vector<Bin> &hist, bool independentVar, double avgError);
-
-    //Has systematic
+    /**
+     * A helper function to check if the syst variation has shape effect
+     * @param Nominal histogram
+     * @param Systematic histogram
+     * @param Threshold used for the check
+     * @return Has shape
+     */
     bool HasShape(TH1* nom, SystematicHist* sh, float threshold);
 
-    //Histograms checker
+    /**
+     * A helper function to check for various weird features
+     * @param Nominal histogram
+     * @param Systematic histogram
+     * @param Check for nullpointer
+     * @param Crash when histo is nullptr?
+     * @return Histo is OK
+     */
     bool CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNull = true, bool causeCrash = false);
 }
 #endif
