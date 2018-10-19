@@ -343,6 +343,7 @@ For each object type (also called "block"), here is the list of available proper
 | YmaxScale                    | scales range of y-axis (default: 2.0, meaning the maximum axis value is twice the largest yield in any bin) |
 | Ymax                         | maximum value on y-axis |
 | SkipSmoothing                | if smoothing of nominal samples is used, this option can be used to disable smoothing per region (default: FALSE) |
+| XaxisRange                   | Manually call 'SetRangeUser()' on X axis. Needs two parameters(floats): min,max |
 
 ### `Sample` block options:
 

@@ -374,6 +374,9 @@ void TRExPlot::Draw(std::string options){
         h_dummy->GetYaxis()->SetTickLength(0.01);
         h_dummy->GetXaxis()->SetTickLength(0.02);
     }
+    if (fXaxisRange.size() > 1){
+        h_dummy->GetXaxis()->SetRangeUser(fXaxisRange.at(0), fXaxisRange.at(1));
+    }
     h_dummy->Draw("HIST");
     if(options.find("log")!=std::string::npos) pad0->SetLogy();
 
@@ -761,6 +764,9 @@ void TRExPlot::Draw(std::string options){
     if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetTickLength(0.01);
     h_dummy2->Draw("HIST");
     h_dummy2->GetYaxis()->SetTitleOffset(1.*h_dummy->GetYaxis()->GetTitleOffset());
+    if (fXaxisRange.size() > 1){
+        h_dummy2->GetXaxis()->SetRangeUser(fXaxisRange.at(0),fXaxisRange.at(1));
+    }
 
     //
     // Initialising the ratios

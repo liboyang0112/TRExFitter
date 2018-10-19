@@ -1734,6 +1734,26 @@ int ConfigReader::ReadRegionOptions(){
             reg->fBinLabels = vec_string;
         }
 
+        // Set XaxisRange
+        param = confSet->Get("XaxisRange");
+        if( param != "" ){
+            std::vector<std::string> vec_string = Vectorize( param,',' );
+            if (vec_string.size() != 2){
+                WriteWarningStatus("ConfigReader::ReadRegionOptions", "Setting 'XaxisRange' needs exactly two parameters (floats). Ignoring.");
+            }
+            const float min = std::stof(vec_string.at(0));
+            const float max = std::stof(vec_string.at(1));
+
+            std::vector<float> range{};
+            if (min < max){
+                range.emplace_back(min);
+                range.emplace_back(max);
+            } else {
+                WriteWarningStatus("ConfigReader::ReadRegionOptions", "Setting 'XaxisRange' needs the first parameter to be smaller than the second parameter. Ignoring.");
+            }
+            reg->fXaxisRange = range;
+        }
+
     }
     return 0;
 }

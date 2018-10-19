@@ -234,6 +234,8 @@ public:
     float fChi2prob;
 
     bool fUseGammaPulls;
+
+    std::vector<float> fXaxisRange;
 };
 
 
