@@ -7453,6 +7453,8 @@ std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Sys
     return fullPaths;
 }
 
+//__________________________________________________________________________________
+//
 TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Systematic* syst,
  int i_ch, int i_smp, bool isUp, bool isMC){
     TH1D* h = nullptr;
@@ -7595,6 +7597,8 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
     return h;
 }
 
+//__________________________________________________________________________________
+//
 std::unique_ptr<TH1D> TRExFit::GetCombinedSampleHist(const Region* const reg) const{
     std::unique_ptr<TH1D> result = nullptr;
 
@@ -7608,11 +7612,17 @@ std::unique_ptr<TH1D> TRExFit::GetCombinedSampleHist(const Region* const reg) co
 
         SampleHist *sh = reg->GetSampleHist(sample->fName);
         if (sh == nullptr) continue;
-        if (sh->fHist == nullptr) continue;
+        std::unique_ptr<TH1D> tmp(static_cast<TH1D*>(sh->fHist->Clone()));
+        if (tmp == nullptr) continue;
+
+        // scale accoring to nominal SF
+        const float& scale = GetNominalMorphScale(sh);
+        tmp->Scale(scale);
+
         if (result == nullptr){
-            result = std::unique_ptr<TH1D>(static_cast<TH1D*>(sh->fHist->Clone()));
+            result = std::move(tmp);
         } else {
-            result->Add(sh->fHist);
+            result->Add(tmp.get());
         }
     }
 
