@@ -26,9 +26,9 @@ Applying ATLAS style settings...
 [1;32m=== INFO::Sample::Print::      Bkg2[0m
 [1;32m=== INFO::Sample::Print::      Signal[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
-[1;32m=== INFO::Systematic::Print::  JES[0m
-[1;32m=== INFO::Systematic::Print::  Bkg1Xsec[0m
-[1;32m=== INFO::Systematic::Print::  Bkg2Xsec[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  JES[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
 Reading histograms...
 [1;32m=== INFO::TRExFit::CreateRootFiles: -------------------------------------------[0m
