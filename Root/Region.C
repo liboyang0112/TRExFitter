@@ -545,6 +545,7 @@ void Region::BuildPreFitErrorHist(){
 TRExPlot* Region::DrawPreFit(string opt){
 
     TRExPlot *p = fPlotPreFit;
+    p->SetXaxisRange(fXaxisRange);
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;
@@ -1225,6 +1226,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     }
 
     TRExPlot *p = fPlotPostFit;
+    p->SetXaxisRange(fXaxisRange);
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;

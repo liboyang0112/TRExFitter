@@ -43,6 +43,8 @@ class TRExPlot {
     void SetChi2KS(float chi2prob,float ksprob=-1,float chi2val=-1,int ndf=-1);
     void BlindData();
 
+    void SetXaxisRange(const std::vector<float>& vec) {fXaxisRange = vec;}
+
     void Draw(std::string options="");
     void SaveAs(const std::string& name) const;
     void WriteToFile(const std::string& name) const;
@@ -101,6 +103,7 @@ class TRExPlot {
     float fLumiScale;
     float fBlindingThreshold;
     int fLegendNColumns;
+    std::vector<float> fXaxisRange;
 
 public:
   const TH1* GetTotal() const { return h_tot; };
