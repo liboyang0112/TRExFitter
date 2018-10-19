@@ -5236,8 +5236,12 @@ void TRExFit::PrintConfigSummary() const{
         WriteInfoStatus("Sample::Print:","     "+fSamples[i_smp]->fName);
     }
     WriteInfoStatus("TRExFit::PrintConfigSummary", "Reading the following systematics:");
+    std::vector<std::string> tmp{};
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        WriteInfoStatus("Systematic::Print:"," "+fSystematics[i_syst]->fName);
+        if (std::find(tmp.begin(), tmp.end(), fSystematics[i_syst]->fName) == tmp.end()){
+            WriteInfoStatus("TRExFit::PrintConfigSummary"," "+fSystematics[i_syst]->fName);
+        }
+        tmp.emplace_back(fSystematics[i_syst]->fName);
     }
     WriteInfoStatus("TRExFit::PrintConfigSummary", "-------------------------------------------");
 }
