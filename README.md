@@ -27,6 +27,8 @@ This package provides a framework to perform profile likelihood fits. In additio
 8.  [Multi-Fit](#multi-fit)
     * [Multi-Fit `Job` block options](#multi-fit-job-block-options)
     * [Multi-Fit `Fit` block options](#multi-fit-fit-block-options)
+    * [Multi-Fit `Limit` block options](#multi-fit-limit-block-options)
+    * [Multi-Fit `Significance` block options](#multi-fit-significance-block-options)
 9.  [Input File Merging with hupdate](#input-file-merging-with-hupdate)
 10. [Output Directories Structure](#output-directories-structure)
 11. [ShapeFactor example](#shapefactor-example)
@@ -685,7 +687,8 @@ This will create a combined ws starting from the individual ws for the different
 | Directory        | the path to the directory |
 | InputName        | the name of the input |
 
-* **Limit block:**
+### Multi-Fit `Limit` block options:
+
 | **Option** | **Function** |
 | ---------- | ------------ |
 | LimitType                    | can be ASYMPTOTIC or TOYS (the latter is not yet supported) |
@@ -698,7 +701,8 @@ This will create a combined ws starting from the individual ws for the different
 | OutputPrefixName             | Prefix for the output ROOT file |
 | ConfidenceLevel              | Confidence level for the CLs. Default is 0.95 |
 
-* **Significance block:**
+### Multi-Fit `Significance` block options:
+
 | **Option** | **Function** |
 | ---------- | ------------ |
 | SignificanceBlind            | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
