@@ -346,7 +346,9 @@ For each object type (also called "block"), here is the list of available proper
 | NtuplePath(s)                | valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored |
 | NtupleNameSuff(s)            | valid only for option NTUP; suffix(es) for the name of tree to read |
 | FillColor                    | histogram fill color (not valid for data) |
+| FillColorRGB                 | histogram fill color in RGB (not valid for data). This expects a triplet of RGB values between 0 and 255, e.g. `255,0,0`. If set, the FillColor option is ignored. |
 | LineColor                    | histogram line color |
+| LineColorRGB                 | histogram line color in RGB. This expects a triplet of RGB values between 0 and 255, e.g. `255,0,0`. If set, the LineColor option is ignored. |
 | NormFactor                   | NormalisationFactor (free parameter in the fit); in the format \<name\>,nominal,min,max |
 | ShapeFactor                  | ShapeFactor added |
 | NormalizedByTheory           | set it to FALSE for data-driven backgrounds (MCweight, Lumi and LumiScale from Job and Region will be ignored) |
