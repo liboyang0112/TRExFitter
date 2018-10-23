@@ -1992,8 +1992,8 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             }
 
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
-            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,opt+" blind");
-            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,opt);
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt+" blind");
+            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt);
             for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
 
@@ -2006,8 +2006,8 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             delete p;
         }
         else{
-            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
-            else                                                    p = fRegions[i_ch]->DrawPreFit(opt);
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(fPrePostFitCanvasSize, opt+" blind");
+            else                                                    p = fRegions[i_ch]->DrawPreFit(fPrePostFitCanvasSize, opt);
             // this line to fix the y-axis maximum getting doubled in some cases (FIXME)
             if((fRegions[i_ch]->fYmin==0) && (fRegions[i_ch]->fYmax==0) && (fRegions[i_ch]->fYmaxScale==0)){
               p->h_dummy->GetYaxis()->SetRangeUser(p->h_dummy->GetYaxis()->GetXmin(),p->h_dummy->GetMaximum());
@@ -2251,7 +2251,11 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     // normal-/old-style plots
     else{
-        p = new TRExPlot(fInputName+"_summary",900,700);
+        if (fSummaryCanvasSize.size() == 0){
+            p = new TRExPlot(fInputName+"_summary",900,700);
+        } else {
+            p = new TRExPlot(fInputName+"_summary",fSummaryCanvasSize.at(0),fSummaryCanvasSize.at(1));
+        }
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
@@ -3580,6 +3584,10 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     //
     // Create the canvas
     //
+    if (fPieChartCanvasSize.size() != 0){
+        W = fPieChartCanvasSize.at(0);
+        H = fPieChartCanvasSize.at(1);
+    }
     TCanvas *c = new TCanvas("c","c",W,H);
     TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
     pTop->Draw();
@@ -5820,8 +5828,12 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
         idx ++;
         if(idx > max)  max = idx;
     }
-
-    TCanvas *c = new TCanvas("c","c",600,newHeight);
+    int newWidth = 600;
+    if (fNPRankingCanvasSize.size() != 0){
+        newWidth = fNPRankingCanvasSize.at(0);
+        newHeight = fNPRankingCanvasSize.at(1);
+    }
+    TCanvas *c = new TCanvas("c","c",newWidth,newHeight);
     c->SetTicks(0,0);
     gPad->SetLeftMargin(0.4);
     gPad->SetRightMargin(0.05);
