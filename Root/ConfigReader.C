@@ -2203,6 +2203,47 @@ int ConfigReader::ReadSampleOptions(){
         param = confSet->Get("LineColor");
         if(param != "") sample->SetLineColor(atoi(param.c_str()));
 
+        // Convert a string to an RGB value
+        auto convert_str_to_RGB = [] (const std::string& str) {
+          int num = std::stoi(str);
+          if (num < 0) throw std::invalid_argument("RGB value out of range [0, 255]");
+          if (num > 255) throw std::invalid_argument("RGB value out of range [0, 255]");
+          return num;
+        };
+
+        // Convert a vector of strings to a vector of RGB values
+        auto create_RGB_array = [&convert_str_to_RGB] (const std::vector<std::string>& str_vec) {
+          std::array<int, 3> int_arr{{-1}};
+          for (auto itr = str_vec.begin(); itr != str_vec.end(); ++itr) {
+            int_arr.at(itr - str_vec.begin()) = convert_str_to_RGB(*itr);
+          }
+          return int_arr;
+        };
+
+        // Set FillColor from RGB values if given
+        param = confSet->Get("FillColorRGB");
+        if (param != "") {
+          std::vector<std::string> rgb_strings = Vectorize(param, ',');
+          if (rgb_strings.size() != 3) {
+            WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'FillColorRGB' provided. Please check this!");
+            return 1;
+          } else {
+            sample->SetFillColorRGB(create_RGB_array(rgb_strings));
+          }
+        }
+
+        // Set LineColor from RGB values if given
+        param = confSet->Get("LineColorRGB");
+        if (param != "") {
+          std::vector<std::string> rgb_strings = Vectorize(param, ',');
+          if (rgb_strings.size() != 3) {
+            WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'LineColorRGB' provided. Please check this!");
+            return 1;
+          } else {
+            sample->SetLineColorRGB(create_RGB_array(rgb_strings));
+          }
+        }
+
         // Set NormFactor
         param = confSet->Get("NormFactor");
         if(param!=""){

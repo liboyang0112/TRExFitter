@@ -67,6 +67,27 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
     fHist = (TH1*)hist->Clone(Form("h_%s",fName.c_str()));
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
+
+    // Set fill color to RGB values if provided
+    if (fSample->fFillColorRGB[0] > -1) {
+      const auto& col_arr = fSample->fFillColorRGB;
+      TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
+                                (float)col_arr[0]/255,
+                                (float)col_arr[1]/255,
+                                (float)col_arr[2]/255};
+      fHist->SetFillColor(tcol->GetNumber());
+    }
+
+    // Set line color to RGB values if provided
+    if (fSample->fLineColorRGB[0] > -1) {
+      const auto& col_arr = fSample->fLineColorRGB;
+      TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
+                                (float)col_arr[0]/255,
+                                (float)col_arr[1]/255,
+                                (float)col_arr[2]/255};
+      fHist->SetLineColor(tcol->GetNumber());
+    }
+
     fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
     //
     fHist_postFit = nullptr;
