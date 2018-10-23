@@ -826,8 +826,8 @@ int ConfigReader::ReadJobOptions(){
         const int& x = std::stoi(tmp.at(0));
         const int& y = std::stoi(tmp.at(1));
 
-        if (x <= 0 || y <= 0){
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PrePostFitCanvasSize option but at least one parameter is <= 0. Ignoring.");
+        if (x <= 100 || y <= 1000){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PrePostFitCanvasSize option but at least one parameter is <= 100. Ignoring.");
         }
         fFitter->fPrePostFitCanvasSize.emplace_back(x);
         fFitter->fPrePostFitCanvasSize.emplace_back(y);
@@ -843,8 +843,8 @@ int ConfigReader::ReadJobOptions(){
         const int& x = std::stoi(tmp.at(0));
         const int& y = std::stoi(tmp.at(1));
 
-        if (x <= 0 || y <= 0){
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified SummaryCanvasSize option but at least one parameter is <= 0. Ignoring.");
+        if (x <= 100 || y <= 100){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified SummaryCanvasSize option but at least one parameter is <= 100. Ignoring.");
         }
         fFitter->fSummaryCanvasSize.emplace_back(x);
         fFitter->fSummaryCanvasSize.emplace_back(y);
@@ -860,8 +860,8 @@ int ConfigReader::ReadJobOptions(){
         const int& x = std::stoi(tmp.at(0));
         const int& y = std::stoi(tmp.at(1));
 
-        if (x <= 0 || y <= 0){
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PieChartCanvasSize option but at least one parameter is <= 0. Ignoring.");
+        if (x <= 100 || y <= 100){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PieChartCanvasSize option but at least one parameter is <= 100. Ignoring.");
         }
         fFitter->fPieChartCanvasSize.emplace_back(x);
         fFitter->fPieChartCanvasSize.emplace_back(y);
@@ -877,8 +877,8 @@ int ConfigReader::ReadJobOptions(){
         const int& x = std::stoi(tmp.at(0));
         const int& y = std::stoi(tmp.at(1));
 
-        if (x <= 0 || y <= 0){
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NPRankingCanvasSize option but at least one parameter is <= 0. Ignoring.");
+        if (x <= 100 || y <= 100){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NPRankingCanvasSize option but at least one parameter is <= 100. Ignoring.");
         }
         fFitter->fNPRankingCanvasSize.emplace_back(x);
         fFitter->fNPRankingCanvasSize.emplace_back(y);
