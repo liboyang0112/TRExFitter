@@ -144,6 +144,12 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(optMap["GroupedImpact"]!=""){
         fFitter->fGroupedImpactCategory = optMap["GroupedImpact"];
     }
+    if(optMap["OutputDir"]!=""){
+      fFitter->fDir = RemoveQuotes(optMap["OutputDir"]);
+      if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
+      fFitter->fName = fFitter->fDir + fFitter->fName;
+      gSystem->mkdir((fFitter->fName).c_str(), true);
+    }
     //
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "-------------------------------------------");
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "Running options: ");
@@ -206,10 +212,12 @@ int ConfigReader::ReadJobOptions(){
     // Set outputDir
     param = confSet->Get("OutputDir");
     if(param != ""){
-      fFitter->fDir = RemoveQuotes(param);
-      if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
-      fFitter->fName = fFitter->fDir + fFitter->fName;
-      gSystem->mkdir((fFitter->fName).c_str(), true);
+        if (fFitter->fDir.size() == 0){
+            fFitter->fDir = RemoveQuotes(param);
+            if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
+            fFitter->fName = fFitter->fDir + fFitter->fName;
+            gSystem->mkdir((fFitter->fName).c_str(), true);
+        }
     }
 
     // Set Label

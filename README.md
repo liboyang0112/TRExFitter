@@ -523,6 +523,7 @@ Currently the supported options are:
 | **LumiScale**     | as the options in config file |
 | **BootstrapIdx**  | see description of Bootstrap option in config (under Job) |
 | **GroupedImpact** | see [Grouped Impact](#grouped-impact) section |
+| **OutputDir**     | see [Job options](#job-block-options) section |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
