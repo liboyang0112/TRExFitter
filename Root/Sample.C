@@ -27,7 +27,9 @@ Sample::Sample(const std::string& name,int type){
     fGroup = "";
     fType = type;
     fFillColor = kWhite;
+    fFillColorRGB = std::array<int, 3>{{-1}};
     fLineColor = kBlack;
+    fLineColorRGB = std::array<int, 3>{{-1}};
     fNSyst = 0;
     fNNorm = 0;
     fNShape = 0;
@@ -113,6 +115,18 @@ void Sample::SetFillColor(int color){
 //
 void Sample::SetLineColor(int color){
     fLineColor = color;
+}
+
+//__________________________________________________________________________________
+//
+void Sample::SetFillColorRGB(const std::array<int, 3>& rgb){
+  fFillColorRGB = rgb;
+}
+
+//__________________________________________________________________________________
+//
+void Sample::SetLineColorRGB(const std::array<int, 3>& rgb){
+  fLineColorRGB = rgb;
 }
 
 //__________________________________________________________________________________

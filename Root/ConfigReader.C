@@ -1929,6 +1929,30 @@ int ConfigReader::ReadSampleOptions(){
           return int_arr;
         };
 
+        // Set FillColor from RGB values if given
+        param = confSet->Get("FillColorRGB");
+        if (param != "") {
+          std::vector<std::string> rgb_strings = Vectorize(param, ',');
+          if (rgb_strings.size() != 3) {
+            WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'FillColorRGB' provided. Please check this!");
+            return 1;
+          } else {
+            sample->SetFillColorRGB(create_RGB_array(rgb_strings));
+          }
+        }
+
+        // Set LineColor from RGB values if given
+        param = confSet->Get("LineColorRGB");
+        if (param != "") {
+          std::vector<std::string> rgb_strings = Vectorize(param, ',');
+          if (rgb_strings.size() != 3) {
+            WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'LineColorRGB' provided. Please check this!");
+            return 1;
+          } else {
+            sample->SetLineColorRGB(create_RGB_array(rgb_strings));
+          }
+        }
+
         // Set NormFactor
         param = confSet->Get("NormFactor");
         if(param!=""){

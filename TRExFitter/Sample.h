@@ -32,6 +32,8 @@ public:
     void SetTitle(const std::string& title);
     void SetFillColor(int color);
     void SetLineColor(int color);
+    void SetFillColorRGB(const std::array<int, 3>& rgb);
+    void SetLineColorRGB(const std::array<int, 3>& rgb);
     void NormalizedByTheory(const bool norm);
 
     // read from ntupes
@@ -68,6 +70,8 @@ public:
     std::string fGroup;
     int fFillColor;
     int fLineColor;
+    std::array<int, 3> fFillColorRGB;
+    std::array<int, 3> fLineColorRGB;
     bool fNormalizedByTheory;
     std::vector<std::string> fRegions;
     std::vector<float> fLumiScales;
