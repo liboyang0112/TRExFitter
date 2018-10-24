@@ -507,6 +507,11 @@ public:
     bool fuseGammasForCorr;
     bool fPropagateSystsForMorphing;
     PrunningType fPrunningType;
+
+    std::vector<int> fPrePostFitCanvasSize;
+    std::vector<int> fSummaryCanvasSize;
+    std::vector<int> fPieChartCanvasSize;
+    std::vector<int> fNPRankingCanvasSize;
 };
 
 #endif

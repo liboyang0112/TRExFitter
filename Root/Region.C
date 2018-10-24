@@ -542,9 +542,15 @@ void Region::BuildPreFitErrorHist(){
 
 //__________________________________________________________________________________
 //
-TRExPlot* Region::DrawPreFit(string opt){
+TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
 
-    TRExPlot *p = fPlotPreFit;
+    TRExPlot *p{};
+    if (canvasSize.size() == 0){
+        p = fPlotPreFit;
+    } else {
+        p = new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1));
+    }
+    p->SetXaxisRange(fXaxisRange);
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;
@@ -1218,13 +1224,20 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
 //__________________________________________________________________________________
 //
-TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::vector<std::string> &morph_names, string opt){
+TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::vector<std::string> &morph_names, const std::vector<int>& canvasSize, string opt){
 
     if(TRExFitter::PREFITONPOSTFIT){
         fPlotPostFit->h_tot_bkg_prefit = (TH1*)fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit");
     }
 
-    TRExPlot *p = fPlotPostFit;
+    TRExPlot *p{};
+    if (canvasSize.size() == 0){
+        p = fPlotPostFit;
+    } else {
+        p = new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1));
+    }
+
+    p->SetXaxisRange(fXaxisRange);
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;

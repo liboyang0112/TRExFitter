@@ -144,6 +144,12 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(optMap["GroupedImpact"]!=""){
         fFitter->fGroupedImpactCategory = optMap["GroupedImpact"];
     }
+    if(optMap["OutputDir"]!=""){
+      fFitter->fDir = RemoveQuotes(optMap["OutputDir"]);
+      if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
+      fFitter->fName = fFitter->fDir + fFitter->fName;
+      gSystem->mkdir((fFitter->fName).c_str(), true);
+    }
     //
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "-------------------------------------------");
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "Running options: ");
@@ -206,10 +212,12 @@ int ConfigReader::ReadJobOptions(){
     // Set outputDir
     param = confSet->Get("OutputDir");
     if(param != ""){
-      fFitter->fDir = RemoveQuotes(param);
-      if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
-      fFitter->fName = fFitter->fDir + fFitter->fName;
-      gSystem->mkdir((fFitter->fName).c_str(), true);
+        if (fFitter->fDir.size() == 0){
+            fFitter->fDir = RemoveQuotes(param);
+            if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
+            fFitter->fName = fFitter->fDir + fFitter->fName;
+            gSystem->mkdir((fFitter->fName).c_str(), true);
+        }
     }
 
     // Set Label
@@ -822,6 +830,74 @@ int ConfigReader::ReadJobOptions(){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PrunningType option but didnt provide valid parameter. Using default (SEPARATESAMPLE)");
             fFitter->fPrunningType = TRExFit::SEPARATESAMPLE;
         }
+    }
+
+    // Set PrePostFitCanvasSize
+    param = confSet->Get("PrePostFitCanvasSize");
+    if( param != ""){
+        std::vector<std::string> tmp = Vectorize(param, ',');
+        if (tmp.size() != 2){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PrePostFitCanvasSize option but didnt provide 2 parameters. Ignoring.");
+        }
+        const int& x = std::stoi(tmp.at(0));
+        const int& y = std::stoi(tmp.at(1));
+
+        if (x <= 100 || y <= 1000){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PrePostFitCanvasSize option but at least one parameter is <= 100. Ignoring.");
+        }
+        fFitter->fPrePostFitCanvasSize.emplace_back(x);
+        fFitter->fPrePostFitCanvasSize.emplace_back(y);
+    }
+
+    // Set SummaryCanvasSize
+    param = confSet->Get("SummaryCanvasSize");
+    if( param != ""){
+        std::vector<std::string> tmp = Vectorize(param, ',');
+        if (tmp.size() != 2){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified SummaryCanvasSize option but didnt provide 2 parameters. Ignoring.");
+        }
+        const int& x = std::stoi(tmp.at(0));
+        const int& y = std::stoi(tmp.at(1));
+
+        if (x <= 100 || y <= 100){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified SummaryCanvasSize option but at least one parameter is <= 100. Ignoring.");
+        }
+        fFitter->fSummaryCanvasSize.emplace_back(x);
+        fFitter->fSummaryCanvasSize.emplace_back(y);
+    }
+
+    // Set PieChartCanvasSize
+    param = confSet->Get("PieChartCanvasSize");
+    if( param != ""){
+        std::vector<std::string> tmp = Vectorize(param, ',');
+        if (tmp.size() != 2){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PieChartCanvasSize option but didnt provide 2 parameters. Ignoring.");
+        }
+        const int& x = std::stoi(tmp.at(0));
+        const int& y = std::stoi(tmp.at(1));
+
+        if (x <= 100 || y <= 100){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PieChartCanvasSize option but at least one parameter is <= 100. Ignoring.");
+        }
+        fFitter->fPieChartCanvasSize.emplace_back(x);
+        fFitter->fPieChartCanvasSize.emplace_back(y);
+    }
+
+    // Set NPRankingCanvasSize
+    param = confSet->Get("NPRankingCanvasSize");
+    if( param != ""){
+        std::vector<std::string> tmp = Vectorize(param, ',');
+        if (tmp.size() != 2){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NPRankingCanvasSize option but didnt provide 2 parameters. Ignoring.");
+        }
+        const int& x = std::stoi(tmp.at(0));
+        const int& y = std::stoi(tmp.at(1));
+
+        if (x <= 100 || y <= 100){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NPRankingCanvasSize option but at least one parameter is <= 100. Ignoring.");
+        }
+        fFitter->fNPRankingCanvasSize.emplace_back(x);
+        fFitter->fNPRankingCanvasSize.emplace_back(y);
     }
 
     // success
@@ -1750,6 +1826,26 @@ int ConfigReader::ReadRegionOptions(){
             reg->fBinLabels = vec_string;
         }
 
+        // Set XaxisRange
+        param = confSet->Get("XaxisRange");
+        if( param != "" ){
+            std::vector<std::string> vec_string = Vectorize( param,',' );
+            if (vec_string.size() != 2){
+                WriteWarningStatus("ConfigReader::ReadRegionOptions", "Setting 'XaxisRange' needs exactly two parameters (floats). Ignoring.");
+            }
+            const float min = std::stof(vec_string.at(0));
+            const float max = std::stof(vec_string.at(1));
+
+            std::vector<float> range{};
+            if (min < max){
+                range.emplace_back(min);
+                range.emplace_back(max);
+            } else {
+                WriteWarningStatus("ConfigReader::ReadRegionOptions", "Setting 'XaxisRange' needs the first parameter to be smaller than the second parameter. Ignoring.");
+            }
+            reg->fXaxisRange = range;
+        }
+
     }
     return 0;
 }
@@ -2190,6 +2286,47 @@ int ConfigReader::ReadSampleOptions(){
         // Set LineColor
         param = confSet->Get("LineColor");
         if(param != "") sample->SetLineColor(atoi(param.c_str()));
+
+        // Convert a string to an RGB value
+        auto convert_str_to_RGB = [] (const std::string& str) {
+          int num = std::stoi(str);
+          if (num < 0) throw std::invalid_argument("RGB value out of range [0, 255]");
+          if (num > 255) throw std::invalid_argument("RGB value out of range [0, 255]");
+          return num;
+        };
+
+        // Convert a vector of strings to a vector of RGB values
+        auto create_RGB_array = [&convert_str_to_RGB] (const std::vector<std::string>& str_vec) {
+          std::array<int, 3> int_arr{{-1}};
+          for (auto itr = str_vec.begin(); itr != str_vec.end(); ++itr) {
+            int_arr.at(itr - str_vec.begin()) = convert_str_to_RGB(*itr);
+          }
+          return int_arr;
+        };
+
+        // Set FillColor from RGB values if given
+        param = confSet->Get("FillColorRGB");
+        if (param != "") {
+          std::vector<std::string> rgb_strings = Vectorize(param, ',');
+          if (rgb_strings.size() != 3) {
+            WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'FillColorRGB' provided. Please check this!");
+            return 1;
+          } else {
+            sample->SetFillColorRGB(create_RGB_array(rgb_strings));
+          }
+        }
+
+        // Set LineColor from RGB values if given
+        param = confSet->Get("LineColorRGB");
+        if (param != "") {
+          std::vector<std::string> rgb_strings = Vectorize(param, ',');
+          if (rgb_strings.size() != 3) {
+            WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'LineColorRGB' provided. Please check this!");
+            return 1;
+          } else {
+            sample->SetLineColorRGB(create_RGB_array(rgb_strings));
+          }
+        }
 
         // Set NormFactor
         param = confSet->Get("NormFactor");

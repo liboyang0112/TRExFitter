@@ -27,6 +27,8 @@ This package provides a framework to perform profile likelihood fits. In additio
 8.  [Multi-Fit](#multi-fit)
     * [Multi-Fit `Job` block options](#multi-fit-job-block-options)
     * [Multi-Fit `Fit` block options](#multi-fit-fit-block-options)
+    * [Multi-Fit `Limit` block options](#multi-fit-limit-block-options)
+    * [Multi-Fit `Significance` block options](#multi-fit-significance-block-options)
 9.  [Input File Merging with hupdate](#input-file-merging-with-hupdate)
 10. [Output Directories Structure](#output-directories-structure)
 11. [ShapeFactor example](#shapefactor-example)
@@ -248,6 +250,10 @@ For each object type (also called "block"), here is the list of available proper
 | UseATLASRounding             | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (both .txt and .tex) |
 | UseATLASRoundingTxt          | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (only .txt) |
 | UseATLASRoundingTex          | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (only .tex) |
+| PrePostFitCanvasSize         | Set width and height for canvas for pre/post-fit plots  |
+| SummaryCanvasSize            | Set width and height for canvas for summary plots  |
+| PieChartCanvasSize           | Set width and height for canvas for pie chart plots  |
+| NPRankingCanvasSize          | Set width and height for canvas for NP ranking plot  |
 
 ### `Fit` block options:
 
@@ -343,6 +349,7 @@ For each object type (also called "block"), here is the list of available proper
 | YmaxScale                    | scales range of y-axis (default: 2.0, meaning the maximum axis value is twice the largest yield in any bin) |
 | Ymax                         | maximum value on y-axis |
 | SkipSmoothing                | if smoothing of nominal samples is used, this option can be used to disable smoothing per region (default: FALSE) |
+| XaxisRange                   | Manually call 'SetRangeUser()' on X axis. Needs two parameters(floats): min,max |
 
 ### `Sample` block options:
 
@@ -365,7 +372,9 @@ For each object type (also called "block"), here is the list of available proper
 | NtupleFileSuff(s)            | valid only for option NTUP; suffix(es) for the file name(s) of tree to read |
 | NtuplePathSuff(s)            | valid only for option NTUP; suffix(es) for the path(s) of tree to read |
 | FillColor                    | histogram fill color (not valid for data) |
+| FillColorRGB                 | histogram fill color in RGB (not valid for data). This expects a triplet of RGB values between 0 and 255, e.g. `255,0,0`. If set, the FillColor option is ignored. |
 | LineColor                    | histogram line color |
+| LineColorRGB                 | histogram line color in RGB. This expects a triplet of RGB values between 0 and 255, e.g. `255,0,0`. If set, the LineColor option is ignored. |
 | NormFactor                   | NormalisationFactor (free parameter in the fit); in the format \<name\>,nominal,min,max |
 | ShapeFactor                  | ShapeFactor added |
 | NormalizedByTheory           | set it to FALSE for data-driven backgrounds (MCweight, Lumi and LumiScale from Job and Region will be ignored) |
@@ -520,6 +529,7 @@ Currently the supported options are:
 | **LumiScale**     | as the options in config file |
 | **BootstrapIdx**  | see description of Bootstrap option in config (under Job) |
 | **GroupedImpact** | see [Grouped Impact](#grouped-impact) section |
+| **OutputDir**     | see [Job options](#job-block-options) section |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
@@ -684,7 +694,8 @@ This will create a combined ws starting from the individual ws for the different
 | Directory        | the path to the directory |
 | InputName        | the name of the input |
 
-* **Limit block:**
+### Multi-Fit `Limit` block options:
+
 | **Option** | **Function** |
 | ---------- | ------------ |
 | LimitType                    | can be ASYMPTOTIC or TOYS (the latter is not yet supported) |
@@ -697,7 +708,8 @@ This will create a combined ws starting from the individual ws for the different
 | OutputPrefixName             | Prefix for the output ROOT file |
 | ConfidenceLevel              | Confidence level for the CLs. Default is 0.95 |
 
-* **Significance block:**
+### Multi-Fit `Significance` block options:
+
 | **Option** | **Function** |
 | ---------- | ------------ |
 | SignificanceBlind            | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |

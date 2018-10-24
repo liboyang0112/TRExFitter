@@ -715,9 +715,6 @@ void TRExFit::ReadNtuples(){
             sh->fHist_orig = h_orig;
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
-            // end here if no systematics allowed (e.g. generally for GHOST)
-            if(!fSamples[i_smp]->fUseSystematics) continue;
-
             //
             //  -----------------------------------
             //
@@ -843,7 +840,7 @@ void TRExFit::ReadNtuples(){
                         }
 
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
-                        else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                        else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar) {
                             if( reg->GetSampleHist(syst->fReferenceSample) == nullptr ){
                                 WriteErrorStatus("TRExFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
                                 WriteErrorStatus("TRExFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
@@ -920,7 +917,7 @@ void TRExFit::ReadNtuples(){
                             if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
                         }
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
-                        else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+                        else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar) {
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* href_down = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistDown;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -2000,8 +1997,8 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             }
 
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
-            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,opt+" blind");
-            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,opt);
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt+" blind");
+            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt);
             for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
 
@@ -2014,13 +2011,15 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             delete p;
         }
         else{
-            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(opt+" blind");
-            else                                                    p = fRegions[i_ch]->DrawPreFit(opt);
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(fPrePostFitCanvasSize, opt+" blind");
+            else                                                    p = fRegions[i_ch]->DrawPreFit(fPrePostFitCanvasSize, opt);
             // this line to fix the y-axis maximum getting doubled in some cases (FIXME)
-            if((fRegions[i_ch]->fYmin==0) && (fRegions[i_ch]->fYmax==0) && (fRegions[i_ch]->fYmaxScale==0))
+            if((fRegions[i_ch]->fYmin==0) && (fRegions[i_ch]->fYmax==0) && (fRegions[i_ch]->fYmaxScale==0)){
               p->h_dummy->GetYaxis()->SetRangeUser(p->h_dummy->GetYaxis()->GetXmin(),p->h_dummy->GetMaximum());
-            for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
+            }
+            for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
+            }
             if( !fKeepPrefitBlindedBins ) delete p;
         }
     }
@@ -2257,7 +2256,11 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     // normal-/old-style plots
     else{
-        p = new TRExPlot(fInputName+"_summary",900,700);
+        if (fSummaryCanvasSize.size() == 0){
+            p = new TRExPlot(fInputName+"_summary",900,700);
+        } else {
+            p = new TRExPlot(fInputName+"_summary",fSummaryCanvasSize.at(0),fSummaryCanvasSize.at(1));
+        }
         if(fYmin!=0) p->fYmin = fYmin;
         else         p->fYmin = 1;
         if(fYmax!=0) p->fYmax = fYmax;
@@ -3586,6 +3589,10 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     //
     // Create the canvas
     //
+    if (fPieChartCanvasSize.size() != 0){
+        W = fPieChartCanvasSize.at(0);
+        H = fPieChartCanvasSize.at(1);
+    }
     TCanvas *c = new TCanvas("c","c",W,H);
     TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
     pTop->Draw();
@@ -5273,8 +5280,12 @@ void TRExFit::PrintConfigSummary() const{
         WriteInfoStatus("Sample::Print:","     "+fSamples[i_smp]->fName);
     }
     WriteInfoStatus("TRExFit::PrintConfigSummary", "Reading the following systematics:");
+    std::vector<std::string> tmp{};
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        WriteInfoStatus("Systematic::Print:"," "+fSystematics[i_syst]->fName);
+        if (std::find(tmp.begin(), tmp.end(), fSystematics[i_syst]->fName) == tmp.end()){
+            WriteInfoStatus("TRExFit::PrintConfigSummary"," "+fSystematics[i_syst]->fName);
+            tmp.emplace_back(fSystematics[i_syst]->fName);
+        }
     }
     WriteInfoStatus("TRExFit::PrintConfigSummary", "-------------------------------------------");
 }
@@ -5856,8 +5867,12 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
         idx ++;
         if(idx > max)  max = idx;
     }
-
-    TCanvas *c = new TCanvas("c","c",600,newHeight);
+    int newWidth = 600;
+    if (fNPRankingCanvasSize.size() != 0){
+        newWidth = fNPRankingCanvasSize.at(0);
+        newHeight = fNPRankingCanvasSize.at(1);
+    }
+    TCanvas *c = new TCanvas("c","c",newWidth,newHeight);
     c->SetTicks(0,0);
     gPad->SetLeftMargin(0.4);
     gPad->SetRightMargin(0.05);
