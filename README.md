@@ -250,6 +250,10 @@ For each object type (also called "block"), here is the list of available proper
 | UseATLASRounding             | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (both .txt and .tex) |
 | UseATLASRoundingTxt          | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (only .txt) |
 | UseATLASRoundingTex          | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (only .tex) |
+| PrePostFitCanvasSize         | Set width and height for canvas for pre/post-fit plots  |
+| SummaryCanvasSize            | Set width and height for canvas for summary plots  |
+| PieChartCanvasSize           | Set width and height for canvas for pie chart plots  |
+| NPRankingCanvasSize          | Set width and height for canvas for NP ranking plot  |
 
 ### `Fit` block options:
 

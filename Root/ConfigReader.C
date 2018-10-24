@@ -816,6 +816,74 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fRankingPOIName = RemoveQuotes(param);
     }
 
+    // Set PrePostFitCanvasSize
+    param = confSet->Get("PrePostFitCanvasSize");
+    if( param != ""){
+        std::vector<std::string> tmp = Vectorize(param, ',');
+        if (tmp.size() != 2){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PrePostFitCanvasSize option but didnt provide 2 parameters. Ignoring.");
+        }
+        const int& x = std::stoi(tmp.at(0));
+        const int& y = std::stoi(tmp.at(1));
+
+        if (x <= 100 || y <= 1000){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PrePostFitCanvasSize option but at least one parameter is <= 100. Ignoring.");
+        }
+        fFitter->fPrePostFitCanvasSize.emplace_back(x);
+        fFitter->fPrePostFitCanvasSize.emplace_back(y);
+    }
+
+    // Set SummaryCanvasSize
+    param = confSet->Get("SummaryCanvasSize");
+    if( param != ""){
+        std::vector<std::string> tmp = Vectorize(param, ',');
+        if (tmp.size() != 2){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified SummaryCanvasSize option but didnt provide 2 parameters. Ignoring.");
+        }
+        const int& x = std::stoi(tmp.at(0));
+        const int& y = std::stoi(tmp.at(1));
+
+        if (x <= 100 || y <= 100){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified SummaryCanvasSize option but at least one parameter is <= 100. Ignoring.");
+        }
+        fFitter->fSummaryCanvasSize.emplace_back(x);
+        fFitter->fSummaryCanvasSize.emplace_back(y);
+    }
+
+    // Set PieChartCanvasSize
+    param = confSet->Get("PieChartCanvasSize");
+    if( param != ""){
+        std::vector<std::string> tmp = Vectorize(param, ',');
+        if (tmp.size() != 2){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PieChartCanvasSize option but didnt provide 2 parameters. Ignoring.");
+        }
+        const int& x = std::stoi(tmp.at(0));
+        const int& y = std::stoi(tmp.at(1));
+
+        if (x <= 100 || y <= 100){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PieChartCanvasSize option but at least one parameter is <= 100. Ignoring.");
+        }
+        fFitter->fPieChartCanvasSize.emplace_back(x);
+        fFitter->fPieChartCanvasSize.emplace_back(y);
+    }
+
+    // Set NPRankingCanvasSize
+    param = confSet->Get("NPRankingCanvasSize");
+    if( param != ""){
+        std::vector<std::string> tmp = Vectorize(param, ',');
+        if (tmp.size() != 2){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NPRankingCanvasSize option but didnt provide 2 parameters. Ignoring.");
+        }
+        const int& x = std::stoi(tmp.at(0));
+        const int& y = std::stoi(tmp.at(1));
+
+        if (x <= 100 || y <= 100){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NPRankingCanvasSize option but at least one parameter is <= 100. Ignoring.");
+        }
+        fFitter->fNPRankingCanvasSize.emplace_back(x);
+        fFitter->fNPRankingCanvasSize.emplace_back(y);
+    }
+
     // success
     return 0;
 }

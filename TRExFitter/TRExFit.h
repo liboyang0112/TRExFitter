@@ -492,6 +492,11 @@ public:
     bool fUseATLASRoundingTex;
     bool fuseGammasForCorr;
     bool fPropagateSystsForMorphing;
+
+    std::vector<int> fPrePostFitCanvasSize;
+    std::vector<int> fSummaryCanvasSize;
+    std::vector<int> fPieChartCanvasSize;
+    std::vector<int> fNPRankingCanvasSize;
 };
 
 #endif

@@ -50,7 +50,7 @@ public:
     SampleHist* GetSampleHist(const std::string &sampleName) const;
 
     void BuildPreFitErrorHist();
-    TRExPlot* DrawPreFit(std::string opt="");
+    TRExPlot* DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
     double GetMultFactors( FitResults *fitRes, 
                                 std::ofstream& pullTex,
                                 const int i /*sample*/, const int i_bin /*bin number*/,
@@ -59,7 +59,7 @@ public:
                                 const bool isUp = true) const;
 
     void BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names);
-    TRExPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex, const std::vector<std::string>& morph_names, std::string opt="");
+    TRExPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex, const std::vector<std::string>& morph_names, const std::vector<int>& canvasSize, std::string opt="");
 
     void SetBinning(int N, double *bins);
     void Rebin(int N);
