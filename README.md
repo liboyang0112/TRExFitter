@@ -433,7 +433,7 @@ For each object type (also called "block"), here is the list of available proper
 | Type                         | can be HISTO, OVERALL, SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin) or STAT (this refers to auto-creation of one systematic from stat uncertainty for each bin of corresponding region - DEPRECATED) |
 | Title                        | title of the systematic (will be shown in plots) |
 | StoredName                   | if specified, will be used to read and write histograms in the root files under Histograms/ intead of the syst name; useful to decorrelate without re-creating histograms |
-| NuisancaParameter            | if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics |
+| NuisanceParameter            | if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics |
 | IsFreeParameter              | if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution) |
 | Category                     | major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category |
 | SubCategory                  | minor category for the systematic, used to evaluate impact on POI per SubCategory in "i" step, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
