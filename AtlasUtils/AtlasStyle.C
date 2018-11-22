@@ -15,6 +15,7 @@ void SetAtlasStyle ()
   if ( atlasStyle==0 ) atlasStyle = AtlasStyle();
   gROOT->SetStyle("ATLAS");
   gROOT->ForceStyle();
+  gStyle->SetErrorX(0.5);
 }
 
 TStyle* AtlasStyle() 
