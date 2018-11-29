@@ -190,7 +190,8 @@ For each object type (also called "block"), here is the list of available proper
 | LumiLabel                    | label for luminosity to be put on plots |
 | CmeLabel                     | label for center-of-mass energy to be put on plots |
 | SplitHistoFiles              | set this to TRUE to have histogram files split by region (useful with many regions and/or run in parallel) |
-| BlindingThreshold            | bins with S/B > this number will be blinded |
+| BlindingThreshold            | blind bins when S/B is greater than this threshold, use the `BlindingType` option for other definitions than just S/B |
+| BlindingType                 | how to calculate the quantity to determine blinding, options are SOVERB (for S/B), SOVERSPLUSB(for S/(S+B)), SOVERSQRTB (for S/sqrt(B)) and SOVERSQRTSPLUSB (for S/sqrt(S+B)), default is SOVERB |
 | KeepPrefitBlindedBins        | if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots |
 | RankingMaxNP                 | max number of NP to show in ranking plot |
 | RankingPlot                  | NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots. |

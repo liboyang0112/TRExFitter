@@ -502,6 +502,20 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fBlindingThreshold = atof(param.c_str());
     }
 
+    // Set BlindingType
+    param = confSet->Get("BlindingType");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param=="SOVERB" )                fFitter->fBlindingType = TRExFit::SOVERB;
+        else if ( param=="SOVERSPLUSB" )     fFitter->fBlindingType = TRExFit::SOVERSPLUSB;
+        else if ( param=="SOVERSQRTB" )      fFitter->fBlindingType = TRExFit::SOVERSQRTB;
+        else if ( param=="SOVERSQRTSPLUSB" ) fFitter->fBlindingType = TRExFit::SOVERSQRTSPLUSB;
+        else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'BlindingType' option but did not provide a valid setting. Using default (SOVERB)");
+            fFitter->fBlindingType = TRExFit::SOVERB;
+        }
+    }
+
     // Set RankingMaxNP
     param = confSet->Get("RankingMaxNP");
     if( param != ""){

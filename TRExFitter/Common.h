@@ -75,7 +75,7 @@ int FindInStringVector(const std::vector<std::string>& v, const std::string& s);
 int FindInStringVectorOfVectors(const std::vector<std::vector<std::string> >& v, const std::string& s, const std::string& ss);
 double GetSeparation( TH1D* S1, TH1D* B1 );
 
-TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02 );
+TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02, bool takeSqrt=false );
 void BlindDataHisto( TH1* h_data, TH1* h_blind );
 double convertStoD(std::string toConvert);
 

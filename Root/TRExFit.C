@@ -130,6 +130,7 @@ TRExFit::TRExFit(std::string name){
     fKeepPruning = false;
 
     fBlindingThreshold = -1;
+    fBlindingType = SOVERB;
 
     fRankingMaxNP = 10;
     fRankingOnly = "all";
@@ -372,6 +373,7 @@ Region* TRExFit::NewRegion(const std::string& name){
     fRegions[fNRegions]->fIntCode_shape   = fIntCode_shape;
     fRegions[fNRegions]->fLumiScale = fLumiScale;
     fRegions[fNRegions]->fBlindingThreshold = fBlindingThreshold;
+    fRegions[fNRegions]->fBlindingType = fBlindingType;
     fRegions[fNRegions]->fKeepPrefitBlindedBins = fKeepPrefitBlindedBins;
     fRegions[fNRegions]->fRatioYmax = fRatioYmax;
     fRegions[fNRegions]->fRatioYmin = fRatioYmin;
@@ -2278,8 +2280,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
     if(fBlindingThreshold>=0){
-        p->SetBinBlinding(true,fBlindingThreshold);
-        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins);
+        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
+        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
     }
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
