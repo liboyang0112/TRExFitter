@@ -408,7 +408,7 @@ void Region::BuildPreFitErrorHist(){
                     yieldUp   = shOrig->fHistUp->GetBinContent(i_bin);
                     yieldDown = 2*yieldNominal - yieldUp;
                     sh->fHistUp  ->SetBinContent(i_bin,yieldUp);
-                    sh->fHistDown->SetBinContent(i_bin,yieldDown);                    
+                    sh->fHistDown->SetBinContent(i_bin,yieldDown);
                     diffUp   += yieldUp   - yieldNominal;
                     diffDown += yieldDown - yieldNominal;
                 }
@@ -612,24 +612,8 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
             }
         }
         // scale it according to NormFactors
-        for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
-            NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf];
-            // if this norm factor is a morphing one
-            if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-                std::string formula = TRExFitter::SYSTMAP[nf->fName];
-                std::string name = TRExFitter::NPMAP[nf->fName];
-                formula = ReplaceString(formula,name,"x");
-                TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
-                float scale = f_morph->Eval(nf->fNominal);
-                h->Scale(scale);
-                delete f_morph;
-                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
-            }
-            else{
-                h->Scale(nf->fNominal);
-                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
-            }
-        }
+        ScaleNominal(fSig[i], h);
+
         if(TRExFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
         if(TRExFitter::SHOWNORMSIG){
             if( (TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
@@ -949,7 +933,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 fSampleHists[i]->AddHistoSyst(systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
                 sh = fSampleHists[i]->GetSystematic(systName);
             }
-            
+
             //
             // initialize the up and down variation histograms
             // (note: do it even if the syst is not there; in this case the variation hist will be = to the nominal)
@@ -1441,7 +1425,10 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         else{
             if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
         }
-        if(TRExFitter::SHOWOVERLAYSIG)  p->AddOverSignal(hSigNew[i],title);
+        if(TRExFitter::SHOWOVERLAYSIG){
+            ScaleNominal(fSig[i],hSigNew[i]);
+            p->AddOverSignal(hSigNew[i],title);
+        }
     }
     for(int i=0;i<fNBkg;i++){
         title = fBkg[i]->fSample->fTitle;
@@ -2227,6 +2214,26 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                 morph_scale_nominal->emplace_back(f_morph->Eval(nf->fNominal));
                 delete f_morph;
             }
+        }
+    }
+}
+
+void Region::ScaleNominal(const SampleHist* const sig, TH1* hist){
+    for(size_t i_nf=0; i_nf<sig->fSample->fNormFactors.size(); ++i_nf){
+        NormFactor *nf = sig->fSample->fNormFactors[i_nf];
+        // if this norm factor is a morphing one
+        if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
+            std::string formula = TRExFitter::SYSTMAP[nf->fName];
+            std::string name = TRExFitter::NPMAP[nf->fName];
+            formula = ReplaceString(formula,name,"x");
+            auto f_morph = std::unique_ptr<TF1>(new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax));
+            const float& scale = f_morph->Eval(nf->fNominal);
+            hist->Scale(scale);
+            WriteDebugStatus("Region::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(scale));
+        }
+        else{
+            hist->Scale(nf->fNominal);
+            WriteDebugStatus("Region::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(sig->fSample->fNormFactors[i_nf]->fNominal));
         }
     }
 }
