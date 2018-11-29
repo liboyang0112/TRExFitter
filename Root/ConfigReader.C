@@ -829,6 +829,22 @@ int ConfigReader::ReadJobOptions(){
     if( param != ""){
         fFitter->fRankingPOIName = RemoveQuotes(param);
     }
+    
+    // Set RankingPOIName
+    param = confSet->Get("PrunningType");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "SEPARATESAMPLE") {
+            fFitter->fPrunningType = TRExFit::SEPARATESAMPLE;
+        } else if (param == "BACKGROUNDREFERENCE") {
+            fFitter->fPrunningType = TRExFit::BACKGROUNDREFERENCE;
+        } else if (param == "COMBINEDREFERENCE") {
+            fFitter->fPrunningType = TRExFit::COMBINEDREFERENCE;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PrunningType option but didnt provide valid parameter. Using default (SEPARATESAMPLE)");
+            fFitter->fPrunningType = TRExFit::SEPARATESAMPLE;
+        }
+    }
 
     // Set PrePostFitCanvasSize
     param = confSet->Get("PrePostFitCanvasSize");
