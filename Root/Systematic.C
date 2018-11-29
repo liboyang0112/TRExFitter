@@ -16,7 +16,7 @@ Systematic::Systematic(const std::string& name,int type,float up,float down){
     fStoredName = name;
 
     fSmoothType = 0;
-    fSymmetrisationType = 0;
+    fSymmetrisationType = HistoTools::NOSYMMETRIZATION;
     fPreSmoothing = false;
     //
     fOverallUp   = up;

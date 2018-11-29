@@ -23,7 +23,7 @@ SystematicHist::SystematicHist(const std::string& name){
     fIsOverall = false;
     fIsShape = false;
     fSmoothType = 0;
-    fSymmetrisationType = 0;
+    fSymmetrisationType = HistoTools::NOSYMMETRIZATION;
 
     fShapePruned = false;
     fNormPruned  = false;

@@ -375,14 +375,17 @@ double GetSeparation( TH1D* S1, TH1D* B1 ) {
 }
 
 //__________________________________________________________________________________
-// Code to blind bins with S/B > threshold
+// Code to blind bins with (h_data yield) / (h_bkg yield) > threshold
 // - the code kills this kind of bins in data
 // - also set uncertainties in blinded bins to zero
 // - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
-TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
+// when takeSqrt is true, take the sqrt of the denominator when evaluating the blinding
+TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold, bool takeSqrt) {
     TH1D* h_blind = (TH1D*)h_data->Clone("h_blind");
     for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
-        if( h_sig->GetBinContent(i_bin) / h_bkg->GetBinContent(i_bin) > threshold ){
+        float tmpDenominator = h_bkg->GetBinContent(i_bin);
+        if(takeSqrt) tmpDenominator = sqrt(tmpDenominator); // for calculating S/sqrt(B) and S/sqrt(S+B)
+        if( h_sig->GetBinContent(i_bin) / tmpDenominator > threshold ){
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
             h_data->SetBinContent(i_bin,0.);
             h_data->SetBinError(i_bin,0.);

@@ -190,7 +190,8 @@ For each object type (also called "block"), here is the list of available proper
 | LumiLabel                    | label for luminosity to be put on plots |
 | CmeLabel                     | label for center-of-mass energy to be put on plots |
 | SplitHistoFiles              | set this to TRUE to have histogram files split by region (useful with many regions and/or run in parallel) |
-| BlindingThreshold            | bins with S/B > this number will be blinded |
+| BlindingThreshold            | blind bins when S/B is greater than this threshold, use the `BlindingType` option for other definitions than just S/B |
+| BlindingType                 | how to calculate the quantity to determine blinding, options are SOVERB (for S/B), SOVERSPLUSB(for S/(S+B)), SOVERSQRTB (for S/sqrt(B)) and SOVERSQRTSPLUSB (for S/sqrt(S+B)), default is SOVERB |
 | KeepPrefitBlindedBins        | if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots |
 | RankingMaxNP                 | max number of NP to show in ranking plot |
 | RankingPlot                  | NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots. |
@@ -433,7 +434,7 @@ For each object type (also called "block"), here is the list of available proper
 | Type                         | can be HISTO, OVERALL, SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin) or STAT (this refers to auto-creation of one systematic from stat uncertainty for each bin of corresponding region - DEPRECATED) |
 | Title                        | title of the systematic (will be shown in plots) |
 | StoredName                   | if specified, will be used to read and write histograms in the root files under Histograms/ intead of the syst name; useful to decorrelate without re-creating histograms |
-| NuisancaParameter            | if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics |
+| NuisanceParameter            | if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics |
 | IsFreeParameter              | if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution) |
 | Category                     | major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category |
 | SubCategory                  | minor category for the systematic, used to evaluate impact on POI per SubCategory in "i" step, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
@@ -468,7 +469,7 @@ For each object type (also called "block"), here is the list of available proper
 | WeightSufUp                  | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation (also multiplied with the `MCweight` acting on the nominal sample) |
 | WeightSufDown                | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation (also multiplied with the `MCweight` acting on the nominal sample) |
 | IgnoreWeight                 | only for option NTUP: if set, the corresponding weight (present in Job, Sample or Region) will be ignored for this systematic |
-| Symmetrisation               | can be ONESIDED or TWOSIDED (...); for no symmetrisation, skip the line |
+| Symmetrisation               | can be ONESIDED, TWOSIDED, ABSMEAN and MAXIMUM (...); for no symmetrisation, skip the line; ONESIDED = only one variation provided (e.g. up variation), down variation will be added as mirrored version, TWOSIDED = (up-down)/2 variation is calcualted bin-by-bin, this is used as up variation and then mirrored to down variation, ABSMEAN = ((abs(up)+abs(down))/2) can be used when both variations have the same sign, USE WITH CAUTION, MAXIMUM = take variations with larger abs value w.r.t nominal and take this in each bin, can be used when both variations have the same sign, USE WITH CAUTION |
 | Smoothing                    | smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line |
 | OverallUp                    | for OVERALL systematic: the relative "up" shift (0.1 means +10%) |
 | OverallDown                  | for OVERALL systematic: the relative "down" shift (-0.1 means -10%) |

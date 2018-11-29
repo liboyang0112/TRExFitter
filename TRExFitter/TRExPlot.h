@@ -1,6 +1,9 @@
 #ifndef TRExPLOT_H
 #define TRExPLOT_H
 
+/// Framework includes
+#include "TRExFitter/TRExFit.h"
+
 /// c++ includes
 #include <string>
 #include <vector>
@@ -51,8 +54,8 @@ class TRExPlot {
 
     TCanvas* GetCanvas() const;
 
-    void SetBinBlinding(bool on,float threshold=0.02);
-    void SetBinBlinding(bool on,TH1D*h_blind);
+    void SetBinBlinding(bool on,float threshold=0.02,TRExFit::BlindingType=TRExFit::SOVERB);
+    void SetBinBlinding(bool on,TH1D*h_blind,TRExFit::BlindingType=TRExFit::SOVERB);
 
     std::string fName;
     TH1* h_data;
@@ -102,6 +105,7 @@ class TRExPlot {
     std::string fBinLabel[MAXbins];
     float fLumiScale;
     float fBlindingThreshold;
+    TRExFit::BlindingType fBlindingType;
     int fLegendNColumns;
     std::vector<float> fXaxisRange;
 

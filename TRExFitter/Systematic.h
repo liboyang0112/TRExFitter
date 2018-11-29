@@ -1,6 +1,9 @@
 #ifndef SYSTEMATIC_H
 #define SYSTEMATIC_H
 
+/// Framework includes
+#include "TRExFitter/HistoTools.h"
+
 /// c++ includes
 #include <map>
 #include <string>
@@ -33,7 +36,7 @@ public:
     int fType;
     int fSmoothType;
     bool fPreSmoothing;
-    int fSymmetrisationType;
+    HistoTools::SymmetrizationType fSymmetrisationType;
     std::string fReferenceSample;
     bool fKeepReferenceOverallVar;
 

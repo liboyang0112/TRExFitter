@@ -62,7 +62,7 @@ Applying ATLAS style settings...
 === DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
 === DEBUG::TRExFit::ReadHistos:       Reading syst JES
 Drawing pre-fit plots...
-=== DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
+=== DEBUG::Region::ScaleNominal: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region SR_1 ...[0m
 === DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1
 === DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES
@@ -114,7 +114,7 @@ Drawing pre-fit plots...
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist: ----
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1.png has been created
-=== DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
+=== DEBUG::Region::ScaleNominal: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region SR_2 ...[0m
 === DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1
 === DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES
@@ -151,7 +151,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_1.png has been created
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist: ----
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2.png has been created
-=== DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
+=== DEBUG::Region::ScaleNominal: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region VR ...[0m
 === DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1
 === DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES

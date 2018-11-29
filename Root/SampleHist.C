@@ -67,6 +67,7 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
     fHist = (TH1*)hist->Clone(Form("h_%s",fName.c_str()));
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
+    fHist->SetLineWidth(1);
 
     // Set fill color to RGB values if provided
     if (fSample->fFillColorRGB[0] > -1) {
@@ -108,25 +109,54 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
 //
 SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::string& fileName){
     fSample = sample;
+    fName = fSample->fName;
+    fIsMorph = fSample->fIsMorph;
+
     fHist = HistFromFile(fileName,histoName);
+
     if (fHist == nullptr) {
         WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
         exit(EXIT_FAILURE);
     }
-    fHist_orig = HistFromFile(fileName,histoName+"_orig");
-    if(fHist_orig==nullptr) fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
-    fName = fSample->fName;
-    fIsMorph = fSample->fIsMorph;
+
+    // Set fill color to RGB values if provided
+    if (fSample->fFillColorRGB[0] > -1) {
+      const auto& col_arr = fSample->fFillColorRGB;
+      TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
+                                (float)col_arr[0]/255,
+                                (float)col_arr[1]/255,
+                                (float)col_arr[2]/255};
+      fHist->SetFillColor(tcol->GetNumber());
+    }
+
+    // Set line color to RGB values if provided
+    if (fSample->fLineColorRGB[0] > -1) {
+      const auto& col_arr = fSample->fLineColorRGB;
+      TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
+                                (float)col_arr[0]/255,
+                                (float)col_arr[1]/255,
+                                (float)col_arr[2]/255};
+      fHist->SetLineColor(tcol->GetNumber());
+    }
+
+    fHist_orig = HistFromFile(fileName,histoName+"_orig");
+    if(fHist_orig==nullptr){
+        fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
+    }
+
+    fHist_postFit = nullptr;
+
     fHistoName = histoName;
     fFileName = fileName;
-    fHist_postFit = nullptr;
+    fFitName = "";
     fNSyst = 0;
     fNNorm = 0;
     fNShape = 0;
     fRegionName = "Region";
+    fRegionLabel = "Region";
     fVariableTitle = "Variable";
     fSystSmoothed = false;
 }
@@ -820,7 +850,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 h_syst_up_orig->Scale(100);
                 h_syst_down_orig->Scale(100);
             }
-            
+
             double ymax = 0;
             if(!ratioON) ymax = TMath::Max( ymax,TMath::Abs(h_nominal->GetMaximum()));
             if((ratioON || bothPanels) && SumAndData ) ymax = TMath::Max( ymax,TMath::Abs(h_dataCopy->GetMaximum()));
@@ -1043,11 +1073,14 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         // Call the function for smoothing and symmetrisation
         //
         if(fSyst[i_syst]->fIsShape){
-            HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+            HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType, //parameters of the histogram massaging
+                                            fSyst[i_syst]->fSymmetrisationType,
                                             h_nominal,//nominal histogram
-                                            fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown,//original histograms
+                                            fSyst[i_syst]->fHistUp,
+                                            fSyst[i_syst]->fHistDown,//original histograms
                                             h_syst_up, h_syst_down, //modified histograms
-                                            fSyst[i_syst]->fScaleUp,fSyst[i_syst]->fScaleDown, // scale factors
+                                            fSyst[i_syst]->fScaleUp,
+                                            fSyst[i_syst]->fScaleDown, // scale factors
                                             smoothOpt,
                                             TtresSmoothing // alternative smoothing
                                          );
