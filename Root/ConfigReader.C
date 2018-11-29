@@ -3540,8 +3540,18 @@ int ConfigReader::ReadSystOptions(){
             param = confSet->Get("Symmetrisation");
             if(param != ""){
                 std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-                if(param == "ONESIDED") sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
-                else if(param == "TWOSIDED") sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
+                if(param == "ONESIDED"){
+                    sys->fSymmetrisationType = HistoTools::SYMMETRIZEONESIDED;
+                }
+                else if(param == "TWOSIDED"){
+                    sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
+                }
+                else if(param == "ABSMEAN"){
+                    sys->fSymmetrisationType = HistoTools::SYMMETRIZEABSMEAN;
+                }
+                else if(param == "MAXIMUM"){
+                    sys->fSymmetrisationType = HistoTools::SYMMETRIZEMAXIMUM;
+                }
                 else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Symetrisation scheme is not recognized ... ");
                     return 1;

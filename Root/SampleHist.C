@@ -1073,11 +1073,14 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         // Call the function for smoothing and symmetrisation
         //
         if(fSyst[i_syst]->fIsShape){
-            HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+            HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType, //parameters of the histogram massaging
+                                            fSyst[i_syst]->fSymmetrisationType,
                                             h_nominal,//nominal histogram
-                                            fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown,//original histograms
+                                            fSyst[i_syst]->fHistUp,
+                                            fSyst[i_syst]->fHistDown,//original histograms
                                             h_syst_up, h_syst_down, //modified histograms
-                                            fSyst[i_syst]->fScaleUp,fSyst[i_syst]->fScaleDown, // scale factors
+                                            fSyst[i_syst]->fScaleUp,
+                                            fSyst[i_syst]->fScaleDown, // scale factors
                                             smoothOpt,
                                             TtresSmoothing // alternative smoothing
                                          );
