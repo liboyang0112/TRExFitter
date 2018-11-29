@@ -582,7 +582,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
-    if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold);
+    if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
 
     if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
       for(int i_bin=0; i_bin<fNbins; i_bin++) {
@@ -1479,8 +1479,8 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     // blinding bins
     //
     if(fBlindingThreshold>=0){
-        p->SetBinBlinding(true,fBlindingThreshold);
-        if(fKeepPrefitBlindedBins && fBlindedBins!=nullptr) p->SetBinBlinding(true,fBlindedBins);
+        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
+        if(fKeepPrefitBlindedBins && fBlindedBins!=nullptr) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
     }
     p->BlindData();
 

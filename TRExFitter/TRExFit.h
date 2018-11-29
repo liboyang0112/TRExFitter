@@ -61,6 +61,13 @@ public:
         float value;
     };
 
+    enum BlindingType {
+      SOVERB = 1,
+      SOVERSPLUSB = 2,
+      SOVERSQRTB = 3,
+      SOVERSQRTSPLUSB = 4
+    };
+
     TRExFit(std::string name="MyMeasurement");
     ~TRExFit();
 
@@ -379,6 +386,7 @@ public:
     bool fKeepPruning;
 
     float fBlindingThreshold;
+    BlindingType fBlindingType;
 
     int fRankingMaxNP;
     std::string fRankingOnly;
