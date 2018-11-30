@@ -69,26 +69,6 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
 
-    // Set fill color to RGB values if provided
-    if (fSample->fFillColorRGB[0] > -1) {
-      const auto& col_arr = fSample->fFillColorRGB;
-      TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
-                                (float)col_arr[0]/255,
-                                (float)col_arr[1]/255,
-                                (float)col_arr[2]/255};
-      fHist->SetFillColor(tcol->GetNumber());
-    }
-
-    // Set line color to RGB values if provided
-    if (fSample->fLineColorRGB[0] > -1) {
-      const auto& col_arr = fSample->fLineColorRGB;
-      TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
-                                (float)col_arr[0]/255,
-                                (float)col_arr[1]/255,
-                                (float)col_arr[2]/255};
-      fHist->SetLineColor(tcol->GetNumber());
-    }
-
     fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
     //
     fHist_postFit = nullptr;
@@ -121,26 +101,6 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
-
-    // Set fill color to RGB values if provided
-    if (fSample->fFillColorRGB[0] > -1) {
-      const auto& col_arr = fSample->fFillColorRGB;
-      TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
-                                (float)col_arr[0]/255,
-                                (float)col_arr[1]/255,
-                                (float)col_arr[2]/255};
-      fHist->SetFillColor(tcol->GetNumber());
-    }
-
-    // Set line color to RGB values if provided
-    if (fSample->fLineColorRGB[0] > -1) {
-      const auto& col_arr = fSample->fLineColorRGB;
-      TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
-                                (float)col_arr[0]/255,
-                                (float)col_arr[1]/255,
-                                (float)col_arr[2]/255};
-      fHist->SetLineColor(tcol->GetNumber());
-    }
 
     fHist_orig = HistFromFile(fileName,histoName+"_orig");
     if(fHist_orig==nullptr){

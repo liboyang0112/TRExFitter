@@ -14,6 +14,7 @@
 #include "TRExFitter/TRExFit.h"
 
 // ROOT includes
+#include "TColor.h"
 #include "TSystem.h"
 
 // c++ includes
@@ -2326,7 +2327,12 @@ int ConfigReader::ReadSampleOptions(){
             WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'FillColorRGB' provided. Please check this!");
             return 1;
           } else {
-            sample->SetFillColorRGB(create_RGB_array(rgb_strings));
+            auto col_arr = create_RGB_array(rgb_strings);
+            TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
+                                      (float)col_arr[0]/255,
+                                      (float)col_arr[1]/255,
+                                      (float)col_arr[2]/255};
+            sample->fFillColor = tcol->GetNumber();
           }
         }
 
@@ -2338,7 +2344,12 @@ int ConfigReader::ReadSampleOptions(){
             WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'LineColorRGB' provided. Please check this!");
             return 1;
           } else {
-            sample->SetLineColorRGB(create_RGB_array(rgb_strings));
+            auto col_arr = create_RGB_array(rgb_strings);
+            TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
+                                      (float)col_arr[0]/255,
+                                      (float)col_arr[1]/255,
+                                      (float)col_arr[2]/255};
+            sample->fLineColor = tcol->GetNumber();
           }
         }
 
