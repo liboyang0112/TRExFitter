@@ -3165,6 +3165,8 @@ int ConfigReader::ReadSystOptions(){
         sys = new Systematic(CheckName(confSet->GetValue()),type);
         TRExFitter::SYSTMAP[sys->fName] = sys->fTitle;
         if(param == "OVERALL") sys->fIsNormOnly=true;
+        
+        sys->fSamples = samples;
 
         // SetCategory
         param = confSet->Get("Category");

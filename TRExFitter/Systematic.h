@@ -146,6 +146,8 @@ public:
     std::string fSampleUp;
     std::string fSampleDown;
 
+    std::vector<std::string> fSamples;
+
 };
 
 #endif
