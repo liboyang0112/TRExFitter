@@ -37,6 +37,7 @@ Systematic::Systematic(const std::string& name,int type,float up,float down){
     //
     fReferenceSample = "";
     fKeepReferenceOverallVar = true;
+    fReferenceSmoothing = "";
     //
     fSubtractRefSampleVar = false;
     //
@@ -138,6 +139,7 @@ Systematic::Systematic(const Systematic &sys) {
     //
     fReferenceSample = sys.fReferenceSample;
     fKeepReferenceOverallVar = sys.fKeepReferenceOverallVar;
+    fReferenceSmoothing = sys.fReferenceSmoothing;
     //
     fSubtractRefSampleVar = sys.fSubtractRefSampleVar;
     //

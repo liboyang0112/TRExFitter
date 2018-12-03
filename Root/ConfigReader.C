@@ -3701,6 +3701,22 @@ int ConfigReader::ReadSystOptions(){
                 sys->fKeepReferenceOverallVar = true;
             }
         }
+        
+        // Set ReferenceSmoothing
+        // this to obtain syst variation relatively to given sample
+        param = confSet->Get("ReferenceSmoothing");
+        if(param!=""){
+            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fAvailableSamples.end()){
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSmoothing that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSmoothing that do not exist");
+                    return 1;
+                }
+            }
+            sys->fReferenceSmoothing = RemoveQuotes(param);
+        }
+
 
         // Set DropShapeIn
         param = confSet->Get("DropShapeIn");

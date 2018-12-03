@@ -29,7 +29,7 @@ public:
     ~SampleHist();
 
     TH1* GetHist() const;
-    Sample* GetSample() const;
+    const Sample* GetSample() const {return fSample;}
     SystematicHist* AddOverallSyst(const std::string& name,float up,float down);
     SystematicHist* AddStatSyst(const std::string& name,int i_bin);
     SystematicHist* AddHistoSyst(const std::string& name,TH1* h_up,TH1* h_down);

@@ -309,6 +309,8 @@ public:
      * @return Combined histogram
      */ 
     std::unique_ptr<TH1D> GetCombinedSampleHist(const Region* const reg) const;
+
+    SampleHist* GetSampleHistFromName(const Region* const reg, const std::string& name) const;
     // -------------------------
 
     std::string fName;

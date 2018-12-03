@@ -39,6 +39,7 @@ public:
     HistoTools::SymmetrizationType fSymmetrisationType;
     std::string fReferenceSample;
     bool fKeepReferenceOverallVar;
+    std::string fReferenceSmoothing;
 
     bool fSubtractRefSampleVar;
 
