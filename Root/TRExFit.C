@@ -445,15 +445,20 @@ void TRExFit::SmoothSystematics(std::string syst){
                 fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false, fTtresSmoothing);
             }
         } else {
+            std::vector<std::size_t> usedSysts{};
             for (int i_smp=0; i_smp<fRegions[i_ch]->fNSamples; ++i_smp){
                 for (std::size_t i_syst = 0; i_syst < fSystematics.size(); ++i_syst){
                     if (fSystematics.at(i_syst) == nullptr) continue;
+                    // check only systematics for the samples that are specified
+                    if (std::find(fSystematics.at(i_syst)->fSamples.begin(), fSystematics.at(i_syst)->fSamples.end(), fRegions[i_ch]->fSampleHists[i_smp]->GetSample()->fName) == fSystematics.at(i_syst)->fSamples.end()) continue;
                     // take only systematics that belong to this region
                     if (std::find(fSystematics.at(i_syst)->fRegions.begin(), fSystematics.at(i_syst)->fRegions.end(), fRegions[i_ch]->fName) == fSystematics.at(i_syst)->fRegions.end()) continue;
                     if (fSystematics.at(i_syst)->fReferenceSmoothing == "") {
                         // the systemtic is not using special smoothing
                         fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true, fTtresSmoothing);
                     } else {
+                        // check if the syst has been smoothed already
+                        if (std::find(usedSysts.begin(), usedSysts.end(), i_syst) != usedSysts.end()) continue;
                         // Need to apply special smoothing
                         // smooth the reference sample
                         SampleHist *sh = GetSampleHistFromName(fRegions[i_ch], fSystematics.at(i_syst)->fReferenceSmoothing);
@@ -462,16 +467,17 @@ void TRExFit::SmoothSystematics(std::string syst){
                             exit(EXIT_FAILURE);
                         }
 
+                        // smooth on the sample that is specified in ReferenceSmoothing
                         for (int i_sample=0; i_sample<fRegions[i_ch]->fNSamples; ++i_sample){
                             if (fRegions[i_ch]->fSampleHists[i_sample]->GetSample()->fName == fSystematics.at(i_syst)->fReferenceSmoothing){
-                                //sh->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true, fTtresSmoothing);
+                                sh->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true, fTtresSmoothing);
                                 break;
                             }
                         }
+                        usedSysts.emplace_back(i_syst);
                     }
                 } // loop over systs
             } // loop over samples
-            // now we need to loop over samples but only smooth the special ones
         }
     }
 }
