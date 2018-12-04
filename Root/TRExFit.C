@@ -7775,6 +7775,8 @@ TH1* TRExFit::CopySmoothedHisto(const SampleHist* const sh, const TH1* const nom
     return result;
 }
 
+//__________________________________________________________________________________
+//
 int TRExFit::GetSystIndex(const SampleHist* const sh, const std::string& name) const{
     for (int i = 0; i < sh->fNSyst; ++i){
         if (sh->fSyst[i]->fName == name){
