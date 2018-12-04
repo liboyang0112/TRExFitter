@@ -3716,6 +3716,10 @@ int ConfigReader::ReadSystOptions(){
                     return 1;
                 }
             }
+            if (std::find(samples.begin(), samples.end(), RemoveQuotes(param)) == samples.end()){
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " requires that the ReferenceSample appears in Samples for this systematic");
+                return 1;
+            }
             sys->fReferenceSmoothing = RemoveQuotes(param);
         }
 
