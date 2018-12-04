@@ -311,6 +311,10 @@ public:
     std::unique_ptr<TH1D> GetCombinedSampleHist(const Region* const reg) const;
 
     SampleHist* GetSampleHistFromName(const Region* const reg, const std::string& name) const;
+
+    TH1* CopySmoothedHisto(const SampleHist* const sh, const TH1* const nominal, const TH1* const up, const TH1* const down, const bool isUp) const;
+
+    int GetSystIndex(const SampleHist* const sh, const std::string& name) const;
     // -------------------------
 
     std::string fName;
