@@ -309,6 +309,33 @@ public:
      * @return Combined histogram
      */ 
     std::unique_ptr<TH1D> GetCombinedSampleHist(const Region* const reg) const;
+
+    /**
+    * A helper function to get SampleHisto from a region that matches a name of the sample
+    * @param Region
+    * @@param name
+    * @return SampleHist
+    */
+    SampleHist* GetSampleHistFromName(const Region* const reg, const std::string& name) const;
+
+    /**
+     * A helper function to Copy a smoothing from a reference histogram to other histograms bin by bin
+     * @param SampleHist
+     * @param nominal histogram
+     * @param up variation of histogram
+     * @param down variation
+     * @param flag if we want up or down variation returned
+     * @return Up/Down variation for the new histogram
+     */
+    TH1* CopySmoothedHisto(const SampleHist* const sh, const TH1* const nominal, const TH1* const up, const TH1* const down, const bool isUp) const;
+
+    /**
+     * A helper function to get an index of systemaati variation that matches some name
+     * @param SampleHist
+     * @param name of the systematics
+     * @return index
+     */ 
+    int GetSystIndex(const SampleHist* const sh, const std::string& name) const;
     // -------------------------
 
     std::string fName;

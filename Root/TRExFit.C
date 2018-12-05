@@ -428,9 +428,90 @@ void TRExFit::AddHistoPath(const std::string& path){
 void TRExFit::SmoothSystematics(std::string syst){
     WriteInfoStatus("TRExFit::SmoothSystematics", "-------------------------------------------");
     WriteInfoStatus("TRExFit::SmoothSystematics", "Smoothing and/or Symmetrising Systematic Variations ...");
-    for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
-            fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false, fTtresSmoothing);
+
+    for(int i_ch=0; i_ch<fNRegions; ++i_ch){
+        // collect information which systematics contain reference smoothing samples
+        std::vector<std::string> referenceSmoothSysts{};
+        for (const auto isyst : fSystematics){
+            if (std::find(isyst->fRegions.begin(), isyst->fRegions.end(), fRegions[i_ch]->fName) == isyst->fRegions.end()) continue;
+            if (isyst->fReferenceSmoothing != ""){
+                referenceSmoothSysts.emplace_back(isyst->fName);
+            }
+        }
+
+        // if there are no reference smoothing samples, proceed as usual
+        if (referenceSmoothSysts.size() == 0){
+            for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
+                fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false, fTtresSmoothing);
+            }
+        } else {
+            std::vector<std::size_t> usedSysts{};
+            for (int i_smp=0; i_smp<fRegions[i_ch]->fNSamples; ++i_smp){
+                for (std::size_t i_syst = 0; i_syst < fSystematics.size(); ++i_syst){
+                    if (fSystematics.at(i_syst) == nullptr) continue;
+                    // check only systematics for the samples that are specified
+                    if (std::find(fSystematics.at(i_syst)->fSamples.begin(), fSystematics.at(i_syst)->fSamples.end(), fRegions[i_ch]->fSampleHists[i_smp]->GetSample()->fName) == fSystematics.at(i_syst)->fSamples.end()) continue;
+                    // take only systematics that belong to this region
+                    if (std::find(fSystematics.at(i_syst)->fRegions.begin(), fSystematics.at(i_syst)->fRegions.end(), fRegions[i_ch]->fName) == fSystematics.at(i_syst)->fRegions.end()) continue;
+                    if (fSystematics.at(i_syst)->fReferenceSmoothing == "") {
+                        // the systemtic is not using special smoothing
+                        fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true, fTtresSmoothing);
+                    } else {
+                        // check if the syst has been smoothed already
+                        if (std::find(usedSysts.begin(), usedSysts.end(), i_syst) != usedSysts.end()) continue;
+                        // Need to apply special smoothing
+                        // smooth the reference sample
+                        SampleHist *sh = GetSampleHistFromName(fRegions[i_ch], fSystematics.at(i_syst)->fReferenceSmoothing);
+                            if (sh == nullptr){
+                            WriteErrorStatus("TRExFit::SmoothSystematics","Cannot find ReferenceSmoothing in the list of samples!");
+                            exit(EXIT_FAILURE);
+                        }
+
+                        std::unique_ptr<TH1> nominal_cpy = nullptr;
+                        std::unique_ptr<TH1> up_cpy = nullptr;
+                        std::unique_ptr<TH1> down_cpy = nullptr;
+
+                        int systIndex = -1;
+                        // smooth on the sample that is specified in ReferenceSmoothing
+                        for (int i_sample=0; i_sample<fRegions[i_ch]->fNSamples; ++i_sample){
+                            if (fRegions[i_ch]->fSampleHists[i_sample]->GetSample()->fName == fSystematics.at(i_syst)->fReferenceSmoothing){
+                                sh->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true, fTtresSmoothing);
+
+                                // save the smoothed histograms
+                                nominal_cpy = std::unique_ptr<TH1>(static_cast<TH1*>(fRegions[i_ch]->fSampleHists[i_sample]->fHist->Clone()));
+                                systIndex = GetSystIndex(fRegions[i_ch]->fSampleHists[i_sample], fSystematics.at(i_syst)->fName);
+                                if (systIndex < 0){
+                                    WriteWarningStatus("TRExFit::SmoothSystematics", "Cannot find systematic in the list wont smooth!");
+                                    return;
+                                }
+                                up_cpy = std::unique_ptr<TH1>(static_cast<TH1*>(fRegions[i_ch]->fSampleHists[i_sample]->fSyst[systIndex]->fHistUp->Clone()));
+                                down_cpy = std::unique_ptr<TH1>(static_cast<TH1*>(fRegions[i_ch]->fSampleHists[i_sample]->fSyst[systIndex]->fHistDown->Clone()));
+                                break;
+                            }
+                        }
+
+                        // finally, apply the same smoothing to all other samples, bin-by-bin
+                        for (int i_sample=0; i_sample<fRegions[i_ch]->fNSamples; ++i_sample){
+                            // skip samples that do not belong to this systematics
+                            if (std::find(fSystematics.at(i_syst)->fSamples.begin(), fSystematics.at(i_syst)->fSamples.end(), fRegions[i_ch]->fSampleHists[i_sample]->GetSample()->fName) ==
+                                fSystematics.at(i_syst)->fSamples.end()) continue;
+                            // skip the one that has already been smoothed, the ReferenceSmoothing
+                            if (fRegions[i_ch]->fSampleHists[i_sample]->GetSample()->fName == fSystematics.at(i_syst)->fReferenceSmoothing) continue;
+
+                            if (systIndex < 0){
+                                WriteWarningStatus("TRExFit::SmoothSystematics", "Cannot find systematic in the list wont smooth!");
+                                return;
+                            }
+                            delete fRegions[i_ch]->fSampleHists[i_sample]->fSyst[systIndex]->fHistUp;
+                            delete fRegions[i_ch]->fSampleHists[i_sample]->fSyst[systIndex]->fHistDown;
+                            fRegions[i_ch]->fSampleHists[i_sample]->fSyst[systIndex]->fHistUp = CopySmoothedHisto(fRegions[i_ch]->fSampleHists[i_sample],nominal_cpy.get(),up_cpy.get(),down_cpy.get(),true);
+                            fRegions[i_ch]->fSampleHists[i_sample]->fSyst[systIndex]->fHistDown = CopySmoothedHisto(fRegions[i_ch]->fSampleHists[i_sample],nominal_cpy.get(),up_cpy.get(),down_cpy.get(),false);
+                        }
+
+                        usedSysts.emplace_back(i_syst);
+                    }
+                } // loop over systs
+            } // loop over samples
         }
     }
 }
@@ -6953,14 +7034,14 @@ void TRExFit::ProduceSystSubCategoryMap(){
 
    // add all systematics, here an "alpha_" prefix is needed
    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-       if(fSystematics[i_syst]->fSubCategory=="Gammas" or fSystematics[i_syst]->fSubCategory=="FullSyst" or fSystematics[i_syst]->fSubCategory=="combine")
+       if(fSystematics[i_syst]->fSubCategory=="Gammas" || fSystematics[i_syst]->fSubCategory=="FullSyst" || fSystematics[i_syst]->fSubCategory=="combine")
             WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
        fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fNuisanceParameter).c_str(), fSystematics[i_syst]->fSubCategory));
    }
 
    // also add norm factors, no "alpha_" needed
    for(int i_nf=0;i_nf<fNNorm;i_nf++){
-       if(fNormFactors[i_nf]->fSubCategory=="Gammas" or fNormFactors[i_nf]->fSubCategory=="FullSyst" or fNormFactors[i_nf]->fSubCategory=="combine")
+       if(fNormFactors[i_nf]->fSubCategory=="Gammas" || fNormFactors[i_nf]->fSubCategory=="FullSyst" || fNormFactors[i_nf]->fSubCategory=="combine")
             WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
        if (fNormFactors[i_nf]->fName != fPOI) {
            fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fNuisanceParameter, fNormFactors[i_nf]->fSubCategory));
@@ -7645,4 +7726,63 @@ std::unique_ptr<TH1D> TRExFit::GetCombinedSampleHist(const Region* const reg) co
     }
 
     return result;
+}
+
+//__________________________________________________________________________________
+//
+SampleHist* TRExFit::GetSampleHistFromName(const Region* const reg, const std::string& name) const{
+    for (int i_smp = 0; i_smp < reg->fNSamples; ++i_smp){
+       if (reg->fSampleHists[i_smp]->fName == name){
+            return reg->fSampleHists[i_smp];
+        }
+    }
+
+    return nullptr;
+}
+
+//__________________________________________________________________________________
+//
+TH1* TRExFit::CopySmoothedHisto(const SampleHist* const sh, const TH1* const nominal, const TH1* const up, const TH1* const down, const bool isUp) const{
+    TH1* currentNominal = sh->fHist;
+
+    if (currentNominal->GetNbinsX() != nominal->GetNbinsX()){
+        WriteErrorStatus("TRExFit::CopySmoothedHisto", "Histograms to smooth have different binning (nominals)");
+        exit(EXIT_FAILURE);
+    }
+    if (currentNominal->GetNbinsX() != up->GetNbinsX()){
+        WriteErrorStatus("TRExFit::CopySmoothedHisto", "Histograms to smooth have different binning (nominal vs up)");
+        exit(EXIT_FAILURE);
+    }
+    if (currentNominal->GetNbinsX() != down->GetNbinsX()){
+        WriteErrorStatus("TRExFit::CopySmoothedHisto", "Histograms to smooth have different binning (nominal vs down)");
+        exit(EXIT_FAILURE);
+    }
+
+    TH1* result = static_cast<TH1*>(currentNominal->Clone());
+
+    for (int ibin = 1; ibin <= currentNominal->GetNbinsX(); ++ibin){
+        double diff = 0;
+        if (isUp){
+            diff = up->GetBinContent(ibin) - nominal->GetBinContent(ibin);
+        } else {
+            diff = down->GetBinContent(ibin) - nominal->GetBinContent(ibin);
+        }
+        diff+= currentNominal->GetBinContent(ibin);
+
+        result->SetBinContent(ibin, diff);
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+int TRExFit::GetSystIndex(const SampleHist* const sh, const std::string& name) const{
+    for (int i = 0; i < sh->fNSyst; ++i){
+        if (sh->fSyst[i]->fName == name){
+            return i;
+        }
+    }
+
+    return -1;
 }

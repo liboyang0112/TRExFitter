@@ -976,7 +976,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
 
-        if(syst!="all" && fSyst[i_syst]->fName.find(syst)==string::npos) continue;
+        if(syst!="all" && fSyst[i_syst]->fName != syst) continue;
 
         if(fSyst[i_syst]->fHistUp  ==nullptr) continue;
         if(fSyst[i_syst]->fHistDown==nullptr) continue;
