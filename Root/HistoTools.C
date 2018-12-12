@@ -447,6 +447,11 @@ void HistoTools::Scale(TH1* h_syst, TH1* h_nominal, float factor){
 //
 bool HistoTools::HasShape(TH1* hnom, SystematicHist* sh, float threshold){
 
+    if (hnom == nullptr) return false;
+    if (sh   == nullptr) return false;
+    if (sh->fHistShapeUp   == nullptr) return false;
+    if (sh->fHistShapeDown   == nullptr) return false;
+
     //Save time
     if(hnom->GetNbinsX()==1) return false;
 
