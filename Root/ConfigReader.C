@@ -1432,6 +1432,20 @@ int ConfigReader::ReadFitOptions(){
         }
     }
 
+    // Set BlindedParameters
+    param = confSet->Get("BlindedParameters");
+    if( param != "" ){
+        std::vector<std::string> tmp = Vectorize( param.c_str(),',');
+        for (auto itmp : tmp){
+            itmp = RemoveQuotes(itmp);
+        }
+        fFitter->fBlindedParameters = tmp;
+        if (fFitter->fBlindedParameters.size() ==  0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'BlindedParameters' option but you didnt provide valid parameters. Ignoring");
+            fFitter->fBlindedParameters.clear();
+        }
+    }
+
     return 0;
 }
 

@@ -111,6 +111,10 @@ int ApplyErrorRounding(double& error, int& sig);
   */
 void RoundToSig(double& value, const int& n);
 
+std::string FloatToPseudoHex(const float value);
+
+float HexToFloat(const std::string& s);
+
 TH1* CloneNoError(TH1* h,const char* name="");
 
 unsigned int NCharactersInString(const std::string& s,const char c);

@@ -25,6 +25,7 @@
 #include "RooArgSet.h"
 
 //c++ includes
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -436,7 +437,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
 
 //____________________________________________________________________________________
 //
-void FittingTool::ExportFitResultInTextFile( const std::string &fileName )
+void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const std::vector<std::string>& blinded )
 {
     if(!m_fitResult){
         WriteErrorStatus("FittingTool::ExportFitResultInTextFile", "The FitResultObject seems not to be defined.");
@@ -462,7 +463,17 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName )
         double errorHi = var->getErrorHi() / 1.0;
         double errorLo = var->getErrorLo() / 1.0;
 
-        nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
+        if (blinded.size() == 0){
+            nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
+        } else {
+            std::string vname_s = vname.Data();
+            if (std::find(blinded.begin(), blinded.end(), vname_s) == blinded.end()){
+                nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
+            } else {
+                const std::string& hex = FloatToPseudoHex(pull);
+                nuisParAndCorr << vname << "  " << hex << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
+            }
+        }
     }
     if(param) delete param;
 

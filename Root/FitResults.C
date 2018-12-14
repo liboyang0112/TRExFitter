@@ -18,6 +18,7 @@
 #include "TPad.h"
 
 //c++ includes
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -101,7 +102,7 @@ float FitResults::GetNuisParErrDown(const std::string& p){
 
 //__________________________________________________________________________________
 //
-void FitResults::ReadFromTXT(const std::string& fileName){
+void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std::string>& blinded){
     bool includeCorrelations = true;
     bool invertedCorrMatrix = true;
     bool print = true;
@@ -163,13 +164,21 @@ void FitResults::ReadFromTXT(const std::string& fileName){
             name = ReplaceString(name,"alpha_","");
             name = ReplaceString(name,"gamma_","");
             AddNuisPar(new NuisParameter(name));
-            iss >> value >> up >> down;
-            np = fNuisPar[fNuisParIdx[name]];
-            //
-            np->fFitValue = value;
-            np->fPostFitUp = up;
-            np->fPostFitDown = down;
-            if(print) WriteVerboseStatus("FitResults::ReadFromTXT", name + ": " + std::to_string(value) + " +" + std::to_string(up) + " " + std::to_string(down));
+            if (std::find(blinded.begin(), blinded.end(), name) == blinded.end()){
+                iss >> value >> up >> down;
+                np = fNuisPar[fNuisParIdx[name]];
+                np->fFitValue = value;
+                np->fPostFitUp = up;
+                np->fPostFitDown = down;
+                if(print) WriteVerboseStatus("FitResults::ReadFromTXT", name + ": " + std::to_string(value) + " +" + std::to_string(up) + " " + std::to_string(down));
+            } else {
+                std::string hex;
+                iss >> hex >> up >> down;
+                np = fNuisPar[fNuisParIdx[name]];
+                np->fFitValue = HexToFloat(hex);
+                np->fPostFitUp = up;
+                np->fPostFitDown = down;
+            }
             i++;
         }
         if(readingCM){

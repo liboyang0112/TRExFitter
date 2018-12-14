@@ -282,6 +282,7 @@ For each object type (also called "block"), here is the list of available proper
 | ToysHistoMax                 | If FitToys is used, set maximum on the output toys histogram X axis |
 | ToysHistoNbins               | If FitToys is used, set number of bins for toys histogram output |
 | TemplateInterpolationOption  | Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt{x^2+\epsilon}`$ to achieve smooth transitions (first derivative) between the templates |
+| BlindedParameters            | A comma separated list of POI/NPs that will be written as a hexadecial number so it is not easy to read to not accidentally unblind. When at least one paramter is set the console output of the minimization is removed.
 
 ### `Limit` block options:
 

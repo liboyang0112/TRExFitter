@@ -277,6 +277,7 @@ TRExFit::TRExFit(std::string name){
     fuseGammasForCorr = false;
     fPropagateSystsForMorphing = false;
     fPrunningType = SEPARATESAMPLE;
+
 }
 
 //__________________________________________________________________________________
@@ -4950,6 +4951,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     //
     // Get initial ikelihood value from Asimov
     double nll0 = 0.;
+    if (fBlindedParameters.size() > 0) std::cout.setstate(std::ios_base::failbit);
     if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
 
     //
@@ -4968,13 +4970,14 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // Performs the fit
     fitTool -> MinimType("Minuit2");
     double nll = fitTool -> FitPDF( mc, simPdf, data );
-    if (debugLevel < 1) std::cout.clear();
+    if (debugLevel < 1 && fBlindedParameters.size() == 0) std::cout.clear();
     if(save){
         gSystem -> mkdir((fName+"/Fits/").c_str(),true);
-        if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt");
-        else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+".txt");
+        if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
+        else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+".txt", fBlindedParameters);
     }
     result = fitTool -> ExportFitResultInMap();
+    if (fBlindedParameters.size() > 0) std::cout.clear();
 
     //
     // Goodness of fit
@@ -5322,7 +5325,7 @@ void TRExFit::ReadFitResults(const std::string& fileName){
     fFitResults = new FitResults();
     fFitResults->SetPOIPrecision(fPOIPrecision);
     if(fileName.find(".txt")!=std::string::npos){
-        fFitResults->ReadFromTXT(fileName);
+        fFitResults->ReadFromTXT(fileName, fBlindedParameters);
     }
     // make a list of systematics from all samples...
     // ...

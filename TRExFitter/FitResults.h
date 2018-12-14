@@ -23,7 +23,7 @@ public:
     float GetNuisParValue(const std::string& p);
     float GetNuisParErrUp(const std::string& p);
     float GetNuisParErrDown(const std::string& p);
-    void ReadFromTXT(const std::string& fileName);
+    void ReadFromTXT(const std::string& fileName, const std::vector<std::string>& blinded);
     void DrawNPPulls(const std::string &path, const std::string &category, const std::vector < NormFactor* > &normFactors) const;
     void DrawNormFactors(const std::string &path, const std::vector < NormFactor* > &normFactor ) const;
     void DrawGammaPulls(const std::string &path ) const;

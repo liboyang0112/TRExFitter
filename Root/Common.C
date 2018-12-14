@@ -21,7 +21,9 @@
 #include "TObject.h"
 #include "TString.h"
 
+// c++ stuff
 #include <iostream>
+#include <iomanip>
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -710,4 +712,48 @@ bool CheckExpression(const std::string& s){
     if(nParOpen!=nParClose) return false;
     // ...
     return true;
+}
+
+//----------------------------------------------------------------------------------
+//
+std::string FloatToPseudoHex(const float value){
+    std::string s = std::to_string(value);
+    std::string first = s.substr(0,s.find('.'));
+    std::string second = s.substr(s.find('.')+1, s.length());
+    
+    int value1 = std::stoi(first);    
+    const int value2 = std::stoi(second);
+
+    // add 100 to the first digit so it is not easily readable, we will subtract it in the decoding
+    value1+=100;
+
+    std::stringstream ss;
+    ss << std::hex << value1 << "." << std::hex << value2;
+
+    return ss.str();
+}
+
+//----------------------------------------------------------------------------------
+//
+float HexToFloat(const std::string& s){
+    std::string first = s.substr(0,s.find('.'));
+    std::string second = s.substr(s.find('.')+1, s.length());
+    
+    unsigned int i1, i2;
+
+    std::stringstream ss;
+    ss << std::hex << first;
+    ss >> i1;
+
+    std::stringstream ss1;
+    ss1 << std::hex << second;
+    ss1 >> i2;
+
+    int signed1 = static_cast<int>(i1);
+    // need to subtract the 100 we added
+    signed1-= 100;
+
+    const std::string result = std::to_string(signed1)+"."+std::to_string(i2);
+
+    return std::stof(result);
 }
