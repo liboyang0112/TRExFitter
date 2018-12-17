@@ -501,8 +501,6 @@ public:
 
     std::string fCustomAsimov;
 
-    int fRandomPOISeed;
-
     std::string fTableOptions;
 
     bool fGetGoodnessOfFit;

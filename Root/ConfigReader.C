@@ -665,19 +665,6 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fCustomAsimov = RemoveQuotes(param);
     }
 
-    // Set RandomPOISeed
-    param = confSet->Get("RandomPOISeed");
-    if( param != "" ){
-        int seed = atoi(param.c_str());
-        if(seed>=0){
-             fFitter->fRandomPOISeed = seed;
-        }
-        else {
-            WriteErrorStatus("ConfigReader::ReadJobOptions", "You specified 'RandomPOISeed' option but the provided value is < 0. Check this!");
-            return 1;
-        }
-    }
-
     // Set GetChi2
     param = confSet->Get("GetChi2");
     if( param != "" ){ // can be TRUE, SYST+STAT, STAT-ONLY... (if it contains STAT and no SYST => stat-only, ptherwise stat+syst)

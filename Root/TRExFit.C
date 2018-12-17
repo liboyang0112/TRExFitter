@@ -242,7 +242,6 @@ TRExFit::TRExFit(std::string name){
     fRatioYminPostFit = 0.5;
 
     fCustomAsimov = "";
-    fRandomPOISeed = -1;
     fTableOptions = "STANDALONE";
 
     fGetGoodnessOfFit = false;
@@ -2031,18 +2030,6 @@ void TRExFit::DrawAndSaveAll(std::string opt){
         }
         else {
             ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
-        }
-        // scale signal by random number used in the ws creation
-        if(fRandomPOISeed>=0){
-            gRandom->SetSeed(fRandomPOISeed);
-            float rnd = 1./pow(gRandom->Uniform(0,2),2);
-            if(fFitResults->fNuisParIsThere[fPOI]){
-                WriteDebugStatus("TRExFit::DrawAndSaveAll", "Scaling POI " + fPOI + " by the secret random number XXX...");
-                NuisParameter* np = fFitResults->fNuisPar[fFitResults->fNuisParIdx[fPOI]];
-                np->fFitValue*=rnd;
-                np->fPostFitUp*=rnd;
-                np->fPostFitDown*=rnd;
-            }
         }
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -3957,15 +3944,6 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     if (h->fNormFactors[i_norm]->fConst) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
                     if (fStatOnly && fFixNPforStatOnlyFit && h->fNormFactors[i_norm]->fName!=fPOI)
                         meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
-                    // radom POI tricK: if this norm factor is te POI, add another (fixed) norm factor equal to a random number generated from the given seed
-                    if (fRandomPOISeed>=0){
-                        if ( h->fNormFactors[i_norm]->fName == fPOI ){
-                            WriteDebugStatus("TRExFit::ToRooStat", "    Scaling POI by random secret number XXX ;)");
-                            gRandom->SetSeed(fRandomPOISeed); float rnd = 1./pow(gRandom->Uniform(0,2),2);
-                            sample.AddNormFactor( "POIScale",rnd,rnd-1,rnd+1);
-                            meas.AddConstantParam( "POIScale" );
-                        }
-                    }
                 }
                 // shape factors
                 for(int i_shape=0;i_shape<h->fNShape;i_shape++){
