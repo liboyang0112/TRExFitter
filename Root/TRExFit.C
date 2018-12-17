@@ -5091,9 +5091,9 @@ void TRExFit::PlotFittedNP(){
             npCategories.insert(fSystematics[i]->fCategory);
         }
         for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-          fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],"all",fNormFactors);
-          fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]);
-          fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors);
+          fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],"all",fNormFactors, fBlindedParameters);
+          fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format], fBlindedParameters);
+          fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
         }
         if(npCategories.size()>1){
             for( const std::string cat : npCategories ){
@@ -5103,7 +5103,7 @@ void TRExFit::PlotFittedNP(){
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
                 for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],cat,fNormFactors);
+                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],cat,fNormFactors, fBlindedParameters);
                 }
             }
         }
