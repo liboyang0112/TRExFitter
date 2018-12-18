@@ -724,8 +724,8 @@ std::string FloatToPseudoHex(const float value){
     int value1 = std::stoi(first);    
     const int value2 = std::stoi(second);
 
-    // add 100 to the first digit so it is not easily readable, we will subtract it in the decoding
-    value1+=100;
+    // add 1234 to the first digit so it is not easily readable, we will subtract it in the decoding
+    value1+=1234;
 
     std::stringstream ss;
     ss << std::hex << value1 << "." << std::hex << value2;
@@ -750,8 +750,8 @@ float HexToFloat(const std::string& s){
     ss1 >> i2;
 
     int signed1 = static_cast<int>(i1);
-    // need to subtract the 100 we added
-    signed1-= 100;
+    // need to subtract the 1234 we added
+    signed1-= 1234;
 
     const std::string result = std::to_string(signed1)+"."+std::to_string(i2);
 
