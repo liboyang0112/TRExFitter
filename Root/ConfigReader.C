@@ -665,19 +665,6 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fCustomAsimov = RemoveQuotes(param);
     }
 
-    // Set RandomPOISeed
-    param = confSet->Get("RandomPOISeed");
-    if( param != "" ){
-        int seed = atoi(param.c_str());
-        if(seed>=0){
-             fFitter->fRandomPOISeed = seed;
-        }
-        else {
-            WriteErrorStatus("ConfigReader::ReadJobOptions", "You specified 'RandomPOISeed' option but the provided value is < 0. Check this!");
-            return 1;
-        }
-    }
-
     // Set GetChi2
     param = confSet->Get("GetChi2");
     if( param != "" ){ // can be TRUE, SYST+STAT, STAT-ONLY... (if it contains STAT and no SYST => stat-only, ptherwise stat+syst)
@@ -1429,6 +1416,20 @@ int ConfigReader::ReadFitOptions(){
         } else {
             WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'TemplateInterpolationOption' option but didnt provide valid parameter. Using default (LINEAR)");
             fFitter->fTemplateInterpolationOption = TRExFit::LINEAR;
+        }
+    }
+
+    // Set BlindedParameters
+    param = confSet->Get("BlindedParameters");
+    if( param != "" ){
+        std::vector<std::string> tmp = Vectorize( param.c_str(),',');
+        for (auto itmp : tmp){
+            itmp = RemoveQuotes(itmp);
+        }
+        fFitter->fBlindedParameters = tmp;
+        if (fFitter->fBlindedParameters.size() ==  0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'BlindedParameters' option but you didnt provide valid parameters. Ignoring");
+            fFitter->fBlindedParameters.clear();
         }
     }
 

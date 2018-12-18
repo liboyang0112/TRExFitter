@@ -501,8 +501,6 @@ public:
 
     std::string fCustomAsimov;
 
-    int fRandomPOISeed;
-
     std::string fTableOptions;
 
     bool fGetGoodnessOfFit;
@@ -547,6 +545,8 @@ public:
     std::vector<int> fSummaryCanvasSize;
     std::vector<int> fPieChartCanvasSize;
     std::vector<int> fNPRankingCanvasSize;
+    
+    std::vector<std::string> fBlindedParameters;
 };
 
 #endif

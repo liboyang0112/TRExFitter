@@ -60,7 +60,6 @@ public:
     void SetSubCategories();
     inline void SetSystMap( std::map<std::string, std::string> subCategoryMap ) { m_subCategoryMap = subCategoryMap; SetSubCategories(); } // fills both m_subCategoryMap and m_subCategories
 
-//     inline void FixNP( const TString &np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
     inline void ResetFixedNP() { m_constNP.clear(); m_constNPvalue.clear(); };
     inline void FixNP( std::string np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
     inline void FixNPs( std::vector<std::string> nps, std::vector<double> values ) { m_constNP = nps; m_constNPvalue = values; }
@@ -77,7 +76,7 @@ public:
     // Specific functions
     //
     double FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit = false, bool noFit = false );
-    void ExportFitResultInTextFile( const std::string &finaName );
+    void ExportFitResultInTextFile( const std::string &finaName, const std::vector<std::string>& blinded );
     std::map < std::string, double > ExportFitResultInMap();
 
     int GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, const std::string& categoryOfInterest, const std::string& outFileName ) const;

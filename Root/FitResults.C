@@ -18,6 +18,7 @@
 #include "TPad.h"
 
 //c++ includes
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -101,7 +102,7 @@ float FitResults::GetNuisParErrDown(const std::string& p){
 
 //__________________________________________________________________________________
 //
-void FitResults::ReadFromTXT(const std::string& fileName){
+void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std::string>& blinded){
     bool includeCorrelations = true;
     bool invertedCorrMatrix = true;
     bool print = true;
@@ -163,13 +164,21 @@ void FitResults::ReadFromTXT(const std::string& fileName){
             name = ReplaceString(name,"alpha_","");
             name = ReplaceString(name,"gamma_","");
             AddNuisPar(new NuisParameter(name));
-            iss >> value >> up >> down;
-            np = fNuisPar[fNuisParIdx[name]];
-            //
-            np->fFitValue = value;
-            np->fPostFitUp = up;
-            np->fPostFitDown = down;
-            if(print) WriteVerboseStatus("FitResults::ReadFromTXT", name + ": " + std::to_string(value) + " +" + std::to_string(up) + " " + std::to_string(down));
+            if (std::find(blinded.begin(), blinded.end(), name) == blinded.end()){
+                iss >> value >> up >> down;
+                np = fNuisPar[fNuisParIdx[name]];
+                np->fFitValue = value;
+                np->fPostFitUp = up;
+                np->fPostFitDown = down;
+                if(print) WriteVerboseStatus("FitResults::ReadFromTXT", name + ": " + std::to_string(value) + " +" + std::to_string(up) + " " + std::to_string(down));
+            } else {
+                std::string hex;
+                iss >> hex >> up >> down;
+                np = fNuisPar[fNuisParIdx[name]];
+                np->fFitValue = HexToFloat(hex);
+                np->fPostFitUp = up;
+                np->fPostFitDown = down;
+            }
             i++;
         }
         if(readingCM){
@@ -211,7 +220,7 @@ void FitResults::ReadFromTXT(const std::string& fileName){
 //__________________________________________________________________________________
 //
 void FitResults::DrawNormFactors( const string &path,
-                                  const std::vector < NormFactor* > &normFactors ) const {
+                                  const std::vector < NormFactor* > &normFactors, const std::vector<string>& blinded ) const {
     float xmin = 1000;
     float xmax = -1000;
     float max = 0;
@@ -222,29 +231,33 @@ void FitResults::DrawNormFactors( const string &path,
     std::vector< NuisParameter* > selected_norm_factors;
 
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
-      par = fNuisPar[i];
-      bool isNorm = false;
-      for( const auto *norm : normFactors ){
-        if(norm->fName==par->fName){
-          isNorm = true;
-          break;
+        par = fNuisPar[i];
+
+        //skip the blinded NPs
+        if (std::find(blinded.begin(), blinded.end(), par->fName) != blinded.end()) continue;
+        
+        bool isNorm = false;
+        for( const auto *norm : normFactors ){
+            if(norm->fName==par->fName){
+                isNorm = true;
+                break;
+            }
         }
-      }
-      if ( !isNorm ) continue;
-      g->SetPoint(selected_norm_factors.size(),par->fFitValue,2*selected_norm_factors.size()+1);
-      g->SetPointEXhigh(selected_norm_factors.size(), par->fPostFitUp);
-      g->SetPointEXlow( selected_norm_factors.size(),-par->fPostFitDown);
+        if ( !isNorm ) continue;
+        g->SetPoint(selected_norm_factors.size(),par->fFitValue,2*selected_norm_factors.size()+1);
+        g->SetPointEXhigh(selected_norm_factors.size(), par->fPostFitUp);
+        g->SetPointEXlow( selected_norm_factors.size(),-par->fPostFitDown);
 
-      if( par->fFitValue+par->fPostFitUp > xmax ) xmax = par->fFitValue+par->fPostFitUp;
-      if( par->fFitValue+par->fPostFitDown < xmin ) xmin = par->fFitValue+par->fPostFitDown;
+        if( par->fFitValue+par->fPostFitUp > xmax ) xmax = par->fFitValue+par->fPostFitUp;
+        if( par->fFitValue+par->fPostFitDown < xmin ) xmin = par->fFitValue+par->fPostFitDown;
 
-      NuisParameter* nuis= new NuisParameter(par->fName);
-      nuis -> fFitValue =    par -> fFitValue;
-      nuis -> fPostFitUp =   par -> fPostFitUp;
-      nuis -> fPostFitDown = par -> fPostFitDown;
-      nuis -> fTitle =       par -> fTitle;
-      selected_norm_factors.push_back(nuis);
-      if(2*selected_norm_factors.size() > max)  max = 2*selected_norm_factors.size();
+        NuisParameter* nuis= new NuisParameter(par->fName);
+        nuis -> fFitValue =    par -> fFitValue;
+        nuis -> fPostFitUp =   par -> fPostFitUp;
+        nuis -> fPostFitDown = par -> fPostFitDown;
+        nuis -> fTitle =       par -> fTitle;
+        selected_norm_factors.push_back(nuis);
+        if(2*selected_norm_factors.size() > max)  max = 2*selected_norm_factors.size();
     }
     xmax *= (xmax<0 ? 0.5 : 1.5);
     xmin *= (xmin>0 ? 0.5 : 1.5);
@@ -301,7 +314,7 @@ void FitResults::DrawNormFactors( const string &path,
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawGammaPulls( const string &path ) const {
+void FitResults::DrawGammaPulls( const string &path, const std::vector<std::string>& blinded ) const {
     float xmin = 10;
     float xmax = -10;
     float max = 0;
@@ -315,6 +328,11 @@ void FitResults::DrawGammaPulls( const string &path ) const {
 
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
         par = fNuisPar[i];
+        
+        std::string name = par->fName;
+        name = ReplaceString(name,"gamma_","");
+        if (std::find(blinded.begin(), blinded.end(), name) != blinded.end()) continue;
+            
         if ( par->fName.find("stat_") == std::string::npos && par->fName.find("shape_") == std::string::npos ) continue;
         g->SetPoint(idx,par->fFitValue,idx+0.5);
         g->SetPointEXhigh(idx, par->fPostFitUp);
@@ -379,7 +397,7 @@ void FitResults::DrawGammaPulls( const string &path ) const {
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawNPPulls( const string &path, const string &category, const std::vector < NormFactor* > &normFactors ) const {
+void FitResults::DrawNPPulls( const string &path, const string &category, const std::vector < NormFactor* > &normFactors, const std::vector<std::string>& blinded ) const {
     float xmin = -2.9;
     float xmax = 2.9;
     float max = 0;
@@ -395,6 +413,11 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
 
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
         par = fNuisPar[i];
+
+        std::string name = par->fName;
+        name = ReplaceString(name,"alpha_","");
+        
+        if (std::find(blinded.begin(), blinded.end(), name) != blinded.end()) continue;
 
         if( category != "all" && category != par->fCategory ) continue;
         if( FindInStringVector(fNuisParToHide,par->fName)>=0 ) continue;
