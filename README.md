@@ -252,8 +252,29 @@ For each object type (also called "block"), here is the list of available proper
 | UseATLASRoundingTex          | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (only .tex) |
 | PrePostFitCanvasSize         | Set width and height for canvas for pre/post-fit plots  |
 | SummaryCanvasSize            | Set width and height for canvas for summary plots  |
+| MergeCanvasSize              | Set width and height for canvas for merged plots  |
 | PieChartCanvasSize           | Set width and height for canvas for pie chart plots  |
 | NPRankingCanvasSize          | Set width and height for canvas for NP ranking plot  |
+| PrunningType                 | Can be set to `BACKGROUNDREFERENCE` or `COMBINEDREFERENCE` (default is `SEPARATESAMPLE`), and pruning (both shape and norm) will be done w.r.t. to total/total-background. |
+| LabelX                       | Custom X position for ATLAS label and others on Data/MC plots. |
+| LabelY                       | Custom Y position for ATLAS label and others on Data/MC plots. |
+| LegendX1                     | Custom Legend X1 position for ATLAS label and others on Data/MC plots. |
+| LegendX2                     | Custom Legend X2 position for ATLAS label and others on Data/MC plots. |
+| LegendY                      | Custom Legend Y top position for ATLAS label and others on Data/MC plots. |
+| LabelXSummary                | Same as LabelX but for Summary plot. |
+| LabelYSummary                | Same as LabelY but for Summary plot. |
+| LegendX1Summary              | Same as LegendX1 but for Summary plot. |
+| LegendX2Summary              | Same as LegendX2 but for Summary plot. |
+| LegendYSummary               | Same as LegendY but for Summary plot. |
+| LabelXMerge                  | Same as LabelX but for Merged plot. |
+| LabelYMerge                  | Same as LabelY but for Merged plot. |
+| LegendX1Merge                | Same as LegendX1 but for Merged plot. |
+| LegendX2Merge                | Same as LegendX2 but for Merged plot. |
+| LegendYMerge                 | Same as LegendY but for Merged plot. |
+| LegendNColumns               | Number of colums in Legend for Data/MC plots. |
+| LegendNColumnsSummary        | Same as LegendNColumns but for Summary plot. |
+| LegendNColumnsMerge          | Same as LegendNColumns but for Merged plot. |
+
 
 ### `Fit` block options:
 
