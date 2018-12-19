@@ -252,6 +252,8 @@ public:
     float fLegendX1;
     float fLegendX2;
     float fLegendY;
+    
+    int fLegendNColumns;
 };
 
 

@@ -39,6 +39,7 @@ bool TRExFitter::SHOWSTACKSIG_SUMMARY = true;
 bool TRExFitter::SHOWNORMSIG_SUMMARY = false;
 bool TRExFitter::SHOWOVERLAYSIG_SUMMARY = false;
 bool TRExFitter::LEGENDLEFT = false;
+bool TRExFitter::LEGENDRIGHT = false;
 bool TRExFitter::PREFITONPOSTFIT = false;
 bool TRExFitter::POISSONIZE = false;
 bool TRExFitter::SYSTCONTROLPLOTS = false;

@@ -240,7 +240,7 @@ TRExFit::TRExFit(std::string name){
     fRatioYmin = 0.5;
     fRatioYmaxPostFit = 1.5;
     fRatioYminPostFit = 0.5;
-    fRatioYtitle = "Data / Pred.";
+    fRatioYtitle = "";
     fRatioType = "DATA/MC";
 
     fCustomAsimov = "";
@@ -285,6 +285,22 @@ TRExFit::TRExFit(std::string name){
     fLegendX1 = -1;
     fLegendX2 = -1;
     fLegendY = -1;
+    
+    fLabelXSummary = -1;
+    fLabelYSummary = -1;
+    fLegendX1Summary = -1;
+    fLegendX2Summary = -1;
+    fLegendYSummary = -1;
+    
+    fLabelXMerge = -1;
+    fLabelYMerge = -1;
+    fLegendX1Merge = -1;
+    fLegendX2Merge = -1;
+    fLegendYMerge = -1;
+    
+    fLegendNColumns = 2;
+    fLegendNColumnsSummary = 3;
+    fLegendNColumnsMerge = 3;
     
     fShowRatioPad = true;
 }
@@ -397,6 +413,7 @@ Region* TRExFit::NewRegion(const std::string& name){
     fRegions[fNRegions]->fLegendX1 = fLegendX1;
     fRegions[fNRegions]->fLegendX2 = fLegendX2;
     fRegions[fNRegions]->fLegendY = fLegendY;
+    fRegions[fNRegions]->fLegendNColumns = fLegendNColumns;
     //
     fNRegions ++;
     return fRegions[fNRegions-1];
@@ -2317,62 +2334,21 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     TRExPlot *p;
     //
-//     // For 4-top-style plots
-//     if(TRExFitter::OPTION["FourTopStyle"]>0){
-//         p = new TRExPlot(fInputName+"_summary",TRExFitter::OPTION["CanvasWidthSummary"],TRExFitter::OPTION["CanvasHeight"]);
-//         if(fYmin!=0) p->fYmin = fYmin;
-//         else         p->fYmin = 1;
-//         if(fYmax!=0) p->fYmax = fYmax;
-//         else         p->SetYmaxScale(3);
-//         p->SetXaxis("",false);
-//         p->fLegendNColumns = TRExFitter::OPTION["LegendNColumnsSummary"];
-//         if(!checkVR && fSummaryPlotLabels.size()>0){
-//             if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
-//             else          p->AddLabel("#font[52]{Pre-fit}");
-//         }
-//         else if(checkVR && fSummaryPlotValidationLabels.size()>0){
-//                 if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
-//                 else          p->AddLabel("#font[52]{Pre-fit}");
-//         }
-//         else{
-//             p->AddLabel(fLabel);
-//             if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
-//             else          p->AddLabel("#font[52]{Pre-fit}");
-//         }
-//     }
-//     // TThbb style
-//     else if(TRExFitter::OPTION["TRExbbStyle"]>0){
-//         p = new TRExPlot(fInputName+"_summary",TRExFitter::OPTION["CanvasWidthSummary"],TRExFitter::OPTION["CanvasHeight"]);
-//         if(fYmin!=0) p->fYmin = fYmin;
-//         else         p->fYmin = 1;
-//         if(fYmax!=0) p->fYmax = fYmax;
-//         else         p->SetYmaxScale(3);
-//         p->SetXaxis("",false);
-//         p->SetYaxis("Events / bin");
-//         p->fLegendNColumns = TRExFitter::OPTION["LegendNColumnsSummary"];
-//         p->AddLabel(fLabel);
-//         if(isPostFit) p->AddLabel("Post-Fit");
-//         else          p->AddLabel("Pre-Fit");
-//     }
-//     //
-//     // normal-/old-style plots
-//     else{
-        if (fSummaryCanvasSize.size() == 0){
-            p = new TRExPlot(fInputName+"_summary",900,700,TRExFitter::NORATIO);
-        } else {
-            p = new TRExPlot(fInputName+"_summary",fSummaryCanvasSize.at(0),fSummaryCanvasSize.at(1),TRExFitter::NORATIO);
-        }
-        if(fYmin!=0) p->fYmin = fYmin;
-        else         p->fYmin = 1;
-        if(fYmax!=0) p->fYmax = fYmax;
-        else         p->SetYmaxScale(2);
-        p->SetXaxis("",false);
-        p->AddLabel(fLabel);
-        if(TRExFitter::OPTION["NoPrePostFit"]==0){
-            if(isPostFit) p->AddLabel("Post-Fit");
-            else          p->AddLabel("Pre-Fit");
-        }
-//     }
+    if (fSummaryCanvasSize.size() == 0){
+        p = new TRExPlot(fInputName+"_summary",900,700,TRExFitter::NORATIO);
+    } else {
+        p = new TRExPlot(fInputName+"_summary",fSummaryCanvasSize.at(0),fSummaryCanvasSize.at(1),TRExFitter::NORATIO);
+    }
+    if(fYmin!=0) p->fYmin = fYmin;
+    else         p->fYmin = 1;
+    if(fYmax!=0) p->fYmax = fYmax;
+    else         p->SetYmaxScale(2);
+    p->SetXaxis("",false);
+    p->AddLabel(fLabel);
+    if(TRExFitter::OPTION["NoPrePostFit"]==0){
+        if(isPostFit) p->AddLabel("Post-Fit");
+        else          p->AddLabel("Pre-Fit");
+    }
     //
     if(isPostFit) p->fRatioYmax = fRatioYmaxPostFit;
     else          p->fRatioYmax = fRatioYmax;
@@ -2382,15 +2358,19 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     // propagate settings from Job to plot
     p->fRatioYtitle = fRatioYtitle;
     p->fRatioType = fRatioType;
+    if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
+        p->fRatioType = "DATA/BKG";
+    }
     p->fATLASlabel = fAtlasLabel;
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
-    p->fLabelX = fLabelX;
-    p->fLabelY = fLabelY;
-    p->fLegendX1 = fLegendX1;
-    p->fLegendX2 = fLegendX2;
-    p->fLegendY = fLegendY;
+    p->fLabelX = fLabelXSummary;
+    p->fLabelY = fLabelYSummary;
+    p->fLegendX1 = fLegendX1Summary;
+    p->fLegendX2 = fLegendX2Summary;
+    p->fLegendY = fLegendYSummary;
+    p->fLegendNColumns = fLegendNColumnsSummary;
     if(fBlindingThreshold>=0){
         p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
         if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
@@ -2830,16 +2810,16 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         for(auto hVec : hBackgroundVec) hVec[i_channel]->Scale( scale );
     }
     //
-    // merge andplot them
+    // merge and plot them
     TRExPlot *p;
-    int cWeidthMerge = 1200;
+    int cWidthMerge = 1200;
     int cHeightMerge = 600;
-    int lNcolumnsMerge = 3;
-    if(TRExFitter::OPTION["CanvasWidthMerge"]!=0)    cWeidthMerge   = TRExFitter::OPTION["CanvasWidthMerge"];
-    if(TRExFitter::OPTION["CanvasHeight"]!=0)        cHeightMerge   = TRExFitter::OPTION["CanvasHeight"];
-    if(TRExFitter::OPTION["LegendNColumnsMerge"]!=0) lNcolumnsMerge = TRExFitter::OPTION["LegendNColumnsMerge"];
-    p = new TRExPlot(fInputName+"_merge",cWeidthMerge,cHeightMerge,TRExFitter::NORATIO);
-    p->fLegendNColumns = lNcolumnsMerge;
+    if(fMergeCanvasSize.size()>1){
+        cWidthMerge = fMergeCanvasSize.at(0);
+        cHeightMerge = fMergeCanvasSize.at(1);
+    }
+    p = new TRExPlot(fInputName+"_merge",cWidthMerge,cHeightMerge,TRExFitter::NORATIO);
+    p->fLegendNColumns = fLegendNColumnsMerge;
     //
     p->SetData(MergeHistograms(hDataVec),"");
     for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++)     p->AddSignal(    MergeHistograms(hSignalVec[i_sig])    ,"");
@@ -2849,11 +2829,11 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     p->SetCME(fCmeLabel);
     p->SetLumi(fLumiLabel);
     p->fATLASlabel = fAtlasLabel;
-    p->fLabelX = fLabelX;
-    p->fLabelY = fLabelY;
-    p->fLegendX1 = fLegendX1;
-    p->fLegendX2 = fLegendX2;
-    p->fLegendY = fLegendY;
+    p->fLabelX = fLabelXMerge;
+    p->fLabelY = fLabelYMerge;
+    p->fLegendX1 = fLegendX1Merge;
+    p->fLegendX2 = fLegendX2Merge;
+    p->fLegendY = fLegendYMerge;
 
     if(TRExFitter::OPTION["MergeYmaxScale"]==0) TRExFitter::OPTION["MergeYmaxScale"] = 1.25;
     p->fYmax = TRExFitter::OPTION["MergeYmaxScale"]*ymax0;
@@ -3612,7 +3592,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         gPad->SetTicky(0);
         gPad->RedrawAxis();
         if(TRExFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.85,label.c_str());
-        else                                     tex->DrawLatex(0.27,0.85,label.c_str());
+        else                                      tex->DrawLatex(0.27,0.85,label.c_str());
         float SoB = S[i]/B[i];
         std::string SB = Form("%.1f%%",(100.*SoB));
         if(TRExFitter::OPTION["FourTopStyle"]!=0){
@@ -3625,7 +3605,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         }
         SB = "#scale[0.75]{S/B} = "+SB;
         if(TRExFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.72,SB.c_str());
-        else                                     tex->DrawLatex(0.27,0.72,SB.c_str());
+        else                                      tex->DrawLatex(0.27,0.72,SB.c_str());
     }
     //
     for(unsigned int i=0;i<Nreg;i++){

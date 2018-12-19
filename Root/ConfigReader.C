@@ -881,6 +881,23 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fSummaryCanvasSize.emplace_back(y);
     }
 
+    // Set MergeCanvasSize
+    param = confSet->Get("MergeCanvasSize");
+    if( param != ""){
+        std::vector<std::string> tmp = Vectorize(param, ',');
+        if (tmp.size() != 2){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified MergeCanvasSize option but didnt provide 2 parameters. Ignoring.");
+        }
+        const int& x = std::stoi(tmp.at(0));
+        const int& y = std::stoi(tmp.at(1));
+
+        if (x <= 100 || y <= 100){
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified MergeCanvasSize option but at least one parameter is <= 100. Ignoring.");
+        }
+        fFitter->fMergeCanvasSize.emplace_back(x);
+        fFitter->fMergeCanvasSize.emplace_back(y);
+    }
+
     // Set PieChartCanvasSize
     param = confSet->Get("PieChartCanvasSize");
     if( param != ""){
@@ -933,7 +950,8 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         if( std::find(vec.begin(), vec.end(), "SKIPSIG")!=vec.end() )  TRExFitter::ADDSTACKSIG    = false;
         if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TRExFitter::SHOWNORMSIG    = true;
         if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TRExFitter::SHOWOVERLAYSIG = true;
-        if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TRExFitter::LEGENDLEFT     = true;
+        if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TRExFitter::LEGENDLEFT     = true; // forces leg entry to be left-aligned when adding yields to legend
+        if( std::find(vec.begin(), vec.end(), "RIGHT")  !=vec.end() )  TRExFitter::LEGENDRIGHT    = true; // forces leg entry to be right-aligned even when no yields in legend
         if( std::find(vec.begin(), vec.end(), "CHI2")   !=vec.end() )  TRExFitter::SHOWCHI2       = true;
         if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TRExFitter::PREFITONPOSTFIT= true;
         if( std::find(vec.begin(), vec.end(), "POISSONIZE")        !=vec.end() )  TRExFitter::POISSONIZE     = true;
@@ -1126,6 +1144,38 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if(param != "") fFitter->fLegendX2 = atof(param.c_str());
     param = confSet->Get("LegendY");
     if(param != "") fFitter->fLegendY = atof(param.c_str());
+    
+    // Set Label and Legend position for Summary
+    param = confSet->Get("LabelXSummary");
+    if(param != "") fFitter->fLabelXSummary = atof(param.c_str());
+    param = confSet->Get("LabelYSummary");
+    if(param != "") fFitter->fLabelYSummary = atof(param.c_str());
+    param = confSet->Get("LegendX1Summary");
+    if(param != "") fFitter->fLegendX1Summary = atof(param.c_str());
+    param = confSet->Get("LegendX2Summary");
+    if(param != "") fFitter->fLegendX2Summary = atof(param.c_str());
+    param = confSet->Get("LegendYSummary");
+    if(param != "") fFitter->fLegendYSummary = atof(param.c_str());
+    
+    // Set Label and Legend position for Merge
+    param = confSet->Get("LabelXMerge");
+    if(param != "") fFitter->fLabelXMerge = atof(param.c_str());
+    param = confSet->Get("LabelYMerge");
+    if(param != "") fFitter->fLabelYMerge = atof(param.c_str());
+    param = confSet->Get("LegendX1Merge");
+    if(param != "") fFitter->fLegendX1Merge = atof(param.c_str());
+    param = confSet->Get("LegendX2Merge");
+    if(param != "") fFitter->fLegendX2Merge = atof(param.c_str());
+    param = confSet->Get("LegendYMerge");
+    if(param != "") fFitter->fLegendYMerge = atof(param.c_str());
+    
+    // Set LegendNColumns
+    param = confSet->Get("LegendNColumns");
+    if(param != "") fFitter->fLegendNColumns = atoi(param.c_str());
+    param = confSet->Get("LegendNColumnsMerge");
+    if(param != "") fFitter->fLegendNColumnsMerge = atoi(param.c_str());
+    param = confSet->Get("LegendNColumnsSummary");
+    if(param != "") fFitter->fLegendNColumnsSummary = atoi(param.c_str());
     
     // Set DoSummaryPlot
     param = confSet->Get("DoSummaryPlot");

@@ -68,7 +68,7 @@ Region::Region(string name){
     fRatioYmin = 0;
     fRatioYmaxPostFit = 1.5;
     fRatioYminPostFit = 0.5;
-    fRatioYtitle = "Data / Pred.";
+    fRatioYtitle = "";
     fRatioType = "DATA/MC";
 
     int canvasWidth = 600;
@@ -152,6 +152,8 @@ Region::Region(string name){
     fLegendX1 = -1;
     fLegendX2 = -1;
     fLegendY = -1;
+    
+    fLegendNColumns = 2;
 }
 
 //__________________________________________________________________________________
@@ -575,7 +577,6 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         else p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         p->AddLabel("#font[52]{Pre-fit}");
-        p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     //
     // old-style plots
@@ -583,12 +584,12 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Pre-Fit");
-        if(TRExFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     //
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
+    p->fLegendNColumns = fLegendNColumns;
     if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
 
     if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
@@ -633,7 +634,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         if(TRExFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
         if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG){
             if(fTot==nullptr) fTot = (TH1*)h->Clone("h_tot");
-            else          fTot->Add(h);
+            else              fTot->Add(h);
         }
     }
     for(int i=0;i<fNBkg;i++){
@@ -709,6 +710,9 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     p->fATLASlabel = fATLASlabel;
     p->fRatioYtitle = fRatioYtitle;
     p->fRatioType = fRatioType;
+    if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
+        p->fRatioType = "DATA/BKG";
+    }
     p->fLabelX = fLabelX;
     p->fLabelY = fLabelY;
     p->fLegendX1 = fLegendX1;
@@ -1254,7 +1258,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         else p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         p->AddLabel("#font[52]{Post-fit}");
-        p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     //
     // old-style plots
@@ -1262,11 +1265,11 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Post-Fit");
-        if(TRExFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
+    p->fLegendNColumns = fLegendNColumns;
 
     if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
         for(int i_bin=0; i_bin<fNbins; i_bin++) {
@@ -1503,6 +1506,9 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     p->fATLASlabel = fATLASlabel;
     p->fRatioYtitle = fRatioYtitle;
     p->fRatioType = fRatioType;
+    if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
+        p->fRatioType = "DATA/BKG";
+    }
     p->fLabelX = fLabelX;
     p->fLabelY = fLabelY;
     p->fLegendX1 = fLegendX1;
