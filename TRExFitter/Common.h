@@ -122,6 +122,10 @@ int ApplyErrorRounding(double& error, int& sig);
   */
 void RoundToSig(double& value, const int& n);
 
+std::string FloatToPseudoHex(const float value);
+
+float HexToFloat(const std::string& s);
+
 /**
     * A helper function to scale samples (signal) to nominakl SFs
     * @param SampleHist

@@ -215,7 +215,6 @@ For each object type (also called "block"), here is the list of available proper
 | RatioYmaxPostFit             | if set, it will specify the max of the range of the ratio plots, for post-fit only |
 | RatioYminPostFit             | if set, it will specify the min of the range of the ratio plots, for post-fit only |
 | CustomAsimov                 | if set, the workspace will be created with an AsimovData built according to Sample->`AsimovReplacementFor` option (see below) instead of data |
-| RandomPOISeed                | if set to a >= 0 number, the signal sample(s) to which the POI is assigned get scaled by a random number generated starting from this seed, just before the ws creation; if the same seed is used in the cofig, post-fit plots will show consistent results (i.e. before post-fit drawing the POI is scaled by the same number) |
 | GetChi2                      | if set to TRUE (or STAT+SYST), for pre- and post-fit plots the extended chi2 test is done, and results are printed on the screen for each plot when running d and/or p; can be set to STAT (or STAT-ONLY) for stat-only chi2 |
 | TtresSmoothing               | if set to TRUE, the systematic uncertainty smoothing will use the ttbar resonances convention for the smoothing. The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal or 400 to treat it as uncorrelated with the nominal. |
 | SmoothingOption              | Choose which smoothing option to use, allowed parameters are: MAXVARIATION (default), TTBARRESONANCE, COMMONTOOLSMOOTHMONOTONIC, COMMONTOOLSMOOTHPARABOLIC, KERNELRATIOUNIFORM, KERNELDELTAGAUSS or KERNELRATIOGAUSS. |
@@ -282,6 +281,7 @@ For each object type (also called "block"), here is the list of available proper
 | ToysHistoMax                 | If FitToys is used, set maximum on the output toys histogram X axis |
 | ToysHistoNbins               | If FitToys is used, set number of bins for toys histogram output |
 | TemplateInterpolationOption  | Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt{x^2+\epsilon}`$ to achieve smooth transitions (first derivative) between the templates |
+| BlindedParameters            | A comma separated list of POI/NPs that will be written as a hexadecial number so it is not easy to read to not accidentally unblind. When at least one paramter is set the console output of the minimization is removed.
 
 ### `Limit` block options:
 
@@ -515,23 +515,24 @@ Currently the supported options are:
 
 | **Option** | **Effect** |
 | ---------- | ---------- |
-| **Regions**       | to limit the regions to use to the list specified |
-| **Samples**       | to limit the samples to use to the list specified |
-| **Systematics**   | to limit the systematics to use to the list specified |
-| **Signal**        | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance) |
-| **Exclude**       | to exclude certain Regions / Samples / Systematics |
-| **Suffix**        | used for: plots, workspace, fit results, etc |
-| **SaveSuffix**    | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |
-| **Update**        | if TRUE, the output .root file is updated, otherwise is overwrote |
-| **StatOnlyFit**   | if TRUE, the same as Fit->StatOnlyFit |
-| **StatOnly**      | if TRUE, no systematics nor MC stat uncertainties will be considered (equivalent to set StatOnly: TRUE in the Job block of the config), use `Systematics=NONE` instead to keep MC stat uncertainties |
-| **Ranking**       | see [Ranking Plot](#ranking-plot) section |
-| **FitResults**    | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
-| **FitType**       | can be set to SPLUSB or BONLY to replace the option in the config file |
-| **LumiScale**     | as the options in config file |
-| **BootstrapIdx**  | see description of Bootstrap option in config (under Job) |
-| **GroupedImpact** | see [Grouped Impact](#grouped-impact) section |
-| **OutputDir**     | see [Job options](#job-block-options) section |
+| **Regions**         | to limit the regions to use to the list specified |
+| **Samples**         | to limit the samples to use to the list specified |
+| **Systematics**     | to limit the systematics to use to the list specified |
+| **Signal**          | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance) |
+| **Exclude**         | to exclude certain Regions / Samples / Systematics |
+| **Suffix**          | used for: plots, workspace, fit results, etc |
+| **SaveSuffix**      | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |
+| **Update**          | if TRUE, the output .root file is updated, otherwise is overwrote |
+| **StatOnlyFit**     | if TRUE, the same as Fit->StatOnlyFit |
+| **StatOnly**        | if TRUE, no systematics nor MC stat uncertainties will be considered (equivalent to set StatOnly: TRUE in the Job block of the config), use `Systematics=NONE` instead to keep MC stat uncertainties |
+| **Ranking**         | see [Ranking Plot](#ranking-plot) section |
+| **FitResults**      | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
+| **FitType**         | can be set to SPLUSB or BONLY to replace the option in the config file |
+| **LumiScale**       | as the options in config file |
+| **BootstrapIdx**    | see description of Bootstrap option in config (under Job) |
+| **GroupedImpact**   | see [Grouped Impact](#grouped-impact) section |
+| **OutputDir**       | see [Job options](#job-block-options) section |
+| **LimitParamValue** | see [Limit options](#limit-block-options) section (ParamValue) |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:

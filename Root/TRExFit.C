@@ -244,7 +244,6 @@ TRExFit::TRExFit(std::string name){
     fRatioType = "DATA/MC";
 
     fCustomAsimov = "";
-    fRandomPOISeed = -1;
     fTableOptions = "STANDALONE";
 
     fGetGoodnessOfFit = false;
@@ -2064,18 +2063,6 @@ void TRExFit::DrawAndSaveAll(std::string opt){
         }
         else {
             ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
-        }
-        // scale signal by random number used in the ws creation
-        if(fRandomPOISeed>=0){
-            gRandom->SetSeed(fRandomPOISeed);
-            float rnd = 1./pow(gRandom->Uniform(0,2),2);
-            if(fFitResults->fNuisParIsThere[fPOI]){
-                WriteDebugStatus("TRExFit::DrawAndSaveAll", "Scaling POI " + fPOI + " by the secret random number XXX...");
-                NuisParameter* np = fFitResults->fNuisPar[fFitResults->fNuisParIdx[fPOI]];
-                np->fFitValue*=rnd;
-                np->fPostFitUp*=rnd;
-                np->fPostFitDown*=rnd;
-            }
         }
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -3991,15 +3978,6 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                     if (h->fNormFactors[i_norm]->fConst) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
                     if (fStatOnly && fFixNPforStatOnlyFit && h->fNormFactors[i_norm]->fName!=fPOI)
                         meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
-                    // radom POI tricK: if this norm factor is te POI, add another (fixed) norm factor equal to a random number generated from the given seed
-                    if (fRandomPOISeed>=0){
-                        if ( h->fNormFactors[i_norm]->fName == fPOI ){
-                            WriteDebugStatus("TRExFit::ToRooStat", "    Scaling POI by random secret number XXX ;)");
-                            gRandom->SetSeed(fRandomPOISeed); float rnd = 1./pow(gRandom->Uniform(0,2),2);
-                            sample.AddNormFactor( "POIScale",rnd,rnd-1,rnd+1);
-                            meas.AddConstantParam( "POIScale" );
-                        }
-                    }
                 }
                 // shape factors
                 for(int i_shape=0;i_shape<h->fNShape;i_shape++){
@@ -4989,6 +4967,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     //
     // Get initial ikelihood value from Asimov
     double nll0 = 0.;
+    if (fBlindedParameters.size() > 0) std::cout.setstate(std::ios_base::failbit);
     if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
 
     //
@@ -5007,13 +4986,14 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // Performs the fit
     fitTool -> MinimType("Minuit2");
     double nll = fitTool -> FitPDF( mc, simPdf, data );
-    if (debugLevel < 1) std::cout.clear();
+    if (debugLevel < 1 && fBlindedParameters.size() == 0) std::cout.clear();
     if(save){
         gSystem -> mkdir((fName+"/Fits/").c_str(),true);
-        if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt");
-        else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+".txt");
+        if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
+        else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+".txt", fBlindedParameters);
     }
     result = fitTool -> ExportFitResultInMap();
+    if (fBlindedParameters.size() > 0) std::cout.clear();
 
     //
     // Goodness of fit
@@ -5127,9 +5107,9 @@ void TRExFit::PlotFittedNP(){
             npCategories.insert(fSystematics[i]->fCategory);
         }
         for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-          fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],"all",fNormFactors);
-          fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]);
-          fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors);
+          fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],"all",fNormFactors, fBlindedParameters);
+          fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format], fBlindedParameters);
+          fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
         }
         if(npCategories.size()>1){
             for( const std::string cat : npCategories ){
@@ -5139,7 +5119,7 @@ void TRExFit::PlotFittedNP(){
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
                 std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
                 for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],cat,fNormFactors);
+                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],cat,fNormFactors, fBlindedParameters);
                 }
             }
         }
@@ -5184,7 +5164,7 @@ void TRExFit::GetLimit(){
     if(fWorkspaceFileName!=""){
         std::string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
-        runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
+        runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fLimitParamName.c_str(), fLimitParamValue, (fLimitOutputPrefixName+fSuffix).c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
     }
     else{
         //
@@ -5252,7 +5232,7 @@ void TRExFit::GetLimit(){
         ws_forLimit -> Write();
         f_clone -> Close();
         std::string outputName_s = static_cast<std::string> (outputName);
-        runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
+        runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fLimitParamName.c_str(), fLimitParamValue, (fLimitOutputPrefixName+fSuffix).c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
     }
 }
 
@@ -5361,7 +5341,7 @@ void TRExFit::ReadFitResults(const std::string& fileName){
     fFitResults = new FitResults();
     fFitResults->SetPOIPrecision(fPOIPrecision);
     if(fileName.find(".txt")!=std::string::npos){
-        fFitResults->ReadFromTXT(fileName);
+        fFitResults->ReadFromTXT(fileName, fBlindedParameters);
     }
     // make a list of systematics from all samples...
     // ...

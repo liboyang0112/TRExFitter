@@ -404,7 +404,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
         // Full fit
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         double nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
-        fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
+        std::vector<std::string> s_vec;
+        fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt", s_vec);
         result = fitTool -> ExportFitResultInMap();
 
         //
@@ -488,7 +489,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
             }
             fitTool -> FixNPs(npNames,npValues);
             fitTool -> FitPDF( mc, simPdf, data );
-            fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
+            std::vector<std::string> s_vec;
+            fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt", s_vec);
         }
     }
     
@@ -1117,8 +1119,9 @@ void MultiFit::ComparePulls(string category) const{
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
-            if(fFitResultsFile!="") fitRes->ReadFromTXT(fFitResultsFile);
-            else                    fitRes->ReadFromTXT(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
+            std::vector<std::string> s;
+            if(fFitResultsFile!="") fitRes->ReadFromTXT(fFitResultsFile, s);
+            else                    fitRes->ReadFromTXT(fOutDir+"/Fits/"+fName+fSaveSuf+".txt", s);
         }
         else{
             fitRes = fFitList[i_fit]->fFitResults;
@@ -1365,8 +1368,9 @@ void MultiFit::CompareNormFactors(string category) const{
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
-            if(fFitResultsFile!="") fitRes->ReadFromTXT(fFitResultsFile);
-            else                    fitRes->ReadFromTXT(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
+            std::vector<std::string> s;
+            if(fFitResultsFile!="") fitRes->ReadFromTXT(fFitResultsFile, s);
+            else                    fitRes->ReadFromTXT(fOutDir+"/Fits/"+fName+fSaveSuf+".txt", s);
         }
         else{
             fitRes = fFitList[i_fit]->fFitResults;
