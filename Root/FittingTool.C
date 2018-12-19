@@ -172,12 +172,13 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
             bool found = false;
             //
             // first check if all systs, norm and gammas should be set to constant
-            if(np.find("gamma_stat")!=string::npos && m_noGammas){
+            if((np.find("gamma_stat")!=string::npos || np.find("gamma_shape_stat")!=string::npos) && m_noGammas){
                 WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
-                var->setConstant(1);
+                var->setConstant( 1 );
+                var->setVal( 1 );
                 found = true;
             }
-            else if(np.find("alpha_")!=string::npos && m_noSystematics){
+            else if((np.find("alpha_")!=string::npos || (np.find("gamma_shape")!=string::npos && np.find("gamma_shape_stat")==string::npos)) && m_noSystematics){
                 WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
                 var->setConstant( 1 );
                 var->setVal( 0 );

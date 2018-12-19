@@ -9,6 +9,7 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
 #include "TRExFitter/SystematicHist.h"
+#include "TRExFitter/HistoTools.h"
 
 // ROOT includes
 #include "TCanvas.h"
@@ -453,14 +454,14 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
         TH1 *htempUp   = (TH1*)fHist->Clone();
         TH1 *htempDown = (TH1*)fHist->Clone();
         for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-            htempUp  ->AddBinContent(i_bin, 1.*fHist->GetBinError(i_bin));
-            htempDown->AddBinContent(i_bin,-1.*fHist->GetBinError(i_bin));
+            htempUp  ->AddBinContent(i_bin, 1.*fHist->GetBinError(i_bin)*fSample->fMCstatScale);
+            htempDown->AddBinContent(i_bin,-1.*fHist->GetBinError(i_bin)*fSample->fMCstatScale);
         }
         TH1 *htempUp_orig   = (TH1*)fHist_orig->Clone();
         TH1 *htempDown_orig = (TH1*)fHist_orig->Clone();
         for(int i_bin=1;i_bin<=fHist_orig->GetNbinsX();i_bin++){
-            htempUp_orig  ->AddBinContent(i_bin, 1.*fHist_orig->GetBinError(i_bin));
-            htempDown_orig->AddBinContent(i_bin,-1.*fHist_orig->GetBinError(i_bin));
+            htempUp_orig  ->AddBinContent(i_bin, 1.*fHist_orig->GetBinError(i_bin)*fSample->fMCstatScale);
+            htempDown_orig->AddBinContent(i_bin,-1.*fHist_orig->GetBinError(i_bin)*fSample->fMCstatScale);
         }
         std::string systName = "stat_"+fSample->fName;
         Systematic *gamma = nullptr;
@@ -985,6 +986,38 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
 
+        if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
+            HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
+            HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+            continue;
+        }
+
+        // 
+        // Pre-smoothing
+        //
+        // (do smoothing and symmetrization before pre-smoothing in case of two-sided systematics)
+        if(fSyst[i_syst]->fSymmetrisationType==HistoTools::SYMMETRIZETWOSIDED){
+            if(fSyst[i_syst]->fIsShape){
+                HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                h_nominal,//nominal histogram
+                                                fSyst[i_syst]->fHistUp,
+                                                fSyst[i_syst]->fHistDown,//original histograms
+                                                h_syst_up, h_syst_down, //modified histograms
+                                                fSyst[i_syst]->fScaleUp,
+                                                fSyst[i_syst]->fScaleDown, // scale factors
+                                                smoothOpt,
+                                                TtresSmoothing // alternative smoothing
+                                            );
+            }
+            //
+            // need to ad these lines to make sure overall only systematics get scaled as well
+            else{
+                HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
+                HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+            }
+        }
+
         if(fSyst[i_syst]->fSystematic->fPreSmoothing){
             TH1* h_tmp_up   = h_syst_up!=nullptr   ? (TH1*)h_syst_up  ->Clone() : nullptr;
             TH1* h_tmp_down = h_syst_down!=nullptr ? (TH1*)h_syst_down->Clone() : nullptr;
@@ -1023,33 +1056,29 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
             delete h_tmp_down;
         }
 
-        if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
-            HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
-            HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
-            continue;
-        }
-
         //
         // Call the function for smoothing and symmetrisation
         //
-        if(fSyst[i_syst]->fIsShape){
-            HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType, //parameters of the histogram massaging
-                                            fSyst[i_syst]->fSymmetrisationType,
-                                            h_nominal,//nominal histogram
-                                            fSyst[i_syst]->fHistUp,
-                                            fSyst[i_syst]->fHistDown,//original histograms
-                                            h_syst_up, h_syst_down, //modified histograms
-                                            fSyst[i_syst]->fScaleUp,
-                                            fSyst[i_syst]->fScaleDown, // scale factors
-                                            smoothOpt,
-                                            TtresSmoothing // alternative smoothing
-                                         );
-        }
-        //
-        // need to ad these lines to make sure overall only systematics get scaled as well
-        else{
-            HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
-            HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+        if(fSyst[i_syst]->fSymmetrisationType!=HistoTools::SYMMETRIZETWOSIDED){
+            if(fSyst[i_syst]->fIsShape){
+                HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                h_nominal,//nominal histogram
+                                                fSyst[i_syst]->fHistUp,
+                                                fSyst[i_syst]->fHistDown,//original histograms
+                                                h_syst_up, h_syst_down, //modified histograms
+                                                fSyst[i_syst]->fScaleUp,
+                                                fSyst[i_syst]->fScaleDown, // scale factors
+                                                smoothOpt,
+                                                TtresSmoothing // alternative smoothing
+                                            );
+            }
+            //
+            // need to ad these lines to make sure overall only systematics get scaled as well
+            else{
+                HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
+                HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+            }
         }
 
         //

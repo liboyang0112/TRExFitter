@@ -528,6 +528,7 @@ public:
     std::string fDecorrSuff;
 
     bool fDoNonProfileFit;
+    float fNonProfileFitSystThreshold;
     int fFitToys;
     float fToysHistoMin;
     float fToysHistoMax;

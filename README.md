@@ -296,13 +296,15 @@ For each object type (also called "block"), here is the list of available proper
 | NumCPU                       | specify the number of CPU to use for the minimization (default = 1) |
 | StatOnlyFit                  | if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the `_statOnly` suffix (also possible to use it from command line) |
 | GetGoodnessOfFit             | set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods) |
-| DoNonProfileFit              | [EXPERIMENTAL] if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time |
-| FitToys                      | [EXPERIMENTAL] if set to N > 0, N stat-ony toys are generated and fitted |
+| DoNonProfileFit              | if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time |
+| FitToys                      | if set to N > 0, N stat-ony toys are generated and fitted |
 | ToysHistoMin                 | If FitToys is used, set minimum on the output toys histogram X axis |
 | ToysHistoMax                 | If FitToys is used, set maximum on the output toys histogram X axis |
 | ToysHistoNbins               | If FitToys is used, set number of bins for toys histogram output |
 | TemplateInterpolationOption  | Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt{x^2+\epsilon}`$ to achieve smooth transitions (first derivative) between the templates |
 | BlindedParameters            | A comma separated list of POI/NPs that will be written as a hexadecial number so it is not easy to read to not accidentally unblind. When at least one paramter is set the console output of the minimization is removed.
+| DoNonProfileFitSystThreshold | When peforming a NonProfileFit, systematics are not added to total if smaller than this threshold |
+
 
 ### `Limit` block options:
 
@@ -419,6 +421,7 @@ For each object type (also called "block"), here is the list of available proper
 | CorrelateGammasWithSample    | to be used only together with SeparateGammas; can be used to correlate MC stat of this sample with those of another sample (example usecase: when one sample is derived from another one through reweighting, and they are both used in the fit) |
 | Morphing                     | add this to each template you have, to do a template fit / morphing; syntax is `<name-of-parameter>,<value-corresponding-to-this-template>`; the POI should be set to `<name-of-parameter>` |
 | BuildPullTable               | if set to TRUE or NORM-ONLY, create tables showing the post-fit acceptance effect of nuisance parameter pulls for this sample, set to NORM+SHAPE to include the bin-by-bin effect |
+| MCstatScale                  | scales up/down the MC stat size; useful to project sensitivity to larger MC samples |
 
 ### `NormFactor` block options:
 
