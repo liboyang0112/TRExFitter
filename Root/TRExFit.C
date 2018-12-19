@@ -4098,6 +4098,10 @@ void TRExFit::DrawPruningPlot() const{
         }
     }
     const size_t NnonGammaSyst = nonGammaSystematics.size();
+    if(NnonGammaSyst==0){
+        WriteInfoStatus("TRExFit::DrawPruningPlot", "No non-gamma systematics found => No Pruning plot generated.");
+        return;
+    }
     //
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
         if(fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
@@ -5145,7 +5149,7 @@ void TRExFit::GetLimit(){
     if(fWorkspaceFileName!=""){
         std::string dataName = "obsData";
         if(!hasData || fLimitIsBlind) dataName = "asimovData";
-        runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
+        runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fLimitParamName.c_str(), fLimitParamValue, (fLimitOutputPrefixName+fSuffix).c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
     }
     else{
         //
@@ -5213,7 +5217,7 @@ void TRExFit::GetLimit(){
         ws_forLimit -> Write();
         f_clone -> Close();
         std::string outputName_s = static_cast<std::string> (outputName);
-        runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
+        runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fLimitParamName.c_str(), fLimitParamValue, (fLimitOutputPrefixName+fSuffix).c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
     }
 }
 

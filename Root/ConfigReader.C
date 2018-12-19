@@ -151,6 +151,9 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
       fFitter->fName = fFitter->fDir + fFitter->fName;
       gSystem->mkdir((fFitter->fName).c_str(), true);
     }
+    if(optMap["LimitParamValue"]!=""){
+        fFitter->fLimitParamValue = atof(optMap["LimitParamValue"].c_str());
+    }
     //
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "-------------------------------------------");
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "Running options: ");
