@@ -416,6 +416,8 @@ public:
     float fRatioYmax;
     float fRatioYminPostFit;
     float fRatioYmaxPostFit;
+    std::string fRatioYtitle;
+    std::string fRatioType;
 
     std::string fLumiLabel;
     std::string fCmeLabel;
@@ -543,10 +545,37 @@ public:
 
     std::vector<int> fPrePostFitCanvasSize;
     std::vector<int> fSummaryCanvasSize;
+    std::vector<int> fMergeCanvasSize;
     std::vector<int> fPieChartCanvasSize;
     std::vector<int> fNPRankingCanvasSize;
     
     std::vector<std::string> fBlindedParameters;
+    
+    float fLabelX;
+    float fLabelY;
+    float fLegendX1;
+    float fLegendX2;
+    float fLegendY;
+    
+    float fLabelXSummary;
+    float fLabelYSummary;
+    float fLegendX1Summary;
+    float fLegendX2Summary;
+    float fLegendYSummary;
+    
+    float fLabelXMerge;
+    float fLabelYMerge;
+    float fLegendX1Merge;
+    float fLegendX2Merge;
+    float fLegendYMerge;
+    
+    int fLegendNColumns;
+    int fLegendNColumnsSummary;
+    int fLegendNColumnsMerge;
+    
+    bool fShowRatioPad;
+    bool fShowRatioPadSummary;
+    bool fShowRatioPadMerge;
 };
 
 #endif

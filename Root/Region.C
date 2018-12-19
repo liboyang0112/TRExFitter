@@ -68,18 +68,18 @@ Region::Region(string name){
     fRatioYmin = 0;
     fRatioYmaxPostFit = 1.5;
     fRatioYminPostFit = 0.5;
+    fRatioYtitle = "";
+    fRatioType = "DATA/MC";
 
-    string cName = "c_"+fName;
     int canvasWidth = 600;
     int canvasHeight = 700;
+    string cName = "c_"+fName;
     if(TRExFitter::OPTION["CanvasWidth"]!=0)  canvasWidth  = TRExFitter::OPTION["CanvasWidth"];
     if(TRExFitter::OPTION["CanvasHeight"]!=0) canvasHeight = TRExFitter::OPTION["CanvasHeight"];
-    if(canvasWidth!=600 || canvasHeight!=700) fPlotPreFit = new TRExPlot(cName,canvasWidth,canvasHeight);
-    else                                      fPlotPreFit = new TRExPlot(cName);
+    fPlotPreFit = new TRExPlot(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
     fPlotPreFit->fShowYields = TRExFitter::SHOWYIELDS;
     cName = "c_"+fName+"_postFit";
-    if(canvasWidth!=600 || canvasHeight!=700) fPlotPostFit = new TRExPlot(cName,canvasWidth,canvasHeight);
-    else                                      fPlotPostFit = new TRExPlot(cName);
+    fPlotPostFit = new TRExPlot(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
     fPlotPostFit->fShowYields = TRExFitter::SHOWYIELDS;
 
     fSampleHists.clear();
@@ -146,6 +146,14 @@ Region::Region(string name){
     fUseGammaPulls = false;
 
     fTot = nullptr;
+    
+    fLabelX = -1;
+    fLabelY = -1;
+    fLegendX1 = -1;
+    fLegendX2 = -1;
+    fLegendY = -1;
+    
+    fLegendNColumns = 2;
 }
 
 //__________________________________________________________________________________
@@ -361,7 +369,7 @@ void Region::BuildPreFitErrorHist(){
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
 
         WriteDebugStatus("Region::BuildPreFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
 
@@ -456,7 +464,7 @@ void Region::BuildPreFitErrorHist(){
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
                 if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
                 // get SystematicHist
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
@@ -548,7 +556,8 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     if (canvasSize.size() == 0){
         p = fPlotPreFit;
     } else {
-        p = new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1));
+        p = new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
+        p->fShowYields = TRExFitter::SHOWYIELDS;
     }
     p->SetXaxisRange(fXaxisRange);
     if(fYmaxScale==0) p->SetYmaxScale(1.8);
@@ -568,7 +577,6 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         else p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         p->AddLabel("#font[52]{Pre-fit}");
-        p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     //
     // old-style plots
@@ -576,12 +584,12 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Pre-Fit");
-        if(TRExFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     //
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
+    p->fLegendNColumns = fLegendNColumns;
     if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
 
     if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
@@ -624,9 +632,9 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
             if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(h,title);
         }
         if(TRExFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
-        if(TRExFitter::SHOWSTACKSIG){
+        if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG){
             if(fTot==nullptr) fTot = (TH1*)h->Clone("h_tot");
-            else          fTot->Add(h);
+            else              fTot->Add(h);
         }
     }
     for(int i=0;i<fNBkg;i++){
@@ -700,6 +708,16 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     //
     p->SetTotBkgAsym(fErr);
     p->fATLASlabel = fATLASlabel;
+    p->fRatioYtitle = fRatioYtitle;
+    p->fRatioType = fRatioType;
+    if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
+        p->fRatioType = "DATA/BKG";
+    }
+    p->fLabelX = fLabelX;
+    p->fLabelY = fLabelY;
+    p->fLegendX1 = fLegendX1;
+    p->fLegendX2 = fLegendX2;
+    p->fLegendY = fLegendY;
     if(fLogScale) opt += " log";
     p->Draw(opt);
     return p;
@@ -1138,7 +1156,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
                 if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
                 // skip signal if Bkg only
                 if(fFitType==TRExFit::BONLY && fSampleHists[i]->fSample->fType==Sample::SIGNAL) continue;
                 // get SystematicHist
@@ -1217,8 +1235,9 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     TRExPlot *p{};
     if (canvasSize.size() == 0){
         p = fPlotPostFit;
+        p->fShowYields = TRExFitter::SHOWYIELDS;
     } else {
-        p = new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1));
+        p = new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
     }
 
     p->SetXaxisRange(fXaxisRange);
@@ -1239,7 +1258,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         else p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         p->AddLabel("#font[52]{Post-fit}");
-        p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     //
     // old-style plots
@@ -1247,11 +1265,11 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         p->AddLabel(fFitLabel);
         p->AddLabel(fLabel);
         if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Post-Fit");
-        if(TRExFitter::OPTION["LegendNColumns"]!=0) p->fLegendNColumns = TRExFitter::OPTION["LegendNColumns"];
     }
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
+    p->fLegendNColumns = fLegendNColumns;
 
     if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
         for(int i_bin=0; i_bin<fNbins; i_bin++) {
@@ -1444,7 +1462,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !TRExFitter::SHOWSTACKSIG) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
         if(j==0) fTot_postFit = (TH1*)hSmpNew[i]->Clone("h_tot_postFit");
         else fTot_postFit->Add(hSmpNew[i]);
         j++;
@@ -1486,6 +1504,16 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     //
     p->SetTotBkgAsym(fErr_postFit);
     p->fATLASlabel = fATLASlabel;
+    p->fRatioYtitle = fRatioYtitle;
+    p->fRatioType = fRatioType;
+    if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
+        p->fRatioType = "DATA/BKG";
+    }
+    p->fLabelX = fLabelX;
+    p->fLabelY = fLabelY;
+    p->fLegendX1 = fLegendX1;
+    p->fLegendX2 = fLegendX2;
+    p->fLegendY = fLegendY;
     if(fLogScale) opt += " log";
 
     p->Draw(opt);
@@ -2034,8 +2062,7 @@ std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_e
 }
 
 
-//--------------- ~ ---------------
-
+//___________________________________________________________
 // function to get pre/post-fit agreement
 std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
     unsigned int nbins = h_nominal->GetNbinsX();
@@ -2107,9 +2134,8 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
     return std::make_pair(chi2,ndf);
 }
 
-//--------------- ~ ---------------
-
-// function to bouild total error band from:
+//___________________________________________________________
+// function to build total error band from:
 // - a nominal histo (tot exepcted)
 // - syst variation histos (eventually already scaled by post-fit pulls)
 // - correlation matrix
@@ -2179,7 +2205,8 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
     return g_totErr;
 }
 
-//--------------- ~ ---------------
+//___________________________________________________________
+//
 void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal) const{
     for(int i=0;i<fNSamples;i++){
         // skip data
@@ -2214,26 +2241,6 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                 morph_scale_nominal->emplace_back(f_morph->Eval(nf->fNominal));
                 delete f_morph;
             }
-        }
-    }
-}
-
-void Region::ScaleNominal(const SampleHist* const sig, TH1* hist){
-    for(size_t i_nf=0; i_nf<sig->fSample->fNormFactors.size(); ++i_nf){
-        NormFactor *nf = sig->fSample->fNormFactors[i_nf];
-        // if this norm factor is a morphing one
-        if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-            std::string formula = TRExFitter::SYSTMAP[nf->fName];
-            std::string name = TRExFitter::NPMAP[nf->fName];
-            formula = ReplaceString(formula,name,"x");
-            auto f_morph = std::unique_ptr<TF1>(new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax));
-            const float& scale = f_morph->Eval(nf->fNominal);
-            hist->Scale(scale);
-            WriteDebugStatus("Region::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(scale));
-        }
-        else{
-            hist->Scale(nf->fNominal);
-            WriteDebugStatus("Region::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(sig->fSample->fNormFactors[i_nf]->fNominal));
         }
     }
 }

@@ -7,6 +7,14 @@
 #include <map>
 #include <set>
 
+/// TRExFitter stuff
+#include "TRExFitter/Sample.h"
+#include "TRExFitter/SampleHist.h"
+#include "TRExFitter/NormFactor.h"
+
+// ROOT stuff
+#include "TF1.h"
+
 /// Forward class declaration
 class TFile;
 class TH1;
@@ -17,6 +25,7 @@ namespace TRExFitter{
     void SetDebugLevel(int level=0);
     extern bool SHOWYIELDS; // flag to show or not yields in plots
     extern bool SHOWSTACKSIG;  // flag to show signal or not
+    extern bool ADDSTACKSIG;  // flag to add signal to total or not
     extern bool SHOWNORMSIG;  // flag to show normalized signal or not
     extern bool SHOWOVERLAYSIG;  // flag to show overlayed signal or not
     extern bool SHOWCHI2;
@@ -24,6 +33,7 @@ namespace TRExFitter{
     extern bool SHOWNORMSIG_SUMMARY;  // flag to show normalized signal or not in Summary Plot
     extern bool SHOWOVERLAYSIG_SUMMARY;  // flag to show overlayed signal or not in Summary Plot
     extern bool LEGENDLEFT;  // flag to show sample names on left aligned in the legend
+    extern bool LEGENDRIGHT;  // flag to show sample names on right aligned in the legend
     extern bool PREFITONPOSTFIT;  // flag to show prefit background as dashed line on postfit plots
     extern bool POISSONIZE;
     extern bool SYSTCONTROLPLOTS;
@@ -33,6 +43,7 @@ namespace TRExFitter{
     extern bool HISTOCHECKCRASH;
     extern bool REMOVEXERRORS;
     extern bool OPRATIO;
+    extern bool NORATIO; // flag to hide ratio pad
     extern float CORRELATIONTHRESHOLD;
     extern bool MERGEUNDEROVERFLOW;
     extern std::map< std::string,std::string > SYSTMAP;
@@ -114,6 +125,13 @@ void RoundToSig(double& value, const int& n);
 std::string FloatToPseudoHex(const float value);
 
 float HexToFloat(const std::string& s);
+
+/**
+    * A helper function to scale samples (signal) to nominakl SFs
+    * @param SampleHist
+    * @param Histogram that will be scaled
+    */ 
+void ScaleNominal(const SampleHist* const sig, TH1* hist);
 
 TH1* CloneNoError(TH1* h,const char* name="");
 

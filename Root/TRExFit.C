@@ -240,6 +240,8 @@ TRExFit::TRExFit(std::string name){
     fRatioYmin = 0.5;
     fRatioYmaxPostFit = 1.5;
     fRatioYminPostFit = 0.5;
+    fRatioYtitle = "";
+    fRatioType = "DATA/MC";
 
     fCustomAsimov = "";
     fTableOptions = "STANDALONE";
@@ -276,7 +278,30 @@ TRExFit::TRExFit(std::string name){
     fuseGammasForCorr = false;
     fPropagateSystsForMorphing = false;
     fPrunningType = SEPARATESAMPLE;
-
+    
+    fLabelX = -1;
+    fLabelY = -1;
+    fLegendX1 = -1;
+    fLegendX2 = -1;
+    fLegendY = -1;
+    
+    fLabelXSummary = -1;
+    fLabelYSummary = -1;
+    fLegendX1Summary = -1;
+    fLegendX2Summary = -1;
+    fLegendYSummary = -1;
+    
+    fLabelXMerge = -1;
+    fLabelYMerge = -1;
+    fLegendX1Merge = -1;
+    fLegendX2Merge = -1;
+    fLegendYMerge = -1;
+    
+    fLegendNColumns = 2;
+    fLegendNColumnsSummary = 3;
+    fLegendNColumnsMerge = 3;
+    
+    fShowRatioPad = true;
 }
 
 //__________________________________________________________________________________
@@ -380,6 +405,14 @@ Region* TRExFit::NewRegion(const std::string& name){
     fRegions[fNRegions]->fRatioYmin = fRatioYmin;
     fRegions[fNRegions]->fRatioYmaxPostFit = fRatioYmaxPostFit;
     fRegions[fNRegions]->fRatioYminPostFit = fRatioYminPostFit;
+    fRegions[fNRegions]->fRatioYtitle = fRatioYtitle;
+    fRegions[fNRegions]->fRatioType = fRatioType;
+    fRegions[fNRegions]->fLabelX = fLabelX;
+    fRegions[fNRegions]->fLabelY = fLabelY;
+    fRegions[fNRegions]->fLegendX1 = fLegendX1;
+    fRegions[fNRegions]->fLegendX2 = fLegendX2;
+    fRegions[fNRegions]->fLegendY = fLegendY;
+    fRegions[fNRegions]->fLegendNColumns = fLegendNColumns;
     //
     fNRegions ++;
     return fRegions[fNRegions-1];
@@ -2288,61 +2321,20 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     TRExPlot *p;
     //
-    // For 4-top-style plots
-    if(TRExFitter::OPTION["FourTopStyle"]>0){
-        p = new TRExPlot(fInputName+"_summary",TRExFitter::OPTION["CanvasWidthSummary"],TRExFitter::OPTION["CanvasHeight"]);
-        if(fYmin!=0) p->fYmin = fYmin;
-        else         p->fYmin = 1;
-        if(fYmax!=0) p->fYmax = fYmax;
-        else         p->SetYmaxScale(3);
-        p->SetXaxis("",false);
-        p->fLegendNColumns = TRExFitter::OPTION["LegendNColumnsSummary"];
-        if(!checkVR && fSummaryPlotLabels.size()>0){
-            if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
-            else          p->AddLabel("#font[52]{Pre-fit}");
-        }
-        else if(checkVR && fSummaryPlotValidationLabels.size()>0){
-                if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
-                else          p->AddLabel("#font[52]{Pre-fit}");
-        }
-        else{
-            p->AddLabel(fLabel);
-            if(isPostFit) p->AddLabel("#font[52]{Post-fit}");
-            else          p->AddLabel("#font[52]{Pre-fit}");
-        }
+    if (fSummaryCanvasSize.size() == 0){
+        p = new TRExPlot(fInputName+"_summary",900,700,TRExFitter::NORATIO);
+    } else {
+        p = new TRExPlot(fInputName+"_summary",fSummaryCanvasSize.at(0),fSummaryCanvasSize.at(1),TRExFitter::NORATIO);
     }
-    // TThbb style
-    else if(TRExFitter::OPTION["TRExbbStyle"]>0){
-        p = new TRExPlot(fInputName+"_summary",TRExFitter::OPTION["CanvasWidthSummary"],TRExFitter::OPTION["CanvasHeight"]);
-        if(fYmin!=0) p->fYmin = fYmin;
-        else         p->fYmin = 1;
-        if(fYmax!=0) p->fYmax = fYmax;
-        else         p->SetYmaxScale(3);
-        p->SetXaxis("",false);
-        p->SetYaxis("Events / bin");
-        p->fLegendNColumns = TRExFitter::OPTION["LegendNColumnsSummary"];
-        p->AddLabel(fLabel);
+    if(fYmin!=0) p->fYmin = fYmin;
+    else         p->fYmin = 1;
+    if(fYmax!=0) p->fYmax = fYmax;
+    else         p->SetYmaxScale(2);
+    p->SetXaxis("",false);
+    p->AddLabel(fLabel);
+    if(TRExFitter::OPTION["NoPrePostFit"]==0){
         if(isPostFit) p->AddLabel("Post-Fit");
         else          p->AddLabel("Pre-Fit");
-    }
-    //
-    // normal-/old-style plots
-    else{
-        if (fSummaryCanvasSize.size() == 0){
-            p = new TRExPlot(fInputName+"_summary",900,700);
-        } else {
-            p = new TRExPlot(fInputName+"_summary",fSummaryCanvasSize.at(0),fSummaryCanvasSize.at(1));
-        }
-        if(fYmin!=0) p->fYmin = fYmin;
-        else         p->fYmin = 1;
-        if(fYmax!=0) p->fYmax = fYmax;
-        else         p->SetYmaxScale(2);
-        p->SetXaxis("",false);
-        p->AddLabel(fLabel);
-        if(TRExFitter::OPTION["NoPrePostFit"]==0){
-            if(isPostFit) p->AddLabel("Post-Fit");
-            else          p->AddLabel("Pre-Fit");
-        }
     }
     //
     if(isPostFit) p->fRatioYmax = fRatioYmaxPostFit;
@@ -2350,10 +2342,22 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     if(isPostFit) p->fRatioYmin = fRatioYminPostFit;
     else          p->fRatioYmin = fRatioYmin;
     //
+    // propagate settings from Job to plot
+    p->fRatioYtitle = fRatioYtitle;
+    p->fRatioType = fRatioType;
+    if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
+        p->fRatioType = "DATA/BKG";
+    }
     p->fATLASlabel = fAtlasLabel;
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
+    p->fLabelX = fLabelXSummary;
+    p->fLabelY = fLabelYSummary;
+    p->fLegendX1 = fLegendX1Summary;
+    p->fLegendX2 = fLegendX2Summary;
+    p->fLegendY = fLegendYSummary;
+    p->fLegendNColumns = fLegendNColumnsSummary;
     if(fBlindingThreshold>=0){
         p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
         if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
@@ -2362,13 +2366,12 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     if(h_data) p->SetData(h_data, h_data->GetTitle());
     for(int i=0;i<Nsig;i++){
         if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig[i],h_sig[i]->GetTitle());
-        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i],((std::string)h_sig[i]->GetTitle()));
-        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i],(h_sig[i]->GetTitle()));
+        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i],h_sig[i]->GetTitle());
+        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i],h_sig[i]->GetTitle());
     }
     for(int i=0;i<Nbkg;i++){
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
     }
-
 
     if( TRExFitter::PREFITONPOSTFIT and isPostFit) {
       p->h_tot_bkg_prefit = (TH1*)prefit_plot->GetTotBkg()->Clone("h_tot_bkg_prefit");
@@ -2758,10 +2761,19 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
             for(auto sampleHist : region->fSampleHists){
                 if(sampleHist->fSample->fName == sample->fName){
                     if(isPostFit && sample->fType!=Sample::DATA){
-                        if(sampleHist->fHist_postFit!=nullptr) h_tmp = (TH1*)sampleHist->fHist_postFit->Clone();
+                        if(sampleHist->fHist_postFit!=nullptr){
+                            h_tmp = (TH1*)sampleHist->fHist_postFit->Clone();
+                        }
                     }
                     else{
-                        if(sampleHist->fHist!=nullptr)         h_tmp = (TH1*)sampleHist->fHist->Clone();
+                        if(sampleHist->fHist!=nullptr){
+                            h_tmp = (TH1*)sampleHist->fHist->Clone();
+                            if(!sampleHist->fSample->fUseMCStat && !sampleHist->fSample->fSeparateGammas){
+                                for(int i_bin=0;i_bin<h_tmp->GetNbinsX()+2;i_bin++) h_tmp->SetBinError(i_bin,0.);
+                            }
+                            // scale it according to NormFactors
+                            ScaleNominal(sampleHist, h_tmp);
+                        }
                     }
                     break;
                 }
@@ -2782,7 +2794,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         else if(sample->fType==Sample::BACKGROUND) hBackgroundVec.push_back(tmpVec);
     }
     //
-    // scale them (but the first region
+    // scale them (but the first region)
     for(unsigned int i_channel=1;i_channel<regions.size();i_channel++){
         float scale = ymax/hTotVec[i_channel]->GetMaximum();
         hTotVec[i_channel]->Scale( scale );
@@ -2794,26 +2806,45 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         for(auto hVec : hBackgroundVec) hVec[i_channel]->Scale( scale );
     }
     //
-    // merge andplot them
+    // merge and plot them
     TRExPlot *p;
-    int cWeidthMerge = 1200;
+    int cWidthMerge = 1200;
     int cHeightMerge = 600;
-    int lNcolumnsMerge = 3;
-    if(TRExFitter::OPTION["CanvasWidthMerge"]!=0)    cWeidthMerge   = TRExFitter::OPTION["CanvasWidthMerge"];
-    if(TRExFitter::OPTION["CanvasHeight"]!=0)        cHeightMerge   = TRExFitter::OPTION["CanvasHeight"];
-    if(TRExFitter::OPTION["LegendNColumnsMerge"]!=0) lNcolumnsMerge = TRExFitter::OPTION["LegendNColumnsMerge"];
-    p = new TRExPlot(fInputName+"_merge",cWeidthMerge,cHeightMerge);
-    p->fLegendNColumns = lNcolumnsMerge;
+    if(fMergeCanvasSize.size()>1){
+        cWidthMerge = fMergeCanvasSize.at(0);
+        cHeightMerge = fMergeCanvasSize.at(1);
+    }
+    p = new TRExPlot(fInputName+"_merge",cWidthMerge,cHeightMerge,TRExFitter::NORATIO);
     //
     p->SetData(MergeHistograms(hDataVec),"");
-    for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++)     p->AddSignal(    MergeHistograms(hSignalVec[i_sig])    ,"");
+    for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++){
+        if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    MergeHistograms(hSignalVec[i_sig]),"");
+        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(MergeHistograms(hSignalVec[i_sig]),"");
+        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(MergeHistograms(hSignalVec[i_sig]),"");
+
+    }
     for(unsigned int i_bkg=0;i_bkg<hBackgroundVec.size();i_bkg++) p->AddBackground(MergeHistograms(hBackgroundVec[i_bkg]),"");
     p->SetTotBkg(MergeHistograms(hTotVec));
     //
     p->SetCME(fCmeLabel);
     p->SetLumi(fLumiLabel);
     p->fATLASlabel = fAtlasLabel;
-
+    p->fLabelX = fLabelXMerge;
+    p->fLabelY = fLabelYMerge;
+    p->fLegendX1 = fLegendX1Merge;
+    p->fLegendX2 = fLegendX2Merge;
+    p->fLegendY = fLegendYMerge;
+    p->fLegendNColumns = fLegendNColumnsMerge;
+    p->SetXaxis(regions[0]->fVariableTitle);
+    p->fRatioType = fRatioType;
+    if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
+        p->fRatioType = "DATA/BKG";
+    }
+    if(fBlindingThreshold>=0){
+        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
+//         if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType); // FIXME
+    }
+    
     if(TRExFitter::OPTION["MergeYmaxScale"]==0) TRExFitter::OPTION["MergeYmaxScale"] = 1.25;
     p->fYmax = TRExFitter::OPTION["MergeYmaxScale"]*ymax0;
     if(fRatioYmax>0) p->fRatioYmax = fRatioYmax;
@@ -2909,10 +2940,13 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     }
     //
     tex->SetNDC(1);
-    tex->DrawLatex(0.33,0.88,fLabel.c_str());
     float textHeight = 0.05*(672./p->pad0->GetWh());
-    if(isPostFit) tex->DrawLatex(0.33,0.88-textHeight,"Post-fit");
-    else          tex->DrawLatex(0.33,0.88-textHeight,"Pre-fit");
+    float labelY = 1-0.08*(700./p->c->GetWh());
+    if(p->fLabelY>=0) labelY = p->fLabelY;
+    labelY -= textHeight - 0.015;
+    tex->DrawLatex(0.33,labelY,fLabel.c_str());
+    if(isPostFit) tex->DrawLatex(0.33,labelY-textHeight,"Post-fit");
+    else          tex->DrawLatex(0.33,labelY-textHeight,"Pre-fit");
     //
     // save image
     std::string saveName = fName+"/Plots/";
@@ -2931,7 +2965,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
 void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     WriteInfoStatus("TRExFit::BuildYieldTable", "-------------------------------------------");
     WriteInfoStatus("TRExFit::BuildYieldTable", "Building Yields Table...");
-    if(!TRExFitter::SHOWSTACKSIG) WriteWarningStatus("TRExFit::BuildYieldTable", "Signal samples not added to \"Tot\" because of \"PlotOptions\" in config file.");
+    if(!TRExFitter::SHOWSTACKSIG || !TRExFitter::ADDSTACKSIG) WriteWarningStatus("TRExFit::BuildYieldTable", "Signal samples not added to \"Tot\" because of \"PlotOptions\" in config file.");
     bool isPostFit = opt.find("post")!=std::string::npos;
     std::ofstream out;
     std::ofstream texout;
@@ -3316,11 +3350,11 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix );
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames );
     //
-    if(TRExFitter::SHOWSTACKSIG) out << " | Total | ";
-    else                         out << " | Tot.Bkg. | ";
+    if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) out << " | Total | ";
+    else                                                    out << " | Tot.Bkg. | ";
     texout << "\\hline " << std::endl;
-    if(TRExFitter::SHOWSTACKSIG) texout << "  Total ";
-    else                         texout << "  Total background ";
+    if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) texout << "  Total ";
+    else                                                    texout << "  Total background ";
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         double mean = h_tot->GetBinContent(i_bin);
         double uncertainty = ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
@@ -3571,7 +3605,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         gPad->SetTicky(0);
         gPad->RedrawAxis();
         if(TRExFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.85,label.c_str());
-        else                                     tex->DrawLatex(0.27,0.85,label.c_str());
+        else                                      tex->DrawLatex(0.27,0.85,label.c_str());
         float SoB = S[i]/B[i];
         std::string SB = Form("%.1f%%",(100.*SoB));
         if(TRExFitter::OPTION["FourTopStyle"]!=0){
@@ -3584,7 +3618,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         }
         SB = "#scale[0.75]{S/B} = "+SB;
         if(TRExFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.72,SB.c_str());
-        else                                     tex->DrawLatex(0.27,0.72,SB.c_str());
+        else                                      tex->DrawLatex(0.27,0.72,SB.c_str());
     }
     //
     for(unsigned int i=0;i<Nreg;i++){

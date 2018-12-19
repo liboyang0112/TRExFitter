@@ -33,6 +33,7 @@
 int TRExFitter::DEBUGLEVEL = 1;
 bool TRExFitter::SHOWYIELDS = false;
 bool TRExFitter::SHOWSTACKSIG = true;
+bool TRExFitter::ADDSTACKSIG = true;
 bool TRExFitter::SHOWNORMSIG = false;
 bool TRExFitter::SHOWOVERLAYSIG = false;
 bool TRExFitter::SHOWCHI2 = false;
@@ -40,6 +41,7 @@ bool TRExFitter::SHOWSTACKSIG_SUMMARY = true;
 bool TRExFitter::SHOWNORMSIG_SUMMARY = false;
 bool TRExFitter::SHOWOVERLAYSIG_SUMMARY = false;
 bool TRExFitter::LEGENDLEFT = false;
+bool TRExFitter::LEGENDRIGHT = false;
 bool TRExFitter::PREFITONPOSTFIT = false;
 bool TRExFitter::POISSONIZE = false;
 bool TRExFitter::SYSTCONTROLPLOTS = false;
@@ -53,6 +55,7 @@ bool TRExFitter::REMOVEXERRORS = false;
 float TRExFitter::CORRELATIONTHRESHOLD = -1;
 bool TRExFitter::MERGEUNDEROVERFLOW = false;
 bool TRExFitter::OPRATIO = false;
+bool TRExFitter::NORATIO = false;
 std::map <std::string,std::string> TRExFitter::SYSTMAP;
 std::map <std::string,std::string> TRExFitter::SYSTTEX;
 std::map <std::string,std::string> TRExFitter::NPMAP;
@@ -601,6 +604,8 @@ TH1D* MergeHistograms(std::vector<TH1*> hVec){
     return hOut;
 }
 
+//___________________________________________________________
+//
 int ApplyATLASrounding(double &mean, double &error){
     if (error < 0 ){
         WriteWarningStatus("Common::ApplyATLASrounding", "Error value is < 0. Not applying rounding.");
@@ -623,6 +628,7 @@ int ApplyATLASrounding(double &mean, double &error){
     return decPlaces;
 }
 
+//___________________________________________________________
 // FIXME : still to fix the 100
 int ApplyErrorRounding(double& error,int& sig){
     int iterations = 0;
@@ -680,6 +686,8 @@ int ApplyErrorRounding(double& error,int& sig){
     return (iterations - 3 + sig);
 }
 
+//___________________________________________________________
+//
 void RoundToSig(double& value, const int& n){
     if (n == 0) {
         value = std::round(value);
@@ -697,6 +705,8 @@ void RoundToSig(double& value, const int& n){
     }
 }
 
+//___________________________________________________________
+//
 unsigned int NCharactersInString(const std::string& s,const char c){
     unsigned int N = 0;
     for(unsigned int i_c=0;i_c<s.size();i_c++){
@@ -705,6 +715,7 @@ unsigned int NCharactersInString(const std::string& s,const char c){
     return N;
 }
 
+//___________________________________________________________
 // for the moment just checks the number of parenthesis, but can be expanded
 bool CheckExpression(const std::string& s){
     int nParOpen = NCharactersInString(s,'(');
@@ -756,4 +767,26 @@ float HexToFloat(const std::string& s){
     const std::string result = std::to_string(signed1)+"."+std::to_string(i2);
 
     return std::stof(result);
+}
+
+//___________________________________________________________
+//
+void ScaleNominal(const SampleHist* const sig, TH1* hist){
+    for(size_t i_nf=0; i_nf<sig->fSample->fNormFactors.size(); ++i_nf){
+        NormFactor *nf = sig->fSample->fNormFactors[i_nf];
+        // if this norm factor is a morphing one
+        if(nf->fName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
+            std::string formula = TRExFitter::SYSTMAP[nf->fName];
+            std::string name = TRExFitter::NPMAP[nf->fName];
+            formula = ReplaceString(formula,name,"x");
+            auto f_morph = std::unique_ptr<TF1>(new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax));
+            const float& scale = f_morph->Eval(nf->fNominal);
+            hist->Scale(scale);
+            WriteDebugStatus("Common::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(scale));
+        }
+        else{
+            hist->Scale(nf->fNominal);
+            WriteDebugStatus("Common::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(sig->fSample->fNormFactors[i_nf]->fNominal));
+        }
+    }
 }
