@@ -7,6 +7,14 @@
 #include <map>
 #include <set>
 
+/// TRExFitter stuff
+#include "TRExFitter/Sample.h"
+#include "TRExFitter/SampleHist.h"
+#include "TRExFitter/NormFactor.h"
+
+// ROOT stuff
+#include "TF1.h"
+
 /// Forward class declaration
 class TFile;
 class TH1;
@@ -113,6 +121,13 @@ int ApplyErrorRounding(double& error, int& sig);
   * @param Number of multiplications/divisions by 10 needed to get the value that can be rounded
   */
 void RoundToSig(double& value, const int& n);
+
+/**
+    * A helper function to scale samples (signal) to nominakl SFs
+    * @param SampleHist
+    * @param Histogram that will be scaled
+    */ 
+void ScaleNominal(const SampleHist* const sig, TH1* hist);
 
 TH1* CloneNoError(TH1* h,const char* name="");
 

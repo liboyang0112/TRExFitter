@@ -2062,8 +2062,7 @@ std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_e
 }
 
 
-//--------------- ~ ---------------
-
+//___________________________________________________________
 // function to get pre/post-fit agreement
 std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
     unsigned int nbins = h_nominal->GetNbinsX();
@@ -2135,9 +2134,8 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
     return std::make_pair(chi2,ndf);
 }
 
-//--------------- ~ ---------------
-
-// function to bouild total error band from:
+//___________________________________________________________
+// function to build total error band from:
 // - a nominal histo (tot exepcted)
 // - syst variation histos (eventually already scaled by post-fit pulls)
 // - correlation matrix
@@ -2207,7 +2205,8 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
     return g_totErr;
 }
 
-//--------------- ~ ---------------
+//___________________________________________________________
+//
 void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal) const{
     for(int i=0;i<fNSamples;i++){
         // skip data
@@ -2242,26 +2241,6 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                 morph_scale_nominal->emplace_back(f_morph->Eval(nf->fNominal));
                 delete f_morph;
             }
-        }
-    }
-}
-
-void Region::ScaleNominal(const SampleHist* const sig, TH1* hist){
-    for(size_t i_nf=0; i_nf<sig->fSample->fNormFactors.size(); ++i_nf){
-        NormFactor *nf = sig->fSample->fNormFactors[i_nf];
-        // if this norm factor is a morphing one
-        if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-            std::string formula = TRExFitter::SYSTMAP[nf->fName];
-            std::string name = TRExFitter::NPMAP[nf->fName];
-            formula = ReplaceString(formula,name,"x");
-            auto f_morph = std::unique_ptr<TF1>(new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax));
-            const float& scale = f_morph->Eval(nf->fNominal);
-            hist->Scale(scale);
-            WriteDebugStatus("Region::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(scale));
-        }
-        else{
-            hist->Scale(nf->fNominal);
-            WriteDebugStatus("Region::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(sig->fSample->fNormFactors[i_nf]->fNominal));
         }
     }
 }

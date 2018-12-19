@@ -2774,10 +2774,19 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
             for(auto sampleHist : region->fSampleHists){
                 if(sampleHist->fSample->fName == sample->fName){
                     if(isPostFit && sample->fType!=Sample::DATA){
-                        if(sampleHist->fHist_postFit!=nullptr) h_tmp = (TH1*)sampleHist->fHist_postFit->Clone();
+                        if(sampleHist->fHist_postFit!=nullptr){
+                            h_tmp = (TH1*)sampleHist->fHist_postFit->Clone();
+                        }
                     }
                     else{
-                        if(sampleHist->fHist!=nullptr)         h_tmp = (TH1*)sampleHist->fHist->Clone();
+                        if(sampleHist->fHist!=nullptr){
+                            h_tmp = (TH1*)sampleHist->fHist->Clone();
+                            if(!sampleHist->fSample->fUseMCStat && !sampleHist->fSample->fSeparateGammas){
+                                for(int i_bin=0;i_bin<h_tmp->GetNbinsX()+2;i_bin++) h_tmp->SetBinError(i_bin,0.);
+                            }
+                            // scale it according to NormFactors
+                            ScaleNominal(sampleHist, h_tmp);
+                        }
                     }
                     break;
                 }
@@ -2798,7 +2807,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         else if(sample->fType==Sample::BACKGROUND) hBackgroundVec.push_back(tmpVec);
     }
     //
-    // scale them (but the first region
+    // scale them (but the first region)
     for(unsigned int i_channel=1;i_channel<regions.size();i_channel++){
         float scale = ymax/hTotVec[i_channel]->GetMaximum();
         hTotVec[i_channel]->Scale( scale );
@@ -2819,10 +2828,14 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         cHeightMerge = fMergeCanvasSize.at(1);
     }
     p = new TRExPlot(fInputName+"_merge",cWidthMerge,cHeightMerge,TRExFitter::NORATIO);
-    p->fLegendNColumns = fLegendNColumnsMerge;
     //
     p->SetData(MergeHistograms(hDataVec),"");
-    for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++)     p->AddSignal(    MergeHistograms(hSignalVec[i_sig])    ,"");
+    for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++){
+        if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    MergeHistograms(hSignalVec[i_sig]),"");
+        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(MergeHistograms(hSignalVec[i_sig]),"");
+        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(MergeHistograms(hSignalVec[i_sig]),"");
+
+    }
     for(unsigned int i_bkg=0;i_bkg<hBackgroundVec.size();i_bkg++) p->AddBackground(MergeHistograms(hBackgroundVec[i_bkg]),"");
     p->SetTotBkg(MergeHistograms(hTotVec));
     //
@@ -2834,7 +2847,17 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     p->fLegendX1 = fLegendX1Merge;
     p->fLegendX2 = fLegendX2Merge;
     p->fLegendY = fLegendYMerge;
-
+    p->fLegendNColumns = fLegendNColumnsMerge;
+    p->SetXaxis(regions[0]->fVariableTitle);
+    p->fRatioType = fRatioType;
+    if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
+        p->fRatioType = "DATA/BKG";
+    }
+    if(fBlindingThreshold>=0){
+        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
+//         if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType); // FIXME
+    }
+    
     if(TRExFitter::OPTION["MergeYmaxScale"]==0) TRExFitter::OPTION["MergeYmaxScale"] = 1.25;
     p->fYmax = TRExFitter::OPTION["MergeYmaxScale"]*ymax0;
     if(fRatioYmax>0) p->fRatioYmax = fRatioYmax;
@@ -2930,10 +2953,13 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     }
     //
     tex->SetNDC(1);
-    tex->DrawLatex(0.33,0.88,fLabel.c_str());
     float textHeight = 0.05*(672./p->pad0->GetWh());
-    if(isPostFit) tex->DrawLatex(0.33,0.88-textHeight,"Post-fit");
-    else          tex->DrawLatex(0.33,0.88-textHeight,"Pre-fit");
+    float labelY = 1-0.08*(700./p->c->GetWh());
+    if(p->fLabelY>=0) labelY = p->fLabelY;
+    labelY -= textHeight - 0.015;
+    tex->DrawLatex(0.33,labelY,fLabel.c_str());
+    if(isPostFit) tex->DrawLatex(0.33,labelY-textHeight,"Post-fit");
+    else          tex->DrawLatex(0.33,labelY-textHeight,"Pre-fit");
     //
     // save image
     std::string saveName = fName+"/Plots/";

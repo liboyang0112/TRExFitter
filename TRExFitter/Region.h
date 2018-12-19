@@ -97,12 +97,6 @@ public:
       */
     void PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal) const;
 
-    /**
-     * A helper function to scale samples (signal) to nominakl SFs
-     * @param SampleHist
-     * @param Histogram that will be scaled
-     */ 
-    void ScaleNominal(const SampleHist* const sig, TH1* hist);
     // -------
     // Members
     // -------
