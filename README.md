@@ -515,23 +515,24 @@ Currently the supported options are:
 
 | **Option** | **Effect** |
 | ---------- | ---------- |
-| **Regions**       | to limit the regions to use to the list specified |
-| **Samples**       | to limit the samples to use to the list specified |
-| **Systematics**   | to limit the systematics to use to the list specified |
-| **Signal**        | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance) |
-| **Exclude**       | to exclude certain Regions / Samples / Systematics |
-| **Suffix**        | used for: plots, workspace, fit results, etc |
-| **SaveSuffix**    | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |
-| **Update**        | if TRUE, the output .root file is updated, otherwise is overwrote |
-| **StatOnlyFit**   | if TRUE, the same as Fit->StatOnlyFit |
-| **StatOnly**      | if TRUE, no systematics nor MC stat uncertainties will be considered (equivalent to set StatOnly: TRUE in the Job block of the config), use `Systematics=NONE` instead to keep MC stat uncertainties |
-| **Ranking**       | see [Ranking Plot](#ranking-plot) section |
-| **FitResults**    | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
-| **FitType**       | can be set to SPLUSB or BONLY to replace the option in the config file |
-| **LumiScale**     | as the options in config file |
-| **BootstrapIdx**  | see description of Bootstrap option in config (under Job) |
-| **GroupedImpact** | see [Grouped Impact](#grouped-impact) section |
-| **OutputDir**     | see [Job options](#job-block-options) section |
+| **Regions**         | to limit the regions to use to the list specified |
+| **Samples**         | to limit the samples to use to the list specified |
+| **Systematics**     | to limit the systematics to use to the list specified |
+| **Signal**          | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance) |
+| **Exclude**         | to exclude certain Regions / Samples / Systematics |
+| **Suffix**          | used for: plots, workspace, fit results, etc |
+| **SaveSuffix**      | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |
+| **Update**          | if TRUE, the output .root file is updated, otherwise is overwrote |
+| **StatOnlyFit**     | if TRUE, the same as Fit->StatOnlyFit |
+| **StatOnly**        | if TRUE, no systematics nor MC stat uncertainties will be considered (equivalent to set StatOnly: TRUE in the Job block of the config), use `Systematics=NONE` instead to keep MC stat uncertainties |
+| **Ranking**         | see [Ranking Plot](#ranking-plot) section |
+| **FitResults**      | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
+| **FitType**         | can be set to SPLUSB or BONLY to replace the option in the config file |
+| **LumiScale**       | as the options in config file |
+| **BootstrapIdx**    | see description of Bootstrap option in config (under Job) |
+| **GroupedImpact**   | see [Grouped Impact](#grouped-impact) section |
+| **OutputDir**       | see [Job options](#job-block-options) section |
+| **LimitParamValue** | see [Limit options](#limit-block-options) section (ParamValue) |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
