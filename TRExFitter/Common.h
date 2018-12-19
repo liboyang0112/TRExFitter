@@ -17,6 +17,7 @@ namespace TRExFitter{
     void SetDebugLevel(int level=0);
     extern bool SHOWYIELDS; // flag to show or not yields in plots
     extern bool SHOWSTACKSIG;  // flag to show signal or not
+    extern bool ADDSTACKSIG;  // flag to add signal to total or not
     extern bool SHOWNORMSIG;  // flag to show normalized signal or not
     extern bool SHOWOVERLAYSIG;  // flag to show overlayed signal or not
     extern bool SHOWCHI2;
@@ -33,6 +34,7 @@ namespace TRExFitter{
     extern bool HISTOCHECKCRASH;
     extern bool REMOVEXERRORS;
     extern bool OPRATIO;
+    extern bool NORATIO; // flag to hide ratio pad
     extern float CORRELATIONTHRESHOLD;
     extern bool MERGEUNDEROVERFLOW;
     extern std::map< std::string,std::string > SYSTMAP;

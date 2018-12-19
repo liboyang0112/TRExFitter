@@ -21,7 +21,7 @@ const int MAXbins = 1000;
 
 class TRExPlot {
   public:
-    TRExPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700);
+    TRExPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700,bool hideRatioPad=false);
     ~TRExPlot();
 
     void SetChannel(const std::string& name);
@@ -108,10 +108,19 @@ class TRExPlot {
     TRExFit::BlindingType fBlindingType;
     int fLegendNColumns;
     std::vector<float> fXaxisRange;
+    std::string fRatioYtitle;
+    
+    std::string fRatioType;
+    
+    float fLabelX;
+    float fLabelY;
+    float fLegendX1;
+    float fLegendX2;
+    float fLegendY;
 
 public:
-  const TH1* GetTotal() const { return h_tot; };
-  TH1* GetTotBkg() const;
+    const TH1* GetTotal() const { return h_tot; };
+    TH1* GetTotBkg() const;
 
 };
 

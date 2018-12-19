@@ -133,6 +133,8 @@ public:
     float fRatioYmax;
     float fRatioYminPostFit;
     float fRatioYmaxPostFit;
+    std::string fRatioYtitle;
+    std::string fRatioType;
 
     // to draw
     THStack *fStack;
@@ -244,6 +246,12 @@ public:
     bool fUseGammaPulls;
 
     std::vector<float> fXaxisRange;
+    
+    float fLabelX;
+    float fLabelY;
+    float fLegendX1;
+    float fLegendX2;
+    float fLegendY;
 };
 
 

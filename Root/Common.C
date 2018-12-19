@@ -31,6 +31,7 @@
 int TRExFitter::DEBUGLEVEL = 1;
 bool TRExFitter::SHOWYIELDS = false;
 bool TRExFitter::SHOWSTACKSIG = true;
+bool TRExFitter::ADDSTACKSIG = true;
 bool TRExFitter::SHOWNORMSIG = false;
 bool TRExFitter::SHOWOVERLAYSIG = false;
 bool TRExFitter::SHOWCHI2 = false;
@@ -51,6 +52,7 @@ bool TRExFitter::REMOVEXERRORS = false;
 float TRExFitter::CORRELATIONTHRESHOLD = -1;
 bool TRExFitter::MERGEUNDEROVERFLOW = false;
 bool TRExFitter::OPRATIO = false;
+bool TRExFitter::NORATIO = false;
 std::map <std::string,std::string> TRExFitter::SYSTMAP;
 std::map <std::string,std::string> TRExFitter::SYSTTEX;
 std::map <std::string,std::string> TRExFitter::NPMAP;

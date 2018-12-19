@@ -416,6 +416,8 @@ public:
     float fRatioYmax;
     float fRatioYminPostFit;
     float fRatioYmaxPostFit;
+    std::string fRatioYtitle;
+    std::string fRatioType;
 
     std::string fLumiLabel;
     std::string fCmeLabel;
@@ -547,6 +549,14 @@ public:
     std::vector<int> fSummaryCanvasSize;
     std::vector<int> fPieChartCanvasSize;
     std::vector<int> fNPRankingCanvasSize;
+    
+    float fLabelX;
+    float fLabelY;
+    float fLegendX1;
+    float fLegendX2;
+    float fLegendY;
+    
+    bool fShowRatioPad;
 };
 
 #endif

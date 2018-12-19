@@ -34,34 +34,49 @@ using namespace std;
 
 //_____________________________________________________________________________
 //
-TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight){
+TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRatioPad){
     fName = name;
     c = new TCanvas(fName.c_str(),fName.c_str(),canvasWidth,canvasHeight);
     //
-    pad0 = new TPad("pad0","pad0",0,0.20,1,1,0,0,0);
+    if(hideRatioPad){
+        pad0 = new TPad("pad0","pad0",0,0,1,1,0,0,0);
+    }
+    else{
+        pad0 = new TPad("pad0","pad0",0,0.20,1,1,0,0,0);
+    }
     pad0->SetTicks(1,1);
-    pad0->SetTopMargin(0.05);
-    pad0->SetBottomMargin(0.1);
-    pad0->SetLeftMargin(0.14);
-    pad0->SetRightMargin(0.05);
+    pad0->SetTopMargin(0.05*(700./canvasHeight));
+    if(hideRatioPad){
+        pad0->SetBottomMargin(0.14*(600./canvasHeight));
+    }
+    else{
+        pad0->SetBottomMargin(0.1);
+    }
+    pad0->SetLeftMargin(0.14*(600./canvasWidth));
+    pad0->SetRightMargin(0.05*(600./canvasWidth));
     pad0->SetFrameBorderMode(0);
     pad0->SetFillStyle(0);
     //
-    pad1 = new TPad("pad1","pad1",0,0,1,0.28,0,0,0);
-    pad1->SetTicks(1,1);
-    pad1->SetTopMargin(0.0);
-    pad1->SetBottomMargin(0.37);
-    pad1->SetLeftMargin(0.14);
-    pad1->SetRightMargin(0.05);
-    pad1->SetFrameBorderMode(0);
-    pad1->SetFillStyle(0);
-    //
-    if(canvasWidth>canvasHeight){ // FIXME
-        pad0->SetLeftMargin(0.10);
-        pad1->SetLeftMargin(0.10);
+    if(hideRatioPad){
+        pad1 = nullptr;
+    }
+    else{
+        pad1 = new TPad("pad1","pad1",0,0,1,0.28,0,0,0);
+        pad1->SetTicks(1,1);
+        pad1->SetTopMargin(0.0);
+        pad1->SetBottomMargin(0.37*(700./canvasHeight));
+        pad1->SetLeftMargin(0.14*(600./canvasWidth));
+        pad1->SetRightMargin(0.05*(600./canvasWidth));
+        pad1->SetFrameBorderMode(0);
+        pad1->SetFillStyle(0);
     }
     //
-    pad1->Draw();
+//     if(canvasWidth>canvasHeight){ // FIXME
+//         pad0->SetLeftMargin(0.10);
+//         pad1->SetLeftMargin(0.10);
+//     }
+    //
+    if(pad1!=nullptr) pad1->Draw();
     pad0->Draw();
     pad0->cd();
     h_stack = new THStack("h_stack","h_stack");
@@ -117,6 +132,14 @@ TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight){
     
     leg = nullptr;
     leg1 = nullptr;
+    
+    fRatioYtitle = "Data / Pred.";
+    fRatioType = "DATA/MC";
+    fLabelX = -1;
+    fLabelY = -1;
+    fLegendX1 = -1;
+    fLegendX2 = -1;
+    fLegendY = -1;
 }
 
 //_____________________________________________________________________________
@@ -355,7 +378,7 @@ void TRExPlot::BlindData(){
         }
         else{
             WriteWarningStatus("TRExPlot::BlindData", "Either h_data, h_signal, h_tot not defined.");
-            WriteWarningStatus("TRExPlot::BlindData", " Blidning not possible. Skipped.");
+            WriteWarningStatus("TRExPlot::BlindData", "Blinding not possible. Skipped.");
         }
     }
 }
@@ -527,9 +550,14 @@ void TRExPlot::Draw(std::string options){
         }
     }
     if(fBinLabel[1]!="") h_dummy->GetXaxis()->LabelsOption("d");
-    float offset = 2.4*(pad0->GetWh()/672.);
-    if(pad0->GetWw() > pad0->GetWh()) offset *= 0.8*596./pad0->GetWw();
+//     float offset = 2.4*(pad0->GetWh()/672.);
+//     if(pad0->GetWw() > pad0->GetWh()) offset *= 0.8*596./pad0->GetWw();
+    float offset = 3*600./pad0->GetWh();
+    if(pad0->GetWw() > pad0->GetWh()) offset = 2.2*0.8*600./pad0->GetWw();
     h_dummy->GetYaxis()->SetTitleOffset( offset );
+//     offset = 1.9*(pad0->GetWw()/600.);
+//     if(pad0->GetWh() > pad0->GetWw()) offset = 1.9*0.8*600./pad0->GetWh();
+    h_dummy->GetXaxis()->SetTitleOffset( 2 );
 
     //
     // Fix / redraw axis
@@ -537,49 +565,63 @@ void TRExPlot::Draw(std::string options){
     pad0->RedrawAxis();
 
     float textHeight = 0.05*(672./pad0->GetWh());
+    if(pad1==nullptr) textHeight *= 0.8;
 
     //
     // ATLAS labels
     //
-    float labelX = 0.18;
+    float labelX = 0.18*(600./pad0->GetWw());
+    if(fLabelX>=0){
+        labelX = fLabelX;
+    }
+    // was 0.84-textHeight+0.04
+    float labelY = 1-0.08*(700./c->GetWh());
+    if(fLabelY>=0){
+        labelY = fLabelY;
+    }
+    // scale it down to give space to text (in this way one can set the same value for LabelY and LegendY and have them vertically alligned)
+    labelY -= textHeight - 0.015;
 
-    if(pad0->GetWw() > pad0->GetWh()) labelX = 0.12;
+//     if(pad0->GetWw() > pad0->GetWh()) labelX = 0.12;
 
-    if(fATLASlabel!="none") ATLASLabel(labelX,0.84+0.04,(char*)fATLASlabel.c_str());
-    myText(labelX,0.84-textHeight+0.04,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
+    if(fATLASlabel!="none") ATLASLabel(labelX,labelY,(char*)fATLASlabel.c_str());
+    myText(labelX,labelY-textHeight,1,Form("#sqrt{s} = %s, %s",fCME.c_str(),fLumi.c_str()));//,0.045);
     for(unsigned int i_lab=0;i_lab<fLabels.size();i_lab++){
-        myText(labelX,0.84-textHeight+0.04-(i_lab+1)*textHeight,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
+        myText(labelX,labelY-(i_lab+2)*textHeight,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
     }
 
-    float legX1 = 1-0.41*(596./pad0->GetWw())-0.08;
-    if(TRExFitter::OPTION["FourTopStyle"]!=0 || TRExFitter::OPTION["TRExbbStyle"]!=0){
-        legX1 = 1-0.5*(596./pad0->GetWw())-0.08;
+//     float legX1 = 1-0.41*(596./pad0->GetWw())-0.08;
+    float legX1 = 1-(0.5-0.05*(600./pad0->GetWw()))*(600./pad0->GetWw());
+    if(fLegendX1>=0){
+        legX1 = fLegendX1;
     }
-    if(TRExFitter::OPTION["LegendX1"]!=0){
-        legX1 = TRExFitter::OPTION["LegendX1"];
-    }
-    float legX2 = 0.94;
-    if(TRExFitter::OPTION["LegendX2"]!=0){
-        legX2 = TRExFitter::OPTION["LegendX2"];
+    float legX2 = 1-0.1*(600./pad0->GetWw());
+    if(fLegendX2>=0){
+        legX2 = fLegendX2;
     }
     float legXmid = legX1+0.5*(legX2-legX1);
 
+    float legY = 1-0.08*(700./c->GetWh());
+    if(fLegendY>=0){
+        legY = fLegendY;
+    }
+    
     if(fShowYields){
         legXmid = legX1+0.6*(legX2-legX1);
-        leg  = new TLegend(legX1,0.93-(fBkgNames.size()+fSigNames.size()+2)*0.05, legXmid,0.93);
+        leg  = new TLegend(legX1,legY-(fBkgNames.size()+fSigNames.size()+2+(hasData))*textHeight, legXmid,legY);
         leg1 = new TLegend(legXmid,leg->GetY1(), legX2,leg->GetY2());
         //
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
         leg->SetTextAlign(32);
         leg->SetTextFont(gStyle->GetTextFont());
-        leg->SetTextSize(gStyle->GetTextSize()*0.9);
+        leg->SetTextSize(gStyle->GetTextSize());
         leg->SetMargin(0.22);
         leg1->SetFillStyle(0);
         leg1->SetBorderSize(0);
         leg1->SetTextAlign(32);
         leg1->SetTextFont(gStyle->GetTextFont());
-        leg1->SetTextSize(gStyle->GetTextSize()*0.9);
+        leg1->SetTextSize(gStyle->GetTextSize());
         leg1->SetMargin(0.);
 
         if(hasData){//only add data in the legend if real data are here
@@ -615,9 +657,9 @@ void TRExPlot::Draw(std::string options){
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
         if(TRExFitter::OPTION["TRExbbStyle"]>0)
-            leg  = new TLegend(legXmid+0.1*(legX2-legXmid),0.92-Nrows*textHeight*0.8, legX2,0.92);
+            leg  = new TLegend(legXmid+0.1*(legX2-legXmid),legY-Nrows*textHeight*0.8, legX2,legY);
         else
-            leg  = new TLegend(legXmid+0.1*(legX2-legXmid),0.92-Nrows*textHeight, legX2,0.92);
+            leg  = new TLegend(legXmid+0.1*(legX2-legXmid),legY-Nrows*textHeight, legX2,legY);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);        if(TRExFitter::OPTION["TRExbbStyle"]>0)
 
@@ -655,7 +697,7 @@ void TRExPlot::Draw(std::string options){
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
         if(TRExFitter::OPTION["LegendX1"]==0) legX1 = legX2 - 3*(legX2-legXmid+0.1*(legX2-legXmid));
-        leg = new TLegend(legX1,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+        leg = new TLegend(legX1,legY-((Nrows+2)/3)*textHeight, legX2,legY);
         leg->SetNColumns(3);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
@@ -693,9 +735,9 @@ void TRExPlot::Draw(std::string options){
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
         if(TRExFitter::OPTION["TRExbbStyle"]>0)
-            leg  = new TLegend(0.5,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+            leg  = new TLegend(0.5,legY-((Nrows+2)/3)*textHeight, legX2,legY);
         else
-            leg  = new TLegend(0.5,0.92-((Nrows+2)/3)*textHeight, legX2,0.92);
+            leg  = new TLegend(0.5,legY-((Nrows+2)/3)*textHeight, legX2,legY);
         leg->SetNColumns(4);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
@@ -734,15 +776,16 @@ void TRExPlot::Draw(std::string options){
         Nrows ++; // for "Uncertainty"
         if(TRExFitter::OPTION["TRExbbStyle"]>0) legX1 = 0.43; // FIXME
         if(TRExFitter::OPTION["TRExbbStyle"]>0)
-            leg  = new TLegend(legX1,0.8-((Nrows+1)/2)*0.05, legX2,0.8);
+            leg  = new TLegend(legX1,0.8-((Nrows+1)/2)*textHeight, legX2,0.8);
         else
-            leg  = new TLegend(legX1,0.93-((Nrows+1)/2)*0.05, legX2,0.93);
+            leg  = new TLegend(legX1,legY-((Nrows+1)/2)*textHeight, legX2,legY);
         leg->SetNColumns(2);
         leg->SetFillStyle(0);
         leg->SetBorderSize(0);
         leg->SetTextFont(gStyle->GetTextFont());
-        if(c->GetWw() > c->GetWh()) leg->SetTextSize(gStyle->GetTextSize());
-        else                        leg->SetTextSize(gStyle->GetTextSize()*0.9);
+//         if(c->GetWw() > c->GetWh()) leg->SetTextSize(gStyle->GetTextSize());
+//         else                        leg->SetTextSize(gStyle->GetTextSize()*0.9);
+        leg->SetTextSize(gStyle->GetTextSize());
         leg->SetMargin(0.22);
 
         //Draws data in the legend only is real data
@@ -776,190 +819,232 @@ void TRExPlot::Draw(std::string options){
     //
     // Ratio pad: drawing dummy histogram
     //
-    pad1->cd();
-    pad1->GetFrame()->SetY1(2);
-    TH1* h_dummy2 = (TH1*)h_tot->Clone("h_dummy2");
-    h_dummy2->Scale(0);
-    if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetTickLength(0.01);
-    h_dummy2->Draw("HIST");
-    h_dummy2->GetYaxis()->SetTitleOffset(1.*h_dummy->GetYaxis()->GetTitleOffset());
-    if (fXaxisRange.size() > 1){
-        h_dummy2->GetXaxis()->SetRangeUser(fXaxisRange.at(0),fXaxisRange.at(1));
-    }
-
-    //
-    // Initialising the ratios
-    //    h_ratio: is the real Data/MC ratio
-    //    h_ratio2: is a MC/MC ratio to plot the uncertainty band
-    //
-    TH1* h_ratio = nullptr;
-    if(TRExFitter::OPTION["SoverBinRatio"]){
-        if(fSigNames.size()>0) h_ratio = (TH1*)h_signal[0]->Clone("h_ratio");
-        else if(fNormSigNames.size()>0) h_ratio = (TH1*)h_normsig[0]->Clone("h_ratio");
-        else if(fOverSigNames.size()>0) h_ratio = (TH1*)h_oversig[0]->Clone("h_ratio");
-        else                   h_ratio = (TH1*)h_tot      ->Clone("h_ratio");
-    }
-    else                                   h_ratio = (TH1*)h_data->Clone("h_ratio");
-
-    TH1 *h_tot_nosyst = (TH1*)h_tot->Clone("h_tot_nosyst");
-    for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
-        h_tot_nosyst->SetBinError(i_bin,0);
-    }
-    TGraphAsymmErrors *g_ratio2 = (TGraphAsymmErrors*)g_tot->Clone("g_ratio2");
-
-    //
-    // Plots style
-    //
-    h_dummy2->SetTitle("Data/MC");
-    if(TRExFitter::OPTION["SoverBinRatio"]) h_dummy2->GetYaxis()->SetTitle("S / B");
-    else                                   h_dummy2->GetYaxis()->SetTitle("Data / Pred. ");
-    h_dummy2->GetYaxis()->SetLabelSize(0.8*h_ratio->GetYaxis()->GetLabelSize());
-    if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetLabelOffset(0.01);
-    else                              h_dummy2->GetYaxis()->SetLabelOffset(0.02);
-    h_dummy2->GetYaxis()->SetNdivisions(504,false);
-    gStyle->SetEndErrorSize(0);
-
-    //
-    // Compute Data/MC ratio
-    //
-    h_ratio->Divide(h_tot_nosyst);
-    if(TRExFitter::OPRATIO) h_ratio->SetMarkerStyle(24);
-    else                    h_ratio->SetMarkerStyle(h_data->GetMarkerStyle());
-    h_ratio->SetMarkerSize(1.4);
-    h_ratio->SetMarkerColor(kBlack);
-    h_ratio->SetLineWidth(2);
-    TGraphAsymmErrors *g_ratio = histToGraph(h_ratio);
-    for(int i_bin=1;i_bin<=h_ratio->GetNbinsX();i_bin++){
-        //For the ratio plot, the error is just to illustrate the "poisson uncertainty on the data"
-        if(TRExFitter::REMOVEXERRORS){
-            g_ratio->SetPointEXhigh( i_bin-1, 0. );
-            g_ratio->SetPointEXlow(  i_bin-1, 0. );
+    if(pad1!=nullptr){
+        pad1->cd();
+        pad1->GetFrame()->SetY1(2);
+        TH1* h_dummy2 = (TH1*)h_tot->Clone("h_dummy2");
+        h_dummy2->Scale(0);
+        if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetTickLength(0.01);
+        h_dummy2->Draw("HIST");
+        h_dummy2->GetYaxis()->SetTitleOffset(1.*h_dummy->GetYaxis()->GetTitleOffset());
+        if (fXaxisRange.size() > 1){
+            h_dummy2->GetXaxis()->SetRangeUser(fXaxisRange.at(0),fXaxisRange.at(1));
         }
-        g_ratio->SetPointEYhigh( i_bin-1,g_data->GetErrorYhigh(i_bin-1)/h_tot->GetBinContent(i_bin) );
-        g_ratio->SetPointEYlow(  i_bin-1,g_data->GetErrorYlow(i_bin-1) /h_tot->GetBinContent(i_bin) );
-    }
 
-    //
-    // Compute the MC/MC ratio (for uncertainty band in the bottom pad)
-    //
-    for(int i_bin=1;i_bin<h_tot_nosyst->GetNbinsX()+1;i_bin++){
-        g_ratio2->SetPoint(i_bin-1,g_ratio2->GetX()[i_bin-1],g_ratio2->GetY()[i_bin-1]/h_tot_nosyst->GetBinContent(i_bin));
-        g_ratio2->SetPointEXlow(i_bin-1,g_ratio2->GetEXlow()[i_bin-1]);
-        g_ratio2->SetPointEXhigh(i_bin-1,g_ratio2->GetEXhigh()[i_bin-1]);
-        g_ratio2->SetPointEYlow(i_bin-1,g_ratio2->GetEYlow()[i_bin-1]/h_tot_nosyst->GetBinContent(i_bin));
-        g_ratio2->SetPointEYhigh(i_bin-1,g_ratio2->GetEYhigh()[i_bin-1]/h_tot_nosyst->GetBinContent(i_bin));
-    }
-
-    //
-    // Now draws everything
-    //
-    TLine *hline = new TLine(h_dummy2->GetXaxis()->GetXmin(),1,h_dummy2->GetXaxis()->GetXmax(),1);
-    hline->SetLineColor(kBlack);
-    hline->SetLineWidth(2);
-    hline->SetLineStyle(2);
-    if(TRExFitter::OPTION["SoverBinRatio"]){
-        h_ratio->SetFillStyle(0);
-        h_ratio->SetLineColor(h_ratio->GetLineColor());
-        h_ratio->Draw("HIST same");
-    }
-    else if(hasData){
-        g_ratio->Draw("pe0");
-    }
-    hline->Draw();
-    //
-    h_dummy2->SetMinimum(fRatioYmin);
-    h_dummy2->SetMaximum(fRatioYmax);
-    //
-    h_dummy2->GetXaxis()->SetTitle(h_dummy->GetXaxis()->GetTitle());
-    // FIXME
-    h_dummy2->GetXaxis()->SetLabelSize( 0.9*h_dummy2->GetXaxis()->GetLabelSize() );
-    h_dummy2->GetXaxis()->SetTitleOffset(5.05*(pad0->GetWw()/596.));
-    //
-    h_dummy->GetXaxis()->SetTitle("");
-    h_dummy->GetXaxis()->SetLabelSize(0);
-
-    g_ratio2->Draw("sameE2");
-
-    bool customLabels = false;
-    for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
-        if(((std::string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!=""){
-            h_dummy2->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
-            customLabels = true;
+        //
+        // Initialising the ratios
+        //    h_ratio: is the real Data/MC ratio
+        //    h_ratio2: is a MC/MC ratio to plot the uncertainty band
+        //
+        TH1* h_ratio = nullptr;
+    //     if(TRExFitter::OPTION["SoverBinRatio"]){
+        if(fRatioType=="S/B" || fRatioType=="S/SQRT(B)" || fRatioType=="S/SQRT(S+B)"){ // ...
+            if(fSigNames.size()>0)          h_ratio = (TH1*)h_signal[0] ->Clone("h_ratio");
+            else if(fNormSigNames.size()>0) h_ratio = (TH1*)h_normsig[0]->Clone("h_ratio");
+            else if(fOverSigNames.size()>0) h_ratio = (TH1*)h_oversig[0]->Clone("h_ratio");
+            else{
+                h_ratio = (TH1*)h_tot->Clone("h_ratio");
+                h_ratio->Scale(0);
+            }
         }
+        else{
+            h_ratio = (TH1*)h_data->Clone("h_ratio");
+        }
+        
+        // in case of S/B,.. and several signal samples, build other ratios
+        std::vector<TH1*> h_addRatioVec;
+        if(fRatioType=="S/B" || fRatioType=="S/SQRT(B)" || fRatioType=="S/SQRT(S+B)"){ // ...
+            if(fSigNames.size()>1){
+                for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
+                    h_addRatioVec.push_back((TH1*)h_signal[i_sig] ->Clone(Form("h_ratio_%d",i_sig)));
+                }
+            }
+            else if(fNormSigNames.size()>1){
+                for(unsigned int i_sig=1;i_sig<fNormSigNames.size();i_sig++){
+                    h_addRatioVec.push_back((TH1*)h_normsig[i_sig]->Clone(Form("h_ratio_%d",i_sig)));
+                }
+            }
+            else if(fOverSigNames.size()>1){
+                for(unsigned int i_sig=1;i_sig<fOverSigNames.size();i_sig++){
+                    h_addRatioVec.push_back((TH1*)h_oversig[i_sig]->Clone(Form("h_ratio_%d",i_sig)));
+                }
+            }
+        }
+
+        TH1 *h_tot_nosyst = (TH1*)h_tot->Clone("h_tot_nosyst");
+        for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
+            h_tot_nosyst->SetBinError(i_bin,0);
+        }
+        TGraphAsymmErrors *g_ratio2 = (TGraphAsymmErrors*)g_tot->Clone("g_ratio2");
+
+        //
+        // Plots style
+        //
+        h_dummy2->SetTitle("Data/MC");
+    //     if(TRExFitter::OPTION["SoverBinRatio"]) h_dummy2->GetYaxis()->SetTitle("S / B");
+    //     else                                    h_dummy2->GetYaxis()->SetTitle("Data / Pred. ");
+        h_dummy2->GetYaxis()->SetTitle(fRatioYtitle.c_str());
+    //     h_dummy2->GetYaxis()->SetLabelSize(0.8*h_ratio->GetYaxis()->GetLabelSize());
+    //     if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetLabelOffset(0.01);
+    //     else                              h_dummy2->GetYaxis()->SetLabelOffset(0.02);
+        h_dummy2->GetYaxis()->SetNdivisions(504,false);
+        gStyle->SetEndErrorSize(0);
+        
+        //
+        // Compute Data/MC ratio
+        //
+        h_ratio->Divide(h_tot_nosyst);
+        for(auto h_tmp : h_addRatioVec) h_tmp->Divide(h_tot_nosyst);
+        if(TRExFitter::OPRATIO) h_ratio->SetMarkerStyle(24);
+        else                    h_ratio->SetMarkerStyle(h_data->GetMarkerStyle());
+        h_ratio->SetMarkerSize(1.4);
+        h_ratio->SetMarkerColor(kBlack);
+        h_ratio->SetLineWidth(2);
+        TGraphAsymmErrors *g_ratio = histToGraph(h_ratio);
+        for(int i_bin=1;i_bin<=h_ratio->GetNbinsX();i_bin++){
+            //For the ratio plot, the error is just to illustrate the "poisson uncertainty on the data"
+            if(TRExFitter::REMOVEXERRORS){
+                g_ratio->SetPointEXhigh( i_bin-1, 0. );
+                g_ratio->SetPointEXlow(  i_bin-1, 0. );
+            }
+            g_ratio->SetPointEYhigh( i_bin-1,g_data->GetErrorYhigh(i_bin-1)/h_tot->GetBinContent(i_bin) );
+            g_ratio->SetPointEYlow(  i_bin-1,g_data->GetErrorYlow(i_bin-1) /h_tot->GetBinContent(i_bin) );
+        }
+
+        //
+        // Compute the MC/MC ratio (for uncertainty band in the bottom pad)
+        //
+        for(int i_bin=1;i_bin<h_tot_nosyst->GetNbinsX()+1;i_bin++){
+            g_ratio2->SetPoint(i_bin-1,g_ratio2->GetX()[i_bin-1],g_ratio2->GetY()[i_bin-1]/h_tot_nosyst->GetBinContent(i_bin));
+            g_ratio2->SetPointEXlow(i_bin-1,g_ratio2->GetEXlow()[i_bin-1]);
+            g_ratio2->SetPointEXhigh(i_bin-1,g_ratio2->GetEXhigh()[i_bin-1]);
+            g_ratio2->SetPointEYlow(i_bin-1,g_ratio2->GetEYlow()[i_bin-1]/h_tot_nosyst->GetBinContent(i_bin));
+            g_ratio2->SetPointEYhigh(i_bin-1,g_ratio2->GetEYhigh()[i_bin-1]/h_tot_nosyst->GetBinContent(i_bin));
+        }
+
+        //
+        // Now draws everything
+        //
+        TLine *hline = new TLine(h_dummy2->GetXaxis()->GetXmin(),1,h_dummy2->GetXaxis()->GetXmax(),1);
+        hline->SetLineColor(kBlack);
+        hline->SetLineWidth(2);
+        hline->SetLineStyle(2);
+        hline->Draw();
+        //
+        h_dummy2->SetMinimum(fRatioYmin);
+        h_dummy2->SetMaximum(fRatioYmax);
+        //
+        h_dummy2->GetXaxis()->SetTitle(h_dummy->GetXaxis()->GetTitle());
+        // FIXME
+    //     h_dummy2->GetXaxis()->SetLabelSize( 0.9*h_dummy2->GetXaxis()->GetLabelSize() );
+//         h_dummy2->GetXaxis()->SetTitleOffset(5.05*(pad0->GetWw()/596.));
+        h_dummy2->GetXaxis()->SetTitleOffset(5);
+        //
+        h_dummy->GetXaxis()->SetTitle("");
+        h_dummy->GetXaxis()->SetLabelSize(0);
+
+        if(fRatioType=="DATA/MC" || fRatioType=="DATA/BKG"){
+            g_ratio2->Draw("sameE2");
+        }
+
+        bool customLabels = false;
+        for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
+            if(((std::string)h_dummy->GetXaxis()->GetBinLabel(i_bin))!=""){
+                h_dummy2->GetXaxis()->SetBinLabel( i_bin, h_dummy->GetXaxis()->GetBinLabel(i_bin));
+                customLabels = true;
+            }
+        }
+        
+    //     if(TRExFitter::OPTION["SoverBinRatio"]){
+        if(fRatioType=="S/B" || fRatioType=="S/SQRT(B)" || fRatioType=="S/SQRT(S+B)"){ // ...
+            h_ratio->SetFillStyle(0);
+            h_ratio->SetLineColor(h_ratio->GetFillColor());
+            h_ratio->Draw("HIST same");
+            for(auto h_tmp : h_addRatioVec){
+                h_tmp->SetFillStyle(0);
+                h_tmp->SetLineColor(h_tmp->GetFillColor());
+                h_tmp->Draw("HIST same");
+            }
+        }
+        else if(hasData){
+            g_ratio->Draw("pe0");
+        }
+
+        //
+        // Mark blinded bins in ratio pad as  well
+        //
+        if(h_blind!=nullptr){
+            TH1D* h_blindratio = (TH1D*)h_blind->Clone("h_blindratio");
+            h_blindratio->Scale(2.);
+            h_blindratio->Draw("HIST same");
+        }
+
+        if(fBinLabel[1]!="") h_dummy2->GetXaxis()->LabelsOption("d");
+        h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
+        if(customLabels && h_dummy->GetNbinsX()>10) h_dummy2->GetXaxis()->SetLabelSize(0.66*h_dummy2->GetXaxis()->GetLabelSize() );
+        if(customLabels) h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
+        gPad->RedrawAxis();
+
+        // to hide the upper limit (label) of the ratio plot
+    //     TLine line(0.01,1,0.1,1);
+    //     line.SetLineColor(kWhite);
+    //     line.SetLineColor(kRed);
+    //     line.SetLineWidth(25);
+    //     if(pad0->GetWw() >= 2*pad0->GetWh())   line.DrawLineNDC(0.06,1,0.100,1);
+    //     else if(pad0->GetWw() > pad0->GetWh()) line.DrawLineNDC(0.05,1,0.088,1);
+    //     else                                   line.DrawLineNDC(0.07,1,0.135,1);
+
+        // more clever way, using the new functionality in ROOT:
+        h_dummy2->GetYaxis()->ChangeLabel(-1,-1,-1,-1,-1,-1," ");
+        
+        //
+        // Add arrows when the ratio is beyond the limits of the ratio plot
+        //
+        if(fRatioType=="DATA/MC" ||fRatioType=="DATA/BKG"){
+            for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
+
+                if (i_bin==0 || i_bin>h_tot_nosyst->GetNbinsX()) continue; //skip under/overflow bins
+
+                float val = h_ratio->GetBinContent(i_bin);
+
+                double maxRange = h_dummy2->GetMaximum();
+                double minRange = h_dummy2->GetMinimum();
+
+                int isUp=0; //1==up, 0==nothing, -1==down
+                if ( val<minRange ) isUp=-1;
+                else if (val>maxRange ) isUp=1;
+                if (val==0) isUp=0;
+
+                if (isUp!=0) {
+                    TArrow *arrow;
+                    if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax-0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax,0.030/(pad0->GetWw()/596.),"|>");
+                    else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin+0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin,0.030/(pad0->GetWw()/596.),"|>");
+                    arrow->SetFillColor(10);
+                    arrow->SetFillStyle(1001);
+                    arrow->SetLineColor(kBlue-7);
+                    arrow->SetLineWidth(2);
+                    arrow->SetAngle(40);
+                    arrow->Draw();
+                }
+            }
+        }
+        // ---
+
+        pad1->cd();
+        TLatex *KSlab = new TLatex();
+        KSlab->SetNDC(1);
+        KSlab->SetTextFont(42);
+        KSlab->SetTextSize(0.1);
+        std::string kslab = "";
+        if(Chi2val >= 0)  kslab += Form("   #chi^{2}/ndf = %.1f",Chi2val);
+        if(NDF >= 0)      kslab += Form(" / %d",NDF);
+        if(Chi2prob >= 0) kslab += Form("  #chi^{2}prob = %.2f",Chi2prob);
+        if(KSprob >= 0)   kslab += Form("  KS prob = %.2f",KSprob);
+        KSlab->DrawLatex(0.15,0.9,kslab.c_str());
+        //
+        pad0->cd();
     }
-
-    //
-    // Mark blinded bins in ratio pad as  well
-    //
-    if(h_blind!=nullptr){
-        TH1D* h_blindratio = (TH1D*)h_blind->Clone("h_blindratio");
-        h_blindratio->Scale(2.);
-        h_blindratio->Draw("HIST same");
-    }
-
-    if(fBinLabel[1]!="") h_dummy2->GetXaxis()->LabelsOption("d");
-    h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
-    if(customLabels && h_dummy->GetNbinsX()>10) h_dummy2->GetXaxis()->SetLabelSize(0.66*h_dummy2->GetXaxis()->GetLabelSize() );
-    if(customLabels) h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
-    gPad->RedrawAxis();
-
-    // to hide the upper limit (label) of the ratio plot
-//     TLine line(0.01,1,0.1,1);
-//     line.SetLineColor(kWhite);
-//     line.SetLineColor(kRed);
-//     line.SetLineWidth(25);
-//     if(pad0->GetWw() >= 2*pad0->GetWh())   line.DrawLineNDC(0.06,1,0.100,1);
-//     else if(pad0->GetWw() > pad0->GetWh()) line.DrawLineNDC(0.05,1,0.088,1);
-//     else                                   line.DrawLineNDC(0.07,1,0.135,1);
-
-    // more clever way, using the new functionality in ROOT:
-    h_dummy2->GetYaxis()->ChangeLabel(-1,-1,-1,-1,-1,-1," ");
     
-    //
-    // Add arrows when the ratio is beyond the limits of the ratio plot
-    //
-    for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
-
-        if (i_bin==0 || i_bin>h_tot_nosyst->GetNbinsX()) continue; //skip under/overflow bins
-
-        float val=h_ratio->GetBinContent(i_bin);
-
-        double maxRange = h_dummy2->GetMaximum();
-        double minRange = h_dummy2->GetMinimum();
-
-        int isUp=0; //1==up, 0==nothing, -1==down
-        if ( val<minRange ) isUp=-1;
-        else if (val>maxRange ) isUp=1;
-        if (val==0) isUp=0;
-
-        if (isUp!=0) {
-            TArrow *arrow;
-            if (isUp==1) arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax-0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmax,0.030/(pad0->GetWw()/596.),"|>");
-            else         arrow = new TArrow(h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin+0.05*(fRatioYmax-fRatioYmin), h_ratio->GetXaxis()->GetBinCenter(i_bin),fRatioYmin,0.030/(pad0->GetWw()/596.),"|>");
-            arrow->SetFillColor(10);
-            arrow->SetFillStyle(1001);
-            arrow->SetLineColor(kBlue-7);
-            arrow->SetLineWidth(2);
-            arrow->SetAngle(40);
-            arrow->Draw();
-        }
-    }
-    // ---
-
-    pad1->cd();
-    TLatex *KSlab = new TLatex();
-    KSlab->SetNDC(1);
-    KSlab->SetTextFont(42);
-    KSlab->SetTextSize(0.1);
-    std::string kslab = "";
-    if(Chi2val >= 0)  kslab += Form("   #chi^{2}/ndf = %.1f",Chi2val);
-    if(NDF >= 0)      kslab += Form(" / %d",NDF);
-    if(Chi2prob >= 0) kslab += Form("  #chi^{2}prob = %.2f",Chi2prob);
-    if(KSprob >= 0)   kslab += Form("  KS prob = %.2f",KSprob);
-    KSlab->DrawLatex(0.15,0.9,kslab.c_str());
-    //
-    pad0->cd();
-
     //
     // Set bin width and eventually divide larger bins by this bin width
     if(fBinWidth>0){
@@ -978,10 +1063,15 @@ void TRExPlot::Draw(std::string options){
                 if((int)fBinWidth==fBinWidth) ytitle = Form("Events / %.0f GeV",fBinWidth);
                 else if((int)(fBinWidth*10)==(fBinWidth*10)) ytitle = Form("Events / %.1f GeV",fBinWidth);
                 else if((int)(fBinWidth*100)==(fBinWidth*100)) ytitle = Form("Events / %.2f GeV",fBinWidth);
+                else if((int)(fBinWidth*1000)==(fBinWidth*1000)) ytitle = Form("Events / %.3f GeV",fBinWidth);
                 // ...
             }
             else{
-                ytitle = Form("Events / %.2f",fBinWidth);
+                if((int)fBinWidth==fBinWidth) ytitle = Form("Events / %.0f",fBinWidth);
+                else if((int)(fBinWidth*10)==(fBinWidth*10)) ytitle = Form("Events / %.1f",fBinWidth);
+                else if((int)(fBinWidth*100)==(fBinWidth*100)) ytitle = Form("Events / %.2f",fBinWidth);
+                else if((int)(fBinWidth*1000)==(fBinWidth*1000)) ytitle = Form("Events / %.3f",fBinWidth);
+                // ...
             }
             h_dummy->GetYaxis()->SetTitle(ytitle.c_str());
         }
@@ -1028,14 +1118,14 @@ void TRExPlot::Draw(std::string options){
         h_blind->Scale(h_dummy->GetMaximum());
     }
 
-    //
-    // eventually make y-axis labels smaller...
-    if(h_dummy->GetMaximum()>10000){
-        h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.75 );
-    }
-    else if(h_dummy->GetMaximum()>1000){
-        h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
-    }
+//     //
+//     // eventually make y-axis labels smaller...
+//     if(h_dummy->GetMaximum()>10000){
+//         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.75 );
+//     }
+//     else if(h_dummy->GetMaximum()>1000){
+//         h_dummy->GetYaxis()->SetLabelSize( h_dummy->GetYaxis()->GetLabelSize()*0.9 );
+//     }
 }
 
 //_____________________________________________________________________________

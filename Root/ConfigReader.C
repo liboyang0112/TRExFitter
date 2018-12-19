@@ -857,7 +857,7 @@ int ConfigReader::ReadJobOptions(){
         const int& x = std::stoi(tmp.at(0));
         const int& y = std::stoi(tmp.at(1));
 
-        if (x <= 100 || y <= 1000){
+        if (x <= 100 || y <= 100){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PrePostFitCanvasSize option but at least one parameter is <= 100. Ignoring.");
         }
         fFitter->fPrePostFitCanvasSize.emplace_back(x);
@@ -930,6 +930,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         vec = Vectorize(RemoveQuotes(param),',');
         if( std::find(vec.begin(), vec.end(), "YIELDS") !=vec.end() )  TRExFitter::SHOWYIELDS     = true;
         if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TRExFitter::SHOWSTACKSIG   = false;
+        if( std::find(vec.begin(), vec.end(), "SKIPSIG")!=vec.end() )  TRExFitter::ADDSTACKSIG    = false;
         if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TRExFitter::SHOWNORMSIG    = true;
         if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TRExFitter::SHOWOVERLAYSIG = true;
         if( std::find(vec.begin(), vec.end(), "LEFT")   !=vec.end() )  TRExFitter::LEGENDLEFT     = true;
@@ -938,6 +939,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         if( std::find(vec.begin(), vec.end(), "POISSONIZE")        !=vec.end() )  TRExFitter::POISSONIZE     = true;
         if( std::find(vec.begin(), vec.end(), "NOXERR") !=vec.end() )  TRExFitter::REMOVEXERRORS  = true;
         if( std::find(vec.begin(), vec.end(), "OPRATIO") !=vec.end() ) TRExFitter::OPRATIO        = true;
+        if( std::find(vec.begin(), vec.end(), "NORATIO") !=vec.end() ) TRExFitter::NORATIO        = true;
     }
 
     // Set PlotOptionsSummary
@@ -1105,6 +1107,26 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     param = confSet->Get("RatioYmaxPostFit");
     if(param != "") fFitter->fRatioYmaxPostFit = atof(param.c_str());
 
+    // Set RatioTitle
+    param = confSet->Get("RatioYtitle");
+    if(param != "") fFitter->fRatioYtitle = RemoveQuotes(param.c_str());
+
+    // Set RatioTitle
+    param = confSet->Get("RatioType");
+    if(param != "") fFitter->fRatioType = RemoveQuotes(param.c_str());
+    
+    // Set Label and Legend position
+    param = confSet->Get("LabelX");
+    if(param != "") fFitter->fLabelX = atof(param.c_str());
+    param = confSet->Get("LabelY");
+    if(param != "") fFitter->fLabelY = atof(param.c_str());
+    param = confSet->Get("LegendX1");
+    if(param != "") fFitter->fLegendX1 = atof(param.c_str());
+    param = confSet->Get("LegendX2");
+    if(param != "") fFitter->fLegendX2 = atof(param.c_str());
+    param = confSet->Get("LegendY");
+    if(param != "") fFitter->fLegendY = atof(param.c_str());
+    
     // Set DoSummaryPlot
     param = confSet->Get("DoSummaryPlot");
     if( param != "" ){
