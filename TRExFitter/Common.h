@@ -139,5 +139,6 @@ unsigned int NCharactersInString(const std::string& s,const char c);
 
 bool CheckExpression(const std::string& s);
 
+std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::string name);
 
 #endif

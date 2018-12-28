@@ -4245,7 +4245,7 @@ void TRExFit::DrawPruningPlot() const{
             for (const auto& isample : nonGammaSystematics.at(i_syst)->fSamples){
                 if (isample == ref) continue;
                 // we need the index of the sample that the systemtic is applied to
-                const std::size_t& index = GetSampleIndex(isample);
+                const std::size_t& index = GetSampleIndexFromList(samplesVec, isample);
                 if (index > 999){
                     WriteWarningStatus("TRExFit::DrawPruningPlot", "Cannot find sample: " + ref + " in the list of samples");
                     continue;

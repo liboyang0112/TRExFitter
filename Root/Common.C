@@ -790,3 +790,13 @@ void ScaleNominal(const SampleHist* const sig, TH1* hist){
         }
     }
 }
+
+//___________________________________________________________
+//
+std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::string name){
+    for (std::size_t i = 0; i < list.size(); ++i){
+        if (list.at(i)->fName == name) return i;
+    }
+
+    return 9999;
+}
