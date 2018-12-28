@@ -4140,7 +4140,7 @@ void TRExFit::DrawPruningPlot() const{
 
             for(size_t i_syst=0;i_syst<NnonGammaSyst;i_syst++){
                 out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
-                if( sh->HasSyst(nonGammaSystematics[i_syst]->fName) ) {
+                if( std::find(nonGammaSystematics[i_syst]->fSamples.begin(), nonGammaSystematics[i_syst]->fSamples.end(), samplesVec[i_smp]->fName) != nonGammaSystematics[i_syst]->fSamples.end() ) {
                     SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst), 0 );
                     //
@@ -4235,12 +4235,12 @@ void TRExFit::DrawPruningPlot() const{
                 == nonGammaSystematics.at(i_syst)->fRegions.end()) continue;
 
             const std::string& ref = nonGammaSystematics.at(i_syst)->fReferencePruning;
-            const std::size_t& i_smp = GetSampleIndex(ref);
+            const std::size_t& i_smp = GetSampleIndexFromList(samplesVec, ref);
             if (i_smp > 999){
                 WriteWarningStatus("TRExFit::DrawPruningPlot", "Cannot find reference pruning sample: " + ref + " in the list of samples");
                 continue;
             }
-            const int& pruneCode = histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst));
+            const int& pruneCode = histPrun[iReg]->GetBinContent(histPrun[iReg]->FindBin(i_smp,i_syst));
 
             for (const auto& isample : nonGammaSystematics.at(i_syst)->fSamples){
                 if (isample == ref) continue;
@@ -4254,6 +4254,7 @@ void TRExFit::DrawPruningPlot() const{
                 if (sh == nullptr) continue;
                 SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
                 if (syh == nullptr) continue;
+
                 if (pruneCode == 0){
                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(index,i_syst), 0);
                     syh->fShapePruned = false;
