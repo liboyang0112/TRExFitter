@@ -40,6 +40,7 @@ public:
     std::string fReferenceSample;
     bool fKeepReferenceOverallVar;
     std::string fReferenceSmoothing;
+    std::string fReferencePruning;
 
     bool fSubtractRefSampleVar;
 
