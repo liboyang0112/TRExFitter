@@ -161,6 +161,7 @@ public:
 
     Region* GetRegion(const std::string& name) const;
     Sample* GetSample(const std::string& name) const;
+    std::size_t GetSampleIndex(const std::string& name) const;
 
     void ProduceNPRanking(std::string NPnames="all");
     void PlotNPRanking(bool flagSysts=true, bool flagGammas=true) const;

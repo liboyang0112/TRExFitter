@@ -278,29 +278,29 @@ TRExFit::TRExFit(std::string name){
     fuseGammasForCorr = false;
     fPropagateSystsForMorphing = false;
     fPrunningType = SEPARATESAMPLE;
-    
+
     fLabelX = -1;
     fLabelY = -1;
     fLegendX1 = -1;
     fLegendX2 = -1;
     fLegendY = -1;
-    
+
     fLabelXSummary = -1;
     fLabelYSummary = -1;
     fLegendX1Summary = -1;
     fLegendX2Summary = -1;
     fLegendYSummary = -1;
-    
+
     fLabelXMerge = -1;
     fLabelYMerge = -1;
     fLegendX1Merge = -1;
     fLegendX2Merge = -1;
     fLegendYMerge = -1;
-    
+
     fLegendNColumns = 2;
     fLegendNColumnsSummary = 3;
     fLegendNColumnsMerge = 3;
-    
+
     fShowRatioPad = true;
 }
 
@@ -2844,7 +2844,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
 //         if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType); // FIXME
     }
-    
+
     if(TRExFitter::OPTION["MergeYmaxScale"]==0) TRExFitter::OPTION["MergeYmaxScale"] = 1.25;
     p->fYmax = TRExFitter::OPTION["MergeYmaxScale"]*ymax0;
     if(fRatioYmax>0) p->fRatioYmax = fRatioYmax;
@@ -4226,6 +4226,54 @@ void TRExFit::DrawPruningPlot() const{
                 else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst) )== -4 ) out << " is bad" << std::endl;
             }
         }
+
+        // apply reference pruning correction
+        for(size_t i_syst = 0; i_syst < nonGammaSystematics.size(); ++i_syst){
+            if (nonGammaSystematics.at(i_syst) == nullptr) continue;
+            if (nonGammaSystematics.at(i_syst)->fReferencePruning == "") continue;
+            if (std::find(nonGammaSystematics.at(i_syst)->fRegions.begin(), nonGammaSystematics.at(i_syst)->fRegions.end(), fRegions[i_reg]->fName)
+                == nonGammaSystematics.at(i_syst)->fRegions.end()) continue;
+
+            const std::string& ref = nonGammaSystematics.at(i_syst)->fReferencePruning;
+            const std::size_t& i_smp = GetSampleIndex(ref);
+            if (i_smp > 999){
+                WriteWarningStatus("TRExFit::DrawPruningPlot", "Cannot find reference pruning sample: " + ref + " in the list of samples");
+                continue;
+            }
+            const int& pruneCode = histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,i_syst));
+
+            for (const auto& isample : nonGammaSystematics.at(i_syst)->fSamples){
+                if (isample == ref) continue;
+                // we need the index of the sample that the systemtic is applied to
+                const std::size_t& index = GetSampleIndex(isample);
+                if (index > 999){
+                    WriteWarningStatus("TRExFit::DrawPruningPlot", "Cannot find sample: " + ref + " in the list of samples");
+                    continue;
+                }
+                SampleHist *sh = fRegions[i_reg]->GetSampleHist(samplesVec[index]->fName);
+                if (sh == nullptr) continue;
+                SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
+                if (syh == nullptr) continue;
+                if (pruneCode == 0){
+                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(index,i_syst), 0);
+                    syh->fShapePruned = false;
+                    syh->fNormPruned  = false;
+                } else if (pruneCode == 1){
+                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(index,i_syst), 1);
+                    syh->fShapePruned = true;
+                    syh->fNormPruned  = false;
+                } else if (pruneCode == 2) {
+                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(index,i_syst), 2);
+                    syh->fShapePruned = false;
+                    syh->fNormPruned  = true;
+                } else if (pruneCode == 3){
+                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(index,i_syst), 3);
+                    syh->fShapePruned = true;
+                    syh->fNormPruned  = true;
+                }
+            }
+        }
+
         //
         histPrun_toSave.push_back( (TH2F*)histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName())) );
         histPrun_toSave[iReg]->SetDirectory(0);
@@ -5409,6 +5457,15 @@ Sample* TRExFit::GetSample(const std::string& name) const{
         if(fSamples[i]->fName == name) return fSamples[i];
     }
     return nullptr;
+}
+
+//__________________________________________________________________________________
+//
+std::size_t TRExFit::GetSampleIndex(const std::string& name) const{
+    for(std::size_t i=0; i<fSamples.size(); ++i){
+        if(fSamples[i]->fName == name) return i;
+    }
+    return 99999;
 }
 
 //__________________________________________________________________________________
