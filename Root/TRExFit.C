@@ -7780,15 +7780,17 @@ TH1* TRExFit::CopySmoothedHisto(const SampleHist* const sh, const TH1* const nom
     TH1* result = static_cast<TH1*>(currentNominal->Clone());
 
     for (int ibin = 1; ibin <= currentNominal->GetNbinsX(); ++ibin){
-        double diff = 0;
-        if (isUp){
-            diff = up->GetBinContent(ibin) - nominal->GetBinContent(ibin);
-        } else {
-            diff = down->GetBinContent(ibin) - nominal->GetBinContent(ibin);
+        double ratio = 1;
+        if (nominal->GetBinContent(ibin) != 0){
+            if (isUp){
+                ratio = up->GetBinContent(ibin)/nominal->GetBinContent(ibin);
+            } else {
+                ratio = down->GetBinContent(ibin)/nominal->GetBinContent(ibin);
+            }
         }
-        diff+= currentNominal->GetBinContent(ibin);
+        ratio*= currentNominal->GetBinContent(ibin);
 
-        result->SetBinContent(ibin, diff);
+        result->SetBinContent(ibin, ratio);
     }
 
     return result;
