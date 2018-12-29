@@ -498,6 +498,7 @@ For each object type (also called "block"), here is the list of available proper
 | ScaleDown                    | for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9`) |
 | ReferenceSample              | if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated |
 | ReferenceSmoothing           | if this is specified, the syst variation is smoothed wrt a specified sample (Must appear in `Samples` for this syst) and then the smoothed variations are copied bin by bi to all other samples specified. Usefull when `Morphing` is used |
+| ReferencePruning             | if this is specified, the syst variation is pruned wrt a specified sample (Must appear in `Samples` for this syst) and then the same pruning is applied to all specified samples |
 | DropShapeIn                  | specify regions where you want the smoothing / pruning to be forced to drop the shape and keep only norm |
 | DropNorm                     | the same as the previous one, but to drop the norm and keep only the shape |
 | KeepNormForSamples           | list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region |

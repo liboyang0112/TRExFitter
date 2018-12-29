@@ -231,7 +231,7 @@ int ConfigReader::ReadJobOptions(){
 
     // Set POI
     fFitter->SetPOI(CheckName(confSet->Get("POI")));
-    
+
     // POI unit (if any)
     param = confSet->Get("POIUnit");
     if(param!="") fFitter->fPOIunit = RemoveQuotes(param);
@@ -773,7 +773,7 @@ int ConfigReader::ReadJobOptions(){
             fFitter->fPropagateSystsForMorphing = false;
         }
     }
-    
+
     // Set UseATLASRounding
     param = confSet->Get("UseATLASRounding");
     if ( param != ""){
@@ -820,7 +820,7 @@ int ConfigReader::ReadJobOptions(){
     if( param != ""){
         fFitter->fRankingPOIName = RemoveQuotes(param);
     }
-    
+
     // Set RankingPOIName
     param = confSet->Get("PrunningType");
     if( param != ""){
@@ -1122,7 +1122,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     // Set RatioTitle
     param = confSet->Get("RatioType");
     if(param != "") fFitter->fRatioType = RemoveQuotes(param.c_str());
-    
+
     // Set Label and Legend position
     param = confSet->Get("LabelX");
     if(param != "") fFitter->fLabelX = atof(param.c_str());
@@ -1134,7 +1134,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if(param != "") fFitter->fLegendX2 = atof(param.c_str());
     param = confSet->Get("LegendY");
     if(param != "") fFitter->fLegendY = atof(param.c_str());
-    
+
     // Set Label and Legend position for Summary
     param = confSet->Get("LabelXSummary");
     if(param != "") fFitter->fLabelXSummary = atof(param.c_str());
@@ -1146,7 +1146,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if(param != "") fFitter->fLegendX2Summary = atof(param.c_str());
     param = confSet->Get("LegendYSummary");
     if(param != "") fFitter->fLegendYSummary = atof(param.c_str());
-    
+
     // Set Label and Legend position for Merge
     param = confSet->Get("LabelXMerge");
     if(param != "") fFitter->fLabelXMerge = atof(param.c_str());
@@ -1158,7 +1158,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if(param != "") fFitter->fLegendX2Merge = atof(param.c_str());
     param = confSet->Get("LegendYMerge");
     if(param != "") fFitter->fLegendYMerge = atof(param.c_str());
-    
+
     // Set LegendNColumns
     param = confSet->Get("LegendNColumns");
     if(param != "") fFitter->fLegendNColumns = atoi(param.c_str());
@@ -1166,7 +1166,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if(param != "") fFitter->fLegendNColumnsMerge = atoi(param.c_str());
     param = confSet->Get("LegendNColumnsSummary");
     if(param != "") fFitter->fLegendNColumnsSummary = atoi(param.c_str());
-    
+
     // Set DoSummaryPlot
     param = confSet->Get("DoSummaryPlot");
     if( param != "" ){
@@ -1571,13 +1571,13 @@ int ConfigReader::ReadLimitOptions(){
             fFitter->fSignalInjection = false;
         }
     }
-    
+
     // Set SignalInjectionValue
     param = confSet->Get("SignalInjectionValue");
     if( param != "" ){
         fFitter->fSignalInjectionValue = std::stof(param);
     }
-    
+
     param = confSet->Get("ParamName");
     if( param != "" ){
         fFitter->fLimitParamName = param;
@@ -1587,7 +1587,7 @@ int ConfigReader::ReadLimitOptions(){
     if( param != "" ){
         fFitter->fLimitParamValue = std::stof(param);
     }
-    
+
     param = confSet->Get("OutputPrefixName");
     if( param != "" ){
         fFitter->fLimitOutputPrefixName = param;
@@ -1602,7 +1602,7 @@ int ConfigReader::ReadLimitOptions(){
         }
         fFitter->fLimitsConfidence = conf;
     }
-    
+
     return 0;
 }
 
@@ -1636,7 +1636,7 @@ int ConfigReader::ReadSignificanceOptions(){
     if( param != "" ){
         fFitter->fSignificancePOIAsimov = atof(param.c_str());
     }
-    
+
     param = confSet->Get("ParamName");
     if( param != "" ){
         fFitter->fSignificanceParamName = param;
@@ -1646,7 +1646,7 @@ int ConfigReader::ReadSignificanceOptions(){
     if( param != "" ){
         fFitter->fSignificanceParamValue = std::stof(param);
     }
-    
+
     param = confSet->Get("OutputPrefixName");
     if( param != "" ){
         fFitter->fSignificanceOutputPrefixName = param;
@@ -1772,7 +1772,7 @@ int ConfigReader::ReadRegionOptions(){
         // Set Rebin
         param = confSet->Get("Rebin");
         if(param != "") reg->Rebin(atoi(param.c_str()));
-        
+
         // Set post-process rebin ("Rebinning")
         param = confSet->Get("Rebinning");
         if(param != ""){
@@ -2007,7 +2007,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
             reg->fHistoNameSuffs.push_back( RemoveQuotes(ipath) );
         }
     }
-    
+
     // Set HistoPathSuff
     param = confSet->Get("HistoPathSuff");
     if(param !=""){
@@ -2152,7 +2152,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
         std::vector<std::string> paths = Vectorize( param,',' );
         reg->fNtupleNameSuffs = paths;
     }
-    
+
     // Set NtuplePath
     param = confSet->Get("NtuplePath");
     if(param!="") {
@@ -2266,15 +2266,15 @@ int ConfigReader::ReadSampleOptions(){
             // Set HistoFile
             param = confSet->Get("HistoFile");
             if(param!="") sample->fHistoFiles.push_back( RemoveQuotes(param) );
-            
+
             // Set HistoFiles
             param = confSet->Get("HistoFiles");
             if(param!="") sample->fHistoFiles = Vectorize( param, ',' );
 
             // Set HistoFileSuff
             param = confSet->Get("HistoFileSuff");
-            if(param!="") sample->fHistoFileSuffs.push_back( RemoveQuotes(param) );            
-            
+            if(param!="") sample->fHistoFileSuffs.push_back( RemoveQuotes(param) );
+
             // Set HistoFileSuffs
             param = confSet->Get("HistoFileSuffs");
             if(param!="") sample->fHistoFileSuffs = Vectorize( param, ',' );
@@ -2282,7 +2282,7 @@ int ConfigReader::ReadSampleOptions(){
             // Set HistoName
             param = confSet->Get("HistoName");
             if(param!="") sample->fHistoNames.push_back( RemoveQuotes(param) );
-            
+
             // Set HistoNames
             param = confSet->Get("HistoNames");
             if(param!="") sample->fHistoNames = Vectorize( param, ',' );
@@ -2298,11 +2298,11 @@ int ConfigReader::ReadSampleOptions(){
             // Set HistoPath
             param = confSet->Get("HistoPath");
             if(param!="") sample->fHistoPaths.push_back( RemoveQuotes(param) );
-            
+
             // Set HistoPaths
             param = confSet->Get("HistoPaths");
             if(param!="") sample->fHistoPaths = Vectorize( param, ',' );
-            
+
             // Set HistoPathSuff
             param = confSet->Get("HistoPathSuff");
             if(param!="") sample->fHistoPathSuffs.push_back( RemoveQuotes(param) );
@@ -2329,7 +2329,7 @@ int ConfigReader::ReadSampleOptions(){
             // Set NtupleFileSuffs
             param = confSet->Get("NtupleFileSuffs");
             if(param!="") sample->fNtupleFileSuffs = Vectorize( param ,',' );
-            
+
             // Set NtupleName
             param = confSet->Get("NtupleName");
             if(param!="") sample->fNtupleNames.push_back( RemoveQuotes(param) );
@@ -2799,7 +2799,7 @@ int ConfigReader::ReadSampleOptions(){
                 sample->fCorrelateGammasInRegions.push_back(regions_corr);
             }
         }
-        
+
         // Set CorrelateGammasWithSample
         param = confSet->Get("CorrelateGammasWithSample");
         if(param != ""){
@@ -3241,7 +3241,7 @@ int ConfigReader::ReadSystOptions(){
         sys = new Systematic(CheckName(confSet->GetValue()),type);
         TRExFitter::SYSTMAP[sys->fName] = sys->fTitle;
         if(param == "OVERALL") sys->fIsNormOnly=true;
-        
+
         sys->fSamples = samples;
 
         // SetCategory
@@ -3779,9 +3779,9 @@ int ConfigReader::ReadSystOptions(){
                 sys->fKeepReferenceOverallVar = true;
             }
         }
-        
+
         // Set ReferenceSmoothing
-        // this to obtain syst variation relatively to given sample
+        // this is to obtain syst variation relatively to given sample
         param = confSet->Get("ReferenceSmoothing");
         if(param!=""){
             if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fAvailableSamples.end()){
@@ -3799,6 +3799,24 @@ int ConfigReader::ReadSystOptions(){
             sys->fReferenceSmoothing = RemoveQuotes(param);
         }
 
+        // Set ReferencePruning
+        // this allows to prune wrt to a sample and then apply the result to all samples
+        param = confSet->Get("ReferencePruning");
+        if(param!=""){
+            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fAvailableSamples.end()){
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferencePruning that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferencePruning that do not exist");
+                    return 1;
+                }
+            }
+            if (std::find(samples.begin(), samples.end(), RemoveQuotes(param)) == samples.end()){
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " requires that the ReferencePruning appears in Samples for this systematic");
+                return 1;
+            }
+            sys->fReferencePruning = RemoveQuotes(param);
+        }
 
         // Set DropShapeIn
         param = confSet->Get("DropShapeIn");
