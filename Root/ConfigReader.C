@@ -1444,6 +1444,12 @@ int ConfigReader::ReadFitOptions(){
             fFitter->fDoNonProfileFit = false;
         }
     }
+    
+    // Set NonProfileFitSystThreshold
+    param = confSet->Get("NonProfileFitSystThreshold");
+    if( param != "" ){
+        fFitter->fNonProfileFitSystThreshold = std::atof(param.c_str());
+    }
 
     // Set FitToys
     param = confSet->Get("FitToys");
@@ -2788,6 +2794,12 @@ int ConfigReader::ReadSampleOptions(){
             }
         }
 
+        // Scale up/down MC stat size
+        param = confSet->Get("MCstatScale");
+        if(param != ""){
+            sample->fMCstatScale = atof(param.c_str());
+        }
+        
         // Set CorrelateGammasInRegions
         // in the form    CorrelateGammasInRegions: SR1:SR2,CR1:CR2:CR3
         param = confSet->Get("CorrelateGammasInRegions");

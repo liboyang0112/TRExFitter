@@ -262,6 +262,7 @@ TRExFit::TRExFit(std::string name){
     fDecorrSuff = "_decor";
 
     fDoNonProfileFit = false;
+    fNonProfileFitSystThreshold = 0;
     fFitToys = 0;
     fToysHistoMin = 9999;
     fToysHistoMax = -9999;
@@ -1100,8 +1101,10 @@ void TRExFit::CorrectHistograms(){
             int fillcolor = sh->fHist->GetFillColor();
             int linecolor = sh->fHist->GetLineColor();
             TH1* h_orig = (TH1*)sh->fHist_orig;
-            TH1* h      = (TH1*)h_orig->Clone(sh->fHist->GetName());
+            TH1* h = nullptr;
+            if(h_orig!=nullptr) h = (TH1*)h_orig->Clone(sh->fHist->GetName());
             sh->fHist = h;
+            if(sh->fHist==nullptr) continue;
             sh->fHist->SetLineColor(linecolor);
             sh->fHist->SetFillColor(fillcolor);
             //
@@ -1113,6 +1116,9 @@ void TRExFit::CorrectHistograms(){
                 if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
                 if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
                 //
+                // skip also separate gamma systs
+                if(syst->fName.find("stat_")!=std::string::npos) continue;
+                //
                 // get the original syst histograms & reset the syst histograms
                 SystematicHist *syh = sh->GetSystematic( syst->fName );
                 //
@@ -1123,13 +1129,15 @@ void TRExFit::CorrectHistograms(){
                 // if Overall only => fill SystematicHist
                 if(syst->fType==Systematic::OVERALL){
                     for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
-                        hUp_orig  ->SetBinContent(i_bin,h_orig->GetBinContent(i_bin)*(1.+syst->fOverallUp));
-                        hDown_orig->SetBinContent(i_bin,h_orig->GetBinContent(i_bin)*(1.+syst->fOverallDown));
+                        if(hUp_orig!=nullptr)   hUp_orig  ->SetBinContent(i_bin,h_orig->GetBinContent(i_bin)*(1.+syst->fOverallUp));
+                        if(hDown_orig!=nullptr) hDown_orig->SetBinContent(i_bin,h_orig->GetBinContent(i_bin)*(1.+syst->fOverallDown));
                     }
                 }
                 //
-                TH1* hUp   = (TH1*)hUp_orig  ->Clone( syh->fHistUp  ->GetName() );
-                TH1* hDown = (TH1*)hDown_orig->Clone( syh->fHistDown->GetName() );
+                TH1* hUp   = nullptr;
+                TH1* hDown = nullptr;
+                if(hUp_orig!=nullptr)   hUp   = (TH1*)hUp_orig  ->Clone( syh->fHistUp  ->GetName() );
+                if(hDown_orig!=nullptr) hDown = (TH1*)hDown_orig->Clone( syh->fHistDown->GetName() );
                 syh->fHistUp   = hUp;
                 syh->fHistDown = hDown;
             }
@@ -1152,18 +1160,18 @@ void TRExFit::CorrectHistograms(){
                 for(auto syh : sh->fSyst){
                     WriteDebugStatus("TRExFit::CorrectHistograms", "  systematic " + syh->fName + " to " + std::to_string(reg->fHistoNBinsRebinPost) + " bins.");
                     if(syh==nullptr) continue;
-                    if(syh->fSystematic->fSampleUp==""   && syh->fSystematic->fHasUpVariation)   syh->fHistUp   = syh->fHistUp  ->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
-                    else                                                                         syh->fHistUp   = (TH1*)sh->fHist->Clone(syh->fHistUp->GetName());
-                    if(syh->fSystematic->fSampleDown=="" && syh->fSystematic->fHasDownVariation) syh->fHistDown = syh->fHistDown->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
-                    else                                                                         syh->fHistDown = (TH1*)sh->fHist->Clone(syh->fHistDown->GetName());
+                    if(syh->fSystematic->fSampleUp==""   && syh->fSystematic->fHasUpVariation   && syh->fHistUp!=nullptr)   syh->fHistUp   = syh->fHistUp  ->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
+                    else                                                                                                    syh->fHistUp   = (TH1*)sh->fHist->Clone(syh->fHistUp->GetName());
+                    if(syh->fSystematic->fSampleDown=="" && syh->fSystematic->fHasDownVariation && syh->fHistDown!=nullptr) syh->fHistDown = syh->fHistDown->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
+                    else                                                                                                    syh->fHistDown = (TH1*)sh->fHist->Clone(syh->fHistDown->GetName());
                 }
                 //
                 // rebin also separate-gamma hists!
                 if(smp->fSeparateGammas){
                     SystematicHist *syh = sh->GetSystematic( "stat_"+smp->fName );
                     if(syh==nullptr) continue;
-                    syh->fHistUp  ->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
-                    syh->fHistDown->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
+                    if(syh->fHistUp!=nullptr)   syh->fHistUp  ->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
+                    if(syh->fHistDown!=nullptr) syh->fHistDown->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
                 }
             }
         }
@@ -4532,14 +4540,21 @@ void TRExFit::Fit(){
     // Fit result on Asimov with shifted systematics
     //
     if(fDoNonProfileFit){
+        //
+        std::map<std::string,float> systGroups;
+        std::vector<std::string> systGroupNames;
+        //
         WriteInfoStatus("TRExFit::Fit","");
         WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
         WriteInfoStatus("TRExFit::Fit","Scan of systematics for non-profile fit...");
         std::ofstream out;
         std::ofstream tex;
+        std::ofstream out2;
+        std::ofstream tex2;
         std::vector < std:: string > regionsToFit;
         out.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
         tex.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.tex").c_str());
+        tex2.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts_grouped.tex").c_str());
         std::map < std::string, int > regionDataType;
         for(auto reg : fRegions) regionDataType[reg->fName] = Region::ASIMOVDATA;
         for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
@@ -4561,6 +4576,9 @@ void TRExFit::Fit(){
         RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
         double statUp = poiVar->getErrorHi();
         double statDo = poiVar->getErrorLo();
+        // temporary switch off minos (not needed)
+        std::vector<std::string> varMinosTmp = fVarNameMinos;
+        fVarNameMinos.clear();
         // MC stat
         double MCstatUp = 0.;
         double MCstatDo = 0.;
@@ -4572,6 +4590,7 @@ void TRExFit::Fit(){
 //                 TH1* hTot = reg->fTot; // not that simple unfortunatelly...
                 TH1* hTot = nullptr;
                 for(auto sh : reg->fSampleHists){
+                    if(sh->fSample->fSeparateGammas) continue;
                     if(sh->fSample->fType==Sample::GHOST) continue;
                     if(sh->fSample->fType==Sample::DATA) continue;
                     if(!sh->fSample->fUseMCStat) continue; // need to fix something for separate gammas
@@ -4588,8 +4607,7 @@ void TRExFit::Fit(){
                         if(sh->fSample->fIsMorph[morphPar] && sh->fSample->fMorphValue[morphPar]!=nfVal) skip = true;
                     }
                     if(skip) continue;
-                    if(sh->fSample->fSeparateGammas) WriteErrorStatus("TRExFit::Fit","MC stat calculation for non-profiled syst list not supported for SeparateGammas option");
-                    std::cout << "Adding " << sh->fSample->fName << std::endl;
+                    WriteInfoStatus("TRExFit::Fit","  Including sample "+sh->fSample->fName);
                     if(hTot==nullptr && sh->fHist!=nullptr) hTot = (TH1*)sh->fHist->Clone("h_tot");
                     else if(            sh->fHist!=nullptr) hTot->Add(sh->fHist);
                 }
@@ -4597,25 +4615,82 @@ void TRExFit::Fit(){
                 for(int i_bin=1;i_bin<=hTot->GetNbinsX();i_bin++){
                     double statErr = hTot->GetBinError(i_bin)/hTot->GetBinContent(i_bin);
                     std::string gammaName = "gamma_stat_"+reg->fName+"_bin_"+std::to_string(i_bin-1);
+                    // up
                     npVal = fFitNPValues;
                     npVal[gammaName] = 1+statErr;
-                    WriteInfoStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1+statErr));
+                    WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1+statErr));
                     data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
                     npVal[gammaName] = 1;
                     npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                     MCstatUp = sqrt(pow(MCstatUp,2)+pow(npValues[fPOI]-nominalPOIval,2));
+                    // down
+                    npVal = fFitNPValues;
+                    npVal[gammaName] = 1-statErr;
+                    WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1-statErr));
+                    data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
+                    npVal[gammaName] = 1;
+                    npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
+                    MCstatDo = -sqrt(pow(MCstatDo,2)+pow(npValues[fPOI]-nominalPOIval,2));
                 }
             }
             fGammasInStatOnly = false;
         }
-        MCstatDo = -MCstatUp;
+        // MC-stat for specific samples (those using separate gammas)
+        std::map<std::string,float> MCstatUpSample;
+        std::map<std::string,float> MCstatDoSample;
+        std::map<std::string,std::string> smpTexTitle;
+        if(fUseStatErr){
+            std::map < std::string, double > npVal;
+            for(auto reg : fRegions){
+                for(auto sh : reg->fSampleHists){
+                    TH1* hTot = nullptr;
+                    if(sh->fSample->fType==Sample::GHOST) continue;
+                    if(sh->fSample->fType==Sample::DATA) continue;
+                    if(!sh->fSample->fSeparateGammas) continue;
+                    bool skip = false;
+                    for(auto morphPar : fMorphParams){
+                        // find nominal value of this morph parameter
+                        float nfVal = 0;
+                        for(auto nf : fNormFactors){
+                            if(nf->fName==morphPar){
+                                nfVal = nf->fNominal;
+                                break;
+                            }
+                        }
+                        if(sh->fSample->fIsMorph[morphPar] && sh->fSample->fMorphValue[morphPar]!=nfVal) skip = true;
+                    }
+                    if(skip) continue;
+                    WriteInfoStatus("TRExFit::Fit","MC stat for sample "+sh->fSample->fName+"...");
+                    hTot = (TH1*)sh->fHist->Clone("h_tot");
+                    if(hTot==nullptr) continue;
+                    for(int i_bin=1;i_bin<=hTot->GetNbinsX();i_bin++){
+                        double statErr = hTot->GetBinError(i_bin)/hTot->GetBinContent(i_bin);
+                        std::string gammaName = "gamma_shape_stat_"+sh->fSample->fName+"_"+reg->fName+"_bin_"+std::to_string(i_bin-1);
+                        npVal = fFitNPValues;
+                        npVal[gammaName] = 1+statErr;
+                        WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1+statErr));
+                        data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
+                        npVal[gammaName] = 1;
+                        npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
+                        MCstatUpSample[sh->fSample->fName] = sqrt(pow(MCstatUpSample[sh->fSample->fName],2) + pow(npValues[fPOI]-nominalPOIval,2));
+                        npVal = fFitNPValues;
+                        npVal[gammaName] = 1-statErr;
+                        WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1-statErr));
+                        data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
+                        npVal[gammaName] = 1;
+                        npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
+                        MCstatDoSample[sh->fSample->fName] = -sqrt(pow(MCstatDoSample[sh->fSample->fName],2) + pow(npValues[fPOI]-nominalPOIval,2));
+                        smpTexTitle[sh->fSample->fName] = sh->fSample->fTexTitle;
+                    }
+                    MCstatUpSample[sh->fSample->fName]*=sh->fSample->fMCstatScale;
+                    MCstatDoSample[sh->fSample->fName]*=sh->fSample->fMCstatScale;
+                }
+            }
+        }
         //
         std::map < std::string, double > newPOIvalUp;
         std::map < std::string, double > newPOIvalDo;
         std::vector < std::string > npList;
-        // temporary switch off minos (not needed)
-        std::vector<std::string> varMinosTmp = fVarNameMinos;
-        fVarNameMinos.clear();
         for(auto syst : fSystematics){
             if(FindInStringVector(npList,syst->fNuisanceParameter)<0){
                 npList.push_back(syst->fNuisanceParameter);
@@ -4638,6 +4713,13 @@ void TRExFit::Fit(){
                     if(ud==0) newPOIvalUp[syst->fNuisanceParameter] = newPOIval;
                     if(ud==1) newPOIvalDo[syst->fNuisanceParameter] = newPOIval;
                 }
+                std::string category = syst->fCategory;
+                if(syst->fSubCategory!="") category = syst->fSubCategory;
+                if(FindInStringVector(systGroupNames,category)<0) systGroupNames.push_back(category);
+                if(fabs(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval)>fNonProfileFitSystThreshold 
+                || fabs(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval)>fNonProfileFitSystThreshold)
+                    systGroups[category] = sqrt(pow(systGroups[category],2)
+                        +pow((fabs(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval)+fabs(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval))/2,2));
             }
         }
         // print:
@@ -4659,15 +4741,28 @@ void TRExFit::Fit(){
         float totUp = 0.;
         float totDo = 0.;
         npList.clear();
-        //
-        std::cout << "MCstat          \t" << MCstatUp << "\t" << MCstatDo << std::endl;
-        out       << "MCstat          \t" << MCstatUp << "\t" << MCstatDo << std::endl;
-        std::cout << "-----------------------------------" << std::endl;
+        // MC stat
+        std::cout << "Stat.MC\t" << MCstatUp << "\t" << MCstatDo << std::endl;
+        out       << "Stat.MC\t" << MCstatUp << "\t" << MCstatDo << std::endl;
+//         std::cout << "-----------------------------------" << std::endl;
         tex       << "  MC-stat & $+" << Form("%.2f",MCstatUp) << "$ / $" << Form("%.2f",MCstatDo) << "$ \\\\" << std::endl;
         tex       << "\\hline" << std::endl;
         totUp = sqrt(pow(totUp,2)+pow(MCstatUp,2));
         totDo = sqrt(pow(totDo,2)+pow(MCstatDo,2));
+        // MC stat for separate gamma samples
+        for(auto sepGammaPair : MCstatUpSample){
+            std::string smpName = sepGammaPair.first;
+            std::cout << "Stat." << smpName << "\t" << MCstatUpSample[smpName] << "\t" << MCstatDoSample[smpName] << std::endl;
+            out       << "Stat." << smpName << "\t" << MCstatUpSample[smpName] << "\t" << MCstatDoSample[smpName] << std::endl;
+            tex       << "  Stat (" << smpTexTitle[smpName] << ") & $+" << Form("%.2f",MCstatUpSample[smpName]) << "$ / $" << Form("%.2f",MCstatDoSample[smpName]) << "$ \\\\" << std::endl;
+            tex       << "\\hline" << std::endl;
+            totUp = sqrt(pow(totUp,2)+pow(MCstatUpSample[smpName],2));
+            totDo = sqrt(pow(totDo,2)+pow(MCstatDoSample[smpName],2));
+        }
+        std::cout << "-----------------------------------" << std::endl;
+        // systematics
         for(auto syst : fSystematics){
+            if(syst->fName.find("stat_")!=std::string::npos && syst->fType==Systematic::SHAPE) continue;
             if(FindInStringVector(npList,syst->fNuisanceParameter)<0){
                 npList.push_back(syst->fNuisanceParameter);
                 std::cout << syst->fNuisanceParameter;
@@ -4684,22 +4779,26 @@ void TRExFit::Fit(){
                     if(ud==1) out       << "\t" << valDo;
                     if(ud==0) tex       << " & " << Form("$%s%.2f$",(valUp>=0 ? "+" : "-"),fabs(valUp));
                     if(ud==1) tex       << " / " << Form("$%s%.2f$",(valDo>=0 ? "+" : "-"),fabs(valDo));
-                    if(ud==0 && valUp>0) totUp = sqrt(pow(totUp,2)+pow(valUp,2));
-                    if(ud==0 && valUp<0) totDo = sqrt(pow(totDo,2)+pow(valUp,2));
-                    if(ud==1 && valDo>0) totUp = sqrt(pow(totUp,2)+pow(valDo,2));
-                    if(ud==1 && valDo<0) totDo = sqrt(pow(totDo,2)+pow(valDo,2));
+                    if(fabs(valUp)>fNonProfileFitSystThreshold || fabs(valDo)>fNonProfileFitSystThreshold){
+                        if(ud==0 && valUp>0) totUp = sqrt(pow(totUp,2)+pow(valUp,2));
+                        if(ud==0 && valUp<0) totDo = sqrt(pow(totDo,2)+pow(valUp,2));
+                        if(ud==1 && valDo>0) totUp = sqrt(pow(totUp,2)+pow(valDo,2));
+                        if(ud==1 && valDo<0) totDo = sqrt(pow(totDo,2)+pow(valDo,2));
+                    }
                 }
                 std::cout << std::endl;
                 out       << std::endl;
                 tex       << "\\\\" << std::endl;
             }
         }
+        totUp = sqrt(pow(totUp,2)+pow(fNonProfileFitSystThreshold,2));
+        totDo = sqrt(pow(totDo,2)+pow(fNonProfileFitSystThreshold,2));
         std::cout << "-----------------------------------" << std::endl;
-        std::cout << "TotalSystematic \t" << totUp << "\t-" << totDo << std::endl;
-        out       << "TotalSystematic \t" << totUp << "\t-" << totDo << std::endl;
+        std::cout << "TotalSystematic\t" << totUp << "\t-" << totDo << std::endl;
+        out       << "TotalSystematic\t" << totUp << "\t-" << totDo << std::endl;
         std::cout << "-----------------------------------" << std::endl;
-        std::cout << "TotalStat+Syst  \t" << sqrt(pow(totUp,2)+pow(statUp,2)) << "\t-" << sqrt(pow(totDo,2)+pow(statDo,2)) << std::endl;
-        out       << "TotalStat+Syst  \t" << sqrt(pow(totUp,2)+pow(statUp,2)) << "\t-" << sqrt(pow(totDo,2)+pow(statDo,2)) << std::endl;
+        std::cout << "TotalStat+Syst\t" << sqrt(pow(totUp,2)+pow(statUp,2)) << "\t-" << sqrt(pow(totDo,2)+pow(statDo,2)) << std::endl;
+        out       << "TotalStat+Syst\t" << sqrt(pow(totUp,2)+pow(statUp,2)) << "\t-" << sqrt(pow(totDo,2)+pow(statDo,2)) << std::endl;
         std::cout << "-----------------------------------" << std::endl;
         out.close();
         tex << "\\hline" << std::endl;
@@ -4711,6 +4810,48 @@ void TRExFit::Fit(){
         tex << "\\end{tabular}" << std::endl;
         tex.close();
         fVarNameMinos = varMinosTmp; // retore Minos settings
+        //
+        // Systematics merged according to syst groups
+        std::cout << "-----------------------------------" << std::endl;
+        std::cout << "- Systematic impact per category  -" << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
+        tex2      << "\\begin{tabular}{lr}" << std::endl;
+        tex2      << "\\hline" << std::endl;
+        tex2      << "\\hline" << std::endl;
+        std::cout << "Data statistics" << "\t" << (fabs(statUp)+fabs(statDo))/2. << std::endl;
+        out2      << "Data statistics" << "\t" << (fabs(statUp)+fabs(statDo))/2. << std::endl;
+        tex2      << "Data statistics" << " & " << Form("$%.2f$",(fabs(statUp)+fabs(statDo))/2.) << " \\\\" << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
+        tex2      << "\\hline" << std::endl;
+        std::cout << "MC background stat." << "\t" << (fabs(MCstatUp)+fabs(MCstatDo))/2. << std::endl;
+        out2      << "MC background stat." << "\t" << (fabs(MCstatUp)+fabs(MCstatDo))/2. << std::endl;
+        tex2      << "MC background stat." << " & " << Form("$%.2f$",(fabs(MCstatUp)+fabs(MCstatDo))/2.) << " \\\\" << std::endl;
+        for(auto sepGammaPair : MCstatUpSample){
+            std::string smpName = sepGammaPair.first;
+            std::cout << smpTexTitle[smpName] << " stat." << "\t" << (fabs(MCstatUpSample[smpName])+fabs(MCstatDoSample[smpName]))/2. << std::endl;
+            out2      << smpTexTitle[smpName] << " stat." << "\t" << (fabs(MCstatUpSample[smpName])+fabs(MCstatDoSample[smpName]))/2. << std::endl;
+            tex2      << smpTexTitle[smpName] << " stat." << " & " << Form("$%.2f$",(fabs(MCstatUpSample[smpName])+fabs(MCstatDoSample[smpName]))/2.) << " \\\\" << std::endl;
+        }
+        std::cout << "-----------------------------------" << std::endl;
+        tex2      << "\\hline" << std::endl;
+        for(auto systGroupName : systGroupNames){
+            if(systGroupName=="") continue;
+            std::cout << systGroupName << "\t" << systGroups[systGroupName] << std::endl;
+            out2      << systGroupName << "\t" << systGroups[systGroupName] << std::endl;
+            tex2      << systGroupName << " & " << Form("$%.2f$",systGroups[systGroupName]) << " \\\\" << std::endl;
+        }
+        std::cout << "-----------------------------------" << std::endl;
+        std::cout << "TotalSystematic\t" << (fabs(totUp)+fabs(totDo))/2. << std::endl;
+        std::cout << "TotalStat+Syst\t" << (sqrt(pow(totUp,2)+pow(statUp,2))+sqrt(pow(totDo,2)+pow(statDo,2)))/2. << std::endl;
+        std::cout << "-----------------------------------" << std::endl;
+        tex2 << "\\hline" << std::endl;
+        tex2 << "Total systematic uncertainty & " << Form("$%.2f$",(fabs(totUp)+fabs(totDo))/2.) << " \\\\" << std::endl;
+        tex2 << "\\hline" << std::endl;
+        tex2 << "Total & "   << Form("$%.2f$",(sqrt(pow(totUp,2)+pow(statUp,2))+sqrt(pow(totDo,2)+pow(statDo,2)))/2.) << " \\\\" << std::endl;
+        tex2 << "\\hline" << std::endl;
+        tex2 << "\\hline" << std::endl;
+        tex2 << "\\end{tabular}" << std::endl;
+        tex2.close();
     }
 
     //

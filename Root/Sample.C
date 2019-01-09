@@ -74,6 +74,7 @@ Sample::Sample(const std::string& name,int type){
     fAsimovReplacementFor = std::make_pair("","");
 
     fSeparateGammas = false;
+    fMCstatScale = 1.;
     fCorrelateGammasInRegions.clear();
     fCorrelateGammasWithSample = "";
 }
