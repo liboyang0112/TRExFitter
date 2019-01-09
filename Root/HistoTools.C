@@ -592,9 +592,9 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
               WriteWarningStatus("HistoTools::CheckHistograms", "In histo \"" + temp + "\", bin " + std::to_string(iBin) + " has 0 content ! Please check");
               WriteWarningStatus("HistoTools::CheckHistograms", "Nominal: " + std::to_string(content));
               //Corrects the nominal
-              WriteWarningStatus("HistoTools::CheckHistograms", "I set the bin content to 1e-05 pm 1e-06 ! Please check !");
-              nom -> SetBinContent(iBin,1e-05);
-              nom -> SetBinError(iBin, 1e-06);
+              WriteWarningStatus("HistoTools::CheckHistograms", "I set the bin content to 1e-06 pm 1e-07 ! Please check !");
+              nom -> SetBinContent(iBin,1e-06);
+              nom -> SetBinError(iBin, 1e-07);
             }
         }
 
