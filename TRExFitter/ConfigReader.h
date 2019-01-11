@@ -233,6 +233,13 @@ class ConfigReader {
         std::vector<std::string> GetAvailableSysts();
 
         /**
+          * Helper function to check if the name of the systematic is problematic
+          * @param name of the syst
+          * @return flag if the systematic is problematic
+          */ 
+        bool SystHasProblematicName(const std::string& name);
+
+        /**
           * Pointer to TRExFit class, set during initialization
           */
         TRExFit *fFitter;

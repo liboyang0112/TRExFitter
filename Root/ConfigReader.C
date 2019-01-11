@@ -2936,6 +2936,8 @@ int ConfigReader::ReadNormFactorOptions(){
             TRExFitter::NPMAP[nfactor->fName] = nfactor->fName;
         }
 
+        if (SystHasProblematicName(nfactor->fNuisanceParameter)) return 1;
+
         // Set Constant
         param = confSet->Get("Constant");
         if(param != ""){
@@ -3094,6 +3096,8 @@ int ConfigReader::ReadShapeFactorOptions(){
             sfactor->fNuisanceParameter = sfactor->fName;
             TRExFitter::NPMAP[sfactor->fName] = sfactor->fName;
         }
+        
+        if (SystHasProblematicName(sfactor->fNuisanceParameter)) return 1;
 
         // Set Constant
         param = confSet->Get("Constant");
@@ -3978,6 +3982,8 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
         TRExFitter::NPMAP[sys->fName] = sys->fName;
     }
 
+    if (SystHasProblematicName(sys->fNuisanceParameter)) return 1;
+    
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
@@ -4062,6 +4068,8 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
                     mySys->fNuisanceParameter = mySys->fName;
                     TRExFitter::NPMAP[mySys->fName] = mySys->fName;
                 }
+    
+                if (SystHasProblematicName(mySys->fNuisanceParameter)) return 1;
 
                 // Set Title
                 param = confSet->Get("Title");
@@ -4100,6 +4108,8 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
                 mySys->fNuisanceParameter = mySys->fName;
                 TRExFitter::NPMAP[mySys->fName] = mySys->fName;
             }
+                
+            if (SystHasProblematicName(mySys->fNuisanceParameter)) return 1;
 
             // Set Title
             param = confSet->Get("Title");
@@ -4176,6 +4186,8 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
             TRExFitter::NPMAP[mySys->fName] = mySys->fName;
         }
 
+        if (SystHasProblematicName(mySys->fNuisanceParameter)) return 1;
+        
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
@@ -4213,6 +4225,8 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         TRExFitter::NPMAP[mySys1->fName] = mySys1->fName;
     }
 
+    if (SystHasProblematicName(mySys1->fNuisanceParameter)) return 1;
+    
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
@@ -4255,6 +4269,8 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
             mySys2->fNuisanceParameter = mySys2->fName;
             TRExFitter::NPMAP[mySys2->fName] = mySys2->fName;
         }
+
+        if (SystHasProblematicName(mySys2->fNuisanceParameter)) return 1;
 
         // Set Title
         param = confSet->Get("Title");
@@ -4453,4 +4469,16 @@ std::vector<std::string> ConfigReader::GetAvailableSysts(){
         availableSysts.emplace_back(CheckName(tmp));
     }
     return availableSysts;
+}
+
+//__________________________________________________________________________________
+//
+bool ConfigReader::SystHasProblematicName(const std::string& name){
+    if ((name.find("gamma") != std::string::npos) || (name.find("alpha") != std::string::npos)){
+        WriteErrorStatus("ConfigReader::SystHasProblematicName", "NP " + name + " has a problematic name, please change it.");
+        WriteErrorStatus("ConfigReader::SystHasProblematicName", "You should not be using names with: \"gamma\", \"alpha\" as these are used internally and can cause problems.");
+        return true;
+    }
+
+    return false;
 }
