@@ -236,7 +236,7 @@ class ConfigReader {
           * Helper function to check if the name of the systematic is problematic
           * @param name of the syst
           * @return flag if the systematic is problematic
-          */ 
+          */
         bool SystHasProblematicName(const std::string& name);
 
         /**
@@ -312,6 +312,16 @@ class ConfigReader {
           *  string for signal only
           */
         std::string fOnlySignal = "";
+
+        /**
+          * bool to check if there is at least one valid region
+          */
+        bool fHasAtLeastOneValidRegion;
+
+        /**
+          * bool to check if there is at least one valid sample for the fit
+          */
+        bool fHasAtLeastOneValidSample;
 };
 
 #endif

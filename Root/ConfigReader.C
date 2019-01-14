@@ -1444,7 +1444,7 @@ int ConfigReader::ReadFitOptions(){
             fFitter->fDoNonProfileFit = false;
         }
     }
-    
+
     // Set NonProfileFitSystThreshold
     param = confSet->Get("NonProfileFitSystThreshold");
     if( param != "" ){
@@ -1680,6 +1680,8 @@ int ConfigReader::ReadRegionOptions(){
         }
     }
 
+    fHasAtLeastOneValidRegion = false;
+
     int nReg = 0;
     while(true){
         ConfigSet *confSet = fParser->GetConfigSet("Region",nReg);
@@ -1880,7 +1882,10 @@ int ConfigReader::ReadRegionOptions(){
                 return 1;
             }
         }
-        if(reg -> fRegionType != Region::VALIDATION) reg->fUseGammaPulls = fFitter->fUseGammaPulls;
+        if(reg -> fRegionType != Region::VALIDATION){
+            reg->fUseGammaPulls = fFitter->fUseGammaPulls;
+            fHasAtLeastOneValidRegion = true;
+        }
 
         // Set DataType
         param = confSet->Get("DataType");
@@ -1944,6 +1949,12 @@ int ConfigReader::ReadRegionOptions(){
         }
 
     }
+
+    if (!fHasAtLeastOneValidRegion){
+        WriteErrorStatus("ConfigReader::ReadRegionOptions","You need to provide at least one region that is not Validation otherwise the fit will crash.");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -2208,6 +2219,8 @@ int ConfigReader::ReadSampleOptions(){
         }
     }
 
+    fHasAtLeastOneValidSample = false;
+
     int nSmp = 0;
     while(true){
         ConfigSet *confSet = fParser->GetConfigSet("Sample",nSmp);
@@ -2231,6 +2244,7 @@ int ConfigReader::ReadSampleOptions(){
             if(param == "SIGNAL"){
                 type = Sample::SIGNAL;
                 fNonGhostIsSet = true;
+                fHasAtLeastOneValidSample = true;
             }
             else if(param == "DATA"){
                 type = Sample::DATA;
@@ -2246,6 +2260,7 @@ int ConfigReader::ReadSampleOptions(){
             else if(param == "BACKGROUND"){
                 type = Sample::BACKGROUND;
                 fNonGhostIsSet = true;
+                fHasAtLeastOneValidSample = true;
             }
             else {
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'Type' option in sample but didnt provide valid parameter. Using default (BACKGROUND)");
@@ -2799,7 +2814,7 @@ int ConfigReader::ReadSampleOptions(){
         if(param != ""){
             sample->fMCstatScale = atof(param.c_str());
         }
-        
+
         // Set CorrelateGammasInRegions
         // in the form    CorrelateGammasInRegions: SR1:SR2,CR1:CR2:CR3
         param = confSet->Get("CorrelateGammasInRegions");
@@ -2841,6 +2856,11 @@ int ConfigReader::ReadSampleOptions(){
             if(FindInStringVector(fFitter->fMorphParams,name)<0) fFitter->fMorphParams.push_back( name );
         }
 
+    }
+
+    if (!fHasAtLeastOneValidSample){
+        WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
+        return 1;
     }
 
     // build new samples if AsimovReplacementFor are specified
@@ -3096,7 +3116,7 @@ int ConfigReader::ReadShapeFactorOptions(){
             sfactor->fNuisanceParameter = sfactor->fName;
             TRExFitter::NPMAP[sfactor->fName] = sfactor->fName;
         }
-        
+
         if (SystHasProblematicName(sfactor->fNuisanceParameter)) return 1;
 
         // Set Constant
@@ -3983,7 +4003,7 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
     }
 
     if (SystHasProblematicName(sys->fNuisanceParameter)) return 1;
-    
+
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
@@ -4068,7 +4088,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
                     mySys->fNuisanceParameter = mySys->fName;
                     TRExFitter::NPMAP[mySys->fName] = mySys->fName;
                 }
-    
+
                 if (SystHasProblematicName(mySys->fNuisanceParameter)) return 1;
 
                 // Set Title
@@ -4108,7 +4128,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
                 mySys->fNuisanceParameter = mySys->fName;
                 TRExFitter::NPMAP[mySys->fName] = mySys->fName;
             }
-                
+
             if (SystHasProblematicName(mySys->fNuisanceParameter)) return 1;
 
             // Set Title
@@ -4187,7 +4207,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         }
 
         if (SystHasProblematicName(mySys->fNuisanceParameter)) return 1;
-        
+
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
@@ -4226,7 +4246,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
     }
 
     if (SystHasProblematicName(mySys1->fNuisanceParameter)) return 1;
-    
+
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
