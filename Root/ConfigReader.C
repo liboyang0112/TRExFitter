@@ -154,6 +154,9 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(optMap["LimitParamValue"]!=""){
         fFitter->fLimitParamValue = atof(optMap["LimitParamValue"].c_str());
     }
+    if(optMap["LHscan"]!=""){
+        fOnlyLHscan = optMap["LHscan"];
+    }
     //
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "-------------------------------------------");
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "Running options: ");
@@ -1341,7 +1344,11 @@ int ConfigReader::ReadFitOptions(){
     // Set doLHscan
     param = confSet->Get("doLHscan");
     if( param != "" ){
-        fFitter->fVarNameLH = Vectorize(param,',');
+        if (fOnlyLHscan!=""){
+            fFitter->fVarNameLH = Vectorize(param,',');
+        } else {
+            fFitter->fVarNameLH.emplace_back(fOnlyLHscan);
+        }
     }
 
     // Set LHscanMin

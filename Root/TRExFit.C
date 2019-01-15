@@ -4428,7 +4428,7 @@ void TRExFit::DrawPruningPlot() const{
 
 //__________________________________________________________________________________
 //
-void TRExFit::Fit(){
+void TRExFit::Fit(bool isLHscanOnly){
 
     //
     //Checks if a data sample exists
@@ -4472,9 +4472,11 @@ void TRExFit::Fit(){
     // Otherwise go on with normal fit
     //
     else{
-        WriteInfoStatus("TRExFit::Fit","");
-        WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
-        WriteInfoStatus("TRExFit::Fit","Performing nominal fit...");
+        if (isLHscanOnly){
+            WriteInfoStatus("TRExFit::Fit","");
+            WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
+            WriteInfoStatus("TRExFit::Fit","Performing nominal fit...");
+        }
         //
         // Fills a vector of regions to consider for fit
         //
@@ -4526,20 +4528,20 @@ void TRExFit::Fit(){
         // Calls the PerformFit() function to actually do the fit
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
-        PerformFit( ws, data, fFitType, true, TRExFitter::DEBUGLEVEL);
+        if (!isLHscanOnly) PerformFit( ws, data, fFitType, true, TRExFitter::DEBUGLEVEL);
     }
 
     //
     // Toys
     //
-    if(fFitToys>0){
+    if(fFitToys>0 && !isLHscanOnly){
         RunToys(ws);
     }
 
     //
     // Fit result on Asimov with shifted systematics
     //
-    if(fDoNonProfileFit){
+    if(fDoNonProfileFit && !isLHscanOnly){
         //
         std::map<std::string,float> systGroups;
         std::vector<std::string> systGroupNames;
@@ -4716,7 +4718,7 @@ void TRExFit::Fit(){
                 std::string category = syst->fCategory;
                 if(syst->fSubCategory!="") category = syst->fSubCategory;
                 if(FindInStringVector(systGroupNames,category)<0) systGroupNames.push_back(category);
-                if(fabs(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval)>fNonProfileFitSystThreshold 
+                if(fabs(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval)>fNonProfileFitSystThreshold
                 || fabs(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval)>fNonProfileFitSystThreshold)
                     systGroups[category] = sqrt(pow(systGroups[category],2)
                         +pow((fabs(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval)+fabs(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval))/2,2));
@@ -4857,7 +4859,7 @@ void TRExFit::Fit(){
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
-    if(fVarNameLH.size()>0){
+    if(fVarNameLH.size()>0 && !isLHscanOnly){
         //
         // Don't do it if you did a non-profile fit (FIXME)
         if(fDoNonProfileFit){
@@ -4874,6 +4876,20 @@ void TRExFit::Fit(){
                     GetLikelihoodScan( ws, fVarNameLH[i], data);
                 }
             }
+        }
+    }
+    if (isLHscanOnly){
+        WriteWarningStatus("TRExFit::Fit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
+        if (fVarNameLH[0]=="all"){
+            for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
+                GetLikelihoodScan( ws, it->first, data);
+            }
+        } else {
+            if (fVarNameLH.size() == 0){
+                WriteErrorStatus("TRExFit::Fit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
+                exit(EXIT_FAILURE);
+            }
+            GetLikelihoodScan( ws, fVarNameLH[0], data);
         }
     }
 }

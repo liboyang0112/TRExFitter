@@ -314,6 +314,11 @@ class ConfigReader {
         std::string fOnlySignal = "";
 
         /**
+          *  string for LH scan values from command line
+          */
+        std::string fOnlyLHscan = "";
+
+        /**
           * bool to check if there is at least one valid region
           */
         bool fHasAtLeastOneValidRegion;

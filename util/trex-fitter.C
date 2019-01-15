@@ -74,6 +74,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     bool drawPostFit     = opt.find("p")!=std::string::npos;
     bool drawSeparation  = opt.find("a")!=std::string::npos;
     bool groupedImpact   = opt.find("i")!=std::string::npos;
+    bool doLHscan        = opt.find("x")!=std::string::npos;
 
     if(!readNtuples && !rebinAndSmooth){
         TH1::AddDirectory(kFALSE); // FIXME: it would be nice to have a solution which works always
@@ -226,9 +227,12 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 
     if(doFit){
         std::cout << "Fitting..." << std::endl;
-        myFit->Fit();
+        myFit->Fit(false);
         myFit->PlotFittedNP();
         myFit->PlotCorrelationMatrix();
+    }
+    if (doLHscan){
+        myFit->Fit(true);
     }
     if(doRanking){
         std::cout << "Doing ranking..." << std::endl;
@@ -249,7 +253,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     if(groupedImpact){
         std::cout << "Doing grouped systematics impact table..." << std::endl;
         myFit->fDoGroupedSystImpactTable = true;
-        if(myFit->fGroupedImpactCategory!="combine") myFit->Fit();
+        if(myFit->fGroupedImpactCategory!="combine") myFit->Fit(false);
         else                                         myFit->BuildGroupedImpactTable();
     }
 
