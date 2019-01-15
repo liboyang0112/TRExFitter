@@ -4472,7 +4472,7 @@ void TRExFit::Fit(bool isLHscanOnly){
     // Otherwise go on with normal fit
     //
     else{
-        if (isLHscanOnly){
+        if (!isLHscanOnly){
             WriteInfoStatus("TRExFit::Fit","");
             WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
             WriteInfoStatus("TRExFit::Fit","Performing nominal fit...");
