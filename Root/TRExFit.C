@@ -4879,8 +4879,8 @@ void TRExFit::Fit(bool isLHscanOnly){
         }
     }
     if (isLHscanOnly){
-        WriteWarningStatus("TRExFit::Fit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
         if (fVarNameLH[0]=="all"){
+            WriteWarningStatus("TRExFit::Fit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
             for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
                 GetLikelihoodScan( ws, it->first, data);
             }

@@ -1344,7 +1344,7 @@ int ConfigReader::ReadFitOptions(){
     // Set doLHscan
     param = confSet->Get("doLHscan");
     if( param != "" ){
-        if (fOnlyLHscan!=""){
+        if (fOnlyLHscan==""){
             fFitter->fVarNameLH = Vectorize(param,',');
         } else {
             fFitter->fVarNameLH.emplace_back(fOnlyLHscan);

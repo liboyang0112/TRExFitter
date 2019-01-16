@@ -232,6 +232,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->PlotCorrelationMatrix();
     }
     if (doLHscan){
+        std::cout << "Running LH scan only..." << std::endl;
         myFit->Fit(true);
     }
     if(doRanking){
