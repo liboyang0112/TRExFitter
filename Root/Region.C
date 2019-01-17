@@ -146,13 +146,13 @@ Region::Region(string name){
     fUseGammaPulls = false;
 
     fTot = nullptr;
-    
+
     fLabelX = -1;
     fLabelY = -1;
     fLegendX1 = -1;
     fLegendX2 = -1;
     fLegendY = -1;
-    
+
     fLegendNColumns = 2;
 }
 
@@ -1863,7 +1863,10 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                     std::vector<std::string> systePerSample;
                     // Check for systematics existing not in all regions...
                     if (std::find(fSystNames.begin(), fSystNames.end(), s->fSystematics.at(i_samplesyst)->fName)!=fSystNames.end()){
-                        category_syst_names[s->fName][category].push_back(s->fSystematics.at(i_samplesyst)->fName);
+                        std::vector<std::string> sample_syste = category_syst_names[s->fName][category];
+                        if (std::find(sample_syste.begin(), sample_syste.end(), s->fSystematics.at(i_samplesyst)->fName) == sample_syste.end()){
+                            category_syst_names[s->fName][category].push_back(s->fSystematics.at(i_samplesyst)->fName);
+                        }
                     }
                 }
             }
@@ -1885,9 +1888,10 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                     if(!sh->HasSyst(fSystNames[i_syst]))
                       continue;
 
-                    syh = sh->GetSystematic(fSystNames[i_syst]);
                     if (std::find(sample_syste.begin(), sample_syste.end(), fSystNames.at(i_syst)) == sample_syste.end())
                       continue;
+
+                    syh = sh->GetSystematic(fSystNames[i_syst]);
 
                     if(isPostFit){
                         TH1 *h_up = (TH1*) syh->fHistUp_postFit;
@@ -2146,11 +2150,11 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         exit(EXIT_FAILURE);
     }
     if(h_up.size()!=h_down.size()){
-        WriteErrorStatus("BuildTotError","h_up and h_down have differenze size.");
+        WriteErrorStatus("BuildTotError","h_up and h_down have different size.");
         exit(EXIT_FAILURE);
     }
     if(h_up.size()!=fSystNames.size()){
-        WriteErrorStatus("BuildTotError","h_up and fSystNames have differenze size.");
+        WriteErrorStatus("BuildTotError","h_up and fSystNames have different size.");
         exit(EXIT_FAILURE);
     }
     TGraphAsymmErrors *g_totErr = new TGraphAsymmErrors( h_nominal );
