@@ -102,7 +102,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
                 myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName, false );
             }
             if(doLHscan){
-                std::cout << "Doing lieklihood scan for the combined workspace..." << std::endl;
+                std::cout << "Doing likelihood scan for the combined workspace..." << std::endl;
                 myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName, true );
             }
             if(doLimit){

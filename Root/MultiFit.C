@@ -401,14 +401,17 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
 
     // Full fit
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
-    double nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
-    std::vector<std::string> s_vec;
-    fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt", s_vec);
-    result = fitTool -> ExportFitResultInMap();
+    double nll = 0;
+    if (!doLHscanOnly){
+        nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
+        std::vector<std::string> s_vec;
+        fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt", s_vec);
+        result = fitTool -> ExportFitResultInMap();
+    }
 
     //
     // Goodness of fit
-    if(fGetGoodnessOfFit){
+    if(fGetGoodnessOfFit && !doLHscanOnly){
         double deltaNLL = nll-nll0;
         double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
         WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
@@ -425,7 +428,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
 
     //
     // grouped systematics impact
-    if(fDoGroupedSystImpactTable){
+    if(fDoGroupedSystImpactTable && !doLHscanOnly){
         std::string outNameGroupedImpact = fOutDir+"/Fits/GroupedImpact"+fSaveSuf;
         if(fGroupedImpactCategory!="all") outNameGroupedImpact += "_"+fGroupedImpactCategory;
         outNameGroupedImpact += ".txt";
@@ -476,7 +479,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     // Stat-only fit:
     // - read fit resutls
     // - fix all NP to fitted ones before fitting
-    if(fIncludeStatOnly){
+    if(fIncludeStatOnly && !doLHscanOnly){
         WriteInfoStatus("MultiFit::FitCombinedWS", "Fitting stat-only: reading fit results from full fit from file:");
         WriteInfoStatus("MultiFit::FitCombinedWS", "  " + (fOutDir+"/Fits/"+fName+fSaveSuf+".txt"));
         fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
