@@ -148,7 +148,7 @@ public:
     void DrawPruningPlot() const;
 
     // fit etc...
-    void Fit();
+    void Fit(bool isLHscanOnly);
     RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue);
     std::map < std::string, double > PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType=SPLUSB, bool save=false, int debugLevel=1 );
     RooWorkspace* PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ) const;
@@ -245,21 +245,21 @@ public:
      * @param A pointer to a workspace needed to run the fit
      */
     void RunToys(RooWorkspace* ws);
-    
+
     /**
      * Helper function to compute the variable string to be used when reading ntuples, for a given region, sample combination
      * @param pointer to the Region
      * @param pointer to the Sample
      */
     std::string Variable(Region *reg,Sample *smp);
-    
+
     /**
      * Helper function to compute the selection string to be used when reading ntuples, for a given region, sample combination
      * @param pointer to the Region
      * @param pointer to the Sample
      */
     std::string FullSelection(Region *reg,Sample *smp);
-    
+
     /**
      * Helper function to compute the weight string to be used when reading ntuples, for a given region, sample and systematic combination
      * @param pointer to the Region
@@ -268,7 +268,7 @@ public:
      * @param bool to specify up (true) or down (false) syst variation
      */
     std::string FullWeight(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
-    
+
     /**
      * Helper function to compute the full paths to be used when reading ntuples, for a given region, sample and systematic combination
      * @param pointer to the Region
@@ -277,7 +277,7 @@ public:
      * @param bool to specify up (true) or down (false) syst variation
      */
     std::vector<std::string> FullNtuplePaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
-    
+
     /**
      * Helper function to compute the full paths to be used when reading histograms, for a given region, sample and systematic combination
      * @param pointer to the Region
@@ -297,7 +297,7 @@ public:
      * @param flag if the systematic is up or down
      * @param flag if we are reading MC or Data
      * @return the read histogram
-     */ 
+     */
     TH1D* ReadSingleHistogram(const std::vector<std::string>& fullPaths, Systematic* syst,
         int i_ch, int i_smp, bool isUp, bool isMC);
 
@@ -325,7 +325,7 @@ public:
      * @param SampleHist
      * @param name of the systematics
      * @return index
-     */ 
+     */
     int GetSystIndex(const SampleHist* const sh, const std::string& name) const;
     
     // -------------------------
@@ -541,31 +541,31 @@ public:
     std::vector<int> fMergeCanvasSize;
     std::vector<int> fPieChartCanvasSize;
     std::vector<int> fNPRankingCanvasSize;
-    
+
     std::vector<std::string> fBlindedParameters;
-    
+
     float fLabelX;
     float fLabelY;
     float fLegendX1;
     float fLegendX2;
     float fLegendY;
-    
+
     float fLabelXSummary;
     float fLabelYSummary;
     float fLegendX1Summary;
     float fLegendX2Summary;
     float fLegendYSummary;
-    
+
     float fLabelXMerge;
     float fLabelYMerge;
     float fLegendX1Merge;
     float fLegendX2Merge;
     float fLegendYMerge;
-    
+
     int fLegendNColumns;
     int fLegendNColumnsSummary;
     int fLegendNColumnsMerge;
-    
+
     bool fShowRatioPad;
     bool fShowRatioPadSummary;
     bool fShowRatioPadMerge;

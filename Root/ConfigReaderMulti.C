@@ -205,6 +205,12 @@ int ConfigReaderMulti::ReadJobOptions(){
             fMultiFitter->fPlotCombCorrMatrix  = false;
         }
     }
+    
+    // Set CorrelationThreshold
+    param = confSet->Get("CorrelationThreshold");
+    if( param != ""){
+        TRExFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
+    }
 
     // Set Combine
     param = confSet->Get("Combine");

@@ -110,6 +110,7 @@ For instance, if you use the default file `util/trex-fitter.C`, the available ac
 | `b` | re-run smoothing (in the future also rebinning) |
 | `m` | multi-fit (see [Multi-Fit](#multi-fit)) |
 | `i` | grouped impact evaluation (see [Grouped Impact](#grouped-impact)) |
+| `x` | run likelihood scan only, will not produce the standard fit output like pulls/correlation matrix/etc (usefull with "LHscan" command line option for parallelization) |
 
 New optional argument: `<options>`.
 It is a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form:
@@ -558,6 +559,7 @@ Currently the supported options are:
 | **GroupedImpact**   | see [Grouped Impact](#grouped-impact) section |
 | **OutputDir**       | see [Job options](#job-block-options) section |
 | **LimitParamValue** | see [Limit options](#limit-block-options) section (ParamValue) |
+| **LHscan**          | set a NP/POI for the likelihood scan can be used for parallelization of the code |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
@@ -667,6 +669,7 @@ This will create a combined ws starting from the individual ws for the different
 | ComparePOI       | can be TRUE or FALSE, flag to compare to POI values |
 | ComparePulls     | can be TRUE or FALSE, flag to compare to pulls values |
 | PlotCombCorrMatrix | can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics |
+| CorrelationThreshold | Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%) |
 | Combine          | can be TRUE or FALSE, set to TRUE if you want to perfom actual combination (followed by `mwf`) |
 | Compare          | can be TRUE or FALSE, set to TRUE if you want to compare values |
 | StatOnly         | can be TRUE or FALSE, set to TRUE if the fits are stat only fits |
