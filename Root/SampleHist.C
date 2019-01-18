@@ -1417,3 +1417,18 @@ void SampleHist::Scale(float scale){
         if(fSyst[i_syst]->fHistShapeDown!=nullptr) fSyst[i_syst]->fHistShapeDown->Scale( scale );
     }
 }
+
+//_____________________________________________________________________________
+//
+void SampleHist::SystPruning(PruningUtil *pu,TH1* hTot){
+    for(auto syh : fSyst){
+        if(!syh) continue;
+        if(!syh->fHistUp) continue;
+        if(!syh->fHistDown) continue;
+        int pruningResult = pu->CheckSystPruning(syh->fHistUp,syh->fHistDown,fHist,hTot);
+        syh->fBadShape = (pruningResult==-3 || pruningResult==-4);
+        syh->fBadNorm = (pruningResult==-2 || pruningResult==-4);
+        syh->fShapePruned = (pruningResult==1 || pruningResult==3 || syh->fBadShape);
+        syh->fNormPruned = (pruningResult==2 || pruningResult==3 || syh->fBadNorm);
+    }
+}

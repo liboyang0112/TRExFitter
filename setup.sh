@@ -74,6 +74,8 @@ lsetup cmake
 
 export PATH=${PATH}${PATH:+:}${TREXFITTER_HOME}/build/bin
 alias trex-make='cd build/; cmake --build ./; cd ../'
+alias trex-clean='rm -rf build/'
+alias trex-build='mkdir build && cd build; cmake ../; cmake --build ./; cd ../'
 
 version=`cat ${TREXFITTER_HOME}/version.txt`
 echo -e "\n\e[1m${version} ready (if everything went smoothly)\e[0m"

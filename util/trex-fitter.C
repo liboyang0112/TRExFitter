@@ -74,6 +74,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     bool drawPostFit     = opt.find("p")!=std::string::npos;
     bool drawSeparation  = opt.find("a")!=std::string::npos;
     bool groupedImpact   = opt.find("i")!=std::string::npos;
+    
+    bool pruning = (createWorkspace || drawPreFit || drawPostFit || doFit || doLimit || doSignificance); // ...
 
     if(!readNtuples && !rebinAndSmooth){
         TH1::AddDirectory(kFALSE); // FIXME: it would be nice to have a solution which works always
@@ -202,7 +204,6 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->ReadHistos();
     }
 
-    // new
     if(rebinAndSmooth){
         std::cout << "Rebinning and smoothing..." << std::endl;
         bool udpate = myFit->fUpdate;
@@ -217,9 +218,14 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
 
+    if(pruning){
+        std::cout << "Applying systematics pruning..." << std::endl;
+        myFit->SystPruning();
+    }
+
     if(createWorkspace){
         std::cout << "Creating workspace..." << std::endl;
-        myFit->DrawPruningPlot();
+//         myFit->DrawPruningPlot();
         myFit->SetLumiErr(0.);
         myFit->ToRooStat(true,true);
     }

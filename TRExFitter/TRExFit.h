@@ -4,6 +4,10 @@
 /// Framework includes
 #include "TRExFitter/HistoTools.h"
 
+// RooFit
+#include "RooSimultaneous.h"
+#include "RooStats/ModelConfig.h"
+
 /// c++ includes
 #include <map>
 #include <memory>
@@ -23,6 +27,10 @@ class ShapeFactor;
 class Systematic;
 class TRExPlot;
 class TFile;
+
+class TFile;
+
+using namespace RooFit;
 
 class TRExFit {
 public:
@@ -140,6 +148,7 @@ public:
     // turn to RooStat::HistFactory
     void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
 
+    void SystPruning() const;
     void DrawPruningPlot() const;
 
     // fit etc...
@@ -337,6 +346,9 @@ public:
      * @return index
      */ 
     int GetSystIndex(const SampleHist* const sh, const std::string& name) const;
+    
+    RooSimultaneous* MakeSaturatedModel(RooStats::ModelConfig *mc,RooSimultaneous *simPdf,RooAbsData* data);
+    
     // -------------------------
 
     std::string fName;

@@ -822,7 +822,7 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // Set RankingPOIName
-    param = confSet->Get("PrunningType");
+    param = confSet->Get("PruningType");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if (param == "SEPARATESAMPLE") {

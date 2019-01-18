@@ -443,41 +443,41 @@ void HistoTools::Scale(TH1* h_syst, TH1* h_nominal, float factor){
     }
 }
 
-//_________________________________________________________________________
-//
-bool HistoTools::HasShape(TH1* hnom, SystematicHist* sh, float threshold){
-
-    if (hnom == nullptr) return false;
-    if (sh   == nullptr) return false;
-    if (sh->fHistShapeUp   == nullptr) return false;
-    if (sh->fHistShapeDown   == nullptr) return false;
-
-    //Save time
-    if(hnom->GetNbinsX()==1) return false;
-
-    //Integral -> Protects against nan's for Shape histograms
-    double integralUp = sh->fHistShapeUp->Integral();
-    if(integralUp!=integralUp) return false;
-
-    double integralDown = sh->fHistShapeDown->Integral();
-    if(integralDown!=integralDown) return false;
-
-    //If at least one bin is the shape histogram is larger than the threshold, keep the uncertainty
-    bool hasShape = false;
-    for (int iBin = 1; iBin <= hnom->GetNbinsX(); ++iBin) {
-        double nom = hnom->GetBinContent(iBin);
-        double up = sh->fHistShapeUp->GetBinContent(iBin);
-        double down = sh->fHistShapeDown->GetBinContent(iBin);
-
-        double up_err = TMath::Abs((up-nom)/nom);
-        double down_err = TMath::Abs((down-nom)/nom);
-        if(up_err>=threshold || down_err>=threshold){
-            hasShape = true;
-            break;
-        }
-    }
-    return hasShape;
-}
+// //_________________________________________________________________________
+// //
+// bool HistoTools::HasShape(TH1* hnom, SystematicHist* sh, float threshold){
+// 
+//     if (hnom == nullptr) return false;
+//     if (sh   == nullptr) return false;
+//     if (sh->fHistShapeUp   == nullptr) return false;
+//     if (sh->fHistShapeDown   == nullptr) return false;
+// 
+//     //Save time
+//     if(hnom->GetNbinsX()==1) return false;
+// 
+//     //Integral -> Protects against nan's for Shape histograms
+//     double integralUp = sh->fHistShapeUp->Integral();
+//     if(integralUp!=integralUp) return false;
+// 
+//     double integralDown = sh->fHistShapeDown->Integral();
+//     if(integralDown!=integralDown) return false;
+// 
+//     //If at least one bin is the shape histogram is larger than the threshold, keep the uncertainty
+//     bool hasShape = false;
+//     for (int iBin = 1; iBin <= hnom->GetNbinsX(); ++iBin) {
+//         double nom = hnom->GetBinContent(iBin);
+//         double up = sh->fHistShapeUp->GetBinContent(iBin);
+//         double down = sh->fHistShapeDown->GetBinContent(iBin);
+// 
+//         double up_err = TMath::Abs((up-nom)/nom);
+//         double down_err = TMath::Abs((down-nom)/nom);
+//         if(up_err>=threshold || down_err>=threshold){
+//             hasShape = true;
+//             break;
+//         }
+//     }
+//     return hasShape;
+// }
 
 //_________________________________________________________________________
 //
@@ -718,69 +718,69 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         }
     }
 
-    //
-    // 5) Warning level: check the presence of underflow/overflow (ignored in the code)
-    //
-    double underflowNom     = nom -> GetBinContent(0);
-    double underflowUp      = sh->fHistUp -> GetBinContent(0);
-    double underflowDown    = sh->fHistDown -> GetBinContent(0);
-    if( abs(underflowNom)>0 || abs(underflowUp)>0 || abs(underflowDown)>0 ){
-        std::string temp1 = nom -> GetName();
-        std::string temp2 = sh->fHistUp -> GetName();
-        std::string temp3 = sh->fHistDown -> GetName();
-        WriteWarningStatus("HistoTools::CheckHistograms", "Underflow detected ! This will not be taken into account.");
-        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp1 + "): " + std::to_string(underflowNom));
-        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp2 + "): " + std::to_string(underflowUp));
-        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(underflowDown));
-    }
-
-    double overflowNom      = nom -> GetBinContent(NbinsNom+1);
-    double overflowUp       = sh->fHistUp -> GetBinContent(NbinsUp+1);
-    double overflowDown     = sh->fHistDown -> GetBinContent(NbinsDown+1);
-    if( abs(overflowNom)>0 || abs(overflowUp)>0 || abs(overflowDown)>0 ){
-        std::string temp1 = nom -> GetName();
-        std::string temp2 = sh->fHistUp -> GetName();
-        std::string temp3 = sh->fHistDown -> GetName();
-        WriteWarningStatus("HistoTools::CheckHistograms", "Overflowflow detected ! This will not be taken into account.");
-        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp1 + "): " + std::to_string(overflowNom));
-        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp2 + "): " + std::to_string(overflowUp));
-        WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(overflowDown));
-    }
+//     //
+//     // 5) Warning level: check the presence of underflow/overflow (ignored in the code)
+//     //
+//     double underflowNom     = nom -> GetBinContent(0);
+//     double underflowUp      = sh->fHistUp -> GetBinContent(0);
+//     double underflowDown    = sh->fHistDown -> GetBinContent(0);
+//     if( abs(underflowNom)>0 || abs(underflowUp)>0 || abs(underflowDown)>0 ){
+//         std::string temp1 = nom -> GetName();
+//         std::string temp2 = sh->fHistUp -> GetName();
+//         std::string temp3 = sh->fHistDown -> GetName();
+//         WriteWarningStatus("HistoTools::CheckHistograms", "Underflow detected ! This will not be taken into account.");
+//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp1 + "): " + std::to_string(underflowNom));
+//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp2 + "): " + std::to_string(underflowUp));
+//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(underflowDown));
+//     }
+// 
+//     double overflowNom      = nom -> GetBinContent(NbinsNom+1);
+//     double overflowUp       = sh->fHistUp -> GetBinContent(NbinsUp+1);
+//     double overflowDown     = sh->fHistDown -> GetBinContent(NbinsDown+1);
+//     if( abs(overflowNom)>0 || abs(overflowUp)>0 || abs(overflowDown)>0 ){
+//         std::string temp1 = nom -> GetName();
+//         std::string temp2 = sh->fHistUp -> GetName();
+//         std::string temp3 = sh->fHistDown -> GetName();
+//         WriteWarningStatus("HistoTools::CheckHistograms", "Overflowflow detected ! This will not be taken into account.");
+//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp1 + "): " + std::to_string(overflowNom));
+//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp2 + "): " + std::to_string(overflowUp));
+//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(overflowDown));
+//     }
     return isGood;
 }
 
-//_________________________________________________________________________
-//
-bool HistoTools::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, float threshold){
-    if (!hNom || !hUp || !hDown || !combined) return false;
-
-    if (hUp->GetNbinsX() == 1) return false;
-
-    const double& integralUp = hUp->Integral();
-    const double& integralDown = hDown->Integral();
-    const double& integralCombined = combined->Integral();
-
-    if ((integralUp != integralUp) || integralUp == 0) return false;
-    if ((integralDown != integralDown) || integralDown == 0) return false;
-    if ((integralCombined != integralCombined) || integralCombined == 0) return false;
-
-    bool hasShape = false;
-
-    for (int ibin = 1; ibin <= hUp->GetNbinsX(); ++ibin){
-        const double& nominal  = hNom->GetBinContent(ibin);
-        const double& comb     = combined->GetBinContent(ibin);
-        const double& up       = hUp->GetBinContent(ibin);
-        const double& down     = hDown->GetBinContent(ibin);
-        const double& up_err   = std::fabs((up-nominal)/comb);
-        const double& down_err = std::fabs((down-nominal)/comb);
-        if(up_err>=threshold || down_err>=threshold){
-            hasShape = true;
-            break;
-        }
-    }
-
-    return hasShape;
-}
+// //_________________________________________________________________________
+// //
+// bool HistoTools::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, float threshold){
+//     if (!hNom || !hUp || !hDown || !combined) return false;
+// 
+//     if (hUp->GetNbinsX() == 1) return false;
+// 
+//     const double& integralUp = hUp->Integral();
+//     const double& integralDown = hDown->Integral();
+//     const double& integralCombined = combined->Integral();
+// 
+//     if ((integralUp != integralUp) || integralUp == 0) return false;
+//     if ((integralDown != integralDown) || integralDown == 0) return false;
+//     if ((integralCombined != integralCombined) || integralCombined == 0) return false;
+// 
+//     bool hasShape = false;
+// 
+//     for (int ibin = 1; ibin <= hUp->GetNbinsX(); ++ibin){
+//         const double& nominal  = hNom->GetBinContent(ibin);
+//         const double& comb     = combined->GetBinContent(ibin);
+//         const double& up       = hUp->GetBinContent(ibin);
+//         const double& down     = hDown->GetBinContent(ibin);
+//         const double& up_err   = std::fabs((up-nominal)/comb);
+//         const double& down_err = std::fabs((down-nominal)/comb);
+//         if(up_err>=threshold || down_err>=threshold){
+//             hasShape = true;
+//             break;
+//         }
+//     }
+// 
+//     return hasShape;
+// }
 
 //_________________________________________________________________________
 //

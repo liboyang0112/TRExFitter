@@ -4,6 +4,7 @@
 /// Framework includes
 #include "TRExFitter/Common.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/PruningUtil.h"
 
 /// c++ includes
 #include <map>
@@ -96,6 +97,10 @@ public:
       * @param dummy parameter that will be filled
       */
     void PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal) const;
+
+    void SystPruning(PruningUtil *pu);
+    
+    TH1* GetTotHist(bool includeSignal=true);
 
     // -------
     // Members

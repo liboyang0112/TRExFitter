@@ -2244,3 +2244,43 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
         }
     }
 }
+
+//___________________________________________________________
+//
+void Region::SystPruning(PruningUtil *pu){
+    TH1* hTot = nullptr;
+    if(pu->fStrategy==1){
+        hTot = GetTotHist(false); // don't include signal
+    }
+    else if(pu->fStrategy==2){
+        hTot = GetTotHist(true); // include signal
+    }
+    for(auto sh : fSampleHists){
+        sh->SystPruning(pu,hTot);
+    }
+}
+
+//___________________________________________________________
+//
+TH1* Region::GetTotHist(bool includeSignal){
+    TH1* hTot = nullptr;
+    for(auto sh : fSampleHists){
+        if(!sh->fSample) continue;
+        if(sh->fSample->fType==Sample::GHOST) continue;
+        if(!includeSignal && sh->fSample->fType==Sample::SIGNAL) continue;
+        if(!sh->fHist) continue;
+        TH1* hTmp = (TH1*)sh->fHist->Clone(("hTot_"+fName).c_str());
+        float scale = 1.;
+        for(auto nf : sh->fSample->fNormFactors){
+            // if not morphing... FIXME
+            scale *= nf->fNominal;
+        }
+        hTmp->Scale(scale);
+        if(!hTot) hTot = hTmp;
+        else{
+            hTot->Add(hTmp);
+            delete hTmp;
+        }
+    }
+    return hTot;
+}
