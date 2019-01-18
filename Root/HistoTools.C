@@ -681,36 +681,6 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
             else return isGood;
         }
     }
-    
-// MICHELE: I don't think this check is needed at all. This creates a huge amount of spamming warning messages!
-//     //
-//     // 5) Warning level: check the presence of underflow/overflow (ignored in the code)
-//     //
-//     double underflowNom     = nom -> GetBinContent(0);
-//     double underflowUp      = sh->fHistUp -> GetBinContent(0);
-//     double underflowDown    = sh->fHistDown -> GetBinContent(0);
-//     if( abs(underflowNom)>0 || abs(underflowUp)>0 || abs(underflowDown)>0 ){
-//         std::string temp1 = nom -> GetName();
-//         std::string temp2 = sh->fHistUp -> GetName();
-//         std::string temp3 = sh->fHistDown -> GetName();
-//         WriteWarningStatus("HistoTools::CheckHistograms", "Underflow detected ! This will not be taken into account.");
-//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp1 + "): " + std::to_string(underflowNom));
-//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp2 + "): " + std::to_string(underflowUp));
-//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(underflowDown));
-//     }
-// 
-//     double overflowNom      = nom -> GetBinContent(NbinsNom+1);
-//     double overflowUp       = sh->fHistUp -> GetBinContent(NbinsUp+1);
-//     double overflowDown     = sh->fHistDown -> GetBinContent(NbinsDown+1);
-//     if( abs(overflowNom)>0 || abs(overflowUp)>0 || abs(overflowDown)>0 ){
-//         std::string temp1 = nom -> GetName();
-//         std::string temp2 = sh->fHistUp -> GetName();
-//         std::string temp3 = sh->fHistDown -> GetName();
-//         WriteWarningStatus("HistoTools::CheckHistograms", "Overflowflow detected ! This will not be taken into account.");
-//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp1 + "): " + std::to_string(overflowNom));
-//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp2 + "): " + std::to_string(overflowUp));
-//         WriteWarningStatus("HistoTools::CheckHistograms", "Nominal (" + temp3 + "): " + std::to_string(overflowDown));
-//     }
     return isGood;
 }
 

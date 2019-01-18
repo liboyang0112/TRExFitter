@@ -789,7 +789,6 @@ void TRExFit::ReadNtuples(){
         // Loop on samples
         //
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
-//             WriteDebugStatus("TRExFit::ReadNtuples","   Reading sample " + fSamples[i_smp]->fName);
             WriteInfoStatus("TRExFit::ReadNtuples","    Reading sample " + fSamples[i_smp]->fName);
             //
             // eventually skip sample / region combination
@@ -953,11 +952,6 @@ void TRExFit::ReadNtuples(){
                         // obtain relative variation and apply it to proper sample
                         // & try to keep also the same total relative variation
                         if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr){
-//                             if( reg->GetSampleHist(syst->fReferenceSample) == nullptr ){
-//                                 WriteErrorStatus("TRExFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
-//                                 WriteErrorStatus("TRExFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
-//                                 exit(EXIT_FAILURE);
-//                             }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                             // Protection added: fix empty bins before starting to divide and multiply
@@ -974,11 +968,6 @@ void TRExFit::ReadNtuples(){
 
                         // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                         else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr) {
-//                             if( reg->GetSampleHist(syst->fReferenceSample) == nullptr ){
-//                                 WriteErrorStatus("TRExFit::ReadNtuples", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + reg->fName + ". Please check this!");
-//                                 WriteErrorStatus("TRExFit::ReadNtuples", "This probably means that you run over a specific sample, you need to run over the reference sample as well.");
-//                                 exit(EXIT_FAILURE);
-//                             }
                             TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                             TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
                             TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -1277,7 +1266,6 @@ void TRExFit::CorrectHistograms(){
                 //
                 // if syst defined with SampleUp / SampleDown
                 if( syst->fSampleUp != "" || syst->fSampleDown != "" ){
-//                     TH1 *h_up   = syst->fSampleUp  !="" ? reg->GetSampleHist(syst->fSampleUp)  ->fHist : sh->fHist;
                     TH1 *h_up   = sh->fHist;
                     if(syst->fSampleUp   !=""){
                         if(reg->GetSampleHist(syst->fSampleUp  )){
@@ -4505,7 +4493,6 @@ void TRExFit::Fit(){
             WriteInfoStatus("TRExFit::Fit","MC stat...");
             std::map < std::string, double > npVal;
             for(auto reg : fRegions){
-//                 TH1* hTot = reg->fTot; // not that simple unfortunatelly...
                 TH1* hTot = nullptr;
                 for(auto sh : reg->fSampleHists){
                     if(sh->fSample->fSeparateGammas) continue;
@@ -4537,21 +4524,16 @@ void TRExFit::Fit(){
                     npVal = fFitNPValues;
                     npVal[gammaName] = 1+statErr;
                     WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1+statErr));
-WriteInfoStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1+statErr));
                     data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
                     npVal[gammaName] = 1;
                     ws->loadSnapshot("InitialStateModelGlob");
                     ws->loadSnapshot("InitialStateModelNuis");
                     npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-// npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL );
                     MCstatUp = sqrt(pow(MCstatUp,2)+pow(npValues[fPOI]-nominalPOIval,2));
-std::cout << "Adding " << npValues[fPOI] << " - " << nominalPOIval << " ..." << std::endl;
-std::cout << "Adding " << npValues[fPOI]-nominalPOIval << " ..." << std::endl;
                     // down
                     npVal = fFitNPValues;
                     npVal[gammaName] = 1-statErr;
                     WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1-statErr));
-WriteInfoStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1-statErr));
                     data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
                     npVal[gammaName] = 1;
                     ws->loadSnapshot("InitialStateModelGlob");
@@ -4675,7 +4657,6 @@ WriteInfoStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1-stat
         // MC stat
         std::cout << "Stat.MC\t" << MCstatUp << "\t" << MCstatDo << std::endl;
         out       << "Stat.MC\t" << MCstatUp << "\t" << MCstatDo << std::endl;
-//         std::cout << "-----------------------------------" << std::endl;
         tex       << "  MC-stat & $+" << Form("%.2f",MCstatUp) << "$ / $" << Form("%.2f",MCstatDo) << "$ \\\\" << std::endl;
         tex       << "\\hline" << std::endl;
         totUp = sqrt(pow(totUp,2)+pow(MCstatUp,2));
@@ -5102,16 +5083,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // Get initial ikelihood value from Asimov
     double nll0 = 0.;
     if (fBlindedParameters.size() > 0) std::cout.setstate(std::ios_base::failbit);
-//     if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
-    if(fGetGoodnessOfFit){
-        // create saturated-model pdf
-        RooSimultaneous *satPdf = MakeSaturatedModel(mc,simPdf,data);
-
-        // fit it, using the original model config
-//         nll0 = fitTool -> FitPDF( mc, simPdf, data, false, true );
-        nll0 = fitTool -> FitPDF( mc, satPdf, data, false, true );
-//         nll0 = fitTool -> FitPDF( mc, satPdf, data );
-    }
+    if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
 
     //
     // Get number of degrees of freedom
@@ -6893,7 +6865,6 @@ std::vector<TRExFit::TemplateWeight> TRExFit::GetTemplateWeightVec(const TRExFit
         // first sort vector of inputs for templates
         if (templatePair.size() < 2){
             WriteErrorStatus("TRExFit::GetTemplateWeightVec", "You need to provide at least 2 templates for template fit to work, but you provided: " + std::to_string(fTemplatePair.size()));
-//             return vec;
         }
         std::sort(templatePair.begin(), templatePair.end());
         // find min and max for range
@@ -7315,32 +7286,6 @@ void TRExFit::RunToys(RooWorkspace* ws){
         out->Close();
         delete out;
 }
-
-// //____________________________________________________________________________________
-// //
-// float TRExFit::GetNominalMorphScale(const SampleHist* const sh) const {
-//     float scale = 1.;
-//     if (!sh) return 1.;
-//     if (!(sh->fSample)) return 1.;
-//     for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
-//         NormFactor *nf = sh->fSample->fNormFactors[i_nf];
-//         if (!nf) continue;
-//         std::string nfName = nf->fName;
-// 
-//         if(nfName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
-//             std::string formula = TRExFitter::SYSTMAP[nfName];
-//             std::string name = TRExFitter::NPMAP[nfName];
-//             formula = ReplaceString(formula,name,"x");
-//             TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
-//             scale *= f_morph->Eval(nf->fNominal);
-//             delete f_morph;
-//         } else {
-//             scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
-//         }
-//     }
-// 
-//     return scale;
-// }
 
 //__________________________________________________________________________________
 // Computes the variable string to be used when reading ntuples, for a given region, sample combination
@@ -7867,39 +7812,6 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
     return h;
 }
 
-// MICHELE: superseeded by Region::GetTotHist
-// //__________________________________________________________________________________
-// //
-// std::unique_ptr<TH1D> TRExFit::GetCombinedSampleHist(const Region* const reg) const{
-//     std::unique_ptr<TH1D> result = nullptr;
-// 
-//     for (int i_smp = 0; i_smp < fNSamples; ++i_smp){
-//         Sample* sample = fSamples.at(i_smp);
-//         if (sample == nullptr) continue;
-//         if (sample->fType == Sample::DATA) continue;
-//         if (sample->fType == Sample::GHOST) continue;
-//         if (fPrunningType == BACKGROUNDREFERENCE && sample->fType == Sample::SIGNAL) continue;
-//         if (!(FindInStringVector( sample->fRegions, reg->fName )>=0)) continue;
-// 
-//         SampleHist *sh = reg->GetSampleHist(sample->fName);
-//         if (sh == nullptr) continue;
-//         std::unique_ptr<TH1D> tmp(static_cast<TH1D*>(sh->fHist->Clone()));
-//         if (tmp == nullptr) continue;
-// 
-//         // scale accoring to nominal SF
-//         const float& scale = GetNominalMorphScale(sh);
-//         tmp->Scale(scale);
-// 
-//         if (result == nullptr){
-//             result = std::move(tmp);
-//         } else {
-//             result->Add(tmp.get());
-//         }
-//     }
-// 
-//     return result;
-// }
-
 //__________________________________________________________________________________
 //
 SampleHist* TRExFit::GetSampleHistFromName(const Region* const reg, const std::string& name) const{
@@ -7959,68 +7871,4 @@ int TRExFit::GetSystIndex(const SampleHist* const sh, const std::string& name) c
     }
 
     return -1;
-}
-
-//__________________________________________________________________________________
-//
-RooSimultaneous* TRExFit::MakeSaturatedModel(RooStats::ModelConfig *mc,RooSimultaneous *simPdf,RooAbsData* data){
-    // get the categories (regions / channels)
-    RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) simPdf->indexCat().Clone();
-    int nbins = cat->numBins((const char *)0);
-    // make a list of data-sets (one per category)
-    TList* datasets = (TList*)data->split(*cat, true);
-    std::string satname = Form("%s_saturated", simPdf->GetName());
-    // create the new pdf
-    RooSimultaneous *satsim = new RooSimultaneous(satname.c_str(), "", *cat);
-    // loop on categories
-    for(int i_cat=0;i_cat<nbins;i_cat++){
-        cat->setBin(i_cat);
-        // get individual category pdf
-        RooAbsPdf *pdfi = simPdf->getPdf(cat->getLabel());
-        if(pdfi==nullptr) continue;
-        // get data for this categoriy
-        RooAbsData *datai = (RooAbsData *) datasets->FindObject(cat->getLabel());
-        if(datai==nullptr) WriteErrorStatus("MakeSaturatedModel","Error: missing dataset for category label "+(std::string)cat->getLabel());
-        // "reduce" the data to the observables only (??)
-        RooArgSet* data_observables = (RooArgSet*)pdfi->getObservables(datai);
-        RooAbsData* data_reduced = (RooAbsData*)datai->reduce(*data_observables);
-        // create histogram for data, then create pdf from this histogram
-        RooDataHist *rdh = new RooDataHist(Form("%s_binned", data_reduced->GetName()), "", *data_reduced->get(), *data_reduced);
-        RooHistPdf *hpdf = new RooHistPdf(Form("%s_shape", data_reduced->GetName()), "", *rdh->get(), *rdh);
-        RooConstVar *norm = new RooConstVar(Form("%s_norm", data_reduced->GetName()), "", data_reduced->sumEntries());
-        RooAddPdf *ret = new RooAddPdf(Form("%s_saturated", data_reduced->GetName()), "", RooArgList(*hpdf), RooArgList(*norm));
-        ret->addOwnedComponents(RooArgSet(*norm));
-        ret->addOwnedComponents(RooArgSet(*hpdf));
-        RooAbsPdf *saturatedPdfi = (RooAbsPdf*)ret;
-        // for each nuisance paramter, get the constraint term and add it to the pdf
-        RooArgList* terms = new RooArgList(RooArgSet(*saturatedPdfi));
-        RooArgSet* nps = (RooArgSet*)mc->GetNuisanceParameters();
-        TIterator *iter = nps->createIterator();
-        RooWorkspace *ws = (RooWorkspace*)mc->GetWorkspace();
-        RooGaussian *lumiConstr = (RooGaussian*)ws->obj("lumiConstraint");
-        if(lumiConstr!=nullptr){
-            std::cout << "Adding " << lumiConstr->GetName() << std::endl;
-            terms->add(*lumiConstr);
-        }
-        for(RooAbsArg *a=0; (a=(RooAbsArg*)iter->Next())!=0;){
-            RooPoisson* poisConstr = (RooPoisson*)ws->obj( TString::Format("%s_constraint",a->GetName()) );
-            RooGaussian* gausConstr = (RooGaussian*)ws->obj( TString::Format("%sConstraint",a->GetName()) );
-            if(poisConstr!=nullptr){
-                std::cout << "Adding " << poisConstr->GetName() << std::endl;
-                terms->add(*poisConstr);
-            }
-            if(gausConstr!=nullptr){
-                std::cout << "Adding " << gausConstr->GetName() << std::endl;
-                terms->add(*gausConstr);
-            }
-        }
-        RooProdPdf *prodpdf = new RooProdPdf(TString::Format("%s_constr", saturatedPdfi->GetName()), "", *terms);
-        prodpdf->addOwnedComponents(RooArgSet(*saturatedPdfi));
-        saturatedPdfi = prodpdf;
-        //
-        saturatedPdfi->Print();
-        satsim->addPdf(*saturatedPdfi, cat->getLabel());
-        satsim->addOwnedComponents(RooArgSet(*saturatedPdfi));
-    }
-    return satsim;
 }

@@ -328,8 +328,6 @@ public:
      */ 
     int GetSystIndex(const SampleHist* const sh, const std::string& name) const;
     
-    RooSimultaneous* MakeSaturatedModel(RooStats::ModelConfig *mc,RooSimultaneous *simPdf,RooAbsData* data);
-    
     // -------------------------
 
     std::string fName;
