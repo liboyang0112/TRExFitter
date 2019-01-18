@@ -225,7 +225,6 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 
     if(createWorkspace){
         std::cout << "Creating workspace..." << std::endl;
-//         myFit->DrawPruningPlot();
         myFit->SetLumiErr(0.);
         myFit->ToRooStat(true,true);
     }

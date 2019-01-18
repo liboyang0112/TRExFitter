@@ -4150,10 +4150,11 @@ void TRExFit::DrawPruningPlot() const{
     std::vector< TH2F* > histPrun_toSave;
     int iReg = 0;
     int nSmp = 0;
+    // make a list of non-data, non-ghost samples
     std::vector< Sample* > samplesVec;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
-        if(fSamples[i_smp]->fType==Sample::GHOST) continue;
+        if(fSamples[i_smp]->fType==Sample::GHOST) continue; // WRONG! We need to ask for fUseSystematics, not just GHOST
         samplesVec.push_back(fSamples[i_smp]);
         nSmp++;
     }
@@ -4213,57 +4214,6 @@ void TRExFit::DrawPruningPlot() const{
                 }
             }
         }
-// 
-//         // apply reference pruning correction --- FIXME: TO IMPLEMENT
-//         for(size_t i_syst = 0; i_syst < nonGammaSystematics.size(); ++i_syst){
-//             if (nonGammaSystematics.at(i_syst) == nullptr) continue;
-//             if (nonGammaSystematics.at(i_syst)->fReferencePruning == "") continue;
-//             if (std::find(nonGammaSystematics.at(i_syst)->fRegions.begin(), nonGammaSystematics.at(i_syst)->fRegions.end(), fRegions[i_reg]->fName)
-//                 == nonGammaSystematics.at(i_syst)->fRegions.end()) continue;
-// 
-//             auto it = std::find(uniqueSyst.begin(), uniqueSyst.end(), nonGammaSystematics.at(i_syst)->fName);
-//             const std::size_t uniqueIndex = std::distance(uniqueSyst.begin(), it);
-//             const std::string& ref = nonGammaSystematics.at(i_syst)->fReferencePruning;
-//             const std::size_t& i_smp = GetSampleIndexFromList(samplesVec, ref);
-//             if (i_smp > 999){
-//                 WriteWarningStatus("TRExFit::DrawPruningPlot", "Cannot find reference pruning sample: " + ref + " in the list of samples");
-//                 continue;
-//             }
-//             const int& pruneCode = histPrun[iReg]->GetBinContent(histPrun[iReg]->FindBin(i_smp,uniqueIndex));
-// 
-//             for (const auto& isample : nonGammaSystematics.at(i_syst)->fSamples){
-//                 if (isample == ref) continue;
-//                 // we need the index of the sample that the systemtic is applied to
-//                 const std::size_t& index = GetSampleIndexFromList(samplesVec, isample);
-//                 if (index > 999){
-//                     WriteWarningStatus("TRExFit::DrawPruningPlot", "Cannot find sample: " + ref + " in the list of samples");
-//                     continue;
-//                 }
-//                 SampleHist *sh = fRegions[i_reg]->GetSampleHist(samplesVec[index]->fName);
-//                 if (sh == nullptr) continue;
-//                 SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
-//                 if (syh == nullptr) continue;
-// 
-//                 if (pruneCode == 0){
-//                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(index,uniqueIndex), 0);
-//                     syh->fShapePruned = false;
-//                     syh->fNormPruned  = false;
-//                 } else if (pruneCode == 1){
-//                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(index,uniqueIndex), 1);
-//                     syh->fShapePruned = true;
-//                     syh->fNormPruned  = false;
-//                 } else if (pruneCode == 2) {
-//                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(index,uniqueIndex), 2);
-//                     syh->fShapePruned = false;
-//                     syh->fNormPruned  = true;
-//                 } else if (pruneCode == 3){
-//                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(index,uniqueIndex), 3);
-//                     syh->fShapePruned = true;
-//                     syh->fNormPruned  = true;
-//                 }
-//             }
-//         }
-
         //
         histPrun_toSave.push_back( (TH2F*)histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName())) );
         histPrun_toSave[iReg]->SetDirectory(0);

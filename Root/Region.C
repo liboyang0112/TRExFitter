@@ -2269,6 +2269,28 @@ void Region::SystPruning(PruningUtil *pu){
                 syh->fNormPruned = true;
             }
         }
+        //
+        // reference pruning
+        for(auto syh : sh->fSyst){
+            if(!syh) continue;
+            if(!syh->fSystematic) continue;
+            Systematic *syst = syh->fSystematic;
+            if(syst->fReferencePruning == "") continue;
+            SampleHist *refSmpH = GetSampleHist(syst->fReferencePruning);
+            if(refSmpH==nullptr){
+                WriteWarningStatus("Region::SystPruning", "Cannot find reference pruning sample: " + syst->fReferencePruning + " in region: " + fName);
+                continue;
+            }
+            SystematicHist *refSysH = refSmpH->GetSystematic(syst->fName);
+            if(refSysH==nullptr){
+                WriteWarningStatus("Region::SystPruning", "Cannot find systematic " + syst->fName + " for reference pruning sample " + syst->fReferencePruning);
+                continue;
+            }
+            syh->fNormPruned = refSysH->fNormPruned;
+            syh->fShapePruned = refSysH->fShapePruned;
+            syh->fBadShape = refSysH->fBadShape;
+            syh->fBadNorm = refSysH->fBadNorm;
+        }
     }
 }
 

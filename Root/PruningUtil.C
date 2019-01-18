@@ -91,7 +91,7 @@ int PruningUtil::CheckSystPruning(const TH1* hUp,const TH1* hDown,const TH1* hNo
 
 //_________________________________________________________________________
 //
-bool PruningUtil::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, float threshold){
+bool PruningUtil::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, float threshold) const {
     if (!hNom || !hUp || !hDown || !combined) return false;
 
     if (hUp->GetNbinsX() == 1) return false;
