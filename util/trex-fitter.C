@@ -99,7 +99,11 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             }
             if(doFit){
                 std::cout << "Fitting combining workspace..." << std::endl;
-                myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName );
+                myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName, false );
+            }
+            if(doLHscan){
+                std::cout << "Doing lieklihood scan for the combined workspace..." << std::endl;
+                myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName, true );
             }
             if(doLimit){
                 std::cout << "Getting combined limit..." << std::endl;
@@ -117,7 +121,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             if(groupedImpact){
                 std::cout << "Getting combined grouped systematic impact..." << std::endl;
                 myMultiFit->fDoGroupedSystImpactTable = true;
-                if(myMultiFit->fGroupedImpactCategory!="combine") myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName );
+                if(myMultiFit->fGroupedImpactCategory!="combine") myMultiFit->FitCombinedWS( myMultiFit->fFitType, myMultiFit->fDataName, false );
                 else                                              myMultiFit->BuildGroupedImpactTable();
             }
         }

@@ -24,7 +24,7 @@ public:
                           const std::string& label, std::string loadSuf="",std::string wsFile="");
     RooWorkspace* CombineWS() const;
     void SaveCombinedWS() const;
-    std::map < std::string, double > FitCombinedWS( int fitType=1, std::string inputData="", bool performFit=true ) const;
+    std::map < std::string, double > FitCombinedWS( int fitType, const std::string& inputData, bool doLHscanOnly ) const;
     void GetCombinedLimit(std::string inputData="obsData") const; // or asimovData
     void GetCombinedSignificance(std::string inputData="obsData") const; // or asimovData
 
