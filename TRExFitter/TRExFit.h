@@ -244,12 +244,12 @@ public:
 
     void BuildGroupedImpactTable() const;
 
-    /**
-     * Helper function to calculate nominal scale for morphed samples
-     * @param A pointer to SampleHist for which we need to calculate the scale factor
-     * @return A scale factor
-     */
-    float GetNominalMorphScale(const SampleHist* const sh) const;
+//     /**
+//      * Helper function to calculate nominal scale for morphed samples
+//      * @param A pointer to SampleHist for which we need to calculate the scale factor
+//      * @return A scale factor
+//      */
+//     float GetNominalMorphScale(const SampleHist* const sh) const;
 
     /**
      * Helper function that runs toys experiments
@@ -312,13 +312,13 @@ public:
     TH1D* ReadSingleHistogram(const std::vector<std::string>& fullPaths, Systematic* syst,
         int i_ch, int i_smp, bool isUp, bool isMC);
 
-    /**
-     * A helper function to get combined histogram of samples from one region neede for special prunning
-     * @param Region
-     * @param Vector of samples
-     * @return Combined histogram
-     */ 
-    std::unique_ptr<TH1D> GetCombinedSampleHist(const Region* const reg) const;
+//     /**
+//      * A helper function to get combined histogram of samples from one region neede for special prunning
+//      * @param Region
+//      * @param Vector of samples
+//      * @return Combined histogram
+//      */ 
+//     std::unique_ptr<TH1D> GetCombinedSampleHist(const Region* const reg) const;
 
     /**
     * A helper function to get SampleHisto from a region that matches a name of the sample

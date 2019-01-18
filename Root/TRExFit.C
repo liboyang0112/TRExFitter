@@ -4120,12 +4120,6 @@ void TRExFit::SystPruning() const{
         WriteInfoStatus("TRExFit::SystPruning", "No systematics => No Pruning applied.");
         return;
     }
-    //
-    std::ofstream out;
-    out.open((fName+"/PruningText.txt").c_str());
-    out << "-------///////                 ///////-------" << std::endl ;
-    out << "-------/////// IN PRUNING PLOT ///////-------" << std::endl ;
-    out << "-------///////                 ///////-------" << std::endl ;
 
     PruningUtil *pu = new PruningUtil();
     pu->SetStrategy((int)fPrunningType);
@@ -4138,12 +4132,19 @@ void TRExFit::SystPruning() const{
         reg->SystPruning(pu);
     }
     
+    // it also writes the txt file actually
     DrawPruningPlot();
 }
 
 //__________________________________________________________________________________
 //
 void TRExFit::DrawPruningPlot() const{
+    //
+    std::ofstream out;
+    out.open((fName+"/PruningText.txt").c_str());
+    out << "-------///////                 ///////-------" << std::endl ;
+    out << "-------/////// IN PRUNING PLOT ///////-------" << std::endl ;
+    out << "-------///////                 ///////-------" << std::endl ;
     //
     std::vector< TH2F* > histPrun;
     std::vector< TH2F* > histPrun_toSave;
@@ -4178,18 +4179,12 @@ void TRExFit::DrawPruningPlot() const{
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
         if(fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
 
-//         out << "In Region : " << fRegions[i_reg]->fName << std::endl ;
+        out << "In Region : " << fRegions[i_reg]->fName << std::endl ;
         histPrun.push_back( new TH2F(Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()) );
-//         histPrun[histPrun.size()-1]->SetDirectory(0);
-
-//         // Get combined histogram needed for some Pruning types
-//         std::unique_ptr<TH1D> combined = nullptr;
-//         if (fPrunningType !=  SEPARATESAMPLE){
-//             combined = GetCombinedSampleHist(fRegions[i_reg]);
-//         }
+        histPrun[histPrun.size()-1]->SetDirectory(0);
 
         for(int i_smp=0;i_smp<nSmp;i_smp++){
-//             out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl;
+            out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl;
 
             for(std::size_t uniqueIndex = 0; uniqueIndex < uniqueSyst.size(); ++uniqueIndex){
                histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -1 );
@@ -4202,7 +4197,7 @@ void TRExFit::DrawPruningPlot() const{
                 // find the corresponding index of unique syst
                 auto it = std::find(uniqueSyst.begin(), uniqueSyst.end(), nonGammaSystematics.at(i_syst)->fName);
                 const std::size_t uniqueIndex = std::distance(uniqueSyst.begin(), it);
-//                 out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
+                out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
                 if( std::find(nonGammaSystematics[i_syst]->fSamples.begin(), nonGammaSystematics[i_syst]->fSamples.end(), samplesVec[i_smp]->fName) != nonGammaSystematics[i_syst]->fSamples.end() && sh->HasSyst(nonGammaSystematics[i_syst]->fName)) {
                     SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 0 );
@@ -4215,90 +4210,11 @@ void TRExFit::DrawPruningPlot() const{
                     else if(syh->fBadShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -3 );
                     else if(syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -2 );
                     //
-                    // set to 1 if shape pruned away
-//                     if (FindInStringVector( nonGammaSystematics[i_syst]->fDropShapeIn, fRegions[i_reg]->fName )>=0
-//                         || FindInStringVector( nonGammaSystematics[i_syst]->fDropShapeIn, samplesVec[i_smp]->fName )>=0
-//                         || !syh->fIsShape){
-//                         syh->fShapePruned = true;
-//                         histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
-//                     }
-//                     if (fPrunningType == SEPARATESAMPLE){
-//                         if(fThresholdSystPruning_Shape>-1 && (!HistoTools::HasShape(sh->fHist, syh,fThresholdSystPruning_Shape)) ){
-//                             syh->fShapePruned = true;
-//                             histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
-//                         }
-//                     } else { // special pruning
-//                         if (fThresholdSystPruning_Shape>-1 && (!HistoTools::HasShapeRelative(sh->fHist, syh->fHistShapeUp, syh->fHistShapeDown, combined.get(), fThresholdSystPruning_Shape))) {
-//                             syh->fShapePruned = true;
-//                             histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
-//                         }
-//                     }
-// 
-//                     const float normUp=TMath::Abs(sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fNormUp);
-//                     const float normDo=TMath::Abs(sh->GetSystematic(nonGammaSystematics[i_syst]->fName)->fNormDown);
-//                     if (FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, fRegions[i_reg]->fName )>=0
-//                         || FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, samplesVec[i_smp]->fName )>=0
-//                         || FindInStringVector( nonGammaSystematics[i_syst]->fDropNormIn, "all" )>=0
-//                         || (normUp!=normUp || normDo!=normDo)){
-//                         syh->fNormPruned = true;
-//                         if(syh->fShapePruned || nonGammaSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 3 );
-//                         else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
-//                     }
-//                     if (fPrunningType == SEPARATESAMPLE){
-//                         // set to 2 is normalization pruned away
-//                         if( fThresholdSystPruning_Normalisation>-1 && normUp<fThresholdSystPruning_Normalisation && normDo<fThresholdSystPruning_Normalisation ) {
-//                             syh->fNormPruned = true;
-//                             if(syh->fShapePruned || nonGammaSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 3 );
-//                             else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
-//                         }
-//                     } else { // special pruning
-//                         if (combined != nullptr){
-//                             const double& nominal = sh->fHist->Integral();
-//                             const double& integralTotal = combined->Integral();
-//                             const double nominalUp   = nominal * (1+normUp);
-//                             const double nominalDown = nominal * (1-normDo);
-//                             const double ratioUp     = std::fabs((nominalUp   - nominal)/integralTotal);
-//                             const double ratioDown   = std::fabs((nominalDown - nominal)/integralTotal);
-//                             if (fThresholdSystPruning_Normalisation>-1 && ratioUp<fThresholdSystPruning_Normalisation && ratioDown<fThresholdSystPruning_Normalisation) {
-//                                 syh->fNormPruned = true;
-//                                 if(syh->fShapePruned || nonGammaSystematics[i_syst]->fIsNormOnly) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 3 );
-//                                 else                  histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
-//                             }
-//                         }
-//                     }
-//                     //
-//                     // now check for crazy sys ....
-//                     if ( fThresholdSystLarge > -1 ) {
-//                         // first norm:
-//                         if ( normUp>fThresholdSystLarge || normDo>fThresholdSystLarge || normUp!=normUp || normDo!=normDo ) {
-//                             syh->fBadNorm = true;
-//                             histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex),-2);
-//                         }
-//                         //
-//                         // then shape
-//                         if ( syh->fIsShape && ( HistoTools::HasShape(sh->fHist, syh,fThresholdSystLarge) ) ) {
-//                             syh->fBadShape = true;
-//                             if ( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )==-2 ) {
-//                                 histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex),-4);
-//                             }
-//                             else {
-//                                 histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex),-3);
-//                             }
-//                         }
-//                     }
                 }
-//                 if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -1 ) out << " is not present" << std::endl;
-//                 else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 0 ) out << " is kept" << std::endl;
-//                 else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 1 ) out << " is norm only" << std::endl;
-//                 else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 2 ) out << " is shape only" << std::endl;
-//                 else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 3 ) out << " is dropped" << std::endl;
-//                 else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -2 ) out << " has bad norm" << std::endl;
-//                 else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -3 ) out << " has bad shape" << std::endl;
-//                 else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -4 ) out << " is bad" << std::endl;
             }
         }
 // 
-//         // apply reference pruning correction
+//         // apply reference pruning correction --- FIXME: TO IMPLEMENT
 //         for(size_t i_syst = 0; i_syst < nonGammaSystematics.size(); ++i_syst){
 //             if (nonGammaSystematics.at(i_syst) == nullptr) continue;
 //             if (nonGammaSystematics.at(i_syst)->fReferencePruning == "") continue;
@@ -4347,11 +4263,11 @@ void TRExFit::DrawPruningPlot() const{
 //                 }
 //             }
 //         }
-// 
-//         //
-//         histPrun_toSave.push_back( (TH2F*)histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName())) );
-//         histPrun_toSave[iReg]->SetDirectory(0);
-//         //
+
+        //
+        histPrun_toSave.push_back( (TH2F*)histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName())) );
+        histPrun_toSave[iReg]->SetDirectory(0);
+        //
         iReg++;
     }
     //
@@ -4391,7 +4307,7 @@ void TRExFit::DrawPruningPlot() const{
         gPad->SetGridy();
         for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsX();i_bin++){
             histPrun[i_reg]       ->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fTitle.c_str());
-//             histPrun_toSave[i_reg]->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fName.c_str());
+            histPrun_toSave[i_reg]->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fName.c_str());
         }
         for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsY();i_bin++){
             if(i_reg==0) {
@@ -4400,7 +4316,7 @@ void TRExFit::DrawPruningPlot() const{
             else {
                 histPrun[i_reg]->GetYaxis()->SetBinLabel(i_bin,"");
             }
-//             histPrun_toSave[i_reg]->GetYaxis()->SetBinLabel(i_bin,uniqueSyst[i_bin-1].c_str());
+            histPrun_toSave[i_reg]->GetYaxis()->SetBinLabel(i_bin,uniqueSyst[i_bin-1].c_str());
         }
         histPrun[i_reg]->Draw("COL");
         histPrun[i_reg]->GetYaxis()->SetLabelOffset(0.03);
@@ -4458,24 +4374,24 @@ void TRExFit::DrawPruningPlot() const{
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
         c->SaveAs( (fName+"/Pruning"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
 
-//     //
-//     // Save prunign hist for future usage
-//     std::unique_ptr<TFile> filePrun = nullptr;
-//     // - checking if Pruning.root exists
-//     // if yes
-//     if(!gSystem->AccessPathName( (fName+"/Pruning.root").c_str() )){
-//         // ...
-//         filePrun = std::unique_ptr<TFile>( new TFile( (fName+"/Pruning.root").c_str() ));
-//     }
-//     else{
-//         filePrun = std::unique_ptr<TFile> (new TFile( (fName+"/Pruning.root").c_str(),"RECREATE" ));
-//         for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
-//             histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
-//         }
-//     }
-//     if (filePrun != nullptr){
-//         filePrun->Close();
-//     }
+    //
+    // Save prunign hist for future usage
+    std::unique_ptr<TFile> filePrun = nullptr;
+    // - checking if Pruning.root exists
+    // if yes
+    if(!gSystem->AccessPathName( (fName+"/Pruning.root").c_str() )){
+        // ...
+        filePrun = std::unique_ptr<TFile>( new TFile( (fName+"/Pruning.root").c_str() ));
+    }
+    else{
+        filePrun = std::unique_ptr<TFile> (new TFile( (fName+"/Pruning.root").c_str(),"RECREATE" ));
+        for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
+            histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
+        }
+    }
+    if (filePrun != nullptr){
+        filePrun->Close();
+    }
 }
 
 //__________________________________________________________________________________
@@ -7450,31 +7366,31 @@ void TRExFit::RunToys(RooWorkspace* ws){
         delete out;
 }
 
-//____________________________________________________________________________________
-//
-float TRExFit::GetNominalMorphScale(const SampleHist* const sh) const {
-    float scale = 1.;
-    if (!sh) return 1.;
-    if (!(sh->fSample)) return 1.;
-    for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
-        NormFactor *nf = sh->fSample->fNormFactors[i_nf];
-        if (!nf) continue;
-        std::string nfName = nf->fName;
-
-        if(nfName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
-            std::string formula = TRExFitter::SYSTMAP[nfName];
-            std::string name = TRExFitter::NPMAP[nfName];
-            formula = ReplaceString(formula,name,"x");
-            TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
-            scale *= f_morph->Eval(nf->fNominal);
-            delete f_morph;
-        } else {
-            scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
-        }
-    }
-
-    return scale;
-}
+// //____________________________________________________________________________________
+// //
+// float TRExFit::GetNominalMorphScale(const SampleHist* const sh) const {
+//     float scale = 1.;
+//     if (!sh) return 1.;
+//     if (!(sh->fSample)) return 1.;
+//     for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
+//         NormFactor *nf = sh->fSample->fNormFactors[i_nf];
+//         if (!nf) continue;
+//         std::string nfName = nf->fName;
+// 
+//         if(nfName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
+//             std::string formula = TRExFitter::SYSTMAP[nfName];
+//             std::string name = TRExFitter::NPMAP[nfName];
+//             formula = ReplaceString(formula,name,"x");
+//             TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+//             scale *= f_morph->Eval(nf->fNominal);
+//             delete f_morph;
+//         } else {
+//             scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
+//         }
+//     }
+// 
+//     return scale;
+// }
 
 //__________________________________________________________________________________
 // Computes the variable string to be used when reading ntuples, for a given region, sample combination
@@ -8001,37 +7917,38 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
     return h;
 }
 
-//__________________________________________________________________________________
-//
-std::unique_ptr<TH1D> TRExFit::GetCombinedSampleHist(const Region* const reg) const{
-    std::unique_ptr<TH1D> result = nullptr;
-
-    for (int i_smp = 0; i_smp < fNSamples; ++i_smp){
-        Sample* sample = fSamples.at(i_smp);
-        if (sample == nullptr) continue;
-        if (sample->fType == Sample::DATA) continue;
-        if (sample->fType == Sample::GHOST) continue;
-        if (fPrunningType == BACKGROUNDREFERENCE && sample->fType == Sample::SIGNAL) continue;
-        if (!(FindInStringVector( sample->fRegions, reg->fName )>=0)) continue;
-
-        SampleHist *sh = reg->GetSampleHist(sample->fName);
-        if (sh == nullptr) continue;
-        std::unique_ptr<TH1D> tmp(static_cast<TH1D*>(sh->fHist->Clone()));
-        if (tmp == nullptr) continue;
-
-        // scale accoring to nominal SF
-        const float& scale = GetNominalMorphScale(sh);
-        tmp->Scale(scale);
-
-        if (result == nullptr){
-            result = std::move(tmp);
-        } else {
-            result->Add(tmp.get());
-        }
-    }
-
-    return result;
-}
+// MICHELE: superseeded by Region::GetTotHist
+// //__________________________________________________________________________________
+// //
+// std::unique_ptr<TH1D> TRExFit::GetCombinedSampleHist(const Region* const reg) const{
+//     std::unique_ptr<TH1D> result = nullptr;
+// 
+//     for (int i_smp = 0; i_smp < fNSamples; ++i_smp){
+//         Sample* sample = fSamples.at(i_smp);
+//         if (sample == nullptr) continue;
+//         if (sample->fType == Sample::DATA) continue;
+//         if (sample->fType == Sample::GHOST) continue;
+//         if (fPrunningType == BACKGROUNDREFERENCE && sample->fType == Sample::SIGNAL) continue;
+//         if (!(FindInStringVector( sample->fRegions, reg->fName )>=0)) continue;
+// 
+//         SampleHist *sh = reg->GetSampleHist(sample->fName);
+//         if (sh == nullptr) continue;
+//         std::unique_ptr<TH1D> tmp(static_cast<TH1D*>(sh->fHist->Clone()));
+//         if (tmp == nullptr) continue;
+// 
+//         // scale accoring to nominal SF
+//         const float& scale = GetNominalMorphScale(sh);
+//         tmp->Scale(scale);
+// 
+//         if (result == nullptr){
+//             result = std::move(tmp);
+//         } else {
+//             result->Add(tmp.get());
+//         }
+//     }
+// 
+//     return result;
+// }
 
 //__________________________________________________________________________________
 //

@@ -141,4 +141,11 @@ bool CheckExpression(const std::string& s);
 
 std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::string name);
 
+/**
+    * Helper function to calculate nominal scale factor, for morphed samples as well
+    * @param pointer to SampleHist for which we need to calculate the scale factor
+    * @return scale factor
+    */
+float GetNominalMorphScale(const SampleHist* const sh);
+
 #endif

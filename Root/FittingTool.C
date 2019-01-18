@@ -128,7 +128,6 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     // Create the likelihood based on fitpdf, fitData and the parameters
     //
     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(1), RooFit::NumCPU(TRExFitter::NCPU,RooFit::Hybrid) );
-//     RooAbsReal * nll = fitpdf->createNLL(*fitdata, RooFit::Constrain(*constrainedParams), RooFit::GlobalObservables(*glbObs), RooFit::Offset(0), RooFit::NumCPU(TRExFitter::NCPU,RooFit::Hybrid) );
 
     //
     // Needed for Ranking plot, but also to set random initial values for the NPs

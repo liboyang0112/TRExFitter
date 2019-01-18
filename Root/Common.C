@@ -800,3 +800,29 @@ std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::
 
     return 9999;
 }
+
+//____________________________________________________________________________________
+//
+float GetNominalMorphScale(const SampleHist* const sh){
+    float scale = 1.;
+    if (!sh) return 1.;
+    if (!(sh->fSample)) return 1.;
+    for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
+        NormFactor *nf = sh->fSample->fNormFactors[i_nf];
+        if (!nf) continue;
+        std::string nfName = nf->fName;
+
+        if(nfName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
+            std::string formula = TRExFitter::SYSTMAP[nfName];
+            std::string name = TRExFitter::NPMAP[nfName];
+            formula = ReplaceString(formula,name,"x");
+            TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
+            scale *= f_morph->Eval(nf->fNominal);
+            delete f_morph;
+        } else {
+            scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
+        }
+    }
+
+    return scale;
+}

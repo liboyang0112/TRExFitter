@@ -2257,6 +2257,18 @@ void Region::SystPruning(PruningUtil *pu){
     }
     for(auto sh : fSampleHists){
         sh->SystPruning(pu,hTot);
+        //
+        // add by-hand dropping of shape or norm
+        for(auto syh : sh->fSyst){
+            if(!syh) continue;
+            if(!syh->fSystematic) continue;
+            if( FindInStringVector(syh->fSystematic->fDropShapeIn,fName) ){
+                syh->fShapePruned = true;
+            }
+            if( FindInStringVector(syh->fSystematic->fDropNormIn,fName) ){
+                syh->fNormPruned = true;
+            }
+        }
     }
 }
 
@@ -2267,14 +2279,12 @@ TH1* Region::GetTotHist(bool includeSignal){
     for(auto sh : fSampleHists){
         if(!sh->fSample) continue;
         if(sh->fSample->fType==Sample::GHOST) continue;
+        if(sh->fSample->fType==Sample::DATA) continue;
         if(!includeSignal && sh->fSample->fType==Sample::SIGNAL) continue;
         if(!sh->fHist) continue;
         TH1* hTmp = (TH1*)sh->fHist->Clone(("hTot_"+fName).c_str());
-        float scale = 1.;
-        for(auto nf : sh->fSample->fNormFactors){
-            // if not morphing... FIXME
-            scale *= nf->fNominal;
-        }
+        // scale accoring to nominal SF (considering morphing as well)
+        const float& scale = GetNominalMorphScale(sh);
         hTmp->Scale(scale);
         if(!hTot) hTot = hTmp;
         else{
