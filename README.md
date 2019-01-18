@@ -669,6 +669,7 @@ This will create a combined ws starting from the individual ws for the different
 | ComparePOI       | can be TRUE or FALSE, flag to compare to POI values |
 | ComparePulls     | can be TRUE or FALSE, flag to compare to pulls values |
 | PlotCombCorrMatrix | can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics |
+| CorrelationThreshold | Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%) |
 | Combine          | can be TRUE or FALSE, set to TRUE if you want to perfom actual combination (followed by `mwf`) |
 | Compare          | can be TRUE or FALSE, set to TRUE if you want to compare values |
 | StatOnly         | can be TRUE or FALSE, set to TRUE if the fits are stat only fits |
