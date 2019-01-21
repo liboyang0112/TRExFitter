@@ -1615,7 +1615,7 @@ bool Region::UseAlternativeVariable(const std::string& sample){
     for(auto tmp : fAlternativeVariables){
         tmpVec.push_back(tmp.first);
     }
-    if (FindInStringVector(tmpVec,sample)){
+    if (FindInStringVector(tmpVec,sample)<0){
         return false;
     }
     else {
@@ -1630,7 +1630,7 @@ bool Region::UseAlternativeSelection(const std::string& sample){
     for(auto tmp : fAlternativeSelections){
         tmpVec.push_back(tmp.first);
     }
-    if (FindInStringVector(tmpVec,sample)){
+    if (FindInStringVector(tmpVec,sample)<0){
         return false;
     }
     else {
@@ -2266,10 +2266,10 @@ void Region::SystPruning(PruningUtil *pu){
         for(auto syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
-            if( FindInStringVector(syh->fSystematic->fDropShapeIn,fName) ){
+            if( FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0 ){
                 syh->fShapePruned = true;
             }
-            if( FindInStringVector(syh->fSystematic->fDropNormIn,fName) ){
+            if( FindInStringVector(syh->fSystematic->fDropNormIn,fName)>=0 ){
                 syh->fNormPruned = true;
             }
         }

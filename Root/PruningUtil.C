@@ -58,8 +58,10 @@ int PruningUtil::CheckSystPruning(const TH1* hUp,const TH1* hDown,const TH1* hNo
     // create shape-only syst variations
     TH1* hShapeUp        = nullptr;
     if(hUp) hShapeUp     = (TH1*)hUp  ->Clone(Form("%s_shape",hUp  ->GetName()));
+    if(hShapeUp) hShapeUp->Scale( hNom->Integral()/hShapeUp->Integral() );
     TH1* hShapeDown      = nullptr;
     if(hDown) hShapeDown = (TH1*)hDown->Clone(Form("%s_shape",hDown->GetName()));
+    if(hShapeDown) hShapeDown->Scale( hNom->Integral()/hShapeDown->Integral() );
     //
     // get norm effects
     float normUp   = std::fabs((hUp  ->Integral()-hNom->Integral())/hRef->Integral());

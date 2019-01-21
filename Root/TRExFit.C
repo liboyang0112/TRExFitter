@@ -4187,7 +4187,11 @@ void TRExFit::DrawPruningPlot() const{
                 auto it = std::find(uniqueSyst.begin(), uniqueSyst.end(), nonGammaSystematics.at(i_syst)->fName);
                 const std::size_t uniqueIndex = std::distance(uniqueSyst.begin(), it);
                 out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
-                if( std::find(nonGammaSystematics[i_syst]->fSamples.begin(), nonGammaSystematics[i_syst]->fSamples.end(), samplesVec[i_smp]->fName) != nonGammaSystematics[i_syst]->fSamples.end() && sh->HasSyst(nonGammaSystematics[i_syst]->fName)) {
+//                 if( std::find(nonGammaSystematics[i_syst]->fSamples.begin(), nonGammaSystematics[i_syst]->fSamples.end(), samplesVec[i_smp]->fName) != nonGammaSystematics[i_syst]->fSamples.end() && sh->HasSyst(nonGammaSystematics[i_syst]->fName)) {
+                if( (FindInStringVector(nonGammaSystematics[i_syst]->fSamples,samplesVec[i_smp]->fName)>=0
+                    || nonGammaSystematics[i_syst]->fSamples[0] == "all")
+                    && sh->HasSyst(nonGammaSystematics[i_syst]->fName)
+                ){
                     SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 0 );
                     //
@@ -4200,6 +4204,14 @@ void TRExFit::DrawPruningPlot() const{
                     else if(syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -2 );
                     //
                 }
+                if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -1 ) out << " is not present" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 0 ) out << " is kept" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 1 ) out << " is norm only" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 2 ) out << " is shape only" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 3 ) out << " is dropped" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -2 ) out << " has bad norm" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -3 ) out << " has bad shape" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -4 ) out << " is bad" << std::endl;
             }
         }
         //
