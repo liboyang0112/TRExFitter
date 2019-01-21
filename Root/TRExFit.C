@@ -4142,7 +4142,7 @@ void TRExFit::DrawPruningPlot() const{
     std::vector< Sample* > samplesVec;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
-        if(fSamples[i_smp]->fType==Sample::GHOST) continue; // WRONG! We need to ask for fUseSystematics, not just GHOST
+        if(fSamples[i_smp]->fType==Sample::GHOST) continue;
         samplesVec.push_back(fSamples[i_smp]);
         nSmp++;
     }
@@ -4187,9 +4187,7 @@ void TRExFit::DrawPruningPlot() const{
                 auto it = std::find(uniqueSyst.begin(), uniqueSyst.end(), nonGammaSystematics.at(i_syst)->fName);
                 const std::size_t uniqueIndex = std::distance(uniqueSyst.begin(), it);
                 out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
-//                 if( std::find(nonGammaSystematics[i_syst]->fSamples.begin(), nonGammaSystematics[i_syst]->fSamples.end(), samplesVec[i_smp]->fName) != nonGammaSystematics[i_syst]->fSamples.end() && sh->HasSyst(nonGammaSystematics[i_syst]->fName)) {
-                if( (FindInStringVector(nonGammaSystematics[i_syst]->fSamples,samplesVec[i_smp]->fName)>=0
-                    || nonGammaSystematics[i_syst]->fSamples[0] == "all")
+                if( (FindInStringVector(nonGammaSystematics[i_syst]->fSamples,samplesVec[i_smp]->fName)>=0 || nonGammaSystematics[i_syst]->fSamples[0] == "all")
                     && sh->HasSyst(nonGammaSystematics[i_syst]->fName)
                 ){
                     SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);

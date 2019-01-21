@@ -2273,8 +2273,10 @@ void Region::SystPruning(PruningUtil *pu){
                 syh->fNormPruned = true;
             }
         }
-        //
-        // reference pruning
+    }
+    //
+    // reference pruning
+    for(auto sh : fSampleHists){
         for(auto syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
