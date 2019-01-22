@@ -121,7 +121,7 @@ MultiFit::MultiFit(string name){
     //
     fPOIName = "#mu";
     fPOINominal = 1;
-    
+
     //
     // Limit type
     //
@@ -134,14 +134,14 @@ MultiFit::MultiFit(string name){
     fLimitOutputPrefixName = "myLimit";
     fLimitsConfidence = 0.95;
 
-    // 
+    //
     // Significance parameters
     //
     fSignificanceIsBlind = false;
     fSignificancePOIAsimov = 0;
     fSignificanceParamName = "parameter";
     fSignificanceParamValue = 0;
-    fSignificanceOutputPrefixName = "mySignificance"; 
+    fSignificanceOutputPrefixName = "mySignificance";
 
     fShowTotalOnly = false;
     fuseGammasForCorr = false;
@@ -162,7 +162,7 @@ void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string
 
     fFitList.push_back(new TRExFit());
 
-    // initialize config reader 
+    // initialize config reader
     ConfigReader reader(fFitList[fFitList.size()-1]);
 
     if (reader.ReadFullConfig(configFile,options) != 0){
@@ -173,7 +173,7 @@ void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string
     fFitLabels.push_back(label);
     fFitSuffs.push_back(loadSuf);
     fWsFiles.push_back(wsFile);
-    
+
     TRExFitter::DEBUGLEVEL = debug;
 }
 
@@ -282,7 +282,7 @@ void MultiFit::SaveCombinedWS() const{
 
 //__________________________________________________________________________________
 //
-std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inputData, bool performFit) const {
+std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std::string& inputData, bool doLHscanOnly) const {
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
@@ -368,7 +368,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
             data = (RooDataSet*)ws->data("asimovData");
         }
     }
-    
+
     if (!data){
         WriteErrorStatus("MultiFit::FitCombinedWS", "Data returns null ptr, probably wrong name in DataName?");
         exit(EXIT_FAILURE);
@@ -377,141 +377,151 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, string inp
     // Performs the fit
     gSystem -> mkdir((fOutDir+"/Fits/").c_str(),true);
 
-    if(performFit){
-        //
-        // Get initial ikelihood value from Asimov
-        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        double nll0 = 0.;
-        if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
-        
-        //
-        // Get number of degrees of freedom
-        // - number of bins
-        int ndof = data->numEntries();
-        // - minus number of free & non-constant parameters
-        std::vector<std::string> nfList;
-        for(auto fit : fFitList){
-            for(auto nf : fit->fNormFactors){
-                if(nf->fConst) continue;
-                if(FindInStringVector(nfList,nf->fName)>=0) continue;
-                if(fFitType==2 && fPOI==nf->fName) continue;
-                nfList.push_back(nf->fName);
-            }
-        }
-        ndof -= nfList.size();
-        
-        fitTool -> MinimType("Minuit2");
+    // Get initial ikelihood value from Asimov
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+    double nll0 = 0.;
+    if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
 
-        // Full fit
-        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
-        double nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
+    //
+    // Get number of degrees of freedom
+    // - number of bins
+    int ndof = data->numEntries();
+    // - minus number of free & non-constant parameters
+    std::vector<std::string> nfList;
+    for(auto fit : fFitList){
+        for(auto nf : fit->fNormFactors){
+            if(nf->fConst) continue;
+            if(FindInStringVector(nfList,nf->fName)>=0) continue;
+            if(fFitType==2 && fPOI==nf->fName) continue;
+            nfList.push_back(nf->fName);
+        }
+    }
+    ndof -= nfList.size();
+
+    fitTool -> MinimType("Minuit2");
+
+    // Full fit
+    if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+    double nll = 0;
+    if (!doLHscanOnly){
+        nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
         std::vector<std::string> s_vec;
         fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt", s_vec);
         result = fitTool -> ExportFitResultInMap();
+    }
 
-        //
-        // Goodness of fit
-        if(fGetGoodnessOfFit){
-            double deltaNLL = nll-nll0;
-            double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
-            WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
-            WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
-            WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL0        = " + std::to_string(nll0));
-            WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL         = " + std::to_string(nll));
-            WriteInfoStatus("MultiFit::FitCombinedWS", "  ndof        = " + std::to_string(ndof));
-            WriteInfoStatus("MultiFit::FitCombinedWS", "  dNLL        = " + std::to_string(deltaNLL));
-            WriteInfoStatus("MultiFit::FitCombinedWS", "  2dNLL/nof   = " + std::to_string(2.*deltaNLL/ndof));
-            WriteInfoStatus("MultiFit::FitCombinedWS", "  probability = " + std::to_string(prob));
-            WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
-            WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
-        }
+    //
+    // Goodness of fit
+    if(fGetGoodnessOfFit && !doLHscanOnly){
+        double deltaNLL = nll-nll0;
+        double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
+        WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
+        WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL0        = " + std::to_string(nll0));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL         = " + std::to_string(nll));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  ndof        = " + std::to_string(ndof));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  dNLL        = " + std::to_string(deltaNLL));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  2dNLL/nof   = " + std::to_string(2.*deltaNLL/ndof));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  probability = " + std::to_string(prob));
+        WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
+        WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
+    }
 
-        //
-        // grouped systematics impact
-        if(fDoGroupedSystImpactTable){
-            std::string outNameGroupedImpact = fOutDir+"/Fits/GroupedImpact"+fSaveSuf;
-            if(fGroupedImpactCategory!="all") outNameGroupedImpact += "_"+fGroupedImpactCategory;
-            outNameGroupedImpact += ".txt";
-            // need to create a merged list of fSubCategoryImpactMap from the include Fits
-            std::map<std::string, std::string> mergedMap;
-            mergedMap.clear();
-            for(auto fit : fFitList){
-                fit->ProduceSystSubCategoryMap();
-                for(auto m : fit->fSubCategoryImpactMap){
-                    if(mergedMap[m.first]=="") mergedMap[m.first] = m.second;
-                    else if(mergedMap[m.first]!=m.second){
-                        WriteWarningStatus("MultiFit::FitCombinedWS","Systematics assigned to different SubCategory in the different included Fits. Keeping first Fit convention.");
-                    }
+    //
+    // grouped systematics impact
+    if(fDoGroupedSystImpactTable && !doLHscanOnly){
+        std::string outNameGroupedImpact = fOutDir+"/Fits/GroupedImpact"+fSaveSuf;
+        if(fGroupedImpactCategory!="all") outNameGroupedImpact += "_"+fGroupedImpactCategory;
+        outNameGroupedImpact += ".txt";
+        // need to create a merged list of fSubCategoryImpactMap from the include Fits
+        std::map<std::string, std::string> mergedMap;
+        mergedMap.clear();
+        for(auto fit : fFitList){
+            fit->ProduceSystSubCategoryMap();
+            for(auto m : fit->fSubCategoryImpactMap){
+                if(mergedMap[m.first]=="") mergedMap[m.first] = m.second;
+                else if(mergedMap[m.first]!=m.second){
+                    WriteWarningStatus("MultiFit::FitCombinedWS","Systematics assigned to different SubCategory in the different included Fits. Keeping first Fit convention.");
                 }
             }
-            fitTool -> SetSystMap( mergedMap );
-            fitTool -> GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory, outNameGroupedImpact);
         }
+        fitTool -> SetSystMap( mergedMap );
+        fitTool -> GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory, outNameGroupedImpact);
     }
-    
+
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
-    if(fVarNameLH.size()>0){
+    if(fVarNameLH.size()>0 && !doLHscanOnly){
         if (fVarNameLH[0]=="all"){
             for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
                 GetLikelihoodScan( ws, it->first, data, true);
             }
-        }
-        else{
-            for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-                GetLikelihoodScan( ws, fVarNameLH[i], data, true);
+        } else{
+            for(const auto& iLH : fVarNameLH){
+                GetLikelihoodScan( ws, iLH, data, true);
             }
         }
+    } else {
+        if (fVarNameLH[0]=="all"){
+            WriteWarningStatus("TRExFit::MultiFit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
+            for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
+                GetLikelihoodScan( ws, it->first, data, true);
+            }
+        } else {
+            if (fVarNameLH.size() == 0){
+                WriteErrorStatus("TRExFit::MultiFit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
+                exit(EXIT_FAILURE);
+            }
+            GetLikelihoodScan( ws, fVarNameLH[0], data, true);
+        }
     }
-    
-    if(performFit){
-        // Stat-only fit:
-        // - read fit resutls
-        // - fix all NP to fitted ones before fitting
-        if(fIncludeStatOnly){
-            WriteInfoStatus("MultiFit::FitCombinedWS", "Fitting stat-only: reading fit results from full fit from file:");
-            WriteInfoStatus("MultiFit::FitCombinedWS", "  " + (fOutDir+"/Fits/"+fName+fSaveSuf+".txt"));
-            fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
-            std::vector<std::string> npNames;
-            std::vector<double> npValues;
-            for(unsigned int i_np=0;i_np<fFitList[0]->fFitResults->fNuisPar.size();i_np++){
-                bool isNF = false;
-                for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-                    if(!fFitList[i_fit]->fFixNPforStatOnlyFit &&
-                        FindInStringVector(fFitList[i_fit]->fNormFactorNames,fFitList[0]->fFitResults->fNuisPar[i_np]->fName)>=0){
-                        isNF = true;
-                        break;
-                    }
+
+    // Stat-only fit:
+    // - read fit resutls
+    // - fix all NP to fitted ones before fitting
+    if(fIncludeStatOnly && !doLHscanOnly){
+        WriteInfoStatus("MultiFit::FitCombinedWS", "Fitting stat-only: reading fit results from full fit from file:");
+        WriteInfoStatus("MultiFit::FitCombinedWS", "  " + (fOutDir+"/Fits/"+fName+fSaveSuf+".txt"));
+        fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
+        std::vector<std::string> npNames;
+        std::vector<double> npValues;
+        for(unsigned int i_np=0;i_np<fFitList[0]->fFitResults->fNuisPar.size();i_np++){
+            bool isNF = false;
+            for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+                if(!fFitList[i_fit]->fFixNPforStatOnlyFit &&
+                    FindInStringVector(fFitList[i_fit]->fNormFactorNames,fFitList[0]->fFitResults->fNuisPar[i_np]->fName)>=0){
+                    isNF = true;
+                    break;
                 }
-                if(isNF) continue;
-                npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
-                npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
             }
-            fitTool -> FixNPs(npNames,npValues);
-            fitTool -> FitPDF( mc, simPdf, data );
-            std::vector<std::string> s_vec;
-            fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt", s_vec);
+            if(isNF) continue;
+            npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
+            npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
         }
+        fitTool -> FixNPs(npNames,npValues);
+        fitTool -> FitPDF( mc, simPdf, data );
+        std::vector<std::string> s_vecTemp;
+        fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt", s_vecTemp);
     }
-    
+
     return result;
 }
 //__________________________________________________________________________________
 //
 void MultiFit::GetCombinedLimit(string inputData) const{
     WriteInfoStatus("MultiFit::GetCombinedLimit", "Runing runAsymptoticsCLs macro...");
-    
+
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
     int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
     if (sigDebug < 0) sigDebug = 0;
-    runAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fOutDir+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug); 
+    runAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fOutDir+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
 }
 //__________________________________________________________________________________
 //
 void MultiFit::GetCombinedSignificance(string inputData) const{
     WriteInfoStatus("MultiFit::GetCombinedSignificance", "Runing runSig macro...");
-  
+
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
 
     //
@@ -2090,7 +2100,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
 void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, RooDataSet* data,bool recreate) const{
     WriteInfoStatus("MultiFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
     TString LHDir("LHoodPlots/");
-    
+
     // shut-up RooFit!
     if(TRExFitter::DEBUGLEVEL<=1){
         if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
@@ -2099,14 +2109,14 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         RooMsgService::instance().getStream(1).removeTopic(Generation) ;
         RooMsgService::instance().getStream(1).removeTopic(Plotting) ;
         RooMsgService::instance().getStream(1).removeTopic(LinkStateMgmt) ;
-        RooMsgService::instance().getStream(1).removeTopic(Eval) ;  
-        RooMsgService::instance().getStream(1).removeTopic(Caching) ;  
-        RooMsgService::instance().getStream(1).removeTopic(Optimization) ;  
-        RooMsgService::instance().getStream(1).removeTopic(ObjectHandling) ;  
-        RooMsgService::instance().getStream(1).removeTopic(InputArguments) ;  
-        RooMsgService::instance().getStream(1).removeTopic(Tracing) ;  
-        RooMsgService::instance().getStream(1).removeTopic(Contents) ;  
-        RooMsgService::instance().getStream(1).removeTopic(DataHandling) ;  
+        RooMsgService::instance().getStream(1).removeTopic(Eval) ;
+        RooMsgService::instance().getStream(1).removeTopic(Caching) ;
+        RooMsgService::instance().getStream(1).removeTopic(Optimization) ;
+        RooMsgService::instance().getStream(1).removeTopic(ObjectHandling) ;
+        RooMsgService::instance().getStream(1).removeTopic(InputArguments) ;
+        RooMsgService::instance().getStream(1).removeTopic(Tracing) ;
+        RooMsgService::instance().getStream(1).removeTopic(Contents) ;
+        RooMsgService::instance().getStream(1).removeTopic(DataHandling) ;
         RooMsgService::instance().setStreamStatus(1,false);
     }
 
@@ -2136,7 +2146,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     if (fLHscanMin < 99999) { // is actually set
         minVal = fLHscanMin;
     }
-    
+
     if (fLHscanMax > -99999) { // is actually set
         maxVal = fLHscanMax;
     }
@@ -2176,7 +2186,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     can->SetTopMargin(0.1);
     RooCurve* curve;
     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
-    
+
     if(recreate){
         RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TRExFitter::NCPU, RooFit::Hybrid));
         TString tag("");
@@ -2191,7 +2201,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         curve->SetLineWidth(3);
     }
     curve->Draw();
-    
+
     // take the LH curves also for other fits
     std::vector<RooCurve*> curve_fit;
     std::vector<RooCurve*> curve_fit_statOnly; // to implement
@@ -2248,7 +2258,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     TLatex *tex = new TLatex();
     tex->SetTextColor(kGray+2);
-    
+
     TLine *l1s = new TLine(minVal,0.5,maxVal,0.5);
     l1s->SetLineStyle(kDashed);
     l1s->SetLineColor(kGray);
@@ -2257,7 +2267,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         l1s->Draw();
         tex->DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
     }
-    
+
     if(isPoI){
         if(frameLH->GetMaximum()>2){
             TLine *l2s = new TLine(minVal,2,maxVal,2);
@@ -2292,14 +2302,14 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
         if(fLabel!="") myText(0.2,0.85,kBlack,Form("#kern[-1]{%s}",fLabel.c_str()));
     }
-    
+
     frameLH->SetMinimum(0);
     can->RedrawAxis();
     curve->Draw("same");
-    
+
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
         can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TRExFitter::IMAGEFORMAT[i_format] );
-    
+
     if(recreate){
         // write it to a ROOT file as well
         TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
