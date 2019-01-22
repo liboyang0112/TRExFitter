@@ -143,6 +143,8 @@ public:
     std::string fSignificanceOutputPrefixName;
 
     bool fShowTotalOnly;
+
+    bool fuseGammasForCorr;
 };
 
 #endif

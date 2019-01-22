@@ -467,7 +467,10 @@ int ConfigReader::ReadJobOptions(){
     // Set CorrelationThreshold
     param = confSet->Get("CorrelationThreshold");
     if( param != ""){
-        TRExFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
+        // set it if it was not set already
+        if (TRExFitter::CORRELATIONTHRESHOLD < 0){
+            TRExFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
+        }
     }
 
     // Set HistoChecks
