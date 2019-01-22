@@ -212,6 +212,20 @@ int ConfigReaderMulti::ReadJobOptions(){
         TRExFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
     }
 
+    // Set UseGammasForCorr
+    param = confSet->Get("UseGammasForCorr");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE"){
+            fMultiFitter->fuseGammasForCorr = true;
+        } else if (param == "FALSE") {
+            fMultiFitter->fuseGammasForCorr = false;
+        } else {
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified UseGammasForCorr option but didnt provide valid parameter. Using default (false)");
+            fMultiFitter->fuseGammasForCorr = false;
+        }
+    }
+
     // Set Combine
     param = confSet->Get("Combine");
     if( param != ""){

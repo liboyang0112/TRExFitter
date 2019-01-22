@@ -144,6 +144,7 @@ MultiFit::MultiFit(string name){
     fSignificanceOutputPrefixName = "mySignificance"; 
 
     fShowTotalOnly = false;
+    fuseGammasForCorr = false;
 }
 
 //__________________________________________________________________________________
@@ -1485,7 +1486,7 @@ void MultiFit::PlotCombinedCorrelationMatrix() const{
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     if(fit->fFitResults){
         for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-            fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format],TRExFitter::CORRELATIONTHRESHOLD);
+            fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format],fuseGammasForCorr,TRExFitter::CORRELATIONTHRESHOLD);
     }
 }
 
