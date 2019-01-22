@@ -1485,7 +1485,6 @@ void MultiFit::PlotCombinedCorrelationMatrix() const{
     //plot the correlation matrix (considering only correlations larger than TRExFitter::CORRELATIONTHRESHOLD)
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     if(fit->fFitResults){
-        std::cout << "CORRELATION: " << TRExFitter::CORRELATIONTHRESHOLD << std::endl;
         for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
             fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format],fuseGammasForCorr,TRExFitter::CORRELATIONTHRESHOLD);
     }
