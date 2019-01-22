@@ -48,9 +48,9 @@ int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::st
     sc+= ReadJobOptions();
 
     sc+= ReadLimitOptions();
-    
+
     sc+= ReadSignificanceOptions();
-    
+
     sc+= ReadFitOptions(option);
 
     // make directory
@@ -87,6 +87,9 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
 
     if(optMap["Suffix"]!=""){
         fGlobalSuffix = optMap["Suffix"];
+    }
+    if(optMap["LHscan"]!=""){
+        fOnlyLHscan = optMap["LHscan"];
     }
 
     return 0;
@@ -429,7 +432,11 @@ int ConfigReaderMulti::ReadJobOptions(){
     // Set doLHscan
     param = confSet->Get("doLHscan");
     if( param != "" ){
-        fMultiFitter->fVarNameLH = Vectorize(param,',');
+        if (fOnlyLHscan==""){
+            fMultiFitter->fVarNameLH = Vectorize(param,',');
+        } else {
+            fMultiFitter->fVarNameLH.emplace_back(fOnlyLHscan);
+        }
     }
 
     // Set LHscanMin
@@ -531,13 +538,13 @@ int ConfigReaderMulti::ReadLimitOptions(){
             fMultiFitter->fSignalInjection = false;
         }
     }
-    
+
     // Set SignalInjectionValue
     param = confSet->Get("SignalInjectionValue");
     if( param != "" ){
         fMultiFitter->fSignalInjectionValue = std::stof(param);
     }
-    
+
     param = confSet->Get("ParamName");
     if( param != "" ){
         fMultiFitter->fLimitParamName = param;
@@ -547,7 +554,7 @@ int ConfigReaderMulti::ReadLimitOptions(){
     if( param != "" ){
         fMultiFitter->fLimitParamValue = std::stof(param);
     }
-    
+
     param = confSet->Get("OutputPrefixName");
     if( param != "" ){
         fMultiFitter->fLimitOutputPrefixName = param;
@@ -562,7 +569,7 @@ int ConfigReaderMulti::ReadLimitOptions(){
         }
         fMultiFitter->fLimitsConfidence = conf;
     }
-    
+
     return 0;
 }
 
@@ -596,7 +603,7 @@ int ConfigReaderMulti::ReadSignificanceOptions(){
     if( param != "" ){
         fMultiFitter->fSignificancePOIAsimov = atof(param.c_str());
     }
-    
+
     param = confSet->Get("ParamName");
     if( param != "" ){
         fMultiFitter->fSignificanceParamName = param;
@@ -606,7 +613,7 @@ int ConfigReaderMulti::ReadSignificanceOptions(){
     if( param != "" ){
         fMultiFitter->fSignificanceParamValue = std::stof(param);
     }
-    
+
     param = confSet->Get("OutputPrefixName");
     if( param != "" ){
         fMultiFitter->fSignificanceOutputPrefixName = param;
