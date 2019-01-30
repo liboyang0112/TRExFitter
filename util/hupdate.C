@@ -81,6 +81,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
       // loop over all keys in this directory (meaning of the directory of the first file! This is the point in which this script starts to be different from hadd)
       TChain *globChain = 0;
       TIter nextkey( next_source->GetListOfKeys() );
+      nextkey.GetCollection()->Print(); // NELLO - Print the Collection content. To be sure keys are realy called!!!!!
       TKey *key, *oldkey=0;
       while ( (key = (TKey*)nextkey())) {
         //keep only the highest cycle number for each key
