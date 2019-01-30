@@ -87,6 +87,7 @@ set( lib_headers
   TRExFitter/MultiFit.h
   TRExFitter/NormFactor.h
   TRExFitter/NuisParameter.h
+  TRExFitter/PruningUtil.h
   TRExFitter/Region.h
   TRExFitter/Sample.h
   TRExFitter/SampleHist.h
@@ -110,6 +111,7 @@ set( lib_sources
   Root/MultiFit.C
   Root/NormFactor.C
   Root/NuisParameter.C
+  Root/PruningUtil.C
   Root/Region.C
   Root/Sample.C
   Root/SampleHist.C

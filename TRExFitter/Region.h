@@ -4,6 +4,7 @@
 /// Framework includes
 #include "TRExFitter/Common.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/PruningUtil.h"
 
 /// c++ includes
 #include <map>
@@ -96,6 +97,19 @@ public:
       * @param dummy parameter that will be filled
       */
     void PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal) const;
+
+    /**
+     * Function that calls systematics pruning through the PruningUtil class
+     * @param pointer to PruningUtil instance
+     */
+    void SystPruning(PruningUtil *pu);
+    
+    /**
+      * Helper function to get a "total prediction" histogram
+      * @param bool specifying whether signal sample have to be included in the sum or not (true by default)
+      * @return combined histogram
+      */
+    TH1* GetTotHist(bool includeSignal=true);
 
     // -------
     // Members

@@ -3,6 +3,7 @@
 
 /// Framework includes
 #include "TRExFitter/HistoTools.h"
+#include "TRExFitter/PruningUtil.h"
 
 /// ROOT includes
 #include "Rtypes.h"
@@ -69,6 +70,7 @@ public:
 
     void SampleHistAdd(SampleHist* h, float scale = 1.);
     void CloneSampleHist(SampleHist* h, const std::set<std::string>& names, float scale = 1.);
+    void SystPruning(PruningUtil *pu,TH1* hTot=nullptr);
 
     std::string fName;
     Sample *fSample;

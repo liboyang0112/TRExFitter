@@ -30,6 +30,10 @@ Applying ATLAS style settings...
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+Applying systematics pruning...
+[1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::SystPruning: Apply Systemaics Pruning ...[0m
+Info in <TCanvas::Print>: png file FitExample/Pruning.png has been created
 Extracting limit...
 full list of observables:
 RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
@@ -1800,4 +1804,4 @@ CLsb = 0.126663
 CLs = 0.255361
 ************************
 Finished with 38 calls to minimize(nll)
-Real time 0:00:02, CP time 2.150
+Real time 0:00:02, CP time 1.830

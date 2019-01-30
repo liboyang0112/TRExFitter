@@ -61,6 +61,10 @@ Applying ATLAS style settings...
 === DEBUG::TRExFit::ReadHistos:     Reading sample Signal
 === DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
 === DEBUG::TRExFit::ReadHistos:       Reading syst JES
+Applying systematics pruning...
+[1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::SystPruning: Apply Systemaics Pruning ...[0m
+Info in <TCanvas::Print>: png file FitExample/Pruning.png has been created
 Drawing post-fit plots...
 [1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m

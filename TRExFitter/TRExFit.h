@@ -4,6 +4,10 @@
 /// Framework includes
 #include "TRExFitter/HistoTools.h"
 
+// RooFit
+#include "RooSimultaneous.h"
+#include "RooStats/ModelConfig.h"
+
 /// c++ includes
 #include <map>
 #include <memory>
@@ -140,6 +144,7 @@ public:
     // turn to RooStat::HistFactory
     void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
 
+    void SystPruning() const;
     void DrawPruningPlot() const;
 
     // fit etc...
@@ -236,13 +241,6 @@ public:
     void BuildGroupedImpactTable() const;
 
     /**
-     * Helper function to calculate nominal scale for morphed samples
-     * @param A pointer to SampleHist for which we need to calculate the scale factor
-     * @return A scale factor
-     */
-    float GetNominalMorphScale(const SampleHist* const sh) const;
-
-    /**
      * Helper function that runs toys experiments
      * @param A pointer to a workspace needed to run the fit
      */
@@ -304,14 +302,6 @@ public:
         int i_ch, int i_smp, bool isUp, bool isMC);
 
     /**
-     * A helper function to get combined histogram of samples from one region neede for special prunning
-     * @param Region
-     * @param Vector of samples
-     * @return Combined histogram
-     */
-    std::unique_ptr<TH1D> GetCombinedSampleHist(const Region* const reg) const;
-
-    /**
     * A helper function to get SampleHisto from a region that matches a name of the sample
     * @param Region
     * @@param name
@@ -337,6 +327,7 @@ public:
      * @return index
      */
     int GetSystIndex(const SampleHist* const sh, const std::string& name) const;
+    
     // -------------------------
 
     std::string fName;

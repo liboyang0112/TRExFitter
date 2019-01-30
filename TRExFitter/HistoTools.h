@@ -163,15 +163,6 @@ namespace HistoTools {
     void Scale(TH1* h_syst, TH1* h_nominal, float factor);
 
     /**
-     * A helper function to check if the syst variation has shape effect
-     * @param Nominal histogram
-     * @param Systematic histogram
-     * @param Threshold used for the check
-     * @return Has shape
-     */
-    bool HasShape(TH1* nom, SystematicHist* sh, float threshold);
-
-    /**
      * A helper function to check for various weird features
      * @param Nominal histogram
      * @param Systematic histogram
@@ -180,7 +171,6 @@ namespace HistoTools {
      * @return Histo is OK
      */
     bool CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNull = true, bool causeCrash = false);
-
-    bool HasShapeRelative(const TH1* const hNom, const TH1* const up, const TH1* const down, const TH1* const combined, float threshold);
+    
 }
 #endif

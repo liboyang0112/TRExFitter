@@ -124,7 +124,6 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     //
     const RooArgSet* glbObs = model->GetGlobalObservables();
 
-
     //
     // Create the likelihood based on fitpdf, fitData and the parameters
     //
@@ -232,7 +231,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     double nllval = nll->getVal();
     double nLLatMLE = 0.;//m_fitResult->minNll();
     double nlloffset = nll->getVal() - nLLatMLE;
-
+    
     WriteDebugStatus("FittingTool::FitPDF","   -> Initial value of the NLL = " +std::to_string(nllval));
     if(m_debug >= 2) constrainedParams->Print("v");
 

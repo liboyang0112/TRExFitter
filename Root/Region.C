@@ -1615,7 +1615,7 @@ bool Region::UseAlternativeVariable(const std::string& sample){
     for(auto tmp : fAlternativeVariables){
         tmpVec.push_back(tmp.first);
     }
-    if (FindInStringVector(tmpVec,sample)){
+    if (FindInStringVector(tmpVec,sample)<0){
         return false;
     }
     else {
@@ -1630,7 +1630,7 @@ bool Region::UseAlternativeSelection(const std::string& sample){
     for(auto tmp : fAlternativeSelections){
         tmpVec.push_back(tmp.first);
     }
-    if (FindInStringVector(tmpVec,sample)){
+    if (FindInStringVector(tmpVec,sample)<0){
         return false;
     }
     else {
@@ -2247,4 +2247,87 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
             }
         }
     }
+}
+
+//___________________________________________________________
+//
+void Region::SystPruning(PruningUtil *pu){
+    TH1* hTot = nullptr;
+    if(pu->fStrategy==1){
+        hTot = GetTotHist(false); // don't include signal
+    }
+    else if(pu->fStrategy==2){
+        hTot = GetTotHist(true); // include signal
+    }
+    for(auto sh : fSampleHists){
+        sh->SystPruning(pu,hTot);
+        //
+        // flag overall systematics as no shape also for pruning purposes
+        for(auto syh : sh->fSyst){
+            if(!syh) continue;
+            if(!syh->fSystematic) continue;
+            if(syh->fSystematic->fType==Systematic::OVERALL){
+                syh->fShapePruned = true;
+            }
+        }
+        //
+        // add by-hand dropping of shape or norm
+        for(auto syh : sh->fSyst){
+            if(!syh) continue;
+            if(!syh->fSystematic) continue;
+            if( FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0 ){
+                syh->fShapePruned = true;
+            }
+            if( FindInStringVector(syh->fSystematic->fDropNormIn,fName)>=0 ){
+                syh->fNormPruned = true;
+            }
+        }
+    }
+    //
+    // reference pruning
+    for(auto sh : fSampleHists){
+        for(auto syh : sh->fSyst){
+            if(!syh) continue;
+            if(!syh->fSystematic) continue;
+            Systematic *syst = syh->fSystematic;
+            if(syst->fReferencePruning == "") continue;
+            SampleHist *refSmpH = GetSampleHist(syst->fReferencePruning);
+            if(refSmpH==nullptr){
+                WriteWarningStatus("Region::SystPruning", "Cannot find reference pruning sample: " + syst->fReferencePruning + " in region: " + fName);
+                continue;
+            }
+            SystematicHist *refSysH = refSmpH->GetSystematic(syst->fName);
+            if(refSysH==nullptr){
+                WriteWarningStatus("Region::SystPruning", "Cannot find systematic " + syst->fName + " for reference pruning sample " + syst->fReferencePruning);
+                continue;
+            }
+            syh->fNormPruned = refSysH->fNormPruned;
+            syh->fShapePruned = refSysH->fShapePruned;
+            syh->fBadShape = refSysH->fBadShape;
+            syh->fBadNorm = refSysH->fBadNorm;
+        }
+    }
+}
+
+//___________________________________________________________
+//
+TH1* Region::GetTotHist(bool includeSignal){
+    TH1* hTot = nullptr;
+    for(auto sh : fSampleHists){
+        if(!sh->fSample) continue;
+        if(sh->fSample->fType==Sample::GHOST) continue;
+        if(sh->fSample->fType==Sample::DATA) continue;
+        if(!includeSignal && sh->fSample->fType==Sample::SIGNAL) continue;
+        if(!sh->fHist) continue;
+        TH1* hTmp = (TH1*)sh->fHist->Clone(("hTot_"+fName).c_str());
+        // scale accoring to nominal SF (considering morphing as well)
+        const float& scale = GetNominalMorphScale(sh);
+        hTmp->Scale(scale);
+        if(!hTot) hTot = hTmp;
+        else{
+            hTot->Add(hTmp);
+            delete hTmp;
+        }
+    }
+    return hTot;
 }

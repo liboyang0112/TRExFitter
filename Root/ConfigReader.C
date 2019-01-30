@@ -827,8 +827,8 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fRankingPOIName = RemoveQuotes(param);
     }
 
-    // Set RankingPOIName
-    param = confSet->Get("PrunningType");
+    // Set PruningType
+    param = confSet->Get("PruningType");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if (param == "SEPARATESAMPLE") {
