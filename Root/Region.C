@@ -2262,6 +2262,15 @@ void Region::SystPruning(PruningUtil *pu){
     for(auto sh : fSampleHists){
         sh->SystPruning(pu,hTot);
         //
+        // flag overall systematics as no shape also for pruning purposes
+        for(auto syh : sh->fSyst){
+            if(!syh) continue;
+            if(!syh->fSystematic) continue;
+            if(syh->fSystematic->fType==Systematic::OVERALL){
+                syh->fShapePruned = true;
+            }
+        }
+        //
         // add by-hand dropping of shape or norm
         for(auto syh : sh->fSyst){
             if(!syh) continue;
