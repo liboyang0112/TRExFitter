@@ -1,9 +1,9 @@
 // Header include
-#include "TtHFitter/Common.h"
+#include "TRExFitter/Common.h"
 
 // Framework includes
-#include "TtHFitter/HistoTools.h"
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/HistoTools.h"
+#include "TRExFitter/StatusLogbook.h"
 
 // ATLAS stuff
 #include "AtlasUtils/AtlasStyle.h"
@@ -15,51 +15,55 @@
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TH1.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TH2F.h"
 #include "TMath.h"
 #include "TObject.h"
 #include "TString.h"
 
-#include <sstream>
-
-using namespace std;
+// c++ stuff
+#include <iostream>
+#include <iomanip>
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
 // VARIABLES
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
-int TtHFitter::DEBUGLEVEL = 1;
-bool TtHFitter::SHOWYIELDS = false;
-bool TtHFitter::SHOWSTACKSIG = true;
-bool TtHFitter::SHOWNORMSIG = false;
-bool TtHFitter::SHOWOVERLAYSIG = false;
-bool TtHFitter::SHOWCHI2 = false;
-bool TtHFitter::SHOWSTACKSIG_SUMMARY = true;
-bool TtHFitter::SHOWNORMSIG_SUMMARY = false;
-bool TtHFitter::SHOWOVERLAYSIG_SUMMARY = false;
-bool TtHFitter::LEGENDLEFT = false;
-bool TtHFitter::PREFITONPOSTFIT = false;
-bool TtHFitter::POISSONIZE = false;
-bool TtHFitter::SYSTCONTROLPLOTS = false;
-bool TtHFitter::SYSTERRORBARS = true;
-bool TtHFitter::SYSTDATAPLOT = false;
-bool TtHFitter::SPLITHISTOFILES = false;
-bool TtHFitter::HISTOCHECKCRASH = true;
-bool TtHFitter::GUESSMCSTATERROR = true;
-bool TtHFitter::REMOVEXERRORS = false;
-bool TtHFitter::NOENDERR = false;
-float TtHFitter::CORRELATIONTHRESHOLD = -1;
-bool TtHFitter::MERGEUNDEROVERFLOW = false;
-std::map <string,string> TtHFitter::SYSTMAP;
-std::map <string,string> TtHFitter::SYSTTEX;
-std::map <string,string> TtHFitter::NPMAP;
-std::vector <string> TtHFitter::IMAGEFORMAT;
-int TtHFitter::NCPU = 1;
+int TRExFitter::DEBUGLEVEL = 1;
+bool TRExFitter::SHOWYIELDS = false;
+bool TRExFitter::SHOWSTACKSIG = true;
+bool TRExFitter::ADDSTACKSIG = true;
+bool TRExFitter::SHOWNORMSIG = false;
+bool TRExFitter::SHOWOVERLAYSIG = false;
+bool TRExFitter::SHOWCHI2 = false;
+bool TRExFitter::SHOWSTACKSIG_SUMMARY = true;
+bool TRExFitter::SHOWNORMSIG_SUMMARY = false;
+bool TRExFitter::SHOWOVERLAYSIG_SUMMARY = false;
+bool TRExFitter::LEGENDLEFT = false;
+bool TRExFitter::LEGENDRIGHT = false;
+bool TRExFitter::PREFITONPOSTFIT = false;
+bool TRExFitter::POISSONIZE = false;
+bool TRExFitter::SYSTCONTROLPLOTS = false;
+bool TRExFitter::SYSTERRORBARS = true;
+bool TRExFitter::SYSTDATAPLOT = false;
+bool TRExFitter::SPLITHISTOFILES = false;
+bool TRExFitter::HISTOCHECKCRASH = true;
+bool TRExFitter::GUESSMCSTATERROR = true;
+bool TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL = false;
+bool TRExFitter::REMOVEXERRORS = false;
+float TRExFitter::CORRELATIONTHRESHOLD = -1;
+bool TRExFitter::MERGEUNDEROVERFLOW = false;
+bool TRExFitter::OPRATIO = false;
+bool TRExFitter::NORATIO = false;
+std::map <std::string,std::string> TRExFitter::SYSTMAP;
+std::map <std::string,std::string> TRExFitter::SYSTTEX;
+std::map <std::string,std::string> TRExFitter::NPMAP;
+std::vector <std::string> TRExFitter::IMAGEFORMAT;
+int TRExFitter::NCPU = 1;
 //
-std::map <string,float> TtHFitter::OPTION;
-std::map<string,TFile*> TtHFitter::TFILEMAP;
+std::map<std::string,float> TRExFitter::OPTION;
+std::map<std::string,TFile*> TRExFitter::TFILEMAP;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -69,8 +73,9 @@ std::map<string,TFile*> TtHFitter::TFILEMAP;
 
 //__________________________________________________________________________________
 //
-TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float xmax, string selection, string weight){
-    TH1F* h = new TH1F("h","h",nbin,xmin,xmax);
+TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, float xmin,
+                     float xmax, const std::string& selection, const std::string& weight){
+    TH1D* h = new TH1D("h","h",nbin,xmin,xmax);
     WriteVerboseStatus("Common::HistFromNtuple", "    Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtuple", "        with weight  (" + weight + ")*("+selection+")  ...");
     TChain *t = new TChain();
@@ -78,15 +83,16 @@ TH1F* HistFromNtuple(string ntuple, string variable, int nbin, float xmin, float
     h->Sumw2();
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
     t->Draw(drawVariable, drawWeight, "goff");
-    if(TtHFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
+    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     delete t;
     return h;
 }
 
 //__________________________________________________________________________________
 //
-TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bins, string selection, string weight){
-    TH1F* h = new TH1F("h","h",nbin,bins);
+TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins,
+                           const std::string& selection, const std::string& weight){
+    TH1D* h = new TH1D("h","h",nbin,bins);
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
     TChain *t = new TChain();
@@ -94,65 +100,64 @@ TH1F* HistFromNtupleBinArr(string ntuple, string variable, int nbin, double *bin
     h->Sumw2();
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
     t->Draw(drawVariable, drawWeight, "goff");
-    if(TtHFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
+    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     delete t;
     return h;
 }
 
 //__________________________________________________________________________________
 //
-TFile* GetFile(string fileName){
-    auto it = TtHFitter::TFILEMAP.find(fileName);
-    if(it != TtHFitter::TFILEMAP.end()) return it->second;
+TFile* GetFile(const std::string& fileName){
+    auto it = TRExFitter::TFILEMAP.find(fileName);
+    if(it != TRExFitter::TFILEMAP.end()) return it->second;
     else {
        TFile *f = new TFile(fileName.c_str());
-       TtHFitter::TFILEMAP.insert(std::pair<string,TFile*>(fileName,f));
+       TRExFitter::TFILEMAP.insert(std::pair<std::string,TFile*>(fileName,f));
        return f;
     }
 }
 
 //__________________________________________________________________________________
 //
-TH1* HistFromFile(string fullName){
-    string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
-    string histoName = fullName.substr(fullName.find_last_of(".")+6,string::npos);
+TH1* HistFromFile(const std::string& fullName){
+    std::string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
+    std::string histoName = fullName.substr(fullName.find_last_of(".")+6,std::string::npos);
     return HistFromFile(fileName,histoName);
 }
 
 //__________________________________________________________________________________
 //
-TH1* HistFromFile(string fileName,string histoName){
-    if(fileName=="") return 0x0;
-    if(histoName=="") return 0x0;
+TH1* HistFromFile(const std::string& fileName, const std::string& histoName){
+    if(fileName=="") return nullptr;
+    if(histoName=="") return nullptr;
     bool hasCustomAsimov = false;
     if (fileName.find("customAsimov") != std::string::npos) hasCustomAsimov = true;
     WriteVerboseStatus("Common::HistFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
-    TH1 *h = 0x0;
+    TH1 *h = nullptr;
     TFile *f = GetFile(fileName);
-    if(f == 0x0){
+    if(!f){
             WriteErrorStatus("Common::HistFromFile", "cannot find input file '" + fileName + "'");
             return h;
     }
     h = static_cast<TH1*>(f->Get(histoName.c_str()));
-    if(h == 0x0){
+    if(!h){
             if (!hasCustomAsimov) WriteErrorStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "'");
             else WriteDebugStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "', but its customAsimov histogram so this should not be a problem");
             return h;
     }
     h = static_cast<TH1*>(h->Clone());
-    if(h!=0x0) h->SetDirectory(0);
-    if(TtHFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
+    if(h!=nullptr) h->SetDirectory(0);
+    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     return h;
 }
 
 //__________________________________________________________________________________
 //
-void WriteHistToFile(TH1* h,string fileName,string option){
+void WriteHistToFile(TH1* h, const std::string& fileName, std::string option){
     TDirectory *dir = gDirectory;
     TFile *f = new TFile(fileName.c_str(),option.c_str());
     h->Write("",TObject::kOverwrite);
     h->SetDirectory(0);
-//     h->AddDirectory(0);
     delete f;
     dir->cd();
 }
@@ -164,7 +169,6 @@ void WriteHistToFile(TH1* h,TFile *f){
     f->cd();
     h->Write("",TObject::kOverwrite);
     h->SetDirectory(0);
-//     h->AddDirectory(0);
     dir->cd();
 }
 
@@ -183,9 +187,9 @@ void MergeUnderOverFlow(TH1* h){
 
 //__________________________________________________________________________________
 //
-vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs,
-                                vector<string> files, vector<string> fileSufs,
-                                vector<string> names, vector<string> nameSufs){
+std::vector<std::string> CreatePathsList( std::vector<std::string> paths, std::vector<std::string> pathSufs,
+                                std::vector<std::string> files, std::vector<std::string> fileSufs,
+                                std::vector<std::string> names, std::vector<std::string> nameSufs){
     // turn the empty vectors into vectors containing one "" entry
     if(paths.size()==0) paths.push_back("");
     if(pathSufs.size()==0) pathSufs.push_back("");
@@ -194,27 +198,26 @@ vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs,
     if(names.size()==0) names.push_back("");
     if(nameSufs.size()==0) nameSufs.push_back("");
     //
-    vector<string> output;
-    string fullPath;
-    output.clear();
-    for(int i_path=0;i_path<(int)paths.size();i_path++){
-        for(int i_pathSuf=0;i_pathSuf<(int)pathSufs.size();i_pathSuf++){
-            for(int i_file=0;i_file<(int)files.size();i_file++){
-                for(int i_fileSuf=0;i_fileSuf<(int)fileSufs.size();i_fileSuf++){
-                    for(int i_name=0;i_name<(int)names.size();i_name++){
-                        for(int i_nameSuf=0;i_nameSuf<(int)nameSufs.size();i_nameSuf++){
-                            fullPath    = paths[i_path];
-                            fullPath += pathSufs[i_pathSuf];
+    std::vector<std::string> output;
+    std::string fullPath;
+    for (const auto& ipath : paths) {
+        for(const auto& ipathSuf : pathSufs){
+            for(const auto& ifile : files){
+                for(const auto& ifileSuf : fileSufs){
+                    for(const auto& iname : names){
+                        for(const auto& inameSuf : nameSufs){
+                            fullPath    = ipath;
+                            fullPath += ipathSuf;
                             fullPath += "/";
-                            fullPath += files[i_file];
-                            fullPath += fileSufs[i_fileSuf];
+                            fullPath += ifile;
+                            fullPath += ifileSuf;
                             fullPath += ".root";
-                            if(names[i_name]!="" || nameSufs[i_nameSuf]!=""){
+                            if(iname !="" || inameSuf!=""){
                                 fullPath += "/";
-                                fullPath += names[i_name];
-                                fullPath += nameSufs[i_nameSuf];
+                                fullPath += iname;
+                                fullPath += inameSuf;
                             }
-                            output.push_back( fullPath );
+                            output.emplace_back( fullPath );
                         }
                     }
                 }
@@ -226,8 +229,9 @@ vector<string> CreatePathsList( vector<string> paths, vector<string> pathSufs,
 
 //__________________________________________________________________________________
 //
-vector<string> CombinePathSufs( vector<string> pathSufs, vector<string> newPathSufs ){
-    vector<string> output; output.clear();
+std::vector<std::string> CombinePathSufs( std::vector<std::string> pathSufs,
+                                          std::vector<std::string> newPathSufs ){
+    std::vector<std::string> output;
     if(pathSufs.size()==0) pathSufs.push_back("");
     if(newPathSufs.size()==0) newPathSufs.push_back("");
     for(int i=0;i<(int)pathSufs.size();i++){
@@ -240,8 +244,8 @@ vector<string> CombinePathSufs( vector<string> pathSufs, vector<string> newPathS
 
 //__________________________________________________________________________________
 //
-vector<string> ToVec(string s){
-    vector<string> output;
+std::vector<std::string> ToVec(const std::string& s){
+    std::vector<std::string> output;
     output.clear();
     output.push_back(s);
     return output;
@@ -249,16 +253,16 @@ vector<string> ToVec(string s){
 
 //__________________________________________________________________________________
 //
-void TtHFitter::SetDebugLevel(int level){
+void TRExFitter::SetDebugLevel(int level){
     DEBUGLEVEL = level;
 }
 
 //__________________________________________________________________________________
 //
-string ReplaceString(string subject, const string& search,
-                                     const string& replace) {
+std::string ReplaceString(std::string subject, const std::string& search,
+                          const std::string& replace) {
     size_t pos = 0;
-    while((pos = subject.find(search, pos)) != string::npos) {
+    while((pos = subject.find(search, pos)) != std::string::npos) {
         subject.replace(pos, search.length(), replace);
         pos += replace.length();
     }
@@ -267,12 +271,12 @@ string ReplaceString(string subject, const string& search,
 
 //__________________________________________________________________________________
 //
-vector< pair < string,vector<double> > > processString(string target) {
+std::vector< std::pair < std::string,std::vector<double> > > processString(std::string target) {
   size_t pos = 0;
-  vector<pair <string,vector<double> > > output;
-  while((pos = target.find("[",pos)) !=string::npos) {
-    pair <string, vector<double> > onePair;
-    vector<double> values;
+  std::vector<std::pair <std::string,std::vector<double> > > output;
+  while((pos = target.find("[",pos)) !=std::string::npos) {
+    std::pair <std::string, std::vector<double> > onePair;
+    std::vector<double> values;
     double oneValue;
     int length = target.find("]",pos) - pos;
     std::stringstream ss(target.substr(pos+1,length-1));
@@ -294,7 +298,7 @@ vector< pair < string,vector<double> > > processString(string target) {
 
 //__________________________________________________________________________________
 // taking into account wildcards on both
-bool StringsMatch(std::string s1,std::string s2){
+bool StringsMatch(const std::string& s1, const std::string& s2){
     if(wildcmp(s1.c_str(),s2.c_str())>0 || wildcmp(s2.c_str(),s1.c_str())>0) return true;
     return false;
 }
@@ -334,69 +338,30 @@ int wildcmp(const char *wild, const char *string) {
 
 //__________________________________________________________________________________
 //
-int FindInStringVector(std::vector< string > v, string s){
+int FindInStringVector(const std::vector<std::string>& v, const std::string& s){
     int idx = -1;
-    string s1;
-//     string s2;
+    std::string s1;
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i];
         if(StringsMatch(s1,s)){
             idx = (int)i;
             break;
         }
-/*        
-        if(s1==s){
-            idx = (int)i;
-            break;
-        }
-//       // if there is a "*"...
-//       int wildcard_pos = s.find("*");
-//       if(wildcard_pos!=string::npos){
-//               int foo = s1.find(s.substr(0,wildcard_pos)), bar = s1.find(s.substr(wildcard_pos+1));
-//               if(foo!=string::npos && bar!=string::npos)
-//                       idx = (int)i;
-//                       break;
-//       }
-        // if both first and last character are "*"...
-        if(s1[0]=='*' && s1[s1.size()-1]=='*'){
-            s2 = s1.substr(1,s1.size()-1);
-                if(s.find(s2)!=string::npos){
-                    idx = (int)i;
-                    break;
-                }
-        }
-        // if last character is "*"...
-        else if(s1[s1.size()-1]=='*'){
-            s2 = s1.substr(0,s1.size()-1);
-            if(s.find(s2)!=string::npos && s2[0]==s[0]){
-                idx = (int)i;
-                break;
-            }
-        }
-        // if first character is "*"...
-        else if(s1[0]=='*'){
-            s2 = s1.substr(1,s1.size());
-            if(s.find(s2)!=string::npos && s2[s2.size()-1]==s[s.size()-1]){
-                idx = (int)i;
-                break;
-            }
-        }*/
     }
     return idx;
 }
 
 //__________________________________________________________________________________
 //
-int FindInStringVectorOfVectors(std::vector< std::vector<string> > v, string s, string ss){
+int FindInStringVectorOfVectors(const std::vector< std::vector<std::string> >& v, const std::string& s, const std::string& ss){
     int idx = -1;
-    string s1;
-    string s11;
-    string s2;
-    string s21;
+    std::string s1;
+    std::string s11;
+    std::string s2;
+    std::string s21;
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i][0];
         s2 = v[i][1];
-//         if(s1==s && s2==ss){
         if(StringsMatch(s1,s) && StringsMatch(s2,ss)){
             idx = (int)i;
             break;
@@ -407,10 +372,10 @@ int FindInStringVectorOfVectors(std::vector< std::vector<string> > v, string s, 
 
 //__________________________________________________________________________________
 //
-double GetSeparation( TH1F* S1, TH1F* B1 ) {
+double GetSeparation( TH1D* S1, TH1D* B1 ) {
     // taken from TMVA!!!
-    TH1F* S=new TH1F(*S1);
-    TH1F* B=new TH1F(*B1);
+    TH1D* S=new TH1D(*S1);
+    TH1D* B=new TH1D(*B1);
     Double_t separation = 0;
     if ((S->GetNbinsX() != B->GetNbinsX()) || (S->GetNbinsX() <= 0)) {
         WriteErrorStatus("Common::GetSeparation", "signal and background histograms have different number of bins: " + std::to_string(S->GetNbinsX()) + " : " + std::to_string(B->GetNbinsX()));
@@ -442,15 +407,20 @@ double GetSeparation( TH1F* S1, TH1F* B1 ) {
 }
 
 //__________________________________________________________________________________
-// Code to blind bins with S/B > threshold
+// Code to blind bins with (h_data yield) / (h_bkg yield) > threshold
 // - the code kills this kind of bins in data
+// - also set uncertainties in blinded bins to zero
 // - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
-TH1F* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold ) {
-    TH1F* h_blind = (TH1F*)h_data->Clone("h_blind");
+// when takeSqrt is true, take the sqrt of the denominator when evaluating the blinding
+TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold, bool takeSqrt) {
+    TH1D* h_blind = (TH1D*)h_data->Clone("h_blind");
     for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
-        if( h_sig->GetBinContent(i_bin) / h_bkg->GetBinContent(i_bin) > threshold ){
+        float tmpDenominator = h_bkg->GetBinContent(i_bin);
+        if(takeSqrt) tmpDenominator = sqrt(tmpDenominator); // for calculating S/sqrt(B) and S/sqrt(S+B)
+        if( h_sig->GetBinContent(i_bin) / tmpDenominator > threshold ){
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
             h_data->SetBinContent(i_bin,0.);
+            h_data->SetBinError(i_bin,0.);
             h_blind->SetBinContent(i_bin,1.);
         }
         else{
@@ -467,25 +437,26 @@ void BlindDataHisto( TH1* h_data, TH1* h_blind ) {
         if(h_blind->GetBinContent(i_bin)!=0){
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
             h_data->SetBinContent(i_bin,0.);
+            h_data->SetBinError(i_bin,0.);
         }
     }
 }
 
 //__________________________________________________________________________________
 //
-double convertStoD(string toConvert){
+double convertStoD(std::string toConvert){
     double converted;
     std::string::size_type pos;
     try{
         converted = std::stod(toConvert, &pos);
         if(pos != toConvert.size()){
             WriteErrorStatus("Common::BlindDataHisto", "Convert string -> double, partially converted object: " +  toConvert);
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     }
     catch(const std::exception& err){
         WriteErrorStatus("Common::BlindDataHisto", "Convert string -> double, exception catched: " + toConvert +    " " + err.what());
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     return converted;
 }
@@ -502,19 +473,16 @@ struct BinNom {
 //__________________________________________________________________________________
 //
 bool systFluctuationNominal(std::vector<BinNom> &hist) {
-    auto dM = [](const BinNom &b) { return sqrt(b.dN2); };
-    //auto dMoverN = [dM](const BinNom &b) {
-    //    double N = b.N;
-    //    if (N == 0) N = 1e-16;
-    //    return dM(b)/N;
-    //};
+    auto dM = [](const BinNom &b) {
+        return sqrt(b.dN2);
+    };
     auto N = [](const BinNom &b) {
         return b.N;
     };
     int Nbins = hist.size();
     for (int k = 1; k < Nbins; ++k) {
-        double variation_prev = fabs(N(hist[k]) - N(hist[k-1]));
-        double err = max(dM(hist[k]), dM(hist[k-1]));
+        double variation_prev = std::fabs(N(hist[k]) - N(hist[k-1]));
+        double err = std::max(dM(hist[k]), dM(hist[k-1]));
         if (variation_prev < err) return true;
     }
     return false;
@@ -592,7 +560,7 @@ void DropBins(TH1* h,const std::vector<int> &v){
 
 //__________________________________________________________________________________
 //
-float CorrectIntegral(TH1* h,float *err){
+double CorrectIntegral(TH1* h, double *err){
     float integral = 0.;
     float error = 0.;
     for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
@@ -610,44 +578,40 @@ float CorrectIntegral(TH1* h,float *err){
 void CloseFiles( const std::set < std::string> &files_names ){
     for( const auto &fullName : files_names ){
         std::string file = fullName.substr(0,fullName.find_last_of(".")+5);
-        auto it = TtHFitter::TFILEMAP.find(file);
-        if(it != TtHFitter::TFILEMAP.end()){
+        auto it = TRExFitter::TFILEMAP.find(file);
+        if(it != TRExFitter::TFILEMAP.end()){
             //the file exists. Let's close it, and delete the pointer
             it->second->Close();
-            TtHFitter::TFILEMAP.erase(file);
+            TRExFitter::TFILEMAP.erase(file);
         }
     }
 }
 
 //__________________________________________________________________________________
 //
-TH1F* MergeHistograms(vector<TH1*> hVec){
-    if(hVec.size()==0) return 0x0;
-    if(hVec[0]==0x0) return 0x0;
-    // get total number of bins
-    int Nbins = 0;
-    for(auto h : hVec){
-        Nbins += h->GetNbinsX();
-    }
-    // build array of bin edges
-    float *bins = new float[Nbins];
-    // coutner
-    int k_bin = 0;
-    // first edge from first histogram
-    bins[0] = hVec[0]->GetXaxis()->GetBinLowEdge(1);
-    k_bin ++;
+TH1D* MergeHistograms(std::vector<TH1*> hVec){
+    if(hVec.size()==0) return nullptr;
+    if(hVec[0]==nullptr) return nullptr;
+    // build vector of bin edges
+    std::vector<double> binVec;
+    binVec.push_back( hVec[0]->GetXaxis()->GetBinLowEdge(1) );
     // define the offset, which will be increased by the last bin UpEdge of a histogram at the end of the loop on its bins
-    float offset = 0;
+    double offset = 0;
     //
-    for(auto h : hVec){
+    for(unsigned int i_h=0;i_h<hVec.size();i_h++){
+        TH1* h = hVec[i_h];
         for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
-            bins[k_bin] = h->GetXaxis()->GetBinUpEdge(i_bin) + offset;
-            if(i_bin==h->GetNbinsX()) offset += h->GetXaxis()->GetBinUpEdge(i_bin)-h->GetXaxis()->GetBinLowEdge(1);
-            k_bin ++;
+            if(i_h==0) binVec.push_back( h->GetXaxis()->GetBinUpEdge(i_bin) + offset );
+            else       binVec.push_back( h->GetXaxis()->GetBinUpEdge(i_bin) - h->GetXaxis()->GetBinLowEdge(1) + offset );
+            if(i_bin==h->GetNbinsX()){
+                if(i_h==0) offset += h->GetXaxis()->GetBinUpEdge(i_bin);
+                else       offset += h->GetXaxis()->GetBinUpEdge(i_bin) - h->GetXaxis()->GetBinLowEdge(1);
+            }
         }
     }
+    int Nbins = binVec.size()-1;
     // create the new histogram
-    TH1F *hOut = new TH1F("h_merge","h_merge",Nbins,bins);
+    TH1D *hOut = new TH1D("h_merge","h_merge",Nbins,&binVec[0]);
     hOut->SetTitle(hVec[0]->GetTitle());
     hOut->SetLineColor(hVec[0]->GetLineColor());
     hOut->SetLineStyle(hVec[0]->GetLineStyle());
@@ -655,7 +619,7 @@ TH1F* MergeHistograms(vector<TH1*> hVec){
     hOut->SetFillColor(hVec[0]->GetFillColor());
     hOut->SetFillStyle(hVec[0]->GetFillStyle());
     // fill it
-    k_bin = 1;
+    int k_bin = 1;
     for(auto h : hVec){
         for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
             hOut->SetBinContent(k_bin,h->GetBinContent(i_bin));
@@ -663,7 +627,241 @@ TH1F* MergeHistograms(vector<TH1*> hVec){
             k_bin ++;
         }
     }
-    delete [] bins;
     // return
     return hOut;
+}
+
+//___________________________________________________________
+//
+int ApplyATLASrounding(double &mean, double &error){
+    if (error < 0 ){
+        WriteWarningStatus("Common::ApplyATLASrounding", "Error value is < 0. Not applying rounding.");
+        return -1;
+    }
+
+    int sig = 0;
+    int iterations = ApplyErrorRounding(error,sig);
+    if (iterations > 100) { // something went wrong
+        WriteWarningStatus("Common::ApplyATLASrounding", "Problem with applying PDG rounding rules to error.");
+        return -1;
+    }
+
+    // now apply the correct rounding for nominal value
+    RoundToSig(mean, iterations);
+    
+    // return the number of decimal digits (for later printing avoiding exponent...)
+    int decPlaces = iterations;
+    if(iterations<0) decPlaces = 0;
+    return decPlaces;
+}
+
+//___________________________________________________________
+// FIXME : still to fix the 100
+int ApplyErrorRounding(double& error,int& sig){
+    int iterations = 0;
+
+    if (error == 0) {
+        WriteWarningStatus("Common::ApplyErrorRounding", "Error is zero, you should have a look at this.");
+        return 0;
+    }
+
+    while (error < 100) {
+        error*= 10;
+        iterations++;
+        if (iterations > 15){
+            WriteWarningStatus("Common::ApplyErrorRounding", "Too many iterations in determination of decimal places. Not applying rounding");
+            return 999;
+        }
+    }
+
+    while (error >= 1000) {
+        error/= 10;
+        iterations--;
+        if (iterations < -15){
+            WriteWarningStatus("Common::ApplyErrorRounding", "Too many iterations in determination of decimal places. Not applying rounding");
+            return 999;
+        }
+    }
+
+    // PDG rounding rules
+    if (error >= 100 && error < 355){
+        sig = 2;
+    } else if (error >= 355 && error < 950) {
+        sig = 1;
+    } else if (error >= 950 && error < 1000) {
+        error = 1000;
+        sig = 1;
+    } else {
+        WriteWarningStatus("Common::ApplyErrorRounding", "3 significant digit are < 100 or > 999. This should not happen.");
+        return 999;
+    }
+
+    // have three significant digits, now round
+    // according to the number of decimal places
+    error/= std::pow(10, (3-sig));
+    error = std::round(error);
+    error*= std::pow(10, (3-sig));
+
+    // now we need to get back to original value
+    // this is not optimal but should be optimized by compiler
+    if(iterations>0) error/= std::pow(10, std::abs(iterations));
+    if(iterations<0) error*= std::pow(10, std::abs(iterations));
+
+    // return number of iterations needed minus 2
+    // this will be used to match precision of mean to precision
+    // of rounded error
+    return (iterations - 3 + sig);
+}
+
+//___________________________________________________________
+//
+void RoundToSig(double& value, const int& n){
+    if (n == 0) {
+        value = std::round(value);
+        return;
+    }
+
+    if (n > 0) { // will multiply
+        value*= std::pow(10,n);
+        value = std::round(value);
+        value/= std::pow(10,n);
+    } else if (n < 0) { // will divide
+        value/= std::pow(10,std::abs(n));
+        value = std::round(value);
+        value*= std::pow(10,std::abs(n));
+    }
+}
+
+//___________________________________________________________
+//
+unsigned int NCharactersInString(const std::string& s,const char c){
+    unsigned int N = 0;
+    for(unsigned int i_c=0;i_c<s.size();i_c++){
+        if(s[i_c]==c) N++;
+    }
+    return N;
+}
+
+//___________________________________________________________
+// for the moment just checks the number of parenthesis, but can be expanded
+bool CheckExpression(const std::string& s){
+    int nParOpen = NCharactersInString(s,'(');
+    int nParClose = NCharactersInString(s,')');
+    if(nParOpen!=nParClose) return false;
+    // ...
+    return true;
+}
+
+//----------------------------------------------------------------------------------
+//
+std::string FloatToPseudoHex(const float value){
+    std::string s = std::to_string(value);
+    std::string first = s.substr(0,s.find('.'));
+    std::string second = s.substr(s.find('.')+1, s.length());
+    
+    int value1 = std::stoi(first);    
+    const int value2 = std::stoi(second);
+
+    // add 1234 to the first digit so it is not easily readable, we will subtract it in the decoding
+    value1+=1234;
+
+    std::stringstream ss;
+    ss << std::hex << value1 << "." << std::hex << value2;
+
+    return ss.str();
+}
+
+//----------------------------------------------------------------------------------
+//
+float HexToFloat(const std::string& s){
+    std::string first = s.substr(0,s.find('.'));
+    std::string second = s.substr(s.find('.')+1, s.length());
+    
+    unsigned int i1, i2;
+
+    std::stringstream ss;
+    ss << std::hex << first;
+    ss >> i1;
+
+    std::stringstream ss1;
+    ss1 << std::hex << second;
+    ss1 >> i2;
+
+    int signed1 = static_cast<int>(i1);
+    // need to subtract the 1234 we added
+    signed1-= 1234;
+
+    const std::string result = std::to_string(signed1)+"."+std::to_string(i2);
+
+    return std::stof(result);
+}
+
+//___________________________________________________________
+//
+void ScaleNominal(const SampleHist* const sig, TH1* hist){
+    for(size_t i_nf=0; i_nf<sig->fSample->fNormFactors.size(); ++i_nf){
+        NormFactor *nf = sig->fSample->fNormFactors[i_nf];
+        // if this norm factor is a morphing one
+        if(nf->fName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
+            std::string formula = TRExFitter::SYSTMAP[nf->fName];
+            std::string name = TRExFitter::NPMAP[nf->fName];
+            formula = ReplaceString(formula,name,"x");
+            auto f_morph = std::unique_ptr<TF1>(new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax));
+            const float& scale = f_morph->Eval(nf->fNominal);
+            hist->Scale(scale);
+            WriteDebugStatus("Common::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(scale));
+        }
+        else{
+            hist->Scale(nf->fNominal);
+            WriteDebugStatus("Common::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(sig->fSample->fNormFactors[i_nf]->fNominal));
+        }
+    }
+}
+
+//___________________________________________________________
+//
+std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::string name){
+    for (std::size_t i = 0; i < list.size(); ++i){
+        if (list.at(i)->fName == name) return i;
+    }
+
+    return 9999;
+}
+
+
+//____________________________________________________________________________________
+//
+float GetNominalMorphScale(const SampleHist* const sh){
+    float scale = 1.;
+    if (!sh) return 1.;
+    if (!(sh->fSample)) return 1.;
+    for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
+        NormFactor *nf = sh->fSample->fNormFactors[i_nf];
+        if (!nf) continue;
+        std::string nfName = nf->fName;
+
+        if(nfName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
+            std::string formula = TRExFitter::SYSTMAP[nfName];
+            std::string name = TRExFitter::NPMAP[nfName];
+	    WriteDebugStatus("Region::GetNominalMorphScale", "formula: " +formula);
+	    WriteDebugStatus("Region::GetNominalMorphScale", "name: " +name);
+	    std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+	    std::vector <double> nfNominalvec;
+	    for (unsigned int j = 0; j<nameS.size(); j++){
+	      formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+	      nfNominalvec.push_back(nameS[j].second[0]);
+	    }
+	    double *nfNominal = nfNominalvec.data();
+	    WriteDebugStatus("Region::GetNominalMorphScale", "formula: " +formula);
+	    for(unsigned int j = 0; j<nameS.size(); j++) 
+	      WriteDebugStatus("Region::GetNominalMorphScale", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
+	    TFormula* f_morph = new TFormula ("f_morph",formula.c_str());
+	    scale *= f_morph->EvalPar(nfNominal,nullptr);                    
+	    delete f_morph;
+        } else {
+            scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
+	}
+    }
+
+    return scale;
 }

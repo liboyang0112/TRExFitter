@@ -1,11 +1,11 @@
 // Class include
-#include "TtHFitter/MultiFit.h"
+#include "TRExFitter/MultiFit.h"
 
 // Framework includes
-#include "TtHFitter/ConfigParser.h"
-#include "TtHFitter/ConfigReaderMulti.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/TtHFit.h"
+#include "TRExFitter/ConfigParser.h"
+#include "TRExFitter/ConfigReaderMulti.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/TRExFit.h"
 
 // ROOT includes
 #include "TSystem.h"
@@ -36,7 +36,6 @@ int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::st
     ConfigParser refConfig;
     refConfig.ReadFile(gSystem->ExpandPathName("$TREXFITTER_HOME/multiFitSchema.config"));
     int sc = fParser.CheckSyntax(&refConfig);
-//     int sc = 0;
 
     if (sc != 0) return sc;
 
@@ -47,6 +46,10 @@ int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::st
     }
 
     sc+= ReadJobOptions();
+
+    sc+= ReadLimitOptions();
+
+    sc+= ReadSignificanceOptions();
 
     sc+= ReadFitOptions(option);
 
@@ -64,17 +67,15 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
     std::map< std::string,std::string > optMap;
     std::vector< std::string > optVec;
 
-
     optVec = Vectorize(option,':');
     for(const std::string& iopt : optVec){
         std::vector< std::string > optPair;
         optPair = Vectorize(iopt,'=');
-        if (optPair.size() > 1){
-            optMap[optPair[0]] = optPair[1];
-        } else {
-            WriteErrorStatus("ConfigReaderMulti::ReadCommandLineOptions", "Wrong 'Options' input. Please check!");
+        if (optPair.size() < 2){
+            WriteErrorStatus("ConfigReaderMulti::ReadCommandLineOptions", "Cannot read your command line option, please check this!");
             return 1;
         }
+        optMap[optPair[0]] = optPair[1];
     }
 
     if(optMap["Ranking"]!=""){
@@ -86,6 +87,9 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
 
     if(optMap["Suffix"]!=""){
         fGlobalSuffix = optMap["Suffix"];
+    }
+    if(optMap["LHscan"]!=""){
+        fOnlyLHscan = optMap["LHscan"];
     }
 
     return 0;
@@ -101,12 +105,12 @@ int ConfigReaderMulti::ReadJobOptions(){
         return 1;
     }
 
-    fMultiFitter->fName = confSet->GetValue();
+    fMultiFitter->fName = CheckName(confSet->GetValue());
 
     // Set OutputDir
     param = confSet->Get("OutputDir");
     if(param !=""){
-        fMultiFitter->fDir = param;
+        fMultiFitter->fDir = CheckName(param);
         if(fMultiFitter->fDir.back() != '/') fMultiFitter->fDir += '/';
         fMultiFitter->fOutDir = fMultiFitter->fDir + fMultiFitter->fName;
         gSystem->mkdir((fMultiFitter->fOutDir).c_str(), true);
@@ -117,19 +121,19 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set Label
     param = confSet->Get("Label");
-    if( param != "") fMultiFitter->fLabel = param;
+    if( param != "") fMultiFitter->fLabel = RemoveQuotes(param);
 
     // Set LumiLabel
     param = confSet->Get("LumiLabel");
-    if( param != "") fMultiFitter->fLumiLabel = param;
+    if( param != "") fMultiFitter->fLumiLabel = RemoveQuotes(param);
 
     // Set CmeLabel
     param = confSet->Get("CmeLabel");
-    if( param != "") fMultiFitter->fCmeLabel = param;
+    if( param != "") fMultiFitter->fCmeLabel = RemoveQuotes(param);
 
     // Set SaveSuf
     param = confSet->Get("SaveSuf");
-    if( param != "") fMultiFitter->fSaveSuf = param;
+    if( param != "") fMultiFitter->fSaveSuf = RemoveQuotes(param);
     else fMultiFitter->fSaveSuf             = fGlobalSuffix;
 
     // Set ShowObserved
@@ -146,14 +150,16 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set LimitTitle
     param = confSet->Get("LimitTitle");
-    if( param != "") fMultiFitter->fLimitTitle = param;
+    if( param != "") fMultiFitter->fLimitTitle = RemoveQuotes(param);
+    // --- these lines should be removed at some point, since now we protect the text inside ""
     if(fMultiFitter->fLimitTitle.find("95CL")!=std::string::npos){
          fMultiFitter->fLimitTitle.replace(fMultiFitter->fLimitTitle.find("95CL"),4,"95% CL");
     }
+    // ---
 
     // Ser POITitle
     param = confSet->Get("POITitle");
-    if( param != "") fMultiFitter->fPOITitle = param;
+    if( param != "") fMultiFitter->fPOITitle = RemoveQuotes(param);
 
     // Set CompareLimits
     param = confSet->Get("CompareLimits");
@@ -200,6 +206,26 @@ int ConfigReaderMulti::ReadJobOptions(){
         else {
             WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'PlotCombCorrMatrix' option but you didn't provide valid setting. Using default (FALSE)");
             fMultiFitter->fPlotCombCorrMatrix  = false;
+        }
+    }
+    
+    // Set CorrelationThreshold
+    param = confSet->Get("CorrelationThreshold");
+    if( param != ""){
+        TRExFitter::CORRELATIONTHRESHOLD = atof(param.c_str());
+    }
+
+    // Set UseGammasForCorr
+    param = confSet->Get("UseGammasForCorr");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE"){
+            fMultiFitter->fuseGammasForCorr = true;
+        } else if (param == "FALSE") {
+            fMultiFitter->fuseGammasForCorr = false;
+        } else {
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified UseGammasForCorr option but didnt provide valid parameter. Using default (false)");
+            fMultiFitter->fuseGammasForCorr = false;
         }
     }
 
@@ -253,11 +279,11 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set POIName
     param = confSet->Get("POIName");
-    if( param != "" ) fMultiFitter->fPOI = param;
+    if( param != "" ) fMultiFitter->fPOI = RemoveQuotes(param);
 
     // Set POILabel
     param = confSet->Get("POILabel");
-    if( param != "" ) fMultiFitter->fPOIName = param;
+    if( param != "" ) fMultiFitter->fPOIName = RemoveQuotes(param);
 
     // Set POINominal
     param = confSet->Get("POINominal");
@@ -288,11 +314,11 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set POIPrecision
     param = confSet->Get("POIPrecision");
-    if( param != "" ) fMultiFitter->fPOIPrecision = param.c_str();
+    if( param != "" ) fMultiFitter->fPOIPrecision = RemoveQuotes(param).c_str();
 
     //Set DataName
     param = confSet->Get("DataName");
-    if( param != "" ) fMultiFitter->fDataName = param;
+    if( param != "" ) fMultiFitter->fDataName = RemoveQuotes(param);
 
     // Set FitType
     param = confSet->Get("FitType");
@@ -306,18 +332,6 @@ int ConfigReaderMulti::ReadJobOptions(){
         }
     }
 
-    // Set SignalInjection
-    param = confSet->Get("SignalInjection");
-    if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") fMultiFitter->fSignalInjection = true;
-        else if (param == "FALSE") fMultiFitter->fSignalInjection = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'SignalInjection' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fSignalInjection = false;
-        }
-    }
-
     // Set CombineChByCh
     param = confSet->Get("CombineChByCh");
     if( param != ""){
@@ -325,8 +339,8 @@ int ConfigReaderMulti::ReadJobOptions(){
         if(param == "TRUE") fMultiFitter->fCombineChByCh = true;
         else if(param == "FALSE") fMultiFitter->fCombineChByCh = false;
         else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'CombineChByCh' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fCombineChByCh = false;
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'CombineChByCh' option but you didn't provide valid setting. Using default (TRUE)");
+            fMultiFitter->fCombineChByCh = true;
         }
     }
 
@@ -354,7 +368,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     // Set NumCPU
     param = confSet->Get("NumCPU");
     if( param != "" ){
-        TtHFitter::NCPU = atoi( param.c_str());
+        TRExFitter::NCPU = atoi( param.c_str());
     }
 
     // Set FastFit
@@ -382,7 +396,7 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set NuisParListFile
     param = confSet->Get("NuisParListFile");
-    if( param != "" ) fMultiFitter->fNuisParListFile = param;
+    if( param != "" ) fMultiFitter->fNuisParListFile = RemoveQuotes(param);
 
     // Set PlotSoverB
     param = confSet->Get("PlotSoverB");
@@ -397,19 +411,19 @@ int ConfigReaderMulti::ReadJobOptions(){
 
     // Set SignalTitle
     param = confSet->Get("SignalTitle");
-    if( param != "" ) fMultiFitter->fSignalTitle = param;
+    if( param != "" ) fMultiFitter->fSignalTitle = RemoveQuotes(param);
 
     // Set FitResultsFile
     param = confSet->Get("FitResultsFile");
-    if( param != "" ) fMultiFitter->fFitResultsFile = param;
+    if( param != "" ) fMultiFitter->fFitResultsFile = RemoveQuotes(param);
 
     // Set LimitsFile
     param = confSet->Get("LimitsFile");
-    if( param != "" ) fMultiFitter->fLimitsFile = param;
+    if( param != "" ) fMultiFitter->fLimitsFile = RemoveQuotes(param);
 
     // Set BonlySuffix
     param = confSet->Get("BonlySuffix");
-    if( param != "" ) fMultiFitter->fBonlySuffix = param;
+    if( param != "" ) fMultiFitter->fBonlySuffix = RemoveQuotes(param);
 
     // Set ShowSystForPOI
     param = confSet->Get("ShowSystForPOI");
@@ -438,7 +452,11 @@ int ConfigReaderMulti::ReadJobOptions(){
     // Set doLHscan
     param = confSet->Get("doLHscan");
     if( param != "" ){
-        fMultiFitter->fVarNameLH = Vectorize(param,',');
+        if (fOnlyLHscan==""){
+            fMultiFitter->fVarNameLH = Vectorize(param,',');
+        } else {
+            fMultiFitter->fVarNameLH.emplace_back(fOnlyLHscan);
+        }
     }
 
     // Set LHscanMin
@@ -461,6 +479,17 @@ int ConfigReaderMulti::ReadJobOptions(){
         }
     }
 
+    // Set ShowTotalOnly
+    param = confSet->Get("ShowTotalOnly");
+    if ( param != "" ) {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fMultiFitter->fShowTotalOnly = true;
+        } else if (param == "FALSE"){
+            fMultiFitter->fShowTotalOnly = false;
+        }
+    }
+
     // Set LHscanSteps
     param = confSet->Get("LHscanSteps");
     if ( param != "" ) {
@@ -479,24 +508,137 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("PlotOptions");
     if( param != ""){
         std::vector<std::string> vec = Vectorize(param,',');
-        if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TtHFitter::PREFITONPOSTFIT= true;
+        if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TRExFitter::PREFITONPOSTFIT= true;
     }
 
-    // Set RunROOTMacros
-    param = confSet->Get("RunROOTMacros");
-    if ( param != ""){
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReaderMulti::ReadLimitOptions(){
+    std::string param = "";
+
+    ConfigSet* confSet = fParser.GetConfigSet("Limit");
+    if (confSet == nullptr){
+        WriteDebugStatus("ConfigReader::ReadLimitOptions", "You do not have Limit option in the config. It is ok, we just want to let you know.");
+        return 0; // it is ok to not have Fit set up
+    }
+
+    // Set LimitBlind
+    param = confSet->Get("LimitBlind");
+    if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE"){
-            fMultiFitter->fRunROOTMacros = true;
-        }
-        else if (param == "FALSE"){
-            fMultiFitter->fRunROOTMacros = false;
+        if( param == "TRUE" ){
+            fMultiFitter->fLimitIsBlind = true;
+        } else if ( param == "FALSE" ){
+            fMultiFitter->fLimitIsBlind = false;
         } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified RunROOTMacros option but didnt provide valid parameter. Using default (false)");
-            fMultiFitter->fRunROOTMacros = false;
+            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "You specified 'LimitBlind' option but didnt provide valid parameter. Using default (false)");
+            fMultiFitter->fLimitIsBlind = false;
         }
     }
-    
+
+    // Set POIAsimov
+    param = confSet->Get("POIAsimov");
+    if( param != "" ){
+        fMultiFitter->fLimitPOIAsimov = atof(param.c_str());
+    }
+
+    // Set SignalInjection
+    param = confSet->Get("SignalInjection");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fMultiFitter->fSignalInjection = true;
+        } else if ( param == "FALSE" ){
+            fMultiFitter->fSignalInjection = false;
+        } else {
+            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "You specified 'SignalInjection' option but didnt provide valid parameter. Using default (false)");
+            fMultiFitter->fSignalInjection = false;
+        }
+    }
+
+    // Set SignalInjectionValue
+    param = confSet->Get("SignalInjectionValue");
+    if( param != "" ){
+        fMultiFitter->fSignalInjectionValue = std::stof(param);
+    }
+
+    param = confSet->Get("ParamName");
+    if( param != "" ){
+        fMultiFitter->fLimitParamName = param;
+    }
+
+    param = confSet->Get("ParamValue");
+    if( param != "" ){
+        fMultiFitter->fLimitParamValue = std::stof(param);
+    }
+
+    param = confSet->Get("OutputPrefixName");
+    if( param != "" ){
+        fMultiFitter->fLimitOutputPrefixName = param;
+    }
+
+    param = confSet->Get("ConfidenceLevel");
+    if( param != "" ){
+        float conf = std::stof(param);
+        if (conf <= 0 || conf >= 1){
+            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "Confidence level is <= 0 or >=1. Setting to default 0.95");
+            conf = 0.95;
+        }
+        fMultiFitter->fLimitsConfidence = conf;
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReaderMulti::ReadSignificanceOptions(){
+    std::string param = "";
+
+    ConfigSet* confSet = fParser.GetConfigSet("Significance");
+    if (confSet == nullptr){
+        WriteDebugStatus("ConfigReaderMulti::ReadSignificanceOptions", "You do not have Significance option in the config. It is ok, we just want to let you know.");
+        return 0; // it is ok to not have Fit set up
+    }
+
+    // Set LimitBlind
+    param = confSet->Get("SignificanceBlind");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fMultiFitter->fSignificanceIsBlind = true;
+        } else if ( param == "FALSE" ){
+            fMultiFitter->fSignificanceIsBlind = false;
+        } else {
+            WriteWarningStatus("ConfigReaderMulti::ReadSignificanceOptions", "You specified 'SignificanceBlind' option but didnt provide valid parameter. Using default (false)");
+            fMultiFitter->fSignificanceIsBlind = false;
+        }
+    }
+
+    // Set POIAsimov
+    param = confSet->Get("POIAsimov");
+    if( param != "" ){
+        fMultiFitter->fSignificancePOIAsimov = atof(param.c_str());
+    }
+
+    param = confSet->Get("ParamName");
+    if( param != "" ){
+        fMultiFitter->fSignificanceParamName = param;
+    }
+
+    param = confSet->Get("ParamValue");
+    if( param != "" ){
+        fMultiFitter->fSignificanceParamValue = std::stof(param);
+    }
+
+    param = confSet->Get("OutputPrefixName");
+    if( param != "" ){
+        fMultiFitter->fSignificanceOutputPrefixName = param;
+    }
+
     return 0;
 }
 
@@ -514,33 +656,33 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
         // Set Options
         std::string fullOptions;
         param = confSet->Get("Options");
-        if(param!="" && options!="") fullOptions = options+";"+param;
-        else if(param!="") fullOptions = param;
+        if(param!="" && options!="") fullOptions = options+";"+RemoveQuotes(param);
+        else if(param!="") fullOptions = RemoveQuotes(param);
         else fullOptions = options;
 
         // name
-        fMultiFitter->fFitNames.push_back(confSet->GetValue());
+        fMultiFitter->fFitNames.push_back(CheckName(confSet->GetValue()));
 
         // Set Label
         param = confSet->Get("Label");
-        std::string label = confSet->GetValue();
-        if(param!="") label = param;
+        std::string label = CheckName(confSet->GetValue());
+        if(param!="") label = RemoveQuotes(param);
 
         // Set suf
         param = confSet->Get("LoadSuf");
         std::string loadSuf = "";
-        if(param!="") loadSuf = param;
+        if(param!="") loadSuf = RemoveQuotes(param);
         else          loadSuf = fGlobalSuffix;
 
         // config file
         std::string confFile = "";
         param = confSet->Get("ConfigFile");
-        if(param!="") confFile = param;
+        if(param!="") confFile = RemoveQuotes(param);
 
         // workspace
         std::string wsFile = "";
         param = confSet->Get("Workspace");
-        if(param!="") wsFile = param;
+        if(param!="") wsFile = RemoveQuotes(param);
 
         // show obs
         param = confSet->Get("ShowObserved");
@@ -558,24 +700,24 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
 
         // Set FitResultsFile
         param = confSet->Get("FitResultsFile");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fFitResultsFile = param;
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fFitResultsFile = RemoveQuotes(param);
         fMultiFitter->fLimitsFiles.push_back("");
 
         // Set LimitsFile
         param = confSet->Get("LimitsFile");
-        if( param != "" ) fMultiFitter->fLimitsFiles[fMultiFitter->fFitList.size()-1] = param;
+        if( param != "" ) fMultiFitter->fLimitsFiles[fMultiFitter->fFitList.size()-1] = RemoveQuotes(param);
 
         // Set POIName
         param = confSet->Get("POIName");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fPOI = param;
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fPOI = RemoveQuotes(param);
 
         // Set Directory
         param = confSet->Get("Directory");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fName = param;
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fName = RemoveQuotes(param);
 
         // Set InputName
         param = confSet->Get("InputName");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fInputName = param;
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fInputName = RemoveQuotes(param);
     }
 
     if (nFit == 0){
@@ -584,4 +726,17 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
     }
 
     return 0;
+}
+
+//__________________________________________________________________________________
+//
+std::string ConfigReaderMulti::CheckName( const std::string &name ){
+    if( std::isdigit( name.at(0) ) ){
+        WriteErrorStatus("ConfigReaderMulti::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
+        WriteErrorStatus("ConfigReaderMulti::CheckName", "           This can lead to unexpected behaviours in HistFactory. Please change the name. ");
+        WriteErrorStatus("ConfigReaderMulti::CheckName", "           The code is about to crash.");
+        std::abort();
+    } else {
+        return RemoveQuotes(name);
+    }
 }

@@ -25,16 +25,23 @@ class ConfigReaderMulti {
 
         /**
           * The default destructor
-          */ 
+          */
         ~ConfigReaderMulti();
 
         /**
           * Reads the config and passes parameters to TtHFit
-          * @param string Config path 
+          * @param string Config path
           * @param string Additional options
           * @return int status code
-          */ 
+          */
         int ReadFullConfig(const std::string& fileName, const std::string& option);
+
+        /**
+          * Helper function to check the consistency of the input
+          * @param string Input parameter
+          * @return string Corrected parameter
+          */
+        std::string CheckName(const std::string &name);
 
     private:
 
@@ -44,12 +51,24 @@ class ConfigReaderMulti {
           * @return int status code
           */
         int ReadCommandLineOptions(const std::string &option);
-        
+
         /**
           * Helper function to read JOB settings
           * @return int status code
           */
         int ReadJobOptions();
+
+        /**
+          * Helper function to read Limit settings
+          * @return int status code
+          */
+        int ReadLimitOptions();
+
+        /**
+          * Helper function to read Significance settings
+          * @return int status code
+          */
+        int ReadSignificanceOptions();
 
         /**
           * Helper function to read Fit settings
@@ -62,7 +81,7 @@ class ConfigReaderMulti {
           * Pointer to MultiFit class, set during initialization
           */
         MultiFit *fMultiFitter;
-    
+
         /**
           * Instance of ConfigParser used to parse the text
           */
@@ -72,6 +91,11 @@ class ConfigReaderMulti {
           * String Used for global settings
           */
         std::string fGlobalSuffix;
+
+        /**
+          * string To keept track of command like setting for LH scan
+          */
+        std::string fOnlyLHscan;
 };
 
 #endif

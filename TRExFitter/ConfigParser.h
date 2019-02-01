@@ -8,11 +8,14 @@
 const int MAXconfig = 2000;
 
 // Functions
-std::string Fix(std::string s);
-std::vector<std::string> Vectorize(std::string s,char c);
-std::string First(std::string s);
-std::string Second(std::string s);
-std::string ReadValueFromConfig(std::string fileName,std::string option);
+std::string RemoveSpaces(const std::string& s);
+std::string RemoveComments(const std::string& s);
+std::string RemoveQuotes(const std::string& s);
+std::string Fix(const std::string& s);
+std::vector<std::string> Vectorize(const std::string& s,char c,bool removeQuotes=true);
+std::string First(const std::string& s);
+std::string Second(const std::string& s);
+std::string ReadValueFromConfig(const std::string& fileName,const std::string& option);
 
 // classes
 class Config {
@@ -29,19 +32,18 @@ public:
     ConfigSet();
     ~ConfigSet();
 
-    void SetConfig(std::string name,std::string value);
-    std::string Get(std::string name);
-    std::string operator[](std::string name);
-    Config GetConfig(int i);
-    std::string GetConfigName(int i);
-    std::string GetConfigValue(int i);
-    int GetN();
-    int size();
-    void Set(std::string name,std::string value);
-    std::string GetName();
-    std::string GetValue();
+    void SetConfig(const std::string& name,const std::string& value);
+    std::string Get(const std::string& name) const;
+    std::string operator[](const std::string& name) const;
+    Config GetConfig(int i) const;
+    std::string GetConfigName(int i) const;
+    std::string GetConfigValue(int i) const;
+    int GetN() const;
+    int size() const;
+    void Set(const std::string& name,const std::string& value);
+    std::string GetName() const;
+    std::string GetValue() const;
 
-// private:
     int fN;
     std::string fName;
     std::string fValue;
@@ -55,9 +57,9 @@ public:
     ~ConfigParser();
 
     ConfigSet *fConfSets[MAXconfig];
-    void ReadFile(std::string fileName);
+    void ReadFile(const std::string& fileName);
     ConfigSet *GetConfigSet(int i=0);
-    ConfigSet *GetConfigSet(std::string name,int i=0);
+    ConfigSet *GetConfigSet(const std::string& name,int i=0);
     int CheckSyntax(ConfigParser *refConfigParser);
 
     /**
@@ -92,12 +94,13 @@ public:
 
     /**
       * @param string Name of the setting set
-      * @param string Setting in users config
+      * @param string Name of the setting
+      * @param string Setting value in users config
       * @param string Possible setting from reference file
       * @param char Delimiter whn multiple parameters are provided
       * @return bool Is valid setting
       */
-    bool SettingMultipleParamIsOK(const std::string &setting_set, const std::string& current, const std::string& possible, const char delimiter = ',') const;
+    bool SettingMultipleParamIsOK(const std::string &setting_set, const std::string& setting, const std::string& current, const std::string& possible, const char delimiter = ',') const;
 
 // private:
     int fN;

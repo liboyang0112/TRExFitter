@@ -1,6 +1,9 @@
 #ifndef SYSTEMATIC_H
 #define SYSTEMATIC_H
 
+/// Framework includes
+#include "TRExFitter/HistoTools.h"
+
 /// c++ includes
 #include <map>
 #include <string>
@@ -10,14 +13,14 @@ class Systematic {
 public:
 
     enum SystType{
-        OVERALL, // 0
-        SHAPE, // 1
-        HISTO, // 2
-        STAT // 3
+         OVERALL, // 0
+         SHAPE, // 1
+         HISTO, // 2
+         STAT // 3
     };
 
-    Systematic(std::string name,int type=0,float up=0,float down=0);
-    Systematic( Systematic &sys);  // copy constructor
+    Systematic(const std::string& name,int type=0,float up=0,float down=0);
+    Systematic(const Systematic &sys);  // copy constructor
     ~Systematic();
 
     // -------
@@ -33,9 +36,11 @@ public:
     int fType;
     int fSmoothType;
     bool fPreSmoothing;
-    int fSymmetrisationType;
+    HistoTools::SymmetrizationType fSymmetrisationType;
     std::string fReferenceSample;
     bool fKeepReferenceOverallVar;
+    std::string fReferenceSmoothing;
+    std::string fReferencePruning;
 
     bool fSubtractRefSampleVar;
 
@@ -141,6 +146,8 @@ public:
     //
     std::string fSampleUp;
     std::string fSampleDown;
+
+    std::vector<std::string> fSamples;
 
 };
 

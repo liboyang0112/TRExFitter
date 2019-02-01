@@ -1,10 +1,10 @@
 // Class include
-#include "TtHFitter/Sample.h"
+#include "TRExFitter/Sample.h"
 
 // Framework includes
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/ShapeFactor.h"
-#include "TtHFitter/Systematic.h"
+#include "TRExFitter/NormFactor.h"
+#include "TRExFitter/ShapeFactor.h"
+#include "TRExFitter/Systematic.h"
 
 // ROOT includes
 #include "TFile.h"
@@ -20,7 +20,7 @@
 
 //__________________________________________________________________________________
 //
-Sample::Sample(std::string name,int type){
+Sample::Sample(const std::string& name,int type){
     fName = name;
     fTitle = name;
     fTexTitle = "";
@@ -74,7 +74,9 @@ Sample::Sample(std::string name,int type){
     fAsimovReplacementFor = std::make_pair("","");
 
     fSeparateGammas = false;
+    fMCstatScale = 1.;
     fCorrelateGammasInRegions.clear();
+    fCorrelateGammasWithSample = "";
 }
 
 //__________________________________________________________________________________
@@ -99,7 +101,7 @@ Sample::~Sample(){
 
 //__________________________________________________________________________________
 // cosmetics
-void Sample::SetTitle(std::string title){
+void Sample::SetTitle(const std::string& title){
     fTitle = title;
 }
 
@@ -123,49 +125,49 @@ void Sample::NormalizedByTheory(const bool norm ){
 
 //__________________________________________________________________________________
 // read from ntuples
-void Sample::SetMCweight(std::string weight){
+void Sample::SetMCweight(const std::string& weight){
     fMCweight = weight;
 }
 
 //__________________________________________________________________________________
 //
-void Sample::SetSelection(std::string selection){
+void Sample::SetSelection(const std::string& selection){
     fSelection = selection;
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddNtuplePath(std::string path){
+void Sample::AddNtuplePath(const std::string& path){
     fNtuplePaths.push_back(path);
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddNtupleFile(std::string file){
+void Sample::AddNtupleFile(const std::string& file){
     fNtupleFiles.push_back(file);
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddNtupleName(std::string name){
+void Sample::AddNtupleName(const std::string& name){
     fNtupleNames.push_back(name);
 }
 
 //__________________________________________________________________________________
 // read from histograms
-void Sample::AddHistoPath(std::string path){
+void Sample::AddHistoPath(const std::string& path){
     fHistoPaths.push_back(path);
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddHistoFile(std::string file){
+void Sample::AddHistoFile(const std::string& file){
     fHistoFiles.push_back(file);
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddHistoName(std::string name){
+void Sample::AddHistoName(const std::string& name){
     fHistoNames.push_back(name);
 }
 
@@ -192,7 +194,7 @@ void Sample::AddSystematic(Systematic* syst){
 
 //__________________________________________________________________________________
 //
-bool Sample::HasSystematic(std::string name){
+bool Sample::HasSystematic(const std::string& name) const{
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(fSystematics[i_syst]->fName==name) return true;
     }
@@ -201,7 +203,7 @@ bool Sample::HasSystematic(std::string name){
 
 //__________________________________________________________________________________
 //
-bool Sample::HasNormFactor(std::string name){
+bool Sample::HasNormFactor(const std::string& name) const{
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         if(fNormFactors[i_norm]->fName==name) return true;
     }
@@ -210,7 +212,7 @@ bool Sample::HasNormFactor(std::string name){
 
 //__________________________________________________________________________________
 //
-NormFactor* Sample::AddNormFactor(std::string name,float nominal,float min,float max,bool isConst){
+NormFactor* Sample::AddNormFactor(const std::string& name,float nominal,float min,float max,bool isConst){
     fNormFactors.push_back(new NormFactor(name,nominal,min,max,isConst));
     fNNorm ++;
     return fNormFactors[fNNorm-1];
@@ -218,7 +220,7 @@ NormFactor* Sample::AddNormFactor(std::string name,float nominal,float min,float
 
 //__________________________________________________________________________________
 //
-ShapeFactor* Sample::AddShapeFactor(std::string name,float nominal,float min,float max,bool isConst){
+ShapeFactor* Sample::AddShapeFactor(const std::string& name,float nominal,float min,float max,bool isConst){
     fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max,isConst));
     fNShape ++;
     return fShapeFactors[fNShape-1];
@@ -226,7 +228,7 @@ ShapeFactor* Sample::AddShapeFactor(std::string name,float nominal,float min,flo
 
 //__________________________________________________________________________________
 //
-Systematic* Sample::AddSystematic(std::string name,int type,float up,float down){
+Systematic* Sample::AddSystematic(const std::string& name,int type,float up,float down){
     fSystematics.push_back(new Systematic(name,type,up,down));
     fNSyst++;
     return fSystematics[fNSyst-1];

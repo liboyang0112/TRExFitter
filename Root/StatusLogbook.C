@@ -1,8 +1,8 @@
 // Class include
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/StatusLogbook.h"
 
 // Framework includes
-#include "TtHFitter/Common.h"
+#include "TRExFitter/Common.h"
 
 // c++ includes
 #include <iostream>
@@ -55,7 +55,7 @@ void WriteInfoStatus(const std::string& classname, const std::string& info)
 
     std::string outputstring = "=== INFO::"+classname+": "+info;
 
-    if (TtHFitter::DEBUGLEVEL > 0) std::cout << "\033[1;32m" << outputstring.c_str() << "\33[0m" << std::endl;
+    if (TRExFitter::DEBUGLEVEL > 0) std::cout << "\033[1;32m" << outputstring.c_str() << "\33[0m" << std::endl;
 
 }
 
@@ -71,7 +71,7 @@ void WriteDebugStatus(const std::string& classname, const std::string& info)
 
     std::string outputstring = "=== DEBUG::"+classname+": "+info;
 
-    if (TtHFitter::DEBUGLEVEL > 1) std::cout << outputstring.c_str() << std::endl;
+    if (TRExFitter::DEBUGLEVEL > 1) std::cout << outputstring.c_str() << std::endl;
 
 }
 
@@ -87,6 +87,6 @@ void WriteVerboseStatus(const std::string& classname, const std::string& info)
 
     std::string outputstring = "=== VERBOSE::"+classname+": "+info;
 
-    if (TtHFitter::DEBUGLEVEL > 2) std::cout << outputstring.c_str() << std::endl;
+    if (TRExFitter::DEBUGLEVEL > 2) std::cout << outputstring.c_str() << std::endl;
 
 }

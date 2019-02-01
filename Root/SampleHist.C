@@ -1,14 +1,15 @@
 // Class include
-#include "TtHFitter/SampleHist.h"
+#include "TRExFitter/SampleHist.h"
 
 // Framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/NormFactor.h"
-#include "TtHFitter/Sample.h"
-#include "TtHFitter/ShapeFactor.h"
-#include "TtHFitter/StatusLogbook.h"
-#include "TtHFitter/Systematic.h"
-#include "TtHFitter/SystematicHist.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/NormFactor.h"
+#include "TRExFitter/Sample.h"
+#include "TRExFitter/ShapeFactor.h"
+#include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/Systematic.h"
+#include "TRExFitter/SystematicHist.h"
+#include "TRExFitter/HistoTools.h"
 
 // ROOT includes
 #include "TCanvas.h"
@@ -20,6 +21,9 @@
 #include "TStyle.h"
 #include "TSystem.h"
 
+// c++ includes
+#include <iostream>
+
 using namespace std;
 
 // -------------------------------------------------------------------------------------------------
@@ -30,12 +34,13 @@ using namespace std;
 SampleHist::SampleHist(){
     fName = "";
     //
-    fSample = 0x0;
+    fSample = nullptr;
     //
-    fHist = 0x0;
-    fHist_orig = 0x0;
-    //
-    fHist_postFit = 0x0;
+    fHist = nullptr;
+    fHist_orig = nullptr;
+    fHist_regBin = nullptr;
+    fHist_preSmooth = nullptr;
+    fHist_postFit = nullptr;
     //
     fHistoName = "";
     fFileName = "";
@@ -63,9 +68,11 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
     fHist = (TH1*)hist->Clone(Form("h_%s",fName.c_str()));
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
+    fHist->SetLineWidth(1);
+
     fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
     //
-    fHist_postFit = 0x0;
+    fHist_postFit = nullptr;
     //
     fHistoName = "";
     fFileName = "";
@@ -81,24 +88,36 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist){
 
 //_____________________________________________________________________________
 //
-SampleHist::SampleHist(Sample *sample, string histoName, string fileName){
+SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::string& fileName){
     fSample = sample;
+    fName = fSample->fName;
+    fIsMorph = fSample->fIsMorph;
+
     fHist = HistFromFile(fileName,histoName);
-    fHist_orig = HistFromFile(fileName,histoName+"_orig");
-    if(fHist_orig==0x0) fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
-//     if(fHist_orig==0x0) fHist_orig = (TH1*)fHist->Clone( (TString)fHist->GetName() + "_orig" );
+
+    if (fHist == nullptr) {
+        WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+        exit(EXIT_FAILURE);
+    }
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
-    fName = fSample->fName;
-    fIsMorph = fSample->fIsMorph;
+
+    fHist_orig = HistFromFile(fileName,histoName+"_orig");
+    if(fHist_orig==nullptr){
+        fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
+    }
+
+    fHist_postFit = nullptr;
+
     fHistoName = histoName;
     fFileName = fileName;
-    fHist_postFit = 0x0;
+    fFitName = "";
     fNSyst = 0;
     fNNorm = 0;
     fNShape = 0;
     fRegionName = "Region";
+    fRegionLabel = "Region";
     fVariableTitle = "Variable";
     fSystSmoothed = false;
 }
@@ -118,25 +137,25 @@ SampleHist::~SampleHist(){
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
+SystematicHist* SampleHist::AddOverallSyst(const std::string& name,float up,float down){
     SystematicHist *syh;
     // try if it's already there...
     syh = GetSystematic(name);
     // ... and if not create a new one
-    if(syh==0x0){
+    if(syh==nullptr){
         syh = new SystematicHist(name);
         fSyst.push_back(syh);
         fNSyst ++;
     }
     //
-//     syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_Up",fHist->GetName(),name.c_str()));
-//     syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
     syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
     syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
     syh->fHistUp  ->Scale(1.+up);
     syh->fHistDown->Scale(1.+down);
-    syh->fHistUp_orig   = (TH1*)syh->fHistUp  ->Clone(Form("%s_orig",syh->fHistUp  ->GetName()));
-    syh->fHistDown_orig = (TH1*)syh->fHistDown->Clone(Form("%s_orig",syh->fHistDown->GetName()));
+    syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistDown_orig = (TH1*)fHist_orig->Clone(Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistUp_orig  ->Scale(1.+up);
+    syh->fHistDown_orig->Scale(1.+down);
     syh->fIsOverall = true;
     syh->fIsShape   = false;
     syh->fNormUp   = up;
@@ -146,13 +165,13 @@ SystematicHist* SampleHist::AddOverallSyst(string name,float up,float down){
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddStatSyst(string name, int i_bin) {
+SystematicHist* SampleHist::AddStatSyst(const std::string& name, int i_bin) {
     int bin = i_bin+1; // counting of bins in Root starts with 1, in TRExFitter with 0
     SystematicHist *syh;
     // try if it's already there...
     syh = GetSystematic(name);
     // ... and if not create a new one
-    if(syh==0x0){
+    if(syh==nullptr){
         syh = new SystematicHist(name);
         fSyst.push_back(syh);
         fNSyst ++;
@@ -180,17 +199,17 @@ SystematicHist* SampleHist::AddStatSyst(string name, int i_bin) {
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
+SystematicHist* SampleHist::AddHistoSyst(const std::string& name,TH1* h_up,TH1* h_down){
 
     // before doing anything else, check if the sampleHist can be created
-    if(h_up  ==0x0) return 0x0;
-    if(h_down==0x0) return 0x0;
+    if(h_up  ==nullptr) return nullptr;
+    if(h_down==nullptr) return nullptr;
 
     SystematicHist *syh;
     // try if it's already there...
     syh = GetSystematic(name);
     // ... and if not create a new one
-    if(syh==0x0){
+    if(syh==nullptr){
         syh = new SystematicHist(name);
         fSyst.push_back(syh);
         fNSyst ++;
@@ -200,6 +219,8 @@ SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
     syh->fHistDown = (TH1*)h_down->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
     syh->fHistUp_orig   = (TH1*)h_up  ->Clone(Form("%s_%s_Up_orig",  fHist->GetName(),name.c_str()));
     syh->fHistDown_orig = (TH1*)h_down->Clone(Form("%s_%s_Down_orig",fHist->GetName(),name.c_str()));
+    syh->fHistUp_preSmooth   = (TH1*)h_up  ->Clone(Form("%s_%s_Up_preSmooth",  fHist->GetName(),name.c_str()));
+    syh->fHistDown_preSmooth = (TH1*)h_down->Clone(Form("%s_%s_Down_preSmooth",fHist->GetName(),name.c_str()));
     syh->fHistShapeUp   = (TH1*)h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
     syh->fHistShapeDown = (TH1*)h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
     if(syh->fHistShapeUp  ->Integral() > 0. ){
@@ -223,19 +244,21 @@ SystematicHist* SampleHist::AddHistoSyst(string name,TH1* h_up,TH1* h_down){
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string fileName_up,string histoName_down, string fileName_down, int pruned/*1: norm only, 2: shape only*/){
+SystematicHist* SampleHist::AddHistoSyst(const std::string& name, const std::string& histoName_up,
+                                         const std::string& fileName_up, const std::string& histoName_down,
+                                         const std:: string& fileName_down, int pruned/*1: norm only, 2: shape only*/){
 
     // before doing anything else, check if the sampleHist can be created
     TH1* hUp   = HistFromFile(fileName_up,  histoName_up);
     TH1* hDown = HistFromFile(fileName_down,histoName_down);
-    if(hUp  ==0x0) return 0x0;
-    if(hDown==0x0) return 0x0;
+    if(hUp  ==nullptr) return nullptr;
+    if(hDown==nullptr) return nullptr;
 
     SystematicHist *sh;
     // try if it's already there...
     sh = GetSystematic(name);
     // ... and if not create a new one
-    if(sh==0x0){
+    if(sh==nullptr){
         sh = new SystematicHist(name);
         fSyst.push_back(sh);
         fNSyst ++;
@@ -252,10 +275,10 @@ SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string
     sh->fHistDown = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown);
     sh->fHistUp_orig   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp  +"_orig");
     sh->fHistDown_orig = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig");
-    if(sh->fHistUp   == 0x0) return 0x0;
-    if(sh->fHistDown == 0x0) return 0x0;
-    if(sh->fHistUp_orig  ==0x0) sh->fHistUp_orig   = (TH1F*)sh->fHistUp->Clone(  Form("%s_orig",sh->fHistUp->GetName()  ));
-    if(sh->fHistDown_orig==0x0) sh->fHistDown_orig = (TH1F*)sh->fHistDown->Clone(Form("%s_orig",sh->fHistDown->GetName()));
+    if(sh->fHistUp   == nullptr) return nullptr;
+    if(sh->fHistDown == nullptr) return nullptr;
+    if(sh->fHistUp_orig  ==nullptr) sh->fHistUp_orig   = (TH1D*)sh->fHistUp->Clone(  Form("%s_orig",sh->fHistUp->GetName()  ));
+    if(sh->fHistDown_orig==nullptr) sh->fHistDown_orig = (TH1D*)sh->fHistDown->Clone(Form("%s_orig",sh->fHistDown->GetName()));
     //
     if(normOnly){
         sh->fIsShape   = false;
@@ -296,7 +319,7 @@ SystematicHist* SampleHist::AddHistoSyst(string name,string histoName_up, string
 //
 NormFactor* SampleHist::AddNormFactor(NormFactor *normFactor){
     NormFactor *norm = GetNormFactor(normFactor->fName);
-    if(norm==0x0){
+    if(norm==nullptr){
         fNormFactors.push_back(normFactor);
         fNNorm ++;
     }
@@ -308,9 +331,9 @@ NormFactor* SampleHist::AddNormFactor(NormFactor *normFactor){
 
 //_____________________________________________________________________________
 //
-NormFactor* SampleHist::AddNormFactor(string name,float nominal, float min, float max){
+NormFactor* SampleHist::AddNormFactor(const std::string& name,float nominal, float min, float max){
     NormFactor *norm = GetNormFactor(name);
-    if(norm==0x0){
+    if(norm==nullptr){
         fNormFactors.push_back(new NormFactor(name,nominal,min,max));
         fNNorm ++;
     }
@@ -324,7 +347,7 @@ NormFactor* SampleHist::AddNormFactor(string name,float nominal, float min, floa
 //
 ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
     ShapeFactor *shape = GetShapeFactor(shapeFactor->fName);
-    if(shape==0x0){
+    if(shape==nullptr){
         fShapeFactors.push_back(shapeFactor);
         fNShape ++;
     }
@@ -336,9 +359,9 @@ ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
 
 //_____________________________________________________________________________
 //
-ShapeFactor* SampleHist::AddShapeFactor(string name,float nominal, float min, float max){
+ShapeFactor* SampleHist::AddShapeFactor(const std::string& name,float nominal, float min, float max){
     ShapeFactor *shape = GetShapeFactor(name);
-    if(shape==0x0){
+    if(shape==nullptr){
         fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max));
         fNShape ++;
     }
@@ -349,47 +372,44 @@ ShapeFactor* SampleHist::AddShapeFactor(string name,float nominal, float min, fl
 }
 
 //_____________________________________________________________________________
-
-
 //
-SystematicHist* SampleHist::GetSystematic(string systName){
+SystematicHist* SampleHist::GetSystematic(const std::string& systName) const{
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(systName == fSyst[i_syst]->fName) return fSyst[i_syst];
     }
-    return 0x0;
+    return nullptr;
 }
 
-
-
+//_____________________________________________________________________________
 //
-SystematicHist* SampleHist::GetSystFromNP(string NuisParName){
+SystematicHist* SampleHist::GetSystFromNP(const std::string& NuisParName) const{
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(NuisParName == fSyst[i_syst]->fSystematic->fNuisanceParameter) return fSyst[i_syst];
     }
-    return 0x0;
+    return nullptr;
 }
 
 //_____________________________________________________________________________
 //
-NormFactor* SampleHist::GetNormFactor(string name){
+NormFactor* SampleHist::GetNormFactor(const std::string& name) const{
     for(int i_syst=0;i_syst<fNNorm;i_syst++){
         if(name == fNormFactors[i_syst]->fName) return fNormFactors[i_syst];
     }
-    return 0x0;
+    return nullptr;
 }
 
 //_____________________________________________________________________________
 //
-ShapeFactor* SampleHist::GetShapeFactor(string name){
+ShapeFactor* SampleHist::GetShapeFactor(const std::string& name) const{
     for(int i_syst=0;i_syst<fNShape;i_syst++){
         if(name == fShapeFactors[i_syst]->fName) return fShapeFactors[i_syst];
     }
-    return 0x0;
+    return nullptr;
 }
 
 //_____________________________________________________________________________
 //
-bool SampleHist::HasSyst(string name){
+bool SampleHist::HasSyst(const std::string& name) const{
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(fSyst[i_syst]->fName == name) return true;
     }
@@ -398,7 +418,7 @@ bool SampleHist::HasSyst(string name){
 
 //_____________________________________________________________________________
 //
-bool SampleHist::HasNorm(string name){
+bool SampleHist::HasNorm(const std::string& name) const{
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         if(fNormFactors[i_norm]->fName == name) return true;
     }
@@ -407,7 +427,7 @@ bool SampleHist::HasNorm(string name){
 
 //_____________________________________________________________________________
 //
-bool SampleHist::HasShapeFactor(string name){
+bool SampleHist::HasShapeFactor(const std::string& name) const{
     for(int i_shape=0;i_shape<fNShape;i_shape++){
         if(fShapeFactors[i_shape]->fName == name) return true;
     }
@@ -416,38 +436,53 @@ bool SampleHist::HasShapeFactor(string name){
 
 //_____________________________________________________________________________
 //
-void SampleHist::WriteToFile(TFile *f){
-    if(f==0x0){
-        if(fHist_orig!=0x0)   WriteHistToFile(fHist_orig,  fFileName);
-        if(fHist!=0x0)        WriteHistToFile(fHist,       fFileName);
+void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
+    if(f==nullptr){
+        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig,  fFileName);
+        if(fHist!=nullptr)        WriteHistToFile(fHist,       fFileName);
     }
     else{
-        if(fHist_orig!=0x0)   WriteHistToFile(fHist_orig,  f);
-        if(fHist!=0x0)        WriteHistToFile(fHist,       f);
+        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig,  f);
+        if(fHist!=nullptr)        WriteHistToFile(fHist,       f);
     }
     // create the regular binning histogram
     fHist_regBin = HistoTools::TranformHistogramBinning(fHist);
-    if(fHist_regBin!=0x0) WriteHistToFile(fHist_regBin,f);
+    if(fHist_regBin!=nullptr) WriteHistToFile(fHist_regBin,f);
     //
     // save separate gammas as histograms
     if(fSample->fSeparateGammas){
         TH1 *htempUp   = (TH1*)fHist->Clone();
         TH1 *htempDown = (TH1*)fHist->Clone();
         for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-            htempUp  ->AddBinContent(i_bin, 1.*fHist->GetBinError(i_bin));
-            htempDown->AddBinContent(i_bin,-1.*fHist->GetBinError(i_bin));
+            htempUp  ->AddBinContent(i_bin, 1.*fHist->GetBinError(i_bin)*fSample->fMCstatScale);
+            htempDown->AddBinContent(i_bin,-1.*fHist->GetBinError(i_bin)*fSample->fMCstatScale);
+        }
+        TH1 *htempUp_orig   = (TH1*)fHist_orig->Clone();
+        TH1 *htempDown_orig = (TH1*)fHist_orig->Clone();
+        for(int i_bin=1;i_bin<=fHist_orig->GetNbinsX();i_bin++){
+            htempUp_orig  ->AddBinContent(i_bin, 1.*fHist_orig->GetBinError(i_bin)*fSample->fMCstatScale);
+            htempDown_orig->AddBinContent(i_bin,-1.*fHist_orig->GetBinError(i_bin)*fSample->fMCstatScale);
         }
         std::string systName = "stat_"+fSample->fName;
-        Systematic *gamma = 0x0;
+        Systematic *gamma = nullptr;
         if(GetSystematic(systName)) gamma = GetSystematic(systName)->fSystematic;  //GetSystematic(systName);
-        if(gamma==0x0) gamma = new Systematic(systName,Systematic::SHAPE);
+        if(gamma==nullptr) gamma = new Systematic(systName,Systematic::SHAPE);
         WriteDebugStatus("SampleHist::WriteToFile", "adding separate gammas as SHAPE systematic " + systName);
         gamma->fRegions.clear();
         gamma->fRegions.push_back(fRegionName);
         SystematicHist *syh = AddHistoSyst(systName,htempUp,htempDown);
+        syh->fHistUp_orig   = htempUp_orig;
+        syh->fHistDown_orig = htempDown_orig;
         gamma->fNuisanceParameter = gamma->fName;
-        TtHFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
+        TRExFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
+        if (syh ==nullptr) {
+            WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+            exit(EXIT_FAILURE);
+        }
         syh->fSystematic = gamma;
+        // setting histo name and file
+        syh->fHistoNameUp = fRegionName+"_"+fSample->fName+"_stat_"+fSample->fName+"_Up";
+        syh->fFileNameUp = fFileName;
     }
     //
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
@@ -456,8 +491,8 @@ void SampleHist::WriteToFile(TFile *f){
         fSyst[i_syst]->fHistDown->SetName( Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
         fSyst[i_syst]->fHistUp_orig  ->SetName( Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
         fSyst[i_syst]->fHistDown_orig->SetName( Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
-        if(f==0x0) fSyst[i_syst]->WriteToFile();
-        else       fSyst[i_syst]->WriteToFile(f);
+        if(f==nullptr) fSyst[i_syst]->WriteToFile(nullptr,reWriteOrig);
+        else           fSyst[i_syst]->WriteToFile(f,      reWriteOrig);
         // for shape hist, save also the syst(up)-nominal (to feed HistFactory)
         if(fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
             TH1* hVar = HistoTools::TranformHistogramBinning(
@@ -469,8 +504,8 @@ void SampleHist::WriteToFile(TFile *f){
             for(int i_bin=1;i_bin<=hVar->GetNbinsX();i_bin++){
                 if(hVar->GetBinContent(i_bin)<0) hVar->SetBinContent(i_bin,-1.*hVar->GetBinContent(i_bin));
             }
-            if(f==0x0) WriteHistToFile(hVar,fFileName);
-            else       WriteHistToFile(hVar,f);
+            if(f==nullptr) WriteHistToFile(hVar,fFileName);
+            else           WriteHistToFile(hVar,f);
         }
     }
 }
@@ -484,19 +519,37 @@ void SampleHist::ReadFromFile(){
 
 //_____________________________________________________________________________
 //
+void SampleHist::NegativeTotalYieldWarning(TH1* hist, float yield) const{
+    std::string temp = hist->GetName();
+    WriteWarningStatus("SampleHist::NegativeTotalYieldWarning", "The total yield in " + temp + " is negative: " + std::to_string(yield));
+    WriteWarningStatus("SampleHist::NegativeTotalYieldWarning", "    --> unable to preserve normalization while fixing bins with negative yields!");
+}
+
+//_____________________________________________________________________________
+//
 void SampleHist::FixEmptyBins(const bool suppress){
     //
     // store yields (nominal and systs)
-    float yield = fHist->Integral();
+    float initialYield = fHist->Integral();
+    if (initialYield<0) { NegativeTotalYieldWarning(fHist, initialYield); } // warning if total yield is negative, in which case normalization cannot be preserved
     vector<float> yieldUp;
     vector<float> yieldDown;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         SystematicHist* syh = fSyst[i_syst];
-        if(syh==0x0) continue;
-        if(syh->fHistUp  ==0x0) continue;
-        if(syh->fHistDown==0x0) continue;
-        yieldUp.push_back(syh->fHistUp->Integral());
-        yieldDown.push_back(syh->fHistDown->Integral());
+        if(syh==nullptr) continue;
+        if(syh->fHistUp  ==nullptr) continue;
+        if(syh->fHistDown==nullptr) continue;
+        float tmpYieldUp   = syh->fHistUp->Integral();
+        float tmpYieldDown = syh->fHistDown->Integral();
+        yieldUp.push_back(tmpYieldUp);
+        yieldDown.push_back(tmpYieldDown);
+        // warnings if total yield in systematic variations is negative, in which case normalization cannot be preserved
+        if (tmpYieldUp  <0){
+            NegativeTotalYieldWarning(syh->fHistUp,   tmpYieldUp);
+        }
+        if (tmpYieldDown<0){
+            NegativeTotalYieldWarning(syh->fHistDown, tmpYieldDown);
+        }
     }
     //
     // store minimum stat unc for non-zero bins
@@ -522,17 +575,28 @@ void SampleHist::FixEmptyBins(const bool suppress){
             }
             // set nominal to 10^-6
             fHist->SetBinContent(i_bin,1e-6);
-            if(!TtHFitter::GUESSMCSTATERROR){
-                fHist -> SetBinError(i_bin, 1e-06);
-            } else {
+            if(error>0) {
                 // if error defined, use it
-                if(error>0)        fHist -> SetBinError(i_bin, error);
-                // if not, if there was at least one bin with meaningful error, use the smallest
-                else if(minStat>0) fHist -> SetBinError(i_bin, minStat);
-                // if not, give up and assign a meaningless error ;)
-                else               fHist -> SetBinError(i_bin, 1e-06);
+                // this should in general make sense, even if the yield is negative and gets scaled to 1e-6
+                fHist -> SetBinError(i_bin, error);
+            } else {
+                // try to guess stat. uncertainty if GUESSMCSTATERROR is enabled
+                if(TRExFitter::GUESSMCSTATERROR){
+                    if(minStat>0){
+                        // if there was at least one bin with meaningful error, use the smallest
+                        fHist -> SetBinError(i_bin, minStat);
+                    } else {
+                        // if not, give up and assign a meaningless error ;)
+                        fHist -> SetBinError(i_bin, 1e-06);
+                    }
+                } else {
+                    // no guessing, assign a 100% uncertainty
+                    fHist -> SetBinError(i_bin, 1e-06);
+                }
             }
+
             // loop on systematics and set them accordingly
+            // uncertainties are not changed!
             for(int i_syst=0;i_syst<fNSyst;i_syst++){
                 SystematicHist* syh = fSyst[i_syst];
                 if(syh->fHistUp  ->GetBinContent(i_bin)<=0) syh->fHistUp  ->SetBinContent(i_bin,1e-06);
@@ -540,17 +604,28 @@ void SampleHist::FixEmptyBins(const bool suppress){
             }
         }
     }
-    // set to 0 if negative overall
+    // at this stage the integral should be strictly positive
     if(fHist->Integral()<0){
-        for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-            fHist->SetBinContent(i_bin,1e-6);
-            fHist->SetBinError(i_bin,1e-6);
+        WriteErrorStatus("SampleHist::FixEmptyBins", "Protection against negative yields failed, this should not happen");
+        exit(EXIT_FAILURE);
+    }
+    // correct the overall normalization again, so it agrees with the initial status
+    if(fHist->Integral()!=initialYield){
+        if (initialYield>0) {
+            // keep the original overall normalisation if the initial yield was positive
+            float tmpScalingFactor = initialYield/fHist->Integral();
+            for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+                fHist->SetBinContent(i_bin, fHist->GetBinContent(i_bin)*tmpScalingFactor);
+            }
+        } else if (TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL){
+            // if the initial yield was negative, scale such that the total integral is 1e-06
+            float tmpScalingFactor = 1e-6/fHist->Integral();
+            for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
+                fHist->SetBinContent(i_bin, fHist->GetBinContent(i_bin)*tmpScalingFactor);
+            }
         }
     }
-    // keep the original overall Normalisation
-    else if(fHist->Integral()!=yield){
-        fHist->Scale(yield/fHist->Integral());
-    }
+    // TODO apply the same logic also for the systematics histograms!
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         SystematicHist* syh = fSyst[i_syst];
         if(syh->fHistUp  ->Integral()!=yieldUp[i_syst]  ) syh->fHistUp  ->Scale(yieldUp[i_syst]  /syh->fHistUp  ->Integral());
@@ -560,7 +635,7 @@ void SampleHist::FixEmptyBins(const bool suppress){
 
 //_____________________________________________________________________________
 //
-void SampleHist::Print(){
+void SampleHist::Print() const{
     std::string temp = fHist->GetName();
     WriteDebugStatus("SampleHist::Print", "      Sample: " + fName + "\t" + temp);
     if(fNSyst>0){
@@ -591,24 +666,29 @@ void SampleHist::Print(){
 void SampleHist::Rebin(int ngroup, const Double_t* xbins){
     fHist->Rebin(ngroup,"",xbins);
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(fSyst[i_syst]->fHistUp!=0x0) fSyst[i_syst]->fHistUp->Rebin(ngroup,"",xbins);
-        if(fSyst[i_syst]->fHistDown!=0x0) fSyst[i_syst]->fHistDown->Rebin(ngroup,"",xbins);
-        if(fSyst[i_syst]->fHistShapeUp!=0x0) fSyst[i_syst]->fHistShapeUp->Rebin(ngroup,"",xbins);
-        if(fSyst[i_syst]->fHistShapeDown!=0x0) fSyst[i_syst]->fHistShapeDown->Rebin(ngroup,"",xbins);
+        if(fSyst[i_syst]->fHistUp!=nullptr) fSyst[i_syst]->fHistUp->Rebin(ngroup,"",xbins);
+        if(fSyst[i_syst]->fHistDown!=nullptr) fSyst[i_syst]->fHistDown->Rebin(ngroup,"",xbins);
+        if(fSyst[i_syst]->fHistShapeUp!=nullptr) fSyst[i_syst]->fHistShapeUp->Rebin(ngroup,"",xbins);
+        if(fSyst[i_syst]->fHistShapeDown!=nullptr) fSyst[i_syst]->fHistShapeDown->Rebin(ngroup,"",xbins);
     }
 }
 
 //_____________________________________________________________________________
 // this draws the control plots (for each systematic) with the syst variations for this region & all sample
-void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData, bool bothPanels ){
+void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData, bool bothPanels ) const{
+    if (SumAndData && h_data == nullptr){
+        WriteWarningStatus("SampleHist::DrawSystPlot", "Data histogram passed is nullptr and you want to plot syst effect on data, returning.");
+        WriteWarningStatus("SampleHist::DrawSystPlot", "Maybe you do not have data sample defined?");
+        return;
+    }
 
     //
     // Draw the distributions for nominal, syst (before and after smoothing)
     //
     float yield_syst_up = 0;
-	float yield_syst_down = 0;
-	float yield_nominal = 0;
-	float yield_data = 0;
+    float yield_syst_down = 0;
+    float yield_nominal = 0;
+    float yield_data = 0;
     TCanvas *c = new TCanvas("c","c",800,600);
     //
     TPad* pad0 = new TPad("pad0","pad0",0,0.30,1,1,0,0,0);
@@ -656,7 +736,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_nominal = (TH1*)fHist->Clone("h_nominal");
             h_nominal->SetLineColor(kBlack);
             h_nominal->SetLineWidth(2);
-            h_nominal_orig = (TH1*)fHist_orig->Clone("h_nominal_orig");
+            h_nominal_orig = (TH1*)fHist_preSmooth->Clone("h_nominal_orig");
             h_nominal_orig->SetLineColor(kBlack);
             h_nominal_orig->SetLineStyle(2);
             h_nominal_orig->SetLineWidth(2);
@@ -672,15 +752,8 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_nominal->SetMaximum(h_nominal->GetMaximum());
             h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
             h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
-            h_syst_up_orig = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
-            h_syst_down_orig = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
-//             if(FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, "all" )>=0 ||
-//                FindInStringVector( fSyst[i_syst]->fSystematic->fDropNormIn, fRegionName )>=0){ // FIXME
-//                h_syst_up->Scale(h_nominal->Integral()/h_syst_up->Integral());
-//                h_syst_down->Scale(h_nominal->Integral()/h_syst_down->Integral());
-//                h_syst_up_orig->Scale(h_nominal->Integral()/h_syst_up_orig->Integral());
-//                h_syst_down_orig->Scale(h_nominal->Integral()/h_syst_down_orig->Integral());
-//             }
+            h_syst_up_orig = (TH1*)fSyst[i_syst]->fHistUp_preSmooth->Clone();
+            h_syst_down_orig = (TH1*)fSyst[i_syst]->fHistDown_preSmooth->Clone();
             h_syst_up->SetLineColor(kRed);
             h_syst_up->SetLineWidth(2);
             h_syst_up->SetLineStyle(1);
@@ -698,10 +771,6 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_syst_down_orig->SetLineStyle(2);
             h_syst_down_orig->SetFillStyle(0);
 
-//             yield_nominal = h_nominal->Integral();
-//             yield_syst_up = h_syst_up->Integral();
-//             yield_syst_down = h_syst_down->Integral();
-//             if(SumAndData) yield_data = h_dataCopy->Integral();
             yield_nominal = CorrectIntegral(h_nominal);
             yield_syst_up = CorrectIntegral(h_syst_up);
             yield_syst_down = CorrectIntegral(h_syst_down);
@@ -763,9 +832,9 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 h_1->GetYaxis()->SetTitle("#frac{Syst.-Nom.}{Nom.} [%]");
                 h_1->GetYaxis()->SetTitleOffset(1.6);
                 h_1->GetXaxis()->SetTitleOffset(3.);
-                if(TtHFitter::OPTION["SystPlotRatioRange"]!=0){
-                    h_1->SetMinimum(-TtHFitter::OPTION["SystPlotRatioRange"]);
-                    h_1->SetMaximum( TtHFitter::OPTION["SystPlotRatioRange"]);
+                if(TRExFitter::OPTION["SystPlotRatioRange"]!=0){
+                    h_1->SetMinimum(-TRExFitter::OPTION["SystPlotRatioRange"]);
+                    h_1->SetMaximum( TRExFitter::OPTION["SystPlotRatioRange"]);
                 }
                 else{
                     h_1->SetMinimum(-ymax*1.5);
@@ -775,7 +844,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
             h_1->GetXaxis()->SetTitle(fVariableTitle.c_str());
 
             h_1->Draw("HIST");
-            if(TtHFitter::SYSTERRORBARS){
+            if(TRExFitter::SYSTERRORBARS){
                 h_syst_down_orig->SetMarkerSize(0);
                 h_syst_up_orig->SetMarkerSize(0);
                 h_syst_down_orig->DrawCopy("same E");
@@ -796,13 +865,13 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 h_nominal_orig->DrawCopy("same HIST");
             }
             else {
-	        double xmin=h_nominal->GetBinLowEdge(1);
-	        double xmax=h_nominal->GetBinLowEdge(h_nominal->GetNbinsX()+1);
-	        TLine* one= new TLine(xmin,0.,xmax,0.);
-	        one->SetLineColor(kBlack);
-	        //one->SetLineStyle(7);
-	        one->SetLineWidth(2);
-	        one->Draw("same HIST");
+                double xmin=h_nominal->GetBinLowEdge(1);
+                double xmax=h_nominal->GetBinLowEdge(h_nominal->GetNbinsX()+1);
+                TLine* one= new TLine(xmin,0.,xmax,0.);
+                one->SetLineColor(kBlack);
+                //one->SetLineStyle(7);
+                one->SetLineWidth(2);
+                one->Draw("same HIST");
                 h_nominal -> SetFillStyle(3005);
                 h_nominal -> SetFillColor(kBlue);
                 h_nominal -> SetMarkerSize(0);
@@ -819,20 +888,18 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 TLatex *tex = new TLatex();
                 tex->SetNDC();
                 if(SumAndData) {
-                    if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fSystematic->fTitle.c_str()));
+                    if(fSyst[i_syst]->fSystematic!=nullptr) tex->DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fSystematic->fTitle.c_str()));
                     else                                tex->DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fName.c_str()));
-                    //if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),"all samples"));
-                    //else                                tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fName.c_str(),"all samples"));
                 }
                 else{
-                    if(fSyst[i_syst]->fSystematic!=0x0) tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
+                    if(fSyst[i_syst]->fSystematic!=nullptr) tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
                     else                                tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fTitle.c_str()));
                 }
                 tex->DrawLatex(0.17,0.72,fRegionLabel.c_str());
 
                 //Legend of the histograms
-		TLegend *leg;
-		if(SumAndData) leg = new TLegend(0.7,0.71,0.9,0.9);
+                TLegend *leg;
+                if(SumAndData) leg = new TLegend(0.7,0.71,0.9,0.9);
                 else leg = new TLegend(0.7,0.71,0.9,0.85);
                 leg->SetFillStyle(0);
                 leg->SetBorderSize(0);
@@ -851,24 +918,23 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 leg->Draw();
 
                 //Legend to define the line style
-//                 TLegend *leg2 = new TLegend(0.605,0.69,0.9,0.74);
                 TLegend *leg2 = new TLegend(0.65,0.64,0.9,0.7);
                 leg2->SetFillStyle(0);
                 leg2->SetBorderSize(0);
                 leg2->SetNColumns(2);
                 leg2->SetTextSize(gStyle->GetTextSize());
                 leg2->SetTextFont(gStyle->GetTextFont());
-                TH1F* h_syst_up_black = (TH1F*)h_syst_up -> Clone();
+                TH1D* h_syst_up_black = (TH1D*)h_syst_up -> Clone();
                 h_syst_up_black -> SetLineColor(kBlack);
-                TH1F* h_syst_up_origin_black = (TH1F*)h_syst_up_orig -> Clone();
+                TH1D* h_syst_up_origin_black = (TH1D*)h_syst_up_orig -> Clone();
                 h_syst_up_origin_black -> SetLineColor(kBlack);
                 leg2->AddEntry(h_syst_up_origin_black,"Original","l");
                 leg2->AddEntry(h_syst_up_black,"Modified","l");
                 leg2 -> Draw();
                 if(SumAndData){
                     float acc_data = 0;
-					if (yield_nominal != 0) acc_data = (yield_data-yield_nominal)/yield_nominal;
-					else acc_data = 99999999;
+                    if (yield_nominal != 0) acc_data = (yield_data-yield_nominal)/yield_nominal;
+                    else acc_data = 99999999;
                     string sign_data =  "+";
                     if(acc_data<0) sign_data = "-";
                     TLegend *leg3 = new TLegend(0.7,0.43,0.9,0.62);
@@ -877,9 +943,8 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                     leg3->SetTextSize(gStyle->GetTextSize());
                     leg3->SetTextFont(gStyle->GetTextFont());
                     leg3->SetMargin(0.2);
-		    		leg3->AddEntry(h_dataCopy,"Data","p");
-		    		leg3->AddEntry(h_nominal,"Total prediction","l");
-                    //leg3->AddEntry(h_dataCopy,Form("data (%s%.1f %%)",sign_data.c_str(),TMath::Abs(acc_data*100)),"l");
+                    leg3->AddEntry(h_dataCopy,"Data","p");
+                    leg3->AddEntry(h_nominal,"Total prediction","l");
                     leg3 -> Draw();
                 }
             } else {
@@ -894,9 +959,9 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
         gSystem->mkdir((fFitName+"/Systematics").c_str());
         gSystem->mkdir((fFitName+"/Systematics/"+fSyst[i_syst]->fName).c_str());
 
-        for(int i_format=0;i_format<(int)TtHFitter::IMAGEFORMAT.size();i_format++){
-            if(SumAndData) c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(), fName.c_str(), TtHFitter::IMAGEFORMAT[i_format].c_str()));
-            else c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), TtHFitter::IMAGEFORMAT[i_format].c_str()));
+        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+            if(SumAndData) c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(), fName.c_str(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
+            else c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
         }
     }
     delete c;
@@ -912,31 +977,60 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
 
-        if(syst!="all" && fSyst[i_syst]->fName.find(syst)==string::npos) continue;
+        if(syst!="all" && fSyst[i_syst]->fName != syst) continue;
 
-        if(fSyst[i_syst]->fHistUp  ==0x0) continue;
-        if(fSyst[i_syst]->fHistDown==0x0) continue;
-        if(fSyst[i_syst]->fSystematic==0x0) continue;
+        if(fSyst[i_syst]->fHistUp  ==nullptr) continue;
+        if(fSyst[i_syst]->fHistDown==nullptr) continue;
+        if(fSyst[i_syst]->fSystematic==nullptr) continue;
 
         h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
-        // h_syst_up = (TH1*)fSyst[i_syst]->fHistUp_orig->Clone();
-        // h_syst_down = (TH1*)fSyst[i_syst]->fHistDown_orig->Clone();
+
+        if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
+            HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
+            HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+            continue;
+        }
+
+        // 
+        // Pre-smoothing
+        //
+        // (do smoothing and symmetrization before pre-smoothing in case of two-sided systematics)
+        if(fSyst[i_syst]->fSymmetrisationType==HistoTools::SYMMETRIZETWOSIDED){
+            if(fSyst[i_syst]->fIsShape){
+                HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                h_nominal,//nominal histogram
+                                                fSyst[i_syst]->fHistUp,
+                                                fSyst[i_syst]->fHistDown,//original histograms
+                                                h_syst_up, h_syst_down, //modified histograms
+                                                fSyst[i_syst]->fScaleUp,
+                                                fSyst[i_syst]->fScaleDown, // scale factors
+                                                smoothOpt,
+                                                TtresSmoothing // alternative smoothing
+                                            );
+            }
+            //
+            // need to ad these lines to make sure overall only systematics get scaled as well
+            else{
+                HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
+                HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+            }
+        }
 
         if(fSyst[i_syst]->fSystematic->fPreSmoothing){
-            TH1* h_tmp_up   = h_syst_up!=0x0   ? (TH1*)h_syst_up  ->Clone() : 0x0;
-            TH1* h_tmp_down = h_syst_down!=0x0 ? (TH1*)h_syst_down->Clone() : 0x0;
-            if(h_tmp_up!=0x0 || h_tmp_down!=0x0){
+            TH1* h_tmp_up   = h_syst_up!=nullptr   ? (TH1*)h_syst_up  ->Clone() : nullptr;
+            TH1* h_tmp_down = h_syst_down!=nullptr ? (TH1*)h_syst_down->Clone() : nullptr;
+            if(h_tmp_up!=nullptr || h_tmp_down!=nullptr){
                 TH1* h_tmp_nominal = (TH1*)h_nominal  ->Clone();
                 for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++){
                     h_tmp_nominal->GetBinError(i_bin,0);
                 }
-                if(h_tmp_up!=0x0){
+                if(h_tmp_up!=nullptr){
                     float tmp_nom_up = h_tmp_up->Integral();
                     h_tmp_up->Add(h_tmp_nominal,-1);
                     h_tmp_up->Divide(h_tmp_nominal);
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_up->AddBinContent(i_bin, 100.);
-//                     SmoothHistogram(h_tmp_up,-1,3);
                     h_tmp_up->Smooth();
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_up->AddBinContent(i_bin,-100.);
                     h_tmp_up->Multiply(h_tmp_nominal);
@@ -944,13 +1038,12 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                     h_tmp_up->Scale(tmp_nom_up/h_tmp_up->Integral());
                     h_syst_up = (TH1*)h_tmp_up->Clone();
                 }
-                if(h_tmp_down!=0x0){
+                if(h_tmp_down!=nullptr){
                     float tmp_nom_down = h_tmp_down->Integral();
                     h_tmp_down->Add(h_tmp_nominal,-1);
                     h_tmp_up->Divide(h_tmp_nominal);
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_down->AddBinContent(i_bin, 100.);
                     h_tmp_down->Smooth();
-//                     SmoothHistogram(h_tmp_down,-1,3);
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_down->AddBinContent(i_bin,-100.);
                     h_tmp_up->Multiply(h_tmp_nominal);
                     h_tmp_down->Add(h_tmp_nominal, 1);
@@ -963,44 +1056,43 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
             delete h_tmp_down;
         }
 
-        if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
-            HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
-            HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
-            continue;
-        }
-
         //
         // Call the function for smoothing and symmetrisation
         //
-        if(fSyst[i_syst]->fIsShape){
-            HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
-                                            h_nominal,//nominal histogram
-                                            fSyst[i_syst]->fHistUp, fSyst[i_syst]->fHistDown,//original histograms
-                                            h_syst_up, h_syst_down, //modified histograms
-                                            fSyst[i_syst]->fScaleUp,fSyst[i_syst]->fScaleDown, // scale factors
-                                            smoothOpt,
-                                            TtresSmoothing // alternative smoothing
-                                         );
-        }
-        //
-        // need to ad these lines to make sure overall only systematics get scaled as well
-        else{
-            HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
-            HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+        if(fSyst[i_syst]->fSymmetrisationType!=HistoTools::SYMMETRIZETWOSIDED){
+            if(fSyst[i_syst]->fIsShape){
+                HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                h_nominal,//nominal histogram
+                                                fSyst[i_syst]->fHistUp,
+                                                fSyst[i_syst]->fHistDown,//original histograms
+                                                h_syst_up, h_syst_down, //modified histograms
+                                                fSyst[i_syst]->fScaleUp,
+                                                fSyst[i_syst]->fScaleDown, // scale factors
+                                                smoothOpt,
+                                                TtresSmoothing // alternative smoothing
+                                            );
+            }
+            //
+            // need to ad these lines to make sure overall only systematics get scaled as well
+            else{
+                HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
+                HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+            }
         }
 
         //
         // keep the variation below 100% in each bin, if the option Smooth is set for the sample
         //
         if(fSample->fSmooth){
-            if(h_syst_up!=0x0){
+            if(h_syst_up!=nullptr){
                 for(int iBin = 1; iBin <= h_syst_up  ->GetNbinsX(); ++iBin ){
                     float relDiff = (h_syst_up->GetBinContent(iBin) - h_nominal->GetBinContent(iBin))/ h_nominal->GetBinContent(iBin);
                     if(relDiff>=1. ) h_syst_up->SetBinContent(iBin, (1.+0.99)*h_nominal->GetBinContent(iBin) );
                     if(relDiff<=-1.) h_syst_up->SetBinContent(iBin, (1.-0.99)*h_nominal->GetBinContent(iBin) );
                 }
             }
-            if(h_syst_down!=0x0){
+            if(h_syst_down!=nullptr){
                 for(int iBin = 1; iBin <= h_syst_down  ->GetNbinsX(); ++iBin ){
                     float relDiff = (h_syst_down->GetBinContent(iBin) - h_nominal->GetBinContent(iBin))/ h_nominal->GetBinContent(iBin);
                     if(relDiff>=1. ) h_syst_down->SetBinContent(iBin, (1.+0.99)*h_nominal->GetBinContent(iBin) );
@@ -1012,16 +1104,13 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         //
         // Save stuff
         //
-//         fSyst[i_syst]->fHistUp_orig = (TH1*)fSyst[i_syst]->fHistUp->Clone();
         fSyst[i_syst]->fHistUp = (TH1*)h_syst_up->Clone(fSyst[i_syst]->fHistUp->GetName());
-//         fSyst[i_syst]->fHistDown_orig = (TH1*)fSyst[i_syst]->fHistDown->Clone();
         fSyst[i_syst]->fHistDown = (TH1*)h_syst_down->Clone(fSyst[i_syst]->fHistUp->GetName());
 
         //
         // Perform a check of the output histograms (check for 0 bins and other pathologic behaviours)
         //
-//         HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, true /*cause crash if problem*/);
-        HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, TtHFitter::HISTOCHECKCRASH /*cause crash if problem*/);
+        HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, TRExFitter::HISTOCHECKCRASH /*cause crash if problem*/);
 
         //
         // Normalisation component first
@@ -1056,11 +1145,13 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 
 //_____________________________________________________________________________
 //
-void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, float scale){
+void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, float scale){
     fName = h->fName;
-    fHist = (TH1*)h->fHist->Clone();
-    fHist_orig = (TH1*)h->fHist_orig->Clone();
+    fHist           = (TH1*)h->fHist->Clone();
+    fHist_preSmooth = (TH1*)h->fHist_preSmooth->Clone();
+    fHist_orig      = (TH1*)h->fHist_orig->Clone();
     fHist->Scale(scale);
+    fHist_preSmooth->Scale(scale);
     fHist_orig->Scale(scale);
     fFileName = h->fFileName;
     fHistoName = h->fHistoName;
@@ -1076,6 +1167,10 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, flo
             tmp->Scale(scale);
             syst_tmp->fHistUp = tmp;
 
+            tmp = (TH1*)h->fSyst[i_syst]->fHistUp_preSmooth->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistUp_preSmooth = tmp;
+
             tmp = (TH1*)h->fSyst[i_syst]->fHistUp_orig->Clone();
             tmp->Scale(scale);
             syst_tmp->fHistUp_orig = tmp;
@@ -1083,6 +1178,10 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, flo
             tmp = (TH1*)h->fSyst[i_syst]->fHistDown->Clone();
             tmp->Scale(scale);
             syst_tmp->fHistDown = tmp;
+
+            tmp = (TH1*)h->fSyst[i_syst]->fHistDown_preSmooth->Clone();
+            tmp->Scale(scale);
+            syst_tmp->fHistDown_preSmooth = tmp;
 
             tmp = (TH1*)h->fSyst[i_syst]->fHistDown_orig->Clone();
             tmp->Scale(scale);
@@ -1095,10 +1194,10 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, flo
         if(notFound){
             SystematicHist* syst_tmp = new SystematicHist("tmp");
             ++fNSyst;
-            syst_tmp->fHistUp = (TH1*)h->fHist->Clone();
-            syst_tmp->fHistUp_orig = (TH1*)h->fHist->Clone();
-            syst_tmp->fHistDown = (TH1*)h->fHist->Clone();
-            syst_tmp->fHistDown_orig = (TH1*)h->fHist->Clone();
+            syst_tmp->fHistUp        = (TH1*)h->fHist->Clone();
+            syst_tmp->fHistUp_orig   = (TH1*)h->fHist_orig->Clone();
+            syst_tmp->fHistDown      = (TH1*)h->fHist->Clone();
+            syst_tmp->fHistDown_orig = (TH1*)h->fHist_orig->Clone();
             syst_tmp->fName = systname;
             fSyst.push_back(syst_tmp);
         }
@@ -1114,24 +1213,33 @@ void SampleHist::CloneSampleHist(SampleHist* h, std::set<std::string> names, flo
 //_____________________________________________________________________________
 //
 void SampleHist::SampleHistAdd(SampleHist* h, float scale){
-    fHist->Add(h->fHist, scale);
-    fHist_orig->Add(h->fHist_orig, scale);
+    fHist          ->Add(h->fHist,          scale);
+    fHist_preSmooth->Add(h->fHist_preSmooth,scale);
+    fHist_orig     ->Add(h->fHist_orig,     scale);
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        bool wasIn=false;
+        bool wasIn = false;
         for(int j_syst=0;j_syst<h->fNSyst;j_syst++){
             if(fSyst[i_syst]->fName==h->fSyst[j_syst]->fName){
-                fSyst[i_syst]->fHistUp->Add(h->fSyst[j_syst]->fHistUp, scale);
-                fSyst[i_syst]->fHistDown->Add(h->fSyst[j_syst]->fHistDown, scale);
-                fSyst[i_syst]->fHistUp_orig->Add(h->fSyst[j_syst]->fHistUp_orig, scale);
-                fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig, scale);
-                wasIn=true;
+                fSyst[i_syst]->fHistUp  ->Add(h->fSyst[j_syst]->fHistUp,  scale);
+                fSyst[i_syst]->fHistDown->Add(h->fSyst[j_syst]->fHistDown,scale);
+                if(fSyst[i_syst]->fHistUp_preSmooth!=nullptr)   fSyst[i_syst]->fHistUp_preSmooth  ->Add(h->fSyst[j_syst]->fHistUp_preSmooth,  scale);
+                else                                            fSyst[i_syst]->fHistUp_preSmooth   = (TH1*)fHist_preSmooth->Clone();
+                if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fSyst[j_syst]->fHistDown_preSmooth,scale);
+                else                                            fSyst[i_syst]->fHistDown_preSmooth = (TH1*)fHist_preSmooth->Clone();
+                fSyst[i_syst]->fHistUp_orig  ->Add(h->fSyst[j_syst]->fHistUp_orig,  scale);
+                fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig,scale);
+                wasIn = true;
             }
         }
         if(wasIn) continue;
-        fSyst[i_syst]->fHistUp->Add(h->fHist, scale);
-        fSyst[i_syst]->fHistDown->Add(h->fHist, scale);
-        fSyst[i_syst]->fHistUp_orig->Add(h->fHist,scale );
-        fSyst[i_syst]->fHistDown_orig->Add(h->fHist, scale);
+        fSyst[i_syst]->fHistUp  ->Add(h->fHist,scale);
+        fSyst[i_syst]->fHistDown->Add(h->fHist,scale);
+        if(fSyst[i_syst]->fHistUp_preSmooth!=nullptr)   fSyst[i_syst]->fHistUp_preSmooth  ->Add(h->fHist_preSmooth,scale);
+        else                                            fSyst[i_syst]->fHistUp_preSmooth   = (TH1*)fHist_preSmooth->Clone();
+        if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fHist_preSmooth,scale);
+        else                                            fSyst[i_syst]->fHistDown_preSmooth = (TH1*)fHist_preSmooth->Clone();
+        fSyst[i_syst]->fHistUp_orig  ->Add(h->fHist_orig,scale );
+        fSyst[i_syst]->fHistDown_orig->Add(h->fHist_orig,scale);
     }
 }
 
@@ -1146,7 +1254,7 @@ void SampleHist::Divide(SampleHist *sh){
         string systName = fSyst[i_syst]->fName;
         string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
-        if(syh==0x0){
+        if(syh==nullptr){
             fSyst[i_syst]->Divide( sh->fHist );
             WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Divide", "Using its nominal. ");
@@ -1162,10 +1270,9 @@ void SampleHist::Divide(SampleHist *sh){
      for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
-//        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
-        if(syh==0x0){
+        if(syh==nullptr){
             WriteDebugStatus("SampleHist::Divide", "Adding syst "+ systName + " to sample "+ fName);
             TH1* hUp   = (TH1*)fHist->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)fHist->Clone("h_tmp_down");
@@ -1180,6 +1287,10 @@ void SampleHist::Divide(SampleHist *sh){
             hDown->Add(fHist,2);
             //
             syh = AddHistoSyst(systName,hUp,hDown);
+            if (syh == nullptr) {
+                WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+                exit(EXIT_FAILURE);
+            }
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
@@ -1200,10 +1311,9 @@ void SampleHist::Multiply(SampleHist *sh){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = fSyst[i_syst]->fName;
-//        SystematicHist *syh = sh->GetSystematic( systName );
         string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
-        if(syh==0x0){
+        if(syh==nullptr){
             fSyst[i_syst]->Multiply( sh->fHist );
             WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Multiply", "Using its nominal. ");
@@ -1219,16 +1329,19 @@ void SampleHist::Multiply(SampleHist *sh){
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
-//        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
-        if(syh==0x0){
+        if(syh==nullptr){
             WriteDebugStatus("SampleHist::Multiply", "Adding syst "+ systName + " to sample "+ fName);
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp   );
             hDown->Multiply( sh->fSyst[i_syst]->fHistDown );
             syh = AddHistoSyst(systName,hUp,hDown);
+            if (syh == nullptr) {
+                WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+                exit(EXIT_FAILURE);
+            }
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
@@ -1249,10 +1362,9 @@ void SampleHist::Add(SampleHist *sh,float scale){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = fSyst[i_syst]->fName;
-//        SystematicHist *syh = sh->GetSystematic( systName );
         string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
-        if(syh==0x0){
+        if(syh==nullptr){
             fSyst[i_syst]->Add( sh->fHist, scale );
             WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Add", "Using its nominal. ");
@@ -1268,16 +1380,19 @@ void SampleHist::Add(SampleHist *sh,float scale){
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
-//        SystematicHist *syh = GetSystematic( systName );
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
-        if(syh==0x0){
+        if(syh==nullptr){
             WriteDebugStatus("SampleHist::Add", "Adding syst "+ systName + " to sample "+ fName);
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
             hUp  ->Add( sh->fSyst[i_syst]->fHistUp  ,scale );
             hDown->Add( sh->fSyst[i_syst]->fHistDown,scale );
             syh = AddHistoSyst(systName,hUp,hDown);
+            if (syh == nullptr) {
+                WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+                exit(EXIT_FAILURE);
+            }
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
@@ -1297,8 +1412,23 @@ void SampleHist::Scale(float scale){
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         fSyst[i_syst]->fHistUp->Scale( scale );
-        fSyst[i_syst]->fHistUp_orig->Scale( scale );
+        if(fSyst[i_syst]->fHistShapeUp!=nullptr)   fSyst[i_syst]->fHistShapeUp->Scale( scale );
         fSyst[i_syst]->fHistDown->Scale( scale );
-        fSyst[i_syst]->fHistDown_orig->Scale( scale );
+        if(fSyst[i_syst]->fHistShapeDown!=nullptr) fSyst[i_syst]->fHistShapeDown->Scale( scale );
+    }
+}
+
+//_____________________________________________________________________________
+//
+void SampleHist::SystPruning(PruningUtil *pu,TH1* hTot){
+    for(auto syh : fSyst){
+        if(!syh) continue;
+        if(!syh->fHistUp) continue;
+        if(!syh->fHistDown) continue;
+        int pruningResult = pu->CheckSystPruning(syh->fHistUp,syh->fHistDown,fHist,hTot);
+        syh->fBadShape = (pruningResult==-3 || pruningResult==-4);
+        syh->fBadNorm = (pruningResult==-2 || pruningResult==-4);
+        syh->fShapePruned = (pruningResult==1 || pruningResult==3 || syh->fBadShape);
+        syh->fNormPruned = (pruningResult==2 || pruningResult==3 || syh->fBadNorm);
     }
 }

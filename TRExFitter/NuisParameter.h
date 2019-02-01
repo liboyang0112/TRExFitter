@@ -6,16 +6,16 @@
 
 class NuisParameter {
 public:
-    NuisParameter(std::string name);
+    NuisParameter(const std::string& name);
     ~NuisParameter();
 
     std::string fName;
     std::string fTitle;
     std::string fCategory;
-    float fStartValue;
-    float fFitValue;
-    float fPostFitUp; // this should be like +0.8... So alpha+deltaAlpha = fFitValue + fPostFitUp
-    float fPostFitDown; // this like -0.7...
+    double fStartValue;
+    double fFitValue;
+    double fPostFitUp; // this should be like +0.8... So alpha+deltaAlpha = fFitValue + fPostFitUp
+    double fPostFitDown; // this like -0.7...
     int fConstrainType;
     int fInterpCode;
 };

@@ -1,14 +1,12 @@
 // Class include
-#include "TtHFitter/Systematic.h"
-
-using namespace std;
+#include "TRExFitter/Systematic.h"
 
 // -------------------------------------------------------------------------------------------------
 // Systematic
 
 //_____________________________________________________________________________
 //
-Systematic::Systematic(string name,int type,float up,float down){
+Systematic::Systematic(const std::string& name,int type,float up,float down){
     fName = name;
     fTitle = name;
     fNuisanceParameter = name;
@@ -18,7 +16,7 @@ Systematic::Systematic(string name,int type,float up,float down){
     fStoredName = name;
 
     fSmoothType = 0;
-    fSymmetrisationType = 0;
+    fSymmetrisationType = HistoTools::NOSYMMETRIZATION;
     fPreSmoothing = false;
     //
     fOverallUp   = up;
@@ -39,6 +37,8 @@ Systematic::Systematic(string name,int type,float up,float down){
     //
     fReferenceSample = "";
     fKeepReferenceOverallVar = true;
+    fReferenceSmoothing = "";
+    fReferencePruning = "";
     //
     fSubtractRefSampleVar = false;
     //
@@ -116,7 +116,7 @@ Systematic::Systematic(string name,int type,float up,float down){
 }
 
 
-Systematic::Systematic(Systematic &sys) {
+Systematic::Systematic(const Systematic &sys) {
     fName = sys.fName;
     fTitle = sys.fTitle;
     fNuisanceParameter = sys.fNuisanceParameter;
@@ -140,6 +140,8 @@ Systematic::Systematic(Systematic &sys) {
     //
     fReferenceSample = sys.fReferenceSample;
     fKeepReferenceOverallVar = sys.fKeepReferenceOverallVar;
+    fReferenceSmoothing = sys.fReferenceSmoothing;
+    fReferencePruning = sys.fReferencePruning;
     //
     fSubtractRefSampleVar = sys.fSubtractRefSampleVar;
     //

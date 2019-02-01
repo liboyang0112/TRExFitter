@@ -2,8 +2,9 @@
 #define REGION_H
 
 /// Framework includes
-#include "TtHFitter/Common.h"
-#include "TtHFitter/TtHFit.h"
+#include "TRExFitter/Common.h"
+#include "TRExFitter/TRExFit.h"
+#include "TRExFitter/PruningUtil.h"
 
 /// c++ includes
 #include <map>
@@ -17,8 +18,8 @@ class Systematic;
 class TH1;
 class THStack;
 class TGraphAsymmErrors;
-class TthPlot;
-class TtHFit;
+class TRExPlot;
+class TRExFit;
 class SampleHist;
 class ShapeFactor;
 class CorrelationMatrix;
@@ -47,47 +48,47 @@ public:
 
     SampleHist* SetSampleHist(Sample *sample, std::string histoName, std::string fileName);
     SampleHist* SetSampleHist(Sample *sample, TH1* hist );
-    SampleHist* GetSampleHist(std::string &sampleName);
+    SampleHist* GetSampleHist(const std::string &sampleName) const;
 
     void BuildPreFitErrorHist();
-    TthPlot* DrawPreFit(std::string opt="");
+    TRExPlot* DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
     double GetMultFactors( FitResults *fitRes, 
                                 std::ofstream& pullTex,
                                 const int i /*sample*/, const int i_bin /*bin number*/,
                                 const double binContent0,
                                 const std::string &syst = "",
-                                const bool isUp = true);
+                                const bool isUp = true) const;
 
     void BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names);
-    TthPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex, const std::vector<std::string>& morph_names, std::string opt="");
+    TRExPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex, const std::vector<std::string>& morph_names, const std::vector<int>& canvasSize, std::string opt="");
 
     void SetBinning(int N, double *bins);
     void Rebin(int N);
+    void SetRebinning(int N, double *bins);
     void SetRegionType(RegionType type);
     void SetRegionDataType( DataType type );
     void AddSample(Sample *sample);
 
-    void AddSelection(std::string selection);
-    void AddMCweight(std::string weight);
-    void SetVariable(std::string variable,int nbin,float xmin,float xmax,std::string corrVar1="",std::string corrVar2="");
-    void SetAlternativeVariable(std::string variable,std::string sample);
-    bool UseAlternativeVariable(std::string sample);
-    std::string GetAlternativeVariable(std::string sample);
-    void SetAlternativeSelection(std::string selection,std::string sample);
-    bool UseAlternativeSelection(std::string sample);
-    std::string GetAlternativeSelection(std::string sample);
+    void AddSelection(const std::string& selection);
+    void AddMCweight(const std::string& weight);
+    void SetVariable(const std::string& variable,int nbin,float xmin,float xmax,std::string corrVar1="",std::string corrVar2="");
+    void SetAlternativeVariable(const std::string& variable, const std::string& sample);
+    bool UseAlternativeVariable(const std::string& sample);
+    std::string GetAlternativeVariable(const std::string& sample) const;
+    void SetAlternativeSelection(const std::string& selection, const std::string& sample);
+    bool UseAlternativeSelection(const std::string& sample);
+    std::string GetAlternativeSelection(const std::string& sample) const;
 
-    void SetHistoName(std::string name); // name of the histogram to read (the same for each sample)
     void AddSystematic(Systematic *syst);
 
     // cosmetics
-    void SetVariableTitle(std::string name);
-    void SetLabel(std::string label,std::string shortLabel="");
+    void SetVariableTitle(const std::string& name);
+    void SetLabel(const std::string& label,std::string shortLabel="");
 
     // log
-    void Print();
+    void Print() const;
 
-    void PrintSystTable(FitResults* fitRes,std::string opt="");
+    void PrintSystTable(FitResults* fitRes,std::string opt="") const;
 
     /**
       * Helper function to get postfit scales of "normalization" parameters used for morphing
@@ -95,7 +96,21 @@ public:
       * @param dummy parameter that will be filled
       * @param dummy parameter that will be filled
       */
-    void PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal);
+    void PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_scale, std::vector<double> *morph_scale_nominal) const;
+
+    /**
+     * Function that calls systematics pruning through the PruningUtil class
+     * @param pointer to PruningUtil instance
+     */
+    void SystPruning(PruningUtil *pu);
+    
+    /**
+      * Helper function to get a "total prediction" histogram
+      * @param bool specifying whether signal sample have to be included in the sum or not (true by default)
+      * @return combined histogram
+      */
+    TH1* GetTotHist(bool includeSignal=true);
+
     // -------
     // Members
     // -------
@@ -126,6 +141,8 @@ public:
     float fRatioYmax;
     float fRatioYminPostFit;
     float fRatioYmaxPostFit;
+    std::string fRatioYtitle;
+    std::string fRatioType;
 
     // to draw
     THStack *fStack;
@@ -157,7 +174,8 @@ public:
     std::string fCorrVar1;
     std::string fCorrVar2;
     int fNbins;
-    float fXmin, fXmax;
+    float fXmin;
+    float fXmax;
     std::string fSelection;
     std::string fMCweight;
     std::vector<std::string> fNtuplePaths;
@@ -170,6 +188,8 @@ public:
     // histogram stuff
     double *fHistoBins;
     int fHistoNBinsRebin;
+    double *fHistoBinsPost;
+    int fHistoNBinsRebinPost;
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoPathSuffs;
     std::vector<std::string> fHistoFiles;
@@ -185,8 +205,8 @@ public:
     std::vector < ShapeFactor* > fShapeFactors;
 
     // plot objects
-    TthPlot *fPlotPreFit;
-    TthPlot *fPlotPostFit;
+    TRExPlot *fPlotPreFit;
+    TRExPlot *fPlotPostFit;
 
     bool fUseStatErr;
 
@@ -196,7 +216,7 @@ public:
     std::vector< std::string > fSystNames;
     std::vector< std::string > fNpNames;
 
-    TtHFit::FitType fFitType;
+    TRExFit::FitType fFitType;
     std::string fPOI;
     std::string fFitLabel;
 
@@ -210,6 +230,7 @@ public:
     float fBinWidth;
 
     float fBlindingThreshold;
+    TRExFit::BlindingType fBlindingType;
 
     bool fSkipSmoothing;
 
@@ -218,7 +239,7 @@ public:
 
     std::string fGroup; // used to split yield tables
 
-    TH1F* fBlindedBins;
+    TH1D* fBlindedBins;
     bool fKeepPrefitBlindedBins;
     int fGetChi2;
 
@@ -231,15 +252,24 @@ public:
     float fChi2prob;
 
     bool fUseGammaPulls;
+
+    std::vector<float> fXaxisRange;
+    
+    float fLabelX;
+    float fLabelY;
+    float fLegendX1;
+    float fLegendX2;
+    float fLegendY;
+    
+    int fLegendNColumns;
 };
 
 
 // Functions
 
 // for post-fit plots
-float GetDeltaN(float alpha, float Iz, float Ip, float Imi, int intCode=4);
-std::map < int , double > GetDeltaNForUncertainties(float alpha, float alpha_errUp, float alpha_errDown, float Iz, float Ip, float Imi, int intCode);
-
+double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode=4);
+std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_errUp, double alpha_errDown, double Iz, double Ip, double Imi, int intCode);
 
 // To build the total error band
 TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< std::string > systNames, CorrelationMatrix *matrix=0x0 );

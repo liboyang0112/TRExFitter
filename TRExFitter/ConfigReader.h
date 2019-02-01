@@ -1,16 +1,14 @@
 #ifndef CONFIGREADER_H
 #define CONFIGREADER_H
 
-// Framework includes
-#include "TtHFitter/ConfigParser.h"
-
 /// c++ includes
 #include <string>
 #include <vector>
 
 ///Forward class declaration
+class ConfigParser;
 class ConfigSet;
-class TtHFit;
+class TRExFit;
 class Region;
 class Systematic;
 
@@ -25,21 +23,21 @@ class ConfigReader {
 
         /**
           * The default constructor.
-          * @param fitter A pointer to TtHFit class
+          * @param fitter A pointer to TRExFit class
           */
-        ConfigReader(TtHFit * fitter);
+        ConfigReader(TRExFit * fitter);
 
         /**
           * The default destructor
-          */ 
+          */
         ~ConfigReader();
 
         /**
-          * Reads the config and passes parameters to TtHFit
-          * @param string Config path 
+          * Reads the config and passes parameters to TRExFit
+          * @param string Config path
           * @param string Additional options
           * @return int status code
-          */ 
+          */
         int ReadFullConfig(const std::string& fileName, const std::string& option);
 
     private:
@@ -49,8 +47,8 @@ class ConfigReader {
           * @param string config options
           * @return int status code
           */
-        int ReadCommandLineOptions(std::string option);
-        
+        int ReadCommandLineOptions(const std::string& option);
+
         /**
           * Helper function to read JOB settings
           * @return int status code
@@ -113,15 +111,15 @@ class ConfigReader {
         /**
           * Helper function to check if config has settings for NTUP
           * @param ConfigSet A pointer needed to parse the input
-          * @return bool 
-          */ 
+          * @return bool
+          */
         bool ConfigHasNTUP(ConfigSet* confSet);
 
         /**
           * Helper function to check if config has settings for HIST
           * @param ConfigSet A pointer needed to parse the input
-          * @return bool 
-          */ 
+          * @return bool
+          */
         bool ConfigHasHIST(ConfigSet* confSet);
 
         /**
@@ -169,7 +167,7 @@ class ConfigReader {
           * @return int status code
           */
         int SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude, const std::vector<std::string> regions, int type);
-    
+
         /**
           * Helper function to read Part of Syst config
           * @param COnfigSet A pointer needed for reading
@@ -177,7 +175,7 @@ class ConfigReader {
           * @return int status code
           */
         int SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
-    
+
         /**
           * Helper function to read Part of Syst config
           * @param COnfigSet A pointer needed for reading
@@ -191,7 +189,7 @@ class ConfigReader {
           * @return int status code
           */
         int PostConfig();
-    
+
         /**
           * Helper function to check the consistency of the input
           * @param string Input parameter
@@ -204,7 +202,7 @@ class ConfigReader {
           * @param vector of parameters to check
           * @param vector of paramaeters to check to
           * @return True if all exist, False if at least one does not exist
-          */            
+          */
         bool CheckPresence(const std::vector<std::string> &v1, const std::vector<std::string> &v2);
 
         /**
@@ -213,18 +211,43 @@ class ConfigReader {
           * @param vector of paramaeters to check to
           * @param vector of paramaeters to check to
           * @return True if all exist, False if at least one does not exist
-          */            
+          */
         bool CheckPresence(const std::vector<std::string> &v1, const std::vector<std::string> &v2, const std::vector<std::string> &v3);
 
         /**
-          * Pointer to TtHFit class, set during initialization
+          * Helper function to check if the regions from command line exist
+          * @return A verctor of region names
           */
-        TtHFit *fFitter;
-    
+        std::vector<std::string> GetAvailableRegions();
+
         /**
-          * Instance of ConfigParser used to parse the text
+          * Helper function to check if the samples from command line exist
+          * @return A verctor of sample names
           */
-        ConfigParser fParser;
+        std::vector<std::string> GetAvailableSamples();
+
+        /**
+          * Helper function to check if the systematics from command line exist
+          * @return A verctor of systematic names
+          */
+        std::vector<std::string> GetAvailableSysts();
+
+        /**
+          * Helper function to check if the name of the systematic is problematic
+          * @param name of the syst
+          * @return flag if the systematic is problematic
+          */
+        bool SystHasProblematicName(const std::string& name);
+
+        /**
+          * Pointer to TRExFit class, set during initialization
+          */
+        TRExFit *fFitter;
+
+        /**
+          * Pointer to ConfigParser used to parse the text
+          */
+        ConfigParser *fParser;
 
         /**
           * flag to control if wrong samples/regions are ok
@@ -234,51 +257,76 @@ class ConfigReader {
         /**
           * flag to control if other than ghost sampels have been set already
           */
-        bool fNonGhostIsSet; 
+        bool fNonGhostIsSet;
 
         /**
           * vector of strings, one for each sample, needed for cross-checks
           */
-        std::vector< std::string > fSamples; 
-   
+        std::vector< std::string > fSamples;
+
+        /**
+          * vector of strings, one for each sample defined in config file
+          */
+        std::vector< std::string > fAvailableSamples;
+
         /**
           * vector of strings, one for each region, needed for cross-checks
           */
-        std::vector< std::string > fRegions; 
-   
+        std::vector< std::string > fRegions;
+
+        /**
+          * vector of strings, one for each region defined in config file
+          */
+        std::vector< std::string > fAvailableRegions;
+
         /**
           * vector of strings, one for each region
-          */ 
+          */
         std::vector< std::string > fOnlyRegions;
-        
+
         /**
           * vector of strings, one for each sample
-          */ 
+          */
         std::vector< std::string > fOnlySamples;
-        
+
         /**
           * vector of strings, one for each systematics
-          */ 
+          */
         std::vector< std::string > fOnlySystematics;
-        
+
         /**
           * vector of strings, one for each exclude region
-          */ 
+          */
         std::vector< std::string > fToExclude;
-      
+
         /**
           * vector of strings, one for each exclude region sample
-          */ 
-        std::vector< std::string > fExcludeRegionSample; 
+          */
+        std::vector< std::string > fExcludeRegionSample;
         /**
           * vector of names, one for each region
-          */ 
-        std::vector<std::string> fRegNames; 
+          */
+        std::vector<std::string> fRegNames;
 
         /**
           *  string for signal only
-          */ 
+          */
         std::string fOnlySignal = "";
+
+        /**
+          *  string for LH scan values from command line
+          */
+        std::string fOnlyLHscan = "";
+
+        /**
+          * bool to check if there is at least one valid region
+          */
+        bool fHasAtLeastOneValidRegion;
+
+        /**
+          * bool to check if there is at least one valid sample for the fit
+          */
+        bool fHasAtLeastOneValidSample;
 };
 
 #endif

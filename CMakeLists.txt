@@ -26,7 +26,7 @@ set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
 set( CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/lib )  # Needed by ROOT_GENERATE_DICTIONARY()
 
 # Set the warning flag(s) to use.
-set( CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -O3" )
+set( CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -pedantic -O3" )
 
 
 # ------------------------------------------------
@@ -76,29 +76,27 @@ target_link_libraries( AtlasUtils ${ROOT_LIBRARIES} )
 
 # Public header files for the shared/static library.
 set( lib_headers
-  TtHFitter/Common.h
-  TtHFitter/ConfigParser.h
-  TtHFitter/ConfigReader.h
-  TtHFitter/ConfigReaderMulti.h
-  TtHFitter/CorrelationMatrix.h
-  TtHFitter/FitResults.h
-  TtHFitter/FittingTool.h
-  TtHFitter/HistoTools.h
-  TtHFitter/MultiFit.h
-  TtHFitter/NormFactor.h
-  TtHFitter/NuisParameter.h
-  TtHFitter/Region.h
-  TtHFitter/RunAsymptoticsCLs.h
-  TtHFitter/RunAsymptoticsCLs_inject.h
-  TtHFitter/RunSig.h
-  TtHFitter/Sample.h
-  TtHFitter/SampleHist.h
-  TtHFitter/ShapeFactor.h
-  TtHFitter/StatusLogbook.h
-  TtHFitter/Systematic.h
-  TtHFitter/SystematicHist.h
-  TtHFitter/TtHFit.h
-  TtHFitter/TthPlot.h )
+  TRExFitter/Common.h
+  TRExFitter/ConfigParser.h
+  TRExFitter/ConfigReader.h
+  TRExFitter/ConfigReaderMulti.h
+  TRExFitter/CorrelationMatrix.h
+  TRExFitter/FitResults.h
+  TRExFitter/FittingTool.h
+  TRExFitter/HistoTools.h
+  TRExFitter/MultiFit.h
+  TRExFitter/NormFactor.h
+  TRExFitter/NuisParameter.h
+  TRExFitter/PruningUtil.h
+  TRExFitter/Region.h
+  TRExFitter/Sample.h
+  TRExFitter/SampleHist.h
+  TRExFitter/ShapeFactor.h
+  TRExFitter/StatusLogbook.h
+  TRExFitter/Systematic.h
+  TRExFitter/SystematicHist.h
+  TRExFitter/TRExFit.h
+  TRExFitter/TRExPlot.h )
 
 # Source files for the shared/static library.
 set( lib_sources
@@ -113,18 +111,16 @@ set( lib_sources
   Root/MultiFit.C
   Root/NormFactor.C
   Root/NuisParameter.C
+  Root/PruningUtil.C
   Root/Region.C
-  Root/RunAsymptoticsCLs.C
-  Root/RunAsymptoticsCLs_inject.C
-  Root/RunSig.C
   Root/Sample.C
   Root/SampleHist.C
   Root/ShapeFactor.C
   Root/StatusLogbook.C
   Root/Systematic.C
   Root/SystematicHist.C
-  Root/TtHFit.C
-  Root/TthPlot.C )
+  Root/TRExFit.C
+  Root/TRExPlot.C )
 
 # Build the shared library.
 add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )
@@ -140,7 +136,7 @@ install( TARGETS TRExFitter CommonSystSmoothingTool AtlasUtils
    EXPORT TRExFitterTargets
    ARCHIVE DESTINATION lib
    LIBRARY DESTINATION lib
-   PUBLIC_HEADER DESTINATION include/TtHFitter )
+   PUBLIC_HEADER DESTINATION include/TRExFitter )
 
 
 # ------------------------------------------------
@@ -157,7 +153,7 @@ macro( TRExFitter_add_executable name )
     RUNTIME DESTINATION bin )
 endmacro( TRExFitter_add_executable )
 
-TRExFitter_add_executable( myFit.exe util/myFit.C )
+TRExFitter_add_executable( trex-fitter util/trex-fitter.C )
 
 # Compile the util/hupdate.C executable.
 add_executable( hupdate.exe util/hupdate.C )

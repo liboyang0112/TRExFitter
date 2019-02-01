@@ -1,8 +1,8 @@
 // Class include
-#include "TtHFitter/ShapeFactor.h"
+#include "TRExFitter/ShapeFactor.h"
 
 // Framework includes
-#include "TtHFitter/StatusLogbook.h"
+#include "TRExFitter/StatusLogbook.h"
 
 // -------------------------------------------------------------------------------------------------
 // class ShapeFactor
@@ -13,7 +13,7 @@ ShapeFactor::ShapeFactor():fName(""),fNominal(0),fMin(0),fMax(0),fConst(false){}
 
 //__________________________________________________________________________________
 //
-ShapeFactor::ShapeFactor(std::string name, float nominal, float min, float max, bool isConst){
+ShapeFactor::ShapeFactor(const std::string& name, float nominal, float min, float max, bool isConst){
     Set(name,nominal,min,max,isConst);
 }
 
@@ -23,7 +23,7 @@ ShapeFactor::~ShapeFactor(){}
 
 //__________________________________________________________________________________
 //
-void ShapeFactor::Set(std::string name, float nominal, float min, float max, bool isConst){
+void ShapeFactor::Set(const std::string& name, float nominal, float min, float max, bool isConst){
     fName = name;
     fNominal = nominal;
     fMin = min;
@@ -36,7 +36,7 @@ void ShapeFactor::Set(std::string name, float nominal, float min, float max, boo
 
 //__________________________________________________________________________________
 //
-void ShapeFactor::Print(){
+void ShapeFactor::Print() const{
     if (!fConst) WriteDebugStatus("ShapeFactor::Print", "        ShapeFactor: " + fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax));
     else WriteDebugStatus("ShapeFactor::Print", "        ShapeFactor: " + fName + "\t" + std::to_string(fNominal) + ", " + std::to_string(fMin) + ", " + std::to_string(fMax) + "(CONSTANT)");
 }

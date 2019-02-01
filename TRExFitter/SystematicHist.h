@@ -1,6 +1,9 @@
 #ifndef SYSTEMATICHIST_H
 #define SYSTEMATICHIST_H
 
+/// Framework includes
+#include "TRExFitter/HistoTools.h"
+
 /// c++ includes 
 #include <string>
 
@@ -11,14 +14,14 @@ class Systematic;
 
 class SystematicHist {
 public:
-    SystematicHist(std::string name);
+    SystematicHist(const std::string& name);
     ~SystematicHist();
 
-    void WriteToFile(TFile *f=0x0);
+    void WriteToFile(TFile *f=nullptr,bool reWriteOrig=true) const;
     void ReadFromFile();
-    bool IsShape();
+    bool IsShape() const;
 
-    void Print();
+    void Print() const;
 
     void Divide(TH1* h);
     void Divide(SystematicHist *syh);
@@ -33,7 +36,7 @@ public:
     bool fIsOverall;
     bool fIsShape;
     int fSmoothType;
-    int fSymmetrisationType;
+    HistoTools::SymmetrizationType fSymmetrisationType;
 
     bool fShapePruned;
     bool fNormPruned;
@@ -42,6 +45,7 @@ public:
 
     TH1* fHistUp;
     TH1* fHistUp_orig;
+    TH1* fHistUp_preSmooth;
     TH1* fHistShapeUp;
     float fNormUp;
     std::string fFileNameUp;
@@ -53,6 +57,7 @@ public:
 
     TH1* fHistDown;
     TH1* fHistDown_orig;
+    TH1* fHistDown_preSmooth;
     TH1* fHistShapeDown;
     float fNormDown;
     std::string fFileNameDown;
