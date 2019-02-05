@@ -149,4 +149,10 @@ std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::
     */
 float GetNominalMorphScale(const SampleHist* const sh);
 
+/**
+ * Helper function to parsee the string to indetify if the chosen option needs to run the fit
+ * @return true if needs to run the fit
+ */
+bool OptionRunsFit(const std::string& opt);
+
 #endif

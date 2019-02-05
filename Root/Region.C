@@ -2305,27 +2305,27 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
         for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
             std::string systName    = fSystNames[i_syst];
             if(TRExFitter::NPMAP[systName]=="") TRExFitter::NPMAP[systName] = systName;
-            float systValue   = fitRes->GetNuisParValue(TRExFitter::NPMAP[systName]);
 
             if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
                 // if this norm factor is a morphing one
                 if(fSystNames[i_syst].find("morph_")!=string::npos || fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fExpression.first!=""){
-                   std::string formula = TRExFitter::SYSTMAP[fSystNames[i_syst]];
+                    std::string formula = TRExFitter::SYSTMAP[fSystNames[i_syst]];
                     std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
-		    WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
-		    WriteDebugStatus("Region::PrepareMorphScales", "name: " +name);
-		    std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
-		    std::vector <double> nfValuevec;
-		    for (unsigned int j = 0; j<nameS.size(); j++){
-		      formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
-		      nfValuevec.push_back(fitRes->GetNuisParValue(nameS[j].first));
-		    }
-		    double *nfValue = nfValuevec.data();
-		    WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
-		    for(unsigned int j = 0; j<nameS.size(); j++) 
-		      WriteInfoStatus("Region::PrepareMorphScales", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValue[j]));
-		    TFormula* f_morph = new TFormula ("f_morph",formula.c_str());
-		    float scaleNom = f_morph->EvalPar(nfValue,nullptr);
+		            WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
+		            WriteDebugStatus("Region::PrepareMorphScales", "name: " +name);
+		            std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+		            std::vector <double> nfValuevec;
+		            for (unsigned int j = 0; j<nameS.size(); j++){
+		                formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+		                nfValuevec.push_back(fitRes->GetNuisParValue(nameS[j].first));
+		            }
+		            double *nfValue = nfValuevec.data();
+		            WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
+		            for(unsigned int j = 0; j<nameS.size(); j++){
+		                WriteInfoStatus("Region::PrepareMorphScales", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValue[j]));
+                    }
+		            TFormula* f_morph = new TFormula ("f_morph",formula.c_str());
+		            float scaleNom = f_morph->EvalPar(nfValue,nullptr);
                     morph_scale->emplace_back(scaleNom);
                     delete f_morph;
                 }
@@ -2336,20 +2336,20 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                 if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                     std::string formula = TRExFitter::SYSTMAP[nf->fName];
                     std::string name = TRExFitter::NPMAP[nf->fName];
-		    WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
-		    WriteDebugStatus("Region::PrepareMorphScales", "name: " +name);
-		    std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
-		    std::vector <double> nfNominalvec;
-		    for (unsigned int j = 0; j<nameS.size(); j++){
-		      formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
-		      nfNominalvec.push_back(nameS[j].second[0]);
-		    }
-		    double *nfNominal = nfNominalvec.data();
-		    WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
-		    for(unsigned int j = 0; j<nameS.size(); j++) 
-		      WriteDebugStatus("Region::PrepareMorphScales", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
-		    TFormula* f_morph = new TFormula ("f_morph",formula.c_str());
-		    float scaleNom = f_morph->EvalPar(nfNominal,nullptr);
+		            WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
+		            WriteDebugStatus("Region::PrepareMorphScales", "name: " +name);
+		            std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+		            std::vector <double> nfNominalvec;
+		            for (unsigned int j = 0; j<nameS.size(); j++){
+		                formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+		                nfNominalvec.push_back(nameS[j].second[0]);
+		            }
+		            double *nfNominal = nfNominalvec.data();
+		            WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
+		            for(unsigned int j = 0; j<nameS.size(); j++) 
+		                WriteDebugStatus("Region::PrepareMorphScales", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
+		            TFormula* f_morph = new TFormula ("f_morph",formula.c_str());
+		            float scaleNom = f_morph->EvalPar(nfNominal,nullptr);
                     morph_scale_nominal->emplace_back(scaleNom);
                     delete f_morph;
                 }

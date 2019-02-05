@@ -35,10 +35,11 @@ class ConfigReader {
         /**
           * Reads the config and passes parameters to TRExFit
           * @param string Config path
+          * @param string Running options
           * @param string Additional options
           * @return int status code
           */
-        int ReadFullConfig(const std::string& fileName, const std::string& option);
+        int ReadFullConfig(const std::string& fileName, const std::string& opt, const std::string& option);
 
     private:
 
@@ -88,9 +89,10 @@ class ConfigReader {
 
         /**
           * Helper function to read Region settings
+          * @param Running options
           * @return int status code
           */
-        int ReadRegionOptions();
+        int ReadRegionOptions(const std::string& opt);
 
         /**
           * Helper function to read Region settings based on input type

@@ -865,3 +865,14 @@ float GetNominalMorphScale(const SampleHist* const sh){
 
     return scale;
 }
+
+bool OptionRunsFit(const std::string& opt){
+    if (opt.find("w")!=std::string::npos) return true;
+    if (opt.find("f")!=std::string::npos) return true;
+    if (opt.find("l")!=std::string::npos) return true;
+    if (opt.find("s")!=std::string::npos) return true;
+    if (opt.find("r")!=std::string::npos) return true;
+    if (opt.find("i")!=std::string::npos) return true;
+    if (opt.find("x")!=std::string::npos) return true;
+    return false; 
+}
