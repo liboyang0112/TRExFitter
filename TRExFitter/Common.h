@@ -78,6 +78,7 @@ std::vector<std::string> CombinePathSufs(std::vector<std::string> pathSufs, std:
 std::vector<std::string> ToVec(const std::string& s);
 std::string ReplaceString(std::string subject, const std::string& search,
                           const std::string& replace);
+std::vector< std::pair < std::string,std::vector<double> > > processString(std::string target);
 
 bool StringsMatch(const std::string& s1, const std::string& s2);
 int wildcmp(const char *wild, const char *string);

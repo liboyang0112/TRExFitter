@@ -4084,8 +4084,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     }
     for(auto nf : fNormFactors){
         if(nf->fExpression.first!=""){
-            meas.AddPreprocessFunction(nf->fName,nf->fExpression.first,
-                                       nf->fExpression.second+"["+std::to_string(nf->fNominal)+","+std::to_string(nf->fMin)+","+std::to_string(nf->fMax)+"]");
+            meas.AddPreprocessFunction(nf->fName,nf->fExpression.first,nf->fExpression.second);
         }
     }
     //
@@ -7694,8 +7693,6 @@ std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Sys
     return fullPaths;
 }
 
-//__________________________________________________________________________________
-//
 TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Systematic* syst,
  int i_ch, int i_smp, bool isUp, bool isMC){
     TH1D* h = nullptr;

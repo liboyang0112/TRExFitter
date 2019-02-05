@@ -3014,8 +3014,8 @@ int ConfigReader::ReadNormFactorOptions(){
         // Set Expression
         param = confSet->Get("Expression");
         if(param!=""){
-            std::vector<std::string> v = Vectorize(param,',');
-            if (v.size() != 2){
+	  std::vector<std::string> v = Vectorize(param,':');
+	  if (v.size() < 2){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "You specified 'Expression' option but didnt provide 2 parameters. Please check this");
                 return 1;
             }

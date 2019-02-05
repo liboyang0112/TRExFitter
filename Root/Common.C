@@ -270,6 +270,33 @@ std::string ReplaceString(std::string subject, const std::string& search,
 }
 
 //__________________________________________________________________________________
+//
+std::vector< std::pair < std::string,std::vector<double> > > processString(std::string target) {
+  size_t pos = 0;
+  std::vector<std::pair <std::string,std::vector<double> > > output;
+  while((pos = target.find("[",pos)) !=std::string::npos) {
+    std::pair <std::string, std::vector<double> > onePair;
+    std::vector<double> values;
+    double oneValue;
+    int length = target.find("]",pos) - pos;
+    std::stringstream ss(target.substr(pos+1,length-1));
+    //std::cout << ss.str() << std::endl;
+    while (ss>>oneValue){
+      values.push_back(oneValue);
+      if (ss.peek() == ','){
+	ss.ignore();
+      }
+    }
+    onePair.first = target.substr(0,pos);
+    onePair.second = values;
+    output.push_back(onePair);
+    target.erase(0,pos+length+2);
+    pos = 0;
+  }
+  return output; 
+}
+
+//__________________________________________________________________________________
 // taking into account wildcards on both
 bool StringsMatch(const std::string& s1, const std::string& s2){
     if(wildcmp(s1.c_str(),s2.c_str())>0 || wildcmp(s2.c_str(),s1.c_str())>0) return true;
@@ -801,6 +828,7 @@ std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::
     return 9999;
 }
 
+
 //____________________________________________________________________________________
 //
 float GetNominalMorphScale(const SampleHist* const sh){
@@ -815,13 +843,24 @@ float GetNominalMorphScale(const SampleHist* const sh){
         if(nfName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
             std::string formula = TRExFitter::SYSTMAP[nfName];
             std::string name = TRExFitter::NPMAP[nfName];
-            formula = ReplaceString(formula,name,"x");
-            TF1* f_morph = new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax);
-            scale *= f_morph->Eval(nf->fNominal);
-            delete f_morph;
+	    WriteDebugStatus("Region::GetNominalMorphScale", "formula: " +formula);
+	    WriteDebugStatus("Region::GetNominalMorphScale", "name: " +name);
+	    std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+	    std::vector <double> nfNominalvec;
+	    for (unsigned int j = 0; j<nameS.size(); j++){
+	      formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+	      nfNominalvec.push_back(nameS[j].second[0]);
+	    }
+	    double *nfNominal = nfNominalvec.data();
+	    WriteDebugStatus("Region::GetNominalMorphScale", "formula: " +formula);
+	    for(unsigned int j = 0; j<nameS.size(); j++) 
+	      WriteDebugStatus("Region::GetNominalMorphScale", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
+	    TFormula* f_morph = new TFormula ("f_morph",formula.c_str());
+	    scale *= f_morph->EvalPar(nfNominal,nullptr);                    
+	    delete f_morph;
         } else {
             scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
-        }
+	}
     }
 
     return scale;

@@ -438,7 +438,7 @@ For each object type (also called "block"), here is the list of available proper
 | Constant                     | set to TRUE to have a fixed norm factor |
 | Category                     | major category to which the NormFactor belongs (instrumental, theory, ttbar, ...) |
 | SubCategory                  | minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
-| Expression                   | a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form `<expression>,<dependency>`, where `<dependency>` should contain the name(s) of the norm factor the expression depends on [example: `"1.-SigXsecOverSM","SigXsecOverSM"`] |
+| Expression                   | a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form `<expression>:<dependencies>`, where `<dependencies>` should contain the names of the norm factors the expression depends on, their nominal values and existence ranges [example: `(1.+Pmag*cos(theta))/2.:Pmag[0.9,0,1],theta[0,0,3.14]`] |
 
 ### `ShapeFactor` block options:
 
