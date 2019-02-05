@@ -28,7 +28,7 @@ ConfigReaderMulti::~ConfigReaderMulti(){
 
 //_______________________________________________________________________________________
 //
-int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::string& option){
+int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::string& opt, const std::string& option){
     // initialize ConfigParser for the actual config
     fParser.ReadFile(fileName);
 
@@ -51,7 +51,7 @@ int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::st
 
     sc+= ReadSignificanceOptions();
 
-    sc+= ReadFitOptions(option);
+    sc+= ReadFitOptions(opt, option);
 
     // make directory
     gSystem->mkdir(fMultiFitter->fOutDir.c_str());
@@ -463,7 +463,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanMin");
     if ( param != "" ) {
         if (fMultiFitter->fVarNameLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMin' option but didnt set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMin' option but didnt set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMin = std::stof(param);
         }
@@ -473,7 +473,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanMax");
     if ( param != "" ) {
         if (fMultiFitter->fVarNameLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMax' option but didnt set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMax' option but didnt set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMax = std::stof(param);
         }
@@ -494,11 +494,11 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanSteps");
     if ( param != "" ) {
         if (fMultiFitter->fVarNameLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanSteps' option but didnt set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanSteps' option but didnt set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanSteps = std::stoi(param);
             if(fMultiFitter->fLHscanSteps < 3 || fMultiFitter->fLHscanSteps > 100){
-                WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
+                WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
                 fMultiFitter->fLHscanSteps = 30;
             }
         }
@@ -644,7 +644,7 @@ int ConfigReaderMulti::ReadSignificanceOptions(){
 
 //_______________________________________________________________________________________
 //
-int ConfigReaderMulti::ReadFitOptions(const std::string& options){
+int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string& options){
     std::string param = "";
     int nFit = 0;
 
@@ -696,7 +696,7 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& options){
             }
         }
 
-        fMultiFitter->AddFitFromConfig(confFile,fullOptions,label,loadSuf,wsFile);
+        fMultiFitter->AddFitFromConfig(confFile,opt,fullOptions,label,loadSuf,wsFile);
 
         // Set FitResultsFile
         param = confSet->Get("FitResultsFile");

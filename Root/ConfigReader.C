@@ -39,7 +39,7 @@ ConfigReader::~ConfigReader(){
 
 //__________________________________________________________________________________
 // Read the full config file
-int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string& option){
+int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string& opt, const std::string& option){
     // initialize ConfigParser for the actual config
     fParser->ReadFile(fileName);
 
@@ -66,7 +66,7 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 
     sc+= ReadSignificanceOptions();
 
-    sc+= ReadRegionOptions();
+    sc+= ReadRegionOptions(opt);
 
     sc+= ReadSampleOptions();
 
@@ -1674,7 +1674,7 @@ int ConfigReader::ReadSignificanceOptions(){
 
 //__________________________________________________________________________________
 //
-int ConfigReader::ReadRegionOptions(){
+int ConfigReader::ReadRegionOptions(const std::string& opt){
 
     fAvailableRegions = GetAvailableRegions();
 
@@ -1960,7 +1960,7 @@ int ConfigReader::ReadRegionOptions(){
 
     }
 
-    if (!fHasAtLeastOneValidRegion){
+    if (!fHasAtLeastOneValidRegion && OptionRunsFit(opt)){
         WriteErrorStatus("ConfigReader::ReadRegionOptions","You need to provide at least one region that is not Validation otherwise the fit will crash.");
         return 1;
     }

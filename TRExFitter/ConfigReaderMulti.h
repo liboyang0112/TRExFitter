@@ -31,10 +31,11 @@ class ConfigReaderMulti {
         /**
           * Reads the config and passes parameters to TtHFit
           * @param string Config path
+          * @param string Running options
           * @param string Additional options
           * @return int status code
           */
-        int ReadFullConfig(const std::string& fileName, const std::string& option);
+        int ReadFullConfig(const std::string& fileName, const std::string& opt, const std::string& option);
 
         /**
           * Helper function to check the consistency of the input
@@ -72,10 +73,11 @@ class ConfigReaderMulti {
 
         /**
           * Helper function to read Fit settings
+          * @param string Running options
           * @param string Option flag
           * @return int status code
           */
-        int ReadFitOptions(const std::string& option);
+        int ReadFitOptions(const std::string& opt, const std::string& option);
 
         /**
           * Pointer to MultiFit class, set during initialization

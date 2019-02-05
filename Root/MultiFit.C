@@ -155,7 +155,7 @@ MultiFit::~MultiFit(){
 
 //__________________________________________________________________________________
 //
-void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string& options,
+void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string& opt, const std::string& options,
                                 const std::string& label, std::string loadSuf, std::string wsFile){
     // keep debug level
     int debug = TRExFitter::DEBUGLEVEL;
@@ -165,10 +165,10 @@ void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string
     // initialize config reader
     ConfigReader reader(fFitList[fFitList.size()-1]);
 
-    if (reader.ReadFullConfig(configFile,options) != 0){
+    if (reader.ReadFullConfig(configFile,opt,options) != 0){
         WriteErrorStatus("MultiFit::AddFitFromConfig", "Failed to read the config file.");
         exit(EXIT_FAILURE);
-}
+    }
 
     fFitLabels.push_back(label);
     fFitSuffs.push_back(loadSuf);
