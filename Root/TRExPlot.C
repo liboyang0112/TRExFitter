@@ -91,7 +91,7 @@ TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRa
     //
     h_data = nullptr;
     g_data = nullptr;
-    
+
     h_bkg.clear();
     h_signal.clear();
     h_normsig.clear();
@@ -115,19 +115,19 @@ TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRa
     fBlindingThreshold = -1; // if <0, no blinding
     fBlindingType = TRExFit::SOVERB;
     fLegendNColumns = 2;
-    
+
     fYmin = 0;
     fYmax = 0;
     fRatioYmin = 0.;
     fRatioYmax = 2.;
-    
+
     h_blinding = nullptr;
-    
+
     h_tot_bkg_prefit = nullptr;
-    
+
     leg = nullptr;
     leg1 = nullptr;
-    
+
     fRatioYtitle = "";
     fRatioType = "DATA/MC";
     fLabelX = -1;
@@ -465,7 +465,7 @@ void TRExPlot::Draw(std::string options){
       h_tot_bkg_prefit->SetLineWidth(2);
       h_tot_bkg_prefit->Draw("HIST same");
     }
-    
+
     //
     // Total error bands style setting
     //
@@ -482,8 +482,14 @@ void TRExPlot::Draw(std::string options){
     //
     double signalScale = 1.;
     for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
-        signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
-        WriteInfoStatus("TRExPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale));
+        if (std::fabs(h_normsig[i_smp]->Integral()) < 1e-10) {
+            // division by zero
+            WriteWarningStatus("TRExPlot::Draw", " --- Signal " + fNormSigNames[i_smp] + " has integral equal to zero - cannot scale, returning scale = 1");
+            signalScale = 1.;
+        } else {
+            signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
+            WriteInfoStatus("TRExPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale));
+        }
         h_normsig[i_smp]->Scale(signalScale);
         h_normsig[i_smp]->SetLineColor(h_normsig[i_smp]->GetFillColor());
         h_normsig[i_smp]->SetFillColor(0);
@@ -590,7 +596,7 @@ void TRExPlot::Draw(std::string options){
     if(fLegendY>=0){
         legY = fLegendY;
     }
-    
+
     if(fShowYields){
         legXmid = legX1+0.6*(legX2-legX1);
         leg  = new TLegend(legX1,legY-(fBkgNames.size()+fSigNames.size()+2+(hasData))*textHeight, legXmid,legY);
@@ -634,7 +640,7 @@ void TRExPlot::Draw(std::string options){
             leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
             leg1->AddEntry((TObject*)0," ","");
         }
-        
+
         leg->Draw();
         leg1->Draw();
     }
@@ -714,7 +720,7 @@ void TRExPlot::Draw(std::string options){
         else{
             h_ratio = (TH1*)h_data->Clone("h_ratio");
         }
-        
+
         // in case of S/B,.. and several signal samples, build other ratios
         std::vector<TH1*> h_addRatioVec;
         if(fRatioType=="S/B" || fRatioType=="S/SQRT(B)" || fRatioType=="S/SQRT(S+B)"){ // ...
@@ -759,7 +765,7 @@ void TRExPlot::Draw(std::string options){
         h_dummy2->GetYaxis()->SetTitle(ratioTitle.c_str());
         h_dummy2->GetYaxis()->SetNdivisions(504,false);
         gStyle->SetEndErrorSize(0);
-        
+
         //
         // Compute Data/MC ratio
         //
@@ -827,7 +833,7 @@ void TRExPlot::Draw(std::string options){
                 customLabels = true;
             }
         }
-        
+
         if(fRatioType=="S/B" || fRatioType=="S/SQRT(B)" || fRatioType=="S/SQRT(S+B)"){ // ...
             h_ratio->SetFillStyle(0);
             h_ratio->SetLineColor(h_ratio->GetFillColor());
@@ -858,7 +864,7 @@ void TRExPlot::Draw(std::string options){
         gPad->RedrawAxis();
 
         h_dummy2->GetYaxis()->ChangeLabel(-1,-1,-1,-1,-1,-1," ");
-        
+
         //
         // Add arrows when the ratio is beyond the limits of the ratio plot
         //
@@ -906,7 +912,7 @@ void TRExPlot::Draw(std::string options){
         //
         pad0->cd();
     }
-    
+
     //
     // Set bin width and eventually divide larger bins by this bin width
     if(fBinWidth>0){
@@ -938,7 +944,7 @@ void TRExPlot::Draw(std::string options){
             h_dummy->GetYaxis()->SetTitle(ytitle.c_str());
         }
     }
-    
+
     // turn off x-error bars
     if(TRExFitter::REMOVEXERRORS){
         for (UInt_t i=0; i< (UInt_t)g_data->GetN(); i++) {
@@ -975,7 +981,7 @@ void TRExPlot::Draw(std::string options){
         if(fYmin>0)  h_dummy->SetMinimum(fYmin);
         else         h_dummy->SetMinimum(1.);
     }
-    
+
     if(h_blind!=nullptr){
         h_blind->Scale(h_dummy->GetMaximum());
     }
