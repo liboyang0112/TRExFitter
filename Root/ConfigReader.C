@@ -2686,14 +2686,6 @@ int ConfigReader::ReadSampleOptions(){
             if(Vectorize(param,',').size() == 2){
                 sample->fAsimovReplacementFor.first  = Vectorize(param,',')[0];
                 std::string tmp = Vectorize(param,',')[1];
-                if (std::find(fSamples.begin(), fSamples.end(), tmp) == fSamples.end()){
-                    if (fAllowWrongRegionSample){
-                        WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has sample set up for AsimovReplacementFor that does not exist");
-                    } else {
-                        WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has sample set up for AsimovReplacementFor that does not exist");
-                        return 1;
-                    }
-                }
                 sample->fAsimovReplacementFor.second = tmp;
             } else {
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "You specified 'AsimovReplacementFor' option but didnt provide 2 parameters. Please check this");
@@ -2762,6 +2754,14 @@ int ConfigReader::ReadSampleOptions(){
     // build new samples if AsimovReplacementFor are specified
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         if(fFitter->fSamples[i_smp]->fAsimovReplacementFor.first!=""){
+            if (std::find(fSamples.begin(), fSamples.end(),fFitter->fSamples[i_smp]->fAsimovReplacementFor.second ) == fSamples.end()){
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + fSamples[i_smp] + " has sample set up for AsimovReplacementFor that does not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + fSamples[i_smp] + " has sample set up for AsimovReplacementFor that does not exist");
+                    return 1;
+                }
+            }
             WriteDebugStatus("ConfigReader::ReadSampleOptions", "Creating sample " + fFitter->fSamples[i_smp]->fAsimovReplacementFor.first);
             Sample *ca = fFitter->NewSample("customAsimov_"+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first,Sample::GHOST);
             ca->SetTitle("Pseudo-Data ("+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first+")");
