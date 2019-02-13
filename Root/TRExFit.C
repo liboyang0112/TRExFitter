@@ -114,6 +114,7 @@ TRExFit::TRExFit(std::string name){
     fHistoPaths.clear();
     fHistoFiles.clear();
     fHistoNames.clear();
+    fHistoNamesNominal.clear();
 
     fFitResults = 0;
 
@@ -7685,7 +7686,7 @@ std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Sys
         }
     }
     else{
-        nameSuffs = CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs );
+      nameSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs), fHistoNamesNominal );
     }
     //
     // And finally put everying together
