@@ -377,6 +377,7 @@ public:
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoFiles;
     std::vector<std::string> fHistoNames;
+    std::vector<std::string> fHistoNamesNominal;
 
     FitResults *fFitResults;
 

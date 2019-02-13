@@ -164,6 +164,7 @@ For each object type (also called "block"), here is the list of available proper
 | HistoPath(s)                 | valid only for option HIST above is selected; it's the path(s) where the input root files containing the histograms are stored |
 | HistoFile(s)                 | valid only for option HIST; it's the file name(s) where the input root files containing the histograms are stored |
 | HistoName(s)                 | valid only for option HIST; it's the histogram name(s) to read from the file(s) |
+| HistoNameNominal             | valid only for option HIST; name of the nominal histogram, in case the systematic histogram names cannot be build by suffixing but instead replace the nominal name. Behaves like HistoNameSuff for Systematics if Nominal was a Systematic |
 | NtuplePath(s)                | valid only for option NTUP; it's the path(s) where the input root files containing the ntuples are stored |
 | NtupleFile(s)                | valid only for option NTUP; it's the file names(s) where the input root files containing the ntuples are stored |
 | NtupleName(s)                | valid only for option HIST; it's the tree name(s) to read from the file(s) |

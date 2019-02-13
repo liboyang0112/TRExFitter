@@ -296,6 +296,11 @@ int ConfigReader::ReadJobOptions(){
         if(param!=""){
             fFitter->fHistoNames = Vectorize( param,',' );
         }
+        param = confSet->Get("HistoNameNominal");
+        if(param!=""){
+          fFitter->fHistoNamesNominal.clear();
+          fFitter->fHistoNamesNominal.push_back( CheckName(param) );
+        }
         param = confSet->Get("HistoFile");
         if(param!=""){
             fFitter->fHistoFiles.clear();
