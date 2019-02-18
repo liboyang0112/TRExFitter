@@ -453,7 +453,11 @@ void Region::BuildPreFitErrorHist(){
 		      std::string name = TRExFitter::NPMAP[nf->fName];
 		      WriteDebugStatus("Region::BuildPreFitErrorHist", "formula: " +formula);
 		      WriteDebugStatus("Region::BuildPreFitErrorHist", "name: " +name);
-		      std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+		      std::vector < std::pair < std::string,std::vector<double> > > nameS;
+		      if(nf->fName.find("morph_")!=std::string::npos)
+			nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
+		      else
+			nameS = processString(name);
 		      std::vector <double> nfNominalvec;
 		      for (unsigned int j = 0; j<nameS.size(); j++){
 			formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
@@ -639,7 +643,11 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                 std::string name = TRExFitter::NPMAP[nf->fName];
 		WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
                 WriteDebugStatus("Region::DrawPreFit", "name: " +name);
-		std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+		std::vector < std::pair < std::string,std::vector<double> > > nameS;
+		if(nf->fName.find("morph_")!=std::string::npos)
+		  nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
+		else
+		  nameS = processString(name);
 		std::vector <double> nfNominalvec;
 		for (unsigned int j = 0; j<nameS.size(); j++){
 		  formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
@@ -699,7 +707,11 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                 std::string name = TRExFitter::NPMAP[nf->fName];
 		WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
                 WriteDebugStatus("Region::DrawPreFit", "name: " +name);
-		std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+		std::vector < std::pair < std::string,std::vector<double> > > nameS;
+		if(nf->fName.find("morph_")!=std::string::npos)
+		  nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
+		else
+		  nameS = processString(name);
 		std::vector <double> nfNominalvec;
 		for (unsigned int j = 0; j<nameS.size(); j++){
 		  formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
@@ -1085,7 +1097,11 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                         std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
 			WriteDebugStatus("Region::BuildPostFitErrorHist", "formula: " +formula);
 			WriteDebugStatus("Region::BuildPostFitErrorHist", "name: " +name);
-			std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+			std::vector < std::pair < std::string,std::vector<double> > > nameS;
+			if(fSystNames[i_syst].find("morph_")!=std::string::npos)
+			  nameS.push_back(std::make_pair(name,std::vector<double>{double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fNominal),double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin),double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax)}));
+			else
+			  nameS = processString(name);
 			std::vector <double> nfValuevec, nfUpvec, nfDownvec;
 			for (unsigned int j = 0; j<nameS.size(); j++){
 			  formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
@@ -1106,10 +1122,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 			  for(unsigned int j=0;j<nameS.size();j++){
 			    if(ii & (1<<j)) exprvec.push_back(nfUpvec[j]);
 			    else            exprvec.push_back(nfDownvec[j]);
-			    double *expr = exprvec.data();
-			    scaleUp = (f_morph->EvalPar(expr,nullptr) > scaleUp) ? f_morph->EvalPar(expr,nullptr) : scaleUp;
-			    scaleDown = (f_morph->EvalPar(expr,nullptr) < scaleDown) ? f_morph->EvalPar(expr,nullptr) : scaleDown;
 			  }
+			  double *expr = exprvec.data();
+			  scaleUp = (f_morph->EvalPar(expr,nullptr) > scaleUp) ? f_morph->EvalPar(expr,nullptr) : scaleUp;
+			  scaleDown = (f_morph->EvalPar(expr,nullptr) < scaleDown) ? f_morph->EvalPar(expr,nullptr) : scaleDown;
 			}
                         morph_syst_up.at(i_bin-1)   += yieldNominal*scaleUp;
                         morph_syst_down.at(i_bin-1) += yieldNominal*scaleDown;
@@ -1441,12 +1457,16 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             else           nfValue = fitRes->GetNuisParValue(TRExFitter::NPMAP[nfName]);
             //
             // if this norm factor is a morphing one
-            if(nfName.find("morph_")!=string::npos || nf->fExpression.first!=""){
+            if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nfName];
                 std::string name = TRExFitter::NPMAP[nfName];
 		WriteDebugStatus("Region::DrawPostFit", "formula: " +formula);
 		WriteDebugStatus("Region::DrawPostFit", "name: " +name);
-		std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+		std::vector < std::pair < std::string,std::vector<double> > > nameS;
+		if(nf->fName.find("morph_")!=std::string::npos)
+		  nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
+		else
+		  nameS = processString(name);
 		std::vector <double> nfValuevec;
 		for (unsigned int j = 0; j<nameS.size(); j++){
 		  formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
@@ -2313,7 +2333,11 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                     std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
                     WriteDebugStatus("Region::PrepareMorphScales", "name: " +name);
-                    std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+                    std::vector < std::pair < std::string,std::vector<double> > > nameS;
+		    if(fSystNames[i_syst].find("morph_")!=std::string::npos)
+		      nameS.push_back(std::make_pair(name,std::vector<double>{double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fNominal),double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin),double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax)}));
+		    else
+		      nameS = processString(name);
                     std::vector <double> nfValuevec;
                     for (unsigned int j = 0; j<nameS.size(); j++){
                         formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
@@ -2338,7 +2362,11 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                     std::string name = TRExFitter::NPMAP[nf->fName];
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
                     WriteDebugStatus("Region::PrepareMorphScales", "name: " +name);
-                    std::vector < std::pair < std::string,std::vector<double> > > nameS = processString(name);
+                    std::vector < std::pair < std::string,std::vector<double> > > nameS;
+		    if(nf->fName.find("morph_")!=std::string::npos)
+		      nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
+		    else
+		      nameS = processString(name);
                     std::vector <double> nfNominalvec;
                     for (unsigned int j = 0; j<nameS.size(); j++){
                         formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");

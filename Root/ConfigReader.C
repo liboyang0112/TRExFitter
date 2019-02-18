@@ -2266,7 +2266,7 @@ int ConfigReader::ReadSampleOptions(){
                 fNonGhostIsSet = true;
             }
             else if(param == "GHOST"){
-                if (fNonGhostIsSet){
+	      if (fNonGhostIsSet){
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Please define GHOST samples first and then other samples");
                     return 1;
                 }
