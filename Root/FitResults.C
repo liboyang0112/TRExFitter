@@ -225,7 +225,7 @@ void FitResults::DrawNormFactors( const string &path,
     float xmax = -1000;
     float max = 0;
 
-    TGraphAsymmErrors *g = new TGraphAsymmErrors();
+    TGraphAsymmErrors g{};
 
     NuisParameter *par;
     std::vector< NuisParameter* > selected_norm_factors;
@@ -235,7 +235,7 @@ void FitResults::DrawNormFactors( const string &path,
 
         //skip the blinded NPs
         if (std::find(blinded.begin(), blinded.end(), par->fName) != blinded.end()) continue;
-        
+
         bool isNorm = false;
         for( const auto *norm : normFactors ){
             if(norm->fName==par->fName){
@@ -244,9 +244,9 @@ void FitResults::DrawNormFactors( const string &path,
             }
         }
         if ( !isNorm ) continue;
-        g->SetPoint(selected_norm_factors.size(),par->fFitValue,2*selected_norm_factors.size()+1);
-        g->SetPointEXhigh(selected_norm_factors.size(), par->fPostFitUp);
-        g->SetPointEXlow( selected_norm_factors.size(),-par->fPostFitDown);
+        g.SetPoint(selected_norm_factors.size(),par->fFitValue,2*selected_norm_factors.size()+1);
+        g.SetPointEXhigh(selected_norm_factors.size(), par->fPostFitUp);
+        g.SetPointEXlow( selected_norm_factors.size(),-par->fPostFitDown);
 
         if( par->fFitValue+par->fPostFitUp > xmax ) xmax = par->fFitValue+par->fPostFitUp;
         if( par->fFitValue+par->fPostFitDown < xmin ) xmin = par->fFitValue+par->fPostFitDown;
@@ -269,23 +269,23 @@ void FitResults::DrawNormFactors( const string &path,
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-    TCanvas *c = new TCanvas("c","c",800,newHeight);
-    c->SetTicks(1,0);
+    TCanvas c("c","c",800,newHeight);
+    c.SetTicks(1,0);
     gPad->SetLeftMargin(0.05/(8./6.));
     gPad->SetRightMargin(0.5);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1D *h_dummy = new TH1D( "h_dummy_norm","h_dummy_norm",10,xmin,xmax);
-    h_dummy->SetMaximum(max);
-    h_dummy->SetLineWidth(0);
-    h_dummy->SetFillStyle(0);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->SetFillColor(kWhite);
-    h_dummy->SetMinimum(0.);
-    h_dummy->GetYaxis()->SetLabelSize(0);
-    h_dummy->Draw();
-    h_dummy->GetYaxis()->SetNdivisions(0);
+    TH1D h_dummy( "h_dummy_norm","h_dummy_norm",10,xmin,xmax);
+    h_dummy.SetMaximum(max);
+    h_dummy.SetLineWidth(0);
+    h_dummy.SetFillStyle(0);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.SetFillColor(kWhite);
+    h_dummy.SetMinimum(0.);
+    h_dummy.GetYaxis()->SetLabelSize(0);
+    h_dummy.Draw();
+    h_dummy.GetYaxis()->SetNdivisions(0);
 
     TLine l0;
     TBox b1, b2;
@@ -293,23 +293,19 @@ void FitResults::DrawNormFactors( const string &path,
     l0.SetLineStyle(7);
     l0.SetLineColor(kBlack);
     l0.Draw("same");
-    g->Draw("psame");
+    g.Draw("psame");
 
-    TLatex *systs = new TLatex();
-    systs->SetTextSize( systs->GetTextSize()*0.8 );
+    TLatex systs{};
+    systs.SetTextSize( systs.GetTextSize()*0.8 );
     for(unsigned int i=0;i<selected_norm_factors.size();i++){
-      systs->DrawLatex(xmax*1.05,2*i+0.75,(selected_norm_factors[i]->fTitle).c_str());
-      systs->DrawLatex(xmax*0.7,2*i+0.75,
+      systs.DrawLatex(xmax*1.05,2*i+0.75,(selected_norm_factors[i]->fTitle).c_str());
+      systs.DrawLatex(xmax*0.7,2*i+0.75,
         Form(("%."+std::to_string(fPOIPrecision)+"f ^{%."+std::to_string(fPOIPrecision)+"f}_{%."+std::to_string(fPOIPrecision)+"f}").c_str(),selected_norm_factors[i]->fFitValue, selected_norm_factors[i]->fPostFitUp, selected_norm_factors[i]->fPostFitDown ) );
     }
-    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
     gPad->RedrawAxis();
 
-    c->SaveAs(path.c_str());
-    delete g;
-    delete h_dummy;
-    delete systs;
-    delete c;
+    c.SaveAs(path.c_str());
 }
 
 //__________________________________________________________________________________
@@ -319,24 +315,23 @@ void FitResults::DrawGammaPulls( const string &path, const std::vector<std::stri
     float xmax = -10;
     float max = 0;
 
-    TGraphAsymmErrors *g = new TGraphAsymmErrors();
+    TGraphAsymmErrors g{};
 
     NuisParameter *par;
     int idx = 0;
-    std::vector< string > Names;
-    Names.clear();
+    std::vector< string > names;
 
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
         par = fNuisPar[i];
-        
+
         std::string name = par->fName;
         name = ReplaceString(name,"gamma_","");
         if (std::find(blinded.begin(), blinded.end(), name) != blinded.end()) continue;
-            
+
         if ( par->fName.find("stat_") == std::string::npos && par->fName.find("shape_") == std::string::npos ) continue;
-        g->SetPoint(idx,par->fFitValue,idx+0.5);
-        g->SetPointEXhigh(idx, par->fPostFitUp);
-        g->SetPointEXlow( idx,-par->fPostFitDown);
+        g.SetPoint(idx,par->fFitValue,idx+0.5);
+        g.SetPointEXhigh(idx, par->fPostFitUp);
+        g.SetPointEXlow( idx,-par->fPostFitDown);
         if( par->fFitValue+par->fPostFitUp > xmax ) xmax = par->fFitValue+par->fPostFitUp;
         if( par->fFitValue+par->fPostFitDown < xmin ) xmin = par->fFitValue+par->fPostFitDown;
 
@@ -345,7 +340,7 @@ void FitResults::DrawGammaPulls( const string &path, const std::vector<std::stri
         clean_name = ReplaceString( clean_name, "shape_", "#gamma " );
         clean_name = ReplaceString( clean_name, "#gamma #gamma ", "#gamma " );
         clean_name = ReplaceString( clean_name, "_", " " );
-        Names.push_back(clean_name);
+        names.push_back(clean_name);
         idx ++;
         if(idx > max)  max = idx;
     }
@@ -357,23 +352,23 @@ void FitResults::DrawGammaPulls( const string &path, const std::vector<std::stri
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-    TCanvas *c = new TCanvas("c","c",800,newHeight);
-    c->SetTicks(1,0);
+    TCanvas c("c","c",800,newHeight);
+    c.SetTicks(1,0);
     gPad->SetLeftMargin(0.05/(8./6.));
     gPad->SetRightMargin(0.5);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1D *h_dummy = new TH1D( "h_dummy_gamma","h_dummy_gamma",10,xmin,xmax);
-    h_dummy->SetMaximum(max);
-    h_dummy->SetLineWidth(0);
-    h_dummy->SetFillStyle(0);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->SetFillColor(kWhite);
-    h_dummy->SetMinimum(0.);
-    h_dummy->GetYaxis()->SetLabelSize(0);
-    h_dummy->Draw();
-    h_dummy->GetYaxis()->SetNdivisions(0);
+    TH1D h_dummy( "h_dummy_gamma","h_dummy_gamma",10,xmin,xmax);
+    h_dummy.SetMaximum(max);
+    h_dummy.SetLineWidth(0);
+    h_dummy.SetFillStyle(0);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.SetFillColor(kWhite);
+    h_dummy.SetMinimum(0.);
+    h_dummy.GetYaxis()->SetLabelSize(0);
+    h_dummy.Draw();
+    h_dummy.GetYaxis()->SetNdivisions(0);
 
     TLine l0;
     TBox b1, b2;
@@ -381,18 +376,17 @@ void FitResults::DrawGammaPulls( const string &path, const std::vector<std::stri
     l0.SetLineStyle(7);
     l0.SetLineColor(kBlack);
     l0.Draw("same");
-    g->Draw("psame");
+    g.Draw("psame");
 
-    TLatex *systs = new TLatex();
-    systs->SetTextSize( systs->GetTextSize()*0.8 );
+    TLatex systs{};
+    systs.SetTextSize( systs.GetTextSize()*0.8 );
     for(int i=0;i<max;i++){
-        systs->DrawLatex(xmax*1.05,i+0.25,Names[i].c_str());
+        systs.DrawLatex(xmax*1.05,i+0.25,names[i].c_str());
     }
-    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
     gPad->RedrawAxis();
 
-    c->SaveAs(path.c_str());
-    delete c;
+    c.SaveAs(path.c_str());
 }
 
 //__________________________________________________________________________________
@@ -404,19 +398,18 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
     std::vector<std::string> npToExclude = {"gamma_","stat_","shape_"};
     bool brazilian = true;
 
-    TGraphAsymmErrors *g = new TGraphAsymmErrors();
+    TGraphAsymmErrors g{};
 
-    NuisParameter *par;
+    NuisParameter *par = nullptr;
     int idx = 0;
-    std::vector< string > Names;
-    Names.clear();
+    std::vector< string > names;
 
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
         par = fNuisPar[i];
 
         std::string name = par->fName;
         name = ReplaceString(name,"alpha_","");
-        
+
         if (std::find(blinded.begin(), blinded.end(), name) != blinded.end()) continue;
 
         if( category != "all" && category != par->fCategory ) continue;
@@ -437,11 +430,11 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
         }
         if(skip) continue;
 
-        g->SetPoint(idx,par->fFitValue,idx+0.5);
-        g->SetPointEXhigh(idx, par->fPostFitUp);
-        g->SetPointEXlow( idx,-par->fPostFitDown);
+        g.SetPoint(idx,par->fFitValue,idx+0.5);
+        g.SetPointEXhigh(idx, par->fPostFitUp);
+        g.SetPointEXlow( idx,-par->fPostFitDown);
 
-        Names.push_back(par->fTitle);
+        names.push_back(par->fTitle);
 
         idx ++;
         if(idx > max)  max = idx;
@@ -452,23 +445,23 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-    TCanvas *c = new TCanvas("c","c",800,newHeight);
-    c->SetTicks(1,0);
+    TCanvas c("c","c",800,newHeight);
+    c.SetTicks(1,0);
     gPad->SetLeftMargin(0.05/(8./6.));
     gPad->SetRightMargin(0.5);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1D *h_dummy = new TH1D( ("h_dummy"+category).c_str(),("h_dummy"+category).c_str(),10,xmin,xmax);
-    h_dummy->SetMaximum(max);
-    h_dummy->SetLineWidth(0);
-    h_dummy->SetFillStyle(0);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->SetFillColor(kWhite);
-    h_dummy->SetMinimum(0.);
-    h_dummy->GetYaxis()->SetLabelSize(0);
-    h_dummy->Draw();
-    h_dummy->GetYaxis()->SetNdivisions(0);
+    TH1D h_dummy( ("h_dummy"+category).c_str(),("h_dummy"+category).c_str(),10,xmin,xmax);
+    h_dummy.SetMaximum(max);
+    h_dummy.SetLineWidth(0);
+    h_dummy.SetFillStyle(0);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.SetFillColor(kWhite);
+    h_dummy.SetMinimum(0.);
+    h_dummy.GetYaxis()->SetLabelSize(0);
+    h_dummy.Draw();
+    h_dummy.GetYaxis()->SetNdivisions(0);
 
     TLine l0;
     TBox b1, b2;
@@ -485,24 +478,23 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
         l0.Draw("same");
     }
 
-    g->Draw("psame");
+    g.Draw("psame");
 
-    TLatex *systs = new TLatex();
-    systs->SetTextSize( systs->GetTextSize()*0.8 );
+    TLatex systs{};
+    systs.SetTextSize( systs.GetTextSize()*0.8 );
     for(int i=0;i<max;i++){
-        systs->DrawLatex(3.,i+0.25,Names[i].c_str());
+        systs.DrawLatex(3.,i+0.25,names[i].c_str());
     }
-    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
 
     gPad->RedrawAxis();
 
     if(category!="all"){
-        TLatex *cat_legend = new TLatex();
-        cat_legend -> DrawLatexNDC(0.5,1-0.8*offsetUp/newHeight,category.c_str());
+        TLatex cat_legend{};
+        cat_legend.DrawLatexNDC(0.5,1-0.8*offsetUp/newHeight,category.c_str());
     }
 
-    c->SaveAs(path.c_str());
-    delete c;
+    c.SaveAs(path.c_str());
 }
 
 //__________________________________________________________________________________
