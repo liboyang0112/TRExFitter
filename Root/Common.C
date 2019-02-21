@@ -745,6 +745,9 @@ unsigned int NCharactersInString(const std::string& s,const char c){
 //___________________________________________________________
 // for the moment just checks the number of parenthesis, but can be expanded
 bool CheckExpression(const std::string& s){
+    if(s.find("Alt$")!=std::string::npos){
+        return true;
+    }
     int nParOpen = NCharactersInString(s,'(');
     int nParClose = NCharactersInString(s,')');
     if(nParOpen!=nParClose) return false;
