@@ -25,7 +25,7 @@ public:
     // -2 : bad norm
     // -3 : bad shape
     // -4 : all bad
-    int CheckSystPruning(const TH1* hUp,const TH1* hDown,const TH1* hNom,const TH1* hTot=nullptr);
+    int CheckSystPruning(const TH1* const hUp,const TH1* const hDown,const TH1* const hNom,const TH1* hTot=nullptr);
     bool HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, float threshold) const;
     
 // private:

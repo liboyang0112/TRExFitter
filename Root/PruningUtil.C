@@ -1,6 +1,9 @@
 // Class include
 #include "TRExFitter/PruningUtil.h" 
 
+// C++ includes
+#include <memory>
+
 // -------------------------------------------------------------------------------------------------
 // class PruningUtil
 
@@ -44,23 +47,23 @@ void PruningUtil::SetThresholdIsLarge(float thres){
 
 //__________________________________________________________________________________
 //
-int PruningUtil::CheckSystPruning(const TH1* hUp,const TH1* hDown,const TH1* hNom,const TH1* hTot){
+int PruningUtil::CheckSystPruning(const TH1* const hUp,const TH1* const hDown,const TH1* const hNom,const TH1* hTot){
     if(fStrategy!=0 && hTot==nullptr){
         std::cout << "PruningUtil::ERROR: hTot set to 0 while asking for relative pruning... Reverting to sample-by-sample pruning." << std::endl;
         fStrategy = 0;
     }
-    TH1* hRef;
-    if(fStrategy==0) hRef = (TH1*)hNom->Clone();
-    else hRef = (TH1*)hTot->Clone();
+    std::unique_ptr<TH1> hRef = nullptr;
+    if(fStrategy==0) hRef = std::unique_ptr<TH1>(static_cast<TH1*>(hNom->Clone()));
+    else hRef = std::unique_ptr<TH1>(static_cast<TH1*>(hTot->Clone()));
     //
     int res = 0;
     //
     // create shape-only syst variations
-    TH1* hShapeUp        = nullptr;
-    if(hUp) hShapeUp     = (TH1*)hUp  ->Clone(Form("%s_shape",hUp  ->GetName()));
+    std::unique_ptr<TH1> hShapeUp        = nullptr;
+    if(hUp) hShapeUp     = std::unique_ptr<TH1>(static_cast<TH1*>(hUp  ->Clone(Form("%s_shape",hUp  ->GetName()))));
     if(hShapeUp) hShapeUp->Scale( hNom->Integral()/hShapeUp->Integral() );
-    TH1* hShapeDown      = nullptr;
-    if(hDown) hShapeDown = (TH1*)hDown->Clone(Form("%s_shape",hDown->GetName()));
+    std::unique_ptr<TH1> hShapeDown      = nullptr;
+    if(hDown) hShapeDown = std::unique_ptr<TH1>(static_cast<TH1*>(hDown->Clone(Form("%s_shape",hDown->GetName()))));
     if(hShapeDown) hShapeDown->Scale( hNom->Integral()/hShapeDown->Integral() );
     //
     // get norm effects
@@ -69,7 +72,7 @@ int PruningUtil::CheckSystPruning(const TH1* hUp,const TH1* hDown,const TH1* hNo
     //
     // check if systematic has no shape --> 1
     bool hasShape = true;
-    if(fThresholdShape>=0) hasShape = HasShapeRelative(hNom,hShapeUp,hShapeDown,hRef,fThresholdShape);
+    if(fThresholdShape>=0) hasShape = HasShapeRelative(hNom,hShapeUp.get(),hShapeDown.get(),hRef.get(),fThresholdShape);
     //
     // check if systematic norm effect is under threshold
     bool hasNorm = true;
@@ -77,7 +80,7 @@ int PruningUtil::CheckSystPruning(const TH1* hUp,const TH1* hDown,const TH1* hNo
     //
     // now check for crazy systematics
     bool hasGoodShape = true;
-    if(fThresholdIsLarge>=0) hasGoodShape = !HasShapeRelative(hNom,hShapeUp,hShapeDown,hRef,fThresholdIsLarge);
+    if(fThresholdIsLarge>=0) hasGoodShape = !HasShapeRelative(hNom,hShapeUp.get(),hShapeDown.get(),hRef.get(),fThresholdIsLarge);
     bool hasGoodNorm = true;
     if(fThresholdIsLarge>=0) hasGoodNorm = ((normUp <= fThresholdIsLarge) && (normDown <= fThresholdIsLarge));
     //
