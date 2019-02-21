@@ -2079,6 +2079,11 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     // fix variable vector if special functions are used
     if(variable[0].find("Alt$")!=std::string::npos || variable[0].find("MaxIf$")!=std::string::npos ||variable[0].find("MinIf$")!=std::string::npos ){
         if (variable.size() > 1){
+            do{
+            variable[0]+=","+variable[1];
+            variable.erase(variable.begin()+1);
+            }
+            while(variable[1].find("Alt$")!=std::string::npos);
             variable[0]+=","+variable[1];
             variable.erase(variable.begin()+1);
         } else {
