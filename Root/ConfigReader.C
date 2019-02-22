@@ -68,7 +68,7 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 
     sc+= ReadRegionOptions(opt);
 
-    sc+= ReadSampleOptions();
+    sc+= ReadSampleOptions(opt);
 
     sc+= ReadNormFactorOptions();
 
@@ -2223,7 +2223,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
 
 //__________________________________________________________________________________
 //
-int ConfigReader::ReadSampleOptions(){
+int ConfigReader::ReadSampleOptions(const std::string& opt){
 
     fAvailableSamples = GetAvailableSamples();
 
@@ -2870,7 +2870,7 @@ int ConfigReader::ReadSampleOptions(){
 
     }
 
-    if (!fHasAtLeastOneValidSample){
+    if (!fHasAtLeastOneValidSample && OptionRunsFit(opt)){
         WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
         return 1;
     }
