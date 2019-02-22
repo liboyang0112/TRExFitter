@@ -145,6 +145,7 @@ MultiFit::MultiFit(string name){
 
     fShowTotalOnly = false;
     fuseGammasForCorr = false;
+    fPOIInitial = 1.;
 }
 
 //__________________________________________________________________________________
@@ -1657,11 +1658,18 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     //
     FittingTool *fitTool = new FittingTool();
     fitTool -> SetDebug(TRExFitter::DEBUGLEVEL);
-    fitTool -> ValPOI(1.);
+    fitTool -> ValPOI(fPOIInitial);
     fitTool -> ConstPOI(false);
 
     TRExFit *fit = fFitList[fFitList.size()-1];
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
+    std::vector<std::string> npNames{};
+    std::vector<double> npValues{};
+    for(unsigned int i_np=0;i_np<fit->fFitResults->fNuisPar.size();i_np++){
+        npNames .emplace_back( fit->fFitResults->fNuisPar[i_np]->fName );
+        npValues.emplace_back( fit->fFitResults->fNuisPar[i_np]->fFitValue );
+    }
+    fitTool -> SetNPs( npNames,npValues );
     muhat = fit->fFitResults -> GetNuisParValue( fPOI );
 
     for(unsigned int i=0;i<nuisPars.size();i++){

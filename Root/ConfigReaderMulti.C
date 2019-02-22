@@ -208,7 +208,7 @@ int ConfigReaderMulti::ReadJobOptions(){
             fMultiFitter->fPlotCombCorrMatrix  = false;
         }
     }
-    
+
     // Set CorrelationThreshold
     param = confSet->Get("CorrelationThreshold");
     if( param != ""){
@@ -509,6 +509,12 @@ int ConfigReaderMulti::ReadJobOptions(){
     if( param != ""){
         std::vector<std::string> vec = Vectorize(param,',');
         if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TRExFitter::PREFITONPOSTFIT= true;
+    }
+
+    // Set POIInitial
+    param = confSet->Get("POIInitia;");
+    if( param != ""){
+        fMultiFitter->fPOIInitial = std::stof(param);
     }
 
     return 0;
