@@ -5800,7 +5800,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     FittingTool *fitTool = new FittingTool();
     fitTool -> SetDebug(TRExFitter::DEBUGLEVEL);
-    fitTool -> ValPOI(1.);
+    fitTool -> ValPOI(fFitPOIAsimov);
     fitTool -> ConstPOI(false);
     if(fStatOnly){
         fitTool -> NoGammas();
@@ -5808,6 +5808,13 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     }
 
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
+    std::vector<std::string> npNames{};
+    std::vector<double> npValues{};
+    for(unsigned int i_np=0;i_np<fFitResults->fNuisPar.size();i_np++){
+        npNames .emplace_back( fFitResults->fNuisPar[i_np]->fName );
+        npValues.emplace_back( fFitResults->fNuisPar[i_np]->fFitValue );
+    }
+    fitTool -> SetNPs( npNames,npValues );
     muhat = fFitResults -> GetNuisParValue( fPOI );
 
     for(unsigned int i=0;i<nuisPars.size();i++){
