@@ -43,7 +43,7 @@ public:
     TH1D* Combine(std::vector<TH1D*> hists) const;
     TH1D* OrderBins(TH1D* h, std::vector<float> vec) const;
     TH1D* Rebin(TH1D* h, const std::vector<float>& vec, bool isData=true) const;
-    
+
     std::vector< std::string > fFitNames;
     std::vector< TRExFit* > fFitList;
     std::vector< std::string > fFitLabels;
@@ -113,14 +113,14 @@ public:
     bool fGetGoodnessOfFit;
 
     std::vector<std::string> fVarNameLH;
-    float fLHscanMin; 
+    float fLHscanMin;
     float fLHscanMax;
-    int fLHscanSteps; 
+    int fLHscanSteps;
     bool fDoGroupedSystImpactTable;
-    
+
     std::string fPOIName;
     float fPOINominal;
-    
+
     //
     // Limit parameters
     //
@@ -145,6 +145,8 @@ public:
     bool fShowTotalOnly;
 
     bool fuseGammasForCorr;
+
+    float fPOIInitial;
 };
 
 #endif
