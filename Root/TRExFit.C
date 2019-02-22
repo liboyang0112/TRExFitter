@@ -5573,17 +5573,17 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
     // loop over regions
     for(unsigned int i_ch=0; i_ch < fRegions.size(); i_ch++){
         // begin plotting
-        TCanvas* dummy3 = new TCanvas("dummy3", "dummy3", 600,600);
-        dummy3->cd();
+        TCanvas dummy3 ("dummy3", "dummy3", 600,600);
+        dummy3.cd();
 
         if(fRegions[i_ch]->fNSig==0){
             WriteErrorStatus("TRExFit::DrawAndSaveSeparationPlots", "No Signal Found");
             continue;
         }
 
-        TH1D* sig = (TH1D*)fRegions[i_ch]->fSig[0]->fHist->Clone();
+        std::unique_ptr<TH1D> sig(static_cast<TH1D*>(fRegions[i_ch]->fSig[0]->fHist->Clone()));
 
-        TH1D* bkg = (TH1D*)fRegions[i_ch]->fBkg[0]->fHist->Clone(); // clone the first bkg
+        std::unique_ptr<TH1D> bkg (static_cast<TH1D*>(fRegions[i_ch]->fBkg[0]->fHist->Clone())); // clone the first bkg
         for(int i_bkg=1; i_bkg< fRegions[i_ch] -> fNBkg; i_bkg++){
             bkg->Add(fRegions[i_ch]->fBkg[i_bkg]->fHist); // add the rest
         }
@@ -5598,13 +5598,13 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
         bkg->SetFillStyle( 0 );
         bkg->SetLineStyle( 1 );
 
-        TLegend *legend3=new TLegend(0.55,0.77,0.94,0.87);
-        legend3->SetTextFont(gStyle->GetTextFont());
-        legend3->SetTextSize(gStyle->GetTextSize());
-        legend3->AddEntry(bkg, "Total background" , "l");
-        legend3->AddEntry(sig, fRegions[i_ch]->fSig[0]->fSample->fTitle.c_str() , "l");
-        legend3->SetFillStyle(0) ;
-        legend3->SetBorderSize(0);
+        TLegend legend3(0.55,0.77,0.94,0.87);
+        legend3.SetTextFont(gStyle->GetTextFont());
+        legend3.SetTextSize(gStyle->GetTextSize());
+        legend3.AddEntry(bkg.get(), "Total background" , "l");
+        legend3.AddEntry(sig.get(), fRegions[i_ch]->fSig[0]->fSample->fTitle.c_str() , "l");
+        legend3.SetFillStyle(0) ;
+        legend3.SetBorderSize(0);
 
         std::string xaxis = fRegions[i_ch]->fVariableTitle;
 
@@ -5637,7 +5637,7 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
             sig->Draw("histsame");
         }
 
-        legend3->Draw("same");
+        legend3.Draw("same");
 
         myText(0.20,0.78,1,fLabel.c_str());
         myText(0.20,0.73,1,fRegions[i_ch]->fLabel.c_str());
@@ -5651,11 +5651,11 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
 
         std::ostringstream SEP;
         SEP.precision(3);
-        SEP << "Separation: " << GetSeparation(sig,bkg)*100 << "%";
+        SEP << "Separation: " << GetSeparation(sig.get(),bkg.get())*100 << "%";
         myText(0.55,0.73,1,SEP.str().c_str());
 
         for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-            dummy3->SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
+            dummy3.SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
 
     }// regions
 
@@ -6062,44 +6062,44 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     float xmax =  2;
     float max  =  0;
 
-    TGraphAsymmErrors *g = new TGraphAsymmErrors();
-    TGraphAsymmErrors *g1 = new TGraphAsymmErrors();
-    TGraphAsymmErrors *g2 = new TGraphAsymmErrors();
-    TGraphAsymmErrors *g1a = new TGraphAsymmErrors();
-    TGraphAsymmErrors *g2a = new TGraphAsymmErrors();
+    TGraphAsymmErrors g{};
+    TGraphAsymmErrors g1{};
+    TGraphAsymmErrors g2{};
+    TGraphAsymmErrors g1a{};
+    TGraphAsymmErrors g2a{};
 
     int idx = 0;
     std::vector< std::string > Names;
     std::string parTitle;
 
     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
-        g->SetPoint(idx, nuhat[i],  idx+0.5);
-        g->SetPointEXhigh(      idx, nuerrhi[i]);
-        g->SetPointEXlow(       idx, nuerrlo[i]);
+        g.SetPoint(idx, nuhat[i],  idx+0.5);
+        g.SetPointEXhigh(      idx, nuerrhi[i]);
+        g.SetPointEXlow(       idx, nuerrlo[i]);
 
-        g1->SetPoint(      idx, 0.,idx+0.5);
-        g1->SetPointEXhigh(idx, poiup[i]);
-        g1->SetPointEXlow( idx, 0.);
-        g1->SetPointEYhigh(idx, 0.4);
-        g1->SetPointEYlow( idx, 0.4);
+        g1.SetPoint(      idx, 0.,idx+0.5);
+        g1.SetPointEXhigh(idx, poiup[i]);
+        g1.SetPointEXlow( idx, 0.);
+        g1.SetPointEYhigh(idx, 0.4);
+        g1.SetPointEYlow( idx, 0.4);
 
-        g2->SetPoint(      idx, 0.,idx+0.5);
-        g2->SetPointEXhigh(idx, poidown[i]);
-        g2->SetPointEXlow( idx, 0.);
-        g2->SetPointEYhigh(idx, 0.4);
-        g2->SetPointEYlow( idx, 0.4);
+        g2.SetPoint(      idx, 0.,idx+0.5);
+        g2.SetPointEXhigh(idx, poidown[i]);
+        g2.SetPointEXlow( idx, 0.);
+        g2.SetPointEYhigh(idx, 0.4);
+        g2.SetPointEYlow( idx, 0.4);
 
-        g1a->SetPoint(      idx, 0.,idx+0.5);
-        g1a->SetPointEXhigh(idx, poinomup[i]);
-        g1a->SetPointEXlow( idx, 0.);
-        g1a->SetPointEYhigh(idx, 0.4);
-        g1a->SetPointEYlow( idx, 0.4);
+        g1a.SetPoint(      idx, 0.,idx+0.5);
+        g1a.SetPointEXhigh(idx, poinomup[i]);
+        g1a.SetPointEXlow( idx, 0.);
+        g1a.SetPointEYhigh(idx, 0.4);
+        g1a.SetPointEYlow( idx, 0.4);
 
-        g2a->SetPoint(      idx, 0.,idx+0.5);
-        g2a->SetPointEXhigh(idx, poinomdown[i]);
-        g2a->SetPointEXlow( idx, 0.);
-        g2a->SetPointEYhigh(idx, 0.4);
-        g2a->SetPointEYlow( idx, 0.4);
+        g2a.SetPoint(      idx, 0.,idx+0.5);
+        g2a.SetPointEXhigh(idx, poinomdown[i]);
+        g2a.SetPointEXlow( idx, 0.);
+        g2a.SetPointEYhigh(idx, 0.4);
+        g2a.SetPointEYlow( idx, 0.4);
 
         if(parname[i].find("gamma")!=std::string::npos){
             // get name of the region
@@ -6132,120 +6132,117 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
         newWidth = fNPRankingCanvasSize.at(0);
         newHeight = fNPRankingCanvasSize.at(1);
     }
-    TCanvas *c = new TCanvas("c","c",newWidth,newHeight);
-    c->SetTicks(0,0);
+    TCanvas c("c","c",newWidth,newHeight);
+    c.SetTicks(0,0);
     gPad->SetLeftMargin(0.4);
     gPad->SetRightMargin(0.05);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1D *h_dummy = new TH1D("h_dummy","h_dummy",10,xmin,xmax);
-    h_dummy->SetMaximum( SIZE + offsetUp1/lineHeight   );
-    h_dummy->SetMinimum(      - offsetDown1/lineHeight );
-    h_dummy->SetLineWidth(0);
-    h_dummy->SetFillStyle(0);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->SetFillColor(kWhite);
-    h_dummy->GetYaxis()->SetLabelSize(0);
-    h_dummy->Draw();
-    h_dummy->GetYaxis()->SetNdivisions(0);
-    for(int i_bin=0;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
-        h_dummy->SetBinContent(i_bin,-10);
+    TH1D h_dummy("h_dummy","h_dummy",10,xmin,xmax);
+    h_dummy.SetMaximum( SIZE + offsetUp1/lineHeight   );
+    h_dummy.SetMinimum(      - offsetDown1/lineHeight );
+    h_dummy.SetLineWidth(0);
+    h_dummy.SetFillStyle(0);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.SetFillColor(kWhite);
+    h_dummy.GetYaxis()->SetLabelSize(0);
+    h_dummy.Draw();
+    h_dummy.GetYaxis()->SetNdivisions(0);
+    for(int i_bin=0;i_bin<h_dummy.GetNbinsX()+1;i_bin++){
+        h_dummy.SetBinContent(i_bin,-10);
     }
 
-    g1->SetFillColor(kAzure-4);
-    g2->SetFillColor(kCyan);
-    g1->SetLineColor(g1->GetFillColor());
-    g2->SetLineColor(g2->GetFillColor());
+    g1.SetFillColor(kAzure-4);
+    g2.SetFillColor(kCyan);
+    g1.SetLineColor(g1.GetFillColor());
+    g2.SetLineColor(g2.GetFillColor());
 
-    g1a->SetFillColor(kWhite);
-    g2a->SetFillColor(kWhite);
-    g1a->SetLineColor(kAzure-4);
-    g2a->SetLineColor(kCyan);
-    g1a->SetFillStyle(0);
-    g2a->SetFillStyle(0);
-    g1a->SetLineWidth(1);
-    g2a->SetLineWidth(1);
+    g1a.SetFillColor(kWhite);
+    g2a.SetFillColor(kWhite);
+    g1a.SetLineColor(kAzure-4);
+    g2a.SetLineColor(kCyan);
+    g1a.SetFillStyle(0);
+    g2a.SetFillStyle(0);
+    g1a.SetLineWidth(1);
+    g2a.SetLineWidth(1);
 
-    g->SetLineWidth(2);
+    g.SetLineWidth(2);
 
-    g1a->Draw("5 same");
-    g2a->Draw("5 same");
-    g1->Draw("2 same");
-    g2->Draw("2 same");
-    g->Draw("p same");
+    g1a.Draw("5 same");
+    g2a.Draw("5 same");
+    g1.Draw("2 same");
+    g2.Draw("2 same");
+    g.Draw("p same");
 
-    TLatex *systs = new TLatex();
-    systs->SetTextAlign(32);
-    systs->SetTextSize( systs->GetTextSize()*0.8 );
+    TLatex systs{};
+    systs.SetTextAlign(32);
+    systs.SetTextSize( systs.GetTextSize()*0.8 );
     for(int i=0;i<max;i++){
-        systs->DrawLatex(xmin-0.1,i+0.5,Names[i].c_str());
+        systs.DrawLatex(xmin-0.1,i+0.5,Names[i].c_str());
     }
-    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
-    h_dummy->GetXaxis()->CenterTitle();
-    h_dummy->GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
-    h_dummy->GetXaxis()->SetTitleOffset(1.2);
+    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy.GetXaxis()->CenterTitle();
+    h_dummy.GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
+    h_dummy.GetXaxis()->SetTitleOffset(1.2);
 
-    TGaxis *axis_up = new TGaxis( -2, SIZE + (offsetUp1)/lineHeight, 2, SIZE + (offsetUp1)/lineHeight, -poimax,poimax, 510, "-" );
-    axis_up->SetLabelOffset( 0.01 );
-    axis_up->SetLabelSize(   h_dummy->GetXaxis()->GetLabelSize() );
-    axis_up->SetLabelFont(   gStyle->GetTextFont() );
-    axis_up->Draw();
-    axis_up->CenterTitle();
-    axis_up->SetTitle(("#Delta"+fRankingPOIName).c_str());
-    if(SIZE==20) axis_up->SetTitleOffset(1.5);
-    axis_up->SetTitleSize(   h_dummy->GetXaxis()->GetLabelSize() );
-    axis_up->SetTitleFont(   gStyle->GetTextFont() );
+    TGaxis axis_up( -2, SIZE + (offsetUp1)/lineHeight, 2, SIZE + (offsetUp1)/lineHeight, -poimax,poimax, 510, "-" );
+    axis_up.SetLabelOffset( 0.01 );
+    axis_up.SetLabelSize(   h_dummy.GetXaxis()->GetLabelSize() );
+    axis_up.SetLabelFont(   gStyle->GetTextFont() );
+    axis_up.Draw();
+    axis_up.CenterTitle();
+    axis_up.SetTitle(("#Delta"+fRankingPOIName).c_str());
+    if(SIZE==20) axis_up.SetTitleOffset(1.5);
+    axis_up.SetTitleSize(   h_dummy.GetXaxis()->GetLabelSize() );
+    axis_up.SetTitleFont(   gStyle->GetTextFont() );
 
-    TPad *pad1 = new TPad("p1","Pad High",0,(newHeight-offsetUp-offsetUp1)/newHeight,0.4,1);
-    pad1->Draw();
+    TPad pad1("p1","Pad High",0,(newHeight-offsetUp-offsetUp1)/newHeight,0.4,1);
+    pad1.Draw();
 
-    pad1->cd();
-    TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,("Pre-fit impact on "+fRankingPOIName+":").c_str());
-    leg1->SetFillStyle(0);
-    leg1->SetBorderSize(0);
-    leg1->SetMargin(0.25);
-    leg1->SetNColumns(2);
-    leg1->SetTextFont(gStyle->GetTextFont());
-    leg1->SetTextSize(gStyle->GetTextSize());
-    leg1->AddEntry(g1a,"#theta = #hat{#theta}+#Delta#theta","f");
-    leg1->AddEntry(g2a,"#theta = #hat{#theta}-#Delta#theta","f");
-    leg1->Draw();
+    pad1.cd();
+    TLegend leg1(0.02,0.7,1,1.0,("Pre-fit impact on "+fRankingPOIName+":").c_str());
+    leg1.SetFillStyle(0);
+    leg1.SetBorderSize(0);
+    leg1.SetMargin(0.25);
+    leg1.SetNColumns(2);
+    leg1.SetTextFont(gStyle->GetTextFont());
+    leg1.SetTextSize(gStyle->GetTextSize());
+    leg1.AddEntry(&g1a,"#theta = #hat{#theta}+#Delta#theta","f");
+    leg1.AddEntry(&g2a,"#theta = #hat{#theta}-#Delta#theta","f");
+    leg1.Draw();
 
-    TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,("Post-fit impact on "+fRankingPOIName+":").c_str());
-    leg2->SetFillStyle(0);
-    leg2->SetBorderSize(0);
-    leg2->SetMargin(0.25);
-    leg2->SetNColumns(2);
-    leg2->SetTextFont(gStyle->GetTextFont());
-    leg2->SetTextSize(gStyle->GetTextSize());
-    leg2->AddEntry(g1,"#theta = #hat{#theta}+#Delta#hat{#theta}","f");
-    leg2->AddEntry(g2,"#theta = #hat{#theta}-#Delta#hat{#theta}","f");
-    leg2->Draw();
+    TLegend leg2(0.02,0.32,1,0.62,("Post-fit impact on "+fRankingPOIName+":").c_str());
+    leg2.SetFillStyle(0);
+    leg2.SetBorderSize(0);
+    leg2.SetMargin(0.25);
+    leg2.SetNColumns(2);
+    leg2.SetTextFont(gStyle->GetTextFont());
+    leg2.SetTextSize(gStyle->GetTextSize());
+    leg2.AddEntry(&g1,"#theta = #hat{#theta}+#Delta#hat{#theta}","f");
+    leg2.AddEntry(&g2,"#theta = #hat{#theta}-#Delta#hat{#theta}","f");
+    leg2.Draw();
 
-    TLegend *leg0 = new TLegend(0.02,0.1,1,0.25);
-    leg0->SetFillStyle(0);
-    leg0->SetBorderSize(0);
-    leg0->SetMargin(0.2);
-    leg0->SetTextFont(gStyle->GetTextFont());
-    leg0->SetTextSize(gStyle->GetTextSize());
-    leg0->AddEntry(g,"Nuis. Param. Pull","lp");
-    leg0->Draw();
+    TLegend leg0(0.02,0.1,1,0.25);
+    leg0.SetFillStyle(0);
+    leg0.SetBorderSize(0);
+    leg0.SetMargin(0.2);
+    leg0.SetTextFont(gStyle->GetTextFont());
+    leg0.SetTextSize(gStyle->GetTextSize());
+    leg0.AddEntry(&g,"Nuis. Param. Pull","lp");
+    leg0.Draw();
 
-    c->cd();
+    c.cd();
 
-    TLine l0;
-    TLine l1;
-    TLine l2;
-    l0 = TLine(0,- offsetDown1/lineHeight,0,SIZE+0.5);// + offsetUp1/lineHeight);
+    TLine l0(0,- offsetDown1/lineHeight,0,SIZE+0.5);// + offsetUp1/lineHeight);
     l0.SetLineStyle(kDashed);
     l0.SetLineColor(kBlack);
     l0.Draw("same");
-    l1 = TLine(-1,- offsetDown1/lineHeight,-1,SIZE+0.5);// + offsetUp1/lineHeight);
+    TLine l1 (-1,- offsetDown1/lineHeight,-1,SIZE+0.5);// + offsetUp1/lineHeight);
     l1.SetLineStyle(kDashed);
     l1.SetLineColor(kBlack);
     l1.Draw("same");
-    l2 = TLine(1,- offsetDown1/lineHeight,1,SIZE+0.5);// + offsetUp1/lineHeight);
+    TLine l2(1,- offsetDown1/lineHeight,1,SIZE+0.5);// + offsetUp1/lineHeight);
     l2.SetLineStyle(kDashed);
     l2.SetLineColor(kBlack);
     l2.Draw("same");
@@ -6257,23 +6254,21 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
 
     if(flagGammas && flagSysts){
       for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/Ranking"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fName+"/Ranking"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else if(flagGammas){
       for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/RankingGammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fName+"/RankingGammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else if(flagSysts){
       for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/RankingSysts"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fName+"/RankingSysts"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else{
         WriteWarningStatus("TRExFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
       for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/RankingUnknown"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fName+"/RankingUnknown"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
-    //
-    delete c;
 }
 
 //____________________________________________________________________________________
@@ -6731,7 +6726,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     }
     WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
 
-    TCanvas* can = new TCanvas("NLLscan");
+    TCanvas can("NLLscan");
 
     RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TRExFitter::NCPU, RooFit::Hybrid));
 
@@ -6753,56 +6748,56 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     cname.Append("NLLscan_");
     cname.Append(vname);
 
-    can->SetTitle(cname);
-    can->SetName(cname);
-    can->cd();
+    can.SetTitle(cname);
+    can.SetName(cname);
+    can.cd();
     frameLH->Draw();
 
-    TLatex *tex = new TLatex();
-    tex->SetTextColor(kGray+2);
+    TLatex tex{};
+    tex.SetTextColor(kGray+2);
 
-    TLine *l1s = new TLine(minVal,0.5,maxVal,0.5);
-    l1s->SetLineStyle(kDashed);
-    l1s->SetLineColor(kGray);
-    l1s->SetLineWidth(2);
+    TLine l1s(minVal,0.5,maxVal,0.5);
+    l1s.SetLineStyle(kDashed);
+    l1s.SetLineColor(kGray);
+    l1s.SetLineWidth(2);
     if(frameLH->GetMaximum()>2){
-    l1s->Draw();
-    tex->DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
+        l1s.Draw();
+        tex.DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
     }
 
     if(isPoI){
         if(frameLH->GetMaximum()>2){
-            TLine *l2s = new TLine(minVal,2,maxVal,2);
-            l2s->SetLineStyle(kDashed);
-            l2s->SetLineColor(kGray);
-            l2s->SetLineWidth(2);
-            l2s->Draw();
-            tex->DrawLatex(maxVal,2,"#lower[-0.1]{#kern[-1]{2 #it{#sigma}   }}");
+            TLine l2s(minVal,2,maxVal,2);
+            l2s.SetLineStyle(kDashed);
+            l2s.SetLineColor(kGray);
+            l2s.SetLineWidth(2);
+            l2s.Draw();
+            tex.DrawLatex(maxVal,2,"#lower[-0.1]{#kern[-1]{2 #it{#sigma}   }}");
         }
         //
         if(frameLH->GetMaximum()>4.5){
-            TLine *l3s = new TLine(minVal,4.5,maxVal,4.5);
-            l3s->SetLineStyle(kDashed);
-            l3s->SetLineColor(kGray);
-            l3s->SetLineWidth(2);
-            l3s->Draw();
-            tex->DrawLatex(maxVal,4.5,"#lower[-0.1]{#kern[-1]{3 #it{#sigma}   }}");
+            TLine l3s(minVal,4.5,maxVal,4.5);
+            l3s.SetLineStyle(kDashed);
+            l3s.SetLineColor(kGray);
+            l3s.SetLineWidth(2);
+            l3s.Draw();
+            tex.DrawLatex(maxVal,4.5,"#lower[-0.1]{#kern[-1]{3 #it{#sigma}   }}");
         }
         //
-        TLine *lv0 = new TLine(0,frameLH->GetMinimum(),0,frameLH->GetMaximum());
-        lv0->Draw();
+        TLine lv0(0,frameLH->GetMinimum(),0,frameLH->GetMaximum());
+        lv0.Draw();
         //
-        TLine *lh0 = new TLine(minVal,0,maxVal,0);
-        lh0->Draw();
+        TLine lh0(minVal,0,maxVal,0);
+        lh0.Draw();
     }
 
     TString LHDir("LHoodPlots/");
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
-    can->RedrawAxis();
+    can.RedrawAxis();
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
+        can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
 
     // write it to a ROOT file as well
     TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"_curve.root","UPDATE");
@@ -7134,7 +7129,7 @@ void TRExFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left,
 //__________________________________________________________________________________
 //
 void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& formula,double *p) const{
-    TCanvas *c = new TCanvas("c","c",600,600);
+    TCanvas c("c","c",600,600);
     // find NF associated to this morph param
     NormFactor *nf = nullptr;
     for(auto norm : fNormFactors){
@@ -7160,26 +7155,26 @@ void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& fo
         }
         if(h_tmp==nullptr) return;
         for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
-            TGraphErrors* g_bin = new TGraphErrors(nTemplates);
+            TGraphErrors g_bin(nTemplates);
             int i_pt = 0;
             for(auto vh : hMap){
-                g_bin->SetPoint(i_pt,vh.first,vh.second->GetBinContent(i_bin));
-                g_bin->SetPointError(i_pt,0,vh.second->GetBinError(i_bin));
+                g_bin.SetPoint(i_pt,vh.first,vh.second->GetBinContent(i_bin));
+                g_bin.SetPointError(i_pt,0,vh.second->GetBinError(i_bin));
                 // if it's the nominal sample, set error to very small value => forced not to change nominal!
-                if(nf!=nullptr) if(nf->fNominal==vh.first) g_bin->SetPointError(i_pt,0,vh.second->GetBinError(i_bin)*0.001);
+                if(nf!=nullptr) if(nf->fNominal==vh.first) g_bin.SetPointError(i_pt,0,vh.second->GetBinError(i_bin)*0.001);
                 i_pt++;
             }
-            c->cd();
-            g_bin->Draw("epa");
-            TF1* l = new TF1("l",formula.c_str(),min,max);
-            if(p!=0x0) l->SetParameters(p);
-            g_bin->Fit("l","RQN");
-            l->SetLineColor(kRed);
-            l->Draw("same");
+            c.cd();
+            g_bin.Draw("epa");
+            TF1 l("l",formula.c_str(),min,max);
+            if(p!=0x0) l.SetParameters(p);
+            g_bin.Fit("l","RQN");
+            l.SetLineColor(kRed);
+            l.Draw("same");
             gSystem->mkdir((fName+"/Morphing/").c_str());
-            for(auto format : TRExFitter::IMAGEFORMAT) c->SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+std::to_string(i_bin)+"."+format).c_str());
+            for(auto format : TRExFitter::IMAGEFORMAT) c.SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+std::to_string(i_bin)+"."+format).c_str());
             for(auto vh : hMap){
-                vh.second->SetBinContent(i_bin,l->Eval(vh.first));
+                vh.second->SetBinContent(i_bin,l.Eval(vh.first));
             }
         }
     }
