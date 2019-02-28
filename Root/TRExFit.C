@@ -961,8 +961,11 @@ void TRExFit::ReadNtuples(){
                             for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
                             //
                             double relVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
-                            htmp->Divide(   href );
-                            htmp->Multiply( hnom );
+                            // get copies with no error
+                            auto hrefTmp = GetHistCopyNoError(href);
+                            auto hnomTmp = GetHistCopyNoError(hnom);
+                            htmp->Divide(   hrefTmp.get() );
+                            htmp->Multiply( hnomTmp.get() );
                             double newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
                             if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) htmp->Scale( relVar / newVar );
                         }
@@ -979,10 +982,14 @@ void TRExFit::ReadNtuples(){
 
                             // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
                             TH1* href_up_Tmp = (TH1*)href_up->Clone(Form("%s_Tmp", href_up->GetName()));
-                            href_up_Tmp->Divide(href);
-                            href_up_Tmp->Multiply(hnom);
-                            htmp->Add(hnom);
-                            htmp->Add(href_up_Tmp,-1);
+                            // get copies with no error
+                            auto hrefTmp = GetHistCopyNoError(href);
+                            auto hnomTmp = GetHistCopyNoError(hnom);
+                            href_up_Tmp->Divide(hrefTmp.get());
+                            href_up_Tmp->Multiply(hnomTmp.get());
+                            htmp->Add(hnomTmp.get());
+                            auto href_up_TmpNoError = GetHistCopyNoError(href_up_Tmp);
+                            htmp->Add(href_up_TmpNoError.get(),-1);
 
                             delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
                         }
@@ -7761,8 +7768,12 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
                 //
                 const double relVar = htmp->Integral(0,htmp->GetNbinsX()+1) /
                      href->Integral(0,href->GetNbinsX()+1);
-                htmp->Divide(   href );
-                htmp->Multiply( hnom );
+
+                // get copies with no error
+                auto hrefTmp = GetHistCopyNoError(href);
+                auto hnomTmp = GetHistCopyNoError(hnom);
+                htmp->Divide(   hrefTmp.get() );
+                htmp->Multiply( hnomTmp.get() );
                 const double newVar = htmp->Integral(0,htmp->GetNbinsX()+1) /
                     hnom->Integral(0,hnom->GetNbinsX()+1);
                 if( syst->fKeepReferenceOverallVar && (TMath::Abs(relVar-1) > 0.0001) &&
@@ -7806,10 +7817,14 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
                 // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
                 TH1* href_upDown_Tmp = static_cast<TH1*>(href_upDown->Clone(
                     Form("%s_Tmp", href_upDown->GetName())));
-                href_upDown_Tmp->Divide(href);
-                href_upDown_Tmp->Multiply(hnom);
-                htmp->Add(hnom);
-                htmp->Add(href_upDown_Tmp,-1);
+                // get copies with no error
+                auto hrefTmp = GetHistCopyNoError(href);
+                auto hnomTmp = GetHistCopyNoError(hnom);
+                href_upDown_Tmp->Divide(hrefTmp.get());
+                href_upDown_Tmp->Multiply(hnomTmp.get());
+                htmp->Add(hnomTmp.get());
+                auto href_upDown_TmpNoErr = GetHistCopyNoError(href_upDown_Tmp);
+                htmp->Add(href_upDown_TmpNoErr.get(),-1);
 
                 delete href_upDown_Tmp;// it's a clone, and it's the purpose of clones to die
             }
