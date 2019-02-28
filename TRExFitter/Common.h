@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 #include <set>
 
 /// TRExFitter stuff
@@ -154,5 +155,14 @@ float GetNominalMorphScale(const SampleHist* const sh);
  * @return true if needs to run the fit
  */
 bool OptionRunsFit(const std::string& opt);
+
+/**
+ * Helper function to make a copy of histogram with no errors in bins
+ * This is useful when doing some scaling operations like Add/Divide 
+ * without modifying the original uncertainty in bins
+ * @param histogram to be copied
+ * @return histogramw with no errors
+ */
+std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist);
 
 #endif
