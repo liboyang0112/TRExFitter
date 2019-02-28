@@ -883,3 +883,14 @@ bool OptionRunsFit(const std::string& opt){
     if (opt.find("x")!=std::string::npos) return true;
     return false; 
 }
+
+std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist){
+    if (hist == nullptr) return nullptr;
+    std::unique_ptr<TH1> result(static_cast<TH1*>(hist->Clone()));
+
+    for (int ibin = 0; ibin <= hist->GetNbinsX(); ++ibin){
+        result->SetBinError(ibin, 0.);
+    }
+
+    return result;
+}
