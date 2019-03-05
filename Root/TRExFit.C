@@ -5815,13 +5815,16 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     }
 
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
-    std::vector<std::string> npNames{};
-    std::vector<double> npValues{};
-    for(unsigned int i_np=0;i_np<fFitResults->fNuisPar.size();i_np++){
-        npNames .emplace_back( fFitResults->fNuisPar[i_np]->fName );
-        npValues.emplace_back( fFitResults->fNuisPar[i_np]->fFitValue );
+    {
+        std::vector<std::string> npNames;
+        std::vector<double> npValues;
+        for(int i_norm=0;i_norm<fNNorm;i_norm++){
+            if (fNormFactors[i_norm]->fName == fPOI) continue;
+            npNames. emplace_back( fNormFactors[i_norm]->fName);
+            npValues.emplace_back( fNormFactors[i_norm]->fNominal);
+        }
+        fitTool -> SetNPs( npNames,npValues );
     }
-    fitTool -> SetNPs( npNames,npValues );
     muhat = fFitResults -> GetNuisParValue( fPOI );
 
     for(unsigned int i=0;i<nuisPars.size();i++){
