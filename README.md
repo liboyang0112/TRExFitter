@@ -19,6 +19,7 @@ This package provides a framework to perform profile likelihood fits. In additio
     * [`Options` block options](#options-block-options)
     * [`Region` block options](#region-block-options)
     * [`Sample` block options](#sample-block-options)
+    * [`NormFactor` block options](#normfactor-block-options)
     * [`ShapeFactor` block options](#shapefactor-block-options)
     * [`Systematic` block options](#systematic-block-options)
 5.  [Command line options](#command-line-options)
@@ -287,7 +288,7 @@ For each object type (also called "block"), here is the list of available proper
 | FitBlind                     | specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind. |
 | POIAsimov                    | value of the parameter of interest in the AsimovDataset used in the fit |
 | NPValues                     | values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5) |
-| FixNPs                       | values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5) |
+| FixNPs                       | values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5), currently only implemented for the `f` step |
 | doLHscan                     | comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled |
 | LHscanMin                    | minimum value for the LH scan on x-axis (default it Norm min) |
 | LHscanMax                    | maximum value for the LH scan on x-axis (default is Norm max) |
@@ -691,7 +692,7 @@ This will create a combined ws starting from the individual ws for the different
 | NumCPU           | a number of CPU cores used for the fit |
 | FastFit          | can be TRUE or FALSE |
 | FastFitForRanking| can be TRUE or FALSE |
-| NuisParListFile  |
+| NuisParListFile  | Name of file containing list of nuisance parameters, with one parameter per line, and names just like in the `Fits/*txt` file. The order will be used for the plots created with `ComparePulls`. |
 | PlotSoverB       | if set to TRUE will plot signal over background plots |
 | SignalTitle      | a title of the signal for the plots |
 | FitResultsFile   | a name of the file with fit results |
