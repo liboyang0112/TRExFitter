@@ -4121,12 +4121,12 @@ void TRExFit::SystPruning() const{
     pu->SetThresholdNorm(fThresholdSystPruning_Normalisation);
     pu->SetThresholdShape(fThresholdSystPruning_Shape);
     pu->SetThresholdIsLarge(fThresholdSystLarge);
-    
+
     for(auto reg : fRegions){
         // if want to skip validation regions from pruning, add a condition here
         reg->SystPruning(pu);
     }
-    
+
     // it also writes the txt file actually
     DrawPruningPlot();
 }
@@ -5825,6 +5825,20 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         }
         fitTool -> SetNPs( npNames,npValues );
     }
+
+    // fix NPs that are fixed in the config
+    // this has nothing to do with fixing NPs for the ranking
+    // this is just needed to be compatible with the normal fit
+    if(fFitFixedNPs.size()>0){
+        std::vector<std::string> npNames;
+        std::vector<double> npValues;
+        for(auto nuisParToFix : fFitFixedNPs){
+            npNames.push_back( nuisParToFix.first );
+            npValues.push_back( nuisParToFix.second );
+        }
+        fitTool -> FixNPs(npNames,npValues);
+    }
+
     muhat = fFitResults -> GetNuisParValue( fPOI );
 
     for(unsigned int i=0;i<nuisPars.size();i++){
