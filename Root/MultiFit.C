@@ -322,6 +322,20 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         }
         fitTool -> SetNPs( npNames,npValues );
     }
+    // Fix NPs that are specified in the individual configs
+    {
+        for (const auto& ifit : fFitList){
+            if(ifit->fFitFixedNPs.size()>0){
+                std::vector<std::string> npNames;
+                std::vector<double> npValues;
+                for(auto nuisParToFix : ifit->fFitFixedNPs){
+                    npNames.push_back( nuisParToFix.first );
+                    npValues.push_back( nuisParToFix.second );
+                }
+                fitTool -> FixNPs(npNames,npValues);
+            }
+        }
+    }
 
     std::vector<std::string> vVarNameMinos; vVarNameMinos.clear();
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
@@ -1673,6 +1687,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         }
         fitTool -> SetNPs( npNames,npValues );
     }
+    // Fix NPs that are specified in the individual configs
     {
         for (const auto& ifit : fFitList){
             if(ifit->fFitFixedNPs.size()>0){
