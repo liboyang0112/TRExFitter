@@ -5105,7 +5105,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     if(fFitFixedNPs.size()>0){
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(auto nuisParToFix : fFitFixedNPs){
+        for(const auto& nuisParToFix : fFitFixedNPs){
             npNames.push_back( nuisParToFix.first );
             npValues.push_back( nuisParToFix.second );
         }
