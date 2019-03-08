@@ -323,17 +323,15 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         fitTool -> SetNPs( npNames,npValues );
     }
     // Fix NPs that are specified in the individual configs
-    {
-        for (const auto& ifit : fFitList){
-            if(ifit->fFitFixedNPs.size()>0){
-                std::vector<std::string> npNames;
-                std::vector<double> npValues;
-                for(const auto& nuisParToFix : ifit->fFitFixedNPs){
-                    npNames.push_back( nuisParToFix.first );
-                    npValues.push_back( nuisParToFix.second );
-                }
-                fitTool -> FixNPs(npNames,npValues);
+    for (const auto& ifit : fFitList){
+        if(ifit->fFitFixedNPs.size()>0){
+            std::vector<std::string> npNames;
+            std::vector<double> npValues;
+            for(const auto& nuisParToFix : ifit->fFitFixedNPs){
+                npNames.push_back( nuisParToFix.first );
+                npValues.push_back( nuisParToFix.second );
             }
+            fitTool -> FixNPs(npNames,npValues);
         }
     }
 
@@ -1688,17 +1686,15 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         fitTool -> SetNPs( npNames,npValues );
     }
     // Fix NPs that are specified in the individual configs
-    {
-        for (const auto& ifit : fFitList){
-            if(ifit->fFitFixedNPs.size()>0){
-                std::vector<std::string> npNames;
-                std::vector<double> npValues;
-                for(const auto& nuisParToFix : ifit->fFitFixedNPs){
-                    npNames.push_back( nuisParToFix.first );
-                    npValues.push_back( nuisParToFix.second );
-                }
-                fitTool -> FixNPs(npNames,npValues);
+    for (const auto& ifit : fFitList){
+        if(ifit->fFitFixedNPs.size()>0){
+            std::vector<std::string> npNames;
+            std::vector<double> npValues;
+            for(const auto& nuisParToFix : ifit->fFitFixedNPs){
+                npNames.push_back( nuisParToFix.first );
+                npValues.push_back( nuisParToFix.second );
             }
+            fitTool -> FixNPs(npNames,npValues);
         }
     }
     muhat = fit->fFitResults -> GetNuisParValue( fPOI );
