@@ -1379,7 +1379,7 @@ void MultiFit::CompareNormFactors(string category) const{
     Nnorm = Names.size();
 
     // fill stuff
-    std::vector< TGraphAsymmErrors* > g;
+    std::vector< TGraphAsymmErrors > g;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         // create maps for NP's
         std::map<string,float> centralMap;
@@ -1404,18 +1404,18 @@ void MultiFit::CompareNormFactors(string category) const{
         }
         //
         // create the graphs
-        g.push_back( new TGraphAsymmErrors(Nnorm) );
+        g.emplace_back(Nnorm);
         for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
             normName = Names[i_norm];
             if(centralMap[normName]!=0 || (errUpMap[normName]!=0 || errDownMap[normName]!=0)){
-                g[i_fit]->SetPoint(i_norm,centralMap[normName],(Nnorm-i_norm-1)+0.5+yshift[i_fit]);
-                g[i_fit]->SetPointEXhigh(i_norm,  errUpMap[normName]);
-                g[i_fit]->SetPointEXlow( i_norm, -errDownMap[normName]);
+                g[i_fit].SetPoint(i_norm,centralMap[normName],(Nnorm-i_norm-1)+0.5+yshift[i_fit]);
+                g[i_fit].SetPointEXhigh(i_norm,  errUpMap[normName]);
+                g[i_fit].SetPointEXlow( i_norm, -errDownMap[normName]);
             }
             else{
-                g[i_fit]->SetPoint(i_norm,-10,-10);
-                g[i_fit]->SetPointEXhigh(i_norm, 0);
-                g[i_fit]->SetPointEXlow( i_norm, 0);
+                g[i_fit].SetPoint(i_norm,-10,-10);
+                g[i_fit].SetPointEXhigh(i_norm, 0);
+                g[i_fit].SetPointEXlow( i_norm, 0);
             }
         }
     }
@@ -1427,70 +1427,67 @@ void MultiFit::CompareNormFactors(string category) const{
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-    TCanvas *c = new TCanvas("c","c",800,newHeight);
-    c->SetTicks(1,0);
+    TCanvas c("c","c",800,newHeight);
+    c.SetTicks(1,0);
     gPad->SetLeftMargin(0.2/(8./6.));
     gPad->SetRightMargin(0.02);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1D *h_dummy = new TH1D("h_dummy","h_dummy",10,xmin,xmax);
-    h_dummy->SetMaximum(max);
-    h_dummy->SetLineWidth(0);
-    h_dummy->SetFillStyle(0);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->SetFillColor(kWhite);
-    h_dummy->SetMinimum(0.);
-    h_dummy->GetYaxis()->SetLabelSize(0);
-    h_dummy->Draw();
-    h_dummy->GetYaxis()->SetNdivisions(0);
+    TH1D h_dummy("h_dummy","h_dummy",10,xmin,xmax);
+    h_dummy.SetMaximum(max);
+    h_dummy.SetLineWidth(0);
+    h_dummy.SetFillStyle(0);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.SetFillColor(kWhite);
+    h_dummy.SetMinimum(0.);
+    h_dummy.GetYaxis()->SetLabelSize(0);
+    h_dummy.Draw();
+    h_dummy.GetYaxis()->SetNdivisions(0);
 
-    TLine l1;
-    l1 = TLine(1,0,1,max);
+    TLine l1(1,0,1,max);
     l1.SetLineColor(kGray);
     l1.Draw("same");
 
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        g[i_fit]->SetLineColor(color[i_fit]);
-        g[i_fit]->SetMarkerColor(color[i_fit]);
-        g[i_fit]->SetMarkerStyle(style[i_fit]);
-        g[i_fit]->Draw("P same");
+        g[i_fit].SetLineColor(color[i_fit]);
+        g[i_fit].SetMarkerColor(color[i_fit]);
+        g[i_fit].SetMarkerStyle(style[i_fit]);
+        g[i_fit].Draw("P same");
     }
 
-    TLatex *norms = new TLatex();
-    norms->SetTextSize( norms->GetTextSize()*0.8 );
+    TLatex norms{};
+    norms.SetTextSize( norms.GetTextSize()*0.8 );
     for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
-        norms->DrawLatex(xmin-0.15*(xmax-xmin),(Nnorm-i_norm-1)+0.25,Titles[i_norm].c_str());
+        norms.DrawLatex(xmin-0.15*(xmax-xmin),(Nnorm-i_norm-1)+0.25,Titles[i_norm].c_str());
     }
-    TLatex *values = new TLatex();
-    values->SetTextSize( values->GetTextSize()*0.8 );
+    TLatex values{};
+    values.SetTextSize( values.GetTextSize()*0.8 );
     for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
         for(unsigned int i_fit=0;i_fit<N;i_fit++){
-            values->DrawLatex((xmin+(xmax-xmin)*(0.45+i_fit*0.55/N)),(Nnorm-i_norm-1)+0.25,
-                              Form("%.2f^{+%.2f}_{-%.2f}",g[i_fit]->GetX()[i_norm],g[i_fit]->GetErrorXhigh(i_norm),g[i_fit]->GetErrorXlow(i_norm)));
+            values.DrawLatex((xmin+(xmax-xmin)*(0.45+i_fit*0.55/N)),(Nnorm-i_norm-1)+0.25,
+                             Form("%.2f^{+%.2f}_{-%.2f}",g[i_fit].GetX()[i_norm],g[i_fit].GetErrorXhigh(i_norm),g[i_fit].GetErrorXlow(i_norm)));
         }
     }
-    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
 
-    TLegend *leg;
-    leg = new TLegend(0.45,1.-0.02*(30./max),0.98,0.99);
-    leg->SetTextSize(gStyle->GetTextSize());
-    leg->SetTextFont(gStyle->GetTextFont());
-    leg->SetFillStyle(0);
-    leg->SetBorderSize(0);
-    leg->SetNColumns(N);
+    TLegend leg(0.45,1.-0.02*(30./max),0.98,0.99);
+    leg.SetTextSize(gStyle->GetTextSize());
+    leg.SetTextFont(gStyle->GetTextFont());
+    leg.SetFillStyle(0);
+    leg.SetBorderSize(0);
+    leg.SetNColumns(N);
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        leg->AddEntry(g[i_fit],titles[i_fit].c_str(),"lp");
+        leg.AddEntry(&g[i_fit],titles[i_fit].c_str(),"lp");
     }
-    leg->Draw();
+    leg.Draw();
 
     gPad->RedrawAxis();
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c->SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c->SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+        if(category=="") c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+        else             c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
-    delete c;
 }
 
 //__________________________________________________________________________________
