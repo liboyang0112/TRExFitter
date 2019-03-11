@@ -208,7 +208,7 @@ For each object type (also called "block"), here is the list of available proper
 | OutputDir                    | specify it to write everything in a different directory than `<jobName>` |
 | WorkspaceFileName            | if specified, an external ws can be used as input for fitting (not 100% supported) |
 | KeepPruning                  | if set to TRUE, the first time the ws is created (option w) a Pruning.root file is created under `<jobName>/` and used for future operations to skip pruned systematics (makes operations much faster in case many syst are pruned) |
-| AtlasLabel                   | to specify Internal, Preliminary, etc... |
+| AtlasLabel                   | to specify Internal, Preliminary, etc... If set to `none` the whole label will be removed |
 | CleanTables                  | if set to TRUE, a cleaned version of the tex tables is created (basically removing the "#") - to be expanded |
 | SystCategoryTables           | if set to TRUE, additional syst tables with systematics grouped by category are created |
 | SummaryPlotYmax              | if set, it will force the summary plot to use this value as max y-maxis value |
