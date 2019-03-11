@@ -1035,9 +1035,9 @@ void MultiFit::ComparePulls(string category) const{
     bool brazilian = true;
 
     // create a list of Systematics
-    std::vector< string > Names;  Names.clear();
-    std::vector< string > Titles; Titles.clear();
-    std::vector< string > Categories; Categories.clear();
+    std::vector< string > Names;
+    std::vector< string > Titles;
+    std::vector< string > Categories;
     string systName;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
@@ -1065,9 +1065,9 @@ void MultiFit::ComparePulls(string category) const{
     }
 
     // exclude unused systematics
-    std::vector<string> NamesNew; NamesNew.clear();
-    std::vector<string> TitlesNew; TitlesNew.clear();
-    std::vector<string> CategoriesNew; CategoriesNew.clear();
+    std::vector<string> NamesNew;
+    std::vector<string> TitlesNew;
+    std::vector<string> CategoriesNew;
     for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
         FitResults *fitRes;
         bool found = false;
@@ -1132,7 +1132,7 @@ void MultiFit::ComparePulls(string category) const{
     Nsyst = Names.size();
 
     // fill stuff
-    std::vector< TGraphAsymmErrors* > g;
+    std::vector< TGraphAsymmErrors> g;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         // create maps for NP's
         std::map<string,float> centralMap;
@@ -1157,18 +1157,18 @@ void MultiFit::ComparePulls(string category) const{
         }
         //
         // create the graphs
-        g.push_back( new TGraphAsymmErrors(Nsyst) );
+        g.emplace_back(Nsyst);
         for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
             systName = Names[i_syst];
             if(centralMap[systName]!=0 || (errUpMap[systName]!=0 || errDownMap[systName]!=0)){
-                g[i_fit]->SetPoint(i_syst,centralMap[systName],(Nsyst-i_syst-1)+0.5+yshift[i_fit]);
-                g[i_fit]->SetPointEXhigh(i_syst,  errUpMap[systName]);
-                g[i_fit]->SetPointEXlow( i_syst, -errDownMap[systName]);
+                g[i_fit].SetPoint(i_syst,centralMap[systName],(Nsyst-i_syst-1)+0.5+yshift[i_fit]);
+                g[i_fit].SetPointEXhigh(i_syst,  errUpMap[systName]);
+                g[i_fit].SetPointEXlow( i_syst, -errDownMap[systName]);
             }
             else{
-                g[i_fit]->SetPoint(i_syst,-10,-10);
-                g[i_fit]->SetPointEXhigh(i_syst, 0);
-                g[i_fit]->SetPointEXlow( i_syst, 0);
+                g[i_fit].SetPoint(i_syst,-10,-10);
+                g[i_fit].SetPointEXhigh(i_syst, 0);
+                g[i_fit].SetPointEXlow( i_syst, 0);
             }
         }
     }
@@ -1180,23 +1180,23 @@ void MultiFit::ComparePulls(string category) const{
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-    TCanvas *c = new TCanvas("c","c",800,newHeight);
-    c->SetTicks(1,0);
+    TCanvas c("c","c",800,newHeight);
+    c.SetTicks(1,0);
     gPad->SetLeftMargin(0.05/(8./6.));
     gPad->SetRightMargin(0.5);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1D *h_dummy = new TH1D("h_dummy","h_dummy",10,xmin,xmax);
-    h_dummy->SetMaximum(max);
-    h_dummy->SetLineWidth(0);
-    h_dummy->SetFillStyle(0);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->SetFillColor(kWhite);
-    h_dummy->SetMinimum(0.);
-    h_dummy->GetYaxis()->SetLabelSize(0);
-    h_dummy->Draw();
-    h_dummy->GetYaxis()->SetNdivisions(0);
+    TH1D h_dummy("h_dummy","h_dummy",10,xmin,xmax);
+    h_dummy.SetMaximum(max);
+    h_dummy.SetLineWidth(0);
+    h_dummy.SetFillStyle(0);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.SetFillColor(kWhite);
+    h_dummy.SetMinimum(0.);
+    h_dummy.GetYaxis()->SetLabelSize(0);
+    h_dummy.Draw();
+    h_dummy.GetYaxis()->SetNdivisions(0);
 
     TLine l0;
     TBox b1, b2;
@@ -1214,38 +1214,36 @@ void MultiFit::ComparePulls(string category) const{
     }
 
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        g[i_fit]->SetLineColor(color[i_fit]);
-        g[i_fit]->SetMarkerColor(color[i_fit]);
-        g[i_fit]->SetMarkerStyle(style[i_fit]);
-        g[i_fit]->Draw("P same");
+        g[i_fit].SetLineColor(color[i_fit]);
+        g[i_fit].SetMarkerColor(color[i_fit]);
+        g[i_fit].SetMarkerStyle(style[i_fit]);
+        g[i_fit].Draw("P same");
     }
 
-    TLatex *systs = new TLatex();
-    systs->SetTextSize( systs->GetTextSize()*0.8 );
+    TLatex systs{};
+    systs.SetTextSize( systs.GetTextSize()*0.8 );
     for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
-        systs->DrawLatex(3.,(Nsyst-i_syst-1)+0.25,Titles[i_syst].c_str());
+        systs.DrawLatex(3.,(Nsyst-i_syst-1)+0.25,Titles[i_syst].c_str());
     }
-    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
 
-    TLegend *leg;
-    leg = new TLegend(0.01,1.-0.03*(30./max),0.75,0.99);
-    leg->SetTextSize(gStyle->GetTextSize());
-    leg->SetTextFont(gStyle->GetTextFont());
-    leg->SetFillStyle(0);
-    leg->SetBorderSize(0);
-    leg->SetNColumns(N);
+    TLegend leg(0.01,1.-0.03*(30./max),0.75,0.99);
+    leg.SetTextSize(gStyle->GetTextSize());
+    leg.SetTextFont(gStyle->GetTextFont());
+    leg.SetFillStyle(0);
+    leg.SetBorderSize(0);
+    leg.SetNColumns(N);
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        leg->AddEntry(g[i_fit],titles[i_fit].c_str(),"lp");
+        leg.AddEntry(&g[i_fit],titles[i_fit].c_str(),"lp");
     }
-    leg->Draw();
+    leg.Draw();
 
     gPad->RedrawAxis();
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c->SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c->SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+        if(category=="") c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+        else             c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
-    delete c;
 }
 
 //__________________________________________________________________________________
