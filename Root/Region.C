@@ -1126,16 +1126,24 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                         TFormula f_morph ("f_morph",formula.c_str());
                         float scaleUp = f_morph.EvalPar(nfValue,nullptr); // nominal value
                         float scaleDown = f_morph.EvalPar(nfValue,nullptr); // nominal value
-                        // find the combinatio with largest/smallest "express" (definition of exprUp exprDown)
-                        for (int ii = 0; ii < (1 << nameS.size()); ii++) {
-                            std::vector <double> exprvec;
-                            for(unsigned int j=0;j<nameS.size();j++){
-                                if(ii & (1<<j)) exprvec.push_back(nfUpvec[j]);
-                                else            exprvec.push_back(nfDownvec[j]);
+                        if(fSystNames[i_syst].find("morph_")!=std::string::npos){
+                            double *nfUpValue = nfUpvec.data();
+                            double *nfDownValue = nfDownvec.data();
+                            scaleUp = f_morph.EvalPar(nfUpValue,nullptr); // 1-parameter up variation
+                            scaleDown = f_morph.EvalPar(nfDownValue,nullptr); // 1-parameter down variation
+                        }
+                        // multi-parameter dependence => find the combinatio with largest/smallest "express" (definition of exprUp exprDown)
+                        else {
+                            for (int ii = 0; ii < (1 << nameS.size()); ii++) {
+                                std::vector <double> exprvec;
+                                for(unsigned int j=0;j<nameS.size();j++){
+                                    if(ii & (1<<j)) exprvec.push_back(nfUpvec[j]);
+                                    else            exprvec.push_back(nfDownvec[j]);
+                                }
+                                double *expr = exprvec.data();
+                                scaleUp = (f_morph.EvalPar(expr,nullptr) > scaleUp) ? f_morph.EvalPar(expr,nullptr) : scaleUp;
+                                scaleDown = (f_morph.EvalPar(expr,nullptr) < scaleDown) ? f_morph.EvalPar(expr,nullptr) : scaleDown;
                             }
-                            double *expr = exprvec.data();
-                            scaleUp = (f_morph.EvalPar(expr,nullptr) > scaleUp) ? f_morph.EvalPar(expr,nullptr) : scaleUp;
-                            scaleDown = (f_morph.EvalPar(expr,nullptr) < scaleDown) ? f_morph.EvalPar(expr,nullptr) : scaleDown;
                         }
                         morph_syst_up.at(i_bin-1)   += yieldNominal*scaleUp;
                         morph_syst_down.at(i_bin-1) += yieldNominal*scaleDown;
