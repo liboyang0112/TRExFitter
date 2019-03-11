@@ -322,6 +322,18 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         }
         fitTool -> SetNPs( npNames,npValues );
     }
+    // Fix NPs that are specified in the individual configs
+    for (const auto& ifit : fFitList){
+        if(ifit->fFitFixedNPs.size()>0){
+            std::vector<std::string> npNames;
+            std::vector<double> npValues;
+            for(const auto& nuisParToFix : ifit->fFitFixedNPs){
+                npNames.push_back( nuisParToFix.first );
+                npValues.push_back( nuisParToFix.second );
+            }
+            fitTool -> FixNPs(npNames,npValues);
+        }
+    }
 
     std::vector<std::string> vVarNameMinos; vVarNameMinos.clear();
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
@@ -500,6 +512,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
             npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
             npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
         }
+        fitTool -> ResetFixedNP();
         fitTool -> FixNPs(npNames,npValues);
         fitTool -> FitPDF( mc, simPdf, data );
         std::vector<std::string> s_vecTemp;
@@ -1690,6 +1703,14 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         //Set the NP to its post-fit *up* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
         fitTool -> ResetFixedNP();
+        // Fix NPs that are specified in the individual configs
+        for (const auto& ifit : fFitList){
+            if(ifit->fFitFixedNPs.size()>0){
+                for(const auto& nuisParToFix : ifit->fFitFixedNPs){
+                    fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                }
+            }
+        }
         fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
         fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
         muVarUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
@@ -1697,6 +1718,14 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         //Set the NP to its post-fit *down* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
         fitTool -> ResetFixedNP();
+        // Fix NPs that are specified in the individual configs
+        for (const auto& ifit : fFitList){
+            if(ifit->fFitFixedNPs.size()>0){
+                for(const auto& nuisParToFix : ifit->fFitFixedNPs){
+                    fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                }
+            }
+        }
         fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
         fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
         muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
@@ -1712,6 +1741,14 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
             float prefitUp   = 1.;
             float prefitDown = 1.;
             fitTool -> ResetFixedNP();
+            // Fix NPs that are specified in the individual configs
+            for (const auto& ifit : fFitList){
+                if(ifit->fFitFixedNPs.size()>0){
+                    for(const auto& nuisParToFix : ifit->fFitFixedNPs){
+                        fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                    }
+                }
+            }
             fitTool -> FixNP( nuisPars[i], central + prefitUp );
             fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
             muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
@@ -1719,6 +1756,14 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
             //Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool -> ResetFixedNP();
+            // Fix NPs that are specified in the individual configs
+            for (const auto& ifit : fFitList){
+                if(ifit->fFitFixedNPs.size()>0){
+                    for(const auto& nuisParToFix : ifit->fFitFixedNPs){
+                        fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                    }
+                }
+            }
             fitTool -> FixNP( nuisPars[i], central - prefitDown );
             fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
             //
