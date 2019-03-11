@@ -585,12 +585,12 @@ void MultiFit::ComparePOI(const string& POI) const {
     float ymin = -0.5;
     float ymax = N+1-0.5;
 
-    TCanvas *c = new TCanvas("c","c",700,500);
+    TCanvas c("c","c",700,500);
     gStyle->SetEndErrorSize(6.);
 
-    TGraph *g_central    = new TGraph(N);
-    TGraphAsymmErrors *g_stat = new TGraphAsymmErrors(N);
-    TGraphAsymmErrors *g_tot  = new TGraphAsymmErrors(N);
+    TGraph g_central(N);
+    TGraphAsymmErrors g_stat(N);
+    TGraphAsymmErrors g_tot(N);
 
     int Ndiv = N+1;
 
@@ -618,31 +618,31 @@ void MultiFit::ComparePOI(const string& POI) const {
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
             par = fit->fFitResults->fNuisPar[j];
             if( pois[i] == par->fName ){
-                g_central->SetPoint(N-i-1,par->fFitValue,N-i-1);
-                g_stat   ->SetPoint(N-i-1,par->fFitValue,N-i-1);
-                g_tot    ->SetPoint(N-i-1,par->fFitValue,N-i-1);
+                g_central.SetPoint(N-i-1,par->fFitValue,N-i-1);
+                g_stat   .SetPoint(N-i-1,par->fFitValue,N-i-1);
+                g_tot    .SetPoint(N-i-1,par->fFitValue,N-i-1);
                 //
                 // temporary put the full uncertainty
-                g_stat->SetPointEXhigh(N-i-1,par->fPostFitUp);
-                g_stat->SetPointEXlow(N-i-1,-par->fPostFitDown);
-                g_stat->SetPointEYhigh(N-i-1,0);
-                g_stat->SetPointEYlow(N-i-1,0);
+                g_stat.SetPointEXhigh(N-i-1,par->fPostFitUp);
+                g_stat.SetPointEXlow(N-i-1,-par->fPostFitDown);
+                g_stat.SetPointEYhigh(N-i-1,0);
+                g_stat.SetPointEYlow(N-i-1,0);
                 //
-                g_tot->SetPointEXhigh(N-i-1,par->fPostFitUp);
-                g_tot->SetPointEXlow(N-i-1,-par->fPostFitDown);
-                g_tot->SetPointEYhigh(N-i-1,0);
-                g_tot->SetPointEYlow(N-i-1,0);
+                g_tot.SetPointEXhigh(N-i-1,par->fPostFitUp);
+                g_tot.SetPointEXlow(N-i-1,-par->fPostFitDown);
+                g_tot.SetPointEYhigh(N-i-1,0);
+                g_tot.SetPointEYlow(N-i-1,0);
                 //
                 found = true;
                 break;
             }
         }
         if(!found){
-            g_central->SetPoint(N-i-1,-10,N-i-1);
-            g_stat->SetPoint(N-i-1,-10,N-i-1);
-            g_tot->SetPoint(N-i-1,-10,N-i-1);
-            g_stat->SetPointError(N-i-1,0,0,0,0);
-            g_tot->SetPointError(N-i-1,0,0,0,0);
+            g_central.SetPoint(N-i-1,-10,N-i-1);
+            g_stat   .SetPoint(N-i-1,-10,N-i-1);
+            g_tot    .SetPoint(N-i-1,-10,N-i-1);
+            g_stat   .SetPointError(N-i-1,0,0,0,0);
+            g_tot    .SetPointError(N-i-1,0,0,0,0);
         }
     }
     // stat error
@@ -664,10 +664,10 @@ void MultiFit::ComparePOI(const string& POI) const {
             for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
                 par = fit->fFitResults->fNuisPar[j];
                 if( pois[i] == par->fName ){
-                    g_stat->SetPointEXhigh(N-i-1,par->fPostFitUp);
-                    g_stat->SetPointEXlow(N-i-1,-par->fPostFitDown);
-                    g_stat->SetPointEYhigh(N-i-1,0);
-                    g_stat->SetPointEYlow(N-i-1,0);
+                    g_stat.SetPointEXhigh(N-i-1,par->fPostFitUp);
+                    g_stat.SetPointEXlow(N-i-1,-par->fPostFitDown);
+                    g_stat.SetPointEYhigh(N-i-1,0);
+                    g_stat.SetPointEYlow(N-i-1,0);
                     found = true;
                     break;
                 }
@@ -675,155 +675,153 @@ void MultiFit::ComparePOI(const string& POI) const {
         }
     }
 
-    g_tot->SetLineWidth(3);
-    g_stat->SetLineWidth(3);
-    g_stat->SetMarkerStyle(kOpenCircle);
-    g_tot->SetLineWidth(3);
-    g_tot->SetMarkerStyle(kOpenCircle);
+    g_tot .SetLineWidth(3);
+    g_stat.SetLineWidth(3);
+    g_stat.SetMarkerStyle(kOpenCircle);
+    g_tot .SetLineWidth(3);
+    g_tot .SetMarkerStyle(kOpenCircle);
     if(TRExFitter::OPTION["FourTopStyle"]){
-        g_tot->SetLineColor(kAzure);
-        g_tot->SetFillColor(kAzure);
-        g_stat->SetLineColor(kCyan);
-        g_stat->SetFillColor(kCyan);
-        g_stat->SetMarkerStyle(kFullCircle);
-        g_stat->SetMarkerColor(kAzure);
-        g_stat->SetMarkerSize(1.5);
+        g_tot .SetLineColor(kAzure);
+        g_tot .SetFillColor(kAzure);
+        g_stat.SetLineColor(kCyan);
+        g_stat.SetFillColor(kCyan);
+        g_stat.SetMarkerStyle(kFullCircle);
+        g_stat.SetMarkerColor(kAzure);
+        g_stat.SetMarkerSize(1.5);
         //
         for(int i=0;i<N;i++){
-            g_tot->SetPointEYlow(i,0.02);
-            g_tot->SetPointEYhigh(i,0.02);
-            g_stat->SetPointEYlow(i,0.04);
-            g_stat->SetPointEYhigh(i,0.04);
+            g_tot .SetPointEYlow(i,0.02);
+            g_tot .SetPointEYhigh(i,0.02);
+            g_stat.SetPointEYlow(i,0.04);
+            g_stat.SetPointEYhigh(i,0.04);
         }
     }
     else{
-        g_stat->SetLineColor(kGreen-8);
-        g_stat->SetMarkerSize(0);
-        g_tot->SetLineColor(kBlack);
+        g_stat.SetLineColor(kGreen-8);
+        g_stat.SetMarkerSize(0);
+        g_tot .SetLineColor(kBlack);
     }
     if(TRExFitter::OPTION["FourTopStyle"]){
-        g_central->SetMarkerColor(kWhite);
-        g_central->SetMarkerStyle(kFullCircle);
-        g_central->SetMarkerSize(1.);
+        g_central.SetMarkerColor(kWhite);
+        g_central.SetMarkerStyle(kFullCircle);
+        g_central.SetMarkerSize(1.);
     }
     else{
-        g_central->SetMarkerStyle(kFullCircle);
-        g_central->SetMarkerColor(kRed);
-        g_central->SetMarkerSize(1.5);
+        g_central.SetMarkerStyle(kFullCircle);
+        g_central.SetMarkerColor(kRed);
+        g_central.SetMarkerSize(1.5);
     }
-    g_tot->SetMarkerSize(0);
+    g_tot.SetMarkerSize(0);
 
-    TH1D* h_dummy = new TH1D("h_dummy","h_dummy",1,xmin,xmax);
-    h_dummy->Draw();
-    h_dummy->SetMinimum(ymin);
-    h_dummy->SetMaximum(ymax);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->GetYaxis()->Set(N+1,ymin,ymax);
-    h_dummy->GetYaxis()->SetNdivisions(Ndiv);
+    TH1D h_dummy("h_dummy","h_dummy",1,xmin,xmax);
+    h_dummy.Draw();
+    h_dummy.SetMinimum(ymin);
+    h_dummy.SetMaximum(ymax);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.GetYaxis()->Set(N+1,ymin,ymax);
+    h_dummy.GetYaxis()->SetNdivisions(Ndiv);
 
-    TLatex *tex = new TLatex();
+    TLatex tex{};
 
     for(int i=0;i<N;i++){
-        h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
+        h_dummy.GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
         if(fShowSystForPOI){
-            tex->SetTextSize(gStyle->GetTextSize()*1.2);
-            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#font[62]{%." + fPOIPrecision + "f}").c_str(),g_central->GetX()[N-i-1]));
-            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_tot->GetErrorXlow(N-i-1)));
-            tex->DrawLatex(xmin+0.69*(xmax-xmin),N-i-1,"(");
+            tex.SetTextSize(gStyle->GetTextSize()*1.2);
+            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#font[62]{%." + fPOIPrecision + "f}").c_str(),g_central.GetX()[N-i-1]));
+            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
+            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_tot.GetErrorXlow(N-i-1)));
+            tex.DrawLatex(xmin+0.69*(xmax-xmin),N-i-1,"(");
             if (!fShowTotalOnly){
-	            tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
-	            tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_stat->GetErrorXlow(N-i-1)));
-                tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),
-                    sqrt( pow(g_tot->GetErrorXhigh(N-i-1),2) - pow(g_stat->GetErrorXhigh(N-i-1),2) ) ) );
-                tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),
-                    sqrt( pow(g_tot->GetErrorXlow(N-i-1) ,2) - pow(g_stat->GetErrorXlow(N-i-1) ,2) ) ) );
-                tex->DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
+	            tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
+	            tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXlow(N-i-1)));
+                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),
+                    sqrt( pow(g_tot.GetErrorXhigh(N-i-1),2) - pow(g_stat.GetErrorXhigh(N-i-1),2) ) ) );
+                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),
+                    sqrt( pow(g_tot.GetErrorXlow(N-i-1) ,2) - pow(g_stat.GetErrorXlow(N-i-1) ,2) ) ) );
+                tex.DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
             }
         }
         else{
-            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form((fPOIName+" = %." + fPOIPrecision + "f").c_str(),g_central->GetX()[N-i-1]));
-            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXlow(N-i-1)));
+            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form((fPOIName+" = %." + fPOIPrecision + "f").c_str(),g_central.GetX()[N-i-1]));
+            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
+            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_tot.GetErrorXlow(N-i-1)));
             if (!fShowTotalOnly){
-                tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
-                tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXlow(N-i-1)));
+                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
+                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_stat.GetErrorXlow(N-i-1)));
             }
         }
     }
 
-    TLine *l_SM = new TLine(fPOINominal,-0.5,fPOINominal,N-0.5);
-    l_SM->SetLineWidth(2);
-    l_SM->SetLineColor(kGray);
-    l_SM->Draw("same");
+    TLine l_SM(fPOINominal,-0.5,fPOINominal,N-0.5);
+    l_SM.SetLineWidth(2);
+    l_SM.SetLineColor(kGray);
+    l_SM.Draw("same");
 
+    TLine l_h(xmin,0.5,xmax,0.5);
     if(fCombine){
-        TLine *l_h = new TLine(xmin,0.5,xmax,0.5);
-        l_h->SetLineWidth(2);
-        l_h->SetLineColor(kBlack);
-        l_h->SetLineStyle(kDashed);
-        l_h->Draw("same");
+        l_h.SetLineWidth(2);
+        l_h.SetLineColor(kBlack);
+        l_h.SetLineStyle(kDashed);
+        l_h.Draw("same");
     }
 
     if(TRExFitter::OPTION["FourTopStyle"]){
-        g_tot->Draw("E2 same");
+        g_tot.Draw("E2 same");
         if (!fShowTotalOnly){
-            g_stat->Draw("PE2 same");
+            g_stat.Draw("PE2 same");
         }
-        g_central->Draw("P same");
+        g_central.Draw("P same");
     }
     else{
-        g_tot->Draw("E same");
+        g_tot.Draw("E same");
         if (!fShowTotalOnly){
-            g_stat->Draw("E same");
+            g_stat.Draw("E same");
         }
-        g_central->Draw("P same");
+        g_central.Draw("P same");
     }
 
     gPad->SetLeftMargin( 2*gPad->GetLeftMargin() );
     gPad->SetBottomMargin( 1.15*gPad->GetBottomMargin() );
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
-    h_dummy->GetXaxis()->SetTitle(fPOITitle.c_str());
-    h_dummy->GetYaxis()->SetTickSize(0);
+    h_dummy.GetXaxis()->SetTitle(fPOITitle.c_str());
+    h_dummy.GetYaxis()->SetTickSize(0);
 
-    c->RedrawAxis();
+    c.RedrawAxis();
 
-    ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
+    if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
     myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
 
-    TLegend *leg;
-    leg = new TLegend(0.35,0.775,0.7,0.9);
-    leg->SetTextSize(gStyle->GetTextSize());
-    leg->SetTextFont(gStyle->GetTextFont());
-    leg->SetFillStyle(0);
-    leg->SetBorderSize(0);
-    leg->AddEntry(g_tot,"tot.","l");
+    TLegend leg(0.35,0.775,0.7,0.9);
+    leg.SetTextSize(gStyle->GetTextSize());
+    leg.SetTextFont(gStyle->GetTextFont());
+    leg.SetFillStyle(0);
+    leg.SetBorderSize(0);
+    leg.AddEntry(&g_tot,"tot.","l");
     if (!fShowTotalOnly){
-        leg->AddEntry(g_stat,"stat.","l");
+        leg.AddEntry(&g_stat,"stat.","l");
     }
-    leg->Draw();
+    leg.Draw();
 
     if(fShowSystForPOI){
-        tex->DrawLatex(xmin+0.6*(xmax-xmin),N-0.4,"#font[62]{tot}");
-        tex->DrawLatex(xmin+0.69*(xmax-xmin),N-0.4,"(");
+        tex.DrawLatex(xmin+0.6*(xmax-xmin),N-0.4,"#font[62]{tot}");
+        tex.DrawLatex(xmin+0.69*(xmax-xmin),N-0.4,"(");
         if (!fShowTotalOnly){
-            tex->DrawLatex(xmin+0.72*(xmax-xmin),N-0.4,"stat");
+            tex.DrawLatex(xmin+0.72*(xmax-xmin),N-0.4,"stat");
         }
-        tex->DrawLatex(xmin+0.83*(xmax-xmin),N-0.4,"syst");
-        tex->DrawLatex(xmin+0.94*(xmax-xmin),N-0.4,")");
+        tex.DrawLatex(xmin+0.83*(xmax-xmin),N-0.4,"syst");
+        tex.DrawLatex(xmin+0.94*(xmax-xmin),N-0.4,")");
     }
     else{
-        tex->DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N-0.4,"( tot )");
+        tex.DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N-0.4,"( tot )");
         if (!fShowTotalOnly){
-            tex->DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N-0.4,"( stat )");
+            tex.DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N-0.4,"( stat )");
         }
     }
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs( (fOutDir+"/POI"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fOutDir+"/POI"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
-    delete c;
 }
 
 //__________________________________________________________________________________
@@ -973,7 +971,7 @@ void MultiFit::CompareLimit(){
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
     h_dummy->GetXaxis()->SetTitle(fLimitTitle.c_str());
 
-    ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
+    if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
     myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
 
@@ -2355,7 +2353,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     if(fCompare){
         leg->Draw();
-        ATLASLabel(0.15,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
+        if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.15,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
         myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
         if(fLabel!="") myText(0.2,0.85,kBlack,Form("#kern[-1]{%s}",fLabel.c_str()));
     }
@@ -2698,7 +2696,7 @@ void MultiFit::PlotSummarySoverB() const {
     if(TRExFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit_comb,"Pre-Fit Bkgd.","l");
     leg->Draw();
 
-    ATLASLabelNew(0.17,0.87, (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
+    if (fFitList[0]->fAtlasLabel!= "none") ATLASLabelNew(0.17,0.87, (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
     myText(0.17,0.80,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()) );
     if(fLabel!="") myText(0.17,0.18,kBlack,Form("%s Combined",fLabel.c_str()) );
     else           myText(0.17,0.18,kBlack,"Combined");
