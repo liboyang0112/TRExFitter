@@ -863,19 +863,19 @@ void MultiFit::CompareLimit(){
     float ymin = -0.5;
     float ymax = N-0.5;
 
-    TCanvas *c = new TCanvas("c","c",700,500);
+    TCanvas c("c","c",700,500);
 
-    TGraphErrors *g_obs = new TGraphErrors(N);
-    TGraphErrors *g_exp = new TGraphErrors(N);
-    TGraphErrors *g_inj = new TGraphErrors(N);
-    TGraphAsymmErrors *g_1s = new TGraphAsymmErrors(N);
-    TGraphAsymmErrors *g_2s = new TGraphAsymmErrors(N);
+    TGraphErrors g_obs(N);
+    TGraphErrors g_exp(N);
+    TGraphErrors g_inj(N);
+    TGraphAsymmErrors g_1s(N);
+    TGraphAsymmErrors g_2s(N);
 
     int Ndiv = N+1;
 
-    TFile *f;
-    TH1* h;
-    TH1* h_old = nullptr;
+    std::unique_ptr<TFile> f = nullptr;
+    std::unique_ptr<TH1> h = nullptr;
+    std::unique_ptr<TH1> h_old = nullptr;
 
     // get values
     for(unsigned int i=0;i<N;i++){
@@ -885,33 +885,33 @@ void MultiFit::CompareLimit(){
         }
         if(fLimitsFiles[i]==""){
             if(fSignalInjection){
-                f = new TFile(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
+                f = std::make_unique<TFile>(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()));
                 WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + "_injection.root");
             }
             else{
-                f = new TFile(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
+                f = std::make_unique<TFile> (Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()));
                 WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + ".root");
             }
         }
         else{
-            f = new TFile(fLimitsFiles[i].c_str());
+            f = std::make_unique<TFile>(fLimitsFiles[i].c_str());
             WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + fLimitsFiles[i]);
         }
-        h = (TH1*)f->Get("limit");
-        if(fSignalInjection) h_old = (TH1*)f->Get("limit_old");
+        h = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get("limit")));
+        if(fSignalInjection) h_old = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get("limit_old")));
 
         WriteDebugStatus("MultiFit::CompareLimit", "bin 1 content: " + std::to_string(h->GetBinContent(1)));
-        if(fFitShowObserved[i]) g_obs->SetPoint(N-i-1,h->GetBinContent(1),N-i-1);
-        else g_obs->SetPoint(N-i-1,-1,N-i-1);
-        g_exp->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
-        if(fSignalInjection) g_inj->SetPoint(N-i-1,h_old->GetBinContent(7),N-i-1);
-        g_1s->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
-        g_2s->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
-        g_obs->SetPointError(N-i-1,0,0.5);
-        g_exp->SetPointError(N-i-1,0,0.5);
-        g_inj->SetPointError(N-i-1,0,0.5);
-        g_1s->SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(5),h->GetBinContent(4)-h->GetBinContent(2),0.5,0.5);
-        g_2s->SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(6),h->GetBinContent(3)-h->GetBinContent(2),0.5,0.5);
+        if(fFitShowObserved[i]) g_obs.SetPoint(N-i-1,h->GetBinContent(1),N-i-1);
+        else g_obs.SetPoint(N-i-1,-1,N-i-1);
+        g_exp.SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        if(fSignalInjection) g_inj.SetPoint(N-i-1,h_old->GetBinContent(7),N-i-1);
+        g_1s.SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        g_2s.SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        g_obs.SetPointError(N-i-1,0,0.5);
+        g_exp.SetPointError(N-i-1,0,0.5);
+        g_inj.SetPointError(N-i-1,0,0.5);
+        g_1s.SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(5),h->GetBinContent(4)-h->GetBinContent(2),0.5,0.5);
+        g_2s.SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(6),h->GetBinContent(3)-h->GetBinContent(2),0.5,0.5);
 
         if(h->GetBinContent(1)>xmax) xmax = h->GetBinContent(1);
         if(h->GetBinContent(2)>xmax) xmax = h->GetBinContent(2);
@@ -921,77 +921,76 @@ void MultiFit::CompareLimit(){
         if(h->GetBinContent(6)>xmax) xmax = h->GetBinContent(6);
     }
 
-    g_obs->SetLineWidth(3);
-    g_exp->SetLineWidth(3);
-    g_exp->SetLineStyle(2);
-    g_inj->SetLineWidth(3);
-    g_inj->SetLineStyle(2);
-    g_inj->SetLineColor(kRed);
-    g_1s->SetFillColor(kGreen);
-    g_1s->SetLineWidth(3);
-    g_1s->SetLineStyle(2);
-    g_2s->SetFillColor(kYellow);
-    g_2s->SetLineWidth(3);
-    g_2s->SetLineStyle(2);
+    g_obs.SetLineWidth(3);
+    g_exp.SetLineWidth(3);
+    g_exp.SetLineStyle(2);
+    g_inj.SetLineWidth(3);
+    g_inj.SetLineStyle(2);
+    g_inj.SetLineColor(kRed);
+    g_1s.SetFillColor(kGreen);
+    g_1s.SetLineWidth(3);
+    g_1s.SetLineStyle(2);
+    g_2s.SetFillColor(kYellow);
+    g_2s.SetLineWidth(3);
+    g_2s.SetLineStyle(2);
 
-    g_2s->SetMarkerSize(0);
-    g_1s->SetMarkerSize(0);
-    g_exp->SetMarkerSize(0);
-    g_obs->SetMarkerSize(0);
-    g_inj->SetMarkerSize(0);
+    g_2s.SetMarkerSize(0);
+    g_1s.SetMarkerSize(0);
+    g_exp.SetMarkerSize(0);
+    g_obs.SetMarkerSize(0);
+    g_inj.SetMarkerSize(0);
 
     if(fLimitMax!=0) xmax = fLimitMax;
 
-    TH1D* h_dummy = new TH1D("h_dummy","h_dummy",1,0,xmax);
-    h_dummy->Draw();
-    h_dummy->SetMinimum(ymin);
-    h_dummy->SetMaximum(ymax);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->GetYaxis()->Set(N,ymin,ymax);
-    h_dummy->GetYaxis()->SetNdivisions(Ndiv);
+    TH1D h_dummy("h_dummy","h_dummy",1,0,xmax);
+    h_dummy.Draw();
+    h_dummy.SetMinimum(ymin);
+    h_dummy.SetMaximum(ymax);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.GetYaxis()->Set(N,ymin,ymax);
+    h_dummy.GetYaxis()->SetNdivisions(Ndiv);
     for(unsigned int i=0;i<N;i++){
-        h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
+        h_dummy.GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
     }
 
-    g_2s->Draw("E2 same");
-    g_1s->Draw("E2 same");
-    g_exp->Draw("E same");
-    if(showObs) g_obs->Draw("E same");
-    if(fSignalInjection) g_inj->Draw("E same");
+    g_2s.Draw("E2 same");
+    g_1s.Draw("E2 same");
+    g_exp.Draw("E same");
+    if(showObs) g_obs.Draw("E same");
+    if(fSignalInjection) g_inj.Draw("E same");
 
-    TLine *l_SM = new TLine(fPOINominal,-0.5,fPOINominal,N-0.5);
-    l_SM->SetLineWidth(2);
-    l_SM->SetLineColor(kGray);
-    l_SM->Draw("same");
+    TLine l_SM(fPOINominal,-0.5,fPOINominal,N-0.5);
+    l_SM.SetLineWidth(2);
+    l_SM.SetLineColor(kGray);
+    l_SM.Draw("same");
 
-    c->RedrawAxis();
+    c.RedrawAxis();
 
     gPad->SetLeftMargin( 2*gPad->GetLeftMargin() );
     gPad->SetBottomMargin( 1.15*gPad->GetBottomMargin() );
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
-    h_dummy->GetXaxis()->SetTitle(fLimitTitle.c_str());
+    h_dummy.GetXaxis()->SetTitle(fLimitTitle.c_str());
 
     if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
     myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
 
-    TLegend *leg;
-    if(showObs) leg = new TLegend(0.65,0.2,0.95,0.40);
-    else        leg = new TLegend(0.65,0.2,0.95,0.35);
+    std::unique_ptr<TLegend> leg = nullptr;
+    if(showObs) leg = std::make_unique<TLegend>(0.65,0.2,0.95,0.40);
+    else        leg = std::make_unique<TLegend>(0.65,0.2,0.95,0.35);
     leg->SetTextSize(gStyle->GetTextSize());
     leg->SetTextFont(gStyle->GetTextFont());
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
-    leg->AddEntry(g_1s,"Expected #pm 1#sigma","lf");
-    leg->AddEntry(g_2s,"Expected #pm 2#sigma","lf");
-    if(showObs) leg->AddEntry(g_obs,"Observed","l");
-    if(fSignalInjection) leg->AddEntry(g_inj,("Expected ("+fPOIName+"=1)").c_str(),"l");
+    leg->AddEntry(&g_1s,"Expected #pm 1#sigma","lf");
+    leg->AddEntry(&g_2s,"Expected #pm 2#sigma","lf");
+    if(showObs) leg->AddEntry(&g_obs,"Observed","l");
+    if(fSignalInjection) leg->AddEntry(&g_inj,("Expected ("+fPOIName+"=1)").c_str(),"l");
     leg->Draw();
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
-    delete c;
 }
 
 //__________________________________________________________________________________
