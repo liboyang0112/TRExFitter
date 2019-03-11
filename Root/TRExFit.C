@@ -5826,19 +5826,6 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         fitTool -> SetNPs( npNames,npValues );
     }
 
-    // fix NPs that are fixed in the config
-    // this has nothing to do with fixing NPs for the ranking
-    // this is just needed to be compatible with the normal fit
-    if(fFitFixedNPs.size()>0){
-        std::vector<std::string> npNames;
-        std::vector<double> npValues;
-        for(const auto& nuisParToFix : fFitFixedNPs){
-            npNames.push_back( nuisParToFix.first );
-            npValues.push_back( nuisParToFix.second );
-        }
-        fitTool -> FixNPs(npNames,npValues);
-    }
-
     muhat = fFitResults -> GetNuisParValue( fPOI );
 
     for(unsigned int i=0;i<nuisPars.size();i++){
@@ -5864,6 +5851,15 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         // Set the NP to its post-fit *up* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
         fitTool -> ResetFixedNP();
+        // fix NPs that are fixed in the config
+        // this has nothing to do with fixing NPs for the ranking
+        // this is just needed to be compatible with the normal fit
+        if(fFitFixedNPs.size()>0){
+            for(const auto& nuisParToFix : fFitFixedNPs){
+                fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+            }
+        }
+
         fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
         fitTool -> FitPDF( mc, simPdf, data );
         muVarUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
@@ -5872,6 +5868,11 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         ws->loadSnapshot("tmp_snapshot");
         fitTool -> ResetFixedNP();
         fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
+        if(fFitFixedNPs.size()>0){
+            for(const auto& nuisParToFix : fFitFixedNPs){
+                fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+            }
+        }
         fitTool -> FitPDF( mc, simPdf, data );
         muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
         //
@@ -5905,12 +5906,22 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             fitTool -> ResetFixedNP();
             fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
             fitTool -> FitPDF( mc, simPdf, data );
+            if(fFitFixedNPs.size()>0){
+                for(const auto& nuisParToFix : fFitFixedNPs){
+                    fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                }
+            }
             muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
             //
             // Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool -> ResetFixedNP();
             fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
+            if(fFitFixedNPs.size()>0){
+                for(const auto& nuisParToFix : fFitFixedNPs){
+                    fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                }
+            }
             fitTool -> FitPDF( mc, simPdf, data );
             //
             muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
