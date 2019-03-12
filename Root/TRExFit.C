@@ -1407,9 +1407,6 @@ void TRExFit::CorrectHistograms(){
         }
     }
 
-    //
-    // Smooth systematics
-    SmoothSystematics("all");
 
     // drop normalisation part of systematic according to fDropNormIn
     for(auto reg : fRegions){
@@ -1431,6 +1428,10 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
+
+    //
+    // Smooth systematics
+    SmoothSystematics("all");
 
     //
     // Artifificially set all systematics not to affect overall normalisation for sample or set of samples
