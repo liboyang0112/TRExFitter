@@ -477,16 +477,16 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         }
     }
     if (doLHscanOnly){
+        if (fVarNameLH.size() == 0){
+            WriteWarningStatus("TRExFit::MultiFit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
+            exit(EXIT_FAILURE);
+        }
         if (fVarNameLH[0]=="all"){
             WriteWarningStatus("TRExFit::MultiFit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
             for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
                 GetLikelihoodScan( ws, it->first, data, true);
             }
         } else {
-            if (fVarNameLH.size() == 0){
-                WriteErrorStatus("TRExFit::MultiFit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
-                exit(EXIT_FAILURE);
-            }
             GetLikelihoodScan( ws, fVarNameLH[0], data, true);
         }
     }
