@@ -475,7 +475,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
                 GetLikelihoodScan( ws, iLH, data, true);
             }
         }
-    } else {
+    }
+    if (doLHscanOnly){
         if (fVarNameLH[0]=="all"){
             WriteWarningStatus("TRExFit::MultiFit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
             for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
