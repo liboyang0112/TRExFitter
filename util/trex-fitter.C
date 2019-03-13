@@ -76,7 +76,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     bool groupedImpact   = opt.find("i")!=std::string::npos;
     bool doLHscan        = opt.find("x")!=std::string::npos;
 
-    bool pruning = (createWorkspace || drawPreFit || drawPostFit || doFit || doLimit || doSignificance); // ...
+    bool pruning = (createWorkspace || drawPreFit || drawPostFit); // ...
 
     if(!readNtuples && !rebinAndSmooth){
         TH1::AddDirectory(kFALSE); // FIXME: it would be nice to have a solution which works always
