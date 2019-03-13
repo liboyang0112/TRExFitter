@@ -4111,7 +4111,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 //
 void TRExFit::SystPruning() const{
     WriteInfoStatus("TRExFit::SystPruning", "------------------------------------------------------");
-    WriteInfoStatus("TRExFit::SystPruning", "Apply Systemaics Pruning ...");
+    WriteInfoStatus("TRExFit::SystPruning", "Apply Systematics Pruning ...");
     if(fSystematics.size()==0 || fStatOnly){
         WriteInfoStatus("TRExFit::SystPruning", "No systematics => No Pruning applied.");
         return;

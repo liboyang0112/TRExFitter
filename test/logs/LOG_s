@@ -30,10 +30,6 @@ Applying ATLAS style settings...
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
-Applying systematics pruning...
-[1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
-[1;32m=== INFO::TRExFit::SystPruning: Apply Systemaics Pruning ...[0m
-Info in <TCanvas::Print>: png file FitExample/Pruning.png has been created
 Extracting significance...
 full list of observables:
 RooArgList:: = (obs_x_SR_1,obs_x_SR_2)

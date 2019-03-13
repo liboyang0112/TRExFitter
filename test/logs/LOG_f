@@ -30,10 +30,6 @@ Applying ATLAS style settings...
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
-Applying systematics pruning...
-[1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
-[1;32m=== INFO::TRExFit::SystPruning: Apply Systemaics Pruning ...[0m
-Info in <TCanvas::Print>: png file FitExample/Pruning.png has been created
 Fitting...
 [1;32m=== INFO::TRExFit::Fit: [0m
 [1;32m=== INFO::TRExFit::Fit: -------------------------------------------[0m
