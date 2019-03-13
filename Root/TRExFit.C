@@ -4810,7 +4810,7 @@ void TRExFit::Fit(bool isLHscanOnly){
     }
     if (isLHscanOnly){
         if (fVarNameLH.size() == 0){
-            WriteWarningStatus("TRExFit::Fit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
+            WriteErrorStatus("TRExFit::Fit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
             exit(EXIT_FAILURE);
         }
         if (fVarNameLH[0]=="all"){

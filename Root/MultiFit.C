@@ -478,7 +478,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     }
     if (doLHscanOnly){
         if (fVarNameLH.size() == 0){
-            WriteWarningStatus("TRExFit::MultiFit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
+            WriteErrorStatus("TRExFit::MultiFit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
             exit(EXIT_FAILURE);
         }
         if (fVarNameLH[0]=="all"){
