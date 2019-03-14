@@ -252,6 +252,8 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
 RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4 dataset entries)
 [#1] INFO:Fitting -- RooAbsTestStatistic::initSimMode: created 2 slave calculators.
+[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_1_Hist_alphanominal,Bkg1_SR_1_Hist_alpha_0low,Bkg1_SR_1_Hist_alpha_0high,Bkg2_SR_1_nominal,Signal_SR_1_Hist_alphanominal,Signal_SR_1_Hist_alpha_0low,Signal_SR_1_Hist_alpha_0high)
+[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_2_Hist_alphanominal,Bkg1_SR_2_Hist_alpha_0low,Bkg1_SR_2_Hist_alpha_0high,Bkg2_SR_2_nominal,Signal_SR_2_Hist_alphanominal,Signal_SR_2_Hist_alpha_0low,Signal_SR_2_Hist_alpha_0high)
 === DEBUG::FittingTool::FitPDF: Setting starting mu = 0.000000
 === DEBUG::FittingTool::FitPDF:    -> Constant POI : 0
 === DEBUG::FittingTool::FitPDF:    -> Value of POI : 0.000000
