@@ -2246,7 +2246,11 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
 
     if(recreate){
-        RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TRExFitter::NCPU, RooFit::Hybrid));
+        RooAbsReal* nll = simPdf->createNLL(*data,
+                                            Constrain(*mc->GetNuisanceParameters()),
+                                            Offset(1),
+                                            NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                            RooFit::Optimize(kTRUE));
         TString tag("");
         RooAbsReal* pll = nll->createProfile(*var);
         pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TRExFitter::NCPU));
