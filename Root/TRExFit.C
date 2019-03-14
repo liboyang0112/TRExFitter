@@ -6764,7 +6764,11 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
 
     TCanvas can("NLLscan");
 
-    RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TRExFitter::NCPU, RooFit::Hybrid));
+    RooAbsReal* nll = simPdf->createNLL(*data,
+                                        Constrain(*mc->GetNuisanceParameters()),
+                                        Offset(1),
+                                        NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                        RooFit::Optimize(kTRUE));
 
     TString tag("");
     RooAbsReal* pll = nll->createProfile(*var);
