@@ -4809,16 +4809,16 @@ void TRExFit::Fit(bool isLHscanOnly){
         }
     }
     if (isLHscanOnly){
+        if (fVarNameLH.size() == 0){
+            WriteErrorStatus("TRExFit::Fit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
+            exit(EXIT_FAILURE);
+        }
         if (fVarNameLH[0]=="all"){
             WriteWarningStatus("TRExFit::Fit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
             for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
                 GetLikelihoodScan( ws, it->first, data);
             }
         } else {
-            if (fVarNameLH.size() == 0){
-                WriteErrorStatus("TRExFit::Fit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
-                exit(EXIT_FAILURE);
-            }
             GetLikelihoodScan( ws, fVarNameLH[0], data);
         }
     }
