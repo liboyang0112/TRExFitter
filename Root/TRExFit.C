@@ -4445,6 +4445,10 @@ void TRExFit::Fit(bool isLHscanOnly){
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         ws = PerformWorkspaceCombination( regionsToFit );
+        if (!ws){
+            WriteErrorStatus("TRExFIt::Fit","Cannot retrieve the workspace, exiting!");
+            exit(EXIT_FAILURE);
+        }
         //
         // If needed (only if needed), create a RooDataset object
         //
@@ -4491,6 +4495,10 @@ void TRExFit::Fit(bool isLHscanOnly){
                 regionsToFit.push_back( fRegions[i_ch] -> fName );
         }
         ws = PerformWorkspaceCombination( regionsToFit );
+        if (!ws){
+            WriteErrorStatus("TRExFIt::Fit","Cannot retrieve the workspace, exiting!");
+            exit(EXIT_FAILURE);
+        }
         std::map < std::string, double > npValues;
         // nominal fit on Asimov
         RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
@@ -5348,6 +5356,10 @@ void TRExFit::GetLimit(){
             //
             WriteInfoStatus("TRExFit::GetLimit","Creating ws for regions with real data only...");
             RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+            if (!ws_forFit){
+                WriteErrorStatus("TRExFIt::GetLimit","Cannot retrieve the workspace, exiting!");
+                exit(EXIT_FAILURE);
+            }
 
             //
             // Calls the PerformFit() function to actually do the fit
@@ -5361,6 +5373,10 @@ void TRExFit::GetLimit(){
         // Create the final asimov dataset for limit setting
         //
         RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
+        if (!ws_forLimit){
+            WriteErrorStatus("TRExFIt::GetLimit","Cannot retrieve the workspace, exiting!");
+            exit(EXIT_FAILURE);
+        }
         data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
 
         //
@@ -5440,6 +5456,10 @@ void TRExFit::GetSignificance(){
             //
             WriteInfoStatus("TRExFit::GetSignificance","Creating ws for regions with real data only...");
             RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+            if (!ws_forFit){
+                WriteErrorStatus("TRExFIt::GetSignificance","Cannot retrieve the workspace, exiting!");
+                exit(EXIT_FAILURE);
+            }
 
             //
             // Calls the PerformFit() function to actually do the fit
@@ -5453,6 +5473,10 @@ void TRExFit::GetSignificance(){
         // Create the final asimov dataset for limit setting
         //
         RooWorkspace* ws_forSignificance = PerformWorkspaceCombination( regionsForSign );
+        if (!ws_forSignificance){
+            WriteErrorStatus("TRExFIt::GetSignificance","Cannot retrieve the workspace, exiting!");
+            exit(EXIT_FAILURE);
+        }
         data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fSignificancePOIAsimov : npValues[fPOI] );
 
         //
@@ -5768,6 +5792,10 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     // Creating the combined model
     //
     RooWorkspace* ws = PerformWorkspaceCombination( regionsToFit );
+    if (!ws){
+        WriteErrorStatus("TRExFIt::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
+        exit(EXIT_FAILURE);
+    }
 
     //
     // Gets needed objects for the fit
@@ -7302,6 +7330,10 @@ void TRExFit::RunToys(RooWorkspace* ws){
                 regionsToFit.push_back( fRegions[i_ch] -> fName );
         }
         ws = PerformWorkspaceCombination( regionsToFit );
+        if (!ws){
+            WriteErrorStatus("TRExFIt::RunToys","Cannot retrieve the workspace, exiting!");
+            exit(EXIT_FAILURE);
+        }
         // create map to store fit results
         std::map < std::string, double > npValues;
         // create histogram to store fitted POI values
