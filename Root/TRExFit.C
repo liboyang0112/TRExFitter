@@ -5999,8 +5999,8 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
 
     }
     outName_file.close();
-    customWSfile->Close();
     ws->loadSnapshot("tmp_snapshot");
+    customWSfile->Close();
 
 }
 
