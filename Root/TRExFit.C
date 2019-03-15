@@ -4387,6 +4387,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         ws = (RooWorkspace*) rootFile->Get("combined");
         if(!ws){
             WriteErrorStatus("TRExFit::Fit", "The workspace (\"combined\") cannot be found in file " + fWorkspaceFileName + ". Please check !");
+            exit(EXIT_FAILURE);
         }
         if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
         else                        data = (RooDataSet*)ws->data("asimovData");
