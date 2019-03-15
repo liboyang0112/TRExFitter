@@ -5791,7 +5791,14 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     // Creating the combined model
     //
-    RooWorkspace* ws = PerformWorkspaceCombination( regionsToFit );
+    std::unique_ptr<TFile> customWSfile = nullptr;
+    RooWorkspace* ws = nullptr;
+    if (fWorkspaceFileName!="") { // has custom worspace
+        customWSfile = std::make_unique<TFile>(fWorkspaceFileName.c_str(),"read");
+        ws = static_cast<RooWorkspace*>(customWSfile->Get("combined"));
+    } else {
+        ws = PerformWorkspaceCombination( regionsToFit );
+    }
     if (!ws){
         WriteErrorStatus("TRExFIt::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
         exit(EXIT_FAILURE);
@@ -5800,9 +5807,29 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     // Gets needed objects for the fit
     //
-    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
-    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
-    RooDataSet* data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+    RooStats::ModelConfig *mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
+    RooDataSet* data = nullptr;
+
+    if (fWorkspaceFileName!=""){
+        bool hasData = false;
+        for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            if(fSamples[i_smp]->fType==Sample::DATA){
+                hasData = true;
+                break;
+            }
+        }
+
+        if(!fFitIsBlind && hasData) data = static_cast<RooDataSet*>(ws->data("obsData"));
+        else                        data = static_cast<RooDataSet*>(ws->data("asimovData"));
+    } else {
+        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+    }
+
+    if (!mc || !simPdf || !data){
+        WriteErrorStatus("TRExFit::ProduceNPRanking","At least one of the objects that is neede to run ranking is not present");
+        exit(EXIT_FAILURE);
+    }
 
     // Loop on NPs to find gammas and add to the list to be ranked
     if(NPnames=="all" || NPnames.find("gamma")!=std::string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
