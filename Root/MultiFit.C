@@ -789,7 +789,7 @@ void MultiFit::ComparePOI(const string& POI) const {
 
     c->RedrawAxis();
 
-    ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
+    if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
     myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
 
@@ -974,7 +974,7 @@ void MultiFit::CompareLimit(){
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
     h_dummy->GetXaxis()->SetTitle(fLimitTitle.c_str());
 
-    ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
+    if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
     myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
 
@@ -2360,7 +2360,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     if(fCompare){
         leg->Draw();
-        ATLASLabel(0.15,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
+        if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.15,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
         myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
         if(fLabel!="") myText(0.2,0.85,kBlack,Form("#kern[-1]{%s}",fLabel.c_str()));
     }
@@ -2703,7 +2703,7 @@ void MultiFit::PlotSummarySoverB() const {
     if(TRExFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit_comb,"Pre-Fit Bkgd.","l");
     leg->Draw();
 
-    ATLASLabelNew(0.17,0.87, (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
+    if (fFitList[0]->fAtlasLabel != "none") ATLASLabelNew(0.17,0.87, (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
     myText(0.17,0.80,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()) );
     if(fLabel!="") myText(0.17,0.18,kBlack,Form("%s Combined",fLabel.c_str()) );
     else           myText(0.17,0.18,kBlack,"Combined");
