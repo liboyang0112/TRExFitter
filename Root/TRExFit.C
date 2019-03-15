@@ -5815,6 +5815,9 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         fitTool -> NoSystematics();
     }
 
+    // Set initial NP to random value if specified
+    fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
+
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
     {
         std::vector<std::string> npNames;
