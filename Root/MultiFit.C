@@ -475,17 +475,18 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
                 GetLikelihoodScan( ws, iLH, data, true);
             }
         }
-    } else {
+    }
+    if (doLHscanOnly){
+        if (fVarNameLH.size() == 0){
+            WriteErrorStatus("TRExFit::MultiFit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
+            exit(EXIT_FAILURE);
+        }
         if (fVarNameLH[0]=="all"){
             WriteWarningStatus("TRExFit::MultiFit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
             for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
                 GetLikelihoodScan( ws, it->first, data, true);
             }
         } else {
-            if (fVarNameLH.size() == 0){
-                WriteErrorStatus("TRExFit::MultiFit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
-                exit(EXIT_FAILURE);
-            }
             GetLikelihoodScan( ws, fVarNameLH[0], data, true);
         }
     }
@@ -2231,7 +2232,11 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
 
     if(recreate){
-        RooAbsReal* nll = simPdf->createNLL(*data, Constrain(*mc->GetNuisanceParameters()), Offset(1), NumCPU(TRExFitter::NCPU, RooFit::Hybrid));
+        RooAbsReal* nll = simPdf->createNLL(*data,
+                                            Constrain(*mc->GetNuisanceParameters()),
+                                            Offset(1),
+                                            NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                            RooFit::Optimize(kTRUE));
         TString tag("");
         RooAbsReal* pll = nll->createProfile(*var);
         pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TRExFitter::NCPU));
@@ -2340,7 +2345,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
     if(fCompare){
-        leg.Draw();
+        leg->Draw();
         if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.15,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
         myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
         if(fLabel!="") myText(0.2,0.85,kBlack,Form("#kern[-1]{%s}",fLabel.c_str()));
@@ -2684,7 +2689,7 @@ void MultiFit::PlotSummarySoverB() const {
     if(TRExFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit_comb,"Pre-Fit Bkgd.","l");
     leg->Draw();
 
-    if (fFitList[0]->fAtlasLabel!= "none") ATLASLabelNew(0.17,0.87, (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
+    if (fFitList[0]->fAtlasLabel != "none") ATLASLabelNew(0.17,0.87, (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
     myText(0.17,0.80,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()) );
     if(fLabel!="") myText(0.17,0.18,kBlack,Form("%s Combined",fLabel.c_str()) );
     else           myText(0.17,0.18,kBlack,"Combined");
