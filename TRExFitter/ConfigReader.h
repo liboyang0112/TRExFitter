@@ -198,7 +198,7 @@ class ConfigReader {
           * @param string Input parameter
           * @return string Corrected parameter
           */
-        std::string CheckName(const std::string &name);
+        std::string CheckName(std::string name);
 
         /**
           * Helper function to check if elements of one vector are present in another

@@ -4399,12 +4399,12 @@ int ConfigReader::PostConfig(){
 
 //__________________________________________________________________________________
 //
-std::string ConfigReader::CheckName( const std::string &name ){
+std::string ConfigReader::CheckName( std::string name ){
+    name = RemoveQuotes(name);
     if( std::isdigit( name.at(0) ) ){
         WriteErrorStatus("ConfigReader::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
         WriteErrorStatus("ConfigReader::CheckName", "           This can lead to unexpected behaviours in HistFactory. Please change the name. ");
-        WriteErrorStatus("ConfigReader::CheckName", "           The code is about to crash.");
-        std::abort();
+        exit(EXIT_FAILURE);
     } else {
         return RemoveQuotes(name);
     }
