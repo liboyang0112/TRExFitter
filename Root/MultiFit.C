@@ -2345,7 +2345,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
     if(fCompare){
-        leg->Draw();
+        leg.Draw();
         if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.15,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
         myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
         if(fLabel!="") myText(0.2,0.85,kBlack,Form("#kern[-1]{%s}",fLabel.c_str()));
