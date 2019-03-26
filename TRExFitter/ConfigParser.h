@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-const int MAXconfig = 2000;
+const static int MAXconfig = 2000;
 
 // Functions
 std::string RemoveSpaces(const std::string& s);
@@ -56,7 +56,7 @@ public:
     ConfigParser();
     ~ConfigParser();
 
-    ConfigSet *fConfSets[MAXconfig];
+    std::vector<ConfigSet*> fConfSets;
     void ReadFile(const std::string& fileName);
     ConfigSet *GetConfigSet(int i=0);
     ConfigSet *GetConfigSet(const std::string& name,int i=0);

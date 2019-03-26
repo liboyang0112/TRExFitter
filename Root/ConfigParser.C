@@ -298,6 +298,7 @@ std::string ConfigSet::GetValue() const{
 //
 ConfigParser::ConfigParser(){
     fN = 0;
+    fConfSets.reserve(MAXconfig);
 }
 
 //__________________________________________________________________________________
@@ -380,7 +381,7 @@ void ConfigParser::ReadFile(const std::string& fileName){
             if(!reading){
                 n = valVec.size();
                 for(k=0;k<n;k++){
-                    fConfSets[fN] = new ConfigSet();
+                    fConfSets.emplace_back(new ConfigSet());
                     fConfSets[fN]->Set( First(str),RemoveSpaces(valVec[k]) );
                     fN++;
                 }
