@@ -381,7 +381,7 @@ void ConfigParser::ReadFile(const std::string& fileName){
             if(!reading){
                 n = valVec.size();
                 for(k=0;k<n;k++){
-                    fConfSets.emplace_back(new ConfigSet());
+                    fConfSets.emplace_back(std::make_unique<ConfigSet>());
                     fConfSets[fN]->Set( First(str),RemoveSpaces(valVec[k]) );
                     fN++;
                 }
@@ -402,7 +402,7 @@ void ConfigParser::ReadFile(const std::string& fileName){
 //__________________________________________________________________________________
 // Returns the i-th configSet
 ConfigSet *ConfigParser::GetConfigSet(int i){
-    return fConfSets[i];
+    return fConfSets[i].get();
 }
 
 //__________________________________________________________________________________
@@ -411,7 +411,7 @@ ConfigSet *ConfigParser::GetConfigSet(const std::string& name,int i){
     int k = 0;
     for(int j=0;j<fN;j++){
         if(fConfSets[j]->GetName() == name){
-            if(i==k) return fConfSets[j];
+            if(i==k) return fConfSets[j].get();
             k++;
         }
     }
@@ -424,7 +424,7 @@ int ConfigParser::CheckSyntax(ConfigParser *refConfigParser){
     int exitStatus = 0;
     // loop on all the confic sets
     for(int i_cs = 0; i_cs<fN; i_cs++){
-        ConfigSet *cs = fConfSets[i_cs];
+        ConfigSet *cs = fConfSets[i_cs].get();
         // check if the same exists in the reference
         for (int i_c = 0; i_c < cs->fN; i_c++){
             Config c = cs->fConfig[i_c];
@@ -445,7 +445,7 @@ int ConfigParser::SettingIsValid(ConfigSet *cs, ConfigParser *refConfigParser, c
     bool refIsFound = false;
     // check if the setting type exists in the reference
     for (int i_cs =0; i_cs < refConfigParser->fN; i_cs++){
-        cs_ref = refConfigParser->fConfSets[i_cs];
+        cs_ref = refConfigParser->fConfSets[i_cs].get();
         if (cs_ref->fName == setting_set){
             refIsFound = true;
             break;
