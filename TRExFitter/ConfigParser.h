@@ -2,6 +2,7 @@
 #define CONFIGPARSER_H
 
 /// c++ includes
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -56,7 +57,7 @@ public:
     ConfigParser();
     ~ConfigParser();
 
-    std::vector<ConfigSet*> fConfSets;
+    std::vector< std::unique_ptr<ConfigSet> > fConfSets;
     void ReadFile(const std::string& fileName);
     ConfigSet *GetConfigSet(int i=0);
     ConfigSet *GetConfigSet(const std::string& name,int i=0);
