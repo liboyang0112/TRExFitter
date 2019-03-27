@@ -311,6 +311,8 @@ TRExFit::TRExFit(std::string name){
     fLegendNColumnsMerge = 3;
 
     fShowRatioPad = true;
+    
+    fExcludeFromMorphing = "";
 }
 
 //__________________________________________________________________________________
@@ -1892,6 +1894,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
             }
             for(auto smp : fSamples){
                 if(!smp->fIsMorph[par]) continue;
+                if(smp==smpNominal) continue;
                 for(auto syst : smpNominal->fSystematics){
                     smp->AddSystematic(syst);
                 }
@@ -2085,9 +2088,39 @@ void TRExFit::CloseInputFiles(){
 //__________________________________________________________________________________
 //
 void TRExFit::DrawAndSaveAll(std::string opt){
+    bool isPostFit = opt.find("post")!=std::string::npos;
+    //
+    // Scale sample(s) to data (only pre-fit)
+    if(!isPostFit && fScaleSamplesToData.size()>0){
+        for(auto reg : fRegions){
+            TH1* hTot = reg->GetTotHist(true);
+            float totPred = hTot->Integral();
+            float totData = reg->fData->fHist->Integral();
+            float totToScale = 0;
+            std::vector<SampleHist*> shToScale;
+            for(auto sh : reg->fSampleHists){
+                if(sh->fHist==nullptr) continue;
+                if(sh->fSample->fType==Sample::GHOST){
+                    WriteWarningStatus("TRExFit::CorrectHistograms","Rquested to scale to data a GHOST sample, " + sh->fSample->fName + ". Skipping this sample.");
+                    continue;
+                }
+                if(FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
+                    shToScale.emplace_back(sh);
+                    totToScale += sh->fHist->Integral();
+                }
+            }
+            if(totToScale<=0 || shToScale.size()==0) continue;
+            float scale = (totData-(totPred-totToScale))/totToScale;
+            for(auto sh : shToScale){
+                WriteInfoStatus("TRExFit::CorrectHistograms","Scaling sample " + sh->fSample->fName + " by " + std::to_string(scale) + " in region " + reg->fName);
+                sh->Scale(scale);
+            }
+            
+        }
+    }
+    //
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
-    bool isPostFit = opt.find("post")!=std::string::npos;
     if(TRExFitter::POISSONIZE) opt += " poissonize";
     if(isPostFit){
         if(fFitResultsFile!=""){
@@ -7800,6 +7833,8 @@ std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Sys
     return fullPaths;
 }
 
+//__________________________________________________________________________________
+//
 TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Systematic* syst,
  int i_ch, int i_smp, bool isUp, bool isMC){
     TH1D* h = nullptr;

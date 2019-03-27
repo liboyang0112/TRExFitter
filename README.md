@@ -277,6 +277,8 @@ For each object type (also called "block"), here is the list of available proper
 | LegendNColumns               | Number of colums in Legend for Data/MC plots. |
 | LegendNColumnsSummary        | Same as LegendNColumns but for Summary plot. |
 | LegendNColumnsMerge          | Same as LegendNColumns but for Merged plot. |
+| ExcludeFromMorphing          | The specified sample is left our from the morphing (useful to do closure tests for morphing). |
+| ScaleSamplesToData           | The specified samples will be scaled to data (when doing the d step). |
 
 
 ### `Fit` block options:
@@ -546,7 +548,7 @@ Currently the supported options are:
 | **Regions**         | to limit the regions to use to the list specified |
 | **Samples**         | to limit the samples to use to the list specified |
 | **Systematics**     | to limit the systematics to use to the list specified |
-| **Signal**          | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance) |
+| **Signal(s)**       | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance); GHOST samples can be promoted to SIGNAL samples in this way, and multiple samples can be specified using `Samples:smp1,smp2` |
 | **Exclude**         | to exclude certain Regions / Samples / Systematics |
 | **Suffix**          | used for: plots, workspace, fit results, etc |
 | **SaveSuffix**      | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |

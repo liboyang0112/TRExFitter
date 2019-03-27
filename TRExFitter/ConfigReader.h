@@ -312,9 +312,9 @@ class ConfigReader {
         std::vector<std::string> fRegNames;
 
         /**
-          *  string for signal only
+          *  vector of strings for signal only
           */
-        std::string fOnlySignal = "";
+        std::vector<std::string> fOnlySignals;
 
         /**
           *  string for LH scan values from command line

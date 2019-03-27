@@ -127,7 +127,11 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         fFitter->fRankingOnly = optMap["Ranking"];
     }
     if(optMap["Signal"]!=""){
-        fOnlySignal = optMap["Signal"];
+        fOnlySignals.clear();
+        fOnlySignals.emplace_back(optMap["Signal"]);
+    }
+    if(optMap["Signals"]!=""){
+        fOnlySignals = Vectorize(optMap["Signals"],',');
     }
     if(optMap["FitResults"]!=""){
         fFitter->fFitResultsFile = optMap["FitResults"];
@@ -184,9 +188,11 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
             WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "    " + iexcl);
         }
     }
-    if(fOnlySignal!=""){
-        WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "  Only Signal: ");
-        WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "    " + fOnlySignal);
+    if(fOnlySignals.size()>0){
+        WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "  Only Signals: ");
+        std::string toPrint = "";
+        for(auto s : fOnlySignals) toPrint += " " + s;
+        WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "    " + toPrint);
     }
     return 0;
 }
@@ -1228,6 +1234,17 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     param = confSet->Get("RankingPlot");
     if( param != ""){
         fFitter->fRankingPlot = RemoveQuotes(param);
+    }
+    
+    // exclude a template from morphing
+    param = confSet->Get("ExcludeFromMorphing");
+    if( param != ""){
+        fFitter->fExcludeFromMorphing = CheckName(param);
+    }
+    
+    param = confSet->Get("ScaleSamplesToData");
+    if( param != ""){
+        fFitter->fScaleSamplesToData = Vectorize(param,',');
     }
 
     return 0;
@@ -2271,7 +2288,7 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
                 fNonGhostIsSet = true;
             }
             else if(param == "GHOST"){
-	      if (fNonGhostIsSet){
+                if (fNonGhostIsSet){
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Please define GHOST samples first and then other samples");
                     return 1;
                 }
@@ -2285,7 +2302,20 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
             else {
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'Type' option in sample but didnt provide valid parameter. Using default (BACKGROUND)");
             }
-            if(fOnlySignal != "" && type==Sample::SIGNAL && CheckName(confSet->GetValue())!=fOnlySignal) continue;
+            if(fOnlySignals.size()>0){
+                if(type==Sample::SIGNAL){
+                    bool skip = true;
+                    for(auto s : fOnlySignals){
+                        if(CheckName(confSet->GetValue())==s) skip = false;
+                    }
+                    if(skip) continue;
+                }
+                else if(type==Sample::GHOST){
+                    for(auto s : fOnlySignals){
+                        if(CheckName(confSet->GetValue())==s) type = Sample::SIGNAL;
+                    }
+                }
+            }
         }
         sample = fFitter->NewSample(CheckName(confSet->GetValue()),type);
         fSamples.emplace_back(CheckName(confSet->GetValue()));
@@ -2799,6 +2829,14 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
             if(Vectorize(param,',').size() == 2){
                 sample->fAsimovReplacementFor.first  = Vectorize(param,',')[0];
                 std::string tmp = Vectorize(param,',')[1];
+                if (std::find(fSamples.begin(), fSamples.end(), tmp) == fSamples.end()){
+                    if (fAllowWrongRegionSample){
+                        WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has sample set up for AsimovReplacementFor that does not exist");
+                    } else {
+                        WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has sample set up for AsimovReplacementFor that does not exist");
+                        return 1;
+                    }
+                }
                 sample->fAsimovReplacementFor.second = tmp;
             } else {
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "You specified 'AsimovReplacementFor' option but didnt provide 2 parameters. Please check this");
@@ -2848,24 +2886,26 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
         // Set Morphing
         param = confSet->Get("Morphing");
         if(param != ""){
-            std::vector<std::string> morph_par = Vectorize(param,',');
-            if (morph_par.size() != 2){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Morphing requires exactly 2 parameters, but " + std::to_string(morph_par.size()) + " provided");
-                return 1;
+            if(fFitter->fExcludeFromMorphing!=sample->fName){
+                std::vector<std::string> morph_par = Vectorize(param,',');
+                if (morph_par.size() != 2){
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Morphing requires exactly 2 parameters, but " + std::to_string(morph_par.size()) + " provided");
+                    return 1;
+                }
+                std::string name      = morph_par.at(0);
+                float value = std::stof(morph_par.at(1));
+                WriteDebugStatus("ConfigReader::ReadSampleOptions", "Morphing: Adding " + name + ", with value: " + std::to_string(value));
+                if (!fFitter->MorphIsAlreadyPresent(name, value)) fFitter->AddTemplateWeight(name, value);
+                // set proper normalization
+                std::string morphName = "morph_"+name+"_"+ReplaceString(std::to_string(value),"-","m");
+                NormFactor *nf = sample->AddNormFactor(morphName, 1, 0, 10, false);
+                fFitter->fNormFactors.push_back( nf );
+                fFitter->fNormFactorNames.push_back( nf->fName );
+                fFitter->fNNorm++;
+                sample->fIsMorph[name] = true;
+                sample->fMorphValue[name] = value;
+                if(FindInStringVector(fFitter->fMorphParams,name)<0) fFitter->fMorphParams.push_back( name );
             }
-            std::string name      = morph_par.at(0);
-            float value = std::stof(morph_par.at(1));
-            WriteDebugStatus("ConfigReader::ReadSampleOptions", "Morphing: Adding " + name + ", with value: " + std::to_string(value));
-            if (!fFitter->MorphIsAlreadyPresent(name, value)) fFitter->AddTemplateWeight(name, value);
-            // set proper normalization
-            std::string morphName = "morph_"+name+"_"+ReplaceString(std::to_string(value),"-","m");
-            NormFactor *nf = sample->AddNormFactor(morphName, 1, 0, 10, false);
-            fFitter->fNormFactors.push_back( nf );
-            fFitter->fNormFactorNames.push_back( nf->fName );
-            fFitter->fNNorm++;
-            sample->fIsMorph[name] = true;
-            sample->fMorphValue[name] = value;
-            if(FindInStringVector(fFitter->fMorphParams,name)<0) fFitter->fMorphParams.push_back( name );
         }
 
     }

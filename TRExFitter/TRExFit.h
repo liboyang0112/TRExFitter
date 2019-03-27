@@ -570,6 +570,10 @@ public:
     bool fShowRatioPad;
     bool fShowRatioPadSummary;
     bool fShowRatioPadMerge;
+    
+    std::string fExcludeFromMorphing;
+    
+    std::vector<std::string> fScaleSamplesToData;
 };
 
 #endif
