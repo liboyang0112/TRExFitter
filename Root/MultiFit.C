@@ -586,12 +586,12 @@ void MultiFit::ComparePOI(const string& POI) const {
     float ymin = -0.5;
     float ymax = N+1-0.5;
 
-    TCanvas *c = new TCanvas("c","c",700,500);
+    TCanvas c("c","c",700,500);
     gStyle->SetEndErrorSize(6.);
 
-    TGraph *g_central    = new TGraph(N);
-    TGraphAsymmErrors *g_stat = new TGraphAsymmErrors(N);
-    TGraphAsymmErrors *g_tot  = new TGraphAsymmErrors(N);
+    TGraph g_central(N);
+    TGraphAsymmErrors g_stat(N);
+    TGraphAsymmErrors g_tot(N);
 
     int Ndiv = N+1;
 
@@ -619,31 +619,31 @@ void MultiFit::ComparePOI(const string& POI) const {
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
             par = fit->fFitResults->fNuisPar[j];
             if( pois[i] == par->fName ){
-                g_central->SetPoint(N-i-1,par->fFitValue,N-i-1);
-                g_stat   ->SetPoint(N-i-1,par->fFitValue,N-i-1);
-                g_tot    ->SetPoint(N-i-1,par->fFitValue,N-i-1);
+                g_central.SetPoint(N-i-1,par->fFitValue,N-i-1);
+                g_stat   .SetPoint(N-i-1,par->fFitValue,N-i-1);
+                g_tot    .SetPoint(N-i-1,par->fFitValue,N-i-1);
                 //
                 // temporary put the full uncertainty
-                g_stat->SetPointEXhigh(N-i-1,par->fPostFitUp);
-                g_stat->SetPointEXlow(N-i-1,-par->fPostFitDown);
-                g_stat->SetPointEYhigh(N-i-1,0);
-                g_stat->SetPointEYlow(N-i-1,0);
+                g_stat.SetPointEXhigh(N-i-1,par->fPostFitUp);
+                g_stat.SetPointEXlow(N-i-1,-par->fPostFitDown);
+                g_stat.SetPointEYhigh(N-i-1,0);
+                g_stat.SetPointEYlow(N-i-1,0);
                 //
-                g_tot->SetPointEXhigh(N-i-1,par->fPostFitUp);
-                g_tot->SetPointEXlow(N-i-1,-par->fPostFitDown);
-                g_tot->SetPointEYhigh(N-i-1,0);
-                g_tot->SetPointEYlow(N-i-1,0);
+                g_tot.SetPointEXhigh(N-i-1,par->fPostFitUp);
+                g_tot.SetPointEXlow(N-i-1,-par->fPostFitDown);
+                g_tot.SetPointEYhigh(N-i-1,0);
+                g_tot.SetPointEYlow(N-i-1,0);
                 //
                 found = true;
                 break;
             }
         }
         if(!found){
-            g_central->SetPoint(N-i-1,-10,N-i-1);
-            g_stat->SetPoint(N-i-1,-10,N-i-1);
-            g_tot->SetPoint(N-i-1,-10,N-i-1);
-            g_stat->SetPointError(N-i-1,0,0,0,0);
-            g_tot->SetPointError(N-i-1,0,0,0,0);
+            g_central.SetPoint(N-i-1,-10,N-i-1);
+            g_stat   .SetPoint(N-i-1,-10,N-i-1);
+            g_tot    .SetPoint(N-i-1,-10,N-i-1);
+            g_stat   .SetPointError(N-i-1,0,0,0,0);
+            g_tot    .SetPointError(N-i-1,0,0,0,0);
         }
     }
     // stat error
@@ -665,10 +665,10 @@ void MultiFit::ComparePOI(const string& POI) const {
             for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
                 par = fit->fFitResults->fNuisPar[j];
                 if( pois[i] == par->fName ){
-                    g_stat->SetPointEXhigh(N-i-1,par->fPostFitUp);
-                    g_stat->SetPointEXlow(N-i-1,-par->fPostFitDown);
-                    g_stat->SetPointEYhigh(N-i-1,0);
-                    g_stat->SetPointEYlow(N-i-1,0);
+                    g_stat.SetPointEXhigh(N-i-1,par->fPostFitUp);
+                    g_stat.SetPointEXlow(N-i-1,-par->fPostFitDown);
+                    g_stat.SetPointEYhigh(N-i-1,0);
+                    g_stat.SetPointEYlow(N-i-1,0);
                     found = true;
                     break;
                 }
@@ -676,155 +676,153 @@ void MultiFit::ComparePOI(const string& POI) const {
         }
     }
 
-    g_tot->SetLineWidth(3);
-    g_stat->SetLineWidth(3);
-    g_stat->SetMarkerStyle(kOpenCircle);
-    g_tot->SetLineWidth(3);
-    g_tot->SetMarkerStyle(kOpenCircle);
+    g_tot .SetLineWidth(3);
+    g_stat.SetLineWidth(3);
+    g_stat.SetMarkerStyle(kOpenCircle);
+    g_tot .SetLineWidth(3);
+    g_tot .SetMarkerStyle(kOpenCircle);
     if(TRExFitter::OPTION["FourTopStyle"]){
-        g_tot->SetLineColor(kAzure);
-        g_tot->SetFillColor(kAzure);
-        g_stat->SetLineColor(kCyan);
-        g_stat->SetFillColor(kCyan);
-        g_stat->SetMarkerStyle(kFullCircle);
-        g_stat->SetMarkerColor(kAzure);
-        g_stat->SetMarkerSize(1.5);
+        g_tot .SetLineColor(kAzure);
+        g_tot .SetFillColor(kAzure);
+        g_stat.SetLineColor(kCyan);
+        g_stat.SetFillColor(kCyan);
+        g_stat.SetMarkerStyle(kFullCircle);
+        g_stat.SetMarkerColor(kAzure);
+        g_stat.SetMarkerSize(1.5);
         //
         for(int i=0;i<N;i++){
-            g_tot->SetPointEYlow(i,0.02);
-            g_tot->SetPointEYhigh(i,0.02);
-            g_stat->SetPointEYlow(i,0.04);
-            g_stat->SetPointEYhigh(i,0.04);
+            g_tot .SetPointEYlow(i,0.02);
+            g_tot .SetPointEYhigh(i,0.02);
+            g_stat.SetPointEYlow(i,0.04);
+            g_stat.SetPointEYhigh(i,0.04);
         }
     }
     else{
-        g_stat->SetLineColor(kGreen-8);
-        g_stat->SetMarkerSize(0);
-        g_tot->SetLineColor(kBlack);
+        g_stat.SetLineColor(kGreen-8);
+        g_stat.SetMarkerSize(0);
+        g_tot .SetLineColor(kBlack);
     }
     if(TRExFitter::OPTION["FourTopStyle"]){
-        g_central->SetMarkerColor(kWhite);
-        g_central->SetMarkerStyle(kFullCircle);
-        g_central->SetMarkerSize(1.);
+        g_central.SetMarkerColor(kWhite);
+        g_central.SetMarkerStyle(kFullCircle);
+        g_central.SetMarkerSize(1.);
     }
     else{
-        g_central->SetMarkerStyle(kFullCircle);
-        g_central->SetMarkerColor(kRed);
-        g_central->SetMarkerSize(1.5);
+        g_central.SetMarkerStyle(kFullCircle);
+        g_central.SetMarkerColor(kRed);
+        g_central.SetMarkerSize(1.5);
     }
-    g_tot->SetMarkerSize(0);
+    g_tot.SetMarkerSize(0);
 
-    TH1D* h_dummy = new TH1D("h_dummy","h_dummy",1,xmin,xmax);
-    h_dummy->Draw();
-    h_dummy->SetMinimum(ymin);
-    h_dummy->SetMaximum(ymax);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->GetYaxis()->Set(N+1,ymin,ymax);
-    h_dummy->GetYaxis()->SetNdivisions(Ndiv);
+    TH1D h_dummy("h_dummy","h_dummy",1,xmin,xmax);
+    h_dummy.Draw();
+    h_dummy.SetMinimum(ymin);
+    h_dummy.SetMaximum(ymax);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.GetYaxis()->Set(N+1,ymin,ymax);
+    h_dummy.GetYaxis()->SetNdivisions(Ndiv);
 
-    TLatex *tex = new TLatex();
+    TLatex tex{};
 
     for(int i=0;i<N;i++){
-        h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
+        h_dummy.GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
         if(fShowSystForPOI){
-            tex->SetTextSize(gStyle->GetTextSize()*1.2);
-            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#font[62]{%." + fPOIPrecision + "f}").c_str(),g_central->GetX()[N-i-1]));
-            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_tot->GetErrorXlow(N-i-1)));
-            tex->DrawLatex(xmin+0.69*(xmax-xmin),N-i-1,"(");
+            tex.SetTextSize(gStyle->GetTextSize()*1.2);
+            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#font[62]{%." + fPOIPrecision + "f}").c_str(),g_central.GetX()[N-i-1]));
+            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
+            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_tot.GetErrorXlow(N-i-1)));
+            tex.DrawLatex(xmin+0.69*(xmax-xmin),N-i-1,"(");
             if (!fShowTotalOnly){
-	            tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
-	            tex->DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_stat->GetErrorXlow(N-i-1)));
-                tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),
-                    sqrt( pow(g_tot->GetErrorXhigh(N-i-1),2) - pow(g_stat->GetErrorXhigh(N-i-1),2) ) ) );
-                tex->DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),
-                    sqrt( pow(g_tot->GetErrorXlow(N-i-1) ,2) - pow(g_stat->GetErrorXlow(N-i-1) ,2) ) ) );
-                tex->DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
+	            tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
+	            tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXlow(N-i-1)));
+                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),
+                    sqrt( pow(g_tot.GetErrorXhigh(N-i-1),2) - pow(g_stat.GetErrorXhigh(N-i-1),2) ) ) );
+                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),
+                    sqrt( pow(g_tot.GetErrorXlow(N-i-1) ,2) - pow(g_stat.GetErrorXlow(N-i-1) ,2) ) ) );
+                tex.DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
             }
         }
         else{
-            tex->DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form((fPOIName+" = %." + fPOIPrecision + "f").c_str(),g_central->GetX()[N-i-1]));
-            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXhigh(N-i-1)));
-            tex->DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_tot->GetErrorXlow(N-i-1)));
+            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form((fPOIName+" = %." + fPOIPrecision + "f").c_str(),g_central.GetX()[N-i-1]));
+            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
+            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_tot.GetErrorXlow(N-i-1)));
             if (!fShowTotalOnly){
-                tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXhigh(N-i-1)));
-                tex->DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_stat->GetErrorXlow(N-i-1)));
+                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
+                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_stat.GetErrorXlow(N-i-1)));
             }
         }
     }
 
-    TLine *l_SM = new TLine(fPOINominal,-0.5,fPOINominal,N-0.5);
-    l_SM->SetLineWidth(2);
-    l_SM->SetLineColor(kGray);
-    l_SM->Draw("same");
+    TLine l_SM(fPOINominal,-0.5,fPOINominal,N-0.5);
+    l_SM.SetLineWidth(2);
+    l_SM.SetLineColor(kGray);
+    l_SM.Draw("same");
 
+    TLine l_h(xmin,0.5,xmax,0.5);
     if(fCombine){
-        TLine *l_h = new TLine(xmin,0.5,xmax,0.5);
-        l_h->SetLineWidth(2);
-        l_h->SetLineColor(kBlack);
-        l_h->SetLineStyle(kDashed);
-        l_h->Draw("same");
+        l_h.SetLineWidth(2);
+        l_h.SetLineColor(kBlack);
+        l_h.SetLineStyle(kDashed);
+        l_h.Draw("same");
     }
 
     if(TRExFitter::OPTION["FourTopStyle"]){
-        g_tot->Draw("E2 same");
+        g_tot.Draw("E2 same");
         if (!fShowTotalOnly){
-            g_stat->Draw("PE2 same");
+            g_stat.Draw("PE2 same");
         }
-        g_central->Draw("P same");
+        g_central.Draw("P same");
     }
     else{
-        g_tot->Draw("E same");
+        g_tot.Draw("E same");
         if (!fShowTotalOnly){
-            g_stat->Draw("E same");
+            g_stat.Draw("E same");
         }
-        g_central->Draw("P same");
+        g_central.Draw("P same");
     }
 
     gPad->SetLeftMargin( 2*gPad->GetLeftMargin() );
     gPad->SetBottomMargin( 1.15*gPad->GetBottomMargin() );
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
-    h_dummy->GetXaxis()->SetTitle(fPOITitle.c_str());
-    h_dummy->GetYaxis()->SetTickSize(0);
+    h_dummy.GetXaxis()->SetTitle(fPOITitle.c_str());
+    h_dummy.GetYaxis()->SetTickSize(0);
 
-    c->RedrawAxis();
+    c.RedrawAxis();
 
     if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
     myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
 
-    TLegend *leg;
-    leg = new TLegend(0.35,0.775,0.7,0.9);
-    leg->SetTextSize(gStyle->GetTextSize());
-    leg->SetTextFont(gStyle->GetTextFont());
-    leg->SetFillStyle(0);
-    leg->SetBorderSize(0);
-    leg->AddEntry(g_tot,"tot.","l");
+    TLegend leg(0.35,0.775,0.7,0.9);
+    leg.SetTextSize(gStyle->GetTextSize());
+    leg.SetTextFont(gStyle->GetTextFont());
+    leg.SetFillStyle(0);
+    leg.SetBorderSize(0);
+    leg.AddEntry(&g_tot,"tot.","l");
     if (!fShowTotalOnly){
-        leg->AddEntry(g_stat,"stat.","l");
+        leg.AddEntry(&g_stat,"stat.","l");
     }
-    leg->Draw();
+    leg.Draw();
 
     if(fShowSystForPOI){
-        tex->DrawLatex(xmin+0.6*(xmax-xmin),N-0.4,"#font[62]{tot}");
-        tex->DrawLatex(xmin+0.69*(xmax-xmin),N-0.4,"(");
+        tex.DrawLatex(xmin+0.6*(xmax-xmin),N-0.4,"#font[62]{tot}");
+        tex.DrawLatex(xmin+0.69*(xmax-xmin),N-0.4,"(");
         if (!fShowTotalOnly){
-            tex->DrawLatex(xmin+0.72*(xmax-xmin),N-0.4,"stat");
+            tex.DrawLatex(xmin+0.72*(xmax-xmin),N-0.4,"stat");
         }
-        tex->DrawLatex(xmin+0.83*(xmax-xmin),N-0.4,"syst");
-        tex->DrawLatex(xmin+0.94*(xmax-xmin),N-0.4,")");
+        tex.DrawLatex(xmin+0.83*(xmax-xmin),N-0.4,"syst");
+        tex.DrawLatex(xmin+0.94*(xmax-xmin),N-0.4,")");
     }
     else{
-        tex->DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N-0.4,"( tot )");
+        tex.DrawLatex(xmin+(0.7-0.02)*(xmax-xmin),N-0.4,"( tot )");
         if (!fShowTotalOnly){
-            tex->DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N-0.4,"( stat )");
+            tex.DrawLatex(xmin+(0.85-0.02)*(xmax-xmin),N-0.4,"( stat )");
         }
     }
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs( (fOutDir+"/POI"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fOutDir+"/POI"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
-    delete c;
 }
 
 //__________________________________________________________________________________
@@ -866,19 +864,19 @@ void MultiFit::CompareLimit(){
     float ymin = -0.5;
     float ymax = N-0.5;
 
-    TCanvas *c = new TCanvas("c","c",700,500);
+    TCanvas c("c","c",700,500);
 
-    TGraphErrors *g_obs = new TGraphErrors(N);
-    TGraphErrors *g_exp = new TGraphErrors(N);
-    TGraphErrors *g_inj = new TGraphErrors(N);
-    TGraphAsymmErrors *g_1s = new TGraphAsymmErrors(N);
-    TGraphAsymmErrors *g_2s = new TGraphAsymmErrors(N);
+    TGraphErrors g_obs(N);
+    TGraphErrors g_exp(N);
+    TGraphErrors g_inj(N);
+    TGraphAsymmErrors g_1s(N);
+    TGraphAsymmErrors g_2s(N);
 
     int Ndiv = N+1;
 
-    TFile *f;
-    TH1* h;
-    TH1* h_old = nullptr;
+    std::unique_ptr<TFile> f = nullptr;
+    std::unique_ptr<TH1> h = nullptr;
+    std::unique_ptr<TH1> h_old = nullptr;
 
     // get values
     for(unsigned int i=0;i<N;i++){
@@ -888,33 +886,33 @@ void MultiFit::CompareLimit(){
         }
         if(fLimitsFiles[i]==""){
             if(fSignalInjection){
-                f = new TFile(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
+                f = std::make_unique<TFile>(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()));
                 WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + "_injection.root");
             }
             else{
-                f = new TFile(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()) );
+                f = std::make_unique<TFile> (Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()));
                 WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + ".root");
             }
         }
         else{
-            f = new TFile(fLimitsFiles[i].c_str());
+            f = std::make_unique<TFile>(fLimitsFiles[i].c_str());
             WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + fLimitsFiles[i]);
         }
-        h = (TH1*)f->Get("limit");
-        if(fSignalInjection) h_old = (TH1*)f->Get("limit_old");
+        h = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get("limit")));
+        if(fSignalInjection) h_old = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get("limit_old")));
 
         WriteDebugStatus("MultiFit::CompareLimit", "bin 1 content: " + std::to_string(h->GetBinContent(1)));
-        if(fFitShowObserved[i]) g_obs->SetPoint(N-i-1,h->GetBinContent(1),N-i-1);
-        else g_obs->SetPoint(N-i-1,-1,N-i-1);
-        g_exp->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
-        if(fSignalInjection) g_inj->SetPoint(N-i-1,h_old->GetBinContent(7),N-i-1);
-        g_1s->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
-        g_2s->SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
-        g_obs->SetPointError(N-i-1,0,0.5);
-        g_exp->SetPointError(N-i-1,0,0.5);
-        g_inj->SetPointError(N-i-1,0,0.5);
-        g_1s->SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(5),h->GetBinContent(4)-h->GetBinContent(2),0.5,0.5);
-        g_2s->SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(6),h->GetBinContent(3)-h->GetBinContent(2),0.5,0.5);
+        if(fFitShowObserved[i]) g_obs.SetPoint(N-i-1,h->GetBinContent(1),N-i-1);
+        else g_obs.SetPoint(N-i-1,-1,N-i-1);
+        g_exp.SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        if(fSignalInjection) g_inj.SetPoint(N-i-1,h_old->GetBinContent(7),N-i-1);
+        g_1s.SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        g_2s.SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        g_obs.SetPointError(N-i-1,0,0.5);
+        g_exp.SetPointError(N-i-1,0,0.5);
+        g_inj.SetPointError(N-i-1,0,0.5);
+        g_1s.SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(5),h->GetBinContent(4)-h->GetBinContent(2),0.5,0.5);
+        g_2s.SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(6),h->GetBinContent(3)-h->GetBinContent(2),0.5,0.5);
 
         if(h->GetBinContent(1)>xmax) xmax = h->GetBinContent(1);
         if(h->GetBinContent(2)>xmax) xmax = h->GetBinContent(2);
@@ -924,77 +922,76 @@ void MultiFit::CompareLimit(){
         if(h->GetBinContent(6)>xmax) xmax = h->GetBinContent(6);
     }
 
-    g_obs->SetLineWidth(3);
-    g_exp->SetLineWidth(3);
-    g_exp->SetLineStyle(2);
-    g_inj->SetLineWidth(3);
-    g_inj->SetLineStyle(2);
-    g_inj->SetLineColor(kRed);
-    g_1s->SetFillColor(kGreen);
-    g_1s->SetLineWidth(3);
-    g_1s->SetLineStyle(2);
-    g_2s->SetFillColor(kYellow);
-    g_2s->SetLineWidth(3);
-    g_2s->SetLineStyle(2);
+    g_obs.SetLineWidth(3);
+    g_exp.SetLineWidth(3);
+    g_exp.SetLineStyle(2);
+    g_inj.SetLineWidth(3);
+    g_inj.SetLineStyle(2);
+    g_inj.SetLineColor(kRed);
+    g_1s.SetFillColor(kGreen);
+    g_1s.SetLineWidth(3);
+    g_1s.SetLineStyle(2);
+    g_2s.SetFillColor(kYellow);
+    g_2s.SetLineWidth(3);
+    g_2s.SetLineStyle(2);
 
-    g_2s->SetMarkerSize(0);
-    g_1s->SetMarkerSize(0);
-    g_exp->SetMarkerSize(0);
-    g_obs->SetMarkerSize(0);
-    g_inj->SetMarkerSize(0);
+    g_2s.SetMarkerSize(0);
+    g_1s.SetMarkerSize(0);
+    g_exp.SetMarkerSize(0);
+    g_obs.SetMarkerSize(0);
+    g_inj.SetMarkerSize(0);
 
     if(fLimitMax!=0) xmax = fLimitMax;
 
-    TH1D* h_dummy = new TH1D("h_dummy","h_dummy",1,0,xmax);
-    h_dummy->Draw();
-    h_dummy->SetMinimum(ymin);
-    h_dummy->SetMaximum(ymax);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->GetYaxis()->Set(N,ymin,ymax);
-    h_dummy->GetYaxis()->SetNdivisions(Ndiv);
+    TH1D h_dummy("h_dummy","h_dummy",1,0,xmax);
+    h_dummy.Draw();
+    h_dummy.SetMinimum(ymin);
+    h_dummy.SetMaximum(ymax);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.GetYaxis()->Set(N,ymin,ymax);
+    h_dummy.GetYaxis()->SetNdivisions(Ndiv);
     for(unsigned int i=0;i<N;i++){
-        h_dummy->GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
+        h_dummy.GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
     }
 
-    g_2s->Draw("E2 same");
-    g_1s->Draw("E2 same");
-    g_exp->Draw("E same");
-    if(showObs) g_obs->Draw("E same");
-    if(fSignalInjection) g_inj->Draw("E same");
+    g_2s.Draw("E2 same");
+    g_1s.Draw("E2 same");
+    g_exp.Draw("E same");
+    if(showObs) g_obs.Draw("E same");
+    if(fSignalInjection) g_inj.Draw("E same");
 
-    TLine *l_SM = new TLine(fPOINominal,-0.5,fPOINominal,N-0.5);
-    l_SM->SetLineWidth(2);
-    l_SM->SetLineColor(kGray);
-    l_SM->Draw("same");
+    TLine l_SM(fPOINominal,-0.5,fPOINominal,N-0.5);
+    l_SM.SetLineWidth(2);
+    l_SM.SetLineColor(kGray);
+    l_SM.Draw("same");
 
-    c->RedrawAxis();
+    c.RedrawAxis();
 
     gPad->SetLeftMargin( 2*gPad->GetLeftMargin() );
     gPad->SetBottomMargin( 1.15*gPad->GetBottomMargin() );
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
-    h_dummy->GetXaxis()->SetTitle(fLimitTitle.c_str());
+    h_dummy.GetXaxis()->SetTitle(fLimitTitle.c_str());
 
     if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
     myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
 
-    TLegend *leg;
-    if(showObs) leg = new TLegend(0.65,0.2,0.95,0.40);
-    else        leg = new TLegend(0.65,0.2,0.95,0.35);
+    std::unique_ptr<TLegend> leg = nullptr;
+    if(showObs) leg = std::make_unique<TLegend>(0.65,0.2,0.95,0.40);
+    else        leg = std::make_unique<TLegend>(0.65,0.2,0.95,0.35);
     leg->SetTextSize(gStyle->GetTextSize());
     leg->SetTextFont(gStyle->GetTextFont());
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
-    leg->AddEntry(g_1s,"Expected #pm 1#sigma","lf");
-    leg->AddEntry(g_2s,"Expected #pm 2#sigma","lf");
-    if(showObs) leg->AddEntry(g_obs,"Observed","l");
-    if(fSignalInjection) leg->AddEntry(g_inj,("Expected ("+fPOIName+"=1)").c_str(),"l");
+    leg->AddEntry(&g_1s,"Expected #pm 1#sigma","lf");
+    leg->AddEntry(&g_2s,"Expected #pm 2#sigma","lf");
+    if(showObs) leg->AddEntry(&g_obs,"Observed","l");
+    if(fSignalInjection) leg->AddEntry(&g_inj,("Expected ("+fPOIName+"=1)").c_str(),"l");
     leg->Draw();
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
-    delete c;
 }
 
 //__________________________________________________________________________________
@@ -1039,9 +1036,9 @@ void MultiFit::ComparePulls(string category) const{
     bool brazilian = true;
 
     // create a list of Systematics
-    std::vector< string > Names;  Names.clear();
-    std::vector< string > Titles; Titles.clear();
-    std::vector< string > Categories; Categories.clear();
+    std::vector< string > Names;
+    std::vector< string > Titles;
+    std::vector< string > Categories;
     string systName;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
@@ -1069,9 +1066,9 @@ void MultiFit::ComparePulls(string category) const{
     }
 
     // exclude unused systematics
-    std::vector<string> NamesNew; NamesNew.clear();
-    std::vector<string> TitlesNew; TitlesNew.clear();
-    std::vector<string> CategoriesNew; CategoriesNew.clear();
+    std::vector<string> NamesNew;
+    std::vector<string> TitlesNew;
+    std::vector<string> CategoriesNew;
     for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
         FitResults *fitRes;
         bool found = false;
@@ -1136,7 +1133,7 @@ void MultiFit::ComparePulls(string category) const{
     Nsyst = Names.size();
 
     // fill stuff
-    std::vector< TGraphAsymmErrors* > g;
+    std::vector< TGraphAsymmErrors> g;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         // create maps for NP's
         std::map<string,float> centralMap;
@@ -1161,18 +1158,18 @@ void MultiFit::ComparePulls(string category) const{
         }
         //
         // create the graphs
-        g.push_back( new TGraphAsymmErrors(Nsyst) );
+        g.emplace_back(Nsyst);
         for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
             systName = Names[i_syst];
             if(centralMap[systName]!=0 || (errUpMap[systName]!=0 || errDownMap[systName]!=0)){
-                g[i_fit]->SetPoint(i_syst,centralMap[systName],(Nsyst-i_syst-1)+0.5+yshift[i_fit]);
-                g[i_fit]->SetPointEXhigh(i_syst,  errUpMap[systName]);
-                g[i_fit]->SetPointEXlow( i_syst, -errDownMap[systName]);
+                g[i_fit].SetPoint(i_syst,centralMap[systName],(Nsyst-i_syst-1)+0.5+yshift[i_fit]);
+                g[i_fit].SetPointEXhigh(i_syst,  errUpMap[systName]);
+                g[i_fit].SetPointEXlow( i_syst, -errDownMap[systName]);
             }
             else{
-                g[i_fit]->SetPoint(i_syst,-10,-10);
-                g[i_fit]->SetPointEXhigh(i_syst, 0);
-                g[i_fit]->SetPointEXlow( i_syst, 0);
+                g[i_fit].SetPoint(i_syst,-10,-10);
+                g[i_fit].SetPointEXhigh(i_syst, 0);
+                g[i_fit].SetPointEXlow( i_syst, 0);
             }
         }
     }
@@ -1184,23 +1181,23 @@ void MultiFit::ComparePulls(string category) const{
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-    TCanvas *c = new TCanvas("c","c",800,newHeight);
-    c->SetTicks(1,0);
+    TCanvas c("c","c",800,newHeight);
+    c.SetTicks(1,0);
     gPad->SetLeftMargin(0.05/(8./6.));
     gPad->SetRightMargin(0.5);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1D *h_dummy = new TH1D("h_dummy","h_dummy",10,xmin,xmax);
-    h_dummy->SetMaximum(max);
-    h_dummy->SetLineWidth(0);
-    h_dummy->SetFillStyle(0);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->SetFillColor(kWhite);
-    h_dummy->SetMinimum(0.);
-    h_dummy->GetYaxis()->SetLabelSize(0);
-    h_dummy->Draw();
-    h_dummy->GetYaxis()->SetNdivisions(0);
+    TH1D h_dummy("h_dummy","h_dummy",10,xmin,xmax);
+    h_dummy.SetMaximum(max);
+    h_dummy.SetLineWidth(0);
+    h_dummy.SetFillStyle(0);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.SetFillColor(kWhite);
+    h_dummy.SetMinimum(0.);
+    h_dummy.GetYaxis()->SetLabelSize(0);
+    h_dummy.Draw();
+    h_dummy.GetYaxis()->SetNdivisions(0);
 
     TLine l0;
     TBox b1, b2;
@@ -1218,38 +1215,36 @@ void MultiFit::ComparePulls(string category) const{
     }
 
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        g[i_fit]->SetLineColor(color[i_fit]);
-        g[i_fit]->SetMarkerColor(color[i_fit]);
-        g[i_fit]->SetMarkerStyle(style[i_fit]);
-        g[i_fit]->Draw("P same");
+        g[i_fit].SetLineColor(color[i_fit]);
+        g[i_fit].SetMarkerColor(color[i_fit]);
+        g[i_fit].SetMarkerStyle(style[i_fit]);
+        g[i_fit].Draw("P same");
     }
 
-    TLatex *systs = new TLatex();
-    systs->SetTextSize( systs->GetTextSize()*0.8 );
+    TLatex systs{};
+    systs.SetTextSize( systs.GetTextSize()*0.8 );
     for(unsigned int i_syst=0;i_syst<Nsyst;i_syst++){
-        systs->DrawLatex(3.,(Nsyst-i_syst-1)+0.25,Titles[i_syst].c_str());
+        systs.DrawLatex(3.,(Nsyst-i_syst-1)+0.25,Titles[i_syst].c_str());
     }
-    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
 
-    TLegend *leg;
-    leg = new TLegend(0.01,1.-0.03*(30./max),0.75,0.99);
-    leg->SetTextSize(gStyle->GetTextSize());
-    leg->SetTextFont(gStyle->GetTextFont());
-    leg->SetFillStyle(0);
-    leg->SetBorderSize(0);
-    leg->SetNColumns(N);
+    TLegend leg(0.01,1.-0.03*(30./max),0.75,0.99);
+    leg.SetTextSize(gStyle->GetTextSize());
+    leg.SetTextFont(gStyle->GetTextFont());
+    leg.SetFillStyle(0);
+    leg.SetBorderSize(0);
+    leg.SetNColumns(N);
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        leg->AddEntry(g[i_fit],titles[i_fit].c_str(),"lp");
+        leg.AddEntry(&g[i_fit],titles[i_fit].c_str(),"lp");
     }
-    leg->Draw();
+    leg.Draw();
 
     gPad->RedrawAxis();
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c->SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c->SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+        if(category=="") c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+        else             c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
-    delete c;
 }
 
 //__________________________________________________________________________________
@@ -1385,7 +1380,7 @@ void MultiFit::CompareNormFactors(string category) const{
     Nnorm = Names.size();
 
     // fill stuff
-    std::vector< TGraphAsymmErrors* > g;
+    std::vector< TGraphAsymmErrors > g;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         // create maps for NP's
         std::map<string,float> centralMap;
@@ -1410,18 +1405,18 @@ void MultiFit::CompareNormFactors(string category) const{
         }
         //
         // create the graphs
-        g.push_back( new TGraphAsymmErrors(Nnorm) );
+        g.emplace_back(Nnorm);
         for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
             normName = Names[i_norm];
             if(centralMap[normName]!=0 || (errUpMap[normName]!=0 || errDownMap[normName]!=0)){
-                g[i_fit]->SetPoint(i_norm,centralMap[normName],(Nnorm-i_norm-1)+0.5+yshift[i_fit]);
-                g[i_fit]->SetPointEXhigh(i_norm,  errUpMap[normName]);
-                g[i_fit]->SetPointEXlow( i_norm, -errDownMap[normName]);
+                g[i_fit].SetPoint(i_norm,centralMap[normName],(Nnorm-i_norm-1)+0.5+yshift[i_fit]);
+                g[i_fit].SetPointEXhigh(i_norm,  errUpMap[normName]);
+                g[i_fit].SetPointEXlow( i_norm, -errDownMap[normName]);
             }
             else{
-                g[i_fit]->SetPoint(i_norm,-10,-10);
-                g[i_fit]->SetPointEXhigh(i_norm, 0);
-                g[i_fit]->SetPointEXlow( i_norm, 0);
+                g[i_fit].SetPoint(i_norm,-10,-10);
+                g[i_fit].SetPointEXhigh(i_norm, 0);
+                g[i_fit].SetPointEXlow( i_norm, 0);
             }
         }
     }
@@ -1433,70 +1428,67 @@ void MultiFit::CompareNormFactors(string category) const{
     int offsetDown = 40;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
-    TCanvas *c = new TCanvas("c","c",800,newHeight);
-    c->SetTicks(1,0);
+    TCanvas c("c","c",800,newHeight);
+    c.SetTicks(1,0);
     gPad->SetLeftMargin(0.2/(8./6.));
     gPad->SetRightMargin(0.02);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1D *h_dummy = new TH1D("h_dummy","h_dummy",10,xmin,xmax);
-    h_dummy->SetMaximum(max);
-    h_dummy->SetLineWidth(0);
-    h_dummy->SetFillStyle(0);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->SetFillColor(kWhite);
-    h_dummy->SetMinimum(0.);
-    h_dummy->GetYaxis()->SetLabelSize(0);
-    h_dummy->Draw();
-    h_dummy->GetYaxis()->SetNdivisions(0);
+    TH1D h_dummy("h_dummy","h_dummy",10,xmin,xmax);
+    h_dummy.SetMaximum(max);
+    h_dummy.SetLineWidth(0);
+    h_dummy.SetFillStyle(0);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.SetFillColor(kWhite);
+    h_dummy.SetMinimum(0.);
+    h_dummy.GetYaxis()->SetLabelSize(0);
+    h_dummy.Draw();
+    h_dummy.GetYaxis()->SetNdivisions(0);
 
-    TLine l1;
-    l1 = TLine(1,0,1,max);
+    TLine l1(1,0,1,max);
     l1.SetLineColor(kGray);
     l1.Draw("same");
 
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        g[i_fit]->SetLineColor(color[i_fit]);
-        g[i_fit]->SetMarkerColor(color[i_fit]);
-        g[i_fit]->SetMarkerStyle(style[i_fit]);
-        g[i_fit]->Draw("P same");
+        g[i_fit].SetLineColor(color[i_fit]);
+        g[i_fit].SetMarkerColor(color[i_fit]);
+        g[i_fit].SetMarkerStyle(style[i_fit]);
+        g[i_fit].Draw("P same");
     }
 
-    TLatex *norms = new TLatex();
-    norms->SetTextSize( norms->GetTextSize()*0.8 );
+    TLatex norms{};
+    norms.SetTextSize( norms.GetTextSize()*0.8 );
     for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
-        norms->DrawLatex(xmin-0.15*(xmax-xmin),(Nnorm-i_norm-1)+0.25,Titles[i_norm].c_str());
+        norms.DrawLatex(xmin-0.15*(xmax-xmin),(Nnorm-i_norm-1)+0.25,Titles[i_norm].c_str());
     }
-    TLatex *values = new TLatex();
-    values->SetTextSize( values->GetTextSize()*0.8 );
+    TLatex values{};
+    values.SetTextSize( values.GetTextSize()*0.8 );
     for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
         for(unsigned int i_fit=0;i_fit<N;i_fit++){
-            values->DrawLatex((xmin+(xmax-xmin)*(0.45+i_fit*0.55/N)),(Nnorm-i_norm-1)+0.25,
-                              Form("%.2f^{+%.2f}_{-%.2f}",g[i_fit]->GetX()[i_norm],g[i_fit]->GetErrorXhigh(i_norm),g[i_fit]->GetErrorXlow(i_norm)));
+            values.DrawLatex((xmin+(xmax-xmin)*(0.45+i_fit*0.55/N)),(Nnorm-i_norm-1)+0.25,
+                             Form("%.2f^{+%.2f}_{-%.2f}",g[i_fit].GetX()[i_norm],g[i_fit].GetErrorXhigh(i_norm),g[i_fit].GetErrorXlow(i_norm)));
         }
     }
-    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
 
-    TLegend *leg;
-    leg = new TLegend(0.45,1.-0.02*(30./max),0.98,0.99);
-    leg->SetTextSize(gStyle->GetTextSize());
-    leg->SetTextFont(gStyle->GetTextFont());
-    leg->SetFillStyle(0);
-    leg->SetBorderSize(0);
-    leg->SetNColumns(N);
+    TLegend leg(0.45,1.-0.02*(30./max),0.98,0.99);
+    leg.SetTextSize(gStyle->GetTextSize());
+    leg.SetTextFont(gStyle->GetTextFont());
+    leg.SetFillStyle(0);
+    leg.SetBorderSize(0);
+    leg.SetNColumns(N);
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        leg->AddEntry(g[i_fit],titles[i_fit].c_str(),"lp");
+        leg.AddEntry(&g[i_fit],titles[i_fit].c_str(),"lp");
     }
-    leg->Draw();
+    leg.Draw();
 
     gPad->RedrawAxis();
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c->SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c->SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+        if(category=="") c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+        else             c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
-    delete c;
 }
 
 //__________________________________________________________________________________
@@ -1935,45 +1927,44 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     float xmax =  2;
     float max  =  0;
 
-    TGraphAsymmErrors *g = new TGraphAsymmErrors();
-    TGraphAsymmErrors *g1 = new TGraphAsymmErrors();
-    TGraphAsymmErrors *g2 = new TGraphAsymmErrors();
-    TGraphAsymmErrors *g1a = new TGraphAsymmErrors();
-    TGraphAsymmErrors *g2a = new TGraphAsymmErrors();
+    TGraphAsymmErrors g{};
+    TGraphAsymmErrors g1{};
+    TGraphAsymmErrors g2{};
+    TGraphAsymmErrors g1a{};
+    TGraphAsymmErrors g2a{};
 
     int idx = 0;
     std::vector< string > Names;
-    Names.clear();
-    string parTitle;
+    std::string parTitle;
 
     for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
-        g->SetPoint(idx, nuhat[i],  idx+0.5);
-        g->SetPointEXhigh(      idx, nuerrhi[i]);
-        g->SetPointEXlow(       idx, nuerrlo[i]);
+        g.SetPoint(idx, nuhat[i],  idx+0.5);
+        g.SetPointEXhigh(      idx, nuerrhi[i]);
+        g.SetPointEXlow(       idx, nuerrlo[i]);
 
-        g1->SetPoint(      idx, 0.,idx+0.5);
-        g1->SetPointEXhigh(idx, poiup[i]);
-        g1->SetPointEXlow( idx, 0.);
-        g1->SetPointEYhigh(idx, 0.4);
-        g1->SetPointEYlow( idx, 0.4);
+        g1.SetPoint(      idx, 0.,idx+0.5);
+        g1.SetPointEXhigh(idx, poiup[i]);
+        g1.SetPointEXlow( idx, 0.);
+        g1.SetPointEYhigh(idx, 0.4);
+        g1.SetPointEYlow( idx, 0.4);
 
-        g2->SetPoint(      idx, 0.,idx+0.5);
-        g2->SetPointEXhigh(idx, poidown[i]);
-        g2->SetPointEXlow( idx, 0.);
-        g2->SetPointEYhigh(idx, 0.4);
-        g2->SetPointEYlow( idx, 0.4);
+        g2.SetPoint(      idx, 0.,idx+0.5);
+        g2.SetPointEXhigh(idx, poidown[i]);
+        g2.SetPointEXlow( idx, 0.);
+        g2.SetPointEYhigh(idx, 0.4);
+        g2.SetPointEYlow( idx, 0.4);
 
-        g1a->SetPoint(      idx, 0.,idx+0.5);
-        g1a->SetPointEXhigh(idx, poinomup[i]);
-        g1a->SetPointEXlow( idx, 0.);
-        g1a->SetPointEYhigh(idx, 0.4);
-        g1a->SetPointEYlow( idx, 0.4);
+        g1a.SetPoint(      idx, 0.,idx+0.5);
+        g1a.SetPointEXhigh(idx, poinomup[i]);
+        g1a.SetPointEXlow( idx, 0.);
+        g1a.SetPointEYhigh(idx, 0.4);
+        g1a.SetPointEYlow( idx, 0.4);
 
-        g2a->SetPoint(      idx, 0.,idx+0.5);
-        g2a->SetPointEXhigh(idx, poinomdown[i]);
-        g2a->SetPointEXlow( idx, 0.);
-        g2a->SetPointEYhigh(idx, 0.4);
-        g2a->SetPointEYlow( idx, 0.4);
+        g2a.SetPoint(      idx, 0.,idx+0.5);
+        g2a.SetPointEXhigh(idx, poinomdown[i]);
+        g2a.SetPointEXlow( idx, 0.);
+        g2a.SetPointEYhigh(idx, 0.4);
+        g2a.SetPointEYlow( idx, 0.4);
         if(parname[i].find("gamma")!=string::npos || parname[i].find("stat_")!=string::npos){
             // get name of the region
             std::vector<std::string> tmpVec = Vectorize(parname[i],'_');
@@ -2007,121 +1998,118 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
         if(idx > max)  max = idx;
     }
 
-    TCanvas *c = new TCanvas("c","c",600,newHeight);
-    c->SetTicks(0,0);
+    TCanvas c("c","c",600,newHeight);
+    c.SetTicks(0,0);
     gPad->SetLeftMargin(0.4);
     gPad->SetRightMargin(0.05);
     gPad->SetTopMargin(1.*offsetUp/newHeight);
     gPad->SetBottomMargin(1.*offsetDown/newHeight);
 
-    TH1D *h_dummy = new TH1D("h_dummy","h_dummy",10,xmin,xmax);
-    h_dummy->SetMaximum( SIZE + offsetUp1/lineHeight   );
-    h_dummy->SetMinimum(      - offsetDown1/lineHeight );
-    h_dummy->SetLineWidth(0);
-    h_dummy->SetFillStyle(0);
-    h_dummy->SetLineColor(kWhite);
-    h_dummy->SetFillColor(kWhite);
-    h_dummy->GetYaxis()->SetLabelSize(0);
-    h_dummy->Draw();
-    h_dummy->GetYaxis()->SetNdivisions(0);
-    for(int i_bin=0;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
-        h_dummy->SetBinContent(i_bin,-10);
+    TH1D h_dummy("h_dummy","h_dummy",10,xmin,xmax);
+    h_dummy.SetMaximum( SIZE + offsetUp1/lineHeight   );
+    h_dummy.SetMinimum(      - offsetDown1/lineHeight );
+    h_dummy.SetLineWidth(0);
+    h_dummy.SetFillStyle(0);
+    h_dummy.SetLineColor(kWhite);
+    h_dummy.SetFillColor(kWhite);
+    h_dummy.GetYaxis()->SetLabelSize(0);
+    h_dummy.Draw();
+    h_dummy.GetYaxis()->SetNdivisions(0);
+    for(int i_bin=0;i_bin<h_dummy.GetNbinsX()+1;i_bin++){
+        h_dummy.SetBinContent(i_bin,-10);
     }
 
-    g1->SetFillColor(kAzure-4);
-    g2->SetFillColor(kCyan);
-    g1->SetLineColor(g1->GetFillColor());
-    g2->SetLineColor(g2->GetFillColor());
+    g1.SetFillColor(kAzure-4);
+    g2.SetFillColor(kCyan);
+    g1.SetLineColor(g1.GetFillColor());
+    g2.SetLineColor(g2.GetFillColor());
 
-    g1a->SetFillColor(kWhite);
-    g2a->SetFillColor(kWhite);
-    g1a->SetLineColor(kAzure-4);
-    g2a->SetLineColor(kCyan);
-    g1a->SetFillStyle(0);
-    g2a->SetFillStyle(0);
-    g1a->SetLineWidth(1);
-    g2a->SetLineWidth(1);
+    g1a.SetFillColor(kWhite);
+    g2a.SetFillColor(kWhite);
+    g1a.SetLineColor(kAzure-4);
+    g2a.SetLineColor(kCyan);
+    g1a.SetFillStyle(0);
+    g2a.SetFillStyle(0);
+    g1a.SetLineWidth(1);
+    g2a.SetLineWidth(1);
 
-    g->SetLineWidth(2);
+    g.SetLineWidth(2);
 
-    g1a->Draw("5 same");
-    g2a->Draw("5 same");
-    g1->Draw("2 same");
-    g2->Draw("2 same");
-    g->Draw("p same");
+    g1a.Draw("5 same");
+    g2a.Draw("5 same");
+    g1.Draw("2 same");
+    g2.Draw("2 same");
+    g.Draw("p same");
 
-    TLatex *systs = new TLatex();
-    systs->SetTextAlign(32);
-    systs->SetTextSize( systs->GetTextSize()*0.8 );
+    TLatex systs{};
+    systs.SetTextAlign(32);
+    systs.SetTextSize( systs.GetTextSize()*0.8 );
     for(int i=0;i<max;i++){
-        systs->DrawLatex(xmin-0.1,i+0.5,Names[i].c_str());
+        systs.DrawLatex(xmin-0.1,i+0.5,Names[i].c_str());
     }
-    h_dummy->GetXaxis()->SetLabelSize( h_dummy->GetXaxis()->GetLabelSize()*0.9 );
-    h_dummy->GetXaxis()->CenterTitle();
-    h_dummy->GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
-    h_dummy->GetXaxis()->SetTitleOffset(1.2);
+    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy.GetXaxis()->CenterTitle();
+    h_dummy.GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
+    h_dummy.GetXaxis()->SetTitleOffset(1.2);
 
-    TGaxis *axis_up = new TGaxis( -2, SIZE + (offsetUp1)/lineHeight, 2, SIZE + (offsetUp1)/lineHeight, -poimax,poimax, 510, "-" );
-    axis_up->SetLabelOffset( 0.01 );
-    axis_up->SetLabelSize(   h_dummy->GetXaxis()->GetLabelSize() );
-    axis_up->SetLabelFont(   gStyle->GetTextFont() );
-    axis_up->Draw();
-    axis_up->CenterTitle();
-    axis_up->SetTitle(("#Delta"+fPOIName).c_str());
-    if(SIZE==20) axis_up->SetTitleOffset(1.5);
-    if(SIZE==10) axis_up->SetTitleOffset(1.25);
-    axis_up->SetTitleSize(   h_dummy->GetXaxis()->GetLabelSize() );
-    axis_up->SetTitleFont(   gStyle->GetTextFont() );
+    TGaxis axis_up( -2, SIZE + (offsetUp1)/lineHeight, 2, SIZE + (offsetUp1)/lineHeight, -poimax,poimax, 510, "-" );
+    axis_up.SetLabelOffset( 0.01 );
+    axis_up.SetLabelSize(   h_dummy.GetXaxis()->GetLabelSize() );
+    axis_up.SetLabelFont(   gStyle->GetTextFont() );
+    axis_up.Draw();
+    axis_up.CenterTitle();
+    axis_up.SetTitle(("#Delta"+fPOIName).c_str());
+    if(SIZE==20) axis_up.SetTitleOffset(1.5);
+    if(SIZE==10) axis_up.SetTitleOffset(1.25);
+    axis_up.SetTitleSize(   h_dummy.GetXaxis()->GetLabelSize() );
+    axis_up.SetTitleFont(   gStyle->GetTextFont() );
 
-    TPad *pad1 = new TPad("p1","Pad High",0,(newHeight-offsetUp-offsetUp1)/newHeight,0.4,1);
-    pad1->Draw();
+    TPad pad1("p1","Pad High",0,(newHeight-offsetUp-offsetUp1)/newHeight,0.4,1);
+    pad1.Draw();
 
-    pad1->cd();
-    TLegend *leg1 = new TLegend(0.02,0.7,1,1.0,("Pre-fit impact on "+fPOIName+":").c_str());
-    leg1->SetFillStyle(0);
-    leg1->SetBorderSize(0);
-    leg1->SetMargin(0.25);
-    leg1->SetNColumns(2);
-    leg1->SetTextFont(gStyle->GetTextFont());
-    leg1->SetTextSize(gStyle->GetTextSize());
-    leg1->AddEntry(g1a,"#theta = #hat{#theta}+#Delta#theta","f");
-    leg1->AddEntry(g2a,"#theta = #hat{#theta}-#Delta#theta","f");
-    leg1->Draw();
+    pad1.cd();
+    TLegend leg1(0.02,0.7,1,1.0,("Pre-fit impact on "+fPOIName+":").c_str());
+    leg1.SetFillStyle(0);
+    leg1.SetBorderSize(0);
+    leg1.SetMargin(0.25);
+    leg1.SetNColumns(2);
+    leg1.SetTextFont(gStyle->GetTextFont());
+    leg1.SetTextSize(gStyle->GetTextSize());
+    leg1.AddEntry(&g1a,"#theta = #hat{#theta}+#Delta#theta","f");
+    leg1.AddEntry(&g2a,"#theta = #hat{#theta}-#Delta#theta","f");
+    leg1.Draw();
 
-    TLegend *leg2 = new TLegend(0.02,0.32,1,0.62,("Post-fit impact on "+fPOIName+":").c_str());
-    leg2->SetFillStyle(0);
-    leg2->SetBorderSize(0);
-    leg2->SetMargin(0.25);
-    leg2->SetNColumns(2);
-    leg2->SetTextFont(gStyle->GetTextFont());
-    leg2->SetTextSize(gStyle->GetTextSize());
-    leg2->AddEntry(g1,"#theta = #hat{#theta}+#Delta#hat{#theta}","f");
-    leg2->AddEntry(g2,"#theta = #hat{#theta}-#Delta#hat{#theta}","f");
-    leg2->Draw();
+    TLegend leg2(0.02,0.32,1,0.62,("Post-fit impact on "+fPOIName+":").c_str());
+    leg2.SetFillStyle(0);
+    leg2.SetBorderSize(0);
+    leg2.SetMargin(0.25);
+    leg2.SetNColumns(2);
+    leg2.SetTextFont(gStyle->GetTextFont());
+    leg2.SetTextSize(gStyle->GetTextSize());
+    leg2.AddEntry(&g1,"#theta = #hat{#theta}+#Delta#hat{#theta}","f");
+    leg2.AddEntry(&g2,"#theta = #hat{#theta}-#Delta#hat{#theta}","f");
+    leg2.Draw();
 
-    TLegend *leg0 = new TLegend(0.02,0.1,1,0.25);
-    leg0->SetFillStyle(0);
-    leg0->SetBorderSize(0);
-    leg0->SetMargin(0.2);
-    leg0->SetTextFont(gStyle->GetTextFont());
-    leg0->SetTextSize(gStyle->GetTextSize());
-    leg0->AddEntry(g,"Nuis. Param. Pull","lp");
-    leg0->Draw();
+    TLegend leg0(0.02,0.1,1,0.25);
+    leg0.SetFillStyle(0);
+    leg0.SetBorderSize(0);
+    leg0.SetMargin(0.2);
+    leg0.SetTextFont(gStyle->GetTextFont());
+    leg0.SetTextSize(gStyle->GetTextSize());
+    leg0.AddEntry(&g,"Nuis. Param. Pull","lp");
+    leg0.Draw();
 
-    c->cd();
+    c.cd();
 
-    TLine l0;
-    TLine l1;
-    TLine l2;
-    l0 = TLine(0,- offsetDown1/lineHeight,0,SIZE+0.5);// + offsetUp1/lineHeight);
+    TLine l0(0,- offsetDown1/lineHeight,0,SIZE+0.5);// + offsetUp1/lineHeight);
     l0.SetLineStyle(kDashed);
     l0.SetLineColor(kBlack);
     l0.Draw("same");
-    l1 = TLine(-1,- offsetDown1/lineHeight,-1,SIZE+0.5);// + offsetUp1/lineHeight);
+    TLine l1(-1,- offsetDown1/lineHeight,-1,SIZE+0.5);// + offsetUp1/lineHeight);
     l1.SetLineStyle(kDashed);
     l1.SetLineColor(kBlack);
     l1.Draw("same");
-    l2 = TLine(1,- offsetDown1/lineHeight,1,SIZE+0.5);// + offsetUp1/lineHeight);
+    TLine l2(1,- offsetDown1/lineHeight,1,SIZE+0.5);// + offsetUp1/lineHeight);
     l2.SetLineStyle(kDashed);
     l2.SetLineColor(kBlack);
     l2.Draw("same");
@@ -2134,23 +2122,21 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
 
     if(flagGammas && flagSysts){
       for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fOutDir+"/Ranking."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fOutDir+"/Ranking."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else if(flagGammas){
       for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fOutDir+"/RankingGammas."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fOutDir+"/RankingGammas."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else if(flagSysts){
       for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fOutDir+"/RankingSysts."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fOutDir+"/RankingSysts."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
     else{
       WriteWarningStatus("MultiFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
       for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fOutDir+"/RankingUnknown."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        c.SaveAs( (fOutDir+"/RankingUnknown."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
     }
-    //
-    delete c;
 }
 
 //__________________________________________________________________________________
@@ -2240,8 +2226,8 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     }
     WriteInfoStatus("MultiFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
 
-    TCanvas* can = new TCanvas("NLLscan");
-    can->SetTopMargin(0.1);
+    TCanvas can("NLLscan");
+    can.SetTopMargin(0.1);
     RooCurve* curve;
     RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
 
@@ -2257,7 +2243,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         curve = frameLH->getCurve();
     }
     else{
-        TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
+        TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root", "READ");
         curve = (RooCurve*)f->Get("LHscan");
         curve->SetLineColor(kRed);
         curve->SetLineWidth(3);
@@ -2267,11 +2253,11 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     // take the LH curves also for other fits
     std::vector<RooCurve*> curve_fit;
     std::vector<RooCurve*> curve_fit_statOnly; // to implement
-    TLegend *leg = new TLegend(0.5,0.85-0.06*(fFitList.size()+1),0.75,0.85);
-    leg->SetFillColor(kWhite);
-    leg->SetBorderSize(0);
-    leg->SetTextSize(gStyle->GetTextSize());
-    leg->SetTextFont(gStyle->GetTextFont());
+    TLegend leg(0.5,0.85-0.06*(fFitList.size()+1),0.75,0.85);
+    leg.SetFillColor(kWhite);
+    leg.SetBorderSize(0);
+    leg.SetTextSize(gStyle->GetTextSize());
+    leg.SetTextFont(gStyle->GetTextFont());
     if(fCompare){
         for(auto fit : fFitList){
             TFile *f = nullptr;
@@ -2296,10 +2282,10 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
             if(idx==0) crv->SetLineColor(kBlue);
             if(idx==1) crv->SetLineColor(kGreen);
             frameLH->addPlotable(crv,"same");
-            leg->AddEntry(crv,fFitList[idx]->fLabel.c_str(),"l");
+            leg.AddEntry(crv,fFitList[idx]->fLabel.c_str(),"l");
             idx++;
         }
-        leg->AddEntry(curve,"Combined","l");
+        leg.AddEntry(curve,"Combined","l");
     }
 
     frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
@@ -2313,64 +2299,64 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     cname.Append("NLLscan_");
     cname.Append(vname);
 
-    can->SetTitle(cname);
-    can->SetName(cname);
-    can->cd();
+    can.SetTitle(cname);
+    can.SetName(cname);
+    can.cd();
     frameLH->Draw();
 
-    TLatex *tex = new TLatex();
-    tex->SetTextColor(kGray+2);
+    TLatex tex{};
+    tex.SetTextColor(kGray+2);
 
-    TLine *l1s = new TLine(minVal,0.5,maxVal,0.5);
-    l1s->SetLineStyle(kDashed);
-    l1s->SetLineColor(kGray);
-    l1s->SetLineWidth(2);
+    TLine l1s(minVal,0.5,maxVal,0.5);
+    l1s.SetLineStyle(kDashed);
+    l1s.SetLineColor(kGray);
+    l1s.SetLineWidth(2);
     if(frameLH->GetMaximum()>2){
-        l1s->Draw();
-        tex->DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
+        l1s.Draw();
+        tex.DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
     }
 
     if(isPoI){
         if(frameLH->GetMaximum()>2){
-            TLine *l2s = new TLine(minVal,2,maxVal,2);
-            l2s->SetLineStyle(kDashed);
-            l2s->SetLineColor(kGray);
-            l2s->SetLineWidth(2);
-            l2s->Draw();
-            tex->DrawLatex(maxVal,2,"#lower[-0.1]{#kern[-1]{2 #it{#sigma}   }}");
+            TLine l2s(minVal,2,maxVal,2);
+            l2s.SetLineStyle(kDashed);
+            l2s.SetLineColor(kGray);
+            l2s.SetLineWidth(2);
+            l2s.Draw();
+            tex.DrawLatex(maxVal,2,"#lower[-0.1]{#kern[-1]{2 #it{#sigma}   }}");
         }
         //
         if(frameLH->GetMaximum()>4.5){
-            TLine *l3s = new TLine(minVal,4.5,maxVal,4.5);
-            l3s->SetLineStyle(kDashed);
-            l3s->SetLineColor(kGray);
-            l3s->SetLineWidth(2);
-            l3s->Draw();
-            tex->DrawLatex(maxVal,4.5,"#lower[-0.1]{#kern[-1]{3 #it{#sigma}   }}");
+            TLine l3s(minVal,4.5,maxVal,4.5);
+            l3s.SetLineStyle(kDashed);
+            l3s.SetLineColor(kGray);
+            l3s.SetLineWidth(2);
+            l3s.Draw();
+            tex.DrawLatex(maxVal,4.5,"#lower[-0.1]{#kern[-1]{3 #it{#sigma}   }}");
         }
         //
-        TLine *lv0 = new TLine(0,frameLH->GetMinimum(),0,frameLH->GetMaximum());
-        lv0->Draw();
+        TLine lv0(0,frameLH->GetMinimum(),0,frameLH->GetMaximum());
+        lv0.Draw();
         //
-        TLine *lh0 = new TLine(minVal,0,maxVal,0);
-        lh0->Draw();
+        TLine lh0(minVal,0,maxVal,0);
+        lh0.Draw();
     }
 
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
     if(fCompare){
-        leg->Draw();
+        leg.Draw();
         if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.15,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
         myText(0.68,0.93,kBlack,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
         if(fLabel!="") myText(0.2,0.85,kBlack,Form("#kern[-1]{%s}",fLabel.c_str()));
     }
 
     frameLH->SetMinimum(0);
-    can->RedrawAxis();
+    can.RedrawAxis();
     curve->Draw("same");
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        can->SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TRExFitter::IMAGEFORMAT[i_format] );
+        can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TRExFitter::IMAGEFORMAT[i_format] );
 
     if(recreate){
         // write it to a ROOT file as well
