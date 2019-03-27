@@ -481,7 +481,7 @@ void TRExPlot::Draw(std::string options){
     // Draw a normalized signal distribution
     //
     std::vector<double> signalScale;
-    for(int i_smp=0;i_smp<(int)fNormSigNames.size();i_smp++) signalScale.push_back(1);
+    signalScale.resize(fNormSigNames.size());
     for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
         if (std::fabs(h_normsig[i_smp]->Integral()) < 1e-10) {
             // division by zero

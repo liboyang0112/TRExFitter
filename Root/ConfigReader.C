@@ -191,7 +191,7 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(fOnlySignals.size()>0){
         WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "  Only Signals: ");
         std::string toPrint = "";
-        for(auto s : fOnlySignals) toPrint += " " + s;
+        for(const auto& s : fOnlySignals) toPrint += " " + s;
         WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "    " + toPrint);
     }
     return 0;
@@ -2305,13 +2305,13 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
             if(fOnlySignals.size()>0){
                 if(type==Sample::SIGNAL){
                     bool skip = true;
-                    for(auto s : fOnlySignals){
+                    for(const auto& s : fOnlySignals){
                         if(CheckName(confSet->GetValue())==s) skip = false;
                     }
                     if(skip) continue;
                 }
                 else if(type==Sample::GHOST){
-                    for(auto s : fOnlySignals){
+                    for(const auto& s : fOnlySignals){
                         if(CheckName(confSet->GetValue())==s) type = Sample::SIGNAL;
                     }
                 }
@@ -3005,16 +3005,9 @@ int ConfigReader::ReadNormFactorOptions(){
             nfactor = fFitter->fNormFactors[ FindInStringVector(fFitter->fNormFactorNames,nfactor->fName) ];
         }
 
-        // Set NuisanceParameter
-        param = confSet->Get("NuisanceParameter");
-        if(param != ""){
-            nfactor->fNuisanceParameter = RemoveQuotes(param);
-            TRExFitter::NPMAP[nfactor->fName] = nfactor->fNuisanceParameter;
-        }
-        else{
-            nfactor->fNuisanceParameter = nfactor->fName;
-            TRExFitter::NPMAP[nfactor->fName] = nfactor->fName;
-        }
+        // Set NuisanceParameter = Name
+        nfactor->fNuisanceParameter = nfactor->fName;
+        TRExFitter::NPMAP[nfactor->fName] = nfactor->fName;
 
         if (SystHasProblematicName(nfactor->fNuisanceParameter)) return 1;
 
@@ -3165,17 +3158,10 @@ int ConfigReader::ReadShapeFactorOptions(){
         else{
             sfactor = fFitter->fShapeFactors[ FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName) ];
         }
-
-        // Set NuisanceParameter
-        param = confSet->Get("NuisanceParameter");
-        if(param != ""){
-            sfactor->fNuisanceParameter = RemoveQuotes(param);
-            TRExFitter::NPMAP[sfactor->fName] = sfactor->fNuisanceParameter;
-        }
-        else{
-            sfactor->fNuisanceParameter = sfactor->fName;
-            TRExFitter::NPMAP[sfactor->fName] = sfactor->fName;
-        }
+        
+        // Set NuisanceParameter = Name
+        sfactor->fNuisanceParameter = sfactor->fName;
+        TRExFitter::NPMAP[sfactor->fName] = sfactor->fName;
 
         if (SystHasProblematicName(sfactor->fNuisanceParameter)) return 1;
 
