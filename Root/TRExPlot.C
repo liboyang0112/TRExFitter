@@ -480,17 +480,18 @@ void TRExPlot::Draw(std::string options){
     //
     // Draw a normalized signal distribution
     //
-    double signalScale = 1.;
+    std::vector<double> signalScale;
+    signalScale.resize(fNormSigNames.size());
     for(int i_smp=fNormSigNames.size()-1;i_smp>=0;i_smp--){
         if (std::fabs(h_normsig[i_smp]->Integral()) < 1e-10) {
             // division by zero
             WriteWarningStatus("TRExPlot::Draw", " --- Signal " + fNormSigNames[i_smp] + " has integral equal to zero - cannot scale, returning scale = 1");
-            signalScale = 1.;
+            signalScale[i_smp] = 1;
         } else {
-            signalScale = h_tot->Integral()/h_normsig[i_smp]->Integral();
-            WriteInfoStatus("TRExPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale));
+            signalScale[i_smp] = h_tot->Integral()/h_normsig[i_smp]->Integral();
+            WriteInfoStatus("TRExPlot::Draw", "--- Signal " + fNormSigNames[i_smp] + " scaled by " + std::to_string(signalScale[i_smp]));
         }
-        h_normsig[i_smp]->Scale(signalScale);
+        h_normsig[i_smp]->Scale(signalScale[i_smp]);
         h_normsig[i_smp]->SetLineColor(h_normsig[i_smp]->GetFillColor());
         h_normsig[i_smp]->SetFillColor(0);
         h_normsig[i_smp]->SetFillStyle(0);
@@ -683,7 +684,7 @@ void TRExPlot::Draw(std::string options){
         leg->Draw();
         //
         if(TRExFitter::OPTION["TRExbbStyle"]==0 && fNormSigNames.size()>0){
-            myText(legX1,0.93-((Nrows+1)/2)*0.05 - 0.05,  1,"*: normalised to total Bkg.");
+            myText(legX1,0.96,  1,"*: normalised to total Bkg.");
         }
     }
 
@@ -710,7 +711,10 @@ void TRExPlot::Draw(std::string options){
         TH1* h_ratio = nullptr;
         if(fRatioType=="S/B" || fRatioType=="S/SQRT(B)" || fRatioType=="S/SQRT(S+B)"){ // ...
             if(fSigNames.size()>0)          h_ratio = (TH1*)h_signal[0] ->Clone("h_ratio");
-            else if(fNormSigNames.size()>0) h_ratio = (TH1*)h_normsig[0]->Clone("h_ratio");
+            else if(fNormSigNames.size()>0){
+                h_ratio = (TH1*)h_normsig[0]->Clone("h_ratio");
+                h_ratio->Scale(1./signalScale[0]);
+            }
             else if(fOverSigNames.size()>0) h_ratio = (TH1*)h_oversig[0]->Clone("h_ratio");
             else{
                 h_ratio = (TH1*)h_tot->Clone("h_ratio");
@@ -732,6 +736,7 @@ void TRExPlot::Draw(std::string options){
             else if(fNormSigNames.size()>1){
                 for(unsigned int i_sig=1;i_sig<fNormSigNames.size();i_sig++){
                     h_addRatioVec.push_back((TH1*)h_normsig[i_sig]->Clone(Form("h_ratio_%d",i_sig)));
+                    h_addRatioVec[i_sig-1]->Scale(1./signalScale[i_sig]);
                 }
             }
             else if(fOverSigNames.size()>1){
