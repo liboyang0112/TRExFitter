@@ -443,6 +443,9 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
     int lineHeight = 20;
     int offsetUp = 40;
     int offsetDown = 60;
+    if (max < 10){
+        offsetDown = 65;
+    }
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
     TCanvas c("c","c",800,newHeight);
@@ -488,7 +491,11 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
     h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
     h_dummy.GetXaxis()->CenterTitle();
     h_dummy.GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
-    h_dummy.GetXaxis()->SetTitleOffset(1.2);
+    if (max < 10){
+        h_dummy.GetXaxis()->SetTitleOffset(0.9);
+    } else {
+        h_dummy.GetXaxis()->SetTitleOffset(1.15);
+    }
 
     gPad->RedrawAxis();
 
