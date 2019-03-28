@@ -1178,7 +1178,7 @@ void MultiFit::ComparePulls(string category) const{
 
     int lineHeight = 20;
     int offsetUp = 50;
-    int offsetDown = 40;
+    int offsetDown = 60;
     int offset = offsetUp + offsetDown;
     int newHeight = offset + max*lineHeight;
     TCanvas c("c","c",800,newHeight);
@@ -1227,6 +1227,9 @@ void MultiFit::ComparePulls(string category) const{
         systs.DrawLatex(3.,(Nsyst-i_syst-1)+0.25,Titles[i_syst].c_str());
     }
     h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
+    h_dummy.GetXaxis()->CenterTitle();
+    h_dummy.GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
+    h_dummy.GetXaxis()->SetTitleOffset(1.2);
 
     TLegend leg(0.01,1.-0.03*(30./max),0.75,0.99);
     leg.SetTextSize(gStyle->GetTextSize());
