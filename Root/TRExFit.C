@@ -5252,7 +5252,6 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
 void TRExFit::PlotFittedNP(){
     if(fStatOnly || fStatOnlyFit){
         WriteInfoStatus("TRExFit::PlotFittedNP", "Stat only fit => No NP Pull plots generated.");
-        return;
     }
     //
     // plot the NP fit pull plot
@@ -5265,11 +5264,13 @@ void TRExFit::PlotFittedNP(){
             npCategories.insert(fSystematics[i]->fCategory);
         }
         for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-          fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],"all",fNormFactors, fBlindedParameters);
-          fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format], fBlindedParameters);
-          fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
+            if(!fStatOnly && !fStatOnlyFit){
+                fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],"all",fNormFactors, fBlindedParameters);
+                fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format], fBlindedParameters);
+            }
+            fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
         }
-        if(npCategories.size()>1){
+        if(npCategories.size()>1 && !fStatOnly && !fStatOnlyFit){
             for( const std::string cat : npCategories ){
                 std::string cat_for_name = cat;
                 std::replace( cat_for_name.begin(), cat_for_name.end(), ' ', '_');
