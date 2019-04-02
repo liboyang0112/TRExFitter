@@ -574,6 +574,8 @@ public:
     std::string fExcludeFromMorphing;
     
     std::vector<std::string> fScaleSamplesToData;
+    
+    bool fSaturatedModel;
 };
 
 #endif

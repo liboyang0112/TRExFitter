@@ -75,7 +75,7 @@ public:
     //
     // Specific functions
     //
-    double FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit = false, bool noFit = false );
+    double FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit = false, bool noFit = false, bool saturatedModel = false );
     void ExportFitResultInTextFile( const std::string &finaName, const std::vector<std::string>& blinded );
     std::map < std::string, double > ExportFitResultInMap();
 

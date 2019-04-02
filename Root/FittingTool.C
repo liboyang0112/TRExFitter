@@ -102,7 +102,7 @@ void FittingTool::SetSubCategories() {
 
 //________________________________________________________________________
 //
-double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit ) {
+double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit, bool saturatedModel ) {
 
     if (m_debug < 1) std::cout.setstate(std::ios_base::failbit);
     WriteDebugStatus("FittingTool::FitPDF", "-> Entering in FitPDF function");
@@ -133,7 +133,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                                          RooFit::Offset(1),
                                          RooFit::NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
                                          RooFit::Optimize(kTRUE));
-
+    
     //
     // Needed for Ranking plot, but also to set random initial values for the NPs
     //
@@ -188,7 +188,15 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                 var->setVal( 0 );
                 found = true;
             }
-            else if(m_noNormFactors){
+            else if(np.find("alpha_")==string::npos && np.find("gamma_")==string::npos && (m_noNormFactors || saturatedModel)){
+                WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
+                var->setConstant( 1 );
+                found = true;
+            }
+            if(found) continue;
+            //
+            // set to constant the saturatedModel shape factor parameters if saturatedModel is left to false
+            if(np.find("saturated_model_sf_")!=std::string::npos && !saturatedModel){
                 WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
                 var->setConstant( 1 );
                 found = true;
@@ -232,7 +240,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         }
         delete it2;
     }
-
+    
     double nllval = nll->getVal();
     double nLLatMLE = 0.;//m_fitResult->minNll();
     double nlloffset = nll->getVal() - nLLatMLE;
@@ -495,6 +503,12 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
         nuisParAndCorr << endl;
     }
 
+    //
+    // NLL value
+    //
+    nuisParAndCorr << std::endl << std::endl << "NLL" << std::endl;
+    nuisParAndCorr << m_fitResult -> minNll() << std::endl;
+    
     //
     // Closing the output file
     //

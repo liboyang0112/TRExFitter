@@ -313,6 +313,8 @@ TRExFit::TRExFit(std::string name){
     fShowRatioPad = true;
     
     fExcludeFromMorphing = "";
+    
+    fSaturatedModel = false;
 }
 
 //__________________________________________________________________________________
@@ -4048,9 +4050,13 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 for(int i_shape=0;i_shape<h->fNShape;i_shape++){
                     WriteDebugStatus("TRExFit::ToRooStat", "    Adding ShapeFactor: " + h->fShapeFactors[i_shape]->fName + ", " + std::to_string(h->fShapeFactors[i_shape]->fNominal));
                     sample.AddShapeFactor( h->fShapeFactors[i_shape]->fName );
-                    if (h->fShapeFactors[i_shape]->fConst) meas.AddConstantParam( h->fShapeFactors[i_shape]->fName );
-                    if (fStatOnly && fFixNPforStatOnlyFit && h->fShapeFactors[i_shape]->fName!=fPOI)
-                        meas.AddConstantParam( h->fShapeFactors[i_shape]->fName );
+                    if (h->fShapeFactors[i_shape]->fConst 
+                        || (fStatOnly && fFixNPforStatOnlyFit && h->fShapeFactors[i_shape]->fName!=fPOI)
+                    ){
+                        for(int i_bin=0;i_bin<h->fShapeFactors[i_shape]->fNbins;i_bin++){
+                            meas.AddConstantParam( "gamma_" + h->fShapeFactors[i_shape]->fName + "_bin_" + std::to_string(i_bin) );
+                        }
+                    }
                 }
                 // systematics
                 if(!fStatOnly){
@@ -5144,7 +5150,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         fitTool -> FixNPs(npNames,npValues);
     }
 
-    // FixNP -- Roger
+    // FixNP
     if(fFitFixedNPs.size()>0){
         std::vector<std::string> npNames;
         std::vector<double> npValues;
@@ -5154,6 +5160,11 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         }
         fitTool -> FixNPs(npNames,npValues);
     }
+    
+    // save snapshot before fit
+    ws->saveSnapshot("snapshot_BeforeFit_POI", *(mc->GetParametersOfInterest()) );
+    ws->saveSnapshot("snapshot_BeforeFit_NP" , *(mc->GetNuisanceParameters())   );
+    ws->saveSnapshot("snapshot_BeforeFit_GO" , *(mc->GetGlobalObservables())    );
 
     //
     // Get initial ikelihood value from Asimov
@@ -5185,6 +5196,21 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     }
     result = fitTool -> ExportFitResultInMap();
     if (fBlindedParameters.size() > 0) std::cout.clear();
+    
+    // If SaturatedModel used, superseed Asimov-based GOF
+    if(fSaturatedModel && fGetGoodnessOfFit){
+        ws->loadSnapshot("snapshot_BeforeFit_POI");
+        ws->loadSnapshot("snapshot_BeforeFit_GO");
+        ws->loadSnapshot("snapshot_BeforeFit_NP");
+        //
+        // perform fit to saturated model and store resulting nll as nll0
+        nll0 = fitTool -> FitPDF( mc, simPdf, data, false, false, true );
+        // could be removed, but kept for debugging FIXME
+        if(save){
+            if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_saturatedModel_statOnly.txt", fBlindedParameters);
+            else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_saturatedModel.txt", fBlindedParameters);
+        }
+    }
 
     //
     // Goodness of fit
@@ -5413,6 +5439,19 @@ void TRExFit::GetLimit(){
         data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
 
         //
+        // Set all saturated model factors to constant
+        RooRealVar* var = nullptr;
+        RooArgSet vars = ws_forLimit->allVars();
+        TIterator* it = vars.createIterator();
+        while( (var = (RooRealVar*) it->Next()) ){
+            std::string name = var->GetName();
+            if(name.find("saturated_model_sf_")!=std::string::npos){
+                WriteInfoStatus("TRExFit::GetLimit","Fixing parameter " + name );
+                var->setConstant( 1 );
+            }
+        }
+
+        //
         // Gets the measurement object in the original combined workspace (created with the "w" command)
         //
         const std::string originalCombinedFile = fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root";
@@ -5512,6 +5551,19 @@ void TRExFit::GetSignificance(){
         }
         data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fSignificancePOIAsimov : npValues[fPOI] );
 
+        //
+        // Set all saturated model factors to constant
+        RooRealVar* var = nullptr;
+        RooArgSet vars = ws_forSignificance->allVars();
+        TIterator* it = vars.createIterator();
+        while( (var = (RooRealVar*) it->Next()) ){
+            std::string name = var->GetName();
+            if(name.find("saturated_model_sf_")!=std::string::npos){
+                WriteInfoStatus("TRExFit::GetSignificance","Fixing parameter " + name );
+                var->setConstant( 1 );
+            }
+        }
+        
         //
         // Gets the measurement object in the original combined workspace (created with the "w" command)
         //

@@ -50,6 +50,8 @@ public:
     CorrelationMatrix *fCorrMatrix;
 
     int fPOIPrecision;
+    
+    double fNLL;
 
 };
 

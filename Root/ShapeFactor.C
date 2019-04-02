@@ -32,6 +32,7 @@ void ShapeFactor::Set(const std::string& name, float nominal, float min, float m
     //
     fNuisanceParameter = name;
     fTitle = name;
+    fNbins = 0;
 }
 
 //__________________________________________________________________________________
