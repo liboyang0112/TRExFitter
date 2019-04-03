@@ -153,7 +153,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         WriteErrorStatus("FittingTool::FitPDF", "Cannot find the parameter of interest !");
         return 0;
     }
-    poi -> setConstant(m_constPOI);
+    poi -> setConstant(m_constPOI || saturatedModel);
     poi -> setVal(m_valPOI);
     if (m_debug < 1) std::cout.clear();
     WriteDebugStatus("FittingTool::FitPDF", "Setting starting mu = " + std::to_string(m_valPOI));
@@ -461,7 +461,7 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
     // Printing the nuisance parameters post-fit values
     //
     ofstream nuisParAndCorr(fileName);
-    nuisParAndCorr << "NUISANCE_PARAMETERS" << std::endl;
+    nuisParAndCorr << "NUISANCE_PARAMETERS\n";
 
     RooRealVar* var(nullptr);
     TIterator* param = m_fitResult -> floatParsFinal().createIterator();
@@ -477,14 +477,14 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
         double errorLo = var->getErrorLo() / 1.0;
 
         if (blinded.size() == 0){
-            nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
+            nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "\n";
         } else {
             std::string vname_s = vname.Data();
             if (std::find(blinded.begin(), blinded.end(), vname_s) == blinded.end()){
-                nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
+                nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "\n";
             } else {
                 const std::string& hex = FloatToPseudoHex(pull);
-                nuisParAndCorr << vname << "  " << hex << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
+                nuisParAndCorr << vname << "  " << hex << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "\n";
             }
         }
     }
@@ -494,25 +494,25 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
     // Correlation matrix
     //
     TH2* h2Dcorrelation = m_fitResult -> correlationHist();
-    nuisParAndCorr << endl << endl << "CORRELATION_MATRIX" << endl;
-    nuisParAndCorr << h2Dcorrelation->GetNbinsX() << "   " << h2Dcorrelation->GetNbinsY() << endl;
+    nuisParAndCorr << "\n\nCORRELATION_MATRIX\n";
+    nuisParAndCorr << h2Dcorrelation->GetNbinsX() << "   " << h2Dcorrelation->GetNbinsY() << "\n";
     for(int kk=1; kk < h2Dcorrelation->GetNbinsX()+1; kk++) {
         for(int ll=1; ll < h2Dcorrelation->GetNbinsY()+1; ll++) {
             nuisParAndCorr << h2Dcorrelation->GetBinContent(kk,ll) << "   ";
         }
-        nuisParAndCorr << endl;
+        nuisParAndCorr << "\n";
     }
 
     //
     // NLL value
     //
-    nuisParAndCorr << std::endl << std::endl << "NLL" << std::endl;
-    nuisParAndCorr << m_fitResult -> minNll() << std::endl;
+    nuisParAndCorr << "\n\nNLL\n";
+    nuisParAndCorr << m_fitResult -> minNll() << "\n";
     
     //
     // Closing the output file
     //
-    nuisParAndCorr << endl;
+    nuisParAndCorr << "\n";
     nuisParAndCorr.close();
 }
 
@@ -644,7 +644,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
                                                          "    ( +" + std::to_string(sqrt(- pow(poi->getErrorHi(),2) + NomUp2)) + ", -" + std::to_string(sqrt(- pow(poi->getErrorLo(),2) + NomLo2)) + " )" );
 
         // write results to file
-        outFile << *itCategories << "    " << sqrt( - pow(poi->getError(),2) + Nom2 ) << "  ( +" << sqrt( - pow(poi->getErrorHi(),2) + NomUp2 ) << ", -" << sqrt( - pow(poi->getErrorLo(),2) + NomLo2 ) << " )" << std::endl;
+        outFile << *itCategories << "    " << sqrt( - pow(poi->getError(),2) + Nom2 ) << "  ( +" << sqrt( - pow(poi->getErrorHi(),2) + NomUp2 ) << ", -" << sqrt( - pow(poi->getErrorLo(),2) + NomLo2 ) << " )\n";
     }
 
     WriteInfoStatus("FittingTool::GetGroupedImpact", "-----------------------------------------------------");

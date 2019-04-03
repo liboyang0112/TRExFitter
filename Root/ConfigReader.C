@@ -4438,7 +4438,7 @@ int ConfigReader::PostConfig(){
     for(auto sfactor : fFitter->fShapeFactors){
         WriteInfoStatus("ConfigReader::PostConfig","Checking consistency of shape factor " + sfactor->fName + " across regions...");
         int nbins = 0;
-        for(auto regName : sfactor->fRegions){
+        for(const auto& regName : sfactor->fRegions){
             Region *reg = fFitter->GetRegion(regName);
             if(reg==nullptr) continue; // skip non-existing regions
             if(nbins==0) nbins = reg->fNbins;
