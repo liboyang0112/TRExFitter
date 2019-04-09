@@ -3831,7 +3831,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
         results.push_back(temp_map_for_region);
         results_color.push_back(temp_map_for_region_color);
     }
-
+    
     //
     // Finally writting the pie chart
     //
@@ -6085,7 +6085,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     }
     outName_file.close();
     ws->loadSnapshot("tmp_snapshot");
-    customWSfile->Close();
+    if(customWSfile!=nullptr) customWSfile->Close();
 
 }
 

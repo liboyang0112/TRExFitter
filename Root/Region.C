@@ -798,37 +798,43 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
 double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
                                 const int i /*sample*/, const int i_bin /*bin number*/,
                                 const double binContent0,
+                                std::vector<float> systValues,
                                 const std::string &var_syst_name,
                                 const bool isUp ) const{
-
-    double multNorm(1.), multShape(0.);
-    float systValue = 0;
-    for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
-        std::string systName = fSampleHists[i]->fSyst[i_syst]->fName;
+    double multNorm = 1.;
+    double multShape = 0.;
+    float systValue = 0.;
+    SampleHist *sh = fSampleHists[i];
+    for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+        SystematicHist *syh = sh->fSyst[i_syst];
+        std::string systName = syh->fName;
         TString systNameNew(systName); // used in pull tables
-        if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr)
-            systName = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
-        if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr){
-            if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
+        Systematic *syst = syh->fSystematic;
+        if(syst!=nullptr){
+            systName = syst->fNuisanceParameter;
+            if(syst->fType==Systematic::SHAPE){
                 continue;
             }
             else {
                 if(var_syst_name!="" && systName==var_syst_name){
-                    systValue = fitRes->GetNuisParValue(systName) + (isUp ? fitRes->GetNuisParErrUp(systName) : fitRes->GetNuisParErrDown(systName));
-                } else {
-                    systValue = fitRes->GetNuisParValue(systName);
+                    if(isUp) systValue = fitRes->GetNuisParValue(systName) + fitRes->GetNuisParErrUp(systName);
+                    else     systValue = fitRes->GetNuisParValue(systName) + fitRes->GetNuisParErrDown(systName);
+                }
+                else {
+                    systValue = systValues[i_syst];
                 }
             }
-        } else{
-            systValue = fitRes->GetNuisParValue(systName);
         }
-
+        else{
+            systValue = systValues[i_syst];
+        }
+        
         //
         // Normalisation component: use the exponential interpolation and the multiplicative combination
         //
-        if(fSampleHists[i]->fSyst[i_syst]->fIsOverall){
-            double binContentUp   = (fSampleHists[i]->fSyst[i_syst]->fNormUp+1) * binContent0;
-            double binContentDown = (fSampleHists[i]->fSyst[i_syst]->fNormDown+1) * binContent0;
+        if(syh->fIsOverall){
+            double binContentUp   = (syh->fNormUp+1) * binContent0;
+            double binContentDown = (syh->fNormDown+1) * binContent0;
             double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall);
             multNorm *= factor;
             if (fSampleHists[i]->fSample->fBuildPullTable>0){
@@ -842,9 +848,9 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         //
         // Shape component: use the linear interpolation and the additive combination
         //
-        if(fSampleHists[i]->fSyst[i_syst]->fIsShape){
-            double binContentUp   = fSampleHists[i]->fSyst[i_syst]->fHistShapeUp->GetBinContent(i_bin);
-            double binContentDown = fSampleHists[i]->fSyst[i_syst]->fHistShapeDown->GetBinContent(i_bin);
+        if(syh->fIsShape){
+            double binContentUp   = syh->fHistShapeUp->GetBinContent(i_bin);
+            double binContentDown = syh->fHistShapeDown->GetBinContent(i_bin);
             double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape);
             multShape += factor - 1;
             if (fSampleHists[i]->fSample->fBuildPullTable==2){
@@ -904,13 +910,14 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         // Shape factors
         //
         // extract number of bins
-        TH1* hSFTmp;
-        hSFTmp = (TH1*)fSampleHists[i_sample]->fHist->Clone();
+//         TH1* hSFTmp;
+//         hSFTmp = (TH1*)fSampleHists[i_sample]->fHist->Clone();
         // loop over shape factors
         for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
             systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
             // add syst name for each bin
-            for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){
+//             for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){
+            for(int i_bin = 0; i_bin < fSampleHists[i_sample]->fHist->GetNbinsX(); i_bin++){
                 systNameSF = systName + "_bin_" + std::to_string(i_bin);
                 // the shape factor naming used i_bin - 1 for the first bin
                 // add it as one syst per bin
@@ -920,7 +927,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 }
             }
         }
-        delete hSFTmp;
+//         delete hSFTmp;
 
         //
         // Systematics
@@ -975,7 +982,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
     // - loop on systematics
     for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
-
         WriteVerboseStatus("Region::BuildPostFitErrorHist", "    Systematic: " + fSystNames[i_syst]);
 
         int i_morph_sample = 0;
@@ -987,7 +993,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         systValue   = fitRes->GetNuisParValue(TRExFitter::NPMAP[systName]);
         systErrUp   = fitRes->GetNuisParErrUp(TRExFitter::NPMAP[systName]);
         systErrDown = fitRes->GetNuisParErrDown(TRExFitter::NPMAP[systName]);
-
+        
         WriteVerboseStatus("Region::BuildPostFitErrorHist", "      alpha = " + std::to_string(systValue) + " +" + std::to_string(systErrUp) + " " + std::to_string(systErrDown));
 
         // needed for morph samples
@@ -1022,6 +1028,16 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 sh = fSampleHists[i]->GetSystematic(systName);
             }
 
+            // 
+            // save values of nominal post-fit systematic values in a vector (faster access)
+            std::vector<float> systValues;
+            for(auto syh : fSampleHists[i]->fSyst){
+                std::string systNameTmp = syh->fName;
+                Systematic *syst = syh->fSystematic;
+                if(syst!=nullptr) systNameTmp = syst->fNuisanceParameter;
+                systValues.emplace_back(fitRes->GetNuisParValue(systNameTmp));
+            }
+            
             //
             // initialize the up and down variation histograms
             // (note: do it even if the syst is not there; in this case the variation hist will be = to the nominal)
@@ -1179,9 +1195,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 //
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
                     std::ofstream dummy;
-                    double multNom  = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal );
-                    double multUp   = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TRExFitter::NPMAP[systName], true);
-                    double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TRExFitter::NPMAP[systName], false);
+                    double multNom  = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, systValues );
+                    double multUp   = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, systValues, TRExFitter::NPMAP[systName], true);
+                    double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, systValues, TRExFitter::NPMAP[systName], false);
                     if (isMorph){
                         morph_up_postfit.at(i_bin-1)+=(multUp/multNom)*yieldNominal_postFit;
                         morph_down_postfit.at(i_bin-1)+= (multDown/multNom)*yieldNominal_postFit;
@@ -1237,7 +1253,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 }
             }
         }
-
     }// loop over systs
 
     // at this point all the sample-by-sample post-fit variation histograms should be filled
@@ -1405,6 +1420,16 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+        // 
+        // save values of nominal post-fit systematic values in a vector (faster access)
+        std::vector<float> systValues;
+        for(auto syh : fSampleHists[i]->fSyst){
+            std::string systNameTmp = syh->fName;
+            Systematic *syst = syh->fSystematic;
+            if(syst!=nullptr) systNameTmp = syst->fNuisanceParameter;
+            systValues.emplace_back(fitRes->GetNuisParValue(systNameTmp));
+        }
+        //
         if (fSampleHists[i]->fSample->fBuildPullTable>0){
             WriteDebugStatus("Region::DrawPostFit", "Propagating post-fit to Sample " + fSampleHists[i]->fSample->fTitle);
             TString sampleTex= fSampleHists[i]->fSample->fTexTitle;
@@ -1415,7 +1440,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         hNew = (TH1*)hSmpNew[i]->Clone();
         for(int i_bin=1;i_bin<=hNew->GetNbinsX();i_bin++){
             double binContent0 = hSmpNew[i]->GetBinContent(i_bin);
-            double mult_factor = GetMultFactors(fitRes, pullTex, i, i_bin, binContent0);
+            double mult_factor = GetMultFactors(fitRes, pullTex, i, i_bin, binContent0, systValues);
 
             //
             // Final computation
@@ -1524,6 +1549,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
             ShapeFactor *sf = fSampleHists[i]->fShapeFactors[i_shape];
             sfName = sf->fName;
+            if(sfName.find("saturated_model_sf")!=std::string::npos) continue;
             // loop over bins
             // there should be a NP per bin in the fit file
             // already checked by GetNuisParValue()

@@ -56,6 +56,7 @@ public:
                                 std::ofstream& pullTex,
                                 const int i /*sample*/, const int i_bin /*bin number*/,
                                 const double binContent0,
+                                std::vector<float> systValues,
                                 const std::string &syst = "",
                                 const bool isUp = true) const;
 
