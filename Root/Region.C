@@ -910,13 +910,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         // Shape factors
         //
         // extract number of bins
-//         TH1* hSFTmp;
-//         hSFTmp = (TH1*)fSampleHists[i_sample]->fHist->Clone();
         // loop over shape factors
         for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
             systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
             // add syst name for each bin
-//             for(int i_bin = 0; i_bin < hSFTmp->GetNbinsX(); i_bin++){
             for(int i_bin = 0; i_bin < fSampleHists[i_sample]->fHist->GetNbinsX(); i_bin++){
                 systNameSF = systName + "_bin_" + std::to_string(i_bin);
                 // the shape factor naming used i_bin - 1 for the first bin
@@ -927,7 +924,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 }
             }
         }
-//         delete hSFTmp;
 
         //
         // Systematics
