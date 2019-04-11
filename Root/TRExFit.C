@@ -5203,7 +5203,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     if (fBlindedParameters.size() > 0) std::cout.clear();
     
     // If SaturatedModel used, superseed Asimov-based GOF
-    if(fSaturatedModel && fGetGoodnessOfFit){
+    if(fSaturatedModel && fGetGoodnessOfFit && !fDoGroupedSystImpactTable){
         ws->loadSnapshot("snapshot_BeforeFit_POI");
         ws->loadSnapshot("snapshot_BeforeFit_GO");
         ws->loadSnapshot("snapshot_BeforeFit_NP");
@@ -5219,7 +5219,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
 
     //
     // Goodness of fit
-    if(fGetGoodnessOfFit){
+    if(fGetGoodnessOfFit && !fDoGroupedSystImpactTable){
         double deltaNLL = nll-nll0;
         double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
         WriteInfoStatus("TRExFit::PerformFit", "----------------------- -------------------------- -----------------------");
@@ -5236,7 +5236,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     
     // 
     // Load snapshots after nominal fit (needed in case GetGoodnessOfFit test with saturated model is evaluated)
-    if(fSaturatedModel && fGetGoodnessOfFit){
+    if(fSaturatedModel && fGetGoodnessOfFit && !fDoGroupedSystImpactTable){
         ws->loadSnapshot("snapshot_AfterFit_POI");
         ws->loadSnapshot("snapshot_AfterFit_GO");
         ws->loadSnapshot("snapshot_AfterFit_NP");

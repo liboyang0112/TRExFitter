@@ -682,8 +682,9 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     while( (var2 = (RooRealVar*) it->Next()) ){
         string varname = (string) var2->GetName();
 
-        // default: set everything non-constant
-        var2->setConstant(0);
+        // default: set everything non-constant (but the saturated-model norm-factors!)
+        if (varname.find("saturated_model_sf_")==std::string::npos) var2->setConstant(0);
+        else var2->setConstant(1);
 
         // if excludeGammas==true, set gammas to constant
         if (excludeGammas) {
