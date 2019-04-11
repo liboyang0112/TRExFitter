@@ -5171,6 +5171,11 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     double nll0 = 0.;
     if (fBlindedParameters.size() > 0) std::cout.setstate(std::ios_base::failbit);
     if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
+    
+    // save snapshot before fit
+    ws->saveSnapshot("snapshot_AfterFit_POI", *(mc->GetParametersOfInterest()) );
+    ws->saveSnapshot("snapshot_AfterFit_NP" , *(mc->GetNuisanceParameters())   );
+    ws->saveSnapshot("snapshot_AfterFit_GO" , *(mc->GetGlobalObservables())    );
 
     //
     // Get number of degrees of freedom
@@ -5227,6 +5232,14 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         WriteInfoStatus("TRExFit::PerformFit", "  probability = " + std::to_string(prob));
         WriteInfoStatus("TRExFit::PerformFit", "----------------------- -------------------------- -----------------------");
         WriteInfoStatus("TRExFit::PerformFit", "----------------------- -------------------------- -----------------------");
+    }
+    
+    // 
+    // Load snapshots after nominal fit (needed in case GetGoodnessOfFit test with saturated model is evaluated)
+    if(fSaturatedModel && fGetGoodnessOfFit){
+        ws->loadSnapshot("snapshot_AfterFit_POI");
+        ws->loadSnapshot("snapshot_AfterFit_GO");
+        ws->loadSnapshot("snapshot_AfterFit_NP");
     }
 
     //

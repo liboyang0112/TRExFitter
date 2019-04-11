@@ -798,7 +798,6 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
 double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
                                 const int i /*sample*/, const int i_bin /*bin number*/,
                                 const double binContent0,
-                                std::vector<float> systValues,
                                 const std::string &var_syst_name,
                                 const bool isUp ) const{
     double multNorm = 1.;
@@ -821,12 +820,12 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
                     else     systValue = fitRes->GetNuisParValue(systName) + fitRes->GetNuisParErrDown(systName);
                 }
                 else {
-                    systValue = systValues[i_syst];
+                    systValue = fitRes->GetNuisParValue(systName);
                 }
             }
         }
         else{
-            systValue = systValues[i_syst];
+            systValue = fitRes->GetNuisParValue(systName);
         }
         
         //
@@ -1023,16 +1022,6 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 fSampleHists[i]->AddHistoSyst(systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
                 sh = fSampleHists[i]->GetSystematic(systName);
             }
-
-            // 
-            // save values of nominal post-fit systematic values in a vector (faster access)
-            std::vector<float> systValues;
-            for(auto syh : fSampleHists[i]->fSyst){
-                std::string systNameTmp = syh->fName;
-                Systematic *syst = syh->fSystematic;
-                if(syst!=nullptr) systNameTmp = syst->fNuisanceParameter;
-                systValues.emplace_back(fitRes->GetNuisParValue(systNameTmp));
-            }
             
             //
             // initialize the up and down variation histograms
@@ -1191,9 +1180,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 //
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
                     std::ofstream dummy;
-                    double multNom  = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, systValues );
-                    double multUp   = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, systValues, TRExFitter::NPMAP[systName], true);
-                    double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, systValues, TRExFitter::NPMAP[systName], false);
+                    double multNom  = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal );
+                    double multUp   = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TRExFitter::NPMAP[systName], true);
+                    double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TRExFitter::NPMAP[systName], false);
                     if (isMorph){
                         morph_up_postfit.at(i_bin-1)+=(multUp/multNom)*yieldNominal_postFit;
                         morph_down_postfit.at(i_bin-1)+= (multDown/multNom)*yieldNominal_postFit;
@@ -1416,15 +1405,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        // 
-        // save values of nominal post-fit systematic values in a vector (faster access)
-        std::vector<float> systValues;
-        for(auto syh : fSampleHists[i]->fSyst){
-            std::string systNameTmp = syh->fName;
-            Systematic *syst = syh->fSystematic;
-            if(syst!=nullptr) systNameTmp = syst->fNuisanceParameter;
-            systValues.emplace_back(fitRes->GetNuisParValue(systNameTmp));
-        }
         //
         if (fSampleHists[i]->fSample->fBuildPullTable>0){
             WriteDebugStatus("Region::DrawPostFit", "Propagating post-fit to Sample " + fSampleHists[i]->fSample->fTitle);
@@ -1436,7 +1416,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         hNew = (TH1*)hSmpNew[i]->Clone();
         for(int i_bin=1;i_bin<=hNew->GetNbinsX();i_bin++){
             double binContent0 = hSmpNew[i]->GetBinContent(i_bin);
-            double mult_factor = GetMultFactors(fitRes, pullTex, i, i_bin, binContent0, systValues);
+            double mult_factor = GetMultFactors(fitRes, pullTex, i, i_bin, binContent0);
 
             //
             // Final computation
