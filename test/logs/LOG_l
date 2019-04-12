@@ -7,29 +7,29 @@
 
 Applying ATLAS style settings...
 
-[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
-[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m 
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m 
 === DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
 === DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
-[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
-[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
-[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExample[0m
-[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
-[1;32m=== INFO::Region::Print:     Region: SR_1[0m
-[1;32m=== INFO::Region::Print:     Region: SR_2[0m
-[1;32m=== INFO::Region::Print:     Region: VR[0m
-[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
-[1;32m=== INFO::Sample::Print::      Data[0m
-[1;32m=== INFO::Sample::Print::      Bkg1[0m
-[1;32m=== INFO::Sample::Print::      Bkg2[0m
-[1;32m=== INFO::Sample::Print::      Signal[0m
-[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
-[1;32m=== INFO::TRExFit::PrintConfigSummary:  JES[0m
-[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
-[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
-[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m 
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m 
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExample[0m 
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m 
+[1;32m=== INFO::Region::Print:     Region: SR_1[0m 
+[1;32m=== INFO::Region::Print:     Region: SR_2[0m 
+[1;32m=== INFO::Region::Print:     Region: VR[0m 
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m 
+[1;32m=== INFO::Sample::Print::      Data[0m 
+[1;32m=== INFO::Sample::Print::      Bkg1[0m 
+[1;32m=== INFO::Sample::Print::      Bkg2[0m 
+[1;32m=== INFO::Sample::Print::      Signal[0m 
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m 
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  JES[0m 
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m 
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m 
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m 
 Extracting limit...
 full list of observables:
 RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
@@ -1800,4 +1800,6 @@ CLsb = 0.126663
 CLs = 0.255361
 ************************
 Finished with 38 calls to minimize(nll)
-Real time 0:00:03, CP time 2.320
+Real time 0:00:02, CP time 2.190
+mkdir: created directory ‘FitExample/Limits’
+mkdir: created directory ‘FitExample/Limits//asymptotics/’
