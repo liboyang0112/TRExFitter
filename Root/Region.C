@@ -2238,11 +2238,11 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
         ibin++;
     }
     //
-    if(TRExFitter::DEBUGLEVEL) C.Print();
+    if(TRExFitter::DEBUGLEVEL > 1) C.Print();
     //
     // Invert the matrix
     C.Invert();
-    if(TRExFitter::DEBUGLEVEL) C.Print();
+    if(TRExFitter::DEBUGLEVEL > 1) C.Print();
     //
     double chi2 = 0.;
     ibin = 0;
