@@ -7,29 +7,29 @@
 
 Applying ATLAS style settings...
 
-[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m 
-[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m 
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFit.config[0m
 === DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
 === DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
-[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m 
-[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m 
-[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExample[0m 
-[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m 
-[1;32m=== INFO::Region::Print:     Region: SR_1[0m 
-[1;32m=== INFO::Region::Print:     Region: SR_2[0m 
-[1;32m=== INFO::Region::Print:     Region: VR[0m 
-[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m 
-[1;32m=== INFO::Sample::Print::      Data[0m 
-[1;32m=== INFO::Sample::Print::      Bkg1[0m 
-[1;32m=== INFO::Sample::Print::      Bkg2[0m 
-[1;32m=== INFO::Sample::Print::      Signal[0m 
-[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m 
-[1;32m=== INFO::TRExFit::PrintConfigSummary:  JES[0m 
-[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m 
-[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m 
-[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m 
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExample[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
+[1;32m=== INFO::Region::Print:     Region: SR_1[0m
+[1;32m=== INFO::Region::Print:     Region: SR_2[0m
+[1;32m=== INFO::Region::Print:     Region: VR[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
+[1;32m=== INFO::Sample::Print::      Data[0m
+[1;32m=== INFO::Sample::Print::      Bkg1[0m
+[1;32m=== INFO::Sample::Print::      Bkg2[0m
+[1;32m=== INFO::Sample::Print::      Signal[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  JES[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
 Extracting significance...
 full list of observables:
 RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
@@ -236,17 +236,17 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 === DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_2_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
-  1) 0x5069650 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
-  2) 0x506d390 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
-  3) 0x5067250 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
-  4) 0x50365e0 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
-  5) 0x5039d80 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
-  6) 0x50570e0 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
-  7) 0x505aab0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
-  8) 0x50e9370 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
-  9) 0x50ef290 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
- 10) 0x50f2bd0 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
- 11) 0x50f6510 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+  1) 0x503a990 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  2) 0x503e6d0 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  3) 0x5038590 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  4) 0x5249cf0 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  5) 0x524d570 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  6) 0x5250f40 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  7) 0x5254910 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  8) 0x52c7d10 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+  9) 0x52cdc30 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 10) 0x52d1570 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 11) 0x52d4eb0 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
 Setting max function calls
 [#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name conditionalNuis_0 is available
 [#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
@@ -335,17 +335,17 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (mc_stat_SR_1,Bkg1_SR_1_Hist_alpha,Signal_SR_1_Hist_alpha)
 [#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_2_Hist_alphanominal,Bkg1_SR_2_Hist_alpha_0low,Bkg1_SR_2_Hist_alpha_0high,Bkg2_SR_2_nominal,Signal_SR_2_Hist_alphanominal,Signal_SR_2_Hist_alpha_0low,Signal_SR_2_Hist_alpha_0high)
 [#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (mc_stat_SR_2,Bkg1_SR_2_Hist_alpha,Signal_SR_2_Hist_alpha)
-  1) 0x517b580 RooRealVar::             nom_alpha_JES = -0.0257124 C  L(-10 - 10)  "nom_alpha_JES"
-  2) 0x506ba40 RooRealVar::        nom_alpha_Bkg1Xsec = 0.219353 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
-  3) 0x517a4c0 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0442307 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
-  4) 0x5038b70 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 1089.3 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_0"
-  5) 0x5055d50 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 362.273 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_1"
-  6) 0x5059720 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 90.8654 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_2"
-  7) 0x505d0f0 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 39.4278 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_3"
-  8) 0x50eb960 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 1091.44 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_0"
-  9) 0x50effc0 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 363.507 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_1"
- 10) 0x50f3900 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 91.1267 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_2"
- 11) 0x50f7240 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 39.5675 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_3"
+  1) 0x5359f20 RooRealVar::             nom_alpha_JES = -0.0257124 C  L(-10 - 10)  "nom_alpha_JES"
+  2) 0x503cd80 RooRealVar::        nom_alpha_Bkg1Xsec = 0.219353 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
+  3) 0x5358e60 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0442307 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
+  4) 0x524c280 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 1089.3 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_0"
+  5) 0x524fbb0 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 362.273 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_1"
+  6) 0x5253580 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 90.8654 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_2"
+  7) 0x5256f50 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 39.4278 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_3"
+  8) 0x52ca300 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 1091.44 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_0"
+  9) 0x52ce960 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 363.507 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_1"
+ 10) 0x52d22a0 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 91.1267 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_2"
+ 11) 0x52d5be0 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 39.5675 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_3"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_asimovData_1_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
@@ -458,6 +458,4 @@ Observed pValue: 0.855852
 Median test stat val: 0.248397
 Median significance:   0.498394
 Median pValue: 0.309103
-mkdir: created directory ‘FitExample/Significance’
-mkdir: created directory ‘FitExample/Significance/asymptotics/’
 Real time 0:00:00, CP time 0.210
