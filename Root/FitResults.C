@@ -33,6 +33,7 @@ FitResults::FitResults(){
     fNuisParIsThere.clear();
     fCorrMatrix = 0;
     fNuisPar.clear();
+    fNLL = 0;
 }
 
 //__________________________________________________________________________________
@@ -124,6 +125,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
     string line;
     bool readingNP = false;
     bool readingCM = false;
+    bool readingNLL = false;
     int i = 0;
     int j = 0;
     int Nsyst_corr = 0;
@@ -144,12 +146,21 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
         }
         else if(line=="CORRELATION_MATRIX"){
             WriteDebugStatus("FitResults::ReadFromTXT", "--------------------");
-            WriteDebugStatus("FitResults::ReadFromTXT", "Reading Reading Correlation Matrix...");
+            WriteDebugStatus("FitResults::ReadFromTXT", "Reading Correlation Matrix...");
             WriteDebugStatus("FitResults::ReadFromTXT", "--------------------");
             readingNP = false;
             readingCM = true;
             std::getline(in, line); // skip 1 line
             Nsyst_corr = atof(line.substr(0,line.find(" ")).c_str());
+            continue;
+        }
+        else if(line=="NLL"){
+            WriteDebugStatus("FitResults::ReadFromTXT", "--------------------");
+            WriteDebugStatus("FitResults::ReadFromTXT", "Reading Negative Log-Likelihood (NLL) value...");
+            WriteDebugStatus("FitResults::ReadFromTXT", "--------------------");
+            readingNP = false;
+            readingCM = false;
+            readingNLL = true;
             continue;
         }
         std::istringstream iss(line);
@@ -192,6 +203,9 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             }
             j++;
         }
+        if(readingNLL){
+            iss >> fNLL;
+        }
     }
     if(includeCorrelations){
         if(print){
@@ -215,6 +229,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
     int TOTsyst = fNuisParNames.size();
     WriteDebugStatus("FitResults::ReadFromTXT", "Found " + std::to_string(TOTsyst) + " systematics.");
     if (TOTsyst<=0) WriteDebugStatus("FitResults::ReadFromTXT", "No systematics found in fit result file. Stat-only fit-results?");
+    WriteDebugStatus("FitResults::ReadFromTXT", "Negative Log-Likelihood value NLL = " + std::to_string(fNLL));
 }
 
 //__________________________________________________________________________________

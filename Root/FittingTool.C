@@ -102,7 +102,7 @@ void FittingTool::SetSubCategories() {
 
 //________________________________________________________________________
 //
-double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit ) {
+double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit, bool noFit, bool saturatedModel ) {
 
     if (m_debug < 1) std::cout.setstate(std::ios_base::failbit);
     WriteDebugStatus("FittingTool::FitPDF", "-> Entering in FitPDF function");
@@ -133,7 +133,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                                          RooFit::Offset(1),
                                          RooFit::NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
                                          RooFit::Optimize(kTRUE));
-
+    
     //
     // Needed for Ranking plot, but also to set random initial values for the NPs
     //
@@ -153,7 +153,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         WriteErrorStatus("FittingTool::FitPDF", "Cannot find the parameter of interest !");
         return 0;
     }
-    poi -> setConstant(m_constPOI);
+    poi -> setConstant(m_constPOI || saturatedModel);
     poi -> setVal(m_valPOI);
     if (m_debug < 1) std::cout.clear();
     WriteDebugStatus("FittingTool::FitPDF", "Setting starting mu = " + std::to_string(m_valPOI));
@@ -188,7 +188,15 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                 var->setVal( 0 );
                 found = true;
             }
-            else if(m_noNormFactors){
+            else if(np.find("alpha_")==string::npos && np.find("gamma_")==string::npos && (m_noNormFactors || saturatedModel)){
+                WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
+                var->setConstant( 1 );
+                found = true;
+            }
+            if(found) continue;
+            //
+            // set to constant the saturatedModel shape factor parameters if saturatedModel is left to false
+            if(np.find("saturated_model_sf_")!=std::string::npos && !saturatedModel){
                 WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
                 var->setConstant( 1 );
                 found = true;
@@ -232,7 +240,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         }
         delete it2;
     }
-
+    
     double nllval = nll->getVal();
     double nLLatMLE = 0.;//m_fitResult->minNll();
     double nlloffset = nll->getVal() - nLLatMLE;
@@ -453,7 +461,7 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
     // Printing the nuisance parameters post-fit values
     //
     ofstream nuisParAndCorr(fileName);
-    nuisParAndCorr << "NUISANCE_PARAMETERS" << std::endl;
+    nuisParAndCorr << "NUISANCE_PARAMETERS\n";
 
     RooRealVar* var(nullptr);
     TIterator* param = m_fitResult -> floatParsFinal().createIterator();
@@ -469,14 +477,14 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
         double errorLo = var->getErrorLo() / 1.0;
 
         if (blinded.size() == 0){
-            nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
+            nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "\n";
         } else {
             std::string vname_s = vname.Data();
             if (std::find(blinded.begin(), blinded.end(), vname_s) == blinded.end()){
-                nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
+                nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "\n";
             } else {
                 const std::string& hex = FloatToPseudoHex(pull);
-                nuisParAndCorr << vname << "  " << hex << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "" << endl;
+                nuisParAndCorr << vname << "  " << hex << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "\n";
             }
         }
     }
@@ -486,19 +494,25 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
     // Correlation matrix
     //
     TH2* h2Dcorrelation = m_fitResult -> correlationHist();
-    nuisParAndCorr << endl << endl << "CORRELATION_MATRIX" << endl;
-    nuisParAndCorr << h2Dcorrelation->GetNbinsX() << "   " << h2Dcorrelation->GetNbinsY() << endl;
+    nuisParAndCorr << "\n\nCORRELATION_MATRIX\n";
+    nuisParAndCorr << h2Dcorrelation->GetNbinsX() << "   " << h2Dcorrelation->GetNbinsY() << "\n";
     for(int kk=1; kk < h2Dcorrelation->GetNbinsX()+1; kk++) {
         for(int ll=1; ll < h2Dcorrelation->GetNbinsY()+1; ll++) {
             nuisParAndCorr << h2Dcorrelation->GetBinContent(kk,ll) << "   ";
         }
-        nuisParAndCorr << endl;
+        nuisParAndCorr << "\n";
     }
 
     //
+    // NLL value
+    //
+    nuisParAndCorr << "\n\nNLL\n";
+    nuisParAndCorr << m_fitResult -> minNll() << "\n";
+    
+    //
     // Closing the output file
     //
-    nuisParAndCorr << endl;
+    nuisParAndCorr << "\n";
     nuisParAndCorr.close();
 }
 
@@ -630,7 +644,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
                                                          "    ( +" + std::to_string(sqrt(- pow(poi->getErrorHi(),2) + NomUp2)) + ", -" + std::to_string(sqrt(- pow(poi->getErrorLo(),2) + NomLo2)) + " )" );
 
         // write results to file
-        outFile << *itCategories << "    " << sqrt( - pow(poi->getError(),2) + Nom2 ) << "  ( +" << sqrt( - pow(poi->getErrorHi(),2) + NomUp2 ) << ", -" << sqrt( - pow(poi->getErrorLo(),2) + NomLo2 ) << " )" << std::endl;
+        outFile << *itCategories << "    " << sqrt( - pow(poi->getError(),2) + Nom2 ) << "  ( +" << sqrt( - pow(poi->getErrorHi(),2) + NomUp2 ) << ", -" << sqrt( - pow(poi->getErrorLo(),2) + NomLo2 ) << " )\n";
     }
 
     WriteInfoStatus("FittingTool::GetGroupedImpact", "-----------------------------------------------------");
@@ -668,8 +682,9 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     while( (var2 = (RooRealVar*) it->Next()) ){
         string varname = (string) var2->GetName();
 
-        // default: set everything non-constant
-        var2->setConstant(0);
+        // default: set everything non-constant (but the saturated-model norm-factors!)
+        if (varname.find("saturated_model_sf_")==std::string::npos) var2->setConstant(0);
+        else var2->setConstant(1);
 
         // if excludeGammas==true, set gammas to constant
         if (excludeGammas) {
