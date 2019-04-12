@@ -100,15 +100,16 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
     bool invertedCorrMatrix = true;
     bool print = true;
     //
-    CorrelationMatrix matrix{};
+    CorrelationMatrix *matrix = new CorrelationMatrix();
     //
     // get fitted NP's
     std::ifstream in;
     in.open(fileName.c_str());
 
     if (!in.is_open())	{
-      WriteErrorStatus("FitResults::ReadFromTXT","Could not open the file \"" + fileName + "\"");
-      return;
+        delete matrix;
+        WriteErrorStatus("FitResults::ReadFromTXT","Could not open the file \"" + fileName + "\"");
+        return;
     }
 
     string input;
@@ -177,9 +178,9 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
                 iss >> corr;
                 if(invertedCorrMatrix){
-                    matrix.SetCorrelation(fNuisParNames[Nsyst_corr-i_sys-1],fNuisParNames[j],corr);
+                    matrix->SetCorrelation(fNuisParNames[Nsyst_corr-i_sys-1],fNuisParNames[j],corr);
                 }
-                else matrix.SetCorrelation(fNuisParNames[i_sys],fNuisParNames[j],corr);
+                else matrix->SetCorrelation(fNuisParNames[i_sys],fNuisParNames[j],corr);
             }
             j++;
         }
@@ -195,13 +196,13 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
                 temp_string +=  fNuisParNames[i_sys];
                 for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
-                    temp_string += Form("\t%.4f",matrix.GetCorrelation(fNuisParNames[i_sys],fNuisParNames[j_sys]));
+                    temp_string += Form("\t%.4f",matrix->GetCorrelation(fNuisParNames[i_sys],fNuisParNames[j_sys]));
                 }
                 WriteVerboseStatus("FitResults::ReadFromTXT",temp_string);
             }
         }
     }
-    fCorrMatrix = &matrix;
+    fCorrMatrix = matrix;
     //
     int TOTsyst = fNuisParNames.size();
     WriteDebugStatus("FitResults::ReadFromTXT", "Found " + std::to_string(TOTsyst) + " systematics.");
@@ -242,12 +243,12 @@ void FitResults::DrawNormFactors( const string &path,
         if( par->fFitValue+par->fPostFitUp > xmax ) xmax = par->fFitValue+par->fPostFitUp;
         if( par->fFitValue+par->fPostFitDown < xmin ) xmin = par->fFitValue+par->fPostFitDown;
 
-        NuisParameter nuis(par->fName);
-        nuis.fFitValue =    par -> fFitValue;
-        nuis.fPostFitUp =   par -> fPostFitUp;
-        nuis.fPostFitDown = par -> fPostFitDown;
-        nuis.fTitle =       par -> fTitle;
-        selected_norm_factors.push_back(&nuis);
+        NuisParameter *nuis = new NuisParameter(par->fName);
+        nuis->fFitValue =    par -> fFitValue;
+        nuis->fPostFitUp =   par -> fPostFitUp;
+        nuis->fPostFitDown = par -> fPostFitDown;
+        nuis->fTitle =       par -> fTitle;
+        selected_norm_factors.push_back(nuis);
         if(2*selected_norm_factors.size() > max)  max = 2*selected_norm_factors.size();
     }
     xmax *= (xmax<0 ? 0.5 : 1.5);
