@@ -155,22 +155,22 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been cr
 Info in <TCanvas::Print>: png file FitExample/Plots/VR_postFit.png has been created
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
+Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
 === DEBUG::TRExFit::DrawSummary: Adding Data:   Data 2015
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
 === DEBUG::TRExFit::DrawSummary: 1:	316.504725	+15.538585	-15.538585
 === DEBUG::TRExFit::DrawSummary: 2:	312.174540	+12.720699	-12.720699
-Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
+Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has been created
 === DEBUG::TRExFit::DrawSummary: Adding Data:   Data 2015
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
-Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
 === DEBUG::TRExFit::DrawSummary: 1:	845.515236	+44.061550	-44.061550
-Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has been created
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
 [1;32m=== INFO::TRExFit::PrintSystTables: Printing syt tables[0m

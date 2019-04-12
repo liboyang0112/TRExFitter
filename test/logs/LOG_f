@@ -260,18 +260,18 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.163
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.163
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 499.588076
-  1) 0x6737ae0 RooRealVar::         SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
-  2) 0x66bd0c0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
-  3) 0x66be630 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
-  4) 0x66bb520 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
-  5) 0x66c1040 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
-  6) 0x66c38a0 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
-  7) 0x66c6d10 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
-  8) 0x66ca0c0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
-  9) 0x673d500 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
- 10) 0x6741230 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
- 11) 0x67446a0 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
- 12) 0x67479f0 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+  1) 0x56f9c90 RooRealVar::         SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
+  2) 0x567eff0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  3) 0x5680560 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  4) 0x567d3d0 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  5) 0x5682f70 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  6) 0x5685a20 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  7) 0x5688e90 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  8) 0x568c2a0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  9) 0x56ff670 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+ 10) 0x57032d0 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 11) 0x57066e0 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 12) 0x5709af0 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -328,20 +328,11 @@ Real time 0:00:00, CP time 0.140
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 30.640672[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
-=== DEBUG::FitResults::ReadFromTXT: --------------------
-=== DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
-=== DEBUG::FitResults::ReadFromTXT: --------------------
-=== DEBUG::FitResults::ReadFromTXT: --------------------
-=== DEBUG::FitResults::ReadFromTXT: Reading Reading Correlation Matrix...
-=== DEBUG::FitResults::ReadFromTXT: --------------------
-=== DEBUG::FitResults::ReadFromTXT: Found 12 systematics.
 Info in <TCanvas::Print>: png file FitExample/NuisPar.png has been created
 Info in <TCanvas::Print>: png file FitExample/Gammas.png has been created
 Info in <TCanvas::Print>: png file FitExample/NormFactors.png has been created
 Info in <TCanvas::Print>: png file FitExample/NuisPar_Instrumental.png has been created
 Info in <TCanvas::Print>: png file FitExample/NuisPar_t_bar_t__uncertainty.png has been created
-[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
-[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
 === DEBUG::FitResults::ReadFromTXT: --------------------
@@ -349,4 +340,13 @@ Info in <TCanvas::Print>: png file FitExample/NuisPar_t_bar_t__uncertainty.png h
 === DEBUG::FitResults::ReadFromTXT: Reading Reading Correlation Matrix...
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Found 12 systematics.
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
 Info in <TCanvas::Print>: png file FitExample/CorrMatrix.png has been created
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Reading Reading Correlation Matrix...
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Found 12 systematics.

@@ -1800,4 +1800,4 @@ CLsb = 0.126663
 CLs = 0.255361
 ************************
 Finished with 38 calls to minimize(nll)
-Real time 0:00:03, CP time 2.320
+Real time 0:00:02, CP time 2.200
