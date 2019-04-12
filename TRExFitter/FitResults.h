@@ -2,7 +2,7 @@
 #define FITRESULTS_H
 
 /// c++ includes
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -41,8 +41,8 @@ public:
     // Data members
     //
     std::vector<std::string> fNuisParNames;
-    std::map<std::string,int> fNuisParIdx;
-    std::map<std::string,bool> fNuisParIsThere;
+    std::unordered_map<std::string,int> fNuisParIdx;
+    std::unordered_map<std::string,bool> fNuisParIsThere;
 
     std::vector<std::string> fNuisParToHide; // NPs to hide
 
