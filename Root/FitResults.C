@@ -28,11 +28,7 @@ using namespace std;
 //__________________________________________________________________________________
 //
 FitResults::FitResults(){
-    fNuisParNames.clear();
-    fNuisParIdx.clear();
-    fNuisParIsThere.clear();
-    fCorrMatrix = 0;
-    fNuisPar.clear();
+    fCorrMatrix = nullptr;
     fNLL = 0;
 }
 
@@ -42,9 +38,9 @@ FitResults::~FitResults(){
     fNuisParNames.clear();
     fNuisParIdx.clear();
     fNuisParIsThere.clear();
-    if(fCorrMatrix) delete fCorrMatrix;
+    delete fCorrMatrix;
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
-        if(fNuisPar[i]) delete fNuisPar[i];
+        delete fNuisPar[i];
     }
     fNuisPar.clear();
 }
@@ -67,7 +63,6 @@ float FitResults::GetNuisParValue(const string& p){
         idx = fNuisParIdx[p];
     }
     else{
-        WriteVerboseStatus("FitResults::GetNuisParValue", "NP " + p + " not found... Returning 0.");
         return 0.;
     }
     return fNuisPar[idx]->fFitValue;
@@ -81,7 +76,6 @@ float FitResults::GetNuisParErrUp(const std::string& p){
         idx = fNuisParIdx[p];
     }
     else{
-        WriteVerboseStatus("FitResults::GetNuisParErrUp", "NP " + p + " not found... Returning error = 1.");
         return 1.;
     }
     return fNuisPar[idx]->fPostFitUp;
@@ -95,7 +89,6 @@ float FitResults::GetNuisParErrDown(const std::string& p){
         idx = fNuisParIdx[p];
     }
     else{
-        WriteVerboseStatus("FitResults::GetNuisParErrDown", "NP " + p + " not found... Returning error = 1.");
         return 1.;
     }
     return fNuisPar[idx]->fPostFitDown;
@@ -108,17 +101,16 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
     bool invertedCorrMatrix = true;
     bool print = true;
     //
-    CorrelationMatrix* matrix = new CorrelationMatrix();
-    NuisParameter *np;
+    CorrelationMatrix *matrix = new CorrelationMatrix();
     //
     // get fitted NP's
     std::ifstream in;
     in.open(fileName.c_str());
 
     if (!in.is_open())	{
-      WriteErrorStatus("FitResults::ReadFromTXT","Could not open the file \"" + fileName + "\"");
-      delete matrix;
-      return;
+        delete matrix;
+        WriteErrorStatus("FitResults::ReadFromTXT","Could not open the file \"" + fileName + "\"");
+        return;
     }
 
     string input;
@@ -177,7 +169,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             AddNuisPar(new NuisParameter(name));
             if (std::find(blinded.begin(), blinded.end(), name) == blinded.end()){
                 iss >> value >> up >> down;
-                np = fNuisPar[fNuisParIdx[name]];
+                NuisParameter *np = fNuisPar[fNuisParIdx[name]];
                 np->fFitValue = value;
                 np->fPostFitUp = up;
                 np->fPostFitDown = down;
@@ -185,7 +177,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             } else {
                 std::string hex;
                 iss >> hex >> up >> down;
-                np = fNuisPar[fNuisParIdx[name]];
+                NuisParameter *np = fNuisPar[fNuisParIdx[name]];
                 np->fFitValue = HexToFloat(hex);
                 np->fPostFitUp = up;
                 np->fPostFitDown = down;
@@ -266,11 +258,11 @@ void FitResults::DrawNormFactors( const string &path,
         if( par->fFitValue+par->fPostFitUp > xmax ) xmax = par->fFitValue+par->fPostFitUp;
         if( par->fFitValue+par->fPostFitDown < xmin ) xmin = par->fFitValue+par->fPostFitDown;
 
-        NuisParameter* nuis= new NuisParameter(par->fName);
-        nuis -> fFitValue =    par -> fFitValue;
-        nuis -> fPostFitUp =   par -> fPostFitUp;
-        nuis -> fPostFitDown = par -> fPostFitDown;
-        nuis -> fTitle =       par -> fTitle;
+        NuisParameter *nuis = new NuisParameter(par->fName);
+        nuis->fFitValue =    par -> fFitValue;
+        nuis->fPostFitUp =   par -> fPostFitUp;
+        nuis->fPostFitDown = par -> fPostFitDown;
+        nuis->fTitle =       par -> fTitle;
         selected_norm_factors.push_back(nuis);
         if(2*selected_norm_factors.size() > max)  max = 2*selected_norm_factors.size();
     }
