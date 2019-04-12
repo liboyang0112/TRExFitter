@@ -1546,6 +1546,20 @@ int ConfigReader::ReadFitOptions(){
         }
     }
 
+    // Saturated Model fit for goodness of fit
+    param = confSet->Get("SaturatedModel");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fSaturatedModel = true;
+        } else if (param == "FALSE"){
+            fFitter->fSaturatedModel = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'SaturatedModel' option but didnt provide valid parameter. Using default (false)");
+            fFitter->fSaturatedModel = false;
+        }
+    }
+
     return 0;
 }
 
@@ -4416,6 +4430,61 @@ int ConfigReader::PostConfig(){
                         return 1;
                     }
                 }
+            }
+        }
+    }
+    
+    // Check and fix shape factor number of bins
+    for(auto sfactor : fFitter->fShapeFactors){
+        WriteInfoStatus("ConfigReader::PostConfig","Checking consistency of shape factor " + sfactor->fName + " across regions...");
+        int nbins = 0;
+        for(const auto& regName : sfactor->fRegions){
+            Region *reg = fFitter->GetRegion(regName);
+            if(reg==nullptr) continue; // skip non-existing regions
+            if(nbins==0) nbins = reg->fNbins;
+            else{
+                if(nbins!=reg->fNbins){
+                    WriteErrorStatus("ConfigReader::PostConfig","Shape factor " + sfactor->fName + " assigned to regions with different number of bins. Please check.");
+                    return 1;
+                }
+            }
+        }
+        sfactor->fNbins = nbins;
+    }
+    
+    // if SaturatedModel was set, add proper shape factors
+    if(fFitter->fSaturatedModel){
+        for(auto reg : fFitter->fRegions){
+            std::string sfactorName = "saturated_model_sf_" + reg->fName;
+            ShapeFactor *sfactor = new ShapeFactor(sfactorName);
+            if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
+                fFitter->fShapeFactors.push_back( sfactor );
+                fFitter->fShapeFactorNames.push_back( sfactor->fName );
+                fFitter->fNShape++;
+            }
+            else{
+                sfactor = fFitter->fShapeFactors[ FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName) ];
+            }
+            // Set NuisanceParameter = Name, Title = Name
+            sfactor->fNuisanceParameter = sfactor->fName;
+            TRExFitter::NPMAP[sfactor->fName] = sfactor->fName;
+            sfactor->fTitle = sfactor->fName;
+            TRExFitter::SYSTMAP[sfactor->fName] = sfactor->fTitle;
+            if (SystHasProblematicName(sfactor->fNuisanceParameter)) return 1;
+            // Set it to constant by default (will be made non-constant later when fitting)
+//             sfactor->fConst = true;
+            // needed? FIXME
+            sfactor->fMin = 0;
+            sfactor->fMax = 10;
+            sfactor->fNominal = 1;
+            // set nbins
+            sfactor->fNbins = reg->fNbins;
+            // save list of
+            sfactor->fRegions.push_back(reg->fName);
+            // attach the syst to all non-data samples
+            for(auto sample : fFitter->fSamples){
+                if(sample->fType == Sample::DATA) continue;
+                sample->AddShapeFactor(sfactor);
             }
         }
     }

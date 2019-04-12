@@ -301,6 +301,7 @@ For each object type (also called "block"), here is the list of available proper
 | NumCPU                       | specify the number of CPU to use for the minimization (default = 1) |
 | StatOnlyFit                  | if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the `_statOnly` suffix (also possible to use it from command line) |
 | GetGoodnessOfFit             | set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods) |
+| SaturatedModel               | set it to TRUE to be able to get the goodness-of-fit test using the saturated model; if set to TRUE when running `w`, the resulting workspace will contain the saturated-model norm-factors; if set to TRUE when running `f` and `GetGoodnessOfFit` is set to TRUE as well, the goodness of fit is evaluated using the saturated model |
 | DoNonProfileFit              | if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time |
 | FitToys                      | if set to N > 0, N stat-ony toys are generated and fitted |
 | ToysHistoMin                 | If FitToys is used, set minimum on the output toys histogram X axis |
