@@ -6933,8 +6933,11 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     std::vector<double> x(fLHscanSteps);
     std::vector<double> y(fLHscanSteps);
     RooMinimizer m(*nll); // get MINUIT interface of fit
+    m.setErrorLevel(-1);
+    m.setPrintLevel(-1);
     m.setStrategy(2); // set precision to high
     var->setConstant(kTRUE); // make POI constant in the fit
+    double min = 9999999;
     for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
         WriteInfoStatus("TRExFit::GetLikelihoodScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
         x[ipoint] = minVal+ipoint*(maxVal-minVal)/fLHscanSteps;
@@ -6942,6 +6945,11 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
         m.migrad(); // minimize again with new posSigXsecOverSM value
         RooFitResult* r = m.save(); // save fit result
         y[ipoint] = r->minNll();
+        if (y[ipoint] < min) min = y[ipoint];
+    }
+
+    for (auto & iY : y) {
+        iY = iY - min;
     }
 
     TGraph graph(fLHscanSteps, &x[0], &y[0]);
