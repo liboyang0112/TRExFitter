@@ -1320,7 +1320,7 @@ void TRExFit::CorrectHistograms(){
             if(smp->fSmooth && !reg->fSkipSmoothing){
                 h_correction = (TH1*)sh->fHist->Clone( Form("%s_corr",sh->fHist->GetName()) );
                 TH1* h0 = (TH1*)sh->fHist->Clone( Form("%s_orig0",sh->fHist->GetName()) );
-                if (fTtresSmoothing) {
+                if (fTtresSmoothing || fSmoothOption == HistoTools::TTBARRESONANCE) {
                     isFlat = false;
                     SmoothHistogramTtres( sh->fHist );
                 } else {
