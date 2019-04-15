@@ -1839,41 +1839,70 @@ void TRExFit::ReadHistos(/*string fileName*/){
     }
     //
     // when we multply/divide by or subtract/add other samples, need to add systematics on the other samples
+    Systematic * tmpsyst;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(!fSamples[i_smp]->fUseSystematics) continue;
         if(fSamples[i_smp]->fDivideBy!=""){
             Sample* smp = GetSample(fSamples[i_smp]->fDivideBy);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
-                std::string systName = smp->fSystematics[i_syst]->fName;
-                if(!fSamples[i_smp]->HasSystematic(systName)){
-                    fSamples[i_smp]->AddSystematic(smp->fSystematics[i_syst]);
+                std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
+                if(!fSamples[i_smp]->HasNuisanceParameter(systNPName)){
+                    WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
+                    WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
+                    tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    if (tmpsyst->fType == Systematic::OVERALL ) {
+                          tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
+                          tmpsyst->fIsNormOnly = false;
+                    }
+                    fSamples[i_smp]->AddSystematic(tmpsyst);
                 }
             }
         }
         if(fSamples[i_smp]->fMultiplyBy!=""){
             Sample* smp = GetSample(fSamples[i_smp]->fMultiplyBy);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
-                std::string systName = smp->fSystematics[i_syst]->fName;
-                if(!fSamples[i_smp]->HasSystematic(systName)){
-                    fSamples[i_smp]->AddSystematic(smp->fSystematics[i_syst]);
+                std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
+                if(!fSamples[i_smp]->HasNuisanceParameter(systNPName)){
+                    WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
+                    WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
+                    tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    if (tmpsyst->fType == Systematic::OVERALL ) {
+                          tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
+                          tmpsyst->fIsNormOnly = false;
+                    }
+                    fSamples[i_smp]->AddSystematic(tmpsyst);
                 }
             }
         }
         for(auto sample : fSamples[i_smp]->fSubtractSamples){
             Sample* smp = GetSample(sample);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
-                std::string systName = smp->fSystematics[i_syst]->fName;
-                if(!fSamples[i_smp]->HasSystematic(systName)){
-                    fSamples[i_smp]->AddSystematic(smp->fSystematics[i_syst]);
+                std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
+                if(!fSamples[i_smp]->HasNuisanceParameter(systNPName)){
+                    WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
+                    WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
+                    tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    if (tmpsyst->fType == Systematic::OVERALL ) {
+                          tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
+                          tmpsyst->fIsNormOnly = false;
+                    }
+                    fSamples[i_smp]->AddSystematic(tmpsyst);
                 }
             }
         }
         for(auto sample : fSamples[i_smp]->fAddSamples){
             Sample* smp = GetSample(sample);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
-                std::string systName = smp->fSystematics[i_syst]->fName;
-                if(!fSamples[i_smp]->HasSystematic(systName)){
-                    fSamples[i_smp]->AddSystematic(smp->fSystematics[i_syst]);
+                std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
+                if(!fSamples[i_smp]->HasNuisanceParameter(systNPName)){
+                    WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
+                    WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
+                    tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    if (tmpsyst->fType == Systematic::OVERALL ) {
+                          tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
+                          tmpsyst->fIsNormOnly = false;
+                    }
+                    fSamples[i_smp]->AddSystematic(tmpsyst);
                 }
             }
         }

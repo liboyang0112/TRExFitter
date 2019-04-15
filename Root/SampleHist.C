@@ -1375,7 +1375,7 @@ void SampleHist::Add(SampleHist *sh,float scale){
             WriteDebugStatus("SampleHist::Add", "Properly computing with that. ");
         }
     }
-    // loop on all the systematics the the other SampleHist, and see if some of them are NOT in this
+    // loop on all the systematics of the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;

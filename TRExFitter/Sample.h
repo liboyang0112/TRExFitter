@@ -55,6 +55,7 @@ public:
     Systematic* AddSystematic(const std::string& name,int type=0,float up=0,float down=0);
     bool HasNormFactor(const std::string& name) const;
     bool HasSystematic(const std::string& name) const;
+    bool HasNuisanceParameter(const std::string& name) const;
 
     // -------
     // Members
