@@ -20,6 +20,7 @@
 #include "TMath.h"
 #include "TObject.h"
 #include "TString.h"
+#include "TSystem.h"
 
 // c++ stuff
 #include <iostream>
@@ -96,6 +97,14 @@ TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variabl
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
     TChain *t = new TChain();
+    if (gSystem->AccessPathName(ntuple.c_str()) == kFALSE ){
+        if (TRExFitter::HISTOCHECKCRASH) {
+            WriteErrorStatus("Common::HistFromNtupleBinArr", "Cannot find input file in: " + ntuple);
+            exit(EXIT_FAILURE);
+        } else {
+            WriteWarningStatus("Common::HistFromNtupleBinArr", "Cannot find input file in: " + ntuple);
+        }
+    }
     t->Add(ntuple.c_str());
     h->Sumw2();
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
