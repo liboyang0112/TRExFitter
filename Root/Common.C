@@ -97,12 +97,16 @@ TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variabl
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
     TChain *t = new TChain();
-    if (gSystem->AccessPathName(ntuple.c_str()) == kFALSE ){
+
+    // check whether file actually exists, AccessPathName() returns FALSE if file can be accessed
+    // see https://root.cern.ch/root/html602/TSystem.html#TSystem:AccessPathName
+    std::string fileName = ntuple.substr(0,ntuple.find_last_of("/")); // remove tree name from string to obtain path to file
+    if (gSystem->AccessPathName(fileName.c_str()) == kTRUE ){
         if (TRExFitter::HISTOCHECKCRASH) {
-            WriteErrorStatus("Common::HistFromNtupleBinArr", "Cannot find input file in: " + ntuple);
+            WriteErrorStatus("Common::HistFromNtupleBinArr", "Cannot find input file in: " + fileName);
             exit(EXIT_FAILURE);
         } else {
-            WriteWarningStatus("Common::HistFromNtupleBinArr", "Cannot find input file in: " + ntuple);
+            WriteWarningStatus("Common::HistFromNtupleBinArr", "Cannot find input file in: " + fileName);
         }
     }
     t->Add(ntuple.c_str());
