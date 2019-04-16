@@ -3612,12 +3612,17 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         S[i] = 0.;
         B[i] = 0.;
         if(regions[i]==nullptr) continue;
-        for(int i_sig=0;i_sig<regions[i]->fNSig;i_sig++)
-            if(regions[i]->fSig[i_sig]!=nullptr)
-                S[i] += regions[i]->fSig[i_sig]->fHist->Integral();
+        for(int i_sig=0;i_sig<regions[i]->fNSig;i_sig++) {
+            if(regions[i]->fSig[i_sig]!=nullptr) {
+                const float scale = GetNominalMorphScale(regions[i]->fSig[i_sig]);
+                S[i] += scale * regions[i]->fSig[i_sig]->fHist->Integral();
+            }
+        }
         for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
-            if(regions[i]->fBkg[i_bkg]!=nullptr)
-                B[i] += regions[i]->fBkg[i_bkg]->fHist->Integral();
+            if(regions[i]->fBkg[i_bkg]!=nullptr) {
+                const float scale = GetNominalMorphScale(regions[i]->fBkg[i_bkg]);
+                B[i] += scale * regions[i]->fBkg[i_bkg]->fHist->Integral();
+            }
         }
         // to avoid nan or inf...
         if(B[i]==0) B[i] = 1e-10;
