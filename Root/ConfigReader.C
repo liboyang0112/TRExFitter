@@ -4086,13 +4086,9 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
             else continue;
         }
         if(!sam->fUseSystematics) continue;
-        if((samples[0] == "all" || find(samples.begin(), samples.end(), sam->fName)!=samples.end() )
-           && (exclude[0] == "" || find(exclude.begin(), exclude.end(), sam->fName)==exclude.end() )
-        ){
-            if((samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
-               && (exclude[0]=="" || FindInStringVector(exclude, sam->fName)<0 ) ){
-                sam->AddSystematic(sys);
-            }
+        if((samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
+           && (exclude[0]=="" || FindInStringVector(exclude, sam->fName)<0 ) ){
+            sam->AddSystematic(sys);
         }
     }
 
@@ -4113,7 +4109,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
                 if ( ireg == iGoodReg ) keepReg=true;
             }
         }
-        for ( const std::string iBadReg : exclude) {
+        for ( const std::string& iBadReg : exclude) {
             if ( iBadReg == ireg ) keepReg=false;
         }
 
