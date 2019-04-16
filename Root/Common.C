@@ -880,7 +880,7 @@ float GetNominalMorphScale(const SampleHist* const sh){
 	    delete f_morph;
         } else {
             scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
-	}
+	    }
     }
 
     return scale;
