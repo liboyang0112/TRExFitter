@@ -35,6 +35,7 @@
 #include "RooAddPdf.h"
 #include "RooGaussian.h"
 #include "RooPoisson.h"
+#include "RooMinimizer.h"
 
 //HistFactory headers
 #include "RooStats/AsymptoticCalculator.h"
@@ -311,9 +312,9 @@ TRExFit::TRExFit(std::string name){
     fLegendNColumnsMerge = 3;
 
     fShowRatioPad = true;
-    
+
     fExcludeFromMorphing = "";
-    
+
     fSaturatedModel = false;
 }
 
@@ -2146,7 +2147,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 WriteInfoStatus("TRExFit::CorrectHistograms","Scaling sample " + sh->fSample->fName + " by " + std::to_string(scale) + " in region " + reg->fName);
                 sh->Scale(scale);
             }
-            
+
         }
     }
     //
@@ -3584,17 +3585,17 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
     if(TRExFitter::OPTION["FourTopStyle"]!=0) W += 50.; // FIXME
     else W += 0.1; // to fix eps format (why is this needed?)
 
-    TCanvas *c = new TCanvas("c","c",W,H);
-    TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
-    pTop->Draw();
-    pTop->cd();
+    TCanvas c("c","c",W,H);
+    TPad pTop("c0","c0",0,1-H0/H,1,1);
+    pTop.Draw();
+    pTop.cd();
     ATLASLabel(0.1/(W/200.),1.-0.3*(100./H0),fAtlasLabel.c_str());
     myText(    0.1/(W/200.),1.-0.6*(100./H0),1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     if(fLabel!="-") myText(    0.1/(W/200.),1.-0.9*(100./H0),1,Form("%s",fLabel.c_str()));
 
-    TLegend *leg = nullptr;
+    std::unique_ptr<TLegend> leg = nullptr;
     if(TRExFitter::OPTION["FourTopStyle"]!=0){
-        leg = new TLegend(0.35,1.-0.6*(100./H0),1,1.-0.3*(100./H0));
+        leg = std::make_unique<TLegend>(0.35,1.-0.6*(100./H0),1,1.-0.3*(100./H0));
         leg->SetNColumns(3);
         leg->SetFillStyle(0.);
         leg->SetBorderSize(0.);
@@ -3603,35 +3604,35 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         leg->Draw();
     }
 
-    c->cd();
+    c.cd();
 
-    TPad *pLeft = new TPad("c1","c1",0,0,0+(W-nCols*Wp)/W,1-H0/H);
-    pLeft->Draw();
-    pLeft->cd();
-    TLatex *tex0 = new TLatex();
-    tex0->SetNDC();
-    tex0->SetTextAngle(90);
-    tex0->SetTextAlign(23);
-    tex0->DrawLatex(0.4,0.5,"S / #sqrt{ B }");
+    TPad pLeft("c1","c1",0,0,0+(W-nCols*Wp)/W,1-H0/H);
+    pLeft.Draw();
+    pLeft.cd();
+    TLatex tex0{};
+    tex0.SetNDC();
+    tex0.SetTextAngle(90);
+    tex0.SetTextAlign(23);
+    tex0.DrawLatex(0.4,0.5,"S / #sqrt{ B }");
 
-    c->cd();
+    c.cd();
 
-    TPad *pBottom = new TPad("c1","c1",0+(W-nCols*Wp)/W,0,1,1-H0/H);
-    pBottom->Draw();
-    pBottom->cd();
+    TPad pBottom("c1","c1",0+(W-nCols*Wp)/W,0,1,1-H0/H);
+    pBottom.Draw();
+    pBottom.cd();
 
-    pBottom->Divide(nCols,nRows);
+    pBottom.Divide(nCols,nRows);
     unsigned int Nreg = static_cast<unsigned int> (nRows*nCols);
     if(Nreg>regions.size()) Nreg = regions.size();
-    std::vector<TH1D*> h;
-    h.resize(Nreg);
-    float *S = new float[Nreg];
-    float *B = new float[Nreg];
-    double xbins[] = {0,0.1,0.9,1.0};
-    TLatex *tex = new TLatex();
-    tex->SetNDC();
-    tex->SetTextSize(gStyle->GetTextSize());
-    pBottom->cd(1);
+    std::vector<TH1D> h;
+    h.reserve(Nreg);
+    std::vector<float> S(Nreg);
+    std::vector<float> B(Nreg);
+    std::vector<float> xbins = {0,0.1,0.9,1.0};
+    TLatex tex{};
+    tex.SetNDC();
+    tex.SetTextSize(gStyle->GetTextSize());
+    pBottom.cd(1);
 
     //
     // Get the values
@@ -3640,12 +3641,17 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         S[i] = 0.;
         B[i] = 0.;
         if(regions[i]==nullptr) continue;
-        for(int i_sig=0;i_sig<regions[i]->fNSig;i_sig++)
-            if(regions[i]->fSig[i_sig]!=nullptr)
-                S[i] += regions[i]->fSig[i_sig]->fHist->Integral();
+        for(int i_sig=0;i_sig<regions[i]->fNSig;i_sig++) {
+            if(regions[i]->fSig[i_sig]!=nullptr) {
+                const float scale = GetNominalMorphScale(regions[i]->fSig[i_sig]);
+                S[i] += scale * regions[i]->fSig[i_sig]->fHist->Integral();
+            }
+        }
         for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
-            if(regions[i]->fBkg[i_bkg]!=nullptr)
-                B[i] += regions[i]->fBkg[i_bkg]->fHist->Integral();
+            if(regions[i]->fBkg[i_bkg]!=nullptr) {
+                const float scale = GetNominalMorphScale(regions[i]->fBkg[i_bkg]);
+                B[i] += scale * regions[i]->fBkg[i_bkg]->fHist->Integral();
+            }
         }
         // to avoid nan or inf...
         if(B[i]==0) B[i] = 1e-10;
@@ -3663,79 +3669,84 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
     bool hasVR = false;
     for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==nullptr) continue;
-        pBottom->cd(i+1);
+        pBottom.cd(i+1);
         if(TRExFitter::OPTION["LogSignalRegionPlot"]) gPad->SetLogy();
         if(TRExFitter::OPTION["FourTopStyle"]!=0){
             gPad->SetLeftMargin(0.1);
             gPad->SetRightMargin(0.);
         }
         std::string label = regions[i]->fShortLabel;
-        h[i] = new TH1D(Form("h[%d]",i),label.c_str(),3,xbins);
-        h[i]->SetBinContent(2,S[i]/sqrt(B[i]));
-        if(TRExFitter::OPTION["FourTopStyle"]==0) h[i]->GetYaxis()->SetTitle("S / #sqrt{B}");
-        h[i]->GetYaxis()->CenterTitle();
-        h[i]->GetYaxis()->SetLabelOffset(1.5*h[i]->GetYaxis()->GetLabelOffset() / (Wp/200.));
-        h[i]->GetYaxis()->SetTitleOffset(9*nRows/4. );
-        if(Wp<200) h[i]->GetYaxis()->SetTitleOffset( h[i]->GetYaxis()->GetTitleOffset()*0.90 );
-        h[i]->GetYaxis()->SetLabelSize( h[i]->GetYaxis()->GetLabelSize() * (Wp/200.) );
-        if(TRExFitter::OPTION["FourTopStyle"]!=0) h[i]->GetYaxis()->SetLabelSize( h[i]->GetYaxis()->GetLabelSize() * 1.1 );
-        h[i]->GetXaxis()->SetTickLength(0);
-        if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) h[i]->GetYaxis()->SetNdivisions(3);
-        else //h[i]->GetYaxis()->SetNdivisions(2);
-          TGaxis::SetMaxDigits(5);
-        yMax = TMath::Max(yMax,h[i]->GetMaximum());
-        h[i]->GetXaxis()->SetLabelSize(0);
-        h[i]->SetLineWidth(1);
-        h[i]->SetLineColor(kBlack);
-        if(regions[i]->fRegionType==Region::SIGNAL)          h[i]->SetFillColor(kRed+1);
-        else if(regions[i]->fRegionType==Region::VALIDATION) h[i]->SetFillColor(kGray);
-        else                                                 h[i]->SetFillColor(kAzure-4);
+        h.emplace_back(Form("h[%d]",i),label.c_str(),3,&xbins[0]);
+        h[i].SetBinContent(2,S[i]/sqrt(B[i]));
+        if(TRExFitter::OPTION["FourTopStyle"]==0) h[i].GetYaxis()->SetTitle("S / #sqrt{B}");
+        h[i].GetYaxis()->CenterTitle();
+        h[i].GetYaxis()->SetLabelOffset(1.5*h[i].GetYaxis()->GetLabelOffset() / (Wp/200.));
+        h[i].GetYaxis()->SetTitleOffset(9*nRows/4. );
+        if(Wp<200) h[i].GetYaxis()->SetTitleOffset( h[i].GetYaxis()->GetTitleOffset()*0.90 );
+        h[i].GetYaxis()->SetLabelSize( h[i].GetYaxis()->GetLabelSize() * (Wp/200.) );
+        if(TRExFitter::OPTION["FourTopStyle"]!=0) h[i].GetYaxis()->SetLabelSize( h[i].GetYaxis()->GetLabelSize() * 1.1 );
+        h[i].GetXaxis()->SetTickLength(0);
+        if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) h[i].GetYaxis()->SetNdivisions(3);
+        else TGaxis::SetMaxDigits(5);
+        yMax = TMath::Max(yMax,h[i].GetMaximum());
+        h[i].GetXaxis()->SetLabelSize(0);
+        h[i].SetLineWidth(1);
+        h[i].SetLineColor(kBlack);
+        if(regions[i]->fRegionType==Region::SIGNAL)          h[i].SetFillColor(kRed+1);
+        else if(regions[i]->fRegionType==Region::VALIDATION) h[i].SetFillColor(kGray);
+        else                                                 h[i].SetFillColor(kAzure-4);
         if(leg!=nullptr){
-            if(regions[i]->fRegionType==Region::CONTROL && !hasCR)    { leg->AddEntry(h[i],"Control Regions","f");    hasCR = true; }
-            if(regions[i]->fRegionType==Region::VALIDATION && !hasVR) { leg->AddEntry(h[i],"Validation Regions","f"); hasVR = true; }
-            if(regions[i]->fRegionType==Region::SIGNAL && !hasSR)     { leg->AddEntry(h[i],"Signal Regions","f");     hasSR = true; }
+            if(regions[i]->fRegionType==Region::CONTROL && !hasCR)    {
+                leg->AddEntry(&h[i],"Control Regions","f");
+                hasCR = true;
+            }
+            if(regions[i]->fRegionType==Region::VALIDATION && !hasVR) {
+                leg->AddEntry(&h[i],"Validation Regions","f");
+                hasVR = true;
+            }
+            if(regions[i]->fRegionType==Region::SIGNAL && !hasSR)     {
+                leg->AddEntry(&h[i],"Signal Regions","f");
+                hasSR = true;
+            }
         }
-        h[i]->Draw();
+        h[i].Draw();
         gPad->SetLeftMargin( gPad->GetLeftMargin()*2.4 );
         gPad->SetRightMargin(gPad->GetRightMargin()*0.1);
         gPad->SetTicky(0);
         gPad->RedrawAxis();
-        if(TRExFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.85,label.c_str());
-        else                                      tex->DrawLatex(0.27,0.85,label.c_str());
-        float SoB = S[i]/B[i];
+        if(TRExFitter::OPTION["FourTopStyle"]==0) tex.DrawLatex(0.42,0.85,label.c_str());
+        else                                      tex.DrawLatex(0.27,0.85,label.c_str());
+        const float SoB = S[i]/B[i];
         std::string SB = Form("%.1f%%",(100.*SoB));
         if(TRExFitter::OPTION["FourTopStyle"]!=0){
             if( (100.*SoB)<0.1 ){
                 SB = Form("%.0e%%",SoB);
-                if(SB.find("0")!=std::string::npos)SB.replace(SB.find("0"), 1, "");
+                if(SB.find("0")!=std::string::npos) SB.replace(SB.find("0"), 1, "");
                 if(SB.find("e")!=std::string::npos) SB.replace(SB.find("e"), 1, "#scale[0.75]{#times}10^{");
-                if(SB.find("%")!=std::string::npos)SB.replace(SB.find("%"), 1, "}");
+                if(SB.find("%")!=std::string::npos) SB.replace(SB.find("%"), 1, "}");
             }
         }
         SB = "#scale[0.75]{S/B} = "+SB;
-        if(TRExFitter::OPTION["FourTopStyle"]==0) tex->DrawLatex(0.42,0.72,SB.c_str());
-        else                                      tex->DrawLatex(0.27,0.72,SB.c_str());
+        if(TRExFitter::OPTION["FourTopStyle"]==0) tex.DrawLatex(0.42,0.72,SB.c_str());
+        else                                      tex.DrawLatex(0.27,0.72,SB.c_str());
     }
     //
     for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==nullptr) continue;
         if(TRExFitter::OPTION["LogSignalRegionPlot"]!=0){
-            h[i]->SetMaximum(yMax*200);
-            h[i]->SetMinimum(2e-4);
+            h[i].SetMaximum(yMax*200);
+            h[i].SetMinimum(2e-4);
         }
         else{
-            h[i]->SetMaximum(yMax*1.5);
-            h[i]->SetMinimum(0.);
+            h[i].SetMaximum(yMax*1.5);
+            h[i].SetMinimum(0.);
         }
     }
     //
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs((fName+"/SignalRegions"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++) {
+        c.SaveAs((fName+"/SignalRegions"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    }
 
-    //
-    delete [] S;
-    delete [] B;
-    delete c;
 }
 
 //__________________________________________________________________________________
@@ -3860,7 +3871,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
         results.push_back(temp_map_for_region);
         results_color.push_back(temp_map_for_region_color);
     }
-    
+
     //
     // Finally writting the pie chart
     //
@@ -4079,7 +4090,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
                 for(int i_shape=0;i_shape<h->fNShape;i_shape++){
                     WriteDebugStatus("TRExFit::ToRooStat", "    Adding ShapeFactor: " + h->fShapeFactors[i_shape]->fName + ", " + std::to_string(h->fShapeFactors[i_shape]->fNominal));
                     sample.AddShapeFactor( h->fShapeFactors[i_shape]->fName );
-                    if (h->fShapeFactors[i_shape]->fConst 
+                    if (h->fShapeFactors[i_shape]->fConst
                         || (fStatOnly && fFixNPforStatOnlyFit && h->fShapeFactors[i_shape]->fName!=fPOI)
                     ){
                         for(int i_bin=0;i_bin<h->fShapeFactors[i_shape]->fNbins;i_bin++){
@@ -5189,7 +5200,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         }
         fitTool -> FixNPs(npNames,npValues);
     }
-    
+
     // save snapshot before fit
     ws->saveSnapshot("snapshot_BeforeFit_POI", *(mc->GetParametersOfInterest()) );
     ws->saveSnapshot("snapshot_BeforeFit_NP" , *(mc->GetNuisanceParameters())   );
@@ -5200,7 +5211,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     double nll0 = 0.;
     if (fBlindedParameters.size() > 0) std::cout.setstate(std::ios_base::failbit);
     if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
-    
+
     // save snapshot before fit
     ws->saveSnapshot("snapshot_AfterFit_POI", *(mc->GetParametersOfInterest()) );
     ws->saveSnapshot("snapshot_AfterFit_NP" , *(mc->GetNuisanceParameters())   );
@@ -5230,7 +5241,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     }
     result = fitTool -> ExportFitResultInMap();
     if (fBlindedParameters.size() > 0) std::cout.clear();
-    
+
     // If SaturatedModel used, superseed Asimov-based GOF
     if(fSaturatedModel && fGetGoodnessOfFit && !fDoGroupedSystImpactTable){
         ws->loadSnapshot("snapshot_BeforeFit_POI");
@@ -5262,8 +5273,8 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         WriteInfoStatus("TRExFit::PerformFit", "----------------------- -------------------------- -----------------------");
         WriteInfoStatus("TRExFit::PerformFit", "----------------------- -------------------------- -----------------------");
     }
-    
-    // 
+
+    //
     // Load snapshots after nominal fit (needed in case GetGoodnessOfFit test with saturated model is evaluated)
     if(fSaturatedModel && fGetGoodnessOfFit && !fDoGroupedSystImpactTable){
         ws->loadSnapshot("snapshot_AfterFit_POI");
@@ -5606,7 +5617,7 @@ void TRExFit::GetSignificance(){
                 var->setConstant( 1 );
             }
         }
-        
+
         //
         // Gets the measurement object in the original combined workspace (created with the "w" command)
         //
@@ -6958,19 +6969,36 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
                                         NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
                                         RooFit::Optimize(kTRUE));
 
-    TString tag("");
-    RooAbsReal* pll = nll->createProfile(*var);
-    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
-    pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TRExFitter::NCPU));
-    RooCurve* curve = frameLH->getCurve();
-    curve->Draw();
+    std::vector<double> x(fLHscanSteps);
+    std::vector<double> y(fLHscanSteps);
+    RooMinimizer m(*nll); // get MINUIT interface of fit
+    m.setErrorLevel(-1);
+    m.setPrintLevel(-1);
+    m.setStrategy(2); // set precision to high
+    var->setConstant(kTRUE); // make POI constant in the fit
+    double min = 9999999;
+    for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
+        WriteInfoStatus("TRExFit::GetLikelihoodScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
+        x[ipoint] = minVal+ipoint*(maxVal-minVal)/fLHscanSteps;
+        *var = x[ipoint]; // set POI
+        m.migrad(); // minimize again with new posSigXsecOverSM value
+        RooFitResult* r = m.save(); // save fit result
+        y[ipoint] = r->minNll();
+        if (y[ipoint] < min) min = y[ipoint];
+    }
 
-    frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
+    for (auto & iY : y) {
+        iY = iY - min;
+    }
+
+    TGraph graph(fLHscanSteps, &x[0], &y[0]);
+    graph.Draw("ALP");
+    graph.GetXaxis()->SetRangeUser(minVal,maxVal);
 
     // y axis
-    frameLH->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
-    if(TRExFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TRExFitter::SYSTMAP[varName].c_str());
-    else if(TRExFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TRExFitter::NPMAP[varName].c_str());
+    graph.GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
+    if(TRExFitter::SYSTMAP[varName]!="") graph.GetXaxis()->SetTitle(TRExFitter::SYSTMAP[varName].c_str());
+    else if(TRExFitter::NPMAP[varName]!="") graph.GetXaxis()->SetTitle(TRExFitter::NPMAP[varName].c_str());
 
     TString cname="";
     cname.Append("NLLscan_");
@@ -6979,7 +7007,6 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     can.SetTitle(cname);
     can.SetName(cname);
     can.cd();
-    frameLH->Draw();
 
     TLatex tex{};
     tex.SetTextColor(kGray+2);
@@ -6988,13 +7015,13 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     l1s.SetLineStyle(kDashed);
     l1s.SetLineColor(kGray);
     l1s.SetLineWidth(2);
-    if(frameLH->GetMaximum()>2){
+    if(graph.GetMaximum()>2){
         l1s.Draw();
         tex.DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
     }
 
     if(isPoI){
-        if(frameLH->GetMaximum()>2){
+        if(graph.GetMaximum()>2){
             TLine l2s(minVal,2,maxVal,2);
             l2s.SetLineStyle(kDashed);
             l2s.SetLineColor(kGray);
@@ -7003,7 +7030,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
             tex.DrawLatex(maxVal,2,"#lower[-0.1]{#kern[-1]{2 #it{#sigma}   }}");
         }
         //
-        if(frameLH->GetMaximum()>4.5){
+        if(graph.GetMaximum()>4.5){
             TLine l3s(minVal,4.5,maxVal,4.5);
             l3s.SetLineStyle(kDashed);
             l3s.SetLineColor(kGray);
@@ -7012,7 +7039,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
             tex.DrawLatex(maxVal,4.5,"#lower[-0.1]{#kern[-1]{3 #it{#sigma}   }}");
         }
         //
-        TLine lv0(0,frameLH->GetMinimum(),0,frameLH->GetMaximum());
+        TLine lv0(0,graph.GetMinimum(),0,graph.GetMaximum());
         lv0.Draw();
         //
         TLine lh0(minVal,0,maxVal,0);
@@ -7030,7 +7057,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     // write it to a ROOT file as well
     TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"_curve.root","UPDATE");
     f->cd();
-    curve->Write("LHscan",TObject::kOverwrite);
+    graph.Write("LHscan",TObject::kOverwrite);
     f->Close();
     delete f;
 }

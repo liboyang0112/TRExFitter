@@ -4109,7 +4109,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
                 if ( ireg == iGoodReg ) keepReg=true;
             }
         }
-        for ( const std::string iBadReg : exclude) {
+        for ( const std::string& iBadReg : exclude) {
             if ( iBadReg == ireg ) keepReg=false;
         }
 

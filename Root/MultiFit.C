@@ -23,6 +23,7 @@
 #include "RooCategory.h"
 #include "RooDataSet.h"
 #include "RooSimultaneous.h"
+#include "RooMinimizer.h"
 #include "RooStats/ModelConfig.h"
 
 // HistFactory includes
@@ -2231,31 +2232,58 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     TCanvas can("NLLscan");
     can.SetTopMargin(0.1);
-    RooCurve* curve;
-    RooPlot* frameLH = var->frame(Title("-log(L) vs "+vname),Bins(fLHscanSteps),Range(minVal, maxVal));
 
+    std::unique_ptr<TGraph> graph;
     if(recreate){
         RooAbsReal* nll = simPdf->createNLL(*data,
                                             Constrain(*mc->GetNuisanceParameters()),
                                             Offset(1),
                                             NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
                                             RooFit::Optimize(kTRUE));
-        TString tag("");
-        RooAbsReal* pll = nll->createProfile(*var);
-        pll->plotOn(frameLH,RooFit::Precision(-1),LineColor(kRed), NumCPU(TRExFitter::NCPU));
-        curve = frameLH->getCurve();
+        std::vector<double> x(fLHscanSteps);
+        std::vector<double> y(fLHscanSteps);
+        RooMinimizer m(*nll); // get MINUIT interface of fit
+        m.setErrorLevel(-1);
+        m.setPrintLevel(-1);
+        m.setStrategy(2); // set precision to high
+        var->setConstant(kTRUE); // make POI constant in the fit
+        double min = 9999999;
+        for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
+            WriteInfoStatus("MultiFit::GetLikelihoodScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
+            x[ipoint] = minVal+ipoint*(maxVal-minVal)/fLHscanSteps;
+            *var = x[ipoint]; // set POI
+            m.migrad(); // minimize again with new posSigXsecOverSM value
+            RooFitResult* r = m.save(); // save fit result
+            y[ipoint] = r->minNll();
+            if (y[ipoint] < min) min = y[ipoint];
+        }
+
+        for (auto & iY : y) {
+            iY = iY - min;
+        }
+
+        graph = std::make_unique<TGraph>(fLHscanSteps, &x[0], &y[0]);
+
     }
     else{
         TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root", "READ");
-        curve = (RooCurve*)f->Get("LHscan");
-        curve->SetLineColor(kRed);
-        curve->SetLineWidth(3);
+        graph = std::unique_ptr<TGraph>(static_cast<TGraph*>(f->Get("LHscan")));
+        graph->SetLineColor(kRed);
+        graph->SetLineWidth(3);
     }
-    curve->Draw();
+
+    TString cname="";
+    cname.Append("NLLscan_");
+    cname.Append(vname);
+
+    can.SetTitle(cname);
+    can.SetName(cname);
+    can.cd();
+    graph->Draw("ALP");
 
     // take the LH curves also for other fits
-    std::vector<RooCurve*> curve_fit;
-    std::vector<RooCurve*> curve_fit_statOnly; // to implement
+    std::vector<TGraph*> curve_fit;
+    std::vector<TGraph*> curve_fit_statOnly; // to implement
     TLegend leg(0.5,0.85-0.06*(fFitList.size()+1),0.75,0.85);
     leg.SetFillColor(kWhite);
     leg.SetBorderSize(0);
@@ -2272,7 +2300,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
                 f = new TFile(fit->fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
             if(f!=nullptr) {
-                curve_fit.push_back((RooCurve*)f->Get("LHscan"));
+                curve_fit.push_back(static_cast<TGraph*>(f->Get("LHscan")));
             }
             else {
                 curve_fit.push_back(nullptr);
@@ -2284,28 +2312,20 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
             if (!crv) continue;
             if(idx==0) crv->SetLineColor(kBlue);
             if(idx==1) crv->SetLineColor(kGreen);
-            frameLH->addPlotable(crv,"same");
+            crv->Draw("LP same");
             leg.AddEntry(crv,fFitList[idx]->fLabel.c_str(),"l");
             idx++;
         }
-        leg.AddEntry(curve,"Combined","l");
+        leg.AddEntry(graph.get(),"Combined","l");
     }
 
-    frameLH->GetXaxis()->SetRangeUser(minVal,maxVal);
+    graph->GetXaxis()->SetRangeUser(minVal,maxVal);
 
     // y axis
-    frameLH->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
-    if(TRExFitter::SYSTMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TRExFitter::SYSTMAP[varName].c_str());
-    else if(TRExFitter::NPMAP[varName]!="") frameLH->GetXaxis()->SetTitle(TRExFitter::NPMAP[varName].c_str());
+    graph->GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
+    if(TRExFitter::SYSTMAP[varName]!="") graph->GetXaxis()->SetTitle(TRExFitter::SYSTMAP[varName].c_str());
+    else if(TRExFitter::NPMAP[varName]!="") graph->GetXaxis()->SetTitle(TRExFitter::NPMAP[varName].c_str());
 
-    TString cname="";
-    cname.Append("NLLscan_");
-    cname.Append(vname);
-
-    can.SetTitle(cname);
-    can.SetName(cname);
-    can.cd();
-    frameLH->Draw();
 
     TLatex tex{};
     tex.SetTextColor(kGray+2);
@@ -2314,13 +2334,13 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     l1s.SetLineStyle(kDashed);
     l1s.SetLineColor(kGray);
     l1s.SetLineWidth(2);
-    if(frameLH->GetMaximum()>2){
+    if(graph->GetMaximum()>2){
         l1s.Draw();
         tex.DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
     }
 
     if(isPoI){
-        if(frameLH->GetMaximum()>2){
+        if(graph->GetMaximum()>2){
             TLine l2s(minVal,2,maxVal,2);
             l2s.SetLineStyle(kDashed);
             l2s.SetLineColor(kGray);
@@ -2329,7 +2349,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
             tex.DrawLatex(maxVal,2,"#lower[-0.1]{#kern[-1]{2 #it{#sigma}   }}");
         }
         //
-        if(frameLH->GetMaximum()>4.5){
+        if(graph->GetMaximum()>4.5){
             TLine l3s(minVal,4.5,maxVal,4.5);
             l3s.SetLineStyle(kDashed);
             l3s.SetLineColor(kGray);
@@ -2338,7 +2358,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
             tex.DrawLatex(maxVal,4.5,"#lower[-0.1]{#kern[-1]{3 #it{#sigma}   }}");
         }
         //
-        TLine lv0(0,frameLH->GetMinimum(),0,frameLH->GetMaximum());
+        TLine lv0(0,graph->GetMinimum(),0,graph->GetMaximum());
         lv0.Draw();
         //
         TLine lh0(minVal,0,maxVal,0);
@@ -2354,9 +2374,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         if(fLabel!="") myText(0.2,0.85,kBlack,Form("#kern[-1]{%s}",fLabel.c_str()));
     }
 
-    frameLH->SetMinimum(0);
     can.RedrawAxis();
-    curve->Draw("same");
 
     for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
         can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TRExFitter::IMAGEFORMAT[i_format] );
@@ -2365,7 +2383,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         // write it to a ROOT file as well
         TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
         f->cd();
-        curve->Write("LHscan",TObject::kOverwrite);
+        graph->Write("LHscan",TObject::kOverwrite);
         f->Close();
         delete f;
     }

@@ -20,6 +20,7 @@
 #include "TMath.h"
 #include "TObject.h"
 #include "TString.h"
+#include "TSystem.h"
 
 // c++ stuff
 #include <iostream>
@@ -96,6 +97,18 @@ TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variabl
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
     TChain *t = new TChain();
+
+    // check whether file actually exists, AccessPathName() returns FALSE if file can be accessed
+    // see https://root.cern.ch/root/html602/TSystem.html#TSystem:AccessPathName
+    std::string fileName = ntuple.substr(0,ntuple.find_last_of("/")); // remove tree name from string to obtain path to file
+    if (gSystem->AccessPathName(fileName.c_str()) == kTRUE ){
+        if (TRExFitter::HISTOCHECKCRASH) {
+            WriteErrorStatus("Common::HistFromNtupleBinArr", "Cannot find input file in: " + fileName);
+            exit(EXIT_FAILURE);
+        } else {
+            WriteWarningStatus("Common::HistFromNtupleBinArr", "Cannot find input file in: " + fileName);
+        }
+    }
     t->Add(ntuple.c_str());
     h->Sumw2();
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
@@ -293,7 +306,7 @@ std::vector< std::pair < std::string,std::vector<double> > > processString(std::
     target.erase(0,pos+length+2);
     pos = 0;
   }
-  return output; 
+  return output;
 }
 
 //__________________________________________________________________________________
@@ -648,7 +661,7 @@ int ApplyATLASrounding(double &mean, double &error){
 
     // now apply the correct rounding for nominal value
     RoundToSig(mean, iterations);
-    
+
     // return the number of decimal digits (for later printing avoiding exponent...)
     int decPlaces = iterations;
     if(iterations<0) decPlaces = 0;
@@ -761,8 +774,8 @@ std::string FloatToPseudoHex(const float value){
     std::string s = std::to_string(value);
     std::string first = s.substr(0,s.find('.'));
     std::string second = s.substr(s.find('.')+1, s.length());
-    
-    int value1 = std::stoi(first);    
+
+    int value1 = std::stoi(first);
     const int value2 = std::stoi(second);
 
     // add 1234 to the first digit so it is not easily readable, we will subtract it in the decoding
@@ -779,7 +792,7 @@ std::string FloatToPseudoHex(const float value){
 float HexToFloat(const std::string& s){
     std::string first = s.substr(0,s.find('.'));
     std::string second = s.substr(s.find('.')+1, s.length());
-    
+
     unsigned int i1, i2;
 
     std::stringstream ss;
@@ -846,28 +859,29 @@ float GetNominalMorphScale(const SampleHist* const sh){
         if(nfName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
             std::string formula = TRExFitter::SYSTMAP[nfName];
             std::string name = TRExFitter::NPMAP[nfName];
-	    WriteDebugStatus("Common::GetNominalMorphScale", "formula: " +formula);
-	    WriteDebugStatus("Common::GetNominalMorphScale", "name: " +name);
-	    std::vector < std::pair < std::string,std::vector<double> > > nameS;
-	    if(nfName.find("morph_")!=std::string::npos) 
-	      nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
-	    else 
-	      nameS = processString(name);
-	    std::vector <double> nfNominalvec;
-	    for (unsigned int j = 0; j<nameS.size(); j++){
-	      formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
-	      nfNominalvec.push_back(nameS[j].second[0]);
-	    }
-	    double *nfNominal = nfNominalvec.data();
-	    WriteDebugStatus("Common::GetNominalMorphScale", "formula: " +formula);
-	    for(unsigned int j = 0; j<nameS.size(); j++) 
-	      WriteDebugStatus("Common::GetNominalMorphScale", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
-	    TFormula* f_morph = new TFormula ("f_morph",formula.c_str());
-	    scale *= f_morph->EvalPar(nfNominal,nullptr);                    
-	    delete f_morph;
+            WriteDebugStatus("Common::GetNominalMorphScale", "formula: " +formula);
+            WriteDebugStatus("Common::GetNominalMorphScale", "name: " +name);
+            std::vector < std::pair < std::string,std::vector<double> > > nameS;
+            if(nfName.find("morph_")!=std::string::npos) {
+                nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
+            } else {
+              nameS = processString(name);
+            }
+            std::vector <double> nfNominalvec;
+            for (unsigned int j = 0; j<nameS.size(); j++){
+                formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+                nfNominalvec.push_back(nameS[j].second[0]);
+            }
+            double *nfNominal = nfNominalvec.data();
+            WriteDebugStatus("Common::GetNominalMorphScale", "formula: " +formula);
+            for(unsigned int j = 0; j<nameS.size(); ++j) {
+                WriteDebugStatus("Common::GetNominalMorphScale", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
+            }
+            TFormula f_morph("f_morph",formula.c_str());
+            scale *= f_morph.EvalPar(nfNominal,nullptr);
         } else {
             scale *= sh->fSample->fNormFactors[i_nf]->fNominal;
-	}
+        }
     }
 
     return scale;
@@ -881,7 +895,7 @@ bool OptionRunsFit(const std::string& opt){
     if (opt.find("r")!=std::string::npos) return true;
     if (opt.find("i")!=std::string::npos) return true;
     if (opt.find("x")!=std::string::npos) return true;
-    return false; 
+    return false;
 }
 
 std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist){
