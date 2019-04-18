@@ -155,7 +155,7 @@ void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, con
     // 2) Style settings
     //
     TCanvas c1("","",0.,0.,size+300,size+300);
-    gStyle->SetPalette(1);
+    gStyle->SetPalette(87);
     h_corr.SetMarkerSize(0.75*1000);
     gStyle->SetPaintTextFormat(".1f");
     gPad->SetLeftMargin(0.5*600/(size+300));
