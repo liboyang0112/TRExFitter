@@ -203,6 +203,15 @@ bool Sample::HasSystematic(const std::string& name) const{
 
 //__________________________________________________________________________________
 //
+bool Sample::HasNuisanceParameter(const std::string& name) const{
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(fSystematics[i_syst]->fNuisanceParameter==name) return true;
+    }
+    return false;
+}
+
+//__________________________________________________________________________________
+//
 bool Sample::HasNormFactor(const std::string& name) const{
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         if(fNormFactors[i_norm]->fName==name) return true;
