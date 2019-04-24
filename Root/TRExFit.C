@@ -915,7 +915,6 @@ void TRExFit::ReadNtuples(){
                     continue;
                 }
                 // else ...
-                // FIXME
                 if(FindInStringVector(syst->fDummyForSamples,smp->fName)>=0){
                     WriteInfoStatus("TRExFit::ReadNtuples", "Systematic " + syst->fName + " set as dummy for sample " + smp->fName + " (region " + reg->fName + ")");
                     hUp   = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sUp",  reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));

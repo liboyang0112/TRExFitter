@@ -3294,7 +3294,6 @@ int ConfigReader::ReadSystOptions(){
         std::vector<std::string> regions = Vectorize(regions_str,',');
         std::vector<std::string> exclude = Vectorize(exclude_str,',');
         
-        // FIXME
         if(samples_str!="all" && confSet->Get("DummyForSamples")!=""){
             std::vector<std::string> addSamples = Vectorize(confSet->Get("DummyForSamples"),',');
             for(const auto& addSmp : addSamples){
@@ -3974,7 +3973,6 @@ int ConfigReader::ReadSystOptions(){
             return 1;
         }
 
-        // Michele Experimental: FIXME
         // Set DummyForSamples
         param = confSet->Get("DummyForSamples");
         if(param!="") {
