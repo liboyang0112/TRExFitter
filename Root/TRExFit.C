@@ -915,6 +915,23 @@ void TRExFit::ReadNtuples(){
                     continue;
                 }
                 // else ...
+                // FIXME
+                if(FindInStringVector(syst->fDummyForSamples,smp->fName)>=0){
+                    WriteInfoStatus("TRExFit::ReadNtuples", "Systematic " + syst->fName + " set as dummy for sample " + smp->fName + " (region " + reg->fName + ")");
+                    hUp   = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sUp",  reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
+                    hDown = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
+                    SystematicHist *syh = sh->AddHistoSyst(syst->fName,hUp,hDown);
+                    syh->fSystematic = syst;
+                    syh->fScaleUp = syst->fScaleUp;
+                    if(syst->fScaleUpRegions.size()!=0)
+                        if(syst->fScaleUpRegions[reg->fName]!=0)
+                            syh->fScaleUp *= syst->fScaleUpRegions[reg->fName];
+                    syh->fScaleDown = syst->fScaleDown;
+                    if(syst->fScaleDownRegions.size()!=0)
+                        if(syst->fScaleDownRegions[reg->fName]!=0)
+                            syh->fScaleDown *= syst->fScaleDownRegions[reg->fName];
+                    continue;
+                }
                 //
                 if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
                     if(GetSample(syst->fReferenceSample)!=nullptr) smp = GetSample(syst->fReferenceSample);
@@ -1279,14 +1296,15 @@ void TRExFit::CorrectHistograms(){
                 //
                 // if syst defined with SampleUp / SampleDown
                 if( syst->fSampleUp != "" || syst->fSampleDown != "" ){
+                    bool isDummy = ( syst->fDummyForSamples.size()>0 && FindInStringVector(syst->fDummyForSamples,smp->fName)>=0 );
                     TH1 *h_up   = sh->fHist;
-                    if(syst->fSampleUp   !=""){
+                    if(syst->fSampleUp   !="" && !isDummy){
                         if(reg->GetSampleHist(syst->fSampleUp  )){
                             h_up   = reg->GetSampleHist(syst->fSampleUp  )->fHist;
                         }
                     }
                     TH1 *h_down = sh->fHist;
-                    if(syst->fSampleDown !=""){
+                    if(syst->fSampleDown !="" && !isDummy){
                         if(reg->GetSampleHist(syst->fSampleDown)){
                             h_down = reg->GetSampleHist(syst->fSampleDown)->fHist;
                         }
