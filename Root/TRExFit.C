@@ -7692,6 +7692,10 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
     }
     // ... and systematics)
     if(syst!=nullptr){
+        if(syst->fIgnoreWeight!=""){
+            weight = ReplaceString(weight,syst->fIgnoreWeight,"1");
+            sampleWeight = ReplaceString(sampleWeight,syst->fIgnoreWeight,"1");
+        }
         if(isUp){
             if(syst->fWeightUp!=""){
                 sampleWeight = syst->fWeightUp;
