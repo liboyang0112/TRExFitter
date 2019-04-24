@@ -511,6 +511,7 @@ For each object type (also called "block"), here is the list of available proper
 | DropShapeIn                  | specify regions where you want the smoothing / pruning to be forced to drop the shape and keep only norm |
 | DropNorm                     | the same as the previous one, but to drop the norm and keep only the shape |
 | KeepNormForSamples           | list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region |
+| DummyForSamples              | list of samples, comma separated, for which the systematic gets created as a dummy one (syst variation = nominal); useful when used in combination with KeepNormForSamples |
 | PreSmoothing                 | if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set) |
 | SubtractRefSampleVar         | if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample |
 | HistoPathUpRefSample         | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file path for systematic up variation |

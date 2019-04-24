@@ -67,6 +67,7 @@ public:
     std::vector<std::string> fDropShapeIn;
     std::vector<std::string> fDropNormIn;
     std::vector<std::string> fKeepNormForSamples;
+    std::vector<std::string> fDummyForSamples;
     std::vector<int> fBins;
 
     // from ntuples - up
