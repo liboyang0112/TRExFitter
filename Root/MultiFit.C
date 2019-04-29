@@ -2895,7 +2895,7 @@ void MultiFit::BuildGroupedImpactTable() const{
     }
     else{
         std::string cmd = " if [[ `ls "+fOutDir+"/Fits/GroupedImpact"+fSaveSuf+"_*` != \"\" ]] ; then";
-        cmd            += " cat "+fOutDir+"/Fits/GroupedImpact_* > "+targetName+" ; ";
+        cmd            += " cat "+fOutDir+"/Fits/GroupedImpact"+fSaveSuf+"_* > "+targetName+" ; ";
         cmd            += " fi ;";
         gSystem->Exec(cmd.c_str());
     }
