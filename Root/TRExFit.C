@@ -6176,8 +6176,8 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     //
     // trick to merge the ranking outputs produced in parallel:
     std::string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; then";
-    cmd       += " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+".txt` == \"\" ]] ; then";
-    cmd       += " cat "+fName+"/Fits/NPRanking_* > "+fileToRead+" ; ";
+    cmd       += " if [[ ! -f "+fName+"/Fits/NPRanking"+fSuffix+".txt ]] ; then";
+    cmd       += " cat "+fName+"/Fits/NPRanking"+fSuffix+"_* > "+fileToRead+" ; ";
     cmd       += " fi ;";
     cmd       += " fi ;";
     gSystem->Exec(cmd.c_str());
@@ -7502,7 +7502,7 @@ void TRExFit::BuildGroupedImpactTable() const{
     }
     else{
         std::string cmd = " if [[ `ls "+fName+"/Fits/GroupedImpact"+fSuffix+"_*` != \"\" ]] ; then";
-        cmd            += " cat "+fName+"/Fits/GroupedImpact_* > "+targetName+" ; ";
+        cmd            += " cat "+fName+"/Fits/GroupedImpact"+fSuffix+"_* > "+targetName+" ; ";
         cmd            += " fi ;";
         gSystem->Exec(cmd.c_str());
     }
