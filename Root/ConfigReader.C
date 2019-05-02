@@ -2843,14 +2843,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
             if(Vectorize(param,',').size() == 2){
                 sample->fAsimovReplacementFor.first  = Vectorize(param,',')[0];
                 std::string tmp = Vectorize(param,',')[1];
-                if (std::find(fSamples.begin(), fSamples.end(), tmp) == fSamples.end()){
-                    if (fAllowWrongRegionSample){
-                        WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has sample set up for AsimovReplacementFor that does not exist");
-                    } else {
-                        WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has sample set up for AsimovReplacementFor that does not exist");
-                        return 1;
-                    }
-                }
                 sample->fAsimovReplacementFor.second = tmp;
             } else {
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "You specified 'AsimovReplacementFor' option but didnt provide 2 parameters. Please check this");
