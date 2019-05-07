@@ -976,7 +976,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     PrepareMorphScales(fitRes, &morph_scale, &morph_scale_nominal);
 
     // - loop on systematics
-    for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+    for(size_t i_syst=0;i_syst<fSystNames.size();++i_syst){
         WriteVerboseStatus("Region::BuildPostFitErrorHist", "    Systematic: " + fSystNames[i_syst]);
 
         int i_morph_sample = 0;
@@ -1202,6 +1202,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                     sh->fHistUp_postFit  ->AddBinContent( i_bin, diffUp   );
                     sh->fHistDown_postFit->AddBinContent( i_bin, diffDown );
                 }
+
             } // loop over bins
         } // loop over samples
         if(isMorph) i_morph_sample++;
@@ -1246,7 +1247,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     //
 
     // - loop on systematics
-    for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+    for(size_t i_syst=0;i_syst<fSystNames.size();++i_syst){
         systName = fSystNames[i_syst];
         //
         // Initialize the tot variation hists
@@ -2221,6 +2222,7 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
             if(ydata_j<0) continue; // skip dropped / blinded bins
             const double ynom_j = h_nominal->GetBinContent(j+1);
             for(unsigned int n=0;n<nsyst;++n){
+                if (fSystNames[n].find("saturated_model") != std::string::npos) continue;
                 const double ysyst_i_n = h_up[n]->GetBinContent(i+1);
                 for(unsigned int m=0;m<nsyst;++m){
                     const double ysyst_j_m = h_up[m]->GetBinContent(j+1);
@@ -2233,7 +2235,7 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
                 }
             }
             if(i==j && ynom_i>0) sum += ynom_i;  // add stat uncertainty to diagonal
-            if(i==j && ynom_i>0) sum += pow(h_nominal->GetBinError(i+1),2); // add MC stat as well
+            if(i==j && ynom_i>0) sum += h_nominal->GetBinError(i+1) * h_nominal->GetBinError(i+1); // add MC stat as well
             C[ibin][jbin] = sum;
             ++jbin;
         }
