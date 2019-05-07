@@ -501,13 +501,13 @@ void Region::BuildPreFitErrorHist(){
     // build the vectors of variations (sum histograms for systematics with the same NP)
     std::vector< TH1* > h_up;
     std::vector< TH1* > h_down;
-    for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+    for(size_t i_syst=0;i_syst< fSystNames.size(); ++i_syst){
         // look for all the already stored systematics, to find if one had the same NP
         bool found = false;
-        for(int j_syst=0;j_syst<i_syst;j_syst++){
+        for(size_t j_syst=0;j_syst<i_syst;++j_syst){
             if(TRExFitter::NPMAP[fSystNames[i_syst]]==TRExFitter::NPMAP[fSystNames[j_syst]]){
                 found = true;
-                int whichsyst = FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
+                const int whichsyst = FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
                 auto h_diff_up   = std::unique_ptr<TH1> (static_cast<TH1*> (h_up[whichsyst]  ->Clone(Form("%s_%s","clone_",h_up[whichsyst]  ->GetName()))));
                 auto h_diff_down = std::unique_ptr<TH1> (static_cast<TH1*> (h_down[whichsyst]->Clone(Form("%s_%s","clone_",h_down[whichsyst]->GetName()))));
                 h_diff_up  ->Add(fTotUp[  i_syst],fTot,1,-1);
@@ -1289,7 +1289,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     std::vector< TH1* > h_up;
     std::vector< TH1* > h_down;
     std::vector<std::string> systNuisPars;
-    for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+    for(size_t i_syst=0;i_syst<fSystNames.size();++i_syst){
         h_up.  push_back( fTotUp_postFit[i_syst]   );
         h_down.push_back( fTotDown_postFit[i_syst] );
         systNuisPars.push_back(TRExFitter::NPMAP[fSystNames[i_syst]]);
@@ -1307,15 +1307,15 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             return;
         }
         // remove blinded bins
-        TH1* h_data = (TH1*)fData->fHist->Clone();
+        auto h_data = std::unique_ptr<TH1>(static_cast<TH1*>(fData->fHist->Clone()));
         if(fBlindedBins!=nullptr){
-            for(int i_bin=1;i_bin<=h_data->GetNbinsX();i_bin++){
+            for(int i_bin=1;i_bin<=h_data->GetNbinsX();++i_bin){
                 if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
                 if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
             }
         }
         if(fGetChi2==1) fSystNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data, fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix );
+        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -2198,11 +2198,11 @@ std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_e
 //___________________________________________________________
 // function to get pre/post-fit agreement
 std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
-    unsigned int nbins = h_nominal->GetNbinsX();
-    unsigned int nsyst = fSystNames.size();
+    const unsigned int nbins = h_nominal->GetNbinsX();
+    const unsigned int nsyst = fSystNames.size();
     int ndf = 0;
-    for(unsigned int i=0;i<nbins;i++){
-        double ydata_i = h_data->GetBinContent(i+1);
+    for(unsigned int i=0;i<nbins;++i){
+        const double ydata_i = h_data->GetBinContent(i+1);
         if(ydata_i<0) continue; // skip dropped / blinded bins
         ndf ++;
     }
@@ -2210,20 +2210,20 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
     //
     int ibin = 0;
     int jbin = 0;
-    for(unsigned int i=0;i<nbins;i++){
+    for(unsigned int i=0;i<nbins;++i){
         double ydata_i = h_data->GetBinContent(i+1);
         if(ydata_i<0) continue; // skip dropped / blinded bins
-        double ynom_i = h_nominal->GetBinContent(i+1);
+        const double ynom_i = h_nominal->GetBinContent(i+1);
         jbin = 0;
-        for(unsigned int j=0;j<nbins;j++){
+        for(unsigned int j=0;j<nbins;++j){
             double sum = 0.;
-            double ydata_j = h_data->GetBinContent(j+1);
+            const double ydata_j = h_data->GetBinContent(j+1);
             if(ydata_j<0) continue; // skip dropped / blinded bins
-            double ynom_j = h_nominal->GetBinContent(j+1);
-            for(unsigned int n=0;n<nsyst;n++){
-                double ysyst_i_n = h_up[n]->GetBinContent(i+1);
-                for(unsigned int m=0;m<nsyst;m++){
-                    double ysyst_j_m = h_up[m]->GetBinContent(j+1);
+            const double ynom_j = h_nominal->GetBinContent(j+1);
+            for(unsigned int n=0;n<nsyst;++n){
+                const double ysyst_i_n = h_up[n]->GetBinContent(i+1);
+                for(unsigned int m=0;m<nsyst;++m){
+                    const double ysyst_j_m = h_up[m]->GetBinContent(j+1);
                     // more than Bill's suggestion: add correlation between systematics!!
                     double corr = 0.;
                     if(n==m) corr = 1.;
@@ -2235,9 +2235,9 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
             if(i==j && ynom_i>0) sum += ynom_i;  // add stat uncertainty to diagonal
             if(i==j && ynom_i>0) sum += pow(h_nominal->GetBinError(i+1),2); // add MC stat as well
             C[ibin][jbin] = sum;
-            jbin++;
+            ++jbin;
         }
-        ibin++;
+        ++ibin;
     }
     //
     if(TRExFitter::DEBUGLEVEL > 1) C.Print();
@@ -2249,19 +2249,19 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
     double chi2 = 0.;
     ibin = 0;
     jbin = 0;
-    for(unsigned int i=0;i<nbins;i++){
-        double ydata_i = h_data->GetBinContent(i+1);
+    for(unsigned int i=0;i<nbins;++i){
+        const double ydata_i = h_data->GetBinContent(i+1);
         if(ydata_i<0) continue; // skip dropped / blinded bins
-        double ynom_i = h_nominal->GetBinContent(i+1);
+        const double ynom_i = h_nominal->GetBinContent(i+1);
         jbin = 0;
         for(unsigned int j=0;j<nbins;j++){
-            double ydata_j = h_data->GetBinContent(j+1);
+            const double ydata_j = h_data->GetBinContent(j+1);
             if(ydata_j<0) continue; // skip dropped / blinded bins
-            double ynom_j = h_nominal->GetBinContent(j+1);
+            const double ynom_j = h_nominal->GetBinContent(j+1);
             chi2 += (ydata_i - ynom_i)*C[ibin][jbin]*(ydata_j-ynom_j);
-            jbin++;
+            ++jbin;
         }
-        ibin++;
+        ++ibin;
     }
     //
     return std::make_pair(chi2,ndf);
