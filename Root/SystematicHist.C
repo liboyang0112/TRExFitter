@@ -169,17 +169,26 @@ void SystematicHist::Multiply(SystematicHist *syh){
 //_____________________________________________________________________________
 //
 void SystematicHist::Add(TH1 *h,float scale){
+    if (h==nullptr) WriteErrorStatus("SystematicHist::Add", " trying to add a non existing Histogram.");
+    else {
     fHistUp->Add(h,scale);
     if(fHistShapeUp!=nullptr)   fHistShapeUp->Add(h,scale);
     fHistDown->Add(h,scale);
     if(fHistShapeDown!=nullptr) fHistShapeDown->Add(h,scale);
+    }
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Add(SystematicHist *syh,float scale){
+    if (syh->fHistUp==nullptr) WriteErrorStatus("SystematicHist::Add", " trying to add to "+fName+" the up variation of SystematicHist "+syh->fName+", which doesn't have it.");
+    else {
     fHistUp->Add(       syh->fHistUp,scale);
+    }
     if(fHistShapeUp!=nullptr)   fHistShapeUp->Add(  syh->fHistShapeUp,scale);
+    if (syh->fHistDown==nullptr) WriteErrorStatus("SystematicHist::Add", " trying to add to "+fName+" the down variation of SystematicHist "+syh->fName+", which doesn't have it.");
+    else {
     fHistDown->Add(     syh->fHistDown,scale);
+    }
     if(fHistShapeDown!=nullptr) fHistShapeDown->Add(syh->fHistShapeDown,scale);
 }
