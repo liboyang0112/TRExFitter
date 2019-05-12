@@ -1247,7 +1247,8 @@ void SampleHist::SampleHistAdd(SampleHist* h, float scale){
 //
 void SampleHist::Divide(SampleHist *sh){
     TH1* hOrig = (TH1*)fHist->Clone("h_tmp_orig");
-    fHist->Divide( sh->fHist );
+    if (sh->fHist!=0x0) fHist->Divide( sh->fHist );
+    else  WriteErrorStatus("SampleHist::Multiply", "Sample "+sh->fName+ " not found when trying to multiply it to "+fSample->fName);
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
@@ -1267,13 +1268,13 @@ void SampleHist::Divide(SampleHist *sh){
     }
     // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
     // if so, add a new SystematicHist
-     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
+    for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
         string systName = sh->fSyst[i_syst]->fName;
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==nullptr){
-            WriteDebugStatus("SampleHist::Divide", "Adding syst "+ systName + " to sample "+ fName);
+            WriteDebugStatus("SampleHist::Divide", "Adding syst "+ NuisParName + " (through syst "+ systName + ") to sample "+ fName);
             TH1* hUp   = (TH1*)fHist->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)fHist->Clone("h_tmp_down");
             hUp  ->Divide(   sh->fHist );
@@ -1286,15 +1287,23 @@ void SampleHist::Divide(SampleHist *sh){
             hDown->Scale(-1);
             hDown->Add(fHist,2);
             //
-            syh = AddHistoSyst(systName,hUp,hDown);
+            syh = AddHistoSyst(NuisParName,hUp,hDown);
             if (syh == nullptr) {
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
-            syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
-            fSample->AddSystematic(sh->fSyst[i_syst]->fSystematic);
+            Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
+            // want to inherit the triggering systematic, to follow one (and -only one-) convention:
+            tmpsyst->fName = NuisParName; 
+            tmpsyst->fStoredName = NuisParName; 
+            if (tmpsyst->fType == Systematic::OVERALL ) {
+                  tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
+                  tmpsyst->fIsNormOnly = false;
+            }
+            syh->fSystematic = tmpsyst;
+            fSample->AddSystematic(syh->fSystematic);
             delete hUp;
             delete hDown;
         }
@@ -1306,7 +1315,8 @@ void SampleHist::Divide(SampleHist *sh){
 //
 void SampleHist::Multiply(SampleHist *sh){
     TH1* hOrig = (TH1*)fHist->Clone("h_tmp_orig");
-    fHist->Multiply( sh->fHist );
+    if (sh->fHist!=0x0) fHist->Multiply( sh->fHist );
+    else  WriteErrorStatus("SampleHist::Multiply", "Sample "+sh->fName+ " not found when trying to multiply it to "+fSample->fName);
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
@@ -1332,20 +1342,28 @@ void SampleHist::Multiply(SampleHist *sh){
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==nullptr){
-            WriteDebugStatus("SampleHist::Multiply", "Adding syst "+ systName + " to sample "+ fName);
+            WriteDebugStatus("SampleHist::Multiply", "Adding syst "+ NuisParName + " (through syst "+ systName + ") to sample "+ fName);
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp   );
             hDown->Multiply( sh->fSyst[i_syst]->fHistDown );
-            syh = AddHistoSyst(systName,hUp,hDown);
+            syh = AddHistoSyst(NuisParName,hUp,hDown);
             if (syh == nullptr) {
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
-            syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
-            fSample->AddSystematic(sh->fSyst[i_syst]->fSystematic);
+            Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
+            // want to inherit the triggering systematic, to follow one (and -only one-) convention:
+            tmpsyst->fName = NuisParName; 
+            tmpsyst->fStoredName = NuisParName; 
+            if (tmpsyst->fType == Systematic::OVERALL ) {
+                  tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
+                  tmpsyst->fIsNormOnly = false;
+            }
+            syh->fSystematic = tmpsyst;
+            fSample->AddSystematic(syh->fSystematic);
             delete hUp;
             delete hDown;
         }
@@ -1357,7 +1375,8 @@ void SampleHist::Multiply(SampleHist *sh){
 //
 void SampleHist::Add(SampleHist *sh,float scale){
     TH1* hOrig = (TH1*)fHist->Clone("h_tmp_orig");
-    fHist->Add( sh->fHist, scale );
+    if (sh->fHist != 0x0) fHist->Add( sh->fHist, scale );
+    else  WriteErrorStatus("SampleHist::Add", "Sample "+sh->fName+ " not found when trying to add it to "+fSample->fName);
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
@@ -1383,20 +1402,30 @@ void SampleHist::Add(SampleHist *sh,float scale){
         string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==nullptr){
-            WriteDebugStatus("SampleHist::Add", "Adding syst "+ systName + " to sample "+ fName);
+            WriteDebugStatus("SampleHist::Add", "Adding syst "+ NuisParName + " (through syst "+ systName + ") to sample "+ fName);
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
-            hUp  ->Add( sh->fSyst[i_syst]->fHistUp  ,scale );
-            hDown->Add( sh->fSyst[i_syst]->fHistDown,scale );
-            syh = AddHistoSyst(systName,hUp,hDown);
+            if (sh->fSyst[i_syst]->fHistUp == 0x0) WriteErrorStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " up var. not found when trying to adding it to "+fSample->fName);
+            else  hUp  ->Add( sh->fSyst[i_syst]->fHistUp  ,scale );
+            if (sh->fSyst[i_syst]->fHistDown == 0x0) WriteErrorStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " down var. not found when trying to adding it to "+fSample->fName);
+            else hDown->Add( sh->fSyst[i_syst]->fHistDown,scale );
+            syh = AddHistoSyst(NuisParName,hUp,hDown);
             if (syh == nullptr) {
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
             syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
-            syh->fSystematic = sh->fSyst[i_syst]->fSystematic;
-            fSample->AddSystematic(sh->fSyst[i_syst]->fSystematic);
+            Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
+            // want to inherit the triggering systematic, to follow one (and -only one-) convention:
+            tmpsyst->fName = NuisParName; 
+            tmpsyst->fStoredName = NuisParName; 
+            if (tmpsyst->fType == Systematic::OVERALL ) {
+                  tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
+                  tmpsyst->fIsNormOnly = false;
+            }
+            syh->fSystematic = tmpsyst;
+            fSample->AddSystematic(syh->fSystematic);
             delete hUp;
             delete hDown;
         }
