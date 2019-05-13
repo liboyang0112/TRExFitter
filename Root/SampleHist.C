@@ -1256,14 +1256,14 @@ void SampleHist::Divide(SampleHist *sh){
         string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==nullptr){
-            fSyst[i_syst]->Divide( sh->fHist );
             WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Divide", "Using its nominal. ");
+            fSyst[i_syst]->Divide( sh->fHist );
         }
         else{
-            fSyst[i_syst]->Divide( syh );
             WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Divide", "Properly computing with that. ");
+            fSyst[i_syst]->Divide( syh );
         }
     }
     // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
@@ -1324,14 +1324,14 @@ void SampleHist::Multiply(SampleHist *sh){
         string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==nullptr){
-            fSyst[i_syst]->Multiply( sh->fHist );
             WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Multiply", "Using its nominal. ");
+            fSyst[i_syst]->Multiply( sh->fHist );
         }
         else{
-            fSyst[i_syst]->Multiply( syh );
             WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Multiply", "Properly computing with that. ");
+            fSyst[i_syst]->Multiply( syh );
         }
     }
     // loop on all the systematics in the other SampleHist, and see if some of them are NOT in this
@@ -1384,14 +1384,14 @@ void SampleHist::Add(SampleHist *sh,float scale){
         string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==nullptr){
-            fSyst[i_syst]->Add( sh->fHist, scale );
             WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Add", "Using its nominal. ");
+            fSyst[i_syst]->Add( sh->fHist, scale );
         }
         else{
-            fSyst[i_syst]->Add( syh, scale );
             WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Add", "Properly computing with that. ");
+            fSyst[i_syst]->Add( syh, scale );
         }
     }
     // loop on all the systematics of the other SampleHist, and see if some of them are NOT in this
