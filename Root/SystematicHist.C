@@ -169,26 +169,34 @@ void SystematicHist::Multiply(SystematicHist *syh){
 //_____________________________________________________________________________
 //
 void SystematicHist::Add(TH1 *h,float scale){
-    if (h==nullptr) WriteErrorStatus("SystematicHist::Add", " trying to add a non existing Histogram.");
-    else {
     fHistUp->Add(h,scale);
     if(fHistShapeUp!=nullptr)   fHistShapeUp->Add(h,scale);
     fHistDown->Add(h,scale);
     if(fHistShapeDown!=nullptr) fHistShapeDown->Add(h,scale);
-    }
 }
 
 //_____________________________________________________________________________
 //
 void SystematicHist::Add(SystematicHist *syh,float scale){
-    if (syh->fHistUp==nullptr) WriteErrorStatus("SystematicHist::Add", " trying to add to "+fName+" the up variation of SystematicHist "+syh->fName+", which doesn't have it.");
-    else {
     fHistUp->Add(       syh->fHistUp,scale);
+    if(fHistShapeUp!=nullptr)   {
+        if (syh->fHistShapeUp != nullptr) fHistShapeUp->Add(  syh->fHistShapeUp,scale);
+        else if (syh->fHistUp != nullptr){
+          // the other syst is overall, while this is not: get by hand its dummy shape syst
+          TH1*htemp=(TH1*) syh->fHistUp->Clone("hDummyShapeUp");
+          htemp->Scale(1.0/(1.0+syh->fNormUp));
+          fHistShapeUp->Add(  htemp,scale);
+          delete htemp;
+        }
     }
-    if(fHistShapeUp!=nullptr)   fHistShapeUp->Add(  syh->fHistShapeUp,scale);
-    if (syh->fHistDown==nullptr) WriteErrorStatus("SystematicHist::Add", " trying to add to "+fName+" the down variation of SystematicHist "+syh->fName+", which doesn't have it.");
-    else {
     fHistDown->Add(     syh->fHistDown,scale);
+    if(fHistShapeDown!=nullptr)   {
+        if (syh->fHistShapeDown != nullptr) fHistShapeDown->Add(  syh->fHistShapeDown,scale);
+        else if (syh->fHistDown != nullptr){// the other syst is overall, while this is not
+          TH1*htemp=(TH1*) syh->fHistDown->Clone("hDummyShapeDown");
+          htemp->Scale(1.0/(1.0+syh->fNormDown));
+          fHistShapeDown->Add(  htemp,scale);
+          delete htemp;
+        }
     }
-    if(fHistShapeDown!=nullptr) fHistShapeDown->Add(syh->fHistShapeDown,scale);
 }
