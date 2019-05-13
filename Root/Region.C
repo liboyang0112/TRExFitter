@@ -2212,7 +2212,7 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
     for(unsigned int n=0;n<fSystNames.size();++n){
       if(matrix!=nullptr){
         if (matrix->fNuisParIsThere[fSystNames[n]]) EffectiveSystNames.push_back(fSystNames[n]);
-        else std::cout<<"GetChi2Test: will skip syst. "<<fSystNames[n];
+        else WriteDebugStatus("GetChi2Test"," will skip syst. "+fSystNames[n]);
       }
       else EffectiveSystNames.push_back(fSystNames[n]);
     }
@@ -2305,7 +2305,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
     for(unsigned int n=0;n<fSystNames.size();++n){
       if(matrix!=nullptr){
         if (matrix->fNuisParIsThere[fSystNames[n]]) EffectiveSystNames.push_back(fSystNames[n]);
-        else std::cout<<"GetChi2Test: will skip syst. "<<fSystNames[n];
+        else WriteDebugStatus("BuildTotError"," will skip syst. "+ fSystNames[n]);
       }
       else EffectiveSystNames.push_back(fSystNames[n]);
     }
