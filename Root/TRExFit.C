@@ -1273,14 +1273,14 @@ void TRExFit::CorrectHistograms(){
                 else WriteWarningStatus("TRExFit::CorrectHistograms","Sample Hist of sample "+smp->fMultiplyBy+" not found ...");
             }
             if(smp->fDivideBy!=""){
-                WriteDebugStatus("TRExFit::CorrectHistograms", "dividing " + smp->fName  + "by sample " + smp->fDivideBy + " from sample " + smp->fName);
+                WriteDebugStatus("TRExFit::CorrectHistograms", "dividing " + smp->fName  + " by sample " + smp->fDivideBy + " from sample " + smp->fName);
                 SampleHist *smph0 = reg->GetSampleHist(smp->fDivideBy);
                 if(smph0!=nullptr) sh->Divide(smph0);
                 else WriteWarningStatus("TRExFit::CorrectHistograms","Sample Hist of sample "+smp->fDivideBy+" not found ...");
             }
             // Norm to sample
             if(smp->fNormToSample!=""){
-                WriteDebugStatus("TRExFit::CorrectHistograms", "normalizing " + smp->fName  + "to sample " + smp->fNormToSample);
+                WriteDebugStatus("TRExFit::CorrectHistograms", "normalizing " + smp->fName  + " to sample " + smp->fNormToSample);
                 SampleHist *smph0 = reg->GetSampleHist(smp->fNormToSample);
                 if(smph0!=nullptr) sh->Scale(smph0->fHist->Integral()/sh->fHist->Integral());
                 else WriteWarningStatus("TRExFit::CorrectHistograms","Sample Hist of sample "+smp->fNormToSample+" not found ...");
