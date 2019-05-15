@@ -147,6 +147,7 @@ public:
     bool fuseGammasForCorr;
 
     float fPOIInitial;
+    std::vector<std::string> fConfigPaths;
 };
 
 #endif
