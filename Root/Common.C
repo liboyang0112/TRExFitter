@@ -193,9 +193,11 @@ void MergeUnderOverFlow(TH1* h){
     h->SetBinError(     1, sqrt( pow(h->GetBinError(1),2)+pow(h->GetBinError(0),2)) ); // increase the stat uncertainty as well
     h->AddBinContent( nbins, h->GetBinContent(nbins+1) ); // merge first bin with overflow bin
     h->SetBinError(     nbins, sqrt( pow(h->GetBinError(nbins),2)+pow(h->GetBinError(nbins+1),2)) ); // increase the stat uncertainty as well
-    // set under/overflow bins to 0
+    // set under/overflow bins and its errors to 0
     h->SetBinContent( 0, 0. );
     h->SetBinContent( nbins+1, 0. );
+    h->SetBinError( 0, 0. );
+    h->SetBinError( nbins+1, 0. );
 }
 
 //__________________________________________________________________________________
