@@ -515,6 +515,7 @@ public:
     TemplateInterpolationOption fTemplateInterpolationOption;
 
     std::string fBootstrap;
+    std::string fBootstrapSyst;
     int fBootstrapIdx;
 
     std::vector<std::string> fDecorrSysts;
