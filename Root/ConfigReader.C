@@ -727,6 +727,12 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fBootstrap = RemoveQuotes(param);
     }
 
+    // Set Bootstrap
+    param = confSet->Get("BootstrapSyst");
+    if( param != "" ){
+        fFitter->fBootstrapSyst = RemoveQuotes(param);
+    }
+
     // Set DecorrSuff
     param = confSet->Get("DecorrSuff");
     if( param != ""){

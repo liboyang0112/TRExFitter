@@ -232,7 +232,8 @@ For each object type (also called "block"), here is the list of available proper
 | DoPieChartPlot               | if set to FALSE, no background composition pie-chart plot is created |
 | CustomFunctions              | list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values) |
 | SuppressNegativeBinWarnings  | If set to TRUE, will suppress warning messages about negative or 0 content in bins |
-| Bootstrap                    | (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like `bsWeight(x,eventNumber,mcChannelNumber)`, where `bsWeight` should be loaded with `CustomFunctions: "bsWeight.C"` and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option `BootstrapIdx=<i>` should be given, with `<i>=0,1,2,3...` |
+| Bootstrap                    | (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like `bsWeight(BootstrapIdx,eventNumber,mcChannelNumber)`, where `bsWeight` should be loaded with `CustomFunctions: "bsWeight.C"` and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option `BootstrapIdx=<i>` should be given, with `<i>=0,1,2,3...`. Alternatively there is default function `util/BootstrapDefault.C` which would be called as `BootstrapDefault(eventNumber+mcChannelNumber+BootstrapIdx)`. |
+| BootstrapSyst                | Specifies the systematics for which systematic should be the bootstrap done. | 
 | DecorrSysts                  | comma-separated list of systematics which you want to decorrelate from another channel (this is don by automatically attaching a suffix to the NormFactor for each of them); can use wildcards |
 | DecorrSuff                   | the suffix to attach when using DecorrSysts |
 | RegionGroups                 | groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE |
@@ -562,6 +563,7 @@ Currently the supported options are:
 | **FitType**         | can be set to SPLUSB or BONLY to replace the option in the config file |
 | **LumiScale**       | as the options in config file |
 | **BootstrapIdx**    | see description of Bootstrap option in config (under Job) |
+| **BootstrapSYst**    | see description of BootstrapSyst option in config (under Job) |
 | **GroupedImpact**   | see [Grouped Impact](#grouped-impact) section |
 | **OutputDir**       | see [Job options](#job-block-options) section |
 | **LimitParamValue** | see [Limit options](#limit-block-options) section (ParamValue) |
