@@ -265,6 +265,7 @@ TRExFit::TRExFit(std::string name){
     fTemplateInterpolationOption = TRExFit::LINEAR;
 
     fBootstrap = "";
+    fBootstrapSyst = "";
     fBootstrapIdx = -1;
 
     fDecorrSysts.clear();
@@ -1835,6 +1836,7 @@ void TRExFit::ReadHistograms(){
 //
 void TRExFit::ReadHistos(/*string fileName*/){
     std::string fileName = "";
+    std::string fileNameBootstrap = "";
     SampleHist *sh = nullptr;
     SystematicHist *syh = nullptr;
     std::string regionName;
@@ -1996,7 +1998,10 @@ void TRExFit::ReadHistos(/*string fileName*/){
             else                 fileName = fName + "/Histograms/" + fInputName + "_" + regionName + "_histos.root";
             // Bootstrap
             if(fBootstrap!="" && fBootstrapIdx>=0){
-                fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
+                if( fBootstrapSyst == "" )
+                        fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
+                else
+                        fileNameBootstrap = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
             }
             WriteInfoStatus("TRExFit::ReadHistos", "-----------------------------");
             WriteInfoStatus("TRExFit::ReadHistos", "Reading histograms from file " + fileName + " ...");
@@ -2109,11 +2114,20 @@ void TRExFit::ReadHistos(/*string fileName*/){
                         if(binContent==1 || binContent==-2) pruned = 1;
                         if(binContent==2 || binContent==-3) pruned = 2;
                     }
-                    syh = sh->AddHistoSyst(systName,
+                    if(fBootstrap!="" && fBootstrapIdx>=0 && fBootstrapSyst == systName ){
+                        syh = sh->AddHistoSyst(systName,
+                                          Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileNameBootstrap,
+                                          Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileNameBootstrap,
+                                          pruned
+                                          );
+                    }
+                    else{
+                        syh = sh->AddHistoSyst(systName,
                                           Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                           pruned
                                           );
+                    }
                     if(syh==nullptr){
                         if (!pruned) WriteWarningStatus("TRExFit::ReadHistos", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
                         continue;
@@ -2123,8 +2137,14 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
-                syh->fFileNameShapeUp    = fileName;
-                syh->fFileNameShapeDown  = fileName;
+                if(fBootstrap!="" && fBootstrapIdx>=0 && fBootstrapSyst == systName ){
+                    syh->fFileNameShapeUp    = fileNameBootstrap;
+                    syh->fFileNameShapeDown  = fileNameBootstrap;
+                }
+                else{
+                    syh->fFileNameShapeUp    = fileName;
+                    syh->fFileNameShapeDown  = fileName;
+                }
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0){
                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[regionName]!=0){
@@ -4063,7 +4083,10 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     const std::string suffix_regularBinning = "_regBin";
 
     RooStats::HistFactory::Measurement meas((fInputName+fSuffix).c_str(), (fInputName+fSuffix).c_str());
-    meas.SetOutputFilePrefix((fName+"/RooStats/"+fInputName).c_str());
+    if(fBootstrap!="" && fBootstrapIdx>=0)
+        meas.SetOutputFilePrefix((fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName).c_str());
+    else
+        meas.SetOutputFilePrefix((fName+"/RooStats/"+fInputName).c_str());
     meas.SetExportOnly(exportOnly);
     meas.SetPOI(fPOI.c_str());
     meas.SetLumi(fLumiScale);
@@ -4226,7 +4249,10 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         }
     }
     //
-    meas.PrintXML((fName+"/RooStats/").c_str());
+    if(fBootstrap!="" && fBootstrapIdx>=0)
+        meas.PrintXML((fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/").c_str());
+    else
+        meas.PrintXML((fName+"/RooStats/").c_str());
     CloseInputFiles();
     meas.CollectHistograms();
     meas.PrintTree();
@@ -5285,9 +5311,16 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     double nll = fitTool -> FitPDF( mc, simPdf, data );
     if (debugLevel < 1 && fBlindedParameters.size() == 0) std::cout.clear();
     if(save){
-        gSystem -> mkdir((fName+"/Fits/").c_str(),true);
-        if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
-        else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+".txt", fBlindedParameters);
+        if(fBootstrap!="" && fBootstrapIdx>=0){
+            gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
+            if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
+            else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+".txt", fBlindedParameters);
+        }
+        else{
+            gSystem -> mkdir((fName+"/Fits/").c_str(),true);
+            if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
+            else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+".txt", fBlindedParameters);
+        }
     }
     result = fitTool -> ExportFitResultInMap();
     if (fBlindedParameters.size() > 0) std::cout.clear();
@@ -5362,7 +5395,11 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
     RooStats::HistFactory::Measurement *measurement = 0;
     //
     // Take the measurement from the combined workspace, to be sure to have all the systematics (even the ones which are not there in the first region)
-    TFile *rootFileCombined = new TFile( (fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read");
+    std::unique_ptr<TFile> rootFileCombined;
+    if(fBootstrap!="" && fBootstrapIdx>=0)
+        rootFileCombined = std::make_unique<TFile>( (fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read");
+    else
+        rootFileCombined = std::make_unique<TFile>( (fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read");
     if(rootFileCombined!=nullptr) measurement = (RooStats::HistFactory::Measurement*) rootFileCombined -> Get( (fInputName+fSuffix).c_str());
     //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -5375,6 +5412,7 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
         }
         if(isToFit){
             std::string fileName = fName+"/RooStats/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
+            if(fBootstrap!="" && fBootstrapIdx>=0) fileName = fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
             TFile *rootFile = new TFile(fileName.c_str(),"read");
             RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get((fRegions[i_ch]->fName).c_str());
             if(!m_ws){
@@ -5405,6 +5443,8 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
     // Configure the workspace
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+
+    rootFileCombined->Close();
 
     return ws;
 }
@@ -7772,7 +7812,8 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
     // add Bootstrap weights
     if(fBootstrap!="" && fBootstrapIdx>=0){
         if(weight!="") weight += " * ";
-        weight += "("+ReplaceString(fBootstrap,"x",Form("%d",fBootstrapIdx))+")";
+        weight += "("+ReplaceString(fBootstrap,"BootstrapIdx",Form("%d",fBootstrapIdx))+")";
+        gRandom->SetSeed(fBootstrapIdx);
     }
     // check the final expression
     WriteDebugStatus("TRExFit::FullWeight","Full weight expression : "+weight);

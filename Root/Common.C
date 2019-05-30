@@ -193,9 +193,11 @@ void MergeUnderOverFlow(TH1* h){
     h->SetBinError(     1, sqrt( pow(h->GetBinError(1),2)+pow(h->GetBinError(0),2)) ); // increase the stat uncertainty as well
     h->AddBinContent( nbins, h->GetBinContent(nbins+1) ); // merge first bin with overflow bin
     h->SetBinError(     nbins, sqrt( pow(h->GetBinError(nbins),2)+pow(h->GetBinError(nbins+1),2)) ); // increase the stat uncertainty as well
-    // set under/overflow bins to 0
+    // set under/overflow bins and its errors to 0
     h->SetBinContent( 0, 0. );
     h->SetBinContent( nbins+1, 0. );
+    h->SetBinError( 0, 0. );
+    h->SetBinError( nbins+1, 0. );
 }
 
 //__________________________________________________________________________________
@@ -775,14 +777,24 @@ std::string FloatToPseudoHex(const float value){
     std::string first = s.substr(0,s.find('.'));
     std::string second = s.substr(s.find('.')+1, s.length());
 
+    //Count the number of "0" after the comma
+    int count = 0;
+    for (unsigned int i = 0; i < second.size(); i++) {
+      if (second[i] != '0')
+	break;
+      count++;
+    }
+
     int value1 = std::stoi(first);
     const int value2 = std::stoi(second);
 
     // add 1234 to the first digit so it is not easily readable, we will subtract it in the decoding
     value1+=1234;
+    // add 5678 to the number of '0' 
+    count+=5678;
 
     std::stringstream ss;
-    ss << std::hex << value1 << "." << std::hex << value2;
+    ss << std::hex << value1 << "." << std::hex << count  << "." << std::hex << value2;
 
     return ss.str();
 }
@@ -791,10 +803,12 @@ std::string FloatToPseudoHex(const float value){
 //
 float HexToFloat(const std::string& s){
     std::string first = s.substr(0,s.find('.'));
-    std::string second = s.substr(s.find('.')+1, s.length());
-
-    unsigned int i1, i2;
-
+    std::string rest = s.substr(s.find('.')+1, s.length());
+    std::string zeros = rest.substr(0,rest.find('.'));
+    std::string second = rest.substr(rest.find('.')+1, rest.length());
+    
+    unsigned int i1, i2, n0;
+    
     std::stringstream ss;
     ss << std::hex << first;
     ss >> i1;
@@ -802,12 +816,23 @@ float HexToFloat(const std::string& s){
     std::stringstream ss1;
     ss1 << std::hex << second;
     ss1 >> i2;
+    
+    std::stringstream ss2;
+    ss2 << std::hex << zeros;
+    ss2 >> n0;
 
     int signed1 = static_cast<int>(i1);
     // need to subtract the 1234 we added
     signed1-= 1234;
+    // need to substract the 5678
+    n0-= 5678;
 
-    const std::string result = std::to_string(signed1)+"."+std::to_string(i2);
+    std::string result = std::to_string(signed1)+".";
+
+    for (unsigned int i = 0; i < n0; i++)
+      result += "0";
+
+    result += std::to_string(i2);
 
     return std::stof(result);
 }
