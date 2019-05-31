@@ -317,6 +317,8 @@ TRExFit::TRExFit(std::string name){
     fExcludeFromMorphing = "";
 
     fSaturatedModel = false;
+    
+    fDebugNev = -1;
 }
 
 //__________________________________________________________________________________
@@ -816,12 +818,12 @@ void TRExFit::ReadNtuples(){
                 if(fRegions[i_ch]->fHistoBins){
                     htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                  variable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
-                                                 fullSelection, fullMCweight);
+                                                 fullSelection, fullMCweight, fDebugNev);
                 }
                 else{
                     htmp = HistFromNtuple( fullPaths[i_path],
                                            variable, fRegions[i_ch]->fNbins, fRegions[i_ch]->fXmin, fRegions[i_ch]->fXmax,
-                                           fullSelection, fullMCweight);
+                                           fullSelection, fullMCweight, fDebugNev);
                     //Pre-processing of histograms (rebinning, lumi scaling)
                     if(fRegions[i_ch]->fHistoNBinsRebin != -1){
                         htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
@@ -956,12 +958,12 @@ void TRExFit::ReadNtuples(){
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                         variable, reg->fHistoNBinsRebin, reg->fHistoBins,
-                                                        fullSelection, fullMCweight);
+                                                        fullSelection, fullMCweight, fDebugNev);
                         }
                         else{
                             htmp = HistFromNtuple( fullPaths[i_path],
                                                   variable, reg->fNbins, reg->fXmin, reg->fXmax,
-                                                  fullSelection, fullMCweight);
+                                                  fullSelection, fullMCweight, fDebugNev);
                             // Pre-processing of histograms (rebinning, lumi scaling)
                             if(reg->fHistoNBinsRebin != -1){
                                 htmp->Rebin(reg->fHistoNBinsRebin);
@@ -1036,12 +1038,12 @@ void TRExFit::ReadNtuples(){
                         if(reg->fHistoBins){
                             htmp = HistFromNtupleBinArr( fullPaths[i_path],
                                                         variable, reg->fHistoNBinsRebin, reg->fHistoBins,
-                                                        fullSelection, fullMCweight);
+                                                        fullSelection, fullMCweight, fDebugNev);
                         }
                         else{
                             htmp = HistFromNtuple( fullPaths[i_path],
                                                   variable, reg->fNbins, reg->fXmin, reg->fXmax,
-                                                  fullSelection, fullMCweight);
+                                                  fullSelection, fullMCweight, fDebugNev);
                             // Pre-processing of histograms (rebinning, lumi scaling)
                             if(reg->fHistoNBinsRebin != -1){
                                 htmp->Rebin(reg->fHistoNBinsRebin);
@@ -1539,6 +1541,38 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
+    
+    // Propagate all systematics from another sample
+    for(auto reg : fRegions){
+        for(auto smp : fSamples){
+            if(smp->fSystFromSample != ""){
+                // eventually skip sample / region combination
+                if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
+                SampleHist *sh = reg->GetSampleHist(smp->fName);
+                if(sh==nullptr) continue;
+                sh->fSample->fUseSystematics = true;
+                //
+                SampleHist *shReference = reg->GetSampleHist(smp->fSystFromSample);
+                for(auto syh : shReference->fSyst){
+                    Systematic * syst = syh->fSystematic;
+                    if(syst->fIsNormOnly){
+                        SystematicHist* syhNew = sh->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
+                        syhNew->fSystematic = syst;
+                    }
+                    else{
+                        TH1* hUpNew   = (TH1*)syh->fHistUp->Clone();
+                        TH1* hDownNew = (TH1*)syh->fHistDown->Clone();
+                        hUpNew->Divide(shReference->fHist);
+                        hUpNew->Multiply(sh->fHist);
+                        hDownNew->Divide(shReference->fHist);
+                        hDownNew->Multiply(sh->fHist);
+                        SystematicHist* syhNew = sh->AddHistoSyst(syst->fName,hUpNew,hDownNew);
+                        syhNew->fSystematic = syst;
+                    }
+                }
+            }
+        }
+    }
 
     //
     // set the hasData flag
@@ -1953,6 +1987,25 @@ void TRExFit::ReadHistos(/*string fileName*/){
         }
     }
     //
+    // fSystFromSample
+    for(auto smp : fSamples){
+        if(smp->fSystFromSample!=""){
+            Sample *smpReference = nullptr;
+            for(auto smp2 : fSamples){
+                if(smp2->fName==smp->fName) continue;
+                if(smp2->fName==smp->fSystFromSample){
+                    smpReference = smp2;
+                    break;
+                }
+            }
+            if(smpReference!=nullptr){
+                for(auto syst : smpReference->fSystematics){
+                    smp->AddSystematic(syst);
+                }
+            }
+        }
+    }
+    //
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         if( fKeepPruning ){
             histPrun.push_back( (TH2F*)filePrun->Get( Form("h_prun_%s_toSave", fRegions[i_ch]->fName.c_str()) ) );
@@ -2175,7 +2228,8 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 }
                 if(FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
                     shToScale.emplace_back(sh);
-                    totToScale += sh->fHist->Integral();
+                    float morph_scale = GetNominalMorphScale(sh);
+                    totToScale += morph_scale*sh->fHist->Integral();
                 }
             }
             if(totToScale<=0 || shToScale.size()==0) continue;
@@ -2185,6 +2239,11 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 sh->Scale(scale);
             }
 
+        }
+    }
+    else if(fScaleSamplesToData.size()>0){
+        for(auto reg : fRegions){
+            reg->fScaleSamplesToData = fScaleSamplesToData;
         }
     }
     //
@@ -6670,7 +6729,7 @@ void TRExFit::ComputeBinning(int regIter){
                 TH1D* htmp = nullptr;
                 htmp = HistFromNtuple( fullPaths[i_path],
                                     fRegions[regIter]->fVariable, 10000, fRegions[regIter]->fXmin, fRegions[regIter]->fXmax,
-                                    fullSelection, fullMCweight);
+                                    fullSelection, fullMCweight, fDebugNev);
                 TRExFitter::SetDebugLevel(tmp_debugLevel);
                 //
                 // Pre-processing of histograms (rebinning, lumi scaling)

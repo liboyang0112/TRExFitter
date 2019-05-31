@@ -75,7 +75,7 @@ std::map<std::string,TFile*> TRExFitter::TFILEMAP;
 //__________________________________________________________________________________
 //
 TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, float xmin,
-                     float xmax, const std::string& selection, const std::string& weight){
+                     float xmax, const std::string& selection, const std::string& weight, int Nev){
     TH1D* h = new TH1D("h","h",nbin,xmin,xmax);
     WriteVerboseStatus("Common::HistFromNtuple", "    Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtuple", "        with weight  (" + weight + ")*("+selection+")  ...");
@@ -83,7 +83,8 @@ TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int
     t->Add(ntuple.c_str());
     h->Sumw2();
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
-    t->Draw(drawVariable, drawWeight, "goff");
+    if(Nev>=0) t->Draw(drawVariable, drawWeight, "goff", Nev);
+    else       t->Draw(drawVariable, drawWeight, "goff");
     if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     delete t;
     return h;
@@ -92,7 +93,7 @@ TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int
 //__________________________________________________________________________________
 //
 TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins,
-                           const std::string& selection, const std::string& weight){
+                           const std::string& selection, const std::string& weight, int Nev){
     TH1D* h = new TH1D("h","h",nbin,bins);
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
@@ -112,7 +113,8 @@ TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variabl
     t->Add(ntuple.c_str());
     h->Sumw2();
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
-    t->Draw(drawVariable, drawWeight, "goff");
+    if(Nev>=0) t->Draw(drawVariable, drawWeight, "goff", Nev);
+    else       t->Draw(drawVariable, drawWeight, "goff");
     if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
     delete t;
     return h;

@@ -943,6 +943,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
             if(!fSampleHists[i_sample]->fSyst[i_syst]->fSystematic) continue;
             systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
+            if(systName.find("stat_")!=std::string::npos) continue; // fSeparateGammas already added later
             if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fType!=Systematic::SHAPE) continue;
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
                 std::string gammaName = Form("shape_%s_%s_bin_%d",systName.c_str(),fName.c_str(),i_bin-1);
@@ -1544,6 +1545,41 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         }
     }
 
+    // Michele:
+    // Scale samples acording to fScaleSamplesToData:
+    if(fScaleSamplesToData.size()>0){
+        TH1* hTot = nullptr;
+        for(int i=0;i<fNSamples;i++){
+            if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
+            if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
+            if(hTot==nullptr) hTot = (TH1*)hSmpNew[i]->Clone("hTotPostFit");
+            else              hTot->Add(hSmpNew[i]);
+        }
+        float totPred = hTot->Integral();
+        float totData = fData->fHist->Integral();
+        float totToScale = 0;
+        std::vector<int> shIdxToScale;
+        for(int i=0;i<fNSamples;i++){
+            SampleHist *sh = fSampleHists[i];
+            if(sh->fHist==nullptr) continue;
+            if(sh->fSample->fType==Sample::GHOST){
+                WriteWarningStatus("Region::DrawPostFit","Requested to scale to data a GHOST sample, " + sh->fSample->fName + ". Skipping this sample.");
+                continue;
+            }
+            if(FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
+                shIdxToScale.emplace_back(i);
+                totToScale += hSmpNew[i]->Integral();
+            }
+        }
+        if(totToScale>0 && shIdxToScale.size()>0){
+            float scale = (totData-(totPred-totToScale))/totToScale;
+            for(auto idx : shIdxToScale){
+                WriteInfoStatus("Region::DrawPostFit","Scaling sample " + fSampleHists[idx]->fSample->fName + " by " + std::to_string(scale) + " in region " + fName);
+                hSmpNew[idx]->Scale(scale);
+            }
+        }
+    }
+    
     //
     // 3) Add the new Sig and Bkg to plot
     //
@@ -2374,7 +2410,7 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                     double *nfValue = nfValuevec.data();
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
                     for(unsigned int j = 0; j<nameS.size(); j++){
-                        WriteInfoStatus("Region::PrepareMorphScales", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValue[j]));
+                        WriteDebugStatus("Region::PrepareMorphScales", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValue[j]));
                     }
                     TFormula f_morph ("f_morph",formula.c_str());
                     float scaleNom = f_morph.EvalPar(nfValue,nullptr);

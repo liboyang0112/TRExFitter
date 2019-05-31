@@ -89,7 +89,7 @@ float FitResults::GetNuisParErrDown(const std::string& p){
         idx = fNuisParIdx[p];
     }
     else{
-        return 1.;
+        return -1.;
     }
     return fNuisPar[idx]->fPostFitDown;
 }

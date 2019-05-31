@@ -280,6 +280,7 @@ For each object type (also called "block"), here is the list of available proper
 | LegendNColumnsMerge          | Same as LegendNColumns but for Merged plot. |
 | ExcludeFromMorphing          | The specified sample is left our from the morphing (useful to do closure tests for morphing). |
 | ScaleSamplesToData           | The specified samples will be scaled to data (when doing the d step). |
+| MaxNtupleEvents              | valid only for option NTUP; if set to N, only first N entries per ntuple readed (usefull for debugging) |
 
 
 ### `Fit` block options:
@@ -429,6 +430,7 @@ For each object type (also called "block"), here is the list of available proper
 | Morphing                     | add this to each template you have, to do a template fit / morphing; syntax is `<name-of-parameter>,<value-corresponding-to-this-template>`; the POI should be set to `<name-of-parameter>` |
 | BuildPullTable               | if set to TRUE or NORM-ONLY, create tables showing the post-fit acceptance effect of nuisance parameter pulls for this sample, set to NORM+SHAPE to include the bin-by-bin effect |
 | MCstatScale                  | scales up/down the MC stat size; useful to project sensitivity to larger MC samples |
+| SystFromSample               | set it to TRUE (default FALSE) to have this sample inheriting all the systematics from another sample |
 
 ### `NormFactor` block options:
 

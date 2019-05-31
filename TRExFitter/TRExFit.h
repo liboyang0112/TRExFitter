@@ -577,6 +577,8 @@ public:
     std::vector<std::string> fScaleSamplesToData;
     
     bool fSaturatedModel;
+    
+    int fDebugNev;
 };
 
 #endif
