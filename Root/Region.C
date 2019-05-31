@@ -2256,7 +2256,7 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
             for(unsigned int n=0;n<fSystNames.size();++n){ // n==m, all systs, corr=1
                 if (fSystNames[n].find("saturated_model") != std::string::npos) continue;
                 const double ysyst_i_n = h_up[n]->GetBinContent(i+1), ysyst_j_n = h_up[n]->GetBinContent(j+1);
-                sum += (ysyst_i_n-ynom_i) * 1.0 * (ysyst_j_n-ynom_j);
+                sum += (ysyst_i_n-ynom_i) /* * 1.0 */ * (ysyst_j_n-ynom_j);
             }
             if(i==j && ynom_i>0) sum += ynom_i;  // add stat uncertainty to diagonal
             if(i==j && ynom_i>0) sum += h_nominal->GetBinError(i+1) * h_nominal->GetBinError(i+1); // add MC stat as well

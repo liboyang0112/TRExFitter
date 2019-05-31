@@ -1248,7 +1248,15 @@ void SampleHist::SampleHistAdd(SampleHist* h, float scale){
 void SampleHist::Divide(SampleHist *sh){
     TH1* hOrig = (TH1*)fHist->Clone("h_tmp_orig");
     if (sh->fHist!=nullptr) fHist->Divide( sh->fHist );
-    else  WriteErrorStatus("SampleHist::Multiply", "Sample "+sh->fName+ " not found when trying to multiply it to "+fSample->fName);
+    else  {
+       if (TRExFitter::HISTOCHECKCRASH) {
+            WriteErrorStatus("SampleHist::Divide", "Sample "+sh->fName+ " not found when trying to divide "+fSample->fName+" by it");
+            exit(EXIT_FAILURE);
+        } else {
+            WriteWarningStatus("SampleHist::Divide", "Sample "+sh->fName+ " not found when trying to divide "+fSample->fName+" by it");
+        }
+    }
+
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
@@ -1316,7 +1324,15 @@ void SampleHist::Divide(SampleHist *sh){
 void SampleHist::Multiply(SampleHist *sh){
     TH1* hOrig = (TH1*)fHist->Clone("h_tmp_orig");
     if (sh->fHist!=nullptr) fHist->Multiply( sh->fHist );
-    else  WriteErrorStatus("SampleHist::Multiply", "Sample "+sh->fName+ " not found when trying to multiply it to "+fSample->fName);
+    else  {
+       if (TRExFitter::HISTOCHECKCRASH) {
+            WriteErrorStatus("SampleHist::Multiply", "Sample "+sh->fName+ " not found when trying to multiply it to "+fSample->fName);
+            exit(EXIT_FAILURE);
+        } else {
+            WriteWarningStatus("SampleHist::Multiply", "Sample "+sh->fName+ " not found when trying to multiply it to "+fSample->fName);
+        }
+    }
+
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
@@ -1376,7 +1392,15 @@ void SampleHist::Multiply(SampleHist *sh){
 void SampleHist::Add(SampleHist *sh,float scale){
     TH1* hOrig = (TH1*)fHist->Clone("h_tmp_orig");
     if (sh->fHist != nullptr) fHist->Add( sh->fHist, scale );
-    else  WriteErrorStatus("SampleHist::Add", "Sample "+sh->fName+ " not found when trying to add it to "+fSample->fName);
+    else  {
+       if (TRExFitter::HISTOCHECKCRASH) {
+            WriteErrorStatus("SampleHist::Add", "Sample "+sh->fName+ " not found when trying to add it to "+fSample->fName);
+            exit(EXIT_FAILURE);
+        } else {
+            WriteWarningStatus("SampleHist::Add", "Sample "+sh->fName+ " not found when trying to add it to "+fSample->fName);
+        }
+    }
+
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
@@ -1405,9 +1429,23 @@ void SampleHist::Add(SampleHist *sh,float scale){
             WriteDebugStatus("SampleHist::Add", "Adding syst "+ NuisParName + " (through syst "+ systName + ") to sample "+ fName);
             TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
-            if (sh->fSyst[i_syst]->fHistUp == nullptr) WriteErrorStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " up var. not found when trying to adding it to "+fSample->fName);
+            if (sh->fSyst[i_syst]->fHistUp == nullptr) {
+               if (TRExFitter::HISTOCHECKCRASH) {
+                    WriteErrorStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " up var. not found when trying to adding it to "+fSample->fName);
+                    exit(EXIT_FAILURE);
+               } else {
+                    WriteWarningStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " up var. not found when trying to adding it to "+fSample->fName);
+               }
+            }
             else  hUp  ->Add( sh->fSyst[i_syst]->fHistUp  ,scale );
-            if (sh->fSyst[i_syst]->fHistDown == nullptr) WriteErrorStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " down var. not found when trying to adding it to "+fSample->fName);
+            if (sh->fSyst[i_syst]->fHistDown == nullptr) {
+               if (TRExFitter::HISTOCHECKCRASH) {
+                    WriteErrorStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " down var. not found when trying to adding it to "+fSample->fName);
+                    exit(EXIT_FAILURE);
+               } else {
+                    WriteWarningStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " down var. not found when trying to adding it to "+fSample->fName);
+               }
+            }
             else hDown->Add( sh->fSyst[i_syst]->fHistDown,scale );
             syh = AddHistoSyst(NuisParName,hUp,hDown);
             if (syh == nullptr) {
