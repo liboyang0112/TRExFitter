@@ -2209,12 +2209,19 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
     //
     //Speed Up: remove irrelevant systematics (which would give in any case 0 correlation)
     std::vector< string > EffectiveSystNames;
+    std::vector< unsigned int > EffectiveSystIndex;
     for(unsigned int n=0;n<fSystNames.size();++n){
       if(matrix!=nullptr){
-        if (matrix->fNuisParIsThere[fSystNames[n]]) EffectiveSystNames.push_back(fSystNames[n]);
+        if (matrix->fNuisParIsThere[fSystNames[n]]) {
+           EffectiveSystNames.push_back(fSystNames[n]);
+           EffectiveSystIndex.push_back(n);
+        }
         else WriteDebugStatus("GetChi2Test"," will skip syst. "+fSystNames[n]);
       }
-      else EffectiveSystNames.push_back(fSystNames[n]);
+      else {
+        EffectiveSystNames.push_back(fSystNames[n]);
+        EffectiveSystIndex.push_back(n);
+      }
     }
     const unsigned int nsyst=EffectiveSystNames.size();
     //
@@ -2232,11 +2239,12 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
             const double ydata_j = h_data->GetBinContent(j+1);
             if(ydata_j<0) continue; // skip dropped / blinded bins
             const double ynom_j = h_nominal->GetBinContent(j+1);
-            for(unsigned int n=0;n<nsyst;++n){
+            for(unsigned int n=0;n<nsyst;++n){ //n!=m, run only across correlated systs
                 if (EffectiveSystNames[n].find("saturated_model") != std::string::npos) continue;
-                const double ysyst_i_n = h_up[n]->GetBinContent(i+1);
+                const double ysyst_i_n = h_up[EffectiveSystIndex[n]]->GetBinContent(i+1);
                 for(unsigned int m=0;m<nsyst;++m){
-                    const double ysyst_j_m = h_up[m]->GetBinContent(j+1);
+                    if (n==m) continue;
+                    const double ysyst_j_m = h_up[EffectiveSystIndex[m]]->GetBinContent(j+1);
                     // more than Bill's suggestion: add correlation between systematics!!
                     double corr = 0.;
                     if(n==m) corr = 1.;
@@ -2244,6 +2252,11 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
                     else continue;
                     sum += (ysyst_i_n-ynom_i) * corr * (ysyst_j_m-ynom_j);
                 }
+            }
+            for(unsigned int n=0;n<fSystNames.size();++n){ // n==m, all systs, corr=1
+                if (fSystNames[n].find("saturated_model") != std::string::npos) continue;
+                const double ysyst_i_n = h_up[n]->GetBinContent(i+1), ysyst_j_n = h_up[n]->GetBinContent(j+1);
+                sum += (ysyst_i_n-ynom_i) * 1.0 * (ysyst_j_n-ynom_j);
             }
             if(i==j && ynom_i>0) sum += ynom_i;  // add stat uncertainty to diagonal
             if(i==j && ynom_i>0) sum += h_nominal->GetBinError(i+1) * h_nominal->GetBinError(i+1); // add MC stat as well
@@ -2302,12 +2315,19 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
     //
     //Speed Up: remove irrelevant systematics (which would give in any case 0 correlation)
     std::vector< string > EffectiveSystNames;
+    std::vector< unsigned int > EffectiveSystIndex;
     for(unsigned int n=0;n<fSystNames.size();++n){
       if(matrix!=nullptr){
-        if (matrix->fNuisParIsThere[fSystNames[n]]) EffectiveSystNames.push_back(fSystNames[n]);
+        if (matrix->fNuisParIsThere[fSystNames[n]]) {
+           EffectiveSystNames.push_back(fSystNames[n]);
+           EffectiveSystIndex.push_back(n);
+        }
         else WriteDebugStatus("BuildTotError"," will skip syst. "+ fSystNames[n]);
       }
-      else EffectiveSystNames.push_back(fSystNames[n]);
+      else {
+          EffectiveSystNames.push_back(fSystNames[n]);
+          EffectiveSystIndex.push_back(n);
+      }
     }
     //
     TGraphAsymmErrors *g_totErr = new TGraphAsymmErrors( h_nominal );
@@ -2333,10 +2353,10 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
                     if(EffectiveSystNames[i_syst]==EffectiveSystNames[j_syst]) corr = 1.;
                     else               corr = 0.;
                 }
-                errUp_i   = h_up[i_syst]  ->GetBinContent(i_bin);// - yieldNominal;
-                errDown_i = h_down[i_syst]->GetBinContent(i_bin);// - yieldNominal;
-                errUp_j   = h_up[j_syst]  ->GetBinContent(i_bin);// - yieldNominal;
-                errDown_j = h_down[j_syst]->GetBinContent(i_bin);// - yieldNominal;
+                errUp_i   = h_up[EffectiveSystIndex[i_syst]]  ->GetBinContent(i_bin);// - yieldNominal;
+                errDown_i = h_down[EffectiveSystIndex[i_syst]]->GetBinContent(i_bin);// - yieldNominal;
+                errUp_j   = h_up[EffectiveSystIndex[j_syst]]  ->GetBinContent(i_bin);// - yieldNominal;
+                errDown_j = h_down[EffectiveSystIndex[j_syst]]->GetBinContent(i_bin);// - yieldNominal;
 
                 //
                 // Symmetrize (seems to be done in Roostats ??)
