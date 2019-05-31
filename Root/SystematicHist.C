@@ -179,7 +179,24 @@ void SystematicHist::Add(TH1 *h,float scale){
 //
 void SystematicHist::Add(SystematicHist *syh,float scale){
     fHistUp->Add(       syh->fHistUp,scale);
-    if(fHistShapeUp!=nullptr)   fHistShapeUp->Add(  syh->fHistShapeUp,scale);
+    if(fHistShapeUp!=nullptr)   {
+        if (syh->fHistShapeUp != nullptr) fHistShapeUp->Add(  syh->fHistShapeUp,scale);
+        else if (syh->fHistUp != nullptr){
+          // the other syst is overall, while this is not: get by hand its dummy shape syst
+          std::unique_ptr<TH1> htemp (static_cast<TH1*>(syh->fHistUp->Clone("hDummyShapeUp")));
+          htemp->Scale(1.0/(1.0+syh->fNormUp));
+          fHistShapeUp->Add(  htemp.get(),scale);
+          htemp.reset(nullptr);
+        }
+    }
     fHistDown->Add(     syh->fHistDown,scale);
-    if(fHistShapeDown!=nullptr) fHistShapeDown->Add(syh->fHistShapeDown,scale);
+    if(fHistShapeDown!=nullptr)   {
+        if (syh->fHistShapeDown != nullptr) fHistShapeDown->Add(  syh->fHistShapeDown,scale);
+        else if (syh->fHistDown != nullptr){// the other syst is overall, while this is not
+          std::unique_ptr<TH1> htemp (static_cast<TH1*>(syh->fHistDown->Clone("hDummyShapeDown")));
+          htemp->Scale(1.0/(1.0+syh->fNormDown));
+          fHistShapeDown->Add(  htemp.get(),scale);
+          htemp.reset(nullptr);
+        }
+    }
 }

@@ -1260,28 +1260,33 @@ void TRExFit::CorrectHistograms(){
                 WriteDebugStatus("TRExFit::CorrectHistograms"," subtracting sample " + sample + " from sample " + smp->fName);
                 SampleHist *smph0 = reg->GetSampleHist(sample);
                 if(smph0!=nullptr) sh->Add(smph0,-1);
+                else WriteWarningStatus("TRExFit::CorrectHistograms","Sample Hist of sample "+sample+" not found ...");
             }
             for(auto sample : smp->fAddSamples){
                 WriteDebugStatus("TRExFit::CorrectHistograms", "adding sample " + sample + " to sample " + smp->fName);
                 SampleHist *smph0 = reg->GetSampleHist(sample);
                 if(smph0!=nullptr) sh->Add(smph0);
+                else WriteWarningStatus("TRExFit::CorrectHistograms","Sample Hist of sample "+sample+" not found ...");
             }
             // Division & Multiplication by other samples
             if(smp->fMultiplyBy!=""){
                 WriteDebugStatus("TRExFit::CorrectHistograms", "multiplying " + smp->fName  + " by sample " + smp->fMultiplyBy);
                 SampleHist *smph0 = reg->GetSampleHist(smp->fMultiplyBy);
                 if(smph0!=nullptr) sh->Multiply(smph0);
+                else WriteWarningStatus("TRExFit::CorrectHistograms","Sample Hist of sample "+smp->fMultiplyBy+" not found ...");
             }
             if(smp->fDivideBy!=""){
-                WriteDebugStatus("TRExFit::CorrectHistograms", "dividing " + smp->fName  + "by sample " + smp->fDivideBy + " from sample " + smp->fName);
+                WriteDebugStatus("TRExFit::CorrectHistograms", "dividing " + smp->fName  + " by sample " + smp->fDivideBy + " from sample " + smp->fName);
                 SampleHist *smph0 = reg->GetSampleHist(smp->fDivideBy);
                 if(smph0!=nullptr) sh->Divide(smph0);
+                else WriteWarningStatus("TRExFit::CorrectHistograms","Sample Hist of sample "+smp->fDivideBy+" not found ...");
             }
             // Norm to sample
             if(smp->fNormToSample!=""){
-                WriteDebugStatus("TRExFit::CorrectHistograms", "normalizing " + smp->fName  + "to sample " + smp->fDivideBy);
+                WriteDebugStatus("TRExFit::CorrectHistograms", "normalizing " + smp->fName  + " to sample " + smp->fNormToSample);
                 SampleHist *smph0 = reg->GetSampleHist(smp->fNormToSample);
                 if(smph0!=nullptr) sh->Scale(smph0->fHist->Integral()/sh->fHist->Integral());
+                else WriteWarningStatus("TRExFit::CorrectHistograms","Sample Hist of sample "+smp->fNormToSample+" not found ...");
             }
 
             //
@@ -1904,11 +1909,18 @@ void TRExFit::ReadHistos(/*string fileName*/){
                     WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
                     tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
+                    tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
                           tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
                           tmpsyst->fIsNormOnly = false;
                     }
                     fSamples[i_smp]->AddSystematic(tmpsyst);
+                    for(int j_syst=0;j_syst<fNSyst;j_syst++){
+                       if(fSystematics[j_syst]->fName==tmpsyst->fName) {
+                          if( FindInStringVector(fSystematics[j_syst]->fSamples,fSamples[i_smp]->fName)<0 ) fSystematics[j_syst]->fSamples.push_back(fSamples[i_smp]->fName);
+                       }
+                    }
                 }
             }
         }
@@ -1920,11 +1932,18 @@ void TRExFit::ReadHistos(/*string fileName*/){
                     WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
                     tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
+                    tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
                           tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
                           tmpsyst->fIsNormOnly = false;
                     }
                     fSamples[i_smp]->AddSystematic(tmpsyst);
+                    for(int j_syst=0;j_syst<fNSyst;j_syst++){
+                       if(fSystematics[j_syst]->fName==tmpsyst->fName) {
+                          if( FindInStringVector(fSystematics[j_syst]->fSamples,fSamples[i_smp]->fName)<0 ) fSystematics[j_syst]->fSamples.push_back(fSamples[i_smp]->fName);
+                       }
+                    }
                 }
             }
         }
@@ -1936,11 +1955,18 @@ void TRExFit::ReadHistos(/*string fileName*/){
                     WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
                     tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
+                    tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
                           tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
                           tmpsyst->fIsNormOnly = false;
                     }
                     fSamples[i_smp]->AddSystematic(tmpsyst);
+                    for(int j_syst=0;j_syst<fNSyst;j_syst++){
+                       if(fSystematics[j_syst]->fName==tmpsyst->fName) {
+                          if( FindInStringVector(fSystematics[j_syst]->fSamples,fSamples[i_smp]->fName)<0 ) fSystematics[j_syst]->fSamples.push_back(fSamples[i_smp]->fName);
+                       }
+                    }
                 }
             }
         }
@@ -1952,11 +1978,18 @@ void TRExFit::ReadHistos(/*string fileName*/){
                     WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
                     tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
+                    tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
                           tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
                           tmpsyst->fIsNormOnly = false;
                     }
                     fSamples[i_smp]->AddSystematic(tmpsyst);
+                    for(int j_syst=0;j_syst<fNSyst;j_syst++){
+                       if(fSystematics[j_syst]->fName==tmpsyst->fName) {
+                          if( FindInStringVector(fSystematics[j_syst]->fSamples,fSamples[i_smp]->fName)<0 ) fSystematics[j_syst]->fSamples.push_back(fSamples[i_smp]->fName);
+                       }
+                    }
                 }
             }
         }
