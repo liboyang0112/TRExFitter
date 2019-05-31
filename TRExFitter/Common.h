@@ -65,8 +65,8 @@ const int MAXsyst = 500;
 const int MAXnorm = 10;
 
 TFile* GetFile(const std::string& fileName);
-TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, float xmin, float xmax, const std::string& selection, const std::string& weight);
-TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight);
+TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, float xmin, float xmax, const std::string& selection, const std::string& weight, int Nev=-1);
+TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight, int Nev=-1);
 TH1* HistFromFile(const std::string& fullName);
 TH1* HistFromFile(const std::string& fileName, const std::string& histoName);
 void WriteHistToFile(TH1* h, const std::string& fileName, std::string option="UPDATE");

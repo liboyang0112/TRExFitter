@@ -262,6 +262,8 @@ public:
     float fLegendY;
     
     int fLegendNColumns;
+    
+    std::vector<std::string> fScaleSamplesToData;
 };
 
 

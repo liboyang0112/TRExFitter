@@ -119,6 +119,8 @@ public:
     float fMCstatScale;
     std::vector<std::vector<std::string>> fCorrelateGammasInRegions;
     std::string fCorrelateGammasWithSample;
+    
+    std::string fSystFromSample;
 };
 
 #endif

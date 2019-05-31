@@ -53,15 +53,16 @@ double CorrelationMatrix::GetCorrelation(const string& p0, const string& p1){
     bool isMorph_p1 = false;
     if (p0.find("morph_") != std::string::npos) isMorph_p0 = true;
     if (p1.find("morph_") != std::string::npos) isMorph_p1 = true;
+    // if one of the two is missing, return 1 or 0 (if name1==name2 ==> 1, not zero!)
     if(!fNuisParIsThere[p0]){
-        if(!isMorph_p0) WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. Returning correlation = 0.");
-        else WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. The NP is for morphing. Returning correlation = 0.");
-        return 0.;
+        if(!isMorph_p0) WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. Returning correlation = " + std::to_string(1.*(p0==p1)));
+        else WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. The NP is for morphing. Returning correlation = " + std::to_string(1.*(p0==p1)));
+        return 1.*(p0==p1);
     }
     if(!fNuisParIsThere[p1]){
-        if(!isMorph_p1) WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p1 + " not found in correlation matrix. Returning correlation = 0.");
-        else WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. The NP is for morphing. Returning correlation = 0.");
-        return 0.;
+        if(!isMorph_p1) WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p1 + " not found in correlation matrix. Returning correlation = " + std::to_string(1.*(p0==p1)));
+        else WriteVerboseStatus("CorrelationMatrix::GetCorrelation", "NP " + p0 + " not found in correlation matrix. The NP is for morphing. Returning correlation = " + std::to_string(1.*(p0==p1)));
+        return 1.*(p0==p1);
     }
     int idx0 = fNuisParIdx[p0];
     int idx1 = fNuisParIdx[p1];

@@ -1252,6 +1252,9 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if( param != ""){
         fFitter->fScaleSamplesToData = Vectorize(param,',');
     }
+    
+    param = confSet->Get("MaxNtupleEvents");
+    if(param != "") fFitter->fDebugNev = atoi(param.c_str());
 
     return 0;
 }
@@ -2893,6 +2896,12 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
         param = confSet->Get("CorrelateGammasWithSample");
         if(param != ""){
             sample->fCorrelateGammasWithSample = RemoveQuotes(param);
+        }
+        
+        // Set SystFromSample
+        param = confSet->Get("SystFromSample");
+        if(param != ""){
+            sample->fSystFromSample = RemoveQuotes(param);
         }
 
         // Set Morphing
