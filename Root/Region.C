@@ -2382,6 +2382,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         // - loop on the syst, two by two, to include the correlations
         for(unsigned int i_syst=0;i_syst<EffectiveSystNames.size();i_syst++){
             for(unsigned int j_syst=0;j_syst<EffectiveSystNames.size();j_syst++){
+                if (i_syst==j_syst) continue;
                 if(matrix!=nullptr){
                     corr = matrix->GetCorrelation(EffectiveSystNames[i_syst],EffectiveSystNames[j_syst]);
                 }
@@ -2406,6 +2407,22 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
                 finalErrPlus  += err_i * err_j * corr;
                 finalErrMinus += err_i * err_j * corr;
             }
+        }
+        // now all diagonal el. of all systematics, corr = 1;
+        for(unsigned int i_syst=0;i_syst<fSystNames.size();i_syst++){
+            errUp_i   = h_up[i_syst]  ->GetBinContent(i_bin);// - yieldNominal;
+            errDown_i = h_down[i_syst]->GetBinContent(i_bin);// - yieldNominal;
+
+            //
+            // Symmetrize (seems to be done in Roostats ??)
+            //
+            double err_i = (errUp_i - errDown_i)/2.;
+
+            //
+            // Compute the + and - variations
+            //
+            finalErrPlus  += err_i * err_i ;
+            finalErrMinus += err_i * err_i ;
         }
         // add stat uncertainty, which should have been stored as orignal bin errors in the h_nominal (if fUseStatErr is true)
         finalErrPlus  += pow( h_nominal->GetBinError(i_bin), 2 );
