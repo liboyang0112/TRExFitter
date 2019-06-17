@@ -152,7 +152,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been cr
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: 1:	324.525208 +25.292503 -25.292503
-=== DEBUG::Region::DrawPostFit: 2:	293.790527 +22.330589 -22.330589
+=== DEBUG::Region::DrawPostFit: 2:	293.790527 +22.330587 -22.330587
 === DEBUG::Region::DrawPostFit: 3:	164.453064 +19.444223 -19.444223
 === DEBUG::Region::DrawPostFit: 4:	62.746437 +11.147522 -11.147522
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/VR_postFit.root[0m
@@ -164,8 +164,8 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
-=== DEBUG::TRExFit::DrawSummary: 1:	316.504725	+15.538585	-15.538585
-=== DEBUG::TRExFit::DrawSummary: 2:	312.174540	+12.720699	-12.720699
+=== DEBUG::TRExFit::DrawSummary: 1:	316.504725	+15.538586	-15.538586
+=== DEBUG::TRExFit::DrawSummary: 2:	312.174540	+12.720700	-12.720700
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
 Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
@@ -174,11 +174,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has b
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
-=== DEBUG::BuildTotError:  will skip syst. stat_VR_bin_0
-=== DEBUG::BuildTotError:  will skip syst. stat_VR_bin_1
-=== DEBUG::BuildTotError:  will skip syst. stat_VR_bin_2
-=== DEBUG::BuildTotError:  will skip syst. stat_VR_bin_3
-=== DEBUG::TRExFit::DrawSummary: 1:	845.515236	+44.061550	-44.061550
+=== DEBUG::TRExFit::DrawSummary: 1:	845.515236	+44.061554	-44.061554
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
 [1;32m=== INFO::TRExFit::PrintSystTables: Printing syt tables[0m

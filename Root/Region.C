@@ -2358,7 +2358,6 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
            EffectiveSystNames.push_back(fSystNames[n]);
            EffectiveSystIndex.push_back(n);
         }
-        else WriteDebugStatus("BuildTotError"," will skip syst. "+ fSystNames[n]);
       }
       else {
           EffectiveSystNames.push_back(fSystNames[n]);
