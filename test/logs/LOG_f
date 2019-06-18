@@ -261,18 +261,18 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.163
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.163
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 499.588076
-  1) 0x4dcfb50 RooRealVar::         SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
-  2) 0x4d54a80 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
-  3) 0x4d56010 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
-  4) 0x4d52d80 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
-  5) 0x4d58a60 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
-  6) 0x4d5b2d0 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
-  7) 0x4d5e6b0 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
-  8) 0x4d61af0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
-  9) 0x4dd5580 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
- 10) 0x4dd9360 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
- 11) 0x4ddc800 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
- 12) 0x4ddfc40 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+  1) 0x3dabb40 RooRealVar::         SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
+  2) 0x3d307c0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  3) 0x3d31d50 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  4) 0x3d2ebb0 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  5) 0x3d347a0 RooRealVar:: gamma_stat_SR_1_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  6) 0x3d372f0 RooRealVar:: gamma_stat_SR_1_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  7) 0x3d3a790 RooRealVar:: gamma_stat_SR_1_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  8) 0x3d3dbd0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  9) 0x3db1570 RooRealVar:: gamma_stat_SR_2_bin_0 = 1  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+ 10) 0x3db53b0 RooRealVar:: gamma_stat_SR_2_bin_1 = 1  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 11) 0x3db8790 RooRealVar:: gamma_stat_SR_2_bin_2 = 1  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 12) 0x3dbbbd0 RooRealVar:: gamma_stat_SR_2_bin_3 = 1  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -319,7 +319,7 @@ Info in <Minuit2>: Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000613[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
-Real time 0:00:00, CP time 0.070
+Real time 0:00:00, CP time 0.080
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
