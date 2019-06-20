@@ -337,10 +337,12 @@ void Region::BuildPreFitErrorHist(){
 
         //
         // SHAPE Systematics
+        // (but remove the MC-stat ones (for samples with fSeparateGammas)!!
         //
         for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
             systName = fSampleHists[i]->fSyst[i_syst]->fName;
             if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType!=Systematic::SHAPE) continue;
+            if(systName.find("stat_")!=std::string::npos) continue;
             for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
                 std::string gammaName = Form("shape_%s_%s_bin_%d",systName.c_str(),fName.c_str(),i_bin-1);
                 if(!systIsThere[gammaName]){
@@ -2348,6 +2350,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         WriteErrorStatus("BuildTotError","h_up and fSystNames have different size.");
         exit(EXIT_FAILURE);
     }
+    // FIXME FIXME FIXME...
     //
     //Speed Up: remove irrelevant systematics (which would give in any case 0 correlation)
     std::vector< string > EffectiveSystNames;
@@ -2387,7 +2390,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
                 }
                 else{
                     if(EffectiveSystNames[i_syst]==EffectiveSystNames[j_syst]) corr = 1.;
-                    else               corr = 0.;
+                    else                                                       corr = 0.;
                 }
                 errUp_i   = h_up[EffectiveSystIndex[i_syst]]  ->GetBinContent(i_bin);// - yieldNominal;
                 errDown_i = h_down[EffectiveSystIndex[i_syst]]->GetBinContent(i_bin);// - yieldNominal;

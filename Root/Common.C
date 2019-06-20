@@ -289,28 +289,27 @@ std::string ReplaceString(std::string subject, const std::string& search,
 //__________________________________________________________________________________
 //
 std::vector< std::pair < std::string,std::vector<double> > > processString(std::string target) {
-  size_t pos = 0;
-  std::vector<std::pair <std::string,std::vector<double> > > output;
-  while((pos = target.find("[",pos)) !=std::string::npos) {
-    std::pair <std::string, std::vector<double> > onePair;
-    std::vector<double> values;
-    double oneValue;
-    int length = target.find("]",pos) - pos;
-    std::stringstream ss(target.substr(pos+1,length-1));
-    //std::cout << ss.str() << std::endl;
-    while (ss>>oneValue){
-      values.push_back(oneValue);
-      if (ss.peek() == ','){
-	ss.ignore();
-      }
+    size_t pos = 0;
+    std::vector<std::pair <std::string,std::vector<double> > > output;
+    while((pos = target.find("[",pos)) !=std::string::npos) {
+        std::pair <std::string, std::vector<double> > onePair;
+        std::vector<double> values;
+        double oneValue;
+        int length = target.find("]",pos) - pos;
+        std::stringstream ss(target.substr(pos+1,length-1));
+        while (ss>>oneValue){
+            values.push_back(oneValue);
+            if (ss.peek() == ','){
+                ss.ignore();
+            }
+        }
+        onePair.first = target.substr(0,pos);
+        onePair.second = values;
+        output.push_back(onePair);
+        target.erase(0,pos+length+2);
+        pos = 0;
     }
-    onePair.first = target.substr(0,pos);
-    onePair.second = values;
-    output.push_back(onePair);
-    target.erase(0,pos+length+2);
-    pos = 0;
-  }
-  return output;
+    return output;
 }
 
 //__________________________________________________________________________________
