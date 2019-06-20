@@ -4697,9 +4697,16 @@ void TRExFit::Fit(bool isLHscanOnly){
         std::ofstream out2;
         std::ofstream tex2;
         std::vector < std:: string > regionsToFit;
-        out.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
-        tex.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.tex").c_str());
-        tex2.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts_grouped.tex").c_str());
+        if(fBootstrap!="" && fBootstrapIdx>=0){
+            out.open((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
+            tex.open((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fName+fSuffix+"_nonProfiledSysts.tex").c_str());
+            tex2.open((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fName+fSuffix+"_nonProfiledSysts_grouped.tex").c_str());
+        }
+        else{
+            out.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
+            tex.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.tex").c_str());
+            tex2.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts_grouped.tex").c_str());
+        }
         std::map < std::string, int > regionDataType;
         for(auto reg : fRegions) regionDataType[reg->fName] = Region::ASIMOVDATA;
         for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){

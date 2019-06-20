@@ -337,10 +337,12 @@ void Region::BuildPreFitErrorHist(){
 
         //
         // SHAPE Systematics
+        // (but remove the MC-stat ones (for samples with fSeparateGammas)!!
         //
         for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
             systName = fSampleHists[i]->fSyst[i_syst]->fName;
             if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType!=Systematic::SHAPE) continue;
+            if(systName.find("stat_")!=std::string::npos) continue;
             for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
                 std::string gammaName = Form("shape_%s_%s_bin_%d",systName.c_str(),fName.c_str(),i_bin-1);
                 if(!systIsThere[gammaName]){
@@ -2348,23 +2350,25 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         WriteErrorStatus("BuildTotError","h_up and fSystNames have different size.");
         exit(EXIT_FAILURE);
     }
+    // FIXME FIXME FIXME...
     //
     //Speed Up: remove irrelevant systematics (which would give in any case 0 correlation)
     std::vector< string > EffectiveSystNames;
     std::vector< unsigned int > EffectiveSystIndex;
     for(unsigned int n=0;n<fSystNames.size();++n){
-      if(matrix!=nullptr){
-        if (matrix->fNuisParIsThere[fSystNames[n]]) {
-           EffectiveSystNames.push_back(fSystNames[n]);
-           EffectiveSystIndex.push_back(n);
-        }
-        else WriteDebugStatus("BuildTotError"," will skip syst. "+ fSystNames[n]);
-      }
-      else {
-          EffectiveSystNames.push_back(fSystNames[n]);
-          EffectiveSystIndex.push_back(n);
-      }
+//         if(matrix!=nullptr){
+//             if (matrix->fNuisParIsThere[fSystNames[n]]) {
+//                 EffectiveSystNames.push_back(fSystNames[n]);
+//                 EffectiveSystIndex.push_back(n);
+//             }
+//             else WriteDebugStatus("BuildTotError"," will skip syst. "+ fSystNames[n]);
+//         }
+//         else {
+            EffectiveSystNames.push_back(fSystNames[n]);
+            EffectiveSystIndex.push_back(n);
+//         }
     }
+    // FIXME FIXME FIXME...
     //
     TGraphAsymmErrors *g_totErr = new TGraphAsymmErrors( h_nominal );
     float finalErrPlus(0.);
@@ -2387,7 +2391,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
                 }
                 else{
                     if(EffectiveSystNames[i_syst]==EffectiveSystNames[j_syst]) corr = 1.;
-                    else               corr = 0.;
+                    else                                                       corr = 0.;
                 }
                 errUp_i   = h_up[EffectiveSystIndex[i_syst]]  ->GetBinContent(i_bin);// - yieldNominal;
                 errDown_i = h_down[EffectiveSystIndex[i_syst]]->GetBinContent(i_bin);// - yieldNominal;
@@ -2407,6 +2411,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
                 finalErrMinus += err_i * err_j * corr;
             }
         }
+        
         // add stat uncertainty, which should have been stored as orignal bin errors in the h_nominal (if fUseStatErr is true)
         finalErrPlus  += pow( h_nominal->GetBinError(i_bin), 2 );
         finalErrMinus += pow( h_nominal->GetBinError(i_bin), 2 );
