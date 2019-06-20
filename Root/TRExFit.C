@@ -7669,6 +7669,16 @@ void TRExFit::RunToys(RooWorkspace* ws){
                 regionsToFit.push_back( fRegions[i_ch] -> fName );
         }
         ws = PerformWorkspaceCombination( regionsToFit );
+	//Setting binned likelihood option
+	RooFIter rfiter = ws->components().fwdIterator();
+	RooAbsArg* arg;
+	while ((arg = rfiter.next())) {
+	  if (arg->IsA() == RooRealSumPdf::Class()) {
+            arg->setAttribute("BinnedLikelihood");
+            std::string temp_string = arg->GetName();
+            WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
+	  }
+	}
         if (!ws){
             WriteErrorStatus("TRExFIt::RunToys","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);

@@ -146,6 +146,9 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(optMap["BootstrapIdx"]!=""){
         fFitter->fBootstrapIdx = atoi(optMap["BootstrapIdx"].c_str());
     }
+    if(optMap["BootstrapSyst"]!=""){
+        fFitter->fBootstrapSyst = optMap["BootstrapSyst"];
+    }
     if(optMap["GroupedImpact"]!=""){
         fFitter->fGroupedImpactCategory = optMap["GroupedImpact"];
     }

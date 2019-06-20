@@ -1,17 +1,18 @@
 \documentclass[10pt]{article}
 \usepackage{siunitx}
+\sisetup{separate-uncertainty,table-format=6.3(6)}  % hint: modify table-format to best fit your tables
 \usepackage[margin=0.1in,landscape,papersize={210mm,350mm}]{geometry}
 \begin{document}
 \begin{table}[htbp]
 \begin{center}
-\begin{tabular}{|c|c|c|c|}
+\begin{tabular}{|l|S|S|S|}
 \hline 
- & Signal Region 1 & Signal Region 2 & Validation region\\
+ & {Signal Region 1} & {Signal Region 2} & {Validation region}\\
 \hline 
-  Background   & \num[round-mode=figures,round-precision=3]{316.462} $\pm$ \num[round-mode=figures,round-precision=3]{14.8885} & \num[round-mode=figures,round-precision=3]{312.102} $\pm$ \num[round-mode=figures,round-precision=3]{11.8917} & \num[round-mode=figures,round-precision=3]{845.86} $\pm$ \num[round-mode=figures,round-precision=3]{44.1317} \\ 
-  Signal   & \num[round-mode=figures,round-precision=3]{0.00195189} $\pm$ \num[round-mode=figures,round-precision=3]{4.69183} & \num[round-mode=figures,round-precision=3]{0.00196054} $\pm$ \num[round-mode=figures,round-precision=3]{4.71263} & \num[round-mode=figures,round-precision=3]{0.000243576} $\pm$ \num[round-mode=figures,round-precision=3]{0.585492} \\ 
+  Background   & 316.503 \pm 14.8841 & 312.173 \pm 11.8973 & 845.515 \pm 44.0625 \\ 
+  Signal   & 0.00175661 \pm 4.61795 & 0.00176422 \pm 4.63798 & 0.000216773 \pm 0.569874 \\ 
 \hline 
-  Total  & \num[round-mode=figures,round-precision=3]{316.464} $\pm$ \num[round-mode=figures,round-precision=3]{15.5615} & \num[round-mode=figures,round-precision=3]{312.103} $\pm$ \num[round-mode=figures,round-precision=3]{12.739} & \num[round-mode=figures,round-precision=3]{845.86} $\pm$ \num[round-mode=figures,round-precision=3]{49.2318} \\ 
+  Total  & 316.505 \pm 15.5386 & 312.175 \pm 12.7207 & 845.515 \pm 49.1698 \\ 
 \hline 
   Data 2015   & 319 & 319 & 886 \\ 
 \hline 
