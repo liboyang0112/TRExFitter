@@ -4297,7 +4297,10 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
             TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
         }
         fFitter->fNSyst++;
+
+        // Add sample/syst cross-reference
         sam->AddSystematic(mySys);
+        mySys->fSamples = { sam->fName };
     }
     delete sys;
 
