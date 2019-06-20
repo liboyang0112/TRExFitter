@@ -174,10 +174,6 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has b
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
-=== DEBUG::BuildTotError:  will skip syst. stat_VR_bin_0
-=== DEBUG::BuildTotError:  will skip syst. stat_VR_bin_1
-=== DEBUG::BuildTotError:  will skip syst. stat_VR_bin_2
-=== DEBUG::BuildTotError:  will skip syst. stat_VR_bin_3
 === DEBUG::TRExFit::DrawSummary: 1:	845.515236	+44.061550	-44.061550
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
