@@ -7230,7 +7230,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
 //
 void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::string>& varNames, RooDataSet* data) const{
     if (varNames.size() != 2){
-        WriteErrorStatus("TRExFit::Get2DLikelihoodScan", "Wring number of parameters provided for 2D likelihood scan, returning");
+        WriteErrorStatus("TRExFit::Get2DLikelihoodScan", "Wrong number of parameters provided for 2D likelihood scan, returning");
         return;
     }
     WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Running 2D likelihood scan for the parameters = " + varNames.at(0) + " and " + varNames.at(1));
