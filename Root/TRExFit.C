@@ -7289,7 +7289,6 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     TIterator* it = mc->GetNuisanceParameters()->createIterator();
     RooRealVar* var_tmp = nullptr;
     TString vname = "";
-    std::string vname_s = "";
     int count = 0;
 
     // iterate over NPs
