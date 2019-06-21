@@ -294,6 +294,7 @@ For each object type (also called "block"), here is the list of available proper
 | NPValues                     | values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5) |
 | FixNPs                       | values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5), currently only implemented for the `f` step |
 | doLHscan                     | comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled |
+| do2DLHscan                   | produces 2D likelihood scan between the chosen paremters. Synax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps` |
 | LHscanMin                    | minimum value for the LH scan on x-axis (default it Norm min) |
 | LHscanMax                    | maximum value for the LH scan on x-axis (default is Norm max) |
 | LHscanSteps                  | number of steps on the LH scan (default is 30) |
