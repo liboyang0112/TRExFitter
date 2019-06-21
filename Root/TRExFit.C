@@ -56,6 +56,7 @@
 #include "TFile.h"
 #include "TFormula.h"
 #include "TGaxis.h"
+#include "TGraph2D.h"
 #include "TGraphErrors.h"
 #include "TH2F.h"
 #include "TLatex.h"
@@ -317,7 +318,7 @@ TRExFit::TRExFit(std::string name){
     fExcludeFromMorphing = "";
 
     fSaturatedModel = false;
-    
+
     fDebugNev = -1;
 }
 
@@ -1546,7 +1547,7 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
-    
+
     // Propagate all systematics from another sample
     for(auto reg : fRegions){
         for(auto smp : fSamples){
@@ -7216,6 +7217,191 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     graph.Write("LHscan",TObject::kOverwrite);
     f->Close();
     delete f;
+}
+
+//____________________________________________________________________________________
+//
+void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::string>& varNames, RooDataSet* data) const{
+    if (varNames.size() != 2){
+        WriteErrorStatus("TRExFit::Get2DLikelihoodScan", "Wring number of parameters provided for 2D likelihood scan, returning");
+        return;
+    }
+    WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Running 2D likelihood scan for the parameters = " + varNames.at(0) + " and " + varNames.at(1));
+
+    // shut-up RooFit!
+    if(TRExFitter::DEBUGLEVEL<=1){
+        if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
+        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
+        RooMsgService::instance().getStream(1).removeTopic(Generation);
+        RooMsgService::instance().getStream(1).removeTopic(Plotting);
+        RooMsgService::instance().getStream(1).removeTopic(LinkStateMgmt);
+        RooMsgService::instance().getStream(1).removeTopic(Eval);
+        RooMsgService::instance().getStream(1).removeTopic(Caching);
+        RooMsgService::instance().getStream(1).removeTopic(Optimization);
+        RooMsgService::instance().getStream(1).removeTopic(ObjectHandling);
+        RooMsgService::instance().getStream(1).removeTopic(InputArguments);
+        RooMsgService::instance().getStream(1).removeTopic(Tracing);
+        RooMsgService::instance().getStream(1).removeTopic(Contents);
+        RooMsgService::instance().getStream(1).removeTopic(DataHandling);
+    }
+
+    RooStats::ModelConfig* mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+
+    RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
+
+    //To set the boundaries
+    Double_t minValX = -3;
+    Double_t maxValX =  3;
+    Double_t minValY = -3;
+    Double_t maxValY =  3;
+    for(auto nf : fNormFactors){
+        if(nf->fName == varNames.at(0)){
+            minValX = nf->fMin;
+            maxValX = nf->fMax;
+        }
+        if(nf->fName == varNames.at(1)){
+            minValY = nf->fMin;
+            maxValY = nf->fMax;
+        }
+    }
+
+    if (fLHscanMin < 99999) { // is actually set
+        minValX = fLHscanMin;
+        minValY = fLHscanMin;
+    }
+
+    if (fLHscanMax > -99999) { // is actually set
+        maxValX = fLHscanMax;
+        maxValY = fLHscanMax;
+    }
+
+    //Vector for the two parameters
+    std::vector<RooRealVar*> var;
+    //Get the parameters from the model
+    TIterator* it = mc->GetParametersOfInterest()->createIterator();
+    RooRealVar* var_tmp = nullptr;
+    TString vname = "";
+    std::string vname_s = "";
+    int count = 0;
+    while ( (var_tmp = static_cast<RooRealVar*>(it->Next())) ){
+        vname=var_tmp->GetName();
+        vname_s=var_tmp->GetName();
+        if (vname.Contains(varNames.at(0).c_str()) || vname.Contains(varNames.at(1).c_str())) {
+            var.emplace_back(var_tmp);
+            WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
+            count++;
+            if (count == 2) break;
+        }
+    }
+    if (count != 2) {
+        WriteErrorStatus("TRExFit::Get2DLikelihoodScan","Didnt find the two parameters ytou want to use in the 2D likelihood scan");
+        return;
+    }
+    WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Setting up the NLL");
+    RooAbsReal* nll = simPdf->createNLL(*data,
+                                        Constrain(*mc->GetNuisanceParameters()),
+                                        Offset(1),
+                                        NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                        RooFit::Optimize(kTRUE));
+
+    RooMinimizer m(*nll); // get MINUIT interface of fit
+    m.setErrorLevel(-1);
+    m.setPrintLevel(-1);
+    m.setStrategy(2); // set precision to high
+
+    //Set both POIs to constant
+    var.at(0)->setConstant(kTRUE); // make POI constant in the fit
+    var.at(1)->setConstant(kTRUE); // make POI constant in the fit
+
+    //values for parameter1, parameter2 and the NLL value
+    std::vector<double> x;
+    std::vector<double> y;
+    std::vector<double> z;
+
+    double zmin = 9999999;
+    double x_best = 9999999;
+    double y_best = 9999999;
+
+    //Actual scan
+    WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Start of the 2D scan");
+    for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
+        WriteInfoStatus("TRExFit::Get2DLikelihoodScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
+        const double x_tmp = minValX+ipoint*(maxValX-minValX)/fLHscanSteps;
+        *(var.at(0)) = x_tmp; // set POI
+        for (int jpoint = 0; jpoint < fLHscanSteps; ++jpoint) {
+            WriteInfoStatus("TRExFit::Get2DLikelihoodScan","Running LHscan for subpoint " + std::to_string(jpoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
+            const double y_tmp = minValY+jpoint*(maxValY-minValY)/fLHscanSteps;
+            *(var.at(1)) = y_tmp; // set POI
+            m.migrad(); // minimize again with new posSigXsecOverSM value
+            const RooFitResult* r = m.save(); // save fit result
+            const double z_tmp = r->minNll();
+            z.emplace_back(z_tmp);
+            y.emplace_back(y_tmp);
+            x.emplace_back(x_tmp);
+
+            // save the best values
+            if (z_tmp < zmin) {
+                zmin = z_tmp;
+                x_best=x_tmp;
+                y_best=y_tmp;
+            }
+        }
+    }
+
+    // end of scaning, now fill some plots
+
+    // shift the likelihood values to zero
+    for (auto & iZ : z) {
+        iZ = iZ - zmin;
+    }
+
+    // this is needed for potential blinding
+    TRandom3 rand{};
+    rand.SetSeed(1234567);
+    const double rndNumber = rand.Uniform(5);
+    for (auto & iY : y) {
+        iY = iY - y_best;
+        if (fFitIsBlind){
+            iY-= rndNumber;
+        }
+    }
+    for (auto & iX : x) {
+        iX = iX - x_best;
+        if (fFitIsBlind){
+            iX-= rndNumber;
+        }
+    }
+
+    // make plots
+    TCanvas can("2D_NLLscan");
+    can.cd();
+
+    TGraph2D graph(z.size());
+    for (unsigned int i = 0; i < z.size(); i++) {
+        graph.SetPoint(i,x.at(i),y.at(i),z.at(i));
+    }
+    graph.Draw("colz");
+    graph.GetXaxis()->SetRangeUser(minValX,maxValX);
+    graph.GetYaxis()->SetRangeUser(minValY,maxValY);
+
+    // y axis
+    graph.GetXaxis()->SetTitle(varNames.at(0).c_str());
+    graph.GetYaxis()->SetTitle(varNames.at(1).c_str());
+
+    TString LHDir("LHoodPlots/");
+    system(TString("mkdir -vp ")+fName+"/"+LHDir);
+
+    // Print the canvas
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+        can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
+    }
+
+    // write it to a ROOT file as well
+    std::unique_ptr<TFile> f = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_curve.root","UPDATE");
+    f->cd();
+    graph.Write(("2D_LHscan_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
+    f->Close();
 }
 
 //____________________________________________________________________________________
