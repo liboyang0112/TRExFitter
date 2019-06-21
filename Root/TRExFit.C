@@ -5053,6 +5053,13 @@ void TRExFit::Fit(bool isLHscanOnly){
             GetLikelihoodScan( ws, fVarNameLH[0], data);
         }
     }
+
+    // run 2D likelihood scan
+    if(fVarName2DLH.size()>0){
+        for (const auto & ipair : fVarName2DLH) {
+            Get2DLikelihoodScan( ws, ipair, data);
+        }
+    }
 }
 
 //__________________________________________________________________________________
@@ -7279,23 +7286,36 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     //Vector for the two parameters
     std::vector<RooRealVar*> var;
     //Get the parameters from the model
-    TIterator* it = mc->GetParametersOfInterest()->createIterator();
+    TIterator* it = mc->GetNuisanceParameters()->createIterator();
     RooRealVar* var_tmp = nullptr;
     TString vname = "";
     std::string vname_s = "";
     int count = 0;
+
+    // iterate over NPs
     while ( (var_tmp = static_cast<RooRealVar*>(it->Next())) ){
         vname=var_tmp->GetName();
-        vname_s=var_tmp->GetName();
         if (vname.Contains(varNames.at(0).c_str()) || vname.Contains(varNames.at(1).c_str())) {
             var.emplace_back(var_tmp);
-            WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
             count++;
             if (count == 2) break;
         }
     }
+
+    // iterate over POIs
+    if (count < 2){
+        TIterator* it_POI = mc->GetParametersOfInterest()->createIterator();
+        while ( (var_tmp = static_cast<RooRealVar*>(it_POI->Next())) ){
+            vname=var_tmp->GetName();
+            if (vname.Contains(varNames.at(0).c_str()) || vname.Contains(varNames.at(1).c_str())) {
+                var.emplace_back(var_tmp);
+                count++;
+                if (count == 2) break;
+            }
+        }
+    }
     if (count != 2) {
-        WriteErrorStatus("TRExFit::Get2DLikelihoodScan","Didnt find the two parameters ytou want to use in the 2D likelihood scan");
+        WriteErrorStatus("TRExFit::Get2DLikelihoodScan","Didnt find the two parameters you want to use in the 2D likelihood scan");
         return;
     }
     WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Setting up the NLL");

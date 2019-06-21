@@ -455,6 +455,7 @@ public:
     float fRndRange;
     long int fRndSeed;
     std::vector<std::string> fVarNameLH;
+    std::vector<std::vector<std::string> > fVarName2DLH;
     float fLHscanMin;
     float fLHscanMax;
     int fLHscanSteps;

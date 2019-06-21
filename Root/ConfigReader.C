@@ -1388,6 +1388,20 @@ int ConfigReader::ReadFitOptions(){
         }
     }
 
+    // Set do2DLHscan
+    param = confSet->Get("do2DLHscan");
+    if( param != "" ){
+        const std::vector<std::string> tmp = Vectorize(param,':');
+        for (const auto& ivec : tmp){
+            const std::vector<std::string> v = Vectorize(ivec,',');
+            if (v.size() == 2){
+                fFitter->fVarName2DLH.emplace_back(v);
+            } else {
+                WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'do2DLHscan' option but didnt provide correct input. Ignoring");
+            }
+        }
+    }
+
     // Set LHscanMin
     param = confSet->Get("LHscanMin");
     if ( param != "" ) {
