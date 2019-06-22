@@ -7339,8 +7339,6 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     std::vector<double> z;
 
     double zmin = 9999999;
-    double x_best = 9999999;
-    double y_best = 9999999;
 
     //Actual scan
     WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Start of the 2D scan");
@@ -7353,17 +7351,15 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
             const double y_tmp = minValY+jpoint*(maxValY-minValY)/fLHscanSteps;
             *(var.at(1)) = y_tmp; // set POI
             m.migrad(); // minimize again with new posSigXsecOverSM value
-            const RooFitResult* r = m.save(); // save fit result
+            RooFitResult* r = m.save(); // save fit result
             const double z_tmp = r->minNll();
-            z.emplace_back(z_tmp);
-            y.emplace_back(y_tmp);
             x.emplace_back(x_tmp);
+            y.emplace_back(y_tmp);
+            z.emplace_back(z_tmp);
 
             // save the best values
             if (z_tmp < zmin) {
                 zmin = z_tmp;
-                x_best=x_tmp;
-                y_best=y_tmp;
             }
         }
     }
@@ -7380,15 +7376,13 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     rand.SetSeed(1234567);
     const double rndNumber = rand.Uniform(5);
     for (auto & iY : y) {
-        iY = iY - y_best;
         if (fFitIsBlind){
-            iY-= rndNumber;
+            iY+= rndNumber;
         }
     }
     for (auto & iX : x) {
-        iX = iX - x_best;
         if (fFitIsBlind){
-            iX-= rndNumber;
+            iX+= rndNumber;
         }
     }
 

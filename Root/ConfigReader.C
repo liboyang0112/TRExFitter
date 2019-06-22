@@ -1425,14 +1425,10 @@ int ConfigReader::ReadFitOptions(){
     // Set LHscanSteps
     param = confSet->Get("LHscanSteps");
     if ( param != "" ) {
-        if (fFitter->fVarNameLH.size() == 0){
-            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanSteps' option but didnt set doLHscan. Ignoring");
-        } else {
-            fFitter->fLHscanSteps = std::stoi(param);
-            if(fFitter->fLHscanSteps < 3 || fFitter->fLHscanSteps > 100){
-                WriteWarningStatus("ConfigReader::ReadFitOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
-                fFitter->fLHscanSteps = 30;
-            }
+        fFitter->fLHscanSteps = std::stoi(param);
+        if(fFitter->fLHscanSteps < 3 || fFitter->fLHscanSteps > 100){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
+            fFitter->fLHscanSteps = 30;
         }
     }
 
