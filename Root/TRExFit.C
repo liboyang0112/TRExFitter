@@ -4102,6 +4102,7 @@ void TRExFit::CreateCustomAsimov() const{
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
             Region *reg = fRegions[i_ch];
             SampleHist *cash = reg->SetSampleHist(ca,(TH1*)reg->fData->fHist->Clone());
+            cash->fHist_orig->SetName( Form("%s_orig",cash->fHist->GetName()) ); // fix the name
             cash->fHist->Scale(0.);
             //
             std::vector<std::string> smpToExclude;
