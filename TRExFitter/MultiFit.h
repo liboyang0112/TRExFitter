@@ -38,6 +38,7 @@ public:
     void PlotNPRanking(bool flagSysts=true, bool flagGammas=false) const;
     void PlotSummarySoverB() const;
     void GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, RooDataSet* data,bool recreate=true) const;
+    void Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::string>& varName, RooDataSet* data) const;
     void BuildGroupedImpactTable() const;
 
     TH1D* Combine(std::vector<TH1D*> hists) const;
@@ -113,9 +114,15 @@ public:
     bool fGetGoodnessOfFit;
 
     std::vector<std::string> fVarNameLH;
+    std::vector<std::vector<std::string> > fVarName2DLH;
     float fLHscanMin;
     float fLHscanMax;
     int fLHscanSteps;
+    float fLHscanMinY;
+    float fLHscanMaxY;
+    int fLHscanStepsY;
+    bool fParal2D;
+    int fParal2Dstep;
     bool fDoGroupedSystImpactTable;
 
     std::string fPOIName;
