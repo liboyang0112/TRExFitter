@@ -164,6 +164,12 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(optMap["LHscan"]!=""){
         fOnlyLHscan = optMap["LHscan"];
     }
+    if(optMap["Parallel2Dscan"]!="" && optMap["Parallel2Dscan"]!="FALSE"){
+        fFitter->fParal2D = true;
+    }
+    if(optMap["Parallel2DscanStep"]!=""){
+        fFitter->fParal2Dstep = atoi(optMap["Parallel2DscanStep"].c_str());
+    }
     //
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "-------------------------------------------");
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "Running options: ");
@@ -1429,6 +1435,65 @@ int ConfigReader::ReadFitOptions(){
         if(fFitter->fLHscanSteps < 3 || fFitter->fLHscanSteps > 100){
             WriteWarningStatus("ConfigReader::ReadFitOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
             fFitter->fLHscanSteps = 30;
+        }
+    }
+    // Set LHscanMin for second variable
+    param = confSet->Get("LHscanMinY");
+    if ( param != "" ) {
+        if (fFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanMinY' option but didnt set doLHscan. Ignoring");
+        } else {
+            fFitter->fLHscanMinY = std::stof(param);
+        }
+    }
+
+    // Set LHscanMax for second variable
+    param = confSet->Get("LHscanMaxY");
+    if ( param != "" ) {
+        if (fFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanMaxY' option but didnt set doLHscan. Ignoring");
+        } else {
+            fFitter->fLHscanMaxY = std::stof(param);
+        }
+    }
+
+    // Set LHscanSteps for second variable
+    param = confSet->Get("LHscanStepsY");
+    if ( param != "" ) {
+        if (fFitter->fVarNameLH.size() == 0){
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanStepsY' option but didnt set doLHscan. Ignoring");
+        } else {
+            fFitter->fLHscanStepsY = std::stoi(param);
+            if(fFitter->fLHscanStepsY < 3 || fFitter->fLHscanStepsY > 100){
+                WriteWarningStatus("ConfigReader::ReadFitOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
+                fFitter->fLHscanStepsY = fFitter->fLHscanSteps;
+            }
+        }
+    }
+    else {
+        fFitter->fLHscanStepsY = fFitter->fLHscanSteps;
+    }
+
+    // Set Paral2D
+    param = confSet->Get("Parallel2Dscan");
+    if ( param != "" ) {
+        if( param == "TRUE" ){
+            fFitter->fParal2D = true;
+        } else if (param == "FALSE") {
+            fFitter->fParal2D = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'Parallel2Dscan' option but didnt provide valid parameter. Using default (false)");
+            fFitter->fParal2D = false;
+        }
+    }
+
+    // Set Paral2Dstep
+    param = confSet->Get("Parallel2DscanStep");
+    if ( param != "" ) {
+        fFitter->fParal2Dstep = std::atoi( param.c_str());
+        if (fFitter->fParal2Dstep < 1 || fFitter->fParal2Dstep>=fFitter->fLHscanSteps ){
+            WriteErrorStatus("ConfigReader::ReadFitOptions", "You specified a step for 2D LHscan outside the allowed range.");
+            return 1;
         }
     }
 

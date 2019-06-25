@@ -459,6 +459,11 @@ public:
     float fLHscanMin;
     float fLHscanMax;
     int fLHscanSteps;
+    float fLHscanMinY;
+    float fLHscanMaxY;
+    int fLHscanStepsY;
+    bool fParal2D;
+    int fParal2Dstep;
     std::vector<std::string> fVarNameMinos;
     std::vector<std::string> fVarNameHide;
     std::string fWorkspaceFileName;

@@ -190,6 +190,11 @@ TRExFit::TRExFit(std::string name){
     fLHscanMin = 999999;
     fLHscanMax = -999999;
     fLHscanSteps = 30;
+    fParal2D = false;
+    fParal2Dstep = -1;
+    fLHscanMinY = 999999;
+    fLHscanMaxY = -999999;
+    fLHscanStepsY = 30;
     fVarNameMinos.clear();
     fVarNameHide.clear();
     fWorkspaceFileName = "";
@@ -7275,12 +7280,15 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
 
     if (fLHscanMin < 99999) { // is actually set
         minValX = fLHscanMin;
-        minValY = fLHscanMin;
     }
-
+    if (fLHscanMinY < 99999) { // is actually set
+        minValY = fLHscanMinY;
+    }
     if (fLHscanMax > -99999) { // is actually set
         maxValX = fLHscanMax;
-        maxValY = fLHscanMax;
+    }
+    if (fLHscanMaxY > -99999) { // is actually set
+        maxValY = fLHscanMaxY;
     }
 
     //Vector for the two parameters
@@ -7318,9 +7326,15 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         return;
     }
     WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Setting up the NLL");
+    unsigned int offset = 1;
+    if (fParal2D) {
+        // When we run in parrellel we cant set offset to 1
+        // this caused problems with the offset between the different sup processes
+        offset = 0;
+    }
     RooAbsReal* nll = simPdf->createNLL(*data,
                                         Constrain(*mc->GetNuisanceParameters()),
-                                        Offset(1),
+                                        Offset(offset),
                                         NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
                                         RooFit::Optimize(kTRUE));
 
@@ -7334,28 +7348,32 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     var.at(1)->setConstant(kTRUE); // make POI constant in the fit
 
     //values for parameter1, parameter2 and the NLL value
-    std::vector<double> x;
-    std::vector<double> y;
-    std::vector<double> z;
+    std::vector<double> x(fLHscanSteps);
+    std::vector<double> y(fLHscanStepsY);
+    std::vector<std::vector<double>> z(fLHscanSteps, std::vector<double>(fLHscanStepsY));
 
     double zmin = 9999999;
 
     //Actual scan
     WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Start of the 2D scan");
     for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
+        if (fParal2D && ipoint!=fParal2Dstep) // if you are parallelizing, only run the point corresponding to the one passed from command line
+            continue;
         WriteInfoStatus("TRExFit::Get2DLikelihoodScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
-        const double x_tmp = minValX+ipoint*(maxValX-minValX)/fLHscanSteps;
-        *(var.at(0)) = x_tmp; // set POI
+        x[ipoint] = minValX + ipoint * (maxValX - minValX) / (fLHscanSteps);
+        // We could alternatively use the line below to inlcude the max value in the scan
+        // x[ipoint] = minValX + ipoint * (maxValX - minValX) / (fLHscanSteps - 1);
+        *(var.at(0)) = x[ipoint]; // set POI
         for (int jpoint = 0; jpoint < fLHscanSteps; ++jpoint) {
             WriteInfoStatus("TRExFit::Get2DLikelihoodScan","Running LHscan for subpoint " + std::to_string(jpoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
-            const double y_tmp = minValY+jpoint*(maxValY-minValY)/fLHscanSteps;
-            *(var.at(1)) = y_tmp; // set POI
+            y[jpoint] = minValY + jpoint * (maxValY - minValY) / (fLHscanStepsY - 1);
+            // We could alternatively use the line below to inlcude the max value in the scan
+            // y[jpoint] = minValY + jpoint * (maxValY - minValY) / (fLHscanStepsY - 1);
+            *(var.at(1)) = y[jpoint]; // set POI
             m.migrad(); // minimize again with new posSigXsecOverSM value
             RooFitResult* r = m.save(); // save fit result
             const double z_tmp = r->minNll();
-            x.emplace_back(x_tmp);
-            y.emplace_back(y_tmp);
-            z.emplace_back(z_tmp);
+            z[ipoint][jpoint] = z_tmp;
 
             // save the best values
             if (z_tmp < zmin) {
@@ -7366,10 +7384,6 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
 
     // end of scaning, now fill some plots
 
-    // shift the likelihood values to zero
-    for (auto & iZ : z) {
-        iZ = iZ - zmin;
-    }
 
     // this is needed for potential blinding
     TRandom3 rand{};
@@ -7390,31 +7404,61 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     TCanvas can("2D_NLLscan");
     can.cd();
 
-    TGraph2D graph(z.size());
-    for (unsigned int i = 0; i < z.size(); i++) {
-        graph.SetPoint(i,x.at(i),y.at(i),z.at(i));
-    }
-    graph.Draw("colz");
-    graph.GetXaxis()->SetRangeUser(minValX,maxValX);
-    graph.GetYaxis()->SetRangeUser(minValY,maxValY);
+    TGraph2D graph(fLHscanSteps * fLHscanStepsY);
 
-    // y axis
-    graph.GetXaxis()->SetTitle(varNames.at(0).c_str());
-    graph.GetYaxis()->SetTitle(varNames.at(1).c_str());
+    TH2D h_nll("NLL", "NLL", fLHscanSteps, minValX, maxValX, fLHscanStepsY, minValY, maxValY);
+    unsigned int i=0;
+    for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
+        if (fParal2D && ipoint!=fParal2Dstep) // if you are parallelizing, only run the point corresponding to the one passed from command line
+            continue;
+        for (int jpoint = 0; jpoint < fLHscanStepsY; ++jpoint) {
+            if (!fParal2D) { // if you are paralellizing, no knowledge of the absolute minimum in each job
+                // shift the likelihood values to zero
+                z[ipoint][jpoint] -= zmin;
+            }
+            h_nll.SetBinContent(ipoint+1, jpoint+1, z[ipoint][jpoint]);
+            i = ipoint * fLHscanStepsY + jpoint;
+            graph.SetPoint(i,x[ipoint],y[jpoint],z[ipoint][jpoint]);
+        }
+    }
 
     TString LHDir("LHoodPlots/");
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
-    // Print the canvas
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
+    if (!fParal2D) { // Only draw and save graph when not running parallel
+        graph.Draw("colz");
+        graph.GetXaxis()->SetRangeUser(minValX,maxValX);
+        graph.GetYaxis()->SetRangeUser(minValY,maxValY);
+
+        // y axis
+        graph.GetXaxis()->SetTitle(varNames.at(0).c_str());
+        graph.GetYaxis()->SetTitle(varNames.at(1).c_str());
+
+        // Print the canvas
+        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+            can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
+        }
+
+        // write it to a ROOT file as well
+        std::unique_ptr<TFile> f = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_curve.root","UPDATE");
+        f->cd();
+        graph.Write(("2D_LHscan_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
+        f->Close();
     }
 
-    // write it to a ROOT file as well
-    std::unique_ptr<TFile> f = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_curve.root","UPDATE");
-    f->cd();
-    graph.Write(("2D_LHscan_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
-    f->Close();
+    // Write histogram to Root file as well
+    if (fParal2D) { 
+        std::ostringstream step_os;
+        step_os << fParal2Dstep;
+        std::string paral2Dstep_str=step_os.str();
+        std::unique_ptr<TFile> f2 = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_step"+paral2Dstep_str+fSuffix+"_histo.root","UPDATE");
+        h_nll.Write("NLL",TObject::kOverwrite);
+        f2->Close();
+    } else {
+        std::unique_ptr<TFile> f2 = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_histo.root","UPDATE");
+        h_nll.Write("NLL",TObject::kOverwrite);
+        f2->Close();
+    }
 }
 
 //____________________________________________________________________________________
