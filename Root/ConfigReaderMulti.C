@@ -482,7 +482,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     // Set LHscanMin
     param = confSet->Get("LHscanMin");
     if ( param != "" ) {
-        if (fMultiFitter->fVarNameLH.size() == 0){
+        if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMin' option but didnt set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMin = std::stof(param);
@@ -492,7 +492,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     // Set LHscanMax
     param = confSet->Get("LHscanMax");
     if ( param != "" ) {
-        if (fMultiFitter->fVarNameLH.size() == 0){
+        if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMax' option but didnt set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMax = std::stof(param);
@@ -501,7 +501,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     // Set LHscanMin for second variable
     param = confSet->Get("LHscanMinY");
     if ( param != "" ) {
-        if (fMultiFitter->fVarNameLH.size() == 0){
+        if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMinY' option but didnt set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMinY = std::stof(param);
@@ -511,7 +511,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     // Set LHscanMax for second variable
     param = confSet->Get("LHscanMaxY");
     if ( param != "" ) {
-        if (fMultiFitter->fVarNameLH.size() == 0){
+        if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMaxY' option but didnt set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMaxY = std::stof(param);
@@ -521,7 +521,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     // Set LHscanSteps for second variable
     param = confSet->Get("LHscanStepsY");
     if ( param != "" ) {
-        if (fMultiFitter->fVarNameLH.size() == 0){
+        if (fMultiFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanStepsY' option but didnt set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanStepsY = std::stoi(param);

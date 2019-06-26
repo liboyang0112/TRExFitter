@@ -1411,7 +1411,7 @@ int ConfigReader::ReadFitOptions(){
     // Set LHscanMin
     param = confSet->Get("LHscanMin");
     if ( param != "" ) {
-        if (fFitter->fVarNameLH.size() == 0){
+        if (fFitter->fVarNameLH.size() == 0 && fFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanMin' option but didnt set doLHscan. Ignoring");
         } else {
             fFitter->fLHscanMin = std::stof(param);
@@ -1421,7 +1421,7 @@ int ConfigReader::ReadFitOptions(){
     // Set LHscanMax
     param = confSet->Get("LHscanMax");
     if ( param != "" ) {
-        if (fFitter->fVarNameLH.size() == 0){
+        if (fFitter->fVarNameLH.size() == 0 && fFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanMax' option but didnt set doLHscan. Ignoring");
         } else {
             fFitter->fLHscanMax = std::stof(param);
@@ -1440,7 +1440,7 @@ int ConfigReader::ReadFitOptions(){
     // Set LHscanMin for second variable
     param = confSet->Get("LHscanMinY");
     if ( param != "" ) {
-        if (fFitter->fVarNameLH.size() == 0){
+        if (fFitter->fVarNameLH.size() == 0 && fFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanMinY' option but didnt set doLHscan. Ignoring");
         } else {
             fFitter->fLHscanMinY = std::stof(param);
@@ -1450,7 +1450,7 @@ int ConfigReader::ReadFitOptions(){
     // Set LHscanMax for second variable
     param = confSet->Get("LHscanMaxY");
     if ( param != "" ) {
-        if (fFitter->fVarNameLH.size() == 0){
+        if (fFitter->fVarNameLH.size() == 0 && fFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanMaxY' option but didnt set doLHscan. Ignoring");
         } else {
             fFitter->fLHscanMaxY = std::stof(param);

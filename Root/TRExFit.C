@@ -5025,7 +5025,7 @@ void TRExFit::Fit(bool isLHscanOnly){
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
-    if(fVarNameLH.size()>0 && !isLHscanOnly){
+    if(fVarNameLH.size()>0 && !isLHscanOnly && !fParal2D){
         //
         // Don't do it if you did a non-profile fit (FIXME)
         if(fDoNonProfileFit){
@@ -5044,7 +5044,7 @@ void TRExFit::Fit(bool isLHscanOnly){
             }
         }
     }
-    if (isLHscanOnly){
+    if (isLHscanOnly && !fParal2D){
         if (fVarNameLH.size() == 0){
             WriteErrorStatus("TRExFit::Fit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
             exit(EXIT_FAILURE);
@@ -7104,7 +7104,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
         while( (var = (RooRealVar*) it->Next()) ){
             vname=var->GetName();
             vname_s=var->GetName();
-            if (vname.Contains(varName.c_str())) {
+            if (vname == varName.c_str()) {
                 WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
                 foundSyst=true;
                 break;
@@ -7116,7 +7116,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
         while( (var = (RooRealVar*) it->Next()) ){
         vname=var->GetName();
             vname_s=var->GetName();
-            if (vname.Contains(varName.c_str())) {
+            if (vname == varName.c_str()) {
                 WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
                 foundSyst=true;
                 break;
@@ -7148,13 +7148,14 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     double min = 9999999;
     for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
         WriteInfoStatus("TRExFit::GetLikelihoodScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
-        x[ipoint] = minVal+ipoint*(maxVal-minVal)/fLHscanSteps;
+        x[ipoint] = minVal+ipoint*(maxVal-minVal)/(fLHscanSteps - 1);
         *var = x[ipoint]; // set POI
         m.migrad(); // minimize again with new posSigXsecOverSM value
         RooFitResult* r = m.save(); // save fit result
         y[ipoint] = r->minNll();
         if (y[ipoint] < min) min = y[ipoint];
     }
+    var->setConstant(kFALSE); // make POI not constant otherwise we run in errors in the 2D scan
 
     for (auto & iY : y) {
         iY = iY - min;
@@ -7262,21 +7263,58 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
 
     RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
 
-    //To set the boundaries
-    Double_t minValX = -3;
-    Double_t maxValX =  3;
-    Double_t minValY = -3;
-    Double_t maxValY =  3;
-    for(auto nf : fNormFactors){
-        if(nf->fName == varNames.at(0)){
-            minValX = nf->fMin;
-            maxValX = nf->fMax;
+
+
+    //Vector for the two parameters
+    RooRealVar* varX = NULL;
+    RooRealVar* varY = NULL;
+    //Get the parameters from the model
+    TIterator* it = mc->GetNuisanceParameters()->createIterator();
+    RooRealVar* var_tmp = nullptr;
+    TString vname = "";
+    int count = 0;
+
+    // iterate over NPs
+    while ( (var_tmp = static_cast<RooRealVar*>(it->Next())) ){
+        vname=var_tmp->GetName();
+        if (vname == varNames.at(0).c_str()){
+            varX = var_tmp;
+            count++;
         }
-        if(nf->fName == varNames.at(1)){
-            minValY = nf->fMin;
-            maxValY = nf->fMax;
+        if (vname == varNames.at(1).c_str()){
+            varY = var_tmp;
+            count++;
+        }
+        if (count == 2) break;
+    }
+
+    // iterate over POIs
+    if (count < 2){
+        TIterator* it_POI = mc->GetParametersOfInterest()->createIterator();
+        while ( (var_tmp = static_cast<RooRealVar*>(it_POI->Next())) ){
+            vname=var_tmp->GetName();
+            if (vname == varNames.at(0).c_str()){
+                varX = var_tmp;
+                count++;
+            }
+            if (vname == varNames.at(1).c_str()){
+                varY = var_tmp;
+                count++;
+            }
+            if (count == 2) break;
         }
     }
+    if (count != 2) {
+        WriteErrorStatus("TRExFit::Get2DLikelihoodScan","Didnt find the two parameters you want to use in the 2D likelihood scan");
+        return;
+    }
+    WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Setting up the NLL");
+
+    //To set the boundaries
+    Double_t minValX = varX->getMin();
+    Double_t maxValX = varX->getMax();
+    Double_t minValY = varY->getMin();
+    Double_t maxValY = varY->getMax();
 
     if (fLHscanMin < 99999) { // is actually set
         minValX = fLHscanMin;
@@ -7291,41 +7329,6 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         maxValY = fLHscanMaxY;
     }
 
-    //Vector for the two parameters
-    std::vector<RooRealVar*> var;
-    //Get the parameters from the model
-    TIterator* it = mc->GetNuisanceParameters()->createIterator();
-    RooRealVar* var_tmp = nullptr;
-    TString vname = "";
-    int count = 0;
-
-    // iterate over NPs
-    while ( (var_tmp = static_cast<RooRealVar*>(it->Next())) ){
-        vname=var_tmp->GetName();
-        if (vname.Contains(varNames.at(0).c_str()) || vname.Contains(varNames.at(1).c_str())) {
-            var.emplace_back(var_tmp);
-            count++;
-            if (count == 2) break;
-        }
-    }
-
-    // iterate over POIs
-    if (count < 2){
-        TIterator* it_POI = mc->GetParametersOfInterest()->createIterator();
-        while ( (var_tmp = static_cast<RooRealVar*>(it_POI->Next())) ){
-            vname=var_tmp->GetName();
-            if (vname.Contains(varNames.at(0).c_str()) || vname.Contains(varNames.at(1).c_str())) {
-                var.emplace_back(var_tmp);
-                count++;
-                if (count == 2) break;
-            }
-        }
-    }
-    if (count != 2) {
-        WriteErrorStatus("TRExFit::Get2DLikelihoodScan","Didnt find the two parameters you want to use in the 2D likelihood scan");
-        return;
-    }
-    WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Setting up the NLL");
     unsigned int offset = 1;
     if (fParal2D) {
         // When we run in parrellel we cant set offset to 1
@@ -7342,10 +7345,9 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     m.setErrorLevel(-1);
     m.setPrintLevel(-1);
     m.setStrategy(2); // set precision to high
-
     //Set both POIs to constant
-    var.at(0)->setConstant(kTRUE); // make POI constant in the fit
-    var.at(1)->setConstant(kTRUE); // make POI constant in the fit
+    varX->setConstant(kTRUE); // make POI constant in the fit
+    varY->setConstant(kTRUE); // make POI constant in the fit
 
     //values for parameter1, parameter2 and the NLL value
     std::vector<double> x(fLHscanSteps);
@@ -7360,16 +7362,16 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         if (fParal2D && ipoint!=fParal2Dstep) // if you are parallelizing, only run the point corresponding to the one passed from command line
             continue;
         WriteInfoStatus("TRExFit::Get2DLikelihoodScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
-        x[ipoint] = minValX + ipoint * (maxValX - minValX) / (fLHscanSteps);
+        // x[ipoint] = minValX + ipoint * (maxValX - minValX) / (fLHscanSteps);
         // We could alternatively use the line below to inlcude the max value in the scan
-        // x[ipoint] = minValX + ipoint * (maxValX - minValX) / (fLHscanSteps - 1);
-        *(var.at(0)) = x[ipoint]; // set POI
-        for (int jpoint = 0; jpoint < fLHscanSteps; ++jpoint) {
-            WriteInfoStatus("TRExFit::Get2DLikelihoodScan","Running LHscan for subpoint " + std::to_string(jpoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
-            y[jpoint] = minValY + jpoint * (maxValY - minValY) / (fLHscanStepsY - 1);
+        x[ipoint] = minValX + ipoint * (maxValX - minValX) / (fLHscanSteps - 1);
+        *(varX) = x[ipoint]; // set POI
+        for (int jpoint = 0; jpoint < fLHscanStepsY; ++jpoint) {
+            WriteInfoStatus("TRExFit::Get2DLikelihoodScan","Running LHscan for subpoint " + std::to_string(jpoint+1) + " out of " + std::to_string(fLHscanStepsY) + " points");
+            // y[jpoint] = minValY + jpoint * (maxValY - minValY) / (fLHscanStepsY);
             // We could alternatively use the line below to inlcude the max value in the scan
-            // y[jpoint] = minValY + jpoint * (maxValY - minValY) / (fLHscanStepsY - 1);
-            *(var.at(1)) = y[jpoint]; // set POI
+            y[jpoint] = minValY + jpoint * (maxValY - minValY) / (fLHscanStepsY - 1);
+            *(varY) = y[jpoint]; // set POI
             m.migrad(); // minimize again with new posSigXsecOverSM value
             RooFitResult* r = m.save(); // save fit result
             const double z_tmp = r->minNll();
@@ -7381,6 +7383,9 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
             }
         }
     }
+    //Set both POIs not constant
+    varX->setConstant(kTRUE); // make POI not constant after the fit
+    varY->setConstant(kTRUE); // make POI not constant after the fit
 
     // end of scaning, now fill some plots
 
