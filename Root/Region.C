@@ -737,8 +737,12 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(scale));
             }
             else{
-                h->Scale(nf->fNominal);
-                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal));
+                for (size_t iReg = 0; iReg < nf->fRegions.size(); ++iReg){
+                    if (nf->fRegions[iReg] == fName){
+                        h->Scale(nf->fNominal);
+                        WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal));
+                    }
+                }
             }
         }
         p->AddBackground(h,title);
