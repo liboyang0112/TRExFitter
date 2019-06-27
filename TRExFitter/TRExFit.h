@@ -158,6 +158,7 @@ public:
     void GetLimit();
     void GetSignificance();
     void GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data) const;
+    void Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::string>& varName, RooDataSet* data) const;
 
     // get fit results from txt file
     void ReadFitResults(const std::string& fileName);
@@ -454,9 +455,15 @@ public:
     float fRndRange;
     long int fRndSeed;
     std::vector<std::string> fVarNameLH;
+    std::vector<std::vector<std::string> > fVarName2DLH;
     float fLHscanMin;
     float fLHscanMax;
     int fLHscanSteps;
+    float fLHscanMinY;
+    float fLHscanMaxY;
+    int fLHscanStepsY;
+    bool fParal2D;
+    int fParal2Dstep;
     std::vector<std::string> fVarNameMinos;
     std::vector<std::string> fVarNameHide;
     std::string fWorkspaceFileName;

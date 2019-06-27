@@ -294,9 +294,13 @@ For each object type (also called "block"), here is the list of available proper
 | NPValues                     | values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5) |
 | FixNPs                       | values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5), currently only implemented for the `f` step |
 | doLHscan                     | comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled |
-| LHscanMin                    | minimum value for the LH scan on x-axis (default it Norm min) |
-| LHscanMax                    | maximum value for the LH scan on x-axis (default is Norm max) |
-| LHscanSteps                  | number of steps on the LH scan (default is 30) |
+| do2DLHscan                   | produces 2D likelihood scan between the chosen paremters. Synax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
+| LHscanMin                    | minimum value for the LH scan on x-axis (default is Norm min). This also effect the x-axis in a 2D scan |
+| LHscanMax                    | maximum value for the LH scan on x-axis (default is Norm max). This also effect the x-axis in a 2D scan |
+| LHscanSteps                  | number of steps on the LH scan (default is 30) . This also effect the x-axis in a 2D scan ||
+| LHscanMinY                   | minimum value for the 2D-LH scan on y-axis (default it Norm min) |
+| LHscanMaxY                   | maximum value for the 2D-LH scan on y-axis (default is Norm max) |
+| LHscanStepsY                 | number of steps on the LH scan in y-direction (default is 30, but if not specified it uses LHscanSteps) |
 | UseMinos                     | comma separated list of names of the POI and/or NP for which you want to calculate the MINOS errors, if first element of the list is "all" then the MINOS errors is calculated for all systematics and POIs |
 | SetRandomInitialNPval        | useful to set this to >0 (e.g. 0.1) to help convergence of Asimov fits |
 | SetRandomInitialNPvalSeed    | seed used to determine initial NP settings in minimization process if SetRandomInitialNPval option is enabled |
@@ -565,11 +569,13 @@ Currently the supported options are:
 | **FitType**         | can be set to SPLUSB or BONLY to replace the option in the config file |
 | **LumiScale**       | as the options in config file |
 | **BootstrapIdx**    | see description of Bootstrap option in config (under Job) |
-| **BootstrapSYst**    | see description of BootstrapSyst option in config (under Job) |
+| **BootstrapSYst**   | see description of BootstrapSyst option in config (under Job) |
 | **GroupedImpact**   | see [Grouped Impact](#grouped-impact) section |
 | **OutputDir**       | see [Job options](#job-block-options) section |
 | **LimitParamValue** | see [Limit options](#limit-block-options) section (ParamValue) |
 | **LHscan**          | set a NP/POI for the likelihood scan can be used for parallelization of the code |
+| **Parallel2Dscan**  | run only slice of LH2D scan in x-direction can be used for parllelization of the code |
+| **Parallel2Dscan**  | define which step of the parallelized 2D scan should be performed (has to be an integer between 0 and LHscanSteps-1) |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
@@ -709,9 +715,13 @@ This will create a combined ws starting from the individual ws for the different
 | ShowSystForPOI   | can be TRUE or FALSE, set to TRUE if you want to show systematics for POI |
 | GetGoodnessOfFit | can be TRUE or FALSE, set to TRUE to get chi2/NDF for the fit |
 | doLHscan         | comma separeted list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP |
-| LHscanMin        | minimum value for the LH scan on x-axis (default it Norm min) |
-| LHscanMax        | maximum value for the LH scan on x-axis (default is Norm max) |
-| LHscanSteps      | number of steps on the LH scan (default is 30) |
+| do2DLHscan       | produces 2D likelihood scan between the chosen paremters. Synax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
+| LHscanMin        | minimum value for the LH scan on x-axis (default is Norm min). This also effect the x-axis in a 2D scan |
+| LHscanMax        | maximum value for the LH scan on x-axis (default is Norm max). This also effect the x-axis in a 2D scan |
+| LHscanSteps      | number of steps on the LH scan (default is 30) . This also effect the x-axis in a 2D scan ||
+| LHscanMinY       | minimum value for the 2D-LH scan on y-axis (default it Norm min) |
+| LHscanMaxY       | maximum value for the 2D-LH scan on y-axis (default is Norm max) |
+| LHscanStepsY     | number of steps on the LH scan in y-direction (default is 30, but if not specified it uses LHscanSteps) |
 | PlotOptions      | same as for "standard" fits |
 | Logo             | can be TRUE or FALSE, use TRUE to show TRExFitter logo |
 | DebugLevel       | set level of debug output |

@@ -91,6 +91,12 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
     if(optMap["LHscan"]!=""){
         fOnlyLHscan = optMap["LHscan"];
     }
+    if(optMap["Parallel2Dscan"]!="" && optMap["Parallel2Dscan"]!="FALSE"){
+        fMultiFitter->fParal2D = true;
+    }
+    if(optMap["Parallel2DscanStep"]!=""){
+        fMultiFitter->fParal2Dstep = atoi(optMap["Parallel2DscanStep"].c_str());
+    }
 
     return 0;
 }
@@ -459,10 +465,24 @@ int ConfigReaderMulti::ReadJobOptions(){
         }
     }
 
+    // Set do2DLHscan
+    param = confSet->Get("do2DLHscan");
+    if( param != "" ){
+        const std::vector<std::string> tmp = Vectorize(param,':');
+        for (const auto& ivec : tmp){
+            const std::vector<std::string> v = Vectorize(ivec,',');
+            if (v.size() == 2){
+                fMultiFitter->fVarName2DLH.emplace_back(v);
+            } else {
+                WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'do2DLHscan' option but didnt provide correct input. Ignoring");
+            }
+        }
+    }
+
     // Set LHscanMin
     param = confSet->Get("LHscanMin");
     if ( param != "" ) {
-        if (fMultiFitter->fVarNameLH.size() == 0){
+        if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMin' option but didnt set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMin = std::stof(param);
@@ -472,10 +492,69 @@ int ConfigReaderMulti::ReadJobOptions(){
     // Set LHscanMax
     param = confSet->Get("LHscanMax");
     if ( param != "" ) {
-        if (fMultiFitter->fVarNameLH.size() == 0){
+        if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMax' option but didnt set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMax = std::stof(param);
+        }
+    }
+    // Set LHscanMin for second variable
+    param = confSet->Get("LHscanMinY");
+    if ( param != "" ) {
+        if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMinY' option but didnt set doLHscan. Ignoring");
+        } else {
+            fMultiFitter->fLHscanMinY = std::stof(param);
+        }
+    }
+
+    // Set LHscanMax for second variable
+    param = confSet->Get("LHscanMaxY");
+    if ( param != "" ) {
+        if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMaxY' option but didnt set doLHscan. Ignoring");
+        } else {
+            fMultiFitter->fLHscanMaxY = std::stof(param);
+        }
+    }
+
+    // Set LHscanSteps for second variable
+    param = confSet->Get("LHscanStepsY");
+    if ( param != "" ) {
+        if (fMultiFitter->fVarName2DLH.size() == 0){
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanStepsY' option but didnt set doLHscan. Ignoring");
+        } else {
+            fMultiFitter->fLHscanStepsY = std::stoi(param);
+            if(fMultiFitter->fLHscanStepsY < 3 || fMultiFitter->fLHscanStepsY > 100){
+                WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
+                fMultiFitter->fLHscanStepsY = fMultiFitter->fLHscanSteps;
+            }
+        }
+    }
+    else {
+        fMultiFitter->fLHscanStepsY = fMultiFitter->fLHscanSteps;
+    }
+
+    // Set Paral2D
+    param = confSet->Get("Parallel2Dscan");
+    if ( param != "" ) {
+        if( param == "TRUE" ){
+            fMultiFitter->fParal2D = true;
+        } else if (param == "FALSE") {
+            fMultiFitter->fParal2D = false;
+        } else {
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'Parallel2Dscan' option but didnt provide valid parameter. Using default (false)");
+            fMultiFitter->fParal2D = false;
+        }
+    }
+
+    // Set Paral2Dstep
+    param = confSet->Get("Parallel2DscanStep");
+    if ( param != "" ) {
+        fMultiFitter->fParal2Dstep = std::atoi( param.c_str());
+        if (fMultiFitter->fParal2Dstep < 1 || fMultiFitter->fParal2Dstep>=fMultiFitter->fLHscanSteps ){
+            WriteErrorStatus("ConfigReaderMulti::ReadFitOptions", "You specified a step for 2D LHscan outside the allowed range.");
+            return 1;
         }
     }
 
