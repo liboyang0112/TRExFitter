@@ -49,7 +49,6 @@
 #include "TLegend.h"
 #include "TLine.h"
 #include "TRandom3.h"
-#include "TRandom3.h"
 #include "TSystem.h"
 #include "TStyle.h"
 
@@ -2200,7 +2199,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     TString firstPOIname = (TString)firstPOI->GetName();
     if (firstPOIname.Contains(varName.c_str())) isPoI = true;
 
-    RooRealVar* var = NULL;
+    RooRealVar* var = nullptr;
     TString vname = "";
     std::string vname_s = "";
     bool foundSyst = false;
@@ -2228,7 +2227,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         while( (var = (RooRealVar*) it->Next()) ){
             vname=var->GetName();
             vname_s=var->GetName();
-            if (vname == varName.c_str()) {
+            if (vname == varName || vname == "alpha_"+varName) {
                 WriteInfoStatus("MultiFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
                 foundSyst=true;
                 break;
@@ -2240,7 +2239,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         while( (var = (RooRealVar*) it->Next()) ){
             vname=var->GetName();
             vname_s=var->GetName();
-            if (vname == varName.c_str()) {
+            if (vname == varName || vname == "alpha_"+varName) {
                 WriteInfoStatus("MultiFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
                 foundSyst=true;
                 break;
@@ -2449,8 +2448,8 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
 
 
     //Vector for the two parameters
-    RooRealVar* varX = NULL;
-    RooRealVar* varY = NULL;
+    RooRealVar* varX = nullptr;
+    RooRealVar* varY = nullptr;
     //Get the parameters from the model
     TIterator* it = mc->GetNuisanceParameters()->createIterator();
     RooRealVar* var_tmp = nullptr;
@@ -2460,11 +2459,11 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
     // iterate over NPs
     while ( (var_tmp = static_cast<RooRealVar*>(it->Next())) ){
         vname=var_tmp->GetName();
-        if (vname == varNames.at(0).c_str()){
+        if (vname == varNames.at(0) || vname == "alpha_"+varNames.at(0)){
             varX = var_tmp;
             count++;
         }
-        if (vname == varNames.at(1).c_str()){
+        if (vname == varNames.at(1) || vname == "alpha_"+varNames.at(1)){
             varY = var_tmp;
             count++;
         }
@@ -2476,11 +2475,11 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
         TIterator* it_POI = mc->GetParametersOfInterest()->createIterator();
         while ( (var_tmp = static_cast<RooRealVar*>(it_POI->Next())) ){
             vname=var_tmp->GetName();
-            if (vname == varNames.at(0).c_str()){
+            if (vname == varNames.at(0) || vname == "alpha_"+varNames.at(0)){
                 varX = var_tmp;
                 count++;
             }
-            if (vname == varNames.at(1).c_str()){
+            if (vname == varNames.at(1) || vname == "alpha_"+varNames.at(1)){
                 varY = var_tmp;
                 count++;
             }
@@ -2615,6 +2614,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
     if (!fParal2D) { // Only draw and save graph when not running parallel
+        gStyle->SetPalette(57); // Reset Palette to default (Pruning or Correlation matrinx changes this)
         graph.Draw("colz");
         graph.GetXaxis()->SetRangeUser(minValX,maxValX);
         graph.GetYaxis()->SetRangeUser(minValY,maxValY);
@@ -2631,7 +2631,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
         // write it to a ROOT file as well
         std::unique_ptr<TFile> f = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_curve.root","UPDATE");
         f->cd();
-        graph.Write(("2D_LHscan_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
+        graph.Write(("LHscan_2D_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
         f->Close();
     }
 

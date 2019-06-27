@@ -7104,7 +7104,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
         while( (var = (RooRealVar*) it->Next()) ){
             vname=var->GetName();
             vname_s=var->GetName();
-            if (vname == varName.c_str()) {
+            if (vname == varName || vname == "alpha_"+varName) {
                 WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
                 foundSyst=true;
                 break;
@@ -7116,7 +7116,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
         while( (var = (RooRealVar*) it->Next()) ){
         vname=var->GetName();
             vname_s=var->GetName();
-            if (vname == varName.c_str()) {
+            if (vname == varName || vname == "alpha_"+varName) {
                 WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
                 foundSyst=true;
                 break;
@@ -7266,8 +7266,8 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
 
 
     //Vector for the two parameters
-    RooRealVar* varX = NULL;
-    RooRealVar* varY = NULL;
+    RooRealVar* varX = nullptr;
+    RooRealVar* varY = nullptr;
     //Get the parameters from the model
     TIterator* it = mc->GetNuisanceParameters()->createIterator();
     RooRealVar* var_tmp = nullptr;
@@ -7277,11 +7277,11 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     // iterate over NPs
     while ( (var_tmp = static_cast<RooRealVar*>(it->Next())) ){
         vname=var_tmp->GetName();
-        if (vname == varNames.at(0).c_str()){
+        if (vname == varNames.at(0) || vname == "alpha_"+varNames.at(0)){
             varX = var_tmp;
             count++;
         }
-        if (vname == varNames.at(1).c_str()){
+        if (vname == varNames.at(1) || vname == "alpha_"+varNames.at(1)){
             varY = var_tmp;
             count++;
         }
@@ -7293,11 +7293,11 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         TIterator* it_POI = mc->GetParametersOfInterest()->createIterator();
         while ( (var_tmp = static_cast<RooRealVar*>(it_POI->Next())) ){
             vname=var_tmp->GetName();
-            if (vname == varNames.at(0).c_str()){
+            if (vname == varNames.at(0) || vname == "alpha_"+varNames.at(0)){
                 varX = var_tmp;
                 count++;
             }
-            if (vname == varNames.at(1).c_str()){
+            if (vname == varNames.at(1) || vname == "alpha_"+varNames.at(1)){
                 varY = var_tmp;
                 count++;
             }
@@ -7394,19 +7394,25 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     TRandom3 rand{};
     rand.SetSeed(1234567);
     const double rndNumber = rand.Uniform(5);
-    for (auto & iY : y) {
-        if (fFitIsBlind){
-            iY+= rndNumber;
+    bool blindVarX = std::find(fBlindedParameters.begin(), fBlindedParameters.end(), varNames.at(0)) != fBlindedParameters.end();
+    bool blindVarY = std::find(fBlindedParameters.begin(), fBlindedParameters.end(), varNames.at(1)) != fBlindedParameters.end();
+    if (blindVarX){
+        minValX += rndNumber;
+        maxValX += rndNumber;
+        for (auto & iX : x) {
+            iX+= rndNumber;
         }
     }
-    for (auto & iX : x) {
-        if (fFitIsBlind){
-            iX+= rndNumber;
+    if (blindVarY){
+        minValY += rndNumber;
+        maxValY += rndNumber;
+        for (auto & iY : y) {
+            iY+= rndNumber;
         }
     }
 
     // make plots
-    TCanvas can("2D_NLLscan");
+    TCanvas can("NLLscan_2D_");
     can.cd();
 
     TGraph2D graph(fLHscanSteps * fLHscanStepsY);
@@ -7431,6 +7437,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
 
     if (!fParal2D) { // Only draw and save graph when not running parallel
+        gStyle->SetPalette(57); // Reset Palette to default (Pruning or Correlation matrinx changes this)
         graph.Draw("colz");
         graph.GetXaxis()->SetRangeUser(minValX,maxValX);
         graph.GetYaxis()->SetRangeUser(minValY,maxValY);
@@ -7447,7 +7454,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         // write it to a ROOT file as well
         std::unique_ptr<TFile> f = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_curve.root","UPDATE");
         f->cd();
-        graph.Write(("2D_LHscan_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
+        graph.Write(("LHscan_2D_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
         f->Close();
     }
 
