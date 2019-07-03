@@ -177,5 +177,5 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has b
 === DEBUG::TRExFit::DrawSummary: 1:	845.515236	+44.061554	-44.061554
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
-[1;32m=== INFO::TRExFit::PrintSystTables: Printing syt tables[0m
+[1;32m=== INFO::TRExFit::PrintSystTables: Printing syst tables[0m
 Info in <TCanvas::Print>: png file FitExample/PieChart_postFit.png has been created
