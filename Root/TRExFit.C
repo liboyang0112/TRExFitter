@@ -3812,39 +3812,39 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         }
         std::string label = regions[i]->fShortLabel;
         h.emplace_back(Form("h[%d]",i),label.c_str(),3,&xbins[0]);
-        h[i].SetBinContent(2,S[i]/sqrt(B[i]));
-        if(TRExFitter::OPTION["FourTopStyle"]==0) h[i].GetYaxis()->SetTitle("S / #sqrt{B}");
-        h[i].GetYaxis()->CenterTitle();
-        h[i].GetYaxis()->SetLabelOffset(1.5*h[i].GetYaxis()->GetLabelOffset() / (Wp/200.));
-        h[i].GetYaxis()->SetTitleOffset(9*nRows/4. );
-        if(Wp<200) h[i].GetYaxis()->SetTitleOffset( h[i].GetYaxis()->GetTitleOffset()*0.90 );
-        h[i].GetYaxis()->SetLabelSize( h[i].GetYaxis()->GetLabelSize() * (Wp/200.) );
-        if(TRExFitter::OPTION["FourTopStyle"]!=0) h[i].GetYaxis()->SetLabelSize( h[i].GetYaxis()->GetLabelSize() * 1.1 );
-        h[i].GetXaxis()->SetTickLength(0);
-        if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) h[i].GetYaxis()->SetNdivisions(3);
+        h.back().SetBinContent(2,S[i]/sqrt(B[i]));
+        if(TRExFitter::OPTION["FourTopStyle"]==0) h.back().GetYaxis()->SetTitle("S / #sqrt{B}");
+        h.back().GetYaxis()->CenterTitle();
+        h.back().GetYaxis()->SetLabelOffset(1.5*h.back().GetYaxis()->GetLabelOffset() / (Wp/200.));
+        h.back().GetYaxis()->SetTitleOffset(9*nRows/4. );
+        if(Wp<200) h.back().GetYaxis()->SetTitleOffset( h.back().GetYaxis()->GetTitleOffset()*0.90 );
+        h.back().GetYaxis()->SetLabelSize( h.back().GetYaxis()->GetLabelSize() * (Wp/200.) );
+        if(TRExFitter::OPTION["FourTopStyle"]!=0) h.back().GetYaxis()->SetLabelSize( h.back().GetYaxis()->GetLabelSize() * 1.1 );
+        h.back().GetXaxis()->SetTickLength(0);
+        if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) h.back().GetYaxis()->SetNdivisions(3);
         else TGaxis::SetMaxDigits(5);
-        yMax = TMath::Max(yMax,h[i].GetMaximum());
-        h[i].GetXaxis()->SetLabelSize(0);
-        h[i].SetLineWidth(1);
-        h[i].SetLineColor(kBlack);
-        if(regions[i]->fRegionType==Region::SIGNAL)          h[i].SetFillColor(kRed+1);
-        else if(regions[i]->fRegionType==Region::VALIDATION) h[i].SetFillColor(kGray);
-        else                                                 h[i].SetFillColor(kAzure-4);
+        yMax = TMath::Max(yMax,h.back().GetMaximum());
+        h.back().GetXaxis()->SetLabelSize(0);
+        h.back().SetLineWidth(1);
+        h.back().SetLineColor(kBlack);
+        if(regions[i]->fRegionType==Region::SIGNAL)          h.back().SetFillColor(kRed+1);
+        else if(regions[i]->fRegionType==Region::VALIDATION) h.back().SetFillColor(kGray);
+        else                                                 h.back().SetFillColor(kAzure-4);
         if(leg!=nullptr){
             if(regions[i]->fRegionType==Region::CONTROL && !hasCR)    {
-                leg->AddEntry(&h[i],"Control Regions","f");
+                leg->AddEntry(&h.back(),"Control Regions","f");
                 hasCR = true;
             }
             if(regions[i]->fRegionType==Region::VALIDATION && !hasVR) {
-                leg->AddEntry(&h[i],"Validation Regions","f");
+                leg->AddEntry(&h.back(),"Validation Regions","f");
                 hasVR = true;
             }
             if(regions[i]->fRegionType==Region::SIGNAL && !hasSR)     {
-                leg->AddEntry(&h[i],"Signal Regions","f");
+                leg->AddEntry(&h.back(),"Signal Regions","f");
                 hasSR = true;
             }
         }
-        h[i].Draw();
+        h.back().Draw();
         gPad->SetLeftMargin( gPad->GetLeftMargin()*2.4 );
         gPad->SetRightMargin(gPad->GetRightMargin()*0.1);
         gPad->SetTicky(0);
@@ -3868,6 +3868,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
     //
     for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==nullptr) continue;
+        if ((h.size() - 1)  <= i) break;
         if(TRExFitter::OPTION["LogSignalRegionPlot"]!=0){
             h[i].SetMaximum(yMax*200);
             h[i].SetMinimum(2e-4);
@@ -3878,7 +3879,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         }
     }
     //
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++) {
+    for(std::size_t i_format=0;i_format<TRExFitter::IMAGEFORMAT.size();i_format++) {
         c.SaveAs((fName+"/SignalRegions"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
 
@@ -6679,7 +6680,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
 //____________________________________________________________________________________
 //
 void TRExFit::PrintSystTables(std::string opt) const{
-    WriteInfoStatus("TRExFit::PrintSystTables", "Printing syt tables");
+    WriteInfoStatus("TRExFit::PrintSystTables", "Printing syst tables");
     if(fCleanTables) opt += "clean";
     if(fSystCategoryTables) opt += "category";
     if(fTableOptions.find("STANDALONE")!=std::string::npos) opt += "standalone";
