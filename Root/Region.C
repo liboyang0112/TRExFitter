@@ -2437,8 +2437,8 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
             finalErrMinus += err_i * err_i ;
         }
         // add stat uncertainty, which should have been stored as orignal bin errors in the h_nominal (if fUseStatErr is true)
-//         finalErrPlus  += pow( h_nominal->GetBinError(i_bin), 2 );
-//         finalErrMinus += pow( h_nominal->GetBinError(i_bin), 2 );
+        finalErrPlus  += pow( h_nominal->GetBinError(i_bin), 2 );
+        finalErrMinus += pow( h_nominal->GetBinError(i_bin), 2 );
 
         g_totErr->SetPointEYhigh(i_bin-1,sqrt(TMath::Abs(finalErrPlus )));
         g_totErr->SetPointEYlow( i_bin-1,sqrt(TMath::Abs(finalErrMinus)));
