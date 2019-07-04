@@ -992,9 +992,17 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         systName    = fSystNames[i_syst];
         if(TRExFitter::NPMAP[systName]=="") TRExFitter::NPMAP[systName] = systName;
-        systValue   = fitRes->GetNuisParValue(TRExFitter::NPMAP[systName]);
-        systErrUp   = fitRes->GetNuisParErrUp(TRExFitter::NPMAP[systName]);
-        systErrDown = fitRes->GetNuisParErrDown(TRExFitter::NPMAP[systName]);
+        
+        // Before checking if a systematic is there in the fit results, needs first to identify which name to look for:
+        // - use NuisanceParameer for systematics (and normal norm factors)
+        // - use the name and NOT the NPMAP for morphing factors (NPMAP contains the morphing parameter)
+        std::string systToCheck = systName;
+        if(systName.find("morph_")==std::string::npos){
+            systToCheck = TRExFitter::NPMAP[systName];
+        }
+        systValue   = fitRes->GetNuisParValue(systToCheck);
+        systErrUp   = fitRes->GetNuisParErrUp(systToCheck);
+        systErrDown = fitRes->GetNuisParErrDown(systToCheck);
         
         WriteVerboseStatus("Region::BuildPostFitErrorHist", "      alpha = " + std::to_string(systValue) + " +" + std::to_string(systErrUp) + " " + std::to_string(systErrDown));
 
@@ -1551,7 +1559,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         }
     }
 
-    // Michele:
     // Scale samples acording to fScaleSamplesToData:
     if(fScaleSamplesToData.size()>0){
         TH1* hTot = nullptr;
@@ -2354,22 +2361,21 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         WriteErrorStatus("BuildTotError","h_up and fSystNames have different size.");
         exit(EXIT_FAILURE);
     }
-    // FIXME FIXME FIXME...
     //
     //Speed Up: remove irrelevant systematics (which would give in any case 0 correlation)
     std::vector< string > EffectiveSystNames;
     std::vector< unsigned int > EffectiveSystIndex;
     for(unsigned int n=0;n<fSystNames.size();++n){
-      if(matrix!=nullptr){
-        if (matrix->fNuisParIsThere[fSystNames[n]]) {
-           EffectiveSystNames.push_back(fSystNames[n]);
-           EffectiveSystIndex.push_back(n);
+        if(matrix!=nullptr){
+            if (matrix->fNuisParIsThere[fSystNames[n]]) {
+                EffectiveSystNames.push_back(fSystNames[n]);
+                EffectiveSystIndex.push_back(n);
+            }
         }
-      }
-      else {
-          EffectiveSystNames.push_back(fSystNames[n]);
-          EffectiveSystIndex.push_back(n);
-      }
+        else {
+            EffectiveSystNames.push_back(fSystNames[n]);
+            EffectiveSystIndex.push_back(n);
+        }
     }
     //
     TGraphAsymmErrors *g_totErr = new TGraphAsymmErrors( h_nominal );
@@ -2431,8 +2437,8 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
             finalErrMinus += err_i * err_i ;
         }
         // add stat uncertainty, which should have been stored as orignal bin errors in the h_nominal (if fUseStatErr is true)
-        finalErrPlus  += pow( h_nominal->GetBinError(i_bin), 2 );
-        finalErrMinus += pow( h_nominal->GetBinError(i_bin), 2 );
+//         finalErrPlus  += pow( h_nominal->GetBinError(i_bin), 2 );
+//         finalErrMinus += pow( h_nominal->GetBinError(i_bin), 2 );
 
         g_totErr->SetPointEYhigh(i_bin-1,sqrt(TMath::Abs(finalErrPlus )));
         g_totErr->SetPointEYlow( i_bin-1,sqrt(TMath::Abs(finalErrMinus)));
