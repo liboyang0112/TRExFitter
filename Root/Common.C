@@ -79,8 +79,25 @@ TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int
     TH1D* h = new TH1D("h","h",nbin,xmin,xmax);
     WriteVerboseStatus("Common::HistFromNtuple", "    Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtuple", "        with weight  (" + weight + ")*("+selection+")  ...");
+
+    bool hasWildcard = false;
+    // check whether file actually exists, AccessPathName() returns FALSE if file can be accessed
+    // see https://root.cern.ch/root/html602/TSystem.html#TSystem:AccessPathName
+    const std::string fileName = ntuple.substr(0,ntuple.find_last_of("/")); // remove tree name from string to obtain path to file
+    if (fileName.find('*') != std::string::npos) hasWildcard = true;
+    if (gSystem->AccessPathName(fileName.c_str()) == kTRUE && !hasWildcard ){
+        if (TRExFitter::HISTOCHECKCRASH) {
+            WriteErrorStatus("Common::HistFromNtuple", "Cannot find input file in: " + fileName);
+            exit(EXIT_FAILURE);
+        } else {
+            WriteWarningStatus("Common::HistFromNtuple", "Cannot find input file in: " + fileName);
+        }
+    }
+
     TChain *t = new TChain();
-    t->Add(ntuple.c_str());
+    if (t->Add(ntuple.c_str()) == 0 && hasWildcard){
+      WriteWarningStatus("Common::HistFromNtuple", "You used wildcards, but added zero files from " + fileName);
+    }
     h->Sumw2();
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
     if(Nev>=0) t->Draw(drawVariable, drawWeight, "goff", Nev);
@@ -99,10 +116,12 @@ TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variabl
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
     TChain *t = new TChain();
 
+    bool hasWildcard = false;
     // check whether file actually exists, AccessPathName() returns FALSE if file can be accessed
     // see https://root.cern.ch/root/html602/TSystem.html#TSystem:AccessPathName
-    std::string fileName = ntuple.substr(0,ntuple.find_last_of("/")); // remove tree name from string to obtain path to file
-    if (gSystem->AccessPathName(fileName.c_str()) == kTRUE ){
+    const std::string fileName = ntuple.substr(0,ntuple.find_last_of("/")); // remove tree name from string to obtain path to file
+    if (fileName.find('*') != std::string::npos) hasWildcard = true;
+    if (gSystem->AccessPathName(fileName.c_str()) == kTRUE && !hasWildcard ){
         if (TRExFitter::HISTOCHECKCRASH) {
             WriteErrorStatus("Common::HistFromNtupleBinArr", "Cannot find input file in: " + fileName);
             exit(EXIT_FAILURE);
@@ -110,7 +129,9 @@ TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variabl
             WriteWarningStatus("Common::HistFromNtupleBinArr", "Cannot find input file in: " + fileName);
         }
     }
-    t->Add(ntuple.c_str());
+    if (t->Add(ntuple.c_str()) == 0 && hasWildcard) {
+      WriteWarningStatus("Common::HistFromNtupleBinArr", "You used wildcards, but added zero files from " + fileName);
+    }
     h->Sumw2();
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
     if(Nev>=0) t->Draw(drawVariable, drawWeight, "goff", Nev);
@@ -791,7 +812,7 @@ std::string FloatToPseudoHex(const float value){
 
     // add 1234 to the first digit so it is not easily readable, we will subtract it in the decoding
     value1+=1234;
-    // add 5678 to the number of '0' 
+    // add 5678 to the number of '0'
     count+=5678;
 
     std::stringstream ss;
@@ -807,9 +828,9 @@ float HexToFloat(const std::string& s){
     std::string rest = s.substr(s.find('.')+1, s.length());
     std::string zeros = rest.substr(0,rest.find('.'));
     std::string second = rest.substr(rest.find('.')+1, rest.length());
-    
+
     unsigned int i1, i2, n0;
-    
+
     std::stringstream ss;
     ss << std::hex << first;
     ss >> i1;
@@ -817,7 +838,7 @@ float HexToFloat(const std::string& s){
     std::stringstream ss1;
     ss1 << std::hex << second;
     ss1 >> i2;
-    
+
     std::stringstream ss2;
     ss2 << std::hex << zeros;
     ss2 >> n0;
