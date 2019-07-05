@@ -168,10 +168,9 @@ MultiFit::~MultiFit(){
 void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string& opt, const std::string& options,
                                 const std::string& label, std::string loadSuf, std::string wsFile){
 
-    // check if the config is not already processed
+    // check if the config is not already processed (but it might be intended, if comparing different fits from same config)
     if (std::find(fConfigPaths.begin(), fConfigPaths.end(), configFile) != fConfigPaths.end()){
-        WriteErrorStatus("MultiFit::AddFitFromConfig", "Config " + configFile + " is added twice. This wont work.");
-        exit(EXIT_FAILURE);
+        WriteWarningStatus("MultiFit::AddFitFromConfig", "Config " + configFile + " is added twice. Intended?");
     }
 
     fConfigPaths.emplace_back(configFile);
