@@ -991,6 +991,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         // Get fit result
         //
         systName    = fSystNames[i_syst];
+        if(systName.find("saturated_model_")!=std::string::npos) continue;
         if(TRExFitter::NPMAP[systName]=="") TRExFitter::NPMAP[systName] = systName;
         
         // Before checking if a systematic is there in the fit results, needs first to identify which name to look for:
