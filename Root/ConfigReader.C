@@ -1460,7 +1460,7 @@ int ConfigReader::ReadFitOptions(){
     // Set LHscanSteps for second variable
     param = confSet->Get("LHscanStepsY");
     if ( param != "" ) {
-        if (fFitter->fVarNameLH.size() == 0){
+        if (fFitter->fVarName2DLH.size() == 0){
             WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'LHscanStepsY' option but didnt set doLHscan. Ignoring");
         } else {
             fFitter->fLHscanStepsY = std::stoi(param);
