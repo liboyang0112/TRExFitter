@@ -80,6 +80,18 @@ or simply using the alias defined in the `setup.sh` script:
     trex-make
 ```
 
+## Setup the code inside ATLAS environments
+To setup the code inside ATLAS environments such as `AnalysisBase` or `AnalysisTop`, do:
+```
+mkdir source build
+cd source
+asetup AnalysisBase,21.2.70,here
+git clone --recursive ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git
+cd ../build/
+cmake ../source && make
+source  x86_64-centos7-gcc62-opt/setup.sh
+```
+Then, the setup is ready to execute `trex-fitter`.
 
 ## How to
 To run the code, after compiling (see [Setup](#setup)), use the command:
