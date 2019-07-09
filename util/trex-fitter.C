@@ -23,6 +23,9 @@
 #include <string>
 #include <fstream>
 
+#define _STRINGIZE(x) #x
+#define STRINGIZE(x) _STRINGIZE(x)
+
 // -------------------------------------------------------
 // -------------------------------------------------------
 
@@ -40,7 +43,11 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     std::string logoStr = ReadValueFromConfig(configFile,"Logo");
     std::transform(logoStr.begin(), logoStr.end(), logoStr.begin(), ::toupper);
     if(logoStr=="TRUE"){
-        std::ifstream logoFile(gSystem->ExpandPathName("$TREXFITTER_HOME/logo.txt"));
+        std::string homeArea("$TREXFITTER_HOME");
+#ifdef TREXFITTER_HOME
+        homeArea = std::string(STRINGIZE(TREXFITTER_HOME));
+#endif
+        std::ifstream logoFile(gSystem->ExpandPathName((homeArea+"/logo.txt").c_str()));
         std::string str;
         std::string logo = "";
         while(getline(logoFile,str)){
@@ -371,7 +378,11 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 int main(int argc, char **argv){
     std::ifstream in;
     std::string version;
-    in.open(gSystem->ExpandPathName("${TREXFITTER_HOME}/version.txt"));
+    std::string homeArea("$TREXFITTER_HOME");
+#ifdef TREXFITTER_HOME
+    homeArea = std::string(STRINGIZE(TREXFITTER_HOME));
+#endif
+    in.open(gSystem->ExpandPathName((homeArea+"/version.txt").c_str()));
     std::getline(in,version);
     in.close();
     std::cout << "\033[1m" << version << " -- Developed by Michele Pinamonti, Loic Valery, Alexander Held, Tomas Dado\033[0m" << std::endl;

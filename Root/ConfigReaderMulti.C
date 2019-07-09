@@ -13,6 +13,9 @@
 // c++ includes
 #include <algorithm>
 
+#define _STRINGIZE(x) #x
+#define STRINGIZE(x) _STRINGIZE(x)
+
 //_______________________________________________________________________________________
 //
 ConfigReaderMulti::ConfigReaderMulti(MultiFit *multiFitter){
@@ -34,7 +37,11 @@ int ConfigReaderMulti::ReadFullConfig(const std::string& fileName, const std::st
 
     // initialize checker COnfigParser to cross check the input
     ConfigParser refConfig;
-    refConfig.ReadFile(gSystem->ExpandPathName("$TREXFITTER_HOME/multiFitSchema.config"));
+    std::string homeArea("$TREXFITTER_HOME");
+#ifdef TREXFITTER_HOME
+    homeArea = std::string(STRINGIZE(TREXFITTER_HOME));
+#endif
+    refConfig.ReadFile(gSystem->ExpandPathName((homeArea+"/multiFitSchema.config").c_str()));
     int sc = fParser.CheckSyntax(&refConfig);
 
     if (sc != 0) return sc;

@@ -21,6 +21,9 @@
 #include <algorithm>
 #include <iostream>
 
+#define _STRINGIZE(x) #x
+#define STRINGIZE(x) _STRINGIZE(x)
+
 //__________________________________________________________________________________
 //
 ConfigReader::ConfigReader(TRExFit *fitter){
@@ -45,7 +48,11 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 
     // initialize checker COnfigParser to cross check the input
     ConfigParser refConfig;
-    refConfig.ReadFile(gSystem->ExpandPathName("$TREXFITTER_HOME/jobSchema.config"));
+    std::string homeArea("$TREXFITTER_HOME");
+#ifdef TREXFITTER_HOME
+    homeArea = std::string(STRINGIZE(TREXFITTER_HOME));
+#endif
+    refConfig.ReadFile(gSystem->ExpandPathName((homeArea+"/jobSchema.config").c_str()));
     int sc = fParser->CheckSyntax(&refConfig);
 
     if (sc != 0) return sc;

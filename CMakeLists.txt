@@ -34,11 +34,13 @@ set( CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -pedantic -O3 -g" )
 # ------------------------------------------------
 
 # Add ROOT system directory and require ROOT.
-find_package( ROOT 6.10.06 REQUIRED MathCore HistFactory )
+find_package( ROOT 6.10.06 REQUIRED COMPONENTS Core MathCore HistFactory Graf Hist RIO Tree Gpad )
 
 # Include the cmake build for the CommonStatTools submodule.
 include_directories( CommonStatTools )
-add_subdirectory( CommonStatTools )
+if(NOT DEFINED ENV{AtlasProject})
+  add_subdirectory( CommonStatTools )
+endif()
 
 # Handle the build of the CommonSystSmoothingTool library. That
 # library comes with a cmake configuration, but introduces
@@ -130,6 +132,11 @@ target_include_directories( TRExFitter
 target_link_libraries( TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils ${ROOT_LIBRARIES} )
 set_property( TARGET TRExFitter
    PROPERTY PUBLIC_HEADER ${lib_headers} )
+target_include_directories(TRExFitter PUBLIC ${CMAKE_CURRENT_LIST_DIR} )
+
+if(DEFINED ENV{AtlasProject})
+  add_dependencies(TRExFitter ExoStats CommonSystSmoothingToolLib )
+endif()
 
 # Install the libraries.
 install( TARGETS TRExFitter CommonSystSmoothingTool AtlasUtils
@@ -177,3 +184,6 @@ install( TARGETS hupdate.exe
 #    FILE TRExFitterConfig-targets.cmake
 #    DESTINATION cmake
 #    NAMESPACE "TRExFitter::" )
+
+# add compiler flag called TREXFITTER_HOME to not need to set environment variable any more
+add_definitions( -DTREXFITTER_HOME=${CMAKE_CURRENT_SOURCE_DIR} )
