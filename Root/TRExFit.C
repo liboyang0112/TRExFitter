@@ -283,6 +283,8 @@ TRExFit::TRExFit(std::string name){
     fToysHistoMin = 9999;
     fToysHistoMax = -9999;
     fToysHistoNbins = 50;
+    fToysPseudodataNP = "";
+    fToysPseudodataNPShift = 1.;
     fSmoothMorphingTemplates = "";
 
     fPOIPrecision = 2;
@@ -7926,22 +7928,21 @@ void TRExFit::RunToys(RooWorkspace* ws){
                 regionsToFit.push_back( fRegions[i_ch] -> fName );
         }
         ws = PerformWorkspaceCombination( regionsToFit );
-	//Setting binned likelihood option
-	RooFIter rfiter = ws->components().fwdIterator();
-	RooAbsArg* arg;
-	while ((arg = rfiter.next())) {
-	  if (arg->IsA() == RooRealSumPdf::Class()) {
-            arg->setAttribute("BinnedLikelihood");
-            std::string temp_string = arg->GetName();
-            WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
-	  }
-	}
+        //Setting binned likelihood option
+        RooFIter rfiter = ws->components().fwdIterator();
+        RooAbsArg* arg;
+        while ((arg = rfiter.next())) {
+            if (arg->IsA() == RooRealSumPdf::Class()) {
+                arg->setAttribute("BinnedLikelihood");
+                std::string temp_string = arg->GetName();
+                WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
+            }
+        }
         if (!ws){
             WriteErrorStatus("TRExFIt::RunToys","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         // create map to store fit results
-        std::map < std::string, double > npValues;
         // create histogram to store fitted POI values
         NormFactor POInf = *(fNormFactors[FindInStringVector(fNormFactorNames,fPOI)]);
         float min = POInf.fMin;
@@ -7953,25 +7954,94 @@ void TRExFit::RunToys(RooWorkspace* ws){
         TH1D h_toys ("h_toys","h_toys",fToysHistoNbins,min,max);
         // get RooStats stuff
         RooStats::ModelConfig mc = *((RooStats::ModelConfig*)ws -> obj("ModelConfig"));
+        RooSimultaneous simPdf = *((RooSimultaneous*)(mc.GetPdf()));
         RooAbsPdf *pdf = mc.GetPdf();
         const RooArgSet obsSet = *(mc.GetObservables());
         RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
+
+        //Get the desired NP
+        RooRealVar* NPtoShift = (RooRealVar*) (& ws->allVars()[fToysPseudodataNP.c_str()]);
+        
+        //For the loop over NPs
+        std::string varname{};
+        
+        //Create NLL only once
+        RooDataSet *dummy = pdf->generate( obsSet, RooFit::Extended() );
+        RooAbsReal* nll = simPdf.createNLL(*dummy,
+                                           Constrain(*mc.GetNuisanceParameters()),
+                                           Offset(1),
+                                           NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                           RooFit::Optimize(kTRUE));
+
+
         for(int i_toy=0;i_toy<fFitToys;i_toy++){
+            
+            TIterator* it = mc.GetNuisanceParameters()->createIterator();
+            RooRealVar* var = nullptr;
+            while( (var = (RooRealVar*) it->Next()) ){
+                varname = var->GetName();
+                if (varname.find("alpha_")!=std::string::npos) {
+                    var->setConstant(1);                                                       
+	                var->setVal(0);
+                } else {
+	                var->setConstant(1);  
+	                var->setVal(1);                     
+                }
+            }   
+            delete it;
+            delete var;
+
             // setting POI to constant, not to allow it to fluctuate in toy creation
             poiVar->setConstant(1);
             poiVar->setVal(fFitPOIAsimov);
+            NPtoShift->setConstant(1);
+            NPtoShift->setVal(fToysPseudodataNPShift);
+            
             WriteInfoStatus("TRExFit::RunToys","Generating toy n. " + std::to_string(i_toy+1) + " out of " + std::to_string(fFitToys) + " toys");
             RooDataSet *toyData = pdf->generate( obsSet, RooFit::Extended() );
             // re-set POI to free-floating, and to nominal value
+            RooArgSet* nuis = (RooArgSet*) mc.GetNuisanceParameters();
+            if (nuis){
+                RooRealVar* vartmp = nullptr;
+                TIterator* it2 = nuis->createIterator();
+                while( (vartmp = (RooRealVar*) it2->Next()) ){
+	                std::string np = vartmp->GetName();
+                    if (np.find("alpha_")!=std::string::npos) {
+                        vartmp->setConstant(0);                                                       
+	                    vartmp->setVal(0);
+                    }
+	                else if( np.find("gamma_")!=std::string::npos ){
+	                  vartmp->setVal(1);
+	                  vartmp->setConstant(0);
+	                }
+	                else {  // for norm factors
+	                  vartmp->setVal( 1 );
+	                }
+                }
+                delete it2;
+                delete vartmp;
+            }
             poiVar->setConstant(0);
             poiVar->setVal(POInf.fNominal);
+            
+            // NP is fixed constant for each fit, and to nominal value
+            NPtoShift->setConstant(1);
+            NPtoShift->setVal(0);
             // extract POI from fit result and fill histogram
             WriteInfoStatus("TRExFit::RunToys","Fitting toy n. " + std::to_string(i_toy+1));
-            npValues = PerformFit( ws, toyData, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-            if(npValues.size()>0){
-                h_toys.Fill(npValues[fPOI]);
-                WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value: " + std::to_string(npValues[fPOI]));
-            }
+            //Set new dataset for NLL
+            nll->setData(*toyData);
+            RooMinimizer m(*nll); // get MINUIT interface of fit
+            m.setErrorLevel(-1);
+            m.setPrintLevel(-1);
+            //m.setStrategy(2); // set precision to high
+            m.migrad(); 
+            RooFitResult* r = m.save(); // save fit result
+
+            h_toys.Fill(poiVar->getVal());
+            WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value: " + std::to_string(poiVar->getVal()));
+
+            delete r; 
             delete toyData;
         }
         // plot, fit and save toy histogram

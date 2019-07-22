@@ -534,6 +534,8 @@ public:
     float fToysHistoMin;
     float fToysHistoMax;
     int fToysHistoNbins;
+    std::string fToysPseudodataNP;
+    float fToysPseudodataNPShift;
     std::string fSmoothMorphingTemplates;
     int fPOIPrecision;
 
