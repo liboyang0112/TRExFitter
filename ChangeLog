@@ -1,3 +1,324 @@
+---------------------------------------------------------------------------------------
+The up-to date changelog can be found here:
+https://docs.google.com/document/d/1Gcp06Rfc0e09GRQrwRMgQLqKisTnKoeei7sZlG4a-Qo/preview
+The changelog version below was last synchronized on 2019-07-25.
+---------------------------------------------------------------------------------------
+
+2019-07-25 Alexander Held <alexander.held@cern.ch>
+    * Updating ChangeLog to current state of google docs, adding link to google docs version.
+
+2019-07-09 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing bug in Configreader definition of fLHScanStepsY. MR prepared by Nicolas Scharmberg, thanks!
+    * Fixing problem with postfit plots when morphing is used with SaturatedModel
+    * Adding support for the setup that allows to run TRExFitter within ATLAS framework (AnalysisBase/AnalysisTop). MR prepared by  Nicolas Scharmberg, thanks!
+
+2019-07-05 Tomas Dado <tomas.dado@cern.ch>
+    * Added macro to plot delta-POI
+
+2019-07-05 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fix to post-fit syst band when using morphing (and with more systematics with same NuisanceParameter)
+
+2019-07-04 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing crash during plotting when only some regions were used with SignalRegionsPlot
+    * Fixing problems with wildcards in ntuple paths reported in TTHFITTER-238
+    * Updated CommonStatTools and CommonSystSmoothingTools to the latest version
+
+2019-06-27 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing histos names for pseudodata. MR prepared by  Nicolas Scharmberg, thanks!
+    * Adding option to run 2D likelihood scan. MR prepared by  Nicolas Scharmberg, thanks!
+    * Properly propagating NF to correct regions in Pre-fit.
+
+2019-06-24 Tomas Dado <tomas.dado@cern.ch>
+    * Updating ROOT release to 6.14.04
+
+===================================================
+TAG TtHFitter-00-04-06
+===================================================
+
+2019-06-20 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fix to syst band in pre and post fit (for specific situations)
+
+2019-06-20 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing decorrelation between samples. MR prepared by FIlip Nechansky, thanks!
+
+2019-06-18 Tomas Dado <tomas.dado@cern.ch>
+    * Switching to binned likelihood fit when running toys. MR prepared by Kevin Moor, thanks!
+
+2019-06-17 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing a bug affecting normalisation factors in ranking. MR prepared by Ian Connelly, thanks!
+    * Including syst uncertainties not present in the correlation matrix to syst band. MR prepared by Giancarlo Panizzo, thanks!
+
+2019-06-06 Tomas Dado <tomas.dado@cern.ch>
+    * Added Bootstrap command line option
+    * MR prepared by Filip Nechansky, thanks!
+
+2019-05-31 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing Divide/Multiply/Subtract working again for samples
+    * Postfit plotting speed up
+    * MR prepared by Giancarlo Panizzo, thanks!
+
+2019-05-31 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Added MaxNtupleEvents option (for NTUP)
+    * Added SystFromSample Sample option
+    * Fixed post-fit plots so that systematics not in fit results are still used and added to band
+    * Other small fixes
+
+2019-05-28 Tomas Dado <tomas.dado@cern.ch>
+    * Added option to run Boostrapping for some systematics during the “n” step. MR prepared by Filip Nechansky, thanks!
+
+2019-05-27 Alexander Held <alexander.held@cern.ch>
+    * Added some “hidden” options to the jobSchema
+
+2019-05-27 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing issues with Float to Pseudohex that ignored leading zeros. MR prepared by Kevin Moor, thanks!
+
+2019-05-27 Tomas Dado <tomas.dado@cern.ch>
+    * When using MergeUnderflowOverflow setting the errors of underflow/overflow to zero as it was causing issues with smoothing. MR prepared by Nicolas Scharmberg, thanks!
+
+2019-05-15 Tomas Dado <tomas.dado@cern.ch>
+    * Multifit: check if the config files used are not identical (would cause problems)
+
+===================================================
+TAG TtHFitter-00-04-05
+===================================================
+
+2019-05-09 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing SaturatedModel interfering with chi^2 calculation
+
+2019-04-24 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Added new config option to a dummy systematics for some samples (syst variation = nominal) - useful when used in combination with KeepNormForSamples
+
+2019-04-24 Giancarlo Panizzo <giancarlo.panizzo@cern.ch>
+    * Implementing “IgnoreWeight” config option for systematics (didn't do anything before) (Issue #8)
+
+2019-04-19 Giancarlo Panizzo <giancarlo.panizzo@cern.ch>
+    * AddSamples / SubtractSamples/DivideBy/MultiplyBy now inherit systematics by NuisanceParameter
+
+2019-04-19 Alexander Held <alexander.held@cern.ch>
+    * Added nicer colour scheme for correlation matrix
+
+2019-04-16 Alexander Held <alexander.held@cern.ch>
+    * More fixes for missing files
+
+2019-04-16 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing usage of wildcards in Sample option (Issue #7)
+    * Now properly printing errors/warnings when input files for ntuple reading are not found
+    * Improved LHscan fitting by using Migrad directly - results in smoother LH curves
+    * Fixing scaling of Morphing samples when doing S/B plots
+
+2019-04-15 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing consistent usage of ttbarresonance option when smoothing nominal samples
+
+2019-04-12 Tomas Dado <tomas.dado@cern.ch>
+    * Speed improvements of the plotting code (postfit)
+
+2019-04-12 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Added saturated model for goodness of fit estimation
+
+2019-03-28 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Command-line “Signals” added/changed
+    * Job option “ScaleSamplesToData” added (allows to scale a set of samples to data minus the rest when plotting (d option) )
+    * Job option “ExcludeFromMorphing” added
+    * Other small fixes
+
+2019-03-28 Tomas Dado <tomas.dado@cern.ch>
+    * Added x-axis label to pull plots
+    * Now plotting NFs even for StatOnly fit
+
+2019-03-27 Tomas Dado <tomas.dado@cern.ch>
+    * Modernize (c++14) ConfigParser
+    * Allocating plots/labels/etc on stack in Multifit
+
+2019-03-26 Tomas Dado <tomas.dado@cern.ch>
+    * Adding debug info to CMakeList.txt (“-g”)
+    * Fixed the hard-coded maximum number of ConfigSets in the config file
+
+2019-03-19 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing CheckName function so that it works when quotation marks are used
+
+2019-03-15 Tomas Dado <tomas.dado@cern.ch>
+    * Removing ATLAS labels from plots when “none” is set (Multifit)
+    * Using random initial NP values in Ranking if specified in the config (previously used only in the fit)
+
+2019-03-14 Tomas Dado <tomas.dado@cern.ch>
+    * Fixed a bug that would cause a crash in multifit when no LH scan was used in “f” step
+    * Tuned on optimisation in createNLL function - significantly reduces CPU running time (10x faster!) while having no effect on the actual result. Thanks to Kevin Moor for reporting this!
+
+2019-03-13 Alexander Held <alexander.held@cern.ch>
+    * Fixing typos and README updates
+
+2019-03-11 Tomas Dado <tomas.dado@cern.ch>
+    * Moving symmetrisation/smoothing after DropNorm scaling as it causes problems with ReferenceSample
+
+2019-03-11 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing Morphing leading to very large post-fit uncertainties due to a bug
+    * Now we properly propagate fixed NPs (from config) to ranking and multifit, these were ignored previously
+
+2019-03-06 Tomas Dado <tomas.dado@cern.ch>
+    * When “none” is set for ATLAS label, no label is shown for Ranking
+
+2019-03-05 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing ranking - now only set the NF starting point as it was causing problems for NP
+
+2019-02-28 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing artificial increase of stat. uncertainty on syst variation when ReferenceSample is used
+
+2019-02-22 Tomas Dado <tomas.dado@cern.ch>
+    * Using proper starting values for the fit when using ranking (includes multifit)
+    * Added option for multi fit “POIInitial”- to se the initial starting point of the POI
+    * Fixing issue #5 (could not run “n” step with data only)
+    * Change many dynamically allocated objects to stack allocation, mainly for histograms, TLines, TLegend etc
+
+2019-02-21 Tomas Dado <tomas.dado@cern.ch>
+    * Code cleanup of PruningUtils
+    * CommonStatTools update
+    * Fixing memory leaks related to plotting of the NP pulls and similar
+    * Fix for Special variable names in config file, MR prepared by (Steffen Korn - thanks!)
+
+2019-02-18 Nello Bruscino <nello.bruscino@cern.ch>
+    * Fixing problems for Morphing introduced in the recent changes for Expression
+
+2019-02-13 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing check  for available sample when AsimovReplacement is used. MR prepared by Filip Nechansky, thanks!
+
+2019-02-09 Tomas Dado <tomas.dado@cern.ch>
+    * Added protection from division by zero when plotting histograms with zero normalisation.
+    * Updating CommonTools to the current master version
+
+2019-01-22 Tomas Dado <tomas.dado@cern.ch>
+    * The code now throws an error when only validation regions is used while trying to run the fit (this would crash RooFit otherwise) but does not throw any errors when just producing plots or reading ntuples/histograms
+
+2019-02-05 Nello Bruscino <nello.bruscino@cern.ch>
+    * Extension the Expression feature of NormFactor to accept more parameters at once. Used in t-channel polarization analysis for fits with spherical coordinates.
+
+2019-01-30 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Pruning code reorganised
+
+2019-01-22 Tomas Dado <tomas.dado@cern.ch>
+    * Added support to parallelize the LH scan for multifit. Also added new running type “x” to run only the LH scan.
+
+2019-01-22 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing bug in the logic that tested if the fit converged successfully. If both minuit and hess reported errors, the fit was previously flagged as successful
+
+2019-01-22 Tomas Dado <tomas.dado@cern.ch>
+    * Fixed correlation matrix in Multifit, added option to use Gammas in the correlation matrix in multifit
+
+2019-01-18 Tomas Dado <tomas.dado@cern.ch>
+    * Propagating correlation matrix threshold in multi fit option (did not work before)
+
+2019-01-17 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing problem with Category when multiple Systematics are defined with the same name
+
+2019-01-16 Tomas Dado <tomas.dado@cern.ch>
+    * Added new running option, “x” - this will run Likelihood scan only, no regular fit will be done (saves some CPU time)
+    * Added new command line option - “LHscan” to specify which LH scan to run - this allows to run LH scan on a batch system
+
+2019-01-14 Tomas Dado <tomas.dado@cern.ch>
+    * Provide a check for the pathological configurations where no sample or region can be used in the fit to prevent RooStats crashes
+
+2019-01-11 Tomas Dado <tomas.dado@cern.ch>
+    * Added protection against systematics with names containing “alpha” or “gamma”, which could cause problems in the code
+
+2018-12-29 Tomas Dado <tomas.dado@cern.ch>
+    * Added option: ReferencePruning - will prune systematic wrt a given sample and then apply the same pruning to all samples (useful when using Morphing)
+    * Pruning plot now only shows unique systematics in each line (each systematic is plotted only once)
+    * Changed ReferenceSmoothing to be relative and not absolute - the systematic effect is copied bin by bin so it keeps the same ratio instead of the same absolute difference
+
+===================================================
+TAG TtHFitter-00-04-04
+===================================================
+
+2018-12-19 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing crash when getting limit with no systematics (due to pruning)
+    * Adding command line option “LimitParamValue” (to be written into the limit output file)
+    * Adding Suffix to limit output file (so that one can use the command line option)
+    * Adding LegendNColumns to config schema
+    * Tagging TtHFitter-00-04-04
+
+2018-12-18 Tomas Dado <tomas.dado@cern.ch>
+    * Added option to blind some NP/POI when running on data. They will be propagated but they won’t be in human readable form in the txt files/pull plots. Also suppressing console output when this option is used.
+
+2018-12-12 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing crash in pruning when nullptr histograms are passed
+
+2018-12-05 Tomas Dado <tomas.dado@cern.ch>
+    * Added ReferenceSmoothing - will smooth systematic wrt to a given sample and then copy the effect bin-by-bin to all specified samples (useful when Morphing is used)
+
+2018-11-30 Tomas Dado <tomas.dado@cern.ch>
+    * Updating CommonStatTools package to the current master version
+
+2018-10-30 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Fixing log scale cosmetic problem
+
+2018-11-30 Tomas Dado <tomas.dado@cern.ch>
+    * Added new options for pruning. Can now prune effect wrt the total background
+
+2018-11-29 Tomas Dado <tomas.dado@cern.ch>
+    * Added new options for symmetrisation, mostly useful for the cases when the syst effect has the same shift for both up and down variations
+
+2018-11-29 Tomas Dado <tomas.dado@cern.ch>
+    * Hopefully final fix for the RGB option (prepared by Knut Zoch)
+
+2018-11-29 Alexander Held <alexander.held@cern.ch>
+    * Implementing BlindingType option (S/B, S/sqrt(B), S/(S+B), S/sqrt(S+B))
+
+2018-11-26 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing problem with RGB setting
+
+2018-11-22 Tomas Dado <tomas.dado@cern.ch>
+    * Fixed issue with error bands in ROOT 6.14
+
+2018-10-24 Tomas Dado <tomas.dado@cern.ch>
+    * Added option to specify canvas sizes for various plots. If nothing is specified, the default is used.
+
+2018-10-23 Tomas Dado <tomas.dado@cern.ch>
+    * Adding option to use RGB for colours. MR prepared by Knut Zoch, thanks!
+
+2018-10-23 Tomas Dado <tomas.dado@cern.ch>
+    * Adding “OutputDir” setting to command line options
+
+2018-10-22 Tomas Dado <tomas.dado@cern.ch>
+    * Fix for systematic uncertainties on data. MR prepared by Filip Nechansky, thanks!
+
+2018-10-22 Tomas Dado <tomas.dado@cern.ch>
+    * Simple speedup: We do not check against every systematic, but only to unique systematics
+
+2018-10-19 Tomas Dado <tomas.dado@cern.ch>
+    * Print systematics with the same name only once in the config summary
+
+2018-10-19 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing bug in jobSchema for confidence level
+
+2018-10-19 Tomas Dado <tomas.dado@cern.ch>
+    * Adding option to manually set SetRangeUser on xAxis in region
+
+2018-10-17 Tomas Dado <tomas.dado@cern.ch>
+    * Using CommonStatTools for limits and significance calculation
+
+===================================================
+TAG TtHFitter-00-04-03
+===================================================
+
+2018-10-16 Michele Pinamonti <michele.pinamonti@gmail.com>
+    * Adding few options for template fitting (PropagateSystsForMorphing and CorrelateGammasWithSample)
+    * Tagging TtHFitter-00-04-03
+
+2018-10-16 Alexander Held <alexander.held@cern.ch>
+    * The StatOnly command line option description previously mistakenly stated that NFs are set to constant if enabled, and did not mention that gammas are not considered when this option is used.
+    * Fixing typos
+
+2018-10-16 Tomas Dado <tomas.dado@cern.ch>
+    * The config reader exceptions (“none”,”all”) are now case insensitive
+
+2018-10-16 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing crash when accessing deleted object when doing prefit/postfit plots with “KeepPrefitBlindedBins: TRUE”. MR prepared by Filip Nechansky. Thanks!
+
+2018-10-16 Tomas Dado <tomas.dado@cern.ch>
+    * Code cleanup of ReadHistograms - creating a new method that is used in multiple places thus making the code more readable
+
+2018-10-16 Tomas Dado <tomas.dado@cern.ch>
+    * Fixing a bug that was introduced with recent changes that lead to possibly reading histograms with HIST option multiple times and adding them together
+
 2018-10-04 Alexander Held <alexander.held@cern.ch>
     * improved treatment of fixes for bins with negative yields
     * adding CorrectNormForNegativeIntegral option (default: false)
@@ -56,7 +377,6 @@
     * Adding morph smoothing with custom functions
     * Few other code fixes
 
-
 2018-08-22 Alexander Held <alexander.held@cern.ch>
     * Documentation updates, including fix for [TTHFITTER-197]
     * Adding handling of rounding for cases with zero uncertainties
@@ -108,12 +428,10 @@
     * Fixed yield tables when NOSIG is used as PlotOption (now in this case there is a warning telling the user that the total is not including the signal(s), “Total” becomes “Tot.Bkg.”, but the signal lines have all the proper systematics and errors on norm-factors applied)
 
 2018-08-08 Tomas Dado <tomas.dado@cern.ch>
-    * Renaming myFit.exe to trex-fitter, adding it to $PATH. Can now call
-“trex-fitter” from anywhere to run the code
+    * Renaming myFit.exe to trex-fitter, adding it to $PATH. Can now call “trex-fitter” from anywhere to run the code
 
 2018-08-05 Tomas Dado <tomas.dado@cern.ch>
-    * Fixed all includes in headers/source code. Now using forward declarations
-where possible
+    * Fixed all includes in headers/source code. Now using forward declarations where possible
 
 2018-08-03 Tomas Dado <tomas.dado@cern.ch>
     * Added cosmetic option for ranking to change the name of POI. Default is “#mu”.
@@ -125,8 +443,7 @@ where possible
     * Fixing prefit tables when morphing/Expression is used - previously it was not scaled to nominal values of the morph parameter in prefit thus every template was added to total yields. Also running once over one NuisanceParameter, previously ran once for each time the NP appeared in the config leading to large uncertainties
 
 2018-07-31 Tomas Dado <tomas.dado@cern.ch>
-    * Added new setting to config to allow custom number of digits in norm factor
-plots
+    * Added new setting to config to allow custom number of digits in norm factor plots
     * Switching AllowWrongRegionSample default to TRUE
 
 2018-07-30 Tomas Dado <tomas.dado@cern.ch>
@@ -140,8 +457,7 @@ plots
 2018-07-26 Tomas Dado <tomas.dado@cern.ch>
     * Fixing various memory leaks when running toys
     * Moved running of toys to a separate function
-    * Now “#” can be used at the beginning of a line (first non-whitespace
-character) to comment the line out
+    * Now “#” can be used at the beginning of a line (first non-whitespace character) to comment the line out
 
 2018-07-24 Tomas Dado <tomas.dado@cern.ch>
     * Updated setup.sh script - can call it from every location now (Thanks Knut!)
@@ -233,7 +549,6 @@ character) to comment the line out
 2018-03-16 Michele Pinamonti <michele.pinamonti@gmail.com>
     * Extending post-fit impact table functionality to MultiFit
     * Fixing two small issues with post-fit impact tables (for cases with no minos or with systName!=nuisPar)
-
 
 2018-03-09 Alexander Held <alexander.held@cern.ch>
     * Added the possibility to create tables showing post-fit impact of groups of nuisance parameters on the POI, see readme for more information
@@ -854,7 +1169,7 @@ character) to comment the line out
     * TtHFit: Separation plot added (by Leonid Serkin)
     * TtHFit, FittingTool: Ranking plot stuff partially ported to new Fitting routine
 
-2015-10-03 Loic Valery <lvalery@cern,ch>
+2015-10-03 Loic Valery <lvalery@cern.ch>
     * Improve style of systematics checks plots (and add the stat error information)
     * Adding more checks for null content after symmetrisation and smoothing
 
