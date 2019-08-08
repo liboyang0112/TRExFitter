@@ -230,6 +230,6 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_VR.png has been crea
 === DEBUG::TRExFit::DrawSummary: 1:	825.519989	+91.058495	-91.058495
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
-[1;32m=== INFO::TRExFit::PrintSystTables: Printing syst tables[0m
+[1;32m=== INFO::TRExFit::PrintSystTables: Printing syt tables[0m
 Info in <TCanvas::Print>: png file FitExample/SignalRegions.png has been created
 Info in <TCanvas::Print>: png file FitExample/PieChart.png has been created
