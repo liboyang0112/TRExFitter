@@ -71,6 +71,8 @@ public:
     inline void RangePOI_down( const double value){m_RangePOI_down = value;}
 
     inline void UseMinos( const std::vector<std::string> minosvar){ m_useMinos = true; m_varMinos = minosvar; }
+    
+    inline void SetExternalConstraints( const RooArgSet* externalConstraints = 0 ){ m_externalConstraints = externalConstraints; }
 
     //
     // Specific functions
@@ -111,6 +113,8 @@ private:
 
     std::map<std::string, std::string> m_subCategoryMap;
     std::set<std::string> m_subCategories;
+    
+    const RooArgSet* m_externalConstraints;
 };
 
 

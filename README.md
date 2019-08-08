@@ -463,6 +463,7 @@ For each object type (also called "block"), here is the list of available proper
 | Category                     | major category to which the NormFactor belongs (instrumental, theory, ttbar, ...) |
 | SubCategory                  | minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
 | Expression                   | a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form `<expression>:<dependencies>`, where `<dependencies>` should contain the names of the norm factors the expression depends on, their nominal values and existence ranges [example: `(1.+Pmag*cos(theta))/2.:Pmag[0.9,0,1],theta[0,0,3.14]`] |
+| Tau                          | if set, it will add a constraint term for this norm factor (needed for unfolding regularization); the value is the value of the Tikhonov "tau" parameter: the largest the value, the stronger the regularization (smaller pre-fit uncertainty) |
 
 ### `ShapeFactor` block options:
 
@@ -566,28 +567,30 @@ Currently the supported options are:
 
 | **Option** | **Effect** |
 | ---------- | ---------- |
-| **Regions**         | to limit the regions to use to the list specified |
-| **Samples**         | to limit the samples to use to the list specified |
-| **Systematics**     | to limit the systematics to use to the list specified |
-| **Signal(s)**       | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance); GHOST samples can be promoted to SIGNAL samples in this way, and multiple samples can be specified using `Samples:smp1,smp2` |
-| **Exclude**         | to exclude certain Regions / Samples / Systematics |
-| **Suffix**          | used for: plots, workspace, fit results, etc |
-| **SaveSuffix**      | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |
-| **Update**          | if TRUE, the output .root file is updated, otherwise is overwrote |
-| **StatOnlyFit**     | if TRUE, the same as Fit->StatOnlyFit |
-| **StatOnly**        | if TRUE, no systematics nor MC stat uncertainties will be considered (equivalent to set StatOnly: TRUE in the Job block of the config), use `Systematics=NONE` instead to keep MC stat uncertainties |
-| **Ranking**         | see [Ranking Plot](#ranking-plot) section |
-| **FitResults**      | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
-| **FitType**         | can be set to SPLUSB or BONLY to replace the option in the config file |
-| **LumiScale**       | as the options in config file |
-| **BootstrapIdx**    | see description of Bootstrap option in config (under Job) |
-| **BootstrapSYst**   | see description of BootstrapSyst option in config (under Job) |
-| **GroupedImpact**   | see [Grouped Impact](#grouped-impact) section |
-| **OutputDir**       | see [Job options](#job-block-options) section |
-| **LimitParamValue** | see [Limit options](#limit-block-options) section (ParamValue) |
-| **LHscan**          | set a NP/POI for the likelihood scan can be used for parallelization of the code |
-| **Parallel2Dscan**  | run only slice of LH2D scan in x-direction can be used for parllelization of the code |
-| **Parallel2Dscan**  | define which step of the parallelized 2D scan should be performed (has to be an integer between 0 and LHscanSteps-1) |
+| **Regions**           | to limit the regions to use to the list specified |
+| **Samples**           | to limit the samples to use to the list specified |
+| **Systematics**       | to limit the systematics to use to the list specified |
+| **Signal(s)**         | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance); GHOST samples can be promoted to SIGNAL samples in this way, and multiple samples can be specified using `Samples:smp1,smp2` |
+| **Exclude**           | to exclude certain Regions / Samples / Systematics |
+| **Suffix**            | used for: plots, workspace, fit results, etc |
+| **SaveSuffix**        | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |
+| **Update**            | if TRUE, the output .root file is updated, otherwise is overwrote |
+| **StatOnlyFit**       | if TRUE, the same as Fit->StatOnlyFit |
+| **StatOnly**          | if TRUE, no systematics nor MC stat uncertainties will be considered (equivalent to set StatOnly: TRUE in the Job block of the config), use `Systematics=NONE` instead to keep MC stat uncertainties |
+| **Ranking**           | see [Ranking Plot](#ranking-plot) section |
+| **FitResults**        | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
+| **FitType**           | can be set to SPLUSB or BONLY to replace the option in the config file |
+| **LumiScale**         | as the options in config file |
+| **BootstrapIdx**      | see description of Bootstrap option in config (under Job) |
+| **BootstrapSYst**     | see description of BootstrapSyst option in config (under Job) |
+| **GroupedImpact**     | see [Grouped Impact](#grouped-impact) section |
+| **OutputDir**         | see [Job options](#job-block-options) section |
+| **LimitParamValue**   | see [Limit options](#limit-block-options) section (ParamValue) |
+| **LHscan**            | set a NP/POI for the likelihood scan can be used for parallelization of the code |
+| **Parallel2Dscan**    | run only slice of LH2D scan in x-direction can be used for parllelization of the code |
+| **Parallel2Dscan**    | define which step of the parallelized 2D scan should be performed (has to be an integer between 0 and LHscanSteps-1) |
+| **FitBlind**          | see[Fit options](#fit-block-options) section |
+| **BlindedParameters** | see[Fit options](#fit-block-options) section |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:

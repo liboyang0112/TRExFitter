@@ -39,8 +39,8 @@ void CorrelationMatrix::AddNuisPar(const string& p){
 //__________________________________________________________________________________
 //
 void CorrelationMatrix::SetCorrelation(const string& p0, const string& p1,float corr){
-    if(!fNuisParIsThere[p0]) AddNuisPar(p0);
-    if(!fNuisParIsThere[p1]) AddNuisPar(p1);
+//     if(!fNuisParIsThere[p0]) AddNuisPar(p0);
+//     if(!fNuisParIsThere[p1]) AddNuisPar(p1);
     int idx0 = fNuisParIdx[p0];
     int idx1 = fNuisParIdx[p1];
     fMatrix[idx0][idx1] = corr;

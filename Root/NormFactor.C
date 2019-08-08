@@ -9,7 +9,7 @@
 
 //__________________________________________________________________________________
 //
-NormFactor::NormFactor():fName(""),fNominal(0),fMin(0),fMax(0),fConst(false){}
+NormFactor::NormFactor():fName(""),fNominal(0),fMin(0),fMax(0),fConst(false),fTau(0){}
 
 //__________________________________________________________________________________
 //
@@ -25,6 +25,7 @@ NormFactor::NormFactor(const std::string& name, float nominal, float min, float 
     //
     fSubCategory = subCategory;
     fExpression = std::make_pair("","");
+    fTau = 0;
 }
 
 //__________________________________________________________________________________
