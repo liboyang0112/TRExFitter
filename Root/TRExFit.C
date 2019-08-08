@@ -5383,6 +5383,12 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     for(int i_nf=0;i_nf<fNNorm;i_nf++){
         if(fNormFactors[i_nf]->fConst) continue;
         if(fFitType==BONLY && fPOI==fNormFactors[i_nf]->fName) continue;
+        // skip if it's a morphing parameter
+        if(fNormFactors[i_nf]->fName.find("morph_")!=std::string::npos) continue;
+        // skip if it has an "Expression"
+        if(fNormFactors[i_nf]->fExpression.first!="") continue;
+        // skip if not in the ws (e.g. because assigned to a sample or region not present in the fit)
+        if(!ws->obj(fNormFactors[i_nf]->fName.c_str())) continue;
         nNF++;
     }
     ndof -= nNF;
@@ -5451,6 +5457,10 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     if(fDoGroupedSystImpactTable){
         // name of file to write results to
         std::string outNameGroupedImpact = fName+"/Fits/GroupedImpact"+fSuffix;
+        if(fBootstrap!="" && fBootstrapIdx>=0){
+            gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
+            outNameGroupedImpact = fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+"GroupedImpact"+fSuffix;
+        }
         if(fGroupedImpactCategory!="all") outNameGroupedImpact += "_"+fGroupedImpactCategory;
         outNameGroupedImpact += ".txt";
 
