@@ -56,6 +56,7 @@
 #include "TFile.h"
 #include "TFormula.h"
 #include "TGaxis.h"
+#include "TGraph2D.h"
 #include "TGraphErrors.h"
 #include "TH2F.h"
 #include "TLatex.h"
@@ -189,6 +190,11 @@ TRExFit::TRExFit(std::string name){
     fLHscanMin = 999999;
     fLHscanMax = -999999;
     fLHscanSteps = 30;
+    fParal2D = false;
+    fParal2Dstep = -1;
+    fLHscanMinY = 999999;
+    fLHscanMaxY = -999999;
+    fLHscanStepsY = 30;
     fVarNameMinos.clear();
     fVarNameHide.clear();
     fWorkspaceFileName = "";
@@ -317,7 +323,7 @@ TRExFit::TRExFit(std::string name){
     fExcludeFromMorphing = "";
 
     fSaturatedModel = false;
-    
+
     fDebugNev = -1;
 }
 
@@ -832,7 +838,7 @@ void TRExFit::ReadNtuples(){
                 //
                 if(fSamples[i_smp]->fNormalizedByTheory && fSamples[i_smp]->fType!=Sample::DATA) htmp -> Scale(fLumi);
                 //
-                if(fSamples[i_smp]->fLumiScales.size()>i_path)  {htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);std::cout << fSamples[i_smp]->fLumiScales[i_path] << std::endl;}
+                if(fSamples[i_smp]->fLumiScales.size()>i_path)  htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
                 else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
                 //
                 if(i_path==0) h = (TH1D*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
@@ -1546,7 +1552,7 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
-    
+
     // Propagate all systematics from another sample
     for(auto reg : fRegions){
         for(auto smp : fSamples){
@@ -3806,39 +3812,39 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         }
         std::string label = regions[i]->fShortLabel;
         h.emplace_back(Form("h[%d]",i),label.c_str(),3,&xbins[0]);
-        h[i].SetBinContent(2,S[i]/sqrt(B[i]));
-        if(TRExFitter::OPTION["FourTopStyle"]==0) h[i].GetYaxis()->SetTitle("S / #sqrt{B}");
-        h[i].GetYaxis()->CenterTitle();
-        h[i].GetYaxis()->SetLabelOffset(1.5*h[i].GetYaxis()->GetLabelOffset() / (Wp/200.));
-        h[i].GetYaxis()->SetTitleOffset(9*nRows/4. );
-        if(Wp<200) h[i].GetYaxis()->SetTitleOffset( h[i].GetYaxis()->GetTitleOffset()*0.90 );
-        h[i].GetYaxis()->SetLabelSize( h[i].GetYaxis()->GetLabelSize() * (Wp/200.) );
-        if(TRExFitter::OPTION["FourTopStyle"]!=0) h[i].GetYaxis()->SetLabelSize( h[i].GetYaxis()->GetLabelSize() * 1.1 );
-        h[i].GetXaxis()->SetTickLength(0);
-        if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) h[i].GetYaxis()->SetNdivisions(3);
+        h.back().SetBinContent(2,S[i]/sqrt(B[i]));
+        if(TRExFitter::OPTION["FourTopStyle"]==0) h.back().GetYaxis()->SetTitle("S / #sqrt{B}");
+        h.back().GetYaxis()->CenterTitle();
+        h.back().GetYaxis()->SetLabelOffset(1.5*h.back().GetYaxis()->GetLabelOffset() / (Wp/200.));
+        h.back().GetYaxis()->SetTitleOffset(9*nRows/4. );
+        if(Wp<200) h.back().GetYaxis()->SetTitleOffset( h.back().GetYaxis()->GetTitleOffset()*0.90 );
+        h.back().GetYaxis()->SetLabelSize( h.back().GetYaxis()->GetLabelSize() * (Wp/200.) );
+        if(TRExFitter::OPTION["FourTopStyle"]!=0) h.back().GetYaxis()->SetLabelSize( h.back().GetYaxis()->GetLabelSize() * 1.1 );
+        h.back().GetXaxis()->SetTickLength(0);
+        if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) h.back().GetYaxis()->SetNdivisions(3);
         else TGaxis::SetMaxDigits(5);
-        yMax = TMath::Max(yMax,h[i].GetMaximum());
-        h[i].GetXaxis()->SetLabelSize(0);
-        h[i].SetLineWidth(1);
-        h[i].SetLineColor(kBlack);
-        if(regions[i]->fRegionType==Region::SIGNAL)          h[i].SetFillColor(kRed+1);
-        else if(regions[i]->fRegionType==Region::VALIDATION) h[i].SetFillColor(kGray);
-        else                                                 h[i].SetFillColor(kAzure-4);
+        yMax = TMath::Max(yMax,h.back().GetMaximum());
+        h.back().GetXaxis()->SetLabelSize(0);
+        h.back().SetLineWidth(1);
+        h.back().SetLineColor(kBlack);
+        if(regions[i]->fRegionType==Region::SIGNAL)          h.back().SetFillColor(kRed+1);
+        else if(regions[i]->fRegionType==Region::VALIDATION) h.back().SetFillColor(kGray);
+        else                                                 h.back().SetFillColor(kAzure-4);
         if(leg!=nullptr){
             if(regions[i]->fRegionType==Region::CONTROL && !hasCR)    {
-                leg->AddEntry(&h[i],"Control Regions","f");
+                leg->AddEntry(&h.back(),"Control Regions","f");
                 hasCR = true;
             }
             if(regions[i]->fRegionType==Region::VALIDATION && !hasVR) {
-                leg->AddEntry(&h[i],"Validation Regions","f");
+                leg->AddEntry(&h.back(),"Validation Regions","f");
                 hasVR = true;
             }
             if(regions[i]->fRegionType==Region::SIGNAL && !hasSR)     {
-                leg->AddEntry(&h[i],"Signal Regions","f");
+                leg->AddEntry(&h.back(),"Signal Regions","f");
                 hasSR = true;
             }
         }
-        h[i].Draw();
+        h.back().Draw();
         gPad->SetLeftMargin( gPad->GetLeftMargin()*2.4 );
         gPad->SetRightMargin(gPad->GetRightMargin()*0.1);
         gPad->SetTicky(0);
@@ -3862,6 +3868,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
     //
     for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==nullptr) continue;
+        if ((h.size() - 1)  <= i) break;
         if(TRExFitter::OPTION["LogSignalRegionPlot"]!=0){
             h[i].SetMaximum(yMax*200);
             h[i].SetMinimum(2e-4);
@@ -3872,7 +3879,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         }
     }
     //
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++) {
+    for(std::size_t i_format=0;i_format<TRExFitter::IMAGEFORMAT.size();i_format++) {
         c.SaveAs((fName+"/SignalRegions"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
 
@@ -4102,6 +4109,7 @@ void TRExFit::CreateCustomAsimov() const{
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
             Region *reg = fRegions[i_ch];
             SampleHist *cash = reg->SetSampleHist(ca,(TH1*)reg->fData->fHist->Clone());
+            cash->fHist_orig->SetName( Form("%s_orig",cash->fHist->GetName()) ); // fix the name
             cash->fHist->Scale(0.);
             //
             std::vector<std::string> smpToExclude;
@@ -4659,7 +4667,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         ws = PerformWorkspaceCombination( regionsToFit );
         if (!ws){
-            WriteErrorStatus("TRExFIt::Fit","Cannot retrieve the workspace, exiting!");
+            WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         //
@@ -4667,12 +4675,11 @@ void TRExFit::Fit(bool isLHscanOnly){
         //
         data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
         //
-        // Calls the PerformFit() function to actually do the fit
-        //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
             
-    // Do the fit
+    // Calls the PerformFit() function to actually do the fit
+    //
     if (!isLHscanOnly) PerformFit( ws, data, fFitType, true, TRExFitter::DEBUGLEVEL);
 
     //
@@ -4718,7 +4725,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         }
         ws = PerformWorkspaceCombination( regionsToFit );
         if (!ws){
-            WriteErrorStatus("TRExFIt::Fit","Cannot retrieve the workspace, exiting!");
+            WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         std::map < std::string, double > npValues;
@@ -5020,7 +5027,7 @@ void TRExFit::Fit(bool isLHscanOnly){
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
-    if(fVarNameLH.size()>0 && !isLHscanOnly){
+    if(fVarNameLH.size()>0 && !isLHscanOnly && !fParal2D){
         //
         // Don't do it if you did a non-profile fit (FIXME)
         if(fDoNonProfileFit){
@@ -5039,7 +5046,7 @@ void TRExFit::Fit(bool isLHscanOnly){
             }
         }
     }
-    if (isLHscanOnly){
+    if (isLHscanOnly && !fParal2D){
         if (fVarNameLH.size() == 0){
             WriteErrorStatus("TRExFit::Fit","Did not provide any LH scan parameter and running LH scan only. This is not correct.");
             exit(EXIT_FAILURE);
@@ -5051,6 +5058,13 @@ void TRExFit::Fit(bool isLHscanOnly){
             }
         } else {
             GetLikelihoodScan( ws, fVarNameLH[0], data);
+        }
+    }
+
+    // run 2D likelihood scan
+    if(fVarName2DLH.size()>0){
+        for (const auto & ipair : fVarName2DLH) {
+            Get2DLikelihoodScan( ws, ipair, data);
         }
     }
 }
@@ -5399,6 +5413,12 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     for(int i_nf=0;i_nf<fNNorm;i_nf++){
         if(fNormFactors[i_nf]->fConst) continue;
         if(fFitType==BONLY && fPOI==fNormFactors[i_nf]->fName) continue;
+        // skip if it's a morphing parameter
+        if(fNormFactors[i_nf]->fName.find("morph_")!=std::string::npos) continue;
+        // skip if it has an "Expression"
+        if(fNormFactors[i_nf]->fExpression.first!="") continue;
+        // skip if not in the ws (e.g. because assigned to a sample or region not present in the fit)
+        if(!ws->obj(fNormFactors[i_nf]->fName.c_str())) continue;
         nNF++;
     }
     ndof -= nNF;
@@ -5661,7 +5681,7 @@ void TRExFit::GetLimit(){
             WriteInfoStatus("TRExFit::GetLimit","Creating ws for regions with real data only...");
             RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
             if (!ws_forFit){
-                WriteErrorStatus("TRExFIt::GetLimit","Cannot retrieve the workspace, exiting!");
+                WriteErrorStatus("TRExFit::GetLimit","Cannot retrieve the workspace, exiting!");
                 exit(EXIT_FAILURE);
             }
 
@@ -5678,7 +5698,7 @@ void TRExFit::GetLimit(){
         //
         RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
         if (!ws_forLimit){
-            WriteErrorStatus("TRExFIt::GetLimit","Cannot retrieve the workspace, exiting!");
+            WriteErrorStatus("TRExFit::GetLimit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
@@ -5774,7 +5794,7 @@ void TRExFit::GetSignificance(){
             WriteInfoStatus("TRExFit::GetSignificance","Creating ws for regions with real data only...");
             RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
             if (!ws_forFit){
-                WriteErrorStatus("TRExFIt::GetSignificance","Cannot retrieve the workspace, exiting!");
+                WriteErrorStatus("TRExFit::GetSignificance","Cannot retrieve the workspace, exiting!");
                 exit(EXIT_FAILURE);
             }
 
@@ -5791,7 +5811,7 @@ void TRExFit::GetSignificance(){
         //
         RooWorkspace* ws_forSignificance = PerformWorkspaceCombination( regionsForSign );
         if (!ws_forSignificance){
-            WriteErrorStatus("TRExFIt::GetSignificance","Cannot retrieve the workspace, exiting!");
+            WriteErrorStatus("TRExFit::GetSignificance","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fSignificancePOIAsimov : npValues[fPOI] );
@@ -6134,7 +6154,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         ws = PerformWorkspaceCombination( regionsToFit );
     }
     if (!ws){
-        WriteErrorStatus("TRExFIt::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
+        WriteErrorStatus("TRExFit::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
         exit(EXIT_FAILURE);
     }
 
@@ -6704,7 +6724,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
 //____________________________________________________________________________________
 //
 void TRExFit::PrintSystTables(std::string opt) const{
-    WriteInfoStatus("TRExFit::PrintSystTables", "Printing syt tables");
+    WriteInfoStatus("TRExFit::PrintSystTables", "Printing syst tables");
     if(fCleanTables) opt += "clean";
     if(fSystCategoryTables) opt += "category";
     if(fTableOptions.find("STANDALONE")!=std::string::npos) opt += "standalone";
@@ -7130,7 +7150,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
         while( (var = (RooRealVar*) it->Next()) ){
             vname=var->GetName();
             vname_s=var->GetName();
-            if (vname.Contains(varName.c_str())) {
+            if (vname == varName || vname == "alpha_"+varName) {
                 WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
                 foundSyst=true;
                 break;
@@ -7142,7 +7162,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
         while( (var = (RooRealVar*) it->Next()) ){
         vname=var->GetName();
             vname_s=var->GetName();
-            if (vname.Contains(varName.c_str())) {
+            if (vname == varName || vname == "alpha_"+varName) {
                 WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
                 foundSyst=true;
                 break;
@@ -7174,13 +7194,14 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     double min = 9999999;
     for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
         WriteInfoStatus("TRExFit::GetLikelihoodScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
-        x[ipoint] = minVal+ipoint*(maxVal-minVal)/fLHscanSteps;
+        x[ipoint] = minVal+ipoint*(maxVal-minVal)/(fLHscanSteps - 1);
         *var = x[ipoint]; // set POI
         m.migrad(); // minimize again with new posSigXsecOverSM value
         RooFitResult* r = m.save(); // save fit result
         y[ipoint] = r->minNll();
         if (y[ipoint] < min) min = y[ipoint];
     }
+    var->setConstant(kFALSE); // make POI not constant otherwise we run in errors in the 2D scan
 
     for (auto & iY : y) {
         iY = iY - min;
@@ -7255,6 +7276,247 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     graph.Write("LHscan",TObject::kOverwrite);
     f->Close();
     delete f;
+}
+
+//____________________________________________________________________________________
+//
+void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::string>& varNames, RooDataSet* data) const{
+    if (varNames.size() != 2){
+        WriteErrorStatus("TRExFit::Get2DLikelihoodScan", "Wrong number of parameters provided for 2D likelihood scan, returning");
+        return;
+    }
+    WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Running 2D likelihood scan for the parameters = " + varNames.at(0) + " and " + varNames.at(1));
+
+    // shut-up RooFit!
+    if(TRExFitter::DEBUGLEVEL<=1){
+        if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
+        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
+        RooMsgService::instance().getStream(1).removeTopic(Generation);
+        RooMsgService::instance().getStream(1).removeTopic(Plotting);
+        RooMsgService::instance().getStream(1).removeTopic(LinkStateMgmt);
+        RooMsgService::instance().getStream(1).removeTopic(Eval);
+        RooMsgService::instance().getStream(1).removeTopic(Caching);
+        RooMsgService::instance().getStream(1).removeTopic(Optimization);
+        RooMsgService::instance().getStream(1).removeTopic(ObjectHandling);
+        RooMsgService::instance().getStream(1).removeTopic(InputArguments);
+        RooMsgService::instance().getStream(1).removeTopic(Tracing);
+        RooMsgService::instance().getStream(1).removeTopic(Contents);
+        RooMsgService::instance().getStream(1).removeTopic(DataHandling);
+    }
+
+    RooStats::ModelConfig* mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+
+    RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
+
+
+
+    //Vector for the two parameters
+    RooRealVar* varX = nullptr;
+    RooRealVar* varY = nullptr;
+    //Get the parameters from the model
+    TIterator* it = mc->GetNuisanceParameters()->createIterator();
+    RooRealVar* var_tmp = nullptr;
+    TString vname = "";
+    int count = 0;
+
+    // iterate over NPs
+    while ( (var_tmp = static_cast<RooRealVar*>(it->Next())) ){
+        vname=var_tmp->GetName();
+        if (vname == varNames.at(0) || vname == "alpha_"+varNames.at(0)){
+            varX = var_tmp;
+            count++;
+        }
+        if (vname == varNames.at(1) || vname == "alpha_"+varNames.at(1)){
+            varY = var_tmp;
+            count++;
+        }
+        if (count == 2) break;
+    }
+
+    // iterate over POIs
+    if (count < 2){
+        TIterator* it_POI = mc->GetParametersOfInterest()->createIterator();
+        while ( (var_tmp = static_cast<RooRealVar*>(it_POI->Next())) ){
+            vname=var_tmp->GetName();
+            if (vname == varNames.at(0) || vname == "alpha_"+varNames.at(0)){
+                varX = var_tmp;
+                count++;
+            }
+            if (vname == varNames.at(1) || vname == "alpha_"+varNames.at(1)){
+                varY = var_tmp;
+                count++;
+            }
+            if (count == 2) break;
+        }
+    }
+    if (count != 2) {
+        WriteErrorStatus("TRExFit::Get2DLikelihoodScan","Didnt find the two parameters you want to use in the 2D likelihood scan");
+        return;
+    }
+    WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Setting up the NLL");
+
+    //To set the boundaries
+    Double_t minValX = varX->getMin();
+    Double_t maxValX = varX->getMax();
+    Double_t minValY = varY->getMin();
+    Double_t maxValY = varY->getMax();
+
+    if (fLHscanMin < 99999) { // is actually set
+        minValX = fLHscanMin;
+    }
+    if (fLHscanMinY < 99999) { // is actually set
+        minValY = fLHscanMinY;
+    }
+    if (fLHscanMax > -99999) { // is actually set
+        maxValX = fLHscanMax;
+    }
+    if (fLHscanMaxY > -99999) { // is actually set
+        maxValY = fLHscanMaxY;
+    }
+
+    unsigned int offset = 1;
+    if (fParal2D) {
+        // When we run in parrellel we cant set offset to 1
+        // this caused problems with the offset between the different sup processes
+        offset = 0;
+    }
+    RooAbsReal* nll = simPdf->createNLL(*data,
+                                        Constrain(*mc->GetNuisanceParameters()),
+                                        Offset(offset),
+                                        NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                        RooFit::Optimize(kTRUE));
+
+    RooMinimizer m(*nll); // get MINUIT interface of fit
+    m.setErrorLevel(-1);
+    m.setPrintLevel(-1);
+    m.setStrategy(2); // set precision to high
+    //Set both POIs to constant
+    varX->setConstant(kTRUE); // make POI constant in the fit
+    varY->setConstant(kTRUE); // make POI constant in the fit
+
+    //values for parameter1, parameter2 and the NLL value
+    std::vector<double> x(fLHscanSteps);
+    std::vector<double> y(fLHscanStepsY);
+    std::vector<std::vector<double>> z(fLHscanSteps, std::vector<double>(fLHscanStepsY));
+
+    double zmin = 9999999;
+
+    //Actual scan
+    WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Start of the 2D scan");
+    for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
+        if (fParal2D && ipoint!=fParal2Dstep) // if you are parallelizing, only run the point corresponding to the one passed from command line
+            continue;
+        WriteInfoStatus("TRExFit::Get2DLikelihoodScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
+        // x[ipoint] = minValX + ipoint * (maxValX - minValX) / (fLHscanSteps);
+        // We could alternatively use the line below to inlcude the max value in the scan
+        x[ipoint] = minValX + ipoint * (maxValX - minValX) / (fLHscanSteps - 1);
+        *(varX) = x[ipoint]; // set POI
+        for (int jpoint = 0; jpoint < fLHscanStepsY; ++jpoint) {
+            WriteInfoStatus("TRExFit::Get2DLikelihoodScan","Running LHscan for subpoint " + std::to_string(jpoint+1) + " out of " + std::to_string(fLHscanStepsY) + " points");
+            // y[jpoint] = minValY + jpoint * (maxValY - minValY) / (fLHscanStepsY);
+            // We could alternatively use the line below to inlcude the max value in the scan
+            y[jpoint] = minValY + jpoint * (maxValY - minValY) / (fLHscanStepsY - 1);
+            *(varY) = y[jpoint]; // set POI
+            m.migrad(); // minimize again with new posSigXsecOverSM value
+            RooFitResult* r = m.save(); // save fit result
+            const double z_tmp = r->minNll();
+            z[ipoint][jpoint] = z_tmp;
+
+            // save the best values
+            if (z_tmp < zmin) {
+                zmin = z_tmp;
+            }
+        }
+    }
+    //Set both POIs not constant
+    varX->setConstant(kTRUE); // make POI not constant after the fit
+    varY->setConstant(kTRUE); // make POI not constant after the fit
+
+    // end of scaning, now fill some plots
+
+
+    // this is needed for potential blinding
+    TRandom3 rand{};
+    rand.SetSeed(1234567);
+    const double rndNumber = rand.Uniform(5);
+    bool blindVarX = std::find(fBlindedParameters.begin(), fBlindedParameters.end(), varNames.at(0)) != fBlindedParameters.end();
+    bool blindVarY = std::find(fBlindedParameters.begin(), fBlindedParameters.end(), varNames.at(1)) != fBlindedParameters.end();
+    if (blindVarX){
+        minValX += rndNumber;
+        maxValX += rndNumber;
+        for (auto & iX : x) {
+            iX+= rndNumber;
+        }
+    }
+    if (blindVarY){
+        minValY += rndNumber;
+        maxValY += rndNumber;
+        for (auto & iY : y) {
+            iY+= rndNumber;
+        }
+    }
+
+    // make plots
+    TCanvas can("NLLscan_2D_");
+    can.cd();
+
+    TGraph2D graph(fLHscanSteps * fLHscanStepsY);
+
+    TH2D h_nll("NLL", "NLL", fLHscanSteps, minValX, maxValX, fLHscanStepsY, minValY, maxValY);
+    unsigned int i=0;
+    for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
+        if (fParal2D && ipoint!=fParal2Dstep) // if you are parallelizing, only run the point corresponding to the one passed from command line
+            continue;
+        for (int jpoint = 0; jpoint < fLHscanStepsY; ++jpoint) {
+            if (!fParal2D) { // if you are paralellizing, no knowledge of the absolute minimum in each job
+                // shift the likelihood values to zero
+                z[ipoint][jpoint] -= zmin;
+            }
+            h_nll.SetBinContent(ipoint+1, jpoint+1, z[ipoint][jpoint]);
+            i = ipoint * fLHscanStepsY + jpoint;
+            graph.SetPoint(i,x[ipoint],y[jpoint],z[ipoint][jpoint]);
+        }
+    }
+
+    TString LHDir("LHoodPlots/");
+    system(TString("mkdir -vp ")+fName+"/"+LHDir);
+
+    if (!fParal2D) { // Only draw and save graph when not running parallel
+        gStyle->SetPalette(57); // Reset Palette to default (Pruning or Correlation matrinx changes this)
+        graph.Draw("colz");
+        graph.GetXaxis()->SetRangeUser(minValX,maxValX);
+        graph.GetYaxis()->SetRangeUser(minValY,maxValY);
+
+        // y axis
+        graph.GetXaxis()->SetTitle(varNames.at(0).c_str());
+        graph.GetYaxis()->SetTitle(varNames.at(1).c_str());
+
+        // Print the canvas
+        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+            can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
+        }
+
+        // write it to a ROOT file as well
+        std::unique_ptr<TFile> f = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_curve.root","UPDATE");
+        f->cd();
+        graph.Write(("LHscan_2D_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
+        f->Close();
+    }
+
+    // Write histogram to Root file as well
+    if (fParal2D) { 
+        std::ostringstream step_os;
+        step_os << fParal2Dstep;
+        std::string paral2Dstep_str=step_os.str();
+        std::unique_ptr<TFile> f2 = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_step"+paral2Dstep_str+fSuffix+"_histo.root","UPDATE");
+        h_nll.Write("NLL",TObject::kOverwrite);
+        f2->Close();
+    } else {
+        std::unique_ptr<TFile> f2 = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_histo.root","UPDATE");
+        h_nll.Write("NLL",TObject::kOverwrite);
+        f2->Close();
+    }
 }
 
 //____________________________________________________________________________________
@@ -7708,8 +7970,18 @@ void TRExFit::RunToys(RooWorkspace* ws){
                 regionsToFit.push_back( fRegions[i_ch] -> fName );
         }
         ws = PerformWorkspaceCombination( regionsToFit );
+	//Setting binned likelihood option
+	RooFIter rfiter = ws->components().fwdIterator();
+	RooAbsArg* arg;
+	while ((arg = rfiter.next())) {
+	  if (arg->IsA() == RooRealSumPdf::Class()) {
+            arg->setAttribute("BinnedLikelihood");
+            std::string temp_string = arg->GetName();
+            WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
+	  }
+	}
         if (!ws){
-            WriteErrorStatus("TRExFIt::RunToys","Cannot retrieve the workspace, exiting!");
+            WriteErrorStatus("TRExFit::RunToys","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         // create map to store fit results
