@@ -7,6 +7,7 @@
 // RooFit
 #include "RooSimultaneous.h"
 #include "RooStats/ModelConfig.h"
+#include "RooMultiVarGaussian.h"
 
 /// c++ includes
 #include <map>

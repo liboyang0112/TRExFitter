@@ -144,6 +144,8 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             readingCM = true;
             std::getline(in, line); // skip 1 line
             Nsyst_corr = atof(line.substr(0,line.find(" ")).c_str());
+            // add all NPs to corr matrix here (to keep decent order)
+            for(auto npName : fNuisParNames) matrix->AddNuisPar(npName);
             continue;
         }
         else if(line=="NLL"){

@@ -1,1 +1,1 @@
-TRExFitter v4.05
+TRExFitter v4.06

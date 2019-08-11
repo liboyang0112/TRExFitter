@@ -177,6 +177,12 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(optMap["Parallel2DscanStep"]!=""){
         fFitter->fParal2Dstep = atoi(optMap["Parallel2DscanStep"].c_str());
     }
+    if(optMap["FitBlind"]!=""){
+        fFitter->fFitIsBlind = true;
+    }
+    if(optMap["BlindedParameters"]!=""){
+        fFitter->fBlindedParameters = Vectorize(optMap["BlindedParameters"],',');
+    }
     //
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "-------------------------------------------");
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "Running options: ");
@@ -3184,6 +3190,10 @@ int ConfigReader::ReadNormFactorOptions(){
                 }
             }
         }
+
+        // Set Tau (for Tikhonov regularization)
+        param = confSet->Get("Tau");
+        if(param!="") nfactor->fTau = atof(param.c_str());
 
         // save list of
         if (regions.size() == 0 || exclude.size() == 0){

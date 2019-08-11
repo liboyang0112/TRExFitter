@@ -13,7 +13,7 @@
 #include "TRExFitter/Sample.h"
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
-#include "TRExFitter/MultiFit.h"
+#include "TRExFitter/TRExFit.h"
 
 // CommonStatTools include
 #include "CommonStatTools/runSig.h"
@@ -170,7 +170,7 @@ void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string
 
     // check if the config is not already processed (but it might be intended, if comparing different fits from same config)
     if (std::find(fConfigPaths.begin(), fConfigPaths.end(), configFile) != fConfigPaths.end()){
-        WriteWarningStatus("MultiFit::AddFitFromConfig", "Config " + configFile + " is added twice. Intended?");
+        WriteWarningStatus("MultiFit::AddFitFromConfig", "Config " + configFile + " is added twice. Make sure you know what you are doing."); // changed from error to warning, since in some cases one might want to include the same job twice (e.g. comparing fit results with different suffix)
     }
 
     fConfigPaths.emplace_back(configFile);

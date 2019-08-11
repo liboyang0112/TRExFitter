@@ -4613,7 +4613,6 @@ void TRExFit::Fit(bool isLHscanOnly){
         }
         if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
         else                        data = (RooDataSet*)ws->data("asimovData");
-        PerformFit( ws, data, fFitType, true, TRExFitter::DEBUGLEVEL );
     }
     //
     // Otherwise go on with normal fit
@@ -4668,7 +4667,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         ws = PerformWorkspaceCombination( regionsToFit );
         if (!ws){
-            WriteErrorStatus("TRExFIt::Fit","Cannot retrieve the workspace, exiting!");
+            WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         //
@@ -4676,11 +4675,12 @@ void TRExFit::Fit(bool isLHscanOnly){
         //
         data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
         //
-        // Calls the PerformFit() function to actually do the fit
-        //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
-        if (!isLHscanOnly) PerformFit( ws, data, fFitType, true, TRExFitter::DEBUGLEVEL);
     }
+            
+    // Calls the PerformFit() function to actually do the fit
+    //
+    if (!isLHscanOnly) PerformFit( ws, data, fFitType, true, TRExFitter::DEBUGLEVEL);
 
     //
     // Toys
@@ -4725,7 +4725,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         }
         ws = PerformWorkspaceCombination( regionsToFit );
         if (!ws){
-            WriteErrorStatus("TRExFIt::Fit","Cannot retrieve the workspace, exiting!");
+            WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         std::map < std::string, double > npValues;
@@ -5358,6 +5358,36 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         fitTool -> FixNPs(npNames,npValues);
     }
 
+    // Tikhonov regularization (for unfolding)
+    RooArgList l;
+    std::vector<float> tauVec;
+    for(auto nf : fNormFactors){
+        if(nf->fTau!=0){
+            l.add(*ws->var(nf->fName.c_str()));
+            tauVec.push_back( nf->fTau );
+        }
+    }
+    if(tauVec.size()>0){
+        TMatrixDSym cov(tauVec.size());
+        for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++){
+            cov(i_tau,i_tau) = pow(1./tauVec[i_tau],2);
+        }
+        RooConstVar nominalValue("1","1",1);
+        RooArgList nominal;
+        for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++) nominal.add(nominalValue);
+        RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
+        ws->import(r);
+        ws->defineSet("myConstraints","regularization");
+        simPdf->setStringAttribute("externalConstraints","myConstraints");
+        //
+        const RooArgSet* externalConstraints = 0;
+        if(simPdf->getStringAttribute("externalConstraints")){
+            WriteInfoStatus("TRExFit::PerformFit",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
+            externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
+            fitTool->SetExternalConstraints( externalConstraints );
+        }
+    }
+
     // save snapshot before fit
     ws->saveSnapshot("snapshot_BeforeFit_POI", *(mc->GetParametersOfInterest()) );
     ws->saveSnapshot("snapshot_BeforeFit_NP" , *(mc->GetNuisanceParameters())   );
@@ -5651,7 +5681,7 @@ void TRExFit::GetLimit(){
             WriteInfoStatus("TRExFit::GetLimit","Creating ws for regions with real data only...");
             RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
             if (!ws_forFit){
-                WriteErrorStatus("TRExFIt::GetLimit","Cannot retrieve the workspace, exiting!");
+                WriteErrorStatus("TRExFit::GetLimit","Cannot retrieve the workspace, exiting!");
                 exit(EXIT_FAILURE);
             }
 
@@ -5668,7 +5698,7 @@ void TRExFit::GetLimit(){
         //
         RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
         if (!ws_forLimit){
-            WriteErrorStatus("TRExFIt::GetLimit","Cannot retrieve the workspace, exiting!");
+            WriteErrorStatus("TRExFit::GetLimit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
@@ -5764,7 +5794,7 @@ void TRExFit::GetSignificance(){
             WriteInfoStatus("TRExFit::GetSignificance","Creating ws for regions with real data only...");
             RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
             if (!ws_forFit){
-                WriteErrorStatus("TRExFIt::GetSignificance","Cannot retrieve the workspace, exiting!");
+                WriteErrorStatus("TRExFit::GetSignificance","Cannot retrieve the workspace, exiting!");
                 exit(EXIT_FAILURE);
             }
 
@@ -5781,7 +5811,7 @@ void TRExFit::GetSignificance(){
         //
         RooWorkspace* ws_forSignificance = PerformWorkspaceCombination( regionsForSign );
         if (!ws_forSignificance){
-            WriteErrorStatus("TRExFIt::GetSignificance","Cannot retrieve the workspace, exiting!");
+            WriteErrorStatus("TRExFit::GetSignificance","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fSignificancePOIAsimov : npValues[fPOI] );
@@ -6056,6 +6086,10 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     // Text files containing information necessary for drawing of ranking plot
     //
     std::string outName = fName+"/Fits/NPRanking"+fSuffix;
+    if(fBootstrap!="" && fBootstrapIdx>=0){
+        gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
+        outName = fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+"NPRanking"+fSuffix;
+    }
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
     std::ofstream outName_file(outName.c_str());
@@ -6120,7 +6154,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         ws = PerformWorkspaceCombination( regionsToFit );
     }
     if (!ws){
-        WriteErrorStatus("TRExFIt::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
+        WriteErrorStatus("TRExFit::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
         exit(EXIT_FAILURE);
     }
 
@@ -7947,7 +7981,7 @@ void TRExFit::RunToys(RooWorkspace* ws){
 	  }
 	}
         if (!ws){
-            WriteErrorStatus("TRExFIt::RunToys","Cannot retrieve the workspace, exiting!");
+            WriteErrorStatus("TRExFit::RunToys","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         // create map to store fit results
