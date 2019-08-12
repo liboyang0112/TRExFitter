@@ -171,7 +171,7 @@ For each object type (also called "block"), here is the list of available proper
 
 | **Option** | **Function** |
 | ---------- | ------------ |
-| Label                        | the label which will be shown on plots |
+| Label                        | the label which will be shown on plots, if 'none' is set, no label will be shown |
 | POI                          | the name of the parameter of interest; this should correspond to a NormFactor defined below |
 | ReadFrom                     | can be HIST or NTUP; default is HIST |
 | HistoPath(s)                 | valid only for option HIST above is selected; it's the path(s) where the input root files containing the histograms are stored |
@@ -196,6 +196,7 @@ For each object type (also called "block"), here is the list of available proper
 | Logo                         | is set to TRUE will print the TRExFitter logo |
 | PlotOptions                  | a set of options for plotting:<br>&nbsp; &nbsp; **YIELDS**: if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields<br>&nbsp; &nbsp; **NORMSIG**: add normlised signal to plots<br>&nbsp; &nbsp; **NOSIG**: don't show signal in stack<br>&nbsp; &nbsp; **OVERSIG**: overlay signal (not normalised)<br>&nbsp; &nbsp; **CHI2**: the chi2/ndf and chi2 prob will be printed on each plot, provided that the option GetChi2 is set<br>&nbsp; &nbsp; **PREFITONPOSTFIT**: draw a dashed line on the postfit plot that indicates the sum of prefit background<br>&nbsp; &nbsp; **NOXERR**: removes the horizontal error bars on the data and the ratio plots |
 | PlotOptionsSummary           | the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used) |
+| RatioYtitle                  | Label to be used on the Y-axis of the ratio plot, default is "Data/pred." |
 | TableOptions                 | a set of options for tables:<br>&nbsp; &nbsp; **STANDALONE**: default! If not set, no "\begin{document}"<br>&nbsp; &nbsp; **FOOTNOTESIZE**: -> \footnotesize <br>&nbsp; &nbsp; **LANDSCAPE**: -> \begin{landscape} |
 | SystControlPlots             | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) will be produced |
 | SystDataPlots                | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples will be produced. Data are then plotted in the ratio. If the option is set to "fillUpFrame", data will also be plotted in the upper frame. |
