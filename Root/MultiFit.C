@@ -499,7 +499,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
             exit(EXIT_FAILURE);
         }
         if (fVarNameLH[0]=="all"){
-            WriteWarningStatus("MultiFit::MultiFit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
+            WriteWarningStatus("MultiFit::MultiFit","You are running LHscan only option but running it for all parameters. Will not parallelize!.");
             for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
                 GetLikelihoodScan( ws, it->first, data, true);
             }
@@ -3084,7 +3084,7 @@ TH1D* MultiFit::Combine(vector<TH1D*> h) const{
     int Nbins = 0;
     int Nhist = h.size();
     for(int i_hist=0;i_hist<Nhist;i_hist++){
-        if(h[i_hist]==nullptr) WriteWarningStatus("MultiFit::Combine", "empty histgram " + std::to_string(i_hist));
+        if(h[i_hist]==nullptr) WriteWarningStatus("MultiFit::Combine", "empty histogram " + std::to_string(i_hist));
         else Nbins += h[i_hist]->GetNbinsX();
     }
     TH1D* h_new = new TH1D(Form("%s_comb",h[0]->GetName()),Form("%s_comb",h[0]->GetTitle()),Nbins,0,Nbins);
