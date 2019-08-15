@@ -4307,7 +4307,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     // morphing
     for(const TRExFit::TemplateWeight& itemp : fTemplateWeightVec){
         std::string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
-        WriteDebugStatus("TRExFit::ToRooStat", "Morhing: normName: " + normName);
+        WriteDebugStatus("TRExFit::ToRooStat", "Morphing: normName: " + normName);
         meas.AddPreprocessFunction(normName, itemp.function, itemp.range);
     }
     for(auto nf : fNormFactors){
@@ -7545,7 +7545,7 @@ void TRExFit::DefineVariable(int regIter){
         fullPaths     = FullNtuplePaths(fRegions[regIter],fSamples[i_smp]);
         //
         for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-            WriteDebugStatus("TRExFit::DefineVariable", " -> Retriving : " + fRegions[regIter]->fCorrVar1 +
+            WriteDebugStatus("TRExFit::DefineVariable", " -> Retrieving : " + fRegions[regIter]->fCorrVar1 +
                                                         " w/ weight " + fullMCweight + "*" + fullSelection  +
                                                         " from " +  fullPaths[i_path]);
             TH1* htmp1 = new TH1D("htmp1","htmp1",1,-2000.,1000.);
