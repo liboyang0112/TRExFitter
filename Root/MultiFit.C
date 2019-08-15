@@ -548,7 +548,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
 //__________________________________________________________________________________
 //
 void MultiFit::GetCombinedLimit(string inputData) const{
-    WriteInfoStatus("MultiFit::GetCombinedLimit", "Runing runAsymptoticsCLs macro...");
+    WriteInfoStatus("MultiFit::GetCombinedLimit", "Running runAsymptoticsCLs macro...");
 
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
     int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
@@ -558,7 +558,7 @@ void MultiFit::GetCombinedLimit(string inputData) const{
 //__________________________________________________________________________________
 //
 void MultiFit::GetCombinedSignificance(string inputData) const{
-    WriteInfoStatus("MultiFit::GetCombinedSignificance", "Runing runSig macro...");
+    WriteInfoStatus("MultiFit::GetCombinedSignificance", "Running runSig macro...");
 
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
 

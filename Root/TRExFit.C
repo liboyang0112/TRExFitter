@@ -5688,7 +5688,7 @@ void TRExFit::GetLimit(){
             //
             // Calls the PerformFit() function to actually do the fit
             //
-            WriteInfoStatus("TRExFit::GetLimit","Performing a fit in reagions with real data only...");
+            WriteInfoStatus("TRExFit::GetLimit","Performing a fit in regions with real data only...");
             npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
             WriteInfoStatus("TRExFit::GetLimit","Now will use the fit results to create the Asimov in the regions without real data!");
         }
@@ -5801,7 +5801,7 @@ void TRExFit::GetSignificance(){
             //
             // Calls the PerformFit() function to actually do the fit
             //
-            WriteInfoStatus("TRExFit::GetSignificance","Performing a fit in reagions with real data only...");
+            WriteInfoStatus("TRExFit::GetSignificance","Performing a fit in regions with real data only...");
             npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
             WriteInfoStatus("TRExFit::GetSignificance","Now will use the fit results to create the Asimov in the regions without real data!");
         }
