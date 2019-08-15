@@ -1601,7 +1601,7 @@ int ConfigReader::ReadFitOptions(){
         fFitter->fToysHistoMax = std::stof( param.c_str());
 
         if (fFitter->fToysHistoMin > fFitter->fToysHistoMax){
-            WriteErrorStatus("ConfigReader::ReadFitOptions", "Minimum for toys is larger than maximuim for toys");
+            WriteErrorStatus("ConfigReader::ReadFitOptions", "Minimum for toys is larger than maximum for toys");
             return 1;
         }
     }
@@ -3197,7 +3197,7 @@ int ConfigReader::ReadNormFactorOptions(){
 
         // save list of
         if (regions.size() == 0 || exclude.size() == 0){
-                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or excude region size is equal to zero. Please check this");
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or exclude region size is equal to zero. Please check this");
                 return 1;
         }
         if(regions[0] != "all") nfactor->fRegions = regions;
@@ -3319,7 +3319,7 @@ int ConfigReader::ReadShapeFactorOptions(){
         if(param!="") sfactor->fNominal = atof(param.c_str());
 
         if (regions.size() == 0 || exclude.size() == 0){
-            WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "Region or excude region size is equal to zero. Please check this");
+            WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "Region or exclude region size is equal to zero. Please check this");
             return 1;
         }
         // save list of
@@ -4071,7 +4071,7 @@ int ConfigReader::ReadSystOptions(){
         }
 
         if (regions.size() == 0 || exclude.size() == 0){
-            WriteErrorStatus("ConfigReader::ReadSystOptions", "Region or excude region size is equal to zero. Please check this");
+            WriteErrorStatus("ConfigReader::ReadSystOptions", "Region or exclude region size is equal to zero. Please check this");
             return 1;
         }
 
@@ -4081,7 +4081,7 @@ int ConfigReader::ReadSystOptions(){
             std::vector<std::string> tmp = Vectorize(param,',');
             sys->fDummyForSamples = tmp;
         }
-                
+
         // Set SubtractRefSampleVar
         // New: for systematics which also vary Data (e.g. JER with Full NPs)
         // This will subtract linearly the relative variation on Data from each relative variation on MC
@@ -4615,7 +4615,7 @@ std::string ConfigReader::CheckName( std::string name ){
     name = RemoveQuotes(name);
     if( std::isdigit( name.at(0) ) ){
         WriteErrorStatus("ConfigReader::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
-        WriteErrorStatus("ConfigReader::CheckName", "           This can lead to unexpected behaviours in HistFactory. Please change the name. ");
+        WriteErrorStatus("ConfigReader::CheckName", "           This can lead to unexpected behaviour in HistFactory. Please change the name. ");
         exit(EXIT_FAILURE);
     } else {
         return RemoveQuotes(name);

@@ -6181,7 +6181,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     }
 
     if (!mc || !simPdf || !data){
-        WriteErrorStatus("TRExFit::ProduceNPRanking","At least one of the objects that is neede to run ranking is not present");
+        WriteErrorStatus("TRExFit::ProduceNPRanking","At least one of the objects that is needed to run ranking is not present");
         exit(EXIT_FAILURE);
     }
 
@@ -6893,7 +6893,7 @@ void TRExFit::ComputeBinning(int regIter){
                 TRExFitter::SetDebugLevel(0);
                 TH1D* htmp = (TH1D*)HistFromFile( fullPaths[i_path] );
                 if (!htmp) {
-                    WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is mpty cannot continue running the code");
+                    WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is empty cannot continue running the code");
                     exit(EXIT_FAILURE);
                 }
                 TRExFitter::SetDebugLevel(tmp_debugLevel);
@@ -7351,7 +7351,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         }
     }
     if (count != 2) {
-        WriteErrorStatus("TRExFit::Get2DLikelihoodScan","Didnt find the two parameters you want to use in the 2D likelihood scan");
+        WriteErrorStatus("TRExFit::Get2DLikelihoodScan","Did not find the two parameters you want to use in the 2D likelihood scan");
         return;
     }
     WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Setting up the NLL");

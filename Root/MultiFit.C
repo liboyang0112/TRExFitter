@@ -2486,7 +2486,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
         }
     }
     if (count != 2) {
-        WriteErrorStatus("MultiFit::Get2DLikelihoodScan","Didnt find the two parameters you want to use in the 2D likelihood scan");
+        WriteErrorStatus("MultiFit::Get2DLikelihoodScan","Did not find the two parameters you want to use in the 2D likelihood scan");
         return;
     }
     WriteInfoStatus("MultiFit::Get2DLikelihoodScan", "Setting up the NLL");
