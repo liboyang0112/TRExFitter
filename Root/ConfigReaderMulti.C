@@ -237,7 +237,7 @@ int ConfigReaderMulti::ReadJobOptions(){
         } else if (param == "FALSE") {
             fMultiFitter->fuseGammasForCorr = false;
         } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified UseGammasForCorr option but didnt provide valid parameter. Using default (false)");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified UseGammasForCorr option but did not provide valid parameter. Using default (false)");
             fMultiFitter->fuseGammasForCorr = false;
         }
     }
@@ -481,7 +481,7 @@ int ConfigReaderMulti::ReadJobOptions(){
             if (v.size() == 2){
                 fMultiFitter->fVarName2DLH.emplace_back(v);
             } else {
-                WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'do2DLHscan' option but didnt provide correct input. Ignoring");
+                WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'do2DLHscan' option but did not provide correct input. Ignoring");
             }
         }
     }
@@ -490,7 +490,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanMin");
     if ( param != "" ) {
         if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMin' option but didnt set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMin' option but did not set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMin = std::stof(param);
         }
@@ -500,7 +500,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanMax");
     if ( param != "" ) {
         if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMax' option but didnt set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMax' option but did not set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMax = std::stof(param);
         }
@@ -509,7 +509,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanMinY");
     if ( param != "" ) {
         if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMinY' option but didnt set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMinY' option but did not set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMinY = std::stof(param);
         }
@@ -519,7 +519,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanMaxY");
     if ( param != "" ) {
         if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMaxY' option but didnt set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMaxY' option but did not set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMaxY = std::stof(param);
         }
@@ -529,7 +529,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanStepsY");
     if ( param != "" ) {
         if (fMultiFitter->fVarName2DLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanStepsY' option but didnt set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanStepsY' option but did not set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanStepsY = std::stoi(param);
             if(fMultiFitter->fLHscanStepsY < 3 || fMultiFitter->fLHscanStepsY > 100){
@@ -550,7 +550,7 @@ int ConfigReaderMulti::ReadJobOptions(){
         } else if (param == "FALSE") {
             fMultiFitter->fParal2D = false;
         } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'Parallel2Dscan' option but didnt provide valid parameter. Using default (false)");
+            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'Parallel2Dscan' option but did not provide valid parameter. Using default (false)");
             fMultiFitter->fParal2D = false;
         }
     }
@@ -580,7 +580,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanSteps");
     if ( param != "" ) {
         if (fMultiFitter->fVarNameLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanSteps' option but didnt set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanSteps' option but did not set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanSteps = std::stoi(param);
             if(fMultiFitter->fLHscanSteps < 3 || fMultiFitter->fLHscanSteps > 100){
@@ -626,7 +626,7 @@ int ConfigReaderMulti::ReadLimitOptions(){
         } else if ( param == "FALSE" ){
             fMultiFitter->fLimitIsBlind = false;
         } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "You specified 'LimitBlind' option but didnt provide valid parameter. Using default (false)");
+            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "You specified 'LimitBlind' option but did not provide valid parameter. Using default (false)");
             fMultiFitter->fLimitIsBlind = false;
         }
     }
@@ -646,7 +646,7 @@ int ConfigReaderMulti::ReadLimitOptions(){
         } else if ( param == "FALSE" ){
             fMultiFitter->fSignalInjection = false;
         } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "You specified 'SignalInjection' option but didnt provide valid parameter. Using default (false)");
+            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "You specified 'SignalInjection' option but did not provide valid parameter. Using default (false)");
             fMultiFitter->fSignalInjection = false;
         }
     }
@@ -705,7 +705,7 @@ int ConfigReaderMulti::ReadSignificanceOptions(){
         } else if ( param == "FALSE" ){
             fMultiFitter->fSignificanceIsBlind = false;
         } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadSignificanceOptions", "You specified 'SignificanceBlind' option but didnt provide valid parameter. Using default (false)");
+            WriteWarningStatus("ConfigReaderMulti::ReadSignificanceOptions", "You specified 'SignificanceBlind' option but did not provide valid parameter. Using default (false)");
             fMultiFitter->fSignificanceIsBlind = false;
         }
     }
@@ -825,7 +825,7 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
 std::string ConfigReaderMulti::CheckName( const std::string &name ){
     if( std::isdigit( name.at(0) ) ){
         WriteErrorStatus("ConfigReaderMulti::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
-        WriteErrorStatus("ConfigReaderMulti::CheckName", "           This can lead to unexpected behaviours in HistFactory. Please change the name. ");
+        WriteErrorStatus("ConfigReaderMulti::CheckName", "           This can lead to unexpected behaviour in HistFactory. Please change the name. ");
         WriteErrorStatus("ConfigReaderMulti::CheckName", "           The code is about to crash.");
         std::abort();
     } else {

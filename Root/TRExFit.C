@@ -294,7 +294,7 @@ TRExFit::TRExFit(std::string name){
 
     fuseGammasForCorr = false;
     fPropagateSystsForMorphing = false;
-    fPrunningType = SEPARATESAMPLE;
+    fPruningType = SEPARATESAMPLE;
 
     fLabelX = -1;
     fLabelY = -1;
@@ -2262,7 +2262,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             for(auto sh : reg->fSampleHists){
                 if(sh->fHist==nullptr) continue;
                 if(sh->fSample->fType==Sample::GHOST){
-                    WriteWarningStatus("TRExFit::CorrectHistograms","Rquested to scale to data a GHOST sample, " + sh->fSample->fName + ". Skipping this sample.");
+                    WriteWarningStatus("TRExFit::CorrectHistograms","Requested to scale to data a GHOST sample, " + sh->fSample->fName + ". Skipping this sample.");
                     continue;
                 }
                 if(FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
@@ -4307,7 +4307,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     // morphing
     for(const TRExFit::TemplateWeight& itemp : fTemplateWeightVec){
         std::string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
-        WriteDebugStatus("TRExFit::ToRooStat", "Morhing: normName: " + normName);
+        WriteDebugStatus("TRExFit::ToRooStat", "Morphing: normName: " + normName);
         meas.AddPreprocessFunction(normName, itemp.function, itemp.range);
     }
     for(auto nf : fNormFactors){
@@ -4340,7 +4340,7 @@ void TRExFit::SystPruning() const{
     }
 
     PruningUtil *pu = new PruningUtil();
-    pu->SetStrategy((int)fPrunningType);
+    pu->SetStrategy((int)fPruningType);
     pu->SetThresholdNorm(fThresholdSystPruning_Normalisation);
     pu->SetThresholdShape(fThresholdSystPruning_Shape);
     pu->SetThresholdIsLarge(fThresholdSystLarge);
@@ -5052,7 +5052,7 @@ void TRExFit::Fit(bool isLHscanOnly){
             exit(EXIT_FAILURE);
         }
         if (fVarNameLH[0]=="all"){
-            WriteWarningStatus("TRExFit::Fit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
+            WriteWarningStatus("TRExFit::Fit","You are running LHscan only option but running it for all parameters. Will not parallelize!.");
             for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
                 GetLikelihoodScan( ws, it->first, data);
             }
@@ -5148,7 +5148,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     RooRealVar * poi = (RooRealVar*) mc->GetParametersOfInterest()->first();
     if (!poi){
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
-        WriteErrorStatus("TRExFit::DumpData", "Cannot find POI in workspace, exitting...");
+        WriteErrorStatus("TRExFit::DumpData", "Cannot find POI in workspace, exiting...");
         exit(EXIT_FAILURE);
     }
     poi -> setVal(poiValue);
@@ -5184,7 +5184,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
             std::string temp_string = channelCat->getLabel();
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteWarningStatus("TRExFit::DumpData", "The following region is not specified in the inputs to the function (" + temp_string + "): use Asimov");
-            WriteWarningStatus("TRExFit::DumpData", "   This SHOULD NOT HAPPEN ! Please check if everying is fine !");
+            WriteWarningStatus("TRExFit::DumpData", "   This SHOULD NOT HAPPEN ! Please check if everything is fine !");
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         }
         else {
@@ -5688,7 +5688,7 @@ void TRExFit::GetLimit(){
             //
             // Calls the PerformFit() function to actually do the fit
             //
-            WriteInfoStatus("TRExFit::GetLimit","Performing a fit in reagions with real data only...");
+            WriteInfoStatus("TRExFit::GetLimit","Performing a fit in regions with real data only...");
             npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
             WriteInfoStatus("TRExFit::GetLimit","Now will use the fit results to create the Asimov in the regions without real data!");
         }
@@ -5801,7 +5801,7 @@ void TRExFit::GetSignificance(){
             //
             // Calls the PerformFit() function to actually do the fit
             //
-            WriteInfoStatus("TRExFit::GetSignificance","Performing a fit in reagions with real data only...");
+            WriteInfoStatus("TRExFit::GetSignificance","Performing a fit in regions with real data only...");
             npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
             WriteInfoStatus("TRExFit::GetSignificance","Now will use the fit results to create the Asimov in the regions without real data!");
         }
@@ -6181,7 +6181,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     }
 
     if (!mc || !simPdf || !data){
-        WriteErrorStatus("TRExFit::ProduceNPRanking","At least one of the objects that is neede to run ranking is not present");
+        WriteErrorStatus("TRExFit::ProduceNPRanking","At least one of the objects that is needed to run ranking is not present");
         exit(EXIT_FAILURE);
     }
 
@@ -6893,7 +6893,7 @@ void TRExFit::ComputeBinning(int regIter){
                 TRExFitter::SetDebugLevel(0);
                 TH1D* htmp = (TH1D*)HistFromFile( fullPaths[i_path] );
                 if (!htmp) {
-                    WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is mpty cannot continue running the code");
+                    WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is empty cannot continue running the code");
                     exit(EXIT_FAILURE);
                 }
                 TRExFitter::SetDebugLevel(tmp_debugLevel);
@@ -7351,7 +7351,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         }
     }
     if (count != 2) {
-        WriteErrorStatus("TRExFit::Get2DLikelihoodScan","Didnt find the two parameters you want to use in the 2D likelihood scan");
+        WriteErrorStatus("TRExFit::Get2DLikelihoodScan","Did not find the two parameters you want to use in the 2D likelihood scan");
         return;
     }
     WriteInfoStatus("TRExFit::Get2DLikelihoodScan", "Setting up the NLL");
@@ -7545,7 +7545,7 @@ void TRExFit::DefineVariable(int regIter){
         fullPaths     = FullNtuplePaths(fRegions[regIter],fSamples[i_smp]);
         //
         for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
-            WriteDebugStatus("TRExFit::DefineVariable", " -> Retriving : " + fRegions[regIter]->fCorrVar1 +
+            WriteDebugStatus("TRExFit::DefineVariable", " -> Retrieving : " + fRegions[regIter]->fCorrVar1 +
                                                         " w/ weight " + fullMCweight + "*" + fullSelection  +
                                                         " from " +  fullPaths[i_path]);
             TH1* htmp1 = new TH1D("htmp1","htmp1",1,-2000.,1000.);
@@ -8310,7 +8310,7 @@ std::vector<std::string> TRExFit::FullNtuplePaths(Region *reg,Sample *smp,System
         nameSuffs = CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs );
     }
     //
-    // And finally put everying together
+    // And finally put everything together
     fullPaths = CreatePathsList( paths,pathSuffs, files,fileSuffs, names,nameSuffs );
     return fullPaths;
 }
@@ -8422,7 +8422,7 @@ std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Sys
       nameSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs), fHistoNamesNominal );
     }
     //
-    // And finally put everying together
+    // And finally put everything together
     fullPaths = CreatePathsList( paths,pathSuffs, files,fileSuffs, names,nameSuffs );
     return fullPaths;
 }

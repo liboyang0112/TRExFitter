@@ -1108,7 +1108,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         fSyst[i_syst]->fHistDown = (TH1*)h_syst_down->Clone(fSyst[i_syst]->fHistUp->GetName());
 
         //
-        // Perform a check of the output histograms (check for 0 bins and other pathologic behaviours)
+        // Perform a check of the output histograms (check for 0 bins and other pathologic behaviour)
         //
         HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst] /*systematic*/, fSample -> fType != Sample::SIGNAL, TRExFitter::HISTOCHECKCRASH /*cause crash if problem*/);
 
@@ -1119,7 +1119,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
             fSyst[i_syst]->fNormUp   = fSyst[i_syst]->fHistUp  ->Integral()/h_nominal->Integral() - 1.;
             fSyst[i_syst]->fNormDown = fSyst[i_syst]->fHistDown->Integral()/h_nominal->Integral() - 1.;
         } else {
-            WriteErrorStatus("SampleHist::SmoothSyst", "A nominal histogram with 0 intergral has been found. Please check ! ");
+            WriteErrorStatus("SampleHist::SmoothSyst", "A nominal histogram with 0 integral has been found. Please check ! ");
             WriteErrorStatus("SampleHist::SmoothSyst", "            -> Sample: " + fName);
         }
 
