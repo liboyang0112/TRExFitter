@@ -4059,7 +4059,7 @@ int ConfigReader::ReadSystOptions(){
         param = confSet->Get("DropNorm");
         if(param!=""){
             std::vector<std::string> tmp = Vectorize(param,',');
-            if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableRegions)){
+            if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableRegions, fAvailableSamples)){
                 if (fAllowWrongRegionSample){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
                 } else {
@@ -4074,7 +4074,7 @@ int ConfigReader::ReadSystOptions(){
         param = confSet->Get("KeepNormForSamples");
         if(param!="") {
             std::vector<std::string> tmp = Vectorize(param,',');
-            if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableSamples)){
+            if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableRegions, fAvailableSamples)){
                 if (fAllowWrongRegionSample){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in KeepNormForSamples that do not exist");
                 } else {
