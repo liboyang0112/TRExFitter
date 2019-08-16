@@ -473,11 +473,12 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
         TString vname=var->GetName();
         vname.ReplaceAll("alpha_","");
 
-        double pull  = var->getVal() / 1.0 ; // GetValue() return value in unit of sigma
-        double errorHi = var->getErrorHi() / 1.0;
-        double errorLo = var->getErrorLo() / 1.0;
+        double pull  = var->getVal(); // GetValue() return value in unit of sigma
+        double errorHi = var->getErrorHi();
+        double errorLo = var->getErrorLo();
 
         if (blinded.size() == 0){
+            FittingTool::CheckUnderconstraint(var);
             nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "\n";
         } else {
             std::string vname_s = vname.Data();
@@ -530,7 +531,7 @@ std::map < std::string, double > FittingTool::ExportFitResultInMap(){
     while( (var = (RooRealVar*) param->Next()) ){
         // Not consider nuisance parameter being not associated to syst
         string varname = (string) var->GetName();
-        double pull  = var->getVal() / 1.0 ;
+        double pull  = var->getVal();
         result.insert( std::pair < std::string, double >(varname, pull) );
     }
     if(param) delete param;
@@ -746,5 +747,21 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
         WriteErrorStatus("FittingTool::FitExcludingGroup", "uncertainty has increased for " + category + "! please check the fit");
         WriteErrorStatus("FittingTool::FitExcludingGroup", "old: " + std::to_string(oldPOIerr) + " (+" + std::to_string(oldPOIerrU) + ", " + std::to_string(oldPOIerrD) + ")");
         WriteErrorStatus("FittingTool::FitExcludingGroup", "new: " + std::to_string(newPOIerr) + " (+" + std::to_string(newPOIerrU) + ", " + std::to_string(newPOIerrD) + ")");
+    }
+}
+
+//____________________________________________________________________________________
+//
+// Check for underconstraints
+void FittingTool::CheckUnderconstraint(const RooRealVar* const var) const {
+    const std::string name = var->GetName();
+    const double errorHi = var->getErrorHi();
+    const double errorLo = var->getErrorLo();
+
+    // dont check gamma parameters
+    if (name.find("gamma_") != std::string::npos) return;
+
+    if (errorHi > 1.001 || errorLo < -1.001){
+        WriteWarningStatus("FittingTool::CheckUnderconstraint","NuisanceParameter: " + name + " is underconstrained! This may indicate fit convergence problems!");
     }
 }

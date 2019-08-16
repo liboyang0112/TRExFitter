@@ -85,6 +85,8 @@ public:
     void FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
                            RooStats::ModelConfig* mc, RooWorkspace* ws, const std::string& category, const std::vector<std::string>& affectedParams) const;
 
+    void CheckUnderconstraint(const RooRealVar* const var) const;
+
 private:
     TString m_minimType;
     int m_minuitStatus;
