@@ -594,14 +594,14 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         else if(fRegionType==SIGNAL) p->AddLabel("#font[62]{Signal Region}");
         else if(fRegionType==VALIDATION) p->AddLabel("#font[62]{Validation Region}");
         else p->AddLabel(fFitLabel);
-        p->AddLabel(fLabel);
+        if (fLabel != "none") p->AddLabel(fLabel);
         p->AddLabel("#font[52]{Pre-fit}");
     }
     //
     // old-style plots
     else{
         p->AddLabel(fFitLabel);
-        p->AddLabel(fLabel);
+        if (fLabel != "none") p->AddLabel(fLabel);
         if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Pre-Fit");
     }
     //
@@ -1382,14 +1382,14 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         else if(fRegionType==SIGNAL) p->AddLabel("#font[62]{Signal Region}");
         else if(fRegionType==VALIDATION) p->AddLabel("#font[62]{Validation Region}");
         else p->AddLabel(fFitLabel);
-        p->AddLabel(fLabel);
+        if (fLabel != "none") p->AddLabel(fLabel);
         p->AddLabel("#font[52]{Post-fit}");
     }
     //
     // old-style plots
     else{
         p->AddLabel(fFitLabel);
-        p->AddLabel(fLabel);
+        if (fLabel != "none") p->AddLabel(fLabel);
         if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Post-Fit");
     }
     p->SetLumi(fLumiLabel);
