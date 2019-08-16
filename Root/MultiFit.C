@@ -13,7 +13,7 @@
 #include "TRExFitter/Sample.h"
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
-#include "TRExFitter/MultiFit.h"
+#include "TRExFitter/TRExFit.h"
 
 // CommonStatTools include
 #include "CommonStatTools/runSig.h"
@@ -168,10 +168,9 @@ MultiFit::~MultiFit(){
 void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string& opt, const std::string& options,
                                 const std::string& label, std::string loadSuf, std::string wsFile){
 
-    // check if the config is not already processed
+    // check if the config is not already processed (but it might be intended, if comparing different fits from same config)
     if (std::find(fConfigPaths.begin(), fConfigPaths.end(), configFile) != fConfigPaths.end()){
-        WriteErrorStatus("MultiFit::AddFitFromConfig", "Config " + configFile + " is added twice. This wont work.");
-        exit(EXIT_FAILURE);
+        WriteWarningStatus("MultiFit::AddFitFromConfig", "Config " + configFile + " is added twice. Make sure you know what you are doing."); // changed from error to warning, since in some cases one might want to include the same job twice (e.g. comparing fit results with different suffix)
     }
 
     fConfigPaths.emplace_back(configFile);
@@ -500,7 +499,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
             exit(EXIT_FAILURE);
         }
         if (fVarNameLH[0]=="all"){
-            WriteWarningStatus("MultiFit::MultiFit","You are running LHscan only option but running it for all parameters. Will not paralelize!.");
+            WriteWarningStatus("MultiFit::MultiFit","You are running LHscan only option but running it for all parameters. Will not parallelize!.");
             for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
                 GetLikelihoodScan( ws, it->first, data, true);
             }
@@ -549,7 +548,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
 //__________________________________________________________________________________
 //
 void MultiFit::GetCombinedLimit(string inputData) const{
-    WriteInfoStatus("MultiFit::GetCombinedLimit", "Runing runAsymptoticsCLs macro...");
+    WriteInfoStatus("MultiFit::GetCombinedLimit", "Running runAsymptoticsCLs macro...");
 
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
     int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
@@ -559,7 +558,7 @@ void MultiFit::GetCombinedLimit(string inputData) const{
 //__________________________________________________________________________________
 //
 void MultiFit::GetCombinedSignificance(string inputData) const{
-    WriteInfoStatus("MultiFit::GetCombinedSignificance", "Runing runSig macro...");
+    WriteInfoStatus("MultiFit::GetCombinedSignificance", "Running runSig macro...");
 
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
 
@@ -2487,7 +2486,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
         }
     }
     if (count != 2) {
-        WriteErrorStatus("MultiFit::Get2DLikelihoodScan","Didnt find the two parameters you want to use in the 2D likelihood scan");
+        WriteErrorStatus("MultiFit::Get2DLikelihoodScan","Did not find the two parameters you want to use in the 2D likelihood scan");
         return;
     }
     WriteInfoStatus("MultiFit::Get2DLikelihoodScan", "Setting up the NLL");
@@ -3085,7 +3084,7 @@ TH1D* MultiFit::Combine(vector<TH1D*> h) const{
     int Nbins = 0;
     int Nhist = h.size();
     for(int i_hist=0;i_hist<Nhist;i_hist++){
-        if(h[i_hist]==nullptr) WriteWarningStatus("MultiFit::Combine", "empty histgram " + std::to_string(i_hist));
+        if(h[i_hist]==nullptr) WriteWarningStatus("MultiFit::Combine", "empty histogram " + std::to_string(i_hist));
         else Nbins += h[i_hist]->GetNbinsX();
     }
     TH1D* h_new = new TH1D(Form("%s_comb",h[0]->GetName()),Form("%s_comb",h[0]->GetTitle()),Nbins,0,Nbins);

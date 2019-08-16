@@ -336,7 +336,7 @@ void ConfigParser::ReadFile(const std::string& fileName){
         WriteInfoStatus("ConfigParser::ReadFile", "Opening replacement file: " + replacementFileName + " to fill the map");
         std::ifstream fileR(replacementFileName.c_str());
         if(!fileR.is_open()){
-            WriteErrorStatus("ConfigParser::ReadFile", "The replacement file: " + replacementFileName + " cannot be opend!");
+            WriteErrorStatus("ConfigParser::ReadFile", "The replacement file: " + replacementFileName + " cannot be opened!");
             exit(-1);
         }
         while (getline(fileR, str)){

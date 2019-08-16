@@ -28,6 +28,8 @@ public:
     std::vector<std::string> fExclude;
     
     std::pair<std::string,std::string> fExpression;
+    
+    float fTau; // for Tikhonov regularization
 };
 
 #endif

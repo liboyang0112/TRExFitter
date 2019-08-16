@@ -49,13 +49,12 @@ m_noGammas(false),
 m_noSystematics(false),
 m_noNormFactors(false),
 m_noShapeFactors(false),
-// m_constNP(""),
-// m_constNPvalue(0.),
 m_RangePOI_up(100.),
 m_RangePOI_down(-10.),
 m_randomize(false),
 m_randomNP(0.1),
-m_randSeed(-999)
+m_randSeed(-999),
+m_externalConstraints(0)
 {
     m_constNP.clear();
     m_constNPvalue.clear();
@@ -82,6 +81,7 @@ FittingTool::FittingTool( const FittingTool &q ){
     m_noSystematics  = q.m_noSystematics;
     m_noNormFactors  = q.m_noNormFactors;
     m_noShapeFactors = q.m_noShapeFactors;
+    m_externalConstraints = q.m_externalConstraints;
 }
 
 //________________________________________________________________________
@@ -132,8 +132,10 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                                          RooFit::GlobalObservables(*glbObs),
                                          RooFit::Offset(1),
                                          RooFit::NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
-                                         RooFit::Optimize(kTRUE));
-    
+                                         RooFit::Optimize(kTRUE),
+                                         RooFit::ExternalConstraints(*m_externalConstraints)
+                                        );
+
     //
     // Needed for Ranking plot, but also to set random initial values for the NPs
     //
@@ -213,17 +215,17 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                 }
             }
             //
-	    // loop on the NP specified to be constant - This should be after setting to initial value 
+            // loop on the NP specified to be constant - This should be after setting to initial value 
             for( unsigned int i_np = 0; i_np<m_constNP.size(); i_np++ ){
-	      if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np]
-		  || np == ("gamma_"+m_constNP[i_np])
-		  ){
-		WriteInfoStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(m_constNPvalue[i_np]));
-		var->setVal(m_constNPvalue[i_np]);
-		var->setConstant(1);
-		found = true;
-		break;
-	      }
+                if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np]
+                    || np == ("gamma_"+m_constNP[i_np])
+                ){
+                    WriteInfoStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(m_constNPvalue[i_np]));
+                    var->setVal(m_constNPvalue[i_np]);
+                    var->setConstant(1);
+                    found = true;
+                    break;
+                }
             }
             if(!found){
                 if( np.find("alpha_")!=string::npos ){   // for syst NP
@@ -708,7 +710,9 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
                                         RooFit::GlobalObservables(*glbObs),
                                         RooFit::Offset(1),
                                         NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
-                                        RooFit::Optimize(kTRUE));
+                                        RooFit::Optimize(kTRUE),
+                                        RooFit::ExternalConstraints(*m_externalConstraints)
+                                       );
     RooMinimizer minim2(*nll);
     minim2.setStrategy(1);
     minim2.setPrintLevel(1); // set to -1 to reduce output

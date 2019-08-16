@@ -123,7 +123,7 @@ For instance, if you use the default file `util/trex-fitter.C`, the available ac
 | `b` | re-run smoothing (in the future also rebinning) |
 | `m` | multi-fit (see [Multi-Fit](#multi-fit)) |
 | `i` | grouped impact evaluation (see [Grouped Impact](#grouped-impact)) |
-| `x` | run likelihood scan only, will not produce the standard fit output like pulls/correlation matrix/etc (usefull with "LHscan" command line option for parallelization) |
+| `x` | run likelihood scan only, will not produce the standard fit output like pulls/correlation matrix/etc (useful with "LHscan" command line option for parallelization) |
 
 New optional argument: `<options>`.
 It is a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form:
@@ -171,7 +171,7 @@ For each object type (also called "block"), here is the list of available proper
 
 | **Option** | **Function** |
 | ---------- | ------------ |
-| Label                        | the label which will be shown on plots |
+| Label                        | the label which will be shown on plots, if 'none' is set, no label will be shown |
 | POI                          | the name of the parameter of interest; this should correspond to a NormFactor defined below |
 | ReadFrom                     | can be HIST or NTUP; default is HIST |
 | HistoPath(s)                 | valid only for option HIST above is selected; it's the path(s) where the input root files containing the histograms are stored |
@@ -196,6 +196,7 @@ For each object type (also called "block"), here is the list of available proper
 | Logo                         | is set to TRUE will print the TRExFitter logo |
 | PlotOptions                  | a set of options for plotting:<br>&nbsp; &nbsp; **YIELDS**: if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields<br>&nbsp; &nbsp; **NORMSIG**: add normlised signal to plots<br>&nbsp; &nbsp; **NOSIG**: don't show signal in stack<br>&nbsp; &nbsp; **OVERSIG**: overlay signal (not normalised)<br>&nbsp; &nbsp; **CHI2**: the chi2/ndf and chi2 prob will be printed on each plot, provided that the option GetChi2 is set<br>&nbsp; &nbsp; **PREFITONPOSTFIT**: draw a dashed line on the postfit plot that indicates the sum of prefit background<br>&nbsp; &nbsp; **NOXERR**: removes the horizontal error bars on the data and the ratio plots |
 | PlotOptionsSummary           | the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used) |
+| RatioYtitle                  | Label to be used on the Y-axis of the ratio plot, default is "Data/pred." |
 | TableOptions                 | a set of options for tables:<br>&nbsp; &nbsp; **STANDALONE**: default! If not set, no "\begin{document}"<br>&nbsp; &nbsp; **FOOTNOTESIZE**: -> \footnotesize <br>&nbsp; &nbsp; **LANDSCAPE**: -> \begin{landscape} |
 | SystControlPlots             | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) will be produced |
 | SystDataPlots                | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples will be produced. Data are then plotted in the ratio. If the option is set to "fillUpFrame", data will also be plotted in the upper frame. |
@@ -245,7 +246,7 @@ For each object type (also called "block"), here is the list of available proper
 | CustomFunctions              | list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values) |
 | SuppressNegativeBinWarnings  | If set to TRUE, will suppress warning messages about negative or 0 content in bins |
 | Bootstrap                    | (only works with NTUP inputs) if set, the bootstrap method wil be used; the argument should be a string like `bsWeight(BootstrapIdx,eventNumber,mcChannelNumber)`, where `bsWeight` should be loaded with `CustomFunctions: "bsWeight.C"` and eventNumber and mcChannelNumber should be existing branches for all the MC ntuples; then, to produce the i-th bootstrap pseudo-experiment, or to run on it (e.g. to perform a fit) the command-line option `BootstrapIdx=<i>` should be given, with `<i>=0,1,2,3...`. Alternatively there is default function `util/BootstrapDefault.C` which would be called as `BootstrapDefault(eventNumber+mcChannelNumber+BootstrapIdx)`. |
-| BootstrapSyst                | Specifies the systematics for which systematic should be the bootstrap done. | 
+| BootstrapSyst                | Specifies the systematics for which systematic should be the bootstrap done. |
 | DecorrSysts                  | comma-separated list of systematics which you want to decorrelate from another channel (this is don by automatically attaching a suffix to the NormFactor for each of them); can use wildcards |
 | DecorrSuff                   | the suffix to attach when using DecorrSysts |
 | RegionGroups                 | groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE |
@@ -256,11 +257,11 @@ For each object type (also called "block"), here is the list of available proper
 | SummaryPlotLabels            | DEPRECATED - labels to be used per region group in summary plot (only if FourTopStyle is set) |
 | SummaryPlotValidationRegions | regions to be included in validation region summary plot (default: all) |
 | SummaryPlotValidationLabels  | DEPRECATED - labels to be used per set of regions in validation-region summary plot (only if FourTopStyle is set) |
-| SmoothMorphingTemplates      | if set to TRUE (default is FALSE), the templates used for morphig are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory) |
+| SmoothMorphingTemplates      | if set to TRUE (default is FALSE), the templates used for morphing are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory) |
 | PropagateSystsForMorphing    | if set to TRUE (default is FALSE), the non-nominal templates inherit all the systematics from the nominal template; NB: the nominal template is determined by the nominal value of the norm factor in the config |
 | SummaryPrefix                | adds a prefix to summary and merge plots |
 | AllowWrongRegionSample       | Can be TRUE or FALSE (default). When set to TRUE code will print only warnings when chosen samples or regions for various options are not defined. When set to FALSE the code will print errors and stop when the samples/regions are not defined. |
-| POIPrecision                 | Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm facotr mean value and uncertainty. Default is 2 |
+| POIPrecision                 | Integer value N, N >=1 and N <=5. Will tell the code to use N decimal places for norm factor mean value and uncertainty. Default is 2 |
 | RankingPOIName               | Custom name for the POI for ranking plots. Default is `#mu` |
 | UseGammasForCorr             | If set to `TRUE` will add gammas into correlation matrix plot. Default is `FALSE` |
 | UseATLASRounding             | If set to `TRUE` will use PGD/ATLAS rounding to yield tables (both .txt and .tex) |
@@ -271,7 +272,7 @@ For each object type (also called "block"), here is the list of available proper
 | MergeCanvasSize              | Set width and height for canvas for merged plots  |
 | PieChartCanvasSize           | Set width and height for canvas for pie chart plots  |
 | NPRankingCanvasSize          | Set width and height for canvas for NP ranking plot  |
-| PrunningType                 | Can be set to `BACKGROUNDREFERENCE` or `COMBINEDREFERENCE` (default is `SEPARATESAMPLE`), and pruning (both shape and norm) will be done w.r.t. to total/total-background. |
+| PruningType                 | Can be set to `BACKGROUNDREFERENCE` or `COMBINEDREFERENCE` (default is `SEPARATESAMPLE`), and pruning (both shape and norm) will be done w.r.t. to total/total-background. |
 | LabelX                       | Custom X position for ATLAS label and others on Data/MC plots. |
 | LabelY                       | Custom Y position for ATLAS label and others on Data/MC plots. |
 | LegendX1                     | Custom Legend X1 position for ATLAS label and others on Data/MC plots. |
@@ -287,12 +288,12 @@ For each object type (also called "block"), here is the list of available proper
 | LegendX1Merge                | Same as LegendX1 but for Merged plot. |
 | LegendX2Merge                | Same as LegendX2 but for Merged plot. |
 | LegendYMerge                 | Same as LegendY but for Merged plot. |
-| LegendNColumns               | Number of colums in Legend for Data/MC plots. |
+| LegendNColumns               | Number of columns in Legend for Data/MC plots. |
 | LegendNColumnsSummary        | Same as LegendNColumns but for Summary plot. |
 | LegendNColumnsMerge          | Same as LegendNColumns but for Merged plot. |
 | ExcludeFromMorphing          | The specified sample is left our from the morphing (useful to do closure tests for morphing). |
 | ScaleSamplesToData           | The specified samples will be scaled to data (when doing the d step). |
-| MaxNtupleEvents              | valid only for option NTUP; if set to N, only first N entries per ntuple readed (usefull for debugging) |
+| MaxNtupleEvents              | valid only for option NTUP; if set to N, only first N entries per ntuple read (useful for debugging) |
 
 
 ### `Fit` block options:
@@ -306,7 +307,7 @@ For each object type (also called "block"), here is the list of available proper
 | NPValues                     | values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5) |
 | FixNPs                       | values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5), currently only implemented for the `f` step |
 | doLHscan                     | comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled |
-| do2DLHscan                   | produces 2D likelihood scan between the chosen paremters. Synax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
+| do2DLHscan                   | produces 2D likelihood scan between the chosen parameters. Syntax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
 | LHscanMin                    | minimum value for the LH scan on x-axis (default is Norm min). This also effect the x-axis in a 2D scan |
 | LHscanMax                    | maximum value for the LH scan on x-axis (default is Norm max). This also effect the x-axis in a 2D scan |
 | LHscanSteps                  | number of steps on the LH scan (default is 30) . This also effect the x-axis in a 2D scan ||
@@ -320,16 +321,16 @@ For each object type (also called "block"), here is the list of available proper
 | StatOnlyFit                  | if specified, the fit will keep fixed all the NP to the latest fit result, and the fit results will be saved with the `_statOnly` suffix (also possible to use it from command line) |
 | GetGoodnessOfFit             | set to TRUE to get it (based on chi2 probability from comparison of negative-log-likelihoods) |
 | SaturatedModel               | set it to TRUE to be able to get the goodness-of-fit test using the saturated model; if set to TRUE when running `w`, the resulting workspace will contain the saturated-model norm-factors; if set to TRUE when running `f` and `GetGoodnessOfFit` is set to TRUE as well, the goodness of fit is evaluated using the saturated model |
-| DoNonProfileFit              | if set to TRUE (default is FALSE), instead of the fit profilig the sysyetmatics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time |
+| DoNonProfileFit              | if set to TRUE (default is FALSE), instead of the fit profiling the systematics, a set of stat-only fits will be performed, on an Asimov data-set created with one syst variation at a time |
 | FitToys                      | if set to N > 0, N stat-ony toys are generated and fitted |
 | ToysHistoMin                 | If FitToys is used, set minimum on the output toys histogram X axis |
 | ToysHistoMax                 | If FitToys is used, set maximum on the output toys histogram X axis |
 | ToysHistoNbins               | If FitToys is used, set number of bins for toys histogram output |
-| fToysPseudodataNP            | Name of the NP to be varied as pseudodata. Need to contain "alpha_NP" for NP called "NP". |
-| fToysPseudodataNPShift       | Value of the NP to be used for pseudodata creation with "fToysPseudodataNP". Default value is 1 (represents pre-fit shift). |
-| TemplateInterpolationOption  | Option only for morping, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt{x^2+\epsilon}`$ to achieve smooth transitions (first derivative) between the templates |
-| BlindedParameters            | A comma separated list of POI/NPs that will be written as a hexadecial number so it is not easy to read to not accidentally unblind. When at least one paramter is set the console output of the minimization is removed.
-| DoNonProfileFitSystThreshold | When peforming a NonProfileFit, systematics are not added to total if smaller than this threshold |
+| ToysPseudodataNP             | Name of the NP to be varied as pseudodata. Need to contain "alpha_NP" for NP called "NP". |
+| ToysPseudodataNPShift        | Value of the NP to be used for pseudodata creation with "fToysPseudodataNP". Default value is 1 (represents pre-fit shift). |
+| TemplateInterpolationOption  | Option only for morphing, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt{x^2+\epsilon}`$ to achieve smooth transitions (first derivative) between the templates |
+| BlindedParameters            | A comma separated list of POI/NPs that will be written as a hexadecimal number so it is not easy to read to not accidentally unblind. When at least one parameter is set the console output of the minimization is removed.
+| DoNonProfileFitSystThreshold | When performing a NonProfileFit, systematics are not added to total if smaller than this threshold |
 
 
 ### `Limit` block options:
@@ -378,11 +379,11 @@ For each object type (also called "block"), here is the list of available proper
 | Selection                    | only for option NTUP, the selection done on the ntuple for this region |
 | NtupleName(s)                | only for option NTUP, the name (or names, comma-separated) of the tree for this region |
 | NtupleFile(s)                | only for option NTUP, the file (or files, comma-separated) of the tree for this region |
-| NtuplePathSuff(s)            | only for option NTUP, the path sufix (or suffixes, comma-separated) where to find the ntuple files for this region |
+| NtuplePathSuff(s)            | only for option NTUP, the path suffix (or suffixes, comma-separated) where to find the ntuple files for this region |
 | MCweight                     | only for option NTUP, the additional weight used in this region (for MC samples only) |
 | Rebin                        | if specified, the histograms will be rebinned merging N bins together, where N is the argument (int) |
 | Binning                      | if specified, the histograms will be binned according to the new binning specified, in the form like (0,10,20,50,100). If option AutoBin is set, use algorithms/functions or define the binning. Example - Binning: "AutoBin","TransfoD",5.,6. (TransfoF also available, 5. and 6. are parameters of the transformation). If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning. |
-| Rebinning                    | if specified, the histograms will be rebinned according to the new binning specified, in the form like (0,10,20,50,100). Differently from the BInning option, this one performs the rebinning aftre the orginal histograms are created. This means that this option can changed (or removed) before running the b step. |
+| Rebinning                    | if specified, the histograms will be rebinned according to the new binning specified, in the form like (0,10,20,50,100). Differently from the BInning option, this one performs the rebinning aftre the original histograms are created. This means that this option can changed (or removed) before running the b step. |
 | BinWidth                     | if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number |
 | BinLabels                    | if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins) |
 | Type                         | can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL |
@@ -464,7 +465,8 @@ For each object type (also called "block"), here is the list of available proper
 | Constant                     | set to TRUE to have a fixed norm factor |
 | Category                     | major category to which the NormFactor belongs (instrumental, theory, ttbar, ...) |
 | SubCategory                  | minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
-| Expression                   | a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two argments, in the form `<expression>:<dependencies>`, where `<dependencies>` should contain the names of the norm factors the expression depends on, their nominal values and existence ranges [example: `(1.+Pmag*cos(theta))/2.:Pmag[0.9,0,1],theta[0,0,3.14]`] |
+| Expression                   | a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two arguments, in the form `<expression>:<dependencies>`, where `<dependencies>` should contain the names of the norm factors the expression depends on, their nominal values and existence ranges [example: `(1.+Pmag*cos(theta))/2.:Pmag[0.9,0,1],theta[0,0,3.14]`] |
+| Tau                          | if set, it will add a constraint term for this norm factor (needed for unfolding regularization); the value is the value of the Tikhonov "tau" parameter: the largest the value, the stronger the regularization (smaller pre-fit uncertainty) |
 
 ### `ShapeFactor` block options:
 
@@ -484,7 +486,7 @@ For each object type (also called "block"), here is the list of available proper
 | ExcludeRegionSample          | comma-separated list of region:sample to exclude |
 | Type                         | can be HISTO, OVERALL, SHAPE (this refers to the HistFactory Shape Systematic, i.e. uncorrelated bin-by-bin) or STAT (this refers to auto-creation of one systematic from stat uncertainty for each bin of corresponding region - DEPRECATED) |
 | Title                        | title of the systematic (will be shown in plots) |
-| StoredName                   | if specified, will be used to read and write histograms in the root files under Histograms/ intead of the syst name; useful to decorrelate without re-creating histograms |
+| StoredName                   | if specified, will be used to read and write histograms in the root files under Histograms/ instead of the syst name; useful to decorrelate without re-creating histograms |
 | NuisanceParameter            | if specified, this will be given to RooStats instead of the syst name; useful (and recommended) way to correlate systematics |
 | IsFreeParameter              | if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution) |
 | Category                     | major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category |
@@ -520,14 +522,14 @@ For each object type (also called "block"), here is the list of available proper
 | WeightSufUp                  | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic up variation (also multiplied with the `MCweight` acting on the nominal sample) |
 | WeightSufDown                | only for option NTUP, for HISTO or SHAPE systematic: additional weight for systematic down variation (also multiplied with the `MCweight` acting on the nominal sample) |
 | IgnoreWeight                 | only for option NTUP: if set, the corresponding weight (present in Job, Sample or Region) will be ignored for this systematic |
-| Symmetrisation               | can be ONESIDED, TWOSIDED, ABSMEAN and MAXIMUM (...); for no symmetrisation, skip the line; ONESIDED = only one variation provided (e.g. up variation), down variation will be added as mirrored version, TWOSIDED = (up-down)/2 variation is calcualted bin-by-bin, this is used as up variation and then mirrored to down variation, ABSMEAN = ((abs(up)+abs(down))/2) can be used when both variations have the same sign, USE WITH CAUTION, MAXIMUM = take variations with larger abs value w.r.t nominal and take this in each bin, can be used when both variations have the same sign, USE WITH CAUTION |
+| Symmetrisation               | can be ONESIDED, TWOSIDED, ABSMEAN and MAXIMUM (...); for no symmetrisation, skip the line; ONESIDED = only one variation provided (e.g. up variation), down variation will be added as mirrored version, TWOSIDED = (up-down)/2 variation is calculated bin-by-bin, this is used as up variation and then mirrored to down variation, ABSMEAN = ((abs(up)+abs(down))/2) can be used when both variations have the same sign, USE WITH CAUTION, MAXIMUM = take variations with larger abs value w.r.t nominal and take this in each bin, can be used when both variations have the same sign, USE WITH CAUTION |
 | Smoothing                    | smoothing code to apply; use 40 for default smoothing; for no smoothing, skip the line |
 | OverallUp                    | for OVERALL systematic: the relative "up" shift (0.1 means +10%) |
 | OverallDown                  | for OVERALL systematic: the relative "down" shift (-0.1 means -10%) |
 | ScaleUp                      | for OVERALL, HISTO or SHAPE systematic: scale difference between "up" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9`) |
 | ScaleDown                    | for OVERALL, HISTO or SHAPE systematic: scale difference between "down" and nominal by a factor, or different factors for different regions (with the syntax `region1:1.2,region2:0.9`) |
 | ReferenceSample              | if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated |
-| ReferenceSmoothing           | if this is specified, the syst variation is smoothed wrt a specified sample (Must appear in `Samples` for this syst) and then the smoothed variations are copied bin by bi to all other samples specified. Usefull when `Morphing` is used |
+| ReferenceSmoothing           | if this is specified, the syst variation is smoothed wrt a specified sample (Must appear in `Samples` for this syst) and then the smoothed variations are copied bin by bi to all other samples specified. Useful when `Morphing` is used |
 | ReferencePruning             | if this is specified, the syst variation is pruned wrt a specified sample (Must appear in `Samples` for this syst) and then the same pruning is applied to all specified samples |
 | DropShapeIn                  | specify regions where you want the smoothing / pruning to be forced to drop the shape and keep only norm |
 | DropNorm                     | the same as the previous one, but to drop the norm and keep only the shape |
@@ -568,28 +570,30 @@ Currently the supported options are:
 
 | **Option** | **Effect** |
 | ---------- | ---------- |
-| **Regions**         | to limit the regions to use to the list specified |
-| **Samples**         | to limit the samples to use to the list specified |
-| **Systematics**     | to limit the systematics to use to the list specified |
-| **Signal(s)**       | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance); GHOST samples can be promoted to SIGNAL samples in this way, and multiple samples can be specified using `Samples:smp1,smp2` |
-| **Exclude**         | to exclude certain Regions / Samples / Systematics |
-| **Suffix**          | used for: plots, workspace, fit results, etc |
-| **SaveSuffix**      | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |
-| **Update**          | if TRUE, the output .root file is updated, otherwise is overwrote |
-| **StatOnlyFit**     | if TRUE, the same as Fit->StatOnlyFit |
-| **StatOnly**        | if TRUE, no systematics nor MC stat uncertainties will be considered (equivalent to set StatOnly: TRUE in the Job block of the config), use `Systematics=NONE` instead to keep MC stat uncertainties |
-| **Ranking**         | see [Ranking Plot](#ranking-plot) section |
-| **FitResults**      | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
-| **FitType**         | can be set to SPLUSB or BONLY to replace the option in the config file |
-| **LumiScale**       | as the options in config file |
-| **BootstrapIdx**    | see description of Bootstrap option in config (under Job) |
-| **BootstrapSYst**   | see description of BootstrapSyst option in config (under Job) |
-| **GroupedImpact**   | see [Grouped Impact](#grouped-impact) section |
-| **OutputDir**       | see [Job options](#job-block-options) section |
-| **LimitParamValue** | see [Limit options](#limit-block-options) section (ParamValue) |
-| **LHscan**          | set a NP/POI for the likelihood scan can be used for parallelization of the code |
-| **Parallel2Dscan**  | run only slice of LH2D scan in x-direction can be used for parllelization of the code |
-| **Parallel2Dscan**  | define which step of the parallelized 2D scan should be performed (has to be an integer between 0 and LHscanSteps-1) |
+| **Regions**           | to limit the regions to use to the list specified |
+| **Samples**           | to limit the samples to use to the list specified |
+| **Systematics**       | to limit the systematics to use to the list specified |
+| **Signal(s)**         | in case more than one SIGNAL sample is specified in your config file, you can specify which one you want to run on (for plots, workspace creation and fits/limits/significance); GHOST samples can be promoted to SIGNAL samples in this way, and multiple samples can be specified using `Samples:smp1,smp2` |
+| **Exclude**           | to exclude certain Regions / Samples / Systematics |
+| **Suffix**            | used for: plots, workspace, fit results, etc |
+| **SaveSuffix**        | used for: saving histograms with a suffix (to be merged / renamed later, see [Input File Merging with hupdate](#input-file-merging-with-hupdate) section |
+| **Update**            | if TRUE, the output .root file is updated, otherwise is overwrote |
+| **StatOnlyFit**       | if TRUE, the same as Fit->StatOnlyFit |
+| **StatOnly**          | if TRUE, no systematics nor MC stat uncertainties will be considered (equivalent to set StatOnly: TRUE in the Job block of the config), use `Systematics=NONE` instead to keep MC stat uncertainties |
+| **Ranking**           | see [Ranking Plot](#ranking-plot) section |
+| **FitResults**        | the specified fit results file will be used, for instance for post-fit plots (instead of the file `jobName/Fits/jobName.txt`) |
+| **FitType**           | can be set to SPLUSB or BONLY to replace the option in the config file |
+| **LumiScale**         | as the options in config file |
+| **BootstrapIdx**      | see description of Bootstrap option in config (under Job) |
+| **BootstrapSYst**     | see description of BootstrapSyst option in config (under Job) |
+| **GroupedImpact**     | see [Grouped Impact](#grouped-impact) section |
+| **OutputDir**         | see [Job options](#job-block-options) section |
+| **LimitParamValue**   | see [Limit options](#limit-block-options) section (ParamValue) |
+| **LHscan**            | set a NP/POI for the likelihood scan can be used for parallelization of the code |
+| **Parallel2Dscan**    | run only slice of LH2D scan in x-direction can be used for parallelization of the code |
+| **Parallel2Dscan**    | define which step of the parallelized 2D scan should be performed (has to be an integer between 0 and LHscanSteps-1) |
+| **FitBlind**          | see[Fit options](#fit-block-options) section |
+| **BlindedParameters** | see[Fit options](#fit-block-options) section |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
@@ -689,11 +693,11 @@ This will create a combined ws starting from the individual ws for the different
 | ---------- | ------------ |
 | Label            | the label which will be shown on plots |
 | OutputDir        | the name of the output directory |
-| LumiLabel        | the luminosity label that will be shown on the pltos |
+| LumiLabel        | the luminosity label that will be shown on the plots |
 | CmeLabel         | the center of mass energy label that will be shown on the plots |
 | SaveSuf          | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
 | ShowObserved     | can be TRUE or FALSE, flag to turn on/off the observed values on the plots |
-| LimitTitle       | the title for limit that will be shwon on the plots |
+| LimitTitle       | the title for limit that will be shown on the plots |
 | POITitle         | the title of the POI that will be shown on X axis  |
 | CompareLimits    | can be TRUE or FALSE, flag to compare to Limit values |
 | ComparePOI       | can be TRUE or FALSE, flag to compare to POI values |
@@ -701,7 +705,7 @@ This will create a combined ws starting from the individual ws for the different
 | PlotCombCorrMatrix | can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics |
 | CorrelationThreshold | Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%) |
 | UseGammasForCorr | If set to `TRUE` will add gammas into correlation matrix plot. Default is `FALSE` |
-| Combine          | can be TRUE or FALSE, set to TRUE if you want to perfom actual combination (followed by `mwf`) |
+| Combine          | can be TRUE or FALSE, set to TRUE if you want to perform actual combination (followed by `mwf`) |
 | Compare          | can be TRUE or FALSE, set to TRUE if you want to compare values |
 | StatOnly         | can be TRUE or FALSE, set to TRUE if the fits are stat only fits |
 | IncludeStatOnly  | can be TRUE or FALSE, set to TRUE if you want to include stat only fits |
@@ -728,8 +732,8 @@ This will create a combined ws starting from the individual ws for the different
 | BonlySuffix      | a suffix of the background only fits |
 | ShowSystForPOI   | can be TRUE or FALSE, set to TRUE if you want to show systematics for POI |
 | GetGoodnessOfFit | can be TRUE or FALSE, set to TRUE to get chi2/NDF for the fit |
-| doLHscan         | comma separeted list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP |
-| do2DLHscan       | produces 2D likelihood scan between the chosen paremters. Synax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
+| doLHscan         | comma separated list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP |
+| do2DLHscan       | produces 2D likelihood scan between the chosen parameters. Syntax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
 | LHscanMin        | minimum value for the LH scan on x-axis (default is Norm min). This also effect the x-axis in a 2D scan |
 | LHscanMax        | maximum value for the LH scan on x-axis (default is Norm max). This also effect the x-axis in a 2D scan |
 | LHscanSteps      | number of steps on the LH scan (default is 30) . This also effect the x-axis in a 2D scan ||
@@ -740,7 +744,7 @@ This will create a combined ws starting from the individual ws for the different
 | Logo             | can be TRUE or FALSE, use TRUE to show TRExFitter logo |
 | DebugLevel       | set level of debug output |
 | RunROOTMacros    | can be TRUE or FALSE, set to TRUE to run the common scripts in root interpreter in stead of running the directly compiled version (FALSE, default) |
-| POILabel         | name of the POI shwon on plots, default is `#\mu` |
+| POILabel         | name of the POI shown on plots, default is `#\mu` |
 | POINominal       | value of the nominal (SM) prediction for POI, default is `1` |
 | ShowTotalOnly    | If set to TRUE will show only total uncertainty on the POI plots. Default is FALSE |
 | POIInitial       | Sets the initial value of the POI for the fit. Default is 1. |
@@ -753,7 +757,7 @@ This will create a combined ws starting from the individual ws for the different
 | Label            | the label of the values from this config that will be shown on the plots |
 | LoadSuf          |
 | ConfigFile       | the path to the config file that you want to combine/compare |
-| Workspace        | the path to the worskapce that you want to combine/compare |
+| Workspace        | the path to the workspace that you want to combine/compare |
 | ShowObserved     | can be TRUE or FALSE, set to TRUE to show the observed values of POI |
 | FitResultsFile   | the path to the file with fit results |
 | LimitsFile       | the path to the file with limits results |

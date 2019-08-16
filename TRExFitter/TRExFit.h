@@ -7,6 +7,7 @@
 // RooFit
 #include "RooSimultaneous.h"
 #include "RooStats/ModelConfig.h"
+#include "RooMultiVarGaussian.h"
 
 /// c++ includes
 #include <map>
@@ -59,7 +60,7 @@ public:
         SQUAREROOT = 2
     };
 
-    enum PrunningType{
+    enum PruningType{
         SEPARATESAMPLE = 0,
         BACKGROUNDREFERENCE = 1,
         COMBINEDREFERENCE = 2
@@ -545,7 +546,7 @@ public:
     bool fUseATLASRoundingTex;
     bool fuseGammasForCorr;
     bool fPropagateSystsForMorphing;
-    PrunningType fPrunningType;
+    PruningType fPruningType;
 
     std::vector<int> fPrePostFitCanvasSize;
     std::vector<int> fSummaryCanvasSize;

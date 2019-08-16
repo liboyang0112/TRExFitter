@@ -594,14 +594,14 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         else if(fRegionType==SIGNAL) p->AddLabel("#font[62]{Signal Region}");
         else if(fRegionType==VALIDATION) p->AddLabel("#font[62]{Validation Region}");
         else p->AddLabel(fFitLabel);
-        p->AddLabel(fLabel);
+        if (fLabel != "none") p->AddLabel(fLabel);
         p->AddLabel("#font[52]{Pre-fit}");
     }
     //
     // old-style plots
     else{
         p->AddLabel(fFitLabel);
-        p->AddLabel(fLabel);
+        if (fLabel != "none") p->AddLabel(fLabel);
         if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Pre-Fit");
     }
     //
@@ -968,7 +968,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
                 if(fSampleHists[i_sample]->fSample->fSeparateGammas)
                     gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i_sample]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
-                if(!systIsThere[gammaName]){
+                if(!systIsThere[gammaName] && (fitRes->GetNuisParValue(gammaName)>0)){
                     fSystNames.push_back(gammaName);
                     systIsThere[gammaName] = true;
                 }
@@ -1382,14 +1382,14 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         else if(fRegionType==SIGNAL) p->AddLabel("#font[62]{Signal Region}");
         else if(fRegionType==VALIDATION) p->AddLabel("#font[62]{Validation Region}");
         else p->AddLabel(fFitLabel);
-        p->AddLabel(fLabel);
+        if (fLabel != "none") p->AddLabel(fLabel);
         p->AddLabel("#font[52]{Post-fit}");
     }
     //
     // old-style plots
     else{
         p->AddLabel(fFitLabel);
-        p->AddLabel(fLabel);
+        if (fLabel != "none") p->AddLabel(fLabel);
         if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Post-Fit");
     }
     p->SetLumi(fLumiLabel);

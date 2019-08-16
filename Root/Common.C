@@ -492,7 +492,7 @@ double convertStoD(std::string toConvert){
         }
     }
     catch(const std::exception& err){
-        WriteErrorStatus("Common::BlindDataHisto", "Convert string -> double, exception catched: " + toConvert +    " " + err.what());
+        WriteErrorStatus("Common::BlindDataHisto", "Convert string -> double, exception caught: " + toConvert +    " " + err.what());
         exit(EXIT_FAILURE);
     }
     return converted;
