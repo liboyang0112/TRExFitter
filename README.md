@@ -123,7 +123,7 @@ For instance, if you use the default file `util/trex-fitter.C`, the available ac
 | `b` | re-run smoothing (in the future also rebinning) |
 | `m` | multi-fit (see [Multi-Fit](#multi-fit)) |
 | `i` | grouped impact evaluation (see [Grouped Impact](#grouped-impact)) |
-`x` | run likelihood scan only, will not produce the standard fit output like pulls/correlation matrix/etc (useful with "LHscan" command line option for parallelization) |
+| `x` | run likelihood scan only, will not produce the standard fit output like pulls/correlation matrix/etc (useful with "LHscan" command line option for parallelization) |
 
 New optional argument: `<options>`.
 It is a string (so make sure to use " or ' to enclose the string if you use more than one option) defining a list of options, in the form:
@@ -271,7 +271,7 @@ For each object type (also called "block"), here is the list of available proper
 | MergeCanvasSize              | Set width and height for canvas for merged plots  |
 | PieChartCanvasSize           | Set width and height for canvas for pie chart plots  |
 | NPRankingCanvasSize          | Set width and height for canvas for NP ranking plot  |
-| PrunningType                 | Can be set to `BACKGROUNDREFERENCE` or `COMBINEDREFERENCE` (default is `SEPARATESAMPLE`), and pruning (both shape and norm) will be done w.r.t. to total/total-background. |
+| PruningType                 | Can be set to `BACKGROUNDREFERENCE` or `COMBINEDREFERENCE` (default is `SEPARATESAMPLE`), and pruning (both shape and norm) will be done w.r.t. to total/total-background. |
 | LabelX                       | Custom X position for ATLAS label and others on Data/MC plots. |
 | LabelY                       | Custom Y position for ATLAS label and others on Data/MC plots. |
 | LegendX1                     | Custom Legend X1 position for ATLAS label and others on Data/MC plots. |
