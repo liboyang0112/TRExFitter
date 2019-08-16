@@ -1616,7 +1616,22 @@ int ConfigReader::ReadFitOptions(){
         }
     }
 
-    // Set FitToys
+    // Set ToysPseudodataNP
+    param = confSet->Get("ToysPseudodataNP");
+    if( param != "" ){
+        fFitter->fToysPseudodataNP = param.c_str();
+    }
+
+    // Set ToysPseudodataNPShift
+    param = confSet->Get("ToysPseudodataNPShift");
+    if( param != "" ){
+        fFitter->fToysPseudodataNPShift = std::atoi( param.c_str() );
+        if (fFitter->fToysPseudodataNPShift < - 3. || fFitter->fToysPseudodataNPShift > 3.) {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "ToysPseudodataNPShift smaller than -3 or larger than +3. This is probably wrong... Setting to default (+1).");
+        }
+    }
+
+    // Set TemplateInterpolationOption
     param = confSet->Get("TemplateInterpolationOption");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);

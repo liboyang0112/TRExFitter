@@ -326,6 +326,8 @@ For each object type (also called "block"), here is the list of available proper
 | ToysHistoMin                 | If FitToys is used, set minimum on the output toys histogram X axis |
 | ToysHistoMax                 | If FitToys is used, set maximum on the output toys histogram X axis |
 | ToysHistoNbins               | If FitToys is used, set number of bins for toys histogram output |
+| ToysPseudodataNP             | Name of the NP to be varied as pseudodata. Need to contain "alpha_NP" for NP called "NP". |
+| ToysPseudodataNPShift        | Value of the NP to be used for pseudodata creation with "fToysPseudodataNP". Default value is 1 (represents pre-fit shift). |
 | TemplateInterpolationOption  | Option only for morphing, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt{x^2+\epsilon}`$ to achieve smooth transitions (first derivative) between the templates |
 | BlindedParameters            | A comma separated list of POI/NPs that will be written as a hexadecimal number so it is not easy to read to not accidentally unblind. When at least one parameter is set the console output of the minimization is removed.
 | DoNonProfileFitSystThreshold | When performing a NonProfileFit, systematics are not added to total if smaller than this threshold |
