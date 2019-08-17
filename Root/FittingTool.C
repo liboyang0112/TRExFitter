@@ -483,6 +483,7 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
         } else {
             std::string vname_s = vname.Data();
             if (std::find(blinded.begin(), blinded.end(), vname_s) == blinded.end()){
+                FittingTool::CheckUnderconstraint(var);
                 nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "\n";
             } else {
                 const std::string& hex = FloatToPseudoHex(pull);
@@ -759,7 +760,7 @@ void FittingTool::CheckUnderconstraint(const RooRealVar* const var) const {
     const double errorLo = var->getErrorLo();
 
     // dont check gamma parameters
-    if (name.find("gamma_") != std::string::npos) return;
+    if (name.find("alpha_") == std::string::npos) return;
 
     if (errorHi > 1.001 || errorLo < -1.001){
         WriteWarningStatus("FittingTool::CheckUnderconstraint","NuisanceParameter: " + name + " is underconstrained! This may indicate fit convergence problems!");
