@@ -173,7 +173,7 @@ Region::~Region(){
 //__________________________________________________________________________________
 //
 SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileName){
-    fSampleHists.push_back(new SampleHist( sample, histoName, fileName ));
+    fSampleHists.emplace_back(new SampleHist( sample, histoName, fileName ));
     if(sample->fType==Sample::DATA){
         fHasData = true;
         fData = fSampleHists[fNSamples];
@@ -205,7 +205,7 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
 //__________________________________________________________________________________
 //
 SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
-    fSampleHists.push_back(new SampleHist( sample, hist ));
+    fSampleHists.emplace_back(new SampleHist( sample, hist ));
     if(sample->fType==Sample::DATA){
         fHasData = true;
         fData = fSampleHists[fNSamples];

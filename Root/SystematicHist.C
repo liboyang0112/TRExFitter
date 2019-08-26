@@ -105,14 +105,14 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
 //_____________________________________________________________________________
 //
 void SystematicHist::ReadFromFile(){
-    fHistUp      = HistFromFile(fFileNameUp,fHistoNameUp);
-    fHistUp_orig = HistFromFile(fFileNameUp,fHistoNameUp+"_orig");
+    fHistUp      = HistFromFile(fFileNameUp,fHistoNameUp).release();
+    fHistUp_orig = HistFromFile(fFileNameUp,fHistoNameUp+"_orig").release();
     if(fHistUp_orig==nullptr) fHistUp_orig = fHistUp;
-    fHistShapeUp = HistFromFile(fFileNameShapeUp,fHistoNameShapeUp);
-    fHistDown      = HistFromFile(fFileNameDown,fHistoNameDown);
-    fHistDown_orig = HistFromFile(fFileNameDown,fHistoNameDown+"_orig");
+    fHistShapeUp = HistFromFile(fFileNameShapeUp,fHistoNameShapeUp).release();
+    fHistDown      = HistFromFile(fFileNameDown,fHistoNameDown).release();
+    fHistDown_orig = HistFromFile(fFileNameDown,fHistoNameDown+"_orig").release();
     if(fHistDown_orig==nullptr) fHistDown_orig = fHistDown;
-    fHistShapeDown = HistFromFile(fFileNameShapeDown,fHistoNameShapeDown);
+    fHistShapeDown = HistFromFile(fFileNameShapeDown,fHistoNameShapeDown).release();
 }
 
 //_____________________________________________________________________________

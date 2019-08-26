@@ -155,7 +155,7 @@ TFile* GetFile(const std::string& fileName){
 
 //__________________________________________________________________________________
 //
-TH1* HistFromFile(const std::string& fullName){
+std::unique_ptr<TH1> HistFromFile(const std::string& fullName){
     std::string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
     std::string histoName = fullName.substr(fullName.find_last_of(".")+6,std::string::npos);
     return HistFromFile(fileName,histoName);
@@ -163,27 +163,26 @@ TH1* HistFromFile(const std::string& fullName){
 
 //__________________________________________________________________________________
 //
-TH1* HistFromFile(const std::string& fileName, const std::string& histoName){
+std::unique_ptr<TH1> HistFromFile(const std::string& fileName, const std::string& histoName){
     if(fileName=="") return nullptr;
     if(histoName=="") return nullptr;
     bool hasCustomAsimov = false;
     if (fileName.find("customAsimov") != std::string::npos) hasCustomAsimov = true;
     WriteVerboseStatus("Common::HistFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
-    TH1 *h = nullptr;
+    std::unique_ptr<TH1> h = nullptr;
     TFile *f = GetFile(fileName);
     if(!f){
             WriteErrorStatus("Common::HistFromFile", "cannot find input file '" + fileName + "'");
-            return h;
+            return nullptr;
     }
-    h = static_cast<TH1*>(f->Get(histoName.c_str()));
+    h = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get(histoName.c_str())));
     if(!h){
             if (!hasCustomAsimov) WriteErrorStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "'");
             else WriteDebugStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "', but its customAsimov histogram so this should not be a problem");
-            return h;
+            return nullptr;
     }
-    h = static_cast<TH1*>(h->Clone());
     if(h!=nullptr) h->SetDirectory(0);
-    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
+    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h.get());
     return h;
 }
 

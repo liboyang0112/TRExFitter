@@ -93,7 +93,7 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
     fName = fSample->fName;
     fIsMorph = fSample->fIsMorph;
 
-    fHist = HistFromFile(fileName,histoName);
+    fHist = HistFromFile(fileName,histoName).release();
 
     if (fHist == nullptr) {
         WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
@@ -103,7 +103,7 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
 
-    fHist_orig = HistFromFile(fileName,histoName+"_orig");
+    fHist_orig = HistFromFile(fileName,histoName+"_orig").release();
     if(fHist_orig==nullptr){
         fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
     }
@@ -249,8 +249,8 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name, const std::str
                                          const std:: string& fileName_down, int pruned/*1: norm only, 2: shape only*/){
 
     // before doing anything else, check if the sampleHist can be created
-    TH1* hUp   = HistFromFile(fileName_up,  histoName_up);
-    TH1* hDown = HistFromFile(fileName_down,histoName_down);
+    TH1* hUp   = HistFromFile(fileName_up,  histoName_up).release();
+    TH1* hDown = HistFromFile(fileName_down,histoName_down).release();
     if(hUp  ==nullptr) return nullptr;
     if(hDown==nullptr) return nullptr;
 
@@ -271,10 +271,10 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name, const std::str
     sh->fFileNameDown = fileName_down;
     sh->fHistoNameUp   = histoName_up;
     sh->fHistoNameDown = histoName_down;
-    sh->fHistUp   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp);
-    sh->fHistDown = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown);
-    sh->fHistUp_orig   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp  +"_orig");
-    sh->fHistDown_orig = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig");
+    sh->fHistUp   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp).release();
+    sh->fHistDown = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown).release();
+    sh->fHistUp_orig   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp  +"_orig").release();
+    sh->fHistDown_orig = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig").release();
     if(sh->fHistUp   == nullptr) return nullptr;
     if(sh->fHistDown == nullptr) return nullptr;
     if(sh->fHistUp_orig  ==nullptr) sh->fHistUp_orig   = (TH1D*)sh->fHistUp->Clone(  Form("%s_orig",sh->fHistUp->GetName()  ));
@@ -513,8 +513,8 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
 //_____________________________________________________________________________
 //
 void SampleHist::ReadFromFile(){
-    fHist      = HistFromFile(fFileName,fHistoName);
-    fHist_orig = HistFromFile(fFileName,fHistoName+"_orig");
+    fHist      = HistFromFile(fFileName,fHistoName).release();
+    fHist_orig = HistFromFile(fFileName,fHistoName+"_orig").release();
 }
 
 //_____________________________________________________________________________

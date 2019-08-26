@@ -6893,7 +6893,7 @@ void TRExFit::ComputeBinning(int regIter){
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
                 TRExFitter::SetDebugLevel(0);
-                TH1D* htmp = (TH1D*)HistFromFile( fullPaths[i_path] );
+                std::unique_ptr<TH1> htmp = HistFromFile( fullPaths[i_path] );
                 if (!htmp) {
                     WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is empty cannot continue running the code");
                     exit(EXIT_FAILURE);
@@ -6903,11 +6903,10 @@ void TRExFit::ComputeBinning(int regIter){
                 // Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[regIter]->fHistoBins){
                     const char *hname = htmp->GetName();
-                    TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin, "tmp_copy", fRegions[regIter]->fHistoBins));
-                    delete htmp;
-                    htmp = tmp_copy;
+                    std::unique_ptr<TH1> tmp_copy(static_cast<TH1*>(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin, "tmp_copy", fRegions[regIter]->fHistoBins)));
+                    htmp.reset(tmp_copy.release());
                     htmp->SetName(hname);
-                    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
+                    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp.get());
                 }
                 else if(fRegions[regIter]->fHistoNBinsRebin != -1) {
                     htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin);
@@ -6924,7 +6923,7 @@ void TRExFit::ComputeBinning(int regIter){
                         hsig = (TH1D*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                         nDefSig=false;
                     }
-                    else hsig->Add(htmp);
+                    else hsig->Add(htmp.get());
                 }
                 else{
                 if(bkgReg && !flatBkg){
@@ -6941,14 +6940,14 @@ void TRExFit::ComputeBinning(int regIter){
                             hsig = (TH1D*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                             nDefSig=false;
                         }
-                        else hsig->Add(htmp);
+                        else hsig->Add(htmp.get());
                     }
                     else{
                         if(nDefBkg){
                             hbkg = (TH1D*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                             nDefBkg=false;
                         }
-                        else hbkg->Add(htmp);
+                        else hbkg->Add(htmp.get());
                     }
                 }
                     else{
@@ -6956,11 +6955,9 @@ void TRExFit::ComputeBinning(int regIter){
                             hbkg = (TH1D*)htmp->Clone(Form("h_%s_%s",fRegions[regIter]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                             nDefBkg=false;
                         }
-                        else hbkg->Add(htmp);
+                        else hbkg->Add(htmp.get());
                     }
                 }
-                //
-                delete htmp;
             }
         }
     }
@@ -8503,7 +8500,7 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
  int i_ch, int i_smp, bool isUp, bool isMC){
     TH1D* h = nullptr;
     for(unsigned int i_path = 0; i_path < fullPaths.size(); ++i_path){
-        TH1D* htmp = static_cast<TH1D*>(HistFromFile( fullPaths.at(i_path) ));
+        std::unique_ptr<TH1> htmp = HistFromFile( fullPaths.at(i_path) );
         if (!htmp) {
             WriteErrorStatus("TRExFit::ReadSingleHistogram", "Histo pointer is nullptr, cannot continue running the code");
             exit(EXIT_FAILURE);
@@ -8511,11 +8508,10 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
         //Pre-processing of histograms (rebinning, lumi scaling)
         if(fRegions[i_ch]->fHistoBins){
             const char *hname = htmp->GetName();
-            TH1D* tmp_copy = static_cast<TH1D*>(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", fRegions[i_ch]->fHistoBins));
-            delete htmp;
-            htmp = tmp_copy;
+            std::unique_ptr<TH1> tmp_copy(static_cast<TH1D*>(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", fRegions[i_ch]->fHistoBins)));
+            htmp.reset(tmp_copy.release());
             htmp->SetName(hname);
-            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp);
+            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp.get());
         }
         else if(fRegions[i_ch]->fHistoNBinsRebin != -1) {
             htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin);
@@ -8641,9 +8637,8 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
             }
         }
         else{
-            h->Add(htmp);
+            h->Add(htmp.get());
         }
-        delete htmp;
     }
 
     return h;
