@@ -357,7 +357,7 @@ void TRExFit::SetPOI(std::string name){
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetStatErrorConfig(bool useIt, float thres, std::string cons){
+void TRExFit::SetStatErrorConfig(bool useIt, double thres, std::string cons){
     fUseStatErr = useIt;
     fStatErrThres = thres;
     fStatErrCons = cons;
@@ -365,13 +365,13 @@ void TRExFit::SetStatErrorConfig(bool useIt, float thres, std::string cons){
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetLumiErr(float err){
+void TRExFit::SetLumiErr(double err){
     fLumiErr = err;
 }
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetLumi(const float lumi){
+void TRExFit::SetLumi(const double lumi){
     fLumi = lumi;
 }
 
@@ -745,7 +745,7 @@ void TRExFit::DrawSystPlotsSumSamples() const{
             if(reg->fSampleHists[i_smp]->fSample->fType==Sample::DATA) h_dataCopy=(TH1*)reg->fSampleHists[i_smp]->fHist->Clone();
             else if(reg->fSampleHists[i_smp]->fSample->fType==Sample::GHOST) continue;
             else {
-                float scale = GetNominalMorphScale(reg->fSampleHists[i_smp]);
+                double scale = GetNominalMorphScale(reg->fSampleHists[i_smp]);
                 if(empty){
                     hist->CloneSampleHist(reg->fSampleHists[i_smp],systNames, scale);
                     hist->fName = reg->fName + "_Combined";
@@ -981,50 +981,7 @@ void TRExFit::ReadNtuples(){
                         if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                         else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
-                        //
-                        // obtain relative variation and apply it to proper sample
-                        // & try to keep also the same total relative variation
-                        if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr){
-                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                            // Protection added: fix empty bins before starting to divide and multiply
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            //
-                            double relVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
-                            // get copies with no error
-                            auto hrefTmp = GetHistCopyNoError(href);
-                            auto hnomTmp = GetHistCopyNoError(hnom);
-                            htmp->Divide(   hrefTmp.get() );
-                            htmp->Multiply( hnomTmp.get() );
-                            double newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                            if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) htmp->Scale( relVar / newVar );
-                        }
-
-                        // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
-                        else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr) {
-                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                            TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
-                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                            // Protection added: fix empty bins before starting to divide and multiply
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-
-                            // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
-                            TH1* href_up_Tmp = (TH1*)href_up->Clone(Form("%s_Tmp", href_up->GetName()));
-                            // get copies with no error
-                            auto hrefTmp = GetHistCopyNoError(href);
-                            auto hnomTmp = GetHistCopyNoError(hnom);
-                            href_up_Tmp->Divide(hrefTmp.get());
-                            href_up_Tmp->Multiply(hnomTmp.get());
-                            htmp->Add(hnomTmp.get());
-                            auto href_up_TmpNoError = GetHistCopyNoError(href_up_Tmp);
-                            htmp->Add(href_up_TmpNoError.get(),-1);
-
-                            delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
-                        }
+                        
                         //
                         // Importing histogram in TRExFitter
                         if(i_path==0){
@@ -1032,8 +989,64 @@ void TRExFit::ReadNtuples(){
                         }
                         else hUp->Add(htmp);
                         delete htmp;
+                    } // end loop over files
+                    
+                    
+                    // BW
+                    // pulled this out of the file loop to apply it only to the fully constructed histogram insead of file by file
+                        
+                    // obtain relative variation and apply it to proper sample
+                    // & try to keep also the same total relative variation
+                    if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr){
+                        TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+                        TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                           
+                        // Protection added: fix empty bins before starting to divide and multiply 
+                            
+                        for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
+                        for(int i_bin=0;i_bin< hUp->GetNbinsX()+2;i_bin++) if(hUp ->GetBinContent(i_bin)<=1e-6) hUp ->SetBinContent(i_bin,1e-6);
+                        for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) hUp ->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
+                        //
+                        double relVar   = hUp->Integral(0,hUp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
+                            
+                        // get copies with no error
+                        auto hrefTmp = GetHistCopyNoError(href);
+                        auto hnomTmp = GetHistCopyNoError(hnom);
+                        hUp->Divide(   hrefTmp.get() );
+                        hUp->Multiply( hnomTmp.get() );
+                        double newVar   = hUp->Integral(0,hUp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
+                        if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) hUp->Scale( relVar / newVar );
                     }
-                }
+                    // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
+                    else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr) {
+                        TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+                        TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
+                        TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                        
+                        // Protection added: fix empty bins before starting to divide and multiply
+                        
+                        for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
+                        for(int i_bin=0;i_bin< hUp->GetNbinsX()+2;i_bin++) if( hUp->GetBinContent(i_bin)<=1e-6) hUp->SetBinContent(i_bin,1e-6);
+                        for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) hUp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
+
+                        // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
+                        TH1* href_up_Tmp = (TH1*)href_up->Clone(Form("%s_Tmp", href_up->GetName()));
+                        // get copies with no error
+                        auto hrefTmp = GetHistCopyNoError(href);
+                        auto hnomTmp = GetHistCopyNoError(hnom);
+                        href_up_Tmp->Divide(hrefTmp.get());
+                        href_up_Tmp->Multiply(hnomTmp.get());
+                        hUp->Add(hnomTmp.get());
+                        auto href_up_TmpNoError = GetHistCopyNoError(href_up_Tmp);
+                        hUp->Add(href_up_TmpNoError.get(),-1);
+
+                        delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
+                    }
+                  
+                    
+                //--------------------------------------    
+                    
+                }  // end Up variation
                 //
                 // Down
                 //
@@ -1061,42 +1074,7 @@ void TRExFit::ReadNtuples(){
                         if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                         else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
-                        //
-                        // obtain relative variation and apply it to proper sample
-                        // & try to keep also the same total relative variation
-                        if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr){
-                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                            // Protection added: fix empty bins before starting to divide and multiply
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
-                            //
-                            double relVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
-                            htmp->Divide(   href );
-                            htmp->Multiply( hnom );
-                            double newVar   = htmp->Integral(0,htmp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                            if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) htmp->Scale( relVar / newVar );
-                        }
-                        // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
-                        else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr) {
-                            TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
-                            TH1* href_down = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistDown;
-                            TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                            // Protection added: fix empty bins before starting to divide and multiply
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<htmp->GetNbinsX()+2;i_bin++) if(htmp->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6);
-                            for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) htmp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
 
-                            // Formula: UpHisto = [1+(down-nom)/nom-(DataDown-Data)/Data]*nom = down+nom+DataDown/Data*nom
-                            TH1* href_down_Tmp = (TH1*) href_down->Clone(Form("%s_Tmp", href_down->GetName()));
-                            href_down_Tmp->Divide(href);
-                            href_down_Tmp->Multiply(hnom);
-                            htmp->Add(hnom);
-                            htmp->Add(href_down_Tmp,-1);
-
-                            delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
-                        }
                         //
                         // Importing histogram in TRExFitter
                         if(i_path==0){
@@ -1104,8 +1082,52 @@ void TRExFit::ReadNtuples(){
                         }
                         else hDown->Add(htmp);
                         delete htmp;
+                    }  // end loop over files
+                    
+                    // BW
+                    // pulled this out of the file loop to apply it only to the fully constructed histogram insead of file by file
+                    //
+                    // obtain relative variation and apply it to proper sample
+                    // & try to keep also the same total relative variation
+                    if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr){
+                        TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+                        TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                        
+                        // Protection added: fix empty bins before starting to divide and multiply
+                        
+                        for(int i_bin=0;i_bin< href->GetNbinsX()+2;i_bin++) if(href ->GetBinContent(i_bin)<=1e-6) href ->SetBinContent(i_bin,1e-6);
+                        for(int i_bin=0;i_bin<hDown->GetNbinsX()+2;i_bin++) if(hDown->GetBinContent(i_bin)<=1e-6) hDown->SetBinContent(i_bin,1e-6);
+                        for(int i_bin=0;i_bin< href->GetNbinsX()+2;i_bin++) if(href ->GetBinContent(i_bin)<=1e-6) hDown->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
+                        //
+                        double relVar   = hDown->Integral(0,hDown->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
+                        hDown->Divide(   href );
+                        hDown->Multiply( hnom );
+                        double newVar   = hDown->Integral(0,hDown->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
+                        if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) hDown->Scale( relVar / newVar );
                     }
-                }
+                    // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
+                    else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr) {
+                        TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
+                        TH1* href_down = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistDown;
+                        TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
+                        
+                        // Protection added: fix empty bins before starting to divide and multiply
+                        
+                        for(int i_bin=0;i_bin<href ->GetNbinsX()+2;i_bin++) if(href ->GetBinContent(i_bin)<=1e-6) href ->SetBinContent(i_bin,1e-6);
+                        for(int i_bin=0;i_bin<hDown->GetNbinsX()+2;i_bin++) if(hDown->GetBinContent(i_bin)<=1e-6) hDown->SetBinContent(i_bin,1e-6);
+                        for(int i_bin=0;i_bin<href ->GetNbinsX()+2;i_bin++) if(href ->GetBinContent(i_bin)<=1e-6) hDown->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
+
+                        // Formula: UpHisto = [1+(down-nom)/nom-(DataDown-Data)/Data]*nom = down+nom+DataDown/Data*nom
+                        TH1* href_down_Tmp = (TH1*) href_down->Clone(Form("%s_Tmp", href_down->GetName()));
+                        href_down_Tmp->Divide(href);
+                        href_down_Tmp->Multiply(hnom);
+                        hDown->Add(hnom);
+                        hDown->Add(href_down_Tmp,-1);
+
+                        delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
+                    }
+                    
+                }  // end Down variation
                 //
                 if(hUp==nullptr)   hUp   = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 if(hDown==nullptr) hDown = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -1515,7 +1537,7 @@ void TRExFit::CorrectHistograms(){
         for(auto par : fMorphParams){
             for(auto reg : fRegions){
                 // find nominal morphing sample Hist
-                float nominalValue = 0.;
+                double nominalValue = 0.;
                 for(auto norm : fNormFactors){
                     if(norm->fName==par) nominalValue = norm->fNominal;
                 }
@@ -2006,7 +2028,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
     // Syst for morphing samples inherited from nominal sample
     if (fPropagateSystsForMorphing){
         for(auto par : fMorphParams){
-            float nominalValue = 0.;
+            double nominalValue = 0.;
             for(auto norm : fNormFactors){
                 if(norm->fName==par) nominalValue = norm->fNominal;
             }
@@ -2257,9 +2279,9 @@ void TRExFit::DrawAndSaveAll(std::string opt){
     if(!isPostFit && fScaleSamplesToData.size()>0){
         for(auto reg : fRegions){
             TH1* hTot = reg->GetTotHist(true);
-            float totPred = hTot->Integral();
-            float totData = reg->fData->fHist->Integral();
-            float totToScale = 0;
+            double totPred = hTot->Integral();
+            double totData = reg->fData->fHist->Integral();
+            double totToScale = 0;
             std::vector<SampleHist*> shToScale;
             for(auto sh : reg->fSampleHists){
                 if(sh->fHist==nullptr) continue;
@@ -2269,12 +2291,12 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 }
                 if(FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
                     shToScale.emplace_back(sh);
-                    float morph_scale = GetNominalMorphScale(sh);
+                    double morph_scale = GetNominalMorphScale(sh);
                     totToScale += morph_scale*sh->fHist->Integral();
                 }
             }
             if(totToScale<=0 || shToScale.size()==0) continue;
-            float scale = (totData-(totPred-totToScale))/totToScale;
+            double scale = (totData-(totPred-totToScale))/totToScale;
             for(auto sh : shToScale){
                 WriteInfoStatus("TRExFit::CorrectHistograms","Scaling sample " + sh->fSample->fName + " by " + std::to_string(scale) + " in region " + reg->fName);
                 sh->Scale(scale);
@@ -2387,7 +2409,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     int lineColor;
     int fillColor;
     int lineWidth;
-    float integral;
+    double integral;
     double intErr; // to store the integral error
     TH1* h; // to store varius histograms temporary
     //
@@ -2864,12 +2886,12 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             for(unsigned int ii=0;ii<=divisionVec.size();ii++){
                 if(fSummaryPlotLabels.size()<ii+1) break;
                 if(divisionVec.size()<ii) break;
-                float xmax = Nbin;
-                float xmin = 0;
+                double xmax = Nbin;
+                double xmin = 0.;
                 if(divisionVec.size()>ii) xmax = divisionVec[ii];
                 if(ii>0) xmin = divisionVec[ii-1];
-                float xpos = xmin + 0.5*(xmax - xmin);
-                float ypos = pow(((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(), 0.61 );
+                double xpos = xmin + 0.5*(xmax - xmin);
+                double ypos = pow(((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(), 0.61 );
                 tex.DrawLatex(xpos,ypos,fSummaryPlotLabels[ii].c_str());
             }
         }
@@ -2883,12 +2905,12 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             for(unsigned int ii=0;ii<=divisionVec.size();ii++){
                 if(fSummaryPlotValidationLabels.size()<ii+1) break;
                 if(divisionVec.size()<ii) break;
-                float xmax = Nbin;
-                float xmin = 0;
+                double xmax = Nbin;
+                double xmin = 0.;
                 if(divisionVec.size()>ii) xmax = divisionVec[ii];
                 if(ii>0) xmin = divisionVec[ii-1];
-                float xpos = xmin + 0.5*(xmax - xmin);
-                float ypos = pow(((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(), 0.61 );
+                double xpos = xmin + 0.5*(xmax - xmin);
+                double ypos = pow(((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(), 0.61 );
                 tex.DrawLatex(xpos,ypos,fSummaryPlotValidationLabels[ii].c_str());
             }
         }
@@ -2939,13 +2961,13 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     // build a vector of histograms
     int i_ch = 0;
     std::vector<TH1*> hTotVec;
-    std::vector<float> edges;
+    std::vector<double> edges;
     std::vector<TGaxis*> xaxis;
     std::vector<TGaxis*> yaxis;
     //
-    float ymax0 = -1; // ymax0 is the max y of the first region
-    float ymax  = -1;
-    float ymaxTmp = -1;
+    double ymax0 = -1.; // ymax0 is the max y of the first region
+    double ymax  = -1.;
+    double ymaxTmp = -1.;
     for(auto region : regions){
         TH1* h_tmp  = nullptr;
         if(isPostFit) h_tmp = (TH1*)region->fTot_postFit->Clone();
@@ -3030,7 +3052,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     //
     // scale them (but the first region)
     for(unsigned int i_channel=1;i_channel<regions.size();i_channel++){
-        float scale = ymax/hTotVec[i_channel]->GetMaximum();
+        double scale = ymax/hTotVec[i_channel]->GetMaximum();
         hTotVec[i_channel]->Scale( scale );
         for(int i_bin=1;i_bin<=hDataVec[i_channel]->GetNbinsX();i_bin++){
             hDataVec[i_channel]->SetBinError(i_bin,sqrt(hDataVec[i_channel]->GetBinContent(i_bin)));
@@ -3174,8 +3196,8 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     }
     //
     tex->SetNDC(1);
-    float textHeight = 0.05*(672./p->pad0->GetWh());
-    float labelY = 1-0.08*(700./p->c->GetWh());
+    double textHeight = 0.05*(672./p->pad0->GetWh());
+    double labelY = 1-0.08*(700./p->c->GetWh());
     if(p->fLabelY>=0) labelY = p->fLabelY;
     labelY -= textHeight - 0.015;
     tex->DrawLatex(0.33,labelY,fLabel.c_str());
@@ -3299,8 +3321,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                     h0 = sh->fHist_postFit;
                 else
                     h0 = sh->fHist;
-                float tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
-                float scale = 1;
+                double tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
+                double scale = 1.;
                 if (!isPostFit){
                     scale = GetNominalMorphScale(sh);
                 }
@@ -3398,7 +3420,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                     h_up.  push_back( new TH1D(Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                     h_down.push_back( new TH1D(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                 }
-                float scale = 1;
+                double scale = 1.;
                 if (!isPostFit){
                     scale = GetNominalMorphScale(sh);
                 }
@@ -3430,7 +3452,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                                 h_tmp_Down = sh->GetSystematic(systName)->fHistDown;
                             }
                         }
-                        float morph_scale = 1;
+                        double morph_scale = 1.;
                         if (!isPostFit) {
                             morph_scale = GetNominalMorphScale(sh);
                         }
@@ -3708,17 +3730,17 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows) const{
 //
 void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* > &regions) const{
     gSystem->mkdir(fName.c_str(), true);
-    float Hp = 250; // height of one mini-plot, in pixels
-    float Wp = 200; // width of one mini-plot, in pixels
-    float H0 = 100; // height of the top label pad
+    double Hp = 250.; // height of one mini-plot, in pixels
+    double Wp = 200.; // width of one mini-plot, in pixels
+    double H0 = 100.; // height of the top label pad
     if(TRExFitter::OPTION["FourTopStyle"]!=0) H0 = 75; // height of the top label pad
     if(TRExFitter::OPTION["FourTopStyle"]!=0) Hp = 200;
     if(TRExFitter::OPTION["SignalRegionSize"]!=0){
         Hp = TRExFitter::OPTION["SignalRegionSize"];
         Wp = (200./250.)*TRExFitter::OPTION["SignalRegionSize"];
     }
-    float H = H0 + nRows*Hp; // tot height of the canvas
-    float W = nCols*Wp; // tot width of the canvas
+    double H = H0 + nRows*Hp; // tot height of the canvas
+    double W = nCols*Wp; // tot width of the canvas
     if(TRExFitter::OPTION["FourTopStyle"]!=0) W += 50.; // FIXME
     else W += 0.1; // to fix eps format (why is this needed?)
 
@@ -3763,9 +3785,9 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
     if(Nreg>regions.size()) Nreg = regions.size();
     std::vector<TH1D> h;
     h.reserve(Nreg);
-    std::vector<float> S(Nreg);
-    std::vector<float> B(Nreg);
-    std::vector<float> xbins = {0,0.1,0.9,1.0};
+    std::vector<double> S(Nreg);
+    std::vector<double> B(Nreg);
+    std::vector<double> xbins = {0.0,0.1,0.9,1.0};
     TLatex tex{};
     tex.SetNDC();
     tex.SetTextSize(gStyle->GetTextSize());
@@ -3780,13 +3802,13 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         if(regions[i]==nullptr) continue;
         for(int i_sig=0;i_sig<regions[i]->fNSig;i_sig++) {
             if(regions[i]->fSig[i_sig]!=nullptr) {
-                const float scale = GetNominalMorphScale(regions[i]->fSig[i_sig]);
+                const double scale = GetNominalMorphScale(regions[i]->fSig[i_sig]);
                 S[i] += scale * regions[i]->fSig[i_sig]->fHist->Integral();
             }
         }
         for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
             if(regions[i]->fBkg[i_bkg]!=nullptr) {
-                const float scale = GetNominalMorphScale(regions[i]->fBkg[i_bkg]);
+                const double scale = GetNominalMorphScale(regions[i]->fBkg[i_bkg]);
                 B[i] += scale * regions[i]->fBkg[i_bkg]->fHist->Integral();
             }
         }
@@ -3853,7 +3875,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         gPad->RedrawAxis();
         if(TRExFitter::OPTION["FourTopStyle"]==0) tex.DrawLatex(0.42,0.85,label.c_str());
         else                                      tex.DrawLatex(0.27,0.85,label.c_str());
-        const float SoB = S[i]/B[i];
+        const double SoB = S[i]/B[i];
         std::string SB = Form("%.1f%%",(100.*SoB));
         if(TRExFitter::OPTION["FourTopStyle"]!=0){
             if( (100.*SoB)<0.1 ){
@@ -3922,9 +3944,9 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows) cons
 //
 void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std::vector < Region* > &regions ) const{
 
-    float Hp = 250; // height of one mini-plot, in pixels
-    float Wp = 250; // width of one mini-plot, in pixels
-    float H0 = 100; // height of the top label pad
+    double Hp = 250.; // height of one mini-plot, in pixels
+    double Wp = 250.; // width of one mini-plot, in pixels
+    double H0 = 100.; // height of the top label pad
     if(TRExFitter::OPTION["FourTopStyle"]>0) H0 = 75; // height of the top label pad
 
     if(TRExFitter::OPTION["PieChartSize"]!=0){
@@ -3932,8 +3954,8 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
         Wp = TRExFitter::OPTION["PieChartSize"];
     }
 
-    float H = H0 + nRows*Hp; // tot height of the canvas
-    float W = nCols*Wp; // tot width of the canvas
+    double H = H0 + nRows*Hp; // tot height of the canvas
+    double W = nCols*Wp; // tot width of the canvas
 
     bool isPostFit = opt.find("post")!=std::string::npos;
 
@@ -4019,7 +4041,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
         std::string label = regions[i]->fShortLabel;
 
         const unsigned int back_n = results[i].size();
-        float *values = new float[back_n];
+        double *values = new double[back_n];
         int *colors = new int[back_n];
         for( unsigned int iTemp = 0; iTemp < back_n; ++iTemp ){
             values[iTemp] = 0.;
@@ -4126,7 +4148,7 @@ void TRExFit::CreateCustomAsimov() const{
                 if( FindInStringVector( smpToExclude,fSamples[i_smp]->fName )>=0 ) continue;
                 //
                 // bug-fix: change normalisation factors to nominal value!
-                float factor = 1.;
+                double factor = 1.;
                 for(auto norm : fSamples[i_smp]->fNormFactors){
                     WriteDebugStatus("TRExFit::CreateCustomAsimov", "setting norm factor to " + std::to_string(norm->fNominal));
                     factor *= norm->fNominal;
@@ -4696,7 +4718,7 @@ void TRExFit::Fit(bool isLHscanOnly){
     //
     if(fDoNonProfileFit && !isLHscanOnly){
         //
-        std::map<std::string,float> systGroups;
+        std::map<std::string,double> systGroups;
         std::vector<std::string> systGroupNames;
         //
         WriteInfoStatus("TRExFit::Fit","");
@@ -4762,7 +4784,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                     bool skip = false;
                     for(auto morphPar : fMorphParams){
                         // find nominal value of this morph parameter
-                        float nfVal = 0;
+                        double nfVal = 0.;
                         for(auto nf : fNormFactors){
                             if(nf->fName==morphPar){
                                 nfVal = nf->fNominal;
@@ -4805,8 +4827,8 @@ void TRExFit::Fit(bool isLHscanOnly){
             fGammasInStatOnly = false;
         }
         // MC-stat for specific samples (those using separate gammas)
-        std::map<std::string,float> MCstatUpSample;
-        std::map<std::string,float> MCstatDoSample;
+        std::map<std::string,double> MCstatUpSample;
+        std::map<std::string,double> MCstatDoSample;
         std::map<std::string,std::string> smpTexTitle;
         if(fUseStatErr){
             std::map < std::string, double > npVal;
@@ -4819,7 +4841,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                     bool skip = false;
                     for(auto morphPar : fMorphParams){
                         // find nominal value of this morph parameter
-                        float nfVal = 0;
+                        double nfVal = 0.;
                         for(auto nf : fNormFactors){
                             if(nf->fName==morphPar){
                                 nfVal = nf->fNominal;
@@ -4882,7 +4904,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                     fFitFixedNPs[syst->fNuisanceParameter] = 0;
                     fFitFixedNPs["alpha_"+syst->fNuisanceParameter] = 0;
                     npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-                    float newPOIval = npValues[fPOI];
+                    double newPOIval = npValues[fPOI];
                     if(ud==0) newPOIvalUp[syst->fNuisanceParameter] = newPOIval;
                     if(ud==1) newPOIvalDo[syst->fNuisanceParameter] = newPOIval;
                 }
@@ -4911,8 +4933,8 @@ void TRExFit::Fit(bool isLHscanOnly){
         tex       << "  Statistical & $+" << Form("%.2f",statUp) << "$ / $" << Form("%.2f",statDo) << "$ \\\\" << std::endl;
         tex       << "\\hline" << std::endl;
         //
-        float totUp = 0.;
-        float totDo = 0.;
+        double totUp = 0.;
+        double totDo = 0.;
         npList.clear();
         // MC stat
         std::cout << "Stat.MC\t" << MCstatUp << "\t" << MCstatDo << std::endl;
@@ -4943,8 +4965,8 @@ void TRExFit::Fit(bool isLHscanOnly){
                 else                                                  tex << "  " << TRExFitter::SYSTMAP[syst->fNuisanceParameter];
                 // - up and down
                 for(int ud=0;ud<2;ud++){
-                    float valUp = newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval;
-                    float valDo = newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval;
+                    double valUp = newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval;
+                    double valDo = newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval;
                     if(ud==0) std::cout << "\t" << valUp;
                     if(ud==1) std::cout << "\t" << valDo;
                     if(ud==0) out       << "\t" << valUp;
@@ -5362,7 +5384,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
 
     // Tikhonov regularization (for unfolding)
     RooArgList l;
-    std::vector<float> tauVec;
+    std::vector<double> tauVec;
     for(auto nf : fNormFactors){
         if(nf->fTau!=0){
             l.add(*ws->var(nf->fName.c_str()));
@@ -5866,30 +5888,44 @@ void TRExFit::ReadFitResults(const std::string& fileName){
     delete fFitResults;
     fFitResults = new FitResults();
     fFitResults->SetPOIPrecision(fPOIPrecision);
-    if(fileName.find(".txt")!=std::string::npos){
+    
+    if(fileName.find(".txt")!=std::string::npos)
+    {
         fFitResults->ReadFromTXT(fileName, fBlindedParameters);
     }
     // make a list of systematics from all samples...
     // ...
     // assign to each NP in the FitResults a title, and a category according to the syst in the fitter
-    for(unsigned int i=0;i<fFitResults->fNuisPar.size();i++){
-        for(unsigned int j=0;j<fSystematics.size();j++){
-            if(fSystematics[j]->fName == fFitResults->fNuisPar[i]->fName){
-                fFitResults->fNuisPar[i]->fTitle = fSystematics[j]->fTitle;
-                fFitResults->fNuisPar[i]->fCategory = fSystematics[j]->fCategory;
+    
+    // note: some NPs are assigned to multiple systematics (those which are correlated)
+    // we will just keep overwriting, so the title and catagory
+    // will be from the last systematic with that NP name
+    
+    for( unsigned int i_np=0; i_np < fFitResults->fNuisPar.size(); ++i_np )
+    {
+        
+        for( unsigned int j_sys=0; j_sys < fSystematics.size(); ++j_sys )
+        {
+            // the systematic fName doesn't necessarily equate to the NP fName
+            // compare the fSystematics[j_sys]->fNuisanceParameter instead!
+            
+            if( fSystematics[j_sys]->fNuisanceParameter == fFitResults->fNuisPar[i_np]->fName )
+            {
+                fFitResults->fNuisPar[i_np]->fTitle = fSystematics[j_sys]->fTitle;
+                fFitResults->fNuisPar[i_np]->fCategory = fSystematics[j_sys]->fCategory;
             }
         }
         for(unsigned int j=0;j<fNormFactors.size();j++){
-            if(fNormFactors[j]->fName == fFitResults->fNuisPar[i]->fName){
-                fFitResults->fNuisPar[i]->fTitle = fNormFactors[j]->fTitle;
-                fFitResults->fNuisPar[i]->fCategory = fNormFactors[j]->fCategory;
+            if(fNormFactors[j]->fName == fFitResults->fNuisPar[i_np]->fName){
+                fFitResults->fNuisPar[i_np]->fTitle = fNormFactors[j]->fTitle;
+                fFitResults->fNuisPar[i_np]->fCategory = fNormFactors[j]->fCategory;
             }
         }
         // FIXME SF probably there are several NPs associated to it
         for(unsigned int j=0;j<fShapeFactors.size();j++){
-            if(fShapeFactors[j]->fName == fFitResults->fNuisPar[i]->fName){
-                fFitResults->fNuisPar[i]->fTitle = fShapeFactors[j]->fTitle;
-                fFitResults->fNuisPar[i]->fCategory = fShapeFactors[j]->fCategory;
+            if(fShapeFactors[j]->fName == fFitResults->fNuisPar[i_np]->fName){
+                fFitResults->fNuisPar[i_np]->fTitle = fShapeFactors[j]->fTitle;
+                fFitResults->fNuisPar[i_np]->fCategory = fShapeFactors[j]->fCategory;
             }
         }
     }
@@ -6502,17 +6538,17 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     if(SIZE>maxNP) SIZE = maxNP;
 
     // Graphical part - rewritten taking DrawPulls in TRExFitter
-    float lineHeight  =  30;
-    float offsetUp    =  60; // external
-    float offsetDown  =  60;
-    float offsetUp1   = 100; // internal
-    float offsetDown1 =  15;
+    double lineHeight  =  30.;
+    double offsetUp    =  60.; // external
+    double offsetDown  =  60.;
+    double offsetUp1   = 100.; // internal
+    double offsetDown1 =  15.;
     int offset = offsetUp + offsetDown + offsetUp1 + offsetDown1;
     int newHeight = offset + SIZE*lineHeight;
 
-    float xmin = -2;
-    float xmax =  2;
-    float max  =  0;
+    double xmin = -2.;
+    double xmax =  2.;
+    double max  =  0.;
 
     TGraphAsymmErrors g{};
     TGraphAsymmErrors g1{};
@@ -6981,8 +7017,8 @@ void TRExFit::ComputeBinning(int regIter){
     int nBins_Vec = hbkg -> GetNbinsX();
     int iBin = nBins_Vec; // skip overflow bin
     bins_vec.push_back(nBins_Vec + 1);
-    float nBkg = hbkg -> Integral(1, nBins_Vec );
-    float nSig = hsig -> Integral(1, nBins_Vec );
+    double nBkg = hbkg -> Integral(1, nBins_Vec );
+    double nSig = hsig -> Integral(1, nBins_Vec );
     bool jBreak = false;
     double jTarget = 1e5;
     double jGoal = fRegions[regIter]->fTransfoJpar1;
@@ -7012,11 +7048,11 @@ void TRExFit::ComputeBinning(int regIter){
                 err2RelBkg = err2Bkg / pow(sumBkg, 2);
             }
             //
-            float err2Rel = 1;
+            double err2Rel = 1.;
             if(fRegions[regIter]->fBinTransfo == "TransfoD"){
                 // "trafo D"
                 if (sumBkg != 0 && sumSig != 0)
-                  err2Rel = 1 / (sumBkg / (nBkg / fRegions[regIter]->fTransfoDzBkg) + sumSig / (nSig / fRegions[regIter]->fTransfoDzSig));
+                  err2Rel = 1. / (sumBkg / (nBkg / fRegions[regIter]->fTransfoDzBkg) + sumSig / (nSig / fRegions[regIter]->fTransfoDzSig));
                 else if (sumBkg != 0)
                   err2Rel = (nBkg / fRegions[regIter]->fTransfoDzBkg) / sumBkg;
                 else if (sumSig != 0)
@@ -7589,8 +7625,8 @@ void TRExFit::DefineVariable(int regIter){
 }
 //__________________________________________________________________________________
 //
-void TRExFit::AddTemplateWeight(const std::string& name, float value){
-    std::pair<float, std::string> temp = std::make_pair(value, name);
+void TRExFit::AddTemplateWeight(const std::string& name, double value){
+    std::pair<double, std::string> temp = std::make_pair(value, name);
     fTemplatePair.push_back(temp);
 }
 
@@ -7600,7 +7636,7 @@ std::vector<TRExFit::TemplateWeight> TRExFit::GetTemplateWeightVec(const TRExFit
     std::vector<TRExFit::TemplateWeight> vec;
     for(auto name : fMorphParams){
         // create map only for values of the specified parameter
-        std::vector<std::pair<float,std::string> > templatePair; templatePair.clear();
+        std::vector<std::pair<double,std::string> > templatePair; templatePair.clear();
         for(auto tp : fTemplatePair){
             if(tp.second==name) templatePair.push_back(tp);
         }
@@ -7629,11 +7665,11 @@ std::vector<TRExFit::TemplateWeight> TRExFit::GetTemplateWeightVec(const TRExFit
 
 //__________________________________________________________________________________
 //
-std::string TRExFit::GetWeightFunction(std::vector<std::pair<float,std::string> > templatePair, unsigned int itemp, const TRExFit::TemplateInterpolationOption& opt) const{
+std::string TRExFit::GetWeightFunction(std::vector<std::pair<double,std::string> > templatePair, unsigned int itemp, const TRExFit::TemplateInterpolationOption& opt) const{
     std::string fun = "";
-    float x_i;
-    float deltaXp = -1; // |x(i+1)-x(i)|
-    float deltaXm = -1; // |x(i-1)-x(i)|
+    double x_i;
+    double deltaXp = -1.; // |x(i+1)-x(i)|
+    double deltaXm = -1.; // |x(i-1)-x(i)|
     std::string name;
     if (itemp < templatePair.size()){
         x_i = templatePair.at(itemp).first;
@@ -7690,14 +7726,14 @@ std::string TRExFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
     }
 
     // parameter that controls how close to a linear function we want to be
-    float k_init(80);
-    float k_left(k_init);
-    float k_right(k_init);
+    double k_init(80.);
+    double k_left(k_init);
+    double k_right(k_init);
 
-    float x_left = -99999;
-    float x_right = -99999;
-    double corr_left = 1;
-    double corr_right = 1;
+    double x_left = -99999.;
+    double x_right = -99999.;
+    double corr_left = 1.;
+    double corr_right = 1.;
 
     if (itemp == 0) { // first template
         x_left = 2*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp+1).first;
@@ -7710,9 +7746,9 @@ std::string TRExFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
         x_right = fTemplatePair.at(itemp+1).first;
     }
 
-    float x_mean = fTemplatePair.at(itemp).first;
-    float width_left = 2*std::fabs(x_mean - x_left);
-    float width_right = 2*std::fabs(x_mean - x_right);
+    double x_mean = fTemplatePair.at(itemp).first;
+    double width_left = 2*std::fabs(x_mean - x_left);
+    double width_right = 2*std::fabs(x_mean - x_right);
 
     // apply correction to the k parameter depending on the range of the x axis
     k_left = k_init/width_left;
@@ -7754,7 +7790,7 @@ std::string TRExFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
 
 //__________________________________________________________________________________
 //
-double TRExFit::GetCorrection(float k, float width, float x_mean, float x_left, float init) const {
+double TRExFit::GetCorrection(double k, double width, double x_mean, double x_left, double init) const {
     double logterm = 0;
     double corr = 0;
 
@@ -7780,16 +7816,16 @@ double TRExFit::GetCorrection(float k, float width, float x_mean, float x_left, 
 std::string TRExFit::GetSquareRootLinearInterpolation(unsigned int itemp) const {
     double epsilon = 0.0000001;
 
-    float x_i = fTemplatePair.at(itemp).first;
-    float x_left = -99999;
-    float x_right = -99999;
+    double x_i = fTemplatePair.at(itemp).first;
+    double x_left = -99999.;
+    double x_right = -99999.;
 
     if (itemp == 0) { // first template
-        x_left = 2*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp+1).first;
+        x_left = 2.*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp+1).first;
         x_right = fTemplatePair.at(itemp+1).first;
     } else if (itemp == (fTemplatePair.size()-1)) { // last template
         x_left = fTemplatePair.at(itemp-1).first;
-        x_right = 2*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp-1).first;
+        x_right = 2.*fTemplatePair.at(itemp).first - fTemplatePair.at(itemp-1).first;
     } else { // general template
         x_left = fTemplatePair.at(itemp-1).first;
         x_right = fTemplatePair.at(itemp+1).first;
@@ -7829,7 +7865,7 @@ std::string TRExFit::GetSquareRootLinearInterpolation(unsigned int itemp) const 
 
 //__________________________________________________________________________________
 //
-void TRExFit::GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const {
+void TRExFit::GetSquareCorrection(double *a, double *b, double x_i, double x_left, double epsilon) const {
     if (x_left == 0) {
         x_left = 2*x_i;
     }
@@ -7851,11 +7887,11 @@ void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& fo
     }
     // get one histogram per bin (per region)
     for(auto reg : fRegions){
-        std::map<float,TH1*> hMap; // map (paramater-value,histogram)
+        std::map<double,TH1*> hMap; // map (paramater-value,histogram)
         TH1* h_tmp = nullptr;
         int nTemplates = 0;
-        float min = -999.;
-        float max = -999.;
+        double min = -999.;
+        double max = -999.;
         for(auto sh : reg->fSampleHists){
             Sample* smp = sh->fSample;
             // if the sample has morphing
@@ -7896,8 +7932,8 @@ void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& fo
 
 //____________________________________________________________________________________
 //
-bool TRExFit::MorphIsAlreadyPresent(const std::string& name, const float value) const {
-    for (const std::pair<float, std::string> itemp : fTemplatePair){
+bool TRExFit::MorphIsAlreadyPresent(const std::string& name, const double value) const {
+    for (const std::pair<double, std::string> itemp : fTemplatePair){
         if ((itemp.second == name) && (itemp.first == value)){
             return true;
         }
@@ -7989,8 +8025,8 @@ void TRExFit::RunToys(RooWorkspace* ws){
         // create map to store fit results
         // create histogram to store fitted POI values
         NormFactor POInf = *(fNormFactors[FindInStringVector(fNormFactorNames,fPOI)]);
-        float min = POInf.fMin;
-        float max = POInf.fMax;
+        double min = POInf.fMin;
+        double max = POInf.fMax;
         if (fToysHistoMin < 9900 && fToysHistoMax > -9000){
             min = fToysHistoMin;
             max = fToysHistoMax;

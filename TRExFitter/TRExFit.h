@@ -70,7 +70,7 @@ public:
         std::string function;
         std::string range;
         std::string name;
-        float value;
+        double value;
     };
 
     enum BlindingType {
@@ -84,9 +84,9 @@ public:
     ~TRExFit();
 
     void SetPOI(std::string name="SigXsecOverSM");
-    void SetStatErrorConfig(bool useIt=true, float thres=0.05, std::string cons="Poisson");
-    void SetLumiErr(float err);
-    void SetLumi(const float lumi);
+    void SetStatErrorConfig(bool useIt=true, double thres=0.05, std::string cons="Poisson");
+    void SetLumiErr(const double err);
+    void SetLumi(const double lumi);
     void SetFitType(FitType type);
     void SetLimitType( LimitType type );
     void SetFitRegion(FitRegion region);
@@ -179,11 +179,11 @@ public:
     void MergeSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
 
     // for template fitting
-    void AddTemplateWeight(const std::string& name, float);
+    void AddTemplateWeight(const std::string& name, double);
 
     std::vector<TemplateWeight> GetTemplateWeightVec(const TemplateInterpolationOption& opt);
 
-    std::string GetWeightFunction(std::vector<std::pair<float,std::string> > templatePair, unsigned int itemp, const TemplateInterpolationOption& opt) const;
+    std::string GetWeightFunction(std::vector<std::pair<double,std::string> > templatePair, unsigned int itemp, const TemplateInterpolationOption& opt) const;
 
     /**
      * Function that returns string that represents smoothed abs value function
@@ -202,7 +202,7 @@ public:
      * @param parameter of iteration, set to 1 for the first iteration
      * @return correction
      */
-    double GetCorrection(float k, float width, float x_mean, float x_left, float init = 1) const;
+    double GetCorrection(double k, double width, double x_mean, double x_left, double init = 1.) const;
 
     /**
      * Helper function to approximate absolute value by sqrt(x^2+e)
@@ -219,7 +219,7 @@ public:
      * @param left position of the function on x axis
      * @param epsilon = precision of the approximation
      */
-    void GetSquareCorrection(double *a, double *b, float x_i, float x_left, float epsilon) const;
+    void GetSquareCorrection(double *a, double *b, double x_i, double x_left, double epsilon) const;
 
     /**
      * Helper function to smooth morphing templates according to a given functional form (bin-by-bin)
@@ -235,7 +235,7 @@ public:
      */
     void DrawMorphingPlots(const std::string& name) const;
 
-    bool MorphIsAlreadyPresent(const std::string& name, const float value) const;
+    bool MorphIsAlreadyPresent(const std::string& name, const double value) const;
 
     // for grouped impact evaluation
     void ProduceSystSubCategoryMap();
@@ -359,17 +359,17 @@ public:
     std::string fPOI;
     std::string fPOIunit;
     bool fUseStatErr;
-    float fStatErrThres;
+    double fStatErrThres;
     std::string fStatErrCons;
     bool fUseGammaPulls;
 
-    float fLumi;
-    float fLumiScale;
-    float fLumiErr;
+    double fLumi;
+    double fLumiScale;
+    double fLumiErr;
 
-    float fThresholdSystPruning_Normalisation;
-    float fThresholdSystPruning_Shape;
-    float fThresholdSystLarge;
+    double fThresholdSystPruning_Normalisation;
+    double fThresholdSystPruning_Shape;
+    double fThresholdSystLarge;
     std::vector<std::string> fNtuplePaths;
     std::vector<std::string> fNtupleFiles;
     std::vector<std::string> fNtupleNames;
@@ -405,12 +405,12 @@ public:
     std::vector<std::string> fSummaryPlotValidationRegions;
     std::vector<std::string> fSummaryPlotValidationLabels;
 
-    float fYmin;
-    float fYmax;
-    float fRatioYmin;
-    float fRatioYmax;
-    float fRatioYminPostFit;
-    float fRatioYmaxPostFit;
+    double fYmin;
+    double fYmax;
+    double fRatioYmin;
+    double fRatioYmax;
+    double fRatioYminPostFit;
+    double fRatioYmaxPostFit;
     std::string fRatioYtitle;
     std::string fRatioType;
 
@@ -423,7 +423,7 @@ public:
     bool fUpdate;
     bool fKeepPruning;
 
-    float fBlindingThreshold;
+    double fBlindingThreshold;
     BlindingType fBlindingType;
 
     int fRankingMaxNP;
@@ -453,15 +453,15 @@ public:
     double fFitPOIAsimov;
     bool fFitIsBlind;
     bool fUseRnd;
-    float fRndRange;
+    double fRndRange;
     long int fRndSeed;
     std::vector<std::string> fVarNameLH;
     std::vector<std::vector<std::string> > fVarName2DLH;
-    float fLHscanMin;
-    float fLHscanMax;
+    double fLHscanMin;
+    double fLHscanMax;
     int fLHscanSteps;
-    float fLHscanMinY;
-    float fLHscanMaxY;
+    double fLHscanMinY;
+    double fLHscanMaxY;
     int fLHscanStepsY;
     bool fParal2D;
     int fParal2Dstep;
@@ -478,11 +478,11 @@ public:
     bool fLimitIsBlind;
     double fLimitPOIAsimov;
     bool fSignalInjection;
-    float fSignalInjectionValue;
+    double fSignalInjectionValue;
     std::string fLimitParamName;
-    float fLimitParamValue;
+    double fLimitParamValue;
     std::string fLimitOutputPrefixName;
-    float fLimitsConfidence;
+    double fLimitsConfidence;
 
     //
     // Significance parameters
@@ -490,7 +490,7 @@ public:
     bool fSignificanceIsBlind;
     double fSignificancePOIAsimov;
     std::string fSignificanceParamName;
-    float fSignificanceParamValue;
+    double fSignificanceParamValue;
     std::string fSignificanceOutputPrefixName;
 
     bool fCleanTables;
@@ -518,7 +518,7 @@ public:
     std::vector<std::string> fCustomFunctions;
 
     std::vector<std::string> fMorphParams;
-    std::vector<std::pair<float,std::string> > fTemplatePair;
+    std::vector<std::pair<double,std::string> > fTemplatePair;
     std::vector<TRExFit::TemplateWeight> fTemplateWeightVec;
     TemplateInterpolationOption fTemplateInterpolationOption;
 
@@ -530,13 +530,13 @@ public:
     std::string fDecorrSuff;
 
     bool fDoNonProfileFit;
-    float fNonProfileFitSystThreshold;
+    double fNonProfileFitSystThreshold;
     int fFitToys;
-    float fToysHistoMin;
-    float fToysHistoMax;
+    double fToysHistoMin;
+    double fToysHistoMax;
     int fToysHistoNbins;
     std::string fToysPseudodataNP;
-    float fToysPseudodataNPShift;
+    double fToysPseudodataNPShift;
     std::string fSmoothMorphingTemplates;
     int fPOIPrecision;
 
@@ -556,23 +556,23 @@ public:
 
     std::vector<std::string> fBlindedParameters;
 
-    float fLabelX;
-    float fLabelY;
-    float fLegendX1;
-    float fLegendX2;
-    float fLegendY;
+    double fLabelX;
+    double fLabelY;
+    double fLegendX1;
+    double fLegendX2;
+    double fLegendY;
 
-    float fLabelXSummary;
-    float fLabelYSummary;
-    float fLegendX1Summary;
-    float fLegendX2Summary;
-    float fLegendYSummary;
+    double fLabelXSummary;
+    double fLabelYSummary;
+    double fLegendX1Summary;
+    double fLegendX2Summary;
+    double fLegendYSummary;
 
-    float fLabelXMerge;
-    float fLabelYMerge;
-    float fLegendX1Merge;
-    float fLegendX2Merge;
-    float fLegendYMerge;
+    double fLabelXMerge;
+    double fLabelYMerge;
+    double fLegendX1Merge;
+    double fLegendX2Merge;
+    double fLegendYMerge;
 
     int fLegendNColumns;
     int fLegendNColumnsSummary;
