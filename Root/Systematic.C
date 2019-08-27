@@ -6,7 +6,7 @@
 
 //_____________________________________________________________________________
 //
-Systematic::Systematic(const std::string& name,int type,float up,float down){
+Systematic::Systematic(const std::string& name,int type,double up,double down){
     fName = name;
     fTitle = name;
     fNuisanceParameter = name;

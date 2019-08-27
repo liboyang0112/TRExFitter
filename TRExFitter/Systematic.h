@@ -19,7 +19,7 @@ public:
          STAT // 3
     };
 
-    Systematic(const std::string& name,int type=0,float up=0,float down=0);
+    Systematic(const std::string& name,int type=0,double up=0.,double down=0.);
     Systematic(const Systematic &sys);  // copy constructor
     ~Systematic();
 
@@ -44,14 +44,14 @@ public:
 
     bool fSubtractRefSampleVar;
 
-    float fOverallUp;
-    float fOverallDown;
+    double fOverallUp;
+    double fOverallDown;
 
-    float fScaleUp;
-    float fScaleDown;
+    double fScaleUp;
+    double fScaleDown;
 
-    std::map<std::string,float> fScaleUpRegions;
-    std::map<std::string,float> fScaleDownRegions;
+    std::map<std::string,double> fScaleUpRegions;
+    std::map<std::string,double> fScaleDownRegions;
 
 
     bool fHasUpVariation;
