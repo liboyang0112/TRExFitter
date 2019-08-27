@@ -223,7 +223,7 @@ bool Sample::HasNormFactor(const std::string& name) const{
 
 //__________________________________________________________________________________
 //
-NormFactor* Sample::AddNormFactor(const std::string& name,float nominal,float min,float max,bool isConst){
+NormFactor* Sample::AddNormFactor(const std::string& name,double nominal,double min,double max,bool isConst){
     fNormFactors.push_back(new NormFactor(name,nominal,min,max,isConst));
     fNNorm ++;
     return fNormFactors[fNNorm-1];
@@ -231,7 +231,7 @@ NormFactor* Sample::AddNormFactor(const std::string& name,float nominal,float mi
 
 //__________________________________________________________________________________
 //
-ShapeFactor* Sample::AddShapeFactor(const std::string& name,float nominal,float min,float max,bool isConst){
+ShapeFactor* Sample::AddShapeFactor(const std::string& name,double nominal,double min,double max,bool isConst){
     fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max,isConst));
     fNShape ++;
     return fShapeFactors[fNShape-1];
@@ -239,7 +239,7 @@ ShapeFactor* Sample::AddShapeFactor(const std::string& name,float nominal,float 
 
 //__________________________________________________________________________________
 //
-Systematic* Sample::AddSystematic(const std::string& name,int type,float up,float down){
+Systematic* Sample::AddSystematic(const std::string& name,int type,double up,double down){
     fSystematics.push_back(new Systematic(name,type,up,down));
     fNSyst++;
     return fSystematics[fNSyst-1];
