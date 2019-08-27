@@ -62,7 +62,7 @@ TH1D* HistoTools::TranformHistogramBinning(TH1* originalHist){
 //_________________________________________________________________________
 //
 void HistoTools::ManageHistograms( int smoothingLevel, const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing) {
+                                    TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing) {
     //
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
     //
@@ -82,7 +82,7 @@ void HistoTools::ManageHistograms( int smoothingLevel, const SymmetrizationType&
 //_________________________________________________________________________
 //
 void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown){
+                                    TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown){
     //##################################################
     //
     // FIRST STEP: SYMMETRISATION
@@ -90,23 +90,43 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
     //##################################################
         
     //Just to be sure, set sumw2() on histograms
-    if(!hNom->GetSumw2())hNom->Sumw2();
-    if(!originUp->GetSumw2())originUp->Sumw2();
-    if(!originDown->GetSumw2())originDown->Sumw2();
+    if(hNom != nullptr)
+    { 
+        if(!hNom->GetSumw2())hNom->Sumw2();
+    }
+    else
+    {
+        WriteWarningStatus("HistoTools::SymmetrizeHistograms", "Nominal Histogram is nullptr.");
+        WriteWarningStatus("HistoTools::SymmetrizeHistograms", "Will not symmetrize.");
+        return;
+    }
+    
+    if(originUp != nullptr) { if(!originUp->GetSumw2())originUp->Sumw2(); }
+    if(originDown != nullptr) { if(!originDown->GetSumw2())originDown->Sumw2(); }
+    
+    // Want to do the scaling before the Symmetrisation
+    // to avoid improperly scaling bins that are limited at -100%
+    
+    std::unique_ptr<TH1> localOriginUp  (static_cast<TH1*>(originUp   -> Clone()));
+    std::unique_ptr<TH1> localOriginDown(static_cast<TH1*>(originDown -> Clone()));
+    std::unique_ptr<TH1> localHNom      (static_cast<TH1*>(hNom       -> Clone()));
+    
+    if(localOriginUp != nullptr)   Scale(localOriginUp.get(),   localHNom.get(), scaleUp);
+    if(localOriginDown != nullptr) Scale(localOriginDown.get(), localHNom.get(), scaleDown);
     
     if( symType == SymmetrizationType::SYMMETRIZEONESIDED ) {
         bool isUp = true; //is the provided uncertainty the up or down variation (based on yield)
-        if     (originUp==nullptr && originDown!=nullptr) isUp = false;
-        else if(originUp!=nullptr && originDown==nullptr) isUp = true;
-        else if(originUp==nullptr && originDown==nullptr){
+        if     (localOriginUp==nullptr && localOriginDown!=nullptr) isUp = false;
+        else if(localOriginUp!=nullptr && localOriginDown==nullptr) isUp = true;
+        else if(localOriginUp==nullptr && localOriginDown==nullptr){
             WriteWarningStatus("HistoTools::SymmetrizeHistograms", "Both up and down variations are empty.");
             WriteWarningStatus("HistoTools::SymmetrizeHistograms", "Will not symmetrize.");
             return;
         }
         // if both are non-empty, check the differences with the nominal
         else{
-            double separationUp = Separation(hNom,originUp);
-            double separationDown = Separation(hNom,originDown);
+            double separationUp = Separation(localHNom.get(),localOriginUp.get());
+            double separationDown = Separation(localHNom.get(),localOriginDown.get());
             if( separationUp > separationDown ) isUp = true;
             if( separationUp < separationDown ) isUp = false;
         }
@@ -114,31 +134,30 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
         std::unique_ptr<TH1D> temp = nullptr;
 
         if(isUp){
-            temp = std::unique_ptr<TH1D>(SymmetrizeOneSided(hNom, originUp, isUp));
-            modifiedUp = static_cast<TH1*>(originUp -> Clone());
+            temp = std::unique_ptr<TH1D>(SymmetrizeOneSided(localHNom.get(), localOriginUp.get(), isUp));
+            modifiedUp = static_cast<TH1*>(localOriginUp -> Clone());
             modifiedDown = static_cast<TH1*>(temp -> Clone());
         } else {
-            temp = std::unique_ptr<TH1D>(SymmetrizeOneSided(hNom, originDown, isUp));
+            temp = std::unique_ptr<TH1D>(SymmetrizeOneSided(localHNom.get(), localOriginDown.get(), isUp));
             modifiedUp = static_cast<TH1*>(temp -> Clone());
-            modifiedDown = static_cast<TH1*>(originDown -> Clone());
+            modifiedDown = static_cast<TH1*>(localOriginDown -> Clone());
         }
     } else if ( symType == SymmetrizationType::SYMMETRIZETWOSIDED ) {
-        modifiedUp = SymmetrizeTwoSided(originUp, originDown, hNom);
-        modifiedDown = InvertShift(modifiedUp,hNom);
+        modifiedUp = SymmetrizeTwoSided(localOriginUp.get(), localOriginDown.get(), localHNom.get());
+        modifiedDown = InvertShift(modifiedUp,localHNom.get());
     } else if ( symType == SymmetrizationType::SYMMETRIZEABSMEAN ) {
-        modifiedUp = SymmetrizeAbsMean(originUp, originDown, hNom);
-        modifiedDown = InvertShift(modifiedUp,hNom);
+        modifiedUp = SymmetrizeAbsMean(localOriginUp.get(), localOriginDown.get(), localHNom.get());
+        modifiedDown = InvertShift(modifiedUp,localHNom.get());
     } else if ( symType == SymmetrizationType::SYMMETRIZEMAXIMUM ) {
-        modifiedUp = SymmetrizeMaximum(originUp, originDown, hNom);
-        modifiedDown = InvertShift(modifiedUp,hNom);
+        modifiedUp = SymmetrizeMaximum(localOriginUp.get(), localOriginDown.get(), localHNom.get());
+        modifiedDown = InvertShift(modifiedUp,localHNom.get());
     } else {
-        modifiedUp = originUp;
-        modifiedDown = originDown;
+        modifiedUp = localOriginUp.release();
+        modifiedDown = localOriginDown.release();
     }
-    Scale(modifiedDown, hNom, scaleDown);
-    Scale(modifiedUp, hNom, scaleUp);
-    modifiedDown -> SetName(originDown->GetName());
-    modifiedUp   -> SetName(originUp->GetName());
+    
+    modifiedDown -> SetName(localOriginDown->GetName());
+    modifiedUp   -> SetName(localOriginUp->GetName());
 }
 
 //_________________________________________________________________________
@@ -207,8 +226,8 @@ void HistoTools::SmoothHistograms( int smoothingLevel,  TH1* hNom,
 //
 TH1D* HistoTools::SymmetrizeOneSided(const TH1* const h_nominal, const TH1* const h_syst, bool &isUp ){
 
-    const float& yield_nominal     = h_nominal->Integral();
-    const float& yield_syst        = h_syst->Integral();
+    const double& yield_nominal     = h_nominal->Integral();
+    const double& yield_syst        = h_syst->Integral();
 
     //Convention: one sided systematic leading to larger yield: "up" variation
     if(yield_syst>yield_nominal) isUp = true;
@@ -255,8 +274,8 @@ TH1D* HistoTools::InvertShift(const TH1* const h_syst, const TH1* const h_nomina
 
 //_________________________________________________________________________
 //
-float HistoTools::Separation(const TH1* const h1, const TH1* const h2){
-    float sep = 0;
+double HistoTools::Separation(const TH1* const h1, const TH1* const h2){
+    double sep = 0.;
     for(int i_bin=1;i_bin<=h1->GetNbinsX();i_bin++){
         sep += TMath::Abs( h1->GetBinContent(i_bin) - h2->GetBinContent(i_bin) );
     }
@@ -413,7 +432,7 @@ TH1D* HistoTools::SymmetrizeMaximum(const TH1* const var1, const TH1* const var2
 
 //_________________________________________________________________________
 //
-void HistoTools::Scale(TH1* h_syst, TH1* h_nominal, float factor){
+void HistoTools::Scale(TH1* h_syst, TH1* h_nominal, double factor){
 
     //Sanity check
     if(!h_syst || !h_nominal) return;
