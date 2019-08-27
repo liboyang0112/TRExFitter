@@ -27,8 +27,8 @@ public:
     void Divide(SystematicHist *syh);
     void Multiply(TH1* h);
     void Multiply(SystematicHist *syh);
-    void Add(TH1* h,float scale=1.);
-    void Add(SystematicHist *syh,float scale=1.);
+    void Add(TH1* h,double scale=1.);
+    void Add(SystematicHist *syh,double scale=1.);
 
     std::string fName;
     Systematic *fSystematic;
@@ -47,7 +47,7 @@ public:
     TH1* fHistUp_orig;
     TH1* fHistUp_preSmooth;
     TH1* fHistShapeUp;
-    float fNormUp;
+    double fNormUp;
     std::string fFileNameUp;
     std::string fHistoNameUp;
     std::string fFileNameShapeUp;
@@ -59,7 +59,7 @@ public:
     TH1* fHistDown_orig;
     TH1* fHistDown_preSmooth;
     TH1* fHistShapeDown;
-    float fNormDown;
+    double fNormDown;
     std::string fFileNameDown;
     std::string fHistoNameDown;
     std::string fFileNameShapeDown;
@@ -67,8 +67,8 @@ public:
     TH1* fHistDown_original;
     TH1* fHistDown_postFit;
 
-    float fScaleUp;
-    float fScaleDown;
+    double fScaleUp;
+    double fScaleDown;
 };
 
 #endif
