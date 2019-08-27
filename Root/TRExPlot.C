@@ -179,7 +179,7 @@ void TRExPlot::SetLumi(const std::string& name){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetLumiScale(float scale){
+void TRExPlot::SetLumiScale(double scale){
     fLumiScale = scale;
 }
 
@@ -204,7 +204,7 @@ void TRExPlot::SetYaxis(const std::string& name){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetYmaxScale(float scale){
+void TRExPlot::SetYmaxScale(double scale){
     yMaxScale = scale;
 }
 
@@ -216,7 +216,7 @@ void TRExPlot::SetBinLabel(int bin, const std::string& name){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetBinWidth(float width){
+void TRExPlot::SetBinWidth(double width){
     fBinWidth = width;
 }
 
@@ -325,7 +325,7 @@ void TRExPlot::SetTotBkgAsym(TGraphAsymmErrors* g){
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetChi2KS(float chi2prob,float ksprob,float chi2val,int ndf){
+void TRExPlot::SetChi2KS(double chi2prob,double ksprob,double chi2val,int ndf){
     Chi2prob = chi2prob;
     KSprob = ksprob;
     Chi2val = chi2val;
@@ -550,7 +550,7 @@ void TRExPlot::Draw(std::string options){
         }
     }
     if(fBinLabel[1]!="") h_dummy->GetXaxis()->LabelsOption("d");
-    float offset = 2.*pad0->GetWh()/pad0->GetWw();
+    double offset = 2.*pad0->GetWh()/pad0->GetWw();
     h_dummy->GetYaxis()->SetTitleOffset( offset );
     h_dummy->GetXaxis()->SetTitleOffset( 2 );
 
@@ -559,18 +559,18 @@ void TRExPlot::Draw(std::string options){
     //
     pad0->RedrawAxis();
 
-    float textHeight = 0.05*(672./pad0->GetWh());
+    double textHeight = 0.05*(672./pad0->GetWh());
     if(pad1==nullptr) textHeight *= 0.8;
 
     //
     // ATLAS labels
     //
-    float labelX = 0.18*(600./pad0->GetWw());
+    double labelX = 0.18*(600./pad0->GetWw());
     if(fLabelX>=0){
         labelX = fLabelX;
     }
     // was 0.84-textHeight+0.04
-    float labelY = 1-0.08*(700./c->GetWh());
+    double labelY = 1-0.08*(700./c->GetWh());
     if(fLabelY>=0){
         labelY = fLabelY;
     }
@@ -583,17 +583,17 @@ void TRExPlot::Draw(std::string options){
         myText(labelX,labelY-(i_lab+2)*textHeight,1,Form("%s",fLabels[i_lab].c_str()));//,0.045);
     }
 
-    float legX1 = 1-fLegendNColumns*0.2*(600./pad0->GetWw())-0.1*(600./pad0->GetWw());
+    double legX1 = 1-fLegendNColumns*0.2*(600./pad0->GetWw())-0.1*(600./pad0->GetWw());
     if(fLegendX1>=0){
         legX1 = fLegendX1;
     }
-    float legX2 = 1-0.1*(600./pad0->GetWw());
+    double legX2 = 1-0.1*(600./pad0->GetWw());
     if(fLegendX2>=0){
         legX2 = fLegendX2;
     }
-    float legXmid = legX1+0.5*(legX2-legX1);
+    double legXmid = legX1+0.5*(legX2-legX1);
 
-    float legY = 1-0.08*(700./c->GetWh());
+    double legY = 1-0.08*(700./c->GetWh());
     if(fLegendY>=0){
         legY = fLegendY;
     }
@@ -649,7 +649,7 @@ void TRExPlot::Draw(std::string options){
         int Nrows = fBkgNames.size()+fSigNames.size()+fNormSigNames.size()+fOverSigNames.size();
         if(hasData) Nrows ++;
         Nrows ++; // for "Uncertainty"
-        float legHeight = ((Nrows+fLegendNColumns-1)/fLegendNColumns)*textHeight;
+        double legHeight = ((Nrows+fLegendNColumns-1)/fLegendNColumns)*textHeight;
         leg  = new TLegend(legX1,legY-legHeight, legX2,legY);
         leg->SetNColumns(fLegendNColumns);
         leg->SetFillStyle(0);
@@ -878,7 +878,7 @@ void TRExPlot::Draw(std::string options){
 
                 if (i_bin==0 || i_bin>h_tot_nosyst->GetNbinsX()) continue; //skip under/overflow bins
 
-                float val = h_ratio->GetBinContent(i_bin);
+                double val = h_ratio->GetBinContent(i_bin);
 
                 double maxRange = h_dummy2->GetMaximum();
                 double minRange = h_dummy2->GetMinimum();
@@ -960,8 +960,8 @@ void TRExPlot::Draw(std::string options){
 
     // Fix y max
     //
-    float yMax = 0.;
-    float y;
+    double yMax = 0.;
+    double y;
     // take into account also total prediction uncertainty
     for(int i_bin=1;i_bin<h_tot->GetNbinsX()+1;i_bin++){
         y = h_tot->GetBinContent(i_bin);
@@ -1027,7 +1027,7 @@ TCanvas* TRExPlot::GetCanvas() const{
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetBinBlinding(bool on,float threshold, TRExFit::BlindingType type){
+void TRExPlot::SetBinBlinding(bool on,double threshold, TRExFit::BlindingType type){
     fBlindingThreshold = threshold;
     if(!on) fBlindingThreshold = -1;
     WriteInfoStatus("TRExPlot::SetBinBlinding", "Setting blinding threshold = " + std::to_string(fBlindingThreshold));
@@ -1105,8 +1105,8 @@ TGraphAsymmErrors* histToGraph(TH1* h){
 
 //_____________________________________________________________________________
 //
-void SetHistBinWidth(TH1* h,float width){
-    float epsilon = 0.00000001;
+void SetHistBinWidth(TH1* h,double width){
+    double epsilon = 0.00000001;
     for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
         if(TMath::Abs(h->GetBinWidth(i_bin)-width)>epsilon){
             h->SetBinContent(i_bin,h->GetBinContent(i_bin)*width/h->GetBinWidth(i_bin));
@@ -1117,9 +1117,9 @@ void SetHistBinWidth(TH1* h,float width){
 
 //_____________________________________________________________________________
 //
-void SetGraphBinWidth(TGraphAsymmErrors* g,float width){
-    float epsilon = 0.00000001;
-    float w;
+void SetGraphBinWidth(TGraphAsymmErrors* g,double width){
+    double epsilon = 0.00000001;
+    double w;
     for(int i_bin=0;i_bin<g->GetN();i_bin++){
         w = g->GetErrorXhigh(i_bin)+g->GetErrorXlow(i_bin);
         if(TMath::Abs(w-width)>epsilon){
