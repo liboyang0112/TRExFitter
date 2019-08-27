@@ -29,19 +29,19 @@ void PruningUtil::SetStrategy(int strat){
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetThresholdNorm(float thres){
+void PruningUtil::SetThresholdNorm(double thres){
     fThresholdNorm = thres;
 }
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetThresholdShape(float thres){
+void PruningUtil::SetThresholdShape(double thres){
     fThresholdShape = thres;
 }
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetThresholdIsLarge(float thres){
+void PruningUtil::SetThresholdIsLarge(double thres){
     fThresholdIsLarge = thres;
 }
 
@@ -67,8 +67,8 @@ int PruningUtil::CheckSystPruning(const TH1* const hUp,const TH1* const hDown,co
     if(hShapeDown) hShapeDown->Scale( hNom->Integral()/hShapeDown->Integral() );
     //
     // get norm effects
-    float normUp   = std::fabs((hUp  ->Integral()-hNom->Integral())/hRef->Integral());
-    float normDown = std::fabs((hDown->Integral()-hNom->Integral())/hRef->Integral());
+    double normUp   = std::fabs((hUp  ->Integral()-hNom->Integral())/hRef->Integral());
+    double normDown = std::fabs((hDown->Integral()-hNom->Integral())/hRef->Integral());
     //
     // check if systematic has no shape --> 1
     bool hasShape = true;
@@ -96,7 +96,7 @@ int PruningUtil::CheckSystPruning(const TH1* const hUp,const TH1* const hDown,co
 
 //_________________________________________________________________________
 //
-bool PruningUtil::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, float threshold) const {
+bool PruningUtil::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, double threshold) const {
     if (!hNom || !hUp || !hDown || !combined) return false;
 
     if (hUp->GetNbinsX() == 1) return false;

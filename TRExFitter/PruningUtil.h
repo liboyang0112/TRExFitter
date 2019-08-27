@@ -11,9 +11,9 @@ public:
     
     // 0 = sample-by-sample, 1 = relative to tot background, 2 = relative to tot S+B
     void SetStrategy(int strat);
-    void SetThresholdNorm(float thres);
-    void SetThresholdShape(float thres);
-    void SetThresholdIsLarge(float thres);
+    void SetThresholdNorm(double thres);
+    void SetThresholdShape(double thres);
+    void SetThresholdIsLarge(double thres);
     
     // if hTot is not set, just prun w.r.t. only this nominal, 
     // otherwise use hTot and do relative pruning
@@ -26,13 +26,13 @@ public:
     // -3 : bad shape
     // -4 : all bad
     int CheckSystPruning(const TH1* const hUp,const TH1* const hDown,const TH1* const hNom,const TH1* hTot=nullptr);
-    bool HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, float threshold) const;
+    bool HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, double threshold) const;
     
 // private:
     int fStrategy;
-    float fThresholdNorm;
-    float fThresholdShape;
-    float fThresholdIsLarge;
+    double fThresholdNorm;
+    double fThresholdShape;
+    double fThresholdIsLarge;
 };
 
 #endif
