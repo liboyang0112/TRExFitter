@@ -25,6 +25,7 @@
 // c++ stuff
 #include <iostream>
 #include <iomanip>
+#include <numeric>
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ bool TRExFitter::HISTOCHECKCRASH = true;
 bool TRExFitter::GUESSMCSTATERROR = true;
 bool TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL = false;
 bool TRExFitter::REMOVEXERRORS = false;
-float TRExFitter::CORRELATIONTHRESHOLD = -1;
+double TRExFitter::CORRELATIONTHRESHOLD = -1.;
 bool TRExFitter::MERGEUNDEROVERFLOW = false;
 bool TRExFitter::OPRATIO = false;
 bool TRExFitter::NORATIO = false;
@@ -63,7 +64,7 @@ std::map <std::string,std::string> TRExFitter::NPMAP;
 std::vector <std::string> TRExFitter::IMAGEFORMAT;
 int TRExFitter::NCPU = 1;
 //
-std::map<std::string,float> TRExFitter::OPTION;
+std::map<std::string,double> TRExFitter::OPTION;
 std::map<std::string,TFile*> TRExFitter::TFILEMAP;
 
 //----------------------------------------------------------------------------------
@@ -74,8 +75,8 @@ std::map<std::string,TFile*> TRExFitter::TFILEMAP;
 
 //__________________________________________________________________________________
 //
-TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, float xmin,
-                     float xmax, const std::string& selection, const std::string& weight, int Nev){
+TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, double xmin,
+                     double xmax, const std::string& selection, const std::string& weight, int Nev){
     TH1D* h = new TH1D("h","h",nbin,xmin,xmax);
     WriteVerboseStatus("Common::HistFromNtuple", "    Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtuple", "        with weight  (" + weight + ")*("+selection+")  ...");
@@ -449,10 +450,10 @@ double GetSeparation( TH1D* S1, TH1D* B1 ) {
 // - also set uncertainties in blinded bins to zero
 // - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
 // when takeSqrt is true, take the sqrt of the denominator when evaluating the blinding
-TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold, bool takeSqrt) {
+TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, double threshold, bool takeSqrt) {
     TH1D* h_blind = (TH1D*)h_data->Clone("h_blind");
     for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
-        float tmpDenominator = h_bkg->GetBinContent(i_bin);
+        double tmpDenominator = h_bkg->GetBinContent(i_bin);
         if(takeSqrt) tmpDenominator = sqrt(tmpDenominator); // for calculating S/sqrt(B) and S/sqrt(S+B)
         if( h_sig->GetBinContent(i_bin) / tmpDenominator > threshold ){
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
@@ -539,10 +540,10 @@ void SmoothHistogramTtres( TH1* h) {
 
 //__________________________________________________________________________________
 // to smooth a nominal histogram, taking into account the statistical uncertinaty on each bin (note: no empty bins, please!!)
-bool SmoothHistogram( TH1* h, float nsigma ){
+bool SmoothHistogram( TH1* h, double nsigma ){
     int nbinsx = h->GetNbinsX();
-    double error;
-    float integral = h->IntegralAndError(1,h->GetNbinsX(),error);
+    double error = 0.;
+    double integral = h->IntegralAndError(1,h->GetNbinsX(),error);
     //
     // if not flat, go on with the smoothing
     int Nmax = 5;
@@ -574,9 +575,9 @@ bool SmoothHistogram( TH1* h, float nsigma ){
     //
     // fix stat error so that the total stat error is unchanged, and it's distributed among all bins
     for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-        float N = integral;
-        float E = error;
-        float n = h->GetBinContent(i_bin);
+        double N = integral;
+        double E = error;
+        double n = h->GetBinContent(i_bin);
         h->SetBinError(i_bin,E*sqrt(n)/sqrt(N));
     }
     //
@@ -597,14 +598,18 @@ void DropBins(TH1* h,const std::vector<int> &v){
 
 //__________________________________________________________________________________
 //
-double CorrectIntegral(TH1* h, double *err){
-    float integral = 0.;
-    float error = 0.;
-    for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
+double CorrectIntegral(TH1* h, double * err){
+    double integral = 0.;
+    double error = 0.;
+    for( int i_bin=1; i_bin <= h->GetNbinsX(); i_bin++){
         if(h->GetBinContent(i_bin)<0) continue;
-        integral+=h->GetBinContent(i_bin);
+        integral += h->GetBinContent(i_bin);
         if(h->GetBinError(i_bin)<=0) continue;
-        error += pow(h->GetBinError(i_bin),1);
+        // BW
+        // The error seems suspicious, you are taking the sqrt().
+        // Probably should be pow( ,2), not pow( ,1).
+        // At least add some comments if what you have here is correct
+        error += pow(h->GetBinError(i_bin), 1);
     }
     if(err!=0) *err = sqrt(error);
     return integral;
@@ -803,7 +808,37 @@ std::string FloatToPseudoHex(const float value){
     int count = 0;
     for (unsigned int i = 0; i < second.size(); i++) {
       if (second[i] != '0')
-	break;
+        break;
+      count++;
+    }
+
+    int value1 = std::stoi(first);
+    const int value2 = std::stoi(second);
+
+    // add 1234 to the first digit so it is not easily readable, we will subtract it in the decoding
+    value1+=1234;
+    // add 5678 to the number of '0'
+    count+=5678;
+
+    std::stringstream ss;
+    ss << std::hex << value1 << "." << std::hex << count  << "." << std::hex << value2;
+
+    return ss.str();
+}
+
+
+//----------------------------------------------------------------------------------
+//
+std::string DoubleToPseudoHex(const double value){
+    std::string s = std::to_string(value);
+    std::string first = s.substr(0,s.find('.'));
+    std::string second = s.substr(s.find('.')+1, s.length());
+
+    //Count the number of "0" after the comma
+    int count = 0;
+    for (unsigned int i = 0; i < second.size(); i++) {
+      if (second[i] != '0')
+        break;
       count++;
     }
 
@@ -859,6 +894,45 @@ float HexToFloat(const std::string& s){
     return std::stof(result);
 }
 
+//----------------------------------------------------------------------------------
+//
+double HexToDouble(const std::string& s){
+    std::string first = s.substr(0,s.find('.'));
+    std::string rest = s.substr(s.find('.')+1, s.length());
+    std::string zeros = rest.substr(0,rest.find('.'));
+    std::string second = rest.substr(rest.find('.')+1, rest.length());
+
+    unsigned int i1, i2, n0;
+
+    std::stringstream ss;
+    ss << std::hex << first;
+    ss >> i1;
+
+    std::stringstream ss1;
+    ss1 << std::hex << second;
+    ss1 >> i2;
+
+    std::stringstream ss2;
+    ss2 << std::hex << zeros;
+    ss2 >> n0;
+
+    int signed1 = static_cast<int>(i1);
+    // need to subtract the 1234 we added
+    signed1-= 1234;
+    // need to substract the 5678
+    n0-= 5678;
+
+    std::string result = std::to_string(signed1)+".";
+
+    for (unsigned int i = 0; i < n0; i++)
+      result += "0";
+
+    result += std::to_string(i2);
+
+    return std::stod(result);
+}
+
+
 //___________________________________________________________
 //
 void ScaleNominal(const SampleHist* const sig, TH1* hist){
@@ -870,7 +944,7 @@ void ScaleNominal(const SampleHist* const sig, TH1* hist){
             std::string name = TRExFitter::NPMAP[nf->fName];
             formula = ReplaceString(formula,name,"x");
             auto f_morph = std::unique_ptr<TF1>(new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax));
-            const float& scale = f_morph->Eval(nf->fNominal);
+            const double& scale = f_morph->Eval(nf->fNominal);
             hist->Scale(scale);
             WriteDebugStatus("Common::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(scale));
         }
@@ -894,8 +968,8 @@ std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::
 
 //____________________________________________________________________________________
 //
-float GetNominalMorphScale(const SampleHist* const sh){
-    float scale = 1.;
+double GetNominalMorphScale(const SampleHist* const sh){
+    double scale = 1.;
     if (!sh) return 1.;
     if (!(sh->fSample)) return 1.;
     for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
@@ -955,3 +1029,65 @@ std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist){
 
     return result;
 }
+
+
+
+// BW helper functions to pad bin numbers for gamma plots
+// replaces them with zero padded versions.  "Gamma Bin 1" -> "Gamma Bin 0001" 
+    
+std::vector<std::string> mysplit(const std::string & s, const char delimiter)
+{
+    std::vector<std::string> answer;
+    std::string token;
+    
+    // this converts a single char into a string
+    // the constructor std:string( n, char )
+    // produces a string of n copies of char
+    std::string localDelim( 1, delimiter );
+    std::istringstream tokenStream(s);
+    while (std::getline(tokenStream, token, delimiter))
+    {
+        //keep the delimiter for easy reconstruction
+        answer.push_back(token+localDelim);
+    }
+        
+    //remove the trailing delim from the last token
+    std::string last = answer.back();
+    if( !last.empty() ) last.pop_back();
+        
+    answer.pop_back();
+    answer.push_back( last );
+        
+    return answer;
+}
+    
+std::string addpad( const std::string & input, const char filler, const unsigned width )
+{
+    std::stringstream mySS;
+        
+    mySS.fill(filler);
+    mySS.width(width);
+        
+    mySS << input;
+        
+    return mySS.str();
+        
+}
+    
+std::string pad_trail( const std::string & input )
+{
+        
+    std::vector<std::string> words = mysplit( input, ' ' );
+        
+    std::string paddedValue = addpad( words.back(), '0', 4 );
+        
+    words.pop_back();
+    words.push_back( paddedValue );
+        
+    std::string answer = std::accumulate( words.begin(), words.end(), std::string("") );
+        
+    return answer;
+}
+    
+
+
