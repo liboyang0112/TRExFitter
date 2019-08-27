@@ -13,7 +13,7 @@ ShapeFactor::ShapeFactor():fName(""),fNominal(0),fMin(0),fMax(0),fConst(false){}
 
 //__________________________________________________________________________________
 //
-ShapeFactor::ShapeFactor(const std::string& name, float nominal, float min, float max, bool isConst){
+ShapeFactor::ShapeFactor(const std::string& name, double nominal, double min, double max, bool isConst){
     Set(name,nominal,min,max,isConst);
 }
 
@@ -23,7 +23,7 @@ ShapeFactor::~ShapeFactor(){}
 
 //__________________________________________________________________________________
 //
-void ShapeFactor::Set(const std::string& name, float nominal, float min, float max, bool isConst){
+void ShapeFactor::Set(const std::string& name, double nominal, double min, double max, bool isConst){
     fName = name;
     fNominal = nominal;
     fMin = min;
