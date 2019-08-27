@@ -446,7 +446,7 @@ void Region::BuildPreFitErrorHist(){
             for(int i=0;i<fNSamples;i++){
                 //
                 // scale according to NormFactors
-                float scale = 1.;
+                double scale = 1.;
                 for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
                     NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf];
                     // if this norm factor is a morphing one
@@ -665,7 +665,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                     WriteDebugStatus("Region::DrawPreFit", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
                 }
                 TFormula f_morph("f_morph",formula.c_str());
-                float scale = 1;
+                double scale = 1.;
                 scale = f_morph.EvalPar(nfNominal,nullptr);
                 h->Scale(scale);
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
@@ -731,7 +731,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                     WriteDebugStatus("Region::DrawPreFit", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
                 }
                 TFormula f_morph("f_morph",formula.c_str());
-                float scale = 1;
+                double scale = 1.;
                 scale = f_morph.EvalPar(nfNominal,nullptr);
                 h->Scale(scale);
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(scale));
@@ -808,7 +808,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
                                 const bool isUp ) const{
     double multNorm = 1.;
     double multShape = 0.;
-    float systValue = 0.;
+    double systValue = 0.;
     SampleHist *sh = fSampleHists[i];
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         SystematicHist *syh = sh->fSyst[i_syst];
@@ -1063,8 +1063,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
 
                 if (isMorph){
-                    float scaleNom  = morph_scale_nominal.at(i_morph_sample);
-                    float scaleNom_postfit  = morph_scale.at(i_morph_sample);
+                    double scaleNom  = morph_scale_nominal.at(i_morph_sample);
+                    double scaleNom_postfit  = morph_scale.at(i_morph_sample);
                     morph_nominal_postfit.at(i_bin-1)+= yieldNominal*scaleNom_postfit;
                     morph_nominal.at(i_bin-1)+= yieldNominal*scaleNom;
                 }
@@ -1141,8 +1141,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                             WriteDebugStatus("Region::BuildPostFitErrorHist", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValue[j]));
                         }
                         TFormula f_morph ("f_morph",formula.c_str());
-                        float scaleUp = f_morph.EvalPar(nfValue,nullptr); // nominal value
-                        float scaleDown = f_morph.EvalPar(nfValue,nullptr); // nominal value
+                        double scaleUp = f_morph.EvalPar(nfValue,nullptr); // nominal value
+                        double scaleDown = f_morph.EvalPar(nfValue,nullptr); // nominal value
                         if(fSystNames[i_syst].find("morph_")!=std::string::npos){
                             double *nfUpValue = nfUpvec.data();
                             double *nfDownValue = nfDownvec.data();
@@ -1448,7 +1448,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
                 if(fSampleHists[i]->fSample->fSeparateGammas)
                     gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
                 WriteDebugStatus("Region::DrawPostFit", "Looking for gamma " + gammaName);
-                float gammaValue = fitRes->GetNuisParValue(gammaName);
+                double gammaValue = fitRes->GetNuisParValue(gammaName);
                 WriteDebugStatus("Region::DrawPostFit", "  -->  pull = " + std::to_string(gammaValue));
                 // linear effect
                 if(gammaValue>0) binContentNew *= gammaValue;
@@ -1460,7 +1460,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
                 if(syst->fType==Systematic::SHAPE){
                     std::string gammaName = Form("shape_%s_%s_bin_%d",syst->fName.c_str(),fName.c_str(),i_bin-1);
                     WriteDebugStatus("Region::DrawPostFit", "Looking for gamma " + gammaName);
-                    float gammaValue = fitRes->GetNuisParValue(gammaName);
+                    double gammaValue = fitRes->GetNuisParValue(gammaName);
                     WriteDebugStatus("Region::DrawPostFit", "  -->  pull = " + std::to_string(gammaValue));
                     // linear effect
                     if(gammaValue>0) binContentNew *= gammaValue;
@@ -1482,7 +1482,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     //    Seems consistent with application in Roostats
     //
     string nfName;
-    float nfValue;
+    double nfValue;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
@@ -1516,7 +1516,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
                     WriteDebugStatus("Region::DrawPostFit", "nfValuemorph["+std::to_string(j)+"]: "+std::to_string(nfValuemorph[j]));
                 }
                 TFormula f_morph ("f_morph",formula.c_str());
-                float scale = 1;
+                double scale = 1.;
                 scale = f_morph.EvalPar(nfValuemorph,nullptr);
                 hSmpNew[i]->Scale(scale);
             }
@@ -1533,7 +1533,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
 
     string sfName;
     string sfNameBin;
-    float sfValue;
+    double sfValue;
     double binContentSFNew = 0;
     int iBinSF = 0;
     for(int i=0;i<fNSamples;i++){
@@ -1569,9 +1569,9 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             if(hTot==nullptr) hTot = (TH1*)hSmpNew[i]->Clone("hTotPostFit");
             else              hTot->Add(hSmpNew[i]);
         }
-        float totPred = hTot->Integral();
-        float totData = fData->fHist->Integral();
-        float totToScale = 0;
+        double totPred = hTot->Integral();
+        double totData = fData->fHist->Integral();
+        double totToScale = 0;
         std::vector<int> shIdxToScale;
         for(int i=0;i<fNSamples;i++){
             SampleHist *sh = fSampleHists[i];
@@ -1586,7 +1586,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             }
         }
         if(totToScale>0 && shIdxToScale.size()>0){
-            float scale = (totData-(totPred-totToScale))/totToScale;
+            double scale = (totData-(totPred-totToScale))/totToScale;
             for(auto idx : shIdxToScale){
                 WriteInfoStatus("Region::DrawPostFit","Scaling sample " + fSampleHists[idx]->fSample->fName + " by " + std::to_string(scale) + " in region " + fName);
                 hSmpNew[idx]->Scale(scale);
@@ -1767,7 +1767,7 @@ void Region::AddMCweight(const std::string& weight){
 
 //__________________________________________________________________________________
 //
-void Region::SetVariable(const std::string& variable,int nbin,float xmin,float xmax,string corrVar1,string corrVar2){
+void Region::SetVariable(const std::string& variable,int nbin,double xmin,double xmax,string corrVar1,string corrVar2){
     fVariable = variable;
     fCorrVar1 = corrVar1;
     fCorrVar2 = corrVar2;
@@ -1939,7 +1939,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
     }
 
 
-    float Ncol = 2.;
+    double Ncol = 2.;
     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
         sh = fSampleHists[i_smp];
         s = sh->fSample;
@@ -1956,7 +1956,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
         texout_cat << "\\hline " << endl;
     }
     //
-    float i_col = 1;
+    double i_col = 1.;
     for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
         sh = fSampleHists[i_smp];
         s = sh->fSample;
@@ -2380,11 +2380,11 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
     }
     //
     TGraphAsymmErrors *g_totErr = new TGraphAsymmErrors( h_nominal );
-    float finalErrPlus(0.);
-    float finalErrMinus(0.);
-    float corr(0.);
-    float errUp_i(0.),   errUp_j(0.);
-    float errDown_i(0.), errDown_j(0.);
+    double finalErrPlus(0.);
+    double finalErrMinus(0.);
+    double corr(0.);
+    double errUp_i(0.),   errUp_j(0.);
+    double errDown_i(0.), errDown_j(0.);
     //
     // - loop on bins
     for(int i_bin=1;i_bin<h_nominal->GetNbinsX()+1;i_bin++){
@@ -2485,7 +2485,7 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                         WriteDebugStatus("Region::PrepareMorphScales", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValue[j]));
                     }
                     TFormula f_morph ("f_morph",formula.c_str());
-                    float scaleNom = f_morph.EvalPar(nfValue,nullptr);
+                    double scaleNom = f_morph.EvalPar(nfValue,nullptr);
                     morph_scale->emplace_back(scaleNom);
                 }
             }
@@ -2515,7 +2515,7 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                         WriteDebugStatus("Region::PrepareMorphScales", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
                     }
                     TFormula f_morph("f_morph",formula.c_str());
-                    float scaleNom = f_morph.EvalPar(nfNominal,nullptr);
+                    double scaleNom = f_morph.EvalPar(nfNominal,nullptr);
                     morph_scale_nominal->emplace_back(scaleNom);
                 }
             }
@@ -2595,7 +2595,7 @@ TH1* Region::GetTotHist(bool includeSignal){
         if(!sh->fHist) continue;
         TH1* hTmp = (TH1*)sh->fHist->Clone(("hTot_"+fName).c_str());
         // scale accoring to nominal SF (considering morphing as well)
-        const float& scale = GetNominalMorphScale(sh);
+        const double& scale = GetNominalMorphScale(sh);
         hTmp->Scale(scale);
         if(!hTot) hTot = hTmp;
         else{
