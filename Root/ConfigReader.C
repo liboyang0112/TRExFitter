@@ -1762,7 +1762,7 @@ int ConfigReader::ReadLimitOptions(){
 
     param = confSet->Get("ConfidenceLevel");
     if( param != "" ){
-        float conf = std::stof(param);
+        double conf = std::stod(param);
         if (conf <= 0 || conf >= 1){
             WriteWarningStatus("ConfigReader::ReadLimitOptions", "Confidence level is <= 0 or >=1. Setting to default 0.95");
             conf = 0.95;
@@ -2096,10 +2096,10 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             if (vec_string.size() != 2){
                 WriteWarningStatus("ConfigReader::ReadRegionOptions", "Setting 'XaxisRange' needs exactly two parameters (floats). Ignoring.");
             }
-            const float min = std::stof(vec_string.at(0));
-            const float max = std::stof(vec_string.at(1));
+            const double min = std::stod(vec_string.at(0));
+            const double max = std::stod(vec_string.at(1));
 
-            std::vector<float> range{};
+            std::vector<double> range{};
             if (min < max){
                 range.emplace_back(min);
                 range.emplace_back(max);
@@ -3020,7 +3020,7 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
                     return 1;
                 }
                 std::string name      = morph_par.at(0);
-                float value = std::stof(morph_par.at(1));
+                double value = std::stod(morph_par.at(1));
                 WriteDebugStatus("ConfigReader::ReadSampleOptions", "Morphing: Adding " + name + ", with value: " + std::to_string(value));
                 if (!fFitter->MorphIsAlreadyPresent(name, value)) fFitter->AddTemplateWeight(name, value);
                 // set proper normalization
@@ -3922,7 +3922,7 @@ int ConfigReader::ReadSystOptions(){
                 for(std::string ireg : temp_vec){
                     std::vector < std::string > reg_value = Vectorize(ireg,':');
                     if(reg_value.size()==2){
-                        sys->fScaleUpRegions.insert( std::pair < std::string, float >( reg_value[0], atof(reg_value[1].c_str()) ) );
+                        sys->fScaleUpRegions.insert( std::pair < std::string, double >( reg_value[0], atof(reg_value[1].c_str()) ) );
                     }
                 }
             }
@@ -3939,7 +3939,7 @@ int ConfigReader::ReadSystOptions(){
                 for(std::string ireg : temp_vec){
                     std::vector < std::string > reg_value = Vectorize(ireg,':');
                     if(reg_value.size()==2){
-                        sys->fScaleDownRegions.insert( std::pair < std::string, float >( reg_value[0], atof(reg_value[1].c_str()) ) );
+                        sys->fScaleDownRegions.insert( std::pair < std::string, double >( reg_value[0], atof(reg_value[1].c_str()) ) );
                     }
                 }
             }
