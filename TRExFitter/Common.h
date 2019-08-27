@@ -45,7 +45,7 @@ namespace TRExFitter{
     extern bool REMOVEXERRORS;
     extern bool OPRATIO;
     extern bool NORATIO; // flag to hide ratio pad
-    extern float CORRELATIONTHRESHOLD;
+    extern double CORRELATIONTHRESHOLD;
     extern bool MERGEUNDEROVERFLOW;
     extern std::map< std::string,std::string > SYSTMAP;
     extern std::map< std::string,std::string > SYSTTEX;
@@ -53,7 +53,7 @@ namespace TRExFitter{
     extern std::vector< std::string > IMAGEFORMAT;
     extern int NCPU;
     //
-    extern std::map< std::string, float > OPTION;
+    extern std::map< std::string, double > OPTION;
     extern std::map<std::string,TFile*> TFILEMAP;
     extern bool GUESSMCSTATERROR;
     extern bool CORRECTNORMFORNEGATIVEINTEGRAL;
@@ -65,7 +65,7 @@ const int MAXsyst = 500;
 const int MAXnorm = 10;
 
 TFile* GetFile(const std::string& fileName);
-TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, float xmin, float xmax, const std::string& selection, const std::string& weight, int Nev=-1);
+TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, double xmin, double xmax, const std::string& selection, const std::string& weight, int Nev=-1);
 TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight, int Nev=-1);
 TH1* HistFromFile(const std::string& fullName);
 TH1* HistFromFile(const std::string& fileName, const std::string& histoName);
@@ -88,11 +88,11 @@ int FindInStringVector(const std::vector<std::string>& v, const std::string& s);
 int FindInStringVectorOfVectors(const std::vector<std::vector<std::string> >& v, const std::string& s, const std::string& ss);
 double GetSeparation( TH1D* S1, TH1D* B1 );
 
-TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, float threshold=0.02, bool takeSqrt=false );
+TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, double threshold=0.02, bool takeSqrt=false );
 void BlindDataHisto( TH1* h_data, TH1* h_blind );
 double convertStoD(std::string toConvert);
 
-bool SmoothHistogram( TH1* h, float nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
+bool SmoothHistogram( TH1* h, double nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
 void SmoothHistogramTtres( TH1* h);
 
 void DropBins(TH1* h, const std::vector<int> &v);
@@ -125,8 +125,10 @@ int ApplyErrorRounding(double& error, int& sig);
 void RoundToSig(double& value, const int& n);
 
 std::string FloatToPseudoHex(const float value);
+std::string DoubleToPseudoHex(const double value);
 
 float HexToFloat(const std::string& s);
+double HexToDouble(const std::string& s);
 
 /**
     * A helper function to scale samples (signal) to nominakl SFs
@@ -148,7 +150,7 @@ std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::
     * @param pointer to SampleHist for which we need to calculate the scale factor
     * @return scale factor
     */
-float GetNominalMorphScale(const SampleHist* const sh);
+double GetNominalMorphScale(const SampleHist* const sh);
 
 /**
  * Helper function to parsee the string to indetify if the chosen option needs to run the fit
@@ -164,5 +166,12 @@ bool OptionRunsFit(const std::string& opt);
  * @return histogramw with no errors
  */
 std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist);
+
+/// BW added functions to help pad bin numbers in gamma NP plot
+
+std::vector<std::string> mysplit(const std::string & s, char delimiter);
+std::string addpad( const std::string & input, const char filler, const unsigned width );
+std::string pad_trail( const std::string & input );
+
 
 #endif
