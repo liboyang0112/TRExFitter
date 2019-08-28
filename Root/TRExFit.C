@@ -1467,6 +1467,35 @@ void TRExFit::CorrectHistograms(){
         }
     }
 
+    // drop shape part of systematic according to fDropShapeIn
+    for(auto reg : fRegions){
+        for(auto sh : reg->fSampleHists){
+            if(sh->fHist==nullptr) continue;
+            for(auto syst : fSystematics){
+                if(  FindInStringVector(syst->fDropShapeIn, reg->fName)>=0
+                  || FindInStringVector(syst->fDropShapeIn, sh->fSample->fName)>=0
+                  || FindInStringVector(syst->fDropShapeIn, "all")>=0
+                  ){
+                    SystematicHist* syh = sh->GetSystematic(syst->fName);
+                    if(syh==nullptr) continue;
+                    WriteDebugStatus("TRExFit::CorrectHistograms", "  Removing shape component of syst " + syst->fName + " for sample " + sh->fSample->fName);
+                    if(syh->fHistUp != nullptr) {
+                        const double ratioUp = syh->fHistUp->Integral()/sh->fHist->Integral();
+                        delete syh->fHistUp;
+                        syh->fHistUp = static_cast<TH1*>(sh->fHist->Clone());
+                        syh->fHistUp->Scale(ratioUp);
+                    }
+                    if(syh->fHistDown != nullptr) {
+                        const double ratioDown = syh->fHistDown->Integral()/sh->fHist->Integral();
+                        delete syh->fHistDown;
+                        syh->fHistDown = static_cast<TH1*>(sh->fHist->Clone());
+                        syh->fHistDown->Scale(ratioDown);
+                    }
+                }
+            }
+        }
+    }
+
     //
     // Smooth systematics
     SmoothSystematics("all");

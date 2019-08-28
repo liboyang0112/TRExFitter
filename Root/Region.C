@@ -2549,10 +2549,16 @@ void Region::SystPruning(PruningUtil *pu){
         for(auto syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
-            if( FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0 ){
+            if( FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0  ||
+                FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0 ||
+                FindInStringVector(syh->fSystematic->fDropShapeIn, "all")>=0
+            ){
                 syh->fShapePruned = true;
             }
-            if( FindInStringVector(syh->fSystematic->fDropNormIn,fName)>=0 ){
+            if( FindInStringVector(syh->fSystematic->fDropNormIn,fName)>=0 ||
+                FindInStringVector(syh->fSystematic->fDropNormIn,fName)>=0 ||
+                FindInStringVector(syh->fSystematic->fDropNormIn, "all")>=0
+            ){
                 syh->fNormPruned = true;
             }
         }

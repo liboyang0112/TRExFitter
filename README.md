@@ -531,7 +531,7 @@ For each object type (also called "block"), here is the list of available proper
 | ReferenceSample              | if this is specified, the syst variation is evaluated w.r.t. this reference sample (often a GHOST sample) instead of the nominal, and then the relative difference is propagated to nominal; NOTE: also the overall relative difference is propagated |
 | ReferenceSmoothing           | if this is specified, the syst variation is smoothed wrt a specified sample (Must appear in `Samples` for this syst) and then the smoothed variations are copied bin by bi to all other samples specified. Useful when `Morphing` is used |
 | ReferencePruning             | if this is specified, the syst variation is pruned wrt a specified sample (Must appear in `Samples` for this syst) and then the same pruning is applied to all specified samples |
-| DropShapeIn                  | specify regions where you want the smoothing / pruning to be forced to drop the shape and keep only norm |
+| DropShapeIn                  | specify regions or samples where you want the smoothing / pruning to be forced to drop the shape and keep only norm. When `all` is used, the shape is dropped for all regions and all samples |
 | DropNorm                     | the same as the previous one, but to drop the norm and keep only the shape |
 | KeepNormForSamples           | list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region |
 | DummyForSamples              | list of samples, comma separated, for which the systematic gets created as a dummy one (syst variation = nominal); useful when used in combination with KeepNormForSamples |
