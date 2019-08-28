@@ -411,8 +411,8 @@ int FindInStringVectorOfVectors(const std::vector< std::vector<std::string> >& v
 //
 double GetSeparation( TH1D* S1, TH1D* B1 ) {
     // taken from TMVA!!!
-    TH1D* S=new TH1D(*S1);
-    TH1D* B=new TH1D(*B1);
+    std::unique_ptr<TH1> S = std::make_unique<TH1D>(*S1);
+    std::unique_ptr<TH1> B = std::make_unique<TH1D>(*B1);
     Double_t separation = 0;
     if ((S->GetNbinsX() != B->GetNbinsX()) || (S->GetNbinsX() <= 0)) {
         WriteErrorStatus("Common::GetSeparation", "signal and background histograms have different number of bins: " + std::to_string(S->GetNbinsX()) + " : " + std::to_string(B->GetNbinsX()));
@@ -424,10 +424,10 @@ double GetSeparation( TH1D* S1, TH1D* B1 ) {
         WriteErrorStatus("Common::GetSeparation", "Signal Xmin: " + std::to_string(S->GetXaxis()->GetXmin()) + ", background Xmin " + std::to_string(B->GetXaxis()->GetXmin()));
         WriteErrorStatus("Common::GetSeparation", "Signal Xmax: " + std::to_string(S->GetXaxis()->GetXmax()) + ", background Xmax " + std::to_string(B->GetXaxis()->GetXmax()));
     }
-    Int_t        nstep  = S->GetNbinsX();
+    Int_t nstep     = S->GetNbinsX();
     Double_t intBin = (S->GetXaxis()->GetXmax() - S->GetXaxis()->GetXmin())/nstep;
-    Double_t nS         = S->GetSumOfWeights()*intBin;
-    Double_t nB         = B->GetSumOfWeights()*intBin;
+    Double_t nS     = S->GetSumOfWeights()*intBin;
+    Double_t nB     = B->GetSumOfWeights()*intBin;
     if (nS > 0 && nB > 0) {
         for (Int_t bin=0; bin <= nstep + 1; bin++) {
             Double_t s = S->GetBinContent( bin )/Double_t(nS);
@@ -586,8 +586,7 @@ bool SmoothHistogram( TH1* h, float nsigma ){
 //__________________________________________________________________________________
 //
 void DropBins(TH1* h,const std::vector<int> &v){
-    TH1* h_new = (TH1*)h->Clone(h->GetName());
-    for(int i_bin=1;i_bin<=h_new->GetNbinsX();i_bin++){
+    for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
         if(find(v.begin(),v.end(),i_bin-1)!=v.end()){
             h->SetBinContent(i_bin,-1.);
             h->SetBinError(i_bin,0.);
