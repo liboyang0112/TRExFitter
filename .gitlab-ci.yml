@@ -4,17 +4,18 @@ image: lukasheinrich/recast_cvmfs_assisted
 ## Various steps to be followed by the build
 ##
 stages:
-   - build
-   - hstep
-   - wstep
-   - flsstep
-   - draw
-   - cleanup
+  - build
+  - hstep
+  - wstep
+  - flsstep
+  - draw
+  - imagebuild
+  - cleanup
 
 ## Checkout the submodule 
 variables:
-   GIT_SUBMODULE_STRATEGY: normal
-
+  GIT_SUBMODULE_STRATEGY: normal
+  BUILD_IMAGE: atlas/analysisbase:21.2.91 
 ##
 ## Common setup for all jobs
 ##
@@ -29,15 +30,15 @@ before_script:
 ##    Artifact: keeps the log file of the compilation
 ##
 compile:
-   stage: build
-   script:
+  stage: build
+  script:
      - mkdir -p build && cd build
      - cmake .. | tee cmake.log
      - make clean #make sure we don't have residual compilation results
      - make 2>&1 | tee -a cmake.log  #dump the log files
-   artifacts:
+  artifacts:
      paths:
-       - build
+      - build
 
 ##
 ## "Prepare" step: in parallel, dumps the inputs of the test
@@ -180,3 +181,20 @@ draw_postfit:
     artifacts:
       paths:
         - FitExample/Plots/
+
+#
+# image creation step: creates Docker Container 
+#    Registry: stores the Docker container in the registry
+#
+build_img:
+  stage: imagebuild
+  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
+  variables: 
+     GIT_SUBMODULE_STRATEGY: recursive
+  tags:
+    - docker-image-build
+  script:
+    - ignore
+  variables:
+    FROM: $BUILD_IMAGE
+
