@@ -20,9 +20,9 @@ public:
     // Functions
     //
     void AddNuisPar(NuisParameter *par);
-    float GetNuisParValue(const std::string& p);
-    float GetNuisParErrUp(const std::string& p);
-    float GetNuisParErrDown(const std::string& p);
+    double GetNuisParValue(const std::string& p);
+    double GetNuisParErrUp(const std::string& p);
+    double GetNuisParErrDown(const std::string& p);
     void ReadFromTXT(const std::string& fileName, const std::vector<std::string>& blinded);
     void DrawNPPulls(const std::string &path, const std::string &category, const std::vector < NormFactor* > &normFactors, const std::vector<std::string>& blinded) const;
     void DrawNormFactors(const std::string &path, const std::vector < NormFactor* > &normFactor, const std::vector<std::string>& blinded ) const;

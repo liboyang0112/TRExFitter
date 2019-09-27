@@ -557,7 +557,7 @@ bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, cons
             }
         } else if (possible_vec.at(iparam) == "float"){
             try {
-                std::stof(current_vec.at(iparam));
+                std::stod(current_vec.at(iparam));
             } catch (std::exception &e){
                 WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
                 return false;

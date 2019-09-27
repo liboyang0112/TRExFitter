@@ -13,7 +13,7 @@ NormFactor::NormFactor():fName(""),fNominal(0),fMin(0),fMax(0),fConst(false),fTa
 
 //__________________________________________________________________________________
 //
-NormFactor::NormFactor(const std::string& name, float nominal, float min, float max, bool isConst, std::string subCategory){
+NormFactor::NormFactor(const std::string& name, double nominal, double min, double max, bool isConst, std::string subCategory){
     fName = name;
     fNominal = nominal;
     fMin = min;

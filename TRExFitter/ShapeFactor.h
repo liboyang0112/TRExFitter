@@ -8,9 +8,9 @@
 class ShapeFactor{
 public:
     ShapeFactor();
-    ShapeFactor(const std::string& name, float nominal=1, float min=0, float max=10, bool isConst=false);
+    ShapeFactor(const std::string& name, double nominal=1., double min=0., double max=10., bool isConst=false);
     ~ShapeFactor();
-    void Set(const std::string& name, float nominal=1, float min=0, float max=10, bool isConst=false);
+    void Set(const std::string& name, double nominal=1., double min=0., double max=10., bool isConst=false);
 
     void Print() const;
 
@@ -19,9 +19,9 @@ public:
     std::string fTitle;
     std::string fCategory;
 
-    float fNominal;
-    float fMin;
-    float fMax;
+    double fNominal;
+    double fMin;
+    double fMax;
     bool fConst;
 
     std::vector<std::string> fRegions;

@@ -63,7 +63,7 @@ namespace HistoTools {
      * @param apply ttbar resonance smoothing
      */
     void ManageHistograms(int smoothingLevel, const SymmetrizationType& symType, TH1* hNom, TH1* originUp, TH1* originDown,
-        TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
+        TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
 
     /**
      * A helper function to symmetrize histograms
@@ -77,7 +77,7 @@ namespace HistoTools {
      * @param scale for the down varaition
      */
     void SymmetrizeHistograms(const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
-        TH1* &modifiedUp, TH1* &modifiedDown, float scaleUp, float scaleDown);
+        TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown);
 
     /**
      * A helper function to smooth histograms
@@ -113,7 +113,7 @@ namespace HistoTools {
      * @param Second histogram
      * @return Separation value
      */
-    float Separation(const TH1* const h1, const TH1* const h2);
+    double Separation(const TH1* const h1, const TH1* const h2);
 
     /**
      * A helper function to calculate symmetrization using two sided variation
@@ -160,7 +160,7 @@ namespace HistoTools {
      * @param Npminal histogram
      * @param scale factor
      */
-    void Scale(TH1* h_syst, TH1* h_nominal, float factor);
+    void Scale(TH1* h_syst, TH1* h_nominal, double factor);
 
     /**
      * A helper function to check for various weird features

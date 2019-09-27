@@ -50,9 +50,9 @@ public:
     void AddNormFactor(NormFactor *factor);
     void AddShapeFactor(ShapeFactor *factor);
     void AddSystematic(Systematic *syst);
-    NormFactor* AddNormFactor(const std::string& name,float nominal=1,float min=0,float max=10,bool isConst=false);
-    ShapeFactor* AddShapeFactor(const std::string& name,float nominal=1,float min=0,float max=10,bool isConst=false);
-    Systematic* AddSystematic(const std::string& name,int type=0,float up=0,float down=0);
+    NormFactor* AddNormFactor(const std::string& name,double nominal=1.,double min=0.,double max=10.,bool isConst=false);
+    ShapeFactor* AddShapeFactor(const std::string& name,double nominal=1.,double min=0.,double max=10.,bool isConst=false);
+    Systematic* AddSystematic(const std::string& name,int type=0,double up=0.,double down=0.);
     bool HasNormFactor(const std::string& name) const;
     bool HasSystematic(const std::string& name) const;
     bool HasNuisanceParameter(const std::string& name) const;
@@ -71,7 +71,7 @@ public:
     int fLineColor;
     bool fNormalizedByTheory;
     std::vector<std::string> fRegions;
-    std::vector<float> fLumiScales;
+    std::vector<double> fLumiScales;
     std::string fIgnoreSelection;
     std::string fIgnoreWeight;
     bool fUseMCStat;
@@ -84,7 +84,7 @@ public:
     bool fSmooth;
     int fBuildPullTable;
     std::map<std::string,bool> fIsMorph;
-    std::map<std::string,float> fMorphValue;
+    std::map<std::string,double> fMorphValue;
 
     // to read from ntuples
     std::string fSelection;
@@ -116,7 +116,7 @@ public:
     std::pair<std::string,std::string> fAsimovReplacementFor;
 
     bool fSeparateGammas;
-    float fMCstatScale;
+    double fMCstatScale;
     std::vector<std::vector<std::string>> fCorrelateGammasInRegions;
     std::string fCorrelateGammasWithSample;
     

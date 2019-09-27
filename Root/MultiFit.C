@@ -572,8 +572,8 @@ void MultiFit::GetCombinedSignificance(string inputData) const{
 //__________________________________________________________________________________
 //
 void MultiFit::ComparePOI(const string& POI) const {
-    float xmin = 0;
-    float xmax = 2;
+    double xmin = 0.;
+    double xmax = 2.;
 
     xmax = fPOIMax + (fPOIMax-fPOIMin);
     xmin = fPOIMin;
@@ -606,8 +606,8 @@ void MultiFit::ComparePOI(const string& POI) const {
 
     int N = names.size();
 
-    float ymin = -0.5;
-    float ymax = N+1-0.5;
+    double ymin = -0.5;
+    double ymax = N+1-0.5;
 
     TCanvas c("c","c",700,500);
     gStyle->SetEndErrorSize(6.);
@@ -851,7 +851,7 @@ void MultiFit::ComparePOI(const string& POI) const {
 //__________________________________________________________________________________
 //
 void MultiFit::CompareLimit(){
-    float xmax = 2;
+    double xmax = 2.;
     string process = fLabel;
     gStyle->SetEndErrorSize(0.);
 
@@ -884,8 +884,8 @@ void MultiFit::CompareLimit(){
 
     unsigned int N = names.size();
 
-    float ymin = -0.5;
-    float ymax = N-0.5;
+    double ymin = -0.5;
+    double ymax = N-0.5;
 
     TCanvas c("c","c",700,500);
 
@@ -1020,14 +1020,14 @@ void MultiFit::CompareLimit(){
 //__________________________________________________________________________________
 //
 void MultiFit::ComparePulls(string category) const{
-    float ydist = 0.2;
+    double ydist = 0.2;
 
     // Fit titles
     vector<string> dirs;
     vector<string> names;
     vector<string> suffs;
     vector<string> titles;
-    vector<float>  yshift;
+    vector<double>  yshift;
     int color[] = {kBlack,kRed,kBlue,kViolet};
 
     int style[] = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
@@ -1052,9 +1052,9 @@ void MultiFit::ComparePulls(string category) const{
         yshift.push_back( 0. - ydist*N/2. + ydist*i_fit );
     }
 
-    float xmin = -2.9;
-    float xmax = 2.9;
-    float max = 0;
+    double xmin = -2.9;
+    double xmax = 2.9;
+    double max = 0.;
     string npToExclude[] = {"gamma_","stat_"};
     bool brazilian = true;
 
@@ -1159,9 +1159,9 @@ void MultiFit::ComparePulls(string category) const{
     std::vector< TGraphAsymmErrors> g;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         // create maps for NP's
-        std::map<string,float> centralMap;
-        std::map<string,float> errUpMap;
-        std::map<string,float> errDownMap;
+        std::map<string,double> centralMap;
+        std::map<string,double> errUpMap;
+        std::map<string,double> errDownMap;
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
@@ -1276,14 +1276,14 @@ void MultiFit::ComparePulls(string category) const{
 //__________________________________________________________________________________
 //
 void MultiFit::CompareNormFactors(string category) const{
-    float ydist = 0.2;
+    double ydist = 0.2;
 
     // Fit titles
     vector<string> dirs;
     vector<string> names;
     vector<string> suffs;
     vector<string> titles;
-    vector<float>  yshift;
+    vector<double>  yshift;
 
     int color[] = {kBlack,kRed,kBlue,kViolet};
     int style[] = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
@@ -1308,9 +1308,9 @@ void MultiFit::CompareNormFactors(string category) const{
         yshift.push_back( 0. - ydist*N/2. + ydist*(N-i_fit-1) );
     }
 
-    float xmin = -1;
-    float xmax = 10;
-    float max = 0;
+    double xmin = -1.;
+    double xmax = 10.;
+    double max = 0.;
 
     // create a list of Norm Factors
     std::vector< string > Names;  Names.clear();
@@ -1409,9 +1409,9 @@ void MultiFit::CompareNormFactors(string category) const{
     std::vector< TGraphAsymmErrors > g;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         // create maps for NP's
-        std::map<string,float> centralMap;
-        std::map<string,float> errUpMap;
-        std::map<string,float> errDownMap;
+        std::map<string,double> centralMap;
+        std::map<string,double> errUpMap;
+        std::map<string,double> errDownMap;
         FitResults *fitRes;
         if(fCombine && i_fit==N-1){
             fitRes = new FitResults();
@@ -1757,8 +1757,8 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         else{
             //Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
-            float prefitUp   = 1.;
-            float prefitDown = 1.;
+            double prefitUp   = 1.;
+            double prefitDown = 1.;
             fitTool -> ResetFixedNP();
             // Fix NPs that are specified in the individual configs
             for (const auto& ifit : fFitList){
@@ -1941,17 +1941,17 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     if(SIZE>maxNP) SIZE = maxNP;
 
     // Graphical part - rewritten taking DrawPulls in TRExFitter
-    float lineHeight  =  30;
-    float offsetUp    =  60; // external
-    float offsetDown  =  60;
-    float offsetUp1   = 100; // internal
-    float offsetDown1 =  15;
+    double lineHeight  =  30.;
+    double offsetUp    =  60.; // external
+    double offsetDown  =  60.;
+    double offsetUp1   = 100.; // internal
+    double offsetDown1 =  15.;
     int offset = offsetUp + offsetDown + offsetUp1 + offsetDown1;
     int newHeight = offset + SIZE*lineHeight;
 
-    float xmin = -2;
-    float xmax =  2;
-    float max  =  0;
+    double xmin = -2.;
+    double xmax =  2.;
+    double max  =  0.;
 
     TGraphAsymmErrors g{};
     TGraphAsymmErrors g1{};
@@ -2659,12 +2659,12 @@ void MultiFit::PlotSummarySoverB() const {
     if(fBonlySuffix!="") includeBonly = true;
 
     fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
-    float muFit = fFitList[0]->fFitResults->GetNuisParValue(fPOI);
+    double muFit = fFitList[0]->fFitResults->GetNuisParValue(fPOI);
     if (HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" ) == nullptr) {
         WriteWarningStatus("MultiFit::PlotSummarySoverB", "Histo pointer is nullptr, skipping plotting.");
         return;
     }
-    float muLimit = HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
+    double muLimit = HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
 
     std::vector<string> fileNames; fileNames.clear();
     std::vector<string> fileNamesBonly; fileNamesBonly.clear();
@@ -2839,8 +2839,8 @@ void MultiFit::PlotSummarySoverB() const {
         h_syst_down_comb[i_syst] = Combine(h_syst_down[i_syst]);
     }
 
-    std::vector<float> SoverSqrtB;
-    float sig, bkg;
+    std::vector<double> SoverSqrtB;
+    double sig, bkg;
 
     for(int i_bin=1;i_bin<=h_bkg_comb->GetNbinsX();i_bin++){
         sig = h_sig_comb->GetBinContent(i_bin);
@@ -2863,8 +2863,8 @@ void MultiFit::PlotSummarySoverB() const {
         h_syst_down_ord[i_syst] = Rebin((TH1D*)(h_syst_down_comb[i_syst]),SoverSqrtB,false);
     }
 
-    float errUp, errDown, err, err_tot;
-    float corr;
+    double errUp, errDown, err, err_tot;
+    double corr;
     for(int i_bin=0;i_bin<h_bkg_ord->GetNbinsX()+2;i_bin++){
         err_tot = h_bkg_ord->GetBinError(i_bin); // this should be the stat unc
         errUp   = 0;
@@ -3101,8 +3101,8 @@ TH1D* MultiFit::Combine(vector<TH1D*> h) const{
 
 //____________________________________________________________________________________
 // order bins of h acording to a[] (increasing order)
-TH1D* MultiFit::OrderBins(TH1D* h, vector<float> vec) const{
-    map<float,int> binIndex;
+TH1D* MultiFit::OrderBins(TH1D* h, vector<double> vec) const{
+    map<double,int> binIndex;
     int Nbins = h->GetNbinsX();
     for(int i_bin=1;i_bin<=Nbins;i_bin++){
         binIndex[vec[i_bin-1]] = i_bin;
@@ -3117,12 +3117,12 @@ TH1D* MultiFit::OrderBins(TH1D* h, vector<float> vec) const{
 
 //____________________________________________________________________________________
 // merge bins in bins of SoverSqrtB
-TH1D* MultiFit::Rebin(TH1D* h, const vector<float>& vec, bool isData) const{
+TH1D* MultiFit::Rebin(TH1D* h, const vector<double>& vec, bool isData) const{
     TH1D* h_new = new TH1D(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),17,-3.8,-0.5);
     h_new->Sumw2();
     // new way
     for(int j_bin=1;j_bin<=h->GetNbinsX();j_bin++){
-        float value=TMath::Log10(vec[j_bin-1]);
+        double value=TMath::Log10(vec[j_bin-1]);
         if ( value<h_new->GetXaxis()->GetXmin() ) value=0.9999*h_new->GetXaxis()->GetXmin();
         if ( value>h_new->GetXaxis()->GetXmax() ) {
             double tmpvalue=1.0001*h_new->GetXaxis()->GetXmax();

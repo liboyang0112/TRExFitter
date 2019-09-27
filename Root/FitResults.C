@@ -57,7 +57,7 @@ void FitResults::AddNuisPar(NuisParameter *par){
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParValue(const string& p){
+double FitResults::GetNuisParValue(const string& p){
     int idx = -1;
     if(fNuisParIsThere[p]){
         idx = fNuisParIdx[p];
@@ -70,7 +70,7 @@ float FitResults::GetNuisParValue(const string& p){
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParErrUp(const std::string& p){
+double FitResults::GetNuisParErrUp(const std::string& p){
     int idx = -1;
     if(fNuisParIsThere[p]){
         idx = fNuisParIdx[p];
@@ -83,7 +83,7 @@ float FitResults::GetNuisParErrUp(const std::string& p){
 
 //__________________________________________________________________________________
 //
-float FitResults::GetNuisParErrDown(const std::string& p){
+double FitResults::GetNuisParErrDown(const std::string& p){
     int idx = -1;
     if(fNuisParIsThere[p]){
         idx = fNuisParIdx[p];
@@ -123,8 +123,8 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
     int Nsyst_corr = 0;
     //
     string name;
-    float value, up, down;
-    float corr;
+    double value, up, down;
+    double corr;
     //
     // read file line by line
     while(std::getline(in, line)){
@@ -180,7 +180,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
                 std::string hex;
                 iss >> hex >> up >> down;
                 NuisParameter *np = fNuisPar[fNuisParIdx[name]];
-                np->fFitValue = HexToFloat(hex);
+                np->fFitValue = HexToDouble(hex);
                 np->fPostFitUp = up;
                 np->fPostFitDown = down;
             }
@@ -230,9 +230,9 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
 //
 void FitResults::DrawNormFactors( const string &path,
                                   const std::vector < NormFactor* > &normFactors, const std::vector<string>& blinded ) const {
-    float xmin = 1000;
-    float xmax = -1000;
-    float max = 0;
+    double xmin = 1000.;
+    double xmax = -1000.;
+    double max = 0.;
 
     TGraphAsymmErrors g{};
 
@@ -319,40 +319,65 @@ void FitResults::DrawNormFactors( const string &path,
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawGammaPulls( const string &path, const std::vector<std::string>& blinded ) const {
-    float xmin = 10;
-    float xmax = -10;
-    float max = 0;
+void FitResults::DrawGammaPulls( const std::string & path, const std::vector<std::string> & blinded ) const {
+
+    double xmin =  10.;
+    double xmax = -10.;
+    double max  =   0.;
 
     TGraphAsymmErrors g{};
-
-    NuisParameter *par;
-    int idx = 0;
-    std::vector< string > names;
-
-    for(unsigned int i = 0; i<fNuisPar.size(); ++i){
-        par = fNuisPar[i];
-
-        std::string name = par->fName;
+      
+    // get a copy of the NPs (I want an actual copy of the NP objects that I can
+    // manipulate without changing the originals.  
+    std::vector<NuisParameter> myNPs;
+    
+    // make the copies, dropping non-gamma NPs and blinded NPs
+    for( unsigned i = 0; i < fNuisPar.size(); ++i )
+    {
+        std::string name = fNuisPar[i]->fName;
         name = ReplaceString(name,"gamma_","");
         if (std::find(blinded.begin(), blinded.end(), name) != blinded.end()) continue;
-
-        if ( par->fName.find("stat_") == std::string::npos && par->fName.find("shape_") == std::string::npos ) continue;
-        g.SetPoint(idx,par->fFitValue,idx+0.5);
-        g.SetPointEXhigh(idx, par->fPostFitUp);
-        g.SetPointEXlow( idx,-par->fPostFitDown);
-        if( par->fFitValue+par->fPostFitUp > xmax ) xmax = par->fFitValue+par->fPostFitUp;
-        if( par->fFitValue+par->fPostFitDown < xmin ) xmin = par->fFitValue+par->fPostFitDown;
-
-        std::string clean_name = par->fTitle;
+        if ( fNuisPar[i]->fName.find("stat_") == std::string::npos && fNuisPar[i]->fName.find("shape_") == std::string::npos ) continue;
+        
+        // make a copy, clean the name and save it
+        NuisParameter theNP( (*fNuisPar[i]) );
+        
+        std::string clean_name = theNP.fTitle;
         clean_name = ReplaceString( clean_name, "stat_", "#gamma " );
         clean_name = ReplaceString( clean_name, "shape_", "#gamma " );
         clean_name = ReplaceString( clean_name, "#gamma #gamma ", "#gamma " );
         clean_name = ReplaceString( clean_name, "_", " " );
-        names.push_back(clean_name);
-        idx ++;
-        if(idx > max)  max = idx;
+        
+        
+        theNP.fTitle = pad_trail( clean_name );
+        
+        myNPs.push_back( theNP );
+  
     }
+    
+    // now sort myNPs by the cleaned and padded names
+    // do a to_lower in the sort_func
+    // sort using a custom struct
+    struct {
+        bool operator()(const NuisParameter & a, const NuisParameter & b) const
+        {   
+            return a.fTitle < b.fTitle;
+        }   
+    } my_sort_func;
+        
+    std::sort( myNPs.begin(), myNPs.end(), my_sort_func );
+    
+    // start making the plot
+    for(unsigned int i = 0; i < myNPs.size(); ++i )
+    {
+        g.SetPoint(i, myNPs[i].fFitValue, i+0.5);
+        g.SetPointEXhigh( i,  myNPs[i].fPostFitUp );
+        g.SetPointEXlow ( i, -myNPs[i].fPostFitDown );
+        if( (myNPs[i].fFitValue + myNPs[i].fPostFitUp) > xmax ) xmax = myNPs[i].fFitValue + myNPs[i].fPostFitUp;
+        if( (myNPs[i].fFitValue + myNPs[i].fPostFitDown) < xmin ) xmin = myNPs[i].fFitValue + myNPs[i].fPostFitDown;
+    }
+    
+    max   = myNPs.size();
     xmax *= (1.2-(xmax<0));
     xmin *= (0.8+(xmin<0));
 
@@ -389,8 +414,10 @@ void FitResults::DrawGammaPulls( const string &path, const std::vector<std::stri
 
     TLatex systs{};
     systs.SetTextSize( systs.GetTextSize()*0.8 );
-    for(int i=0;i<max;i++){
-        systs.DrawLatex(xmax*1.05,i+0.25,names[i].c_str());
+    
+    for(unsigned int i=0; i< myNPs.size(); ++i )
+    {
+        systs.DrawLatex( xmax*1.05, i+0.25, myNPs[i].fTitle.c_str() );
     }
     h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
     gPad->RedrawAxis();
@@ -401,9 +428,9 @@ void FitResults::DrawGammaPulls( const string &path, const std::vector<std::stri
 //__________________________________________________________________________________
 //
 void FitResults::DrawNPPulls( const string &path, const string &category, const std::vector < NormFactor* > &normFactors, const std::vector<std::string>& blinded ) const {
-    float xmin = -2.9;
-    float xmax = 2.9;
-    float max = 0;
+    double xmin = -2.9;
+    double xmax = 2.9;
+    double max = 0.;
     std::vector<std::string> npToExclude = {"gamma_","stat_","shape_"};
     bool brazilian = true;
 

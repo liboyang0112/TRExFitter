@@ -19,7 +19,7 @@ public:
     // Functions
     //
     void AddNuisPar(const std::string& p);
-    void SetCorrelation(const std::string& p0, const std::string& p1,float corr);
+    void SetCorrelation(const std::string& p0, const std::string& p1,double corr);
     double GetCorrelation(const std::string& p0, const std::string& p1);
 
     /**
@@ -37,7 +37,7 @@ public:
     std::map<std::string,int> fNuisParIdx;
     std::map<std::string,bool> fNuisParIsThere;
     std::vector<std::string> fNuisParToHide;
-    float fMatrix[MAXsyst][MAXsyst];
+    double fMatrix[MAXsyst][MAXsyst];
 };
 
 #endif

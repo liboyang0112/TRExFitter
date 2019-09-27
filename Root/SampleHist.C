@@ -137,7 +137,7 @@ SampleHist::~SampleHist(){
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddOverallSyst(const std::string& name,float up,float down){
+SystematicHist* SampleHist::AddOverallSyst(const std::string& name,double up,double down){
     SystematicHist *syh;
     // try if it's already there...
     syh = GetSystematic(name);
@@ -331,7 +331,7 @@ NormFactor* SampleHist::AddNormFactor(NormFactor *normFactor){
 
 //_____________________________________________________________________________
 //
-NormFactor* SampleHist::AddNormFactor(const std::string& name,float nominal, float min, float max){
+NormFactor* SampleHist::AddNormFactor(const std::string& name,double nominal, double min, double max){
     NormFactor *norm = GetNormFactor(name);
     if(norm==nullptr){
         fNormFactors.push_back(new NormFactor(name,nominal,min,max));
@@ -359,7 +359,7 @@ ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
 
 //_____________________________________________________________________________
 //
-ShapeFactor* SampleHist::AddShapeFactor(const std::string& name,float nominal, float min, float max){
+ShapeFactor* SampleHist::AddShapeFactor(const std::string& name,double nominal, double min, double max){
     ShapeFactor *shape = GetShapeFactor(name);
     if(shape==nullptr){
         fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max));
@@ -519,7 +519,7 @@ void SampleHist::ReadFromFile(){
 
 //_____________________________________________________________________________
 //
-void SampleHist::NegativeTotalYieldWarning(TH1* hist, float yield) const{
+void SampleHist::NegativeTotalYieldWarning(TH1* hist, double yield) const{
     std::string temp = hist->GetName();
     WriteWarningStatus("SampleHist::NegativeTotalYieldWarning", "The total yield in " + temp + " is negative: " + std::to_string(yield));
     WriteWarningStatus("SampleHist::NegativeTotalYieldWarning", "    --> unable to preserve normalization while fixing bins with negative yields!");
@@ -530,17 +530,17 @@ void SampleHist::NegativeTotalYieldWarning(TH1* hist, float yield) const{
 void SampleHist::FixEmptyBins(const bool suppress){
     //
     // store yields (nominal and systs)
-    float initialYield = fHist->Integral();
+    double initialYield = fHist->Integral();
     if (initialYield<0) { NegativeTotalYieldWarning(fHist, initialYield); } // warning if total yield is negative, in which case normalization cannot be preserved
-    vector<float> yieldUp;
-    vector<float> yieldDown;
+    vector<double> yieldUp;
+    vector<double> yieldDown;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         SystematicHist* syh = fSyst[i_syst];
         if(syh==nullptr) continue;
         if(syh->fHistUp  ==nullptr) continue;
         if(syh->fHistDown==nullptr) continue;
-        float tmpYieldUp   = syh->fHistUp->Integral();
-        float tmpYieldDown = syh->fHistDown->Integral();
+        double tmpYieldUp   = syh->fHistUp->Integral();
+        double tmpYieldDown = syh->fHistDown->Integral();
         yieldUp.push_back(tmpYieldUp);
         yieldDown.push_back(tmpYieldDown);
         // warnings if total yield in systematic variations is negative, in which case normalization cannot be preserved
@@ -553,10 +553,10 @@ void SampleHist::FixEmptyBins(const bool suppress){
     }
     //
     // store minimum stat unc for non-zero bins
-    float minStat = -1;
+    double minStat = -1;
     for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-        float content = fHist->GetBinContent(i_bin);
-        float error   = fHist->GetBinError(  i_bin);
+        double content = fHist->GetBinContent(i_bin);
+        double error   = fHist->GetBinError(  i_bin);
         if(content>0 && error>0){
             if(minStat<0 || error<minStat) minStat = error;
         }
@@ -564,8 +564,8 @@ void SampleHist::FixEmptyBins(const bool suppress){
     //
     // loop o bins looking for negatives or zeros
     for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-        float content = fHist->GetBinContent(i_bin);
-        float error   = fHist->GetBinError(  i_bin);
+        double content = fHist->GetBinContent(i_bin);
+        double error   = fHist->GetBinError(  i_bin);
         if(content<=0){
             std::string temp = fHist->GetName();
             if (!suppress){
@@ -613,13 +613,13 @@ void SampleHist::FixEmptyBins(const bool suppress){
     if(fHist->Integral()!=initialYield){
         if (initialYield>0) {
             // keep the original overall normalisation if the initial yield was positive
-            float tmpScalingFactor = initialYield/fHist->Integral();
+            double tmpScalingFactor = initialYield/fHist->Integral();
             for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
                 fHist->SetBinContent(i_bin, fHist->GetBinContent(i_bin)*tmpScalingFactor);
             }
         } else if (TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL){
             // if the initial yield was negative, scale such that the total integral is 1e-06
-            float tmpScalingFactor = 1e-6/fHist->Integral();
+            double tmpScalingFactor = 1e-6/fHist->Integral();
             for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
                 fHist->SetBinContent(i_bin, fHist->GetBinContent(i_bin)*tmpScalingFactor);
             }
@@ -685,10 +685,10 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
     //
     // Draw the distributions for nominal, syst (before and after smoothing)
     //
-    float yield_syst_up = 0;
-    float yield_syst_down = 0;
-    float yield_nominal = 0;
-    float yield_data = 0;
+    double yield_syst_up = 0.;
+    double yield_syst_down = 0.;
+    double yield_nominal = 0.;
+    double yield_data = 0.;
     TCanvas *c = new TCanvas("c","c",800,600);
     //
     TPad* pad0 = new TPad("pad0","pad0",0,0.30,1,1,0,0,0);
@@ -907,10 +907,10 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 leg->SetTextFont(gStyle->GetTextFont());
                 leg->SetMargin(0.2);
 
-                float acc_up = (yield_syst_up-yield_nominal)/yield_nominal;
+                double acc_up = (yield_syst_up-yield_nominal)/yield_nominal;
                 string sign_up =  "+";
                 if(acc_up<0) sign_up = "-";
-                float acc_down = (yield_syst_down-yield_nominal)/yield_nominal;
+                double acc_down = (yield_syst_down-yield_nominal)/yield_nominal;
                 string sign_down =  "+";
                 if(acc_down<0) sign_down = "-";
                 leg->AddEntry(h_syst_up,  Form("+ 1 #sigma (%s%.1f %%)",sign_up.c_str(),  TMath::Abs(acc_up  *100)),"l");
@@ -932,7 +932,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
                 leg2->AddEntry(h_syst_up_black,"Modified","l");
                 leg2 -> Draw();
                 if(SumAndData){
-                    float acc_data = 0;
+                    double acc_data = 0.;
                     if (yield_nominal != 0) acc_data = (yield_data-yield_nominal)/yield_nominal;
                     else acc_data = 99999999;
                     string sign_data =  "+";
@@ -1027,7 +1027,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                     h_tmp_nominal->GetBinError(i_bin,0);
                 }
                 if(h_tmp_up!=nullptr){
-                    float tmp_nom_up = h_tmp_up->Integral();
+                    double tmp_nom_up = h_tmp_up->Integral();
                     h_tmp_up->Add(h_tmp_nominal,-1);
                     h_tmp_up->Divide(h_tmp_nominal);
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_up->AddBinContent(i_bin, 100.);
@@ -1039,7 +1039,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                     h_syst_up = (TH1*)h_tmp_up->Clone();
                 }
                 if(h_tmp_down!=nullptr){
-                    float tmp_nom_down = h_tmp_down->Integral();
+                    double tmp_nom_down = h_tmp_down->Integral();
                     h_tmp_down->Add(h_tmp_nominal,-1);
                     h_tmp_up->Divide(h_tmp_nominal);
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_down->AddBinContent(i_bin, 100.);
@@ -1087,14 +1087,14 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         if(fSample->fSmooth){
             if(h_syst_up!=nullptr){
                 for(int iBin = 1; iBin <= h_syst_up  ->GetNbinsX(); ++iBin ){
-                    float relDiff = (h_syst_up->GetBinContent(iBin) - h_nominal->GetBinContent(iBin))/ h_nominal->GetBinContent(iBin);
+                    double relDiff = (h_syst_up->GetBinContent(iBin) - h_nominal->GetBinContent(iBin))/ h_nominal->GetBinContent(iBin);
                     if(relDiff>=1. ) h_syst_up->SetBinContent(iBin, (1.+0.99)*h_nominal->GetBinContent(iBin) );
                     if(relDiff<=-1.) h_syst_up->SetBinContent(iBin, (1.-0.99)*h_nominal->GetBinContent(iBin) );
                 }
             }
             if(h_syst_down!=nullptr){
                 for(int iBin = 1; iBin <= h_syst_down  ->GetNbinsX(); ++iBin ){
-                    float relDiff = (h_syst_down->GetBinContent(iBin) - h_nominal->GetBinContent(iBin))/ h_nominal->GetBinContent(iBin);
+                    double relDiff = (h_syst_down->GetBinContent(iBin) - h_nominal->GetBinContent(iBin))/ h_nominal->GetBinContent(iBin);
                     if(relDiff>=1. ) h_syst_down->SetBinContent(iBin, (1.+0.99)*h_nominal->GetBinContent(iBin) );
                     if(relDiff<=-1.) h_syst_down->SetBinContent(iBin, (1.-0.99)*h_nominal->GetBinContent(iBin) );
                 }
@@ -1145,7 +1145,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 
 //_____________________________________________________________________________
 //
-void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, float scale){
+void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, double scale){
     fName = h->fName;
     fHist           = (TH1*)h->fHist->Clone();
     fHist_preSmooth = (TH1*)h->fHist_preSmooth->Clone();
@@ -1212,7 +1212,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
 
 //_____________________________________________________________________________
 //
-void SampleHist::SampleHistAdd(SampleHist* h, float scale){
+void SampleHist::SampleHistAdd(SampleHist* h, double scale){
     fHist          ->Add(h->fHist,          scale);
     fHist_preSmooth->Add(h->fHist_preSmooth,scale);
     fHist_orig     ->Add(h->fHist_orig,     scale);
@@ -1389,7 +1389,7 @@ void SampleHist::Multiply(SampleHist *sh){
 
 //_____________________________________________________________________________
 //
-void SampleHist::Add(SampleHist *sh,float scale){
+void SampleHist::Add(SampleHist *sh,double scale){
     TH1* hOrig = (TH1*)fHist->Clone("h_tmp_orig");
     if (sh->fHist != nullptr) fHist->Add( sh->fHist, scale );
     else  {
@@ -1473,7 +1473,7 @@ void SampleHist::Add(SampleHist *sh,float scale){
 
 //_____________________________________________________________________________
 //
-void SampleHist::Scale(float scale){
+void SampleHist::Scale(double scale){
     fHist->Scale( scale );
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){

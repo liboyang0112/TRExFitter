@@ -674,7 +674,7 @@ int ConfigReaderMulti::ReadLimitOptions(){
 
     param = confSet->Get("ConfidenceLevel");
     if( param != "" ){
-        float conf = std::stof(param);
+        double conf = std::stod(param);
         if (conf <= 0 || conf >= 1){
             WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "Confidence level is <= 0 or >=1. Setting to default 0.95");
             conf = 0.95;

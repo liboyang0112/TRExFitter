@@ -31,7 +31,7 @@ public:
 
     TH1* GetHist() const;
     const Sample* GetSample() const {return fSample;}
-    SystematicHist* AddOverallSyst(const std::string& name,float up,float down);
+    SystematicHist* AddOverallSyst(const std::string& name,double up,double down);
     SystematicHist* AddStatSyst(const std::string& name,int i_bin);
     SystematicHist* AddHistoSyst(const std::string& name,TH1* h_up,TH1* h_down);
     SystematicHist* AddHistoSyst(const std::string& name, const std::string& histoName_up,
@@ -39,10 +39,10 @@ public:
                                  const std::string& fileName_down, int pruned=0);
     SystematicHist* GetSystematic(const std::string& systName) const;
     SystematicHist* GetSystFromNP(const std::string& NuisParName) const;
-    NormFactor* AddNormFactor(const std::string& name,float nominal, float min, float max);
+    NormFactor* AddNormFactor(const std::string& name,double nominal, double min, double max);
     NormFactor* AddNormFactor(NormFactor *normFactor);
     NormFactor* GetNormFactor(const std::string& name) const;
-    ShapeFactor* AddShapeFactor(const std::string& name,float nominal, float min, float max);
+    ShapeFactor* AddShapeFactor(const std::string& name,double nominal, double min, double max);
     ShapeFactor* AddShapeFactor(ShapeFactor *shapeFactor);
     ShapeFactor* GetShapeFactor(const std::string& name) const;
 
@@ -54,7 +54,7 @@ public:
     void ReadFromFile();
 
     void FixEmptyBins(const bool suppress);
-    void NegativeTotalYieldWarning(TH1* hist, float yield) const;
+    void NegativeTotalYieldWarning(TH1* hist, double yield) const;
 
     void Print() const;
 
@@ -65,11 +65,11 @@ public:
 
     void Divide(  SampleHist* sh);
     void Multiply(SampleHist* sh);
-    void Add(     SampleHist* sh,float scale=1.);
-    void Scale(float scale);
+    void Add(     SampleHist* sh,double scale=1.);
+    void Scale(double scale);
 
-    void SampleHistAdd(SampleHist* h, float scale = 1.);
-    void CloneSampleHist(SampleHist* h, const std::set<std::string>& names, float scale = 1.);
+    void SampleHistAdd(SampleHist* h, double scale = 1.);
+    void CloneSampleHist(SampleHist* h, const std::set<std::string>& names, double scale = 1.);
     void SystPruning(PruningUtil *pu,TH1* hTot=nullptr);
 
     std::string fName;

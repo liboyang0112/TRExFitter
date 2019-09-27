@@ -168,7 +168,7 @@ void SystematicHist::Multiply(SystematicHist *syh){
 
 //_____________________________________________________________________________
 //
-void SystematicHist::Add(TH1 *h,float scale){
+void SystematicHist::Add(TH1 *h,double scale){
     fHistUp->Add(h,scale);
     if(fHistShapeUp!=nullptr)   fHistShapeUp->Add(h,scale);
     fHistDown->Add(h,scale);
@@ -177,7 +177,7 @@ void SystematicHist::Add(TH1 *h,float scale){
 
 //_____________________________________________________________________________
 //
-void SystematicHist::Add(SystematicHist *syh,float scale){
+void SystematicHist::Add(SystematicHist *syh,double scale){
     fHistUp->Add(       syh->fHistUp,scale);
     if(fHistShapeUp!=nullptr)   {
         if (syh->fHistShapeUp != nullptr) fHistShapeUp->Add(  syh->fHistShapeUp,scale);

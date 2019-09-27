@@ -71,7 +71,7 @@ public:
 
     void AddSelection(const std::string& selection);
     void AddMCweight(const std::string& weight);
-    void SetVariable(const std::string& variable,int nbin,float xmin,float xmax,std::string corrVar1="",std::string corrVar2="");
+    void SetVariable(const std::string& variable,int nbin,double xmin,double xmax,std::string corrVar1="",std::string corrVar2="");
     void SetAlternativeVariable(const std::string& variable, const std::string& sample);
     bool UseAlternativeVariable(const std::string& sample);
     std::string GetAlternativeVariable(const std::string& sample) const;
@@ -134,13 +134,13 @@ public:
     int fNSamples;
     std::vector < SampleHist* > fSampleHists;
     std::vector < Sample* > fSamples;
-    float fYmaxScale;
-    float fYmin;
-    float fYmax;
-    float fRatioYmin;
-    float fRatioYmax;
-    float fRatioYminPostFit;
-    float fRatioYmaxPostFit;
+    double fYmaxScale;
+    double fYmin;
+    double fYmax;
+    double fRatioYmin;
+    double fRatioYmax;
+    double fRatioYminPostFit;
+    double fRatioYmaxPostFit;
     std::string fRatioYtitle;
     std::string fRatioType;
 
@@ -174,8 +174,8 @@ public:
     std::string fCorrVar1;
     std::string fCorrVar2;
     int fNbins;
-    float fXmin;
-    float fXmax;
+    double fXmin;
+    double fXmax;
     std::string fSelection;
     std::string fMCweight;
     std::vector<std::string> fNtuplePaths;
@@ -223,13 +223,13 @@ public:
     std::string fLumiLabel;
     std::string fCmeLabel;
 
-    float fLumiScale;
+    double fLumiScale;
 
     bool fLogScale;
 
-    float fBinWidth;
+    double fBinWidth;
 
-    float fBlindingThreshold;
+    double fBlindingThreshold;
     TRExFit::BlindingType fBlindingType;
 
     bool fSkipSmoothing;
@@ -247,19 +247,19 @@ public:
 
     std::vector<std::string> fBinLabels;
 
-    float fChi2val;
+    double fChi2val;
     int fNDF;
-    float fChi2prob;
+    double fChi2prob;
 
     bool fUseGammaPulls;
 
-    std::vector<float> fXaxisRange;
+    std::vector<double> fXaxisRange;
     
-    float fLabelX;
-    float fLabelY;
-    float fLegendX1;
-    float fLegendX2;
-    float fLegendY;
+    double fLabelX;
+    double fLabelY;
+    double fLegendX1;
+    double fLegendX2;
+    double fLegendY;
     
     int fLegendNColumns;
     

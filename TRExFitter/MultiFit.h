@@ -42,8 +42,8 @@ public:
     void BuildGroupedImpactTable() const;
 
     TH1D* Combine(std::vector<TH1D*> hists) const;
-    TH1D* OrderBins(TH1D* h, std::vector<float> vec) const;
-    TH1D* Rebin(TH1D* h, const std::vector<float>& vec, bool isData=true) const;
+    TH1D* OrderBins(TH1D* h, std::vector<double> vec) const;
+    TH1D* Rebin(TH1D* h, const std::vector<double>& vec, bool isData=true) const;
 
     std::vector< std::string > fFitNames;
     std::vector< TRExFit* > fFitList;
@@ -76,14 +76,14 @@ public:
     std::string fGroupedImpactCategory;
 
     std::string fPOI;
-    float fPOIMin;
-    float fPOIMax;
-    float fPOIVal;
+    double fPOIMin;
+    double fPOIMax;
+    double fPOIVal;
     std::string fPOIPrecision;
-    float fLimitMax;
+    double fLimitMax;
 
     bool fUseRnd;
-    float fRndRange;
+    double fRndRange;
     long int fRndSeed;
 
     std::string fLumiLabel;
@@ -115,18 +115,18 @@ public:
 
     std::vector<std::string> fVarNameLH;
     std::vector<std::vector<std::string> > fVarName2DLH;
-    float fLHscanMin;
-    float fLHscanMax;
+    double fLHscanMin;
+    double fLHscanMax;
     int fLHscanSteps;
-    float fLHscanMinY;
-    float fLHscanMaxY;
+    double fLHscanMinY;
+    double fLHscanMaxY;
     int fLHscanStepsY;
     bool fParal2D;
     int fParal2Dstep;
     bool fDoGroupedSystImpactTable;
 
     std::string fPOIName;
-    float fPOINominal;
+    double fPOINominal;
 
     //
     // Limit parameters
@@ -134,11 +134,11 @@ public:
     bool fLimitIsBlind;
     double fLimitPOIAsimov;
     bool fSignalInjection;
-    float fSignalInjectionValue;
+    double fSignalInjectionValue;
     std::string fLimitParamName;
-    float fLimitParamValue;
+    double fLimitParamValue;
     std::string fLimitOutputPrefixName;
-    float fLimitsConfidence;
+    double fLimitsConfidence;
 
     //
     // Significance parameters
@@ -146,14 +146,14 @@ public:
     bool fSignificanceIsBlind;
     double fSignificancePOIAsimov;
     std::string fSignificanceParamName;
-    float fSignificanceParamValue;
+    double fSignificanceParamValue;
     std::string fSignificanceOutputPrefixName;
 
     bool fShowTotalOnly;
 
     bool fuseGammasForCorr;
 
-    float fPOIInitial;
+    double fPOIInitial;
     std::vector<std::string> fConfigPaths;
 };
 

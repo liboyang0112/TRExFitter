@@ -8,7 +8,7 @@
 class NormFactor{
 public:
     NormFactor();
-    NormFactor(const std::string& name, float nominal=1, float min=0, float max=10, bool isConst=false, std::string subCategory="NormFactors");
+    NormFactor(const std::string& name, double nominal=1., double min=0., double max=10., bool isConst=false, std::string subCategory="NormFactors");
     ~NormFactor();
 
     void Print() const;
@@ -19,9 +19,9 @@ public:
     std::string fCategory;
     std::string fSubCategory;
 
-    float fNominal;
-    float fMin;
-    float fMax;
+    double fNominal;
+    double fMin;
+    double fMax;
     bool fConst;
 
     std::vector<std::string> fRegions;
@@ -29,7 +29,7 @@ public:
     
     std::pair<std::string,std::string> fExpression;
     
-    float fTau; // for Tikhonov regularization
+    double fTau; // for Tikhonov regularization
 };
 
 #endif

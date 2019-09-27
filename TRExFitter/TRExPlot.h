@@ -27,13 +27,13 @@ class TRExPlot {
     void SetChannel(const std::string& name);
     void AddLabel(const std::string& name);
     void SetLumi(const std::string& name);
-    void SetLumiScale(float scale);
+    void SetLumiScale(double scale);
     void SetCME(const std::string& name);
     void SetXaxis(const std::string& name,bool isNjet=false);
     void SetYaxis(const std::string& name);
-    void SetYmaxScale(float scale);
+    void SetYmaxScale(double scale);
     void SetBinLabel(int bin, const std::string& name);
-    void SetBinWidth(float width);
+    void SetBinWidth(double width);
 
     void SetData(TH1* h,std::string name="Data");
     void AddSignal(TH1* h,std::string name="Signal");
@@ -43,10 +43,10 @@ class TRExPlot {
     void SetTotBkgAsym(TGraphAsymmErrors* g);
     void SetTotBkg(TH1* h);
 
-    void SetChi2KS(float chi2prob,float ksprob=-1,float chi2val=-1,int ndf=-1);
+    void SetChi2KS(double chi2prob,double ksprob=-1.,double chi2val=-1.,int ndf=-1);
     void BlindData();
 
-    void SetXaxisRange(const std::vector<float>& vec) {fXaxisRange = vec;}
+    void SetXaxisRange(const std::vector<double>& vec) {fXaxisRange = vec;}
 
     void Draw(std::string options="");
     void SaveAs(const std::string& name) const;
@@ -54,7 +54,7 @@ class TRExPlot {
 
     TCanvas* GetCanvas() const;
 
-    void SetBinBlinding(bool on,float threshold=0.02,TRExFit::BlindingType=TRExFit::SOVERB);
+    void SetBinBlinding(bool on,double threshold=0.02,TRExFit::BlindingType=TRExFit::SOVERB);
     void SetBinBlinding(bool on,TH1D*h_blind,TRExFit::BlindingType=TRExFit::SOVERB);
 
     std::string fName;
@@ -89,34 +89,34 @@ class TRExPlot {
     std::string fLumi;
     std::string fCME;
     std::string fATLASlabel;
-    float yMaxScale;
+    double yMaxScale;
     int NDF;
-    float Chi2val;
-    float Chi2prob;
-    float KSprob;
+    double Chi2val;
+    double Chi2prob;
+    double KSprob;
 
-    float fYmax;
-    float fYmin;
-    float fRatioYmax;
-    float fRatioYmin;
-    float fBinWidth;
+    double fYmax;
+    double fYmin;
+    double fRatioYmax;
+    double fRatioYmin;
+    double fBinWidth;
     bool fIsNjet;
     bool fShowYields;
     std::string fBinLabel[MAXbins];
-    float fLumiScale;
-    float fBlindingThreshold;
+    double fLumiScale;
+    double fBlindingThreshold;
     TRExFit::BlindingType fBlindingType;
     int fLegendNColumns;
-    std::vector<float> fXaxisRange;
+    std::vector<double> fXaxisRange;
     std::string fRatioYtitle;
     
     std::string fRatioType;
     
-    float fLabelX;
-    float fLabelY;
-    float fLegendX1;
-    float fLegendX2;
-    float fLegendY;
+    double fLabelX;
+    double fLabelY;
+    double fLegendX1;
+    double fLegendX2;
+    double fLegendY;
 
 public:
     const TH1* GetTotal() const { return h_tot; };
@@ -129,7 +129,7 @@ double GC_up(double data);
 double GC_down(double data);
 TGraphAsymmErrors* poissonize(TH1 *h);
 TGraphAsymmErrors* histToGraph(TH1* h);
-void SetHistBinWidth(TH1* h,float width);
-void SetGraphBinWidth(TGraphAsymmErrors* g,float width);
+void SetHistBinWidth(TH1* h,double width);
+void SetGraphBinWidth(TGraphAsymmErrors* g,double width);
 
 #endif

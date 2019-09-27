@@ -107,9 +107,9 @@ Drawing post-fit plots...
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	111.363914 +8.096815 -8.096815
-=== DEBUG::Region::DrawPostFit: 2:	110.279503 +7.142635 -7.142635
-=== DEBUG::Region::DrawPostFit: 3:	70.438171 +6.359361 -6.359361
+=== DEBUG::Region::DrawPostFit: 1:	111.363907 +8.096816 -8.096816
+=== DEBUG::Region::DrawPostFit: 2:	110.279503 +7.142633 -7.142633
+=== DEBUG::Region::DrawPostFit: 3:	70.438179 +6.359363 -6.359363
 === DEBUG::Region::DrawPostFit: 4:	24.423136 +4.183327 -4.183327
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_1_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been created
@@ -141,20 +141,20 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been cr
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	109.028191 +6.483069 -6.483069
-=== DEBUG::Region::DrawPostFit: 2:	108.709213 +5.962674 -5.962674
-=== DEBUG::Region::DrawPostFit: 3:	70.158707 +6.406663 -6.406663
-=== DEBUG::Region::DrawPostFit: 4:	24.278429 +4.157643 -4.157643
+=== DEBUG::Region::DrawPostFit: 1:	109.028191 +6.483070 -6.483070
+=== DEBUG::Region::DrawPostFit: 2:	108.709213 +5.962672 -5.962672
+=== DEBUG::Region::DrawPostFit: 3:	70.158707 +6.406664 -6.406664
+=== DEBUG::Region::DrawPostFit: 4:	24.278431 +4.157642 -4.157642
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_2_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
 [1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region VR ...[0m
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
-=== DEBUG::Region::DrawPostFit: 1:	324.525208 +25.292503 -25.292503
-=== DEBUG::Region::DrawPostFit: 2:	293.790527 +22.330587 -22.330587
-=== DEBUG::Region::DrawPostFit: 3:	164.453064 +19.444223 -19.444223
-=== DEBUG::Region::DrawPostFit: 4:	62.746437 +11.147522 -11.147522
+=== DEBUG::Region::DrawPostFit: 1:	324.525177 +25.292497 -25.292497
+=== DEBUG::Region::DrawPostFit: 2:	293.790527 +22.330582 -22.330582
+=== DEBUG::Region::DrawPostFit: 3:	164.453064 +19.444216 -19.444216
+=== DEBUG::Region::DrawPostFit: 4:	62.746437 +11.147520 -11.147520
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/VR_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/VR_postFit.png has been created
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
@@ -164,8 +164,8 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
-=== DEBUG::TRExFit::DrawSummary: 1:	316.504725	+15.538586	-15.538586
-=== DEBUG::TRExFit::DrawSummary: 2:	312.174540	+12.720700	-12.720700
+=== DEBUG::TRExFit::DrawSummary: 1:	316.504725	+15.538590	-15.538590
+=== DEBUG::TRExFit::DrawSummary: 2:	312.174541	+12.720713	-12.720713
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
 Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
@@ -174,7 +174,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has b
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
-=== DEBUG::TRExFit::DrawSummary: 1:	845.515236	+44.061554	-44.061554
+=== DEBUG::TRExFit::DrawSummary: 1:	845.515205	+44.061521	-44.061521
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
 [1;32m=== INFO::TRExFit::PrintSystTables: Printing syst tables[0m
