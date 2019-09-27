@@ -603,11 +603,7 @@ double CorrectIntegral(TH1* h, double * err){
         if(h->GetBinContent(i_bin)<0) continue;
         integral += h->GetBinContent(i_bin);
         if(h->GetBinError(i_bin)<=0) continue;
-        // BW
-        // The error seems suspicious, you are taking the sqrt().
-        // Probably should be pow( ,2), not pow( ,1).
-        // At least add some comments if what you have here is correct
-        error += pow(h->GetBinError(i_bin), 1);
+        error += pow(h->GetBinError(i_bin), 2);
     }
     if(err!=0) *err = sqrt(error);
     return integral;
