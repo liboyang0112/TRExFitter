@@ -64,7 +64,7 @@ std::string RemoveQuotes(const std::string& s){
 
 //__________________________________________________________________________________
 // Removes leading and trailing white spaces, removes everything after "%", removes '"'
-std::string Fix(const std::string& s){ 
+std::string Fix(const std::string& s){
     if(s=="") return "";
     std::string ss = s.substr( 0, s.find_first_of('%') );
     replace( ss.begin(), ss.end(), '"', ' ');
@@ -165,7 +165,7 @@ std::string ReadValueFromConfig(const std::string& fileName,const std::string& o
         }
     }
     file.close();
-    file.clear();    
+    file.clear();
     return value;
 }
 

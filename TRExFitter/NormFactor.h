@@ -26,7 +26,7 @@ public:
 
     std::vector<std::string> fRegions;
     std::vector<std::string> fExclude;
-    
+
     std::pair<std::string,std::string> fExpression;
     
     double fTau; // for Tikhonov regularization

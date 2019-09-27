@@ -107,7 +107,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
     std::ifstream in;
     in.open(fileName.c_str());
 
-    if (!in.is_open())	{
+    if (!in.is_open()) {
         delete matrix;
         WriteErrorStatus("FitResults::ReadFromTXT","Could not open the file \"" + fileName + "\"");
         return;

@@ -756,8 +756,8 @@ void MultiFit::ComparePOI(const string& POI) const {
             tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_tot.GetErrorXlow(N-i-1)));
             tex.DrawLatex(xmin+0.69*(xmax-xmin),N-i-1,"(");
             if (!fShowTotalOnly){
-	            tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
-	            tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXlow(N-i-1)));
+                tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
+                tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXlow(N-i-1)));
                 tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),
                     sqrt( pow(g_tot.GetErrorXhigh(N-i-1),2) - pow(g_stat.GetErrorXhigh(N-i-1),2) ) ) );
                 tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),
@@ -2635,7 +2635,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
     }
 
     // Write histogram to Root file as well
-    if (fParal2D) { 
+    if (fParal2D) {
         std::ostringstream step_os;
         step_os << fParal2Dstep;
         std::string paral2Dstep_str=step_os.str();

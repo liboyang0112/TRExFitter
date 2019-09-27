@@ -1263,18 +1263,18 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     if( param != ""){
         fFitter->fRankingPlot = RemoveQuotes(param);
     }
-    
+
     // exclude a template from morphing
     param = confSet->Get("ExcludeFromMorphing");
     if( param != ""){
         fFitter->fExcludeFromMorphing = CheckName(param);
     }
-    
+
     param = confSet->Get("ScaleSamplesToData");
     if( param != ""){
         fFitter->fScaleSamplesToData = Vectorize(param,',');
     }
-    
+
     param = confSet->Get("MaxNtupleEvents");
     if(param != "") fFitter->fDebugNev = atoi(param.c_str());
 
@@ -1980,11 +1980,11 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                     }
                     reg -> fTransfoDzSig=convertStoD(vec_bins[2]);
                     reg -> fTransfoDzBkg=convertStoD(vec_bins[3]);
-	                if(vec_bins.size()>4){
-	                    for(const std::string& ibkg : vec_bins){
-	    	                reg -> fAutoBinBkgsInSig.push_back(ibkg);
-	                    }
-	                }
+                    if(vec_bins.size()>4){
+                        for(const std::string& ibkg : vec_bins){
+                            reg -> fAutoBinBkgsInSig.push_back(ibkg);
+                        }
+                    }
                 }
                 else if(vec_bins[1]=="TransfoF"){
                     if (vec_bins.size() < 4){
@@ -1993,11 +1993,11 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                     }
                     reg -> fTransfoFzSig=convertStoD(vec_bins[2]);
                     reg -> fTransfoFzBkg=convertStoD(vec_bins[3]);
-	                if(vec_bins.size()>4){
-	                    for(const std::string& ibkg : vec_bins){
-	    	                reg -> fAutoBinBkgsInSig.push_back(ibkg);
-	                    }
-	                }
+                    if(vec_bins.size()>4){
+                        for(const std::string& ibkg : vec_bins){
+                            reg -> fAutoBinBkgsInSig.push_back(ibkg);
+                        }
+                    }
                 }
                 else if(vec_bins[1]=="TransfoJ"){
                     if(vec_bins.size() > 2) reg -> fTransfoJpar1=convertStoD(vec_bins[2]);
@@ -2006,10 +2006,10 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                     else reg -> fTransfoJpar2 = 1.;
                     if(vec_bins.size() > 4) reg -> fTransfoJpar3=convertStoD(vec_bins[4]);
                     else reg -> fTransfoJpar3 = 5.;
-	                if(vec_bins.size()>5){
-	                    for(const std::string& ibkg : vec_bins){
-	    	                reg -> fAutoBinBkgsInSig.push_back(ibkg);
-	                    }
+                    if(vec_bins.size()>5){
+                        for(const std::string& ibkg : vec_bins){
+                            reg -> fAutoBinBkgsInSig.push_back(ibkg);
+                        }
                     }
                 }
                 else{
@@ -3003,7 +3003,7 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
         if(param != ""){
             sample->fCorrelateGammasWithSample = RemoveQuotes(param);
         }
-        
+
         // Set SystFromSample
         param = confSet->Get("SystFromSample");
         if(param != ""){
@@ -3184,8 +3184,8 @@ int ConfigReader::ReadNormFactorOptions(){
         // Set Expression
         param = confSet->Get("Expression");
         if(param!=""){
-	  std::vector<std::string> v = Vectorize(param,':');
-	  if (v.size() < 2){
+            std::vector<std::string> v = Vectorize(param,':');
+            if (v.size() < 2){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "You specified 'Expression' option but did not provide 2 parameters. Please check this");
                 return 1;
             }
@@ -3289,7 +3289,7 @@ int ConfigReader::ReadShapeFactorOptions(){
         else{
             sfactor = fFitter->fShapeFactors[ FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName) ];
         }
-        
+
         // Set NuisanceParameter = Name
         sfactor->fNuisanceParameter = sfactor->fName;
         TRExFitter::NPMAP[sfactor->fName] = sfactor->fName;
@@ -3410,7 +3410,7 @@ int ConfigReader::ReadSystOptions(){
         std::vector<std::string> samples = Vectorize(samples_str,',');
         std::vector<std::string> regions = Vectorize(regions_str,',');
         std::vector<std::string> exclude = Vectorize(exclude_str,',');
-        
+
         if(samples_str!="all" && confSet->Get("DummyForSamples")!=""){
             std::vector<std::string> addSamples = Vectorize(confSet->Get("DummyForSamples"),',');
             for(const auto& addSmp : addSamples){
@@ -4565,7 +4565,7 @@ int ConfigReader::PostConfig(){
             }
         }
     }
-    
+
     // Check and fix shape factor number of bins
     for(auto sfactor : fFitter->fShapeFactors){
         WriteInfoStatus("ConfigReader::PostConfig","Checking consistency of shape factor " + sfactor->fName + " across regions...");
@@ -4583,7 +4583,7 @@ int ConfigReader::PostConfig(){
         }
         sfactor->fNbins = nbins;
     }
-    
+
     // if SaturatedModel was set, add proper shape factors
     if(fFitter->fSaturatedModel){
         for(auto reg : fFitter->fRegions){

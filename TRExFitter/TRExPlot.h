@@ -109,7 +109,7 @@ class TRExPlot {
     int fLegendNColumns;
     std::vector<double> fXaxisRange;
     std::string fRatioYtitle;
-    
+
     std::string fRatioType;
     
     double fLabelX;

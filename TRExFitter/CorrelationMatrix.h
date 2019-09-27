@@ -27,7 +27,7 @@ public:
       * @param Path to the output file
       * @param Flag to include gammas on the matrix
       * @param Minimum correlation considered for plotting
-      */ 
+      */
     void Draw(const std::string& path, const bool& useGammas, const double corrMin = -1.);
 
     //

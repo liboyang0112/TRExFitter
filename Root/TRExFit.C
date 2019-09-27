@@ -4730,7 +4730,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
-            
+
     // Calls the PerformFit() function to actually do the fit
     //
     if (!isLHscanOnly) PerformFit( ws, data, fFitType, true, TRExFitter::DEBUGLEVEL);
@@ -7569,7 +7569,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     }
 
     // Write histogram to Root file as well
-    if (fParal2D) { 
+    if (fParal2D) {
         std::ostringstream step_os;
         step_os << fParal2Dstep;
         std::string paral2Dstep_str=step_os.str();
@@ -8067,10 +8067,10 @@ void TRExFit::RunToys(RooWorkspace* ws){
 
         //Get the desired NP
         RooRealVar* NPtoShift = (RooRealVar*) (& ws->allVars()[fToysPseudodataNP.c_str()]);
-        
+
         //For the loop over NPs
         std::string varname{};
-        
+
         //Create NLL only once
         RooDataSet *dummy = pdf->generate( obsSet, RooFit::Extended() );
         RooAbsReal* nll = simPdf.createNLL(*dummy,
@@ -8081,19 +8081,19 @@ void TRExFit::RunToys(RooWorkspace* ws){
 
 
         for(int i_toy=0;i_toy<fFitToys;i_toy++){
-            
+
             TIterator* it = mc.GetNuisanceParameters()->createIterator();
             RooRealVar* var = nullptr;
             while( (var = (RooRealVar*) it->Next()) ){
                 varname = var->GetName();
                 if (varname.find("alpha_")!=std::string::npos) {
-                    var->setConstant(1);                                                       
-	                var->setVal(0);
+                    var->setConstant(1);
+                    var->setVal(0);
                 } else {
-	                var->setConstant(1);  
-	                var->setVal(1);                     
+                    var->setConstant(1);
+                    var->setVal(1);
                 }
-            }   
+            }
             delete it;
             delete var;
 
@@ -8102,7 +8102,7 @@ void TRExFit::RunToys(RooWorkspace* ws){
             poiVar->setVal(fFitPOIAsimov);
             NPtoShift->setConstant(1);
             NPtoShift->setVal(fToysPseudodataNPShift);
-            
+
             WriteInfoStatus("TRExFit::RunToys","Generating toy n. " + std::to_string(i_toy+1) + " out of " + std::to_string(fFitToys) + " toys");
             RooDataSet *toyData = pdf->generate( obsSet, RooFit::Extended() );
             // re-set POI to free-floating, and to nominal value
@@ -8111,25 +8111,25 @@ void TRExFit::RunToys(RooWorkspace* ws){
                 RooRealVar* vartmp = nullptr;
                 TIterator* it2 = nuis->createIterator();
                 while( (vartmp = (RooRealVar*) it2->Next()) ){
-	                std::string np = vartmp->GetName();
+                    std::string np = vartmp->GetName();
                     if (np.find("alpha_")!=std::string::npos) {
-                        vartmp->setConstant(0);                                                       
-	                    vartmp->setVal(0);
+                        vartmp->setConstant(0);
+                        vartmp->setVal(0);
                     }
-	                else if( np.find("gamma_")!=std::string::npos ){
-	                  vartmp->setVal(1);
-	                  vartmp->setConstant(0);
-	                }
-	                else {  // for norm factors
-	                  vartmp->setVal( 1 );
-	                }
+                    else if( np.find("gamma_")!=std::string::npos ){
+                        vartmp->setVal(1);
+                        vartmp->setConstant(0);
+                    }
+                    else {  // for norm factors
+                        vartmp->setVal( 1 );
+                    }
                 }
                 delete it2;
                 delete vartmp;
             }
             poiVar->setConstant(0);
             poiVar->setVal(POInf.fNominal);
-            
+
             // NP is fixed constant for each fit, and to nominal value
             NPtoShift->setConstant(1);
             NPtoShift->setVal(0);
@@ -8141,13 +8141,13 @@ void TRExFit::RunToys(RooWorkspace* ws){
             m.setErrorLevel(-1);
             m.setPrintLevel(-1);
             //m.setStrategy(2); // set precision to high
-            m.migrad(); 
+            m.migrad();
             RooFitResult* r = m.save(); // save fit result
 
             h_toys.Fill(poiVar->getVal());
             WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value: " + std::to_string(poiVar->getVal()));
 
-            delete r; 
+            delete r;
             delete toyData;
         }
         // plot, fit and save toy histogram

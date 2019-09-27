@@ -98,7 +98,7 @@ public:
     std::string fNtupleFileSufDown;
     std::vector<std::string> fNtupleNamesDown;
     std::string fNtupleNameSufDown;
-    
+
     // needed for systematics on data - like JER
     // Down variation
     std::vector<std::string> fNtuplePathsDownRefSample;
@@ -107,7 +107,7 @@ public:
     std::string fNtupleFileSufDownRefSample;
     std::vector<std::string> fNtupleNamesDownRefSample;
     std::string fNtupleNameSufDownRefSample;
-    
+
     std::string fIgnoreWeight;
 
     // from histos - up
@@ -134,7 +134,7 @@ public:
     std::string fHistoFileSufDown;
     std::vector<std::string> fHistoNamesDown;
     std::string fHistoNameSufDown;
-    
+
     // needed for systematics on data - like JER
     // Down variation
     std::vector<std::string> fHistoPathsDownRefSample;

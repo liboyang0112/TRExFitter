@@ -29,7 +29,7 @@ public:
     void DrawGammaPulls(const std::string &path, const std::vector<std::string>& blinded ) const;
 
     /**
-      * Function to draw correlation matrix 
+      * Function to draw correlation matrix
       * @param Path to the output file
       * @param Flag to include gammas on the matrix
       * @param Minimum correlation considered for plotting
@@ -50,7 +50,7 @@ public:
     CorrelationMatrix *fCorrMatrix;
 
     int fPOIPrecision;
-    
+
     double fNLL;
 
 };
