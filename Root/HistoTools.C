@@ -88,7 +88,7 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
     // FIRST STEP: SYMMETRISATION
     //
     //##################################################
-        
+
     //Just to be sure, set sumw2() on histograms
     if(hNom != nullptr)
     { 
@@ -169,9 +169,9 @@ void HistoTools::SmoothHistograms( int smoothingLevel,  TH1* hNom,
     // SECOND STEP: SMOOTHING
     //
     //##################################################
-    
+
     // No smoothing
-    if (smoothingLevel == 0){ 
+    if (smoothingLevel == 0){
         return;
     }
 

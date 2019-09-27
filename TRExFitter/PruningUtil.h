@@ -8,7 +8,7 @@ class PruningUtil {
 public:
     PruningUtil();
     ~PruningUtil();
-    
+
     // 0 = sample-by-sample, 1 = relative to tot background, 2 = relative to tot S+B
     void SetStrategy(int strat);
     void SetThresholdNorm(double thres);

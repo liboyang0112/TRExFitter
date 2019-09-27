@@ -833,7 +833,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         else{
             systValue = fitRes->GetNuisParValue(systName);
         }
-        
+
         //
         // Normalisation component: use the exponential interpolation and the multiplicative combination
         //
@@ -993,7 +993,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         systName    = fSystNames[i_syst];
         if(systName.find("saturated_model_")!=std::string::npos) continue;
         if(TRExFitter::NPMAP[systName]=="") TRExFitter::NPMAP[systName] = systName;
-        
+
         // Before checking if a systematic is there in the fit results, needs first to identify which name to look for:
         // - use NuisanceParameer for systematics (and normal norm factors)
         // - use the name and NOT the NPMAP for morphing factors (NPMAP contains the morphing parameter)
@@ -1004,7 +1004,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         systValue   = fitRes->GetNuisParValue(systToCheck);
         systErrUp   = fitRes->GetNuisParErrUp(systToCheck);
         systErrDown = fitRes->GetNuisParErrDown(systToCheck);
-        
+
         WriteVerboseStatus("Region::BuildPostFitErrorHist", "      alpha = " + std::to_string(systValue) + " +" + std::to_string(systErrUp) + " " + std::to_string(systErrDown));
 
         // needed for morph samples
@@ -1038,7 +1038,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 fSampleHists[i]->AddHistoSyst(systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
                 sh = fSampleHists[i]->GetSystematic(systName);
             }
-            
+
             //
             // initialize the up and down variation histograms
             // (note: do it even if the syst is not there; in this case the variation hist will be = to the nominal)
@@ -1593,7 +1593,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             }
         }
     }
-    
+
     //
     // 3) Add the new Sig and Bkg to plot
     //

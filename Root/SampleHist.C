@@ -992,7 +992,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
             continue;
         }
 
-        // 
+        //
         // Pre-smoothing
         //
         // (do smoothing and symmetrization before pre-smoothing in case of two-sided systematics)
@@ -1304,8 +1304,8 @@ void SampleHist::Divide(SampleHist *sh){
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
-            tmpsyst->fName = NuisParName; 
-            tmpsyst->fStoredName = NuisParName; 
+            tmpsyst->fName = NuisParName;
+            tmpsyst->fStoredName = NuisParName;
             if (tmpsyst->fType == Systematic::OVERALL ) {
                   tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
                   tmpsyst->fIsNormOnly = false;
@@ -1372,8 +1372,8 @@ void SampleHist::Multiply(SampleHist *sh){
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
-            tmpsyst->fName = NuisParName; 
-            tmpsyst->fStoredName = NuisParName; 
+            tmpsyst->fName = NuisParName;
+            tmpsyst->fStoredName = NuisParName;
             if (tmpsyst->fType == Systematic::OVERALL ) {
                   tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
                   tmpsyst->fIsNormOnly = false;
@@ -1456,8 +1456,8 @@ void SampleHist::Add(SampleHist *sh,double scale){
             syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
             Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
-            tmpsyst->fName = NuisParName; 
-            tmpsyst->fStoredName = NuisParName; 
+            tmpsyst->fName = NuisParName;
+            tmpsyst->fStoredName = NuisParName;
             if (tmpsyst->fType == Systematic::OVERALL ) {
                   tmpsyst->fType = Systematic::HISTO; // even if it was overall for "inheritors", that's not guaranteed for the "inheritand"
                   tmpsyst->fIsNormOnly = false;

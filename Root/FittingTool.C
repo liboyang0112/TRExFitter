@@ -215,7 +215,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                 }
             }
             //
-            // loop on the NP specified to be constant - This should be after setting to initial value 
+            // loop on the NP specified to be constant - This should be after setting to initial value
             for( unsigned int i_np = 0; i_np<m_constNP.size(); i_np++ ){
                 if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np]
                     || np == ("gamma_"+m_constNP[i_np])
@@ -241,7 +241,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         }
         delete it2;
     }
-    
+
     double nllval = nll->getVal();
     double nLLatMLE = 0.;//m_fitResult->minNll();
     double nlloffset = nll->getVal() - nLLatMLE;
@@ -511,7 +511,7 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
     //
     nuisParAndCorr << "\n\nNLL\n";
     nuisParAndCorr << m_fitResult -> minNll() << "\n";
-    
+
     //
     // Closing the output file
     //

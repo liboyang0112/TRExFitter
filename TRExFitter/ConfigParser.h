@@ -65,8 +65,8 @@ public:
 
     /**
       * Method that checks provided setting with reference config file
-      * @param ConfigSet Pointer to actual configuration setting type 
-      * @param ConfigSet Pointer to referece config parser 
+      * @param ConfigSet Pointer to actual configuration setting type
+      * @param ConfigSet Pointer to referece config parser
       * @param string Name of the setting set
       * @param string Name of the setting
       * @return int Status code
@@ -75,8 +75,8 @@ public:
 
     /**
       * Helper method that checks single setting with reference file
-      * @param ConfigSet Pointer to actual configuration setting type 
-      * @param ConfigSet Pointer to referece config parser 
+      * @param ConfigSet Pointer to actual configuration setting type
+      * @param ConfigSet Pointer to referece config parser
       * @param string Name of the setting set
       * @param string Name of the setting
       * @return int Status code

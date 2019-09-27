@@ -171,6 +171,6 @@ namespace HistoTools {
      * @return Histo is OK
      */
     bool CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNull = true, bool causeCrash = false);
-    
+
 }
 #endif

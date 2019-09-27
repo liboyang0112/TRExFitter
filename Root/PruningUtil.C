@@ -1,5 +1,5 @@
 // Class include
-#include "TRExFitter/PruningUtil.h" 
+#include "TRExFitter/PruningUtil.h"
 
 // C++ includes
 #include <memory>

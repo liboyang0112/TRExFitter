@@ -52,7 +52,7 @@ public:
 
     void BuildPreFitErrorHist();
     TRExPlot* DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
-    double GetMultFactors( FitResults *fitRes, 
+    double GetMultFactors( FitResults *fitRes,
                                 std::ofstream& pullTex,
                                 const int i /*sample*/, const int i_bin /*bin number*/,
                                 const double binContent0,
@@ -103,7 +103,7 @@ public:
      * @param pointer to PruningUtil instance
      */
     void SystPruning(PruningUtil *pu);
-    
+
     /**
       * Helper function to get a "total prediction" histogram
       * @param bool specifying whether signal sample have to be included in the sum or not (true by default)
@@ -262,7 +262,7 @@ public:
     double fLegendY;
     
     int fLegendNColumns;
-    
+
     std::vector<std::string> fScaleSamplesToData;
 };
 

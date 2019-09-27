@@ -26,7 +26,7 @@ public:
 
     std::vector<std::string> fRegions;
     std::vector<std::string> fExclude;
-    
+
     int fNbins;
 };
 

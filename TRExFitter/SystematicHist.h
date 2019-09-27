@@ -4,7 +4,7 @@
 /// Framework includes
 #include "TRExFitter/HistoTools.h"
 
-/// c++ includes 
+/// c++ includes
 #include <string>
 
 /// Forwards class declaration

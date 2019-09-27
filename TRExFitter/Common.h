@@ -134,7 +134,7 @@ double HexToDouble(const std::string& s);
     * A helper function to scale samples (signal) to nominakl SFs
     * @param SampleHist
     * @param Histogram that will be scaled
-    */ 
+    */
 void ScaleNominal(const SampleHist* const sig, TH1* hist);
 
 TH1* CloneNoError(TH1* h,const char* name="");
@@ -160,7 +160,7 @@ bool OptionRunsFit(const std::string& opt);
 
 /**
  * Helper function to make a copy of histogram with no errors in bins
- * This is useful when doing some scaling operations like Add/Divide 
+ * This is useful when doing some scaling operations like Add/Divide
  * without modifying the original uncertainty in bins
  * @param histogram to be copied
  * @return histogramw with no errors

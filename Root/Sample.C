@@ -77,7 +77,7 @@ Sample::Sample(const std::string& name,int type){
     fMCstatScale = 1.;
     fCorrelateGammasInRegions.clear();
     fCorrelateGammasWithSample = "";
-    
+
     fSystFromSample = "";
 }
 
