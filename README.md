@@ -93,6 +93,22 @@ source  x86_64-centos7-gcc62-opt/setup.sh
 ```
 Then, the setup is ready to execute `trex-fitter`.
 
+
+## Setup using Docker Image with Singularity
+To use the automatically built docker image by the CI follow the next steps:
+
+Since the code is not public you first need to get a gitlab token (gitlab user settings -> Access Tokens -> read_registry) and export the token and your username into environment variables
+```
+export SINGULARITY_DOCKER_USERNAME=<CERN-username>
+export SINGULARITY_DOCKER_PASSWORD=<gitlab-token>
+``` 
+Now you can run the following command
+```
+singularity run --contain -B /tmp --pwd ${PWD} docker://gitlab-registry.cern.ch/TRExStats/TRExFitter/trexfitter:latest
+```
+in the container you will directly have the `trex-fitter` executable. If you cannot see your local folder you might need to mount them via the `-B` flag.
+The TRexFitter code is located in the folder `/TRexFitter/source/TRexFitter` within the container.
+
 ## How to
 To run the code, after compiling (see [Setup](#setup)), use the command:
 ```
