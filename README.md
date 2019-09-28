@@ -107,7 +107,7 @@ Now you can run the following command
 singularity run --contain -B /tmp --pwd ${PWD} docker://gitlab-registry.cern.ch/TRExStats/TRExFitter/trexfitter:latest
 ```
 in the container you will directly have the `trex-fitter` executable. If you cannot see your local folder you might need to mount them via the `-B` flag.
-The TRexFitter code is located in the folder `/TRexFitter/source/TRexFitter` within the container
+The TRexFitter code is located in the folder `/TRexFitter/source/TRexFitter` within the container.
 
 ## How to
 To run the code, after compiling (see [Setup](#setup)), use the command:
