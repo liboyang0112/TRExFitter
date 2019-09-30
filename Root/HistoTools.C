@@ -91,7 +91,7 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
 
     //Just to be sure, set sumw2() on histograms
     if(hNom != nullptr)
-    { 
+    {
         if(!hNom->GetSumw2())hNom->Sumw2();
     }
     else
@@ -100,20 +100,28 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
         WriteWarningStatus("HistoTools::SymmetrizeHistograms", "Will not symmetrize.");
         return;
     }
-    
+
     if(originUp != nullptr) { if(!originUp->GetSumw2())originUp->Sumw2(); }
     if(originDown != nullptr) { if(!originDown->GetSumw2())originDown->Sumw2(); }
-    
+
     // Want to do the scaling before the Symmetrisation
     // to avoid improperly scaling bins that are limited at -100%
-    
+
     std::unique_ptr<TH1> localOriginUp  (static_cast<TH1*>(originUp   -> Clone()));
     std::unique_ptr<TH1> localOriginDown(static_cast<TH1*>(originDown -> Clone()));
     std::unique_ptr<TH1> localHNom      (static_cast<TH1*>(hNom       -> Clone()));
-    
-    if(localOriginUp != nullptr)   Scale(localOriginUp.get(),   localHNom.get(), scaleUp);
-    if(localOriginDown != nullptr) Scale(localOriginDown.get(), localHNom.get(), scaleDown);
-    
+
+    std::string nameUp, nameDown;
+
+    if(localOriginUp != nullptr) {
+        Scale(localOriginUp.get(),   localHNom.get(), scaleUp);
+        nameUp = localOriginUp->GetName();
+    }
+    if(localOriginDown != nullptr) {
+        Scale(localOriginDown.get(), localHNom.get(), scaleDown);
+        nameDown = localOriginDown->GetName();
+    }
+
     if( symType == SymmetrizationType::SYMMETRIZEONESIDED ) {
         bool isUp = true; //is the provided uncertainty the up or down variation (based on yield)
         if     (localOriginUp==nullptr && localOriginDown!=nullptr) isUp = false;
@@ -155,9 +163,9 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
         modifiedUp = localOriginUp.release();
         modifiedDown = localOriginDown.release();
     }
-    
-    modifiedDown -> SetName(localOriginDown->GetName());
-    modifiedUp   -> SetName(localOriginUp->GetName());
+
+    modifiedDown -> SetName(nameDown.c_str());
+    modifiedUp   -> SetName(nameUp.c_str());
 }
 
 //_________________________________________________________________________
