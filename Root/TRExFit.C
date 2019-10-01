@@ -8079,7 +8079,7 @@ void TRExFit::RunToys(RooWorkspace* ws){
         RooAbsReal* nll = simPdf.createNLL(*dummy,
                                            Constrain(*mc.GetNuisanceParameters()),
                                            Offset(1),
-                                           NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                           NumCPU(1, RooFit::Hybrid),
                                            RooFit::Optimize(kTRUE));
 
 
