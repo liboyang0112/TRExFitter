@@ -879,7 +879,8 @@ If you would like to ensure that the replacement works correctly, set your `Debu
 
 
 ## FAQ
-_The `n` step takes a very long time to run, how do I speed this up?_
+_The `n` step takes a very long time to run, how do I speed this up?_\
+
 Run multiple jobs, with each job only processing all histograms for one region. For a region called `RegionA`, this is achieved by running
 ```
 trex-fitter n your.config Regions="RegionA"
@@ -888,10 +889,10 @@ Run one job per region, then proceed with `w` only when all jobs are finished. M
 
 It is possible to split up the histogram creation into even more jobs, splitting up systematics or samples. See section see [Input File Merging with hupdate](#input-file-merging-with-hupdate) for more details, in this case an extra step is required before proceding with `w`.
 
-_There is some problem with the fit._
+_There is some problem with the fit. What can I do?_\
 Have a look at the [TRExFitter twiki](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TtHFitter), and also the [FitProblemsTutorial twiki page](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/FitProblemsTutorial).
 
-_Why is the E in TRExFitter capitalized?_
+_Why is the E in TRExFitter capitalized?_\
 TRExFitter stands for "Top Related Experiment Fitter".
 
 
