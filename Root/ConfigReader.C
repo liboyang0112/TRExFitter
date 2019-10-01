@@ -411,12 +411,6 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fLumiScale = atof(param.c_str());
     }
 
-    // Set TtresSmoothing
-    param = confSet->Get("TtresSmoothing");
-    if( param != ""){
-        WriteErrorStatus("ConfigReader::ReadJobOptions", "The TtresSmoothing option is deprecated, use SmoothingOption: TTBARRESONANCE instead to get ttbar resonance smoothing");
-    }
-
     // Set Smoothing option
     param = confSet->Get("SmoothingOption");
     if( param != ""){
