@@ -8066,7 +8066,10 @@ void TRExFit::RunToys(RooWorkspace* ws){
         RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
 
         //Get the desired NP
-        RooRealVar* NPtoShift = (RooRealVar*) (& ws->allVars()[fToysPseudodataNP.c_str()]);
+        RooRealVar* NPtoShift = nullptr;
+        if (fToysPseudodataNP != "") {
+            NPtoShift = (RooRealVar*) (& ws->allVars()[fToysPseudodataNP.c_str()]);
+        }
 
         //For the loop over NPs
         std::string varname{};
@@ -8076,63 +8079,71 @@ void TRExFit::RunToys(RooWorkspace* ws){
         RooAbsReal* nll = simPdf.createNLL(*dummy,
                                            Constrain(*mc.GetNuisanceParameters()),
                                            Offset(1),
-                                           NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                           NumCPU(1, RooFit::Hybrid),
                                            RooFit::Optimize(kTRUE));
 
 
         for(int i_toy=0;i_toy<fFitToys;i_toy++){
 
-            TIterator* it = mc.GetNuisanceParameters()->createIterator();
-            RooRealVar* var = nullptr;
-            while( (var = (RooRealVar*) it->Next()) ){
-                varname = var->GetName();
-                if (varname.find("alpha_")!=std::string::npos) {
-                    var->setConstant(1);
-                    var->setVal(0);
-                } else {
-                    var->setConstant(1);
-                    var->setVal(1);
+            if (fToysPseudodataNP != "") {
+                TIterator* it = mc.GetNuisanceParameters()->createIterator();
+                RooRealVar* var = nullptr;
+                while( (var = (RooRealVar*) it->Next()) ){
+                    varname = var->GetName();
+                    if (varname.find("alpha_")!=std::string::npos) {
+                        var->setConstant(1);
+                        var->setVal(0);
+                    } else {
+                        var->setConstant(1);
+                        var->setVal(1);
+                    }
                 }
+                delete it;
+                delete var;
             }
-            delete it;
-            delete var;
 
             // setting POI to constant, not to allow it to fluctuate in toy creation
             poiVar->setConstant(1);
             poiVar->setVal(fFitPOIAsimov);
-            NPtoShift->setConstant(1);
-            NPtoShift->setVal(fToysPseudodataNPShift);
+            if (fToysPseudodataNP != "") {
+                NPtoShift->setConstant(1);
+                NPtoShift->setVal(fToysPseudodataNPShift);
+            }
 
             WriteInfoStatus("TRExFit::RunToys","Generating toy n. " + std::to_string(i_toy+1) + " out of " + std::to_string(fFitToys) + " toys");
             RooDataSet *toyData = pdf->generate( obsSet, RooFit::Extended() );
             // re-set POI to free-floating, and to nominal value
-            RooArgSet* nuis = (RooArgSet*) mc.GetNuisanceParameters();
-            if (nuis){
-                RooRealVar* vartmp = nullptr;
-                TIterator* it2 = nuis->createIterator();
-                while( (vartmp = (RooRealVar*) it2->Next()) ){
-                    std::string np = vartmp->GetName();
-                    if (np.find("alpha_")!=std::string::npos) {
-                        vartmp->setConstant(0);
-                        vartmp->setVal(0);
+            if (fToysPseudodataNP != "") {
+                RooArgSet* nuis = (RooArgSet*) mc.GetNuisanceParameters();
+                if (nuis){
+                    RooRealVar* vartmp = nullptr;
+                    TIterator* it2 = nuis->createIterator();
+                    while( (vartmp = (RooRealVar*) it2->Next()) ){
+                        std::string np = vartmp->GetName();
+                        if (np.find("alpha_")!=std::string::npos) {
+                            vartmp->setConstant(0);
+                            vartmp->setVal(0);
+                        }
+                        else if( np.find("gamma_")!=std::string::npos ){
+                            vartmp->setVal(1);
+                            vartmp->setConstant(0);
+                        }
+                        else {  // for norm factors
+                            vartmp->setVal( 1 );
+                        }
                     }
-                    else if( np.find("gamma_")!=std::string::npos ){
-                        vartmp->setVal(1);
-                        vartmp->setConstant(0);
-                    }
-                    else {  // for norm factors
-                        vartmp->setVal( 1 );
-                    }
+                    delete it2;
+                    delete vartmp;
                 }
-                delete it2;
-                delete vartmp;
             }
             poiVar->setConstant(0);
             poiVar->setVal(POInf.fNominal);
 
             // NP is fixed constant for each fit, and to nominal value
-            NPtoShift->setConstant(1);
-            NPtoShift->setVal(0);
+            if (fToysPseudodataNP != "") {
+                NPtoShift->setConstant(1);
+                NPtoShift->setVal(0);
+            }
             // extract POI from fit result and fill histogram
             WriteInfoStatus("TRExFit::RunToys","Fitting toy n. " + std::to_string(i_toy+1));
             //Set new dataset for NLL
