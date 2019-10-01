@@ -36,6 +36,8 @@ public:
     int fType;
     int fSmoothType;
     bool fPreSmoothing;
+    bool fSampleSmoothing;
+    HistoTools::SmoothOption fSampleSmoothOption;
     HistoTools::SymmetrizationType fSymmetrisationType;
     std::string fReferenceSample;
     bool fKeepReferenceOverallVar;
