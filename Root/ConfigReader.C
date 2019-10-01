@@ -3889,7 +3889,6 @@ int ConfigReader::ReadSystOptions(){
             param = confSet->Get("Smoothing");
             if(param != "") sys->fSmoothType = atoi(param.c_str());
 
-
             param = confSet->Get("PreSmoothing");
             if(param != ""){
                 std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -3898,6 +3897,23 @@ int ConfigReader::ReadSystOptions(){
                 else {
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'PreSmoothing' option but did not provide valid parameter. Using default (false)");
                     sys->fPreSmoothing = false;
+                }
+            }
+
+            param = confSet->Get("SmoothingOption");
+            if(param != ""){
+                sys->fSampleSmoothing = true;
+                std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+                if( param == "MAXVARIATION" ) sys->fSampleSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
+                else if (param == "TTBARRESONANCE") sys->fSampleSmoothOption = HistoTools::SmoothOption::TTBARRESONANCE;
+                else if (param == "COMMONTOOLSMOOTHMONOTONIC") sys->fSampleSmoothOption = HistoTools::SmoothOption::COMMONTOOLSMOOTHMONOTONIC;
+                else if (param == "COMMONTOOLSMOOTHPARABOLIC") sys->fSampleSmoothOption = HistoTools::SmoothOption::COMMONTOOLSMOOTHPARABOLIC;
+                else if (param == "KERNELRATIOUNIFORM") sys->fSampleSmoothOption = HistoTools::SmoothOption::KERNELRATIOUNIFORM;
+                else if (param == "KERNELDELTAGAUSS") sys->fSampleSmoothOption = HistoTools::SmoothOption::KERNELDELTAGAUSS;
+                else if (param == "KERNELRATIOGAUSS") sys->fSampleSmoothOption = HistoTools::SmoothOption::KERNELRATIOGAUSS;
+                else {
+                    WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'SmoothingOption' option but you didn't provide valid input. Using default from job block");
+                    sys->fSampleSmoothing = false;
                 }
             }
         } // end of if(type==Systematic::HISTO || type==Systematic::SHAPE)

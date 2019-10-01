@@ -998,17 +998,32 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         // (do smoothing and symmetrization before pre-smoothing in case of two-sided systematics)
         if(fSyst[i_syst]->fSymmetrisationType==HistoTools::SYMMETRIZETWOSIDED){
             if(fSyst[i_syst]->fIsShape){
-                HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
-                                                fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
-                                                h_nominal,//nominal histogram
-                                                fSyst[i_syst]->fHistUp,
-                                                fSyst[i_syst]->fHistDown,//original histograms
-                                                h_syst_up, h_syst_down, //modified histograms
-                                                fSyst[i_syst]->fScaleUp,
-                                                fSyst[i_syst]->fScaleDown, // scale factors
-                                                smoothOpt,
-                                                TtresSmoothing // alternative smoothing
-                                            );
+                if(fSyst[i_syst]->fSystematic->fSampleSmoothing){
+                    HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                    fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                    h_nominal,//nominal histogram
+                                                    fSyst[i_syst]->fHistUp,
+                                                    fSyst[i_syst]->fHistDown,//original histograms
+                                                    h_syst_up, h_syst_down, //modified histograms
+                                                    fSyst[i_syst]->fScaleUp,
+                                                    fSyst[i_syst]->fScaleDown, // scale factors
+                                                    fSyst[i_syst]->fSystematic->fSampleSmoothOption, // overwrite smoothing option
+                                                    false // don't use alternative smoothing if this systematic has its own smoothing option
+                                                );
+                }
+                else{
+                    HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                    fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                    h_nominal,//nominal histogram
+                                                    fSyst[i_syst]->fHistUp,
+                                                    fSyst[i_syst]->fHistDown,//original histograms
+                                                    h_syst_up, h_syst_down, //modified histograms
+                                                    fSyst[i_syst]->fScaleUp,
+                                                    fSyst[i_syst]->fScaleDown, // scale factors
+                                                    smoothOpt,
+                                                    TtresSmoothing // alternative smoothing
+                                                );
+                }
             }
             //
             // need to ad these lines to make sure overall only systematics get scaled as well
@@ -1061,17 +1076,32 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         //
         if(fSyst[i_syst]->fSymmetrisationType!=HistoTools::SYMMETRIZETWOSIDED){
             if(fSyst[i_syst]->fIsShape){
-                HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
-                                                fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
-                                                h_nominal,//nominal histogram
-                                                fSyst[i_syst]->fHistUp,
-                                                fSyst[i_syst]->fHistDown,//original histograms
-                                                h_syst_up, h_syst_down, //modified histograms
-                                                fSyst[i_syst]->fScaleUp,
-                                                fSyst[i_syst]->fScaleDown, // scale factors
-                                                smoothOpt,
-                                                TtresSmoothing // alternative smoothing
-                                            );
+                if(fSyst[i_syst]->fSystematic->fSampleSmoothing){
+                    HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                    fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                    h_nominal,//nominal histogram
+                                                    fSyst[i_syst]->fHistUp,
+                                                    fSyst[i_syst]->fHistDown,//original histograms
+                                                    h_syst_up, h_syst_down, //modified histograms
+                                                    fSyst[i_syst]->fScaleUp,
+                                                    fSyst[i_syst]->fScaleDown, // scale factors
+                                                    fSyst[i_syst]->fSystematic->fSampleSmoothOption, // overwrite smoothing option
+                                                    false // don't use alternative smoothing if this systematic has its own smoothing option
+                                                );
+                }
+                else{
+                    HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                    fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                    h_nominal,//nominal histogram
+                                                    fSyst[i_syst]->fHistUp,
+                                                    fSyst[i_syst]->fHistDown,//original histograms
+                                                    h_syst_up, h_syst_down, //modified histograms
+                                                    fSyst[i_syst]->fScaleUp,
+                                                    fSyst[i_syst]->fScaleDown, // scale factors
+                                                    smoothOpt,
+                                                    TtresSmoothing // alternative smoothing
+                                                );
+                }
             }
             //
             // need to ad these lines to make sure overall only systematics get scaled as well

@@ -18,6 +18,7 @@ Systematic::Systematic(const std::string& name,int type,double up,double down){
     fSmoothType = 0;
     fSymmetrisationType = HistoTools::NOSYMMETRIZATION;
     fPreSmoothing = false;
+    fSampleSmoothing = false;
     //
     fOverallUp   = up;
     fOverallDown = down;
@@ -127,6 +128,8 @@ Systematic::Systematic(const Systematic &sys) {
 
     fSmoothType = sys.fSmoothType;
     fSymmetrisationType = sys.fSymmetrisationType;
+    fPreSmoothing = sys.fPreSmoothing;
+    fSampleSmoothing = sys.fSampleSmoothing;
     //
     fOverallUp = sys.fOverallUp;
     fOverallDown = sys.fOverallDown;
