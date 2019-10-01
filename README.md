@@ -34,7 +34,8 @@ This package provides a framework to perform profile likelihood fits. In additio
 10. [Output Directories Structure](#output-directories-structure)
 11. [ShapeFactor example](#shapefactor-example)
 12. [Replacement file](#replacement-file)
-13. [TRExFitter package authors](#trexfitter-package-authors)
+13. [FAQ](#faq)
+14. [TRExFitter package authors](#trexfitter-package-authors)
 
 
 
@@ -445,7 +446,7 @@ For each object type (also called "block"), here is the list of available proper
 | NormFactor                   | NormalisationFactor (free parameter in the fit); in the format \<name\>,nominal,min,max |
 | ShapeFactor                  | ShapeFactor added |
 | NormalizedByTheory           | set it to FALSE for data-driven backgrounds (MCweight, Lumi and LumiScale from Job and Region will be ignored) |
-| MCweight                     | only for option NTUP, the additional weight used in this sample (for all types of samples!! Not only MC) |
+| MCweight                     | only for option NTUP, the additional weight used in this sample |
 | Selection                    | valid only for option NTUP; additional selection for this region |
 | Regions                      | set this to have the sample only in some regions |
 | Exclude                      | set this to exclude the sample in some regions |
@@ -874,6 +875,24 @@ Sample: "ttbar"
   MCweight: XXX_placeholder
 ```
 If you would like to ensure that the replacement works correctly, set your `DebugLevel` to a minimum value of 1 and check the output of the framework.
+
+
+
+## FAQ
+_The `n` step takes a very long time to run, how do I speed this up?_
+Run multiple jobs, with each job only processing all histograms for one region. For a region called `RegionA`, this is achieved by running
+```
+trex-fitter n your.config Regions="RegionA"
+```
+Run one job per region, then proceed with `w` only when all jobs are finished. Multiple regions per job can be processed via `Regions="RegionA,RegionB"`.
+
+It is possible to split up the histogram creation into even more jobs, splitting up systematics or samples. See section see [Input File Merging with hupdate](#input-file-merging-with-hupdate) for more details, in this case an extra step is required before proceding with `w`.
+
+_There is some problem with the fit._
+Have a look at the [TRExFitter twiki](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TtHFitter), and also the [FitProblemsTutorial twiki page](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/FitProblemsTutorial).
+
+_Why is the E in TRExFitter capitalized?_
+TRExFitter stands for "Top Related Experiment Fitter".
 
 
 
