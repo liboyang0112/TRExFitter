@@ -63,7 +63,7 @@ namespace HistoTools {
      * @param apply ttbar resonance smoothing
      */
     void ManageHistograms(int smoothingLevel, const SymmetrizationType& symType, TH1* hNom, TH1* originUp, TH1* originDown,
-        TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing = false);
+        TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt);
 
     /**
      * A helper function to symmetrize histograms
@@ -88,7 +88,7 @@ namespace HistoTools {
      * @param apply ttbar resonance smoothing
      */
     void SmoothHistograms(int smoothingLevels,  TH1* hNom, TH1* &modifiedUp, TH1* &modifiedDown,
-        const SmoothOption &smoothOpt, bool TtresSmoothing = false);
+        const SmoothOption &smoothOpt);
 
     /**
      * A helper function to Symmetrize systematics using one sided method

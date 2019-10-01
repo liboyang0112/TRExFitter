@@ -414,12 +414,7 @@ int ConfigReader::ReadJobOptions(){
     // Set TtresSmoothing
     param = confSet->Get("TtresSmoothing");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fFitter->fTtresSmoothing = true;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'TtresSmoothing' option but you did not set it to TRUE. Using default (FALSE)");
-            fFitter->fTtresSmoothing = false;
-        }
+        WriteErrorStatus("ConfigReader::ReadJobOptions", "The TtresSmoothing option is deprecated, use SmoothingOption: TTBARRESONANCE instead to get ttbar resonance smoothing");
     }
 
     // Set Smoothing option

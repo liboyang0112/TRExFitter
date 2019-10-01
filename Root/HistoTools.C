@@ -62,20 +62,20 @@ TH1D* HistoTools::TranformHistogramBinning(TH1* originalHist){
 //_________________________________________________________________________
 //
 void HistoTools::ManageHistograms( int smoothingLevel, const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt, bool TtresSmoothing) {
+                                    TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt) {
     //
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
     //
 
     // if one-sided & symmetrization asked, do smoothing first and symmetrization after
     if( symType == SymmetrizationType::SYMMETRIZEONESIDED ){
-        SmoothHistograms(smoothingLevel, hNom, modifiedUp, modifiedDown, smoothOpt, TtresSmoothing);
+        SmoothHistograms(smoothingLevel, hNom, modifiedUp, modifiedDown, smoothOpt);
         SymmetrizeHistograms(symType, hNom, modifiedUp, modifiedDown, modifiedUp, modifiedDown, scaleUp, scaleDown);
     }
     // otherwise, first symmetrization and then smoothing
     else{
         SymmetrizeHistograms(symType, hNom, originUp, originDown, modifiedUp, modifiedDown, scaleUp, scaleDown);
-        SmoothHistograms(smoothingLevel, hNom, modifiedUp, modifiedDown, smoothOpt, TtresSmoothing);
+        SmoothHistograms(smoothingLevel, hNom, modifiedUp, modifiedDown, smoothOpt);
     }
 }
 
@@ -171,7 +171,7 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
 //_________________________________________________________________________
 //
 void HistoTools::SmoothHistograms( int smoothingLevel,  TH1* hNom,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt, bool TtresSmoothing){
+                                    TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt){
     //##################################################
     //
     // SECOND STEP: SMOOTHING
@@ -191,7 +191,7 @@ void HistoTools::SmoothHistograms( int smoothingLevel,  TH1* hNom,
         WriteDebugStatus("HistoTools::SmoothHistograms", "Skipping smoothing for systematics on \"" + temp + "\" since just 1 bin.");
         return;
     }
-    if (TtresSmoothing || smoothOpt == TTBARRESONANCE) {
+    if (smoothOpt == TTBARRESONANCE) {
         if( ( smoothingLevel >= SMOOTHDEPENDENT ) && ( smoothingLevel < SMOOTHINDEPENDENT ) ){
             modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothTtresDependent");
             modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothTtresDependent");
