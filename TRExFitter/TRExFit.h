@@ -509,8 +509,6 @@ public:
     bool fGetGoodnessOfFit;
     int fGetChi2;
 
-    bool fTtresSmoothing;
-
     HistoTools::SmoothOption fSmoothOption;
 
     bool fSuppressNegativeBinWarnings;

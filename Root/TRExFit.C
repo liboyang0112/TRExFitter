@@ -80,7 +80,6 @@ using namespace RooFit;
 //__________________________________________________________________________________
 //
 TRExFit::TRExFit(std::string name){
-    fTtresSmoothing = false;
     fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
     fDir = "";
     fName = name;
@@ -500,7 +499,7 @@ void TRExFit::SmoothSystematics(std::string syst){
         // if there are no reference smoothing samples, proceed as usual
         if (referenceSmoothSysts.size() == 0){
             for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
-                fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false, fTtresSmoothing);
+                fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false);
             }
         } else {
             std::vector<std::size_t> usedSysts{};
@@ -513,7 +512,7 @@ void TRExFit::SmoothSystematics(std::string syst){
                     if (std::find(fSystematics.at(i_syst)->fRegions.begin(), fSystematics.at(i_syst)->fRegions.end(), fRegions[i_ch]->fName) == fSystematics.at(i_syst)->fRegions.end()) continue;
                     if (fSystematics.at(i_syst)->fReferenceSmoothing == "") {
                         // the systemtic is not using special smoothing
-                        fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true, fTtresSmoothing);
+                        fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true);
                     } else {
                         // check if the syst has been smoothed already
                         if (std::find(usedSysts.begin(), usedSysts.end(), i_syst) != usedSysts.end()) continue;
@@ -533,7 +532,7 @@ void TRExFit::SmoothSystematics(std::string syst){
                         // smooth on the sample that is specified in ReferenceSmoothing
                         for (int i_sample=0; i_sample<fRegions[i_ch]->fNSamples; ++i_sample){
                             if (fRegions[i_ch]->fSampleHists[i_sample]->GetSample()->fName == fSystematics.at(i_syst)->fReferenceSmoothing){
-                                sh->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true, fTtresSmoothing);
+                                sh->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true);
 
                                 // save the smoothed histograms
                                 nominal_cpy = std::unique_ptr<TH1>(static_cast<TH1*>(fRegions[i_ch]->fSampleHists[i_sample]->fHist->Clone()));
@@ -1376,7 +1375,7 @@ void TRExFit::CorrectHistograms(){
             if(smp->fSmooth && !reg->fSkipSmoothing){
                 h_correction = (TH1*)sh->fHist->Clone( Form("%s_corr",sh->fHist->GetName()) );
                 TH1* h0 = (TH1*)sh->fHist->Clone( Form("%s_orig0",sh->fHist->GetName()) );
-                if (fTtresSmoothing || fSmoothOption == HistoTools::TTBARRESONANCE) {
+                if (fSmoothOption == HistoTools::TTBARRESONANCE) {
                     isFlat = false;
                     SmoothHistogramTtres( sh->fHist );
                 } else {

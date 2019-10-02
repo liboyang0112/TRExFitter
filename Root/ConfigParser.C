@@ -469,7 +469,12 @@ int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std
     std::string param = cs->Get(setting);
     std::string ref_param = cs_ref->Get(setting);
     //
-    if (ref_param == ""){
+    // this option used to exist, write a message informing the user of the new syntax
+    if (setting == "TtresSmoothing"){
+        WriteErrorStatus("ConfigParser::CheckSingleSetting", "The TtresSmoothing option is deprecated, use SmoothingOption: TTBARRESONANCE instead.");
+        return 1;
+    }
+    else if (ref_param == ""){
         WriteErrorStatus("ConfigParser::CheckSingleSetting", "Cannot find setting '" + setting + "' for setting set " + setting_set +  " in reference config. Please check this!");
         return 1;
     }

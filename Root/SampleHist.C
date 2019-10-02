@@ -969,7 +969,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData,
 
 //_____________________________________________________________________________
 //
-void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string syst,bool force, bool TtresSmoothing){
+void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string syst, bool force){
     if(fSystSmoothed && !force) return;
     TH1* h_nominal = (TH1*)fHist->Clone("h_nominal");
     TH1* h_syst_up;
@@ -1007,8 +1007,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                                                     h_syst_up, h_syst_down, //modified histograms
                                                     fSyst[i_syst]->fScaleUp,
                                                     fSyst[i_syst]->fScaleDown, // scale factors
-                                                    fSyst[i_syst]->fSystematic->fSampleSmoothOption, // overwrite smoothing option
-                                                    false // don't use alternative smoothing if this systematic has its own smoothing option
+                                                    fSyst[i_syst]->fSystematic->fSampleSmoothOption // overwrite smoothing option
                                                 );
                 }
                 else{
@@ -1020,8 +1019,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                                                     h_syst_up, h_syst_down, //modified histograms
                                                     fSyst[i_syst]->fScaleUp,
                                                     fSyst[i_syst]->fScaleDown, // scale factors
-                                                    smoothOpt,
-                                                    TtresSmoothing // alternative smoothing
+                                                    smoothOpt
                                                 );
                 }
             }
@@ -1085,8 +1083,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                                                     h_syst_up, h_syst_down, //modified histograms
                                                     fSyst[i_syst]->fScaleUp,
                                                     fSyst[i_syst]->fScaleDown, // scale factors
-                                                    fSyst[i_syst]->fSystematic->fSampleSmoothOption, // overwrite smoothing option
-                                                    false // don't use alternative smoothing if this systematic has its own smoothing option
+                                                    fSyst[i_syst]->fSystematic->fSampleSmoothOption // overwrite smoothing option
                                                 );
                 }
                 else{
@@ -1098,8 +1095,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                                                     h_syst_up, h_syst_down, //modified histograms
                                                     fSyst[i_syst]->fScaleUp,
                                                     fSyst[i_syst]->fScaleDown, // scale factors
-                                                    smoothOpt,
-                                                    TtresSmoothing // alternative smoothing
+                                                    smoothOpt
                                                 );
                 }
             }

@@ -411,17 +411,6 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fLumiScale = atof(param.c_str());
     }
 
-    // Set TtresSmoothing
-    param = confSet->Get("TtresSmoothing");
-    if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fFitter->fTtresSmoothing = true;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'TtresSmoothing' option but you did not set it to TRUE. Using default (FALSE)");
-            fFitter->fTtresSmoothing = false;
-        }
-    }
-
     // Set Smoothing option
     param = confSet->Get("SmoothingOption");
     if( param != ""){
