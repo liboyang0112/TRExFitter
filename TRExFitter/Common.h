@@ -101,7 +101,7 @@ double CorrectIntegral(TH1* h, double *err=0);
 
 void CloseFiles( const std::set<std::string> &set);
 
-TH1D* MergeHistograms(std::vector<TH1*> hVec);
+TH1D* MergeHistograms(const std::vector<TH1*>& hVec);
 
 /**
   * A function to apply ATLAS/PDG rounding rules to values

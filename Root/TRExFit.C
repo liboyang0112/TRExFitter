@@ -2658,7 +2658,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
     }
 
-    if( TRExFitter::PREFITONPOSTFIT and isPostFit) {
+    if( TRExFitter::PREFITONPOSTFIT && isPostFit) {
       p->h_tot_bkg_prefit = (TH1*)prefit_plot->GetTotBkg()->Clone("h_tot_bkg_prefit");
     }
 
