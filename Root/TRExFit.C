@@ -4415,8 +4415,8 @@ void TRExFit::DrawPruningPlot() const{
     out << "-------/////// IN PRUNING PLOT ///////-------" << std::endl ;
     out << "-------///////                 ///////-------" << std::endl ;
     //
-    std::vector< TH2F* > histPrun;
-    std::vector< TH2F* > histPrun_toSave;
+    std::vector< std::unique_ptr<TH2F> > histPrun;
+    std::vector< std::unique_ptr<TH2F> > histPrun_toSave;
     int iReg = 0;
     int nSmp = 0;
     // make a list of non-data, non-ghost samples
@@ -4450,8 +4450,8 @@ void TRExFit::DrawPruningPlot() const{
         if(fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
 
         out << "In Region : " << fRegions[i_reg]->fName << std::endl ;
-        histPrun.push_back( new TH2F(Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()) );
-        histPrun[histPrun.size()-1]->SetDirectory(0);
+        histPrun.emplace_back( std::move(std::unique_ptr<TH2F>(new TH2F (Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()))));
+        histPrun.back()->SetDirectory(0);
 
         for(int i_smp=0;i_smp<nSmp;i_smp++){
             out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl;
@@ -4494,7 +4494,7 @@ void TRExFit::DrawPruningPlot() const{
             }
         }
         //
-        histPrun_toSave.push_back( (TH2F*)histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName())) );
+        histPrun_toSave.emplace_back(std::move(std::unique_ptr<TH2F>(static_cast<TH2F*>(histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName()))))) );
         histPrun_toSave[iReg]->SetDirectory(0);
         //
         iReg++;
@@ -4509,25 +4509,25 @@ void TRExFit::DrawPruningPlot() const{
     int separation = 10;
     int mainWidth = iReg*(regionSize+separation);
     //
-    TCanvas *c = new TCanvas("c_pruning","Canvas - Pruning",leftSize+mainWidth,upSize+mainHeight+loSize);
-    Int_t colors[] = {kBlack,6,kBlue, kGray, 8, kYellow, kOrange-3, kRed}; // #colors >= #levels - 1
-    gStyle->SetPalette((sizeof(colors)/sizeof(Int_t)), colors);
-    TPad *pUp = new TPad("pUp","Pad High",0,(1.*loSize+mainHeight)/(upSize+mainHeight+loSize),1,1);
-    pUp->Draw();
-    c->cd();
-    TPad *pReg[100];
-    for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
-        c->cd();
+    TCanvas c("c_pruning","Canvas - Pruning",leftSize+mainWidth,upSize+mainHeight+loSize);
+    std::vector<Int_t> colors = {kBlack,6,kBlue, kGray, 8, kYellow, kOrange-3, kRed}; // #colors >= #levels - 1
+    gStyle->SetPalette(colors.size(), &colors[0]);
+    TPad pUp("pUp","Pad High",0,(1.*loSize+mainHeight)/(upSize+mainHeight+loSize),1,1);
+    pUp.Draw();
+    c.cd();
+    std::vector<std::unique_ptr<TPad> > pReg(100);
+    for(std::size_t i_reg=0;i_reg<histPrun.size();i_reg++){
+        c.cd();
         if(i_reg==0){
-            pReg[i_reg] = new TPad(Form("pReg[%d]",i_reg),"Pad Region",
+            pReg[i_reg] = std::move(std::unique_ptr<TPad> (new TPad(Form("pReg[%zu]",i_reg),"Pad Region",
                                   0,   0,
-                                  (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) );
+                                  (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) )));
             pReg[i_reg]->SetLeftMargin( (1.*leftSize) / (1.*leftSize+regionSize) );
         }
         else{
-            pReg[i_reg] = new TPad(Form("pReg[%d]",i_reg),"Pad Region",
+            pReg[i_reg] = std::move(std::unique_ptr<TPad> (new TPad(Form("pReg[%zu]",i_reg),"Pad Region",
                                   (leftSize+1.*i_reg*(regionSize+separation))           /(leftSize+mainWidth),   0,
-                                  (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) );
+                                  (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) )));
             pReg[i_reg]->SetLeftMargin(0);
         }
         pReg[i_reg]->SetBottomMargin( (1.*loSize) / (1.*loSize+mainHeight) );
@@ -4562,46 +4562,47 @@ void TRExFit::DrawPruningPlot() const{
         histPrun[i_reg]->GetXaxis()->SetTickLength(0);
         gPad->SetGrid();
         //
-        pUp->cd();
+        pUp.cd();
         myText((leftSize+1.*i_reg*(regionSize+separation))/(leftSize+mainWidth),0.1 ,1,histPrun[i_reg]->GetTitle());
     }
-    c->cd();
-    TPad *pLo = new TPad("pLo","Pad Low",0,0,(1.*leftSize)/(leftSize+mainWidth),(1.*loSize)/(upSize+mainHeight+loSize));
-    pLo->Draw();
+    c.cd();
+    TPad pLo("pLo","Pad Low",0,0,(1.*leftSize)/(leftSize+mainWidth),(1.*loSize)/(upSize+mainHeight+loSize));
+    pLo.Draw();
     //
-    c->cd();
-    pUp->cd();
+    c.cd();
+    pUp.cd();
     myText(0.01,0.5,1,fLabel.c_str());
     //
-    pLo->cd();
-    TLegend *leg = new TLegend(0.005,0,0.95,0.95);
-    TH1D* hGray   = new TH1D("hGray"  ,"hGray"  ,1,0,1);    hGray->SetFillColor(kGray);         hGray->SetLineWidth(0);
-    TH1D* hYellow = new TH1D("hYellow","hYellow",1,0,1);    hYellow->SetFillColor(kYellow);     hYellow->SetLineWidth(0);
-    TH1D* hOrange = new TH1D("hOrange","hOrange",1,0,1);    hOrange->SetFillColor(kOrange-3);   hOrange->SetLineWidth(0);
-    TH1D* hRed    = new TH1D("hRed"   ,"hRed"   ,1,0,1);    hRed->SetFillColor(kRed);           hRed->SetLineWidth(0);
-    TH1D* hGreen  = new TH1D("hGreen" ,"hGree"  ,1,0,1);    hGreen->SetFillColor(8);            hGreen->SetLineWidth(0);
-    TH1D* hBlue   = new TH1D("hBlue"  ,"hBlue"  ,1,0,1);    hBlue->SetFillColor(kBlue);         hBlue->SetLineWidth(0);
-    TH1D* hPurple = new TH1D("hPurple","hPurple",1,0,1);    hPurple->SetFillColor(6);           hPurple->SetLineWidth(0);
-    TH1D* hBlack  = new TH1D("hBlack" ,"hBlack" ,1,0,1);    hBlack->SetFillColor(kBlack);       hBlack->SetLineWidth(0);
+    pLo.cd();
+    TLegend leg(0.005,0,0.95,0.95);
+    TH1D hGray   ("hGray"  ,"hGray"  ,1,0,1);    hGray.SetFillColor(kGray);         hGray.SetLineWidth(0);
+    TH1D hYellow ("hYellow","hYellow",1,0,1);    hYellow.SetFillColor(kYellow);     hYellow.SetLineWidth(0);
+    TH1D hOrange ("hOrange","hOrange",1,0,1);    hOrange.SetFillColor(kOrange-3);   hOrange.SetLineWidth(0);
+    TH1D hRed    ("hRed"   ,"hRed"   ,1,0,1);    hRed.SetFillColor(kRed);           hRed.SetLineWidth(0);
+    TH1D hGreen  ("hGreen" ,"hGree"  ,1,0,1);    hGreen.SetFillColor(8);            hGreen.SetLineWidth(0);
+    TH1D hBlue   ("hBlue"  ,"hBlue"  ,1,0,1);    hBlue.SetFillColor(kBlue);         hBlue.SetLineWidth(0);
+    TH1D hPurple ("hPurple","hPurple",1,0,1);    hPurple.SetFillColor(6);           hPurple.SetLineWidth(0);
+    TH1D hBlack  ("hBlack" ,"hBlack" ,1,0,1);    hBlack.SetFillColor(kBlack);       hBlack.SetLineWidth(0);
     std::string sysLarg="Dropped as >"+std::to_string((int)(fThresholdSystLarge*100))+"%";
-    leg->SetBorderSize(0);
-    leg->SetMargin(0.1);
-    leg->SetFillStyle(0);
-    leg->AddEntry(hGray,"Not present","f");
-    leg->AddEntry(hGreen,"Kept","f");
-    leg->AddEntry(hYellow, "Shape dropped","f");
-    leg->AddEntry(hOrange, "Norm. dropped","f");
-    leg->AddEntry(hRed, "Dropped","f");
+    leg.SetBorderSize(0);
+    leg.SetMargin(0.1);
+    leg.SetFillStyle(0);
+    leg.AddEntry(&hGray,"Not present","f");
+    leg.AddEntry(&hGreen,"Kept","f");
+    leg.AddEntry(&hYellow, "Shape dropped","f");
+    leg.AddEntry(&hOrange, "Norm. dropped","f");
+    leg.AddEntry(&hRed, "Dropped","f");
     if (fThresholdSystLarge > -1) {
-        leg->AddEntry(hBlue  , sysLarg.c_str() ,"f");
-        leg->AddEntry(hPurple, "Bad shape" ,"f");
-        leg->AddEntry(hBlack , "Bad shape & norm." ,"f");
+        leg.AddEntry(&hBlue  , sysLarg.c_str() ,"f");
+        leg.AddEntry(&hPurple, "Bad shape" ,"f");
+        leg.AddEntry(&hBlack , "Bad shape & norm." ,"f");
     }
-    leg->SetTextSize(0.85*gStyle->GetTextSize());
-    leg->Draw();
+    leg.SetTextSize(0.85*gStyle->GetTextSize());
+    leg.Draw();
     //
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fName+"/Pruning"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++) {
+        c.SaveAs( (fName+"/Pruning"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+    }
 
     //
     // Save prunign hist for future usage
@@ -4614,7 +4615,7 @@ void TRExFit::DrawPruningPlot() const{
     }
     else{
         filePrun = std::unique_ptr<TFile> (new TFile( (fName+"/Pruning.root").c_str(),"RECREATE" ));
-        for(int i_reg=0;i_reg<(int)histPrun.size();i_reg++){
+        for(std::size_t i_reg=0;i_reg<histPrun.size();i_reg++){
             histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
         }
     }
