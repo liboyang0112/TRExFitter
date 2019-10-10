@@ -662,30 +662,30 @@ void TRExFit::WriteHistos(bool reWriteOrig) const{
 // Draw morphing plots
 void TRExFit::DrawMorphingPlots(const std::string& name) const{
     for(auto reg : fRegions){
-        TCanvas *c = new TCanvas("c","c",600,600);
-        TPad *p0 = new TPad("p0","p0",0,0.35,1,1);
-        TPad *p1 = new TPad("p1","p1",0,0,1,0.35);
-        p0->SetBottomMargin(0);
-        p1->SetTopMargin(0);
-        p1->SetBottomMargin(0.3);
-        p0->Draw();
-        p1->Draw();
-        p0->cd();
+        TCanvas c("c","c",600,600);
+        TPad p0("p0","p0",0,0.35,1,1);
+        TPad p1("p1","p1",0,0,1,0.35);
+        p0.SetBottomMargin(0);
+        p1.SetTopMargin(0);
+        p1.SetBottomMargin(0.3);
+        p0.Draw();
+        p1.Draw();
+        p0.cd();
         int nTemp = 0;
-        std::vector<TH1*> hVec;
-        std::vector<TH1*> hVecRatio;
+        std::vector<std::unique_ptr<TH1> > hVec;
+        std::vector<std::unique_ptr<TH1> > hVecRatio;
         for(auto sh : reg->fSampleHists){
             Sample* smp = sh->fSample;
             // if the sample has morphing
             if(smp->fIsMorph[name]){
-                TH1* h = (TH1*)sh->fHist->Clone(("h_temp_"+smp->fName).c_str());
-                hVec.push_back(h);
+                std::unique_ptr<TH1> h(static_cast<TH1*>(sh->fHist->Clone(("h_temp_"+smp->fName).c_str())));
                 if(h->GetFillColor()!=0) h->SetLineColor(h->GetFillColor());
                 h->SetFillStyle(0);
                 h->SetLineWidth(2);
                 h->Scale(1./h->Integral());
                 if(nTemp==0) h->Draw("HIST");
                 else         h->Draw("HIST same");
+                hVec.push_back(std::move(h));
                 nTemp++;
             }
         }
@@ -694,10 +694,10 @@ void TRExFit::DrawMorphingPlots(const std::string& name) const{
             hVec[0]->GetYaxis()->SetTitle("Fraction of events");
             hVec[0]->GetYaxis()->SetTitleOffset(1.75);
             // ratio
-            p1->cd();
-            for(auto hh : hVec){
-                hVecRatio.push_back((TH1*)hh->Clone());
-                hVecRatio[hVecRatio.size()-1]->Divide(hVec[0]);
+            p1.cd();
+            for(const auto& hh : hVec){
+                hVecRatio.push_back(std::move(std::unique_ptr<TH1>(static_cast<TH1*>(hh->Clone()))));
+                hVecRatio[hVecRatio.size()-1]->Divide(hVec[0].get());
                 if(hVecRatio.size()-1==0) hVecRatio[hVecRatio.size()-1]->Draw("HIST");
                 else                      hVecRatio[hVecRatio.size()-1]->Draw("HIST same");
             }
@@ -707,9 +707,10 @@ void TRExFit::DrawMorphingPlots(const std::string& name) const{
             hVecRatio[0]->GetYaxis()->SetTitle("Ratio");
             hVecRatio[0]->GetYaxis()->SetTitleOffset(1.75);
             hVecRatio[0]->GetXaxis()->SetTitleOffset(3);
-            for(auto format : TRExFitter::IMAGEFORMAT) c->SaveAs((fName+"/Morphing/Templates_"+name+"_"+reg->fName+"."+format).c_str());
+            for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                c.SaveAs((fName+"/Morphing/Templates_"+name+"_"+reg->fName+"."+format).c_str());
+            }
         }
-        delete c;
     }
 }
 
