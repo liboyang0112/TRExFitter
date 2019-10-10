@@ -20,6 +20,7 @@
 #include "TSystem.h"
 
 // c++ includes
+#include <memory>
 #include <string>
 #include <fstream>
 
@@ -92,8 +93,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     // multi-fit
     bool isMultiFit      = opt.find("m")!=std::string::npos;
     if(isMultiFit){
-        MultiFit *myMultiFit = new MultiFit();
-        ConfigReaderMulti confReaderMulti(myMultiFit);
+        std::unique_ptr<MultiFit> myMultiFit = std::make_unique<MultiFit>();
+        ConfigReaderMulti confReaderMulti(myMultiFit.get());
         int sc = confReaderMulti.ReadFullConfig(configFile,opt,options) ;
 
         if (sc != 0){
