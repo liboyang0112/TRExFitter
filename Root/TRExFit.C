@@ -3995,10 +3995,10 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
         W = fPieChartCanvasSize.at(0);
         H = fPieChartCanvasSize.at(1);
     }
-    TCanvas *c = new TCanvas("c","c",W,H);
-    TPad *pTop = new TPad("c0","c0",0,1-H0/H,1,1);
-    pTop->Draw();
-    pTop->cd();
+    TCanvas c("c","c",W,H);
+    TPad pTop("c0","c0",0,1-H0/H,1,1);
+    pTop.Draw();
+    pTop.cd();
 
     if(TRExFitter::OPTION["FourTopStyle"]>0){
         ATLASLabel(0.1/(W/200.),1.-0.3*(100./H0),fAtlasLabel.c_str());
@@ -4011,17 +4011,17 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
         if(fLabel!="-") myText(    0.05 / (W/200),0.1,1,Form("%s",fLabel.c_str()));
     }
 
-    c->cd();
-    TPad *pBottom = new TPad("c1","c1",0,0,1,1-H0/H);
-    pBottom->Draw();
-    pBottom->cd();
-    pBottom->Divide(nCols,nRows);
+    c.cd();
+    TPad pBottom("c1","c1",0,0,1,1-H0/H);
+    pBottom.Draw();
+    pBottom.cd();
+    pBottom.Divide(nCols,nRows);
     int Nreg = nRows*nCols;
     if(Nreg>(int)regions.size()) Nreg = regions.size();
-    TLatex *tex = new TLatex();
-    tex->SetNDC();
-    tex->SetTextSize(gStyle->GetTextSize());
-    pBottom->cd(1);
+    TLatex tex{};
+    tex.SetNDC();
+    tex.SetTextSize(gStyle->GetTextSize());
+    pBottom.cd(1);
 
     //
     // Create the map to store all the needed information
@@ -4064,14 +4064,15 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     //
     // Finally writting the pie chart
     //
+    std::vector<std::unique_ptr<TPie> > pie;
     for(int i=0;i<Nreg;i++){
         if(regions[i]==nullptr) continue;
-        pBottom->cd(i+1);
+        pBottom.cd(i+1);
         std::string label = regions[i]->fShortLabel;
 
         const unsigned int back_n = results[i].size();
-        double *values = new double[back_n];
-        int *colors = new int[back_n];
+        std::vector<double> values(back_n);
+        std::vector<int> colors(back_n);
         for( unsigned int iTemp = 0; iTemp < back_n; ++iTemp ){
             values[iTemp] = 0.;
             colors[iTemp] = 0;
@@ -4084,63 +4085,60 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
             count++;
         }
 
-        TPie *pie = new TPie(("pie_"+label).c_str()," ",back_n, values, colors);
-        pie -> SetRadius( pie -> GetRadius() * 0.8 );
-        for(int iEntry = 0; iEntry < pie->GetEntries(); ++iEntry) pie -> SetEntryLabel(iEntry,"");
-        pie -> Draw();
-        tex->DrawLatex(0.1,0.85,label.c_str());
-
-        delete [] values;
-        delete [] colors;
+        pie.emplace_back(new TPie(("pie_"+label).c_str()," ",back_n, &values[0], &colors[0]));
+        pie.back()->SetRadius( pie.back()->GetRadius() * 0.8 );
+        for(int iEntry = 0; iEntry < pie.back()->GetEntries(); ++iEntry) {
+            pie.back()->SetEntryLabel(iEntry,"");
+        }
+        pie.back()->Draw();
+        tex.DrawLatex(0.1,0.85,label.c_str());
     }
 
-    c -> cd();
+    c.cd();
 
     //
     // Adding the legend in the top panel
     //
-    pTop->cd();
-    TLegend *leg;
+    pTop.cd();
+    std::unique_ptr<TLegend> leg(nullptr);
     if(TRExFitter::OPTION["FourTopStyle"]>0 || TRExFitter::OPTION["TRExbbStyle"]>0){
-        leg = new TLegend(0.5,0.1,0.95,0.90);
-        leg -> SetNColumns(3);
+        leg = std::make_unique<TLegend>(0.5,0.1,0.95,0.90);
+        leg->SetNColumns(3);
     }
     else{
-        leg = new TLegend(0.7,0.1,0.95,0.90);
+        leg = std::make_unique<TLegend>(0.7,0.1,0.95,0.90);
         if(map_for_legend.size()>4){
-            leg -> SetNColumns(2);
+            leg->SetNColumns(2);
         }
     }
 
-    leg -> SetLineStyle(0);
-    leg -> SetFillStyle(0);
-    leg -> SetLineColor(0);
-    leg -> SetBorderSize(0);
-    leg -> SetTextFont( gStyle->GetTextFont() );
-    leg -> SetTextSize( gStyle->GetTextSize() );
+    leg->SetLineStyle(0);
+    leg->SetFillStyle(0);
+    leg->SetLineColor(0);
+    leg->SetBorderSize(0);
+    leg->SetTextFont( gStyle->GetTextFont() );
+    leg->SetTextSize( gStyle->GetTextSize() );
 
     std::vector<std::string> legVec;
     for ( const std::pair < std::string, int > legend_entry : map_for_legend ) {
         legVec.push_back(legend_entry.first);
     }
+    std::vector<std::unique_ptr<TH1D> > dummy;
     for(int i_leg=legVec.size()-1;i_leg>=0;i_leg--){
-        TH1D *dummy = new TH1D( ("legend_entry_" + legVec[i_leg]).c_str(), "",1,0,1);
-        dummy -> SetFillColor(map_for_legend[legVec[i_leg]]);
-        dummy -> SetLineColor(kBlack);
-        dummy -> SetLineWidth(1);
-        leg -> AddEntry(dummy,legVec[i_leg].c_str(),"f");
+        dummy.emplace_back(new TH1D(("legend_entry_" + legVec[i_leg]).c_str(), "",1,0,1));
+        dummy.back()->SetFillColor(map_for_legend[legVec[i_leg]]);
+        dummy.back()->SetLineColor(kBlack);
+        dummy.back()->SetLineWidth(1);
+        leg->AddEntry(dummy.back().get(),legVec[i_leg].c_str(),"f");
     }
-    leg -> Draw();
+    leg->Draw();
 
     //
     // Stores the pie chart in the desired format
     //
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        c->SaveAs((fName+"/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(std::size_t i_format=0;i_format<TRExFitter::IMAGEFORMAT.size(); ++i_format){
+        c.SaveAs((fName+"/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
     }
-
-    //
-    delete c;
 }
 
 //__________________________________________________________________________________
