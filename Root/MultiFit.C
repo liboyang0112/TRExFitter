@@ -2846,21 +2846,21 @@ void MultiFit::PlotSummarySoverB() const {
         sig = h_sig_comb->GetBinContent(i_bin);
         bkg = h_bkg_comb->GetBinContent(i_bin);
         SoverSqrtB.push_back(sig/bkg);
-  //      SoverSqrtB.push_back(sig/sqrt(bkg));
     }
 
-    TH1D* h_bkg_ord  = Rebin(h_bkg_comb,SoverSqrtB,false);
-    TH1D* h_bkgBonly_ord = nullptr; if(includeBonly) h_bkgBonly_ord = Rebin(h_bkgBonly_comb,SoverSqrtB,false);
-    TH1D* h_sig_ord  = Rebin(h_sig_comb,SoverSqrtB,false);
-    TH1D* h_data_ord = Rebin(h_data_comb,SoverSqrtB);
-    TH1D* h_tot_bkg_prefit_ord = nullptr;
-    if(TRExFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_ord = Rebin(h_tot_bkg_prefit_comb,SoverSqrtB,false);
+    std::unique_ptr<TH1D> h_bkg_ord(Rebin(h_bkg_comb,SoverSqrtB,false));
+    std::unique_ptr<TH1D> h_bkgBonly_ord(nullptr);
+    if(includeBonly) h_bkgBonly_ord = std::unique_ptr<TH1D> (Rebin(h_bkgBonly_comb,SoverSqrtB,false));
+    std::unique_ptr<TH1D> h_sig_ord(Rebin(h_sig_comb,SoverSqrtB,false));
+    std::unique_ptr<TH1D> h_data_ord(Rebin(h_data_comb,SoverSqrtB));
+    std::unique_ptr<TH1D> h_tot_bkg_prefit_ord(nullptr);
+    if(TRExFitter::PREFITONPOSTFIT) h_tot_bkg_prefit_ord = std::unique_ptr<TH1D>(Rebin(h_tot_bkg_prefit_comb,SoverSqrtB,false));
 
-    std::vector<TH1D*> h_syst_up_ord  (Nsyst);
-    std::vector<TH1D*> h_syst_down_ord(Nsyst);
+    std::vector<std::unique_ptr<TH1D> > h_syst_up_ord  (Nsyst);
+    std::vector<std::unique_ptr<TH1D> > h_syst_down_ord(Nsyst);
     for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
-        h_syst_up_ord  [i_syst] = Rebin((TH1D*)(h_syst_up_comb  [i_syst]),SoverSqrtB,false);
-        h_syst_down_ord[i_syst] = Rebin((TH1D*)(h_syst_down_comb[i_syst]),SoverSqrtB,false);
+        h_syst_up_ord  [i_syst] = std::move(std::unique_ptr<TH1D>(Rebin(static_cast<TH1D*>(h_syst_up_comb  [i_syst]),SoverSqrtB,false)));
+        h_syst_down_ord[i_syst] = std::move(std::unique_ptr<TH1D>(Rebin(static_cast<TH1D*>(h_syst_down_comb[i_syst]),SoverSqrtB,false)));
     }
 
     double errUp, errDown, err, err_tot;
@@ -2884,48 +2884,46 @@ void MultiFit::PlotSummarySoverB() const {
         h_bkg_ord->SetBinError(i_bin,err_tot);
     }
 
-    TCanvas *c = new TCanvas("c","c",600,600);
+    TCanvas c("c","c",600,600);
 
-    TPad* pad0;
-    TPad* pad1;
-    pad0 = new TPad("pad0","pad0",0,0.28,1,1,0,0,0);
-    pad0->SetTicks(1,1);
-    pad0->SetTopMargin(0.05);
-    pad0->SetBottomMargin(0);
-    pad0->SetLeftMargin(0.14);
-    pad0->SetRightMargin(0.05);
-    pad0->SetFrameBorderMode(0);
+    TPad pad0("pad0","pad0",0,0.28,1,1,0,0,0);
+    pad0.SetTicks(1,1);
+    pad0.SetTopMargin(0.05);
+    pad0.SetBottomMargin(0);
+    pad0.SetLeftMargin(0.14);
+    pad0.SetRightMargin(0.05);
+    pad0.SetFrameBorderMode(0);
     //
-    pad1 = new TPad("pad1","pad1",0,0,1,0.28,0,0,0);
-    pad1->SetTicks(1,1);
-    pad1->SetTopMargin(0.0);
-    pad1->SetBottomMargin(0.37);
-    pad1->SetLeftMargin(0.14);
-    pad1->SetRightMargin(0.05);
-    pad1->SetFrameBorderMode(0);
+    TPad pad1("pad1","pad1",0,0,1,0.28,0,0,0);
+    pad1.SetTicks(1,1);
+    pad1.SetTopMargin(0.0);
+    pad1.SetBottomMargin(0.37);
+    pad1.SetLeftMargin(0.14);
+    pad1.SetRightMargin(0.05);
+    pad1.SetFrameBorderMode(0);
 
-    pad1->Draw();
-    pad0->Draw();
-    pad0->cd();
+    pad1.Draw();
+    pad0.Draw();
+    pad0.cd();
 
     h_sig_ord->SetLineColor(kRed);
     h_sig_ord->SetFillColor(kRed);
 
-    TH1D* h_sig_ord_lim = (TH1D*)h_sig_ord->Clone("h_sig_ord_lim");
+    std::unique_ptr<TH1D> h_sig_ord_lim(static_cast<TH1D*>(h_sig_ord->Clone("h_sig_ord_lim")));
     h_sig_ord_lim->Scale(muLimit/muFit);
     h_sig_ord_lim->SetFillColor(kOrange);
     h_sig_ord_lim->SetLineColor(kOrange);
-    TH1D* h_sig_ord_lim_diff = (TH1D*)h_sig_ord_lim->Clone("h_sig_ord_lim_diff");
-    h_sig_ord_lim_diff->Add(h_sig_ord,-1);
+    std::unique_ptr<TH1D> h_sig_ord_lim_diff(static_cast<TH1D*>(h_sig_ord_lim->Clone("h_sig_ord_lim_diff")));
+    h_sig_ord_lim_diff->Add(h_sig_ord.get(),-1);
 
-    THStack *h_s = new THStack();
-    h_s->Add(h_bkg_ord);
-    h_s->Add(h_sig_ord);
-    h_s->Add(h_sig_ord_lim_diff);
+    THStack h_s{};
+    h_s.Add(h_bkg_ord.get());
+    h_s.Add(h_sig_ord.get());
+    h_s.Add(h_sig_ord_lim_diff.get());
     h_data_ord->Draw("EX0");
 
-    h_s->Draw("HISTsame ][");
-    TH1D* h_err = (TH1D*)h_bkg_ord->Clone("h_err");
+    h_s.Draw("HISTsame ][");
+    TH1D* h_err = static_cast<TH1D*>(h_bkg_ord->Clone("h_err"));
     h_err->SetMarkerSize(0);
     h_err->SetFillColor(kBlack);
     h_err->SetFillStyle(3454);
@@ -2954,19 +2952,19 @@ void MultiFit::PlotSummarySoverB() const {
       h_tot_bkg_prefit_ord->Draw("HISTsame ][");
     }
 
-    TLegend *leg;
-    if(includeBonly) leg = new TLegend(0.6,0.50,0.90,0.92);
-    else             leg = new TLegend(0.6,0.57,0.90,0.92);
+    std::unique_ptr<TLegend> leg(nullptr);
+    if(includeBonly) leg = std::make_unique<TLegend>(0.6,0.50,0.90,0.92);
+    else             leg = std::make_unique<TLegend>(0.6,0.57,0.90,0.92);
     leg->SetFillStyle(0);
     leg->SetMargin(0.2);
     leg->SetBorderSize(0);
     leg->SetTextSize(gStyle->GetTextSize());
-    leg->AddEntry(h_data_ord,"Data","lep");
-    leg->AddEntry(h_sig_ord_lim,Form(("%s ("+fPOIName+"_{95%% excl.}=%.1f)").c_str(),fSignalTitle.c_str(),muLimit),"f");
-    leg->AddEntry(h_sig_ord,    Form(("%s ("+fPOIName+"_{fit}=%.1f)"       ).c_str(),fSignalTitle.c_str(),muFit),"f");
-    leg->AddEntry(h_bkg_ord,"Background","f");
+    leg->AddEntry(h_data_ord.get(),"Data","lep");
+    leg->AddEntry(h_sig_ord_lim.get(),Form(("%s ("+fPOIName+"_{95%% excl.}=%.1f)").c_str(),fSignalTitle.c_str(),muLimit),"f");
+    leg->AddEntry(h_sig_ord.get(),    Form(("%s ("+fPOIName+"_{fit}=%.1f)"       ).c_str(),fSignalTitle.c_str(),muFit),"f");
+    leg->AddEntry(h_bkg_ord.get(),"Background","f");
     leg->AddEntry(h_err,"Bkgd. Unc.","f");
-    if(includeBonly) leg->AddEntry(h_bkgBonly_ord,("Bkgd. ("+fPOIName+"=0)").c_str(),"l");
+    if(includeBonly) leg->AddEntry(h_bkgBonly_ord.get(),("Bkgd. ("+fPOIName+"=0)").c_str(),"l");
     if(TRExFitter::PREFITONPOSTFIT) leg->AddEntry(h_tot_bkg_prefit_comb,"Pre-Fit Bkgd.","l");
     leg->Draw();
 
@@ -2985,49 +2983,49 @@ void MultiFit::PlotSummarySoverB() const {
     myText(0.17,0.13,kBlack,channels.c_str());
     myText(0.17,0.05,kBlack,"Post-Fit");
 
-    pad0->RedrawAxis();
-    pad0->SetLogy();
+    pad0.RedrawAxis();
+    pad0.SetLogy();
 
-    pad1->cd();
-    pad1->GetFrame()->SetY1(2);
-    TH1D *h_ratio   = (TH1D*)h_data_ord->Clone("h_ratio");
-    TH1D *h_den     = (TH1D*)h_bkg_ord ->Clone("h_den");
+    pad1.cd();
+    pad1.GetFrame()->SetY1(2);
+    std::unique_ptr<TH1D> h_ratio(static_cast<TH1D*>(h_data_ord->Clone("h_ratio")));
+    std::unique_ptr<TH1D> h_den(static_cast<TH1D*>(h_bkg_ord->Clone("h_den")));
     for(int i_bin=0;i_bin<h_den->GetNbinsX()+2;i_bin++){
         h_den->SetBinError(i_bin,0);
     }
 
-    TH1D *h_ratioBonly = nullptr;
+    std::unique_ptr<TH1D> h_ratioBonly(nullptr);
     if(includeBonly){
-        h_ratioBonly = (TH1D*)h_bkgBonly_ord->Clone("h_ratioBonly");
-        h_ratioBonly->Divide(h_den);
+        h_ratioBonly = std::unique_ptr<TH1D>(static_cast<TH1D*>(h_bkgBonly_ord->Clone("h_ratioBonly")));
+        h_ratioBonly->Divide(h_den.get());
         h_ratioBonly->SetLineStyle(kDashed);
         h_ratioBonly->SetLineColor(kBlack);
     }
 
-    TH1D* h_stackSig = (TH1D*)h_sig_ord ->Clone("h_sig_ratio");
-    h_stackSig->Add(h_bkg_ord);
-    h_stackSig->Divide(h_den);
+    std::unique_ptr<TH1D> h_stackSig(static_cast<TH1D*>(h_sig_ord ->Clone("h_sig_ratio")));
+    h_stackSig->Add(h_bkg_ord.get());
+    h_stackSig->Divide(h_den.get());
     h_stackSig->SetFillColor(0);
     h_stackSig->SetFillStyle(0);
     h_stackSig->SetLineColor(kRed);
 
-    TH1D* h_stackSigLim = (TH1D*)h_sig_ord_lim ->Clone("h_sig_lim_ratio");
-    h_stackSigLim->Add(h_bkg_ord);
-    h_stackSigLim->Divide(h_den);
+    std::unique_ptr<TH1D> h_stackSigLim (static_cast<TH1D*>(h_sig_ord_lim ->Clone("h_sig_lim_ratio")));
+    h_stackSigLim->Add(h_bkg_ord.get());
+    h_stackSigLim->Divide(h_den.get());
     h_stackSigLim->SetFillColor(0);
     h_stackSigLim->SetFillStyle(0);
     h_stackSigLim->SetLineStyle(kDashed);
     h_stackSigLim->SetLineColor(kOrange+1);
 
-    TH1D *h_ratio2  = (TH1D*)h_err->Clone("h_ratio2");
+    std::unique_ptr<TH1D> h_ratio2(static_cast<TH1D*>(h_err->Clone("h_ratio2")));
     h_ratio2->SetMarkerSize(0);
     h_ratio->SetTitle("Data/MC");
     h_ratio->GetYaxis()->SetTitle("Data / Bkgd.");
     h_ratio->GetYaxis()->SetTitleSize(20);
     h_ratio->GetYaxis()->SetTitleOffset(2.);
     h_ratio->GetYaxis()->SetLabelSize(20); // 0.04
-    h_ratio ->Divide(h_den);
-    h_ratio2->Divide(h_den);
+    h_ratio ->Divide(h_den.get());
+    h_ratio2->Divide(h_den.get());
     h_ratio->SetMarkerSize(1.2);
     h_ratio->SetLineWidth(2);
     gStyle->SetEndErrorSize(0.); // 4.
@@ -3039,43 +3037,43 @@ void MultiFit::PlotSummarySoverB() const {
     h_ratio->GetXaxis()->SetTitleSize(20);
     h_ratio->GetXaxis()->SetTitleOffset(4.);
     h_ratio->GetXaxis()->SetLabelSize(20);
-    TLine* hline = new TLine(h_ratio->GetXaxis()->GetXmin(),1,h_ratio->GetXaxis()->GetXmax(),1);
+    TLine hline(h_ratio->GetXaxis()->GetXmin(),1,h_ratio->GetXaxis()->GetXmax(),1);
     h_ratio->Draw("E1");
     h_ratio2->Draw("same E2");
-    hline->Draw();
+    hline.Draw();
     h_stackSig->Draw("same HIST ][");
     h_stackSigLim->Draw("same HIST ][");
     h_ratio->Draw("same E1");
 
     if(includeBonly) h_ratioBonly->Draw("same HIST ][");
 
-    TLegend *leg2 = new TLegend(0.17,0.64,0.75,0.98);
-    leg2->SetFillStyle(0);
-    leg2->SetMargin(0.1);
-    leg2->SetBorderSize(0);
-    leg2->SetTextSize(gStyle->GetTextSize());
-    leg2->AddEntry(h_stackSigLim,Form(("%s ("+fPOIName+"_{95%% excl.}=%.1f) + Bkgd.").c_str(),fSignalTitle.c_str(),muLimit),"l");
-    leg2->AddEntry(h_stackSig,   Form(("%s ("+fPOIName+"_{fit}=%.1f) + Bkgd."       ).c_str(),fSignalTitle.c_str(),muFit)  ,"l");
-    leg2->Draw();
+    TLegend leg2(0.17,0.64,0.75,0.98);
+    leg2.SetFillStyle(0);
+    leg2.SetMargin(0.1);
+    leg2.SetBorderSize(0);
+    leg2.SetTextSize(gStyle->GetTextSize());
+    leg2.AddEntry(h_stackSigLim.get(),Form(("%s ("+fPOIName+"_{95%% excl.}=%.1f) + Bkgd.").c_str(),fSignalTitle.c_str(),muLimit),"l");
+    leg2.AddEntry(h_stackSig.get(),   Form(("%s ("+fPOIName+"_{fit}=%.1f) + Bkgd."       ).c_str(),fSignalTitle.c_str(),muFit)  ,"l");
+    leg2.Draw();
 
+    std::unique_ptr<TLegend> leg3(nullptr);
     if(includeBonly){
-        TLegend *leg3 = new TLegend(0.17,0.4,0.75,0.5);
+        leg3 = std::make_unique<TLegend>(0.17,0.4,0.75,0.5);
         leg3->SetFillStyle(0);
         leg3->SetMargin(0.1);
         leg3->SetBorderSize(0);
         leg3->SetTextSize(gStyle->GetTextSize());
-        leg3->AddEntry(h_ratioBonly,"Bkgd. (from Bkgd-only fit)","l");
+        leg3->AddEntry(h_ratioBonly.get(),"Bkgd. (from Bkgd-only fit)","l");
         leg3->Draw();
     }
 
 
-    pad0->RedrawAxis();
-    pad1->RedrawAxis();
+    pad0.RedrawAxis();
+    pad1.RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c->SaveAs( (fOutDir+"/SoverB_postFit."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-
-    delete c;
+    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++) {
+        c.SaveAs( (fOutDir+"/SoverB_postFit."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+    }
 }
 
 //____________________________________________________________________________________

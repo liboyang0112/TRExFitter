@@ -625,7 +625,7 @@ void CloseFiles( const std::set < std::string> &files_names ){
 
 //__________________________________________________________________________________
 //
-TH1D* MergeHistograms(std::vector<TH1*> hVec){
+TH1D* MergeHistograms(const std::vector<TH1*>& hVec){
     if(hVec.size()==0) return nullptr;
     if(hVec[0]==nullptr) return nullptr;
     // build vector of bin edges
@@ -647,7 +647,7 @@ TH1D* MergeHistograms(std::vector<TH1*> hVec){
     }
     int Nbins = binVec.size()-1;
     // create the new histogram
-    TH1D *hOut = new TH1D("h_merge","h_merge",Nbins,&binVec[0]);
+    TH1D* hOut = new TH1D("h_merge","h_merge",Nbins,&binVec[0]);
     hOut->SetTitle(hVec[0]->GetTitle());
     hOut->SetLineColor(hVec[0]->GetLineColor());
     hOut->SetLineStyle(hVec[0]->GetLineStyle());
@@ -656,7 +656,7 @@ TH1D* MergeHistograms(std::vector<TH1*> hVec){
     hOut->SetFillStyle(hVec[0]->GetFillStyle());
     // fill it
     int k_bin = 1;
-    for(auto h : hVec){
+    for(const auto& h : hVec){
         for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
             hOut->SetBinContent(k_bin,h->GetBinContent(i_bin));
             hOut->SetBinError(k_bin,h->GetBinError(i_bin));
