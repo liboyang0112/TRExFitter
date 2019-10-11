@@ -731,9 +731,9 @@ void TRExFit::DrawSystPlots() const{
 void TRExFit::DrawSystPlotsSumSamples() const{
     WriteInfoStatus("TRExFit::DrawSystPlotsSumSamples", "-------------------------------------------");
     WriteInfoStatus("TRExFit::DrawSystPlotsSumSamples", "Drawing combined plots of syst effects on data...");
-    TH1* h_dataCopy = nullptr;
-    for(auto reg : fRegions){
-        SampleHist* hist = new SampleHist();
+    std::unique_ptr<TH1> h_dataCopy(nullptr);
+    for(const auto& reg : fRegions){
+        SampleHist hist{};
         bool empty = true;
         std::set<std::string> systNames;
         for(int i_regSmp=0; i_regSmp<reg->fNSamples; i_regSmp++){
@@ -742,21 +742,20 @@ void TRExFit::DrawSystPlotsSumSamples() const{
             }
         }
         for(int i_smp=0;i_smp<reg->fNSamples;i_smp++){
-            if(reg->fSampleHists[i_smp]->fSample->fType==Sample::DATA) h_dataCopy=(TH1*)reg->fSampleHists[i_smp]->fHist->Clone();
+            if(reg->fSampleHists[i_smp]->fSample->fType==Sample::DATA) h_dataCopy=std::unique_ptr<TH1>(static_cast<TH1*>(reg->fSampleHists[i_smp]->fHist->Clone()));
             else if(reg->fSampleHists[i_smp]->fSample->fType==Sample::GHOST) continue;
             else {
                 double scale = GetNominalMorphScale(reg->fSampleHists[i_smp]);
                 if(empty){
-                    hist->CloneSampleHist(reg->fSampleHists[i_smp],systNames, scale);
-                    hist->fName = reg->fName + "_Combined";
+                    hist.CloneSampleHist(reg->fSampleHists[i_smp],systNames, scale);
+                    hist.fName = reg->fName + "_Combined";
                     empty=false;
                 } else {
-                    hist->SampleHistAdd(reg->fSampleHists[i_smp], scale);
+                    hist.SampleHistAdd(reg->fSampleHists[i_smp], scale);
                 }
             }
         }
-        hist->DrawSystPlot("all", h_dataCopy, true, fSystDataPlot_upFrame);
-        delete hist;
+        hist.DrawSystPlot("all", h_dataCopy.get(), true, fSystDataPlot_upFrame);
     }
 }
 
