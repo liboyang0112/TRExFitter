@@ -94,8 +94,7 @@ public:
                            TH1* syst_down_orig,
                            TH1* data,
                            TH1* tmp,
-                           bool SumAndData,
-                           bool bothPanels) const;
+                           bool SumAndData) const;
 
     std::string fName;
     Sample *fSample;

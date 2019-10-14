@@ -850,8 +850,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
                           syst_down_orig_ratio.get(),
                           data_ratio.get(),
                           tmp_ratio.get(),
-                          SumAndData,
-                          bothPanels);
+                          SumAndData);
 
         const float xmin = nominal->GetBinLowEdge(1);
         const float xmax = nominal->GetBinLowEdge(nominal->GetNbinsX()+1);
@@ -1505,8 +1504,7 @@ void SampleHist::DrawSystPlotRatio(TPad* pad1,
                                    TH1* syst_down_orig,
                                    TH1* data,
                                    TH1* tmp,
-                                   bool SumAndData,
-                                   bool bothPanels) const {
+                                   bool SumAndData) const {
 
     pad1->cd();
 
@@ -1589,5 +1587,5 @@ void SampleHist::DrawSystPlotRatio(TPad* pad1,
         nominal->SetBinContent(i,0);
     }
     nominal->DrawCopy("e2same");
-    if(bothPanels && SumAndData) data->Draw("EX0same");
+    if(SumAndData) data->Draw("EX0same");
 }
