@@ -871,9 +871,9 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
 
         for(std::size_t i_format=0; i_format < TRExFitter::IMAGEFORMAT.size(); ++i_format){
             if(SumAndData) {
-                c.SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(), fName.c_str(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
+                c.SaveAs(Form("%s/Systematics/%s/%s_%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(), fName.c_str(), fSyst[i_syst]->fName.c_str(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
             } else { 
-                c.SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
+                c.SaveAs(Form("%s/Systematics/%s/%s_%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), fSyst[i_syst]->fName.c_str(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
             }
         }
 
