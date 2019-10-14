@@ -23,6 +23,7 @@
 
 // c++ includes
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -675,296 +676,209 @@ void SampleHist::Rebin(int ngroup, const Double_t* xbins){
 
 //_____________________________________________________________________________
 // this draws the control plots (for each systematic) with the syst variations for this region & all sample
-void SampleHist::DrawSystPlot( const string &syst, TH1* h_data, bool SumAndData, bool bothPanels ) const{
+void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAndData, bool bothPanels ) const{
     if (SumAndData && h_data == nullptr){
         WriteWarningStatus("SampleHist::DrawSystPlot", "Data histogram passed is nullptr and you want to plot syst effect on data, returning.");
         WriteWarningStatus("SampleHist::DrawSystPlot", "Maybe you do not have data sample defined?");
         return;
     }
 
-    //
-    // Draw the distributions for nominal, syst (before and after smoothing)
-    //
-    double yield_syst_up = 0.;
-    double yield_syst_down = 0.;
-    double yield_nominal = 0.;
-    double yield_data = 0.;
-    TCanvas *c = new TCanvas("c","c",800,600);
-    //
-    TPad* pad0 = new TPad("pad0","pad0",0,0.30,1,1,0,0,0);
-    pad0->SetTickx(true);
-    pad0->SetTicky(true);
-    pad0->SetTopMargin(0.05);
-    pad0->SetBottomMargin(0.115);
-    pad0->SetLeftMargin(0.14);
-    pad0->SetRightMargin(0.04);
-    pad0->SetFrameBorderMode(0);
-    //
-    TPad* pad1 = new TPad("pad1","pad1",0,0,1,0.38,0,0,0);
-    pad1->SetTickx(true);
-    pad1->SetTicky(true);
-    pad1->SetTopMargin(0.0);
-    pad1->SetBottomMargin(0.27);
-    pad1->SetLeftMargin(0.14);
-    pad1->SetRightMargin(0.04);
-    pad1->SetFrameBorderMode(0);
-    //
-    pad0->Draw();
-    pad1->Draw();
-    pad0->cd();
-
-    TH1* h_nominal = nullptr;
-    TH1* h_nominal_orig = nullptr;
-    TH1* h_dataCopy = nullptr;
-    TH1* h_syst_up = nullptr;
-    TH1* h_syst_down = nullptr;
-    TH1* h_syst_up_orig = nullptr;
-    TH1* h_syst_down_orig = nullptr;
-
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(syst!="all" && fSyst[i_syst]->fName.find(syst)==string::npos) continue;
-        std::vector < bool > drawRatio;
-        drawRatio.push_back(false);
-        drawRatio.push_back(true);
+        
+        TCanvas c("c","c",800,600);
+        TPad pad0("pad0","pad0",0,0.30,1,1,0,0,0);
+        pad0.SetTickx(true);
+        pad0.SetTicky(true);
+        pad0.SetTopMargin(0.05);
+        pad0.SetBottomMargin(0.115);
+        pad0.SetLeftMargin(0.14);
+        pad0.SetRightMargin(0.04);
+        pad0.SetFrameBorderMode(0);
+        //
+        TPad pad1("pad1","pad1",0,0,1,0.38,0,0,0);
+        pad1.SetTickx(true);
+        pad1.SetTicky(true);
+        pad1.SetTopMargin(0.0);
+        pad1.SetBottomMargin(0.27);
+        pad1.SetLeftMargin(0.14);
+        pad1.SetRightMargin(0.04);
+        pad1.SetFrameBorderMode(0);
+        //
+        pad0.Draw();
+        pad1.Draw();
+        pad0.cd();
 
-        for ( const bool ratioON : drawRatio ){
+        std::unique_ptr<TH1> nominal(static_cast<TH1*>(fHist->Clone("nominal")));
+        std::unique_ptr<TH1> nominal_orig(static_cast<TH1*>(fHist_preSmooth->Clone("nominal_orig")));
+        std::unique_ptr<TH1> syst_up(static_cast<TH1*>(fSyst[i_syst]->fHistUp->Clone()));
+        std::unique_ptr<TH1> syst_up_orig(static_cast<TH1*>(fSyst[i_syst]->fHistUp_preSmooth->Clone()));
+        std::unique_ptr<TH1> syst_down(static_cast<TH1*>(fSyst[i_syst]->fHistDown->Clone()));
+        std::unique_ptr<TH1> syst_down_orig(static_cast<TH1*>(fSyst[i_syst]->fHistDown_preSmooth->Clone()));
+        std::unique_ptr<TH1> data(nullptr);
+        if (SumAndData) data = std::unique_ptr<TH1>(static_cast<TH1*>(h_data->Clone("nominal")));
+        std::unique_ptr<TH1> tmp(static_cast<TH1*>(nominal->Clone()));
 
-            if(ratioON) pad1->cd();
-            else pad0 -> cd();
+        // Cosmetics
+        nominal->SetLineColor(kBlack);
+        nominal->SetLineWidth(2);
+        nominal->SetFillColor(0);
+        nominal_orig->SetLineColor(kBlack);
+        nominal_orig->SetLineStyle(2);
+        nominal_orig->SetLineWidth(2);
+        nominal_orig->SetFillColor(0);
+        nominal->SetMinimum(0);
+        syst_up->SetLineColor(kRed);
+        syst_up->SetLineWidth(2);
+        syst_up->SetLineStyle(1);
+        syst_up->SetFillStyle(0);
+        syst_down->SetLineColor(kBlue);
+        syst_down->SetLineWidth(2);
+        syst_down->SetLineStyle(1);
+        syst_down->SetFillStyle(0);
+        syst_up_orig->SetLineColor(kRed);
+        syst_up_orig->SetLineWidth(2);
+        syst_up_orig->SetLineStyle(2);
+        syst_up_orig->SetFillStyle(0);
+        syst_down_orig->SetLineColor(kBlue);
+        syst_down_orig->SetLineWidth(2);
+        syst_down_orig->SetLineStyle(2);
+        syst_down_orig->SetFillStyle(0);
+        tmp->Scale(0);
+        tmp->SetFillColor(0);
+        if (SumAndData) data->SetMarkerColor(kBlack);
 
-            if(SumAndData) h_dataCopy = (TH1*)h_data->Clone();
-            h_nominal = (TH1*)fHist->Clone("h_nominal");
-            h_nominal->SetLineColor(kBlack);
-            h_nominal->SetLineWidth(2);
-            h_nominal_orig = (TH1*)fHist_preSmooth->Clone("h_nominal_orig");
-            h_nominal_orig->SetLineColor(kBlack);
-            h_nominal_orig->SetLineStyle(2);
-            h_nominal_orig->SetLineWidth(2);
-            if(SumAndData) h_dataCopy->SetMarkerColor(kBlack);
-            if(ratioON)h_nominal->SetLineStyle(2);
-            else h_nominal->SetLineStyle(1);
+        // make copies for ratio
+        std::unique_ptr<TH1> nominal_ratio(static_cast<TH1*>(nominal->Clone()));      
+        std::unique_ptr<TH1> nominal_orig_ratio(static_cast<TH1*>(nominal_orig->Clone()));      
+        std::unique_ptr<TH1> syst_up_ratio(static_cast<TH1*>(syst_up->Clone()));      
+        std::unique_ptr<TH1> syst_up_orig_ratio(static_cast<TH1*>(syst_up_orig->Clone()));      
+        std::unique_ptr<TH1> syst_down_ratio(static_cast<TH1*>(syst_down->Clone()));      
+        std::unique_ptr<TH1> syst_down_orig_ratio(static_cast<TH1*>(syst_down_orig->Clone()));      
+        std::unique_ptr<TH1> data_ratio(nullptr);
+        if (SumAndData) data_ratio = std::unique_ptr<TH1>(static_cast<TH1*>(data->Clone()));      
+        std::unique_ptr<TH1> tmp_ratio(static_cast<TH1*>(tmp->Clone()));      
+        
+        DrawSystPlotUpper(&pad0,
+                          nominal.get(),
+                          nominal_orig.get(),
+                          syst_up.get(),
+                          syst_up_orig.get(),
+                          syst_down.get(),
+                          syst_down_orig.get(),
+                          data.get(),
+                          tmp.get(),
+                          SumAndData,
+                          bothPanels);
 
-            h_nominal->SetFillStyle(0);
-            h_nominal_orig->SetFillStyle(0);
-
-            TH1* h_1 = (TH1*)h_nominal->Clone();
-            h_nominal->SetMinimum(0);
-            h_nominal->SetMaximum(h_nominal->GetMaximum());
-            h_syst_up = (TH1*)fSyst[i_syst]->fHistUp->Clone();
-            h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
-            h_syst_up_orig = (TH1*)fSyst[i_syst]->fHistUp_preSmooth->Clone();
-            h_syst_down_orig = (TH1*)fSyst[i_syst]->fHistDown_preSmooth->Clone();
-            h_syst_up->SetLineColor(kRed);
-            h_syst_up->SetLineWidth(2);
-            h_syst_up->SetLineStyle(1);
-            h_syst_up->SetFillStyle(0);
-            h_syst_down->SetLineColor(kBlue);
-            h_syst_down->SetLineWidth(2);
-            h_syst_down->SetLineStyle(1);
-            h_syst_down->SetFillStyle(0);
-            h_syst_up_orig->SetLineColor(kRed);
-            h_syst_up_orig->SetLineWidth(2);
-            h_syst_up_orig->SetLineStyle(2);
-            h_syst_up_orig->SetFillStyle(0);
-            h_syst_down_orig->SetLineColor(kBlue);
-            h_syst_down_orig->SetLineWidth(2);
-            h_syst_down_orig->SetLineStyle(2);
-            h_syst_down_orig->SetFillStyle(0);
-
-            yield_nominal = CorrectIntegral(h_nominal);
-            yield_syst_up = CorrectIntegral(h_syst_up);
-            yield_syst_down = CorrectIntegral(h_syst_down);
-            if(SumAndData) yield_data = CorrectIntegral(h_dataCopy);
-
-            // draw Relative difference
-            h_1->Scale(0);
-
-            if(ratioON){
-                h_syst_up->Add(h_nominal,-1);
-                h_syst_down->Add(h_nominal,-1);
-                if(SumAndData) h_dataCopy->Add(h_nominal,-1);
-                h_syst_up->Divide(h_nominal);
-                h_syst_down->Divide(h_nominal);
-                if(SumAndData) h_dataCopy->Divide(h_nominal);
-                // fix empty bins
-                for(int i_bin=1;i_bin<=h_nominal->GetNbinsX();i_bin++){
-                    if(h_nominal->GetBinContent(i_bin)<1e-5){
-                        h_syst_up  ->SetBinContent(i_bin,0.);
-                        h_syst_down->SetBinContent(i_bin,0.);
-                        if(SumAndData) h_dataCopy->SetBinContent(i_bin,0.);
-                    }
-                }
-                h_syst_up->Scale(100);
-                h_syst_down->Scale(100);
-                if(SumAndData) h_dataCopy->Scale(100);
-                h_syst_up_orig->Add(h_nominal_orig,-1);
-                h_syst_down_orig->Add(h_nominal_orig,-1);
-                h_syst_up_orig->Divide(h_nominal_orig);
-                h_syst_down_orig->Divide(h_nominal_orig);
-                // fix empty bins
-                for(int i_bin=1;i_bin<=h_nominal_orig->GetNbinsX();i_bin++){
-                    if(h_nominal_orig->GetBinContent(i_bin)<1e-5){
-                        h_syst_up_orig  ->SetBinContent(i_bin,0.);
-                        h_syst_down_orig->SetBinContent(i_bin,0.);
-                    }
-                }
-                h_syst_up_orig->Scale(100);
-                h_syst_down_orig->Scale(100);
-            }
-
-            double ymax = 0;
-            if(!ratioON) ymax = TMath::Max( ymax,TMath::Abs(h_nominal->GetMaximum()));
-            if((ratioON || bothPanels) && SumAndData ) ymax = TMath::Max( ymax,TMath::Abs(h_dataCopy->GetMaximum()));
-            ymax = TMath::Max( ymax,TMath::Abs(h_syst_up->GetMaximum()));
-            ymax = TMath::Max( ymax,TMath::Abs(h_syst_down->GetMaximum()));
-            ymax = TMath::Max( ymax,TMath::Abs(h_syst_up->GetMinimum()));
-            ymax = TMath::Max( ymax,TMath::Abs(h_syst_down->GetMinimum()));
-            ymax = TMath::Max( ymax,TMath::Abs(h_syst_up_orig->GetMaximum()));
-            ymax = TMath::Max( ymax,TMath::Abs(h_syst_down_orig->GetMaximum()));
-            ymax = TMath::Max( ymax,TMath::Abs(h_syst_up_orig->GetMinimum()));
-            ymax = TMath::Max( ymax,TMath::Abs(h_syst_down_orig->GetMinimum()));
-            if(!ratioON) {
-                h_1->GetYaxis()->SetTitle("Number of events");
-                h_1->SetMinimum(1e-05);
-                h_1->SetMaximum( ymax*2.0 );
-            }
-            else {
-                h_1->GetYaxis()->SetTitle("#frac{Syst.-Nom.}{Nom.} [%]");
-                h_1->GetYaxis()->SetTitleOffset(1.6);
-                h_1->GetXaxis()->SetTitleOffset(3.);
-                if(TRExFitter::OPTION["SystPlotRatioRange"]!=0){
-                    h_1->SetMinimum(-TRExFitter::OPTION["SystPlotRatioRange"]);
-                    h_1->SetMaximum( TRExFitter::OPTION["SystPlotRatioRange"]);
-                }
-                else{
-                    h_1->SetMinimum(-ymax*1.5);
-                    h_1->SetMaximum( ymax*1.5);
-                }
-            }
-            h_1->GetXaxis()->SetTitle(fVariableTitle.c_str());
-
-            h_1->Draw("HIST");
-            if(TRExFitter::SYSTERRORBARS){
-                h_syst_down_orig->SetMarkerSize(0);
-                h_syst_up_orig->SetMarkerSize(0);
-                h_syst_down_orig->DrawCopy("same E");
-                h_syst_up_orig->DrawCopy("same E");
-            }
-            else{
-                h_syst_down_orig->DrawCopy("same HIST");
-                h_syst_up_orig->DrawCopy("same HIST");
-            }
-            h_syst_down->DrawCopy("same HIST");
-            h_syst_up->DrawCopy("same HIST");
-            if(!ratioON){
-                h_nominal->DrawCopy("same HIST");
-                h_nominal->SetFillStyle(3005);
-                h_nominal->SetFillColor(kBlue);
-                h_nominal->SetMarkerSize(0);
-                h_nominal->DrawCopy("e2same");
-                h_nominal_orig->DrawCopy("same HIST");
-            }
-            else {
-                double xmin=h_nominal->GetBinLowEdge(1);
-                double xmax=h_nominal->GetBinLowEdge(h_nominal->GetNbinsX()+1);
-                TLine* one= new TLine(xmin,0.,xmax,0.);
-                one->SetLineColor(kBlack);
-                //one->SetLineStyle(7);
-                one->SetLineWidth(2);
-                one->Draw("same HIST");
-                h_nominal -> SetFillStyle(3005);
-                h_nominal -> SetFillColor(kBlue);
-                h_nominal -> SetMarkerSize(0);
-                for ( int i=1; i<=h_nominal->GetNbinsX(); ++i ) {
-                    h_nominal -> SetBinError( i, h_nominal -> GetBinError( i ) * 100. / h_nominal -> GetBinContent( i ) );
-                    h_nominal -> SetBinContent( i, 0 );
-                }
-                h_nominal -> DrawCopy("e2same");
-            }
-            if((ratioON || bothPanels) && SumAndData ) h_dataCopy->Draw("EX0same");
-
-            if(!ratioON){
-                // Creates a legend for the plot
-                TLatex *tex = new TLatex();
-                tex->SetNDC();
-                if(SumAndData) {
-                    if(fSyst[i_syst]->fSystematic!=nullptr) tex->DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fSystematic->fTitle.c_str()));
-                    else                                tex->DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fName.c_str()));
-                }
-                else{
-                    if(fSyst[i_syst]->fSystematic!=nullptr) tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
-                    else                                tex->DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fTitle.c_str()));
-                }
-                tex->DrawLatex(0.17,0.72,fRegionLabel.c_str());
-
-                //Legend of the histograms
-                TLegend *leg;
-                if(SumAndData) leg = new TLegend(0.7,0.71,0.9,0.9);
-                else leg = new TLegend(0.7,0.71,0.9,0.85);
-                leg->SetFillStyle(0);
-                leg->SetBorderSize(0);
-                leg->SetTextSize(gStyle->GetTextSize());
-                leg->SetTextFont(gStyle->GetTextFont());
-                leg->SetMargin(0.2);
-
-                double acc_up = (yield_syst_up-yield_nominal)/yield_nominal;
-                string sign_up =  "+";
-                if(acc_up<0) sign_up = "-";
-                double acc_down = (yield_syst_down-yield_nominal)/yield_nominal;
-                string sign_down =  "+";
-                if(acc_down<0) sign_down = "-";
-                leg->AddEntry(h_syst_up,  Form("+ 1 #sigma (%s%.1f %%)",sign_up.c_str(),  TMath::Abs(acc_up  *100)),"l");
-                leg->AddEntry(h_syst_down,Form(" - 1 #sigma (%s%.1f %%)",sign_down.c_str(),TMath::Abs(acc_down*100)),"l");
-                leg->Draw();
-
-                //Legend to define the line style
-                TLegend *leg2 = new TLegend(0.65,0.64,0.9,0.7);
-                leg2->SetFillStyle(0);
-                leg2->SetBorderSize(0);
-                leg2->SetNColumns(2);
-                leg2->SetTextSize(gStyle->GetTextSize());
-                leg2->SetTextFont(gStyle->GetTextFont());
-                TH1D* h_syst_up_black = (TH1D*)h_syst_up -> Clone();
-                h_syst_up_black -> SetLineColor(kBlack);
-                TH1D* h_syst_up_origin_black = (TH1D*)h_syst_up_orig -> Clone();
-                h_syst_up_origin_black -> SetLineColor(kBlack);
-                leg2->AddEntry(h_syst_up_origin_black,"Original","l");
-                leg2->AddEntry(h_syst_up_black,"Modified","l");
-                leg2 -> Draw();
-                if(SumAndData){
-                    double acc_data = 0.;
-                    if (yield_nominal != 0) acc_data = (yield_data-yield_nominal)/yield_nominal;
-                    else acc_data = 99999999;
-                    string sign_data =  "+";
-                    if(acc_data<0) sign_data = "-";
-                    TLegend *leg3 = new TLegend(0.7,0.43,0.9,0.62);
-                    leg3->SetFillStyle(0);
-                    leg3->SetBorderSize(0);
-                    leg3->SetTextSize(gStyle->GetTextSize());
-                    leg3->SetTextFont(gStyle->GetTextFont());
-                    leg3->SetMargin(0.2);
-                    leg3->AddEntry(h_dataCopy,"Data","p");
-                    leg3->AddEntry(h_nominal,"Total prediction","l");
-                    leg3 -> Draw();
-                }
-            } else {
-                TLine line(0.01,1,0.1,1);
-                line.SetLineColor(kWhite);
-                line.SetLineWidth(20);
-                line.DrawLineNDC(0.07,1,0.135,1);
-            }
+        // Draw laels
+        TLatex tex{};
+        tex.SetNDC();
+        if(SumAndData) {
+            if(fSyst[i_syst]->fSystematic) tex.DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fSystematic->fTitle.c_str()));
+            else                           tex.DrawLatex(0.17,0.79,Form("%s",fSyst[i_syst]->fName.c_str()));
+        } else{
+            if(fSyst[i_syst]->fSystematic) tex.DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fSystematic->fTitle.c_str(),fSample->fTitle.c_str()));
+            else                           tex.DrawLatex(0.17,0.79,Form("%s, %s",fSyst[i_syst]->fName.c_str(),fSample->fTitle.c_str()));
         }
+        tex.DrawLatex(0.17,0.72,fRegionLabel.c_str());
 
+        std::unique_ptr<TLegend> leg(nullptr);
+        if(SumAndData) leg = std::make_unique<TLegend>(0.7,0.71,0.9,0.9);
+        else           leg = std::make_unique<TLegend>(0.7,0.71,0.9,0.85);
+        leg->SetFillStyle(0);
+        leg->SetBorderSize(0);
+        leg->SetTextSize(gStyle->GetTextSize());
+        leg->SetTextFont(gStyle->GetTextFont());
+        leg->SetMargin(0.2);
+
+        const float yield_nominal = CorrectIntegral(nominal.get());
+        const float yield_up      = CorrectIntegral(syst_up.get());
+        const float yield_down    = CorrectIntegral(syst_down.get());
+        float yield_data(0);
+        if (SumAndData) yield_data = CorrectIntegral(data.get());
+        const float acc_up = (yield_up-yield_nominal)/yield_nominal;
+        const float acc_down = (yield_down-yield_nominal)/yield_nominal;
+        std::string sign_up =  "+";
+        if(acc_up<0) sign_up = "-";
+        std::string sign_down =  "+";
+        if(acc_down<0) sign_down = "-";
+        leg->AddEntry(syst_up.get(),  Form("+ 1 #sigma (%s%.1f %%)",sign_up.c_str(),  std::fabs(acc_up  *100)),"l");
+        leg->AddEntry(syst_down.get(),Form(" - 1 #sigma (%s%.1f %%)",sign_down.c_str(),std::fabs(acc_down*100)),"l");
+        leg->Draw("same");
+
+        //Legend to define the line style
+        TLegend leg2(0.65,0.64,0.9,0.7);
+        leg2.SetFillStyle(0);
+        leg2.SetBorderSize(0);
+        leg2.SetNColumns(2);
+        leg2.SetTextSize(gStyle->GetTextSize());
+        leg2.SetTextFont(gStyle->GetTextFont());
+        std::unique_ptr<TH1D> syst_up_black(static_cast<TH1D*>(syst_up->Clone()));
+        std::unique_ptr<TH1D> syst_up_origin_black(static_cast<TH1D*>(syst_up_orig->Clone()));
+        syst_up_black->SetLineColor(kBlack);
+        syst_up_origin_black->SetLineColor(kBlack);
+        leg2.AddEntry(syst_up_origin_black.get(),"Original","l");
+        leg2.AddEntry(syst_up_black.get(),"Modified","l");
+        leg2.Draw("same");
+
+        std::unique_ptr<TLegend> leg3(nullptr);
+        if(SumAndData){
+            float acc_data = 0.;
+            if (std::fabs(yield_nominal) > 1e-6) acc_data = (yield_data-yield_nominal)/yield_nominal;
+            else acc_data = 99999999;
+            std::string sign_data =  "+";
+            if(acc_data<0) sign_data = "-";
+            leg3 = std::make_unique<TLegend>(0.7,0.43,0.9,0.62);
+            leg3->SetFillStyle(0);
+            leg3->SetBorderSize(0);
+            leg3->SetTextSize(gStyle->GetTextSize());
+            leg3->SetTextFont(gStyle->GetTextFont());
+            leg3->SetMargin(0.2);
+            leg3->AddEntry(data.get(),"Data","p");
+            leg3->AddEntry(nominal.get(),"Total prediction","l");
+            leg3->Draw("same");
+        }
+        
+ 
+        DrawSystPlotRatio(&pad1,
+                          nominal_ratio.get(),
+                          nominal_orig_ratio.get(),
+                          syst_up_ratio.get(),
+                          syst_up_orig_ratio.get(),
+                          syst_down_ratio.get(),
+                          syst_down_orig_ratio.get(),
+                          data_ratio.get(),
+                          tmp_ratio.get(),
+                          SumAndData,
+                          bothPanels);
+
+        const float xmin = nominal->GetBinLowEdge(1);
+        const float xmax = nominal->GetBinLowEdge(nominal->GetNbinsX()+1);
+        TLine one(xmin,0.,xmax,0.);
+        one.SetLineColor(kBlack);
+        one.SetLineWidth(2);
+        one.Draw("same HIST");
+        
+        TLine line(0.01,1,0.1,1);
+        line.SetLineColor(kWhite);
+        line.SetLineWidth(20);
+        line.DrawLineNDC(0.07,1,0.135,1);
+        
+        /// Make folders
         gSystem->mkdir(fFitName.c_str());
         gSystem->mkdir((fFitName+"/Systematics").c_str());
         gSystem->mkdir((fFitName+"/Systematics/"+fSyst[i_syst]->fName).c_str());
 
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-            if(SumAndData) c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(), fName.c_str(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
-            else c->SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
+        for(std::size_t i_format=0; i_format < TRExFitter::IMAGEFORMAT.size(); ++i_format){
+            if(SumAndData) {
+                c.SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(), fName.c_str(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
+            } else { 
+                c.SaveAs(Form("%s/Systematics/%s/%s.%s",fFitName.c_str(),fSyst[i_syst]->fName.c_str(),fHist->GetName(), TRExFitter::IMAGEFORMAT[i_format].c_str()));
+            }
         }
+
     }
-    delete c;
 }
 
 //_____________________________________________________________________________
@@ -1524,4 +1438,156 @@ void SampleHist::SystPruning(PruningUtil *pu,TH1* hTot){
         syh->fShapePruned = (pruningResult==1 || pruningResult==3 || syh->fBadShape);
         syh->fNormPruned = (pruningResult==2 || pruningResult==3 || syh->fBadNorm);
     }
+}
+
+//_____________________________________________________________________________
+//
+void SampleHist::DrawSystPlotUpper(TPad* pad0,
+                                   TH1* nominal,
+                                   TH1* nominal_orig,
+                                   TH1* syst_up,
+                                   TH1* syst_up_orig,
+                                   TH1* syst_down,
+                                   TH1* syst_down_orig,
+                                   TH1* data,
+                                   TH1* tmp,
+                                   bool SumAndData,
+                                   bool bothPanels) const {
+    pad0->cd();
+    nominal->SetLineStyle(1);
+    double max = std::max({std::fabs(nominal->GetMaximum()),
+                          std::fabs(nominal_orig->GetMaximum()),
+                          std::fabs(syst_up->GetMaximum()),
+                          std::fabs(syst_up_orig->GetMaximum()),
+                          std::fabs(syst_down->GetMaximum()),
+                          std::fabs(syst_down_orig->GetMaximum()),
+                          std::fabs(syst_up->GetMinimum()),
+                          std::fabs(syst_up_orig->GetMinimum()),
+                          std::fabs(syst_down->GetMinimum()),
+                          std::fabs(syst_down_orig->GetMinimum())});
+
+    if (SumAndData) max = std::max(max, data->GetMaximum());
+
+    tmp->GetYaxis()->SetTitle("Number of events");
+    tmp->SetMinimum(1e-5);
+    tmp->SetMaximum(max * 2.0);
+    tmp->GetXaxis()->SetTitle(fVariableTitle.c_str());
+    tmp->Draw("HIST");
+
+    if(TRExFitter::SYSTERRORBARS){
+        syst_down_orig->SetMarkerSize(0);
+        syst_up_orig->SetMarkerSize(0);
+        syst_down_orig->DrawCopy("same E");
+        syst_up_orig->DrawCopy("same E");
+    } else {
+        syst_down_orig->DrawCopy("same HIST");
+        syst_up_orig->DrawCopy("same HIST");
+    }
+    syst_down->DrawCopy("same HIST");
+    syst_up->DrawCopy("same HIST");
+    nominal->DrawCopy("same HIST");
+    nominal->SetFillStyle(3005);
+    nominal->SetFillColor(kBlue);
+    nominal->SetMarkerSize(0);
+    nominal->DrawCopy("e2same");
+    nominal_orig->DrawCopy("same HIST");
+    if(bothPanels && SumAndData) data->Draw("EX0same");
+}
+
+//_____________________________________________________________________________
+//
+void SampleHist::DrawSystPlotRatio(TPad* pad1,
+                                   TH1* nominal,
+                                   TH1* nominal_orig,
+                                   TH1* syst_up,
+                                   TH1* syst_up_orig,
+                                   TH1* syst_down,
+                                   TH1* syst_down_orig,
+                                   TH1* data,
+                                   TH1* tmp,
+                                   bool SumAndData,
+                                   bool bothPanels) const {
+
+    pad1->cd();
+
+    nominal->SetLineStyle(2);
+
+    syst_up->Add(nominal, -1);
+    syst_down->Add(nominal, -1);
+    if (SumAndData) data->Add(nominal, -1);
+    syst_up->Divide(nominal);
+    syst_down->Divide(nominal);
+    if (SumAndData) data->Divide(nominal);
+    for(int i_bin=1; i_bin <= nominal->GetNbinsX(); ++i_bin){
+        if(nominal->GetBinContent(i_bin)<1e-5){
+            syst_up  ->SetBinContent(i_bin,0.);
+            syst_down->SetBinContent(i_bin,0.);
+            if (SumAndData) data->SetBinContent(i_bin,0.);
+        }
+    }
+    syst_up->Scale(100);
+    syst_down->Scale(100);
+    if(SumAndData) data->Scale(100);
+    
+    syst_up_orig->Add(nominal_orig, -1);
+    syst_down_orig->Add(nominal_orig, -1);
+    syst_up_orig->Divide(nominal_orig);
+    syst_down_orig->Divide(nominal_orig);
+    for(int i_bin=1; i_bin <= nominal_orig->GetNbinsX(); ++i_bin){
+        if(nominal_orig->GetBinContent(i_bin)<1e-5){
+            syst_up_orig  ->SetBinContent(i_bin,0.);
+            syst_down_orig->SetBinContent(i_bin,0.);
+        }
+    }
+    syst_up_orig->Scale(100);
+    syst_down_orig->Scale(100);
+
+    tmp->GetYaxis()->SetTitle("#frac{Syst.-Nom.}{Nom.} [%]");
+    tmp->GetYaxis()->SetTitleOffset(1.6);
+    tmp->GetXaxis()->SetTitleOffset(3.);
+
+    double max = std::max({std::fabs(syst_up->GetMaximum()),
+                          std::fabs(syst_up_orig->GetMaximum()),
+                          std::fabs(syst_down->GetMaximum()),
+                          std::fabs(syst_down_orig->GetMaximum()),
+                          std::fabs(syst_up->GetMinimum()),
+                          std::fabs(syst_up_orig->GetMinimum()),
+                          std::fabs(syst_down->GetMinimum()),
+                          std::fabs(syst_down_orig->GetMinimum())});
+
+    if (SumAndData) max = std::max(max, data->GetMaximum());
+    
+    if(TRExFitter::OPTION["SystPlotRatioRange"]!=0){
+        tmp->SetMinimum(-TRExFitter::OPTION["SystPlotRatioRange"]);
+        tmp->SetMaximum( TRExFitter::OPTION["SystPlotRatioRange"]);
+    }
+    else{
+        tmp->SetMinimum(-max*1.5);
+        tmp->SetMaximum( max*1.5);
+    }
+
+    tmp->GetXaxis()->SetTitle(fVariableTitle.c_str());
+    tmp->Draw("HIST");
+    
+    if(TRExFitter::SYSTERRORBARS){
+        syst_down_orig->SetMarkerSize(0);
+        syst_up_orig->SetMarkerSize(0);
+        syst_down_orig->DrawCopy("same E");
+        syst_up_orig->DrawCopy("same E");
+    }
+    else{
+        syst_down_orig->DrawCopy("same HIST");
+        syst_up_orig->DrawCopy("same HIST");
+    }
+    syst_down->DrawCopy("same HIST");
+    syst_up->DrawCopy("same HIST");
+    nominal->SetFillStyle(3005);
+    nominal->SetFillColor(kBlue);
+    nominal->SetMarkerSize(0);
+    for (int i=1; i <= nominal->GetNbinsX(); ++i) {
+        nominal->SetBinError(i, nominal->GetBinError(i)*100. / nominal->GetBinContent(i));
+        nominal->SetBinContent(i,0);
+    }
+    nominal->DrawCopy("e2same");
+    if(bothPanels && SumAndData) data->Draw("EX0same");
 }
