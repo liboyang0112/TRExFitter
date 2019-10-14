@@ -2398,6 +2398,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 pullTex.close();
             }
             delete p;
+            if(TRExFitter::PREFITONPOSTFIT) delete fRegions[i_ch]->fPlotPreFit;
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(fPrePostFitCanvasSize, opt+" blind");
@@ -2410,7 +2411,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
             }
-            if( !fKeepPrefitBlindedBins ) delete p;
+            if( !(fKeepPrefitBlindedBins||TRExFitter::PREFITONPOSTFIT) ) delete p;
         }
     }
 }
