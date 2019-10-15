@@ -17,6 +17,7 @@
 /// Forward class declaration
 class TFile;
 class TH1;
+class TPad;
 class Sample;
 class NormFactor;
 class ShapeFactor;
@@ -71,6 +72,29 @@ public:
     void SampleHistAdd(SampleHist* h, double scale = 1.);
     void CloneSampleHist(SampleHist* h, const std::set<std::string>& names, double scale = 1.);
     void SystPruning(PruningUtil *pu,TH1* hTot=nullptr);
+
+    void DrawSystPlotUpper(TPad* pad0,
+                           TH1* nominal,
+                           TH1* nominal_orig,
+                           TH1* syst_up,
+                           TH1* syst_up_orig,
+                           TH1* syst_down,
+                           TH1* syst_down_orig,
+                           TH1* data,
+                           TH1* tmp,
+                           bool SumAndData,
+                           bool bothPanels) const;
+
+    void DrawSystPlotRatio(TPad* pad1,
+                           TH1* nominal,
+                           TH1* nominal_orig,
+                           TH1* syst_up,
+                           TH1* syst_up_orig,
+                           TH1* syst_down,
+                           TH1* syst_down_orig,
+                           TH1* data,
+                           TH1* tmp,
+                           bool SumAndData) const;
 
     std::string fName;
     Sample *fSample;
