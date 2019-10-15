@@ -12,7 +12,8 @@ This package provides a framework to perform profile likelihood fits. In additio
 1.  [Getting the code](#getting-the-code)
 2.  [Setup](#setup)
     * [Setup the code inside ATLAS environments](#setup-the-code-inside-atlas-environments)
-    * [Setup using Docker image with Singularity](#setup-the-code-inside-atlas-environments)
+    * [Setup using Docker image with Singularity](#setup-using-docker-image-with-singularity)
+    * [Setup using Docker image with Docker](#setup-using-docker-image-with-docker)
 3.  [How to](#how-to)
 4.  [Config File](#config-file)
     * [`Job` block options](#job-block-options)
@@ -98,7 +99,7 @@ source  x86_64-centos7-gcc62-opt/setup.sh
 Then, the setup is ready to execute `trex-fitter`.
 
 ### Setup using Docker image with Singularity
-To use the automatically built docker image by the CI follow these steps.
+To use the automatically built docker image by the CI, for example on lxplus, follow these steps.
 Since the code is not public, you first need to get a gitlab token (gitlab user settings -> Access Tokens -> read_registry) and export the token and your username into environment variables
 ```
 export SINGULARITY_DOCKER_USERNAME=<CERN-username>
@@ -110,6 +111,17 @@ singularity run --contain -B /tmp --pwd ${PWD} docker://gitlab-registry.cern.ch/
 ```
 in the container you will directly have the `trex-fitter` executable. If you cannot see your local folder you might need to mount them via the `-B` flag.
 The TRExFitter code is located in the folder `/TRExFitter/source/TRExFitter` within the container.
+
+### Setup using Docker image with Docker
+Start with the authentication, using the token created as described above:
+```
+docker login gitlab-registry.cern.ch -u <CERN-username> -p <gitlab-token>
+```
+The docker container can then be obtained and run with the following commands:
+```
+docker pull gitlab-registry.cern.ch/trexstats/trexfitter:latest
+docker run -it gitlab-registry.cern.ch/trexstats/trexfitter:latest
+```
 
 
 
