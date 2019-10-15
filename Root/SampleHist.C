@@ -1465,7 +1465,7 @@ void SampleHist::DrawSystPlotUpper(TPad* pad0,
                           std::fabs(syst_down->GetMinimum()),
                           std::fabs(syst_down_orig->GetMinimum())});
 
-    if (SumAndData) max = std::max(max, data->GetMaximum());
+    if (SumAndData) max = std::max({max, std::fabs(data->GetMaximum()), std::fabs(data->GetMinimum())});
 
     tmp->GetYaxis()->SetTitle("Number of events");
     tmp->SetMinimum(1e-5);
@@ -1553,7 +1553,7 @@ void SampleHist::DrawSystPlotRatio(TPad* pad1,
                           std::fabs(syst_down->GetMinimum()),
                           std::fabs(syst_down_orig->GetMinimum())});
 
-    if (SumAndData) max = std::max(max, data->GetMaximum());
+    if (SumAndData) max = std::max({max, std::fabs(data->GetMaximum()), std::fabs(data->GetMinimum())});
     
     if(TRExFitter::OPTION["SystPlotRatioRange"]!=0){
         tmp->SetMinimum(-TRExFitter::OPTION["SystPlotRatioRange"]);
