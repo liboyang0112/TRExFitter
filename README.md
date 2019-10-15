@@ -113,7 +113,7 @@ The TRexFitter code is located in the folder `/TRexFitter/source/TRexFitter` wit
 ## How to
 To run the code, after compiling (see [Setup](#setup)), use the command:
 ```
-trex-fitter  <action(s)>  <config file>  [<options>]
+trex-fitter <action(s)> <config file> [<options>]
 ```
 The configuration file (`<config file>`) is a text file containing all the information on the definition of samples and fit regions, including all the fit and draw options.
 By default, the file  `config/myFit.config`  is loaded.
@@ -615,7 +615,7 @@ Currently the supported options are:
 Note: the wild-card `*` is supported, but only as last character.
 Example:
 ```
-trex-fitter  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
+trex-fitter n config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
 ```
 
 
@@ -628,12 +628,12 @@ trex-fitter  n  config/ttH2015.config 'Regions=HThad_ge6jge4b:Exclude=BTag_*'
 * Examples:
 ```
 # this runs the ranking in one go
-trex-fitter  r  <config>
+trex-fitter r <config>
 #these commands will first create the inputs for the ranking one by one and then merge them in the plot
-trex-fitter  r  <config> Ranking=Lumi
-trex-fitter  r  <config> Ranking=JES1
-trex-fitter  r  <config> Ranking=ttXsec
-trex-fitter  r  <config> Ranking=plot
+trex-fitter r <config> Ranking=Lumi
+trex-fitter r <config> Ranking=JES1
+trex-fitter r <config> Ranking=ttXsec
+trex-fitter r <config> Ranking=plot
 ```
 
 
@@ -642,7 +642,7 @@ trex-fitter  r  <config> Ranking=plot
 * The command line argument `i` is used to evaluate the combined impact of groups of nuisance parameters on the POI.
 * Specify groups using the `SubCategory` option (for Systematics and NormFactors).
 * Two groups are defined by default: "Gammas" (MC stat. impact) and "FullSyst" (full systematics impact with statistical component subtracted).
-* The impact is calculated by performing a fit where the nuisance parameters in the group are fixed to their best-fit values, and then the subtracting the resulting uncertainty on the POI in quadrature from the uncertainty from the nominal fit.
+* The impact is calculated by performing a fit where the nuisance parameters in the group are fixed to their best-fit values, and then subtracting the resulting uncertainty on the POI in quadrature from the uncertainty from the nominal fit.
 * The command line parameter `GroupedImpact` can be used to parallelize the impact calculations. If it is not specified, all existing groups are evaluated sequentially.
 * The results are saved in `Fits/GroupedImpact*`.
 
@@ -693,13 +693,13 @@ Fit: "SR"
 ```
 This config file can be run with the command line:
 ```
-trex-fitter  m  config/myTopWS_multifit.config
+trex-fitter m config/myTopWS_multifit.config
 ```
   This will compare the fit results in terms of fitted NP, fitted POI and limits from the two config files specified. Notice that the fit and limits results have to be already available (they are not produced on the fly when running his multi-fit option).
 
 To make a real combination, one needs to use the usual command options `w`, `f` and `l` together with the flag "Combine: TRUE" in the config above. Example:
 ```
-trex-fitter  mwf  config/myTopWS_multifit.config
+trex-fitter mwf config/myTopWS_multifit.config
 ```
 This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
@@ -887,6 +887,8 @@ trex-fitter n your.config Regions="RegionA"
 Run one job per region, then proceed with `w` only when all jobs are finished. Multiple regions per job can be processed via `Regions="RegionA,RegionB"`.
 
 It is possible to split up the histogram creation into even more jobs, splitting up systematics or samples. See section see [Input File Merging with hupdate](#input-file-merging-with-hupdate) for more details, in this case an extra step is required before proceding with `w`.
+
+The runtime of the `n` step also depends on the amount of events in the ntuple(s) that are being read for each region. Events in the ntuple(s) that do not pass the region selection requirements further increase the execution time. A pre-selection or splitting of the input events across several files (e.g. one file per region) can decrease the execution time.
 
 __There is some problem with the fit. What can I do?__\
 Have a look at the [TRExFitter twiki](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TtHFitter), and also the [FitProblemsTutorial twiki page](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/FitProblemsTutorial).
