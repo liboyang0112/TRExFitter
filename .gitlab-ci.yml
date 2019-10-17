@@ -199,5 +199,4 @@ build_img:
     - ignore
   only:
     - master
-    - alheld-dockerTags
     - tags
