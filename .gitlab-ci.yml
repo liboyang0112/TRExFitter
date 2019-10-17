@@ -183,7 +183,7 @@ draw_postfit:
         - FitExample/Plots/
 
 ##
-## image creation step: creates Docker container for master branch
+## image creation step: creates Docker container for master branch and tags
 ##    Registry: stores the Docker container in the registry
 ##
 build_img:
@@ -192,30 +192,11 @@ build_img:
   variables:
      GIT_SUBMODULE_STRATEGY: recursive
      FROM: $BUILD_IMAGE
-     TAG: latest
-     TO: 'gitlab-registry.cern.ch/trexstats/trexfitter:${TAG}'
+     TO: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   tags:
     - docker-image-build
   script:
     - ignore
   only:
     - master
-
-##
-## image creation step: produce a tagged image when a new tag of the repository is created
-##    Registry: stores the Docker container in the registry
-##
-build_and_tag_img:
-  stage: imagebuild
-  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
-  variables:
-     GIT_SUBMODULE_STRATEGY: recursive
-     FROM: $BUILD_IMAGE
-     TAG: $CI_BUILD_TAG
-     TO: 'gitlab-registry.cern.ch/trexstats/trexfitter:${TAG}'
-  tags:
-    - docker-image-build
-  script:
-    - ignore
-  only:
     - tags
