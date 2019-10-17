@@ -7,9 +7,13 @@ This package provides a framework to perform profile likelihood fits. In additio
 * TRExFitter mailing list: [atlas-phys-stat-tthfitter](https://e-groups.cern.ch/e-groups/EgroupsSubscription.do?egroupName=atlas-phys-stat-tthfitter)
 
 
+
 ## Table of Contents
 1.  [Getting the code](#getting-the-code)
 2.  [Setup](#setup)
+    * [Setup the code inside ATLAS environments](#setup-the-code-inside-atlas-environments)
+    * [Setup using Docker image with Singularity](#setup-using-docker-image-with-singularity)
+    * [Setup using Docker image with Docker](#setup-using-docker-image-with-docker)
 3.  [How to](#how-to)
 4.  [Config File](#config-file)
     * [`Job` block options](#job-block-options)
@@ -81,7 +85,7 @@ or simply using the alias defined in the `setup.sh` script:
     trex-make
 ```
 
-## Setup the code inside ATLAS environments
+### Setup the code inside ATLAS environments
 To setup the code inside ATLAS environments such as `AnalysisBase` or `AnalysisTop`, do:
 ```
 mkdir source build
@@ -94,21 +98,32 @@ source  x86_64-centos7-gcc62-opt/setup.sh
 ```
 Then, the setup is ready to execute `trex-fitter`.
 
-
-## Setup using Docker Image with Singularity
-To use the automatically built docker image by the CI follow the next steps:
-
-Since the code is not public you first need to get a gitlab token (gitlab user settings -> Access Tokens -> read_registry) and export the token and your username into environment variables
+### Setup using Docker image with Singularity
+To use the automatically built docker image by the CI, for example on lxplus, follow these steps.
+Since the code is not public, you first need to get a gitlab token (gitlab user settings -> Access Tokens -> read_registry) and export the token and your username into environment variables
 ```
 export SINGULARITY_DOCKER_USERNAME=<CERN-username>
 export SINGULARITY_DOCKER_PASSWORD=<gitlab-token>
 ``` 
-Now you can run the following command
+Now you can run the following command:
 ```
-singularity run --contain -B /tmp --pwd ${PWD} docker://gitlab-registry.cern.ch/TRExStats/TRExFitter/trexfitter:latest
+singularity run --contain -B /tmp --pwd ${PWD} docker://gitlab-registry.cern.ch/trexstats/trexfitter:latest
 ```
 in the container you will directly have the `trex-fitter` executable. If you cannot see your local folder you might need to mount them via the `-B` flag.
-The TRexFitter code is located in the folder `/TRexFitter/source/TRexFitter` within the container.
+The TRExFitter code is located in the folder `/TRExFitter/source/TRExFitter` within the container.
+
+### Setup using Docker image with Docker
+Start with the authentication, using the token created as described above:
+```
+docker login gitlab-registry.cern.ch -u <CERN-username> -p <gitlab-token>
+```
+The docker container can then be obtained and run with the following commands:
+```
+docker pull gitlab-registry.cern.ch/trexstats/trexfitter:latest
+docker run -it gitlab-registry.cern.ch/trexstats/trexfitter:latest
+```
+
+
 
 ## How to
 To run the code, after compiling (see [Setup](#setup)), use the command:
@@ -311,7 +326,6 @@ For each object type (also called "block"), here is the list of available proper
 | ScaleSamplesToData           | The specified samples will be scaled to data (when doing the d step). |
 | MaxNtupleEvents              | valid only for option NTUP; if set to N, only first N entries per ntuple read (useful for debugging) |
 
-
 ### `Fit` block options:
 
 | **Option** | **Function** |
@@ -347,7 +361,6 @@ For each object type (also called "block"), here is the list of available proper
 | TemplateInterpolationOption  | Option only for morphing, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $`\sqrt{x^2+\epsilon}`$ to achieve smooth transitions (first derivative) between the templates |
 | BlindedParameters            | A comma separated list of POI/NPs that will be written as a hexadecimal number so it is not easy to read to not accidentally unblind. When at least one parameter is set the console output of the minimization is removed.
 | DoNonProfileFitSystThreshold | When performing a NonProfileFit, systematics are not added to total if smaller than this threshold |
-
 
 ### `Limit` block options:
 
@@ -580,8 +593,6 @@ For each object type (also called "block"), here is the list of available proper
 | NtupleNameSufDownRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic down variation |
 | Decorrelate                  | decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects) |
 
-
-
 ## Command line options
 Currently the supported options are:
 
@@ -703,7 +714,6 @@ trex-fitter mwf config/myTopWS_multifit.config
 ```
 This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
-
 ### Multi-Fit `Job` block options:
 
 | **Option** | **Function** |
@@ -805,6 +815,7 @@ This will create a combined ws starting from the individual ws for the different
 | ParamName                    | Name for the parameter in the output ROOT file |
 | ParamValue                   | Value of the parameter in the output file (e.g. 172.5 for top mass) |
 | OutputPrefixName             | Prefix for the output ROOT file |
+
 
 
 ## Input File Merging with hupdate

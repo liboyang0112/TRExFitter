@@ -2,7 +2,7 @@
 
 echo ""
 echo "#########################################################################"
-echo "TRexFitter validation logfiles"
+echo "TRExFitter validation logfiles"
 echo "#########################################################################"
 echo ""
 echo "You are about to change the logfiles used online to validate the results."
