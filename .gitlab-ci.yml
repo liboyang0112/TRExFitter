@@ -10,7 +10,6 @@ stages:
   - flsstep
   - draw
   - imagebuild
-  - imagetag
   - cleanup
 
 ## Checkout the submodule
@@ -184,7 +183,7 @@ draw_postfit:
         - FitExample/Plots/
 
 ##
-## image creation step: creates Docker container
+## image creation step: creates Docker container for master branch
 ##    Registry: stores the Docker container in the registry
 ##
 build_img:
@@ -201,20 +200,22 @@ build_img:
     FROM: $BUILD_IMAGE
   only:
     - master
-    - tags
 
 ##
-## image tagging step: create a tag of the image when the repository is tagged
+## image creation step: create and tag the image when the repository is tagged
+##    Registry: stores the Docker container in the registry
 ##
-##
-tag_img:
-  stage: imagetag
+build_and_tag_img:
+  stage: imagebuild
+  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
   variables:
-    GIT_STRATEGY: none
-    CI_FULL_REGISTRY_NAME: gitlab-registry.cern.ch/trexstats/trexfitter
+     GIT_SUBMODULE_STRATEGY: recursive
+     TO: "gitlab-registry.cern.ch/trexstats/trexfitter:$CI_BUILD_TAG"
+  tags:
+    - docker-image-build
+  script:
+    - ignore
+  variables:
+    FROM: $BUILD_IMAGE
   only:
     - tags
-  script:
-    - docker pull $CI_FULL_REGISTRY_NAME:latest
-    - docker tag $CI_FULL_REGISTRY_NAME:latest $CI_FULL_REGISTRY_NAME:CI_BUILD_TAG
-    - docker push $CI_FULL_REGISTRY_NAME:CI_BUILD_TAG
