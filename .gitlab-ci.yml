@@ -191,7 +191,8 @@ build_img:
   image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
   variables:
      GIT_SUBMODULE_STRATEGY: recursive
-     TO: "gitlab-registry.cern.ch/trexstats/trexfitter:latest"
+     TAG: current
+     TO: 'gitlab-registry.cern.ch/trexstats/trexfitter:${TAG}'
   tags:
     - docker-image-build
   script:
@@ -200,6 +201,7 @@ build_img:
     FROM: $BUILD_IMAGE
   only:
     - master
+    - alheld-dockerTags
 
 ##
 ## image creation step: create and tag the image when the repository is tagged
@@ -210,7 +212,7 @@ build_and_tag_img:
   image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
   variables:
      GIT_SUBMODULE_STRATEGY: recursive
-     TO: "gitlab-registry.cern.ch/trexstats/trexfitter:$CI_BUILD_TAG"
+     TO: 'gitlab-registry.cern.ch/trexstats/trexfitter:${CI_BUILD_TAG}'
   tags:
     - docker-image-build
   script:
