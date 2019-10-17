@@ -98,30 +98,36 @@ source  x86_64-centos7-gcc62-opt/setup.sh
 ```
 Then, the setup is ready to execute `trex-fitter`.
 
-### Setup using Docker image with Singularity
-To use the automatically built docker image by the CI, for example on lxplus, follow these steps.
-Since the code is not public, you first need to get a gitlab token (gitlab user settings -> Access Tokens -> read_registry) and export the token and your username into environment variables
+### Setup with Docker image
+TRExFitter can be run via the provided Docker images. The image tagged `latest` corresponds to the current code version in the master branch. There are also tagged versions of the images corresponding to the TRExFitter tags, starting after version `TtHFitter-00-04-06`. An overview of the available images can be found in the [container registry](https://gitlab.cern.ch/TRExStats/TRExFitter/container_registry).
+
+In order to use the images, you need to get a gitlab token. The token is created in the gitlab user settings, under Access Tokens ([direct link](https://gitlab.cern.ch/profile/personal_access_tokens)). Enter a name for the token (such as `docker_token`, and set the scope to `read_registry`. The token will then be shown after you clicked create.
+
+#### Setup using Docker image with Singularity
+Follow these steps to use the image via Singularity, for example on lxplus. Export the token and your username into environment variables:
 ```
 export SINGULARITY_DOCKER_USERNAME=<CERN-username>
 export SINGULARITY_DOCKER_PASSWORD=<gitlab-token>
-``` 
+```
 Now you can run the following command:
 ```
 singularity run --contain -B /tmp --pwd ${PWD} docker://gitlab-registry.cern.ch/trexstats/trexfitter:latest
 ```
-in the container you will directly have the `trex-fitter` executable. If you cannot see your local folder you might need to mount them via the `-B` flag.
-The TRExFitter code is located in the folder `/TRExFitter/source/TRExFitter` within the container.
+Replace `latest` by another tag to get the corresponding version of the code. In the container you will directly have the `trex-fitter` executable. If you cannot see your local folders, you might need to mount them via the `-B` flag. The TRExFitter code is located in the folder `/TRExFitter/source/TRExFitter` within the container.
 
-### Setup using Docker image with Docker
-Start with the authentication, using the token created as described above:
+#### Setup using Docker image with Docker
+These steps describe how to use the image with the Docker software, for example on your own local machine. Get started by creating an account and downloading docker here: [https://hub.docker.com/](https://hub.docker.com/).
+
+To get access to the images, start with an authentication by running the following command:
 ```
 docker login gitlab-registry.cern.ch -u <CERN-username> -p <gitlab-token>
 ```
-The docker container can then be obtained and run with the following commands:
+This uses the token created as described above. The docker container can then be obtained and run with the following commands:
 ```
 docker pull gitlab-registry.cern.ch/trexstats/trexfitter:latest
 docker run -it gitlab-registry.cern.ch/trexstats/trexfitter:latest
 ```
+Replace `latest` by a tag to get a specific version of the code.
 
 
 

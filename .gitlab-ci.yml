@@ -12,10 +12,10 @@ stages:
   - imagebuild
   - cleanup
 
-## Checkout the submodule 
+## Checkout the submodule
 variables:
   GIT_SUBMODULE_STRATEGY: normal
-  BUILD_IMAGE: atlas/analysisbase:21.2.91 
+  BUILD_IMAGE: atlas/analysisbase:21.2.91
 ##
 ## Common setup for all jobs
 ##
@@ -26,7 +26,7 @@ before_script:
   - root -l -b -q
 
 ##
-## "Prepare" step: first compiles the code
+## "build" step: first compiles the code
 ##    Artifact: keeps the log file of the compilation
 ##
 compile:
@@ -41,7 +41,7 @@ compile:
       - build
 
 ##
-## "Prepare" step: in parallel, dumps the inputs of the test
+## "build" step: in parallel, dumps the inputs of the test
 ##    Artifact: keeps the ExampleInputs folder
 ##
 input_prod:
@@ -54,7 +54,7 @@ input_prod:
         - ExampleInputs
 
 ##
-## "Hstep" step: produces the TRExFitter
+## "hstep" step: produces the input histograms for TRExFitter
 ##    Artifact: keeps the FitExample folder
 ##
 histograms:
@@ -68,7 +68,7 @@ histograms:
         - FitExample
 
 ##
-## "Wsetp" step: produces the workspace
+## "wstep" step: produces the workspace
 ##    Artifact: keeps the FitExample folder
 ##
 workspace:
@@ -183,13 +183,13 @@ draw_postfit:
         - FitExample/Plots/
 
 #
-# image creation step: creates Docker Container 
+# image creation step: creates Docker Container
 #    Registry: stores the Docker container in the registry
 #
 build_img:
   stage: imagebuild
   image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
-  variables: 
+  variables:
      GIT_SUBMODULE_STRATEGY: recursive
   tags:
     - docker-image-build
@@ -197,4 +197,8 @@ build_img:
     - ignore
   variables:
     FROM: $BUILD_IMAGE
+  only:
+    refs:
+      - master
+      - alheld-dockerTags
 
