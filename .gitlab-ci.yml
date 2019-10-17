@@ -4,11 +4,11 @@ image: lukasheinrich/recast_cvmfs_assisted
 ## Various steps to be followed by the build
 ##
 stages:
-  - build
-  - hstep
-  - wstep
-  - flsstep
-  - draw
+  #- build
+  #- hstep
+  #- wstep
+  #- flsstep
+  #- draw
   - imagebuild
   - cleanup
 
@@ -209,14 +209,14 @@ build_img:
 ##
 build_and_tag_img:
   stage: imagebuild
-  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
+  image:
+    name: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
+    entrypoint: [""]
   variables:
      GIT_SUBMODULE_STRATEGY: recursive
-     TO: 'gitlab-registry.cern.ch/trexstats/trexfitter:${CI_BUILD_TAG}'
-  tags:
-    - docker-image-build
   script:
-    - ignore
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR/multistage_builds --dockerfile $CI_PROJECT_DIR/multistage_builds/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_BUILD_REF_NAME
   variables:
     FROM: $BUILD_IMAGE
   only:
