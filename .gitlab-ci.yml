@@ -191,35 +191,13 @@ build_img:
   image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
   variables:
      GIT_SUBMODULE_STRATEGY: recursive
+     FROM: $BUILD_IMAGE
      TAG: current
      TO: 'gitlab-registry.cern.ch/trexstats/trexfitter:${TAG}'
   tags:
     - docker-image-build
   script:
     - ignore
-  variables:
-    FROM: $BUILD_IMAGE
   only:
     - master
     - alheld-dockerTags
-
-##
-## image creation step: create and tag the image when the repository is tagged
-##    Registry: stores the Docker container in the registry
-##
-build_and_tag_img:
-  stage: imagebuild
-  image:
-    name: gitlab-registry.cern.ch/ci-tools/docker-image-builder
-    entrypoint: [""]
-  variables:
-     GIT_SUBMODULE_STRATEGY: recursive
-  script:
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE
-  variables:
-    FROM: $BUILD_IMAGE
-  before_script:
-    - ''
-  only:
-    - tags
