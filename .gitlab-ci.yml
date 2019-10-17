@@ -4,11 +4,6 @@ image: lukasheinrich/recast_cvmfs_assisted
 ## Various steps to be followed by the build
 ##
 stages:
-  #- build
-  #- hstep
-  #- wstep
-  #- flsstep
-  #- draw
   - imagebuild
   - cleanup
 
