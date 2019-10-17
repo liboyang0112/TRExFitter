@@ -10,6 +10,7 @@ stages:
   - flsstep
   - draw
   - imagebuild
+  - imagetag
   - cleanup
 
 ## Checkout the submodule
@@ -21,7 +22,7 @@ variables:
 ##
 before_script:
   - set +e
-  - source setup.sh #sources the setup IN the TREXfitter package (consistent with user's setup)
+  - source setup.sh #sources the setup in the TRExFitter package (consistent with user's setup)
   - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:}$PWD/build/lib
   - root -l -b -q
 
@@ -182,15 +183,16 @@ draw_postfit:
       paths:
         - FitExample/Plots/
 
-#
-# image creation step: creates Docker Container
-#    Registry: stores the Docker container in the registry
-#
+##
+## image creation step: creates Docker container
+##    Registry: stores the Docker container in the registry
+##
 build_img:
   stage: imagebuild
   image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
   variables:
      GIT_SUBMODULE_STRATEGY: recursive
+     TO: "gitlab-registry.cern.ch/trexstats/trexfitter:latest"
   tags:
     - docker-image-build
   script:
@@ -198,7 +200,21 @@ build_img:
   variables:
     FROM: $BUILD_IMAGE
   only:
-    refs:
-      - master
-      - alheld-dockerTags
+    - master
+    - tags
 
+##
+## image tagging step: create a tag of the image when the repository is tagged
+##
+##
+tag_img:
+  stage: imagetag
+  variables:
+    GIT_STRATEGY: none
+    CI_FULL_REGISTRY_NAME: gitlab-registry.cern.ch/trexstats/trexfitter
+  only:
+    - tags
+  script:
+    - docker pull $CI_FULL_REGISTRY_NAME:latest
+    - docker tag $CI_FULL_REGISTRY_NAME:latest $CI_FULL_REGISTRY_NAME:CI_BUILD_TAG
+    - docker push $CI_FULL_REGISTRY_NAME:CI_BUILD_TAG
