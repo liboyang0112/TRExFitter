@@ -184,7 +184,7 @@ draw_postfit:
 
 ##
 ## image creation step: creates Docker container for master branch and tags
-##    Registry: stores the Docker container in the registry
+##    CI_COMMIT_REF_SLUG: either branch name or tag name
 ##
 build_img:
   stage: imagebuild
@@ -199,4 +199,5 @@ build_img:
     - ignore
   only:
     - master
+    - alheld-dockerTags
     - tags
