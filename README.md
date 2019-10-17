@@ -11,9 +11,11 @@ This package provides a framework to perform profile likelihood fits. In additio
 ## Table of Contents
 1.  [Getting the code](#getting-the-code)
 2.  [Setup](#setup)
-    * [Setup the code inside ATLAS environments](#setup-the-code-inside-atlas-environments)
-    * [Setup using Docker image with Singularity](#setup-using-docker-image-with-singularity)
-    * [Setup using Docker image with Docker](#setup-using-docker-image-with-docker)
+    * [Build it yourself](#build-it-yourself)
+        * [Setup the code inside ATLAS environments](#setup-the-code-inside-atlas-environments)
+    * [Using a Docker image](#using-a-docker-image)
+        * [Setup using Docker image with Singularity](#setup-using-docker-image-with-singularity)
+        * [Setup using Docker image with Docker](#setup-using-docker-image-with-docker)
 3.  [How to](#how-to)
 4.  [Config File](#config-file)
     * [`Job` block options](#job-block-options)
@@ -52,10 +54,14 @@ To get a specific tag, do the following:
 ```
 cd TRExFitter && git checkout <tag number> && cd -
 ```
+If you just want to run TRExFitter, you can also use a Docker image. See section [Using a docker image](#using-a-docker-image).
 
 
 
 ## Setup
+There are multiple ways to setup TRExFitter. You can compile the code by yourself, or use the provided Docker images.
+
+### Build it yourself
 To setup just use the script (from any location):
 ```
   source setup.sh
@@ -85,7 +91,7 @@ or simply using the alias defined in the `setup.sh` script:
     trex-make
 ```
 
-### Setup the code inside ATLAS environments
+#### Setup the code inside ATLAS environments
 To setup the code inside ATLAS environments such as `AnalysisBase` or `AnalysisTop`, do:
 ```
 mkdir source build
@@ -98,7 +104,7 @@ source  x86_64-centos7-gcc62-opt/setup.sh
 ```
 Then, the setup is ready to execute `trex-fitter`.
 
-### Setup with Docker image
+### Using a Docker image
 TRExFitter can be run via the provided Docker images. The image tagged `latest` corresponds to the current code version in the master branch. There are also tagged versions of the images corresponding to the TRExFitter tags, starting after version `TtHFitter-00-04-06`. An overview of the available images can be found in the [container registry](https://gitlab.cern.ch/TRExStats/TRExFitter/container_registry).
 
 In order to use the images, you need to get a gitlab token. The token is created in the gitlab user settings, under Access Tokens ([direct link](https://gitlab.cern.ch/profile/personal_access_tokens)). Enter a name for the token (such as `docker_token`, and set the scope to `read_registry`. The token will then be shown after you clicked create.
