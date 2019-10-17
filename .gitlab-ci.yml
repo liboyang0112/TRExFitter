@@ -192,7 +192,7 @@ build_img:
   variables:
      GIT_SUBMODULE_STRATEGY: recursive
      FROM: $BUILD_IMAGE
-     TAG: current
+     TAG: latest
      TO: 'gitlab-registry.cern.ch/trexstats/trexfitter:${TAG}'
   tags:
     - docker-image-build
@@ -200,4 +200,22 @@ build_img:
     - ignore
   only:
     - master
-    - alheld-dockerTags
+
+##
+## image creation step: produce a tagged image when a new tag of the repository is created
+##    Registry: stores the Docker container in the registry
+##
+build_and_tag_img:
+  stage: imagebuild
+  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
+  variables:
+     GIT_SUBMODULE_STRATEGY: recursive
+     FROM: $BUILD_IMAGE
+     TAG: $CI_BUILD_TAG
+     TO: 'gitlab-registry.cern.ch/trexstats/trexfitter:${TAG}'
+  tags:
+    - docker-image-build
+  script:
+    - ignore
+  only:
+    - tags
