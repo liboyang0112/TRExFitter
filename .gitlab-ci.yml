@@ -12,21 +12,21 @@ stages:
   - imagebuild
   - cleanup
 
-## Checkout the submodule 
+## Checkout the submodule
 variables:
   GIT_SUBMODULE_STRATEGY: normal
-  BUILD_IMAGE: atlas/analysisbase:21.2.91 
+  BUILD_IMAGE: atlas/analysisbase:21.2.91
 ##
 ## Common setup for all jobs
 ##
 before_script:
   - set +e
-  - source setup.sh #sources the setup IN the TREXfitter package (consistent with user's setup)
+  - source setup.sh #sources the setup in the TRExFitter package (consistent with user's setup)
   - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:}$PWD/build/lib
   - root -l -b -q
 
 ##
-## "Prepare" step: first compiles the code
+## "build" step: first compiles the code
 ##    Artifact: keeps the log file of the compilation
 ##
 compile:
@@ -41,7 +41,7 @@ compile:
       - build
 
 ##
-## "Prepare" step: in parallel, dumps the inputs of the test
+## "build" step: in parallel, dumps the inputs of the test
 ##    Artifact: keeps the ExampleInputs folder
 ##
 input_prod:
@@ -54,7 +54,7 @@ input_prod:
         - ExampleInputs
 
 ##
-## "Hstep" step: produces the TRExFitter
+## "hstep" step: produces the input histograms for TRExFitter
 ##    Artifact: keeps the FitExample folder
 ##
 histograms:
@@ -68,7 +68,7 @@ histograms:
         - FitExample
 
 ##
-## "Wsetp" step: produces the workspace
+## "wstep" step: produces the workspace
 ##    Artifact: keeps the FitExample folder
 ##
 workspace:
@@ -182,19 +182,38 @@ draw_postfit:
       paths:
         - FitExample/Plots/
 
-#
-# image creation step: creates Docker Container 
-#    Registry: stores the Docker container in the registry
-#
-build_img:
+##
+## image creation step: creates Docker container for master branch
+##    tagging image as "latest"
+##
+build_img_latest:
   stage: imagebuild
   image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
-  variables: 
-     GIT_SUBMODULE_STRATEGY: recursive
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    FROM: $BUILD_IMAGE
+    TO: $CI_REGISTRY_IMAGE:latest
   tags:
     - docker-image-build
   script:
     - ignore
-  variables:
-    FROM: $BUILD_IMAGE
+  only:
+    - master
 
+##
+## image creation step: creates Docker container for repository tags
+##    CI_COMMIT_REF_SLUG: either branch name or tag name
+##
+build_img_tag:
+  stage: imagebuild
+  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    FROM: $BUILD_IMAGE
+    TO: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  tags:
+    - docker-image-build
+  script:
+    - ignore
+  only:
+    - tags
