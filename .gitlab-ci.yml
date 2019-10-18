@@ -199,7 +199,6 @@ build_img_latest:
     - ignore
   only:
     - master
-    - alheld-dockerTags
 
 ##
 ## image creation step: creates Docker container for repository tags
@@ -209,9 +208,9 @@ build_img_tag:
   stage: imagebuild
   image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
   variables:
-     GIT_SUBMODULE_STRATEGY: recursive
-     FROM: $BUILD_IMAGE
-     TO: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    GIT_SUBMODULE_STRATEGY: recursive
+    FROM: $BUILD_IMAGE
+    TO: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   tags:
     - docker-image-build
   script:
