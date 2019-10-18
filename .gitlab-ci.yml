@@ -199,6 +199,7 @@ build_img_latest:
     - ignore
   only:
     - master
+    - alheld-dockerTags
 
 ##
 ## image creation step: creates Docker container for repository tags
