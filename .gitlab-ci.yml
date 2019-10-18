@@ -183,10 +183,28 @@ draw_postfit:
         - FitExample/Plots/
 
 ##
-## image creation step: creates Docker container for master branch and tags
+## image creation step: creates Docker container for master branch
+##    tagging image as "latest"
+##
+build_img_latest:
+  stage: imagebuild
+  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    FROM: $BUILD_IMAGE
+    TO: $CI_REGISTRY_IMAGE:latest
+  tags:
+    - docker-image-build
+  script:
+    - ignore
+  only:
+    - master
+
+##
+## image creation step: creates Docker container for repository tags
 ##    CI_COMMIT_REF_SLUG: either branch name or tag name
 ##
-build_img:
+build_img_tag:
   stage: imagebuild
   image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
   variables:
@@ -198,5 +216,4 @@ build_img:
   script:
     - ignore
   only:
-    - master
     - tags
