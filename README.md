@@ -121,6 +121,8 @@ singularity run --contain -B /tmp --pwd ${PWD} docker://gitlab-registry.cern.ch/
 ```
 Replace `latest` by another tag to get the corresponding version of the code. In the container you will directly have the `trex-fitter` executable. If you cannot see your local folders, you might need to mount them via the `-B` flag. The TRExFitter code is located in the folder `/TRExFitter/source/TRExFitter` within the container.
 
+You might want to add the flag ```--silent``` to suppress the warnings occuring for AnalysisBase images based on CentOS7.
+
 #### Setup using Docker image with Docker
 These steps describe how to use the image with the Docker software, for example on your own local machine. Get started by creating an account and downloading docker here: [https://hub.docker.com/](https://hub.docker.com/).
 
