@@ -12,6 +12,11 @@
 class Systematic {
 public:
 
+    enum COMBINATIONTYPE {
+        STANDARDDEVIATION = 0,
+        ENVELOPE = 1
+    };
+
     enum SystType{
          OVERALL, // 0
          SHAPE, // 1
@@ -151,6 +156,9 @@ public:
     std::string fSampleDown;
 
     std::vector<std::string> fSamples;
+
+    std::string fCombineName;
+    COMBINATIONTYPE fCombineType;
 
 };
 

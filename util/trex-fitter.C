@@ -225,6 +225,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->fUpdate = udpate;
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
+        myFit->CombineSpecialSystematics();
         myFit->CreateCustomAsimov();
         myFit->WriteHistos(false);
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();

@@ -219,6 +219,9 @@ Systematic::Systematic(const Systematic &sys) {
     //
     fSampleUp = "";
     fSampleDown = "";
+
+    fCombineName = "";
+    fCombineType = COMBINATIONTYPE::ENVELOPE;
 }
 
 //_____________________________________________________________________________

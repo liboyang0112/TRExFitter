@@ -3462,6 +3462,28 @@ int ConfigReader::ReadSystOptions(){
             sys->fSubCategory = RemoveQuotes(param); //SubCategory defaults to the Category setting, if the Category is explicitly set
         }
 
+        // CombineName
+        param = confSet->Get("CombineName");
+        if(param != ""){
+            sys->fCombineName = RemoveQuotes(param);
+        }
+
+        // CombineType
+        param = confSet->Get("CombineType");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            const std::string tmp = RemoveQuotes(param);
+
+            if (tmp == "STANDARDDEVIATION") {
+                sys->fCombineType = Systematic::COMBINATIONTYPE::STANDARDDEVIATION;
+            } else if (tmp == "ENVELOPE") {
+                sys->fCombineType = Systematic::COMBINATIONTYPE::ENVELOPE;
+            } else {
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'CombineType' option but did not provide valid parameter. Using default (ENVELOPE)");
+                sys->fCombineType = Systematic::COMBINATIONTYPE::ENVELOPE;
+            }
+        }
+
         // SetSubCategory
         param = confSet->Get("SubCategory");
         if (param != ""){

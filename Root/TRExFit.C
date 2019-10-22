@@ -6842,6 +6842,10 @@ void TRExFit::MergeSystematics(){
     }
 }
 
+//____________________________________________________________________________________
+// this will combine special systematics into a single systematic (e.g. envelope)
+void TRExFit::CombineSpecialSystematics() {
+}
 
 //____________________________________________________________________________________
 //

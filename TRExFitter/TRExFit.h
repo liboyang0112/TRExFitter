@@ -177,6 +177,7 @@ public:
     void PrintSystTables(std::string opt="") const;
 
     void MergeSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
+    void CombineSpecialSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
 
     // for template fitting
     void AddTemplateWeight(const std::string& name, double);
