@@ -6806,38 +6806,36 @@ void TRExFit::PrintSystTables(std::string opt) const{
 // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
 void TRExFit::MergeSystematics(){
     // loop on systematics, see if any of them has name != nuisance
-    for(auto syst : fSystematics){
-        if(syst->fName!=syst->fNuisanceParameter){
-            // if so, loop on other systematics to find one with name = nuisance parameter
-            for(auto syst1 : fSystematics){
-                if(syst->fName==syst1->fName) continue;
-                if(!(syst->fNuisanceParameter==syst1->fName && syst1->fNuisanceParameter==syst1->fName)) continue;
-                // now merge all SystematicHist in all regions
-                WriteDebugStatus("TRExFit::MergeSystematics", "Found NP(syst) " + syst->fNuisanceParameter + "(" + syst->fName + ") = to syst name " + syst1->fName );
-                for(auto reg : fRegions){
-                    WriteDebugStatus("TRExFit::MergeSystematics", "Region: " + reg->fName);
-                    for(auto sh : reg->fSampleHists){
-                        SystematicHist *syh  = sh->GetSystematic(syst ->fName);
-                        SystematicHist *syh1 = sh->GetSystematic(syst1->fName);
-                        if(syh!=nullptr && syh1!=nullptr){
-                            // FIXME...
-                            // the issue here is that to combine uncertainties one has to act differently depending on the fact that the different sources come from a multiplication/division or not...
-                            syh1 ->Add(syh);
-                            syh1 ->Add(sh->fHist,-1);
-                            WriteDebugStatus("TRExFit::MergeSystematics", "Adding syst of " + syh->fName +  " to " + syh1->fName);
-                            WriteDebugStatus("TRExFit::MergeSystematics", "Setting to 0 all Up/Down of " +  syh->fName);
-                            //
-                            // set to zero the other syst
-                            syh->fHistUp   = (TH1*)sh->fHist->Clone(syh->fHistUp  ->GetName());
-                            syh->fHistDown = (TH1*)sh->fHist->Clone(syh->fHistDown->GetName());
-                            syh->fHistShapeUp   = (TH1*)sh->fHist->Clone(syh->fHistShapeUp  ->GetName());
-                            syh->fHistShapeDown = (TH1*)sh->fHist->Clone(syh->fHistShapeDown->GetName());
-                            syh->fNormUp   = 0.;
-                            syh->fNormDown = 0.;
-                            syh->fNormPruned  = true;
-                            syh->fShapePruned = true;
-                        }
-                    }
+    for(const auto& syst : fSystematics){
+        if(syst->fName == syst->fNuisanceParameter) continue;
+        // if so, loop on other systematics to find one with name = nuisance parameter
+        for(const auto& syst1 : fSystematics){
+            if(syst->fName==syst1->fName) continue;
+            if(!(syst->fNuisanceParameter==syst1->fName && syst1->fNuisanceParameter==syst1->fName)) continue;
+            // now merge all SystematicHist in all regions
+            WriteDebugStatus("TRExFit::MergeSystematics", "Found NP(syst) " + syst->fNuisanceParameter + "(" + syst->fName + ") = to syst name " + syst1->fName );
+            for(const auto& reg : fRegions){
+                WriteDebugStatus("TRExFit::MergeSystematics", "Region: " + reg->fName);
+                for(const auto& sh : reg->fSampleHists){
+                    SystematicHist *syh  = sh->GetSystematic(syst ->fName);
+                    SystematicHist *syh1 = sh->GetSystematic(syst1->fName);
+                    if(syh==nullptr || syh1 ==nullptr) continue;
+                    // FIXME...
+                    // the issue here is that to combine uncertainties one has to act differently depending on the fact that the different sources come from a multiplication/division or not...
+                    syh1 ->Add(syh);
+                    syh1 ->Add(sh->fHist,-1);
+                    WriteDebugStatus("TRExFit::MergeSystematics", "Adding syst of " + syh->fName +  " to " + syh1->fName);
+                    WriteDebugStatus("TRExFit::MergeSystematics", "Setting to 0 all Up/Down of " +  syh->fName);
+                    //
+                    // set to zero the other syst
+                    syh->fHistUp   = static_cast<TH1*>(sh->fHist->Clone(syh->fHistUp->GetName()));
+                    syh->fHistDown = static_cast<TH1*>(sh->fHist->Clone(syh->fHistDown->GetName()));
+                    syh->fHistShapeUp   = static_cast<TH1*>(sh->fHist->Clone(syh->fHistShapeUp->GetName()));
+                    syh->fHistShapeDown = static_cast<TH1*>(sh->fHist->Clone(syh->fHistShapeDown->GetName()));
+                    syh->fNormUp   = 0.;
+                    syh->fNormDown = 0.;
+                    syh->fNormPruned  = true;
+                    syh->fShapePruned = true;
                 }
             }
         }
