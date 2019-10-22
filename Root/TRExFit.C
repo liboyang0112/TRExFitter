@@ -14,7 +14,6 @@
 #include "TRExFitter/SampleHist.h"
 #include "TRExFitter/ShapeFactor.h"
 #include "TRExFitter/StatusLogbook.h"
-#include "TRExFitter/Systematic.h"
 #include "TRExFitter/SystematicHist.h"
 #include "TRExFitter/TRExPlot.h"
 #include "TRExFitter/Region.h"
@@ -6845,6 +6844,74 @@ void TRExFit::MergeSystematics(){
 //____________________________________________________________________________________
 // this will combine special systematics into a single systematic (e.g. envelope)
 void TRExFit::CombineSpecialSystematics() {
+    WriteInfoStatus("TRExFit::CombineSpecialSystematics", "Combining special systematics");
+    std::vector<std::string> combineNames;
+
+    // First we need to know how many special systematics there are
+    for (const auto& syst : fSystematics) {
+        if (syst->fCombineName == "") continue;
+        if (std::find(combineNames.begin(), combineNames.end(), syst->fCombineName) == combineNames.end()) {
+            combineNames.emplace_back(syst->fCombineName);
+        }
+    }
+
+    if (combineNames.size() == 0) return;
+
+    for (const auto& icombine : combineNames) {
+        Systematic::COMBINATIONTYPE type(Systematic::COMBINATIONTYPE::ENVELOPE);
+        // loop over regions
+        for (std::size_t iReg = 0; iReg < fRegions.size(); ++iReg) {
+            // loop over systematics and get the list of systematics to combine
+            std::vector<std::string> names;
+            for (const auto& isyst : fSystematics) {
+                if (isyst->fCombineName != icombine) continue;
+                if (std::find(names.begin(), names.end(), isyst->fName) != names.end()) continue;
+                names.emplace_back(isyst->fName);
+                type = isyst->fCombineType;
+            }
+
+            // now loop over the systematics to combine
+            std::vector<std::vector<SystematicHist*> > sh_vec;
+
+            for (const auto& sh : fRegions[iReg]->fSampleHists) {
+                std::vector<SystematicHist*> tmp;
+                for (std::size_t ispecial = 1; ispecial < names.size(); ++ispecial) {
+                    const auto sampleHist = sh->GetSystematic(names.at(ispecial));
+                    if (!sampleHist) continue;
+                    tmp.emplace_back(sh->GetSystematic(names.at(ispecial)));
+                }
+                sh_vec.emplace_back(tmp);
+            }
+
+            if (sh_vec.size() == 0) {
+                WriteWarningStatus("TRExFit::CombineSpecialSystematics", "No systematics to combine for " + icombine + " as no samples are affected");
+                return;
+            }
+            
+            // Now we have a list of systematicHist to combine and we change the first one, and then remove the rest
+            for (std::size_t ish = 0; ish < fRegions[iReg]->fSampleHists.size(); ++ish) {
+                auto newSampleHist = fRegions[iReg]->fSampleHists.at(ish)->GetSystematic(names.at(0));
+                newSampleHist = CombineSpecialHistos(newSampleHist, sh_vec.at(ish), type, fRegions[iReg]->fSampleHists.at(ish));
+            }
+
+            // And set the remaining systematicHist to zero
+            for (std::size_t ispecial = 1; ispecial < names.size(); ++ispecial) {
+                for (const auto& sh : fRegions[iReg]->fSampleHists) {
+                    auto sampleHist = sh->GetSystematic(names.at(ispecial));
+                    if (!sampleHist) continue;
+                    sampleHist->fHistUp   = static_cast<TH1*>(sh->fHist->Clone(sampleHist->fHistUp->GetName()));
+                    sampleHist->fHistDown = static_cast<TH1*>(sh->fHist->Clone(sampleHist->fHistDown->GetName()));
+                    sampleHist->fHistShapeUp   = static_cast<TH1*>(sh->fHist->Clone(sampleHist->fHistShapeUp->GetName()));
+                    sampleHist->fHistShapeDown = static_cast<TH1*>(sh->fHist->Clone(sampleHist->fHistShapeDown->GetName()));
+                    sampleHist->fNormUp   = 0.;
+                    sampleHist->fNormDown = 0.;
+                    sampleHist->fNormPruned  = true;
+                    sampleHist->fShapePruned = true;
+                }
+            }
+
+        }
+    }
 }
 
 //____________________________________________________________________________________
@@ -8780,4 +8847,63 @@ int TRExFit::GetSystIndex(const SampleHist* const sh, const std::string& name) c
     }
 
     return -1;
+}
+
+//__________________________________________________________________________________
+//
+SystematicHist* TRExFit::CombineSpecialHistos(SystematicHist* orig, const std::vector<SystematicHist*>& vec, Systematic::COMBINATIONTYPE type, const SampleHist* sh) const {
+    if (vec.size() == 0) return nullptr;
+    if (!orig) return nullptr;
+    if (!orig->fHistUp) return nullptr;
+    if (!orig->fHistDown) return nullptr;
+    if (!sh) return nullptr;
+    if (!sh->fHist) return nullptr;
+
+    if (type == Systematic::COMBINATIONTYPE::ENVELOPE) {
+        const int nbins = sh->fHist->GetNbinsX();
+        for (int ibin = 1; ibin <= nbins; ++ibin) {
+            std::vector<double> hist_max;
+            std::vector<double> hist_min;
+            for (const auto& isyst : vec) {
+                if (!isyst) continue;
+                if (!isyst->fHistUp) continue;
+                if (!isyst->fHistDown) continue;
+                const double diff_up = isyst->fHistUp->GetBinContent(ibin) - sh->fHist->GetBinContent(ibin);
+                const double diff_down = isyst->fHistDown->GetBinContent(ibin) - sh->fHist->GetBinContent(ibin);
+                if (diff_up > 0) {
+                    hist_max.emplace_back(diff_up);
+                } else {
+                    hist_min.emplace_back(diff_up);
+                }
+                if (diff_down > 0) {
+                    hist_max.emplace_back(diff_down);
+                } else {
+                    hist_min.emplace_back(diff_down);
+                }
+            }
+
+            double max(0);
+            double min(0);
+            
+            if (hist_max.size() > 0) {
+                max = *std::max_element(hist_max.begin(), hist_max.end());
+            }
+            if (hist_min.size() > 0) {
+                min = *std::min_element(hist_min.begin(), hist_min.end());
+            }
+
+            if (max >= 0) {
+                orig->fHistUp->SetBinContent(ibin, max + sh->fHist->GetBinContent(ibin));
+            }
+            if (min <= 0) {
+                orig->fHistDown->SetBinContent(ibin, min + sh->fHist->GetBinContent(ibin));
+            }
+        }
+    } else if (type == Systematic::COMBINATIONTYPE::STANDARDDEVIATION) {
+    } else {
+        WriteErrorStatus("TRExFit::CombineSpecialHistos","Unknown combination type, this should not happen!");
+        exit(EXIT_FAILURE);
+    }
+
+    return orig;
 }

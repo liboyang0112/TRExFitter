@@ -3,6 +3,7 @@
 
 /// Framework includes
 #include "TRExFitter/HistoTools.h"
+#include "TRExFitter/Systematic.h"
 
 // RooFit
 #include "RooSimultaneous.h"
@@ -25,7 +26,6 @@ class Region;
 class Sample;
 class SampleHist;
 class ShapeFactor;
-class Systematic;
 class TRExPlot;
 class TFile;
 
@@ -330,6 +330,8 @@ public:
      * @return index
      */
     int GetSystIndex(const SampleHist* const sh, const std::string& name) const;
+
+    SystematicHist* CombineSpecialHistos(SystematicHist* orig, const std::vector<SystematicHist*>& vec, Systematic::COMBINATIONTYPE type, const SampleHist* sh) const;
 
     // -------------------------
 
