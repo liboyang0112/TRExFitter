@@ -5553,6 +5553,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
 
     delete fitTool;
     delete fFitResults;
+    fFitResults = 0;
     return result;
 }
 
@@ -5631,7 +5632,12 @@ void TRExFit::PlotFittedNP(){
     //
     // plot the NP fit pull plot
     //
-    ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
+    if(fStatOnlyFit){
+        ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt");
+    }
+    else{
+        ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
+    }
     if(fFitResults){
         fFitResults->fNuisParToHide = fVarNameHide;
         std::set < std::string > npCategories;
@@ -5643,7 +5649,13 @@ void TRExFit::PlotFittedNP(){
                 fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],"all",fNormFactors, fBlindedParameters);
                 fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format], fBlindedParameters);
             }
-            fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
+            if(fStatOnlyFit){
+                fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"_statOnly."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
+            }
+            else{
+                fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
+            }
+
         }
         if(npCategories.size()>1 && !fStatOnly && !fStatOnlyFit){
             for( const std::string cat : npCategories ){
@@ -5913,7 +5925,7 @@ void TRExFit::GetSignificance(){
 void TRExFit::ReadFitResults(const std::string& fileName){
     WriteInfoStatus("TRExFit::ReadFitResults", "------------------------------------------------------");
     WriteInfoStatus("TRExFit::ReadFitResults",  "Reading fit results from file ");
-    delete fFitResults;
+    if(fFitResults) delete fFitResults;
     fFitResults = new FitResults();
     fFitResults->SetPOIPrecision(fPOIPrecision);
     
