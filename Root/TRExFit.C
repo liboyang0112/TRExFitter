@@ -979,7 +979,7 @@ void TRExFit::ReadNtuples(){
                         if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                         else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
-                        
+
                         //
                         // Importing histogram in TRExFitter
                         if(i_path==0){
@@ -988,25 +988,25 @@ void TRExFit::ReadNtuples(){
                         else hUp->Add(htmp);
                         delete htmp;
                     } // end loop over files
-                    
-                    
+
+
                     // BW
                     // pulled this out of the file loop to apply it only to the fully constructed histogram insead of file by file
-                        
+
                     // obtain relative variation and apply it to proper sample
                     // & try to keep also the same total relative variation
                     if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr){
                         TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                         TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                           
-                        // Protection added: fix empty bins before starting to divide and multiply 
-                            
+
+                        // Protection added: fix empty bins before starting to divide and multiply
+
                         for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
                         for(int i_bin=0;i_bin< hUp->GetNbinsX()+2;i_bin++) if(hUp ->GetBinContent(i_bin)<=1e-6) hUp ->SetBinContent(i_bin,1e-6);
                         for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) hUp ->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
                         //
                         double relVar   = hUp->Integral(0,hUp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
-                            
+
                         // get copies with no error
                         auto hrefTmp = GetHistCopyNoError(href);
                         auto hnomTmp = GetHistCopyNoError(hnom);
@@ -1020,9 +1020,9 @@ void TRExFit::ReadNtuples(){
                         TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                         TH1* href_up = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistUp;
                         TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                        
+
                         // Protection added: fix empty bins before starting to divide and multiply
-                        
+
                         for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) href->SetBinContent(i_bin,1e-6);
                         for(int i_bin=0;i_bin< hUp->GetNbinsX()+2;i_bin++) if( hUp->GetBinContent(i_bin)<=1e-6) hUp->SetBinContent(i_bin,1e-6);
                         for(int i_bin=0;i_bin<href->GetNbinsX()+2;i_bin++) if(href->GetBinContent(i_bin)<=1e-6) hUp->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
@@ -1040,10 +1040,10 @@ void TRExFit::ReadNtuples(){
 
                         delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
                     }
-                  
-                    
-                //--------------------------------------    
-                    
+
+
+                //--------------------------------------
+
                 }  // end Up variation
                 //
                 // Down
@@ -1081,7 +1081,7 @@ void TRExFit::ReadNtuples(){
                         else hDown->Add(htmp);
                         delete htmp;
                     }  // end loop over files
-                    
+
                     // BW
                     // pulled this out of the file loop to apply it only to the fully constructed histogram insead of file by file
                     //
@@ -1090,9 +1090,9 @@ void TRExFit::ReadNtuples(){
                     if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr){
                         TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                         TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                        
+
                         // Protection added: fix empty bins before starting to divide and multiply
-                        
+
                         for(int i_bin=0;i_bin< href->GetNbinsX()+2;i_bin++) if(href ->GetBinContent(i_bin)<=1e-6) href ->SetBinContent(i_bin,1e-6);
                         for(int i_bin=0;i_bin<hDown->GetNbinsX()+2;i_bin++) if(hDown->GetBinContent(i_bin)<=1e-6) hDown->SetBinContent(i_bin,1e-6);
                         for(int i_bin=0;i_bin< href->GetNbinsX()+2;i_bin++) if(href ->GetBinContent(i_bin)<=1e-6) hDown->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
@@ -1108,9 +1108,9 @@ void TRExFit::ReadNtuples(){
                         TH1* href = reg->GetSampleHist(syst->fReferenceSample)->fHist;
                         TH1* href_down = reg->GetSampleHist(syst->fReferenceSample)->GetSystematic(syst->fName)->fHistDown;
                         TH1* hnom = reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
-                        
+
                         // Protection added: fix empty bins before starting to divide and multiply
-                        
+
                         for(int i_bin=0;i_bin<href ->GetNbinsX()+2;i_bin++) if(href ->GetBinContent(i_bin)<=1e-6) href ->SetBinContent(i_bin,1e-6);
                         for(int i_bin=0;i_bin<hDown->GetNbinsX()+2;i_bin++) if(hDown->GetBinContent(i_bin)<=1e-6) hDown->SetBinContent(i_bin,1e-6);
                         for(int i_bin=0;i_bin<href ->GetNbinsX()+2;i_bin++) if(href ->GetBinContent(i_bin)<=1e-6) hDown->SetBinContent(i_bin,1e-6); // this to avoid multiplying bins by 1e6
@@ -1124,7 +1124,7 @@ void TRExFit::ReadNtuples(){
 
                         delete href_down_Tmp;// it's a clone, and it's the purpose of clones to die
                     }
-                    
+
                 }  // end Down variation
                 //
                 if(hUp==nullptr)   hUp   = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
@@ -5915,7 +5915,7 @@ void TRExFit::ReadFitResults(const std::string& fileName){
     delete fFitResults;
     fFitResults = new FitResults();
     fFitResults->SetPOIPrecision(fPOIPrecision);
-    
+
     if(fileName.find(".txt")!=std::string::npos)
     {
         fFitResults->ReadFromTXT(fileName, fBlindedParameters);
@@ -5923,19 +5923,19 @@ void TRExFit::ReadFitResults(const std::string& fileName){
     // make a list of systematics from all samples...
     // ...
     // assign to each NP in the FitResults a title, and a category according to the syst in the fitter
-    
+
     // note: some NPs are assigned to multiple systematics (those which are correlated)
     // we will just keep overwriting, so the title and catagory
     // will be from the last systematic with that NP name
-    
+
     for( unsigned int i_np=0; i_np < fFitResults->fNuisPar.size(); ++i_np )
     {
-        
+
         for( unsigned int j_sys=0; j_sys < fSystematics.size(); ++j_sys )
         {
             // the systematic fName doesn't necessarily equate to the NP fName
             // compare the fSystematics[j_sys]->fNuisanceParameter instead!
-            
+
             if( fSystematics[j_sys]->fNuisanceParameter == fFitResults->fNuisPar[i_np]->fName )
             {
                 fFitResults->fNuisPar[i_np]->fTitle = fSystematics[j_sys]->fTitle;
@@ -6887,7 +6887,7 @@ void TRExFit::CombineSpecialSystematics() {
                 WriteWarningStatus("TRExFit::CombineSpecialSystematics", "No systematics to combine for " + icombine + " as no samples are affected");
                 return;
             }
-            
+
             // Now we have a list of systematicHist to combine and we change the first one, and then remove the rest
             for (std::size_t ish = 0; ish < fRegions[iReg]->fSampleHists.size(); ++ish) {
                 auto newSampleHist = fRegions[iReg]->fSampleHists.at(ish)->GetSystematic(names.at(0));
@@ -8859,8 +8859,8 @@ SystematicHist* TRExFit::CombineSpecialHistos(SystematicHist* orig, const std::v
     if (!sh) return nullptr;
     if (!sh->fHist) return nullptr;
 
+    const int nbins = sh->fHist->GetNbinsX();
     if (type == Systematic::COMBINATIONTYPE::ENVELOPE) {
-        const int nbins = sh->fHist->GetNbinsX();
         for (int ibin = 1; ibin <= nbins; ++ibin) {
             std::vector<double> hist_max;
             std::vector<double> hist_min;
@@ -8884,7 +8884,7 @@ SystematicHist* TRExFit::CombineSpecialHistos(SystematicHist* orig, const std::v
 
             double max(0);
             double min(0);
-            
+
             if (hist_max.size() > 0) {
                 max = *std::max_element(hist_max.begin(), hist_max.end());
             }
@@ -8900,6 +8900,43 @@ SystematicHist* TRExFit::CombineSpecialHistos(SystematicHist* orig, const std::v
             }
         }
     } else if (type == Systematic::COMBINATIONTYPE::STANDARDDEVIATION) {
+        for (int ibin = 1; ibin < nbins; ++ ibin) {
+            std::vector<double> content;
+            for (const auto& isyst : vec) {
+                if (!isyst) continue;
+                if (!isyst->fHistUp) continue;
+                if (!isyst->fHistDown) continue;
+                const double up = isyst->fHistUp->GetBinContent(ibin) - sh->fHist->GetBinContent(ibin);
+                const double down = isyst->fHistDown->GetBinContent(ibin) - sh->fHist->GetBinContent(ibin);
+                const double max = std::max(std::fabs(up), std::fabs(down));
+                content.emplace_back(max);
+            }
+
+            if (content.size() < 2) continue;
+
+            // calcualte the standard deviation in each bin
+            double sum(0);
+            double sigma(0);
+
+            for (const auto& value : content) {
+                sum+= value;
+            }
+
+            // get mean
+            const double mean = static_cast<double>(sum / content.size());
+
+            // get std
+            for (const auto& value : content) {
+                sigma+= (value-mean)*(value-mean);
+            }
+
+            sigma = static_cast<double>(sigma / (content.size() - 1));
+            sigma = std::sqrt(sigma);
+
+            // now set the bin content
+            orig->fHistUp->SetBinContent(ibin,    sigma + sh->fHist->GetBinContent(ibin));
+            orig->fHistDown->SetBinContent(ibin, -sigma + sh->fHist->GetBinContent(ibin));
+        }
     } else {
         WriteErrorStatus("TRExFit::CombineSpecialHistos","Unknown combination type, this should not happen!");
         exit(EXIT_FAILURE);
