@@ -117,7 +117,7 @@ TRExFit::TRExFit(std::string name){
     fHistoNames.clear();
     fHistoNamesNominal.clear();
 
-    fFitResults = 0;
+    fFitResults = nullptr;
 
     fWithPullTables = false;
 
@@ -5553,7 +5553,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
 
     delete fitTool;
     delete fFitResults;
-    fFitResults = 0;
+    fFitResults = nullptr;
     return result;
 }
 
