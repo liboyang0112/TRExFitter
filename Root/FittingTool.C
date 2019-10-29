@@ -691,7 +691,7 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
 
         // if excludeGammas==true, set gammas to constant
         if (excludeGammas) {
-            if (varname.find("gamma")!=string::npos) var2->setConstant(1);
+            if (varname.find("gamma_stat")!=string::npos) var2->setConstant(1);
         }
 
         // set all affectedParams constant
