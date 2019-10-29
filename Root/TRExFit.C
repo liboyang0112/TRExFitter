@@ -8900,7 +8900,7 @@ SystematicHist* TRExFit::CombineSpecialHistos(SystematicHist* orig, const std::v
             }
         }
     } else if (type == Systematic::COMBINATIONTYPE::STANDARDDEVIATION) {
-        for (int ibin = 1; ibin < nbins; ++ ibin) {
+        for (int ibin = 1; ibin <= nbins; ++ ibin) {
             std::vector<double> content;
             for (const auto& isyst : vec) {
                 if (!isyst) continue;
