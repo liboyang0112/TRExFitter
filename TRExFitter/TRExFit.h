@@ -244,9 +244,8 @@ public:
 
     /**
      * Helper function that runs toys experiments
-     * @param A pointer to a workspace needed to run the fit
      */
-    void RunToys(RooWorkspace* ws);
+    void RunToys();
 
     /**
      * Helper function to compute the variable string to be used when reading ntuples, for a given region, sample combination

@@ -4738,7 +4738,7 @@ void TRExFit::Fit(bool isLHscanOnly){
     // Toys
     //
     if(fFitToys>0 && !isLHscanOnly){
-        RunToys(ws.get());
+        RunToys();
     }
 
     //
@@ -8024,7 +8024,7 @@ void TRExFit::BuildGroupedImpactTable() const{
 
 //____________________________________________________________________________________
 //
-void TRExFit::RunToys(RooWorkspace* ws){
+void TRExFit::RunToys(){
         gSystem->mkdir( (fName+"/Toys").c_str());
         // temporary switch off minos (not needed)
         std::vector<std::string> varMinosTmp = fVarNameMinos;
@@ -8043,7 +8043,11 @@ void TRExFit::RunToys(RooWorkspace* ws){
             else if ( fFitRegion == CRSR && (fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL) )
                 regionsToFit.push_back( fRegions[i_ch] -> fName );
         }
-        ws = PerformWorkspaceCombination( regionsToFit );
+        std::unique_ptr<RooWorkspace> ws (PerformWorkspaceCombination( regionsToFit ));
+        if (!ws){
+            WriteErrorStatus("TRExFit::RunToys","Cannot retrieve the workspace, exiting!");
+            exit(EXIT_FAILURE);
+        }
         //Setting binned likelihood option
         RooFIter rfiter = ws->components().fwdIterator();
         RooAbsArg* arg;
@@ -8053,10 +8057,6 @@ void TRExFit::RunToys(RooWorkspace* ws){
                 std::string temp_string = arg->GetName();
                 WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
             }
-        }
-        if (!ws){
-            WriteErrorStatus("TRExFit::RunToys","Cannot retrieve the workspace, exiting!");
-            exit(EXIT_FAILURE);
         }
         // create map to store fit results
         // create histogram to store fitted POI values
@@ -8187,11 +8187,10 @@ void TRExFit::RunToys(RooWorkspace* ws){
         fVarNameMinos = varMinosTmp; // retore Minos settings
 
         // Also create a ROOT file
-        TFile *out = new TFile ((fName+"/Toys/Toys"+fSuffix+".root").c_str(), "RECREATE");
+        std::unique_ptr<TFile> out (new TFile ((fName+"/Toys/Toys"+fSuffix+".root").c_str(), "RECREATE"));
         out->cd();
         h_toys.Write();
         out->Close();
-        delete out;
 }
 
 //__________________________________________________________________________________
