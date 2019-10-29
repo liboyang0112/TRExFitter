@@ -4639,8 +4639,8 @@ void TRExFit::Fit(bool isLHscanOnly){
         }
     }
 
-    RooDataSet* data = nullptr;
-    RooWorkspace* ws = nullptr;
+    std::unique_ptr<RooDataSet> data(nullptr);
+    std::unique_ptr<RooWorkspace> ws(nullptr);
 
     //
     // If fDoNonProfileFit => set stat-only
@@ -4658,13 +4658,13 @@ void TRExFit::Fit(bool isLHscanOnly){
         WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
         WriteInfoStatus("TRExFit::Fit","Performing nominal fit on pre-specified workspace...");
         TFile *rootFile = new TFile(fWorkspaceFileName.c_str(),"read");
-        ws = (RooWorkspace*) rootFile->Get("combined");
+        ws = std::unique_ptr<RooWorkspace>(static_cast<RooWorkspace*>(rootFile->Get("combined")));
         if(!ws){
             WriteErrorStatus("TRExFit::Fit", "The workspace (\"combined\") cannot be found in file " + fWorkspaceFileName + ". Please check !");
             exit(EXIT_FAILURE);
         }
-        if(!fFitIsBlind && hasData) data = (RooDataSet*)ws->data("obsData");
-        else                        data = (RooDataSet*)ws->data("asimovData");
+        if(!fFitIsBlind && hasData) data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("obsData")));
+        else                        data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("asimovData")));
     }
     //
     // Otherwise go on with normal fit
@@ -4717,28 +4717,28 @@ void TRExFit::Fit(bool isLHscanOnly){
         // Creating the combined model with the regions to fit only
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        ws = PerformWorkspaceCombination( regionsToFit );
+        ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
         if (!ws){
             WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
         //
-        // If needed (only if needed), create a RooDataset object
+        // If needed (only if needed), create a RooDataSet object
         //
-        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, fFitNPValues, fFitPOIAsimov ));
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
 
     // Calls the PerformFit() function to actually do the fit
     //
-    if (!isLHscanOnly) PerformFit( ws, data, fFitType, true, TRExFitter::DEBUGLEVEL);
+    if (!isLHscanOnly) PerformFit( ws.get(), data.get(), fFitType, true, TRExFitter::DEBUGLEVEL);
 
     //
     // Toys
     //
     if(fFitToys>0 && !isLHscanOnly){
-        RunToys(ws);
+        RunToys(ws.get());
     }
 
     //
@@ -4775,7 +4775,7 @@ void TRExFit::Fit(bool isLHscanOnly){
             else if ( fFitRegion == CRSR && (fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL) )
                 regionsToFit.push_back( fRegions[i_ch] -> fName );
         }
-        ws = PerformWorkspaceCombination( regionsToFit );
+        ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
         if (!ws){
             WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
@@ -4786,8 +4786,8 @@ void TRExFit::Fit(bool isLHscanOnly){
         ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
         ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
         WriteInfoStatus("TRExFit::Fit","Fitting nominal Asimov...");
-        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
-        npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
+        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, fFitNPValues, fFitPOIAsimov ));
+        npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
         double nominalPOIval = npValues[fPOI];
         RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
         double statUp = poiVar->getErrorHi();
@@ -4834,21 +4834,21 @@ void TRExFit::Fit(bool isLHscanOnly){
                     npVal = fFitNPValues;
                     npVal[gammaName] = 1+statErr;
                     WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1+statErr));
-                    data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
+                    data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npVal, fFitPOIAsimov ));
                     npVal[gammaName] = 1;
                     ws->loadSnapshot("InitialStateModelGlob");
                     ws->loadSnapshot("InitialStateModelNuis");
-                    npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
+                    npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                     MCstatUp = sqrt(pow(MCstatUp,2)+pow(npValues[fPOI]-nominalPOIval,2));
                     // down
                     npVal = fFitNPValues;
                     npVal[gammaName] = 1-statErr;
                     WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1-statErr));
-                    data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
+                    data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npVal, fFitPOIAsimov ));
                     npVal[gammaName] = 1;
                     ws->loadSnapshot("InitialStateModelGlob");
                     ws->loadSnapshot("InitialStateModelNuis");
-                    npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
+                    npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                     MCstatDo = -sqrt(pow(MCstatDo,2)+pow(npValues[fPOI]-nominalPOIval,2));
                 }
             }
@@ -4888,20 +4888,20 @@ void TRExFit::Fit(bool isLHscanOnly){
                         npVal = fFitNPValues;
                         npVal[gammaName] = 1+statErr;
                         WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1+statErr));
-                        data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
+                        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npVal, fFitPOIAsimov ));
                         npVal[gammaName] = 1;
                         ws->loadSnapshot("InitialStateModelGlob");
                         ws->loadSnapshot("InitialStateModelNuis");
-                        npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
+                        npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                         MCstatUpSample[sh->fSample->fName] = sqrt(pow(MCstatUpSample[sh->fSample->fName],2) + pow(npValues[fPOI]-nominalPOIval,2));
                         npVal = fFitNPValues;
                         npVal[gammaName] = 1-statErr;
                         WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1-statErr));
-                        data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
+                        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npVal, fFitPOIAsimov ));
                         npVal[gammaName] = 1;
                         ws->loadSnapshot("InitialStateModelGlob");
                         ws->loadSnapshot("InitialStateModelNuis");
-                        npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
+                        npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                         MCstatDoSample[sh->fSample->fName] = -sqrt(pow(MCstatDoSample[sh->fSample->fName],2) + pow(npValues[fPOI]-nominalPOIval,2));
                         smpTexTitle[sh->fSample->fName] = sh->fSample->fTexTitle;
                     }
@@ -4927,11 +4927,11 @@ void TRExFit::Fit(bool isLHscanOnly){
                     if(ud==0) npVal["alpha_"+syst->fNuisanceParameter] =  1;
                     if(ud==1) npVal["alpha_"+syst->fNuisanceParameter] = -1;
                     WriteInfoStatus("TRExFit::Fit","Systematic "+syst->fNuisanceParameter+"...");
-                    data = DumpData( ws, regionDataType, npVal, fFitPOIAsimov );
+                    data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npVal, fFitPOIAsimov ));
                     // - again a stat-only fit to that Asimov
                     fFitFixedNPs[syst->fNuisanceParameter] = 0;
                     fFitFixedNPs["alpha_"+syst->fNuisanceParameter] = 0;
-                    npValues = PerformFit( ws, data, fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
+                    npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                     double newPOIval = npValues[fPOI];
                     if(ud==0) newPOIvalUp[syst->fNuisanceParameter] = newPOIval;
                     if(ud==1) newPOIvalDo[syst->fNuisanceParameter] = newPOIval;
@@ -5088,12 +5088,12 @@ void TRExFit::Fit(bool isLHscanOnly){
         else{
             if (fVarNameLH[0]=="all"){
                 for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                    GetLikelihoodScan( ws, it->first, data);
+                    GetLikelihoodScan( ws.get(), it->first, data.get());
                 }
             }
             else{
                 for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-                    GetLikelihoodScan( ws, fVarNameLH[i], data);
+                    GetLikelihoodScan( ws.get(), fVarNameLH[i], data.get());
                 }
             }
         }
@@ -5106,17 +5106,17 @@ void TRExFit::Fit(bool isLHscanOnly){
         if (fVarNameLH[0]=="all"){
             WriteWarningStatus("TRExFit::Fit","You are running LHscan only option but running it for all parameters. Will not parallelize!.");
             for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws, it->first, data);
+                GetLikelihoodScan( ws.get(), it->first, data.get());
             }
         } else {
-            GetLikelihoodScan( ws, fVarNameLH[0], data);
+            GetLikelihoodScan( ws.get(), fVarNameLH[0], data.get());
         }
     }
 
     // run 2D likelihood scan
     if(fVarName2DLH.size()>0){
         for (const auto & ipair : fVarName2DLH) {
-            Get2DLikelihoodScan( ws, ipair, data);
+            Get2DLikelihoodScan( ws.get(), ipair, data.get());
         }
     }
 }
@@ -5735,14 +5735,14 @@ void TRExFit::GetLimit(){
         }
 
         std::map < std::string, double > npValues;
-        RooDataSet* data = 0;
+        std::unique_ptr<RooDataSet> data(nullptr);
 
         if(regionsForFit.size()>0 && !onlyUseRealData){
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
             WriteInfoStatus("TRExFit::GetLimit","Creating ws for regions with real data only...");
-            RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+            std::unique_ptr<RooWorkspace> ws_forFit (PerformWorkspaceCombination( regionsForFit ));
             if (!ws_forFit){
                 WriteErrorStatus("TRExFit::GetLimit","Cannot retrieve the workspace, exiting!");
                 exit(EXIT_FAILURE);
@@ -5752,19 +5752,19 @@ void TRExFit::GetLimit(){
             // Calls the PerformFit() function to actually do the fit
             //
             WriteInfoStatus("TRExFit::GetLimit","Performing a fit in regions with real data only...");
-            npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
+            npValues = PerformFit( ws_forFit.get(), data.get(), FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
             WriteInfoStatus("TRExFit::GetLimit","Now will use the fit results to create the Asimov in the regions without real data!");
         }
 
         //
         // Create the final asimov dataset for limit setting
         //
-        RooWorkspace* ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
+        std::unique_ptr<RooWorkspace> ws_forLimit(PerformWorkspaceCombination( regionsForLimit ));
         if (!ws_forLimit){
             WriteErrorStatus("TRExFit::GetLimit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
-        data = DumpData( ws_forLimit, regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] );
+        data = std::unique_ptr<RooDataSet>(DumpData( ws_forLimit.get(), regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] ));
 
         //
         // Set all saturated model factors to constant
@@ -5849,13 +5849,13 @@ void TRExFit::GetSignificance(){
         }
 
         std::map < std::string, double > npValues;
-        RooDataSet* data = 0;
+        std::unique_ptr<RooDataSet> data(nullptr);
         if(regionsForFit.size()>0 && !onlyUseRealData){
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
             WriteInfoStatus("TRExFit::GetSignificance","Creating ws for regions with real data only...");
-            RooWorkspace* ws_forFit = PerformWorkspaceCombination( regionsForFit );
+            std::unique_ptr<RooWorkspace> ws_forFit(PerformWorkspaceCombination( regionsForFit ));
             if (!ws_forFit){
                 WriteErrorStatus("TRExFit::GetSignificance","Cannot retrieve the workspace, exiting!");
                 exit(EXIT_FAILURE);
@@ -5865,19 +5865,19 @@ void TRExFit::GetSignificance(){
             // Calls the PerformFit() function to actually do the fit
             //
             WriteInfoStatus("TRExFit::GetSignificance","Performing a fit in regions with real data only...");
-            npValues = PerformFit( ws_forFit, data, FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
+            npValues = PerformFit( ws_forFit.get(), data.get(), FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
             WriteInfoStatus("TRExFit::GetSignificance","Now will use the fit results to create the Asimov in the regions without real data!");
         }
 
         //
         // Create the final asimov dataset for limit setting
         //
-        RooWorkspace* ws_forSignificance = PerformWorkspaceCombination( regionsForSign );
+        std::unique_ptr<RooWorkspace> ws_forSignificance (PerformWorkspaceCombination( regionsForSign ));
         if (!ws_forSignificance){
             WriteErrorStatus("TRExFit::GetSignificance","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
-        data = DumpData( ws_forSignificance, regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fSignificancePOIAsimov : npValues[fPOI] );
+        data = std::unique_ptr<RooDataSet>(DumpData( ws_forSignificance.get(), regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fSignificancePOIAsimov : npValues[fPOI] ));
 
         //
         // Set all saturated model factors to constant
@@ -6222,13 +6222,13 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     // Creating the combined model
     //
-    std::unique_ptr<TFile> customWSfile = nullptr;
-    RooWorkspace* ws = nullptr;
+    std::unique_ptr<TFile> customWSfile(nullptr);
+    std::unique_ptr<RooWorkspace> ws(nullptr);
     if (fWorkspaceFileName!="") { // has custom worspace
         customWSfile = std::make_unique<TFile>(fWorkspaceFileName.c_str(),"read");
-        ws = static_cast<RooWorkspace*>(customWSfile->Get("combined"));
+        ws = std::unique_ptr<RooWorkspace>(static_cast<RooWorkspace*>(customWSfile->Get("combined")));
     } else {
-        ws = PerformWorkspaceCombination( regionsToFit );
+        ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
     }
     if (!ws){
         WriteErrorStatus("TRExFit::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
@@ -6240,7 +6240,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     RooStats::ModelConfig *mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
     RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
-    RooDataSet* data = nullptr;
+    std::unique_ptr<RooDataSet> data(nullptr);
 
     if (fWorkspaceFileName!=""){
         bool hasData = false;
@@ -6251,10 +6251,10 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             }
         }
 
-        if(!fFitIsBlind && hasData) data = static_cast<RooDataSet*>(ws->data("obsData"));
-        else                        data = static_cast<RooDataSet*>(ws->data("asimovData"));
+        if(!fFitIsBlind && hasData) data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("obsData")));
+        else                        data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("asimovData")));
     } else {
-        data = DumpData( ws, regionDataType, fFitNPValues, fFitPOIAsimov );
+        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, fFitNPValues, fFitPOIAsimov ));
     }
 
     if (!mc || !simPdf || !data){
@@ -6288,7 +6288,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     // Create snapshot to keep inital values
     //
-    ws -> saveSnapshot("tmp_snapshot", *mc->GetPdf()->getParameters(data));
+    ws -> saveSnapshot("tmp_snapshot", *mc->GetPdf()->getParameters(data.get()));
 
     //
     // Initialize the FittingTool object
@@ -6352,7 +6352,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         }
 
         fitTool.FixNP( nuisPars[i], central + TMath::Abs(up  ) );
-        fitTool.FitPDF( mc, simPdf, data );
+        fitTool.FitPDF( mc, simPdf, data.get() );
         muVarUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
         //
         // Set the NP to its post-fit *down* variation and refit to get the fitted POI
@@ -6364,7 +6364,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
                 fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
             }
         }
-        fitTool.FitPDF( mc, simPdf, data );
+        fitTool.FitPDF( mc, simPdf, data.get() );
         muVarDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
         //
         dMuUp   = muVarUp[nuisPars[i]]-muhat;
@@ -6396,7 +6396,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             ws->loadSnapshot("tmp_snapshot");
             fitTool.ResetFixedNP();
             fitTool.FixNP( nuisPars[i], central + TMath::Abs(up  ) );
-            fitTool.FitPDF( mc, simPdf, data );
+            fitTool.FitPDF( mc, simPdf, data.get() );
             if(fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : fFitFixedNPs){
                     fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
@@ -6413,7 +6413,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
                     fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
                 }
             }
-            fitTool.FitPDF( mc, simPdf, data );
+            fitTool.FitPDF( mc, simPdf, data.get() );
             //
             muVarNomDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
         }
