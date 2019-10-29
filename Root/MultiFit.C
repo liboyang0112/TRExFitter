@@ -316,16 +316,16 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     //
     // Fit configuration (1: SPLUSB or 2: BONLY)
     //
-    FittingTool *fitTool = new FittingTool();
-    fitTool->SetDebug(TRExFitter::DEBUGLEVEL);
+    FittingTool fitTool{};
+    fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     if(fitType==2){
-        fitTool -> ValPOI(0.);
-        fitTool -> ConstPOI(true);
+        fitTool.ValPOI(0.);
+        fitTool.ConstPOI(true);
     } else if(fitType==1){
-        fitTool -> ValPOI(fPOIVal);
-        fitTool -> ConstPOI(false);
+        fitTool.ValPOI(fPOIVal);
+        fitTool.ConstPOI(false);
     }
-    if(fUseRnd) fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
+    if(fUseRnd) fitTool.SetRandomNP(fRndRange, fUseRnd, fRndSeed);
 
     //
     // Fit starting from custom point
@@ -337,7 +337,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
             npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
             npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
         }
-        fitTool -> SetNPs( npNames,npValues );
+        fitTool.SetNPs( npNames,npValues );
     }
     // Fix NPs that are specified in the individual configs
     for (const auto& ifit : fFitList){
@@ -348,7 +348,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
                 npNames.push_back( nuisParToFix.first );
                 npValues.push_back( nuisParToFix.second );
             }
-            fitTool -> FixNPs(npNames,npValues);
+            fitTool.FixNPs(npNames,npValues);
         }
     }
 
@@ -367,7 +367,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         for(unsigned int i_minos=0;i_minos<vVarNameMinos.size();i_minos++){
             WriteDebugStatus("MultiFit::FitCombinedWS",  "  " + vVarNameMinos[i_minos]);
         }
-        fitTool -> UseMinos(vVarNameMinos);
+        fitTool.UseMinos(vVarNameMinos);
     }
 
     //
@@ -410,7 +410,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     // Get initial ikelihood value from Asimov
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     double nll0 = 0.;
-    if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
+    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
 
     //
     // Get number of degrees of freedom
@@ -428,16 +428,16 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     }
     ndof -= nfList.size();
 
-    fitTool -> MinimType("Minuit2");
+    fitTool.MinimType("Minuit2");
 
     // Full fit
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     double nll = 0;
     if (!doLHscanOnly){
-        nll = fitTool -> FitPDF( mc, simPdf, data, fFastFit );
+        nll = fitTool.FitPDF( mc, simPdf, data, fFastFit );
         std::vector<std::string> s_vec;
-        fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt", s_vec);
-        result = fitTool -> ExportFitResultInMap();
+        fitTool.ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+".txt", s_vec);
+        result = fitTool.ExportFitResultInMap();
     }
 
     //
@@ -475,8 +475,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
                 }
             }
         }
-        fitTool -> SetSystMap( mergedMap );
-        fitTool -> GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory, outNameGroupedImpact);
+        fitTool.SetSystMap( mergedMap );
+        fitTool.GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory, outNameGroupedImpact);
     }
 
     //
@@ -536,11 +536,11 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
             npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
             npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
         }
-        fitTool -> ResetFixedNP();
-        fitTool -> FixNPs(npNames,npValues);
-        fitTool -> FitPDF( mc, simPdf, data );
+        fitTool.ResetFixedNP();
+        fitTool.FixNPs(npNames,npValues);
+        fitTool.FitPDF( mc, simPdf, data );
         std::vector<std::string> s_vecTemp;
-        fitTool -> ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt", s_vecTemp);
+        fitTool.ExportFitResultInTextFile(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt", s_vecTemp);
     }
 
     return result;
@@ -1688,10 +1688,10 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     //
     // Initialize the FittingTool object
     //
-    FittingTool *fitTool = new FittingTool();
-    fitTool -> SetDebug(TRExFitter::DEBUGLEVEL);
-    fitTool -> ValPOI(fPOIInitial);
-    fitTool -> ConstPOI(false);
+    FittingTool fitTool{};
+    fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
+    fitTool.ValPOI(fPOIInitial);
+    fitTool.ConstPOI(false);
 
     TRExFit *fit = fFitList[fFitList.size()-1];
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
@@ -1703,7 +1703,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
             npNames. emplace_back( fit->fNormFactors[i_norm]->fName);
             npValues.emplace_back( fit->fNormFactors[i_norm]->fNominal);
         }
-        fitTool -> SetNPs( npNames,npValues );
+        fitTool.SetNPs( npNames,npValues );
     }
     muhat = fit->fFitResults -> GetNuisParValue( fPOI );
 
@@ -1721,33 +1721,33 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
 
         //Set the NP to its post-fit *up* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
-        fitTool -> ResetFixedNP();
+        fitTool.ResetFixedNP();
         // Fix NPs that are specified in the individual configs
         for (const auto& ifit : fFitList){
             if(ifit->fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : ifit->fFitFixedNPs){
-                    fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                    fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
                 }
             }
         }
-        fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
-        fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
-        muVarUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        fitTool.FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+        fitTool.FitPDF( mc, simPdf, data, fFastFitForRanking );
+        muVarUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
         //
         //Set the NP to its post-fit *down* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
-        fitTool -> ResetFixedNP();
+        fitTool.ResetFixedNP();
         // Fix NPs that are specified in the individual configs
         for (const auto& ifit : fFitList){
             if(ifit->fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : ifit->fFitFixedNPs){
-                    fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                    fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
                 }
             }
         }
-        fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
-        fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
-        muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        fitTool.FixNP( nuisPars[i], central - TMath::Abs(down) );
+        fitTool.FitPDF( mc, simPdf, data, fFastFitForRanking );
+        muVarDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
         outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
 
         if(isNF[i]){
@@ -1759,34 +1759,34 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
             ws->loadSnapshot("tmp_snapshot");
             double prefitUp   = 1.;
             double prefitDown = 1.;
-            fitTool -> ResetFixedNP();
+            fitTool.ResetFixedNP();
             // Fix NPs that are specified in the individual configs
             for (const auto& ifit : fFitList){
                 if(ifit->fFitFixedNPs.size()>0){
                     for(const auto& nuisParToFix : ifit->fFitFixedNPs){
-                        fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                        fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
                     }
                 }
             }
-            fitTool -> FixNP( nuisPars[i], central + prefitUp );
-            fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
-            muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
+            fitTool.FixNP( nuisPars[i], central + prefitUp );
+            fitTool.FitPDF( mc, simPdf, data, fFastFitForRanking );
+            muVarNomUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
             //
             //Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
-            fitTool -> ResetFixedNP();
+            fitTool.ResetFixedNP();
             // Fix NPs that are specified in the individual configs
             for (const auto& ifit : fFitList){
                 if(ifit->fFitFixedNPs.size()>0){
                     for(const auto& nuisParToFix : ifit->fFitFixedNPs){
-                        fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                        fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
                     }
                 }
             }
-            fitTool -> FixNP( nuisPars[i], central - prefitDown );
-            fitTool -> FitPDF( mc, simPdf, data, fFastFitForRanking );
+            fitTool.FixNP( nuisPars[i], central - prefitDown );
+            fitTool.FitPDF( mc, simPdf, data, fFastFitForRanking );
             //
-            muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+            muVarNomDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
         }
         outName_file << muVarNomUp[nuisPars[i]]-muhat << "   " <<  muVarNomDown[nuisPars[i]]-muhat<< " "<<endl;
 
@@ -1796,7 +1796,6 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
 
     f->Close();
     delete f;
-    delete fitTool;
 }
 
 //____________________________________________________________________________________
