@@ -93,7 +93,7 @@ echo ""
 echo "Things seem to be in order now. I am about to produce the logfiles. Note that "
 echo "you still can abort the process at any moment."
 echo ""
-for step in h d w f l s d p ; do
+for step in h d w f l s r d p ; do
   echo "==> $step step ongoing"
   ./build/bin/trex-fitter $step config/myFit.config >& LOG_$step
   cat LOG_$step | grep -v "TRExFitter" >& test/logs/LOG_$step
