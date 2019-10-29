@@ -5322,20 +5322,20 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     //
     // Fit configuration (SPLUSB or BONLY)
     //
-    FittingTool *fitTool = new FittingTool();
-    fitTool -> SetDebug(debugLevel);
+    FittingTool fitTool{};
+    fitTool.SetDebug(debugLevel);
     if(fitType==BONLY){
-        fitTool -> ValPOI(0.);
-        fitTool -> ConstPOI(true);
+        fitTool.ValPOI(0.);
+        fitTool.ConstPOI(true);
     } else if(fitType==SPLUSB){
-        fitTool -> ValPOI(fFitPOIAsimov);
-        fitTool -> ConstPOI(false);
+        fitTool.ValPOI(fFitPOIAsimov);
+        fitTool.ConstPOI(false);
     }
-    fitTool -> SetNPs( NPnames,NPvalues );
-    fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
+    fitTool.SetNPs( NPnames,NPvalues );
+    fitTool.SetRandomNP(fRndRange, fUseRnd, fRndSeed);
     if(fStatOnly){
-        if(!fGammasInStatOnly) fitTool -> NoGammas();
-        fitTool -> NoSystematics();
+        if(!fGammasInStatOnly) fitTool.NoGammas();
+        fitTool.NoSystematics();
     }
 
     //
@@ -5348,14 +5348,14 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
             npNames.push_back(  fFitResults->fNuisPar[i_np]->fName );
             npValues.push_back( fFitResults->fNuisPar[i_np]->fFitValue );
         }
-        fitTool -> SetNPs( npNames,npValues );
+        fitTool.SetNPs( npNames,npValues );
     }
 
     //
     // Set Minos
     if(fVarNameMinos.size()>0){
         WriteDebugStatus("TRExFit::PerformFit", "Setting the variables to use MINOS with");
-        fitTool -> UseMinos(fVarNameMinos);
+        fitTool.UseMinos(fVarNameMinos);
     }
 
     //
@@ -5396,7 +5396,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
             npNames.push_back(  fFitResults->fNuisPar[i_np]->fName );
             npValues.push_back( fFitResults->fNuisPar[i_np]->fFitValue );
         }
-        fitTool -> FixNPs(npNames,npValues);
+        fitTool.FixNPs(npNames,npValues);
     }
 
     // FixNP
@@ -5407,7 +5407,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
             npNames.push_back( nuisParToFix.first );
             npValues.push_back( nuisParToFix.second );
         }
-        fitTool -> FixNPs(npNames,npValues);
+        fitTool.FixNPs(npNames,npValues);
     }
 
     // Tikhonov regularization (for unfolding)
@@ -5436,7 +5436,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         if(simPdf->getStringAttribute("externalConstraints")){
             WriteInfoStatus("TRExFit::PerformFit",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
             externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
-            fitTool->SetExternalConstraints( externalConstraints );
+            fitTool.SetExternalConstraints( externalConstraints );
         }
     }
 
@@ -5449,7 +5449,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // Get initial ikelihood value from Asimov
     double nll0 = 0.;
     if (fBlindedParameters.size() > 0) std::cout.setstate(std::ios_base::failbit);
-    if(fGetGoodnessOfFit) nll0 = fitTool -> FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
+    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
 
     // save snapshot before fit
     ws->saveSnapshot("snapshot_AfterFit_POI", *(mc->GetParametersOfInterest()) );
@@ -5476,22 +5476,22 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     ndof -= nNF;
 
     // Performs the fit
-    fitTool -> MinimType("Minuit2");
-    double nll = fitTool -> FitPDF( mc, simPdf, data );
+    fitTool.MinimType("Minuit2");
+    const double nll = fitTool.FitPDF( mc, simPdf, data );
     if (debugLevel < 1 && fBlindedParameters.size() == 0) std::cout.clear();
     if(save){
         if(fBootstrap!="" && fBootstrapIdx>=0){
             gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
-            if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
-            else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+".txt", fBlindedParameters);
+            if(fStatOnlyFit) fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
+            else             fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+".txt", fBlindedParameters);
         }
         else{
             gSystem -> mkdir((fName+"/Fits/").c_str(),true);
-            if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
-            else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+".txt", fBlindedParameters);
+            if(fStatOnlyFit) fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
+            else             fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+".txt", fBlindedParameters);
         }
     }
-    result = fitTool -> ExportFitResultInMap();
+    result = fitTool.ExportFitResultInMap();
     if (fBlindedParameters.size() > 0) std::cout.clear();
 
     // If SaturatedModel used, superseed Asimov-based GOF
@@ -5501,19 +5501,19 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         ws->loadSnapshot("snapshot_BeforeFit_NP");
         //
         // perform fit to saturated model and store resulting nll as nll0
-        nll0 = fitTool -> FitPDF( mc, simPdf, data, false, false, true );
+        nll0 = fitTool.FitPDF( mc, simPdf, data, false, false, true );
         // could be removed, but kept for debugging FIXME
         if(save){
-            if(fStatOnlyFit) fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_saturatedModel_statOnly.txt", fBlindedParameters);
-            else             fitTool -> ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_saturatedModel.txt", fBlindedParameters);
+            if(fStatOnlyFit) fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_saturatedModel_statOnly.txt", fBlindedParameters);
+            else             fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fInputName+fSuffix+"_saturatedModel.txt", fBlindedParameters);
         }
     }
 
     //
     // Goodness of fit
     if(fGetGoodnessOfFit && !fDoGroupedSystImpactTable){
-        double deltaNLL = nll-nll0;
-        double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
+        const double deltaNLL = nll-nll0;
+        const double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
         WriteInfoStatus("TRExFit::PerformFit", "----------------------- -------------------------- -----------------------");
         WriteInfoStatus("TRExFit::PerformFit", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
         WriteInfoStatus("TRExFit::PerformFit", "  NLL0        = " + std::to_string(nll0));
@@ -5547,11 +5547,10 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         outNameGroupedImpact += ".txt";
 
         ProduceSystSubCategoryMap();                        // fill fSubCategoryImpactMap first
-        fitTool -> SetSystMap( fSubCategoryImpactMap );     // hand over the map to the FittingTool
-        fitTool -> GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory, outNameGroupedImpact);
+        fitTool.SetSystMap( fSubCategoryImpactMap );     // hand over the map to the FittingTool
+        fitTool.GetGroupedImpact( mc, simPdf, data, ws, fGroupedImpactCategory, outNameGroupedImpact);
     }
 
-    delete fitTool;
     delete fFitResults;
     fFitResults = nullptr;
     return result;
@@ -6294,17 +6293,17 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     // Initialize the FittingTool object
     //
-    FittingTool *fitTool = new FittingTool();
-    fitTool -> SetDebug(TRExFitter::DEBUGLEVEL);
-    fitTool -> ValPOI(fFitPOIAsimov);
-    fitTool -> ConstPOI(false);
+    FittingTool fitTool{};
+    fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
+    fitTool.ValPOI(fFitPOIAsimov);
+    fitTool.ConstPOI(false);
     if(fStatOnly){
-        fitTool -> NoGammas();
-        fitTool -> NoSystematics();
+        fitTool.NoGammas();
+        fitTool.NoSystematics();
     }
 
     // Set initial NP to random value if specified
-    fitTool -> SetRandomNP(fRndRange, fUseRnd, fRndSeed);
+    fitTool.SetRandomNP(fRndRange, fUseRnd, fRndSeed);
 
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
     {
@@ -6315,7 +6314,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             npNames. emplace_back( fNormFactors[i_norm]->fName);
             npValues.emplace_back( fNormFactors[i_norm]->fNominal);
         }
-        fitTool -> SetNPs( npNames,npValues );
+        fitTool.SetNPs( npNames,npValues );
     }
 
     muhat = fFitResults -> GetNuisParValue( fPOI );
@@ -6342,31 +6341,31 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         //
         // Set the NP to its post-fit *up* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
-        fitTool -> ResetFixedNP();
+        fitTool.ResetFixedNP();
         // fix NPs that are fixed in the config
         // this has nothing to do with fixing NPs for the ranking
         // this is just needed to be compatible with the normal fit
         if(fFitFixedNPs.size()>0){
             for(const auto& nuisParToFix : fFitFixedNPs){
-                fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
             }
         }
 
-        fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
-        fitTool -> FitPDF( mc, simPdf, data );
-        muVarUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        fitTool.FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+        fitTool.FitPDF( mc, simPdf, data );
+        muVarUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
         //
         // Set the NP to its post-fit *down* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
-        fitTool -> ResetFixedNP();
-        fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
+        fitTool.ResetFixedNP();
+        fitTool.FixNP( nuisPars[i], central - TMath::Abs(down) );
         if(fFitFixedNPs.size()>0){
             for(const auto& nuisParToFix : fFitFixedNPs){
-                fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
             }
         }
-        fitTool -> FitPDF( mc, simPdf, data );
-        muVarDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+        fitTool.FitPDF( mc, simPdf, data );
+        muVarDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
         //
         dMuUp   = muVarUp[nuisPars[i]]-muhat;
         dMuDown = muVarDown[nuisPars[i]]-muhat;
@@ -6395,28 +6394,28 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             //
             // Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
-            fitTool -> ResetFixedNP();
-            fitTool -> FixNP( nuisPars[i], central + TMath::Abs(up  ) );
-            fitTool -> FitPDF( mc, simPdf, data );
+            fitTool.ResetFixedNP();
+            fitTool.FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+            fitTool.FitPDF( mc, simPdf, data );
             if(fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : fFitFixedNPs){
-                    fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                    fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
                 }
             }
-            muVarNomUp[ nuisPars[i] ]   = (fitTool -> ExportFitResultInMap())[ fPOI ];
+            muVarNomUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
             //
             // Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
-            fitTool -> ResetFixedNP();
-            fitTool -> FixNP( nuisPars[i], central - TMath::Abs(down) );
+            fitTool.ResetFixedNP();
+            fitTool.FixNP( nuisPars[i], central - TMath::Abs(down) );
             if(fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : fFitFixedNPs){
-                    fitTool -> FixNP(nuisParToFix.first,nuisParToFix.second);
+                    fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
                 }
             }
-            fitTool -> FitPDF( mc, simPdf, data );
+            fitTool.FitPDF( mc, simPdf, data );
             //
-            muVarNomDown[ nuisPars[i] ] = (fitTool -> ExportFitResultInMap())[ fPOI ];
+            muVarNomDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
         }
         dMuUp   = muVarNomUp[nuisPars[i]]-muhat;
         dMuDown = muVarNomDown[nuisPars[i]]-muhat;
