@@ -149,15 +149,13 @@ significance:
 ## "rstep" step: compute the ranking
 ##    Artifact: keeps the FitExample folder
 ##
-significance:
+ranking:
     stage: rstep
     script:
       - trex-fitter r config/myFit.config >& LOG_s
       - cat LOG_r | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_r
       - ls
       - set -e
-      - ls FitExample
-      - ls FitExample/Ranking/
       - source test/scripts/check_step_r.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
