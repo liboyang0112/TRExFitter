@@ -152,7 +152,7 @@ significance:
 ranking:
     stage: rstep
     script:
-      - trex-fitter r config/myFit.config >& LOG_s
+      - trex-fitter r config/myFit.config >& LOG_r
       - cat LOG_r | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_r
       - ls
       - set -e
