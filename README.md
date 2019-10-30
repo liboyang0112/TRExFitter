@@ -534,6 +534,8 @@ For each object type (also called "block"), here is the list of available proper
 | IsFreeParameter              | if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution) |
 | Category                     | major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category |
 | SubCategory                  | minor category for the systematic, used to evaluate impact on POI per SubCategory in "i" step, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
+| CombineName                  | A unique string for each systematic that you want to combine into a single systematic (e.g.) envelope. This needs to be set for every systematic that needs to be combined. The code will then combine all systematic and modify the _first one_ and then set all other systematics manually to zero. This is executed during the `b` step. |
+| CombineType                  | Can be `ENVELOPE` or `STANDARDDEVIATION`. Tells the code how to combine the systematics with the same `CombineName`. `STANDARDDEVIATION` does OneSided symmetrisation while for `ENVELOPE` it is recommended to use the symmetrisation for the individual components. |
 | HistoPathUp                  | only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation |
 | HistoPathDown                | only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation |
 | HistoPathSufUp               | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation |
