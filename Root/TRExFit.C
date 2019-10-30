@@ -6875,7 +6875,7 @@ void TRExFit::CombineSpecialSystematics() {
 
             for (const auto& sh : fRegions[iReg]->fSampleHists) {
                 std::vector<SystematicHist*> tmp;
-                for (std::size_t ispecial = 1; ispecial < names.size(); ++ispecial) {
+                for (std::size_t ispecial = 0; ispecial < names.size(); ++ispecial) {
                     const auto sampleHist = sh->GetSystematic(names.at(ispecial));
                     if (!sampleHist) continue;
                     tmp.emplace_back(sh->GetSystematic(names.at(ispecial)));
