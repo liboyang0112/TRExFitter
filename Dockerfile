@@ -8,6 +8,8 @@ WORKDIR /TRExFitter
 
 USER root
 
+RUN yum -y install libtiff && yum clean all
+
 RUN cd /TRExFitter && \
     cp source/TRExFitter/util/asetup-CMakeLists.txt source/CMakeLists.txt && \
     mkdir /TRExFitter/build && \
