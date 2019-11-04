@@ -3,6 +3,7 @@
 
 /// Framework includes
 #include "TRExFitter/HistoTools.h"
+#include "TRExFitter/Systematic.h"
 
 // RooFit
 #include "RooSimultaneous.h"
@@ -25,7 +26,6 @@ class Region;
 class Sample;
 class SampleHist;
 class ShapeFactor;
-class Systematic;
 class TRExPlot;
 class TFile;
 
@@ -177,6 +177,7 @@ public:
     void PrintSystTables(std::string opt="") const;
 
     void MergeSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
+    void CombineSpecialSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
 
     // for template fitting
     void AddTemplateWeight(const std::string& name, double);
@@ -328,6 +329,8 @@ public:
      * @return index
      */
     int GetSystIndex(const SampleHist* const sh, const std::string& name) const;
+
+    SystematicHist* CombineSpecialHistos(SystematicHist* orig, const std::vector<SystematicHist*>& vec, Systematic::COMBINATIONTYPE type, const SampleHist* sh) const;
 
     // -------------------------
 
