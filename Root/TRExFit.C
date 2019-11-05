@@ -1176,7 +1176,10 @@ void TRExFit::CorrectHistograms(){
             if(sh->fHist==nullptr) continue;
             sh->fHist->SetLineColor(linecolor);
             sh->fHist->SetFillColor(fillcolor);
-            //
+
+            // Scale MC stat
+            ScaleMCstatInHist(sh->fHist, smp->fMCstatScale);
+
             // loop on systematics
             for(auto syst : smp->fSystematics){
                 //
