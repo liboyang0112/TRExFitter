@@ -1089,7 +1089,7 @@ std::string pad_trail( const std::string & input ) {
 //___________________________________________________________
 //
 void ScaleMCstatInHist(TH1* hist, const double scale) {
-    if (std::fabs(scale-1) < 1e-6) return; // basically scale == 1 but floating rpecision
+    if (std::fabs(scale-1) < 1e-6) return; // basically scale == 1 but floating precision
 
     for (int ibin = 1; ibin <= hist->GetNbinsX(); ++ibin) {
         hist->SetBinError(ibin, scale * hist->GetBinError(ibin));
