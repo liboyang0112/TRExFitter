@@ -981,7 +981,6 @@ void TRExFit::ReadNtuples(){
                         if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                         else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
-                        ScaleMCstatInHist(htmp, fSamples[i_smp]->fMCstatScale);
 
                         //
                         // Importing histogram in TRExFitter
@@ -1075,7 +1074,6 @@ void TRExFit::ReadNtuples(){
                         if(smp->fType!=Sample::DATA && smp->fNormalizedByTheory) htmp -> Scale(fLumi);
                         if(smp->fLumiScales.size()>i_path) htmp -> Scale(smp->fLumiScales[i_path]);
                         else if(smp->fLumiScales.size()==1) htmp -> Scale(smp->fLumiScales[0]);
-                        ScaleMCstatInHist(htmp, fSamples[i_smp]->fMCstatScale);
 
                         //
                         // Importing histogram in TRExFitter
