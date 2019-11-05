@@ -419,7 +419,7 @@ TH1D* HistoTools::SymmetrizeMaximum(const TH1* const var1, const TH1* const var2
 
     // check which variation is larger and use that one
     for (int ibin = 1; ibin <= tmp1->GetNbinsX(); ++ibin){
-        if (std::fabs(tmp1->GetBinContent(ibin)) < std::fabs(tmp2->GetBinContent(ibin))){
+        if (std::fabs(tmp1->GetBinContent(ibin) - 1) < std::fabs(tmp2->GetBinContent(ibin) - 1)){
             tmp1->SetBinContent(ibin, tmp2->GetBinContent(ibin));
         }
     }
