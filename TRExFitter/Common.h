@@ -167,6 +167,8 @@ bool OptionRunsFit(const std::string& opt);
  */
 std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist);
 
+void ScaleMCstatInHist(TH1* hist, const double scale);
+
 /// BW added functions to help pad bin numbers in gamma NP plot
 
 std::vector<std::string> mysplit(const std::string & s, char delimiter);

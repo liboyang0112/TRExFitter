@@ -8675,6 +8675,7 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
             if(fSamples[i_smp]->fNormalizedByTheory){
                 htmp -> Scale(fLumi);
             }
+            ScaleMCstatInHist(htmp.get(), fSamples[i_smp]->fMCstatScale);
         }
 
         if(fSamples[i_smp]->fLumiScales.size()>i_path){

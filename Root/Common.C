@@ -1002,6 +1002,8 @@ double GetNominalMorphScale(const SampleHist* const sh){
     return scale;
 }
 
+//___________________________________________________________
+//
 bool OptionRunsFit(const std::string& opt){
     if (opt.find("w")!=std::string::npos) return true;
     if (opt.find("f")!=std::string::npos) return true;
@@ -1013,6 +1015,8 @@ bool OptionRunsFit(const std::string& opt){
     return false;
 }
 
+//___________________________________________________________
+//
 std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist){
     if (hist == nullptr) return nullptr;
     std::unique_ptr<TH1> result(static_cast<TH1*>(hist->Clone()));
@@ -1024,16 +1028,13 @@ std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist){
     return result;
 }
 
-
-
 // BW helper functions to pad bin numbers for gamma plots
-// replaces them with zero padded versions.  "Gamma Bin 1" -> "Gamma Bin 0001" 
-    
-std::vector<std::string> mysplit(const std::string & s, const char delimiter)
-{
+// replaces them with zero padded versions.  "Gamma Bin 1" -> "Gamma Bin 0001"
+
+std::vector<std::string> mysplit(const std::string & s, const char delimiter) {
     std::vector<std::string> answer;
     std::string token;
-    
+
     // this converts a single char into a string
     // the constructor std:string( n, char )
     // produces a string of n copies of char
@@ -1044,44 +1045,51 @@ std::vector<std::string> mysplit(const std::string & s, const char delimiter)
         //keep the delimiter for easy reconstruction
         answer.push_back(token+localDelim);
     }
-        
+
     //remove the trailing delim from the last token
     std::string last = answer.back();
     if( !last.empty() ) last.pop_back();
-        
+
     answer.pop_back();
     answer.push_back( last );
-        
+
     return answer;
 }
-    
-std::string addpad( const std::string & input, const char filler, const unsigned width )
-{
+
+//___________________________________________________________
+//
+std::string addpad( const std::string & input, const char filler, const unsigned width ) {
     std::stringstream mySS;
-        
+
     mySS.fill(filler);
     mySS.width(width);
-        
+
     mySS << input;
-        
+
     return mySS.str();
-        
+
 }
-    
-std::string pad_trail( const std::string & input )
-{
-        
+
+//___________________________________________________________
+//
+std::string pad_trail( const std::string & input ) {
+
     std::vector<std::string> words = mysplit( input, ' ' );
-        
+
     std::string paddedValue = addpad( words.back(), '0', 4 );
-        
+
     words.pop_back();
     words.push_back( paddedValue );
-        
+
     std::string answer = std::accumulate( words.begin(), words.end(), std::string("") );
-        
+
     return answer;
 }
-    
 
-
+//___________________________________________________________
+//
+void ScaleMCstatInHist(TH1* hist, const double scale) {
+    for (int ibin = 1; ibin <= hist->GetNbinsX(); ++ibin) {
+        hist->SetBinError(ibin, scale * hist->GetBinError(ibin));
+    }
+}
