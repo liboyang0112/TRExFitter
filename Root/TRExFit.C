@@ -4904,8 +4904,6 @@ void TRExFit::Fit(bool isLHscanOnly){
                         MCstatDoSample[sh->fSample->fName] = -sqrt(pow(MCstatDoSample[sh->fSample->fName],2) + pow(npValues[fPOI]-nominalPOIval,2));
                         smpTexTitle[sh->fSample->fName] = sh->fSample->fTexTitle;
                     }
-                    MCstatUpSample[sh->fSample->fName]*=sh->fSample->fMCstatScale;
-                    MCstatDoSample[sh->fSample->fName]*=sh->fSample->fMCstatScale;
                 }
             }
         }
