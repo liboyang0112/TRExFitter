@@ -4279,9 +4279,10 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
         }
         WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", "--> KEEPING IT!!! " + ireg);
 
+        Region* reg = fFitter->GetRegion(ireg);
+        
         if (type == Systematic::STAT) {
-          Region* reg = fFitter->GetRegion(ireg);
-          unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
+            unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
             WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", ireg + " " + std::to_string(nbins));
             // decorrelate by bin
             for (unsigned int i_bin = 0; i_bin < nbins; i_bin++) {
@@ -4350,7 +4351,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
             // Set Title
             param = confSet->Get("Title");
             if(param != ""){
-                mySys->fTitle = (sys->fTitle)+"_"+ireg;
+                mySys->fTitle = (sys->fTitle)+" ("+reg->fLabel+")";
                 TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
             }
             fFitter->fNSyst++;
@@ -4452,6 +4453,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
     mySys1->fName=(mySys1->fName)+"_Acc";
     fFitter->fSystematics.push_back( mySys1 );
     mySys1->fIsNormOnly = true;
+    mySys1->fIsShapeOnly = false;
 
     // Set NuisanceParameter
     param = confSet->Get("NuisanceParameter");
@@ -4496,6 +4498,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         mySys2->fName=(mySys2->fName)+"_Shape";
         mySys2->fIsNormOnly=false;
         mySys2->fIsShapeOnly=true;
+        
         fFitter->fSystematics.push_back( mySys2 );
 
         //Set NuisanceParameter

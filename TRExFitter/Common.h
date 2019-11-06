@@ -173,5 +173,8 @@ std::vector<std::string> mysplit(const std::string & s, char delimiter);
 std::string addpad( const std::string & input, const char filler, const unsigned width );
 std::string pad_trail( const std::string & input );
 
+// Helper functions to drop norm or shape part from systematic variations 
+void DropNorm(TH1* hUp,TH1* hDown,TH1* hNom);
+void DropShape(TH1* hUp,TH1* hDown,TH1* hNom);
 
 #endif

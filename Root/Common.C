@@ -1082,6 +1082,24 @@ std::string pad_trail( const std::string & input )
         
     return answer;
 }
-    
 
-
+//___________________________________________________________
+// Helper functions to drop norm or shape part from systematic variations 
+void DropNorm(TH1* hUp,TH1* hDown,TH1* hNom){
+    if(hUp!=nullptr) hUp->Scale(hNom->Integral()/hUp->Integral());
+    if(hDown!=nullptr) hDown->Scale(hNom->Integral()/hDown->Integral());
+}
+void DropShape(TH1* hUp,TH1* hDown,TH1* hNom){
+    if(hUp!=nullptr){
+        const double ratioUp = hUp->Integral()/hNom->Integral();
+        delete hUp;
+        hUp = static_cast<TH1*>(hNom->Clone());
+        hUp->Scale(ratioUp);
+    }
+    if(hDown!=nullptr){
+        const double ratioDown = hDown->Integral()/hNom->Integral();
+        delete hDown;
+        hDown = static_cast<TH1*>(hNom->Clone());
+        hDown->Scale(ratioDown);
+    }
+}

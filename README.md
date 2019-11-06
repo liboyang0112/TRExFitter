@@ -607,7 +607,7 @@ For each object type (also called "block"), here is the list of available proper
 | NtupleName(s)DownRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple name(s) for systematic down variation |
 | NtupleNameSufUpRefSample     | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic up variation |
 | NtupleNameSufDownRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic down variation |
-| Decorrelate                  | decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects) |
+| Decorrelate                  | decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects); can be used to change behaviour of a systematic without having to re-run the n or b step |
 
 ## Command line options
 Currently the supported options are:
