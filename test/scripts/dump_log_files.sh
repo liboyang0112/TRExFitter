@@ -59,18 +59,6 @@ if [[ "$which_root" == "" ]]; then
 fi
 
 ##
-## Produces the input ROOT file used to generate the fit
-##
-echo ""
-echo "Now, I need to generate the input file by executing CreateHistograms.C"
-root -l -b -q CreateHistograms.C && echo "Done !"
-if [[ ! -d ExampleInputs/ ]]; then
-  echo "!!ERROR!! The ExampleInputs folder cannot be found. I don't really know why ?"
-  return 0
-fi
-echo ""
-
-##
 ## Compiling the code
 ##
 echo ""
