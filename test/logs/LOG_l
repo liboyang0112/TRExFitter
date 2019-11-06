@@ -279,13 +279,13 @@ MnSeedGenerator: run Hesse - new state:   - FCN =  -11.03152443296 Edm =      1.
 VariableMetric: start iterating until Edm is < 0.001
 VariableMetric: Initial state   - FCN =  -11.03152443296 Edm =      1.00241 NCalls =    145
 VariableMetric: Iteration #   0 - FCN =  -11.03152443296 Edm =      1.00241 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -12.00021883497 Edm =    0.0133559 NCalls =    172
+VariableMetric: Iteration #   1 - FCN =  -12.00021883498 Edm =    0.0133559 NCalls =    172
 VariableMetric: Iteration #   2 - FCN =  -12.01110768134 Edm =  9.05018e-05 NCalls =    196
 VariableMetric: After Hessian   - FCN =  -12.01110768134 Edm =  9.79437e-05 NCalls =    296
 VariableMetric: Iteration #   3 - FCN =  -12.01110768134 Edm =  9.79437e-05 NCalls =    296
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -12.0111076813407216
-Edm   = 9.7943734273220684e-05
+FVAL  = -12.0111076813419579
+Edm   = 9.79437345813979822e-05
 Nfcn  = 296
 alpha_Bkg1Xsec	  = 0.23787	 +/-  0.701349	(limited)
 alpha_Bkg2Xsec	  = -0.0634419	 +/-  0.641698	(limited)
@@ -324,18 +324,18 @@ Pairing nui: gamma_stat_SR_2_bin_1_poisMean, with glob: nom_gamma_stat_SR_2_bin_
 Pairing nui: gamma_stat_SR_2_bin_2_poisMean, with glob: nom_gamma_stat_SR_2_bin_2, from constraint: gamma_stat_SR_2_bin_2_constraint
 Pairing nui: gamma_stat_SR_2_bin_3_poisMean, with glob: nom_gamma_stat_SR_2_bin_3, from constraint: gamma_stat_SR_2_bin_3_constraint
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -12.43842410316
-MnSeedGenerator: Initial state:   - FCN =  -12.43842410316 Edm =     0.397665 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -12.43842410316 Edm =     0.221207 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -12.43842410315
+MnSeedGenerator: Initial state:   - FCN =  -12.43842410315 Edm =     0.397665 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -12.43842410315 Edm =     0.221207 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -12.43842410316 Edm =     0.221207 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -12.43842410316 Edm =     0.221207 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -12.66373891991 Edm =  0.000240022 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -12.66373891991 Edm =  0.000264251 NCalls =    268
-VariableMetric: Iteration #   2 - FCN =  -12.66373891991 Edm =  0.000264251 NCalls =    268
+VariableMetric: Initial state   - FCN =  -12.43842410315 Edm =     0.221207 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -12.43842410315 Edm =     0.221207 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -12.66373891979 Edm =  0.000240022 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -12.66373891979 Edm =  0.000264251 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -12.66373891979 Edm =  0.000264251 NCalls =    268
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -12.6637389199109549
-Edm   = 0.00026425132594692398
+FVAL  = -12.6637389197866597
+Edm   = 0.000264251481441662214
 Nfcn  = 268
 alpha_Bkg1Xsec	  = 0.26915	 +/-  0.701448	(limited)
 alpha_Bkg2Xsec	  = 0.0228946	 +/-  0.64416	(limited)
@@ -365,18 +365,18 @@ Calculating Expected Limit
 ------------------------
 Getting limit for nll: nll_simPdf_asimovData_0_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -10.71756706245
-MnSeedGenerator: Initial state:   - FCN =  -10.71756706245 Edm =     0.438782 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -10.71756706245 Edm =     0.241913 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -10.71756706308
+MnSeedGenerator: Initial state:   - FCN =  -10.71756706308 Edm =     0.438782 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.71756706308 Edm =     0.241913 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -10.71756706245 Edm =     0.241913 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -10.71756706245 Edm =     0.241913 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -10.95375510414 Edm =  0.000494874 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -10.95375510414 Edm =  0.000433571 NCalls =    268
-VariableMetric: Iteration #   2 - FCN =  -10.95375510414 Edm =  0.000433571 NCalls =    268
+VariableMetric: Initial state   - FCN =  -10.71756706308 Edm =     0.241913 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.71756706308 Edm =     0.241913 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.95375510438 Edm =  0.000494874 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -10.95375510438 Edm =  0.000433571 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -10.95375510438 Edm =  0.000433571 NCalls =    268
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -10.9537551041422532
-Edm   = 0.000433571049046922502
+FVAL  = -10.9537551043789758
+Edm   = 0.000433571425547945026
 Nfcn  = 268
 alpha_Bkg1Xsec	  = 0.239811	 +/-  0.707178	(limited)
 alpha_Bkg2Xsec	  = -0.0900661	 +/-  0.636377	(limited)
@@ -385,7 +385,7 @@ gamma_stat_SR_1_bin_0	  = 0.99774	 +/-  0.0295421	(limited)
 gamma_stat_SR_1_bin_1	  = 1.02513	 +/-  0.0491357	(limited)
 gamma_stat_SR_1_bin_2	  = 0.988929	 +/-  0.084267	(limited)
 gamma_stat_SR_1_bin_3	  = 0.915706	 +/-  0.11812	(limited)
-gamma_stat_SR_2_bin_0	  = 0.999726	 +/-  0.0292841	(limited)
+gamma_stat_SR_2_bin_0	  = 0.999726	 +/-  0.029284	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02911	 +/-  0.0481087	(limited)
 gamma_stat_SR_2_bin_2	  = 0.991757	 +/-  0.084895	(limited)
 gamma_stat_SR_2_bin_3	  = 0.918556	 +/-  0.118002	(limited)
@@ -402,20 +402,20 @@ CLs:            0.332908
 ----------------------
 Starting iteration 0 of nll_simPdf_asimovData_0_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -6.399748252256
-MnSeedGenerator: Initial state:   - FCN =  -6.399748252256 Edm =      6.07594 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -6.399748252256 Edm =      3.28849 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -6.399748262768
+MnSeedGenerator: Initial state:   - FCN =  -6.399748262768 Edm =      6.07594 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -6.399748262768 Edm =      3.28849 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -6.399748252256 Edm =      3.28849 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -6.399748252256 Edm =      3.28849 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =   -9.39258580394 Edm =    0.0578505 NCalls =    177
-VariableMetric: Iteration #   2 - FCN =  -9.427122239075 Edm =    0.0011188 NCalls =    201
-VariableMetric: Iteration #   3 - FCN =  -9.428034048317 Edm =  2.03548e-05 NCalls =    225
-VariableMetric: After Hessian   - FCN =  -9.428034048317 Edm =  1.67979e-05 NCalls =    325
-VariableMetric: Iteration #   4 - FCN =  -9.428034048317 Edm =  1.67979e-05 NCalls =    325
+VariableMetric: Initial state   - FCN =  -6.399748262768 Edm =      3.28849 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -6.399748262768 Edm =      3.28849 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =   -9.39258580095 Edm =    0.0578506 NCalls =    177
+VariableMetric: Iteration #   2 - FCN =  -9.427122244078 Edm =    0.0011188 NCalls =    201
+VariableMetric: Iteration #   3 - FCN =  -9.428034052623 Edm =  2.03548e-05 NCalls =    225
+VariableMetric: After Hessian   - FCN =  -9.428034052623 Edm =  1.67979e-05 NCalls =    325
+VariableMetric: Iteration #   4 - FCN =  -9.428034052623 Edm =  1.67979e-05 NCalls =    325
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.42803404831735925
-Edm   = 1.67979333841583364e-05
+FVAL  = -9.42803405262278282
+Edm   = 1.6797903863579633e-05
 Nfcn  = 325
 alpha_Bkg1Xsec	  = 0.162539	 +/-  0.706162	(limited)
 alpha_Bkg2Xsec	  = -0.34	 +/-  0.628686	(limited)
@@ -446,19 +446,19 @@ New guess:      4.24416
 ----------------------
 Starting iteration 1 of nll_simPdf_asimovData_0_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -9.184853077843
-MnSeedGenerator: Initial state:   - FCN =  -9.184853077843 Edm =  0.000466698 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -9.184853077843 Edm =  0.000382758 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -9.184853078613
+MnSeedGenerator: Initial state:   - FCN =  -9.184853078613 Edm =  0.000466698 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.184853078613 Edm =  0.000382758 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -9.184853077843 Edm =  0.000382758 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -9.184853077843 Edm =  0.000382758 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.185236082367 Edm =  6.26321e-10 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -9.185236082367 Edm =  6.31913e-10 NCalls =    282
-VariableMetric: Iteration #   2 - FCN =  -9.185236082367 Edm =  6.31913e-10 NCalls =    282
+VariableMetric: Initial state   - FCN =  -9.184853078613 Edm =  0.000382758 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.184853078613 Edm =  0.000382758 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.185236083249 Edm =  6.26344e-10 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.185236083249 Edm =  6.31955e-10 NCalls =    280
+VariableMetric: Iteration #   2 - FCN =  -9.185236083249 Edm =  6.31955e-10 NCalls =    280
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.18523608236665368
-Edm   = 6.31912962700783055e-10
-Nfcn  = 282
+FVAL  = -9.18523608324855978
+Edm   = 6.31954633965551856e-10
+Nfcn  = 280
 alpha_Bkg1Xsec	  = 0.154678	 +/-  0.70569	(limited)
 alpha_Bkg2Xsec	  = -0.367097	 +/-  0.627928	(limited)
 alpha_JES	  = -0.235769	 +/-  0.343008	(limited)
@@ -488,19 +488,19 @@ New guess:      4.27731
 ----------------------
 Starting iteration 2 of nll_simPdf_asimovData_0_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -9.158536560061
-MnSeedGenerator: Initial state:   - FCN =  -9.158536560061 Edm =  0.000310641 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -9.158536560061 Edm =  0.000175524 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -9.158536560588
+MnSeedGenerator: Initial state:   - FCN =  -9.158536560588 Edm =  0.000310641 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.158536560588 Edm =  0.000175524 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -9.158536560061 Edm =  0.000175524 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -9.158536560061 Edm =  0.000175524 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.158712016625 Edm =  7.01947e-11 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -9.158712016625 Edm =  6.88445e-11 NCalls =    294
-VariableMetric: Iteration #   2 - FCN =  -9.158712016625 Edm =  6.88445e-11 NCalls =    294
+VariableMetric: Initial state   - FCN =  -9.158536560588 Edm =  0.000175524 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.158536560588 Edm =  0.000175524 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.158712017152 Edm =  7.01889e-11 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.158712017152 Edm =  6.88304e-11 NCalls =    298
+VariableMetric: Iteration #   2 - FCN =  -9.158712017152 Edm =  6.88304e-11 NCalls =    298
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.15871201662497469
-Edm   = 6.88445444781448813e-11
-Nfcn  = 294
+FVAL  = -9.15871201715246208
+Edm   = 6.88304085704605981e-11
+Nfcn  = 298
 alpha_Bkg1Xsec	  = 0.154044	 +/-  0.705655	(limited)
 alpha_Bkg2Xsec	  = -0.369842	 +/-  0.627861	(limited)
 alpha_JES	  = -0.23751	 +/-  0.343103	(limited)
@@ -534,19 +534,19 @@ NLL is 451.926
 ------------------------
 Getting limit for nll: nll_simPdf_asimovData_0_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -9.083199665455
-MnSeedGenerator: Initial state:   - FCN =  -9.083199665455 Edm =   0.00237399 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -9.083199665455 Edm =   0.00134126 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -9.083199665934
+MnSeedGenerator: Initial state:   - FCN =  -9.083199665934 Edm =   0.00237399 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.083199665934 Edm =   0.00134126 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -9.083199665455 Edm =   0.00134126 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -9.083199665455 Edm =   0.00134126 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.084539573726 Edm =  3.81411e-09 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -9.084539573726 Edm =  3.79026e-09 NCalls =    282
-VariableMetric: Iteration #   2 - FCN =  -9.084539573726 Edm =  3.79026e-09 NCalls =    282
+VariableMetric: Initial state   - FCN =  -9.083199665934 Edm =   0.00134126 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.083199665934 Edm =   0.00134126 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.084539574213 Edm =  3.81415e-09 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.084539574213 Edm =   3.7903e-09 NCalls =    280
+VariableMetric: Iteration #   2 - FCN =  -9.084539574213 Edm =   3.7903e-09 NCalls =    280
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.08453957372573484
-Edm   = 3.79026025639073928e-09
-Nfcn  = 282
+FVAL  = -9.08453957421316893
+Edm   = 3.79030273042068627e-09
+Nfcn  = 280
 alpha_Bkg1Xsec	  = 0.152327	 +/-  0.705558	(limited)
 alpha_Bkg2Xsec	  = -0.377464	 +/-  0.627679	(limited)
 alpha_JES	  = -0.24231	 +/-  0.343362	(limited)
@@ -565,51 +565,51 @@ muhat:          0
 qmu95:          4.01686
 qmu:            3.98715
 pmu:            0.0229243
-1-pb:           0.498443
-CLs:            0.0457063
+1-pb:           0.498444
+CLs:            0.0457064
 
 ----------------------
 Starting iteration 0 of nll_simPdf_asimovData_0_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -5.412610970979
-MnSeedGenerator: Initial state:   - FCN =  -5.412610970979 Edm =      7.43562 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -5.412610970979 Edm =      4.01752 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -5.412614696582
+MnSeedGenerator: Initial state:   - FCN =  -5.412614696582 Edm =      7.43561 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -5.412614696582 Edm =      4.01751 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -5.412610970979 Edm =      4.01752 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -5.412610970979 Edm =      4.01752 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.023112567604 Edm =    0.0928149 NCalls =    177
-VariableMetric: Iteration #   2 - FCN =  -9.075937973202 Edm =   0.00205225 NCalls =    201
-VariableMetric: Iteration #   3 - FCN =  -9.077550243128 Edm =  4.55726e-05 NCalls =    225
-VariableMetric: After Hessian   - FCN =  -9.077550243128 Edm =   3.7198e-05 NCalls =    325
-VariableMetric: Iteration #   4 - FCN =  -9.077550243128 Edm =   3.7198e-05 NCalls =    325
+VariableMetric: Initial state   - FCN =  -5.412614696582 Edm =      4.01751 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -5.412614696582 Edm =      4.01751 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.023114016837 Edm =    0.0928147 NCalls =    177
+VariableMetric: Iteration #   2 - FCN =  -9.075939301978 Edm =   0.00205224 NCalls =    201
+VariableMetric: Iteration #   3 - FCN =  -9.077551565781 Edm =  4.55724e-05 NCalls =    225
+VariableMetric: After Hessian   - FCN =  -9.077551565781 Edm =  3.71978e-05 NCalls =    325
+VariableMetric: Iteration #   4 - FCN =  -9.077551565781 Edm =  3.71978e-05 NCalls =    325
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.07755024312803549
-Edm   = 3.71979503914562513e-05
+FVAL  = -9.07755156578139299
+Edm   = 3.71978162216337959e-05
 Nfcn  = 325
 alpha_Bkg1Xsec	  = 0.155105	 +/-  0.705813	(limited)
 alpha_Bkg2Xsec	  = -0.376847	 +/-  0.627735	(limited)
-alpha_JES	  = -0.244434	 +/-  0.343399	(limited)
-gamma_stat_SR_1_bin_0	  = 0.99551	 +/-  0.0295372	(limited)
+alpha_JES	  = -0.244433	 +/-  0.343399	(limited)
+gamma_stat_SR_1_bin_0	  = 0.99551	 +/-  0.0295371	(limited)
 gamma_stat_SR_1_bin_1	  = 1.03301	 +/-  0.0495714	(limited)
 gamma_stat_SR_1_bin_2	  = 0.992665	 +/-  0.0849533	(limited)
 gamma_stat_SR_1_bin_3	  = 0.828991	 +/-  0.106663	(limited)
 gamma_stat_SR_2_bin_0	  = 0.996851	 +/-  0.0292507	(limited)
 gamma_stat_SR_2_bin_1	  = 1.03552	 +/-  0.0484968	(limited)
 gamma_stat_SR_2_bin_2	  = 0.994199	 +/-  0.0854089	(limited)
-gamma_stat_SR_2_bin_3	  = 0.830127	 +/-  0.106519	(limited)
+gamma_stat_SR_2_bin_3	  = 0.830128	 +/-  0.106519	(limited)
 NLL:            nll_simPdf_asimovData_0_with_constr
 Previous guess: 4.37764
 Sigma(obs):     2.18851
 Sigma(mu,0):    2.18851
 muhat:          0
-pmu:            0.0227349
+pmu:            0.022735
 1-pb:           0.5
-CLs:            0.0454699
+CLs:            0.04547
 qmu95:          4.01776
-qmu:            4.00113
-qmuA0:          4.00113
+qmu:            4.00112
+qmuA0:          4.00112
 Precision:      0.0218926
-Correction:    0.000885253
+Correction:    0.000885077
 New guess:      4.37852
 
 Found limit for nll nll_simPdf_asimovData_0_with_constr: 4.37852
@@ -646,29 +646,29 @@ channel: SR_2, data: RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCa
 ------------------------
 Getting limit for nll: nll_simPdf_asimovData_4.3785_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -3.652327609898
-MnSeedGenerator: Initial state:   - FCN =  -3.652327609898 Edm =       3.2643 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -3.652327609898 Edm =      1.86691 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -3.652332727346
+MnSeedGenerator: Initial state:   - FCN =  -3.652332727346 Edm =       3.2643 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -3.652332727346 Edm =      1.86691 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -3.652327609898 Edm =      1.86691 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -3.652327609898 Edm =      1.86691 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -5.442265415459 Edm =    0.0104501 NCalls =    172
-VariableMetric: Iteration #   2 - FCN =  -5.450783447332 Edm =  8.82887e-05 NCalls =    196
-VariableMetric: After Hessian   - FCN =  -5.450783447332 Edm =  7.63597e-05 NCalls =    296
-VariableMetric: Iteration #   3 - FCN =  -5.450783447332 Edm =  7.63597e-05 NCalls =    296
+VariableMetric: Initial state   - FCN =  -3.652332727346 Edm =      1.86691 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -3.652332727346 Edm =      1.86691 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =   -5.44226921451 Edm =    0.0104501 NCalls =    172
+VariableMetric: Iteration #   2 - FCN =  -5.450787227368 Edm =  8.82885e-05 NCalls =    196
+VariableMetric: After Hessian   - FCN =  -5.450787227368 Edm =  7.63595e-05 NCalls =    296
+VariableMetric: Iteration #   3 - FCN =  -5.450787227368 Edm =  7.63595e-05 NCalls =    296
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -5.45078344733203934
-Edm   = 7.63596580552390624e-05
+FVAL  = -5.4507872273684157
+Edm   = 7.63594509534987778e-05
 Nfcn  = 296
-alpha_Bkg1Xsec	  = 0.0959984	 +/-  0.700105	(limited)
-alpha_Bkg2Xsec	  = -0.661582	 +/-  0.627217	(limited)
+alpha_Bkg1Xsec	  = 0.0959985	 +/-  0.700105	(limited)
+alpha_Bkg2Xsec	  = -0.661582	 +/-  0.627218	(limited)
 alpha_JES	  = -0.401113	 +/-  0.350547	(limited)
 gamma_stat_SR_1_bin_0	  = 0.993954	 +/-  0.0295278	(limited)
 gamma_stat_SR_1_bin_1	  = 1.03834	 +/-  0.0498592	(limited)
 gamma_stat_SR_1_bin_2	  = 0.988701	 +/-  0.0844263	(limited)
-gamma_stat_SR_1_bin_3	  = 0.744785	 +/-  0.0954404	(limited)
+gamma_stat_SR_1_bin_3	  = 0.744785	 +/-  0.0954405	(limited)
 gamma_stat_SR_2_bin_0	  = 0.994802	 +/-  0.0291961	(limited)
-gamma_stat_SR_2_bin_1	  = 1.03987	 +/-  0.048753	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03987	 +/-  0.0487529	(limited)
 gamma_stat_SR_2_bin_2	  = 0.989559	 +/-  0.0847193	(limited)
 gamma_stat_SR_2_bin_3	  = 0.745224	 +/-  0.0953307	(limited)
 Initial guess:  8.34387
@@ -677,59 +677,59 @@ Sigma(mu,0):    2.38603
 muhat:          4.37852
 qmu95:          2.75942
 qmu:            11.2547
-pmu:            0.000397117
+pmu:            0.000397119
 1-pb:           0.443474
-CLs:            0.000713564
+CLs:            0.000713567
 
 ----------------------
 Starting iteration 0 of nll_simPdf_asimovData_4.3785_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -7.80492965547
-MnSeedGenerator: Initial state:   - FCN =   -7.80492965547 Edm =      4.19615 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =   -7.80492965547 Edm =      2.37836 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -7.804929544862
+MnSeedGenerator: Initial state:   - FCN =  -7.804929544862 Edm =      4.19615 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -7.804929544862 Edm =      2.37836 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   -7.80492965547 Edm =      2.37836 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =   -7.80492965547 Edm =      2.37836 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -10.08418662993 Edm =    0.0119048 NCalls =    172
-VariableMetric: Iteration #   2 - FCN =  -10.09415213218 Edm =  0.000116025 NCalls =    196
-VariableMetric: After Hessian   - FCN =  -10.09415213218 Edm =  9.83131e-05 NCalls =    296
-VariableMetric: Iteration #   3 - FCN =  -10.09415213218 Edm =  9.83131e-05 NCalls =    296
+VariableMetric: Initial state   - FCN =  -7.804929544862 Edm =      2.37836 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -7.804929544862 Edm =      2.37836 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.08418651147 Edm =    0.0119048 NCalls =    172
+VariableMetric: Iteration #   2 - FCN =  -10.09415202321 Edm =  0.000116025 NCalls =    196
+VariableMetric: After Hessian   - FCN =  -10.09415202321 Edm =   9.8313e-05 NCalls =    296
+VariableMetric: Iteration #   3 - FCN =  -10.09415202321 Edm =   9.8313e-05 NCalls =    296
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -10.0941521321781273
-Edm   = 9.83130821246400475e-05
+FVAL  = -10.0941520232129527
+Edm   = 9.83130261039068427e-05
 Nfcn  = 296
 alpha_Bkg1Xsec	  = 0.0788708	 +/-  0.698009	(limited)
-alpha_Bkg2Xsec	  = -0.711293	 +/-  0.642024	(limited)
+alpha_Bkg2Xsec	  = -0.711292	 +/-  0.642024	(limited)
 alpha_JES	  = -0.454637	 +/-  0.347376	(limited)
 gamma_stat_SR_1_bin_0	  = 0.993387	 +/-  0.0294935	(limited)
 gamma_stat_SR_1_bin_1	  = 1.04047	 +/-  0.0499232	(limited)
 gamma_stat_SR_1_bin_2	  = 0.992759	 +/-  0.0847662	(limited)
 gamma_stat_SR_1_bin_3	  = 0.741801	 +/-  0.0948968	(limited)
-gamma_stat_SR_2_bin_0	  = 0.994105	 +/-  0.0291656	(limited)
+gamma_stat_SR_2_bin_0	  = 0.994105	 +/-  0.0291657	(limited)
 gamma_stat_SR_2_bin_1	  = 1.04171	 +/-  0.0488135	(limited)
 gamma_stat_SR_2_bin_2	  = 0.993331	 +/-  0.0850435	(limited)
 gamma_stat_SR_2_bin_3	  = 0.742035	 +/-  0.0947836	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -5.042036791888
-MnSeedGenerator: Initial state:   - FCN =  -5.042036791888 Edm =    0.0147492 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -5.042036791888 Edm =    0.0152142 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -5.042039179395
+MnSeedGenerator: Initial state:   - FCN =  -5.042039179395 Edm =    0.0147492 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -5.042039179395 Edm =    0.0152142 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -5.042036791888 Edm =    0.0152142 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -5.042036791888 Edm =    0.0152142 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -5.057252446945 Edm =   1.2286e-07 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -5.057252446945 Edm =  1.20343e-07 NCalls =    268
-VariableMetric: Iteration #   2 - FCN =  -5.057252446945 Edm =  1.20343e-07 NCalls =    268
+VariableMetric: Initial state   - FCN =  -5.042039179395 Edm =    0.0152142 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -5.042039179395 Edm =    0.0152142 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -5.057254832993 Edm =  1.22854e-07 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -5.057254832993 Edm =  1.20338e-07 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -5.057254832993 Edm =  1.20338e-07 NCalls =    268
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -5.05725244694495046
-Edm   = 1.20342811432814312e-07
+FVAL  = -5.05725483299275247
+Edm   = 1.20337511831383142e-07
 Nfcn  = 268
 alpha_Bkg1Xsec	  = 0.0891977	 +/-  0.699435	(limited)
 alpha_Bkg2Xsec	  = -0.680575	 +/-  0.627181	(limited)
 alpha_JES	  = -0.411957	 +/-  0.350986	(limited)
-gamma_stat_SR_1_bin_0	  = 0.993867	 +/-  0.0295278	(limited)
+gamma_stat_SR_1_bin_0	  = 0.993867	 +/-  0.0295279	(limited)
 gamma_stat_SR_1_bin_1	  = 1.03863	 +/-  0.0498761	(limited)
 gamma_stat_SR_1_bin_2	  = 0.987604	 +/-  0.0843077	(limited)
-gamma_stat_SR_1_bin_3	  = 0.737285	 +/-  0.0944434	(limited)
+gamma_stat_SR_1_bin_3	  = 0.737285	 +/-  0.0944435	(limited)
 gamma_stat_SR_2_bin_0	  = 0.994653	 +/-  0.0291907	(limited)
 gamma_stat_SR_2_bin_1	  = 1.04006	 +/-  0.0487668	(limited)
 gamma_stat_SR_2_bin_2	  = 0.988421	 +/-  0.0845886	(limited)
@@ -740,30 +740,30 @@ Sigma(obs):     2.67223
 Sigma(mu,0):    2.40449
 muhat:          4.37852
 pmu:            0.0689161
-1-pb:           0.0235052
+1-pb:           0.0235053
 CLs:            0.070575
 qmu95:          2.76292
 qmu:            2.202
 qmuA0:          12.0417
 Precision:      0.0440215
 Correction:    0.460423
-New guess:      8.8043
+New guess:      8.80429
 
 ----------------------
 Starting iteration 1 of nll_simPdf_asimovData_4.3785_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -9.850203520186
-MnSeedGenerator: Initial state:   - FCN =  -9.850203520186 Edm =  0.000768442 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -9.850203520186 Edm =  0.000602319 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -9.850203437356
+MnSeedGenerator: Initial state:   - FCN =  -9.850203437356 Edm =  0.000768442 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.850203437356 Edm =  0.000602319 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -9.850203520186 Edm =  0.000602319 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -9.850203520186 Edm =  0.000602319 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.850805540885 Edm =  1.93483e-09 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -9.850805540885 Edm =  1.88489e-09 NCalls =    278
-VariableMetric: Iteration #   2 - FCN =  -9.850805540885 Edm =  1.88489e-09 NCalls =    278
+VariableMetric: Initial state   - FCN =  -9.850203437356 Edm =  0.000602319 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.850203437356 Edm =  0.000602319 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.850805457525 Edm =  1.93482e-09 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.850805457525 Edm =  1.88488e-09 NCalls =    278
+VariableMetric: Iteration #   2 - FCN =  -9.850805457525 Edm =  1.88488e-09 NCalls =    278
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.85080554088540694
-Edm   = 1.88488723637564425e-09
+FVAL  = -9.85080545752538939
+Edm   = 1.88487541109217809e-09
 Nfcn  = 278
 alpha_Bkg1Xsec	  = 0.0691876	 +/-  0.697009	(limited)
 alpha_Bkg2Xsec	  = -0.740365	 +/-  0.643185	(limited)
@@ -777,22 +777,22 @@ gamma_stat_SR_2_bin_1	  = 1.04212	 +/-  0.0488395	(limited)
 gamma_stat_SR_2_bin_2	  = 0.992235	 +/-  0.0849017	(limited)
 gamma_stat_SR_2_bin_3	  = 0.732192	 +/-  0.0934944	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -4.487054800206
-MnSeedGenerator: Initial state:   - FCN =  -4.487054800206 Edm =    0.0222503 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -4.487054800206 Edm =    0.0249027 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -4.487057384211
+MnSeedGenerator: Initial state:   - FCN =  -4.487057384211 Edm =    0.0222502 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -4.487057384211 Edm =    0.0249026 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -4.487054800206 Edm =    0.0249027 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -4.487054800206 Edm =    0.0249027 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -4.511661012859 Edm =  8.15105e-06 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -4.511661012859 Edm =   7.8627e-06 NCalls =    268
-VariableMetric: Iteration #   2 - FCN =  -4.511661012859 Edm =   7.8627e-06 NCalls =    268
+VariableMetric: Initial state   - FCN =  -4.487057384211 Edm =    0.0249026 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -4.487057384211 Edm =    0.0249026 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -4.511663573176 Edm =   8.1511e-06 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -4.511663573176 Edm =  7.86275e-06 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -4.511663573176 Edm =  7.86275e-06 NCalls =    268
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -4.51166101285854282
-Edm   = 7.86269775997351544e-06
+FVAL  = -4.51166357317639566
+Edm   = 7.86274626941052229e-06
 Nfcn  = 268
-alpha_Bkg1Xsec	  = 0.082389	 +/-  0.698627	(limited)
+alpha_Bkg1Xsec	  = 0.0823891	 +/-  0.698627	(limited)
 alpha_Bkg2Xsec	  = -0.712155	 +/-  0.628192	(limited)
-alpha_JES	  = -0.427768	 +/-  0.351602	(limited)
+alpha_JES	  = -0.427767	 +/-  0.351602	(limited)
 gamma_stat_SR_1_bin_0	  = 0.993716	 +/-  0.0295267	(limited)
 gamma_stat_SR_1_bin_1	  = 1.0391	 +/-  0.0499017	(limited)
 gamma_stat_SR_1_bin_2	  = 0.986447	 +/-  0.0841648	(limited)
@@ -802,7 +802,7 @@ gamma_stat_SR_2_bin_1	  = 1.04041	 +/-  0.0487887	(limited)
 gamma_stat_SR_2_bin_2	  = 0.987192	 +/-  0.0844268	(limited)
 gamma_stat_SR_2_bin_3	  = 0.727724	 +/-  0.0930262	(limited)
 NLL:            nll_simPdf_asimovData_4.3785_with_constr
-Previous guess: 8.8043
+Previous guess: 8.80429
 Sigma(obs):     2.6991
 Sigma(mu,0):    2.42949
 muhat:          4.37852
@@ -819,19 +819,19 @@ New guess:      8.85029
 ----------------------
 Starting iteration 2 of nll_simPdf_asimovData_4.3785_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -9.825166928984
-MnSeedGenerator: Initial state:   - FCN =  -9.825166928984 Edm =  0.000447441 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -9.825166928984 Edm =  0.000258707 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -9.825166847526
+MnSeedGenerator: Initial state:   - FCN =  -9.825166847526 Edm =  0.000447441 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.825166847526 Edm =  0.000258707 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -9.825166928984 Edm =  0.000258707 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -9.825166928984 Edm =  0.000258707 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.825425623064 Edm =  2.61932e-10 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -9.825425623064 Edm =  2.49448e-10 NCalls =    288
-VariableMetric: Iteration #   2 - FCN =  -9.825425623064 Edm =  2.49448e-10 NCalls =    288
+VariableMetric: Initial state   - FCN =  -9.825166847526 Edm =  0.000258707 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.825166847526 Edm =  0.000258707 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.825425541568 Edm =  2.61938e-10 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.825425541568 Edm =  2.49468e-10 NCalls =    284
+VariableMetric: Iteration #   2 - FCN =  -9.825425541568 Edm =  2.49468e-10 NCalls =    284
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.82542562306376865
-Edm   = 2.49448066549214798e-10
-Nfcn  = 288
+FVAL  = -9.82542554156801629
+Edm   = 2.49468276307524328e-10
+Nfcn  = 284
 alpha_Bkg1Xsec	  = 0.0684274	 +/-  0.696917	(limited)
 alpha_Bkg2Xsec	  = -0.743878	 +/-  0.643428	(limited)
 alpha_JES	  = -0.475463	 +/-  0.348522	(limited)
@@ -842,22 +842,22 @@ gamma_stat_SR_1_bin_3	  = 0.73106	 +/-  0.0934756	(limited)
 gamma_stat_SR_2_bin_0	  = 0.993828	 +/-  0.0291564	(limited)
 gamma_stat_SR_2_bin_1	  = 1.04217	 +/-  0.0488424	(limited)
 gamma_stat_SR_2_bin_2	  = 0.992161	 +/-  0.0848898	(limited)
-gamma_stat_SR_2_bin_3	  = 0.731256	 +/-  0.0933715	(limited)
+gamma_stat_SR_2_bin_3	  = 0.731256	 +/-  0.0933716	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -4.441930086521
-MnSeedGenerator: Initial state:   - FCN =  -4.441930086521 Edm =    0.0121665 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -4.441930086521 Edm =    0.0145678 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -4.441932665457
+MnSeedGenerator: Initial state:   - FCN =  -4.441932665457 Edm =    0.0121665 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -4.441932665457 Edm =    0.0145678 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -4.441930086521 Edm =    0.0145678 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -4.441930086521 Edm =    0.0145678 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -4.456480589761 Edm =  3.55446e-07 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -4.456480589761 Edm =  3.45769e-07 NCalls =    268
-VariableMetric: Iteration #   2 - FCN =  -4.456480589761 Edm =  3.45769e-07 NCalls =    268
+VariableMetric: Initial state   - FCN =  -4.441932665457 Edm =    0.0145678 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -4.441932665457 Edm =    0.0145678 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =   -4.45648316551 Edm =  3.55415e-07 NCalls =    168
+VariableMetric: After Hessian   - FCN =   -4.45648316551 Edm =  3.45739e-07 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =   -4.45648316551 Edm =  3.45739e-07 NCalls =    268
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -4.45648058976082773
-Edm   = 3.45768519786075725e-07
+FVAL  = -4.45648316551006385
+Edm   = 3.45738783466040496e-07
 Nfcn  = 268
-alpha_Bkg1Xsec	  = 0.081939	 +/-  0.698545	(limited)
+alpha_Bkg1Xsec	  = 0.0819391	 +/-  0.698545	(limited)
 alpha_Bkg2Xsec	  = -0.715891	 +/-  0.628321	(limited)
 alpha_JES	  = -0.429601	 +/-  0.351662	(limited)
 gamma_stat_SR_1_bin_0	  = 0.993695	 +/-  0.0295263	(limited)
@@ -874,36 +874,36 @@ Sigma(obs):     2.70177
 Sigma(mu,0):    2.43198
 muhat:          4.37852
 pmu:            0.0489493
-1-pb:           0.0236278
+1-pb:           0.0236279
 CLs:            0.0501338
 qmu95:          2.74382
 qmu:            2.73945
 qmuA0:          13.2433
 Precision:      0.0442743
 Correction:    0.00457207
-New guess:      8.85487
+New guess:      8.85486
 
-Found limit for nll nll_simPdf_asimovData_4.3785_with_constr: 8.85487
+Found limit for nll nll_simPdf_asimovData_4.3785_with_constr: 8.85486
 Finished in 3 iterations.
 NLL is 461.145
 
 ------------------------
 Getting limit for nll: nll_simPdf_asimovData_0_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -3.896105260599
-MnSeedGenerator: Initial state:   - FCN =  -3.896105260599 Edm =      12.3701 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -3.896105260599 Edm =      6.87044 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -3.896108973375
+MnSeedGenerator: Initial state:   - FCN =  -3.896108973375 Edm =      12.3701 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -3.896108973375 Edm =      6.87043 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -3.896105260599 Edm =      6.87044 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -3.896105260599 Edm =      6.87044 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.174943961451 Edm =       4.5082 NCalls =    173
-VariableMetric: Iteration #   2 - FCN =  -10.49790279721 Edm =    0.0181273 NCalls =    197
-VariableMetric: Iteration #   3 - FCN =  -10.52124248566 Edm =  0.000347752 NCalls =    221
-VariableMetric: After Hessian   - FCN =  -10.52124248566 Edm =  0.000427351 NCalls =    321
-VariableMetric: Iteration #   4 - FCN =  -10.52124248566 Edm =  0.000427351 NCalls =    321
+VariableMetric: Initial state   - FCN =  -3.896108973375 Edm =      6.87043 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -3.896108973375 Edm =      6.87043 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.174948433342 Edm =      4.50819 NCalls =    173
+VariableMetric: Iteration #   2 - FCN =  -10.49790285835 Edm =    0.0181272 NCalls =    197
+VariableMetric: Iteration #   3 - FCN =   -10.5212424865 Edm =  0.000347752 NCalls =    221
+VariableMetric: After Hessian   - FCN =   -10.5212424865 Edm =  0.000427351 NCalls =    321
+VariableMetric: Iteration #   4 - FCN =   -10.5212424865 Edm =  0.000427351 NCalls =    321
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -10.5212424856556002
-Edm   = 0.000427351432707818546
+FVAL  = -10.5212424865013805
+Edm   = 0.00042735107925048185
 Nfcn  = 321
 alpha_Bkg1Xsec	  = 0.191335	 +/-  0.70634	(limited)
 alpha_Bkg2Xsec	  = -0.188076	 +/-  0.633883	(limited)
@@ -929,19 +929,19 @@ CLs:            0.30432
 ----------------------
 Starting iteration 0 of nll_simPdf_asimovData_0_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -9.635435173768
-MnSeedGenerator: Initial state:   - FCN =  -9.635435173768 Edm =      1.79644 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -9.635435173768 Edm =     0.982454 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -9.635435173186
+MnSeedGenerator: Initial state:   - FCN =  -9.635435173186 Edm =      1.79644 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.635435173186 Edm =     0.982454 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -9.635435173768 Edm =     0.982454 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -9.635435173768 Edm =     0.982454 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -10.56777258961 Edm =   0.00991403 NCalls =    170
-VariableMetric: Iteration #   2 - FCN =  -10.57525504259 Edm =  0.000103709 NCalls =    194
-VariableMetric: After Hessian   - FCN =  -10.57525504259 Edm =  8.72573e-05 NCalls =    294
-VariableMetric: Iteration #   3 - FCN =  -10.57525504259 Edm =  8.72573e-05 NCalls =    294
+VariableMetric: Initial state   - FCN =  -9.635435173186 Edm =     0.982454 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.635435173186 Edm =     0.982454 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.56777259033 Edm =   0.00991403 NCalls =    170
+VariableMetric: Iteration #   2 - FCN =  -10.57525504298 Edm =  0.000103709 NCalls =    194
+VariableMetric: After Hessian   - FCN =  -10.57525504298 Edm =  8.72571e-05 NCalls =    294
+VariableMetric: Iteration #   3 - FCN =  -10.57525504298 Edm =  8.72571e-05 NCalls =    294
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -10.5752550425892
-Edm   = 8.72573075320714044e-05
+FVAL  = -10.5752550429758276
+Edm   = 8.72570857441714014e-05
 Nfcn  = 294
 alpha_Bkg1Xsec	  = 0.203736	 +/-  0.707205	(limited)
 alpha_Bkg2Xsec	  = -0.174067	 +/-  0.634645	(limited)
@@ -971,7 +971,7 @@ New guess:      2.06504
 
 Found limit for nll nll_simPdf_asimovData_0_with_constr: 2.06504
 Finished in 1 iterations.
-NLL is 450.156
+NLL is 450.155
 
 
 Found N * sigma = 1 * 2.06504
@@ -1003,23 +1003,23 @@ channel: SR_2, data: RooDataSet::combAsimovData2[obs_x_SR_1,obs_x_SR_2,channelCa
 ------------------------
 Getting limit for nll: nll_simPdf_asimovData_2.065_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -5.899508439812
-MnSeedGenerator: Initial state:   - FCN =  -5.899508439812 Edm =      3.95853 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -5.899508439812 Edm =      2.18475 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -5.89950840956
+MnSeedGenerator: Initial state:   - FCN =   -5.89950840956 Edm =      3.95853 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =   -5.89950840956 Edm =      2.18475 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -5.899508439812 Edm =      2.18475 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -5.899508439812 Edm =      2.18475 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -7.957447889985 Edm =   0.00987128 NCalls =    173
-VariableMetric: Iteration #   2 - FCN =  -7.965243028312 Edm =  0.000112041 NCalls =    197
-VariableMetric: After Hessian   - FCN =  -7.965243028312 Edm =  8.91748e-05 NCalls =    297
-VariableMetric: Iteration #   3 - FCN =  -7.965243028312 Edm =  8.91748e-05 NCalls =    297
+VariableMetric: Initial state   - FCN =   -5.89950840956 Edm =      2.18475 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =   -5.89950840956 Edm =      2.18475 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -7.957447893755 Edm =   0.00987128 NCalls =    173
+VariableMetric: Iteration #   2 - FCN =   -7.96524302769 Edm =  0.000112041 NCalls =    197
+VariableMetric: After Hessian   - FCN =   -7.96524302769 Edm =  8.91747e-05 NCalls =    297
+VariableMetric: Iteration #   3 - FCN =   -7.96524302769 Edm =  8.91747e-05 NCalls =    297
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -7.96524302831221931
-Edm   = 8.91747673932408549e-05
+FVAL  = -7.96524302768989578
+Edm   = 8.91746778823439236e-05
 Nfcn  = 297
 alpha_Bkg1Xsec	  = 0.134478	 +/-  0.704288	(limited)
 alpha_Bkg2Xsec	  = -0.476893	 +/-  0.625925	(limited)
-alpha_JES	  = -0.30265	 +/-  0.346438	(limited)
+alpha_JES	  = -0.30265	 +/-  0.346437	(limited)
 gamma_stat_SR_1_bin_0	  = 0.994914	 +/-  0.0295345	(limited)
 gamma_stat_SR_1_bin_1	  = 1.03502	 +/-  0.049683	(limited)
 gamma_stat_SR_1_bin_2	  = 0.991826	 +/-  0.0848729	(limited)
@@ -1041,19 +1041,19 @@ CLs:            0.0111671
 ----------------------
 Starting iteration 0 of nll_simPdf_asimovData_2.065_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -7.169411635667
-MnSeedGenerator: Initial state:   - FCN =  -7.169411635667 Edm =      5.05261 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -7.169411635667 Edm =      2.78434 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -7.169411640538
+MnSeedGenerator: Initial state:   - FCN =  -7.169411640538 Edm =      5.05261 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -7.169411640538 Edm =      2.78434 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -7.169411635667 Edm =      2.78434 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -7.169411635667 Edm =      2.78434 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.771761382646 Edm =    0.0163113 NCalls =    173
-VariableMetric: Iteration #   2 - FCN =  -9.784336122137 Edm =  0.000255083 NCalls =    197
-VariableMetric: After Hessian   - FCN =  -9.784336122137 Edm =  0.000198694 NCalls =    297
-VariableMetric: Iteration #   3 - FCN =  -9.784336122137 Edm =  0.000198694 NCalls =    297
+VariableMetric: Initial state   - FCN =  -7.169411640538 Edm =      2.78434 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -7.169411640538 Edm =      2.78434 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.771761379032 Edm =    0.0163113 NCalls =    173
+VariableMetric: Iteration #   2 - FCN =  -9.784336125054 Edm =  0.000255083 NCalls =    197
+VariableMetric: After Hessian   - FCN =  -9.784336125054 Edm =  0.000198694 NCalls =    297
+VariableMetric: Iteration #   3 - FCN =  -9.784336125054 Edm =  0.000198694 NCalls =    297
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.7843361221367946
-Edm   = 0.00019869366238764902
+FVAL  = -9.78433612505429728
+Edm   = 0.000198693810254223853
 Nfcn  = 297
 alpha_Bkg1Xsec	  = 0.119858	 +/-  0.702676	(limited)
 alpha_Bkg2Xsec	  = -0.514188	 +/-  0.628014	(limited)
@@ -1067,18 +1067,18 @@ gamma_stat_SR_2_bin_1	  = 1.03846	 +/-  0.0486448	(limited)
 gamma_stat_SR_2_bin_2	  = 0.994978	 +/-  0.0853955	(limited)
 gamma_stat_SR_2_bin_3	  = 0.790695	 +/-  0.101321	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -7.60876194169
-MnSeedGenerator: Initial state:   - FCN =   -7.60876194169 Edm =   0.00481813 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =   -7.60876194169 Edm =   0.00424296 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -7.608761943548
+MnSeedGenerator: Initial state:   - FCN =  -7.608761943548 Edm =   0.00481813 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -7.608761943548 Edm =   0.00424296 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   -7.60876194169 Edm =   0.00424296 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =   -7.60876194169 Edm =   0.00424296 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -7.613009767348 Edm =   5.9029e-08 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -7.613009767348 Edm =  5.92759e-08 NCalls =    268
-VariableMetric: Iteration #   2 - FCN =  -7.613009767348 Edm =  5.92759e-08 NCalls =    268
+VariableMetric: Initial state   - FCN =  -7.608761943548 Edm =   0.00424296 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -7.608761943548 Edm =   0.00424296 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -7.613009767259 Edm =  5.90305e-08 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -7.613009767259 Edm =  5.92775e-08 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -7.613009767259 Edm =  5.92775e-08 NCalls =    268
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -7.61300976734750634
-Edm   = 5.92759084718089103e-08
+FVAL  = -7.61300976725910239
+Edm   = 5.92775017607179205e-08
 Nfcn  = 268
 alpha_Bkg1Xsec	  = 0.124489	 +/-  0.703419	(limited)
 alpha_Bkg2Xsec	  = -0.507415	 +/-  0.625695	(limited)
@@ -1109,18 +1109,18 @@ New guess:      6.19781
 ----------------------
 Starting iteration 1 of nll_simPdf_asimovData_2.065_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -9.654170120272
-MnSeedGenerator: Initial state:   - FCN =  -9.654170120272 Edm =  0.000357523 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -9.654170120272 Edm =    0.0003347 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -9.654170121476
+MnSeedGenerator: Initial state:   - FCN =  -9.654170121476 Edm =  0.000357523 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.654170121476 Edm =    0.0003347 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -9.654170120272 Edm =    0.0003347 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -9.654170120272 Edm =    0.0003347 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.654505126276 Edm =  1.01737e-09 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -9.654505126276 Edm =  1.00609e-09 NCalls =    288
-VariableMetric: Iteration #   2 - FCN =  -9.654505126276 Edm =  1.00609e-09 NCalls =    288
+VariableMetric: Initial state   - FCN =  -9.654170121476 Edm =    0.0003347 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.654170121476 Edm =    0.0003347 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.654505127788 Edm =  1.01735e-09 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.654505127788 Edm =  1.00611e-09 NCalls =    288
+VariableMetric: Iteration #   2 - FCN =  -9.654505127788 Edm =  1.00611e-09 NCalls =    288
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.65450512627570667
-Edm   = 1.00608909568658182e-09
+FVAL  = -9.65450512778806669
+Edm   = 1.00611286475852033e-09
 Nfcn  = 288
 alpha_Bkg1Xsec	  = 0.109934	 +/-  0.701892	(limited)
 alpha_Bkg2Xsec	  = -0.532409	 +/-  0.628414	(limited)
@@ -1134,18 +1134,18 @@ gamma_stat_SR_2_bin_1	  = 1.03881	 +/-  0.0486632	(limited)
 gamma_stat_SR_2_bin_2	  = 0.994878	 +/-  0.0853633	(limited)
 gamma_stat_SR_2_bin_3	  = 0.787292	 +/-  0.100872	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -7.404397780996
-MnSeedGenerator: Initial state:   - FCN =  -7.404397780996 Edm =   0.00286119 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -7.404397780996 Edm =   0.00349854 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -7.404397779776
+MnSeedGenerator: Initial state:   - FCN =  -7.404397779776 Edm =   0.00286119 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -7.404397779776 Edm =   0.00349854 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -7.404397780996 Edm =   0.00349854 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -7.404397780996 Edm =   0.00349854 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -7.407882487854 Edm =  1.44674e-07 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -7.407882487854 Edm =  1.42582e-07 NCalls =    268
-VariableMetric: Iteration #   2 - FCN =  -7.407882487854 Edm =  1.42582e-07 NCalls =    268
+VariableMetric: Initial state   - FCN =  -7.404397779776 Edm =   0.00349854 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -7.404397779776 Edm =   0.00349854 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -7.407882484998 Edm =  1.44677e-07 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -7.407882484998 Edm =  1.42585e-07 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -7.407882484998 Edm =  1.42585e-07 NCalls =    268
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -7.40788248785362313
-Edm   = 1.42582487688728914e-07
+FVAL  = -7.40788248499754864
+Edm   = 1.42585399025126671e-07
 Nfcn  = 268
 alpha_Bkg1Xsec	  = 0.121121	 +/-  0.703098	(limited)
 alpha_Bkg2Xsec	  = -0.522961	 +/-  0.625612	(limited)
@@ -1181,25 +1181,25 @@ Calculating Observed Limit
 ------------------------
 Getting limit for nll: nll_simPdf_ttHFitterData_with_constr
 Minuit2Minimizer: Minimize with max-calls 6000 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = 0.1301959258147
-MnSeedGenerator: Initial state:   - FCN =  0.1301959258147 Edm =      23.1501 NCalls =     49
-MnSeedGenerator: run Hesse - new state:   - FCN =  0.1301959258147 Edm =      10.7042 NCalls =    164
+MnSeedGenerator: for initial parameters FCN = 0.1301959346859
+MnSeedGenerator: Initial state:   - FCN =  0.1301959346859 Edm =      23.1501 NCalls =     49
+MnSeedGenerator: run Hesse - new state:   - FCN =  0.1301959346859 Edm =      10.7042 NCalls =    164
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  0.1301959258147 Edm =      10.7042 NCalls =    164
-VariableMetric: Iteration #   0 - FCN =  0.1301959258147 Edm =      10.7042 NCalls =    164
-VariableMetric: Iteration #   1 - FCN =  -10.58871805551 Edm =      1.92044 NCalls =    209
-VariableMetric: Iteration #   2 - FCN =  -11.94120515336 Edm =     0.279903 NCalls =    239
-VariableMetric: Iteration #   3 - FCN =   -12.4003950704 Edm =     0.143406 NCalls =    267
-VariableMetric: Iteration #   4 - FCN =  -12.62190237805 Edm =    0.0382109 NCalls =    295
-VariableMetric: Iteration #   5 - FCN =  -12.64904312018 Edm =    0.0152212 NCalls =    323
-VariableMetric: Iteration #   6 - FCN =  -12.66322149026 Edm =  0.000665376 NCalls =    349
-VariableMetric: After Hessian   - FCN =  -12.66322149026 Edm =  0.000776337 NCalls =    464
-VariableMetric: Iteration #   7 - FCN =  -12.66322149026 Edm =  0.000776337 NCalls =    464
+VariableMetric: Initial state   - FCN =  0.1301959346859 Edm =      10.7042 NCalls =    164
+VariableMetric: Iteration #   0 - FCN =  0.1301959346859 Edm =      10.7042 NCalls =    164
+VariableMetric: Iteration #   1 - FCN =  -10.58871597211 Edm =      1.92044 NCalls =    209
+VariableMetric: Iteration #   2 - FCN =  -11.94120485476 Edm =     0.279903 NCalls =    239
+VariableMetric: Iteration #   3 - FCN =  -12.40039456932 Edm =     0.143406 NCalls =    267
+VariableMetric: Iteration #   4 - FCN =  -12.62190236417 Edm =    0.0382108 NCalls =    295
+VariableMetric: Iteration #   5 - FCN =  -12.64904311505 Edm =    0.0152212 NCalls =    323
+VariableMetric: Iteration #   6 - FCN =  -12.66322148675 Edm =  0.000665379 NCalls =    349
+VariableMetric: After Hessian   - FCN =  -12.66322148675 Edm =  0.000776341 NCalls =    464
+VariableMetric: Iteration #   7 - FCN =  -12.66322148675 Edm =  0.000776341 NCalls =    464
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -12.6632214902595788
-Edm   = 0.000776337448763317946
+FVAL  = -12.6632214867511337
+Edm   = 0.000776340930963173017
 Nfcn  = 464
-SigXsecOverSM	  = 0.000357928	 +/-  0.889862	(limited)
+SigXsecOverSM	  = 0.00035793	 +/-  0.889862	(limited)
 alpha_Bkg1Xsec	  = 0.257165	 +/-  0.700636	(limited)
 alpha_Bkg2Xsec	  = 0.0299706	 +/-  0.646582	(limited)
 alpha_JES	  = 0.071204	 +/-  0.329865	(limited)
@@ -1212,27 +1212,27 @@ gamma_stat_SR_2_bin_1	  = 1.02603	 +/-  0.047965	(limited)
 gamma_stat_SR_2_bin_2	  = 0.987475	 +/-  0.0845096	(limited)
 gamma_stat_SR_2_bin_3	  = 0.947288	 +/-  0.121819	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -5.528131653935
-MnSeedGenerator: Initial state:   - FCN =  -5.528131653935 Edm =      7.34923 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -5.528131653935 Edm =      3.97763 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -5.528131466839
+MnSeedGenerator: Initial state:   - FCN =  -5.528131466839 Edm =      7.34923 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -5.528131466839 Edm =      3.97763 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -5.528131653935 Edm =      3.97763 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -5.528131653935 Edm =      3.97763 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =   -9.10201996977 Edm =    0.0922235 NCalls =    177
-VariableMetric: Iteration #   2 - FCN =  -9.154314969427 Edm =   0.00192976 NCalls =    201
-VariableMetric: Iteration #   3 - FCN =  -9.155851353783 Edm =  4.27621e-05 NCalls =    225
-VariableMetric: After Hessian   - FCN =  -9.155851353783 Edm =   3.4875e-05 NCalls =    325
-VariableMetric: Iteration #   4 - FCN =  -9.155851353783 Edm =   3.4875e-05 NCalls =    325
+VariableMetric: Initial state   - FCN =  -5.528131466839 Edm =      3.97763 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -5.528131466839 Edm =      3.97763 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.102019875771 Edm =    0.0922237 NCalls =    177
+VariableMetric: Iteration #   2 - FCN =  -9.154314969416 Edm =   0.00192976 NCalls =    201
+VariableMetric: Iteration #   3 - FCN =   -9.15585135427 Edm =  4.27621e-05 NCalls =    225
+VariableMetric: After Hessian   - FCN =   -9.15585135427 Edm =   3.4875e-05 NCalls =    325
+VariableMetric: Iteration #   4 - FCN =   -9.15585135427 Edm =   3.4875e-05 NCalls =    325
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.155851353783234
-Edm   = 3.48749910897169262e-05
+FVAL  = -9.15585135426979413
+Edm   = 3.4874994156477327e-05
 Nfcn  = 325
 alpha_Bkg1Xsec	  = 0.156743	 +/-  0.705903	(limited)
 alpha_Bkg2Xsec	  = -0.3688	 +/-  0.627935	(limited)
 alpha_JES	  = -0.239318	 +/-  0.343126	(limited)
 gamma_stat_SR_1_bin_0	  = 0.995564	 +/-  0.0295374	(limited)
 gamma_stat_SR_1_bin_1	  = 1.03283	 +/-  0.0495617	(limited)
-gamma_stat_SR_1_bin_2	  = 0.992655	 +/-  0.0849503	(limited)
+gamma_stat_SR_1_bin_2	  = 0.992655	 +/-  0.0849504	(limited)
 gamma_stat_SR_1_bin_3	  = 0.831397	 +/-  0.106984	(limited)
 gamma_stat_SR_2_bin_0	  = 0.996918	 +/-  0.0292519	(limited)
 gamma_stat_SR_2_bin_1	  = 1.03537	 +/-  0.0484879	(limited)
@@ -1241,7 +1241,7 @@ gamma_stat_SR_2_bin_3	  = 0.832562	 +/-  0.106839	(limited)
 Initial guess:  4.28139
 Sigma(obs):     2.18327
 Sigma(mu,0):    2.18327
-muhat:          0.000357928
+muhat:          0.00035793
 qmu95:          3.83927
 qmu:            3.84452
 pmu:            0.0249544
@@ -1251,20 +1251,20 @@ CLs:            0.0498984
 ----------------------
 Starting iteration 0 of nll_simPdf_ttHFitterData_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -5.318600057271
-MnSeedGenerator: Initial state:   - FCN =  -5.318600057271 Edm =      6.73289 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -5.318600057271 Edm =      3.65348 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -5.318599868835
+MnSeedGenerator: Initial state:   - FCN =  -5.318599868835 Edm =      6.73289 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -5.318599868835 Edm =      3.65348 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -5.318600057271 Edm =      3.65348 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -5.318600057271 Edm =      3.65348 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -8.639645889827 Edm =    0.0557653 NCalls =    177
-VariableMetric: Iteration #   2 - FCN =  -8.673422220143 Edm =   0.00154032 NCalls =    201
-VariableMetric: Iteration #   3 - FCN =  -8.674573357333 Edm =  3.45041e-05 NCalls =    225
-VariableMetric: After Hessian   - FCN =  -8.674573357333 Edm =  2.85462e-05 NCalls =    325
-VariableMetric: Iteration #   4 - FCN =  -8.674573357333 Edm =  2.85462e-05 NCalls =    325
+VariableMetric: Initial state   - FCN =  -5.318599868835 Edm =      3.65348 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -5.318599868835 Edm =      3.65348 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -8.639645847226 Edm =    0.0557654 NCalls =    177
+VariableMetric: Iteration #   2 - FCN =   -8.67342221633 Edm =   0.00154033 NCalls =    201
+VariableMetric: Iteration #   3 - FCN =  -8.674573354067 Edm =  3.45041e-05 NCalls =    225
+VariableMetric: After Hessian   - FCN =  -8.674573354067 Edm =  2.85462e-05 NCalls =    325
+VariableMetric: Iteration #   4 - FCN =  -8.674573354067 Edm =  2.85462e-05 NCalls =    325
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -8.67457335733327817
-Edm   = 2.85461866146707352e-05
+FVAL  = -8.6745733540669967
+Edm   = 2.85462125440908622e-05
 Nfcn  = 325
 alpha_Bkg1Xsec	  = 0.173662	 +/-  0.700053	(limited)
 alpha_Bkg2Xsec	  = -0.343729	 +/-  0.633331	(limited)
@@ -1278,18 +1278,18 @@ gamma_stat_SR_2_bin_1	  = 1.03393	 +/-  0.0484461	(limited)
 gamma_stat_SR_2_bin_2	  = 0.98999	 +/-  0.0852202	(limited)
 gamma_stat_SR_2_bin_3	  = 0.828874	 +/-  0.106361	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -9.142331478428
-MnSeedGenerator: Initial state:   - FCN =  -9.142331478428 Edm =    0.0147936 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -9.142331478428 Edm =    0.0131907 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -9.142331479142
+MnSeedGenerator: Initial state:   - FCN =  -9.142331479142 Edm =    0.0147936 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.142331479142 Edm =    0.0131907 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -9.142331478428 Edm =    0.0131907 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -9.142331478428 Edm =    0.0131907 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.155431700923 Edm =  1.76177e-06 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -9.155431700923 Edm =  1.71927e-06 NCalls =    268
-VariableMetric: Iteration #   2 - FCN =  -9.155431700923 Edm =  1.71927e-06 NCalls =    268
+VariableMetric: Initial state   - FCN =  -9.142331479142 Edm =    0.0131907 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.142331479142 Edm =    0.0131907 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.155431700234 Edm =  1.76179e-06 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.155431700234 Edm =  1.71928e-06 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -9.155431700234 Edm =  1.71928e-06 NCalls =    268
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.15543170092313119
-Edm   = 1.71926565455672207e-06
+FVAL  = -9.15543170023372532
+Edm   = 1.71927907811554791e-06
 Nfcn  = 268
 alpha_Bkg1Xsec	  = 0.154184	 +/-  0.705655	(limited)
 alpha_Bkg2Xsec	  = -0.370878	 +/-  0.627809	(limited)
@@ -1299,14 +1299,14 @@ gamma_stat_SR_1_bin_1	  = 1.03284	 +/-  0.0495607	(limited)
 gamma_stat_SR_1_bin_2	  = 0.992455	 +/-  0.0849218	(limited)
 gamma_stat_SR_1_bin_3	  = 0.8311	 +/-  0.106942	(limited)
 gamma_stat_SR_2_bin_0	  = 0.996934	 +/-  0.0292519	(limited)
-gamma_stat_SR_2_bin_1	  = 1.03535	 +/-  0.0484863	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03535	 +/-  0.0484862	(limited)
 gamma_stat_SR_2_bin_2	  = 0.994069	 +/-  0.0853893	(limited)
 gamma_stat_SR_2_bin_3	  = 0.832317	 +/-  0.106805	(limited)
 NLL:            nll_simPdf_ttHFitterData_with_constr
 Previous guess: 4.28139
 Sigma(obs):     1.51573
 Sigma(mu,0):    2.18331
-muhat:          0.000357928
+muhat:          0.00035793
 pmu:            0.00128698
 1-pb:           0.853955
 CLs:            0.00881223
@@ -1320,18 +1320,18 @@ New guess:      3.27948
 ----------------------
 Starting iteration 1 of nll_simPdf_ttHFitterData_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -9.847171947587
-MnSeedGenerator: Initial state:   - FCN =  -9.847171947587 Edm =    0.0039194 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -9.847171947587 Edm =   0.00256382 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -9.847171944466
+MnSeedGenerator: Initial state:   - FCN =  -9.847171944466 Edm =    0.0039194 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.847171944466 Edm =   0.00256382 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -9.847171947587 Edm =   0.00256382 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -9.847171947587 Edm =   0.00256382 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.849730507206 Edm =  4.00439e-08 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -9.849730507206 Edm =  3.96444e-08 NCalls =    274
-VariableMetric: Iteration #   2 - FCN =  -9.849730507206 Edm =  3.96444e-08 NCalls =    274
+VariableMetric: Initial state   - FCN =  -9.847171944466 Edm =   0.00256382 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.847171944466 Edm =   0.00256382 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.849730504629 Edm =   4.0044e-08 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.849730504629 Edm =  3.96447e-08 NCalls =    274
+VariableMetric: Iteration #   2 - FCN =  -9.849730504629 Edm =  3.96447e-08 NCalls =    274
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.84973050720616072
-Edm   = 3.96444072744392124e-08
+FVAL  = -9.84973050462858524
+Edm   = 3.96447439338080344e-08
 Nfcn  = 274
 alpha_Bkg1Xsec	  = 0.187206	 +/-  0.700537	(limited)
 alpha_Bkg2Xsec	  = -0.262734	 +/-  0.635202	(limited)
@@ -1345,18 +1345,18 @@ gamma_stat_SR_2_bin_1	  = 1.03252	 +/-  0.0483588	(limited)
 gamma_stat_SR_2_bin_2	  = 0.990486	 +/-  0.0852124	(limited)
 gamma_stat_SR_2_bin_3	  = 0.85502	 +/-  0.109802	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -9.768008614226
-MnSeedGenerator: Initial state:   - FCN =  -9.768008614226 Edm =     0.199735 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -9.768008614226 Edm =     0.122289 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -9.768008611989
+MnSeedGenerator: Initial state:   - FCN =  -9.768008611989 Edm =     0.199735 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -9.768008611989 Edm =     0.122289 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -9.768008614226 Edm =     0.122289 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -9.768008614226 Edm =     0.122289 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -9.891911215782 Edm =  7.08554e-05 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -9.891911215782 Edm =  7.59883e-05 NCalls =    274
-VariableMetric: Iteration #   2 - FCN =  -9.891911215782 Edm =  7.59883e-05 NCalls =    274
+VariableMetric: Initial state   - FCN =  -9.768008611989 Edm =     0.122289 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -9.768008611989 Edm =     0.122289 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -9.891911215378 Edm =  7.08554e-05 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -9.891911215378 Edm =  7.59883e-05 NCalls =    274
+VariableMetric: Iteration #   2 - FCN =  -9.891911215378 Edm =  7.59883e-05 NCalls =    274
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -9.89191121578186383
-Edm   = 7.59883295307296671e-05
+FVAL  = -9.89191121537784568
+Edm   = 7.59882828902613784e-05
 Nfcn  = 274
 alpha_Bkg1Xsec	  = 0.175124	 +/-  0.706564	(limited)
 alpha_Bkg2Xsec	  = -0.285549	 +/-  0.63029	(limited)
@@ -1373,7 +1373,7 @@ NLL:            nll_simPdf_ttHFitterData_with_constr
 Previous guess: 3.27948
 Sigma(obs):     1.38236
 Sigma(mu,0):    2.12917
-muhat:          0.000357928
+muhat:          0.00035793
 pmu:            0.00470534
 1-pb:           0.854631
 CLs:            0.0323682
@@ -1387,21 +1387,21 @@ New guess:      3.03
 ----------------------
 Starting iteration 2 of nll_simPdf_ttHFitterData_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -10.12377700702
-MnSeedGenerator: Initial state:   - FCN =  -10.12377700702 Edm =  2.85402e-05 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -10.12377700702 Edm =  1.68789e-05 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -10.12377700436
+MnSeedGenerator: Initial state:   - FCN =  -10.12377700436 Edm =  2.85402e-05 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.12377700436 Edm =  1.68789e-05 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -10.12377700702 Edm =  1.68789e-05 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -10.12377700702 Edm =  1.68789e-05 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -10.12379388728 Edm =  6.37167e-13 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -10.12379388728 Edm =  4.58693e-13 NCalls =    306
-VariableMetric: Iteration #   2 - FCN =  -10.12379388728 Edm =  4.58693e-13 NCalls =    306
+VariableMetric: Initial state   - FCN =  -10.12377700436 Edm =  1.68789e-05 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.12377700436 Edm =  1.68789e-05 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =   -10.1237938846 Edm =  6.36218e-13 NCalls =    168
+VariableMetric: After Hessian   - FCN =   -10.1237938846 Edm =  4.56194e-13 NCalls =    306
+VariableMetric: Iteration #   2 - FCN =   -10.1237938846 Edm =  4.56194e-13 NCalls =    306
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -10.1237938872775075
-Edm   = 4.58693437384378187e-13
+FVAL  = -10.1237938845989053
+Edm   = 4.56193501463947418e-13
 Nfcn  = 306
 alpha_Bkg1Xsec	  = 0.191599	 +/-  0.700676	(limited)
-alpha_Bkg2Xsec	  = -0.241708	 +/-  0.635808	(limited)
+alpha_Bkg2Xsec	  = -0.241708	 +/-  0.635809	(limited)
 alpha_JES	  = -0.138428	 +/-  0.341376	(limited)
 gamma_stat_SR_1_bin_0	  = 0.996609	 +/-  0.029548	(limited)
 gamma_stat_SR_1_bin_1	  = 1.029	 +/-  0.0493499	(limited)
@@ -1412,24 +1412,24 @@ gamma_stat_SR_2_bin_1	  = 1.03214	 +/-  0.0483353	(limited)
 gamma_stat_SR_2_bin_2	  = 0.990551	 +/-  0.0851991	(limited)
 gamma_stat_SR_2_bin_3	  = 0.861726	 +/-  0.110683	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -10.0453168187
-MnSeedGenerator: Initial state:   - FCN =   -10.0453168187 Edm =    0.0080924 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =   -10.0453168187 Edm =   0.00746866 NCalls =    147
+MnSeedGenerator: for initial parameters FCN = -10.04531681813
+MnSeedGenerator: Initial state:   - FCN =  -10.04531681813 Edm =    0.0080924 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.04531681813 Edm =   0.00746866 NCalls =    147
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   -10.0453168187 Edm =   0.00746866 NCalls =    147
-VariableMetric: Iteration #   0 - FCN =   -10.0453168187 Edm =   0.00746866 NCalls =    147
-VariableMetric: Iteration #   1 - FCN =  -10.05273812431 Edm =  8.45033e-07 NCalls =    170
-VariableMetric: After Hessian   - FCN =  -10.05273812431 Edm =  8.25712e-07 NCalls =    272
-VariableMetric: Iteration #   2 - FCN =  -10.05273812431 Edm =  8.25712e-07 NCalls =    272
+VariableMetric: Initial state   - FCN =  -10.04531681813 Edm =   0.00746866 NCalls =    147
+VariableMetric: Iteration #   0 - FCN =  -10.04531681813 Edm =   0.00746866 NCalls =    147
+VariableMetric: Iteration #   1 - FCN =  -10.05273812376 Edm =  8.45043e-07 NCalls =    170
+VariableMetric: After Hessian   - FCN =  -10.05273812376 Edm =  8.25722e-07 NCalls =    272
+VariableMetric: Iteration #   2 - FCN =  -10.05273812376 Edm =  8.25722e-07 NCalls =    272
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -10.0527381243137341
-Edm   = 8.25712048056214789e-07
+FVAL  = -10.0527381237571607
+Edm   = 8.25722121722515904e-07
 Nfcn  = 272
 alpha_Bkg1Xsec	  = 0.179945	 +/-  0.706686	(limited)
 alpha_Bkg2Xsec	  = -0.26395	 +/-  0.630979	(limited)
 alpha_JES	  = -0.166848	 +/-  0.339104	(limited)
-gamma_stat_SR_1_bin_0	  = 0.996337	 +/-  0.0295407	(limited)
-gamma_stat_SR_1_bin_1	  = 1.03029	 +/-  0.0494218	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996337	 +/-  0.0295408	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03029	 +/-  0.0494217	(limited)
 gamma_stat_SR_1_bin_2	  = 0.991855	 +/-  0.0848045	(limited)
 gamma_stat_SR_1_bin_3	  = 0.86277	 +/-  0.11115	(limited)
 gamma_stat_SR_2_bin_0	  = 0.99786	 +/-  0.0292657	(limited)
@@ -1440,7 +1440,7 @@ NLL:            nll_simPdf_ttHFitterData_with_constr
 Previous guess: 3.03
 Sigma(obs):     1.34434
 Sigma(mu,0):    2.11585
-muhat:          0.000357928
+muhat:          0.00035793
 pmu:            0.00639955
 1-pb:           0.854805
 CLs:            0.0440756
@@ -1454,43 +1454,43 @@ New guess:      2.95512
 ----------------------
 Starting iteration 3 of nll_simPdf_ttHFitterData_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -10.20446507673
-MnSeedGenerator: Initial state:   - FCN =  -10.20446507673 Edm =  1.12937e-07 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -10.20446507673 Edm =  7.87042e-08 NCalls =    165
+MnSeedGenerator: for initial parameters FCN = -10.20446507396
+MnSeedGenerator: Initial state:   - FCN =  -10.20446507396 Edm =  1.12937e-07 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.20446507396 Edm =  7.86937e-08 NCalls =    167
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -10.20446507673 Edm =  7.87042e-08 NCalls =    165
-VariableMetric: Iteration #   0 - FCN =  -10.20446507673 Edm =  7.87042e-08 NCalls =    165
-VariableMetric: Iteration #   1 - FCN =  -10.20446515543 Edm =  4.89872e-14 NCalls =    188
-VariableMetric: After Hessian   - FCN =  -10.20446515543 Edm =   7.0642e-14 NCalls =    340
-VariableMetric: Iteration #   2 - FCN =  -10.20446515543 Edm =   7.0642e-14 NCalls =    340
+VariableMetric: Initial state   - FCN =  -10.20446507396 Edm =  7.86937e-08 NCalls =    167
+VariableMetric: Iteration #   0 - FCN =  -10.20446507396 Edm =  7.86937e-08 NCalls =    167
+VariableMetric: Iteration #   1 - FCN =  -10.20446515266 Edm =   1.0115e-13 NCalls =    190
+VariableMetric: After Hessian   - FCN =  -10.20446515266 Edm =  9.56286e-14 NCalls =    336
+VariableMetric: Iteration #   2 - FCN =  -10.20446515266 Edm =  9.56286e-14 NCalls =    336
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -10.2044651554309418
-Edm   = 7.06419544682526155e-14
-Nfcn  = 340
-alpha_Bkg1Xsec	  = 0.192969	 +/-  0.700718	(limited)
-alpha_Bkg2Xsec	  = -0.235385	 +/-  0.635999	(limited)
-alpha_JES	  = -0.134459	 +/-  0.341147	(limited)
-gamma_stat_SR_1_bin_0	  = 0.996649	 +/-  0.0295477	(limited)
-gamma_stat_SR_1_bin_1	  = 1.02886	 +/-  0.0493424	(limited)
+FVAL  = -10.2044651526645733
+Edm   = 9.56286357644465862e-14
+Nfcn  = 336
+alpha_Bkg1Xsec	  = 0.192969	 +/-  0.700739	(limited)
+alpha_Bkg2Xsec	  = -0.235385	 +/-  0.636123	(limited)
+alpha_JES	  = -0.134459	 +/-  0.341297	(limited)
+gamma_stat_SR_1_bin_0	  = 0.996649	 +/-  0.0295476	(limited)
+gamma_stat_SR_1_bin_1	  = 1.02886	 +/-  0.0493428	(limited)
 gamma_stat_SR_1_bin_2	  = 0.988406	 +/-  0.0846327	(limited)
-gamma_stat_SR_1_bin_3	  = 0.861811	 +/-  0.111054	(limited)
-gamma_stat_SR_2_bin_0	  = 0.998272	 +/-  0.029279	(limited)
-gamma_stat_SR_2_bin_1	  = 1.03203	 +/-  0.0483282	(limited)
-gamma_stat_SR_2_bin_2	  = 0.990564	 +/-  0.0851944	(limited)
-gamma_stat_SR_2_bin_3	  = 0.863751	 +/-  0.110949	(limited)
+gamma_stat_SR_1_bin_3	  = 0.861811	 +/-  0.111056	(limited)
+gamma_stat_SR_2_bin_0	  = 0.998272	 +/-  0.029657	(limited)
+gamma_stat_SR_2_bin_1	  = 1.03203	 +/-  0.0483283	(limited)
+gamma_stat_SR_2_bin_2	  = 0.990564	 +/-  0.0851945	(limited)
+gamma_stat_SR_2_bin_3	  = 0.863751	 +/-  0.11095	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -10.09147458409
-MnSeedGenerator: Initial state:   - FCN =  -10.09147458409 Edm =   0.00857418 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -10.09147458409 Edm =   0.00765369 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -10.09147458345
+MnSeedGenerator: Initial state:   - FCN =  -10.09147458345 Edm =   0.00857417 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.09147458345 Edm =   0.00765369 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -10.09147458409 Edm =   0.00765369 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -10.09147458409 Edm =   0.00765369 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -10.09907798073 Edm =  9.18267e-07 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -10.09907798073 Edm =  8.96589e-07 NCalls =    272
-VariableMetric: Iteration #   2 - FCN =  -10.09907798073 Edm =  8.96589e-07 NCalls =    272
+VariableMetric: Initial state   - FCN =  -10.09147458345 Edm =   0.00765369 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.09147458345 Edm =   0.00765369 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.09907798013 Edm =  9.18264e-07 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -10.09907798013 Edm =  8.96586e-07 NCalls =    272
+VariableMetric: Iteration #   2 - FCN =  -10.09907798013 Edm =  8.96586e-07 NCalls =    272
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -10.0990779807281363
-Edm   = 8.96589010901881473e-07
+FVAL  = -10.099077980128838
+Edm   = 8.96585685955639063e-07
 Nfcn  = 272
 alpha_Bkg1Xsec	  = 0.181652	 +/-  0.706728	(limited)
 alpha_Bkg2Xsec	  = -0.257403	 +/-  0.631206	(limited)
@@ -1507,7 +1507,7 @@ NLL:            nll_simPdf_ttHFitterData_with_constr
 Previous guess: 2.95512
 Sigma(obs):     1.33245
 Sigma(mu,0):    2.11184
-muhat:          0.000357928
+muhat:          0.00035793
 pmu:            0.00700952
 1-pb:           0.85485
 CLs:            0.0482916
@@ -1521,19 +1521,19 @@ New guess:      2.93278
 ----------------------
 Starting iteration 4 of nll_simPdf_ttHFitterData_with_constr
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -10.22831126968
-MnSeedGenerator: Initial state:   - FCN =  -10.22831126968 Edm =   0.00014942 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -10.22831126968 Edm =  8.42215e-05 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -10.22831126671
+MnSeedGenerator: Initial state:   - FCN =  -10.22831126671 Edm =   0.00014942 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.22831126671 Edm =  8.42216e-05 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -10.22831126968 Edm =  8.42215e-05 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -10.22831126968 Edm =  8.42215e-05 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -10.22839551342 Edm =  2.14784e-11 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -10.22839551342 Edm =  2.03595e-11 NCalls =    300
-VariableMetric: Iteration #   2 - FCN =  -10.22839551342 Edm =  2.03595e-11 NCalls =    300
+VariableMetric: Initial state   - FCN =  -10.22831126671 Edm =  8.42216e-05 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.22831126671 Edm =  8.42216e-05 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -10.22839551059 Edm =   2.1481e-11 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -10.22839551059 Edm =  2.03667e-11 NCalls =    298
+VariableMetric: Iteration #   2 - FCN =  -10.22839551059 Edm =  2.03667e-11 NCalls =    298
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -10.2283955134171052
-Edm   = 2.0359519340850006e-11
-Nfcn  = 300
+FVAL  = -10.2283955105886157
+Edm   = 2.03667479873739473e-11
+Nfcn  = 298
 alpha_Bkg1Xsec	  = 0.193382	 +/-  0.700727	(limited)
 alpha_Bkg2Xsec	  = -0.233496	 +/-  0.636051	(limited)
 alpha_JES	  = -0.133267	 +/-  0.341076	(limited)
@@ -1546,24 +1546,24 @@ gamma_stat_SR_2_bin_1	  = 1.03199	 +/-  0.0483259	(limited)
 gamma_stat_SR_2_bin_2	  = 0.990567	 +/-  0.0851923	(limited)
 gamma_stat_SR_2_bin_3	  = 0.864355	 +/-  0.111028	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -10.10603850498
-MnSeedGenerator: Initial state:   - FCN =  -10.10603850498 Edm =   0.00682812 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -10.10603850498 Edm =   0.00673424 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -10.10603850762
+MnSeedGenerator: Initial state:   - FCN =  -10.10603850762 Edm =   0.00682812 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.10603850762 Edm =   0.00673424 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -10.10603850498 Edm =   0.00673424 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -10.10603850498 Edm =   0.00673424 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -10.11273380314 Edm =  6.71701e-07 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -10.11273380314 Edm =  6.57164e-07 NCalls =    270
-VariableMetric: Iteration #   2 - FCN =  -10.11273380314 Edm =  6.57164e-07 NCalls =    270
+VariableMetric: Initial state   - FCN =  -10.10603850762 Edm =   0.00673424 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.10603850762 Edm =   0.00673424 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =   -10.1127338025 Edm =  6.71697e-07 NCalls =    168
+VariableMetric: After Hessian   - FCN =   -10.1127338025 Edm =   6.5716e-07 NCalls =    270
+VariableMetric: Iteration #   2 - FCN =   -10.1127338025 Edm =   6.5716e-07 NCalls =    270
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -10.1127338031437084
-Edm   = 6.57164453864515439e-07
+FVAL  = -10.112733802504275
+Edm   = 6.57160003136368388e-07
 Nfcn  = 270
 alpha_Bkg1Xsec	  = 0.182136	 +/-  0.70674	(limited)
 alpha_Bkg2Xsec	  = -0.255359	 +/-  0.631285	(limited)
 alpha_JES	  = -0.16083	 +/-  0.338758	(limited)
 gamma_stat_SR_1_bin_0	  = 0.996398	 +/-  0.0295408	(limited)
-gamma_stat_SR_1_bin_1	  = 1.03007	 +/-  0.0494099	(limited)
+gamma_stat_SR_1_bin_1	  = 1.03007	 +/-  0.0494098	(limited)
 gamma_stat_SR_1_bin_2	  = 0.991756	 +/-  0.0847878	(limited)
 gamma_stat_SR_1_bin_3	  = 0.86527	 +/-  0.111482	(limited)
 gamma_stat_SR_2_bin_0	  = 0.997939	 +/-  0.0292667	(limited)
@@ -1574,7 +1574,7 @@ NLL:            nll_simPdf_ttHFitterData_with_constr
 Previous guess: 2.93278
 Sigma(obs):     1.32886
 Sigma(mu,0):    2.11065
-muhat:          0.000357928
+muhat:          0.00035793
 pmu:            0.00720173
 1-pb:           0.854864
 CLs:            0.0496204
@@ -1596,7 +1596,7 @@ Guess for bands
 -2sigma:  2.29763
 
 Correct bands
-+2sigma:  8.85487
++2sigma:  8.85486
 +1sigma:  6.21958
 -1sigma:  3.08457
 -2sigma:  2.29763
@@ -1605,19 +1605,19 @@ Median:   4.28083
 Observed: 2.92602
 
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -10.40439687849
-MnSeedGenerator: Initial state:   - FCN =  -10.40439687849 Edm =      1.11761 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -10.40439687849 Edm =     0.901335 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -10.40439687851
+MnSeedGenerator: Initial state:   - FCN =  -10.40439687851 Edm =      1.11761 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.40439687851 Edm =     0.901335 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -10.40439687849 Edm =     0.901335 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -10.40439687849 Edm =     0.901335 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =   -11.3233864857 Edm =    0.0049982 NCalls =    168
-VariableMetric: Iteration #   2 - FCN =  -11.32884102595 Edm =  8.06526e-05 NCalls =    191
-VariableMetric: After Hessian   - FCN =  -11.32884102595 Edm =  8.88315e-05 NCalls =    291
-VariableMetric: Iteration #   3 - FCN =  -11.32884102595 Edm =  8.88315e-05 NCalls =    291
+VariableMetric: Initial state   - FCN =  -10.40439687851 Edm =     0.901335 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.40439687851 Edm =     0.901335 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -11.32338648654 Edm =    0.0049982 NCalls =    168
+VariableMetric: Iteration #   2 - FCN =    -11.328841026 Edm =  8.06526e-05 NCalls =    191
+VariableMetric: After Hessian   - FCN =    -11.328841026 Edm =  8.88314e-05 NCalls =    291
+VariableMetric: Iteration #   3 - FCN =    -11.328841026 Edm =  8.88314e-05 NCalls =    291
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -11.3288410259498491
-Edm   = 8.88314872562575219e-05
+FVAL  = -11.3288410259965282
+Edm   = 8.88314415142707313e-05
 Nfcn  = 291
 alpha_Bkg1Xsec	  = 0.177254	 +/-  0.700173	(limited)
 alpha_Bkg2Xsec	  = 0.0612915	 +/-  0.644819	(limited)
@@ -1631,19 +1631,19 @@ gamma_stat_SR_2_bin_1	  = 1.00493	 +/-  0.0474545	(limited)
 gamma_stat_SR_2_bin_2	  = 0.993961	 +/-  0.0846179	(limited)
 gamma_stat_SR_2_bin_3	  = 1.0003	 +/-  0.12527	(limited)
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -10.76050781233
-MnSeedGenerator: Initial state:   - FCN =  -10.76050781233 Edm =     0.442917 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -10.76050781233 Edm =     0.438597 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -10.76050781235
+MnSeedGenerator: Initial state:   - FCN =  -10.76050781235 Edm =     0.442917 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -10.76050781235 Edm =     0.438597 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -10.76050781233 Edm =     0.438597 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -10.76050781233 Edm =     0.438597 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -11.19836952493 Edm =   0.00190851 NCalls =    168
-VariableMetric: Iteration #   2 - FCN =  -11.20024353532 Edm =   1.3633e-05 NCalls =    191
-VariableMetric: After Hessian   - FCN =  -11.20024353532 Edm =  1.35009e-05 NCalls =    291
-VariableMetric: Iteration #   3 - FCN =  -11.20024353532 Edm =  1.35009e-05 NCalls =    291
+VariableMetric: Initial state   - FCN =  -10.76050781235 Edm =     0.438597 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -10.76050781235 Edm =     0.438597 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -11.19836952335 Edm =   0.00190851 NCalls =    168
+VariableMetric: Iteration #   2 - FCN =  -11.20024353529 Edm =   1.3633e-05 NCalls =    191
+VariableMetric: After Hessian   - FCN =  -11.20024353529 Edm =  1.35009e-05 NCalls =    291
+VariableMetric: Iteration #   3 - FCN =  -11.20024353529 Edm =  1.35009e-05 NCalls =    291
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -11.2002435353214924
-Edm   = 1.35008737924644328e-05
+FVAL  = -11.2002435352914542
+Edm   = 1.3500906183775395e-05
 Nfcn  = 291
 alpha_Bkg1Xsec	  = 0.1409	 +/-  0.700029	(limited)
 alpha_Bkg2Xsec	  = -0.0399921	 +/-  0.639848	(limited)
@@ -1664,19 +1664,19 @@ Med sig: -0.507144
 Med pval: 0.693973
 ****************************
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -12.66373891991
-MnSeedGenerator: Initial state:   - FCN =  -12.66373891991 Edm =  0.000354342 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =  -12.66373891991 Edm =  0.000264251 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -12.66373891979
+MnSeedGenerator: Initial state:   - FCN =  -12.66373891979 Edm =  0.000354342 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -12.66373891979 Edm =  0.000264252 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -12.66373891991 Edm =  0.000264251 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =  -12.66373891991 Edm =  0.000264251 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -12.66400362423 Edm =  2.42356e-09 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -12.66400362423 Edm =  2.43619e-09 NCalls =    280
-VariableMetric: Iteration #   2 - FCN =  -12.66400362423 Edm =  2.43619e-09 NCalls =    280
+VariableMetric: Initial state   - FCN =  -12.66373891979 Edm =  0.000264252 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -12.66373891979 Edm =  0.000264252 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -12.66400362423 Edm =  2.42361e-09 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -12.66400362423 Edm =  2.43627e-09 NCalls =    278
+VariableMetric: Iteration #   2 - FCN =  -12.66400362423 Edm =  2.43627e-09 NCalls =    278
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -12.6640036242264049
-Edm   = 2.43619131395580463e-09
-Nfcn  = 280
+FVAL  = -12.6640036242256748
+Edm   = 2.43626758969191133e-09
+Nfcn  = 278
 alpha_Bkg1Xsec	  = 0.264765	 +/-  0.701305	(limited)
 alpha_Bkg2Xsec	  = 0.032491	 +/-  0.645942	(limited)
 alpha_JES	  = 0.0628728	 +/-  0.329213	(limited)
@@ -1689,19 +1689,19 @@ gamma_stat_SR_2_bin_1	  = 1.02621	 +/-  0.0479697	(limited)
 gamma_stat_SR_2_bin_2	  = 0.987682	 +/-  0.0844977	(limited)
 gamma_stat_SR_2_bin_3	  = 0.94706	 +/-  0.121759	(limited)
 Minuit2Minimizer: Minimize with max-calls 6000 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -12.61289353774
-MnSeedGenerator: Initial state:   - FCN =  -12.61289353774 Edm =    0.0481506 NCalls =     49
-MnSeedGenerator: run Hesse - new state:   - FCN =  -12.61289353774 Edm =    0.0457235 NCalls =    164
+MnSeedGenerator: for initial parameters FCN = -12.61289353793
+MnSeedGenerator: Initial state:   - FCN =  -12.61289353793 Edm =    0.0481506 NCalls =     49
+MnSeedGenerator: run Hesse - new state:   - FCN =  -12.61289353793 Edm =    0.0457235 NCalls =    164
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -12.61289353774 Edm =    0.0457235 NCalls =    164
-VariableMetric: Iteration #   0 - FCN =  -12.61289353774 Edm =    0.0457235 NCalls =    164
-VariableMetric: Iteration #   1 - FCN =  -12.66264601713 Edm =   0.00123345 NCalls =    192
-VariableMetric: Iteration #   2 - FCN =  -12.66395369593 Edm =  4.68602e-05 NCalls =    217
-VariableMetric: After Hessian   - FCN =  -12.66395369593 Edm =  5.00062e-05 NCalls =    336
-VariableMetric: Iteration #   3 - FCN =  -12.66395369593 Edm =  5.00062e-05 NCalls =    336
+VariableMetric: Initial state   - FCN =  -12.61289353793 Edm =    0.0457235 NCalls =    164
+VariableMetric: Iteration #   0 - FCN =  -12.61289353793 Edm =    0.0457235 NCalls =    164
+VariableMetric: Iteration #   1 - FCN =  -12.66264601659 Edm =   0.00123345 NCalls =    192
+VariableMetric: Iteration #   2 - FCN =  -12.66395369591 Edm =  4.68602e-05 NCalls =    217
+VariableMetric: After Hessian   - FCN =  -12.66395369591 Edm =  5.00062e-05 NCalls =    336
+VariableMetric: Iteration #   3 - FCN =  -12.66395369591 Edm =  5.00062e-05 NCalls =    336
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -12.6639536959250609
-Edm   = 5.00061511757636886e-05
+FVAL  = -12.6639536959074981
+Edm   = 5.00061715128840092e-05
 Nfcn  = 336
 SigXsecOverSM	  = 9.0966e-05	 +/-  0.918618	(limited)
 alpha_Bkg1Xsec	  = 0.264709	 +/-  0.701299	(limited)
@@ -1723,18 +1723,18 @@ Obs sig: -0.00999283
 Obs pval: 0.503986
 ****************************
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -11.8046988732
-MnSeedGenerator: Initial state:   - FCN =   -11.8046988732 Edm =     0.382501 NCalls =     45
-MnSeedGenerator: run Hesse - new state:   - FCN =   -11.8046988732 Edm =     0.210494 NCalls =    145
+MnSeedGenerator: for initial parameters FCN = -11.80469887403
+MnSeedGenerator: Initial state:   - FCN =  -11.80469887403 Edm =     0.382501 NCalls =     45
+MnSeedGenerator: run Hesse - new state:   - FCN =  -11.80469887403 Edm =     0.210494 NCalls =    145
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   -11.8046988732 Edm =     0.210494 NCalls =    145
-VariableMetric: Iteration #   0 - FCN =   -11.8046988732 Edm =     0.210494 NCalls =    145
-VariableMetric: Iteration #   1 - FCN =  -12.01094144249 Edm =  0.000293183 NCalls =    168
-VariableMetric: After Hessian   - FCN =  -12.01094144249 Edm =  0.000263809 NCalls =    268
-VariableMetric: Iteration #   2 - FCN =  -12.01094144249 Edm =  0.000263809 NCalls =    268
+VariableMetric: Initial state   - FCN =  -11.80469887403 Edm =     0.210494 NCalls =    145
+VariableMetric: Iteration #   0 - FCN =  -11.80469887403 Edm =     0.210494 NCalls =    145
+VariableMetric: Iteration #   1 - FCN =  -12.01094144225 Edm =  0.000293183 NCalls =    168
+VariableMetric: After Hessian   - FCN =  -12.01094144225 Edm =  0.000263809 NCalls =    268
+VariableMetric: Iteration #   2 - FCN =  -12.01094144225 Edm =  0.000263809 NCalls =    268
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -12.0109414424874643
-Edm   = 0.000263808745519218332
+FVAL  = -12.0109414422524363
+Edm   = 0.000263809008001633964
 Nfcn  = 268
 alpha_Bkg1Xsec	  = 0.240321	 +/-  0.70139	(limited)
 alpha_Bkg2Xsec	  = -0.0726296	 +/-  0.640318	(limited)
@@ -1748,20 +1748,20 @@ gamma_stat_SR_2_bin_1	  = 1.0286	 +/-  0.0481104	(limited)
 gamma_stat_SR_2_bin_2	  = 0.990042	 +/-  0.0848736	(limited)
 gamma_stat_SR_2_bin_3	  = 0.917624	 +/-  0.117949	(limited)
 Minuit2Minimizer: Minimize with max-calls 6000 convergence for edm < 1 strategy 2
-MnSeedGenerator: for initial parameters FCN = -12.01094144249
-MnSeedGenerator: Initial state:   - FCN =  -12.01094144249 Edm =     0.282639 NCalls =     49
-MnSeedGenerator: run Hesse - new state:   - FCN =  -12.01094144249 Edm =     0.508273 NCalls =    164
+MnSeedGenerator: for initial parameters FCN = -12.01094144225
+MnSeedGenerator: Initial state:   - FCN =  -12.01094144225 Edm =     0.282639 NCalls =     49
+MnSeedGenerator: run Hesse - new state:   - FCN =  -12.01094144225 Edm =     0.508273 NCalls =    164
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -12.01094144249 Edm =     0.508273 NCalls =    164
-VariableMetric: Iteration #   0 - FCN =  -12.01094144249 Edm =     0.508273 NCalls =    164
-VariableMetric: Iteration #   1 - FCN =  -12.57274493665 Edm =    0.0539083 NCalls =    192
-VariableMetric: Iteration #   2 - FCN =  -12.64624974819 Edm =    0.0134009 NCalls =    220
-VariableMetric: Iteration #   3 - FCN =  -12.66337668197 Edm =   0.00059393 NCalls =    246
-VariableMetric: After Hessian   - FCN =  -12.66337668197 Edm =  0.000625691 NCalls =    361
-VariableMetric: Iteration #   4 - FCN =  -12.66337668197 Edm =  0.000625691 NCalls =    361
+VariableMetric: Initial state   - FCN =  -12.01094144225 Edm =     0.508273 NCalls =    164
+VariableMetric: Iteration #   0 - FCN =  -12.01094144225 Edm =     0.508273 NCalls =    164
+VariableMetric: Iteration #   1 - FCN =  -12.57274493965 Edm =    0.0539083 NCalls =    192
+VariableMetric: Iteration #   2 - FCN =  -12.64624974903 Edm =    0.0134009 NCalls =    220
+VariableMetric: Iteration #   3 - FCN =  -12.66337668198 Edm =   0.00059393 NCalls =    246
+VariableMetric: After Hessian   - FCN =  -12.66337668198 Edm =  0.000625691 NCalls =    361
+VariableMetric: Iteration #   4 - FCN =  -12.66337668198 Edm =  0.000625691 NCalls =    361
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -12.6633766819703233
-Edm   = 0.000625691424731783215
+FVAL  = -12.6633766819789475
+Edm   = 0.000625691393245759032
 Nfcn  = 361
 SigXsecOverSM	  = 6.74327e-05	 +/-  0.879551	(limited)
 alpha_Bkg1Xsec	  = 0.266649	 +/-  0.701517	(limited)
@@ -1800,6 +1800,6 @@ CLsb = 0.126663
 CLs = 0.255361
 ************************
 Finished with 38 calls to minimize(nll)
-Real time 0:00:02, CP time 1.830
+Real time 0:00:02, CP time 1.980
 mkdir: created directory ‘FitExample/Limits’
 mkdir: created directory ‘FitExample/Limits//asymptotics/’
