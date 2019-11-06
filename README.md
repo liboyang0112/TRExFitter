@@ -67,6 +67,12 @@ To setup just use the script (from any location):
   source setup.sh
 ```
 (should work on any machine with access to cvmfs - provided that nothing else is set-up previously)
+Note that this will setup centOS7 version of ROOT and you need centOS7 compatible OS!
+If you want to setup the slc6 version of ROOT do:
+```
+  source setup.sh slc6
+```
+
 
 To compile:
 
