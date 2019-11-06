@@ -24,7 +24,6 @@ before_script:
   - set +e
   - source setup.sh #sources the setup in the TRExFitter package (consistent with user's setup)
   - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:}$PWD/build/lib
-  - root -l -b -q
 
 ##
 ## "build" step: first compiles the code
@@ -40,19 +39,6 @@ compile:
   artifacts:
      paths:
       - build
-
-##
-## "build" step: in parallel, dumps the inputs of the test
-##    Artifact: keeps the ExampleInputs folder
-##
-input_prod:
-    stage: build
-    script:
-      - root -l -b -q CreateHistograms.C
-      - ls -lrth ExampleInputs
-    artifacts:
-      paths:
-        - ExampleInputs
 
 ##
 ## "hstep" step: produces the input histograms for TRExFitter
