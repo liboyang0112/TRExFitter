@@ -1,4 +1,4 @@
-image: lukasheinrich/recast_cvmfs_assisted
+image: gitlab-registry.cern.ch/ci-tools/ci-worker:cc7
 
 ##
 ## Various steps to be followed by the build
