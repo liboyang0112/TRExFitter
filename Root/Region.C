@@ -399,18 +399,16 @@ void Region::BuildPreFitErrorHist(){
             Systematic *syst = sh->fSystematic;
             
             // store hist up and down
-            hUp   = (TH1*)sh->fHistUp->Clone();
-            hDown = (TH1*)sh->fHistDown->Clone();
+            hUp   = (TH1*)sh->fHistUp; //->Clone();
+            hDown = (TH1*)sh->fHistDown; //->Clone();
             
             // modify them dropping shape or norm (due to pruning or shape/acc decorrelation)
             if(syst!=nullptr){
                 if(syst->fIsNormOnly){
-                    for(int i_bin=1;i_bin<hUp  ->GetNbinsX()+1;i_bin++) hUp  ->SetBinContent(i_bin,hNom->GetBinContent(i_bin)*(sh->fNormUp+1.));
-                    for(int i_bin=1;i_bin<hDown->GetNbinsX()+1;i_bin++) hDown->SetBinContent(i_bin,hNom->GetBinContent(i_bin)*(sh->fNormDown+1.));
+                    DropShape(hUp,hDown,hNom);
                 }
                 if(syst->fIsShapeOnly){
-                    hUp   = (TH1*)sh->fHistShapeUp->Clone();
-                    hDown = (TH1*)sh->fHistShapeDown->Clone();
+                    DropNorm(hUp,hDown,hNom);
                 }
             }
             
