@@ -40,7 +40,6 @@
 #include "RooStats/AsymptoticCalculator.h"
 #include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
 #include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
-#include "RooStats/HistFactory/Measurement.h"
 
 // ATLAS stuff
 #include "AtlasUtils/AtlasStyle.h"
