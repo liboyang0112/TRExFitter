@@ -10,6 +10,9 @@
 #include "RooStats/ModelConfig.h"
 #include "RooMultiVarGaussian.h"
 
+// RooStats
+#include "RooStats/HistFactory/Measurement.h"
+
 /// c++ includes
 #include <map>
 #include <memory>
@@ -144,6 +147,8 @@ public:
 
     // turn to RooStat::HistFactory
     void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
+
+    RooStats::HistFactory::Channel OneChannelToRooStats(RooStats::HistFactory::Measurement* meas, const int ichan);
 
     void SystPruning() const;
     void DrawPruningPlot() const;
