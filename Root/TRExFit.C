@@ -4193,7 +4193,7 @@ void TRExFit::CreateCustomAsimov() const{
 
 //__________________________________________________________________________________
 // turn to RooStat::HistFactory
-void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
+void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly) const {
 
     WriteInfoStatus("TRExFit::ToRooStat", "-------------------------------------------");
     WriteInfoStatus("TRExFit::ToRooStat", "Exporting to RooStats...");
@@ -4247,7 +4247,6 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
     } else {
         meas.PrintXML((fName+"/RooStats/").c_str());
     }
-    CloseInputFiles();
     meas.CollectHistograms();
     meas.PrintTree();
 
@@ -4258,32 +4257,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 
 //__________________________________________________________________________________
 //
-void TRExFit::SystPruning() const{
-    WriteInfoStatus("TRExFit::SystPruning", "------------------------------------------------------");
-    WriteInfoStatus("TRExFit::SystPruning", "Apply Systematics Pruning ...");
-    if(fSystematics.size()==0 || fStatOnly){
-        WriteInfoStatus("TRExFit::SystPruning", "No systematics => No Pruning applied.");
-        return;
-    }
-
-    PruningUtil *pu = new PruningUtil();
-    pu->SetStrategy((int)fPruningType);
-    pu->SetThresholdNorm(fThresholdSystPruning_Normalisation);
-    pu->SetThresholdShape(fThresholdSystPruning_Shape);
-    pu->SetThresholdIsLarge(fThresholdSystLarge);
-
-    for(auto reg : fRegions){
-        // if want to skip validation regions from pruning, add a condition here
-        reg->SystPruning(pu);
-    }
-
-    // it also writes the txt file actually
-    DrawPruningPlot();
-}
-
-//__________________________________________________________________________________
-//
-RooStats::HistFactory::Channel TRExFit::OneChannelToRooStats(RooStats::HistFactory::Measurement* meas, const int i_ch) {
+RooStats::HistFactory::Channel TRExFit::OneChannelToRooStats(RooStats::HistFactory::Measurement* meas, const int i_ch) const {
     RooStats::HistFactory::Channel chan(fRegions[i_ch]->fName.c_str());
 
     //Suffix used for the regular bin transformed histogram
@@ -4330,7 +4304,7 @@ RooStats::HistFactory::Channel TRExFit::OneChannelToRooStats(RooStats::HistFacto
         if (h->fSample->fType == Sample::GHOST) continue;
 
         WriteDebugStatus("TRExFit::OneChannelToRooStats", "  Adding Sample: " + fSamples[i_smp]->fName);
-        RooStats::HistFactory::Sample sample = OneSampleToRooStats(meas, h, i_ch, i_smp);;
+        const RooStats::HistFactory::Sample sample = OneSampleToRooStats(meas, h, i_ch, i_smp);;
         chan.AddSample(sample);
     }
 
@@ -4342,7 +4316,7 @@ RooStats::HistFactory::Channel TRExFit::OneChannelToRooStats(RooStats::HistFacto
 RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory::Measurement* meas,
                                                            const SampleHist* h,
                                                            const int i_ch,
-                                                            const int i_smp) {
+                                                           const int i_smp) const {
     RooStats::HistFactory::Sample sample(fSamples[i_smp]->fName.c_str());
 
     static const std::string suffix_regularBinning("_regBin");
@@ -4365,73 +4339,97 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
     }
 
     // shape factors
-    for(int i_shape=0;i_shape<h->fNShape;i_shape++){
+    for(int i_shape = 0; i_shape < h->fNShape; ++i_shape) {
         WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding ShapeFactor: " + h->fShapeFactors[i_shape]->fName + ", " + std::to_string(h->fShapeFactors[i_shape]->fNominal));
         sample.AddShapeFactor( h->fShapeFactors[i_shape]->fName );
         if (h->fShapeFactors[i_shape]->fConst
-            || (fStatOnly && fFixNPforStatOnlyFit && h->fShapeFactors[i_shape]->fName!=fPOI)
-        ){
-            for(int i_bin=0;i_bin<h->fShapeFactors[i_shape]->fNbins;i_bin++){
+            || (fStatOnly && fFixNPforStatOnlyFit && h->fShapeFactors[i_shape]->fName!=fPOI) ) {
+            for(int i_bin=0; i_bin < h->fShapeFactors[i_shape]->fNbins; ++i_bin) {
                 meas->AddConstantParam( "gamma_" + h->fShapeFactors[i_shape]->fName + "_bin_" + std::to_string(i_bin) );
             }
         }
     }
     // systematics
-    if(!fStatOnly){
-        for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
-            // add normalization part
-            WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding Systematic: " + h->fSyst[i_syst]->fName);
-            if ( h->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
-                std::string npName = "shape_";
-                npName += h->fSyst[i_syst]->fSystematic->fNuisanceParameter+"_";
-                std::string regionName = fRegions[i_ch]->fName;
-                if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter.find("stat_")!=std::string::npos){
-                    // see if there are regions to correlate with others
-                    for(auto set : h->fSample->fCorrelateGammasInRegions){
-                        for(unsigned int i_reg=0;i_reg<set.size();i_reg++){
-                            if(i_reg!=0 && regionName==set[i_reg]){
-                                regionName = set[0];
-                                break;
-                            }
+    if(fStatOnly) {
+        sample.AddOverallSys( "Dummy",1,1 );
+        return sample;
+    }
+    for(int i_syst = 0; i_syst < h->fNSyst; ++i_syst) {
+        // add normalization part
+        WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding Systematic: " + h->fSyst[i_syst]->fName);
+        if ( h->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
+            std::string npName = "shape_" + h->fSyst[i_syst]->fSystematic->fNuisanceParameter+"_";
+            std::string regionName = fRegions[i_ch]->fName;
+            if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter.find("stat_")!=std::string::npos) {
+                // see if there are regions to correlate with others
+                for(auto& set : h->fSample->fCorrelateGammasInRegions){
+                    for(std::size_t i_reg = 0; i_reg < set.size(); ++i_reg){
+                        if(i_reg != 0 && regionName == set[i_reg]) {
+                            regionName = set[0];
+                            break;
                         }
                     }
-                    // eventually correlate MC stat with other samples
-                    if(h->fSample->fCorrelateGammasWithSample!=""){
-                        npName = "shape_stat_"+h->fSample->fCorrelateGammasWithSample+"_";
-                    }
                 }
-                npName += regionName;
-                sample.AddShapeSys( npName, RooStats::HistFactory::Constraint::Poisson,
-                                    (h->fSyst[i_syst]->fHistoNameUp+"_Var"+suffix_regularBinning),
-                                    h->fSyst[i_syst]->fFileNameUp, "");
+                // eventually correlate MC stat with other samples
+                if(h->fSample->fCorrelateGammasWithSample != ""){
+                    npName = "shape_stat_"+h->fSample->fCorrelateGammasWithSample+"_";
+                }
             }
-            else{
-                if ( !h->fSyst[i_syst]->fSystematic->fIsShapeOnly  &&
-                    !h->fSyst[i_syst]->fNormPruned  &&
-                    !h->fSyst[i_syst]->fBadNorm
-                  ) {
-                    sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
-                                          1+h->fSyst[i_syst]->fNormDown,
-                                          1+h->fSyst[i_syst]->fNormUp   );
-                }
-                // eventually add shape part
-                if ( h->fSyst[i_syst]->fIsShape  &&
-                    !h->fSyst[i_syst]->fSystematic->fIsNormOnly  &&
-                    !h->fSyst[i_syst]->fShapePruned  &&
-                    !h->fSyst[i_syst]->fBadShape
-                  ){
-                    sample.AddHistoSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
-                                        h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning, h->fSyst[i_syst]->fFileNameShapeDown, "",
-                                        h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
-                }
+            npName += regionName;
+            sample.AddShapeSys( npName,
+                                RooStats::HistFactory::Constraint::Poisson,
+                                h->fSyst[i_syst]->fHistoNameUp+"_Var"+suffix_regularBinning,
+                                h->fSyst[i_syst]->fFileNameUp, "");
+        } else {
+            if ( !h->fSyst[i_syst]->fSystematic->fIsShapeOnly &&
+                !h->fSyst[i_syst]->fNormPruned &&
+                !h->fSyst[i_syst]->fBadNorm
+              ) {
+                sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
+                                      1+h->fSyst[i_syst]->fNormDown,
+                                      1+h->fSyst[i_syst]->fNormUp);
+            }
+            // eventually add shape part
+            if ( h->fSyst[i_syst]->fIsShape &&
+                !h->fSyst[i_syst]->fSystematic->fIsNormOnly &&
+                !h->fSyst[i_syst]->fShapePruned &&
+                !h->fSyst[i_syst]->fBadShape
+              ){
+                sample.AddHistoSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
+                                    h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning,
+                                    h->fSyst[i_syst]->fFileNameShapeDown, "",
+                                    h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,
+                                    h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
             }
         }
     }
-    else{
-        sample.AddOverallSys( "Dummy",1,1 );
-    }
 
     return sample;
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::SystPruning() const {
+    WriteInfoStatus("TRExFit::SystPruning", "------------------------------------------------------");
+    WriteInfoStatus("TRExFit::SystPruning", "Apply Systematics Pruning ...");
+    if(fSystematics.size()==0 || fStatOnly){
+        WriteInfoStatus("TRExFit::SystPruning", "No systematics => No Pruning applied.");
+        return;
+    }
+
+    PruningUtil pu{};
+    pu.SetStrategy((int)fPruningType);
+    pu.SetThresholdNorm(fThresholdSystPruning_Normalisation);
+    pu.SetThresholdShape(fThresholdSystPruning_Shape);
+    pu.SetThresholdIsLarge(fThresholdSystLarge);
+
+    for(auto& reg : fRegions){
+        // if want to skip validation regions from pruning, add a condition here
+        reg->SystPruning(&pu);
+    }
+
+    // it also writes the txt file actually
+    DrawPruningPlot();
 }
 
 //__________________________________________________________________________________
