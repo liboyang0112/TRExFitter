@@ -843,6 +843,7 @@ void TRExFit::ReadNtuples(){
                 //
                 if(i_path==0) h = (TH1D*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
+
                 delete htmp;
             }
             //
@@ -1172,7 +1173,10 @@ void TRExFit::CorrectHistograms(){
             if(sh->fHist==nullptr) continue;
             sh->fHist->SetLineColor(linecolor);
             sh->fHist->SetFillColor(fillcolor);
-            //
+
+            // Scale MC stat
+            ScaleMCstatInHist(sh->fHist, smp->fMCstatScale);
+
             // loop on systematics
             for(auto syst : smp->fSystematics){
                 //
@@ -4893,8 +4897,6 @@ void TRExFit::Fit(bool isLHscanOnly){
                         MCstatDoSample[sh->fSample->fName] = -sqrt(pow(MCstatDoSample[sh->fSample->fName],2) + pow(npValues[fPOI]-nominalPOIval,2));
                         smpTexTitle[sh->fSample->fName] = sh->fSample->fTexTitle;
                     }
-                    MCstatUpSample[sh->fSample->fName]*=sh->fSample->fMCstatScale;
-                    MCstatDoSample[sh->fSample->fName]*=sh->fSample->fMCstatScale;
                 }
             }
         }

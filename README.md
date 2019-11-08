@@ -730,6 +730,16 @@ trex-fitter mwf config/myTopWS_multifit.config
 ```
 This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
 
+You can also run ranking for the combined fit using
+```
+trex-fitter mr config/myTopWS_multifit.config
+```
+
+And, aame as for the single fits, you can run on the individual NPs via
+```
+trex-fitter mr config/myTopWS_multifit.config Ranking="XXX" 
+```
+
 ### Multi-Fit `Job` block options:
 
 | **Option** | **Function** |
