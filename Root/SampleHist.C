@@ -452,17 +452,17 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
     //
     // save separate gammas as histograms
     if(fSample->fSeparateGammas){
-        TH1 *htempUp   = (TH1*)fHist->Clone();
-        TH1 *htempDown = (TH1*)fHist->Clone();
-        for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-            htempUp  ->AddBinContent(i_bin, 1.*fHist->GetBinError(i_bin)*fSample->fMCstatScale);
-            htempDown->AddBinContent(i_bin,-1.*fHist->GetBinError(i_bin)*fSample->fMCstatScale);
+        TH1 *htempUp   = static_cast<TH1*>(fHist->Clone());
+        TH1 *htempDown = static_cast<TH1*>(fHist->Clone());
+        for(int i_bin=1;i_bin<=fHist->GetNbinsX();++i_bin) {
+            htempUp  ->AddBinContent(i_bin, 1.*fHist->GetBinError(i_bin));
+            htempDown->AddBinContent(i_bin,-1.*fHist->GetBinError(i_bin));
         }
-        TH1 *htempUp_orig   = (TH1*)fHist_orig->Clone();
-        TH1 *htempDown_orig = (TH1*)fHist_orig->Clone();
-        for(int i_bin=1;i_bin<=fHist_orig->GetNbinsX();i_bin++){
-            htempUp_orig  ->AddBinContent(i_bin, 1.*fHist_orig->GetBinError(i_bin)*fSample->fMCstatScale);
-            htempDown_orig->AddBinContent(i_bin,-1.*fHist_orig->GetBinError(i_bin)*fSample->fMCstatScale);
+        TH1 *htempUp_orig   = static_cast<TH1*>(fHist_orig->Clone());
+        TH1 *htempDown_orig = static_cast<TH1*>(fHist_orig->Clone());
+        for(int i_bin=1;i_bin<=fHist_orig->GetNbinsX();++i_bin) {
+            htempUp_orig  ->AddBinContent(i_bin, 1.*fHist_orig->GetBinError(i_bin));
+            htempDown_orig->AddBinContent(i_bin,-1.*fHist_orig->GetBinError(i_bin));
         }
         std::string systName = "stat_"+fSample->fName;
         Systematic *gamma = nullptr;
