@@ -843,7 +843,6 @@ void TRExFit::ReadNtuples(){
                 //
                 if(i_path==0) h = (TH1D*)htmp->Clone(Form("h_%s_%s",fRegions[i_ch]->fName.c_str(),fSamples[i_smp]->fName.c_str()));
                 else h->Add(htmp);
-                ScaleMCstatInHist(htmp, fSamples[i_smp]->fMCstatScale);
 
                 delete htmp;
             }
@@ -6985,7 +6984,6 @@ void TRExFit::ComputeBinning(int regIter){
                 //
                 if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
                 else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
-                ScaleMCstatInHist(htmp, fSamples[i_smp]->fMCstatScale);
                 //
                 // Importing the histogram in TRExFitter
                 if(fSamples[i_smp]->fType==Sample::SIGNAL){
@@ -7064,7 +7062,6 @@ void TRExFit::ComputeBinning(int regIter){
                 //
                 if(fSamples[i_smp]->fLumiScales.size()>i_path) htmp -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
                 else if(fSamples[i_smp]->fLumiScales.size()==1) htmp -> Scale(fSamples[i_smp]->fLumiScales[0]);
-                ScaleMCstatInHist(htmp.get(), fSamples[i_smp]->fMCstatScale);
                 //
                 // apply histogram to signal or background
                 if(fSamples[i_smp]->fType==Sample::SIGNAL){
@@ -7707,12 +7704,10 @@ void TRExFit::DefineVariable(int regIter){
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp1 -> Scale(fLumi);
             if(fSamples[i_smp]->fLumiScales.size()>i_path)  htmp1 -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
             else if(fSamples[i_smp]->fLumiScales.size()==1) htmp1 -> Scale(fSamples[i_smp]->fLumiScales[0]);
-            ScaleMCstatInHist(htmp1, fSamples[i_smp]->fMCstatScale);
             //
             if(fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fNormalizedByTheory) htmp2 -> Scale(fLumi);
             if(fSamples[i_smp]->fLumiScales.size()>i_path)  htmp2 -> Scale(fSamples[i_smp]->fLumiScales[i_path]);
             else if(fSamples[i_smp]->fLumiScales.size()==1) htmp2 -> Scale(fSamples[i_smp]->fLumiScales[0]);
-            ScaleMCstatInHist(htmp2, fSamples[i_smp]->fMCstatScale);
             //
             h1->Add(htmp1);
             h2->Add(htmp2);
@@ -8682,7 +8677,6 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
             if(fSamples[i_smp]->fNormalizedByTheory){
                 htmp -> Scale(fLumi);
             }
-            ScaleMCstatInHist(htmp.get(), fSamples[i_smp]->fMCstatScale);
         }
 
         if(fSamples[i_smp]->fLumiScales.size()>i_path){
