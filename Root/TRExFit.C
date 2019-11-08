@@ -906,7 +906,7 @@ void TRExFit::ReadNtuples(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
                     syh->fSystematic = syst;
                     syh->fScaleUp = syst->fScaleUp;
                     if(syst->fScaleUpRegions.size()!=0)
@@ -920,7 +920,7 @@ void TRExFit::ReadNtuples(){
                 }
                 // if Stat uncertainty on MC sample
                 if(syst->fType == Systematic::STAT){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fBins[0]);
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fStoredName,syst->fBins[0]);
                     syh->fSystematic = syst;
                     continue;
                 }
@@ -929,7 +929,7 @@ void TRExFit::ReadNtuples(){
                     WriteInfoStatus("TRExFit::ReadNtuples", "Systematic " + syst->fName + " set as dummy for sample " + smp->fName + " (region " + reg->fName + ")");
                     hUp   = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sUp",  reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
                     hDown = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
-                    SystematicHist *syh = sh->AddHistoSyst(syst->fName,hUp,hDown);
+                    SystematicHist *syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,hUp,hDown);
                     syh->fSystematic = syst;
                     syh->fScaleUp = syst->fScaleUp;
                     if(syst->fScaleUpRegions.size()!=0)
@@ -1131,7 +1131,7 @@ void TRExFit::ReadNtuples(){
                 if(hUp==nullptr)   hUp   = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 if(hDown==nullptr) hDown = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 //
-                SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,fSamples[i_smp]->fSystematics[i_syst]->fStoredName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
@@ -1348,7 +1348,7 @@ void TRExFit::CorrectHistograms(){
                             h_down = reg->GetSampleHist(syst->fSampleDown)->fHist;
                         }
                     }
-                    syh = sh->AddHistoSyst(syst->fName,h_up,h_down);
+                    syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,h_up,h_down);
                     syh->fSystematic = syst;
                 }
             }
@@ -1469,7 +1469,6 @@ void TRExFit::CorrectHistograms(){
         }
     }
 
-
     // drop normalisation part of systematic according to fDropNormIn
     for(auto reg : fRegions){
         for(auto sh : reg->fSampleHists){
@@ -1483,8 +1482,7 @@ void TRExFit::CorrectHistograms(){
                     if(syh==nullptr) continue;
                     if(sh->fHist->Integral()!=0){
                         WriteDebugStatus("TRExFit::CorrectHistograms", "  Normalising syst " + syst->fName + " for sample " + sh->fSample->fName);
-                        if(syh->fHistUp  !=nullptr) syh->fHistUp  ->Scale(sh->fHist->Integral()/syh->fHistUp  ->Integral());
-                        if(syh->fHistDown!=nullptr) syh->fHistDown->Scale(sh->fHist->Integral()/syh->fHistDown->Integral());
+                        DropNorm(syh->fHistUp,syh->fHistDown,sh->fHist);
                     }
                 }
             }
@@ -1503,18 +1501,7 @@ void TRExFit::CorrectHistograms(){
                     SystematicHist* syh = sh->GetSystematic(syst->fName);
                     if(syh==nullptr) continue;
                     WriteDebugStatus("TRExFit::CorrectHistograms", "  Removing shape component of syst " + syst->fName + " for sample " + sh->fSample->fName);
-                    if(syh->fHistUp != nullptr) {
-                        const double ratioUp = syh->fHistUp->Integral()/sh->fHist->Integral();
-                        delete syh->fHistUp;
-                        syh->fHistUp = static_cast<TH1*>(sh->fHist->Clone());
-                        syh->fHistUp->Scale(ratioUp);
-                    }
-                    if(syh->fHistDown != nullptr) {
-                        const double ratioDown = syh->fHistDown->Integral()/sh->fHist->Integral();
-                        delete syh->fHistDown;
-                        syh->fHistDown = static_cast<TH1*>(sh->fHist->Clone());
-                        syh->fHistDown->Scale(ratioDown);
-                    }
+                    DropShape(syh->fHistUp,syh->fHistDown,sh->fHist);
                 }
             }
         }
@@ -1587,7 +1574,7 @@ void TRExFit::CorrectHistograms(){
                         for(auto syh : shNominal->fSyst){
                             Systematic * syst = syh->fSystematic;
                             if(syst->fIsNormOnly){
-                                SystematicHist* syhNew = sh->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
+                                SystematicHist* syhNew = sh->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
                                 syhNew->fSystematic = syst;
                             }
                             else{
@@ -1597,7 +1584,7 @@ void TRExFit::CorrectHistograms(){
                                 hUpNew->Multiply(sh->fHist);
                                 hDownNew->Divide(shNominal->fHist);
                                 hDownNew->Multiply(sh->fHist);
-                                SystematicHist* syhNew = sh->AddHistoSyst(syst->fName,hUpNew,hDownNew);
+                                SystematicHist* syhNew = sh->AddHistoSyst(syst->fName,syst->fStoredName,hUpNew,hDownNew);
                                 syhNew->fSystematic = syst;
                                 sh->fSample->fUseSystematics = true;
                             }
@@ -1622,7 +1609,7 @@ void TRExFit::CorrectHistograms(){
                 for(auto syh : shReference->fSyst){
                     Systematic * syst = syh->fSystematic;
                     if(syst->fIsNormOnly){
-                        SystematicHist* syhNew = sh->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
+                        SystematicHist* syhNew = sh->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
                         syhNew->fSystematic = syst;
                     }
                     else{
@@ -1632,7 +1619,7 @@ void TRExFit::CorrectHistograms(){
                         hUpNew->Multiply(sh->fHist);
                         hDownNew->Divide(shReference->fHist);
                         hDownNew->Multiply(sh->fHist);
-                        SystematicHist* syhNew = sh->AddHistoSyst(syst->fName,hUpNew,hDownNew);
+                        SystematicHist* syhNew = sh->AddHistoSyst(syst->fName,syst->fStoredName,hUpNew,hDownNew);
                         syhNew->fSystematic = syst;
                     }
                 }
@@ -1771,7 +1758,7 @@ void TRExFit::ReadHistograms(){
                     hDown = (TH1D*)fRegions[i_ch]->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 }
                 //
-                SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,fSamples[i_smp]->fSystematics[i_syst]->fStoredName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0){
@@ -1868,7 +1855,7 @@ void TRExFit::ReadHistograms(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fOverallUp,syst->fOverallDown);
+                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
                     syh->fSystematic = syst;
                     syh->fScaleUp = syst->fScaleUp;
                     if(syst->fScaleUpRegions.size()!=0)
@@ -1909,7 +1896,7 @@ void TRExFit::ReadHistograms(){
                 if(hUp==nullptr)   hUp   = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 if(hDown==nullptr) hDown = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 //
-                SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,hUp,hDown);
+                SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,fSamples[i_smp]->fSystematics[i_syst]->fStoredName,hUp,hDown);
                 syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
@@ -2138,7 +2125,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 std::string systName = "stat_"+fSamples[i_smp]->fName;
                 std::string systStoredName = systName;
                 WriteDebugStatus("TRExFit::ReadHistos", "adding separate gammas as SHAPE systematic " + systName);
-                SystematicHist *syh_tmp = sh->AddHistoSyst(systName,
+                SystematicHist *syh_tmp = sh->AddHistoSyst(systName,systStoredName,
                                                         Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                         Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                         0
@@ -2217,7 +2204,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                     if( fKeepPruning ){
                         if( binContent == -2 || binContent == 2 ) continue;
                     }
-                    syh = sh->AddOverallSyst(systName,
+                    syh = sh->AddOverallSyst(systName,systStoredName,
                          fSamples[i_smp]->fSystematics[i_syst]->fOverallUp,
                          fSamples[i_smp]->fSystematics[i_syst]->fOverallDown);
                 }
@@ -2229,14 +2216,14 @@ void TRExFit::ReadHistos(/*string fileName*/){
                         if(binContent==2 || binContent==-3) pruned = 2;
                     }
                     if(fBootstrap!="" && fBootstrapIdx>=0 && fBootstrapSyst == systName ){
-                        syh = sh->AddHistoSyst(systName,
+                        syh = sh->AddHistoSyst(systName,systStoredName,
                                           Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileNameBootstrap,
                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileNameBootstrap,
                                           pruned
                                           );
                     }
                     else{
-                        syh = sh->AddHistoSyst(systName,
+                        syh = sh->AddHistoSyst(systName,systStoredName,
                                           Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                           pruned
@@ -4476,10 +4463,12 @@ void TRExFit::DrawPruningPlot() const{
                 ){
                     SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 0 );
+                    const bool forceDropShape = nonGammaSystematics[i_syst]->fIsNormOnly;
+                    const bool forceDropNorm  = nonGammaSystematics[i_syst]->fIsShapeOnly;
                     //
                     if(syh->fShapePruned && syh->fNormPruned) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 3 );
-                    else if(syh->fShapePruned) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
-                    else if(syh->fNormPruned) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
+                    else if(syh->fShapePruned || forceDropShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
+                    else if(syh->fNormPruned || forceDropNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
                     //
                     if(syh->fBadShape && syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -4 );
                     else if(syh->fBadShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -3 );

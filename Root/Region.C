@@ -304,6 +304,7 @@ void Region::BuildPreFitErrorHist(){
     std::map<std::string,std::string> origShapeSystName;
     std::map<std::string,bool> systIsThere;
     systIsThere.clear();
+    TH1* hNom = nullptr;
     TH1* hUp = nullptr;
     TH1* hDown = nullptr;
     string systName = "";
@@ -371,9 +372,11 @@ void Region::BuildPreFitErrorHist(){
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
+        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && (!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) || fRatioType=="DATA/BKG")) continue;
 
         WriteDebugStatus("Region::BuildPreFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
+        
+        hNom = fSampleHists[i]->fHist;
 
         // - loop on systematics
         for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
@@ -385,29 +388,42 @@ void Region::BuildPreFitErrorHist(){
 
             // hack: add a systematic hist if not there... FIXME
             if(sh==nullptr){
-                fSampleHists[i]->AddHistoSyst(systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
+                fSampleHists[i]->AddHistoSyst(systName,systName,hNom,hNom);
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // initialize the up and down variation histograms
                 // (note: do it even if the syst is not there; in this case the variation hist will be = to the nominal)
-                sh->fHistUp   = (TH1*)fSampleHists[i]->fHist->Clone(Form("%s_%s_Up",  fSampleHists[i]->fHist->GetName(),systName.c_str()));
-                sh->fHistDown = (TH1*)fSampleHists[i]->fHist->Clone(Form("%s_%s_Down",fSampleHists[i]->fHist->GetName(),systName.c_str()));
+                sh->fHistUp   = (TH1*)hNom->Clone(Form("%s_%s_Up",  hNom->GetName(),systName.c_str()));
+                sh->fHistDown = (TH1*)hNom->Clone(Form("%s_%s_Down",hNom->GetName(),systName.c_str()));
             }
+            
+            Systematic *syst = sh->fSystematic;
+            
+            // store hist up and down
+            hUp   = (TH1*)sh->fHistUp; //->Clone();
+            hDown = (TH1*)sh->fHistDown; //->Clone();
+            
+            // modify them dropping shape or norm (due to pruning or shape/acc decorrelation)
+            if(syst!=nullptr){
+                if(syst->fIsNormOnly){
+                    DropShape(hUp,hDown,hNom);
+                }
+                if(syst->fIsShapeOnly){
+                    DropNorm(hUp,hDown,hNom);
+                }
+            }
+            
             //
             // - loop on bins
             for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
                 diffUp = 0.;
                 diffDown = 0.;
-                hUp = nullptr;
-                hDown = nullptr;
-                yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
+                yieldNominal = hNom->GetBinContent(i_bin);  // store nominal yield for this bin
                 // if it's a systematic (NB: skip Norm-Factors!!)
                 if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
-                    hUp   = sh->fHistUp;
-                    hDown = sh->fHistDown;
                     if(hUp!=nullptr)    yieldUp     = hUp  ->GetBinContent(i_bin);
-                    else            yieldUp     = yieldNominal;
+                    else                yieldUp     = yieldNominal;
                     if(hDown!=nullptr)  yieldDown   = hDown->GetBinContent(i_bin);
-                    else            yieldDown   = yieldNominal;
+                    else                yieldDown   = yieldNominal;
                     diffUp   += yieldUp   - yieldNominal;
                     diffDown += yieldDown - yieldNominal;
                 }
@@ -483,11 +499,11 @@ void Region::BuildPreFitErrorHist(){
                 // skip data
                 if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
                 if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
+                if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && (!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) || fRatioType=="DATA/BKG")) continue;
                 // get SystematicHist
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
-                yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);
+                yieldNominal = hNom->GetBinContent(i_bin);
                 diffUp   += (sh->fHistUp  ->GetBinContent(i_bin) - yieldNominal)*scale;
                 diffDown += (sh->fHistDown->GetBinContent(i_bin) - yieldNominal)*scale;
             }
@@ -815,8 +831,14 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         std::string systName = syh->fName;
         TString systNameNew(systName); // used in pull tables
         Systematic *syst = syh->fSystematic;
+        bool isOverall = syh->fIsOverall;
+        bool isShape   = syh->fIsShape;
         if(syst!=nullptr){
+            if(isOverall && syst->fIsShapeOnly) isOverall = false;
+            if(isShape && syst->fIsNormOnly) isShape = false;
             systName = syst->fNuisanceParameter;
+            if(syst->fIsShapeOnly) isOverall = false;
+            if(syst->fIsNormOnly)  isShape   = false;
             if(syst->fType==Systematic::SHAPE){
                 continue;
             }
@@ -837,7 +859,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         //
         // Normalisation component: use the exponential interpolation and the multiplicative combination
         //
-        if(syh->fIsOverall){
+        if(isOverall){
             double binContentUp   = (syh->fNormUp+1) * binContent0;
             double binContentDown = (syh->fNormDown+1) * binContent0;
             double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall);
@@ -853,7 +875,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         //
         // Shape component: use the linear interpolation and the additive combination
         //
-        if(syh->fIsShape){
+        if(isShape){
             double binContentUp   = syh->fHistShapeUp->GetBinContent(i_bin);
             double binContentDown = syh->fHistShapeDown->GetBinContent(i_bin);
             double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape);
@@ -1035,7 +1057,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
             // hack: add a systematic hist if not there
             if(sh==nullptr){
-                fSampleHists[i]->AddHistoSyst(systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
+                fSampleHists[i]->AddHistoSyst(systName,systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
                 sh = fSampleHists[i]->GetSystematic(systName);
             }
 
@@ -1230,7 +1252,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
             // hack: add a systematic hist if not there
             if(sh==nullptr){
-                fSampleHists[morph_index]->AddHistoSyst(systName,fSampleHists[morph_index]->fHist,fSampleHists[morph_index]->fHist);
+                fSampleHists[morph_index]->AddHistoSyst(systName,systName,fSampleHists[morph_index]->fHist,fSampleHists[morph_index]->fHist);
                 sh = fSampleHists[morph_index]->GetSystematic(systName);
             }
 

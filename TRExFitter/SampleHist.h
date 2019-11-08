@@ -32,10 +32,10 @@ public:
 
     TH1* GetHist() const;
     const Sample* GetSample() const {return fSample;}
-    SystematicHist* AddOverallSyst(const std::string& name,double up,double down);
-    SystematicHist* AddStatSyst(const std::string& name,int i_bin);
-    SystematicHist* AddHistoSyst(const std::string& name,TH1* h_up,TH1* h_down);
-    SystematicHist* AddHistoSyst(const std::string& name, const std::string& histoName_up,
+    SystematicHist* AddOverallSyst(const std::string& name,const std::string& storedName,double up,double down);
+    SystematicHist* AddStatSyst(const std::string& name,const std::string& storedName,int i_bin);
+    SystematicHist* AddHistoSyst(const std::string& name,const std::string& storedName,TH1* h_up,TH1* h_down);
+    SystematicHist* AddHistoSyst(const std::string& name,const std::string& storedName, const std::string& histoName_up,
                                  const std::string& fileName_up, const std::string& histoName_down,
                                  const std::string& fileName_down, int pruned=0);
     SystematicHist* GetSystematic(const std::string& systName) const;

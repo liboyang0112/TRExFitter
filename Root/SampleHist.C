@@ -138,7 +138,7 @@ SampleHist::~SampleHist(){
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddOverallSyst(const std::string& name,double up,double down){
+SystematicHist* SampleHist::AddOverallSyst(const std::string& name,const std::string& storedName,double up,double down){
     SystematicHist *syh;
     // try if it's already there...
     syh = GetSystematic(name);
@@ -149,12 +149,12 @@ SystematicHist* SampleHist::AddOverallSyst(const std::string& name,double up,dou
         fNSyst ++;
     }
     //
-    syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
-    syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
+    syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
     syh->fHistUp  ->Scale(1.+up);
     syh->fHistDown->Scale(1.+down);
-    syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
-    syh->fHistDown_orig = (TH1*)fHist_orig->Clone(Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
+    syh->fHistDown_orig = (TH1*)fHist_orig->Clone(Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
     syh->fHistUp_orig  ->Scale(1.+up);
     syh->fHistDown_orig->Scale(1.+down);
     syh->fIsOverall = true;
@@ -166,7 +166,7 @@ SystematicHist* SampleHist::AddOverallSyst(const std::string& name,double up,dou
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddStatSyst(const std::string& name, int i_bin) {
+SystematicHist* SampleHist::AddStatSyst(const std::string& name,const std::string& storedName, int i_bin) {
     int bin = i_bin+1; // counting of bins in Root starts with 1, in TRExFitter with 0
     SystematicHist *syh;
     // try if it's already there...
@@ -179,10 +179,10 @@ SystematicHist* SampleHist::AddStatSyst(const std::string& name, int i_bin) {
     }
     double binContent = fHist->GetBinContent(bin);
     double binError = binContent > 1e-4 ? fHist->GetBinError(bin) : 1e-7;
-    syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
-    syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
-    syh->fHistShapeUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Shape_Up",  fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
-    syh->fHistShapeDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Shape_Down",fRegionName.c_str(),fSample->fName.c_str(),name.c_str()));
+    syh->fHistUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
+    syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
+    syh->fHistShapeUp   = (TH1*)fHist->Clone(Form("%s_%s_%s_Shape_Up",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
+    syh->fHistShapeDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Shape_Down",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
     syh->fHistShapeUp  ->SetBinContent(bin, binContent + binError);
     syh->fHistShapeDown->SetBinContent(bin, binContent - binError);
     syh->fHistUp  ->SetBinContent(bin, binContent + binError);
@@ -200,8 +200,8 @@ SystematicHist* SampleHist::AddStatSyst(const std::string& name, int i_bin) {
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddHistoSyst(const std::string& name,TH1* h_up,TH1* h_down){
-
+SystematicHist* SampleHist::AddHistoSyst(const std::string& name,const std::string& storedName,TH1* h_up,TH1* h_down){
+    
     // before doing anything else, check if the sampleHist can be created
     if(h_up  ==nullptr) return nullptr;
     if(h_down==nullptr) return nullptr;
@@ -216,23 +216,23 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,TH1* h_up,TH1* 
         fNSyst ++;
     }
     //
-    syh->fHistUp   = (TH1*)h_up  ->Clone(Form("%s_%s_Up",  fHist->GetName(),name.c_str()));
-    syh->fHistDown = (TH1*)h_down->Clone(Form("%s_%s_Down",fHist->GetName(),name.c_str()));
-    syh->fHistUp_orig   = (TH1*)h_up  ->Clone(Form("%s_%s_Up_orig",  fHist->GetName(),name.c_str()));
-    syh->fHistDown_orig = (TH1*)h_down->Clone(Form("%s_%s_Down_orig",fHist->GetName(),name.c_str()));
-    syh->fHistUp_preSmooth   = (TH1*)h_up  ->Clone(Form("%s_%s_Up_preSmooth",  fHist->GetName(),name.c_str()));
-    syh->fHistDown_preSmooth = (TH1*)h_down->Clone(Form("%s_%s_Down_preSmooth",fHist->GetName(),name.c_str()));
-    syh->fHistShapeUp   = (TH1*)h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
-    syh->fHistShapeDown = (TH1*)h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
+    syh->fHistUp   = (TH1*)h_up  ->Clone(Form("%s_%s_Up",  fHist->GetName(),storedName.c_str()));
+    syh->fHistDown = (TH1*)h_down->Clone(Form("%s_%s_Down",fHist->GetName(),storedName.c_str()));
+    syh->fHistUp_orig   = (TH1*)h_up  ->Clone(Form("%s_%s_Up_orig",  fHist->GetName(),storedName.c_str()));
+    syh->fHistDown_orig = (TH1*)h_down->Clone(Form("%s_%s_Down_orig",fHist->GetName(),storedName.c_str()));
+    syh->fHistUp_preSmooth   = (TH1*)h_up  ->Clone(Form("%s_%s_Up_preSmooth",  fHist->GetName(),storedName.c_str()));
+    syh->fHistDown_preSmooth = (TH1*)h_down->Clone(Form("%s_%s_Down_preSmooth",fHist->GetName(),storedName.c_str()));
+    syh->fHistShapeUp   = (TH1*)h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()));
+    syh->fHistShapeDown = (TH1*)h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str()));
     if(syh->fHistShapeUp  ->Integral() > 0. ){
         syh->fHistShapeUp  ->Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());
     } else {
-        syh->fHistShapeUp  = (TH1*)fHist->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
+        syh->fHistShapeUp  = (TH1*)fHist->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()));
     }
     if(syh->fHistShapeDown  ->Integral() > 0. ){
         syh->fHistShapeDown->Scale(fHist->Integral() / syh->fHistShapeDown->Integral());
     } else {
-        syh->fHistShapeDown  = (TH1*)fHist->Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),name.c_str()));
+        syh->fHistShapeDown  = (TH1*)fHist->Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str()));
     }
 
     syh->fIsOverall = true;
@@ -245,7 +245,7 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,TH1* h_up,TH1* 
 
 //_____________________________________________________________________________
 //
-SystematicHist* SampleHist::AddHistoSyst(const std::string& name, const std::string& histoName_up,
+SystematicHist* SampleHist::AddHistoSyst(const std::string& name,const std::string& storedName, const std::string& histoName_up,
                                          const std::string& fileName_up, const std::string& histoName_down,
                                          const std:: string& fileName_down, int pruned/*1: norm only, 2: shape only*/){
 
@@ -285,18 +285,18 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name, const std::str
         sh->fIsShape   = false;
     }
     else{
-        sh->fHistShapeUp   = (TH1*)sh->fHistUp  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
-        sh->fHistShapeDown = (TH1*)sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),name.c_str()));
+        sh->fHistShapeUp   = (TH1*)sh->fHistUp  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()));
+        sh->fHistShapeDown = (TH1*)sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str()));
         if(sh->fHistShapeUp  ->Integral() > 0. ){
             sh->fHistShapeUp  -> Scale(fHist->Integral() / sh->fHistShapeUp  ->Integral());
         } else {
-            sh->fHistShapeUp = (TH1*)fHist -> Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),name.c_str()));
+            sh->fHistShapeUp = (TH1*)fHist -> Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()));
         }
 
         if(sh->fHistShapeDown  ->Integral() > 0. ){
             sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
         } else {
-            sh->fHistShapeDown = (TH1*)fHist -> Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),name.c_str()));
+            sh->fHistShapeDown = (TH1*)fHist -> Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str()));
         }
         sh->fIsShape   = true;
     }
@@ -471,7 +471,7 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
         WriteDebugStatus("SampleHist::WriteToFile", "adding separate gammas as SHAPE systematic " + systName);
         gamma->fRegions.clear();
         gamma->fRegions.push_back(fRegionName);
-        SystematicHist *syh = AddHistoSyst(systName,htempUp,htempDown);
+        SystematicHist *syh = AddHistoSyst(systName,systName,htempUp,htempDown);
         syh->fHistUp_orig   = htempUp_orig;
         syh->fHistDown_orig = htempDown_orig;
         gamma->fNuisanceParameter = gamma->fName;
@@ -488,16 +488,16 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
     //
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         // make sure they all have the correct name!
-        fSyst[i_syst]->fHistUp  ->SetName( Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
-        fSyst[i_syst]->fHistDown->SetName( Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
-        fSyst[i_syst]->fHistUp_orig  ->SetName( Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
-        fSyst[i_syst]->fHistDown_orig->SetName( Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()) );
+        fSyst[i_syst]->fHistUp  ->SetName( Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fSystematic->fStoredName.c_str()) );
+        fSyst[i_syst]->fHistDown->SetName( Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fSystematic->fStoredName.c_str()) );
+        fSyst[i_syst]->fHistUp_orig  ->SetName( Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fSystematic->fStoredName.c_str()) );
+        fSyst[i_syst]->fHistDown_orig->SetName( Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fSystematic->fStoredName.c_str()) );
         if(f==nullptr) fSyst[i_syst]->WriteToFile(nullptr,reWriteOrig);
         else           fSyst[i_syst]->WriteToFile(f,      reWriteOrig);
         // for shape hist, save also the syst(up)-nominal (to feed HistFactory)
         if(fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
             TH1* hVar = HistoTools::TranformHistogramBinning(
-              (TH1*)fSyst[i_syst]->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fName.c_str()))
+              (TH1*)fSyst[i_syst]->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fSystematic->fStoredName.c_str()))
             );
             hVar->Add(fHist_regBin,-1);
             hVar->Divide(fHist_regBin);
@@ -719,6 +719,14 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
         if (SumAndData) data = std::unique_ptr<TH1>(static_cast<TH1*>(h_data->Clone("nominal")));
         std::unique_ptr<TH1> tmp(static_cast<TH1*>(nominal->Clone()));
 
+        // drop shape or norm (for cases where this is not yet done in the stored histogrmas, i.e. in case of pruning or decorrelation)
+        if(fSyst[i_syst]->fSystematic->fIsNormOnly){
+            DropShape(syst_up.get(),syst_down.get(),nominal.get());
+        }
+        if(fSyst[i_syst]->fSystematic->fIsShapeOnly){
+            DropNorm(syst_up.get(),syst_down.get(),nominal.get());
+        }
+        
         // Cosmetics
         nominal->SetLineColor(kBlack);
         nominal->SetLineWidth(2);
@@ -1234,7 +1242,7 @@ void SampleHist::Divide(SampleHist *sh){
             hDown->Scale(-1);
             hDown->Add(fHist,2);
             //
-            syh = AddHistoSyst(NuisParName,hUp,hDown);
+            syh = AddHistoSyst(NuisParName,NuisParName,hUp,hDown);
             if (syh == nullptr) {
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
@@ -1302,7 +1310,7 @@ void SampleHist::Multiply(SampleHist *sh){
             TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp   );
             hDown->Multiply( sh->fSyst[i_syst]->fHistDown );
-            syh = AddHistoSyst(NuisParName,hUp,hDown);
+            syh = AddHistoSyst(NuisParName,NuisParName,hUp,hDown);
             if (syh == nullptr) {
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
@@ -1386,7 +1394,7 @@ void SampleHist::Add(SampleHist *sh,double scale){
                }
             }
             else hDown->Add( sh->fSyst[i_syst]->fHistDown,scale );
-            syh = AddHistoSyst(NuisParName,hUp,hDown);
+            syh = AddHistoSyst(NuisParName,NuisParName,hUp,hDown);
             if (syh == nullptr) {
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);

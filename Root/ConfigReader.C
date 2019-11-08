@@ -4279,9 +4279,10 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
         }
         WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", "--> KEEPING IT!!! " + ireg);
 
+        Region* reg = fFitter->GetRegion(ireg);
+        
         if (type == Systematic::STAT) {
-          Region* reg = fFitter->GetRegion(ireg);
-          unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
+            unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
             WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", ireg + " " + std::to_string(nbins));
             // decorrelate by bin
             for (unsigned int i_bin = 0; i_bin < nbins; i_bin++) {
@@ -4350,7 +4351,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
             // Set Title
             param = confSet->Get("Title");
             if(param != ""){
-                mySys->fTitle = (sys->fTitle)+"_"+ireg;
+                mySys->fTitle = (sys->fTitle)+" ("+reg->fLabel+")";
                 TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
             }
             fFitter->fNSyst++;
@@ -4406,7 +4407,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         }
         WriteInfoStatus("ConfigReader::SetSystSampleDecorelate", " --> KEEPING SAMPLE: " + sam->fName);
         //
-        // cloning the sys for each region
+        // cloning the sys for each sample
         Systematic* mySys= new Systematic(*sys);
         mySys->fName=(mySys->fName)+"_"+sam->fName;
         fFitter->fSystematics.push_back( mySys );
@@ -4427,7 +4428,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            mySys->fTitle = (sys->fTitle)+"_"+sam->fName;
+            mySys->fTitle = (sys->fTitle)+" "+sam->fTitle;
             TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
         }
         fFitter->fNSyst++;
@@ -4452,6 +4453,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
     mySys1->fName=(mySys1->fName)+"_Acc";
     fFitter->fSystematics.push_back( mySys1 );
     mySys1->fIsNormOnly = true;
+    mySys1->fIsShapeOnly = false;
 
     // Set NuisanceParameter
     param = confSet->Get("NuisanceParameter");
@@ -4469,7 +4471,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
-        mySys1->fTitle = (sys->fTitle)+"_Acc";
+        mySys1->fTitle = (sys->fTitle)+" Acc";
         TRExFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
     }
     fFitter->fNSyst++;
@@ -4496,6 +4498,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         mySys2->fName=(mySys2->fName)+"_Shape";
         mySys2->fIsNormOnly=false;
         mySys2->fIsShapeOnly=true;
+        
         fFitter->fSystematics.push_back( mySys2 );
 
         //Set NuisanceParameter
@@ -4514,11 +4517,10 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            mySys2->fTitle = (sys->fTitle)+"_Shape";
+            mySys2->fTitle = (sys->fTitle)+" Shape";
             TRExFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
         }
         fFitter->fNSyst++;
-
 
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
             sam = fFitter->fSamples[i_smp];

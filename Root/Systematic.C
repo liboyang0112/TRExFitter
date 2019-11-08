@@ -134,6 +134,9 @@ Systematic::Systematic(const Systematic &sys) {
     fOverallUp = sys.fOverallUp;
     fOverallDown = sys.fOverallDown;
     //
+    fScaleUp = sys.fScaleUp;
+    fScaleDown = sys.fScaleDown;
+    //
     fHasUpVariation = sys.fHasUpVariation;
     fHasDownVariation = sys.fHasDownVariation;
     //
@@ -213,6 +216,7 @@ Systematic::Systematic(const Systematic &sys) {
     //
     fRegions = sys.fRegions;
     fExclude = sys.fExclude;
+    fSamples = sys.fSamples;
     fExcludeRegionSample = sys.fExcludeRegionSample;
     fDropShapeIn = sys.fDropShapeIn;
     fDropNormIn = sys.fDropNormIn;

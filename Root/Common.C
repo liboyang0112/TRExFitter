@@ -1087,6 +1087,41 @@ std::string pad_trail( const std::string & input ) {
 }
 
 //___________________________________________________________
+// Helper functions to drop norm or shape part from systematic variations 
+void DropNorm(TH1* hUp,TH1* hDown,TH1* hNom){
+    const double intNom = hNom->Integral();
+    if(hUp!=nullptr){
+        const double intUp = hUp->Integral();
+        if(intUp!=0) hUp->Scale(intNom/intUp);
+        else WriteErrorStatus("Common::DropNorm","Integral of up variation = 0. Cannot drop normalization.");
+    }
+    if(hDown!=nullptr){
+        const double intDown = hDown->Integral();
+        if(intDown!=0) hDown->Scale(intNom/intDown);
+        else WriteErrorStatus("Common::DropNorm","Integral of down variation = 0. Cannot drop normalization.");
+    }
+}
+void DropShape(TH1* hUp,TH1* hDown,TH1* hNom){
+    const double intNom = hNom->Integral();
+    if(intNom==0){
+        WriteErrorStatus("Common::DropShape","Integral of nominal histogram = 0. Cannot drop shape of syst variations.");
+        return;
+    }
+    if(hUp!=nullptr){
+        const double ratioUp = hUp->Integral()/intNom;
+        delete hUp;
+        hUp = static_cast<TH1*>(hNom->Clone());
+        hUp->Scale(ratioUp);
+    }
+    if(hDown!=nullptr){
+        const double ratioDown = hDown->Integral()/intNom;
+        delete hDown;
+        hDown = static_cast<TH1*>(hNom->Clone());
+        hDown->Scale(ratioDown);
+    }
+}
+
+//___________________________________________________________
 //
 void ScaleMCstatInHist(TH1* hist, const double scale) {
     if (std::fabs(scale-1) < 1e-6) return; // basically scale == 1 but floating precision
