@@ -150,6 +150,11 @@ public:
 
     RooStats::HistFactory::Channel OneChannelToRooStats(RooStats::HistFactory::Measurement* meas, const int ichan);
 
+    RooStats::HistFactory::Sample OneSampleToRooStats(RooStats::HistFactory::Measurement* meas,
+                                                      const SampleHist* h,
+                                                      const int i_ch,
+                                                      const int i_smp);
+
     void SystPruning() const;
     void DrawPruningPlot() const;
 
