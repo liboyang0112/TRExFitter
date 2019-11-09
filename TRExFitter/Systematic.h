@@ -24,9 +24,11 @@ public:
          STAT // 3
     };
 
-    Systematic(const std::string& name,int type=0,double up=0.,double down=0.);
+    explicit Systematic(const std::string& name,int type=0,double up=0.,double down=0.);
+    
     Systematic(const Systematic &sys);  // copy constructor
-    ~Systematic();
+
+    ~Systematic() = default;
 
     // -------
     // Members
@@ -59,7 +61,6 @@ public:
 
     std::map<std::string,double> fScaleUpRegions;
     std::map<std::string,double> fScaleDownRegions;
-
 
     bool fHasUpVariation;
     bool fHasDownVariation;
