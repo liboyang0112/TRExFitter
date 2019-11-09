@@ -2386,7 +2386,6 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 pullTex.close();
             }
             delete p;
-            if(TRExFitter::PREFITONPOSTFIT) delete fRegions[i_ch]->fPlotPreFit;
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(fPrePostFitCanvasSize, opt+" blind");
