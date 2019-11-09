@@ -69,24 +69,24 @@ Creating workspace...
 [1;32m=== INFO::TRExFit::ToRooStat: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::ToRooStat: Exporting to RooStats...[0m
 === DEBUG::TRExFit::ToRooStat: Adding Channel: SR_1
-=== DEBUG::TRExFit::ToRooStat:   Adding Data: SR_1_Data
-=== DEBUG::TRExFit::ToRooStat:   Adding Sample: Bkg1
-=== DEBUG::TRExFit::ToRooStat:     Adding Systematic: JES
-=== DEBUG::TRExFit::ToRooStat:     Adding Systematic: Bkg1Xsec
-=== DEBUG::TRExFit::ToRooStat:   Adding Sample: Bkg2
-=== DEBUG::TRExFit::ToRooStat:     Adding Systematic: Bkg2Xsec
-=== DEBUG::TRExFit::ToRooStat:   Adding Sample: Signal
-=== DEBUG::TRExFit::ToRooStat:     Adding NormFactor: SigXsecOverSM, 1.000000
-=== DEBUG::TRExFit::ToRooStat:     Adding Systematic: JES
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Data: SR_1_Data
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Bkg1
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: JES
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: Bkg1Xsec
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Bkg2
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: Bkg2Xsec
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Signal
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: SigXsecOverSM, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: JES
 === DEBUG::TRExFit::ToRooStat: Adding Channel: SR_2
-=== DEBUG::TRExFit::ToRooStat:   Adding Data: SR_2_Data
-=== DEBUG::TRExFit::ToRooStat:   Adding Sample: Bkg1
-=== DEBUG::TRExFit::ToRooStat:     Adding Systematic: JES
-=== DEBUG::TRExFit::ToRooStat:   Adding Sample: Bkg2
-=== DEBUG::TRExFit::ToRooStat:     Adding Systematic: Bkg2Xsec
-=== DEBUG::TRExFit::ToRooStat:   Adding Sample: Signal
-=== DEBUG::TRExFit::ToRooStat:     Adding NormFactor: SigXsecOverSM, 1.000000
-=== DEBUG::TRExFit::ToRooStat:     Adding Systematic: JES
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Data: SR_2_Data
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Bkg1
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: JES
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Bkg2
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: Bkg2Xsec
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Signal
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: SigXsecOverSM, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: JES
 Printing XML Files for measurement: FitExample
 Printing XML Files for channel: SR_1
 Finished printing XML files

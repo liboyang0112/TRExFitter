@@ -241,6 +241,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         std::cout << "Creating workspace..." << std::endl;
         myFit->SetLumiErr(0.);
         myFit->ToRooStat(true,true);
+        myFit->CloseInputFiles();
     }
 
     if(doFit){

@@ -40,7 +40,6 @@
 #include "RooStats/AsymptoticCalculator.h"
 #include "RooStats/HistFactory/HistoToWorkspaceFactoryFast.h"
 #include "RooStats/HistFactory/MakeModelAndMeasurementsFast.h"
-#include "RooStats/HistFactory/Measurement.h"
 
 // ATLAS stuff
 #include "AtlasUtils/AtlasStyle.h"
@@ -4180,21 +4179,19 @@ void TRExFit::CreateCustomAsimov() const{
 
 //__________________________________________________________________________________
 // turn to RooStat::HistFactory
-void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
+void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly) const {
 
     WriteInfoStatus("TRExFit::ToRooStat", "-------------------------------------------");
     WriteInfoStatus("TRExFit::ToRooStat", "Exporting to RooStats...");
 
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 
-    //Suffix used for the regular bin transformed histogram
-    const std::string suffix_regularBinning = "_regBin";
-
     RooStats::HistFactory::Measurement meas((fInputName+fSuffix).c_str(), (fInputName+fSuffix).c_str());
-    if(fBootstrap!="" && fBootstrapIdx>=0)
+    if(fBootstrap!="" && fBootstrapIdx>=0) {
         meas.SetOutputFilePrefix((fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName).c_str());
-    else
+    } else {
         meas.SetOutputFilePrefix((fName+"/RooStats/"+fInputName).c_str());
+    }
     meas.SetExportOnly(exportOnly);
     meas.SetPOI(fPOI.c_str());
     meas.SetLumi(fLumiScale);
@@ -4205,163 +4202,37 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
         meas.SetLumiRelErr(fLumiErr);
     }
 
-    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+    for(int i_ch=0;i_ch<fNRegions;i_ch++) {
 
         if(fRegions[i_ch]->fRegionType==Region::VALIDATION) continue;
 
         WriteDebugStatus("TRExFit::ToRooStat", "Adding Channel: " + fRegions[i_ch]->fName);
-        RooStats::HistFactory::Channel chan(fRegions[i_ch]->fName.c_str());
+        const RooStats::HistFactory::Channel chan = OneChannelToRooStats(&meas, i_ch);
 
-        //Checks if a data sample exists
-        bool hasData = false;
-        for(int i_smp=0;i_smp<fNSamples;i_smp++){
-            if(fSamples[i_smp]->fType==Sample::DATA){
-                hasData = true;
-                break;
-            }
-        }
-        if(fCustomAsimov!=""){
-            std::string name = "customAsimov_"+fCustomAsimov;
-            SampleHist* cash = fRegions[i_ch]->GetSampleHist(name);
-            if(cash==nullptr){
-                if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
-                WriteWarningStatus("TRExFit::ToRooStat", "No Custom Asimov " + fCustomAsimov + " available. Taking regular Asimov.");
-                if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-            }
-            else{
-                std::string temp_string = cash->fHist->GetName();
-                WriteDebugStatus("TRExFit::ToRooStat", "  Adding Custom-Asimov Data: " + temp_string);
-                chan.SetData(cash->fHistoName+suffix_regularBinning, cash->fFileName);
-            }
-        }
-        else if(hasData){
-            std::string temp_string = fRegions[i_ch]->fData->fHist->GetName();
-            WriteDebugStatus("TRExFit::ToRooStat", "  Adding Data: " + temp_string);
-            chan.SetData(fRegions[i_ch]->fData->fHistoName+suffix_regularBinning, fRegions[i_ch]->fData->fFileName);
-        } else {
-            chan.SetData("", "");
-        }
-
-        // fStatErrCons is upper case after config reading if the MCstatThreshold option is used, otherwise it defaults to "Poisson"
-        // HistFactory expects the constraint not in all uppercase, but in form "Poisson"/"Gaussian" instead
-        if(fStatErrCons=="Poisson" || fStatErrCons=="POISSON") chan.SetStatErrorConfig(fStatErrThres, "Poisson");
-        else if(fStatErrCons=="GAUSSIAN")                      chan.SetStatErrorConfig(fStatErrThres, "Gaussian");
-
-        for(int i_smp=0;i_smp<fNSamples;i_smp++){
-            SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
-            if( h != nullptr && h->fSample->fType!=Sample::DATA && h->fSample->fType!=Sample::GHOST ){
-                WriteDebugStatus("TRExFit::ToRooStat", "  Adding Sample: " + fSamples[i_smp]->fName);
-                RooStats::HistFactory::Sample sample(fSamples[i_smp]->fName.c_str());
-                if(fUseStatErr && fSamples[i_smp]->fUseMCStat) sample.ActivateStatError();
-                sample.SetHistoName(h->fHistoName+suffix_regularBinning);
-                sample.SetInputFile(h->fFileName);
-                sample.SetNormalizeByTheory(fSamples[i_smp]->fNormalizedByTheory);
-                // norm factors
-                for(int i_norm=0;i_norm<h->fNNorm;i_norm++){
-                    WriteDebugStatus("TRExFit::ToRooStat", "    Adding NormFactor: " + h->fNormFactors[i_norm]->fName + ", " + std::to_string(h->fNormFactors[i_norm]->fNominal));
-                    sample.AddNormFactor( h->fNormFactors[i_norm]->fName,
-                                         h->fNormFactors[i_norm]->fNominal,
-                                         h->fNormFactors[i_norm]->fMin,
-                                         h->fNormFactors[i_norm]->fMax);
-                    if (h->fNormFactors[i_norm]->fConst) meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
-                    if (fStatOnly && fFixNPforStatOnlyFit && h->fNormFactors[i_norm]->fName!=fPOI)
-                        meas.AddConstantParam( h->fNormFactors[i_norm]->fName );
-                }
-                // shape factors
-                for(int i_shape=0;i_shape<h->fNShape;i_shape++){
-                    WriteDebugStatus("TRExFit::ToRooStat", "    Adding ShapeFactor: " + h->fShapeFactors[i_shape]->fName + ", " + std::to_string(h->fShapeFactors[i_shape]->fNominal));
-                    sample.AddShapeFactor( h->fShapeFactors[i_shape]->fName );
-                    if (h->fShapeFactors[i_shape]->fConst
-                        || (fStatOnly && fFixNPforStatOnlyFit && h->fShapeFactors[i_shape]->fName!=fPOI)
-                    ){
-                        for(int i_bin=0;i_bin<h->fShapeFactors[i_shape]->fNbins;i_bin++){
-                            meas.AddConstantParam( "gamma_" + h->fShapeFactors[i_shape]->fName + "_bin_" + std::to_string(i_bin) );
-                        }
-                    }
-                }
-                // systematics
-                if(!fStatOnly){
-                    for(int i_syst=0;i_syst<h->fNSyst;i_syst++){
-                        // add normalization part
-                        WriteDebugStatus("TRExFit::ToRooStat", "    Adding Systematic: " + h->fSyst[i_syst]->fName);
-                        if ( h->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
-                            std::string npName = "shape_";
-                            npName += h->fSyst[i_syst]->fSystematic->fNuisanceParameter+"_";
-                            std::string regionName = fRegions[i_ch]->fName;
-                            if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter.find("stat_")!=std::string::npos){
-                                // see if there are regions to correlate with others
-                                for(auto set : h->fSample->fCorrelateGammasInRegions){
-                                    for(unsigned int i_reg=0;i_reg<set.size();i_reg++){
-                                        if(i_reg!=0 && regionName==set[i_reg]){
-                                            regionName = set[0];
-                                            break;
-                                        }
-                                    }
-                                }
-                                // eventually correlate MC stat with other samples
-                                if(h->fSample->fCorrelateGammasWithSample!=""){
-                                    npName = "shape_stat_"+h->fSample->fCorrelateGammasWithSample+"_";
-                                }
-                            }
-                            npName += regionName;
-                            sample.AddShapeSys( npName, RooStats::HistFactory::Constraint::Poisson,
-                                                (h->fSyst[i_syst]->fHistoNameUp+"_Var"+suffix_regularBinning),
-                                                h->fSyst[i_syst]->fFileNameUp, "");
-                        }
-                        else{
-                            if ( !h->fSyst[i_syst]->fSystematic->fIsShapeOnly  &&
-                                !h->fSyst[i_syst]->fNormPruned  &&
-                                !h->fSyst[i_syst]->fBadNorm
-                              ) {
-                                if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter=="ttXsec"){
-                                    WriteDebugStatus("TRExFit::ToRooStat", "Syst norm up: " + std::to_string(h->fSyst[i_syst]->fNormUp));
-                                }
-                                sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
-                                                      1+h->fSyst[i_syst]->fNormDown,
-                                                      1+h->fSyst[i_syst]->fNormUp   );
-                            }
-                            // eventually add shape part
-                            if ( h->fSyst[i_syst]->fIsShape  &&
-                                !h->fSyst[i_syst]->fSystematic->fIsNormOnly  &&
-                                !h->fSyst[i_syst]->fShapePruned  &&
-                                !h->fSyst[i_syst]->fBadShape
-                              ){
-                                sample.AddHistoSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
-                                                    h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning, h->fSyst[i_syst]->fFileNameShapeDown, "",
-                                                    h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,   h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
-                            }
-                        }
-                    }
-                }
-                else{
-                    sample.AddOverallSys( "Dummy",1,1 );
-                }
-                chan.AddSample(sample);
-            }
-        }
         meas.AddChannel(chan);
     }
     // Experimental: turn off constraints for given systematics
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+    for(int i_syst=0; i_syst<fNSyst; ++i_syst) {
         if(fSystematics[i_syst]->fIsFreeParameter) meas.AddUniformSyst(fSystematics[i_syst]->fName.c_str());
     }
+
     // morphing
     for(const TRExFit::TemplateWeight& itemp : fTemplateWeightVec){
-        std::string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
+        const std::string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
         WriteDebugStatus("TRExFit::ToRooStat", "Morphing: normName: " + normName);
         meas.AddPreprocessFunction(normName, itemp.function, itemp.range);
     }
-    for(auto nf : fNormFactors){
+    for(const auto& nf : fNormFactors){
         if(nf->fExpression.first!=""){
             meas.AddPreprocessFunction(nf->fName,nf->fExpression.first,nf->fExpression.second);
         }
     }
     //
-    if(fBootstrap!="" && fBootstrapIdx>=0)
+    if(fBootstrap!="" && fBootstrapIdx>=0) {
         meas.PrintXML((fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/").c_str());
-    else
+    } else {
         meas.PrintXML((fName+"/RooStats/").c_str());
-    CloseInputFiles();
+    }
     meas.CollectHistograms();
     meas.PrintTree();
 
@@ -4372,7 +4243,159 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly){
 
 //__________________________________________________________________________________
 //
-void TRExFit::SystPruning() const{
+RooStats::HistFactory::Channel TRExFit::OneChannelToRooStats(RooStats::HistFactory::Measurement* meas, const int i_ch) const {
+    RooStats::HistFactory::Channel chan(fRegions[i_ch]->fName.c_str());
+
+    //Suffix used for the regular bin transformed histogram
+    static const std::string suffix_regularBinning("_regBin");
+
+    //Checks if a data sample exists
+    bool hasData = false;
+    for(int i_smp=0; i_smp<fNSamples; ++i_smp){
+        if(fSamples[i_smp]->fType==Sample::DATA){
+            hasData = true;
+            break;
+        }
+    }
+
+    if(fCustomAsimov != "") {
+        const std::string name = "customAsimov_"+fCustomAsimov;
+        SampleHist* cash = fRegions[i_ch]->GetSampleHist(name);
+        if(cash==nullptr){
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+            WriteWarningStatus("TRExFit::OneChannelToRooStats", "No Custom Asimov " + fCustomAsimov + " available. Taking regular Asimov.");
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+        } else{
+            const std::string temp_string = cash->fHist->GetName();
+            WriteDebugStatus("TRExFit::OneChannelToRooStats", "  Adding Custom-Asimov Data: " + temp_string);
+            chan.SetData(cash->fHistoName+suffix_regularBinning, cash->fFileName);
+        }
+    } else if(hasData) {
+        const std::string temp_string = fRegions[i_ch]->fData->fHist->GetName();
+        WriteDebugStatus("TRExFit::OneChannelToRooStats", "  Adding Data: " + temp_string);
+        chan.SetData(fRegions[i_ch]->fData->fHistoName+suffix_regularBinning, fRegions[i_ch]->fData->fFileName);
+    } else {
+        chan.SetData("", "");
+    }
+
+    // fStatErrCons is upper case after config reading if the MCstatThreshold option is used, otherwise it defaults to "Poisson"
+    // HistFactory expects the constraint not in all uppercase, but in form "Poisson"/"Gaussian" instead
+    if(fStatErrCons=="Poisson" || fStatErrCons=="POISSON") chan.SetStatErrorConfig(fStatErrThres, "Poisson");
+    else if(fStatErrCons=="GAUSSIAN")                      chan.SetStatErrorConfig(fStatErrThres, "Gaussian");
+
+    for(int i_smp=0; i_smp<fNSamples; ++i_smp) {
+        SampleHist* h = fRegions[i_ch]->GetSampleHist(fSamples[i_smp]->fName);
+        if (!h) continue;
+        if (h->fSample->fType == Sample::DATA) continue;
+        if (h->fSample->fType == Sample::GHOST) continue;
+
+        WriteDebugStatus("TRExFit::OneChannelToRooStats", "  Adding Sample: " + fSamples[i_smp]->fName);
+        const RooStats::HistFactory::Sample sample = OneSampleToRooStats(meas, h, i_ch, i_smp);;
+        chan.AddSample(sample);
+    }
+
+    return chan;
+}
+
+//__________________________________________________________________________________
+//
+RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory::Measurement* meas,
+                                                           const SampleHist* h,
+                                                           const int i_ch,
+                                                           const int i_smp) const {
+    RooStats::HistFactory::Sample sample(fSamples[i_smp]->fName.c_str());
+
+    static const std::string suffix_regularBinning("_regBin");
+
+    if(fUseStatErr && fSamples[i_smp]->fUseMCStat) sample.ActivateStatError();
+    sample.SetHistoName(h->fHistoName+suffix_regularBinning);
+    sample.SetInputFile(h->fFileName);
+    sample.SetNormalizeByTheory(fSamples[i_smp]->fNormalizedByTheory);
+    // norm factors
+    for(int i_norm=0; i_norm < h->fNNorm; ++i_norm) {
+        WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding NormFactor: " + h->fNormFactors[i_norm]->fName + ", " + std::to_string(h->fNormFactors[i_norm]->fNominal));
+        sample.AddNormFactor(h->fNormFactors[i_norm]->fName,
+                             h->fNormFactors[i_norm]->fNominal,
+                             h->fNormFactors[i_norm]->fMin,
+                             h->fNormFactors[i_norm]->fMax);
+        if (h->fNormFactors[i_norm]->fConst) meas->AddConstantParam( h->fNormFactors[i_norm]->fName );
+        if (fStatOnly && fFixNPforStatOnlyFit && h->fNormFactors[i_norm]->fName!=fPOI) {
+            meas->AddConstantParam( h->fNormFactors[i_norm]->fName );
+        }
+    }
+
+    // shape factors
+    for(int i_shape = 0; i_shape < h->fNShape; ++i_shape) {
+        WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding ShapeFactor: " + h->fShapeFactors[i_shape]->fName + ", " + std::to_string(h->fShapeFactors[i_shape]->fNominal));
+        sample.AddShapeFactor( h->fShapeFactors[i_shape]->fName );
+        if (h->fShapeFactors[i_shape]->fConst
+            || (fStatOnly && fFixNPforStatOnlyFit && h->fShapeFactors[i_shape]->fName!=fPOI) ) {
+            for(int i_bin=0; i_bin < h->fShapeFactors[i_shape]->fNbins; ++i_bin) {
+                meas->AddConstantParam( "gamma_" + h->fShapeFactors[i_shape]->fName + "_bin_" + std::to_string(i_bin) );
+            }
+        }
+    }
+    // systematics
+    if(fStatOnly) {
+        sample.AddOverallSys( "Dummy",1,1 );
+        return sample;
+    }
+    for(int i_syst = 0; i_syst < h->fNSyst; ++i_syst) {
+        // add normalization part
+        WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding Systematic: " + h->fSyst[i_syst]->fName);
+        if ( h->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
+            std::string npName = "shape_" + h->fSyst[i_syst]->fSystematic->fNuisanceParameter+"_";
+            std::string regionName = fRegions[i_ch]->fName;
+            if(h->fSyst[i_syst]->fSystematic->fNuisanceParameter.find("stat_")!=std::string::npos) {
+                // see if there are regions to correlate with others
+                for(auto& set : h->fSample->fCorrelateGammasInRegions){
+                    for(std::size_t i_reg = 0; i_reg < set.size(); ++i_reg){
+                        if(i_reg != 0 && regionName == set[i_reg]) {
+                            regionName = set[0];
+                            break;
+                        }
+                    }
+                }
+                // eventually correlate MC stat with other samples
+                if(h->fSample->fCorrelateGammasWithSample != ""){
+                    npName = "shape_stat_"+h->fSample->fCorrelateGammasWithSample+"_";
+                }
+            }
+            npName += regionName;
+            sample.AddShapeSys( npName,
+                                RooStats::HistFactory::Constraint::Poisson,
+                                h->fSyst[i_syst]->fHistoNameUp+"_Var"+suffix_regularBinning,
+                                h->fSyst[i_syst]->fFileNameUp, "");
+        } else {
+            if ( !h->fSyst[i_syst]->fSystematic->fIsShapeOnly &&
+                !h->fSyst[i_syst]->fNormPruned &&
+                !h->fSyst[i_syst]->fBadNorm
+              ) {
+                sample.AddOverallSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
+                                      1+h->fSyst[i_syst]->fNormDown,
+                                      1+h->fSyst[i_syst]->fNormUp);
+            }
+            // eventually add shape part
+            if ( h->fSyst[i_syst]->fIsShape &&
+                !h->fSyst[i_syst]->fSystematic->fIsNormOnly &&
+                !h->fSyst[i_syst]->fShapePruned &&
+                !h->fSyst[i_syst]->fBadShape
+              ){
+                sample.AddHistoSys( h->fSyst[i_syst]->fSystematic->fNuisanceParameter,
+                                    h->fSyst[i_syst]->fHistoNameShapeDown+suffix_regularBinning,
+                                    h->fSyst[i_syst]->fFileNameShapeDown, "",
+                                    h->fSyst[i_syst]->fHistoNameShapeUp+suffix_regularBinning,
+                                    h->fSyst[i_syst]->fFileNameShapeUp,   ""  );
+            }
+        }
+    }
+
+    return sample;
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::SystPruning() const {
     WriteInfoStatus("TRExFit::SystPruning", "------------------------------------------------------");
     WriteInfoStatus("TRExFit::SystPruning", "Apply Systematics Pruning ...");
     if(fSystematics.size()==0 || fStatOnly){
@@ -4380,15 +4403,15 @@ void TRExFit::SystPruning() const{
         return;
     }
 
-    PruningUtil *pu = new PruningUtil();
-    pu->SetStrategy((int)fPruningType);
-    pu->SetThresholdNorm(fThresholdSystPruning_Normalisation);
-    pu->SetThresholdShape(fThresholdSystPruning_Shape);
-    pu->SetThresholdIsLarge(fThresholdSystLarge);
+    PruningUtil pu{};
+    pu.SetStrategy((int)fPruningType);
+    pu.SetThresholdNorm(fThresholdSystPruning_Normalisation);
+    pu.SetThresholdShape(fThresholdSystPruning_Shape);
+    pu.SetThresholdIsLarge(fThresholdSystLarge);
 
-    for(auto reg : fRegions){
+    for(auto& reg : fRegions){
         // if want to skip validation regions from pruning, add a condition here
-        reg->SystPruning(pu);
+        reg->SystPruning(&pu);
     }
 
     // it also writes the txt file actually

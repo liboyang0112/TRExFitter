@@ -10,6 +10,9 @@
 #include "RooStats/ModelConfig.h"
 #include "RooMultiVarGaussian.h"
 
+// RooStats
+#include "RooStats/HistFactory/Measurement.h"
+
 /// c++ includes
 #include <map>
 #include <memory>
@@ -143,7 +146,14 @@ public:
     void CreateCustomAsimov() const;
 
     // turn to RooStat::HistFactory
-    void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
+    void ToRooStat(bool createWorkspace=true, bool exportOnly=true) const;
+
+    RooStats::HistFactory::Channel OneChannelToRooStats(RooStats::HistFactory::Measurement* meas, const int ichan) const;
+
+    RooStats::HistFactory::Sample OneSampleToRooStats(RooStats::HistFactory::Measurement* meas,
+                                                      const SampleHist* h,
+                                                      const int i_ch,
+                                                      const int i_smp) const;
 
     void SystPruning() const;
     void DrawPruningPlot() const;
