@@ -1333,7 +1333,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         h_down.push_back( fTotDown_postFit[i_syst] );
         systNuisPars.push_back(TRExFitter::NPMAP[fSystNames[i_syst]]);
     }
-    fErr_postFit = BuildTotError( fTot_postFit, h_up, h_down, systNuisPars, fitRes->fCorrMatrix );
+    fErr_postFit = BuildTotError( fTot_postFit, h_up, h_down, systNuisPars, fitRes->fCorrMatrix.get() );
     fErr_postFit->SetName("g_totErr_postFit");
     // at this point fTot and fErr _postFit should be ready
 
@@ -1354,7 +1354,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             }
         }
         if(fGetChi2==1) fSystNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix );
+        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix.get() );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -2116,7 +2116,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                 TGraphAsymmErrors *g_err;
                 double err = 0.;
                 if (isPostFit){
-                    g_err = BuildTotError(sh->fHist_postFit, category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix);
+                    g_err = BuildTotError(sh->fHist_postFit, category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix.get());
                     if (category_histo_up.size()>0 && sh->fHist_postFit->Integral()>0.){
                         for (int ibin=1; ibin<sh->fHist_postFit->GetNbinsX()+1; ibin++){
                             if (pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist_postFit->GetBinError(ibin), 2)>=0.){ // dummy check

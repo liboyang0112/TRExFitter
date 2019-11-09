@@ -2867,7 +2867,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         }
     }
     //
-    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix );
+    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
     else           g_err = BuildTotError( h_tot, h_up, h_down, npNames );
     //
     p->SetTotBkg(h_tot);
@@ -3481,7 +3481,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             }
         }
         //
-        if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames, fFitResults->fCorrMatrix );
+        if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
         else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames );
     }
     //
@@ -3621,7 +3621,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         }
     }
     //
-    if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix );
+    if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames );
     //
     if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) out << " | Total | ";
