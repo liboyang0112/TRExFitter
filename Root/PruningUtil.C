@@ -9,16 +9,11 @@
 
 //__________________________________________________________________________________
 //
-PruningUtil::PruningUtil(){
-    fStrategy = 0;
-    fThresholdNorm = -1;
-    fThresholdShape = -1;
-    fThresholdIsLarge = -1;
-}
-
-//__________________________________________________________________________________
-//
-PruningUtil::~PruningUtil(){
+PruningUtil::PruningUtil() :
+    fStrategy(0),
+    fThresholdNorm(-1),
+    fThresholdShape(-1),
+    fThresholdIsLarge(-1) {
 }
 
 //__________________________________________________________________________________
