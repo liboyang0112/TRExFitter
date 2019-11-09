@@ -9,28 +9,33 @@
 
 //__________________________________________________________________________________
 //
-NormFactor::NormFactor():fName(""),fNominal(0),fMin(0),fMax(0),fConst(false),fTau(0){}
-
-//__________________________________________________________________________________
-//
-NormFactor::NormFactor(const std::string& name, double nominal, double min, double max, bool isConst, std::string subCategory){
-    fName = name;
-    fNominal = nominal;
-    fMin = min;
-    fMax = max;
-    fConst = isConst;
-    //
-    fNuisanceParameter = name;
-    fTitle = name;
-    //
-    fSubCategory = subCategory;
-    fExpression = std::make_pair("","");
-    fTau = 0;
+NormFactor::NormFactor() : 
+    fName(""),
+    fNuisanceParameter(""),
+    fTitle(""),
+    fCategory(""),
+    fSubCategory(""),
+    fNominal(0),
+    fMin(0),
+    fMax(0),
+    fConst(false),
+    fTau(0) {
 }
 
 //__________________________________________________________________________________
 //
-NormFactor::~NormFactor(){}
+NormFactor::NormFactor(const std::string& name, double nominal, double min, double max, bool isConst, std::string subCategory) : 
+    fName(name),
+    fNuisanceParameter(name),
+    fTitle(name),
+    fCategory(""),
+    fSubCategory(subCategory),
+    fNominal(nominal),
+    fMin(min),
+    fMax(max),
+    fConst(isConst),
+    fTau(0) {
+}
 
 //__________________________________________________________________________________
 //
