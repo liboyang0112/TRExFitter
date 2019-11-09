@@ -14,18 +14,7 @@ using std::string;
 
 //__________________________________________________________________________________
 //
-CorrelationMatrix::CorrelationMatrix(){
-    fNuisParNames.clear();
-    fNuisParIdx.clear();
-    fNuisParIsThere.clear();
-}
-
-//__________________________________________________________________________________
-//
-CorrelationMatrix::~CorrelationMatrix(){
-    fNuisParNames.clear();
-    fNuisParIdx.clear();
-    fNuisParIsThere.clear();
+CorrelationMatrix::CorrelationMatrix() {
 }
 
 //__________________________________________________________________________________

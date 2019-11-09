@@ -12,8 +12,8 @@
 class CorrelationMatrix {
 
 public:
-    CorrelationMatrix();
-    ~CorrelationMatrix();
+    explicit CorrelationMatrix();
+    ~CorrelationMatrix() = default;
 
     //
     // Functions
