@@ -14,7 +14,8 @@ class Systematic;
 
 class SystematicHist {
 public:
-    SystematicHist(const std::string& name);
+    explicit SystematicHist(const std::string& name);
+
     ~SystematicHist();
 
     void WriteToFile(TFile *f=nullptr,bool reWriteOrig=true) const;

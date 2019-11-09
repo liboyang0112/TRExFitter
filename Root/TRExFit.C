@@ -77,273 +77,174 @@ using namespace RooFit;
 
 //__________________________________________________________________________________
 //
-TRExFit::TRExFit(std::string name){
-    fSmoothOption = HistoTools::SmoothOption::MAXVARIATION;
-    fDir = "";
-    fName = name;
-    fInputName = name;
-    fLabel = "";
-    fCmeLabel = "13 TeV";
-    fLumiLabel = "3.2 fb^{-1}";
+TRExFit::TRExFit(std::string name) :
+    fName(name),
+    fDir(""),
+    fLabel(""),
+    fInputFolder(""),
+    fInputName(name),
+    fFitResultsFile(""),
+    fNRegions(0),
+    fNSamples(0),
+    fNSyst(0),
+    fNNorm(0),
+    fNShape(0),
+    fPOI(""),
+    fPOIunit(""),
+    fUseStatErr(false),
+    fStatErrThres(0.05),
+    fUseGammaPulls(false),
+    fLumi(1.),
+    fLumiScale(1.),
+    fLumiErr(0.000001),
+    fThresholdSystPruning_Normalisation(-1),
+    fThresholdSystPruning_Shape(-1),
+    fThresholdSystLarge(-1),
+    fMCweight("1"),
+    fSelection("1"),
+    fFitResults(nullptr),
+    fWithPullTables(false),
+    fIntCode_overall(4),
+    fIntCode_shape(0),
+    fInputType(HIST),
+    fSystDataPlot_upFrame(false),
+    fStatOnly(false),
+    fGammasInStatOnly(false),
+    fStatOnlyFit(false),
+    fFixNPforStatOnlyFit(false),
+    fYmin(0),
+    fYmax(0),
+    fRatioYmin(0.5),
+    fRatioYmax(1.5),
+    fRatioYminPostFit(0.5),
+    fRatioYmaxPostFit(1.5),
+    fRatioYtitle(""),
+    fRatioType("DATA/MC"),
+    fLumiLabel("XX fb^{-1}"),
+    fCmeLabel("13 TeV"),
+    fSuffix(""),
+    fSaveSuffix(""),
+    fUpdate(false),
+    fKeepPruning(false),
+    fBlindingThreshold(-1),
+    fBlindingType(SOVERB),
+    fRankingMaxNP(10),
+    fRankingOnly("all"),
+    fRankingPlot("Merge"),
+    fImageFormat("png"),
+    fAtlasLabel("Internal"),
+    fDoSummaryPlot(true),
+    fDoMergedPlot(false),
+    fDoTables(true),
+    fDoSignalRegionsPlot(true),
+    fDoPieChartPlot(true),
+    fGroupedImpactCategory("all"),
+    fSummaryPrefix(""),
+    fFitType(UNDEFINED),
+    fFitRegion(CRSR),
+    fFitPOIAsimov(0),
+    fFitIsBlind(false),
+    fUseRnd(false),
+    fRndRange(0.1),
+    fRndSeed(-999),
+    fLHscanMin(999999),
+    fLHscanMax(-999999),
+    fLHscanSteps(30),
+    fLHscanMinY(999999),
+    fLHscanMaxY(-999999),
+    fLHscanStepsY(30),
+    fParal2D(false),
+    fParal2Dstep(-1),
+    fWorkspaceFileName(""),
+    fDoGroupedSystImpactTable(false),
+    fLimitType(ASYMPTOTIC),
+    fLimitIsBlind(false),
+    fLimitPOIAsimov(0),
+    fSignalInjection(false),
+    fSignalInjectionValue(0),
+    fLimitParamName("parameter"),
+    fLimitParamValue(0),
+    fLimitOutputPrefixName("myLimit"),
+    fLimitsConfidence(0.95),
+    fSignificanceIsBlind(false),
+    fSignificancePOIAsimov(0),
+    fSignificanceParamName("parameter"),
+    fSignificanceParamValue(0),
+    fSignificanceOutputPrefixName("mySignificance"),
+    fCleanTables(false),
+    fSystCategoryTables(false),
+    fKeepPrefitBlindedBins(false),
+    fBlindedBins(nullptr),
+    fCustomAsimov(""),
+    fTableOptions("STANDALONE"),
+    fGetGoodnessOfFit(false),
+    fGetChi2(0), // 0: no, 1: stat-only, 2: with syst
+    fSmoothOption(HistoTools::SmoothOption::MAXVARIATION),
+    fSuppressNegativeBinWarnings(false),
+    fTemplateInterpolationOption(TRExFit::LINEAR),
+    fBootstrap(""),
+    fBootstrapSyst(""),
+    fBootstrapIdx(-1),
+    fDecorrSuff("_decor"),
+    fDoNonProfileFit(false),
+    fNonProfileFitSystThreshold(0),
+    fFitToys(0),
+    fToysHistoMin(9999),
+    fToysHistoMax(-9999),
+    fToysHistoNbins(50),
+    fToysPseudodataNP(""),
+    fToysPseudodataNPShift(1.),
+    fSmoothMorphingTemplates(""),
+    fPOIPrecision(2),
+    fRankingPOIName("#mu"),
+    fUseATLASRounding(false),
+    fUseATLASRoundingTxt(false),
+    fUseATLASRoundingTex(false),
+    fuseGammasForCorr(false),
+    fPropagateSystsForMorphing(false),
+    fPruningType(SEPARATESAMPLE),
+    fLabelX(-1),
+    fLabelY(-1),
+    fLegendX1(-1),
+    fLegendX2(-1),
+    fLegendY(-1),
+    fLabelXSummary(-1),
+    fLabelYSummary(-1),
+    fLegendX1Summary(-1),
+    fLegendX2Summary(-1),
+    fLegendYSummary(-1),
+    fLabelXMerge(-1),
+    fLabelYMerge(-1),
+    fLegendX1Merge(-1),
+    fLegendX2Merge(-1),
+    fLegendYMerge(-1),
+    fLegendNColumns(2),
+    fLegendNColumnsSummary(3),
+    fLegendNColumnsMerge(3),
+    fShowRatioPad(true),
+    fShowRatioPadSummary(true),
+    fShowRatioPadMerge(true),
+    fExcludeFromMorphing(""),
+    fSaturatedModel(false),
+    fDebugNev(-1) {
 
-    fNRegions = 0;
-    fNSamples = 0;
-    fNSyst = 0;
-
-    fPOI = "";
-    fPOIunit = "";
-    fUseStatErr = false;
-    fStatErrThres = 0.05;
-    fUseGammaPulls = false;
-
-    fLumi = 1.;
-    fLumiErr = 0.000001;
-    fLumiScale = 1.;
-
-    fThresholdSystPruning_Normalisation = -1;
-    fThresholdSystPruning_Shape = -1;
-    fThresholdSystLarge = - 1;
-
-    fNtuplePaths.clear();
-    fNtupleFiles.clear();
-    fNtupleNames.clear();
-    fMCweight = "1";
-    fSelection = "1";
-
-    fHistoPaths.clear();
-    fHistoFiles.clear();
-    fHistoNames.clear();
-    fHistoNamesNominal.clear();
-
-    fFitResults = nullptr;
-
-    fWithPullTables = false;
-
-    fRegions.clear();
-    fSamples.clear();
-    fSystematics.clear();
-
-    fIntCode_overall = 4;
-    fIntCode_shape = 0;
-
-    fConfig = new ConfigParser();
-
-    fInputType = HIST;
-
-    fSuffix = "";
-    fSaveSuffix = "";
-
-    fUpdate = false;
-    fKeepPruning = false;
-
-    fBlindingThreshold = -1;
-    fBlindingType = SOVERB;
-
-    fRankingMaxNP = 10;
-    fRankingOnly = "all";
-    fRankingPlot = "Merge";
-    fAtlasLabel = "Internal";
-
-    fStatOnly = false;
-    fGammasInStatOnly = false;
-    fStatOnlyFit = false;
-    fFixNPforStatOnlyFit = false;
-    fSystDataPlot_upFrame = false;
-
-    fSummaryPlotRegions.clear();
-    fSummaryPlotLabels.clear();
-
-    fSummaryPlotValidationRegions.clear();
-    fSummaryPlotValidationLabels.clear();
-
-    fYmin = 0;
-    fYmax = 0;
-
-    fFitResultsFile = "";
-
-    fDoSummaryPlot = true;
-    fDoMergedPlot = false;
-    fDoTables = true;
-    fDoSignalRegionsPlot = true;
-    fDoPieChartPlot = true;
-
-    fSummaryPrefix = "";
-
-    fGroupedImpactCategory = "all";
-
-    //
-    // Fit caracteristics
-    //
-    fFitType = UNDEFINED;
-    fFitRegion = CRSR;
-    fFitRegionsToFit.clear();
-    fFitNPValues.clear();
-    fFitPOIAsimov = 0;
-    fFitIsBlind = false;
-    fUseRnd = false;
-    fRndRange = 0.1;
-    fRndSeed = -999;
-    fVarNameLH.clear();
-    fLHscanMin = 999999;
-    fLHscanMax = -999999;
-    fLHscanSteps = 30;
-    fParal2D = false;
-    fParal2Dstep = -1;
-    fLHscanMinY = 999999;
-    fLHscanMaxY = -999999;
-    fLHscanStepsY = 30;
-    fVarNameMinos.clear();
-    fVarNameHide.clear();
-    fWorkspaceFileName = "";
-    fDoGroupedSystImpactTable = false;
-    fSubCategoryImpactMap.clear();
-
-    //
-    // Limit type
-    //
-    fLimitType = ASYMPTOTIC;
-    fLimitIsBlind = false;
-    fLimitPOIAsimov = 0;
-    fSignalInjection = false;
-    fSignalInjectionValue = 0;
-    fLimitParamName = "parameter";
-    fLimitParamValue = 0;
-    fLimitOutputPrefixName = "myLimit";
-    fLimitsConfidence = 0.95;
-
-    //
-    // Significance parameters
-    //
-    fSignificanceIsBlind = false;
-    fSignificancePOIAsimov = 0;
-    fSignificanceParamName = "parameter";
-    fSignificanceParamValue = 0;
-    fSignificanceOutputPrefixName = "mySignificance";
-
-    fImageFormat = "png";
-    TRExFitter::IMAGEFORMAT.clear();
-    TRExFitter::IMAGEFORMAT.push_back("png");
-
-    //
-    fSystematics.clear();
-    fSystematicNames.clear();
-    fNSyst = 0;
-    //
-    fNormFactors.clear();
-    fNormFactorNames.clear();
-    fNNorm = 0;
-    //
-    fShapeFactors.clear();
-    fShapeFactorNames.clear();
-    fNShape = 0;
-
-    fCleanTables = false;
-    fSystCategoryTables = false;
-
-    fRegionGroups.clear();
-
+    TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
     ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
-
-    fKeepPrefitBlindedBins = false;
-    fBlindedBins = nullptr;
-
-    fRatioYmax = 1.5;
-    fRatioYmin = 0.5;
-    fRatioYmaxPostFit = 1.5;
-    fRatioYminPostFit = 0.5;
-    fRatioYtitle = "";
-    fRatioType = "DATA/MC";
-
-    fCustomAsimov = "";
-    fTableOptions = "STANDALONE";
-
-    fGetGoodnessOfFit = false;
-    fGetChi2 = 0; // 0: no, 1: stat-only, 2: with syst
-
-    fCustomFunctions.clear();
-    fSuppressNegativeBinWarnings = false;
-
-    fMorphParams.clear();
-    fTemplateInterpolationOption = TRExFit::LINEAR;
-
-    fBootstrap = "";
-    fBootstrapSyst = "";
-    fBootstrapIdx = -1;
-
-    fDecorrSysts.clear();
-    fDecorrSuff = "_decor";
-
-    fDoNonProfileFit = false;
-    fNonProfileFitSystThreshold = 0;
-    fFitToys = 0;
-    fToysHistoMin = 9999;
-    fToysHistoMax = -9999;
-    fToysHistoNbins = 50;
-    fToysPseudodataNP = "";
-    fToysPseudodataNPShift = 1.;
-    fSmoothMorphingTemplates = "";
-
-    fPOIPrecision = 2;
-
-    fRankingPOIName = "#mu";
-
-    fUseATLASRoundingTxt = false;
-    fUseATLASRoundingTex = false;
-
-    fuseGammasForCorr = false;
-    fPropagateSystsForMorphing = false;
-    fPruningType = SEPARATESAMPLE;
-
-    fLabelX = -1;
-    fLabelY = -1;
-    fLegendX1 = -1;
-    fLegendX2 = -1;
-    fLegendY = -1;
-
-    fLabelXSummary = -1;
-    fLabelYSummary = -1;
-    fLegendX1Summary = -1;
-    fLegendX2Summary = -1;
-    fLegendYSummary = -1;
-
-    fLabelXMerge = -1;
-    fLabelYMerge = -1;
-    fLegendX1Merge = -1;
-    fLegendX2Merge = -1;
-    fLegendYMerge = -1;
-
-    fLegendNColumns = 2;
-    fLegendNColumnsSummary = 3;
-    fLegendNColumnsMerge = 3;
-
-    fShowRatioPad = true;
-
-    fExcludeFromMorphing = "";
-
-    fSaturatedModel = false;
-
-    fDebugNev = -1;
 }
 
 //__________________________________________________________________________________
 //
-TRExFit::~TRExFit(){
-    if(fFitResults) delete fFitResults;
+TRExFit::~TRExFit() {
+    delete fFitResults;
 
-    for(unsigned int i =0 ; i < fRegions.size(); ++i){
-        if(fRegions[i]){
-            delete fRegions[i];
-        }
+    for(auto ireg : fRegions) {
+        delete ireg;
     }
-    fRegions.clear();
 
-    for(unsigned int i =0 ; i < fSamples.size(); ++i){
-        if(fSamples[i]){
-            delete fSamples[i];
-        }
+    for(auto ismp : fSamples) {
+        delete ismp;
     }
-    fSamples.clear();
 }
 
 //__________________________________________________________________________________
@@ -2386,7 +2287,6 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 pullTex.close();
             }
             delete p;
-            if(TRExFitter::PREFITONPOSTFIT) delete fRegions[i_ch]->fPlotPreFit;
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(fPrePostFitCanvasSize, opt+" blind");
@@ -2867,7 +2767,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         }
     }
     //
-    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix );
+    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
     else           g_err = BuildTotError( h_tot, h_up, h_down, npNames );
     //
     p->SetTotBkg(h_tot);
@@ -3481,7 +3381,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             }
         }
         //
-        if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames, fFitResults->fCorrMatrix );
+        if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
         else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames );
     }
     //
@@ -3621,7 +3521,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         }
     }
     //
-    if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix );
+    if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
     else           g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames );
     //
     if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) out << " | Total | ";

@@ -7,10 +7,11 @@
 
 class ShapeFactor{
 public:
-    ShapeFactor();
-    ShapeFactor(const std::string& name, double nominal=1., double min=0., double max=10., bool isConst=false);
-    ~ShapeFactor();
-    void Set(const std::string& name, double nominal=1., double min=0., double max=10., bool isConst=false);
+    explicit ShapeFactor();
+    
+    explicit ShapeFactor(const std::string& name, double nominal=1., double min=0., double max=10., bool isConst=false);
+    
+    ~ShapeFactor() = default;
 
     void Print() const;
 

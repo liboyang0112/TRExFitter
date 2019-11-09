@@ -39,7 +39,7 @@ public:
         ASIMOVDATA = 1
     };
 
-    Region(std::string name);
+   explicit Region(const std::string& name);
     ~Region();
 
     // -------
@@ -145,14 +145,12 @@ public:
     std::string fRatioType;
 
     // to draw
-    THStack *fStack;
     TH1* fTot;
     TGraphAsymmErrors *fErr;
     TH1* fTotUp[MAXsyst];
     TH1* fTotDown[MAXsyst];
 
     // post fit
-    THStack *fStack_postFit;
     TH1* fTot_postFit;
     TGraphAsymmErrors *fErr_postFit;
     TH1* fTotUp_postFit[MAXsyst];
@@ -186,9 +184,9 @@ public:
     std::vector<std::string> fNtupleNameSuffs;
 
     // histogram stuff
-    double *fHistoBins;
+    double* fHistoBins;
     int fHistoNBinsRebin;
-    double *fHistoBinsPost;
+    double* fHistoBinsPost;
     int fHistoNBinsRebinPost;
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoPathSuffs;
@@ -205,8 +203,8 @@ public:
     std::vector < ShapeFactor* > fShapeFactors;
 
     // plot objects
-    TRExPlot *fPlotPreFit;
-    TRExPlot *fPlotPostFit;
+    std::unique_ptr<TRExPlot> fPlotPreFit;
+    std::unique_ptr<TRExPlot> fPlotPostFit;
 
     bool fUseStatErr;
 
@@ -254,13 +252,13 @@ public:
     bool fUseGammaPulls;
 
     std::vector<double> fXaxisRange;
-    
+
     double fLabelX;
     double fLabelY;
     double fLegendX1;
     double fLegendX2;
     double fLegendY;
-    
+
     int fLegendNColumns;
 
     std::vector<std::string> fScaleSamplesToData;

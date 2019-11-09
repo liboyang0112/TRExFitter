@@ -35,60 +35,26 @@ using namespace std;
 //________________________________________________________________________
 //
 FittingTool::FittingTool():
-m_minimType("Minuit2"),
-m_minuitStatus(-1),
-m_hessStatus(-1),
-m_edm(-1.),
-m_valPOI(0.),
-m_useMinos(false),
-m_varMinos(0),
-m_constPOI(false),
-m_fitResult(0),
-m_debug(1),
-m_noGammas(false),
-m_noSystematics(false),
-m_noNormFactors(false),
-m_noShapeFactors(false),
-m_RangePOI_up(100.),
-m_RangePOI_down(-10.),
-m_randomize(false),
-m_randomNP(0.1),
-m_randSeed(-999),
-m_externalConstraints(0)
-{
-    m_constNP.clear();
-    m_constNPvalue.clear();
-    m_subCategoryMap.clear();
-    m_subCategories.clear();
+    m_minimType("Minuit2"),
+    m_minuitStatus(-1),
+    m_hessStatus(-1),
+    m_edm(-1.),
+    m_valPOI(0.),
+    m_useMinos(false),
+    m_constPOI(false),
+    m_fitResult(nullptr),
+    m_debug(1),
+    m_noGammas(false),
+    m_noSystematics(false),
+    m_noNormFactors(false),
+    m_noShapeFactors(false),
+    m_RangePOI_up(100.),
+    m_RangePOI_down(-10.),
+    m_randomize(false),
+    m_randomNP(0.1),
+    m_randSeed(-999),
+    m_externalConstraints(nullptr) {
 }
-
-//________________________________________________________________________
-//
-FittingTool::FittingTool( const FittingTool &q ){
-    m_minimType      = q.m_minimType;
-    m_minuitStatus   = q.m_minuitStatus;
-    m_hessStatus     = q.m_hessStatus;
-    m_edm            = q.m_edm;
-    m_valPOI         = q.m_valPOI;
-    m_useMinos       = q.m_useMinos;
-    m_varMinos       = q.m_varMinos;
-    m_constPOI       = q.m_constPOI;
-    m_fitResult      = q.m_fitResult;
-    m_debug          = q.m_debug;
-    m_RangePOI_up    = q.m_RangePOI_up;
-    m_RangePOI_down  = q.m_RangePOI_down;
-    m_noGammas       = q.m_noGammas;
-    m_noSystematics  = q.m_noSystematics;
-    m_noNormFactors  = q.m_noNormFactors;
-    m_noShapeFactors = q.m_noShapeFactors;
-    m_externalConstraints = q.m_externalConstraints;
-}
-
-//________________________________________________________________________
-//
-FittingTool::~FittingTool()
-{}
-
 
 //________________________________________________________________________
 //
@@ -354,7 +320,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         WriteErrorStatus("FittingTool::FitPDF", "");
         WriteErrorStatus("FittingTool::FitPDF", "");
         m_minuitStatus = status;
-        m_fitResult = 0;
+        m_fitResult = nullptr;
 
         delete r;
         delete nll;
@@ -415,7 +381,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     WriteInfoStatus("FittingTool::FitPDF", "");
 
     m_minuitStatus = status;
-    if(r!=nullptr) m_fitResult = (RooFitResult*)r->Clone();
+    if(r!=nullptr) m_fitResult = std::unique_ptr<RooFitResult>(static_cast<RooFitResult*>(r->Clone()));
     delete r;
 
     //
@@ -719,10 +685,10 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     minim2.setStrategy(1);
     minim2.setPrintLevel(1); // set to -1 to reduce output
     minim2.setEps(1);
-    int status = minim2.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+    const int status = minim2.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
     RooRealVar * thePOI = dynamic_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
 
-    bool HessStatus= minim2.hesse();
+    const bool HessStatus= minim2.hesse();
 
     RooArgSet minosSet(*thePOI);
     if(m_useMinos && (m_varMinos.at(0)=="all" || find(m_varMinos.begin(),m_varMinos.end(),thePOI->GetName())<m_varMinos.end())){
@@ -731,17 +697,17 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
 
     if (status!=0) WriteErrorStatus("FittingTool::FitExcludingGroup", "unable to perform fit correctly! HessStatus: " + std::to_string(HessStatus));
 
-    double newPOIerr =thePOI->getError();
-    double newPOIerrU=thePOI->getErrorHi();
-    double newPOIerrD=thePOI->getErrorLo();
+    const double newPOIerr =thePOI->getError();
+    const double newPOIerrU=thePOI->getErrorHi();
+    const double newPOIerrD=thePOI->getErrorLo();
 
-    std::string snapshotName = "snapshot_AfterFit_POI_" + category;
+    const std::string snapshotName = "snapshot_AfterFit_POI_" + category;
     ws->saveSnapshot(snapshotName.c_str(), *mc->GetParametersOfInterest() );
 
     ws->loadSnapshot("snapshot_AfterFit_POI_Nominal");
-    double oldPOIerr =thePOI->getError();
-    double oldPOIerrU=thePOI->getErrorHi();
-    double oldPOIerrD=thePOI->getErrorLo();
+    const double oldPOIerr =thePOI->getError();
+    const double oldPOIerrU=thePOI->getErrorHi();
+    const double oldPOIerrD=thePOI->getErrorLo();
 
     // check if uncertainties have increased compared to nominal fit, with 0.5% tolerance
     if ( (std::fabs(newPOIerrU)>std::fabs(oldPOIerrU)*1.005) || (std::fabs(newPOIerrD)>std::fabs(oldPOIerrD)*1.005) ) {

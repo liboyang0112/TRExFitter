@@ -41,133 +41,109 @@ using namespace std;
 
 //__________________________________________________________________________________
 //
-Region::Region(string name){
-    fName = name;
-    fLabel = name;
-    fTexLabel = "";
-    fShortLabel = name;
-    fRegionType = CONTROL;
-    fNBkg = 0;
-    fNSig = 0;
-    fNSyst = 0;
-    fNNorm = 0;
-    fNShape = 0;
-    fHasData = false;
-    fHasSig = false;
-    fNSamples = 0;
-    fUseStatErr = false;
-    fHistoBins = 0;
-    fHistoNBinsRebin = -1;
-    fHistoBinsPost = 0;
-    fHistoNBinsRebinPost = -1;
-    fYTitle = "";
-    fYmaxScale = 0;
-    fYmax = 0;
-    fYmin = 0;
-    fRatioYmax = 2.;
-    fRatioYmin = 0;
-    fRatioYmaxPostFit = 1.5;
-    fRatioYminPostFit = 0.5;
-    fRatioYtitle = "";
-    fRatioType = "DATA/MC";
+Region::Region(const string& name) :
+    fName(name),
+    fVariableTitle(""),
+    fYTitle(""),
+    fLabel(name),
+    fShortLabel(name),
+    fTexLabel(""),
+    fFitName(""),
+    fRegionType(CONTROL),
+    fRegionDataType(REALDATA),
+    fHasData(false),
+    fData(nullptr),
+    fHasSig(false),
+    fNSig(0),
+    fNBkg(0),
+    fNSamples(0),
+    fYmaxScale(0),
+    fYmin(0),
+    fYmax(0),
+    fRatioYmin(0),
+    fRatioYmax(2.),
+    fRatioYminPostFit(0.5),
+    fRatioYmaxPostFit(1.5),
+    fRatioYtitle(""),
+    fRatioType("DATA/MC"),
+    fTot(nullptr),
+    fErr(nullptr),
+    fBinTransfo(""),
+    fTransfoDzBkg(0.),
+    fTransfoDzSig(0.),
+    fTransfoFzBkg(0.),
+    fTransfoFzSig(0.),
+    fTransfoJpar1(0.),
+    fTransfoJpar2(0.),
+    fTransfoJpar3(0.),
+    fVariable(""),
+    fCorrVar1(""),
+    fCorrVar2(""),
+    fNbins(0),
+    fXmin(0),
+    fXmax(0),
+    fSelection("1"),
+    fMCweight("1"),
+    fHistoBins(nullptr),
+    fHistoNBinsRebin(-1),
+    fHistoBinsPost(nullptr),
+    fHistoNBinsRebinPost(-1),
+    fNSyst(0),
+    fNNorm(0),
+    fNShape(0),
+    fPlotPreFit(nullptr),
+    fPlotPostFit(nullptr),
+    fUseStatErr(false),
+    fIntCode_overall(4),
+    fIntCode_shape(0),
+    fFitType(TRExFit::SPLUSB),
+    fPOI(""),
+    fFitLabel(""),
+    fLumiLabel(""),
+    fCmeLabel(""),
+    fLumiScale(1.),
+    fLogScale(false),
+    fBinWidth(0),
+    fBlindingThreshold(-1),
+    fBlindingType(TRExFit::SOVERB),
+    fSkipSmoothing(false),
+    fATLASlabel("Internal"),
+    fSuffix(""),
+    fGroup(""),
+    fBlindedBins(nullptr),
+    fKeepPrefitBlindedBins(false),
+    fGetChi2(0),
+    fChi2val(-1),
+    fNDF(-1),
+    fChi2prob(-1),
+    fUseGammaPulls(false),
+    fLabelX(-1),
+    fLabelY(-1),
+    fLegendX1(-1),
+    fLegendX2(-1),
+    fLegendY(-1),
+    fLegendNColumns(2) {
 
     int canvasWidth = 600;
     int canvasHeight = 700;
-    string cName = "c_"+fName;
+    std::string cName = "c_"+fName;
     if(TRExFitter::OPTION["CanvasWidth"]!=0)  canvasWidth  = TRExFitter::OPTION["CanvasWidth"];
     if(TRExFitter::OPTION["CanvasHeight"]!=0) canvasHeight = TRExFitter::OPTION["CanvasHeight"];
-    fPlotPreFit = new TRExPlot(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
+    fPlotPreFit = std::make_unique<TRExPlot>(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
     fPlotPreFit->fShowYields = TRExFitter::SHOWYIELDS;
     cName = "c_"+fName+"_postFit";
-    fPlotPostFit = new TRExPlot(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
+    fPlotPostFit = std::make_unique<TRExPlot>(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
     fPlotPostFit->fShowYields = TRExFitter::SHOWYIELDS;
-
-    fSampleHists.clear();
-    fSamples.clear();
-    fSystematics.clear();
-    fNormFactors.clear();
-    fShapeFactors.clear();
-
-    fAlternativeVariables.clear();
-    fAlternativeSelections.clear();
-
-    fIntCode_overall = 4;
-    fIntCode_shape = 0;
-
-    fCorrVar1 = "";
-    fCorrVar2 = "";
-
-    fFitName = "";
-    fFitType = TRExFit::SPLUSB;
-    fPOI = "";
-    fFitLabel = "";
-
-    fSelection = "1";
-    fMCweight = "1";
-
-    fLogScale = false;
-    fSkipSmoothing = false;
-
-    fBinWidth = 0;
-
-    fLumiScale = 1.;
-
-    fBlindingThreshold = -1;
-
-    fRegionDataType = REALDATA;
-
-    fBinTransfo = "";
-    fTransfoDzBkg = 0.;
-    fTransfoDzSig = 0.;
-    fTransfoFzBkg = 0.;
-    fTransfoFzSig = 0.;
-    fTransfoJpar1 = 0.;
-    fTransfoJpar2 = 0.;
-    fTransfoJpar3 = 0.;
-    fAutoBinBkgsInSig.clear();
-
-    fATLASlabel = "Internal";
-
-    fSuffix = "";
-    fGroup = "";
-
-    fBlindedBins = nullptr;
-    fKeepPrefitBlindedBins = false;
-    fGetChi2 = 0;
-
-    fDropBins.clear();
-
-    fBinLabels.clear();
-
-    fChi2val = -1;
-    fNDF = -1;
-    fChi2prob = -1;
-
-    fUseGammaPulls = false;
-
-    fTot = nullptr;
-
-    fLabelX = -1;
-    fLabelY = -1;
-    fLegendX1 = -1;
-    fLegendX2 = -1;
-    fLegendY = -1;
-
-    fLegendNColumns = 2;
 }
 
 //__________________________________________________________________________________
 //
 Region::~Region(){
-    if(fPlotPreFit) delete fPlotPreFit;
-    if(fPlotPostFit) delete fPlotPostFit;
-
-    for(unsigned int i = 0; i < fSampleHists.size(); ++i){
-        if(fSampleHists[i]){
-            delete fSampleHists[i];
-        }
+    for(auto ismp : fSampleHists) {
+        delete ismp;
     }
-    fSampleHists.clear();
+    delete fHistoBins;
+    delete fHistoBinsPost;
 }
 
 //__________________________________________________________________________________
@@ -252,7 +228,7 @@ void Region::AddSystematic(Systematic *syst){
 //
 void Region::SetBinning(int N, double *bins){
     fNbins = fHistoNBinsRebin = N;
-    fHistoBins = new double[N+1];
+    fHistoBins = new double [N+1];
     for(int i=0; i<=N; ++i) fHistoBins[i] = bins[i];
 }
 
@@ -266,7 +242,7 @@ void Region::Rebin(int N){
 //
 void Region::SetRebinning(int N, double *bins){
     fHistoNBinsRebinPost = N;
-    fHistoBinsPost = new double[N+1];
+    fHistoBinsPost = new double [N+1];
     for(int i=0; i<=N; ++i) fHistoBinsPost[i] = bins[i];
 }
 
@@ -589,7 +565,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
 
     TRExPlot *p{};
     if (canvasSize.size() == 0){
-        p = fPlotPreFit;
+        p = fPlotPreFit.get();
     } else {
         p = new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
         p->fShowYields = TRExFitter::SHOWYIELDS;
@@ -1333,7 +1309,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         h_down.push_back( fTotDown_postFit[i_syst] );
         systNuisPars.push_back(TRExFitter::NPMAP[fSystNames[i_syst]]);
     }
-    fErr_postFit = BuildTotError( fTot_postFit, h_up, h_down, systNuisPars, fitRes->fCorrMatrix );
+    fErr_postFit = BuildTotError( fTot_postFit, h_up, h_down, systNuisPars, fitRes->fCorrMatrix.get() );
     fErr_postFit->SetName("g_totErr_postFit");
     // at this point fTot and fErr _postFit should be ready
 
@@ -1354,7 +1330,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             }
         }
         if(fGetChi2==1) fSystNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix );
+        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix.get() );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -1382,7 +1358,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
 
     TRExPlot *p{};
     if (canvasSize.size() == 0){
-        p = fPlotPostFit;
+        p = fPlotPostFit.get();
         p->fShowYields = TRExFitter::SHOWYIELDS;
     } else {
         p = new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
@@ -2116,7 +2092,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                 TGraphAsymmErrors *g_err;
                 double err = 0.;
                 if (isPostFit){
-                    g_err = BuildTotError(sh->fHist_postFit, category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix);
+                    g_err = BuildTotError(sh->fHist_postFit, category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix.get());
                     if (category_histo_up.size()>0 && sh->fHist_postFit->Integral()>0.){
                         for (int ibin=1; ibin<sh->fHist_postFit->GetNbinsX()+1; ibin++){
                             if (pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist_postFit->GetBinError(ibin), 2)>=0.){ // dummy check

@@ -6,6 +6,7 @@
 
 /// c++ includes
 #include <map>
+#include <memory>
 
 /// Forwards declaration
 class ConfigParser;
@@ -17,8 +18,9 @@ class TRExFit;
 class MultiFit {
 public:
 
-    MultiFit(std::string name="MyMultiFit");
-    ~MultiFit();
+    explicit MultiFit(std::string name="MyMultiFit");
+
+    ~MultiFit() = default;
 
     void AddFitFromConfig(const std::string& configFile, const std::string& opt, const std::string& options,
                           const std::string& label, std::string loadSuf="",std::string wsFile="");
@@ -89,7 +91,7 @@ public:
     std::string fLumiLabel;
     std::string fCmeLabel;
 
-    ConfigParser *fConfig;
+    std::unique_ptr<ConfigParser> fConfig;
 
     std::string fSaveSuf;
     std::vector< bool > fFitShowObserved;

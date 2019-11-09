@@ -61,106 +61,77 @@ using namespace RooStats;
 
 //__________________________________________________________________________________
 //
-MultiFit::MultiFit(string name){
-    fFitList.clear();
-    fName = name;
-    fDir = "";
-    fOutDir = "";
-    fLabel = "";
-    fShowObserved = false;
-    fLimitTitle = "95% CL limit on #sigma/#sigma_{SM}(t#bar{t}H) at m_{H} = 125 GeV";
-    fPOITitle = "best fit #mu = #sigma^{t#bar{t}H}/#sigma^{t#bar{t}H}_{SM} for m_{H} = 125 GeV";
-    fConfig = new ConfigParser();
-    fSaveSuf = "";
-    fFitShowObserved.clear();
-    fPOI = "";
-    fPOIMin = 0;
-    fPOIMax = 10;
-    fPOIVal = 1;
-    fPOIPrecision = "1";
-    fLimitMax = 0;
-    //
-    fCombine       = false;
-    fCompare       = false;
-    fCompareLimits = true;
-    fComparePOI    = true;
-    fComparePulls  = true;
-    fPlotCombCorrMatrix  = false;
-    fStatOnly      = false;
-    fIncludeStatOnly = false;
-    //
-    fDataName      = "obsData";
-    fFitType       = 1; // 1: S+B, 2: B-only
-    fSignalInjection = false;
-    //
-    fCombineChByCh = true;
-    //
-    fNPCategories.clear();
-    fNPCategories.push_back("");
-    //
-    fRndRange = 0.1;
-    fRndSeed = -999;
-    fUseRnd = false;
-    //
-    fRankingOnly = "all";
-    fGroupedImpactCategory = "all";
-    fFastFit = false;
-    fFastFitForRanking = true;
-    fNuisParListFile = "";
-    //
-    fPlotSoverB = false;
-    fSignalTitle = "t#bar{t}H";
-    //
-    fFitResultsFile = "";
-    fLimitsFile = "";
-    fLimitsFiles.clear();
-    fBonlySuffix = "";
-    fShowSystForPOI = false;
-    fVarNameLH.clear();
-    fLHscanMin = 999999;
-    fLHscanMax = -999999;
-    fLHscanSteps = 30;
-    fParal2D = false;
-    fParal2Dstep = -1;
-    fLHscanMinY = 999999;
-    fLHscanMaxY = -999999;
-    fLHscanStepsY = 30;
-    //
-    fDoGroupedSystImpactTable = false;
-    //
-    fPOIName = "#mu";
-    fPOINominal = 1;
-
-    //
-    // Limit type
-    //
-    fLimitIsBlind = false;
-    fLimitPOIAsimov = 0;
-    fSignalInjection = false;
-    fSignalInjectionValue = 0;
-    fLimitParamName = "parameter";
-    fLimitParamValue = 0;
-    fLimitOutputPrefixName = "myLimit";
-    fLimitsConfidence = 0.95;
-
-    //
-    // Significance parameters
-    //
-    fSignificanceIsBlind = false;
-    fSignificancePOIAsimov = 0;
-    fSignificanceParamName = "parameter";
-    fSignificanceParamValue = 0;
-    fSignificanceOutputPrefixName = "mySignificance";
-
-    fShowTotalOnly = false;
-    fuseGammasForCorr = false;
-    fPOIInitial = 1.;
-}
-
-//__________________________________________________________________________________
-//
-MultiFit::~MultiFit(){
-    fFitList.clear();
+MultiFit::MultiFit(string name) :
+    fCombine(false),
+    fCompare(false),
+    fStatOnly(false),
+    fIncludeStatOnly(false),
+    fCompareLimits(true),
+    fComparePOI(true),
+    fComparePulls(true),
+    fPlotCombCorrMatrix(false),
+    fName(name),
+    fDir(""),
+    fOutDir(""),
+    fLabel(""),
+    fShowObserved(false),
+    fLimitTitle("95% CL limit on XXX"),
+    fPOITitle("best fit XXX"),
+    fRankingOnly("all"),
+    fGroupedImpactCategory("all"),
+    fPOI(""),
+    fPOIMin(0),
+    fPOIMax(10),
+    fPOIVal(1),
+    fPOIPrecision("1"),
+    fLimitMax(0),
+    fUseRnd(false),
+    fRndRange(0.1),
+    fRndSeed(-999),
+    fLumiLabel(""),
+    fCmeLabel(""),
+    fConfig(std::unique_ptr<ConfigParser>(new ConfigParser())),
+    fSaveSuf(""),
+    fDataName("obsData"),
+    fFitType(1), // 1: S+B, 2: B-only
+    fCombineChByCh(true),
+    fFastFit(false),
+    fFastFitForRanking(true),
+    fNuisParListFile(""),
+    fPlotSoverB(false),
+    fSignalTitle("signal"),
+    fFitResultsFile(""),
+    fLimitsFile(""),
+    fBonlySuffix(""),
+    fShowSystForPOI(false),
+    fGetGoodnessOfFit(false),
+    fLHscanMin(999999),
+    fLHscanMax(-999999),
+    fLHscanSteps(30),
+    fLHscanMinY(999999),
+    fLHscanMaxY(-999999),
+    fLHscanStepsY(30),
+    fParal2D(false),
+    fParal2Dstep(-1),
+    fDoGroupedSystImpactTable(false),
+    fPOIName("#mu"),
+    fPOINominal(1),
+    fLimitIsBlind(false),
+    fLimitPOIAsimov(0),
+    fSignalInjection(false),
+    fSignalInjectionValue(0),
+    fLimitParamName("parameter"),
+    fLimitParamValue(0),
+    fLimitOutputPrefixName("myLimit"),
+    fLimitsConfidence(0.95),
+    fSignificanceIsBlind(false),
+    fSignificancePOIAsimov(0),
+    fSignificanceParamName("parameter"),
+    fSignificanceParamValue(0),
+    fSignificanceOutputPrefixName("mySignificance"),
+    fShowTotalOnly(false),
+    fuseGammasForCorr(false),
+    fPOIInitial(1.) {
 }
 
 //__________________________________________________________________________________

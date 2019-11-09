@@ -25,9 +25,9 @@ class SystematicHist;
 
 class SampleHist {
 public:
-    SampleHist();
-    SampleHist(Sample *sample,TH1 *hist);
-    SampleHist(Sample *sample, const std::string& histoName, const std::string& fileName);
+    explicit SampleHist();
+    explicit SampleHist(Sample *sample,TH1 *hist);
+    explicit SampleHist(Sample *sample, const std::string& histoName, const std::string& fileName);
     ~SampleHist();
 
     TH1* GetHist() const;

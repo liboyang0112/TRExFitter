@@ -26,18 +26,20 @@
 
 //__________________________________________________________________________________
 //
-ConfigReader::ConfigReader(TRExFit *fitter){
-    fFitter = fitter;
-    fNonGhostIsSet = false;
-    fAllowWrongRegionSample = false;
-    fParser = new ConfigParser();
+ConfigReader::ConfigReader(TRExFit *fitter) : 
+    fFitter(fitter),
+    fParser(new ConfigParser()),
+    fAllowWrongRegionSample(false),
+    fNonGhostIsSet(false),
+    fOnlyLHscan(""),
+    fHasAtLeastOneValidRegion(false),
+    fHasAtLeastOneValidSample(false) {
     WriteInfoStatus("ConfigReader::ConfigReader", "Started reading the config");
 }
 
 //__________________________________________________________________________________
 //
 ConfigReader::~ConfigReader(){
-    delete fParser;
 }
 
 //__________________________________________________________________________________

@@ -2,6 +2,7 @@
 #define CONFIGREADER_H
 
 /// c++ includes
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -25,7 +26,7 @@ class ConfigReader {
           * The default constructor.
           * @param fitter A pointer to TRExFit class
           */
-        ConfigReader(TRExFit * fitter);
+        explicit ConfigReader(TRExFit* fitter);
 
         /**
           * The default destructor
@@ -250,7 +251,7 @@ class ConfigReader {
         /**
           * Pointer to ConfigParser used to parse the text
           */
-        ConfigParser *fParser;
+        std::unique_ptr<ConfigParser> fParser;
 
         /**
           * flag to control if wrong samples/regions are ok
@@ -319,7 +320,7 @@ class ConfigReader {
         /**
           *  string for LH scan values from command line
           */
-        std::string fOnlyLHscan = "";
+        std::string fOnlyLHscan;
 
         /**
           * bool to check if there is at least one valid region

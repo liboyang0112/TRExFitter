@@ -16,53 +16,48 @@
 
 //_____________________________________________________________________________
 //
-SystematicHist::SystematicHist(const std::string& name){
-    fName = name;
-    fSystematic = nullptr;
-
-    fIsOverall = false;
-    fIsShape = false;
-    fSmoothType = 0;
-    fSymmetrisationType = HistoTools::NOSYMMETRIZATION;
-
-    fShapePruned = false;
-    fNormPruned  = false;
-    fBadShape    = false;
-    fBadNorm     = false;
-
-    fHistUp = nullptr;
-    fHistUp_orig = nullptr;
-    fHistUp_preSmooth = nullptr;
-    fHistShapeUp = nullptr;
-    fNormUp = 0;
-    fFileNameUp = "";
-    fHistoNameUp = "";
-    fFileNameShapeUp = "";
-    fHistoNameShapeUp = "";
-    fHistUp_postFit = nullptr;
-
-    fHistDown = nullptr;
-    fHistDown_orig = nullptr;
-    fHistDown_preSmooth = nullptr;
-    fHistShapeDown = nullptr;
-    fNormDown = 0;
-    fFileNameDown = "";
-    fHistoNameDown = "";
-    fFileNameShapeDown = "";
-    fHistoNameShapeDown = "";
-    fHistDown_postFit = nullptr;
-
-    fScaleUp   = 1.;
-    fScaleDown = 1.;
+SystematicHist::SystematicHist(const std::string& name) :
+    fName(name),
+    fSystematic(nullptr),
+    fIsOverall(false),
+    fIsShape(false),
+    fSmoothType(0),
+    fSymmetrisationType(HistoTools::NOSYMMETRIZATION),
+    fShapePruned(false),
+    fNormPruned(false),
+    fBadShape(false),
+    fBadNorm(false),
+    fHistUp(nullptr),
+    fHistUp_orig(nullptr),
+    fHistUp_preSmooth(nullptr),
+    fHistShapeUp(nullptr),
+    fNormUp(0),
+    fFileNameUp(""),
+    fHistoNameUp(""),
+    fFileNameShapeUp(""),
+    fHistoNameShapeUp(""),
+    fHistUp_postFit(nullptr),
+    fHistDown(nullptr),
+    fHistDown_orig(nullptr),
+    fHistDown_preSmooth(nullptr),
+    fHistShapeDown(nullptr),
+    fNormDown(0),
+    fFileNameDown(""),
+    fHistoNameDown(""),
+    fFileNameShapeDown(""),
+    fHistoNameShapeDown(""),
+    fHistDown_postFit(nullptr),
+    fScaleUp(1.),
+    fScaleDown(1.) {
 }
 
 //_____________________________________________________________________________
 //
 SystematicHist::~SystematicHist(){
-    if(fHistUp) delete fHistUp;
-    if(fHistShapeUp) delete fHistShapeUp;
-    if(fHistDown) delete fHistDown;
-    if(fHistShapeDown) delete fHistShapeDown;
+    delete fHistUp;
+    delete fHistShapeUp;
+    delete fHistDown;
+    delete fHistShapeDown;
 }
 
 //_____________________________________________________________________________

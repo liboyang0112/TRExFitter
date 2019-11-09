@@ -21,7 +21,7 @@ public:
         GHOST // 3
     };
 
-    Sample(const std::string& name,int type=0);
+    explicit Sample(const std::string& name,int type=0);
     ~Sample();
 
     // -------

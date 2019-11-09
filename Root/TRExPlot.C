@@ -34,10 +34,51 @@ using namespace std;
 
 //_____________________________________________________________________________
 //
-TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRatioPad){
-    fName = name;
-    c = new TCanvas(fName.c_str(),fName.c_str(),canvasWidth,canvasHeight);
-    //
+TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRatioPad) :
+    fName(name),
+    h_data(nullptr),
+    g_data(nullptr),
+    h_stack(new THStack("h_stack","h_stack")),
+    h_tot(nullptr),
+    g_tot(nullptr),
+    h_blinding(nullptr),
+    h_tot_bkg_prefit(nullptr),
+    h_dummy(nullptr),
+    c(new TCanvas(fName.c_str(),fName.c_str(),canvasWidth,canvasHeight)),
+    leg(nullptr),
+    leg1(nullptr),
+    pad0(nullptr),
+    pad1(nullptr),
+    xtitle("Variable [GeV]"),
+    ytitle("Events"),
+    fDataName("Data"),
+    fLumi("XXX fb^{-1}"),
+    fCME("13 TeV"),
+    fATLASlabel("none"),
+    yMaxScale(2.),
+    NDF(-1),
+    Chi2val(-1),
+    Chi2prob(-1),
+    KSprob(-1),
+    fYmax(0),
+    fYmin(0),
+    fRatioYmax(2.),
+    fRatioYmin(0.),
+    fBinWidth(-1),
+    fIsNjet(false),
+    fShowYields(false),
+    fLumiScale(1.),
+    fBlindingThreshold(-1), // if <0, no blinding
+    fBlindingType(TRExFit::SOVERB),
+    fLegendNColumns(2),
+    fRatioYtitle(""),
+    fRatioType("DATA/MC"),
+    fLabelX(-1),
+    fLabelY(-1),
+    fLegendX1(-1),
+    fLegendX2(-1),
+    fLegendY(-1) {
+
     if(hideRatioPad){
         pad0 = new TPad("pad0","pad0",0,0,1,1,0,0,0);
     }
@@ -70,89 +111,27 @@ TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRa
         pad1->SetFrameBorderMode(0);
         pad1->SetFillStyle(0);
     }
-    //
     if(pad1!=nullptr) pad1->Draw();
     pad0->Draw();
     pad0->cd();
-    h_stack = new THStack("h_stack","h_stack");
-    h_tot = nullptr;
-    g_tot = nullptr;
-    xtitle = "Variable [GeV]";
-    ytitle = "Events";
-    fLabels.clear();
-    fLumi = "20.3 fb^{-1}";
-    fCME = "8 TeV";
-    fATLASlabel = "none";
-    yMaxScale = 2.;
-    Chi2val = -1;
-    NDF = -1;
-    Chi2prob = -1;
-    KSprob = -1;
-    //
-    h_data = nullptr;
-    g_data = nullptr;
 
-    h_bkg.clear();
-    h_signal.clear();
-    h_normsig.clear();
-    h_oversig.clear();
-
-    //
-    fIsNjet = false;
-    fShowYields = false;
-    //
-    for(int i_bin=0;i_bin<MAXbins;i_bin++)
+    for(int i_bin=0;i_bin<MAXbins;i_bin++) {
         fBinLabel[i_bin] = "";
-    //
-    fDataName = "Data";
-    fSigNames.clear();
-    fNormSigNames.clear();
-    fOverSigNames.clear();
-    fBkgNames.clear();
-
-    fBinWidth = -1;
-    fLumiScale = 1.;
-    fBlindingThreshold = -1; // if <0, no blinding
-    fBlindingType = TRExFit::SOVERB;
-    fLegendNColumns = 2;
-
-    fYmin = 0;
-    fYmax = 0;
-    fRatioYmin = 0.;
-    fRatioYmax = 2.;
-
-    h_blinding = nullptr;
-
-    h_tot_bkg_prefit = nullptr;
-
-    leg = nullptr;
-    leg1 = nullptr;
-
-    fRatioYtitle = "";
-    fRatioType = "DATA/MC";
-    fLabelX = -1;
-    fLabelY = -1;
-    fLegendX1 = -1;
-    fLegendX2 = -1;
-    fLegendY = -1;
+    }
 }
 
 //_____________________________________________________________________________
 //
 TRExPlot::~TRExPlot(){
     delete h_data;
-    h_bkg    .clear();
-    h_signal .clear();
-    h_normsig.clear();
-    h_oversig.clear();
     delete h_stack;
     delete h_tot;
     delete g_tot;
     delete h_blinding;
     delete h_tot_bkg_prefit;
     delete h_dummy;
-    if(leg!=nullptr) delete leg;
-    if(leg1!=nullptr) delete leg1;
+    delete leg;
+    delete leg1;
     delete pad0;
     delete pad1;
     delete c;

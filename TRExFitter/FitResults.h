@@ -2,8 +2,9 @@
 #define FITRESULTS_H
 
 /// c++ includes
-#include <unordered_map>
+#include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 /// Forward class declaration
@@ -13,7 +14,8 @@ class NuisParameter;
 
 class FitResults {
 public:
-    FitResults();
+    explicit FitResults();
+
     ~FitResults();
 
     //
@@ -47,7 +49,7 @@ public:
     std::vector<std::string> fNuisParToHide; // NPs to hide
 
     std::vector < NuisParameter* > fNuisPar;
-    CorrelationMatrix *fCorrMatrix;
+    std::unique_ptr<CorrelationMatrix> fCorrMatrix;
 
     int fPOIPrecision;
 

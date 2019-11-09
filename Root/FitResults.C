@@ -27,22 +27,18 @@ using namespace std;
 
 //__________________________________________________________________________________
 //
-FitResults::FitResults(){
-    fCorrMatrix = nullptr;
-    fNLL = 0;
+FitResults::FitResults() :
+    fCorrMatrix(nullptr),
+    fPOIPrecision(2),
+    fNLL() {
 }
 
 //__________________________________________________________________________________
 //
 FitResults::~FitResults(){
-    fNuisParNames.clear();
-    fNuisParIdx.clear();
-    fNuisParIsThere.clear();
-    delete fCorrMatrix;
-    for(unsigned int i = 0; i<fNuisPar.size(); ++i){
-        delete fNuisPar[i];
+    for(auto inp : fNuisPar){
+        delete inp;
     }
-    fNuisPar.clear();
 }
 
 //__________________________________________________________________________________
@@ -101,7 +97,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
     bool invertedCorrMatrix = true;
     bool print = true;
     //
-    CorrelationMatrix *matrix = new CorrelationMatrix();
+    CorrelationMatrix* matrix = new CorrelationMatrix();
     //
     // get fitted NP's
     std::ifstream in;
@@ -218,7 +214,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             }
         }
     }
-    fCorrMatrix = matrix;
+    fCorrMatrix = std::unique_ptr<CorrelationMatrix>(matrix);
     //
     int TOTsyst = fNuisParNames.size();
     WriteDebugStatus("FitResults::ReadFromTXT", "Found " + std::to_string(TOTsyst) + " systematics.");

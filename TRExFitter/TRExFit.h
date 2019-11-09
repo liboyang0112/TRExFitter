@@ -347,7 +347,6 @@ public:
     std::string fName;
     std::string fDir;
     std::string fLabel;
-    std::string fResultsFolder;
     std::string fInputFolder;
     std::string fInputName;
     std::string fFitResultsFile;
@@ -402,9 +401,6 @@ public:
 
     int fInputType; // 0: histo, 1: ntup
 
-    ConfigParser *fConfig;
-
-    bool fSystControlPlots;
     bool fSystDataPlot_upFrame;
     bool fStatOnly;
     bool fGammasInStatOnly;
@@ -506,7 +502,6 @@ public:
     std::string fSignificanceOutputPrefixName;
 
     bool fCleanTables;
-    bool bles;
     bool fSystCategoryTables;
 
     std::vector< std::string > fRegionGroups;
