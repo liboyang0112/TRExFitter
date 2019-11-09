@@ -720,11 +720,13 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
         std::unique_ptr<TH1> tmp(static_cast<TH1*>(nominal->Clone()));
 
         // drop shape or norm (for cases where this is not yet done in the stored histogrmas, i.e. in case of pruning or decorrelation)
-        if(fSyst[i_syst]->fSystematic->fIsNormOnly){
-            DropShape(syst_up.get(),syst_down.get(),nominal.get());
-        }
-        if(fSyst[i_syst]->fSystematic->fIsShapeOnly){
-            DropNorm(syst_up.get(),syst_down.get(),nominal.get());
+        if (fSyst[i_syst] != nullptr && fSyst[i_syst]->fSystematic != nullptr) {
+            if(fSyst[i_syst]->fSystematic->fIsNormOnly){
+                DropShape(syst_up.get(),syst_down.get(),nominal.get());
+            }
+            if(fSyst[i_syst]->fSystematic->fIsShapeOnly){
+                DropNorm(syst_up.get(),syst_down.get(),nominal.get());
+            }
         }
         
         // Cosmetics
