@@ -20,84 +20,47 @@
 
 //__________________________________________________________________________________
 //
-Sample::Sample(const std::string& name,int type){
-    fName = name;
-    fTitle = name;
-    fTexTitle = "";
-    fGroup = "";
-    fType = type;
-    fFillColor = kWhite;
-    fLineColor = kBlack;
-    fNSyst = 0;
-    fNNorm = 0;
-    fNShape = 0;
-    fNormalizedByTheory = true;
-    fRegions.clear();
-    fLumiScales.clear();
-    fIgnoreSelection = "";
-    fIgnoreWeight = "";
-    fUseMCStat = true;
-    fUseSystematics = true;
-    fDivideBy = "";
-    fMultiplyBy = "";
-    fSmooth = false;
-    fNormToSample = "";
-    fBuildPullTable = 0;
-    fIsMorph.clear();
-    fMorphValue.clear();
-    //
-    // ntuples
-    fSelection = "1";
-    fMCweight = "1";
-    fNtuplePaths.clear();
-    fNtupleFiles.clear();
-    fNtupleNames.clear();
-    fNtuplePathSuffs.clear();
-    fNtupleFileSuffs.clear();
-    fNtupleNameSuffs.clear();
-    //
-    // histograms
-    fHistoPaths.clear();
-    fHistoFiles.clear();
-    fHistoNames.clear();
-    fHistoPathSuffs.clear();
-    fHistoFileSuffs.clear();
-    fHistoNameSuffs.clear();
-    //
-    fNormFactors.clear();
-    fShapeFactors.clear();
-    fSystematics.clear();
-
-    fSubtractSamples.clear();
-    fAddSamples.clear();
-
-    fAsimovReplacementFor = std::make_pair("","");
-
-    fSeparateGammas = false;
-    fMCstatScale = 1.;
-    fCorrelateGammasInRegions.clear();
-    fCorrelateGammasWithSample = "";
-
-    fSystFromSample = "";
+Sample::Sample(const std::string& name,int type) :
+    fName(name),
+    fType(type),
+    fFitName(name),
+    fTitle(name),
+    fTexTitle(""),
+    fGroup(""),
+    fFillColor(kWhite),
+    fLineColor(kBlack),
+    fNormalizedByTheory(true),
+    fIgnoreSelection(""),
+    fIgnoreWeight(""),
+    fUseMCStat(true),
+    fUseSystematics(true),
+    fDivideBy(""),
+    fMultiplyBy(""),
+    fNormToSample(""),
+    fSmooth(false),
+    fBuildPullTable(0),
+    fSelection("1"),
+    fMCweight("1"),
+    fNSyst(0),
+    fNNorm(0),
+    fNShape(0),
+    fSeparateGammas(false),
+    fMCstatScale(1.),
+    fCorrelateGammasWithSample(""),
+    fSystFromSample("") {
 }
 
 //__________________________________________________________________________________
 //
 Sample::~Sample(){
-    for(unsigned int i=0;i<fNormFactors.size();++i){
-        if(fNormFactors[i]){
-            delete fNormFactors[i];
-        }
+    for(auto inf : fNormFactors) {
+        delete inf;
     }
-    for(unsigned int i=0;i<fShapeFactors.size();++i){
-        if(fShapeFactors[i]){
-            delete fShapeFactors[i];
-        }
+    for(auto isf : fShapeFactors) {
+        delete isf;
     }
-    for(unsigned int i=0;i<fSystematics.size();++i){
-        if(fSystematics[i]){
-            delete fSystematics[i];
-        }
+    for(auto isys : fSystematics) {
+        delete isys;
     }
 }
 
