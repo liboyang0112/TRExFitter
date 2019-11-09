@@ -32,83 +32,67 @@ using namespace std;
 
 //_____________________________________________________________________________
 //
-SampleHist::SampleHist() :
-    fName(""),
-    fSample(nullptr),
-    fHist(nullptr),
-    fHist_orig(nullptr),
-    fHist_regBin(nullptr),
-    fHist_preSmooth(nullptr),
-    fHist_postFit(nullptr),
-    fFileName(""),
-    fHistoName(""),
-    fIsData(false),
-    fIsSig(false),
-    fNSyst(0),
-    fNNorm(0),
-    fNShape(0),
-    fFitName(""),
-    fRegionName("Region"),
-    fRegionLabel("Region"),
-    fVariableTitle("Variable"),
-    fSystSmoothed(false) {
+SampleHist::SampleHist(){
+    fName = "";
+    //
+    fSample = nullptr;
+    //
+    fHist = nullptr;
+    fHist_orig = nullptr;
+    fHist_regBin = nullptr;
+    fHist_preSmooth = nullptr;
+    fHist_postFit = nullptr;
+    //
+    fHistoName = "";
+    fFileName = "";
+    fFitName = "";
+    fNSyst = 0;
+    fNNorm = 0;
+    fNShape = 0;
+    fRegionName = "Region";
+    fRegionLabel = "Region";
+    fVariableTitle = "Variable";
+    fSystSmoothed = false;
+    fIsMorph.clear();
+    //
+    fSyst.clear();
 }
 
 //_____________________________________________________________________________
 //
-SampleHist::SampleHist(Sample *sample,TH1 *hist) :
-    fName(fSample->fName),
-    fSample(sample),
-    fHist(nullptr),
-    fHist_orig(nullptr),
-    fHist_regBin(nullptr),
-    fHist_preSmooth(nullptr),
-    fHist_postFit(nullptr),
-    fFileName(""),
-    fHistoName(""),
-    fIsData(false),
-    fIsSig(false),
-    fNSyst(0),
-    fNNorm(0),
-    fNShape(0),
-    fFitName(""),
-    fRegionName("Region"),
-    fRegionLabel("Region"),
-    fVariableTitle("Variable"),
-    fSystSmoothed(false) {
+SampleHist::SampleHist(Sample *sample,TH1 *hist){
+    fSample = sample;
+    fName = fSample->fName;
+    fIsMorph = fSample->fIsMorph;
     //
     //Nominal histogram configuration
-    fHist = static_cast<TH1*>(hist->Clone(Form("h_%s",fName.c_str())));
+    fHist = (TH1*)hist->Clone(Form("h_%s",fName.c_str()));
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
 
-    fHist_orig = static_cast<TH1*>(fHist->Clone(Form("%s_orig",fHist->GetName())));
-    fIsMorph = fSample->fIsMorph;
+    fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
+    //
+    fHist_postFit = nullptr;
+    //
+    fHistoName = "";
+    fFileName = "";
+    fFitName = "";
+    fNSyst = 0;
+    fNNorm = 0;
+    fNShape = 0;
+    fRegionName = "Region";
+    fRegionLabel = "Region";
+    fVariableTitle = "Variable";
+    fSystSmoothed = false;
 }
 
 //_____________________________________________________________________________
 //
-SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::string& fileName) :
-    fName(fSample->fName),
-    fSample(sample),
-    fHist(nullptr),
-    fHist_orig(nullptr),
-    fHist_regBin(nullptr),
-    fHist_preSmooth(nullptr),
-    fHist_postFit(nullptr),
-    fFileName(""),
-    fHistoName(""),
-    fIsData(false),
-    fIsSig(false),
-    fNSyst(0),
-    fNNorm(0),
-    fNShape(0),
-    fFitName(""),
-    fRegionName("Region"),
-    fRegionLabel("Region"),
-    fVariableTitle("Variable"),
-    fSystSmoothed(false) {
+SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::string& fileName){
+    fSample = sample;
+    fName = fSample->fName;
+    fIsMorph = fSample->fIsMorph;
 
     fHist = HistFromFile(fileName,histoName).release();
 
@@ -125,20 +109,31 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
         fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
     }
 
-    fIsMorph = fSample->fIsMorph;
+    fHist_postFit = nullptr;
+
+    fHistoName = histoName;
+    fFileName = fileName;
+    fFitName = "";
+    fNSyst = 0;
+    fNNorm = 0;
+    fNShape = 0;
+    fRegionName = "Region";
+    fRegionLabel = "Region";
+    fVariableTitle = "Variable";
+    fSystSmoothed = false;
 }
 
 //_____________________________________________________________________________
 //
 SampleHist::~SampleHist(){
     delete fHist;
-    delete fHist_orig;
-    delete fHist_regBin;
-    delete fHist_preSmooth;
     delete fHist_postFit;
-    for(auto isys : fSyst) {
-        delete isys;
+    for(unsigned int i = 0; i<fSyst.size(); ++i){
+        if(fSyst[i]){
+            delete fSyst[i];
+        }
     }
+    fSyst.clear();
 }
 
 //_____________________________________________________________________________
