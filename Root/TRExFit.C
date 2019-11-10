@@ -5478,17 +5478,19 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
     //
     std::vector < RooWorkspace* > vec_ws;
     std::vector < std::string > vec_chName;
-    RooStats::HistFactory::Measurement *measurement = 0;
+    std::unique_ptr<RooStats::HistFactory::Measurement> measurement(nullptr);
     //
     // Take the measurement from the combined workspace, to be sure to have all the systematics (even the ones which are not there in the first region)
-    std::unique_ptr<TFile> rootFileCombined;
-    if(fBootstrap!="" && fBootstrapIdx>=0)
+    std::unique_ptr<TFile> rootFileCombined(nullptr);
+    if(fBootstrap!="" && fBootstrapIdx>=0) {
         rootFileCombined = std::make_unique<TFile>( (fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read");
-    else
+    } else {
         rootFileCombined = std::make_unique<TFile>( (fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read");
-    if(rootFileCombined!=nullptr) measurement = (RooStats::HistFactory::Measurement*) rootFileCombined -> Get( (fInputName+fSuffix).c_str());
+    }
+    if(!rootFileCombined) measurement = std::unique_ptr<RooStats::HistFactory::Measurement>(static_cast<RooStats::HistFactory::Measurement*>(rootFileCombined -> Get( (fInputName+fSuffix).c_str())));
     //
-    for(int i_ch=0;i_ch<fNRegions;i_ch++){
+    std::vector<std::unique_ptr<TFile> > file_vec;
+    for(int i_ch=0; i_ch < fNRegions; ++i_ch) {
         bool isToFit = false;
         for(unsigned int iRegion = 0; iRegion < regionsToFit.size(); ++iRegion){
             if(fRegions[i_ch] -> fName == regionsToFit[iRegion]){
@@ -5496,29 +5498,30 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
                 break;
             }
         }
-        if(isToFit){
-            std::string fileName = fName+"/RooStats/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
-            if(fBootstrap!="" && fBootstrapIdx>=0) fileName = fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
-            TFile *rootFile = new TFile(fileName.c_str(),"read");
-            RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get((fRegions[i_ch]->fName).c_str());
-            if(!m_ws){
-                WriteErrorStatus("TRExFit::PerformWorkspaceCombination", "The workspace (\"" + fRegions[i_ch] -> fName + "\") cannot be found in file " + fileName + ". Please check !");
-            }
-            vec_ws.push_back(m_ws);
-            vec_chName.push_back(fRegions[i_ch] -> fName);
-            // if failed to get the measurement from the combined ws, take it from the first region
-            if(!measurement){
-                measurement = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fInputName+fSuffix).c_str());
-            }
+        if (!isToFit) continue;
+        std::string fileName = fName+"/RooStats/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
+        if(fBootstrap!="" && fBootstrapIdx>=0) fileName = fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
+        file_vec.emplace_back(TFile::Open(fileName.c_str()));
+        RooWorkspace *tmp_ws = static_cast<RooWorkspace*>(file_vec.back()->Get((fRegions[i_ch]->fName).c_str()));
+        if(!tmp_ws){
+            WriteErrorStatus("TRExFit::PerformWorkspaceCombination", "The workspace (\"" + fRegions[i_ch] -> fName + "\") cannot be found in file " + fileName + ". Please check !");
+            return nullptr;
+        }
+        vec_ws.emplace_back(std::move(tmp_ws));
+        vec_chName.emplace_back(fRegions[i_ch] -> fName);
+        // if failed to get the measurement from the combined ws, take it from the first region
+        if(!measurement){
+            measurement = std::unique_ptr<RooStats::HistFactory::Measurement>(static_cast<RooStats::HistFactory::Measurement*>(file_vec.back() -> Get( (fInputName+fSuffix).c_str())));
         }
     }
+
 
     //
     // Create the HistoToWorkspaceFactoryFast object to perform safely the combination
     //
     if(!measurement){
         WriteErrorStatus("TRExFit::PerformWorkspaceCombination", "The measurement object has not been retrieved ! Please check.");
-        return 0;
+        return nullptr;
     }
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     RooStats::HistFactory::HistoToWorkspaceFactoryFast factory(*measurement);
@@ -5530,6 +5533,10 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 
+    for (auto& ifile : file_vec) {
+        ifile->Close();
+    }
+    
     rootFileCombined->Close();
 
     return ws;
