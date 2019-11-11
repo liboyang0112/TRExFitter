@@ -2,6 +2,7 @@
 #include "TRExFitter/CorrelationMatrix.h"
 
 // Framework includes
+#include "TRExFitter/Common.h"
 #include "TRExFitter/StatusLogbook.h"
 
 // ROOT includes
@@ -14,7 +15,8 @@ using std::string;
 
 //__________________________________________________________________________________
 //
-CorrelationMatrix::CorrelationMatrix() {
+CorrelationMatrix::CorrelationMatrix() :
+    fMatrix(std::vector<std::vector<double> > (MAXsyst, std::vector<double>(MAXsyst))) {
 }
 
 //__________________________________________________________________________________
@@ -28,8 +30,8 @@ void CorrelationMatrix::AddNuisPar(const string& p){
 //__________________________________________________________________________________
 //
 void CorrelationMatrix::SetCorrelation(const string& p0, const string& p1,double corr){
-    int idx0 = fNuisParIdx[p0];
-    int idx1 = fNuisParIdx[p1];
+    const int idx0 = fNuisParIdx[p0];
+    const int idx1 = fNuisParIdx[p1];
     fMatrix[idx0][idx1] = corr;
 }
 
@@ -85,7 +87,7 @@ void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, con
     //
     // 0.5) Skip some NPs
     //
-    std::vector<string> npToExclude = {"gamma_","stat_"};
+    static const std::vector<string> npToExclude = {"gamma_","stat_"};
     bool skip = false;
     std::vector < std::string > vec_NP_old = vec_NP;
     vec_NP.clear();
