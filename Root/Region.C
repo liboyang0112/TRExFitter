@@ -352,7 +352,7 @@ void Region::BuildPreFitErrorHist(){
 
         WriteDebugStatus("Region::BuildPreFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
         
-        hNom = fSampleHists[i]->fHist;
+        hNom = fSampleHists[i]->fHist.get();
 
         // - loop on systematics
         for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
@@ -615,7 +615,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     fTot = nullptr;
     string title;
     TH1* h = nullptr;
-    if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist,fData->fSample->fTitle);
+    if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
     for(int i=0;i<fNSig;i++){
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
@@ -1033,7 +1033,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
             // hack: add a systematic hist if not there
             if(sh==nullptr){
-                fSampleHists[i]->AddHistoSyst(systName,systName,fSampleHists[i]->fHist,fSampleHists[i]->fHist);
+                fSampleHists[i]->AddHistoSyst(systName,systName,fSampleHists[i]->fHist.get(),fSampleHists[i]->fHist.get());
                 sh = fSampleHists[i]->GetSystematic(systName);
             }
 
@@ -1228,7 +1228,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
             // hack: add a systematic hist if not there
             if(sh==nullptr){
-                fSampleHists[morph_index]->AddHistoSyst(systName,systName,fSampleHists[morph_index]->fHist,fSampleHists[morph_index]->fHist);
+                fSampleHists[morph_index]->AddHistoSyst(systName,systName,fSampleHists[morph_index]->fHist.get(),fSampleHists[morph_index]->fHist.get());
                 sh = fSampleHists[morph_index]->GetSystematic(systName);
             }
 
@@ -1470,8 +1470,8 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             //
             hNew->SetBinContent(i_bin,binContentNew);
         }
-        hSmpNew[i] = (TH1*)hNew->Clone();
-        fSampleHists[i]->fHist_postFit = hSmpNew[i];
+        hSmpNew[i] = static_cast<TH1*>(hNew->Clone());
+        fSampleHists[i]->fHist_postFit.reset(hSmpNew[i]);
         delete hNew;
     }
     //
@@ -1608,7 +1608,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             i_sig++;
         }
     }
-    if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist,fData->fSample->fTitle);
+    if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
     for(int i=0;i<fNSig;i++){
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
@@ -2092,7 +2092,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                 TGraphAsymmErrors *g_err;
                 double err = 0.;
                 if (isPostFit){
-                    g_err = BuildTotError(sh->fHist_postFit, category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix.get());
+                    g_err = BuildTotError(sh->fHist_postFit.get(), category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix.get());
                     if (category_histo_up.size()>0 && sh->fHist_postFit->Integral()>0.){
                         for (int ibin=1; ibin<sh->fHist_postFit->GetNbinsX()+1; ibin++){
                             if (pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist_postFit->GetBinError(ibin), 2)>=0.){ // dummy check
@@ -2103,7 +2103,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                     }
                 }
                 else{
-                    g_err = BuildTotError(sh->fHist, category_histo_up, category_histo_down, category_syst_names[s->fName][category]);
+                    g_err = BuildTotError(sh->fHist.get(), category_histo_up, category_histo_down, category_syst_names[s->fName][category]);
                     if (category_histo_up.size()>0 && sh->fHist->Integral()>0.){
                         for (int ibin=1; ibin<sh->fHist->GetNbinsX()+1; ibin++){
                             if (pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist->GetBinError(ibin), 2)>=0.){

@@ -10,6 +10,7 @@
 
 /// c++ includes
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -98,11 +99,11 @@ public:
 
     std::string fName;
     Sample *fSample;
-    TH1 *fHist;
-    TH1 *fHist_orig;
-    TH1 *fHist_regBin;
-    TH1 *fHist_preSmooth; // new - to use only for syst plots
-    TH1 *fHist_postFit;
+    std::unique_ptr<TH1> fHist;
+    std::unique_ptr<TH1> fHist_orig;
+    std::unique_ptr<TH1> fHist_regBin;
+    std::unique_ptr<TH1> fHist_preSmooth; // new - to use only for syst plots
+    std::unique_ptr<TH1> fHist_postFit;
     std::string fFileName;
     std::string fHistoName;
     bool fIsData;
