@@ -59,9 +59,6 @@ Sample::~Sample(){
     for(auto isf : fShapeFactors) {
         delete isf;
     }
-    for(auto isys : fSystematics) {
-        delete isys;
-    }
 }
 
 //__________________________________________________________________________________
@@ -153,7 +150,7 @@ void Sample::AddShapeFactor(ShapeFactor* shapeFactor){
 //__________________________________________________________________________________
 //
 void Sample::AddSystematic(Systematic* syst){
-    fSystematics.push_back(syst);
+    fSystematics.emplace_back(syst);
     fNSyst++;
 }
 
@@ -203,7 +200,7 @@ ShapeFactor* Sample::AddShapeFactor(const std::string& name,double nominal,doubl
 //__________________________________________________________________________________
 //
 Systematic* Sample::AddSystematic(const std::string& name,int type,double up,double down){
-    fSystematics.push_back(new Systematic(name,type,up,down));
+    fSystematics.emplace_back(new Systematic(name,type,up,down));
     fNSyst++;
-    return fSystematics[fNSyst-1];
+    return fSystematics[fNSyst-1].get();
 }

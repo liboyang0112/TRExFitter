@@ -3,6 +3,7 @@
 
 /// c++ includes
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -107,7 +108,7 @@ public:
 
     // systematics & norm.factors
     int fNSyst;
-    std::vector < Systematic* > fSystematics;
+    std::vector < std::unique_ptr<Systematic> > fSystematics;
     int fNNorm;
     std::vector < NormFactor* > fNormFactors;
     int fNShape;
