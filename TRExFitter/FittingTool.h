@@ -73,7 +73,7 @@ public:
 
     inline void UseMinos( const std::vector<std::string> minosvar){ m_useMinos = true; m_varMinos = minosvar; }
 
-    inline void SetExternalConstraints( const RooArgSet* externalConstraints = 0 ){ m_externalConstraints = externalConstraints; }
+    inline void SetExternalConstraints( const RooArgSet* externalConstraints = 0 ){ m_externalConstraints = std::unique_ptr<const RooArgSet>(externalConstraints); }
 
     //
     // Specific functions
@@ -117,7 +117,7 @@ private:
     std::map<std::string, std::string> m_subCategoryMap;
     std::set<std::string> m_subCategories;
 
-    const RooArgSet* m_externalConstraints;
+    std::unique_ptr<const RooArgSet> m_externalConstraints;
 };
 
 
