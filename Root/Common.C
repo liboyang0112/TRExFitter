@@ -1137,7 +1137,7 @@ void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other) {
     
     const int nbins = toSet->GetNbinsX();
     if (other->GetNbinsX() != nbins) {
-        WriteWarningStatus("Common::SetHistoBinsFromOtherHist","Bin sizes are different! Skippingg");
+        WriteWarningStatus("Common::SetHistoBinsFromOtherHist","Bin sizes are different! Skipping");
         return;
     }
 
