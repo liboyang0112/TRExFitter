@@ -3236,7 +3236,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
             if(sh!=nullptr){
                 if(isPostFit && fSamples[i_smp]->fType!=Sample::DATA && fSamples[i_smp]->fType!=Sample::GHOST)
-                    h0 = sh->fHist_postFit;
+                    h0 = sh->fHist_postFit.get();
                 else
                     h0 = sh->fHist.get();
                 double tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
@@ -3311,8 +3311,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                 if(sh!=nullptr){
                     if(isPostFit){
                         if(syst_idx<0 || sh->GetSystematic(systName)==nullptr){
-                            h_tmp_Up   = sh->fHist_postFit;
-                            h_tmp_Down = sh->fHist_postFit;
+                            h_tmp_Up   = sh->fHist_postFit.get();
+                            h_tmp_Down = sh->fHist_postFit.get();
                         }
                         else{
                             h_tmp_Up   = sh->GetSystematic(systName)->fHistUp_postFit;
@@ -3352,8 +3352,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                     if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                         if(isPostFit){
                             if(syst_idx<0 || sh->GetSystematic(systName)==nullptr){
-                                h_tmp_Up   = sh->fHist_postFit;
-                                h_tmp_Down = sh->fHist_postFit;
+                                h_tmp_Up   = sh->fHist_postFit.get();
+                                h_tmp_Down = sh->fHist_postFit.get();
                             }
                             else{
                                 h_tmp_Up   = sh->GetSystematic(systName)->fHistUp_postFit;

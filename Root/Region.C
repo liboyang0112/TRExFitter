@@ -1470,8 +1470,8 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             //
             hNew->SetBinContent(i_bin,binContentNew);
         }
-        hSmpNew[i] = (TH1*)hNew->Clone();
-        fSampleHists[i]->fHist_postFit = hSmpNew[i];
+        hSmpNew[i] = static_cast<TH1*>(hNew->Clone());
+        fSampleHists[i]->fHist_postFit.reset(hSmpNew[i]);
         delete hNew;
     }
     //
@@ -2092,7 +2092,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                 TGraphAsymmErrors *g_err;
                 double err = 0.;
                 if (isPostFit){
-                    g_err = BuildTotError(sh->fHist_postFit, category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix.get());
+                    g_err = BuildTotError(sh->fHist_postFit.get(), category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix.get());
                     if (category_histo_up.size()>0 && sh->fHist_postFit->Integral()>0.){
                         for (int ibin=1; ibin<sh->fHist_postFit->GetNbinsX()+1; ibin++){
                             if (pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist_postFit->GetBinError(ibin), 2)>=0.){ // dummy check

@@ -131,7 +131,6 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
 //_____________________________________________________________________________
 //
 SampleHist::~SampleHist(){
-    delete fHist_postFit;
     for(auto isys : fSyst) {
         delete isys;
     }
