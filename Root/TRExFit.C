@@ -760,7 +760,7 @@ void TRExFit::ReadNtuples(){
             //
             // read norm factors
             for(int i_norm=0;i_norm<fSamples[i_smp]->fNNorm;i_norm++){
-                NormFactor *nf = fSamples[i_smp]->fNormFactors[i_norm];
+                NormFactor *nf = fSamples[i_smp]->fNormFactors[i_norm].get();
                 //
                 // eventually skip norm factor / region combination
                 if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
@@ -1709,7 +1709,7 @@ void TRExFit::ReadHistograms(){
             //
             // read norm factors
             for(int i_norm=0;i_norm<fSamples[i_smp]->fNNorm;i_norm++){
-                NormFactor *nf = fSamples[i_smp]->fNormFactors[i_norm];
+                NormFactor *nf = fSamples[i_smp]->fNormFactors[i_norm].get();
                 //
                 // eventually skip systematic / region combination
                 if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
@@ -2057,7 +2057,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 normName = fSamples[i_smp]->fNormFactors[i_norm]->fName;
                 WriteDebugStatus("TRExFit::ReadHistos", "      Reading norm " + normName);
                 // norm only
-                sh->AddNormFactor(fSamples[i_smp]->fNormFactors[i_norm]);
+                sh->AddNormFactor(fSamples[i_smp]->fNormFactors[i_norm].get());
             }
             //
             // shape factors
@@ -4065,7 +4065,7 @@ void TRExFit::CreateCustomAsimov() const{
                 //
                 // bug-fix: change normalisation factors to nominal value!
                 double factor = 1.;
-                for(auto norm : fSamples[i_smp]->fNormFactors){
+                for(const auto& norm : fSamples[i_smp]->fNormFactors){
                     WriteDebugStatus("TRExFit::CreateCustomAsimov", "setting norm factor to " + std::to_string(norm->fNominal));
                     factor *= norm->fNominal;
                 }

@@ -110,7 +110,7 @@ public:
     int fNSyst;
     std::vector < std::unique_ptr<Systematic> > fSystematics;
     int fNNorm;
-    std::vector < NormFactor* > fNormFactors;
+    std::vector < std::unique_ptr<NormFactor> > fNormFactors;
     int fNShape;
     std::vector < ShapeFactor* > fShapeFactors;
 

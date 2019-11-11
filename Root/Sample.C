@@ -53,9 +53,6 @@ Sample::Sample(const std::string& name,int type) :
 //__________________________________________________________________________________
 //
 Sample::~Sample(){
-    for(auto inf : fNormFactors) {
-        delete inf;
-    }
     for(auto isf : fShapeFactors) {
         delete isf;
     }
@@ -136,7 +133,7 @@ void Sample::AddHistoName(const std::string& name){
 //__________________________________________________________________________________
 // norm factors and systs
 void Sample::AddNormFactor(NormFactor* normFactor){
-    fNormFactors.push_back(normFactor);
+    fNormFactors.emplace_back(normFactor);
     fNNorm ++;
 }
 
@@ -184,9 +181,9 @@ bool Sample::HasNormFactor(const std::string& name) const{
 //__________________________________________________________________________________
 //
 NormFactor* Sample::AddNormFactor(const std::string& name,double nominal,double min,double max,bool isConst){
-    fNormFactors.push_back(new NormFactor(name,nominal,min,max,isConst));
+    fNormFactors.emplace_back(new NormFactor(name,nominal,min,max,isConst));
     fNNorm ++;
-    return fNormFactors[fNNorm-1];
+    return fNormFactors[fNNorm-1].get();
 }
 
 //__________________________________________________________________________________
