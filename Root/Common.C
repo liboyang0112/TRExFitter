@@ -931,7 +931,7 @@ double HexToDouble(const std::string& s){
 //
 void ScaleNominal(const SampleHist* const sig, TH1* hist){
     for(size_t i_nf=0; i_nf<sig->fSample->fNormFactors.size(); ++i_nf){
-        NormFactor *nf = sig->fSample->fNormFactors[i_nf];
+        NormFactor *nf = sig->fSample->fNormFactors[i_nf].get();
         // if this norm factor is a morphing one
         if(nf->fName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
             std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -967,7 +967,7 @@ double GetNominalMorphScale(const SampleHist* const sh){
     if (!sh) return 1.;
     if (!(sh->fSample)) return 1.;
     for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
-        NormFactor *nf = sh->fSample->fNormFactors[i_nf];
+        NormFactor *nf = sh->fSample->fNormFactors[i_nf].get();
         if (!nf) continue;
         std::string nfName = nf->fName;
 

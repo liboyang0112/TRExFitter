@@ -53,15 +53,6 @@ Sample::Sample(const std::string& name,int type) :
 //__________________________________________________________________________________
 //
 Sample::~Sample(){
-    for(auto inf : fNormFactors) {
-        delete inf;
-    }
-    for(auto isf : fShapeFactors) {
-        delete isf;
-    }
-    for(auto isys : fSystematics) {
-        delete isys;
-    }
 }
 
 //__________________________________________________________________________________
@@ -139,21 +130,21 @@ void Sample::AddHistoName(const std::string& name){
 //__________________________________________________________________________________
 // norm factors and systs
 void Sample::AddNormFactor(NormFactor* normFactor){
-    fNormFactors.push_back(normFactor);
+    fNormFactors.emplace_back(normFactor);
     fNNorm ++;
 }
 
 //__________________________________________________________________________________
 //
 void Sample::AddShapeFactor(ShapeFactor* shapeFactor){
-    fShapeFactors.push_back(shapeFactor);
+    fShapeFactors.emplace_back(shapeFactor);
     fNShape ++;
 }
 
 //__________________________________________________________________________________
 //
 void Sample::AddSystematic(Systematic* syst){
-    fSystematics.push_back(syst);
+    fSystematics.emplace_back(syst);
     fNSyst++;
 }
 
@@ -187,23 +178,23 @@ bool Sample::HasNormFactor(const std::string& name) const{
 //__________________________________________________________________________________
 //
 NormFactor* Sample::AddNormFactor(const std::string& name,double nominal,double min,double max,bool isConst){
-    fNormFactors.push_back(new NormFactor(name,nominal,min,max,isConst));
+    fNormFactors.emplace_back(new NormFactor(name,nominal,min,max,isConst));
     fNNorm ++;
-    return fNormFactors[fNNorm-1];
+    return fNormFactors[fNNorm-1].get();
 }
 
 //__________________________________________________________________________________
 //
 ShapeFactor* Sample::AddShapeFactor(const std::string& name,double nominal,double min,double max,bool isConst){
-    fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max,isConst));
+    fShapeFactors.emplace_back(new ShapeFactor(name,nominal,min,max,isConst));
     fNShape ++;
-    return fShapeFactors[fNShape-1];
+    return fShapeFactors[fNShape-1].get();
 }
 
 //__________________________________________________________________________________
 //
 Systematic* Sample::AddSystematic(const std::string& name,int type,double up,double down){
-    fSystematics.push_back(new Systematic(name,type,up,down));
+    fSystematics.emplace_back(new Systematic(name,type,up,down));
     fNSyst++;
-    return fSystematics[fNSyst-1];
+    return fSystematics[fNSyst-1].get();
 }

@@ -440,7 +440,7 @@ void Region::BuildPreFitErrorHist(){
                 // scale according to NormFactors
                 double scale = 1.;
                 for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
-                    NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf];
+                    NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf].get();
                     // if this norm factor is a morphing one
                     if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                         std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -632,7 +632,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
-            NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf];
+            NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf].get();
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -698,7 +698,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
-            NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf];
+            NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf].get();
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -2488,7 +2488,7 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                 }
             }
             for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
-                NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf];
+                NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf].get();
                 // if this norm factor is a morphing one
                 if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                     std::string formula = TRExFitter::SYSTMAP[nf->fName];

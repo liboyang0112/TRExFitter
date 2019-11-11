@@ -760,7 +760,7 @@ void TRExFit::ReadNtuples(){
             //
             // read norm factors
             for(int i_norm=0;i_norm<fSamples[i_smp]->fNNorm;i_norm++){
-                NormFactor *nf = fSamples[i_smp]->fNormFactors[i_norm];
+                NormFactor *nf = fSamples[i_smp]->fNormFactors[i_norm].get();
                 //
                 // eventually skip norm factor / region combination
                 if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
@@ -776,7 +776,7 @@ void TRExFit::ReadNtuples(){
             //
             // read shape factors
             for(int i_shape=0;i_shape<fSamples[i_smp]->fNShape;i_shape++){
-                ShapeFactor *sf = fSamples[i_smp]->fShapeFactors[i_shape];
+                ShapeFactor *sf = fSamples[i_smp]->fShapeFactors[i_shape].get();
                 //
                 // eventually skip shape factor / region combination
                 if( sf->fRegions.size()>0 && FindInStringVector(sf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
@@ -792,7 +792,7 @@ void TRExFit::ReadNtuples(){
             //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
-                Systematic * syst = fSamples[i_smp]->fSystematics[i_syst];
+                Systematic * syst = fSamples[i_smp]->fSystematics[i_syst].get();
                 //
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
@@ -1032,7 +1032,7 @@ void TRExFit::ReadNtuples(){
                 if(hDown==nullptr) hDown = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,fSamples[i_smp]->fSystematics[i_syst]->fStoredName,hUp,hDown);
-                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst].get();
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0)
@@ -1078,7 +1078,7 @@ void TRExFit::CorrectHistograms(){
             ScaleMCstatInHist(sh->fHist, smp->fMCstatScale);
 
             // loop on systematics
-            for(auto syst : smp->fSystematics){
+            for(auto& syst : smp->fSystematics){
                 //
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
@@ -1223,7 +1223,7 @@ void TRExFit::CorrectHistograms(){
 
             //
             // For SampleUp / SampleDown
-            for(auto syst : smp->fSystematics){
+            for(auto& syst : smp->fSystematics){
                 //
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
@@ -1249,7 +1249,7 @@ void TRExFit::CorrectHistograms(){
                         }
                     }
                     syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,h_up,h_down);
-                    syh->fSystematic = syst;
+                    syh->fSystematic = syst.get();
                 }
             }
 
@@ -1289,7 +1289,7 @@ void TRExFit::CorrectHistograms(){
 
             //
             // Systematics
-            for(auto syst : smp->fSystematics){
+            for(auto& syst : smp->fSystematics){
                 if(syst==nullptr) continue;
                 //
                 // eventually skip systematic / region combination
@@ -1328,7 +1328,7 @@ void TRExFit::CorrectHistograms(){
             }  // end syst loop
             //
             // Histograms checking
-            for(auto syst : smp->fSystematics){
+            for(auto& syst : smp->fSystematics){
                 //
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
@@ -1564,7 +1564,7 @@ void TRExFit::CorrectHistograms(){
                 SampleHist *sh = reg->GetSampleHist(smp->fName);
                 if(sh==nullptr) continue;
                 DropBins(sh->fHist,reg->fDropBins);
-                for(auto syst : smp->fSystematics){
+                for(auto& syst : smp->fSystematics){
                     // eventually skip systematic / region combination
                     if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
                     if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
@@ -1621,7 +1621,7 @@ void TRExFit::ReadHistograms(){
 
             // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
-                Systematic *syst = fSamples[i_smp]->fSystematics[i_syst];
+                Systematic *syst = fSamples[i_smp]->fSystematics[i_syst].get();
                 // only relevant for systs that have this sample as reference
                 if (!syst->fSubtractRefSampleVar || syst->fReferenceSample != fSamples[i_smp]->fName) continue;
 
@@ -1659,7 +1659,7 @@ void TRExFit::ReadHistograms(){
                 }
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,fSamples[i_smp]->fSystematics[i_syst]->fStoredName,hUp,hDown);
-                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst].get();
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0){
                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[fRegions[i_ch]->fName]!=0){
@@ -1709,7 +1709,7 @@ void TRExFit::ReadHistograms(){
             //
             // read norm factors
             for(int i_norm=0;i_norm<fSamples[i_smp]->fNNorm;i_norm++){
-                NormFactor *nf = fSamples[i_smp]->fNormFactors[i_norm];
+                NormFactor *nf = fSamples[i_smp]->fNormFactors[i_norm].get();
                 //
                 // eventually skip systematic / region combination
                 if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
@@ -1725,7 +1725,7 @@ void TRExFit::ReadHistograms(){
             //
             // read shape factors
             for(int i_shape=0;i_shape<fSamples[i_smp]->fNShape;i_shape++){
-                ShapeFactor *sf = fSamples[i_smp]->fShapeFactors[i_shape];
+                ShapeFactor *sf = fSamples[i_smp]->fShapeFactors[i_shape].get();
                 //
                 // eventually skip systematic / region combination
                 if( sf->fRegions.size()>0 && FindInStringVector(sf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
@@ -1741,7 +1741,7 @@ void TRExFit::ReadHistograms(){
             //
             // read systematics (Shape and Histo)
             for(int i_syst=0;i_syst<fSamples[i_smp]->fNSyst;i_syst++){
-                Systematic *syst = fSamples[i_smp]->fSystematics[i_syst];
+                Systematic *syst = fSamples[i_smp]->fSystematics[i_syst].get();
                 //
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fRegions[i_ch]->fName)<0  ) continue;
@@ -1797,7 +1797,7 @@ void TRExFit::ReadHistograms(){
                 if(hDown==nullptr) hDown = (TH1D*)reg->GetSampleHist( fSamples[i_smp]->fName )->fHist;
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fSamples[i_smp]->fSystematics[i_syst]->fName,fSamples[i_smp]->fSystematics[i_syst]->fStoredName,hUp,hDown);
-                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst].get();
                 syh->fScaleUp = fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
                     if(fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0)
@@ -1856,7 +1856,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 if(!fSamples[i_smp]->HasNuisanceParameter(systNPName)){
                     WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
-                    tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
                     tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
@@ -1879,7 +1879,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 if(!fSamples[i_smp]->HasNuisanceParameter(systNPName)){
                     WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
-                    tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
                     tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
@@ -1902,7 +1902,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 if(!fSamples[i_smp]->HasNuisanceParameter(systNPName)){
                     WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
-                    tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
                     tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
@@ -1925,7 +1925,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 if(!fSamples[i_smp]->HasNuisanceParameter(systNPName)){
                     WriteDebugStatus("TRExFit::ReadHistos", " The sample " + fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("TRExFit::ReadHistos", "                Inheriting it from "+smp->fName);
-                    tmpsyst = new Systematic((smp->fSystematics[i_syst])[0]);
+                    tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
                     tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
@@ -1961,8 +1961,8 @@ void TRExFit::ReadHistos(/*string fileName*/){
             for(auto smp : fSamples){
                 if(!smp->fIsMorph[par]) continue;
                 if(smp==smpNominal) continue;
-                for(auto syst : smpNominal->fSystematics){
-                    smp->AddSystematic(syst);
+                for(auto& syst : smpNominal->fSystematics){
+                    smp->AddSystematic(syst.get());
                 }
             }
         }
@@ -1980,8 +1980,8 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 }
             }
             if(smpReference!=nullptr){
-                for(auto syst : smpReference->fSystematics){
-                    smp->AddSystematic(syst);
+                for(auto& syst : smpReference->fSystematics){
+                    smp->AddSystematic(syst.get());
                 }
             }
         }
@@ -2057,7 +2057,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 normName = fSamples[i_smp]->fNormFactors[i_norm]->fName;
                 WriteDebugStatus("TRExFit::ReadHistos", "      Reading norm " + normName);
                 // norm only
-                sh->AddNormFactor(fSamples[i_smp]->fNormFactors[i_norm]);
+                sh->AddNormFactor(fSamples[i_smp]->fNormFactors[i_norm].get());
             }
             //
             // shape factors
@@ -2070,7 +2070,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 shapeName = fSamples[i_smp]->fShapeFactors[i_shape]->fName;
                 WriteDebugStatus("TRExFit::ReadHistos", "      Reading shape " + shapeName);
                 // shape only
-                sh->AddShapeFactor(fSamples[i_smp]->fShapeFactors[i_shape]);
+                sh->AddShapeFactor(fSamples[i_smp]->fShapeFactors[i_shape].get());
             }
             //
             // systematics
@@ -2135,7 +2135,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                     }
                 }
                 // for both
-                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst];
+                syh->fSystematic = fSamples[i_smp]->fSystematics[i_syst].get();
                 syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 if(fBootstrap!="" && fBootstrapIdx>=0 && fBootstrapSyst == systName ){
@@ -4065,7 +4065,7 @@ void TRExFit::CreateCustomAsimov() const{
                 //
                 // bug-fix: change normalisation factors to nominal value!
                 double factor = 1.;
-                for(auto norm : fSamples[i_smp]->fNormFactors){
+                for(const auto& norm : fSamples[i_smp]->fNormFactors){
                     WriteDebugStatus("TRExFit::CreateCustomAsimov", "setting norm factor to " + std::to_string(norm->fNominal));
                     factor *= norm->fNominal;
                 }
