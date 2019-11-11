@@ -1109,14 +1109,12 @@ void DropShape(TH1* hUp,TH1* hDown,TH1* hNom){
     }
     if(hUp!=nullptr){
         const double ratioUp = hUp->Integral()/intNom;
-        delete hUp;
-        hUp = static_cast<TH1*>(hNom->Clone());
+        SetHistoBinsFromOtherHist(hUp, hNom); 
         hUp->Scale(ratioUp);
     }
     if(hDown!=nullptr){
         const double ratioDown = hDown->Integral()/intNom;
-        delete hDown;
-        hDown = static_cast<TH1*>(hNom->Clone());
+        SetHistoBinsFromOtherHist(hDown, hNom); 
         hDown->Scale(ratioDown);
     }
 }
@@ -1128,5 +1126,23 @@ void ScaleMCstatInHist(TH1* hist, const double scale) {
 
     for (int ibin = 1; ibin <= hist->GetNbinsX(); ++ibin) {
         hist->SetBinError(ibin, scale * hist->GetBinError(ibin));
+    }
+}
+
+//___________________________________________________________
+//
+void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other) {
+    if (!toSet) return;
+    if (!other) return;
+    
+    const int nbins = toSet->GetNbinsX();
+    if (other->GetNbinsX() != nbins) {
+        WriteWarningStatus("Common::SetHistoBinsFromOtherHist","Bin sizes are different! Skippingg");
+        return;
+    }
+
+    for (int ibin = 1; ibin <= nbins; ++ibin) {
+        toSet->SetBinContent(ibin, other->GetBinContent(ibin));
+        toSet->SetBinError  (ibin, other->GetBinError(ibin));
     }
 }

@@ -179,4 +179,6 @@ std::string pad_trail( const std::string & input );
 void DropNorm(TH1* hUp,TH1* hDown,TH1* hNom);
 void DropShape(TH1* hUp,TH1* hDown,TH1* hNom);
 
+void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other);
+
 #endif
