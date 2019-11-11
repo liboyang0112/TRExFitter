@@ -53,9 +53,6 @@ Sample::Sample(const std::string& name,int type) :
 //__________________________________________________________________________________
 //
 Sample::~Sample(){
-    for(auto isf : fShapeFactors) {
-        delete isf;
-    }
 }
 
 //__________________________________________________________________________________
@@ -140,7 +137,7 @@ void Sample::AddNormFactor(NormFactor* normFactor){
 //__________________________________________________________________________________
 //
 void Sample::AddShapeFactor(ShapeFactor* shapeFactor){
-    fShapeFactors.push_back(shapeFactor);
+    fShapeFactors.emplace_back(shapeFactor);
     fNShape ++;
 }
 
@@ -189,9 +186,9 @@ NormFactor* Sample::AddNormFactor(const std::string& name,double nominal,double 
 //__________________________________________________________________________________
 //
 ShapeFactor* Sample::AddShapeFactor(const std::string& name,double nominal,double min,double max,bool isConst){
-    fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max,isConst));
+    fShapeFactors.emplace_back(new ShapeFactor(name,nominal,min,max,isConst));
     fNShape ++;
-    return fShapeFactors[fNShape-1];
+    return fShapeFactors[fNShape-1].get();
 }
 
 //__________________________________________________________________________________

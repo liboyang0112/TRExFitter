@@ -776,7 +776,7 @@ void TRExFit::ReadNtuples(){
             //
             // read shape factors
             for(int i_shape=0;i_shape<fSamples[i_smp]->fNShape;i_shape++){
-                ShapeFactor *sf = fSamples[i_smp]->fShapeFactors[i_shape];
+                ShapeFactor *sf = fSamples[i_smp]->fShapeFactors[i_shape].get();
                 //
                 // eventually skip shape factor / region combination
                 if( sf->fRegions.size()>0 && FindInStringVector(sf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
@@ -1725,7 +1725,7 @@ void TRExFit::ReadHistograms(){
             //
             // read shape factors
             for(int i_shape=0;i_shape<fSamples[i_smp]->fNShape;i_shape++){
-                ShapeFactor *sf = fSamples[i_smp]->fShapeFactors[i_shape];
+                ShapeFactor *sf = fSamples[i_smp]->fShapeFactors[i_shape].get();
                 //
                 // eventually skip systematic / region combination
                 if( sf->fRegions.size()>0 && FindInStringVector(sf->fRegions,fRegions[i_ch]->fName)<0  ) continue;
@@ -2070,7 +2070,7 @@ void TRExFit::ReadHistos(/*string fileName*/){
                 shapeName = fSamples[i_smp]->fShapeFactors[i_shape]->fName;
                 WriteDebugStatus("TRExFit::ReadHistos", "      Reading shape " + shapeName);
                 // shape only
-                sh->AddShapeFactor(fSamples[i_smp]->fShapeFactors[i_shape]);
+                sh->AddShapeFactor(fSamples[i_smp]->fShapeFactors[i_shape].get());
             }
             //
             // systematics
