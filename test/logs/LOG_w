@@ -94,76 +94,76 @@ Printing XML Files for channel: SR_2
 Finished printing XML files
 Finished printing XML files
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Data_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x1dd84e0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2d60a90
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Bkg1_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x1e109c0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2d40670
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Bkg1_JES_Shape_Down_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x21b1a10
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2cafa30
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Bkg1_JES_Shape_Up_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x20c3390
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2d9dd90
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Bkg2_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x20b5130
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2ca0830
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Signal_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x21b4840
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2d56840
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Signal_JES_Shape_Down_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x20e61c0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2c83260
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_1_Signal_JES_Shape_Up_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x220acf0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2c7cc70
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Data_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x210df00
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2d8c770
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Bkg1_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2221ee0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2bd5c90
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Bkg1_JES_Shape_Down_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x20b76c0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2c8f240
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Bkg1_JES_Shape_Up_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x21b25d0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2d26cd0
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Bkg2_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x220bca0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2130ae0
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Signal_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2221990
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2c99b50
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Signal_JES_Shape_Down_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x22263a0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2dc5e90
 Getting histogram.  InputFile FitExample/Histograms/FitExample_histos.root HistoPath  HistoName SR_2_Signal_JES_Shape_Up_regBin
-Opened input file: FitExample/Histograms/FitExample_histos.root: 0x21f4cf0
+Opened input file: FitExample/Histograms/FitExample_histos.root: 0x2d60580
 Measurement Name: FitExample	 OutputFilePrefix: FitExample/RooStats/FitExample	 POI: SigXsecOverSM	 Lumi: 1	 LumiRelErr: 0.1	 BinLow: 0	 BinHigh: 1	 ExportOnly: 1
 Constant Params:  Lumi
 Channels:
 	 Channel Name: SR_1	 InputFile: 
 	 Data:
-	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistoName: SR_1_Data_regBin	 HistoPath: 	 HistoAddress: 0x22099d0
+	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistoName: SR_1_Data_regBin	 HistoPath: 	 HistoAddress: 0x2d40170
 	 statErrorConfig:
 	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
 	 Samples: 
 	 	 Name: Bkg1	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x21b2140
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x2c9a140
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 	 Name: Bkg2	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x2225cb0
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x2d88fd0
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 	 Name: Signal	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Signal_regBin	 HistoPath: 	 HistoAddress: 0x20ec520
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_1_Signal_regBin	 HistoPath: 	 HistoAddress: 0x2d8a800
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 End of Channel SR_1
 	 Channel Name: SR_2	 InputFile: 
 	 Data:
-	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistoName: SR_2_Data_regBin	 HistoPath: 	 HistoAddress: 0x2222220
+	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistoName: SR_2_Data_regBin	 HistoPath: 	 HistoAddress: 0x2d77a50
 	 statErrorConfig:
 	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
 	 Samples: 
 	 	 Name: Bkg1	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x210eed0
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x2d77660
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 	 Name: Bkg2	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x20e80f0
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x2dc4310
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 	 Name: Signal	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Signal_regBin	 HistoPath: 	 HistoAddress: 0x2221430
+	 	 	 	 	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: SR_2_Signal_regBin	 HistoPath: 	 HistoAddress: 0x2dc7a40
 	 	 	 StatError Activate: 1	 InputFile: FitExample/Histograms/FitExample_histos.root	 HistName: 	 HistoPath: 	 HistoAddress: 0
 	 End of Channel SR_2
 End Measurement: FitExample
@@ -184,9 +184,6 @@ Starting to process SR_1 channel with 1 observables
 lumi str = [1,0,10]
 lumi Error str = nominalLumi[1,0,2],0.1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_1_epsilon
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Bkg1_SR_1_Hist_alphanominalDHist): fit range of variable obs_x_SR_1 expanded to nearest bin boundaries: [0,1] --> [0,1]
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Bkg1_SR_1_Hist_alpha_0lowDHist): fit range of variable obs_x_SR_1 expanded to nearest bin boundaries: [0,1] --> [0,1]
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Bkg1_SR_1_Hist_alpha_0highDHist): fit range of variable obs_x_SR_1 expanded to nearest bin boundaries: [0,1] --> [0,1]
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset Bkg1_SR_1_Hist_alphanominalDHist
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset Bkg1_SR_1_Hist_alpha_0lowDHist
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset Bkg1_SR_1_Hist_alpha_0highDHist
@@ -224,7 +221,6 @@ Making Statistical Uncertainty Hist for  Channel: SR_1 Sample: Bkg1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_1_epsilon
 Bkg2_SR_1 has no variation histograms 
 processing hist SR_1_Bkg2_regBin
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Bkg2_SR_1nominalDHist): fit range of variable obs_x_SR_1 expanded to nearest bin boundaries: [0,1] --> [0,1]
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset Bkg2_SR_1nominalDHist
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooHistFunc::Bkg2_SR_1_nominal
 Sample: Bkg2 to be included in Stat Error for channel SR_1
@@ -242,9 +238,6 @@ Making Statistical Uncertainty Hist for  Channel: SR_1 Sample: Bkg2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::alpha_Bkg2Xsec for import of RooProduct::Bkg2_SR_1_overallSyst_x_StatUncert
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_1_epsilon
 making normFactor: SigXsecOverSM
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Signal_SR_1_Hist_alphanominalDHist): fit range of variable obs_x_SR_1 expanded to nearest bin boundaries: [0,1] --> [0,1]
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Signal_SR_1_Hist_alpha_0lowDHist): fit range of variable obs_x_SR_1 expanded to nearest bin boundaries: [0,1] --> [0,1]
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Signal_SR_1_Hist_alpha_0highDHist): fit range of variable obs_x_SR_1 expanded to nearest bin boundaries: [0,1] --> [0,1]
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset Signal_SR_1_Hist_alphanominalDHist
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset Signal_SR_1_Hist_alpha_0lowDHist
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset Signal_SR_1_Hist_alpha_0highDHist
@@ -479,9 +472,6 @@ Starting to process SR_2 channel with 1 observables
 lumi str = [1,0,10]
 lumi Error str = nominalLumi[1,0,2],0.1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_2_epsilon
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Bkg1_SR_2_Hist_alphanominalDHist): fit range of variable obs_x_SR_2 expanded to nearest bin boundaries: [0,1] --> [0,1]
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Bkg1_SR_2_Hist_alpha_0lowDHist): fit range of variable obs_x_SR_2 expanded to nearest bin boundaries: [0,1] --> [0,1]
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Bkg1_SR_2_Hist_alpha_0highDHist): fit range of variable obs_x_SR_2 expanded to nearest bin boundaries: [0,1] --> [0,1]
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset Bkg1_SR_2_Hist_alphanominalDHist
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset Bkg1_SR_2_Hist_alpha_0lowDHist
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset Bkg1_SR_2_Hist_alpha_0highDHist
@@ -518,7 +508,6 @@ Making Statistical Uncertainty Hist for  Channel: SR_2 Sample: Bkg1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_2_epsilon
 Bkg2_SR_2 has no variation histograms 
 processing hist SR_2_Bkg2_regBin
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Bkg2_SR_2nominalDHist): fit range of variable obs_x_SR_2 expanded to nearest bin boundaries: [0,1] --> [0,1]
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset Bkg2_SR_2nominalDHist
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooHistFunc::Bkg2_SR_2_nominal
 Sample: Bkg2 to be included in Stat Error for channel SR_2
@@ -536,9 +525,6 @@ Making Statistical Uncertainty Hist for  Channel: SR_2 Sample: Bkg2
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::alpha_Bkg2Xsec for import of RooProduct::Bkg2_SR_2_overallSyst_x_StatUncert
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_2_epsilon
 making normFactor: SigXsecOverSM
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Signal_SR_2_Hist_alphanominalDHist): fit range of variable obs_x_SR_2 expanded to nearest bin boundaries: [0,1] --> [0,1]
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Signal_SR_2_Hist_alpha_0lowDHist): fit range of variable obs_x_SR_2 expanded to nearest bin boundaries: [0,1] --> [0,1]
-[#1] INFO:DataHandling -- RooDataHist::adjustBinning(Signal_SR_2_Hist_alpha_0highDHist): fit range of variable obs_x_SR_2 expanded to nearest bin boundaries: [0,1] --> [0,1]
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset Signal_SR_2_Hist_alphanominalDHist
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset Signal_SR_2_Hist_alpha_0lowDHist
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset Signal_SR_2_Hist_alpha_0highDHist
