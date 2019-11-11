@@ -44,8 +44,10 @@ compile:
 ## "hstep" step: produces the input histograms for TRExFitter
 ##    Artifact: keeps the FitExample folder
 ##
-histograms:
+histograms_full:
     stage: hstep
+    needs:
+      - compile
     script:
       - trex-fitter h config/myFit.config
       - ls
@@ -54,12 +56,27 @@ histograms:
       paths:
         - FitExample
 
+histograms_statonly:
+    stage: hstep
+    needs:
+      - compile
+    script:
+      - trex-fitter h config/myFitStatOnly.config StatOnlyFit=TRUE
+      - ls
+      - ls FitExampleStatOnly/Histograms/
+    artifacts:
+      paths:
+        - FitExampleStatOnly
+
 ##
 ## "wstep" step: produces the workspace
 ##    Artifact: keeps the FitExample folder
 ##
-workspace:
+workspace_full:
     stage: wstep
+    needs:
+      - compile
+      - histograms_full
     script:
       - trex-fitter w config/myFit.config >& LOG_w
       - cat LOG_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_w
@@ -73,12 +90,35 @@ workspace:
       paths:
         - FitExample
 
+workspace_statonly:
+    stage: wstep
+    needs:
+      - compile
+      - histograms_statonly
+    script:
+      - trex-fitter w config/myFitStatOnly.config StatOnlyFit=TRUE
+      - trex-fitter w config/myFitStatOnly.config StatOnlyFit=TRUE >& LOG_STATONLY_w
+      - cat LOG_STATONLY_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_STATONLY_w
+      - ls
+      - set -e
+      - ls FitExampleStatOnly
+      - ls FitExampleStatOnly/RooStats/
+      - source test/scripts/check_step_w_statonly.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleStatOnly
+
 ##
 ## "flsstep" step: performs the fit
 ##    Artifact: keeps the FitExample folder
 ##
-fit:
+fit_full:
     stage: flsstep
+    needs:
+      - compile
+      - histograms_full
+      - workspace_full
     script:
       - trex-fitter f config/myFit.config >& LOG_f
       - cat LOG_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_f
@@ -93,12 +133,33 @@ fit:
       paths:
         - FitExample
 
+fit_statonly:
+    stage: flsstep
+    needs:
+      - compile
+      - histograms_statonly
+      - workspace_statonly
+    script:
+      - trex-fitter f config/myFitStatOnly.config StatOnlyFit=TRUE >& LOG_STATONLY_f
+      - cat LOG_STATONLY_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_STATONLY_f
+      - ls
+      - set -e
+      - ls FitExampleStatOnly
+      - ls FitExampleStatOnly/Fits/
+      - cat FitExampleStatOnly/Fits/*.txt
+      - source test/scripts/check_step_f_statonly.sh
+      - echo "=> Passed quick logfile checks"
+
 ##
 ## "flsstep" step: compute the limits
 ##    Artifact: keeps the FitExample folder
 ##
 limit:
     stage: flsstep
+    needs:
+      - compile
+      - histograms_full
+      - workspace_full
     script:
       - trex-fitter l config/myFit.config >& LOG_l
       - cat LOG_l | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_l
@@ -118,6 +179,10 @@ limit:
 ##
 significance:
     stage: flsstep
+    needs:
+      - compile
+      - histograms_full
+      - workspace_full
     script:
       - trex-fitter s config/myFit.config >& LOG_s
       - cat LOG_s | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_s
@@ -137,6 +202,11 @@ significance:
 ##
 ranking:
     stage: rstep
+    needs:
+      - compile
+      - histograms_full
+      - workspace_full
+      - fit_full
     script:
       - trex-fitter r config/myFit.config >& LOG_r
       - cat LOG_r | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_r
@@ -154,6 +224,9 @@ ranking:
 ##
 draw_prefit:
     stage: draw
+    needs:
+      - compile
+      - histograms_full
     script:
       - trex-fitter d config/myFit.config >& LOG_d
       - cat LOG_d | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_d
@@ -173,6 +246,10 @@ draw_prefit:
 ##
 draw_postfit:
     stage: draw
+    needs:
+      - compile
+      - histograms_full
+      - fit_full
     script:
       - trex-fitter p config/myFit.config >& LOG_p
       - cat LOG_p | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_p
@@ -191,6 +268,8 @@ draw_postfit:
 ##    tagging image as "latest"
 ##
 build_img_latest:
+  needs:
+    - compile
   stage: imagebuild
   image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
   variables:
@@ -209,6 +288,8 @@ build_img_latest:
 ##    CI_COMMIT_REF_SLUG: either branch name or tag name
 ##
 build_img_tag:
+  needs:
+    - compile
   stage: imagebuild
   image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
   variables:

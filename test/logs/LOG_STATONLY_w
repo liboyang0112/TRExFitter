@@ -1,0 +1,544 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+                    No rights reserved, feel free to use and modify it ;)
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/myFitStatOnly.config[0m
+[1;32m=== INFO::ConfigReader::ReadCommandLineOptions: -------------------------------------------[0m
+[1;32m=== INFO::ConfigReader::ReadCommandLineOptions: Running options: [0m
+=== DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
+=== DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
+[1;32m=== INFO::ConfigReader::PostConfig: StatOnly option is setting to OFF the MC-stat (gammas) as well.[0m
+[1;32m=== INFO::ConfigReader::PostConfig: To keep them on use the command line option 'Systematics=NONE'[0m
+[1;32m=== INFO::ConfigReader::PostConfig: or comment out all Systematics in config file.[0m
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExampleStatOnly[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
+[1;32m=== INFO::Region::Print:     Region: SR_1[0m
+[1;32m=== INFO::Region::Print:     Region: SR_2[0m
+[1;32m=== INFO::Region::Print:     Region: VR[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
+[1;32m=== INFO::Sample::Print::      Data[0m
+[1;32m=== INFO::Sample::Print::      Bkg1[0m
+[1;32m=== INFO::Sample::Print::      Bkg2[0m
+[1;32m=== INFO::Sample::Print::      Signal[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Dummy[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  JES[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadHistos: -----------------------------[0m
+[1;32m=== INFO::TRExFit::ReadHistos: Reading histograms from file FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root ...[0m
+=== DEBUG::TRExFit::ReadHistos:   Reading region SR_1
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg1Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Dummy
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:   Reading region SR_2
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Dummy
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:   Reading region VR
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg1Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Dummy
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+Applying systematics pruning...
+[1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::SystPruning: Apply Systematics Pruning ...[0m
+[1;32m=== INFO::TRExFit::SystPruning: No systematics => No Pruning applied.[0m
+Creating workspace...
+[1;32m=== INFO::TRExFit::ToRooStat: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ToRooStat: Exporting to RooStats...[0m
+=== DEBUG::TRExFit::ToRooStat: Adding Channel: SR_1
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Data: SR_1_Data
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Bkg1
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Bkg2
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Signal
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: SigXsecOverSM, 1.000000
+=== DEBUG::TRExFit::ToRooStat: Adding Channel: SR_2
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Data: SR_2_Data
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Bkg1
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Bkg2
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Signal
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: SigXsecOverSM, 1.000000
+Printing XML Files for measurement: FitExampleStatOnly
+Printing XML Files for channel: SR_1
+Finished printing XML files
+Printing XML Files for channel: SR_2
+Finished printing XML files
+Finished printing XML files
+Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Data_regBin
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x1b8ca30
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Bkg1_regBin
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x1b4e670
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Bkg2_regBin
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x1bfe300
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Signal_regBin
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x1bff5f0
+Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Data_regBin
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x1be6cc0
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Bkg1_regBin
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x1bc12a0
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Bkg2_regBin
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x1bf1d50
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Signal_regBin
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x1bc7620
+Measurement Name: FitExampleStatOnly	 OutputFilePrefix: FitExampleStatOnly/RooStats/FitExampleStatOnly	 POI: SigXsecOverSM	 Lumi: 1	 LumiRelErr: 0.1	 BinLow: 0	 BinHigh: 1	 ExportOnly: 1
+Constant Params:  Lumi
+Channels:
+	 Channel Name: SR_1	 InputFile: 
+	 Data:
+	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistoName: SR_1_Data_regBin	 HistoPath: 	 HistoAddress: 0x1bfa050
+	 statErrorConfig:
+	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
+	 Samples: 
+	 	 Name: Bkg1	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x1c191c0
+	 	 Name: Bkg2	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x1b8a3e0
+	 	 Name: Signal	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Signal_regBin	 HistoPath: 	 HistoAddress: 0x1be7020
+	 End of Channel SR_1
+	 Channel Name: SR_2	 InputFile: 
+	 Data:
+	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistoName: SR_2_Data_regBin	 HistoPath: 	 HistoAddress: 0x1b83da0
+	 statErrorConfig:
+	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
+	 Samples: 
+	 	 Name: Bkg1	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x1bbac90
+	 	 Name: Bkg2	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x1b27840
+	 	 Name: Signal	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Signal_regBin	 HistoPath: 	 HistoAddress: 0x1b51eb0
+	 End of Channel SR_2
+End Measurement: FitExampleStatOnly
+Making Model and Measurements (Fast) for measurement: FitExampleStatOnly
+using lumi = 1 and lumiError = 0.1 including bins between 0 and 1
+fixing the following parameters:
+   Lumi
+Checking if output directory : FitExampleStatOnly/RooStats -  exists
+Creating the output file: FitExampleStatOnly/RooStats/FitExampleStatOnly_FitExampleStatOnly.root
+Creating the table file: FitExampleStatOnly/RooStats/FitExampleStatOnly_results.table
+Creating the HistoToWorkspaceFactoryFast factory
+Setting preprocess functions
+Starting to process channel: SR_1
+
+
+-------------------
+Starting to process SR_1 channel with 1 observables
+lumi str = [1,0,10]
+lumi Error str = nominalLumi[1,0,2],0.1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_1_epsilon
+Bkg1_SR_1 has no variation histograms 
+processing hist SR_1_Bkg1_regBin
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset Bkg1_SR_1nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooHistFunc::Bkg1_SR_1_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_1_epsilon
+Bkg2_SR_1 has no variation histograms 
+processing hist SR_1_Bkg2_regBin
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset Bkg2_SR_1nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooHistFunc::Bkg2_SR_1_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_1_epsilon
+making normFactor: SigXsecOverSM
+Signal_SR_1 has no variation histograms 
+processing hist SR_1_Signal_regBin
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset Signal_SR_1nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooHistFunc::Signal_SR_1_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooRealSumPdf::SR_1_model
+-----------------------------------------
+import model into workspace
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooGaussian::lumiConstraint for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooConstVar::0.1 for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::Lumi for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::nominalLumi for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooGaussian::alpha_DummyConstraint for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooConstVar::1 for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::alpha_Dummy for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::nom_alpha_Dummy for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealSumPdf::SR_1_model for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::L_x_Bkg1_SR_1_overallSyst_x_Exp for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::Bkg1_SR_1_overallSyst_x_Exp for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooHistFunc::Bkg1_SR_1_nominal for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::obs_x_SR_1 for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_1_epsilon for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::binWidth_obs_x_SR_1_0 for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::L_x_Bkg2_SR_1_overallSyst_x_Exp for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::Bkg2_SR_1_overallSyst_x_Exp for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooHistFunc::Bkg2_SR_1_nominal for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_1_epsilon for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::binWidth_obs_x_SR_1_1 for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::L_x_Signal_SR_1_overallSyst_x_Exp for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::Signal_SR_1_overallSyst_x_Exp for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooHistFunc::Signal_SR_1_nominal for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooProduct::Signal_SR_1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::SigXsecOverSM for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::Signal_SR_1_epsilon for import of RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) using existing copy of RooRealVar::binWidth_obs_x_SR_1_2 for import of RooProdPdf::model_SR_1
+[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
+RooDataSet::AsimovData[obs_x_SR_1,weight:binWeightAsimov] = 4 entries (315.2 weighted)
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset AsimovData
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(SR_1) changing name of dataset from  AsimovData to asimovData
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_1) importing dataset obsData
+
+RooWorkspace(SR_1) SR_1 workspace contents
+
+variables
+---------
+(Lumi,SigXsecOverSM,alpha_Dummy,binWidth_obs_x_SR_1_0,binWidth_obs_x_SR_1_1,binWidth_obs_x_SR_1_2,nom_alpha_Dummy,nominalLumi,obs_x_SR_1,weightVar)
+
+p.d.f.s
+-------
+RooRealSumPdf::SR_1_model[ binWidth_obs_x_SR_1_0 * L_x_Bkg1_SR_1_overallSyst_x_Exp + binWidth_obs_x_SR_1_1 * L_x_Bkg2_SR_1_overallSyst_x_Exp + binWidth_obs_x_SR_1_2 * L_x_Signal_SR_1_overallSyst_x_Exp ] = 112.4/315.2
+RooGaussian::alpha_DummyConstraint[ x=alpha_Dummy mean=nom_alpha_Dummy sigma=1 ] = 1
+RooGaussian::lumiConstraint[ x=Lumi mean=nominalLumi sigma=0.1 ] = 1
+RooProdPdf::model_SR_1[ lumiConstraint * alpha_DummyConstraint * SR_1_model(obs_x_SR_1) ] = 112.4
+
+functions
+--------
+RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_1_epsilon[ paramList=(alpha_Dummy) ] = 1
+RooHistFunc::Bkg1_SR_1_nominal[ depList=(obs_x_SR_1) ] = 10
+RooProduct::Bkg1_SR_1_overallSyst_x_Exp[ Bkg1_SR_1_nominal * Bkg1_SR_1_epsilon ] = 10
+RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_1_epsilon[ paramList=(alpha_Dummy) ] = 1
+RooHistFunc::Bkg2_SR_1_nominal[ depList=(obs_x_SR_1) ] = 15
+RooProduct::Bkg2_SR_1_overallSyst_x_Exp[ Bkg2_SR_1_nominal * Bkg2_SR_1_epsilon ] = 15
+RooProduct::L_x_Bkg1_SR_1_overallSyst_x_Exp[ Lumi * Bkg1_SR_1_overallSyst_x_Exp ] = 10
+RooProduct::L_x_Bkg2_SR_1_overallSyst_x_Exp[ Lumi * Bkg2_SR_1_overallSyst_x_Exp ] = 15
+RooProduct::L_x_Signal_SR_1_overallSyst_x_Exp[ Lumi * Signal_SR_1_overallSyst_x_Exp ] = 3.1
+RooStats::HistFactory::FlexibleInterpVar::Signal_SR_1_epsilon[ paramList=(alpha_Dummy) ] = 1
+RooHistFunc::Signal_SR_1_nominal[ depList=(obs_x_SR_1) ] = 3.1
+RooProduct::Signal_SR_1_overallNorm_x_sigma_epsilon[ SigXsecOverSM * Signal_SR_1_epsilon ] = 1
+RooProduct::Signal_SR_1_overallSyst_x_Exp[ Signal_SR_1_nominal * Signal_SR_1_overallNorm_x_sigma_epsilon ] = 3.1
+
+datasets
+--------
+RooDataSet::asimovData(obs_x_SR_1)
+RooDataSet::obsData(obs_x_SR_1)
+
+embedded datasets (in pdfs and functions)
+-----------------------------------------
+RooDataHist::Bkg1_SR_1nominalDHist(obs_x_SR_1)
+RooDataHist::Bkg2_SR_1nominalDHist(obs_x_SR_1)
+RooDataHist::Signal_SR_1nominalDHist(obs_x_SR_1)
+
+named sets
+----------
+ModelConfig_GlobalObservables:(nom_alpha_Dummy)
+ModelConfig_Observables:(obs_x_SR_1)
+coefList:(binWidth_obs_x_SR_1_0,binWidth_obs_x_SR_1_1,binWidth_obs_x_SR_1_2)
+constraintTerms:(lumiConstraint,alpha_DummyConstraint)
+globalObservables:(nom_alpha_Dummy)
+likelihoodTerms:(SR_1_model)
+obsAndWeight:(weightVar,obs_x_SR_1)
+observables:(obs_x_SR_1)
+observablesSet:(obs_x_SR_1)
+shapeList:(L_x_Bkg1_SR_1_overallSyst_x_Exp,L_x_Bkg2_SR_1_overallSyst_x_Exp,L_x_Signal_SR_1_overallSyst_x_Exp)
+
+generic objects
+---------------
+RooStats::ModelConfig::ModelConfig
+
+Setting Parameter(s) of Interest as: SigXsecOverSM 
+
+=== Using the following for ModelConfig ===
+Observables:             RooArgSet:: = (obs_x_SR_1)
+Parameters of Interest:  RooArgSet:: = (SigXsecOverSM)
+Nuisance Parameters:     RooArgSet:: = (alpha_Dummy)
+Global Observables:      RooArgSet:: = (nom_alpha_Dummy)
+PDF:                     RooProdPdf::model_SR_1[ lumiConstraint * alpha_DummyConstraint * SR_1_model(obs_x_SR_1) ] = 112.4
+
+Opening File to hold channel: FitExampleStatOnly/RooStats/FitExampleStatOnly_SR_1_FitExampleStatOnly_model.root
+About to write channel measurement to file
+Writing sample: Bkg1
+Writing sample: Bkg2
+Writing sample: Signal
+Saved all histograms
+Saved Measurement
+Successfully wrote channel to file
+Starting to process channel: SR_2
+
+
+-------------------
+Starting to process SR_2 channel with 1 observables
+lumi str = [1,0,10]
+lumi Error str = nominalLumi[1,0,2],0.1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_2_epsilon
+Bkg1_SR_2 has no variation histograms 
+processing hist SR_2_Bkg1_regBin
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset Bkg1_SR_2nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooHistFunc::Bkg1_SR_2_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_2_epsilon
+Bkg2_SR_2 has no variation histograms 
+processing hist SR_2_Bkg2_regBin
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset Bkg2_SR_2nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooHistFunc::Bkg2_SR_2_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_2_epsilon
+making normFactor: SigXsecOverSM
+Signal_SR_2 has no variation histograms 
+processing hist SR_2_Signal_regBin
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset Signal_SR_2nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooHistFunc::Signal_SR_2_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooRealSumPdf::SR_2_model
+-----------------------------------------
+import model into workspace
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooGaussian::lumiConstraint for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooConstVar::0.1 for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::Lumi for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::nominalLumi for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooGaussian::alpha_DummyConstraint for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooConstVar::1 for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::alpha_Dummy for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::nom_alpha_Dummy for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealSumPdf::SR_2_model for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::L_x_Bkg1_SR_2_overallSyst_x_Exp for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::Bkg1_SR_2_overallSyst_x_Exp for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooHistFunc::Bkg1_SR_2_nominal for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::obs_x_SR_2 for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_2_epsilon for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::binWidth_obs_x_SR_2_0 for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::L_x_Bkg2_SR_2_overallSyst_x_Exp for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::Bkg2_SR_2_overallSyst_x_Exp for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooHistFunc::Bkg2_SR_2_nominal for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_2_epsilon for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::binWidth_obs_x_SR_2_1 for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::L_x_Signal_SR_2_overallSyst_x_Exp for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::Signal_SR_2_overallSyst_x_Exp for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooHistFunc::Signal_SR_2_nominal for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooProduct::Signal_SR_2_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::SigXsecOverSM for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooStats::HistFactory::FlexibleInterpVar::Signal_SR_2_epsilon for import of RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) using existing copy of RooRealVar::binWidth_obs_x_SR_2_2 for import of RooProdPdf::model_SR_2
+[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
+RooDataSet::AsimovData[obs_x_SR_2,weight:binWeightAsimov] = 4 entries (315.2 weighted)
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset AsimovData
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(SR_2) changing name of dataset from  AsimovData to asimovData
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR_2) importing dataset obsData
+
+RooWorkspace(SR_2) SR_2 workspace contents
+
+variables
+---------
+(Lumi,SigXsecOverSM,alpha_Dummy,binWidth_obs_x_SR_2_0,binWidth_obs_x_SR_2_1,binWidth_obs_x_SR_2_2,nom_alpha_Dummy,nominalLumi,obs_x_SR_2,weightVar)
+
+p.d.f.s
+-------
+RooRealSumPdf::SR_2_model[ binWidth_obs_x_SR_2_0 * L_x_Bkg1_SR_2_overallSyst_x_Exp + binWidth_obs_x_SR_2_1 * L_x_Bkg2_SR_2_overallSyst_x_Exp + binWidth_obs_x_SR_2_2 * L_x_Signal_SR_2_overallSyst_x_Exp ] = 112.4/315.2
+RooGaussian::alpha_DummyConstraint[ x=alpha_Dummy mean=nom_alpha_Dummy sigma=1 ] = 1
+RooGaussian::lumiConstraint[ x=Lumi mean=nominalLumi sigma=0.1 ] = 1
+RooProdPdf::model_SR_2[ lumiConstraint * alpha_DummyConstraint * SR_2_model(obs_x_SR_2) ] = 112.4
+
+functions
+--------
+RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_2_epsilon[ paramList=(alpha_Dummy) ] = 1
+RooHistFunc::Bkg1_SR_2_nominal[ depList=(obs_x_SR_2) ] = 10
+RooProduct::Bkg1_SR_2_overallSyst_x_Exp[ Bkg1_SR_2_nominal * Bkg1_SR_2_epsilon ] = 10
+RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_2_epsilon[ paramList=(alpha_Dummy) ] = 1
+RooHistFunc::Bkg2_SR_2_nominal[ depList=(obs_x_SR_2) ] = 15
+RooProduct::Bkg2_SR_2_overallSyst_x_Exp[ Bkg2_SR_2_nominal * Bkg2_SR_2_epsilon ] = 15
+RooProduct::L_x_Bkg1_SR_2_overallSyst_x_Exp[ Lumi * Bkg1_SR_2_overallSyst_x_Exp ] = 10
+RooProduct::L_x_Bkg2_SR_2_overallSyst_x_Exp[ Lumi * Bkg2_SR_2_overallSyst_x_Exp ] = 15
+RooProduct::L_x_Signal_SR_2_overallSyst_x_Exp[ Lumi * Signal_SR_2_overallSyst_x_Exp ] = 3.1
+RooStats::HistFactory::FlexibleInterpVar::Signal_SR_2_epsilon[ paramList=(alpha_Dummy) ] = 1
+RooHistFunc::Signal_SR_2_nominal[ depList=(obs_x_SR_2) ] = 3.1
+RooProduct::Signal_SR_2_overallNorm_x_sigma_epsilon[ SigXsecOverSM * Signal_SR_2_epsilon ] = 1
+RooProduct::Signal_SR_2_overallSyst_x_Exp[ Signal_SR_2_nominal * Signal_SR_2_overallNorm_x_sigma_epsilon ] = 3.1
+
+datasets
+--------
+RooDataSet::asimovData(obs_x_SR_2)
+RooDataSet::obsData(obs_x_SR_2)
+
+embedded datasets (in pdfs and functions)
+-----------------------------------------
+RooDataHist::Bkg1_SR_2nominalDHist(obs_x_SR_2)
+RooDataHist::Bkg2_SR_2nominalDHist(obs_x_SR_2)
+RooDataHist::Signal_SR_2nominalDHist(obs_x_SR_2)
+
+named sets
+----------
+ModelConfig_GlobalObservables:(nom_alpha_Dummy)
+ModelConfig_Observables:(obs_x_SR_2)
+coefList:(binWidth_obs_x_SR_2_0,binWidth_obs_x_SR_2_1,binWidth_obs_x_SR_2_2)
+constraintTerms:(lumiConstraint,alpha_DummyConstraint)
+globalObservables:(nom_alpha_Dummy)
+likelihoodTerms:(SR_2_model)
+obsAndWeight:(weightVar,obs_x_SR_2)
+observables:(obs_x_SR_2)
+observablesSet:(obs_x_SR_2)
+shapeList:(L_x_Bkg1_SR_2_overallSyst_x_Exp,L_x_Bkg2_SR_2_overallSyst_x_Exp,L_x_Signal_SR_2_overallSyst_x_Exp)
+
+generic objects
+---------------
+RooStats::ModelConfig::ModelConfig
+
+Setting Parameter(s) of Interest as: SigXsecOverSM 
+
+=== Using the following for ModelConfig ===
+Observables:             RooArgSet:: = (obs_x_SR_2)
+Parameters of Interest:  RooArgSet:: = (SigXsecOverSM)
+Nuisance Parameters:     RooArgSet:: = (alpha_Dummy)
+Global Observables:      RooArgSet:: = (nom_alpha_Dummy)
+PDF:                     RooProdPdf::model_SR_2[ lumiConstraint * alpha_DummyConstraint * SR_2_model(obs_x_SR_2) ] = 112.4
+
+Opening File to hold channel: FitExampleStatOnly/RooStats/FitExampleStatOnly_SR_2_FitExampleStatOnly_model.root
+About to write channel measurement to file
+Writing sample: Bkg1
+Writing sample: Bkg2
+Writing sample: Signal
+Saved all histograms
+Saved Measurement
+Successfully wrote channel to file
+full list of observables:
+RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
+[#0] ERROR:InputArguments -- RooArgSet::checkForDup: ERROR argument with name nom_alpha_Dummy is already in this set
+
+
+------------------
+ Entering combination
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_alpha_Dummy
+-----------------------------------------
+create toy data for SR_1,SR_2
+RooDataSet::AsimovData0[obs_x_SR_1,channelCat,weight:binWeightAsimov] = 4 entries (315.2 weighted)
+RooDataSet::AsimovData1[obs_x_SR_2,channelCat,weight:binWeightAsimov] = 4 entries (315.2 weighted)
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset asimovDataFullModel
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  asimovDataFullModel to asimovData
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::obs_x_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::obs_x_SR_2
+Merging data for channel SR_1
+Merging data for channel SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR_1
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  SR_1 to obsData
+
+RooWorkspace(combined) combined contents
+
+variables
+---------
+(channelCat,nom_alpha_Dummy,obs_x_SR_1,obs_x_SR_2,weightVar)
+
+datasets
+--------
+RooDataSet::asimovData(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+RooDataSet::obsData(channelCat,obs_x_SR_1,obs_x_SR_2)
+
+named sets
+----------
+ModelConfig_GlobalObservables:(nom_alpha_Dummy)
+ModelConfig_Observables:(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+globalObservables:(nom_alpha_Dummy)
+observables:(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+
+
+
+----------------
+ Importing combined model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg1_SR_1nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg2_SR_1nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Signal_SR_1nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg1_SR_2nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg2_SR_2nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Signal_SR_2nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooCategory::channelCat for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::lumiConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::0.1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Lumi
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nominalLumi
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::alpha_DummyConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::alpha_Dummy
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_alpha_Dummy for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR_1_model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg1_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg1_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg1_SR_1_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::obs_x_SR_1 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg2_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg2_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg2_SR_1_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Signal_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Signal_SR_1_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::SigXsecOverSM
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR_2_model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg1_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg1_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg1_SR_2_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::obs_x_SR_2 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_2_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_2_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg2_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg2_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg2_SR_2_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_2_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_2_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Signal_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Signal_SR_2_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_2_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_2_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_2_2
+setting Lumi constant
+Setting Parameter(s) of Interest as: SigXsecOverSM 
+
+=== Using the following for ModelConfig ===
+Observables:             RooArgSet:: = (obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+Parameters of Interest:  RooArgSet:: = (SigXsecOverSM)
+Nuisance Parameters:     RooArgSet:: = (alpha_Dummy)
+Global Observables:      RooArgSet:: = (nom_alpha_Dummy)
+PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 56.2
+
+Writing combined workspace to file: FitExampleStatOnly/RooStats/FitExampleStatOnly_combined_FitExampleStatOnly_model.root
+Writing combined measurement to file: FitExampleStatOnly/RooStats/FitExampleStatOnly_combined_FitExampleStatOnly_model.root
+Writing sample: Bkg1
+Writing sample: Bkg2
+Writing sample: Signal
+Writing sample: Bkg1
+Writing sample: Bkg2
+Writing sample: Signal
+Saved all histograms
+Saved Measurement
