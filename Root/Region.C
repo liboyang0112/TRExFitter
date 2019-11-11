@@ -375,8 +375,8 @@ void Region::BuildPreFitErrorHist(){
             Systematic *syst = sh->fSystematic;
             
             // store hist up and down
-            hUp   = (TH1*)sh->fHistUp; //->Clone();
-            hDown = (TH1*)sh->fHistDown; //->Clone();
+            hUp   = sh->fHistUp;
+            hDown = sh->fHistDown;
             
             // modify them dropping shape or norm (due to pruning or shape/acc decorrelation)
             if(syst!=nullptr){
