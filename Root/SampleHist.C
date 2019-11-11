@@ -77,7 +77,7 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist) :
     fVariableTitle("Variable"),
     fSystSmoothed(false) {
     
-    fHist = static_cast<TH1*>(hist->Clone(Form("h_%s",fName.c_str())));
+    fHist = unique_ptr<TH1>(static_cast<TH1*>(hist->Clone(Form("h_%s",fName.c_str()))));
     fHist->SetFillColor(fSample->fFillColor);
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
@@ -110,7 +110,7 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
     fVariableTitle("Variable"),
     fSystSmoothed(false) {
 
-    fHist = HistFromFile(fileName,histoName).release();
+    fHist = HistFromFile(fileName,histoName);
 
     if (fHist == nullptr) {
         WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
@@ -131,7 +131,6 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
 //_____________________________________________________________________________
 //
 SampleHist::~SampleHist(){
-    delete fHist;
     delete fHist_orig;
     delete fHist_regBin;
     delete fHist_preSmooth;
@@ -444,15 +443,15 @@ bool SampleHist::HasShapeFactor(const std::string& name) const{
 //
 void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
     if(f==nullptr){
-        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig,  fFileName);
-        if(fHist!=nullptr)        WriteHistToFile(fHist,       fFileName);
+        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig, fFileName);
+        if(fHist!=nullptr)        WriteHistToFile(fHist.get(), fFileName);
     }
     else{
-        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig,  f);
-        if(fHist!=nullptr)        WriteHistToFile(fHist,       f);
+        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig, f);
+        if(fHist!=nullptr)        WriteHistToFile(fHist.get(), f);
     }
     // create the regular binning histogram
-    fHist_regBin = HistoTools::TranformHistogramBinning(fHist);
+    fHist_regBin = HistoTools::TranformHistogramBinning(fHist.get());
     if(fHist_regBin!=nullptr) WriteHistToFile(fHist_regBin,f);
     //
     // save separate gammas as histograms
@@ -519,7 +518,7 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
 //_____________________________________________________________________________
 //
 void SampleHist::ReadFromFile(){
-    fHist      = HistFromFile(fFileName,fHistoName).release();
+    fHist      = HistFromFile(fFileName,fHistoName);
     fHist_orig = HistFromFile(fFileName,fHistoName+"_orig").release();
 }
 
@@ -537,7 +536,7 @@ void SampleHist::FixEmptyBins(const bool suppress){
     //
     // store yields (nominal and systs)
     double initialYield = fHist->Integral();
-    if (initialYield<0) { NegativeTotalYieldWarning(fHist, initialYield); } // warning if total yield is negative, in which case normalization cannot be preserved
+    if (initialYield<0) { NegativeTotalYieldWarning(fHist.get(), initialYield); } // warning if total yield is negative, in which case normalization cannot be preserved
     vector<double> yieldUp;
     vector<double> yieldDown;
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
@@ -913,8 +912,8 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         h_syst_down = (TH1*)fSyst[i_syst]->fHistDown->Clone();
 
         if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
-            HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
-            HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+            HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist.get(),fSyst[i_syst]->fScaleUp);
+            HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist.get(),fSyst[i_syst]->fScaleDown);
             continue;
         }
 
@@ -952,8 +951,8 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
             //
             // need to ad these lines to make sure overall only systematics get scaled as well
             else{
-                HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
-                HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+                HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist.get(),fSyst[i_syst]->fScaleUp);
+                HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist.get(),fSyst[i_syst]->fScaleDown);
             }
         }
 
@@ -1028,8 +1027,8 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
             //
             // need to ad these lines to make sure overall only systematics get scaled as well
             else{
-                HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist,fSyst[i_syst]->fScaleUp);
-                HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist,fSyst[i_syst]->fScaleDown);
+                HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist.get(),fSyst[i_syst]->fScaleUp);
+                HistoTools::Scale(fSyst[i_syst]->fHistDown,fHist.get(),fSyst[i_syst]->fScaleDown);
             }
         }
 
@@ -1099,7 +1098,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 //
 void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, double scale){
     fName = h->fName;
-    fHist           = (TH1*)h->fHist->Clone();
+    fHist           = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist->Clone()));
     fHist_preSmooth = (TH1*)h->fHist_preSmooth->Clone();
     fHist_orig      = (TH1*)h->fHist_orig->Clone();
     fHist->Scale(scale);
@@ -1165,7 +1164,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
 //_____________________________________________________________________________
 //
 void SampleHist::SampleHistAdd(SampleHist* h, double scale){
-    fHist          ->Add(h->fHist,          scale);
+    fHist          ->Add(h->fHist.get(),          scale);
     fHist_preSmooth->Add(h->fHist_preSmooth,scale);
     fHist_orig     ->Add(h->fHist_orig,     scale);
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
@@ -1184,8 +1183,8 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
             }
         }
         if(wasIn) continue;
-        fSyst[i_syst]->fHistUp  ->Add(h->fHist,scale);
-        fSyst[i_syst]->fHistDown->Add(h->fHist,scale);
+        fSyst[i_syst]->fHistUp  ->Add(h->fHist.get(),scale);
+        fSyst[i_syst]->fHistDown->Add(h->fHist.get(),scale);
         if(fSyst[i_syst]->fHistUp_preSmooth!=nullptr)   fSyst[i_syst]->fHistUp_preSmooth  ->Add(h->fHist_preSmooth,scale);
         else                                            fSyst[i_syst]->fHistUp_preSmooth   = (TH1*)fHist_preSmooth->Clone();
         if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fHist_preSmooth,scale);
@@ -1198,8 +1197,8 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
 //_____________________________________________________________________________
 //
 void SampleHist::Divide(SampleHist *sh){
-    TH1* hOrig = (TH1*)fHist->Clone("h_tmp_orig");
-    if (sh->fHist!=nullptr) fHist->Divide( sh->fHist );
+    TH1* hOrig = static_cast<TH1*>(fHist->Clone("h_tmp_orig"));
+    if (sh->fHist!=nullptr) fHist->Divide( sh->fHist.get() );
     else  {
        if (TRExFitter::HISTOCHECKCRASH) {
             WriteErrorStatus("SampleHist::Divide", "Sample "+sh->fName+ " not found when trying to divide "+fSample->fName+" by it");
@@ -1218,7 +1217,7 @@ void SampleHist::Divide(SampleHist *sh){
         if(syh==nullptr){
             WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Divide", "Using its nominal. ");
-            fSyst[i_syst]->Divide( sh->fHist );
+            fSyst[i_syst]->Divide( sh->fHist.get() );
         }
         else{
             WriteDebugStatus("SampleHist::Divide", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
@@ -1235,17 +1234,17 @@ void SampleHist::Divide(SampleHist *sh){
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==nullptr){
             WriteDebugStatus("SampleHist::Divide", "Adding syst "+ NuisParName + " (through syst "+ systName + ") to sample "+ fName);
-            TH1* hUp   = (TH1*)fHist->Clone("h_tmp_up"  );
-            TH1* hDown = (TH1*)fHist->Clone("h_tmp_down");
-            hUp  ->Divide(   sh->fHist );
+            TH1* hUp   = static_cast<TH1*>(fHist->Clone("h_tmp_up"));
+            TH1* hDown = static_cast<TH1*>(fHist->Clone("h_tmp_down"));
+            hUp  ->Divide(   sh->fHist.get() );
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp  );
             hUp  ->Scale(-1);
-            hUp  ->Add(fHist,2);
+            hUp  ->Add(fHist.get(),2);
             //
-            hDown->Divide(   sh->fHist );
+            hDown->Divide(   sh->fHist.get() );
             hDown->Multiply( sh->fSyst[i_syst]->fHistDown);
             hDown->Scale(-1);
-            hDown->Add(fHist,2);
+            hDown->Add(fHist.get(),2);
             //
             syh = AddHistoSyst(NuisParName,NuisParName,hUp,hDown);
             if (syh == nullptr) {
@@ -1274,8 +1273,8 @@ void SampleHist::Divide(SampleHist *sh){
 //_____________________________________________________________________________
 //
 void SampleHist::Multiply(SampleHist *sh){
-    TH1* hOrig = (TH1*)fHist->Clone("h_tmp_orig");
-    if (sh->fHist!=nullptr) fHist->Multiply( sh->fHist );
+    TH1* hOrig = static_cast<TH1*>(fHist->Clone("h_tmp_orig"));
+    if (sh->fHist!=nullptr) fHist->Multiply( sh->fHist.get() );
     else  {
        if (TRExFitter::HISTOCHECKCRASH) {
             WriteErrorStatus("SampleHist::Multiply", "Sample "+sh->fName+ " not found when trying to multiply it to "+fSample->fName);
@@ -1294,7 +1293,7 @@ void SampleHist::Multiply(SampleHist *sh){
         if(syh==nullptr){
             WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Multiply", "Using its nominal. ");
-            fSyst[i_syst]->Multiply( sh->fHist );
+            fSyst[i_syst]->Multiply( sh->fHist.get() );
         }
         else{
             WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
@@ -1342,8 +1341,8 @@ void SampleHist::Multiply(SampleHist *sh){
 //_____________________________________________________________________________
 //
 void SampleHist::Add(SampleHist *sh,double scale){
-    TH1* hOrig = (TH1*)fHist->Clone("h_tmp_orig");
-    if (sh->fHist != nullptr) fHist->Add( sh->fHist, scale );
+    TH1* hOrig = static_cast<TH1*>(fHist->Clone("h_tmp_orig"));
+    if (sh->fHist != nullptr) fHist->Add( sh->fHist.get(), scale );
     else  {
        if (TRExFitter::HISTOCHECKCRASH) {
             WriteErrorStatus("SampleHist::Add", "Sample "+sh->fName+ " not found when trying to add it to "+fSample->fName);
@@ -1362,7 +1361,7 @@ void SampleHist::Add(SampleHist *sh,double scale){
         if(syh==nullptr){
             WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
             WriteDebugStatus("SampleHist::Add", "Using its nominal. ");
-            fSyst[i_syst]->Add( sh->fHist, scale );
+            fSyst[i_syst]->Add( sh->fHist.get(), scale );
         }
         else{
             WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " present in  "+ sh->fName);
@@ -1444,7 +1443,7 @@ void SampleHist::SystPruning(PruningUtil *pu,TH1* hTot){
         if(!syh) continue;
         if(!syh->fHistUp) continue;
         if(!syh->fHistDown) continue;
-        int pruningResult = pu->CheckSystPruning(syh->fHistUp,syh->fHistDown,fHist,hTot);
+        int pruningResult = pu->CheckSystPruning(syh->fHistUp,syh->fHistDown,fHist.get(),hTot);
         syh->fBadShape = (pruningResult==-3 || pruningResult==-4);
         syh->fBadNorm = (pruningResult==-2 || pruningResult==-4);
         syh->fShapePruned = (pruningResult==1 || pruningResult==3 || syh->fBadShape);
