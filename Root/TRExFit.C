@@ -1255,7 +1255,7 @@ void TRExFit::CorrectHistograms(){
 
             //
             // Save to _preSmooth histograms (to be shown in syst plots) at this point
-            sh->fHist_preSmooth = static_cast<TH1*>(sh->fHist->Clone(Form("%s_preSmooth",sh->fHist->GetName())));
+            sh->fHist_preSmooth.reset(static_cast<TH1*>(sh->fHist->Clone(Form("%s_preSmooth",sh->fHist->GetName()))));
             for(auto syh : sh->fSyst){
                 if(syh!=nullptr){
                     if(syh->fHistUp!=nullptr)   syh->fHistUp_preSmooth   = (TH1*)syh->fHistUp->Clone(  Form("%s_preSmooth",syh->fHistUp->GetName()  ));

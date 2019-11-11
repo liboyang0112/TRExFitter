@@ -131,7 +131,6 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
 //_____________________________________________________________________________
 //
 SampleHist::~SampleHist(){
-    delete fHist_preSmooth;
     delete fHist_postFit;
     for(auto isys : fSyst) {
         delete isys;
@@ -1097,7 +1096,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, double scale){
     fName = h->fName;
     fHist           = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist->Clone()));
-    fHist_preSmooth = (TH1*)h->fHist_preSmooth->Clone();
+    fHist_preSmooth = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist_preSmooth->Clone()));
     fHist_orig      = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist_orig->Clone()));
     fHist->Scale(scale);
     fHist_preSmooth->Scale(scale);
@@ -1163,7 +1162,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
 //
 void SampleHist::SampleHistAdd(SampleHist* h, double scale){
     fHist          ->Add(h->fHist.get(),          scale);
-    fHist_preSmooth->Add(h->fHist_preSmooth,scale);
+    fHist_preSmooth->Add(h->fHist_preSmooth.get(),scale);
     fHist_orig     ->Add(h->fHist_orig.get(),     scale);
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         bool wasIn = false;
@@ -1183,9 +1182,9 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
         if(wasIn) continue;
         fSyst[i_syst]->fHistUp  ->Add(h->fHist.get(),scale);
         fSyst[i_syst]->fHistDown->Add(h->fHist.get(),scale);
-        if(fSyst[i_syst]->fHistUp_preSmooth!=nullptr)   fSyst[i_syst]->fHistUp_preSmooth  ->Add(h->fHist_preSmooth,scale);
+        if(fSyst[i_syst]->fHistUp_preSmooth!=nullptr)   fSyst[i_syst]->fHistUp_preSmooth  ->Add(h->fHist_preSmooth.get(),scale);
         else                                            fSyst[i_syst]->fHistUp_preSmooth   = (TH1*)fHist_preSmooth->Clone();
-        if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fHist_preSmooth,scale);
+        if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fHist_preSmooth.get(),scale);
         else                                            fSyst[i_syst]->fHistDown_preSmooth = (TH1*)fHist_preSmooth->Clone();
         fSyst[i_syst]->fHistUp_orig  ->Add(h->fHist_orig.get(),scale );
         fSyst[i_syst]->fHistDown_orig->Add(h->fHist_orig.get(),scale);
