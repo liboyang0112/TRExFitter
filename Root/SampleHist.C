@@ -131,7 +131,6 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
 //_____________________________________________________________________________
 //
 SampleHist::~SampleHist(){
-    delete fHist_regBin;
     delete fHist_preSmooth;
     delete fHist_postFit;
     for(auto isys : fSyst) {
@@ -450,8 +449,8 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
         if(fHist!=nullptr)        WriteHistToFile(fHist.get(), f);
     }
     // create the regular binning histogram
-    fHist_regBin = HistoTools::TranformHistogramBinning(fHist.get());
-    if(fHist_regBin!=nullptr) WriteHistToFile(fHist_regBin,f);
+    fHist_regBin = std::unique_ptr<TH1>(HistoTools::TranformHistogramBinning(fHist.get()));
+    if(fHist_regBin!=nullptr) WriteHistToFile(fHist_regBin.get(),f);
     //
     // save separate gammas as histograms
     if(fSample->fSeparateGammas){
@@ -502,8 +501,8 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
             TH1* hVar = HistoTools::TranformHistogramBinning(
               (TH1*)fSyst[i_syst]->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fSystematic->fStoredName.c_str()))
             );
-            hVar->Add(fHist_regBin,-1);
-            hVar->Divide(fHist_regBin);
+            hVar->Add(fHist_regBin.get(),-1);
+            hVar->Divide(fHist_regBin.get());
             // no negative bins here!
             for(int i_bin=1;i_bin<=hVar->GetNbinsX();i_bin++){
                 if(hVar->GetBinContent(i_bin)<0) hVar->SetBinContent(i_bin,-1.*hVar->GetBinContent(i_bin));
