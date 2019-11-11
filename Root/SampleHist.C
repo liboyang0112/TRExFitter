@@ -82,7 +82,7 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist) :
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
 
-    fHist_orig = static_cast<TH1*>(fHist->Clone(Form("%s_orig",fHist->GetName())));
+    fHist_orig = std::unique_ptr<TH1>(static_cast<TH1*>(fHist->Clone(Form("%s_orig",fHist->GetName()))));
     
     fIsMorph = fSample->fIsMorph;
 }
@@ -120,9 +120,9 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
 
-    fHist_orig = HistFromFile(fileName,histoName+"_orig").release();
+    fHist_orig = HistFromFile(fileName,histoName+"_orig");
     if(fHist_orig==nullptr){
-        fHist_orig = (TH1*)fHist->Clone(Form("%s_orig",fHist->GetName()));
+        fHist_orig = std::unique_ptr<TH1>(static_cast<TH1*>(fHist->Clone(Form("%s_orig",fHist->GetName()))));
     }
 
     fIsMorph = fSample->fIsMorph;
@@ -131,7 +131,6 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
 //_____________________________________________________________________________
 //
 SampleHist::~SampleHist(){
-    delete fHist_orig;
     delete fHist_regBin;
     delete fHist_preSmooth;
     delete fHist_postFit;
@@ -157,8 +156,8 @@ SystematicHist* SampleHist::AddOverallSyst(const std::string& name,const std::st
     syh->fHistDown = (TH1*)fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
     syh->fHistUp  ->Scale(1.+up);
     syh->fHistDown->Scale(1.+down);
-    syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
-    syh->fHistDown_orig = (TH1*)fHist_orig->Clone(Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()));
+    syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str())));
+    syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str())));
     syh->fHistUp_orig  ->Scale(1.+up);
     syh->fHistDown_orig->Scale(1.+down);
     syh->fIsOverall = true;
@@ -443,11 +442,11 @@ bool SampleHist::HasShapeFactor(const std::string& name) const{
 //
 void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
     if(f==nullptr){
-        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig, fFileName);
+        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig.get(), fFileName);
         if(fHist!=nullptr)        WriteHistToFile(fHist.get(), fFileName);
     }
     else{
-        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig, f);
+        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig.get(), f);
         if(fHist!=nullptr)        WriteHistToFile(fHist.get(), f);
     }
     // create the regular binning histogram
@@ -519,7 +518,7 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
 //
 void SampleHist::ReadFromFile(){
     fHist      = HistFromFile(fFileName,fHistoName);
-    fHist_orig = HistFromFile(fFileName,fHistoName+"_orig").release();
+    fHist_orig = HistFromFile(fFileName,fHistoName+"_orig");
 }
 
 //_____________________________________________________________________________
@@ -1100,7 +1099,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
     fName = h->fName;
     fHist           = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist->Clone()));
     fHist_preSmooth = (TH1*)h->fHist_preSmooth->Clone();
-    fHist_orig      = (TH1*)h->fHist_orig->Clone();
+    fHist_orig      = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist_orig->Clone()));
     fHist->Scale(scale);
     fHist_preSmooth->Scale(scale);
     fHist_orig->Scale(scale);
@@ -1166,7 +1165,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
 void SampleHist::SampleHistAdd(SampleHist* h, double scale){
     fHist          ->Add(h->fHist.get(),          scale);
     fHist_preSmooth->Add(h->fHist_preSmooth,scale);
-    fHist_orig     ->Add(h->fHist_orig,     scale);
+    fHist_orig     ->Add(h->fHist_orig.get(),     scale);
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         bool wasIn = false;
         for(int j_syst=0;j_syst<h->fNSyst;j_syst++){
@@ -1189,8 +1188,8 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
         else                                            fSyst[i_syst]->fHistUp_preSmooth   = (TH1*)fHist_preSmooth->Clone();
         if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fHist_preSmooth,scale);
         else                                            fSyst[i_syst]->fHistDown_preSmooth = (TH1*)fHist_preSmooth->Clone();
-        fSyst[i_syst]->fHistUp_orig  ->Add(h->fHist_orig,scale );
-        fSyst[i_syst]->fHistDown_orig->Add(h->fHist_orig,scale);
+        fSyst[i_syst]->fHistUp_orig  ->Add(h->fHist_orig.get(),scale );
+        fSyst[i_syst]->fHistDown_orig->Add(h->fHist_orig.get(),scale);
     }
 }
 
@@ -1251,8 +1250,8 @@ void SampleHist::Divide(SampleHist *sh){
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
-            syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
-            syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
+            syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName()));
+            syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName()));
             Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;
@@ -1319,8 +1318,8 @@ void SampleHist::Multiply(SampleHist *sh){
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
-            syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
-            syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
+            syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName()));
+            syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName()));
             Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;
@@ -1403,8 +1402,8 @@ void SampleHist::Add(SampleHist *sh,double scale){
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
-            syh->fHistUp_orig   = (TH1*)fHist_orig->Clone(syh->fHistUp_orig  ->GetName());
-            syh->fHistDown_orig = (TH1*)fHist_orig->Clone(syh->fHistDown_orig->GetName());
+            syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName()));
+            syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName()));
             Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;

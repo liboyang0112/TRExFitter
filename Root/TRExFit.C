@@ -748,11 +748,11 @@ void TRExFit::ReadNtuples(){
             }
             //
             // Save the original histogram
-            TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
+            TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName()) ));
             //
             // Importing the histogram in TRExFitter
             sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
-            sh->fHist_orig = h_orig;
+            sh->fHist_orig.reset(h_orig);
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
             //
@@ -1066,7 +1066,7 @@ void TRExFit::CorrectHistograms(){
             if(sh->fHist==nullptr) continue;
             int fillcolor = sh->fHist->GetFillColor();
             int linecolor = sh->fHist->GetLineColor();
-            TH1* h_orig = (TH1*)sh->fHist_orig;
+            TH1* h_orig = sh->fHist_orig.get();
             TH1* h = nullptr;
             if(h_orig!=nullptr) h = (TH1*)h_orig->Clone(sh->fHist->GetName());
             sh->fHist = std::unique_ptr<TH1>(h);
@@ -1612,11 +1612,11 @@ void TRExFit::ReadHistograms(){
             TH1D* h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, false); // is nominal and not MC
             //
             // Save the original histogram
-            TH1* h_orig = (TH1*)h->Clone( Form("%s_orig",h->GetName()) );
+            TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName()) ));
             //
             // Importing the histogram in TRExFitter
             SampleHist *sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
-            sh->fHist_orig = h_orig;
+            sh->fHist_orig.reset(h_orig);
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
             // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
@@ -1698,7 +1698,7 @@ void TRExFit::ReadHistograms(){
             //
             // Importing the histogram in TRExFitter
             SampleHist *sh = fRegions[i_ch]->SetSampleHist( fSamples[i_smp], h );
-            sh->fHist_orig = h_orig;
+            sh->fHist_orig.reset(h_orig);
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
             // end here no systematics allowed (e.g. generally for GHOST samples)

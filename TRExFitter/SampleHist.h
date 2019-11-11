@@ -100,7 +100,7 @@ public:
     std::string fName;
     Sample *fSample;
     std::unique_ptr<TH1> fHist;
-    TH1 *fHist_orig;
+    std::unique_ptr<TH1> fHist_orig;
     TH1 *fHist_regBin;
     TH1 *fHist_preSmooth; // new - to use only for syst plots
     TH1 *fHist_postFit;
