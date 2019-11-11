@@ -611,7 +611,7 @@ void MultiFit::ComparePOI(const string& POI) const {
         }
         found = false;
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
-            par = fit->fFitResults->fNuisPar[j];
+            par = fit->fFitResults->fNuisPar[j].get();
             if( pois[i] == par->fName ){
                 g_central.SetPoint(N-i-1,par->fFitValue,N-i-1);
                 g_stat   .SetPoint(N-i-1,par->fFitValue,N-i-1);
@@ -657,7 +657,7 @@ void MultiFit::ComparePOI(const string& POI) const {
             }
             found = false;
             for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
-                par = fit->fFitResults->fNuisPar[j];
+                par = fit->fFitResults->fNuisPar[j].get();
                 if( pois[i] == par->fName ){
                     g_stat.SetPointEXhigh(N-i-1,par->fPostFitUp);
                     g_stat.SetPointEXlow(N-i-1,-par->fPostFitDown);
@@ -1070,7 +1070,7 @@ void MultiFit::ComparePulls(string category) const{
             if(fCombine && i_fit==N-1) break;
             fitRes = fFitList[i_fit]->fFitResults;
             for(unsigned int j = 0; j<fitRes->fNuisPar.size(); ++j){
-                par = fitRes->fNuisPar[j];
+                par = fitRes->fNuisPar[j].get();
                 systName = par->fName;
                 if(systName==Names[i_syst]){
                     found = true;
@@ -1144,7 +1144,7 @@ void MultiFit::ComparePulls(string category) const{
             fitRes = fFitList[i_fit]->fFitResults;
         }
         for(unsigned int j = 0; j<fitRes->fNuisPar.size(); ++j){
-            par = fitRes->fNuisPar[j];
+            par = fitRes->fNuisPar[j].get();
             systName = par->fName;
             centralMap[systName] = par->fFitValue;
             errUpMap[systName]   = par->fPostFitUp;
@@ -1320,7 +1320,7 @@ void MultiFit::CompareNormFactors(string category) const{
             if(fCombine && i_fit==N-1) break;
             fitRes = fFitList[i_fit]->fFitResults;
             for(unsigned int j = 0; j<fitRes->fNuisPar.size(); ++j){
-                par = fitRes->fNuisPar[j];
+                par = fitRes->fNuisPar[j].get();
                 normName = par->fName;
                 if(normName==Names[i_norm]){
                     found = true;
@@ -1394,7 +1394,7 @@ void MultiFit::CompareNormFactors(string category) const{
             fitRes = fFitList[i_fit]->fFitResults;
         }
         for(unsigned int j = 0; j<fitRes->fNuisPar.size(); ++j){
-            par = fitRes->fNuisPar[j];
+            par = fitRes->fNuisPar[j].get();
             normName = par->fName;
             centralMap[normName] = par->fFitValue;
             errUpMap[normName]   = par->fPostFitUp;

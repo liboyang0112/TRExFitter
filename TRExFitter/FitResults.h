@@ -43,12 +43,12 @@ public:
     // Data members
     //
     std::vector<std::string> fNuisParNames;
-    std::unordered_map<std::string,int> fNuisParIdx;
+    std::unordered_map<std::string,std::size_t> fNuisParIdx;
     std::unordered_map<std::string,bool> fNuisParIsThere;
 
     std::vector<std::string> fNuisParToHide; // NPs to hide
 
-    std::vector < NuisParameter* > fNuisPar;
+    std::vector < std::unique_ptr<NuisParameter> > fNuisPar;
     std::unique_ptr<CorrelationMatrix> fCorrMatrix;
 
     int fPOIPrecision;
