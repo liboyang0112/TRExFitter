@@ -35,7 +35,7 @@ compile:
      - mkdir -p build && cd build
      - cmake .. | tee cmake.log
      - make clean #make sure we don't have residual compilation results
-     - make 2>&1 | tee -a cmake.log  #dump the log files
+     - make -j4 2>&1 | tee -a cmake.log  #dump the log files
   artifacts:
      paths:
       - build
