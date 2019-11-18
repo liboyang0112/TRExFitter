@@ -897,7 +897,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         // Norm factors
         //
         for(int i_norm=0;i_norm<fSampleHists[i_sample]->fNNorm;i_norm++){
-            NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm];
+            const NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm].get();
             systName = nf->fName;
             // if this norm factor is a morphing one => save the nuis.par
             // skip POI if B-only fit FIXME
@@ -1485,7 +1485,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
-            NormFactor *nf = fSampleHists[i]->fNormFactors[i_norm];
+            const NormFactor *nf = fSampleHists[i]->fNormFactors[i_norm].get();
             nfName = nf->fName;
             if(nf->fConst) nfValue = nf->fNominal;
             else           nfValue = fitRes->GetNuisParValue(TRExFitter::NPMAP[nfName]);

@@ -313,8 +313,8 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,
 //
 NormFactor* SampleHist::AddNormFactor(NormFactor *normFactor){
     NormFactor *norm = GetNormFactor(normFactor->fName);
-    if(norm==nullptr){
-        fNormFactors.push_back(normFactor);
+    if(!norm){
+        fNormFactors.emplace_back(std::move(normFactor));
         fNNorm ++;
     }
     else{
@@ -327,12 +327,10 @@ NormFactor* SampleHist::AddNormFactor(NormFactor *normFactor){
 //
 NormFactor* SampleHist::AddNormFactor(const std::string& name,double nominal, double min, double max){
     NormFactor *norm = GetNormFactor(name);
-    if(norm==nullptr){
-        fNormFactors.push_back(new NormFactor(name,nominal,min,max));
+    if(!norm){
+        fNormFactors.emplace_back(new NormFactor(name,nominal,min,max));
         fNNorm ++;
-    }
-    else{
-        norm = new NormFactor(name,nominal,min,max);;
+        norm = fNormFactors.back().get();
     }
     return norm;
 }
@@ -387,7 +385,7 @@ SystematicHist* SampleHist::GetSystFromNP(const std::string& NuisParName) const{
 //
 NormFactor* SampleHist::GetNormFactor(const std::string& name) const{
     for(int i_syst=0;i_syst<fNNorm;i_syst++){
-        if(name == fNormFactors[i_syst]->fName) return fNormFactors[i_syst];
+        if(name == fNormFactors[i_syst]->fName) return fNormFactors[i_syst].get();
     }
     return nullptr;
 }
