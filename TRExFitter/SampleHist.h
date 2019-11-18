@@ -111,7 +111,7 @@ public:
     std::map<std::string,bool> fIsMorph;
 
     int fNSyst;
-    std::vector < SystematicHist* > fSyst;
+    std::vector < std::unique_ptr<SystematicHist> > fSyst;
     int fNNorm;
     std::vector < NormFactor* > fNormFactors;
     int fNShape;

@@ -1126,7 +1126,7 @@ void TRExFit::CorrectHistograms(){
             if(reg->fHistoNBinsRebinPost>0){
                 WriteDebugStatus("TRExFit::CorrectHistograms", "rebinning " + smp->fName + " to " + std::to_string(reg->fHistoNBinsRebinPost) + " bins.");
                 sh->fHist = std::unique_ptr<TH1>(sh->fHist->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost));
-                for(auto syh : sh->fSyst){
+                for(auto& syh : sh->fSyst){
                     WriteDebugStatus("TRExFit::CorrectHistograms", "  systematic " + syh->fName + " to " + std::to_string(reg->fHistoNBinsRebinPost) + " bins.");
                     if(syh==nullptr) continue;
                     if(syh->fSystematic->fSampleUp==""   && syh->fSystematic->fHasUpVariation   && syh->fHistUp!=nullptr)   syh->fHistUp   = syh->fHistUp  ->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
@@ -1162,7 +1162,7 @@ void TRExFit::CorrectHistograms(){
                     for(int i_bin=1;i_bin<=hTmp->GetNbinsX();i_bin++){
                         hTmp->SetBinContent(i_bin,gRandom->Poisson( hTmp->GetBinContent(i_bin) ));
                     }
-                    for(auto syh : sh->fSyst){
+                    for(auto& syh : sh->fSyst){
                         for(int i_ud=0;i_ud<2;i_ud++){
                             if(i_ud==0) hTmp = syh->fHistUp;
                             else        hTmp = syh->fHistDown;
@@ -1256,7 +1256,7 @@ void TRExFit::CorrectHistograms(){
             //
             // Save to _preSmooth histograms (to be shown in syst plots) at this point
             sh->fHist_preSmooth.reset(static_cast<TH1*>(sh->fHist->Clone(Form("%s_preSmooth",sh->fHist->GetName()))));
-            for(auto syh : sh->fSyst){
+            for(auto& syh : sh->fSyst){
                 if(syh!=nullptr){
                     if(syh->fHistUp!=nullptr)   syh->fHistUp_preSmooth   = (TH1*)syh->fHistUp->Clone(  Form("%s_preSmooth",syh->fHistUp->GetName()  ));
                     else                        syh->fHistUp_preSmooth   = (TH1*)sh->fHist_preSmooth->Clone();
@@ -1471,7 +1471,7 @@ void TRExFit::CorrectHistograms(){
                 for(auto sh : reg->fSampleHists){
                     if(!sh->fSample->fIsMorph[par]) continue;
                     if(sh!=shNominal){
-                        for(auto syh : shNominal->fSyst){
+                        for(auto& syh : shNominal->fSyst){
                             Systematic * syst = syh->fSystematic;
                             if(syst->fIsNormOnly){
                                 SystematicHist* syhNew = sh->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
@@ -1506,7 +1506,7 @@ void TRExFit::CorrectHistograms(){
                 sh->fSample->fUseSystematics = true;
                 //
                 SampleHist *shReference = reg->GetSampleHist(smp->fSystFromSample);
-                for(auto syh : shReference->fSyst){
+                for(auto& syh : shReference->fSyst){
                     Systematic * syst = syh->fSystematic;
                     if(syst->fIsNormOnly){
                         SystematicHist* syhNew = sh->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
