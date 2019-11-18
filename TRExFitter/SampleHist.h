@@ -115,7 +115,7 @@ public:
     int fNNorm;
     std::vector < std::unique_ptr<NormFactor> > fNormFactors;
     int fNShape;
-    std::vector < ShapeFactor* > fShapeFactors;
+    std::vector < std::unique_ptr<ShapeFactor> > fShapeFactors;
 
     // other useful info
     std::string fFitName;

@@ -316,6 +316,7 @@ NormFactor* SampleHist::AddNormFactor(NormFactor *normFactor){
     if(!norm){
         fNormFactors.emplace_back(std::move(normFactor));
         fNNorm ++;
+        norm = fNormFactors.back().get();
     }
     else{
         norm = normFactor;
@@ -339,11 +340,11 @@ NormFactor* SampleHist::AddNormFactor(const std::string& name,double nominal, do
 //
 ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
     ShapeFactor *shape = GetShapeFactor(shapeFactor->fName);
-    if(shape==nullptr){
-        fShapeFactors.push_back(shapeFactor);
+    if(!shape){
+        fShapeFactors.emplace_back(std::move(shapeFactor));
         fNShape ++;
-    }
-    else{
+        shape = fShapeFactors.back().get();
+    } else {
         shape = shapeFactor;
     }
     return shape;
@@ -353,12 +354,10 @@ ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
 //
 ShapeFactor* SampleHist::AddShapeFactor(const std::string& name,double nominal, double min, double max){
     ShapeFactor *shape = GetShapeFactor(name);
-    if(shape==nullptr){
-        fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max));
+    if(!shape){
+        fShapeFactors.emplace_back(new ShapeFactor(name,nominal,min,max));
         fNShape ++;
-    }
-    else{
-        shape = new ShapeFactor(name,nominal,min,max);;
+        shape = fShapeFactors.back().get();
     }
     return shape;
 }
@@ -394,7 +393,7 @@ NormFactor* SampleHist::GetNormFactor(const std::string& name) const{
 //
 ShapeFactor* SampleHist::GetShapeFactor(const std::string& name) const{
     for(int i_syst=0;i_syst<fNShape;i_syst++){
-        if(name == fShapeFactors[i_syst]->fName) return fShapeFactors[i_syst];
+        if(name == fShapeFactors[i_syst]->fName) return fShapeFactors[i_syst].get();
     }
     return nullptr;
 }

@@ -1538,7 +1538,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
-            ShapeFactor *sf = fSampleHists[i]->fShapeFactors[i_shape];
+            const ShapeFactor *sf = fSampleHists[i]->fShapeFactors[i_shape].get();
             sfName = sf->fName;
             if(sfName.find("saturated_model_sf")!=std::string::npos) continue;
             // loop over bins
