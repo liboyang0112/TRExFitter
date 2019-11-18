@@ -111,11 +111,11 @@ public:
     std::map<std::string,bool> fIsMorph;
 
     int fNSyst;
-    std::vector < SystematicHist* > fSyst;
+    std::vector < std::unique_ptr<SystematicHist> > fSyst;
     int fNNorm;
-    std::vector < NormFactor* > fNormFactors;
+    std::vector < std::unique_ptr<NormFactor> > fNormFactors;
     int fNShape;
-    std::vector < ShapeFactor* > fShapeFactors;
+    std::vector < std::unique_ptr<ShapeFactor> > fShapeFactors;
 
     // other useful info
     std::string fFitName;

@@ -803,7 +803,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
     double systValue = 0.;
     SampleHist *sh = fSampleHists[i];
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
-        SystematicHist *syh = sh->fSyst[i_syst];
+        SystematicHist *syh = sh->fSyst[i_syst].get();
         std::string systName = syh->fName;
         TString systNameNew(systName); // used in pull tables
         Systematic *syst = syh->fSystematic;
@@ -897,7 +897,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         // Norm factors
         //
         for(int i_norm=0;i_norm<fSampleHists[i_sample]->fNNorm;i_norm++){
-            NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm];
+            const NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm].get();
             systName = nf->fName;
             // if this norm factor is a morphing one => save the nuis.par
             // skip POI if B-only fit FIXME
@@ -1093,7 +1093,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 //
                 // if it's a shape-systematic gamma
                 else if(fSystNames[i_syst].find("shape_")!=std::string::npos && fSystNames[i_syst].find(Form("%s_bin_%d",fName.c_str(),i_bin-1))!=std::string::npos){
-                    for(auto syh : fSampleHists[i]->fSyst){
+                    for(auto& syh : fSampleHists[i]->fSyst){
                         Systematic *syst = syh->fSystematic;
                         if(!syst) continue;
                         if(syst->fType==Systematic::SHAPE){
@@ -1452,7 +1452,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
                 if(gammaValue>0) binContentNew *= gammaValue;
             }
             // gammas from SHAPE systematics
-            for(auto syh : fSampleHists[i]->fSyst){
+            for(auto& syh : fSampleHists[i]->fSyst){
                 Systematic *syst = syh->fSystematic;
                 if(!syst) continue;
                 if(syst->fType==Systematic::SHAPE){
@@ -1485,7 +1485,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
-            NormFactor *nf = fSampleHists[i]->fNormFactors[i_norm];
+            const NormFactor *nf = fSampleHists[i]->fNormFactors[i_norm].get();
             nfName = nf->fName;
             if(nf->fConst) nfValue = nf->fNominal;
             else           nfValue = fitRes->GetNuisParValue(TRExFitter::NPMAP[nfName]);
@@ -1538,7 +1538,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
-            ShapeFactor *sf = fSampleHists[i]->fShapeFactors[i_shape];
+            const ShapeFactor *sf = fSampleHists[i]->fShapeFactors[i_shape].get();
             sfName = sf->fName;
             if(sfName.find("saturated_model_sf")!=std::string::npos) continue;
             // loop over bins
@@ -2535,7 +2535,7 @@ void Region::SystPruning(PruningUtil *pu){
         sh->SystPruning(pu,hTot);
         //
         // flag overall systematics as no shape also for pruning purposes
-        for(auto syh : sh->fSyst){
+        for(auto& syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
             if(syh->fSystematic->fType==Systematic::OVERALL){
@@ -2544,7 +2544,7 @@ void Region::SystPruning(PruningUtil *pu){
         }
         //
         // add by-hand dropping of shape or norm
-        for(auto syh : sh->fSyst){
+        for(auto& syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
             if( FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0  ||
@@ -2564,7 +2564,7 @@ void Region::SystPruning(PruningUtil *pu){
     //
     // reference pruning
     for(auto sh : fSampleHists){
-        for(auto syh : sh->fSyst){
+        for(auto& syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
             Systematic *syst = syh->fSystematic;
