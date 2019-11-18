@@ -3206,7 +3206,11 @@ int ConfigReader::ReadNormFactorOptions(){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or exclude region size is equal to zero. Please check this");
                 return 1;
         }
-        if(regions[0] != "all") nfactor->fRegions = regions;
+        if(regions[0] == "all") {
+            nfactor->fRegions = GetAvailableRegions();
+        } else {
+            nfactor->fRegions = regions;
+        }
         if(exclude[0] != "")    nfactor->fExclude = exclude;
         // attach the syst to the proper samples
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
@@ -3329,7 +3333,11 @@ int ConfigReader::ReadShapeFactorOptions(){
             return 1;
         }
         // save list of
-        if(regions[0]!="all") sfactor->fRegions = regions;
+        if(regions[0] == "all") {
+            sfactor->fRegions = GetAvailableRegions();
+        } else {
+            sfactor->fRegions = regions;
+        }
         if(exclude[0]!="")    sfactor->fExclude = exclude;
         // attach the syst to the proper samples
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
