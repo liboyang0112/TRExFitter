@@ -132,6 +132,8 @@ MultiFit::MultiFit(string name) :
     fShowTotalOnly(false),
     fuseGammasForCorr(false),
     fPOIInitial(1.) {
+
+    fNPCategories.emplace_back("");
 }
 
 //__________________________________________________________________________________
