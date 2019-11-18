@@ -1140,10 +1140,10 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
         if(notFound){
             SystematicHist* syst_tmp = new SystematicHist("tmp");
             ++fNSyst;
-            syst_tmp->fHistUp        = (TH1*)h->fHist->Clone();
-            syst_tmp->fHistUp_orig   = (TH1*)h->fHist_orig->Clone();
-            syst_tmp->fHistDown      = (TH1*)h->fHist->Clone();
-            syst_tmp->fHistDown_orig = (TH1*)h->fHist_orig->Clone();
+            syst_tmp->fHistUp        = static_cast<TH1*>(h->fHist->Clone());
+            syst_tmp->fHistUp_orig   = static_cast<TH1*>(h->fHist_orig->Clone());
+            syst_tmp->fHistDown      = static_cast<TH1*>(h->fHist->Clone());
+            syst_tmp->fHistDown_orig = static_cast<TH1*>(h->fHist_orig->Clone());
             syst_tmp->fName = systname;
             fSyst.emplace_back(std::move(syst_tmp));
         }
@@ -1192,7 +1192,6 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
 //_____________________________________________________________________________
 //
 void SampleHist::Divide(SampleHist *sh){
-    TH1* hOrig = static_cast<TH1*>(fHist->Clone("h_tmp_orig"));
     if (sh->fHist!=nullptr) fHist->Divide( sh->fHist.get() );
     else  {
        if (TRExFitter::HISTOCHECKCRASH) {
@@ -1224,13 +1223,13 @@ void SampleHist::Divide(SampleHist *sh){
     // if so, add a new SystematicHist
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
-        string systName = sh->fSyst[i_syst]->fName;
-        string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        const std::string systName = sh->fSyst[i_syst]->fName;
+        const std::string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==nullptr){
             WriteDebugStatus("SampleHist::Divide", "Adding syst "+ NuisParName + " (through syst "+ systName + ") to sample "+ fName);
-            TH1* hUp   = static_cast<TH1*>(fHist->Clone("h_tmp_up"));
-            TH1* hDown = static_cast<TH1*>(fHist->Clone("h_tmp_down"));
+            std::unique_ptr<TH1> hUp(static_cast<TH1*>(fHist->Clone("h_tmp_up")));
+            std::unique_ptr<TH1> hDown(static_cast<TH1*>(fHist->Clone("h_tmp_down")));
             hUp  ->Divide(   sh->fHist.get() );
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp  );
             hUp  ->Scale(-1);
@@ -1241,14 +1240,14 @@ void SampleHist::Divide(SampleHist *sh){
             hDown->Scale(-1);
             hDown->Add(fHist.get(),2);
             //
-            syh = AddHistoSyst(NuisParName,NuisParName,hUp,hDown);
+            syh = AddHistoSyst(NuisParName,NuisParName,hUp.get(),hDown.get());
             if (syh == nullptr) {
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
             syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName()));
             syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName()));
-            Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
+            Systematic* tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;
             tmpsyst->fStoredName = NuisParName;
@@ -1258,17 +1257,14 @@ void SampleHist::Divide(SampleHist *sh){
             }
             syh->fSystematic = tmpsyst;
             fSample->AddSystematic(syh->fSystematic);
-            delete hUp;
-            delete hDown;
         }
     }
-    delete hOrig;
 }
 
 //_____________________________________________________________________________
 //
 void SampleHist::Multiply(SampleHist *sh){
-    TH1* hOrig = static_cast<TH1*>(fHist->Clone("h_tmp_orig"));
+    std::unique_ptr<TH1> hOrig( static_cast<TH1*>(fHist->Clone("h_tmp_orig")));
     if (sh->fHist!=nullptr) fHist->Multiply( sh->fHist.get() );
     else  {
        if (TRExFitter::HISTOCHECKCRASH) {
@@ -1282,8 +1278,8 @@ void SampleHist::Multiply(SampleHist *sh){
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
-        string systName = fSyst[i_syst]->fName;
-        string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        const std::string systName = fSyst[i_syst]->fName;
+        const std::string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==nullptr){
             WriteDebugStatus("SampleHist::Multiply", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
@@ -1300,23 +1296,23 @@ void SampleHist::Multiply(SampleHist *sh){
     // if so, add a new SystematicHist
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
-        string systName = sh->fSyst[i_syst]->fName;
-        string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        const std::string systName = sh->fSyst[i_syst]->fName;
+        const std::string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==nullptr){
             WriteDebugStatus("SampleHist::Multiply", "Adding syst "+ NuisParName + " (through syst "+ systName + ") to sample "+ fName);
-            TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
-            TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
+            std::unique_ptr<TH1> hUp(static_cast<TH1*>(hOrig->Clone("h_tmp_up")));
+            std::unique_ptr<TH1> hDown(static_cast<TH1*>(hOrig->Clone("h_tmp_down")));
             hUp  ->Multiply( sh->fSyst[i_syst]->fHistUp   );
             hDown->Multiply( sh->fSyst[i_syst]->fHistDown );
-            syh = AddHistoSyst(NuisParName,NuisParName,hUp,hDown);
+            syh = AddHistoSyst(NuisParName,NuisParName,hUp.get(),hDown.get());
             if (syh == nullptr) {
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
             syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName()));
             syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName()));
-            Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
+            Systematic* tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;
             tmpsyst->fStoredName = NuisParName;
@@ -1326,17 +1322,14 @@ void SampleHist::Multiply(SampleHist *sh){
             }
             syh->fSystematic = tmpsyst;
             fSample->AddSystematic(syh->fSystematic);
-            delete hUp;
-            delete hDown;
         }
     }
-    delete hOrig;
 }
 
 //_____________________________________________________________________________
 //
 void SampleHist::Add(SampleHist *sh,double scale){
-    TH1* hOrig = static_cast<TH1*>(fHist->Clone("h_tmp_orig"));
+    std::unique_ptr<TH1> hOrig(static_cast<TH1*>(fHist->Clone("h_tmp_orig")));
     if (sh->fHist != nullptr) fHist->Add( sh->fHist.get(), scale );
     else  {
        if (TRExFitter::HISTOCHECKCRASH) {
@@ -1350,8 +1343,8 @@ void SampleHist::Add(SampleHist *sh,double scale){
     // loop on all the systematics in this SampleHist
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
-        string systName = fSyst[i_syst]->fName;
-        string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        const std::string systName = fSyst[i_syst]->fName;
+        const std::string NuisParName = fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = sh->GetSystFromNP( NuisParName );
         if(syh==nullptr){
             WriteDebugStatus("SampleHist::Add", "Syst. "+ systName +"(" + NuisParName +")"+ " not present in  "+ sh->fName);
@@ -1368,13 +1361,13 @@ void SampleHist::Add(SampleHist *sh,double scale){
     // if so, add a new SystematicHist
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         if(!fSample->fUseSystematics) break;
-        string systName = sh->fSyst[i_syst]->fName;
-        string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+        const std::string systName = sh->fSyst[i_syst]->fName;
+        const std::string NuisParName = sh->fSyst[i_syst]->fSystematic->fNuisanceParameter;
         SystematicHist *syh = GetSystFromNP( NuisParName );
         if(syh==nullptr){
             WriteDebugStatus("SampleHist::Add", "Adding syst "+ NuisParName + " (through syst "+ systName + ") to sample "+ fName);
-            TH1* hUp   = (TH1*)hOrig->Clone("h_tmp_up"  );
-            TH1* hDown = (TH1*)hOrig->Clone("h_tmp_down");
+            std::unique_ptr<TH1> hUp(static_cast<TH1*>(hOrig->Clone("h_tmp_up")));
+            std::unique_ptr<TH1> hDown(static_cast<TH1*>(hOrig->Clone("h_tmp_down")));
             if (sh->fSyst[i_syst]->fHistUp == nullptr) {
                if (TRExFitter::HISTOCHECKCRASH) {
                     WriteErrorStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " up var. not found when trying to adding it to "+fSample->fName);
@@ -1383,7 +1376,7 @@ void SampleHist::Add(SampleHist *sh,double scale){
                     WriteWarningStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " up var. not found when trying to adding it to "+fSample->fName);
                }
             }
-            else  hUp  ->Add( sh->fSyst[i_syst]->fHistUp  ,scale );
+            else  hUp  ->Add( sh->fSyst[i_syst]->fHistUp, scale );
             if (sh->fSyst[i_syst]->fHistDown == nullptr) {
                if (TRExFitter::HISTOCHECKCRASH) {
                     WriteErrorStatus("SampleHist::Add", "Systematic "+sh->fSyst[i_syst]->fName+ " down var. not found when trying to adding it to "+fSample->fName);
@@ -1393,14 +1386,14 @@ void SampleHist::Add(SampleHist *sh,double scale){
                }
             }
             else hDown->Add( sh->fSyst[i_syst]->fHistDown,scale );
-            syh = AddHistoSyst(NuisParName,NuisParName,hUp,hDown);
+            syh = AddHistoSyst(NuisParName,NuisParName,hUp.get(),hDown.get());
             if (syh == nullptr) {
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
             syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName()));
             syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName()));
-            Systematic*tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
+            Systematic* tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;
             tmpsyst->fStoredName = NuisParName;
@@ -1410,11 +1403,8 @@ void SampleHist::Add(SampleHist *sh,double scale){
             }
             syh->fSystematic = tmpsyst;
             fSample->AddSystematic(syh->fSystematic);
-            delete hUp;
-            delete hDown;
         }
     }
-    delete hOrig;
 }
 
 //_____________________________________________________________________________
