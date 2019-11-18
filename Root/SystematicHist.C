@@ -54,9 +54,7 @@ SystematicHist::SystematicHist(const std::string& name) :
 //_____________________________________________________________________________
 //
 SystematicHist::~SystematicHist(){
-    delete fHistUp;
     delete fHistShapeUp;
-    delete fHistDown;
     delete fHistShapeDown;
 }
 
@@ -64,8 +62,8 @@ SystematicHist::~SystematicHist(){
 //
 void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
     if(f==nullptr){
-        WriteHistToFile(fHistUp,fFileNameUp);
-        WriteHistToFile(fHistDown,fFileNameDown);
+        WriteHistToFile(fHistUp.get(),fFileNameUp);
+        WriteHistToFile(fHistDown.get(),fFileNameDown);
         if(reWriteOrig) WriteHistToFile(fHistUp_orig,fFileNameUp);
         if(reWriteOrig) WriteHistToFile(fHistDown_orig,fFileNameDown);
         if(fIsShape){
@@ -75,13 +73,13 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
             WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),fFileNameShapeDown);
         }
         if(fSystematic->fType==Systematic::SHAPE){
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp),fFileNameUp);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown),fFileNameDown);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp.get()),fFileNameUp);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown.get()),fFileNameDown);
         }
     }
     else{
-        WriteHistToFile(fHistUp,f);
-        WriteHistToFile(fHistDown,f);
+        WriteHistToFile(fHistUp.get(),f);
+        WriteHistToFile(fHistDown.get(),f);
         if(reWriteOrig) WriteHistToFile(fHistUp_orig,f);
         if(reWriteOrig) WriteHistToFile(fHistDown_orig,f);
         if(fIsShape){
@@ -91,8 +89,8 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
             WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),f);
         }
         if(fSystematic->fType==Systematic::SHAPE){
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp),f);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown),f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp.get()),f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown.get()),f);
         }
     }
 }
@@ -100,13 +98,13 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
 //_____________________________________________________________________________
 //
 void SystematicHist::ReadFromFile(){
-    fHistUp      = HistFromFile(fFileNameUp,fHistoNameUp).release();
+    fHistUp      = HistFromFile(fFileNameUp,fHistoNameUp);
     fHistUp_orig = HistFromFile(fFileNameUp,fHistoNameUp+"_orig").release();
-    if(fHistUp_orig==nullptr) fHistUp_orig = fHistUp;
+    if(fHistUp_orig==nullptr) fHistUp_orig = static_cast<TH1D*>(fHistUp->Clone());
     fHistShapeUp = HistFromFile(fFileNameShapeUp,fHistoNameShapeUp).release();
-    fHistDown      = HistFromFile(fFileNameDown,fHistoNameDown).release();
+    fHistDown      = HistFromFile(fFileNameDown,fHistoNameDown);
     fHistDown_orig = HistFromFile(fFileNameDown,fHistoNameDown+"_orig").release();
-    if(fHistDown_orig==nullptr) fHistDown_orig = fHistDown;
+    if(fHistDown_orig==nullptr) fHistDown_orig = static_cast<TH1*>(fHistDown);
     fHistShapeDown = HistFromFile(fFileNameShapeDown,fHistoNameShapeDown).release();
 }
 
@@ -173,7 +171,7 @@ void SystematicHist::Add(TH1 *h,double scale){
 //_____________________________________________________________________________
 //
 void SystematicHist::Add(SystematicHist *syh,double scale){
-    fHistUp->Add(       syh->fHistUp,scale);
+    fHistUp->Add(syh->fHistUp.get(),scale);
     if(fHistShapeUp!=nullptr)   {
         if (syh->fHistShapeUp != nullptr) fHistShapeUp->Add(  syh->fHistShapeUp,scale);
         else if (syh->fHistUp != nullptr){
@@ -184,7 +182,7 @@ void SystematicHist::Add(SystematicHist *syh,double scale){
           htemp.reset(nullptr);
         }
     }
-    fHistDown->Add(     syh->fHistDown,scale);
+    fHistDown->Add(syh->fHistDown.get(),scale);
     if(fHistShapeDown!=nullptr)   {
         if (syh->fHistShapeDown != nullptr) fHistShapeDown->Add(  syh->fHistShapeDown,scale);
         else if (syh->fHistDown != nullptr){// the other syst is overall, while this is not

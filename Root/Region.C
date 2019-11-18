@@ -368,15 +368,15 @@ void Region::BuildPreFitErrorHist(){
                 sh = fSampleHists[i]->GetSystematic(systName);
                 // initialize the up and down variation histograms
                 // (note: do it even if the syst is not there; in this case the variation hist will be = to the nominal)
-                sh->fHistUp   = (TH1*)hNom->Clone(Form("%s_%s_Up",  hNom->GetName(),systName.c_str()));
-                sh->fHistDown = (TH1*)hNom->Clone(Form("%s_%s_Down",hNom->GetName(),systName.c_str()));
+                sh->fHistUp.reset(static_cast<TH1*>(hNom->Clone(Form("%s_%s_Up",  hNom->GetName(),systName.c_str()))));
+                sh->fHistDown.reset(static_cast<TH1*>(hNom->Clone(Form("%s_%s_Down",hNom->GetName(),systName.c_str()))));
             }
             
             Systematic *syst = sh->fSystematic;
             
             // store hist up and down
-            hUp   = sh->fHistUp;
-            hDown = sh->fHistDown;
+            hUp   = sh->fHistUp.get();
+            hDown = sh->fHistDown.get();
             
             // modify them dropping shape or norm (due to pruning or shape/acc decorrelation)
             if(syst!=nullptr){
@@ -2080,9 +2080,9 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                         category_histo_down.push_back(h_down);
                     }
                     else{
-                        TH1 *h_up = (TH1*) syh->fHistUp;
+                        TH1 *h_up = syh->fHistUp.get();
                         h_up->SetDirectory(0);
-                        TH1 *h_down = (TH1*) syh->fHistDown;
+                        TH1 *h_down = syh->fHistDown.get();
                         h_down->SetDirectory(0);
                         category_histo_up.push_back(h_up);
                         category_histo_down.push_back(h_down);
