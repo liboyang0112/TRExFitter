@@ -71,12 +71,12 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
         if(fIsShape){
             WriteHistToFile(fHistShapeUp,fFileNameShapeUp);
             WriteHistToFile(fHistShapeDown,fFileNameShapeDown);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp).get(),fFileNameShapeUp);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown).get(),fFileNameShapeDown);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),fFileNameShapeUp);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),fFileNameShapeDown);
         }
         if(fSystematic->fType==Systematic::SHAPE){
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp).get(),fFileNameUp);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown).get(),fFileNameDown);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp),fFileNameUp);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown),fFileNameDown);
         }
     }
     else{
@@ -87,12 +87,12 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
         if(fIsShape){
             WriteHistToFile(fHistShapeUp,f);
             WriteHistToFile(fHistShapeDown,f);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp).get(),f);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown).get(),f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp),f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown),f);
         }
         if(fSystematic->fType==Systematic::SHAPE){
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp).get(),f);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown).get(),f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp),f);
+            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown),f);
         }
     }
 }

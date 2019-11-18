@@ -39,14 +39,14 @@ using namespace std;
 
 //_________________________________________________________________________
 //
-std::unique_ptr<TH1D> HistoTools::TranformHistogramBinning(const TH1* originalHist){
+TH1D* HistoTools::TranformHistogramBinning(TH1* originalHist){
 
     const unsigned int nBins = originalHist -> GetNbinsX();
     unsigned int nBinsNew = 0;
     for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
         if(originalHist->GetBinContent(iBin)>=0) nBinsNew++;
     }
-    std::unique_ptr<TH1D> hFinal(new TH1D(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBinsNew,0,1));
+    TH1D *hFinal = new TH1D(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBinsNew,0,1);
     hFinal -> SetDirectory(0);
     unsigned int iBinNew = 1;
     for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
@@ -62,7 +62,7 @@ std::unique_ptr<TH1D> HistoTools::TranformHistogramBinning(const TH1* originalHi
 //_________________________________________________________________________
 //
 void HistoTools::ManageHistograms( int smoothingLevel, const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* modifiedUp, TH1* modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt) {
+                                    TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt) {
     //
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
     //

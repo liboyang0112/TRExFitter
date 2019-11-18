@@ -2,9 +2,8 @@
 #define HISTOTOOLS_H
 
 /// c++ includes
-#include <memory>
-#include <string>
 #include <vector>
+#include <string>
 
 /// Foward class declaration
 class TH1;
@@ -47,7 +46,7 @@ namespace HistoTools {
     * @param Original histogram
     * @return Trasformed histogram
     */
-    std::unique_ptr<TH1D> TranformHistogramBinning(const TH1* originalHist);
+    TH1D* TranformHistogramBinning(TH1* originalHist);
 
     /**
      * A helper function to smooth and symmetrize histograms
@@ -64,7 +63,7 @@ namespace HistoTools {
      * @param apply ttbar resonance smoothing
      */
     void ManageHistograms(int smoothingLevel, const SymmetrizationType& symType, TH1* hNom, TH1* originUp, TH1* originDown,
-        TH1* modifiedUp, TH1* modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt);
+        TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt);
 
     /**
      * A helper function to symmetrize histograms

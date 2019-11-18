@@ -486,8 +486,8 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
         else           fSyst[i_syst]->WriteToFile(f,      reWriteOrig);
         // for shape hist, save also the syst(up)-nominal (to feed HistFactory)
         if(fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE){
-            std::unique_ptr<TH1> hVar = HistoTools::TranformHistogramBinning(
-              static_cast<TH1*>(fSyst[i_syst]->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fSystematic->fStoredName.c_str())))
+            TH1* hVar = HistoTools::TranformHistogramBinning(
+              (TH1*)fSyst[i_syst]->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),fSyst[i_syst]->fSystematic->fStoredName.c_str()))
             );
             hVar->Add(fHist_regBin.get(),-1);
             hVar->Divide(fHist_regBin.get());
@@ -495,8 +495,8 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
             for(int i_bin=1;i_bin<=hVar->GetNbinsX();i_bin++){
                 if(hVar->GetBinContent(i_bin)<0) hVar->SetBinContent(i_bin,-1.*hVar->GetBinContent(i_bin));
             }
-            if(f==nullptr) WriteHistToFile(hVar.get(),fFileName);
-            else           WriteHistToFile(hVar.get(),f);
+            if(f==nullptr) WriteHistToFile(hVar,fFileName);
+            else           WriteHistToFile(hVar,f);
         }
     }
 }
@@ -521,7 +521,7 @@ void SampleHist::NegativeTotalYieldWarning(TH1* hist, double yield) const{
 void SampleHist::FixEmptyBins(const bool suppress){
     //
     // store yields (nominal and systs)
-    const double initialYield = fHist->Integral();
+    double initialYield = fHist->Integral();
     if (initialYield<0) { NegativeTotalYieldWarning(fHist.get(), initialYield); } // warning if total yield is negative, in which case normalization cannot be preserved
     vector<double> yieldUp;
     vector<double> yieldDown;
@@ -530,8 +530,8 @@ void SampleHist::FixEmptyBins(const bool suppress){
         if(syh==nullptr) continue;
         if(syh->fHistUp  ==nullptr) continue;
         if(syh->fHistDown==nullptr) continue;
-        const double tmpYieldUp   = syh->fHistUp->Integral();
-        const double tmpYieldDown = syh->fHistDown->Integral();
+        double tmpYieldUp   = syh->fHistUp->Integral();
+        double tmpYieldDown = syh->fHistDown->Integral();
         yieldUp.push_back(tmpYieldUp);
         yieldDown.push_back(tmpYieldDown);
         // warnings if total yield in systematic variations is negative, in which case normalization cannot be preserved
@@ -546,8 +546,8 @@ void SampleHist::FixEmptyBins(const bool suppress){
     // store minimum stat unc for non-zero bins
     double minStat = -1;
     for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-        const double content = fHist->GetBinContent(i_bin);
-        const double error   = fHist->GetBinError(  i_bin);
+        double content = fHist->GetBinContent(i_bin);
+        double error   = fHist->GetBinError(  i_bin);
         if(content>0 && error>0){
             if(minStat<0 || error<minStat) minStat = error;
         }
@@ -555,10 +555,10 @@ void SampleHist::FixEmptyBins(const bool suppress){
     //
     // loop o bins looking for negatives or zeros
     for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
-        const double content = fHist->GetBinContent(i_bin);
-        const double error   = fHist->GetBinError(  i_bin);
+        double content = fHist->GetBinContent(i_bin);
+        double error   = fHist->GetBinError(  i_bin);
         if(content<=0){
-            const std::string temp = fHist->GetName();
+            std::string temp = fHist->GetName();
             if (!suppress){
                 WriteWarningStatus("SampleHist::FixEmptyBins", "Checking your nominal histogram " +temp + ", the bin " + std::to_string(i_bin) +
                 " has a null/negative bin content (content = " + std::to_string(content) + ") ! You should have a look at this !");
@@ -604,13 +604,13 @@ void SampleHist::FixEmptyBins(const bool suppress){
     if(fHist->Integral()!=initialYield){
         if (initialYield>0) {
             // keep the original overall normalisation if the initial yield was positive
-            const double tmpScalingFactor = initialYield/fHist->Integral();
+            double tmpScalingFactor = initialYield/fHist->Integral();
             for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
                 fHist->SetBinContent(i_bin, fHist->GetBinContent(i_bin)*tmpScalingFactor);
             }
         } else if (TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL){
             // if the initial yield was negative, scale such that the total integral is 1e-06
-            const double tmpScalingFactor = 1e-6/fHist->Integral();
+            double tmpScalingFactor = 1e-6/fHist->Integral();
             for(int i_bin=1;i_bin<=fHist->GetNbinsX();i_bin++){
                 fHist->SetBinContent(i_bin, fHist->GetBinContent(i_bin)*tmpScalingFactor);
             }
@@ -884,9 +884,9 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
 //
 void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string syst, bool force){
     if(fSystSmoothed && !force) return;
-    std::unique_ptr<TH1> h_nominal(static_cast<TH1*>(fHist->Clone("h_nominal")));
-    std::unique_ptr<TH1> h_syst_up(nullptr);
-    std::unique_ptr<TH1> h_syst_down(nullptr);
+    TH1* h_nominal = (TH1*)fHist->Clone("h_nominal");
+    TH1* h_syst_up;
+    TH1* h_syst_down;
 
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
 
@@ -896,8 +896,8 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         if(fSyst[i_syst]->fHistDown==nullptr) continue;
         if(fSyst[i_syst]->fSystematic==nullptr) continue;
 
-        h_syst_up = std::unique_ptr<TH1>(static_cast<TH1*>(fSyst[i_syst]->fHistUp->Clone()));
-        h_syst_down = std::unique_ptr<TH1>(static_cast<TH1*>(fSyst[i_syst]->fHistDown->Clone()));
+        h_syst_up = static_cast<TH1*>(fSyst[i_syst]->fHistUp->Clone());
+        h_syst_down = static_cast<TH1*>(fSyst[i_syst]->fHistDown->Clone());
 
         if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
             HistoTools::Scale(fSyst[i_syst]->fHistUp,  fHist.get(),fSyst[i_syst]->fScaleUp);
@@ -914,11 +914,10 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                 if(fSyst[i_syst]->fSystematic->fSampleSmoothing){
                     HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
                                                     fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
-                                                    h_nominal.get(),//nominal histogram
+                                                    h_nominal,//nominal histogram
                                                     fSyst[i_syst]->fHistUp,
                                                     fSyst[i_syst]->fHistDown,//original histograms
-                                                    h_syst_up.get(),
-                                                    h_syst_down.get(), //modified histograms
+                                                    h_syst_up, h_syst_down, //modified histograms
                                                     fSyst[i_syst]->fScaleUp,
                                                     fSyst[i_syst]->fScaleDown, // scale factors
                                                     fSyst[i_syst]->fSystematic->fSampleSmoothOption // overwrite smoothing option
@@ -927,11 +926,10 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                 else{
                     HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
                                                     fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
-                                                    h_nominal.get(),//nominal histogram
+                                                    h_nominal,//nominal histogram
                                                     fSyst[i_syst]->fHistUp,
                                                     fSyst[i_syst]->fHistDown,//original histograms
-                                                    h_syst_up.get(),
-                                                    h_syst_down.get(), //modified histograms
+                                                    h_syst_up, h_syst_down, //modified histograms
                                                     fSyst[i_syst]->fScaleUp,
                                                     fSyst[i_syst]->fScaleDown, // scale factors
                                                     smoothOpt
@@ -947,44 +945,41 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         }
 
         if(fSyst[i_syst]->fSystematic->fPreSmoothing){
-            std::unique_ptr<TH1> h_tmp_up(nullptr);
-            std::unique_ptr<TH1> h_tmp_down(nullptr);
-            if (h_syst_up) {
-                h_tmp_up.reset(static_cast<TH1*>(h_syst_up->Clone()));
-            }
-            if (h_syst_down) {
-                h_tmp_down.reset(static_cast<TH1*>(h_syst_down->Clone()));
-            }
+            TH1* h_tmp_up   = h_syst_up!=nullptr   ? (TH1*)h_syst_up  ->Clone() : nullptr;
+            TH1* h_tmp_down = h_syst_down!=nullptr ? (TH1*)h_syst_down->Clone() : nullptr;
             if(h_tmp_up!=nullptr || h_tmp_down!=nullptr){
-                std::unique_ptr<TH1> h_tmp_nominal(static_cast<TH1*>(h_nominal->Clone()));
+                TH1* h_tmp_nominal = (TH1*)h_nominal  ->Clone();
                 for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++){
                     h_tmp_nominal->GetBinError(i_bin,0);
                 }
                 if(h_tmp_up!=nullptr){
-                    const double tmp_nom_up = h_tmp_up->Integral();
-                    h_tmp_up->Add(h_tmp_nominal.get(),-1);
-                    h_tmp_up->Divide(h_tmp_nominal.get());
+                    double tmp_nom_up = h_tmp_up->Integral();
+                    h_tmp_up->Add(h_tmp_nominal,-1);
+                    h_tmp_up->Divide(h_tmp_nominal);
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_up->AddBinContent(i_bin, 100.);
                     h_tmp_up->Smooth();
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_up->AddBinContent(i_bin,-100.);
-                    h_tmp_up->Multiply(h_tmp_nominal.get());
-                    h_tmp_up->Add(h_tmp_nominal.get(), 1);
+                    h_tmp_up->Multiply(h_tmp_nominal);
+                    h_tmp_up->Add(h_tmp_nominal, 1);
                     h_tmp_up->Scale(tmp_nom_up/h_tmp_up->Integral());
-                    h_syst_up.reset(static_cast<TH1*>(h_tmp_up->Clone()));
+                    h_syst_up = (TH1*)h_tmp_up->Clone();
                 }
                 if(h_tmp_down!=nullptr){
-                    const double tmp_nom_down = h_tmp_down->Integral();
-                    h_tmp_down->Add(h_tmp_nominal.get(),-1);
-                    h_tmp_up->Divide(h_tmp_nominal.get());
+                    double tmp_nom_down = h_tmp_down->Integral();
+                    h_tmp_down->Add(h_tmp_nominal,-1);
+                    h_tmp_up->Divide(h_tmp_nominal);
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_down->AddBinContent(i_bin, 100.);
                     h_tmp_down->Smooth();
                     for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++) h_tmp_down->AddBinContent(i_bin,-100.);
-                    h_tmp_up->Multiply(h_tmp_nominal.get());
-                    h_tmp_down->Add(h_tmp_nominal.get(), 1);
+                    h_tmp_up->Multiply(h_tmp_nominal);
+                    h_tmp_down->Add(h_tmp_nominal, 1);
                     h_tmp_down->Scale(tmp_nom_down/h_tmp_down->Integral());
-                    h_syst_down.reset(static_cast<TH1*>(h_tmp_down->Clone()));
+                    h_syst_down = (TH1*)h_tmp_down->Clone();
                 }
+                delete h_tmp_nominal;
             }
+            delete h_tmp_up;
+            delete h_tmp_down;
         }
 
         //
@@ -995,11 +990,10 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                 if(fSyst[i_syst]->fSystematic->fSampleSmoothing){
                     HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
                                                     fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
-                                                    h_nominal.get(),//nominal histogram
+                                                    h_nominal,//nominal histogram
                                                     fSyst[i_syst]->fHistUp,
                                                     fSyst[i_syst]->fHistDown,//original histograms
-                                                    h_syst_up.get(),
-                                                    h_syst_down.get(), //modified histograms
+                                                    h_syst_up, h_syst_down, //modified histograms
                                                     fSyst[i_syst]->fScaleUp,
                                                     fSyst[i_syst]->fScaleDown, // scale factors
                                                     fSyst[i_syst]->fSystematic->fSampleSmoothOption // overwrite smoothing option
@@ -1008,11 +1002,10 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                 else{
                     HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
                                                     fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
-                                                    h_nominal.get(),//nominal histogram
+                                                    h_nominal,//nominal histogram
                                                     fSyst[i_syst]->fHistUp,
                                                     fSyst[i_syst]->fHistDown,//original histograms
-                                                    h_syst_up.get(),
-                                                    h_syst_down.get(), //modified histograms
+                                                    h_syst_up, h_syst_down, //modified histograms
                                                     fSyst[i_syst]->fScaleUp,
                                                     fSyst[i_syst]->fScaleDown, // scale factors
                                                     smoothOpt
@@ -1050,13 +1043,13 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         //
         // Save stuff
         //
-        fSyst[i_syst]->fHistUp = static_cast<TH1*>(h_syst_up->Clone(fSyst[i_syst]->fHistUp->GetName()));
-        fSyst[i_syst]->fHistDown = static_cast<TH1*>(h_syst_down->Clone(fSyst[i_syst]->fHistUp->GetName()));
+        fSyst[i_syst]->fHistUp = (TH1*)h_syst_up->Clone(fSyst[i_syst]->fHistUp->GetName());
+        fSyst[i_syst]->fHistDown = (TH1*)h_syst_down->Clone(fSyst[i_syst]->fHistUp->GetName());
 
         //
         // Perform a check of the output histograms (check for 0 bins and other pathologic behaviour)
         //
-        HistoTools::CheckHistograms( h_nominal.get() /*nominal*/, fSyst[i_syst].get() /*systematic*/, fSample -> fType != Sample::SIGNAL, TRExFitter::HISTOCHECKCRASH /*cause crash if problem*/);
+        HistoTools::CheckHistograms( h_nominal /*nominal*/, fSyst[i_syst].get() /*systematic*/, fSample -> fType != Sample::SIGNAL, TRExFitter::HISTOCHECKCRASH /*cause crash if problem*/);
 
         //
         // Normalisation component first
