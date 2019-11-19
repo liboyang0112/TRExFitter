@@ -3313,8 +3313,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                             h_tmp_Down = sh->fHist_postFit.get();
                         }
                         else{
-                            h_tmp_Up   = sh->GetSystematic(systName)->fHistUp_postFit;
-                            h_tmp_Down = sh->GetSystematic(systName)->fHistDown_postFit;
+                            h_tmp_Up   = sh->GetSystematic(systName)->fHistUp_postFit.get();
+                            h_tmp_Down = sh->GetSystematic(systName)->fHistDown_postFit.get();
                         }
                     }
                     else {
@@ -3354,8 +3354,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                                 h_tmp_Down = sh->fHist_postFit.get();
                             }
                             else{
-                                h_tmp_Up   = sh->GetSystematic(systName)->fHistUp_postFit;
-                                h_tmp_Down = sh->GetSystematic(systName)->fHistDown_postFit;
+                                h_tmp_Up   = sh->GetSystematic(systName)->fHistUp_postFit.get();
+                                h_tmp_Down = sh->GetSystematic(systName)->fHistDown_postFit.get();
                             }
                         }
                         else{

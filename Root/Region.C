@@ -1041,8 +1041,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             // initialize the up and down variation histograms
             // (note: do it even if the syst is not there; in this case the variation hist will be = to the nominal)
             //
-            sh->fHistUp_postFit   = (TH1*)fSampleHists[i]->fHist_postFit->Clone(Form("%s_%s_Up_postFit",  fSampleHists[i]->fHist->GetName(),systName.c_str()));
-            sh->fHistDown_postFit = (TH1*)fSampleHists[i]->fHist_postFit->Clone(Form("%s_%s_Down_postFit",fSampleHists[i]->fHist->GetName(),systName.c_str()));
+            sh->fHistUp_postFit.reset(static_cast<TH1*>(fSampleHists[i]->fHist_postFit->Clone(Form("%s_%s_Up_postFit",  fSampleHists[i]->fHist->GetName(),systName.c_str()))));
+            sh->fHistDown_postFit.reset(static_cast<TH1*>(fSampleHists[i]->fHist_postFit->Clone(Form("%s_%s_Down_postFit",fSampleHists[i]->fHist->GetName(),systName.c_str()))));
 
             // check if the sample is morph sample
             for (const auto& i_morph : morph_names){
@@ -1236,8 +1236,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             // initialize the up and down variation histograms
             // (note: do it even if the syst is not there; in this case the variation hist will be = to the nominal)
             //
-            sh->fHistUp_postFit   = (TH1*)fSampleHists[morph_index]->fHist_postFit->Clone(Form("%s_%s_Up_postFit",  fSampleHists[morph_index]->fHist->GetName(),systName.c_str()));
-            sh->fHistDown_postFit = (TH1*)fSampleHists[morph_index]->fHist_postFit->Clone(Form("%s_%s_Down_postFit",fSampleHists[morph_index]->fHist->GetName(),systName.c_str()));
+            sh->fHistUp_postFit.reset(static_cast<TH1*>(fSampleHists[morph_index]->fHist_postFit->Clone(Form("%s_%s_Up_postFit",  fSampleHists[morph_index]->fHist->GetName(),systName.c_str()))));
+            sh->fHistDown_postFit.reset(static_cast<TH1*>(fSampleHists[morph_index]->fHist_postFit->Clone(Form("%s_%s_Down_postFit",fSampleHists[morph_index]->fHist->GetName(),systName.c_str()))));
 
             // loop over bins
             for (int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
@@ -2072,10 +2072,10 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                     syh = sh->GetSystematic(fSystNames[i_syst]);
 
                     if(isPostFit){
-                        TH1 *h_up = (TH1*) syh->fHistUp_postFit;
-                        h_up->SetDirectory(0);
-                        TH1 *h_down = (TH1*) syh->fHistDown_postFit;
-                        h_down->SetDirectory(0);
+                        TH1 *h_up = syh->fHistUp_postFit.get();
+                        h_up->SetDirectory(nullptr);
+                        TH1 *h_down = syh->fHistDown_postFit.get();
+                        h_down->SetDirectory(nullptr);
                         category_histo_up.push_back(h_up);
                         category_histo_down.push_back(h_down);
                     }

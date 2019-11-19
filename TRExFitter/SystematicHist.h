@@ -54,7 +54,7 @@ public:
     std::string fHistoNameUp;
     std::string fFileNameShapeUp;
     std::string fHistoNameShapeUp;
-    TH1* fHistUp_postFit;
+    std::unique_ptr<TH1> fHistUp_postFit;
 
     std::unique_ptr<TH1> fHistDown;
     std::unique_ptr<TH1> fHistDown_orig;
@@ -65,7 +65,7 @@ public:
     std::string fHistoNameDown;
     std::string fFileNameShapeDown;
     std::string fHistoNameShapeDown;
-    TH1* fHistDown_postFit;
+    std::unique_ptr<TH1> fHistDown_postFit;
 
     double fScaleUp;
     double fScaleDown;
