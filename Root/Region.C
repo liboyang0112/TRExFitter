@@ -210,7 +210,7 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
 //__________________________________________________________________________________
 //
 void Region::AddSample(Sample* sample){
-    fSamples.push_back(sample);
+    fSamples.emplace_back(std::move(sample));
     fNSamples++;
 }
 

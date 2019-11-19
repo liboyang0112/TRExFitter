@@ -133,7 +133,7 @@ public:
     SampleHist *fBkg[MAXsamples];
     int fNSamples;
     std::vector < std::unique_ptr<SampleHist> > fSampleHists;
-    std::vector < Sample* > fSamples;
+    std::vector < std::unique_ptr<Sample> > fSamples;
     double fYmaxScale;
     double fYmin;
     double fYmax;
