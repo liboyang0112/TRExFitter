@@ -424,7 +424,7 @@ void Region::BuildPreFitErrorHist(){
     //
     // Now build the total prediction variations, for each systematic
     // - loop on systematics
-    for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+    for(std::size_t i_syst=0; i_syst<fSystNames.size(); ++i_syst){
         systName = fSystNames[i_syst];
 
         // initialize the tot variation hists
@@ -440,7 +440,7 @@ void Region::BuildPreFitErrorHist(){
                 // scale according to NormFactors
                 double scale = 1.;
                 for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
-                    NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf].get();
+                    const NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf].get();
                     // if this norm factor is a morphing one
                     if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                         std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -468,7 +468,11 @@ void Region::BuildPreFitErrorHist(){
                         scale *= f_morph.EvalPar(nfNominal,nullptr);
                     }
                     else {
-                        scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
+                        for (size_t iReg = 0; iReg < nf->fRegions.size(); ++iReg){
+                            if (nf->fRegions[iReg] == fName){
+                                scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
+                            }
+                        }
                     }
                 }
                 //
@@ -632,7 +636,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
-            NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf].get();
+            const NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf].get();
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -663,8 +667,12 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
             }
             else{
-                h->Scale(nf->fNominal);
-                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
+                for (size_t iReg = 0; iReg < nf->fRegions.size(); ++iReg){
+                    if (nf->fRegions[iReg] == fName){
+                        h->Scale(nf->fNominal);
+                        WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
+                    }
+                }
             }
         }
         if(TRExFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
@@ -698,7 +706,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
-            NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf].get();
+            const NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf].get();
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -1519,7 +1527,11 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
                 hSmpNew[i]->Scale(scale);
             }
             else{
-                hSmpNew[i]->Scale(nfValue);
+                for (size_t iReg = 0; iReg < nf->fRegions.size(); ++iReg){
+                    if (nf->fRegions[iReg] == fName){
+                        hSmpNew[i]->Scale(nfValue);
+                    }
+                }
             }
         }
     }
