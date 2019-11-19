@@ -145,7 +145,7 @@ public:
     std::string fRatioType;
 
     // to draw
-    TH1* fTot;
+    std::unique_ptr<TH1> fTot;
     TGraphAsymmErrors *fErr;
     TH1* fTotUp[MAXsyst];
     TH1* fTotDown[MAXsyst];

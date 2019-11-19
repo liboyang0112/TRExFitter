@@ -2606,8 +2606,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             }
             else{
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot;
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot;
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot.get();
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot.get();
                 }
                 else{
                     h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx];
@@ -2634,7 +2634,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                     else{
                         h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[j_syst];
                         h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[j_syst];
-                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot;
+                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot.get();
                     }
                     h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral()-h_tmp->Integral() );
                     h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral()-h_tmp->Integral() );
@@ -2748,8 +2748,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             }
             else{
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot;
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot;
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot.get();
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot.get();
                 }
                 else{
                     h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx];
@@ -3482,8 +3482,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             }
             else{
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot;
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot;
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot.get();
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot.get();
                 }
                 else{
                     h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx];
@@ -3510,7 +3510,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                     else{
                         h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[j_syst];
                         h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[j_syst];
-                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot;
+                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot.get();
                     }
                     h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral()-h_tmp->Integral() );
                     h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral()-h_tmp->Integral() );

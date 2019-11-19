@@ -425,8 +425,8 @@ void Region::BuildPreFitErrorHist(){
         systName = fSystNames[i_syst];
 
         // initialize the tot variation hists
-        fTotUp[i_syst]   = (TH1*)fTot->Clone(Form("h_%s_tot_%s_Up",  fName.c_str(), systName.c_str()));
-        fTotDown[i_syst] = (TH1*)fTot->Clone(Form("h_%s_tot_%s_Down",fName.c_str(), systName.c_str()));
+        fTotUp[i_syst]   = static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Up",  fName.c_str(), systName.c_str())));
+        fTotDown[i_syst] = static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Down",fName.c_str(), systName.c_str())));
         // - loop on bins
         for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
             diffUp = 0.;
@@ -501,8 +501,8 @@ void Region::BuildPreFitErrorHist(){
                 const int whichsyst = FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
                 auto h_diff_up   = std::unique_ptr<TH1> (static_cast<TH1*> (h_up[whichsyst]  ->Clone(Form("%s_%s","clone_",h_up[whichsyst]  ->GetName()))));
                 auto h_diff_down = std::unique_ptr<TH1> (static_cast<TH1*> (h_down[whichsyst]->Clone(Form("%s_%s","clone_",h_down[whichsyst]->GetName()))));
-                h_diff_up  ->Add(fTotUp[  i_syst],fTot,1,-1);
-                h_diff_down->Add(fTotDown[i_syst],fTot,1,-1);
+                h_diff_up  ->Add(fTotUp[  i_syst],fTot.get(),1,-1);
+                h_diff_down->Add(fTotDown[i_syst],fTot.get(),1,-1);
                 h_up[   FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_up.get());
                 h_down[ FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_down.get());
                 break;
@@ -518,7 +518,7 @@ void Region::BuildPreFitErrorHist(){
         h_up.  push_back( fTotUp[i_syst]   );
         h_down.push_back( fTotDown[i_syst] );
     }
-    fErr = BuildTotError( fTot, h_up, h_down, fNpNames );
+    fErr = BuildTotError( fTot.get(), h_up, h_down, fNpNames );
     fErr->SetName("g_totErr");
     // at this point fTot and fErr should be ready
 
@@ -539,7 +539,7 @@ void Region::BuildPreFitErrorHist(){
             }
         }
         if(fGetChi2==1) fNpNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot, h_up, fNpNames );
+        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot.get(), h_up, fNpNames );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -609,7 +609,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     //
     // build h_tot
     //
-    fTot = nullptr;
+    fTot.reset(nullptr);
     string title;
     TH1* h = nullptr;
     if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
@@ -675,7 +675,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         }
         if(TRExFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
         if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG){
-            if(fTot==nullptr) fTot = (TH1*)h->Clone("h_tot");
+            if(fTot==nullptr) fTot.reset(static_cast<TH1*>(h->Clone("h_tot")));
             else              fTot->Add(h);
         }
     }
@@ -735,7 +735,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
             }
         }
         p->AddBackground(h,title);
-        if(fTot==nullptr) fTot = (TH1*)h->Clone("h_tot");
+        if(fTot==nullptr) fTot.reset(static_cast<TH1*>(h->Clone("h_tot")));
         else          fTot->Add(h);
     }
 
@@ -753,7 +753,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         }
     }
 
-    p->SetTotBkg((TH1*)fTot);
+    p->SetTotBkg(fTot.get());
     p->BlindData();
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     fBlindedBins = p->h_blinding;
