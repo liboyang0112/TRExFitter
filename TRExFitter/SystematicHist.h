@@ -47,7 +47,7 @@ public:
 
     std::unique_ptr<TH1> fHistUp;
     std::unique_ptr<TH1> fHistUp_orig;
-    TH1* fHistUp_preSmooth;
+    std::unique_ptr<TH1> fHistUp_preSmooth;
     TH1* fHistShapeUp;
     double fNormUp;
     std::string fFileNameUp;
@@ -58,7 +58,7 @@ public:
 
     std::unique_ptr<TH1> fHistDown;
     std::unique_ptr<TH1> fHistDown_orig;
-    TH1* fHistDown_preSmooth;
+    std::unique_ptr<TH1> fHistDown_preSmooth;
     TH1* fHistShapeDown;
     double fNormDown;
     std::string fFileNameDown;

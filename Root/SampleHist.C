@@ -211,8 +211,8 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,const std::stri
     syh->fHistDown.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down",fHist->GetName(),storedName.c_str()))));
     syh->fHistUp_orig.reset(static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Up_orig",  fHist->GetName(),storedName.c_str()))));
     syh->fHistDown_orig.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down_orig",fHist->GetName(),storedName.c_str()))));
-    syh->fHistUp_preSmooth   = static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Up_preSmooth",  fHist->GetName(),storedName.c_str())));
-    syh->fHistDown_preSmooth = static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down_preSmooth",fHist->GetName(),storedName.c_str())));
+    syh->fHistUp_preSmooth.reset(static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Up_preSmooth",  fHist->GetName(),storedName.c_str()))));
+    syh->fHistDown_preSmooth.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down_preSmooth",fHist->GetName(),storedName.c_str()))));
     syh->fHistShapeUp   = static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str())));
     syh->fHistShapeDown = static_cast<TH1*>(h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str())));
     if(syh->fHistShapeUp  ->Integral() > 0. ){
@@ -1108,7 +1108,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
 
             tmp = static_cast<TH1*>(h->fSyst[i_syst]->fHistUp_preSmooth->Clone());
             tmp->Scale(scale);
-            syst_tmp->fHistUp_preSmooth = tmp;
+            syst_tmp->fHistUp_preSmooth.reset(tmp);
 
             tmp = static_cast<TH1*>(h->fSyst[i_syst]->fHistUp_orig->Clone());
             tmp->Scale(scale);
@@ -1120,7 +1120,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
 
             tmp = static_cast<TH1*>(h->fSyst[i_syst]->fHistDown_preSmooth->Clone());
             tmp->Scale(scale);
-            syst_tmp->fHistDown_preSmooth = tmp;
+            syst_tmp->fHistDown_preSmooth.reset(tmp);
 
             tmp = static_cast<TH1*>(h->fSyst[i_syst]->fHistDown_orig->Clone());
             tmp->Scale(scale);
@@ -1161,10 +1161,10 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
             if(fSyst[i_syst]->fName==h->fSyst[j_syst]->fName){
                 fSyst[i_syst]->fHistUp  ->Add(h->fSyst[j_syst]->fHistUp.get(),  scale);
                 fSyst[i_syst]->fHistDown->Add(h->fSyst[j_syst]->fHistDown.get(),scale);
-                if(fSyst[i_syst]->fHistUp_preSmooth!=nullptr)   fSyst[i_syst]->fHistUp_preSmooth  ->Add(h->fSyst[j_syst]->fHistUp_preSmooth,  scale);
-                else                                            fSyst[i_syst]->fHistUp_preSmooth   = static_cast<TH1*>(fHist_preSmooth->Clone());
-                if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fSyst[j_syst]->fHistDown_preSmooth,scale);
-                else                                            fSyst[i_syst]->fHistDown_preSmooth = static_cast<TH1*>(fHist_preSmooth->Clone());
+                if(fSyst[i_syst]->fHistUp_preSmooth!=nullptr)   fSyst[i_syst]->fHistUp_preSmooth  ->Add(h->fSyst[j_syst]->fHistUp_preSmooth.get(),  scale);
+                else                                            fSyst[i_syst]->fHistUp_preSmooth.reset(static_cast<TH1*>(fHist_preSmooth->Clone()));
+                if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fSyst[j_syst]->fHistDown_preSmooth.get(),scale);
+                else                                            fSyst[i_syst]->fHistDown_preSmooth.reset(static_cast<TH1*>(fHist_preSmooth->Clone()));
                 fSyst[i_syst]->fHistUp_orig  ->Add(h->fSyst[j_syst]->fHistUp_orig.get(),  scale);
                 fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig.get(),scale);
                 wasIn = true;
@@ -1174,9 +1174,9 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
         fSyst[i_syst]->fHistUp  ->Add(h->fHist.get(),scale);
         fSyst[i_syst]->fHistDown->Add(h->fHist.get(),scale);
         if(fSyst[i_syst]->fHistUp_preSmooth!=nullptr)   fSyst[i_syst]->fHistUp_preSmooth  ->Add(h->fHist_preSmooth.get(),scale);
-        else                                            fSyst[i_syst]->fHistUp_preSmooth   = static_cast<TH1*>(fHist_preSmooth->Clone());
+        else                                            fSyst[i_syst]->fHistUp_preSmooth.reset(static_cast<TH1*>(fHist_preSmooth->Clone()));
         if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fHist_preSmooth.get(),scale);
-        else                                            fSyst[i_syst]->fHistDown_preSmooth = static_cast<TH1*>(fHist_preSmooth->Clone());
+        else                                            fSyst[i_syst]->fHistDown_preSmooth.reset(static_cast<TH1*>(fHist_preSmooth->Clone()));
         fSyst[i_syst]->fHistUp_orig  ->Add(h->fHist_orig.get(),scale );
         fSyst[i_syst]->fHistDown_orig->Add(h->fHist_orig.get(),scale);
     }

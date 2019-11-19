@@ -1256,10 +1256,10 @@ void TRExFit::CorrectHistograms(){
             sh->fHist_preSmooth.reset(static_cast<TH1*>(sh->fHist->Clone(Form("%s_preSmooth",sh->fHist->GetName()))));
             for(auto& syh : sh->fSyst){
                 if(syh!=nullptr){
-                    if(syh->fHistUp!=nullptr)   syh->fHistUp_preSmooth   = (TH1*)syh->fHistUp->Clone(  Form("%s_preSmooth",syh->fHistUp->GetName()  ));
-                    else                        syh->fHistUp_preSmooth   = (TH1*)sh->fHist_preSmooth->Clone();
-                    if(syh->fHistDown!=nullptr) syh->fHistDown_preSmooth = (TH1*)syh->fHistDown->Clone(Form("%s_preSmooth",syh->fHistDown->GetName()));
-                    else                        syh->fHistDown_preSmooth = (TH1*)sh->fHist_preSmooth->Clone();
+                    if(syh->fHistUp!=nullptr)   syh->fHistUp_preSmooth.reset(static_cast<TH1*>(syh->fHistUp->Clone(Form("%s_preSmooth",syh->fHistUp->GetName()))));
+                    else                        syh->fHistUp_preSmooth.reset(static_cast<TH1*>(sh->fHist_preSmooth->Clone()));
+                    if(syh->fHistDown!=nullptr) syh->fHistDown_preSmooth.reset(static_cast<TH1*>(syh->fHistDown->Clone(Form("%s_preSmooth",syh->fHistDown->GetName()))));
+                    else                        syh->fHistDown_preSmooth.reset(static_cast<TH1*>(sh->fHist_preSmooth->Clone()));
                 }
             }
 
