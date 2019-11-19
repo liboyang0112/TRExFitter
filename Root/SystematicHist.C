@@ -104,7 +104,7 @@ void SystematicHist::ReadFromFile(){
     fHistShapeUp = HistFromFile(fFileNameShapeUp,fHistoNameShapeUp).release();
     fHistDown      = HistFromFile(fFileNameDown,fHistoNameDown);
     fHistDown_orig = HistFromFile(fFileNameDown,fHistoNameDown+"_orig").release();
-    if(fHistDown_orig==nullptr) fHistDown_orig = static_cast<TH1*>(fHistDown);
+    if(fHistDown_orig==nullptr) fHistDown_orig = static_cast<TH1*>(fHistDown->Clone());
     fHistShapeDown = HistFromFile(fFileNameShapeDown,fHistoNameShapeDown).release();
 }
 
@@ -135,9 +135,9 @@ void SystematicHist::Divide(TH1 *h){
 //_____________________________________________________________________________
 //
 void SystematicHist::Divide(SystematicHist *syh){
-    fHistUp->Divide(       syh->fHistUp);
+    fHistUp->Divide(syh->fHistUp.get());
     if(fHistShapeUp!=nullptr)   fHistShapeUp->Divide(  syh->fHistShapeUp);
-    fHistDown->Divide(     syh->fHistDown);
+    fHistDown->Divide(syh->fHistDown.get());
     if(fHistShapeDown!=nullptr) fHistShapeDown->Divide(syh->fHistShapeDown);
 }
 
@@ -153,9 +153,9 @@ void SystematicHist::Multiply(TH1 *h){
 //_____________________________________________________________________________
 //
 void SystematicHist::Multiply(SystematicHist *syh){
-    fHistUp->Multiply(       syh->fHistUp);
+    fHistUp->Multiply(syh->fHistUp.get());
     if(fHistShapeUp!=nullptr)   fHistShapeUp->Multiply(  syh->fHistShapeUp);
-    fHistDown->Multiply(     syh->fHistDown);
+    fHistDown->Multiply(syh->fHistDown.get());
     if(fHistShapeDown!=nullptr) fHistShapeDown->Multiply(syh->fHistShapeDown);
 }
 
