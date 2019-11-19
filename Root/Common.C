@@ -284,8 +284,7 @@ std::vector<std::string> CombinePathSufs( std::vector<std::string> pathSufs,
 //
 std::vector<std::string> ToVec(const std::string& s){
     std::vector<std::string> output;
-    output.clear();
-    output.push_back(s);
+    output.emplace_back(s);
     return output;
 }
 
@@ -496,33 +495,6 @@ double convertStoD(std::string toConvert){
         exit(EXIT_FAILURE);
     }
     return converted;
-}
-
-//__________________________________________________________________________________
-//
-struct BinNom {
-    double N;
-    double dN2;
-    double edge;
-    BinNom(double _N, double _dN2, double _edge) { N = _N; dN2 = _dN2; edge = _edge; }
-};
-
-//__________________________________________________________________________________
-//
-bool systFluctuationNominal(std::vector<BinNom> &hist) {
-    auto dM = [](const BinNom &b) {
-        return sqrt(b.dN2);
-    };
-    auto N = [](const BinNom &b) {
-        return b.N;
-    };
-    int Nbins = hist.size();
-    for (int k = 1; k < Nbins; ++k) {
-        double variation_prev = std::fabs(N(hist[k]) - N(hist[k-1]));
-        double err = std::max(dM(hist[k]), dM(hist[k-1]));
-        if (variation_prev < err) return true;
-    }
-    return false;
 }
 
 //__________________________________________________________________________________
