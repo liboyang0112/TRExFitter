@@ -468,10 +468,8 @@ void Region::BuildPreFitErrorHist(){
                         scale *= f_morph.EvalPar(nfNominal,nullptr);
                     }
                     else {
-                        for (size_t iReg = 0; iReg < nf->fRegions.size(); ++iReg){
-                            if (nf->fRegions[iReg] == fName){
-                                scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
-                            }
+                        if (std::find(nf->fRegions.begin(), nf->fRegions.end(), fName) != nf->fRegions.end()) {
+                            scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
                         }
                     }
                 }
@@ -667,11 +665,9 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
             }
             else{
-                for (size_t iReg = 0; iReg < nf->fRegions.size(); ++iReg){
-                    if (nf->fRegions[iReg] == fName){
-                        h->Scale(nf->fNominal);
-                        WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
-                    }
+                if (std::find(nf->fRegions.begin(), nf->fRegions.end(), fName) != nf->fRegions.end()) {
+                    h->Scale(nf->fNominal);
+                    WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
                 }
             }
         }
@@ -737,11 +733,9 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(scale));
             }
             else{
-                for (size_t iReg = 0; iReg < nf->fRegions.size(); ++iReg){
-                    if (nf->fRegions[iReg] == fName){
-                        h->Scale(nf->fNominal);
-                        WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal));
-                    }
+                if (std::find(nf->fRegions.begin(), nf->fRegions.end(), fName) != nf->fRegions.end()) {
+                    h->Scale(nf->fNominal);
+                    WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal));
                 }
             }
         }
