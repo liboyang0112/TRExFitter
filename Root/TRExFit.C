@@ -1571,8 +1571,8 @@ void TRExFit::CorrectHistograms(){
                     if(syh==nullptr) continue;
                     DropBins(syh->fHistUp.get(),  reg->fDropBins);
                     DropBins(syh->fHistDown.get(),reg->fDropBins);
-                    if(syh->fHistShapeUp)   DropBins(syh->fHistShapeUp,  reg->fDropBins);
-                    if(syh->fHistShapeDown) DropBins(syh->fHistShapeDown,reg->fDropBins);
+                    if(syh->fHistShapeUp)   DropBins(syh->fHistShapeUp.get(),  reg->fDropBins);
+                    if(syh->fHistShapeDown) DropBins(syh->fHistShapeDown.get(),reg->fDropBins);
                 }
             }
         }
@@ -6759,8 +6759,8 @@ void TRExFit::MergeSystematics(){
                     // set to zero the other syst
                     syh->fHistUp.reset(static_cast<TH1*>(sh->fHist->Clone(syh->fHistUp->GetName())));
                     syh->fHistDown.reset(static_cast<TH1*>(sh->fHist->Clone(syh->fHistDown->GetName())));
-                    syh->fHistShapeUp   = static_cast<TH1*>(sh->fHist->Clone(syh->fHistShapeUp->GetName()));
-                    syh->fHistShapeDown = static_cast<TH1*>(sh->fHist->Clone(syh->fHistShapeDown->GetName()));
+                    syh->fHistShapeUp.reset(static_cast<TH1*>(sh->fHist->Clone(syh->fHistShapeUp->GetName())));
+                    syh->fHistShapeDown.reset(static_cast<TH1*>(sh->fHist->Clone(syh->fHistShapeDown->GetName())));
                     syh->fNormUp   = 0.;
                     syh->fNormDown = 0.;
                     syh->fNormPruned  = true;
@@ -6831,8 +6831,8 @@ void TRExFit::CombineSpecialSystematics() {
                     if (!sampleHist) continue;
                     sampleHist->fHistUp.reset(static_cast<TH1*>(sh->fHist->Clone(sampleHist->fHistUp->GetName())));
                     sampleHist->fHistDown.reset(static_cast<TH1*>(sh->fHist->Clone(sampleHist->fHistDown->GetName())));
-                    sampleHist->fHistShapeUp   = static_cast<TH1*>(sh->fHist->Clone(sampleHist->fHistShapeUp->GetName()));
-                    sampleHist->fHistShapeDown = static_cast<TH1*>(sh->fHist->Clone(sampleHist->fHistShapeDown->GetName()));
+                    sampleHist->fHistShapeUp.reset(static_cast<TH1*>(sh->fHist->Clone(sampleHist->fHistShapeUp->GetName())));
+                    sampleHist->fHistShapeDown.reset(static_cast<TH1*>(sh->fHist->Clone(sampleHist->fHistShapeDown->GetName())));
                     sampleHist->fNormUp   = 0.;
                     sampleHist->fNormDown = 0.;
                     sampleHist->fNormPruned  = true;

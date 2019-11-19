@@ -174,8 +174,8 @@ SystematicHist* SampleHist::AddStatSyst(const std::string& name,const std::strin
     const double binError = binContent > 1e-4 ? fHist->GetBinError(bin) : 1e-7;
     syh->fHistUp.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_%s_Up",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()))));
     syh->fHistDown.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()))));
-    syh->fHistShapeUp   = static_cast<TH1*>(fHist->Clone(Form("%s_%s_%s_Shape_Up",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str())));
-    syh->fHistShapeDown = static_cast<TH1*>(fHist->Clone(Form("%s_%s_%s_Shape_Down",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str())));
+    syh->fHistShapeUp.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_%s_Shape_Up",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()))));
+    syh->fHistShapeDown.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_%s_Shape_Down",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()))));
     syh->fHistShapeUp  ->SetBinContent(bin, binContent + binError);
     syh->fHistShapeDown->SetBinContent(bin, binContent - binError);
     syh->fHistUp  ->SetBinContent(bin, binContent + binError);
@@ -213,17 +213,17 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,const std::stri
     syh->fHistDown_orig.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down_orig",fHist->GetName(),storedName.c_str()))));
     syh->fHistUp_preSmooth.reset(static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Up_preSmooth",  fHist->GetName(),storedName.c_str()))));
     syh->fHistDown_preSmooth.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down_preSmooth",fHist->GetName(),storedName.c_str()))));
-    syh->fHistShapeUp   = static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str())));
-    syh->fHistShapeDown = static_cast<TH1*>(h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str())));
+    syh->fHistShapeUp.reset(static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
+    syh->fHistShapeDown.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str()))));
     if(syh->fHistShapeUp  ->Integral() > 0. ){
         syh->fHistShapeUp  ->Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());
     } else {
-        syh->fHistShapeUp  = static_cast<TH1*>(fHist->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str())));
+        syh->fHistShapeUp.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
     }
     if(syh->fHistShapeDown  ->Integral() > 0. ){
         syh->fHistShapeDown->Scale(fHist->Integral() / syh->fHistShapeDown->Integral());
     } else {
-        syh->fHistShapeDown  = static_cast<TH1*>(fHist->Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str())));
+        syh->fHistShapeDown.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str()))));
     }
 
     syh->fIsOverall = true;
@@ -278,18 +278,18 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,
         sh->fIsShape   = false;
     }
     else{
-        sh->fHistShapeUp   = static_cast<TH1*>(sh->fHistUp  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str())));
-        sh->fHistShapeDown = static_cast<TH1*>(sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str())));
+        sh->fHistShapeUp.reset(static_cast<TH1*>(sh->fHistUp  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
+        sh->fHistShapeDown.reset(static_cast<TH1*>(sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str()))));
         if(sh->fHistShapeUp  ->Integral() > 0. ){
             sh->fHistShapeUp  -> Scale(fHist->Integral() / sh->fHistShapeUp  ->Integral());
         } else {
-            sh->fHistShapeUp = static_cast<TH1*>(fHist -> Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str())));
+            sh->fHistShapeUp.reset(static_cast<TH1*>(fHist -> Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
         }
 
         if(sh->fHistShapeDown  ->Integral() > 0. ){
             sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
         } else {
-            sh->fHistShapeDown = static_cast<TH1*>(fHist -> Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str())));
+            sh->fHistShapeDown.reset(static_cast<TH1*>(fHist -> Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str()))));
         }
         sh->fIsShape   = true;
     }
@@ -1064,18 +1064,18 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 
         if(fSyst[i_syst]->fIsShape){
             // update shape hists as well
-            fSyst[i_syst]->fHistShapeUp   = static_cast<TH1*>(h_syst_up  ->Clone(fSyst[i_syst]->fHistShapeUp  ->GetName()));
-            fSyst[i_syst]->fHistShapeDown = static_cast<TH1*>(h_syst_down->Clone(fSyst[i_syst]->fHistShapeDown->GetName()));
+            fSyst[i_syst]->fHistShapeUp.reset(static_cast<TH1*>(h_syst_up  ->Clone(fSyst[i_syst]->fHistShapeUp->GetName())));
+            fSyst[i_syst]->fHistShapeDown.reset(static_cast<TH1*>(h_syst_down->Clone(fSyst[i_syst]->fHistShapeDown->GetName())));
             if(fSyst[i_syst]->fHistShapeUp  ->Integral()>0){
                 fSyst[i_syst]->fHistShapeUp  ->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeUp  ->Integral());
             } else {
-                fSyst[i_syst]->fHistShapeUp  = static_cast<TH1*>(fHist ->Clone(fSyst[i_syst]->fHistShapeUp  ->GetName()));
+                fSyst[i_syst]->fHistShapeUp.reset(static_cast<TH1*>(fHist ->Clone(fSyst[i_syst]->fHistShapeUp->GetName())));
             }
 
             if(fSyst[i_syst]->fHistShapeDown->Integral() > 0.){
                 fSyst[i_syst]->fHistShapeDown->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeDown->Integral());
             } else {
-                fSyst[i_syst]->fHistShapeDown  = static_cast<TH1*>(fHist ->Clone(fSyst[i_syst]->fHistShapeDown  ->GetName()));
+                fSyst[i_syst]->fHistShapeDown.reset(static_cast<TH1*>(fHist ->Clone(fSyst[i_syst]->fHistShapeDown->GetName())));
             }
         }
     }
