@@ -46,7 +46,7 @@ public:
     bool fBadNorm;
 
     std::unique_ptr<TH1> fHistUp;
-    TH1* fHistUp_orig;
+    std::unique_ptr<TH1> fHistUp_orig;
     TH1* fHistUp_preSmooth;
     TH1* fHistShapeUp;
     double fNormUp;
@@ -57,7 +57,7 @@ public:
     TH1* fHistUp_postFit;
 
     std::unique_ptr<TH1> fHistDown;
-    TH1* fHistDown_orig;
+    std::unique_ptr<TH1> fHistDown_orig;
     TH1* fHistDown_preSmooth;
     TH1* fHistShapeDown;
     double fNormDown;

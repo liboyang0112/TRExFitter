@@ -64,8 +64,8 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
     if(f==nullptr){
         WriteHistToFile(fHistUp.get(),fFileNameUp);
         WriteHistToFile(fHistDown.get(),fFileNameDown);
-        if(reWriteOrig) WriteHistToFile(fHistUp_orig,fFileNameUp);
-        if(reWriteOrig) WriteHistToFile(fHistDown_orig,fFileNameDown);
+        if(reWriteOrig) WriteHistToFile(fHistUp_orig.get(),fFileNameUp);
+        if(reWriteOrig) WriteHistToFile(fHistDown_orig.get(),fFileNameDown);
         if(fIsShape){
             WriteHistToFile(fHistShapeUp,fFileNameShapeUp);
             WriteHistToFile(fHistShapeDown,fFileNameShapeDown);
@@ -80,8 +80,8 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
     else{
         WriteHistToFile(fHistUp.get(),f);
         WriteHistToFile(fHistDown.get(),f);
-        if(reWriteOrig) WriteHistToFile(fHistUp_orig,f);
-        if(reWriteOrig) WriteHistToFile(fHistDown_orig,f);
+        if(reWriteOrig) WriteHistToFile(fHistUp_orig.get(),f);
+        if(reWriteOrig) WriteHistToFile(fHistDown_orig.get(),f);
         if(fIsShape){
             WriteHistToFile(fHistShapeUp,f);
             WriteHistToFile(fHistShapeDown,f);
@@ -99,12 +99,12 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
 //
 void SystematicHist::ReadFromFile(){
     fHistUp      = HistFromFile(fFileNameUp,fHistoNameUp);
-    fHistUp_orig = HistFromFile(fFileNameUp,fHistoNameUp+"_orig").release();
-    if(fHistUp_orig==nullptr) fHistUp_orig = static_cast<TH1D*>(fHistUp->Clone());
+    fHistUp_orig = HistFromFile(fFileNameUp,fHistoNameUp+"_orig");
+    if(fHistUp_orig==nullptr) fHistUp_orig = std::unique_ptr<TH1>(static_cast<TH1D*>(fHistUp->Clone()));
     fHistShapeUp = HistFromFile(fFileNameShapeUp,fHistoNameShapeUp).release();
     fHistDown      = HistFromFile(fFileNameDown,fHistoNameDown);
-    fHistDown_orig = HistFromFile(fFileNameDown,fHistoNameDown+"_orig").release();
-    if(fHistDown_orig==nullptr) fHistDown_orig = static_cast<TH1*>(fHistDown->Clone());
+    fHistDown_orig = HistFromFile(fFileNameDown,fHistoNameDown+"_orig");
+    if(fHistDown_orig==nullptr) fHistDown_orig = std::unique_ptr<TH1>(static_cast<TH1*>(fHistDown->Clone()));
     fHistShapeDown = HistFromFile(fFileNameShapeDown,fHistoNameShapeDown).release();
 }
 

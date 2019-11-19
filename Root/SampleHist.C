@@ -148,8 +148,8 @@ SystematicHist* SampleHist::AddOverallSyst(const std::string& name,const std::st
     syh->fHistDown.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()))));
     syh->fHistUp  ->Scale(1.+up);
     syh->fHistDown->Scale(1.+down);
-    syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str())));
-    syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str())));
+    syh->fHistUp_orig.reset(static_cast<TH1*>(fHist_orig->Clone(Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()))));
+    syh->fHistDown_orig.reset(static_cast<TH1*>(fHist_orig->Clone(Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()))));
     syh->fHistUp_orig  ->Scale(1.+up);
     syh->fHistDown_orig->Scale(1.+down);
     syh->fIsOverall = true;
@@ -180,8 +180,8 @@ SystematicHist* SampleHist::AddStatSyst(const std::string& name,const std::strin
     syh->fHistShapeDown->SetBinContent(bin, binContent - binError);
     syh->fHistUp  ->SetBinContent(bin, binContent + binError);
     syh->fHistDown->SetBinContent(bin, binContent - binError);
-    syh->fHistUp_orig   = static_cast<TH1*>(syh->fHistUp  ->Clone(Form("%s_orig",syh->fHistUp  ->GetName())));
-    syh->fHistDown_orig = static_cast<TH1*>(syh->fHistDown->Clone(Form("%s_orig",syh->fHistDown->GetName())));
+    syh->fHistUp_orig.reset(static_cast<TH1*>(syh->fHistUp  ->Clone(Form("%s_orig",syh->fHistUp  ->GetName()))));
+    syh->fHistDown_orig.reset(static_cast<TH1*>(syh->fHistDown->Clone(Form("%s_orig",syh->fHistDown->GetName()))));
     syh->fHistShapeUp  ->Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());
     syh->fHistShapeDown->Scale(fHist->Integral() / syh->fHistShapeDown->Integral());
     syh->fIsOverall = true;
@@ -209,8 +209,8 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,const std::stri
     //
     syh->fHistUp.reset(static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Up",  fHist->GetName(),storedName.c_str()))));
     syh->fHistDown.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down",fHist->GetName(),storedName.c_str()))));
-    syh->fHistUp_orig   = static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Up_orig",  fHist->GetName(),storedName.c_str())));
-    syh->fHistDown_orig = static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down_orig",fHist->GetName(),storedName.c_str())));
+    syh->fHistUp_orig.reset(static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Up_orig",  fHist->GetName(),storedName.c_str()))));
+    syh->fHistDown_orig.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down_orig",fHist->GetName(),storedName.c_str()))));
     syh->fHistUp_preSmooth   = static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Up_preSmooth",  fHist->GetName(),storedName.c_str())));
     syh->fHistDown_preSmooth = static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down_preSmooth",fHist->GetName(),storedName.c_str())));
     syh->fHistShapeUp   = static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str())));
@@ -267,12 +267,12 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,
     sh->fHistoNameDown = histoName_down;
     sh->fHistUp   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp);
     sh->fHistDown = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown);
-    sh->fHistUp_orig   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp  +"_orig").release();
-    sh->fHistDown_orig = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig").release();
+    sh->fHistUp_orig   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp  +"_orig");
+    sh->fHistDown_orig = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig");
     if(sh->fHistUp   == nullptr) return nullptr;
     if(sh->fHistDown == nullptr) return nullptr;
-    if(sh->fHistUp_orig  ==nullptr) sh->fHistUp_orig   = static_cast<TH1D*>(sh->fHistUp->Clone(  Form("%s_orig",sh->fHistUp->GetName()  )));
-    if(sh->fHistDown_orig==nullptr) sh->fHistDown_orig = static_cast<TH1D*>(sh->fHistDown->Clone(Form("%s_orig",sh->fHistDown->GetName())));
+    if(sh->fHistUp_orig  ==nullptr) sh->fHistUp_orig.reset(static_cast<TH1D*>(sh->fHistUp->Clone(Form("%s_orig",sh->fHistUp->GetName()))));
+    if(sh->fHistDown_orig==nullptr) sh->fHistDown_orig.reset(static_cast<TH1D*>(sh->fHistDown->Clone(Form("%s_orig",sh->fHistDown->GetName()))));
     //
     if(normOnly){
         sh->fIsShape   = false;
@@ -462,8 +462,8 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
         gamma->fRegions.clear();
         gamma->fRegions.push_back(fRegionName);
         SystematicHist *syh = AddHistoSyst(systName,systName,htempUp,htempDown);
-        syh->fHistUp_orig   = htempUp_orig;
-        syh->fHistDown_orig = htempDown_orig;
+        syh->fHistUp_orig.reset(htempUp_orig);
+        syh->fHistDown_orig.reset(htempDown_orig);
         gamma->fNuisanceParameter = gamma->fName;
         TRExFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
         if (syh ==nullptr) {
@@ -1112,7 +1112,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
 
             tmp = static_cast<TH1*>(h->fSyst[i_syst]->fHistUp_orig->Clone());
             tmp->Scale(scale);
-            syst_tmp->fHistUp_orig = tmp;
+            syst_tmp->fHistUp_orig.reset(tmp);
 
             tmp = static_cast<TH1*>(h->fSyst[i_syst]->fHistDown->Clone());
             tmp->Scale(scale);
@@ -1124,7 +1124,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
 
             tmp = static_cast<TH1*>(h->fSyst[i_syst]->fHistDown_orig->Clone());
             tmp->Scale(scale);
-            syst_tmp->fHistDown_orig = tmp;
+            syst_tmp->fHistDown_orig.reset(tmp);
 
             syst_tmp->fName = h->fSyst[i_syst]->fName;
             fSyst.emplace_back(std::move(syst_tmp));
@@ -1134,9 +1134,9 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
             SystematicHist* syst_tmp = new SystematicHist("tmp");
             ++fNSyst;
             syst_tmp->fHistUp.reset(static_cast<TH1*>(h->fHist->Clone()));
-            syst_tmp->fHistUp_orig   = static_cast<TH1*>(h->fHist_orig->Clone());
+            syst_tmp->fHistUp_orig.reset(static_cast<TH1*>(h->fHist_orig->Clone()));
             syst_tmp->fHistDown.reset(static_cast<TH1*>(h->fHist->Clone()));
-            syst_tmp->fHistDown_orig = static_cast<TH1*>(h->fHist_orig->Clone());
+            syst_tmp->fHistDown_orig.reset(static_cast<TH1*>(h->fHist_orig->Clone()));
             syst_tmp->fName = systname;
             fSyst.emplace_back(std::move(syst_tmp));
         }
@@ -1165,8 +1165,8 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
                 else                                            fSyst[i_syst]->fHistUp_preSmooth   = static_cast<TH1*>(fHist_preSmooth->Clone());
                 if(fSyst[i_syst]->fHistDown_preSmooth!=nullptr) fSyst[i_syst]->fHistDown_preSmooth->Add(h->fSyst[j_syst]->fHistDown_preSmooth,scale);
                 else                                            fSyst[i_syst]->fHistDown_preSmooth = static_cast<TH1*>(fHist_preSmooth->Clone());
-                fSyst[i_syst]->fHistUp_orig  ->Add(h->fSyst[j_syst]->fHistUp_orig,  scale);
-                fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig,scale);
+                fSyst[i_syst]->fHistUp_orig  ->Add(h->fSyst[j_syst]->fHistUp_orig.get(),  scale);
+                fSyst[i_syst]->fHistDown_orig->Add(h->fSyst[j_syst]->fHistDown_orig.get(),scale);
                 wasIn = true;
             }
         }
@@ -1238,8 +1238,8 @@ void SampleHist::Divide(SampleHist *sh){
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
-            syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName()));
-            syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName()));
+            syh->fHistUp_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName())));
+            syh->fHistDown_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName())));
             Systematic* tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;
@@ -1303,8 +1303,8 @@ void SampleHist::Multiply(SampleHist *sh){
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
-            syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName()));
-            syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName()));
+            syh->fHistUp_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName())));
+            syh->fHistDown_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName())));
             Systematic* tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;
@@ -1384,8 +1384,8 @@ void SampleHist::Add(SampleHist *sh,double scale){
                 WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
                 exit(EXIT_FAILURE);
             }
-            syh->fHistUp_orig   = static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName()));
-            syh->fHistDown_orig = static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName()));
+            syh->fHistUp_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName())));
+            syh->fHistDown_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName())));
             Systematic* tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;

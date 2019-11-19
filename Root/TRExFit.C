@@ -1090,8 +1090,8 @@ void TRExFit::CorrectHistograms(){
                 SystematicHist *syh = sh->GetSystematic( syst->fName );
                 //
                 if(syh==nullptr) continue;
-                TH1* hUp_orig   = syh->fHistUp_orig;
-                TH1* hDown_orig = syh->fHistDown_orig;
+                TH1* hUp_orig   = syh->fHistUp_orig.get();
+                TH1* hDown_orig = syh->fHistDown_orig.get();
                 //
                 // if Overall only => fill SystematicHist
                 if(syst->fType==Systematic::OVERALL){
