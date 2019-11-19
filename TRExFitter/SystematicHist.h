@@ -5,6 +5,7 @@
 #include "TRExFitter/HistoTools.h"
 
 /// c++ includes
+#include <memory>
 #include <string>
 
 /// Forwards class declaration
@@ -44,29 +45,27 @@ public:
     bool fBadShape;
     bool fBadNorm;
 
-    TH1* fHistUp;
-    TH1* fHistUp_orig;
-    TH1* fHistUp_preSmooth;
-    TH1* fHistShapeUp;
+    std::unique_ptr<TH1> fHistUp;
+    std::unique_ptr<TH1> fHistUp_orig;
+    std::unique_ptr<TH1> fHistUp_preSmooth;
+    std::unique_ptr<TH1> fHistShapeUp;
     double fNormUp;
     std::string fFileNameUp;
     std::string fHistoNameUp;
     std::string fFileNameShapeUp;
     std::string fHistoNameShapeUp;
-    TH1* fHistUp_original;
-    TH1* fHistUp_postFit;
+    std::unique_ptr<TH1> fHistUp_postFit;
 
-    TH1* fHistDown;
-    TH1* fHistDown_orig;
-    TH1* fHistDown_preSmooth;
-    TH1* fHistShapeDown;
+    std::unique_ptr<TH1> fHistDown;
+    std::unique_ptr<TH1> fHistDown_orig;
+    std::unique_ptr<TH1> fHistDown_preSmooth;
+    std::unique_ptr<TH1> fHistShapeDown;
     double fNormDown;
     std::string fFileNameDown;
     std::string fHistoNameDown;
     std::string fFileNameShapeDown;
     std::string fHistoNameShapeDown;
-    TH1* fHistDown_original;
-    TH1* fHistDown_postFit;
+    std::unique_ptr<TH1> fHistDown_postFit;
 
     double fScaleUp;
     double fScaleDown;
