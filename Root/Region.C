@@ -68,8 +68,12 @@ Region::Region(const string& name) :
     fRatioType("DATA/MC"),
     fTot(nullptr),
     fErr(nullptr),
+    fTotUp(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
+    fTotDown(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
     fTot_postFit(nullptr),
     fErr_postFit(nullptr),
+    fTotUp_postFit(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
+    fTotDown_postFit(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
     fBinTransfo(""),
     fTransfoDzBkg(0.),
     fTransfoDzSig(0.),
@@ -125,6 +129,7 @@ Region::Region(const string& name) :
     fLegendX2(-1),
     fLegendY(-1),
     fLegendNColumns(2) {
+    
 
     int canvasWidth = 600;
     int canvasHeight = 700;
@@ -427,8 +432,8 @@ void Region::BuildPreFitErrorHist(){
         systName = fSystNames[i_syst];
 
         // initialize the tot variation hists
-        fTotUp[i_syst]   = static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Up",  fName.c_str(), systName.c_str())));
-        fTotDown[i_syst] = static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Down",fName.c_str(), systName.c_str())));
+        fTotUp[i_syst].reset(static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Up",  fName.c_str(), systName.c_str()))));
+        fTotDown[i_syst].reset(static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Down",fName.c_str(), systName.c_str()))));
         // - loop on bins
         for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
             diffUp = 0.;
@@ -503,8 +508,8 @@ void Region::BuildPreFitErrorHist(){
                 const int whichsyst = FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
                 auto h_diff_up   = std::unique_ptr<TH1> (static_cast<TH1*> (h_up[whichsyst]  ->Clone(Form("%s_%s","clone_",h_up[whichsyst]  ->GetName()))));
                 auto h_diff_down = std::unique_ptr<TH1> (static_cast<TH1*> (h_down[whichsyst]->Clone(Form("%s_%s","clone_",h_down[whichsyst]->GetName()))));
-                h_diff_up  ->Add(fTotUp[  i_syst],fTot.get(),1,-1);
-                h_diff_down->Add(fTotDown[i_syst],fTot.get(),1,-1);
+                h_diff_up  ->Add(fTotUp[  i_syst].get(),fTot.get(),1,-1);
+                h_diff_down->Add(fTotDown[i_syst].get(),fTot.get(),1,-1);
                 h_up[   FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_up.get());
                 h_down[ FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_down.get());
                 break;
@@ -517,8 +522,8 @@ void Region::BuildPreFitErrorHist(){
             fTotUp[i_syst]  ->Scale(fTot->Integral()/fTotUp[i_syst]  ->Integral());
             fTotDown[i_syst]->Scale(fTot->Integral()/fTotDown[i_syst]->Integral());
         }
-        h_up.  push_back( fTotUp[i_syst]   );
-        h_down.push_back( fTotDown[i_syst] );
+        h_up.  push_back(fTotUp[i_syst].get() );
+        h_down.push_back(fTotDown[i_syst].get());
     }
     fErr.reset(BuildTotError( fTot.get(), h_up, h_down, fNpNames ));
     fErr->SetName("g_totErr");
@@ -1265,9 +1270,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         // Initialize the tot variation hists
         //
-        fTotUp_postFit[i_syst]   = static_cast<TH1*>(fTot_postFit->Clone(Form("h_tot_%s_Up_postFit",  systName.c_str())));
+        fTotUp_postFit[i_syst].reset(static_cast<TH1*>(fTot_postFit->Clone(Form("h_tot_%s_Up_postFit",  systName.c_str()))));
         fTotUp_postFit[i_syst] -> Scale(0); //initialising the content to 0
-        fTotDown_postFit[i_syst] = static_cast<TH1*>(fTot_postFit->Clone(Form("h_tot_%s_Down_postFit",systName.c_str())));
+        fTotDown_postFit[i_syst].reset(static_cast<TH1*>(fTot_postFit->Clone(Form("h_tot_%s_Down_postFit",systName.c_str()))));
         fTotDown_postFit[i_syst] -> Scale(0); //initialising the content to 0
 
         // - loop on bins
@@ -1304,8 +1309,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     std::vector< TH1* > h_down;
     std::vector<std::string> systNuisPars;
     for(size_t i_syst=0;i_syst<fSystNames.size();++i_syst){
-        h_up.  push_back( fTotUp_postFit[i_syst]   );
-        h_down.push_back( fTotDown_postFit[i_syst] );
+        h_up.  push_back(fTotUp_postFit[i_syst].get()  );
+        h_down.push_back(fTotDown_postFit[i_syst].get());
         systNuisPars.push_back(TRExFitter::NPMAP[fSystNames[i_syst]]);
     }
     fErr_postFit.reset(BuildTotError( fTot_postFit.get(), h_up, h_down, systNuisPars, fitRes->fCorrMatrix.get()));

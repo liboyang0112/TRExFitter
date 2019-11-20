@@ -147,14 +147,14 @@ public:
     // to draw
     std::unique_ptr<TH1> fTot;
     std::unique_ptr<TGraphAsymmErrors> fErr;
-    TH1* fTotUp[MAXsyst];
-    TH1* fTotDown[MAXsyst];
+    std::vector<std::unique_ptr<TH1> > fTotUp;
+    std::vector<std::unique_ptr<TH1> > fTotDown;
 
     // post fit
     std::unique_ptr<TH1> fTot_postFit;
     std::unique_ptr<TGraphAsymmErrors> fErr_postFit;
-    TH1* fTotUp_postFit[MAXsyst];
-    TH1* fTotDown_postFit[MAXsyst];
+    std::vector<std::unique_ptr<TH1> > fTotUp_postFit;
+    std::vector<std::unique_ptr<TH1> > fTotDown_postFit;
 
     // ntuple stuff
     std::string fBinTransfo;
