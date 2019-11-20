@@ -73,7 +73,7 @@ histograms_morph:
     needs:
       - compile
     script:
-      - trex-fitter h config/ExampleMorphing
+      - trex-fitter h config/ExampleMorphing.config
       - ls
       - ls FitExampleMorphing/Histograms/
     artifacts:
