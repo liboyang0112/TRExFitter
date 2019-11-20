@@ -8,7 +8,7 @@
 Applying ATLAS style settings...
 
 [1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
-[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: FitExampleNtuple.config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleNtuple.config[0m
 [1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExampleNtuple[0m
