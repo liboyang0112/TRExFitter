@@ -424,7 +424,7 @@ void Region::BuildPreFitErrorHist(){
     //
     // Now build the total prediction variations, for each systematic
     // - loop on systematics
-    for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+    for(std::size_t i_syst=0; i_syst<fSystNames.size(); ++i_syst){
         systName = fSystNames[i_syst];
 
         // initialize the tot variation hists
@@ -440,7 +440,7 @@ void Region::BuildPreFitErrorHist(){
                 // scale according to NormFactors
                 double scale = 1.;
                 for(unsigned int i_nf=0;i_nf<fSampleHists[i]->fSample->fNormFactors.size();i_nf++){
-                    NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf].get();
+                    const NormFactor *nf = fSampleHists[i]->fSample->fNormFactors[i_nf].get();
                     // if this norm factor is a morphing one
                     if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                         std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -459,16 +459,17 @@ void Region::BuildPreFitErrorHist(){
                             formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                             nfNominalvec.push_back(nameS[j].second[0]);
                         }
-                        double *nfNominal = nfNominalvec.data();
                         WriteDebugStatus("Region::BuildPreFitErrorHist", "formula: " +formula);
                         for(unsigned int j = 0; j<nameS.size(); j++){
-                            WriteDebugStatus("Region::BuildPreFitErrorHist", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
+                            WriteDebugStatus("Region::BuildPreFitErrorHist", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominalvec[j]));
                         }
                         TFormula f_morph ("f_morph",formula.c_str());
-                        scale *= f_morph.EvalPar(nfNominal,nullptr);
+                        scale *= f_morph.EvalPar(&nfNominalvec[0],nullptr);
                     }
                     else {
-                        scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
+                        if (std::find(nf->fRegions.begin(), nf->fRegions.end(), fName) != nf->fRegions.end()) {
+                            scale *= fSampleHists[i]->fSample->fNormFactors[i_nf]->fNominal;
+                        }
                     }
                 }
                 //
@@ -632,7 +633,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
-            NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf].get();
+            const NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf].get();
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -651,20 +652,21 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                     formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                     nfNominalvec.push_back(nameS[j].second[0]);
                 }
-                double *nfNominal = nfNominalvec.data();
                 WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
                 for(unsigned int j = 0; j<nameS.size(); j++){
-                    WriteDebugStatus("Region::DrawPreFit", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
+                    WriteDebugStatus("Region::DrawPreFit", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominalvec[j]));
                 }
                 TFormula f_morph("f_morph",formula.c_str());
                 double scale = 1.;
-                scale = f_morph.EvalPar(nfNominal,nullptr);
+                scale = f_morph.EvalPar(&nfNominalvec[0],nullptr);
                 h->Scale(scale);
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
             }
             else{
-                h->Scale(nf->fNominal);
-                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
+                if (std::find(nf->fRegions.begin(), nf->fRegions.end(), fName) != nf->fRegions.end()) {
+                    h->Scale(nf->fNominal);
+                    WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
+                }
             }
         }
         if(TRExFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
@@ -698,7 +700,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         }
         // scale it according to NormFactors
         for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
-            NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf].get();
+            const NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf].get();
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -717,23 +719,20 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                     formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                     nfNominalvec.push_back(nameS[j].second[0]);
                 }
-                double *nfNominal = nfNominalvec.data();
                 WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
                 for(unsigned int j = 0; j<nameS.size(); j++){
-                    WriteDebugStatus("Region::DrawPreFit", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
+                    WriteDebugStatus("Region::DrawPreFit", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominalvec[j]));
                 }
                 TFormula f_morph("f_morph",formula.c_str());
                 double scale = 1.;
-                scale = f_morph.EvalPar(nfNominal,nullptr);
+                scale = f_morph.EvalPar(&nfNominalvec[0],nullptr);
                 h->Scale(scale);
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(scale));
             }
             else{
-                for (size_t iReg = 0; iReg < nf->fRegions.size(); ++iReg){
-                    if (nf->fRegions[iReg] == fName){
-                        h->Scale(nf->fNominal);
-                        WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal));
-                    }
+                if (std::find(nf->fRegions.begin(), nf->fRegions.end(), fName) != nf->fRegions.end()) {
+                    h->Scale(nf->fNominal);
+                    WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal));
                 }
             }
         }
@@ -1133,19 +1132,16 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                             nfUpvec.push_back(fitRes->GetNuisParValue(nameS[j].first) + fitRes->GetNuisParErrUp(nameS[j].first));
                             nfDownvec.push_back(fitRes->GetNuisParValue(nameS[j].first) + fitRes->GetNuisParErrDown(nameS[j].first));
                         }
-                        double *nfValue = nfValuevec.data();
                         WriteDebugStatus("Region::BuildPostFitErrorHist", "formula: " +formula);
                         for(unsigned int j = 0; j<nameS.size(); j++){
-                            WriteDebugStatus("Region::BuildPostFitErrorHist", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValue[j]));
+                            WriteDebugStatus("Region::BuildPostFitErrorHist", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValuevec[j]));
                         }
                         TFormula f_morph ("f_morph",formula.c_str());
-                        double scaleUp = f_morph.EvalPar(nfValue,nullptr); // nominal value
-                        double scaleDown = f_morph.EvalPar(nfValue,nullptr); // nominal value
+                        double scaleUp = f_morph.EvalPar(&nfValuevec[0],nullptr); // nominal value
+                        double scaleDown = f_morph.EvalPar(&nfValuevec[0],nullptr); // nominal value
                         if(fSystNames[i_syst].find("morph_")!=std::string::npos){
-                            double *nfUpValue = nfUpvec.data();
-                            double *nfDownValue = nfDownvec.data();
-                            scaleUp = f_morph.EvalPar(nfUpValue,nullptr); // 1-parameter up variation
-                            scaleDown = f_morph.EvalPar(nfDownValue,nullptr); // 1-parameter down variation
+                            scaleUp = f_morph.EvalPar(&nfUpvec[0],nullptr); // 1-parameter up variation
+                            scaleDown = f_morph.EvalPar(&nfDownvec[0],nullptr); // 1-parameter down variation
                         }
                         // multi-parameter dependence => find the combinatio with largest/smallest "express" (definition of exprUp exprDown)
                         else {
@@ -1155,9 +1151,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                                     if(ii & (1<<j)) exprvec.push_back(nfUpvec[j]);
                                     else            exprvec.push_back(nfDownvec[j]);
                                 }
-                                double *expr = exprvec.data();
-                                scaleUp = (f_morph.EvalPar(expr,nullptr) > scaleUp) ? f_morph.EvalPar(expr,nullptr) : scaleUp;
-                                scaleDown = (f_morph.EvalPar(expr,nullptr) < scaleDown) ? f_morph.EvalPar(expr,nullptr) : scaleDown;
+                                scaleUp = (f_morph.EvalPar(&exprvec[0],nullptr) > scaleUp) ? f_morph.EvalPar(&exprvec[0],nullptr) : scaleUp;
+                                scaleDown = (f_morph.EvalPar(&exprvec[0],nullptr) < scaleDown) ? f_morph.EvalPar(&exprvec[0],nullptr) : scaleDown;
                             }
                         }
                         morph_syst_up.at(i_bin-1)   += yieldNominal*scaleUp;
@@ -1508,18 +1503,19 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
                     formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                     nfValuevec.push_back(fitRes->GetNuisParValue(nameS[j].first));
                 }
-                double *nfValuemorph = nfValuevec.data();
                 WriteDebugStatus("Region::DrawPostFit", "formula: " +formula);
                 for(unsigned int j = 0; j<nameS.size(); j++){
-                    WriteDebugStatus("Region::DrawPostFit", "nfValuemorph["+std::to_string(j)+"]: "+std::to_string(nfValuemorph[j]));
+                    WriteDebugStatus("Region::DrawPostFit", "nfValuemorph["+std::to_string(j)+"]: "+std::to_string(nfValuevec[j]));
                 }
                 TFormula f_morph ("f_morph",formula.c_str());
                 double scale = 1.;
-                scale = f_morph.EvalPar(nfValuemorph,nullptr);
+                scale = f_morph.EvalPar(&nfValuevec[0],nullptr);
                 hSmpNew[i]->Scale(scale);
             }
             else{
-                hSmpNew[i]->Scale(nfValue);
+                if (std::find(nf->fRegions.begin(), nf->fRegions.end(), fName) != nf->fRegions.end()) {
+                    hSmpNew[i]->Scale(nfValue);
+                }
             }
         }
     }
@@ -2477,13 +2473,12 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                         formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                         nfValuevec.push_back(fitRes->GetNuisParValue(nameS[j].first));
                     }
-                    double *nfValue = nfValuevec.data();
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
                     for(unsigned int j = 0; j<nameS.size(); j++){
-                        WriteDebugStatus("Region::PrepareMorphScales", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValue[j]));
+                        WriteDebugStatus("Region::PrepareMorphScales", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValuevec[j]));
                     }
                     TFormula f_morph ("f_morph",formula.c_str());
-                    double scaleNom = f_morph.EvalPar(nfValue,nullptr);
+                    double scaleNom = f_morph.EvalPar(&nfValuevec[0],nullptr);
                     morph_scale->emplace_back(scaleNom);
                 }
             }
@@ -2507,13 +2502,12 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                         formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                         nfNominalvec.push_back(nameS[j].second[0]);
                     }
-                    double *nfNominal = nfNominalvec.data();
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
                     for(unsigned int j = 0; j<nameS.size(); j++){
-                        WriteDebugStatus("Region::PrepareMorphScales", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominal[j]));
+                        WriteDebugStatus("Region::PrepareMorphScales", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominalvec[j]));
                     }
                     TFormula f_morph("f_morph",formula.c_str());
-                    double scaleNom = f_morph.EvalPar(nfNominal,nullptr);
+                    double scaleNom = f_morph.EvalPar(&nfNominalvec[0],nullptr);
                     morph_scale_nominal->emplace_back(scaleNom);
                 }
             }

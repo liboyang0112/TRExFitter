@@ -2620,80 +2620,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
           }
         }
 
-        // Set NormFactor
-        param = confSet->Get("NormFactor");
-        if(param!=""){
-            // check if the normfactor is called just with the name or with full definition
-            const unsigned int sz = Vectorize(param,',').size();
-            if (sz != 1 && sz != 4 && sz != 5){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'NormFactor' provided. Please check this!");
-                return 1;
-            }
-            if( sz > 1 ){
-                bool isConst = false;
-                if( Vectorize(param,',').size()>4){
-                    std::string tmp = Vectorize(param,',')[4];
-                    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-                    if (tmp == "TRUE"){
-                        isConst = true;
-                    }
-                }
-                if (sz > 3)
-                    nfactor = sample->AddNormFactor(
-                    Vectorize(param,',')[0],
-                    atof(Vectorize(param,',')[1].c_str()),
-                    atof(Vectorize(param,',')[2].c_str()),
-                    atof(Vectorize(param,',')[3].c_str()),
-                    isConst
-                );
-            }
-            else{
-                nfactor = sample->AddNormFactor( Vectorize(param,',')[0] );
-            }
-            if( FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
-                fFitter->fNormFactors.push_back( nfactor );
-                fFitter->fNormFactorNames.push_back( nfactor->fName );
-                fFitter->fNNorm++;
-            }
-        }
-
-        // Set ShapeFactor
-        param = confSet->Get("ShapeFactor");
-        if(param!=""){
-            // check if the normfactor is called just with the name or with full definition
-            const unsigned int sz = Vectorize(param,',').size();
-            if (sz != 1 && sz != 4 && sz != 5){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'ShapeFactor' provided. Please check this!");
-                return 1;
-            }
-            if( sz > 1 ){
-                bool isConst = false;
-                if( Vectorize(param,',').size()>4){
-                    std::string tmp = Vectorize(param,',')[4];
-                    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-                    if (tmp == "TRUE"){
-                        isConst = true;
-                    }
-                }
-                if (sz > 3)
-                    sfactor = sample->AddShapeFactor(
-                    Vectorize(param,',')[0],
-                    atof(Vectorize(param,',')[1].c_str()),
-                    atof(Vectorize(param,',')[2].c_str()),
-                    atof(Vectorize(param,',')[3].c_str()),
-                    isConst
-                );
-            }
-            else{
-                sfactor = sample->AddShapeFactor( Vectorize(param,',')[0] );
-            }
-            if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
-                fFitter->fShapeFactors.push_back( sfactor );
-                fFitter->fShapeFactorNames.push_back( sfactor->fName );
-                fFitter->fNShape++;
-            }
-        }
-
         // Set NormalizedByTheory
         param = confSet->Get("NormalizedByTheory");
         if(param != ""){
@@ -2745,6 +2671,82 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
             if( (regions_str=="" || regions_str=="all" || FindInStringVector(regions,regName)>=0)
                 && FindInStringVector(exclude,regName)<0 ){
                 sample->fRegions.push_back( fFitter->fRegions[i_reg]->fName );
+            }
+        }
+
+        // Set NormFactor
+        param = confSet->Get("NormFactor");
+        if(param!=""){
+            // check if the normfactor is called just with the name or with full definition
+            const unsigned int sz = Vectorize(param,',').size();
+            if (sz != 1 && sz != 4 && sz != 5){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'NormFactor' provided. Please check this!");
+                return 1;
+            }
+            if( sz > 1 ){
+                bool isConst = false;
+                if( Vectorize(param,',').size()>4){
+                    std::string tmp = Vectorize(param,',')[4];
+                    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
+                    if (tmp == "TRUE"){
+                        isConst = true;
+                    }
+                }
+                if (sz > 3)
+                    nfactor = sample->AddNormFactor(
+                    Vectorize(param,',')[0],
+                    atof(Vectorize(param,',')[1].c_str()),
+                    atof(Vectorize(param,',')[2].c_str()),
+                    atof(Vectorize(param,',')[3].c_str()),
+                    isConst
+                );
+            }
+            else{
+                nfactor = sample->AddNormFactor( Vectorize(param,',')[0] );
+            }
+            nfactor->fRegions = sample->fRegions;
+            if( FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
+                fFitter->fNormFactors.push_back( nfactor );
+                fFitter->fNormFactorNames.push_back( nfactor->fName );
+                fFitter->fNNorm++;
+            }
+        }
+
+        // Set ShapeFactor
+        param = confSet->Get("ShapeFactor");
+        if(param!=""){
+            // check if the normfactor is called just with the name or with full definition
+            const unsigned int sz = Vectorize(param,',').size();
+            if (sz != 1 && sz != 4 && sz != 5){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'ShapeFactor' provided. Please check this!");
+                return 1;
+            }
+            if( sz > 1 ){
+                bool isConst = false;
+                if( Vectorize(param,',').size()>4){
+                    std::string tmp = Vectorize(param,',')[4];
+                    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
+                    if (tmp == "TRUE"){
+                        isConst = true;
+                    }
+                }
+                if (sz > 3)
+                    sfactor = sample->AddShapeFactor(
+                    Vectorize(param,',')[0],
+                    atof(Vectorize(param,',')[1].c_str()),
+                    atof(Vectorize(param,',')[2].c_str()),
+                    atof(Vectorize(param,',')[3].c_str()),
+                    isConst
+                );
+            }
+            else{
+                sfactor = sample->AddShapeFactor( Vectorize(param,',')[0] );
+            }
+            sfactor->fRegions = sample->fRegions;
+            if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
+                fFitter->fShapeFactors.push_back( sfactor );
+                fFitter->fShapeFactorNames.push_back( sfactor->fName );
+                fFitter->fNShape++;
             }
         }
 

@@ -2455,11 +2455,13 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                     else           h = (TH1D*)sh->fHist->Clone(); // Michele
                     //
                     if(!isPostFit){
-                        // FIXME SF
-                        // scale it according to NormFactors
-                        for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
-                            h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
-                            WriteDebugStatus("TRExFit::DrawSummary", "Scaling " + sh->fSample->fName + " by " + std::to_string(sh->fSample->fNormFactors[i_nf]->fNominal));
+                        // scale it according to NormFactors but only for the correct regions
+                        for(unsigned int i_nf=0; i_nf<sh->fSample->fNormFactors.size(); ++i_nf){
+                            const std::vector<std::string>& regions = sh->fSample->fNormFactors[i_nf]->fRegions;
+                            if (std::find(regions.begin(), regions.end(), fRegions[regionVec[i_bin-1]]->fName) != regions.end() ) {
+                                h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
+                                WriteDebugStatus("TRExFit::DrawSummary", "Scaling " + sh->fSample->fName + " by " + std::to_string(sh->fSample->fNormFactors[i_nf]->fNominal));
+                            }
                         }
                     }
                     //
@@ -2719,13 +2721,14 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     }
     // add the norm factors
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
-        std::string normName = fNormFactors[i_norm]->fName;
+        const std::string normName = fNormFactors[i_norm]->fName;
         if(FindInStringVector(npNames,normName)<0){
             npNames.push_back(normName);
             i_np++;
         }
-        else
+        else {
             continue;
+        }
         systNames.push_back( normName );
         for(int i_bin=1;i_bin<=Nbin;i_bin++){
             // find the systematic in the region
@@ -4064,8 +4067,10 @@ void TRExFit::CreateCustomAsimov() const{
                 // bug-fix: change normalisation factors to nominal value!
                 double factor = 1.;
                 for(const auto& norm : fSamples[i_smp]->fNormFactors){
-                    WriteDebugStatus("TRExFit::CreateCustomAsimov", "setting norm factor to " + std::to_string(norm->fNominal));
-                    factor *= norm->fNominal;
+                    if (std::find(norm->fRegions.begin(), norm->fRegions.end(), fRegions[i_ch]->fName) != norm->fRegions.end()) {
+                        WriteDebugStatus("TRExFit::CreateCustomAsimov", "setting norm factor to " + std::to_string(norm->fNominal));
+                        factor *= norm->fNominal;
+                    }
                 }
                 //
                 cash->fHist->Add(h->fHist.get(),factor);
