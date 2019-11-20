@@ -184,9 +184,9 @@ public:
     std::vector<std::string> fNtupleNameSuffs;
 
     // histogram stuff
-    double* fHistoBins;
+    std::vector<double> fHistoBins;
     int fHistoNBinsRebin;
-    double* fHistoBinsPost;
+    std::vector<double> fHistoBinsPost;
     int fHistoNBinsRebinPost;
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoPathSuffs;

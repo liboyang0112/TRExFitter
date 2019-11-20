@@ -90,9 +90,7 @@ Region::Region(const string& name) :
     fXmax(0),
     fSelection("1"),
     fMCweight("1"),
-    fHistoBins(nullptr),
     fHistoNBinsRebin(-1),
-    fHistoBinsPost(nullptr),
     fHistoNBinsRebinPost(-1),
     fNSyst(0),
     fNNorm(0),
@@ -146,8 +144,6 @@ Region::Region(const string& name) :
 //__________________________________________________________________________________
 //
 Region::~Region(){
-    delete fHistoBins;
-    delete fHistoBinsPost;
 }
 
 //__________________________________________________________________________________
@@ -232,7 +228,7 @@ void Region::AddSystematic(Systematic *syst){
 //
 void Region::SetBinning(int N, double *bins){
     fNbins = fHistoNBinsRebin = N;
-    fHistoBins = new double [N+1];
+    fHistoBins.resize(N+1);
     for(int i=0; i<=N; ++i) fHistoBins[i] = bins[i];
 }
 
@@ -246,7 +242,7 @@ void Region::Rebin(int N){
 //
 void Region::SetRebinning(int N, double *bins){
     fHistoNBinsRebinPost = N;
-    fHistoBinsPost = new double [N+1];
+    fHistoBinsPost.resize(N+1);
     for(int i=0; i<=N; ++i) fHistoBinsPost[i] = bins[i];
 }
 

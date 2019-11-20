@@ -719,10 +719,14 @@ void TRExFit::ReadNtuples(){
             h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 TH1D* htmp = nullptr;
-                if(fRegions[i_ch]->fHistoBins){
+                if(fRegions[i_ch]->fHistoBins.size() > 0){
                     htmp = HistFromNtupleBinArr( fullPaths[i_path],
-                                                 variable, fRegions[i_ch]->fHistoNBinsRebin, fRegions[i_ch]->fHistoBins,
-                                                 fullSelection, fullMCweight, fDebugNev);
+                                                 variable,
+                                                 fRegions[i_ch]->fHistoNBinsRebin,
+                                                 &fRegions[i_ch]->fHistoBins[0],
+                                                 fullSelection,
+                                                 fullMCweight,
+                                                 fDebugNev);
                 }
                 else{
                     htmp = HistFromNtuple( fullPaths[i_path],
@@ -860,10 +864,14 @@ void TRExFit::ReadNtuples(){
                     WriteDebugStatus("TRExFit::ReadNtuples", "  Syst Up full weight: " + fullMCweight);
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         TH1D* htmp = nullptr;
-                        if(reg->fHistoBins){
-                            htmp = HistFromNtupleBinArr( fullPaths[i_path],
-                                                        variable, reg->fHistoNBinsRebin, reg->fHistoBins,
-                                                        fullSelection, fullMCweight, fDebugNev);
+                        if(reg->fHistoBins.size() > 0){
+                            htmp = HistFromNtupleBinArr(fullPaths[i_path],
+                                                        variable,
+                                                        reg->fHistoNBinsRebin,
+                                                        &reg->fHistoBins[0],
+                                                        fullSelection,
+                                                        fullMCweight,
+                                                        fDebugNev);
                         }
                         else{
                             htmp = HistFromNtuple( fullPaths[i_path],
@@ -953,10 +961,14 @@ void TRExFit::ReadNtuples(){
                     fullPaths     = FullNtuplePaths(fRegions[i_ch],fSamples[i_smp],syst,false);
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         TH1D* htmp = nullptr;
-                        if(reg->fHistoBins){
-                            htmp = HistFromNtupleBinArr( fullPaths[i_path],
-                                                        variable, reg->fHistoNBinsRebin, reg->fHistoBins,
-                                                        fullSelection, fullMCweight, fDebugNev);
+                        if(reg->fHistoBins.size() > 0){
+                            htmp = HistFromNtupleBinArr(fullPaths[i_path],
+                                                        variable,
+                                                        reg->fHistoNBinsRebin,
+                                                        &reg->fHistoBins[0],
+                                                        fullSelection,
+                                                        fullMCweight,
+                                                        fDebugNev);
                         }
                         else{
                             htmp = HistFromNtuple( fullPaths[i_path],
@@ -1123,13 +1135,13 @@ void TRExFit::CorrectHistograms(){
             // Rebinning (FIXME: better to introduce a method Region::Rebin() ?)
             if(reg->fHistoNBinsRebinPost>0){
                 WriteDebugStatus("TRExFit::CorrectHistograms", "rebinning " + smp->fName + " to " + std::to_string(reg->fHistoNBinsRebinPost) + " bins.");
-                sh->fHist = std::unique_ptr<TH1>(sh->fHist->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost));
+                sh->fHist = std::unique_ptr<TH1>(sh->fHist->Rebin(reg->fHistoNBinsRebinPost,"",&reg->fHistoBinsPost[0]));
                 for(auto& syh : sh->fSyst){
                     WriteDebugStatus("TRExFit::CorrectHistograms", "  systematic " + syh->fName + " to " + std::to_string(reg->fHistoNBinsRebinPost) + " bins.");
                     if(syh==nullptr) continue;
-                    if(syh->fSystematic->fSampleUp==""   && syh->fSystematic->fHasUpVariation   && syh->fHistUp!=nullptr)   syh->fHistUp.reset(syh->fHistUp  ->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost));
+                    if(syh->fSystematic->fSampleUp==""   && syh->fSystematic->fHasUpVariation   && syh->fHistUp!=nullptr)   syh->fHistUp.reset(syh->fHistUp  ->Rebin(reg->fHistoNBinsRebinPost,"",&reg->fHistoBinsPost[0]));
                     else                                                                                                    syh->fHistUp.reset(static_cast<TH1*>(sh->fHist->Clone(syh->fHistUp->GetName())));
-                    if(syh->fSystematic->fSampleDown=="" && syh->fSystematic->fHasDownVariation && syh->fHistDown!=nullptr) syh->fHistDown.reset(syh->fHistDown->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost));
+                    if(syh->fSystematic->fSampleDown=="" && syh->fSystematic->fHasDownVariation && syh->fHistDown!=nullptr) syh->fHistDown.reset(syh->fHistDown->Rebin(reg->fHistoNBinsRebinPost,"",&reg->fHistoBinsPost[0]));
                     else                                                                                                    syh->fHistDown.reset(static_cast<TH1*>(sh->fHist->Clone(syh->fHistDown->GetName())));
                 }
                 //
@@ -1137,8 +1149,8 @@ void TRExFit::CorrectHistograms(){
                 if(smp->fSeparateGammas){
                     SystematicHist *syh = sh->GetSystematic( "stat_"+smp->fName );
                     if(syh==nullptr) continue;
-                    if(syh->fHistUp!=nullptr)   syh->fHistUp  ->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
-                    if(syh->fHistDown!=nullptr) syh->fHistDown->Rebin(reg->fHistoNBinsRebinPost,"",reg->fHistoBinsPost);
+                    if(syh->fHistUp!=nullptr)   syh->fHistUp  ->Rebin(reg->fHistoNBinsRebinPost,"",&reg->fHistoBinsPost[0]);
+                    if(syh->fHistDown!=nullptr) syh->fHistDown->Rebin(reg->fHistoNBinsRebinPost,"",&reg->fHistoBinsPost[0]);
                 }
             }
         }
@@ -6963,9 +6975,9 @@ void TRExFit::ComputeBinning(int regIter){
                 TRExFitter::SetDebugLevel(tmp_debugLevel);
                 //
                 // Pre-processing of histograms (rebinning, lumi scaling)
-                if(fRegions[regIter]->fHistoBins){
+                if(fRegions[regIter]->fHistoBins.size() > 0){
                     const char *hname = htmp->GetName();
-                    std::unique_ptr<TH1> tmp_copy(static_cast<TH1*>(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin, "tmp_copy", fRegions[regIter]->fHistoBins)));
+                    std::unique_ptr<TH1> tmp_copy(static_cast<TH1*>(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin, "tmp_copy", &fRegions[regIter]->fHistoBins[0])));
                     htmp.reset(tmp_copy.release());
                     htmp->SetName(hname);
                     if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp.get());
@@ -8578,9 +8590,9 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
             exit(EXIT_FAILURE);
         }
         //Pre-processing of histograms (rebinning, lumi scaling)
-        if(fRegions[i_ch]->fHistoBins){
+        if(fRegions[i_ch]->fHistoBins.size() > 0){
             const char *hname = htmp->GetName();
-            std::unique_ptr<TH1> tmp_copy(static_cast<TH1D*>(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", fRegions[i_ch]->fHistoBins)));
+            std::unique_ptr<TH1> tmp_copy(static_cast<TH1D*>(htmp->Rebin(fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", &fRegions[i_ch]->fHistoBins[0])));
             htmp.reset(tmp_copy.release());
             htmp->SetName(hname);
             if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp.get());
