@@ -68,6 +68,18 @@ histograms_statonly:
       paths:
         - FitExampleStatOnly
 
+histograms_morph:
+    stage: hstep
+    needs:
+      - compile
+    script:
+      - trex-fitter h config/ExampleMorphing.config
+      - ls
+      - ls FitExampleMorphing/Histograms/
+    artifacts:
+      paths:
+        - FitExampleMorphing
+
 ##
 ## "wstep" step: produces the workspace
 ##    Artifact: keeps the FitExample folder
@@ -96,7 +108,6 @@ workspace_statonly:
       - compile
       - histograms_statonly
     script:
-      - trex-fitter w config/myFitStatOnly.config StatOnlyFit=TRUE
       - trex-fitter w config/myFitStatOnly.config StatOnlyFit=TRUE >& LOG_STATONLY_w
       - cat LOG_STATONLY_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_STATONLY_w
       - ls
@@ -108,6 +119,24 @@ workspace_statonly:
     artifacts:
       paths:
         - FitExampleStatOnly
+
+workspace_morph:
+    stage: wstep
+    needs:
+      - compile
+      - histograms_morph
+    script:
+      - trex-fitter w config/ExampleMorphing.config >& LOG_MORPH_w
+      - cat LOG_MORPH_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_w
+      - ls
+      - set -e
+      - ls FitExampleMorphing
+      - ls FitExampleMorphing/RooStats/
+      - source test/scripts/check_step_w_morph.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleMorphing
 
 ##
 ## "flsstep" step: performs the fit
@@ -149,6 +178,26 @@ fit_statonly:
       - cat FitExampleStatOnly/Fits/*.txt
       - source test/scripts/check_step_f_statonly.sh
       - echo "=> Passed quick logfile checks"
+
+fit_morph:
+    stage: flsstep
+    needs:
+      - compile
+      - histograms_morph
+      - workspace_morph
+    script:
+      - trex-fitter f config/ExampleMorphing.config >& LOG_MORPH_f
+      - cat LOG_MORPH_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_f
+      - ls
+      - set -e
+      - ls FitExampleMorphing
+      - ls FitExampleMorphing/Fits/
+      - cat FitExampleMorphing/Fits/*.txt
+      - source test/scripts/check_step_f_morph.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleMorphing
 
 ##
 ## "flsstep" step: compute the limits
@@ -240,6 +289,21 @@ draw_prefit:
       paths:
         - FitExample/Plots/
 
+draw_prefit_moprh:
+    stage: draw
+    needs:
+      - compile
+      - histograms_morph
+    script:
+      - trex-fitter d config/ExampleMorphing.config >& LOG_MORPH_d
+      - cat LOG_MORPH_d | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_d
+      - ls
+      - set -e
+      - ls FitExampleMorphing
+      - ls FitExampleMorphing/Plots/
+      - source test/scripts/check_step_d_morph.sh
+      - echo "=> Passed quick logfile checks"
+
 ##
 ## "draw" step: performs the postfit plots
 ##    Artifact: keeps the Plots folder
@@ -262,6 +326,22 @@ draw_postfit:
     artifacts:
       paths:
         - FitExample/Plots/
+
+draw_postfit_morph:
+    stage: draw
+    needs:
+      - compile
+      - histograms_morph
+      - fit_morph
+    script:
+      - trex-fitter p config/ExampleMorphing.config >& LOG_MORPH_p
+      - cat LOG_MORPH_p | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_p
+      - ls
+      - set -e
+      - ls FitExampleMorphing
+      - ls FitExampleMorphing/Plots/
+      - source test/scripts/check_step_p_morph.sh
+      - echo "=> Passed quick logfile checks"
 
 ##
 ## image creation step: creates Docker container for master branch

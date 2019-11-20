@@ -1,0 +1,33 @@
+ |       | Bkg      | t#bar{t}      | t#bar{t}      | t#bar{t}      | t#bar{t} |
+ | saturated_model_sf_SR_lep_bin_0 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_1 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_2 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_3 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_4 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_5 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_6 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_7 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_8 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_9 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_10 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_11 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_12 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_13 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_14 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_15 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_16 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_17 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_18 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_19 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_20 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_21 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_22 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_23 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | saturated_model_sf_SR_lep_bin_24 |    nan    |    nan    |    nan    |    nan    |    nan    |
+ | (0.+(((topWidth-0.700000)>=0)&&(fabs(topWidth-0.700000)<0.300000))*(1.-(fabs(topWidth-0.700000))/0.300000)) | 0 / 0 | -nan / -nan | 0 / 0 | 0 / 0 | inf / inf |
+ | ttbarXsec | 0 / 0 | -nan / -nan | 0 / 0 | 0 / 0 | inf / inf |
+ | bTagSF_B_0 | 0 / 0 | -nan / -nan | 0 / 0 | 0 / 0 | inf / inf |
+ | JET_BJES_Response | 0 / 0 | -nan / -nan | 0 / 0 | 0 / 0 | inf / inf |
+ | ((((topWidth-1.000000)< 0)&&(fabs(topWidth-1.000000)<0.300000))*(1.-(fabs(topWidth-1.000000))/0.300000)+(((topWidth-1.000000)>=0)&&(fabs(topWidth-1.000000)<0.500000))*(1.-(fabs(topWidth-1.000000))/0.500000)) | 0 / 0 | -nan / -nan | 0 / 0 | 0 / 0 | inf / inf |
+ | ((((topWidth-1.500000)< 0)&&(fabs(topWidth-1.500000)<0.500000))*(1.-(fabs(topWidth-1.500000))/0.500000)+(((topWidth-1.500000)>=0)&&(fabs(topWidth-1.500000)<0.500000))*(1.-(fabs(topWidth-1.500000))/0.500000)) | 0 / 0 | -nan / -nan | 0 / 0 | 0 / 0 | inf / inf |
+ | ((((topWidth-2.000000)< 0)&&(fabs(topWidth-2.000000)<0.500000))*(1.-(fabs(topWidth-2.000000))/0.500000)+0.) | 0 / 0 | -nan / -nan | 0 / 0 | 0 / 0 | inf / inf |
