@@ -44,9 +44,9 @@ Drawing post-fit plots...
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- POST-FIT AGREEMENT EVALUATION -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- -------- STAT-ONLY --------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: --- REGION ljets_5j3b_HT:[0m
-[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 5.959877[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 5.958088[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist:   ndof        = 6[0m
-[1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 0.427700[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 0.427901[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExampleNtuple/Histograms/ljets_5j3b_HT_postFit.root[0m
@@ -55,9 +55,9 @@ Drawing post-fit plots...
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- POST-FIT AGREEMENT EVALUATION -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- -------- STAT-ONLY --------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: --- REGION ljets_6j4b_BDT:[0m
-[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 1.206083[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 1.204404[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist:   ndof        = 6[0m
-[1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 0.976583[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 0.976667[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExampleNtuple/Histograms/ljets_6j4b_BDT_postFit.root[0m
