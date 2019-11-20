@@ -128,9 +128,9 @@ public:
     SampleHist *fData;
     bool fHasSig;
     int fNSig;
-    SampleHist *fSig[MAXsamples];
+    std::vector<SampleHist*> fSig;
     int fNBkg;
-    SampleHist *fBkg[MAXsamples];
+    std::vector<SampleHist*> fBkg;
     int fNSamples;
     std::vector < std::unique_ptr<SampleHist> > fSampleHists;
     std::vector < std::unique_ptr<Sample> > fSamples;

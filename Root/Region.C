@@ -55,7 +55,9 @@ Region::Region(const string& name) :
     fData(nullptr),
     fHasSig(false),
     fNSig(0),
+    fSig(std::vector<SampleHist*>(MAXsyst)),
     fNBkg(0),
+    fBkg(std::vector<SampleHist*>(MAXsyst)),
     fNSamples(0),
     fYmaxScale(0),
     fYmin(0),
@@ -154,11 +156,11 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
         fSig[fNSig] = fSampleHists[fNSamples].get();
-        fNSig ++;
+        fNSig++;
     }
     else if(sample->fType==Sample::BACKGROUND){
         fBkg[fNBkg] = fSampleHists[fNSamples].get();
-        fNBkg ++;
+        fNBkg++;
     }
     else if(sample->fType==Sample::GHOST){
         WriteDebugStatus("Region::SetSampleHist", "Adding GHOST sample.");
@@ -616,7 +618,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     for(int i=0;i<fNSig;i++){
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
-        h = (TH1*)fSig[i]->fHist->Clone();
+        h = static_cast<TH1*>(fSig[i]->fHist->Clone());
         // set to 0 uncertainty in each bin if MCstat set to FALSE
         if(!fSig[i]->fSample->fUseMCStat && !fSig[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
@@ -682,7 +684,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     for(int i=0;i<fNBkg;i++){
         title = fBkg[i]->fSample->fTitle;
         if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
-        h = (TH1*)fBkg[i]->fHist->Clone();
+        h = static_cast<TH1*>(fBkg[i]->fHist->Clone());
         // set to 0 uncertainty in each bin if MCstat set to FALSE
         if(!fBkg[i]->fSample->fUseMCStat && !fBkg[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
