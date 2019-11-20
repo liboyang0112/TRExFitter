@@ -195,13 +195,6 @@ public:
     std::vector<std::string> fHistoNames;
     std::vector<std::string> fHistoNameSuffs;
 
-    int fNSyst;
-    std::vector < Systematic* > fSystematics;
-    int fNNorm;
-    std::vector < NormFactor* >  fNormFactors;
-    int fNShape;
-    std::vector < ShapeFactor* > fShapeFactors;
-
     // plot objects
     std::unique_ptr<TRExPlot> fPlotPreFit;
     std::unique_ptr<TRExPlot> fPlotPostFit;

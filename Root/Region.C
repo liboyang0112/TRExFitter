@@ -92,9 +92,6 @@ Region::Region(const string& name) :
     fMCweight("1"),
     fHistoNBinsRebin(-1),
     fHistoNBinsRebinPost(-1),
-    fNSyst(0),
-    fNNorm(0),
-    fNShape(0),
     fPlotPreFit(nullptr),
     fPlotPostFit(nullptr),
     fUseStatErr(false),
@@ -219,10 +216,10 @@ void Region::AddSample(Sample* sample){
 
 //__________________________________________________________________________________
 //
-void Region::AddSystematic(Systematic *syst){
-    fSystematics.push_back(syst);
-    fNSyst++;
-}
+//void Region::AddSystematic(Systematic *syst){
+//    fSystematics.push_back(syst);
+//    fNSyst++;
+//}
 
 //__________________________________________________________________________________
 //
