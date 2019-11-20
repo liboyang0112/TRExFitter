@@ -1,0 +1,64 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+                    No rights reserved, feel free to use and modify it ;)
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: config/ExampleMorphing.config[0m
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExampleMorphing[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
+[1;32m=== INFO::Region::Print:     Region: SR_lep[0m
+[1;32m=== INFO::Region::Print:     Region: CR_Wmass[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
+[1;32m=== INFO::Sample::Print::      Nom_lep[0m
+[1;32m=== INFO::Sample::Print::      Nom_Wmass[0m
+[1;32m=== INFO::Sample::Print::      PseudoData[0m
+[1;32m=== INFO::Sample::Print::      PseudoData[0m
+[1;32m=== INFO::Sample::Print::      Bkg_SR[0m
+[1;32m=== INFO::Sample::Print::      Bkg_CR[0m
+[1;32m=== INFO::Sample::Print::      Signal_0p7[0m
+[1;32m=== INFO::Sample::Print::      Signal_1p0[0m
+[1;32m=== INFO::Sample::Print::      Signal_1p5[0m
+[1;32m=== INFO::Sample::Print::      Signal_2p0[0m
+[1;32m=== INFO::Sample::Print::      Control_Wmass[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  bTagSF_B_0[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  JET_BJES_Response[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadHistos: -----------------------------[0m
+[1;32m=== INFO::TRExFit::ReadHistos: Reading histograms from file FitExampleMorphing/Histograms/FitExampleMorphing_histos.root ...[0m
+Applying systematics pruning...
+[1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::SystPruning: Apply Systematics Pruning ...[0m
+Drawing post-fit plots...
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region SR_lep ...[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- POST-FIT AGREEMENT EVALUATION -----------------------[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: --- REGION SR_lep:[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 0.000831[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   ndof        = 25[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 1.000000[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::Region::DrawPostFit: Writing file FitExampleMorphing/Histograms/SR_lep_postFit.root[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region CR_Wmass ...[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- POST-FIT AGREEMENT EVALUATION -----------------------[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: --- REGION CR_Wmass:[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 0.000006[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   ndof        = 25[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 1.000000[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::Region::DrawPostFit: Writing file FitExampleMorphing/Histograms/CR_Wmass_postFit.root[0m
+[1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
+[1;32m=== INFO::TRExFit::PrintSystTables: Printing syst tables[0m

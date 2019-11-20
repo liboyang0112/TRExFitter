@@ -66,7 +66,7 @@ echo "Compiling the code. Cleaning it first, and then recompile."
 rm -rf build/
 mkdir build && cd build/
 cmake ../
-cmake --build ./
+make -j4
 cd ..
 if [[ ! -f build/bin/trex-fitter ]]; then
   echo "!!ERROR!! The binary file is not found. Need to investigate !!"
@@ -93,6 +93,13 @@ for step in h w f ; do
   ./build/bin/trex-fitter $step config/myFitStatOnly.config StatOnlyFit=TRUE  >& LOG_STATONLY_$step
   cat LOG_STATONLY_$step | grep -v "TRExFitter" >& test/logs/LOG_STATONLY_$step
   rm -f LOG_STATONLY_$step
+done
+
+for step in h w f d p ; do
+  echo "==> Morphing $step step ongoing"
+  ./build/bin/trex-fitter $step config/ExampleMorphing.config >& LOG_MORPH_$step
+  cat LOG_MORPH_$step | grep -v "TRExFitter" >& test/logs/LOG_MORPH_$step
+  rm -f LOG_MORPH_$step
 done
 ##
 ## Making a git status and asks if the files have to be added
