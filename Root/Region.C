@@ -55,7 +55,9 @@ Region::Region(const string& name) :
     fData(nullptr),
     fHasSig(false),
     fNSig(0),
+    fSig(std::vector<SampleHist*>(MAXsyst)),
     fNBkg(0),
+    fBkg(std::vector<SampleHist*>(MAXsyst)),
     fNSamples(0),
     fYmaxScale(0),
     fYmin(0),
@@ -68,6 +70,12 @@ Region::Region(const string& name) :
     fRatioType("DATA/MC"),
     fTot(nullptr),
     fErr(nullptr),
+    fTotUp(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
+    fTotDown(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
+    fTot_postFit(nullptr),
+    fErr_postFit(nullptr),
+    fTotUp_postFit(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
+    fTotDown_postFit(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
     fBinTransfo(""),
     fTransfoDzBkg(0.),
     fTransfoDzSig(0.),
@@ -84,13 +92,8 @@ Region::Region(const string& name) :
     fXmax(0),
     fSelection("1"),
     fMCweight("1"),
-    fHistoBins(nullptr),
     fHistoNBinsRebin(-1),
-    fHistoBinsPost(nullptr),
     fHistoNBinsRebinPost(-1),
-    fNSyst(0),
-    fNNorm(0),
-    fNShape(0),
     fPlotPreFit(nullptr),
     fPlotPostFit(nullptr),
     fUseStatErr(false),
@@ -123,6 +126,7 @@ Region::Region(const string& name) :
     fLegendX2(-1),
     fLegendY(-1),
     fLegendNColumns(2) {
+    
 
     int canvasWidth = 600;
     int canvasHeight = 700;
@@ -139,11 +143,6 @@ Region::Region(const string& name) :
 //__________________________________________________________________________________
 //
 Region::~Region(){
-    for(auto ismp : fSampleHists) {
-        delete ismp;
-    }
-    delete fHistoBins;
-    delete fHistoBinsPost;
 }
 
 //__________________________________________________________________________________
@@ -152,16 +151,16 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
     fSampleHists.emplace_back(new SampleHist( sample, histoName, fileName ));
     if(sample->fType==Sample::DATA){
         fHasData = true;
-        fData = fSampleHists[fNSamples];
+        fData = fSampleHists[fNSamples].get();
     }
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
-        fSig[fNSig] = fSampleHists[fNSamples];
-        fNSig ++;
+        fSig[fNSig] = fSampleHists[fNSamples].get();
+        fNSig++;
     }
     else if(sample->fType==Sample::BACKGROUND){
-        fBkg[fNBkg] = fSampleHists[fNSamples];
-        fNBkg ++;
+        fBkg[fNBkg] = fSampleHists[fNSamples].get();
+        fNBkg++;
     }
     else if(sample->fType==Sample::GHOST){
         WriteDebugStatus("Region::SetSampleHist", "Adding GHOST sample.");
@@ -175,7 +174,7 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
     fSampleHists[fNSamples]->fFitName = fFitName;
     fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
     fNSamples++;
-    return fSampleHists[fNSamples-1];
+    return fSampleHists[fNSamples-1].get();
 }
 
 //__________________________________________________________________________________
@@ -184,15 +183,15 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     fSampleHists.emplace_back(new SampleHist( sample, hist ));
     if(sample->fType==Sample::DATA){
         fHasData = true;
-        fData = fSampleHists[fNSamples];
+        fData = fSampleHists[fNSamples].get();
     }
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
-        fSig[fNSig] = fSampleHists[fNSamples];
+        fSig[fNSig] = fSampleHists[fNSamples].get();
         fNSig ++;
     }
     else if(sample->fType==Sample::BACKGROUND){
-        fBkg[fNBkg] = fSampleHists[fNSamples];
+        fBkg[fNBkg] = fSampleHists[fNSamples].get();
         fNBkg ++;
     }
     else if(sample->fType==Sample::GHOST){
@@ -207,28 +206,21 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     fSampleHists[fNSamples]->fFitName = fFitName;
     fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
     fNSamples++;
-    return fSampleHists[fNSamples-1];
+    return fSampleHists[fNSamples-1].get();
 }
 
 //__________________________________________________________________________________
 //
 void Region::AddSample(Sample* sample){
-    fSamples.push_back(sample);
+    fSamples.emplace_back(std::move(sample));
     fNSamples++;
-}
-
-//__________________________________________________________________________________
-//
-void Region::AddSystematic(Systematic *syst){
-    fSystematics.push_back(syst);
-    fNSyst++;
 }
 
 //__________________________________________________________________________________
 //
 void Region::SetBinning(int N, double *bins){
     fNbins = fHistoNBinsRebin = N;
-    fHistoBins = new double [N+1];
+    fHistoBins.resize(N+1);
     for(int i=0; i<=N; ++i) fHistoBins[i] = bins[i];
 }
 
@@ -242,7 +234,7 @@ void Region::Rebin(int N){
 //
 void Region::SetRebinning(int N, double *bins){
     fHistoNBinsRebinPost = N;
-    fHistoBinsPost = new double [N+1];
+    fHistoBinsPost.resize(N+1);
     for(int i=0; i<=N; ++i) fHistoBinsPost[i] = bins[i];
 }
 
@@ -262,7 +254,7 @@ void Region::SetRegionDataType( DataType type ){
 //
 SampleHist* Region::GetSampleHist(const std::string &sampleName) const{
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSampleHists[i_smp]->fName == sampleName) return fSampleHists[i_smp];
+        if(fSampleHists[i_smp]->fName == sampleName) return fSampleHists[i_smp].get();
     }
     return nullptr;
 }
@@ -428,8 +420,8 @@ void Region::BuildPreFitErrorHist(){
         systName = fSystNames[i_syst];
 
         // initialize the tot variation hists
-        fTotUp[i_syst]   = (TH1*)fTot->Clone(Form("h_%s_tot_%s_Up",  fName.c_str(), systName.c_str()));
-        fTotDown[i_syst] = (TH1*)fTot->Clone(Form("h_%s_tot_%s_Down",fName.c_str(), systName.c_str()));
+        fTotUp[i_syst].reset(static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Up",  fName.c_str(), systName.c_str()))));
+        fTotDown[i_syst].reset(static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Down",fName.c_str(), systName.c_str()))));
         // - loop on bins
         for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
             diffUp = 0.;
@@ -505,8 +497,8 @@ void Region::BuildPreFitErrorHist(){
                 const int whichsyst = FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
                 auto h_diff_up   = std::unique_ptr<TH1> (static_cast<TH1*> (h_up[whichsyst]  ->Clone(Form("%s_%s","clone_",h_up[whichsyst]  ->GetName()))));
                 auto h_diff_down = std::unique_ptr<TH1> (static_cast<TH1*> (h_down[whichsyst]->Clone(Form("%s_%s","clone_",h_down[whichsyst]->GetName()))));
-                h_diff_up  ->Add(fTotUp[  i_syst],fTot,1,-1);
-                h_diff_down->Add(fTotDown[i_syst],fTot,1,-1);
+                h_diff_up  ->Add(fTotUp[  i_syst].get(),fTot.get(),1,-1);
+                h_diff_down->Add(fTotDown[i_syst].get(),fTot.get(),1,-1);
                 h_up[   FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_up.get());
                 h_down[ FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_down.get());
                 break;
@@ -519,10 +511,10 @@ void Region::BuildPreFitErrorHist(){
             fTotUp[i_syst]  ->Scale(fTot->Integral()/fTotUp[i_syst]  ->Integral());
             fTotDown[i_syst]->Scale(fTot->Integral()/fTotDown[i_syst]->Integral());
         }
-        h_up.  push_back( fTotUp[i_syst]   );
-        h_down.push_back( fTotDown[i_syst] );
+        h_up.  push_back(fTotUp[i_syst].get() );
+        h_down.push_back(fTotDown[i_syst].get());
     }
-    fErr = BuildTotError( fTot, h_up, h_down, fNpNames );
+    fErr.reset(BuildTotError( fTot.get(), h_up, h_down, fNpNames ));
     fErr->SetName("g_totErr");
     // at this point fTot and fErr should be ready
 
@@ -543,7 +535,7 @@ void Region::BuildPreFitErrorHist(){
             }
         }
         if(fGetChi2==1) fNpNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot, h_up, fNpNames );
+        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot.get(), h_up, fNpNames );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -613,14 +605,14 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     //
     // build h_tot
     //
-    fTot = nullptr;
+    fTot.reset(nullptr);
     string title;
     TH1* h = nullptr;
     if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
     for(int i=0;i<fNSig;i++){
         title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
-        h = (TH1*)fSig[i]->fHist->Clone();
+        h = static_cast<TH1*>(fSig[i]->fHist->Clone());
         // set to 0 uncertainty in each bin if MCstat set to FALSE
         if(!fSig[i]->fSample->fUseMCStat && !fSig[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
@@ -680,14 +672,14 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         }
         if(TRExFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
         if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG){
-            if(fTot==nullptr) fTot = (TH1*)h->Clone("h_tot");
+            if(fTot==nullptr) fTot.reset(static_cast<TH1*>(h->Clone("h_tot")));
             else              fTot->Add(h);
         }
     }
     for(int i=0;i<fNBkg;i++){
         title = fBkg[i]->fSample->fTitle;
         if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
-        h = (TH1*)fBkg[i]->fHist->Clone();
+        h = static_cast<TH1*>(fBkg[i]->fHist->Clone());
         // set to 0 uncertainty in each bin if MCstat set to FALSE
         if(!fBkg[i]->fSample->fUseMCStat && !fBkg[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
@@ -737,7 +729,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
             }
         }
         p->AddBackground(h,title);
-        if(fTot==nullptr) fTot = (TH1*)h->Clone("h_tot");
+        if(fTot==nullptr) fTot.reset(static_cast<TH1*>(h->Clone("h_tot")));
         else          fTot->Add(h);
     }
 
@@ -755,7 +747,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
         }
     }
 
-    p->SetTotBkg((TH1*)fTot);
+    p->SetTotBkg(fTot.get());
     p->BlindData();
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     fBlindedBins = p->h_blinding;
@@ -773,7 +765,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     //
     // Sets the last ingredients in the TRExPlot object
     //
-    p->SetTotBkgAsym(fErr);
+    p->SetTotBkgAsym(fErr.get());
     p->fATLASlabel = fATLASlabel;
     p->fRatioYtitle = fRatioYtitle;
     p->fRatioType = fRatioType;
@@ -800,7 +792,7 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
     double multNorm = 1.;
     double multShape = 0.;
     double systValue = 0.;
-    SampleHist *sh = fSampleHists[i];
+    SampleHist *sh = fSampleHists[i].get();
     for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
         SystematicHist *syh = sh->fSyst[i_syst].get();
         std::string systName = syh->fName;
@@ -1261,9 +1253,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         // Initialize the tot variation hists
         //
-        fTotUp_postFit[i_syst]   = (TH1*)fTot_postFit->Clone(Form("h_tot_%s_Up_postFit",  systName.c_str()));
+        fTotUp_postFit[i_syst].reset(static_cast<TH1*>(fTot_postFit->Clone(Form("h_tot_%s_Up_postFit",  systName.c_str()))));
         fTotUp_postFit[i_syst] -> Scale(0); //initialising the content to 0
-        fTotDown_postFit[i_syst] = (TH1*)fTot_postFit->Clone(Form("h_tot_%s_Down_postFit",systName.c_str()));
+        fTotDown_postFit[i_syst].reset(static_cast<TH1*>(fTot_postFit->Clone(Form("h_tot_%s_Down_postFit",systName.c_str()))));
         fTotDown_postFit[i_syst] -> Scale(0); //initialising the content to 0
 
         // - loop on bins
@@ -1300,11 +1292,11 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     std::vector< TH1* > h_down;
     std::vector<std::string> systNuisPars;
     for(size_t i_syst=0;i_syst<fSystNames.size();++i_syst){
-        h_up.  push_back( fTotUp_postFit[i_syst]   );
-        h_down.push_back( fTotDown_postFit[i_syst] );
+        h_up.  push_back(fTotUp_postFit[i_syst].get()  );
+        h_down.push_back(fTotDown_postFit[i_syst].get());
         systNuisPars.push_back(TRExFitter::NPMAP[fSystNames[i_syst]]);
     }
-    fErr_postFit = BuildTotError( fTot_postFit, h_up, h_down, systNuisPars, fitRes->fCorrMatrix.get() );
+    fErr_postFit.reset(BuildTotError( fTot_postFit.get(), h_up, h_down, systNuisPars, fitRes->fCorrMatrix.get()));
     fErr_postFit->SetName("g_totErr_postFit");
     // at this point fTot and fErr _postFit should be ready
 
@@ -1325,7 +1317,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             }
         }
         if(fGetChi2==1) fSystNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix.get() );
+        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot_postFit.get(), h_up, fSystNames, fitRes->fCorrMatrix.get() );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -1401,7 +1393,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     //
     TH1* hSmpNew[MAXsamples];
     for(int i=0;i<fNSamples;i++){
-        hSmpNew[i] = (TH1*)fSampleHists[i]->fHist->Clone();
+        hSmpNew[i] = static_cast<TH1*>(fSampleHists[i]->fHist->Clone());
         // set to 0 uncertainty in each bin if MCstat set to FALSE
         if((!fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas) || fUseGammaPulls){
             for(int i_bin=0;i_bin<hSmpNew[i]->GetNbinsX()+2;i_bin++) hSmpNew[i]->SetBinError(i_bin,0.);
@@ -1568,7 +1560,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         double totToScale = 0;
         std::vector<int> shIdxToScale;
         for(int i=0;i<fNSamples;i++){
-            SampleHist *sh = fSampleHists[i];
+            SampleHist *sh = fSampleHists[i].get();
             if(sh->fHist==nullptr) continue;
             if(sh->fSample->fType==Sample::GHOST){
                 WriteWarningStatus("Region::DrawPostFit","Requested to scale to data a GHOST sample, " + sh->fSample->fName + ". Skipping this sample.");
@@ -1637,7 +1629,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
-        if(j==0) fTot_postFit = (TH1*)hSmpNew[i]->Clone("h_tot_postFit");
+        if(j==0) fTot_postFit.reset(static_cast<TH1*>(hSmpNew[i]->Clone("h_tot_postFit")));
         else fTot_postFit->Add(hSmpNew[i]);
         j++;
     }
@@ -1651,7 +1643,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         }
     }
 
-    p->SetTotBkg(fTot_postFit);
+    p->SetTotBkg(fTot_postFit.get());
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
 
     //
@@ -1676,7 +1668,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     //
     // 5) Finishes configuration of TRExPlot objects
     //
-    p->SetTotBkgAsym(fErr_postFit);
+    p->SetTotBkgAsym(fErr_postFit.get());
     p->fATLASlabel = fATLASlabel;
     p->fRatioYtitle = fRatioYtitle;
     p->fRatioType = fRatioType;
@@ -1934,8 +1926,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
 
 
     double Ncol = 2.;
-    for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-        sh = fSampleHists[i_smp];
+    for(std::size_t i_smp=0;i_smp<fSampleHists.size();i_smp++){
+        sh = fSampleHists[i_smp].get();
         s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
         if(s->fType==Sample::GHOST) continue;
@@ -1951,8 +1943,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
     }
     //
     double i_col = 1.;
-    for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-        sh = fSampleHists[i_smp];
+    for(std::size_t i_smp=0;i_smp<fSampleHists.size();i_smp++){
+        sh = fSampleHists[i_smp].get();
         s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
         if(s->fType==Sample::GHOST) continue;
@@ -1985,8 +1977,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
             texout << "  " << fixedTitle;
         }
         else                                                texout << " " << fSystNames[i_syst];
-        for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-            sh = fSampleHists[i_smp];
+        for(std::size_t i_smp=0;i_smp<fSampleHists.size();i_smp++){
+            sh = fSampleHists[i_smp].get();
             s = sh->fSample;
             if(s->fType==Sample::DATA) continue;
             if(s->fType==Sample::GHOST) continue;
@@ -2025,8 +2017,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
         //--- Get systematic names per category and sample
         std::set<std::string> category_names;
         std::map<std::string, std::map<std::string, std::vector<std::string> > > category_syst_names;
-        for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-            sh = fSampleHists[i_smp];
+        for(std::size_t i_smp=0;i_smp<fSampleHists.size();i_smp++){
+            sh = fSampleHists[i_smp].get();
             s = sh->fSample;
             for(int i_samplesyst=0; i_samplesyst<(int)s->fSystematics.size();i_samplesyst++){
                 if(s->fType==Sample::DATA) continue;
@@ -2049,8 +2041,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
         for (auto category : category_names){
             out_cat << " | " << category;
             texout_cat << " " << category;
-            for(int i_smp=0;i_smp<(int)fSampleHists.size();i_smp++){
-                sh = fSampleHists[i_smp];
+            for(std::size_t i_smp=0;i_smp<fSampleHists.size();i_smp++){
+                sh = fSampleHists[i_smp].get();
                 s = sh->fSample;
                 if(s->fType==Sample::DATA) continue;
                 if(s->fType==Sample::GHOST) continue;
@@ -2525,7 +2517,7 @@ void Region::SystPruning(PruningUtil *pu){
     else if(pu->fStrategy==2){
         hTot = GetTotHist(true); // include signal
     }
-    for(auto sh : fSampleHists){
+    for(auto& sh : fSampleHists){
         sh->SystPruning(pu,hTot);
         //
         // flag overall systematics as no shape also for pruning purposes
@@ -2557,7 +2549,7 @@ void Region::SystPruning(PruningUtil *pu){
     }
     //
     // reference pruning
-    for(auto sh : fSampleHists){
+    for(auto& sh : fSampleHists){
         for(auto& syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
@@ -2585,15 +2577,15 @@ void Region::SystPruning(PruningUtil *pu){
 //
 TH1* Region::GetTotHist(bool includeSignal){
     TH1* hTot = nullptr;
-    for(auto sh : fSampleHists){
+    for(auto& sh : fSampleHists){
         if(!sh->fSample) continue;
         if(sh->fSample->fType==Sample::GHOST) continue;
         if(sh->fSample->fType==Sample::DATA) continue;
         if(!includeSignal && sh->fSample->fType==Sample::SIGNAL) continue;
         if(!sh->fHist) continue;
-        TH1* hTmp = (TH1*)sh->fHist->Clone(("hTot_"+fName).c_str());
+        TH1* hTmp = static_cast<TH1*>(sh->fHist->Clone(("hTot_"+fName).c_str()));
         // scale accoring to nominal SF (considering morphing as well)
-        const double& scale = GetNominalMorphScale(sh);
+        const double& scale = GetNominalMorphScale(sh.get());
         hTmp->Scale(scale);
         if(!hTot) hTot = hTmp;
         else{

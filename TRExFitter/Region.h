@@ -128,12 +128,12 @@ public:
     SampleHist *fData;
     bool fHasSig;
     int fNSig;
-    SampleHist *fSig[MAXsamples];
+    std::vector<SampleHist*> fSig;
     int fNBkg;
-    SampleHist *fBkg[MAXsamples];
+    std::vector<SampleHist*> fBkg;
     int fNSamples;
-    std::vector < SampleHist* > fSampleHists;
-    std::vector < Sample* > fSamples;
+    std::vector < std::unique_ptr<SampleHist> > fSampleHists;
+    std::vector < std::unique_ptr<Sample> > fSamples;
     double fYmaxScale;
     double fYmin;
     double fYmax;
@@ -145,16 +145,16 @@ public:
     std::string fRatioType;
 
     // to draw
-    TH1* fTot;
-    TGraphAsymmErrors *fErr;
-    TH1* fTotUp[MAXsyst];
-    TH1* fTotDown[MAXsyst];
+    std::unique_ptr<TH1> fTot;
+    std::unique_ptr<TGraphAsymmErrors> fErr;
+    std::vector<std::unique_ptr<TH1> > fTotUp;
+    std::vector<std::unique_ptr<TH1> > fTotDown;
 
     // post fit
-    TH1* fTot_postFit;
-    TGraphAsymmErrors *fErr_postFit;
-    TH1* fTotUp_postFit[MAXsyst];
-    TH1* fTotDown_postFit[MAXsyst];
+    std::unique_ptr<TH1> fTot_postFit;
+    std::unique_ptr<TGraphAsymmErrors> fErr_postFit;
+    std::vector<std::unique_ptr<TH1> > fTotUp_postFit;
+    std::vector<std::unique_ptr<TH1> > fTotDown_postFit;
 
     // ntuple stuff
     std::string fBinTransfo;
@@ -184,9 +184,9 @@ public:
     std::vector<std::string> fNtupleNameSuffs;
 
     // histogram stuff
-    double* fHistoBins;
+    std::vector<double> fHistoBins;
     int fHistoNBinsRebin;
-    double* fHistoBinsPost;
+    std::vector<double> fHistoBinsPost;
     int fHistoNBinsRebinPost;
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoPathSuffs;
@@ -194,13 +194,6 @@ public:
     std::vector<std::string> fHistoFileSuffs;
     std::vector<std::string> fHistoNames;
     std::vector<std::string> fHistoNameSuffs;
-
-    int fNSyst;
-    std::vector < Systematic* > fSystematics;
-    int fNNorm;
-    std::vector < NormFactor* >  fNormFactors;
-    int fNShape;
-    std::vector < ShapeFactor* > fShapeFactors;
 
     // plot objects
     std::unique_ptr<TRExPlot> fPlotPreFit;
