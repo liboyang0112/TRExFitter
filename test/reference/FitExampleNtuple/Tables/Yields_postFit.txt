@@ -1,0 +1,7 @@
+ |       | 5j >=3b | >=6j >=3b | 
+ | t#bar{t} + light | 0 pm 0 | 0 pm 0 | 
+ | t#bar{t} + #geq1c | 0 pm 0 | 0 pm 0 | 
+ | t#bar{t} + #geq1b | 0 pm 0 | 0 pm 0 | 
+ | t#bar{t}H | 0 pm 0 | 0 pm 0 | 
+ | Total | 0 pm 0 | 0 pm 0 | 
+ | Data | 963 | 1042 | 

@@ -162,7 +162,7 @@ workspace_ntuple:
       - set -e
       - ls FitExampleNtuple
       - ls FitExampleNtuple/RooStats/
-      - source test/scripts/FitExampleNtuple/check_step_w.sh
+      - source test/scripts/FitExampleNtuple/check_step_w_ntuple.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -228,6 +228,26 @@ fit_morph:
     artifacts:
       paths:
         - FitExampleMorphing
+
+fit_ntuple:
+    stage: flsstep
+    needs:
+      - compile
+      - histograms_ntuple
+      - workspace_ntuple
+    script:
+      - trex-fitter f test/configs/FitExampleNtuple.config >& LOG_NTUPLE_f
+      - cat LOG_NTUPLE_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_NTUPLE_f
+      - ls
+      - set -e
+      - ls FitExampleNtuple
+      - ls FitExampleNtuple/Fits/
+      - cat FitExampleNtuple/Fits/*.txt
+      - source test/scripts/FitExampleNtuple/check_step_f_ntuple.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleNtuple
 
 ##
 ## "flsstep" step: compute the limits
@@ -319,7 +339,7 @@ draw_prefit:
       paths:
         - FitExample/Plots/
 
-draw_prefit_moprh:
+draw_prefit_morph:
     stage: draw
     needs:
       - compile
@@ -332,6 +352,21 @@ draw_prefit_moprh:
       - ls FitExampleMorphing
       - ls FitExampleMorphing/Plots/
       - source test/scripts/check_step_d_morph.sh
+      - echo "=> Passed quick logfile checks"
+
+draw_prefit_ntuple:
+    stage: draw
+    needs:
+      - compile
+      - histograms_ntuple
+    script:
+      - trex-fitter d test/configs/FitExampleNtuple.config >& LOG_NTUPLE_d
+      - cat LOG_NTUPLE_d | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_NTUPLE_d
+      - ls
+      - set -e
+      - ls FitExampleNtuple
+      - ls FitExampleNtuple/Plots/
+      - source test/scripts/FitExampleNtuple/check_step_d_ntuple.sh
       - echo "=> Passed quick logfile checks"
 
 ##
@@ -371,6 +406,22 @@ draw_postfit_morph:
       - ls FitExampleMorphing
       - ls FitExampleMorphing/Plots/
       - source test/scripts/check_step_p_morph.sh
+      - echo "=> Passed quick logfile checks"
+
+draw_postfit_ntuple:
+    stage: draw
+    needs:
+      - compile
+      - histograms_ntuple
+      - fit_ntuple
+    script:
+      - trex-fitter p test/configs/FitExampleNtuple.config >& LOG_NTUPLE_p
+      - cat LOG_NTUPLE_p | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_NTUPLE_p
+      - ls
+      - set -e
+      - ls FitExampleNtuple
+      - ls FitExampleNtuple/Plots/
+      - source test/scripts/FitExampleNtuple/check_step_p_ntuple.sh
       - echo "=> Passed quick logfile checks"
 
 ##
