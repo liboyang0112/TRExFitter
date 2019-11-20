@@ -5,7 +5,7 @@ image: gitlab-registry.cern.ch/ci-tools/ci-worker:cc7
 ##
 stages:
   - build
-  - hstep
+  - hnstep
   - wstep
   - flsstep
   - rstep
@@ -41,11 +41,11 @@ compile:
       - build
 
 ##
-## "hstep" step: produces the input histograms for TRExFitter
+## "hnstep" step: produces the input histograms for TRExFitter
 ##    Artifact: keeps the FitExample folder
 ##
 histograms_full:
-    stage: hstep
+    stage: hnstep
     needs:
       - compile
     script:
@@ -57,7 +57,7 @@ histograms_full:
         - FitExample
 
 histograms_statonly:
-    stage: hstep
+    stage: hnstep
     needs:
       - compile
     script:
@@ -69,7 +69,7 @@ histograms_statonly:
         - FitExampleStatOnly
 
 histograms_morph:
-    stage: hstep
+    stage: hnstep
     needs:
       - compile
     script:
@@ -79,6 +79,18 @@ histograms_morph:
     artifacts:
       paths:
         - FitExampleMorphing
+
+histograms_ntuple:
+    stage: hnstep
+    needs:
+      - compile
+    script:
+      - trex-fitter n test/configs/FitExampleNtuple.config
+      - ls
+      - ls FitExampleNtuple/Histograms/
+    artifacts:
+      paths:
+        - FitExampleNtuple
 
 ##
 ## "wstep" step: produces the workspace
@@ -137,6 +149,24 @@ workspace_morph:
     artifacts:
       paths:
         - FitExampleMorphing
+
+workspace_ntuple:
+    stage: wstep
+    needs:
+      - compile
+      - histograms_ntuple
+    script:
+      - trex-fitter w test/configs/FitExampleNtuple.config >& LOG_NTUPLE_w
+      - cat LOG_NTUPLE_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_NTUPLE_w
+      - ls
+      - set -e
+      - ls FitExampleNtuple
+      - ls FitExampleNtuple/RooStats/
+      - source test/scripts/FitExampleNtuple/check_step_w.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleNtuple
 
 ##
 ## "flsstep" step: performs the fit
