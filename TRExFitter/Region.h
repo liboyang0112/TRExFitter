@@ -146,13 +146,13 @@ public:
 
     // to draw
     std::unique_ptr<TH1> fTot;
-    TGraphAsymmErrors *fErr;
+    std::unique_ptr<TGraphAsymmErrors> fErr;
     TH1* fTotUp[MAXsyst];
     TH1* fTotDown[MAXsyst];
 
     // post fit
-    TH1* fTot_postFit;
-    TGraphAsymmErrors *fErr_postFit;
+    std::unique_ptr<TH1> fTot_postFit;
+    std::unique_ptr<TGraphAsymmErrors> fErr_postFit;
     TH1* fTotUp_postFit[MAXsyst];
     TH1* fTotDown_postFit[MAXsyst];
 

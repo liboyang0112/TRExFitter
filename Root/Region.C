@@ -68,6 +68,8 @@ Region::Region(const string& name) :
     fRatioType("DATA/MC"),
     fTot(nullptr),
     fErr(nullptr),
+    fTot_postFit(nullptr),
+    fErr_postFit(nullptr),
     fBinTransfo(""),
     fTransfoDzBkg(0.),
     fTransfoDzSig(0.),
@@ -518,7 +520,7 @@ void Region::BuildPreFitErrorHist(){
         h_up.  push_back( fTotUp[i_syst]   );
         h_down.push_back( fTotDown[i_syst] );
     }
-    fErr = BuildTotError( fTot.get(), h_up, h_down, fNpNames );
+    fErr.reset(BuildTotError( fTot.get(), h_up, h_down, fNpNames ));
     fErr->SetName("g_totErr");
     // at this point fTot and fErr should be ready
 
@@ -771,7 +773,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     //
     // Sets the last ingredients in the TRExPlot object
     //
-    p->SetTotBkgAsym(fErr);
+    p->SetTotBkgAsym(fErr.get());
     p->fATLASlabel = fATLASlabel;
     p->fRatioYtitle = fRatioYtitle;
     p->fRatioType = fRatioType;
@@ -1263,9 +1265,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         // Initialize the tot variation hists
         //
-        fTotUp_postFit[i_syst]   = (TH1*)fTot_postFit->Clone(Form("h_tot_%s_Up_postFit",  systName.c_str()));
+        fTotUp_postFit[i_syst]   = static_cast<TH1*>(fTot_postFit->Clone(Form("h_tot_%s_Up_postFit",  systName.c_str())));
         fTotUp_postFit[i_syst] -> Scale(0); //initialising the content to 0
-        fTotDown_postFit[i_syst] = (TH1*)fTot_postFit->Clone(Form("h_tot_%s_Down_postFit",systName.c_str()));
+        fTotDown_postFit[i_syst] = static_cast<TH1*>(fTot_postFit->Clone(Form("h_tot_%s_Down_postFit",systName.c_str())));
         fTotDown_postFit[i_syst] -> Scale(0); //initialising the content to 0
 
         // - loop on bins
@@ -1306,7 +1308,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         h_down.push_back( fTotDown_postFit[i_syst] );
         systNuisPars.push_back(TRExFitter::NPMAP[fSystNames[i_syst]]);
     }
-    fErr_postFit = BuildTotError( fTot_postFit, h_up, h_down, systNuisPars, fitRes->fCorrMatrix.get() );
+    fErr_postFit.reset(BuildTotError( fTot_postFit.get(), h_up, h_down, systNuisPars, fitRes->fCorrMatrix.get()));
     fErr_postFit->SetName("g_totErr_postFit");
     // at this point fTot and fErr _postFit should be ready
 
@@ -1327,7 +1329,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             }
         }
         if(fGetChi2==1) fSystNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot_postFit, h_up, fSystNames, fitRes->fCorrMatrix.get() );
+        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot_postFit.get(), h_up, fSystNames, fitRes->fCorrMatrix.get() );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -1638,7 +1640,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
-        if(j==0) fTot_postFit = (TH1*)hSmpNew[i]->Clone("h_tot_postFit");
+        if(j==0) fTot_postFit.reset(static_cast<TH1*>(hSmpNew[i]->Clone("h_tot_postFit")));
         else fTot_postFit->Add(hSmpNew[i]);
         j++;
     }
@@ -1652,7 +1654,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         }
     }
 
-    p->SetTotBkg(fTot_postFit);
+    p->SetTotBkg(fTot_postFit.get());
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
 
     //
@@ -1677,7 +1679,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     //
     // 5) Finishes configuration of TRExPlot objects
     //
-    p->SetTotBkgAsym(fErr_postFit);
+    p->SetTotBkgAsym(fErr_postFit.get());
     p->fATLASlabel = fATLASlabel;
     p->fRatioYtitle = fRatioYtitle;
     p->fRatioType = fRatioType;

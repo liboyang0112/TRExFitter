@@ -2596,8 +2596,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             //
             if(isPostFit){
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit;
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
                 }
                 else{
                     h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx];
@@ -2629,7 +2629,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                     if(isPostFit){
                         h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst];
                         h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[j_syst];
-                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
                     }
                     else{
                         h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[j_syst];
@@ -2664,8 +2664,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                     }
                 }
                 if(syst_idx<0){
-                    h_tmp_Up   = region->fTot_postFit;
-                    h_tmp_Down = region->fTot_postFit;
+                    h_tmp_Up   = region->fTot_postFit.get();
+                    h_tmp_Down = region->fTot_postFit.get();
                 }
                 else{
                     h_tmp_Up   = region->fTotUp_postFit[syst_idx];
@@ -2702,8 +2702,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                         }
                     }
                     if(syst_idx<0){
-                        h_tmp_Up   = region->fTot_postFit;
-                        h_tmp_Down = region->fTot_postFit;
+                        h_tmp_Up   = region->fTot_postFit.get();
+                        h_tmp_Down = region->fTot_postFit.get();
                     }
                     else{
                         h_tmp_Up   = region->fTotUp_postFit[syst_idx];
@@ -2738,8 +2738,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             //
             if(isPostFit){
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit;
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
                 }
                 else{
                     h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx];
@@ -3472,8 +3472,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             //
             if(isPostFit){
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit;
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
+                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
                 }
                 else{
                     h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx];
@@ -3505,7 +3505,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                     if(isPostFit){
                         h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst];
                         h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[j_syst];
-                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot_postFit;
+                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
                     }
                     else{
                         h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[j_syst];
