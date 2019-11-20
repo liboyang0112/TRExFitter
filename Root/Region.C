@@ -218,13 +218,6 @@ void Region::AddSample(Sample* sample){
 
 //__________________________________________________________________________________
 //
-//void Region::AddSystematic(Systematic *syst){
-//    fSystematics.push_back(syst);
-//    fNSyst++;
-//}
-
-//__________________________________________________________________________________
-//
 void Region::SetBinning(int N, double *bins){
     fNbins = fHistoNBinsRebin = N;
     fHistoBins.resize(N+1);
