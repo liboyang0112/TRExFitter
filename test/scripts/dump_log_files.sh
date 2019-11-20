@@ -101,6 +101,13 @@ for step in h w f d p ; do
   cat LOG_MORPH_$step | grep -v "TRExFitter" >& test/logs/LOG_MORPH_$step
   rm -f LOG_MORPH_$step
 done
+
+for step in n w f d p ; do
+  echo "==> Ntuple $step step ongoing"
+  ./build/bin/trex-fitter $step test/configs/FitExampleNtuple.config >& LOG_NTUPLE_$step
+  cat LOG_NTUPLE_$step | grep -v "TRExFitter" >& test/logs/FitExampleNtuple/LOG_NTUPLE_$step
+  rm -f LOG_NTUPLE_$step
+done
 ##
 ## Making a git status and asks if the files have to be added
 ##
