@@ -327,7 +327,7 @@ draw_postfit:
       paths:
         - FitExample/Plots/
 
-draw_postfit:
+draw_postfit_morph:
     stage: draw
     needs:
       - compile
