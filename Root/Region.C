@@ -271,13 +271,6 @@ void Region::BuildPreFitErrorHist(){
     fNpNames.clear();
     std::map<std::string,std::string> origShapeSystName;
     std::map<std::string,bool> systIsThere;
-    systIsThere.clear();
-    TH1* hNom = nullptr;
-    TH1* hUp = nullptr;
-    TH1* hDown = nullptr;
-    string systName = "";
-    string systNuisPar = "";
-    SystematicHist *sh = nullptr;
 
     //
     // Collect all the systematics on all the samples
@@ -291,14 +284,14 @@ void Region::BuildPreFitErrorHist(){
         // non-SHAPE Systematics
         //
         for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
-            systName = fSampleHists[i]->fSyst[i_syst]->fName;
+            const std::string systName = fSampleHists[i]->fSyst[i_syst]->fName;
             if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
             }
             if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr)
-                systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+                const std::string systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
             if(FindInStringVector(fNpNames,systNuisPar)<0){
                 fNpNames.push_back(systNuisPar);
             }
@@ -309,7 +302,7 @@ void Region::BuildPreFitErrorHist(){
         // (but remove the MC-stat ones (for samples with fSeparateGammas)!!
         //
         for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
-            systName = fSampleHists[i]->fSyst[i_syst]->fName;
+            const std::string systName = fSampleHists[i]->fSyst[i_syst]->fName;
             if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType!=Systematic::SHAPE) continue;
             if(systName.find("stat_")!=std::string::npos) continue;
             for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
@@ -321,7 +314,7 @@ void Region::BuildPreFitErrorHist(){
                     TRExFitter::NPMAP[gammaName] = gammaName;
                 }
                 if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr)
-                    systNuisPar = gammaName;
+                    const std::string systNuisPar = gammaName;
                 if(FindInStringVector(fNpNames,systNuisPar)<0){
                     fNpNames.push_back(systNuisPar);
                 }
@@ -344,15 +337,15 @@ void Region::BuildPreFitErrorHist(){
 
         WriteDebugStatus("Region::BuildPreFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
         
-        hNom = fSampleHists[i]->fHist.get();
+        TH1* hNom = fSampleHists[i]->fHist.get();
 
         // - loop on systematics
         for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
             WriteDebugStatus("Region::BuildPreFitErrorHist", "    Systematic: " + fSystNames[i_syst]);
-            systName = fSystNames[i_syst];
+            const std::string systName = fSystNames[i_syst];
 
             // get SystematicHist
-            sh = fSampleHists[i]->GetSystematic(systName);
+            SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
 
             // hack: add a systematic hist if not there... FIXME
             if(sh==nullptr){
@@ -367,8 +360,8 @@ void Region::BuildPreFitErrorHist(){
             Systematic *syst = sh->fSystematic;
             
             // store hist up and down
-            hUp   = sh->fHistUp.get();
-            hDown = sh->fHistDown.get();
+            TH1* hUp   = sh->fHistUp.get();
+            TH1* hDown = sh->fHistDown.get();
             
             // modify them dropping shape or norm (due to pruning or shape/acc decorrelation)
             if(syst!=nullptr){
@@ -417,7 +410,7 @@ void Region::BuildPreFitErrorHist(){
     // Now build the total prediction variations, for each systematic
     // - loop on systematics
     for(std::size_t i_syst=0; i_syst<fSystNames.size(); ++i_syst){
-        systName = fSystNames[i_syst];
+        const std::string systName = fSystNames[i_syst];
 
         // initialize the tot variation hists
         fTotUp[i_syst].reset(static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Up",  fName.c_str(), systName.c_str()))));
@@ -470,7 +463,7 @@ void Region::BuildPreFitErrorHist(){
                 if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
                 if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && (!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) || fRatioType=="DATA/BKG")) continue;
                 // get SystematicHist
-                sh = fSampleHists[i]->GetSystematic(systName);
+                SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
                 yieldNominal = hNom->GetBinContent(i_bin);
                 diffUp   += (sh->fHistUp  ->GetBinContent(i_bin) - yieldNominal)*scale;
