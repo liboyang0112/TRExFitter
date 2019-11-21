@@ -83,22 +83,22 @@ echo "you still can abort the process at any moment."
 echo ""
 for step in h w f l s r d p ; do
   echo "==> $step step ongoing"
-  ./build/bin/trex-fitter $step config/myFit.config >& LOG_$step
-  cat LOG_$step | grep -v "TRExFitter" >& test/logs/LOG_$step
+  ./build/bin/trex-fitter $step test/configs/FitExample.config >& LOG_$step
+  cat LOG_$step | grep -v "TRExFitter" >& test/logs/FitExample/LOG_$step
   rm -f LOG_$step
 done
 
 for step in h w f ; do
   echo "==> stat only $step step ongoing"
-  ./build/bin/trex-fitter $step config/myFitStatOnly.config StatOnlyFit=TRUE  >& LOG_STATONLY_$step
-  cat LOG_STATONLY_$step | grep -v "TRExFitter" >& test/logs/LOG_STATONLY_$step
+  ./build/bin/trex-fitter $step test/configs/FitExampleStatOnly.config StatOnlyFit=TRUE  >& LOG_STATONLY_$step
+  cat LOG_STATONLY_$step | grep -v "TRExFitter" >& test/logs/FitExampleStatOnly/LOG_STATONLY_$step
   rm -f LOG_STATONLY_$step
 done
 
 for step in h w f d p ; do
   echo "==> Morphing $step step ongoing"
-  ./build/bin/trex-fitter $step config/ExampleMorphing.config >& LOG_MORPH_$step
-  cat LOG_MORPH_$step | grep -v "TRExFitter" >& test/logs/LOG_MORPH_$step
+  ./build/bin/trex-fitter $step test/configs/FitExampleMorphing.config >& LOG_MORPH_$step
+  cat LOG_MORPH_$step | grep -v "TRExFitter" >& test/logs/FitExampleMorphing/LOG_MORPH_$step
   rm -f LOG_MORPH_$step
 done
 

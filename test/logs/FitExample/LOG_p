@@ -1,0 +1,181 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+                    No rights reserved, feel free to use and modify it ;)
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExample.config[0m
+=== DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
+=== DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExample[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
+[1;32m=== INFO::Region::Print:     Region: SR_1[0m
+[1;32m=== INFO::Region::Print:     Region: SR_2[0m
+[1;32m=== INFO::Region::Print:     Region: VR[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
+[1;32m=== INFO::Sample::Print::      Data[0m
+[1;32m=== INFO::Sample::Print::      Bkg1[0m
+[1;32m=== INFO::Sample::Print::      Bkg2[0m
+[1;32m=== INFO::Sample::Print::      Signal[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  JES[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadHistos: -----------------------------[0m
+[1;32m=== INFO::TRExFit::ReadHistos: Reading histograms from file FitExample/Histograms/FitExample_histos.root ...[0m
+=== DEBUG::TRExFit::ReadHistos:   Reading region SR_1
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg1Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:   Reading region SR_2
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:   Reading region VR
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg1Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
+=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
+=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
+=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
+=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+Applying systematics pruning...
+[1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::SystPruning: Apply Systematics Pruning ...[0m
+Info in <TCanvas::Print>: png file FitExample/Pruning.png has been created
+Drawing post-fit plots...
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Reading Correlation Matrix...
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Reading Negative Log-Likelihood (NLL) value...
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Found 12 systematics.
+=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = 30.640700
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998516
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.021170
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983914
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.941234
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998516
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.021170
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983914
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.941234
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.998516
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.021170
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.983914
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.941234
+[1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region SR_1 ...[0m
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: Final bin contents
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: 1:	111.363907 +8.096816 -8.096816
+=== DEBUG::Region::DrawPostFit: 2:	110.279503 +7.142633 -7.142633
+=== DEBUG::Region::DrawPostFit: 3:	70.438179 +6.359363 -6.359363
+=== DEBUG::Region::DrawPostFit: 4:	24.423136 +4.183327 -4.183327
+[1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_1_postFit.root[0m
+Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been created
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000780
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.025460
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987490
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.945739
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000780
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.025460
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987490
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.945739
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_0
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.000780
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_1
+=== DEBUG::Region::DrawPostFit:   -->  pull = 1.025460
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_2
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.987490
+=== DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_3
+=== DEBUG::Region::DrawPostFit:   -->  pull = 0.945739
+[1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region SR_2 ...[0m
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: Final bin contents
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: 1:	109.028191 +6.483070 -6.483070
+=== DEBUG::Region::DrawPostFit: 2:	108.709213 +5.962672 -5.962672
+=== DEBUG::Region::DrawPostFit: 3:	70.158707 +6.406664 -6.406664
+=== DEBUG::Region::DrawPostFit: 4:	24.278431 +4.157642 -4.157642
+[1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_2_postFit.root[0m
+Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
+[1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region VR ...[0m
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: Final bin contents
+=== DEBUG::Region::DrawPostFit: --------------------
+=== DEBUG::Region::DrawPostFit: 1:	324.525177 +25.292497 -25.292497
+=== DEBUG::Region::DrawPostFit: 2:	293.790527 +22.330582 -22.330582
+=== DEBUG::Region::DrawPostFit: 3:	164.453064 +19.444216 -19.444216
+=== DEBUG::Region::DrawPostFit: 4:	62.746437 +11.147520 -11.147520
+[1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/VR_postFit.root[0m
+Info in <TCanvas::Print>: png file FitExample/Plots/VR_postFit.png has been created
+[1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
+Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been created
+=== DEBUG::TRExFit::DrawSummary: Adding Data:   Data 2015
+=== DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
+=== DEBUG::TRExFit::DrawSummary: 1:	316.504725	+15.538590	-15.538590
+=== DEBUG::TRExFit::DrawSummary: 2:	312.174541	+12.720713	-12.720713
+[1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
+Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has been created
+=== DEBUG::TRExFit::DrawSummary: Adding Data:   Data 2015
+=== DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
+=== DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
+=== DEBUG::TRExFit::DrawSummary: 1:	845.515205	+44.061521	-44.061521
+[1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
+[1;32m=== INFO::TRExFit::PrintSystTables: Printing syst tables[0m
+Info in <TCanvas::Print>: png file FitExample/PieChart_postFit.png has been created
