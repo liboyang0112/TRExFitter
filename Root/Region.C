@@ -420,9 +420,9 @@ void Region::BuildPreFitErrorHist(){
         fTotDown[i_syst].reset(static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Down",fName.c_str(), systName.c_str()))));
         // - loop on bins
         for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
+            // - loop on samples
             double diffUp(0.);
             double diffDown(0.);
-            // - loop on samples
             for(int i=0;i<fNSamples;i++){
                 TH1* hNom = fSampleHists[i]->fHist.get();
                 //
