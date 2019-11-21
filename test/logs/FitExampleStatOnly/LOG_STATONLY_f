@@ -1,0 +1,313 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+                    No rights reserved, feel free to use and modify it ;)
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleStatOnly.config[0m
+[1;32m=== INFO::ConfigReader::ReadCommandLineOptions: -------------------------------------------[0m
+[1;32m=== INFO::ConfigReader::ReadCommandLineOptions: Running options: [0m
+=== DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
+=== DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
+[1;32m=== INFO::ConfigReader::PostConfig: StatOnly option is setting to OFF the MC-stat (gammas) as well.[0m
+[1;32m=== INFO::ConfigReader::PostConfig: To keep them on use the command line option 'Systematics=NONE'[0m
+[1;32m=== INFO::ConfigReader::PostConfig: or comment out all Systematics in config file.[0m
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExampleStatOnly[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
+[1;32m=== INFO::Region::Print:     Region: SR_1[0m
+[1;32m=== INFO::Region::Print:     Region: SR_2[0m
+[1;32m=== INFO::Region::Print:     Region: VR[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
+[1;32m=== INFO::Sample::Print::      Data[0m
+[1;32m=== INFO::Sample::Print::      Bkg1[0m
+[1;32m=== INFO::Sample::Print::      Bkg2[0m
+[1;32m=== INFO::Sample::Print::      Signal[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Dummy[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  JES[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+Fitting...
+[1;32m=== INFO::TRExFit::Fit: [0m
+[1;32m=== INFO::TRExFit::Fit: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::Fit: Performing nominal fit...[0m
+full list of observables:
+RooArgList:: = (obs_x_SR_1,obs_x_SR_2)
+[#0] ERROR:InputArguments -- RooArgSet::checkForDup: ERROR argument with name nom_alpha_Dummy is already in this set
+
+
+------------------
+ Entering combination
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_alpha_Dummy
+-----------------------------------------
+create toy data for SR_1,SR_2
+[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
+RooDataSet::AsimovData0[obs_x_SR_1,channelCat,weight:binWeightAsimov] = 4 entries (315.2 weighted)
+[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
+RooDataSet::AsimovData1[obs_x_SR_2,channelCat,weight:binWeightAsimov] = 4 entries (315.2 weighted)
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset asimovDataFullModel
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  asimovDataFullModel to asimovData
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::obs_x_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::obs_x_SR_2
+Merging data for channel SR_1
+Merging data for channel SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR_1
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  SR_1 to obsData
+
+RooWorkspace(combined) combined contents
+
+variables
+---------
+(channelCat,nom_alpha_Dummy,obs_x_SR_1,obs_x_SR_2,weightVar)
+
+datasets
+--------
+RooDataSet::asimovData(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+RooDataSet::obsData(channelCat,obs_x_SR_1,obs_x_SR_2)
+
+named sets
+----------
+ModelConfig_GlobalObservables:(nom_alpha_Dummy)
+ModelConfig_Observables:(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+globalObservables:(nom_alpha_Dummy)
+observables:(obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+
+
+
+----------------
+ Importing combined model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg1_SR_1nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg2_SR_1nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Signal_SR_1nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg1_SR_2nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg2_SR_2nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Signal_SR_2nominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooCategory::channelCat for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProdPdf::model_SR_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::lumiConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::0.1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Lumi
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nominalLumi
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::alpha_DummyConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::alpha_Dummy
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_alpha_Dummy for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR_1_model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg1_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg1_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg1_SR_1_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::obs_x_SR_1 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg2_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg2_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg2_SR_1_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Signal_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_1_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Signal_SR_1_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::SigXsecOverSM
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_1_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProdPdf::model_SR_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR_2_model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg1_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg1_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg1_SR_2_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::obs_x_SR_2 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg1_SR_2_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_2_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg2_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg2_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg2_SR_2_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg2_SR_2_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_2_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Signal_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_2_overallSyst_x_Exp
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Signal_SR_2_nominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Signal_SR_2_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Signal_SR_2_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR_2_2
+setting Lumi constant
+Setting Parameter(s) of Interest as: SigXsecOverSM 
+
+=== Using the following for ModelConfig ===
+Observables:             RooArgSet:: = (obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+Parameters of Interest:  RooArgSet:: = (SigXsecOverSM)
+Nuisance Parameters:     RooArgSet:: = (alpha_Dummy)
+Global Observables:      RooArgSet:: = (nom_alpha_Dummy)
+PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 56.2
+
+=== DEBUG::TRExFit::DumpData: Dumping data with the following parameters
+=== DEBUG::TRExFit::DumpData:     * Regions data type 
+=== DEBUG::TRExFit::DumpData:        - Region: SR_1       DataType: 0
+=== DEBUG::TRExFit::DumpData:        - Region: SR_2       DataType: 0
+=== DEBUG::TRExFit::DumpData:     * No NP values injected 
+=== DEBUG::TRExFit::DumpData:     * POI value: 0.000000
+=== DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_1_model
+=== DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_2_model
+=== DEBUG::TRExFit::PerformFit: Setting the variables to use MINOS with
+=== DEBUG::TRExFit::PerformFit: Fitting stat-only: reading fit results from full fit from file: 
+=== DEBUG::TRExFit::PerformFit:   FitExampleStatOnly/Fits/FitExampleStatOnly.txt
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;31m=== ERROR::FitResults::ReadFromTXT: Could not open the file "FitExampleStatOnly/Fits/FitExampleStatOnly.txt"[0m
+=== DEBUG::FittingTool::FitPDF: -> Entering in FitPDF function
+
+=== Using the following for ModelConfig ===
+Observables:             RooArgSet:: = (obs_x_SR_1,obs_x_SR_2,weightVar,channelCat)
+Parameters of Interest:  RooArgSet:: = (SigXsecOverSM)
+Nuisance Parameters:     RooArgSet:: = (alpha_Dummy)
+Global Observables:      RooArgSet:: = (nom_alpha_Dummy)
+PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 50
+
+[#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
+[#1] INFO:Minization -- createNLL: caching constraint set under name CONSTR_OF_PDF_simPdf_FOR_OBS_channelCat:obs_x_SR_1:obs_x_SR_2 with 1 entries
+[#1] INFO:Minization --  Including the following contraint terms in minimization: (alpha_DummyConstraint)
+[#1] INFO:Minization -- The following global observables have been defined: (nom_alpha_Dummy)
+RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
+RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4 dataset entries)
+[#1] INFO:Fitting -- RooAbsTestStatistic::initSimMode: created 2 slave calculators.
+[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_1_nominal,Bkg2_SR_1_nominal,Signal_SR_1_nominal)
+[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_2_nominal,Bkg2_SR_2_nominal,Signal_SR_2_nominal)
+=== DEBUG::FittingTool::FitPDF: Setting starting mu = 0.000000
+=== DEBUG::FittingTool::FitPDF:    -> Constant POI : 0
+=== DEBUG::FittingTool::FitPDF:    -> Value of POI : 0.000000
+=== DEBUG::FittingTool::FitPDF: setting to constant : alpha_Dummy at value 0.000000
+[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.163
+[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.163
+=== DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 469.244195
+  1) 0x2d08a30 RooRealVar:: SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
+  2) 0x2cea560 RooRealVar::   alpha_Dummy = 0 C  L(-5 - 5)  "alpha_Dummy"
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: Fit try no.1[0m
+[1;32m=== INFO::FittingTool::FitPDF: ======================[0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+Minuit2Minimizer: Minimize with max-calls 500 convergence for edm < 1 strategy 1
+MnSeedGenerator: for initial parameters FCN = 1.928657374276
+MnSeedGenerator: Initial state:   - FCN =   1.928657374276 Edm =     0.703893 NCalls =      5
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   1.928657374276 Edm =     0.703893 NCalls =      5
+VariableMetric: Iteration #   0 - FCN =   1.928657374276 Edm =     0.703893 NCalls =      5
+VariableMetric: Iteration #   1 - FCN =  0.9209265340757 Edm =  0.000530483 NCalls =     13
+VariableMetric: Iteration #   2 - FCN =  0.9189385617643 Edm =  1.39069e-08 NCalls =     17
+VariableMetric: After Hessian   - FCN =  0.9189385617643 Edm =  2.85593e-08 NCalls =     22
+VariableMetric: Iteration #   3 - FCN =  0.9189385617643 Edm =  2.85593e-08 NCalls =     22
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = 0.918938561764284234
+Edm   = 2.85592660883992237e-08
+Nfcn  = 22
+SigXsecOverSM	  = 4.30729e-08	 +/-  0.7522	(limited)
+Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
+=== DEBUG::FittingTool::FitPDF: Size of variables for MINOS: 1
+Minuit2Minimizer::GetMinosError for parameter 0  SigXsecOverSM using max-calls 500, tolerance 1
+MnFunctionCross: parameter 0 set to -0.752211
+MnSeedGenerator: for initial parameters FCN = 0.9189385332047
+MnSeedGenerator: Initial state:   - FCN =  0.9189385332047 Edm =            0 NCalls =      1
+Info in MnMinos Parameter is at Lower limit. : par_name = SigXsecOverSM
+MnFunctionCross: parameter 0 set to 0.752211
+MnSeedGenerator: for initial parameters FCN = 1.617263480159
+MnSeedGenerator: Initial state:   - FCN =   1.617263480159 Edm =            0 NCalls =      1
+MnFunctionCross: parameter 0 set to 0.636496
+MnSeedGenerator: for initial parameters FCN = 1.485038928054
+MnSeedGenerator: Initial state:   - FCN =   1.485038928054 Edm =            0 NCalls =      1
+MnFunctionCross: parameter 0 set to 0.578649
+MnSeedGenerator: for initial parameters FCN = 1.422180314689
+MnSeedGenerator: Initial state:   - FCN =   1.422180314689 Edm =            0 NCalls =      1
+Minos:  Parameter : SigXsecOverSM  is at Lower limit.
+Minos: Lower error for parameter SigXsecOverSM  :  -4.30729e-08
+Minos: Upper error for parameter SigXsecOverSM  :  0.575666
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
+[1;32m=== INFO::FittingTool::FitPDF:          FIT FINALIZED SUCCESSFULLY : [0m
+[1;32m=== INFO::FittingTool::FitPDF:             - minuit status 0[0m
+[1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
+[1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000000[0m
+[1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
+Real time 0:00:00, CP time 0.070
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -999530.75580515374895185232[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = 469.244195[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = 468.325256[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 0.918939[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running likelihood scan for the parameter = SigXsecOverSM[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: GetLikelihoodScan for POI = SigXsecOverSM[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: GetLikelihoodScan for parameter = SigXsecOverSM[0m
+[#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
+[#1] INFO:Minization -- createNLL picked up cached consraints from workspace with 1 entries
+[#1] INFO:Minization --  Including the following contraint terms in minimization: (alpha_DummyConstraint)
+RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
+RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4 dataset entries)
+[#1] INFO:Fitting -- RooAbsTestStatistic::initSimMode: created 2 slave calculators.
+[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (L_x_Bkg1_SR_1_overallSyst_x_Exp,L_x_Bkg2_SR_1_overallSyst_x_Exp,Signal_SR_1_nominal)
+[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (L_x_Bkg1_SR_2_overallSyst_x_Exp,L_x_Bkg2_SR_2_overallSyst_x_Exp,Signal_SR_2_nominal)
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 1 out of 30 points[0m
+[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.163
+[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.163
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 2 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 3 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 4 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 5 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 6 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 7 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 8 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 9 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 10 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 11 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 12 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 13 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 14 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 15 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 16 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 17 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 18 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 19 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 20 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 21 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 22 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 23 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 24 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 25 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 26 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 27 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 28 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 29 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 30 out of 30 points[0m
+mkdir: created directory ‘FitExampleStatOnly/LHoodPlots/’
+Info in <TCanvas::Print>: png file FitExampleStatOnly/LHoodPlots/NLLscan_SigXsecOverSM.png has been created
+[1;32m=== INFO::TRExFit::PlotFittedNP: Stat only fit => No NP Pull plots generated.[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+Info in <TCanvas::Print>: png file FitExampleStatOnly/NormFactors_statOnly.png has been created
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Reading Correlation Matrix...
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Reading Negative Log-Likelihood (NLL) value...
+=== DEBUG::FitResults::ReadFromTXT: --------------------
+=== DEBUG::FitResults::ReadFromTXT: Found 1 systematics.
+=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = 0.918939
+[1;32m=== INFO::TRExFit::PlotCorrelationMatrix: Stat only fit => No Correlation Matrix generated.[0m
