@@ -49,7 +49,7 @@ histograms_full:
     needs:
       - compile
     script:
-      - trex-fitter h config/myFit.config
+      - trex-fitter h test/configs/FitExample.config
       - ls
       - ls FitExample/Histograms/
     artifacts:
@@ -61,7 +61,7 @@ histograms_statonly:
     needs:
       - compile
     script:
-      - trex-fitter h config/myFitStatOnly.config StatOnlyFit=TRUE
+      - trex-fitter h test/configs/FitExampleStatOnly.config StatOnlyFit=TRUE
       - ls
       - ls FitExampleStatOnly/Histograms/
     artifacts:
@@ -73,7 +73,7 @@ histograms_morph:
     needs:
       - compile
     script:
-      - trex-fitter h config/ExampleMorphing.config
+      - trex-fitter h test/config/FitExampleMorphing.config
       - ls
       - ls FitExampleMorphing/Histograms/
     artifacts:
@@ -102,13 +102,13 @@ workspace_full:
       - compile
       - histograms_full
     script:
-      - trex-fitter w config/myFit.config >& LOG_w
+      - trex-fitter w test/configs/FitExample.config >& LOG_w
       - cat LOG_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_w
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/RooStats/
-      - source test/scripts/check_step_w.sh
+      - source test/scripts/FitExample/check_step_w.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -120,13 +120,13 @@ workspace_statonly:
       - compile
       - histograms_statonly
     script:
-      - trex-fitter w config/myFitStatOnly.config StatOnlyFit=TRUE >& LOG_STATONLY_w
+      - trex-fitter w test/configs/FitExampleStatOnly.config StatOnlyFit=TRUE >& LOG_STATONLY_w
       - cat LOG_STATONLY_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_STATONLY_w
       - ls
       - set -e
       - ls FitExampleStatOnly
       - ls FitExampleStatOnly/RooStats/
-      - source test/scripts/check_step_w_statonly.sh
+      - source test/scripts/FitExampleStatOnly/check_step_w_statonly.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -138,13 +138,13 @@ workspace_morph:
       - compile
       - histograms_morph
     script:
-      - trex-fitter w config/ExampleMorphing.config >& LOG_MORPH_w
+      - trex-fitter w test/configs/FitExampleMorphing.config >& LOG_MORPH_w
       - cat LOG_MORPH_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_w
       - ls
       - set -e
       - ls FitExampleMorphing
       - ls FitExampleMorphing/RooStats/
-      - source test/scripts/check_step_w_morph.sh
+      - source test/scripts/FitExampleMorphing/check_step_w_morph.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -179,14 +179,14 @@ fit_full:
       - histograms_full
       - workspace_full
     script:
-      - trex-fitter f config/myFit.config >& LOG_f
+      - trex-fitter f test/configs/FitExample.config >& LOG_f
       - cat LOG_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_f
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/Fits/
       - cat FitExample/Fits/*.txt
-      - source test/scripts/check_step_f.sh
+      - source test/scripts/FitExample/check_step_f.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -199,14 +199,14 @@ fit_statonly:
       - histograms_statonly
       - workspace_statonly
     script:
-      - trex-fitter f config/myFitStatOnly.config StatOnlyFit=TRUE >& LOG_STATONLY_f
+      - trex-fitter f test/configs/FitExampleStatOnly.config StatOnlyFit=TRUE >& LOG_STATONLY_f
       - cat LOG_STATONLY_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_STATONLY_f
       - ls
       - set -e
       - ls FitExampleStatOnly
       - ls FitExampleStatOnly/Fits/
       - cat FitExampleStatOnly/Fits/*.txt
-      - source test/scripts/check_step_f_statonly.sh
+      - source test/scripts/FitExampleStatOnly/check_step_f_statonly.sh
       - echo "=> Passed quick logfile checks"
 
 fit_morph:
@@ -216,14 +216,14 @@ fit_morph:
       - histograms_morph
       - workspace_morph
     script:
-      - trex-fitter f config/ExampleMorphing.config >& LOG_MORPH_f
+      - trex-fitter f test/configs/FitExampleMorphing.config >& LOG_MORPH_f
       - cat LOG_MORPH_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_f
       - ls
       - set -e
       - ls FitExampleMorphing
       - ls FitExampleMorphing/Fits/
       - cat FitExampleMorphing/Fits/*.txt
-      - source test/scripts/check_step_f_morph.sh
+      - source test/scripts/FitExampleMorphing/check_step_f_morph.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -260,13 +260,13 @@ limit:
       - histograms_full
       - workspace_full
     script:
-      - trex-fitter l config/myFit.config >& LOG_l
+      - trex-fitter l test/configs/FitExample.config >& LOG_l
       - cat LOG_l | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_l
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/Limits/
-      - source test/scripts/check_step_l.sh
+      - source test/scripts/FitExample/check_step_l.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -283,13 +283,13 @@ significance:
       - histograms_full
       - workspace_full
     script:
-      - trex-fitter s config/myFit.config >& LOG_s
+      - trex-fitter s test/configs/FitExample.config >& LOG_s
       - cat LOG_s | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_s
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/Significance/
-      - source test/scripts/check_step_s.sh
+      - source test/scripts/FitExample/check_step_s.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -307,11 +307,11 @@ ranking:
       - workspace_full
       - fit_full
     script:
-      - trex-fitter r config/myFit.config >& LOG_r
+      - trex-fitter r test/configs/FitExample.config >& LOG_r
       - cat LOG_r | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_r
       - ls
       - set -e
-      - source test/scripts/check_step_r.sh
+      - source test/scripts/FitExample/check_step_r.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -327,13 +327,13 @@ draw_prefit:
       - compile
       - histograms_full
     script:
-      - trex-fitter d config/myFit.config >& LOG_d
+      - trex-fitter d test/configs/FitExample.config >& LOG_d
       - cat LOG_d | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_d
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/Plots/
-      - source test/scripts/check_step_d.sh
+      - source test/scripts/FitExample/check_step_d.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -345,13 +345,13 @@ draw_prefit_morph:
       - compile
       - histograms_morph
     script:
-      - trex-fitter d config/ExampleMorphing.config >& LOG_MORPH_d
+      - trex-fitter d test/configs/FitExampleMorphing.config >& LOG_MORPH_d
       - cat LOG_MORPH_d | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_d
       - ls
       - set -e
       - ls FitExampleMorphing
       - ls FitExampleMorphing/Plots/
-      - source test/scripts/check_step_d_morph.sh
+      - source test/scripts/FitExampleMorphing/check_step_d_morph.sh
       - echo "=> Passed quick logfile checks"
 
 draw_prefit_ntuple:
@@ -380,13 +380,13 @@ draw_postfit:
       - histograms_full
       - fit_full
     script:
-      - trex-fitter p config/myFit.config >& LOG_p
+      - trex-fitter p test/configs/FitExample.config >& LOG_p
       - cat LOG_p | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_p
       - ls
       - set -e
       - ls FitExample
       - ls FitExample/Plots/
-      - source test/scripts/check_step_p.sh
+      - source test/scripts/FitExample/check_step_p.sh
       - echo "=> Passed quick logfile checks"
     artifacts:
       paths:
@@ -399,13 +399,13 @@ draw_postfit_morph:
       - histograms_morph
       - fit_morph
     script:
-      - trex-fitter p config/ExampleMorphing.config >& LOG_MORPH_p
+      - trex-fitter p test/configs/FitExampleMorphing.config >& LOG_MORPH_p
       - cat LOG_MORPH_p | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_p
       - ls
       - set -e
       - ls FitExampleMorphing
       - ls FitExampleMorphing/Plots/
-      - source test/scripts/check_step_p_morph.sh
+      - source test/scripts/FitExampleMorphing/check_step_p_morph.sh
       - echo "=> Passed quick logfile checks"
 
 draw_postfit_ntuple:
