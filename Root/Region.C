@@ -264,9 +264,6 @@ SampleHist* Region::GetSampleHist(const std::string &sampleName) const{
 void Region::BuildPreFitErrorHist(){
     WriteInfoStatus("Region::BuildPreFitErrorHist", "Building pre-fit plot for region " + fName + " ...");
     //
-    double yieldNominal(0.), yieldUp(0.), yieldDown(0.);
-    double diffUp(0.), diffDown(0.);
-    //
     fSystNames.clear();
     fNpNames.clear();
     std::map<std::string,std::string> origShapeSystName;
@@ -290,8 +287,10 @@ void Region::BuildPreFitErrorHist(){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
             }
-            if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr)
-                const std::string systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+            std::string systNuisPar;
+            if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr) {
+                systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
+            }
             if(FindInStringVector(fNpNames,systNuisPar)<0){
                 fNpNames.push_back(systNuisPar);
             }
@@ -313,8 +312,10 @@ void Region::BuildPreFitErrorHist(){
                     origShapeSystName[gammaName] = systName;
                     TRExFitter::NPMAP[gammaName] = gammaName;
                 }
-                if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr)
-                    const std::string systNuisPar = gammaName;
+                std::string systNuisPar;
+                if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr) {
+                    systNuisPar = gammaName;
+                }
                 if(FindInStringVector(fNpNames,systNuisPar)<0){
                     fNpNames.push_back(systNuisPar);
                 }
@@ -376,9 +377,11 @@ void Region::BuildPreFitErrorHist(){
             //
             // - loop on bins
             for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
-                diffUp = 0.;
-                diffDown = 0.;
-                yieldNominal = hNom->GetBinContent(i_bin);  // store nominal yield for this bin
+                double diffUp(0.);
+                double diffDown(0.);
+                double yieldUp(0.);
+                double yieldDown(0.);
+                const double yieldNominal = hNom->GetBinContent(i_bin);  // store nominal yield for this bin
                 // if it's a systematic (NB: skip Norm-Factors!!)
                 if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
                     if(hUp!=nullptr)    yieldUp     = hUp  ->GetBinContent(i_bin);
@@ -417,10 +420,11 @@ void Region::BuildPreFitErrorHist(){
         fTotDown[i_syst].reset(static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Down",fName.c_str(), systName.c_str()))));
         // - loop on bins
         for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
-            diffUp = 0.;
-            diffDown = 0.;
+            double diffUp(0.);
+            double diffDown(0.);
             // - loop on samples
             for(int i=0;i<fNSamples;i++){
+                TH1* hNom = fSampleHists[i]->fHist.get();
                 //
                 // scale according to NormFactors
                 double scale = 1.;
@@ -465,7 +469,7 @@ void Region::BuildPreFitErrorHist(){
                 // get SystematicHist
                 SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
-                yieldNominal = hNom->GetBinContent(i_bin);
+                const double yieldNominal = hNom->GetBinContent(i_bin);
                 diffUp   += (sh->fHistUp  ->GetBinContent(i_bin) - yieldNominal)*scale;
                 diffDown += (sh->fHistDown->GetBinContent(i_bin) - yieldNominal)*scale;
             }
