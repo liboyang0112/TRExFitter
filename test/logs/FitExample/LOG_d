@@ -216,8 +216,8 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary.png has been created
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
 === DEBUG::TRExFit::DrawSummary: Scaling Signal by 1.000000
 === DEBUG::TRExFit::DrawSummary: Scaling Signal by 1.000000
-=== DEBUG::TRExFit::DrawSummary: 1:	315.199999	+34.710292	-34.710292
-=== DEBUG::TRExFit::DrawSummary: 2:	315.199999	+28.009898	-28.009898
+=== DEBUG::TRExFit::DrawSummary: 1:	315.199999	+34.710298	-34.710298
+=== DEBUG::TRExFit::DrawSummary: 2:	315.199999	+28.009905	-28.009905
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
 Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary
@@ -227,7 +227,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_VR.png has been crea
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
 === DEBUG::TRExFit::DrawSummary: Scaling Signal by 1.000000
-=== DEBUG::TRExFit::DrawSummary: 1:	825.519989	+91.058467	-91.058467
+=== DEBUG::TRExFit::DrawSummary: 1:	825.519989	+91.058485	-91.058485
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
 [1;32m=== INFO::TRExFit::PrintSystTables: Printing syst tables[0m

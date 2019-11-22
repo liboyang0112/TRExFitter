@@ -41,7 +41,7 @@ Drawing pre-fit plots...
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- PRE-FIT AGREEMENT EVALUATION -----------------------[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: --- REGION SR_lep:[0m
-[1;32m=== INFO::Region::BuildPreFitErrorHist:   chi2        = 0.000960[0m
+[1;32m=== INFO::Region::BuildPreFitErrorHist:   chi2        = 0.000964[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist:   ndof        = 25[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist:   probability = 1.000000[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
