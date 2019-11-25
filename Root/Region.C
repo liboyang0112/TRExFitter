@@ -55,6 +55,7 @@ Region::Region(string name){
     fHasData = false;
     fHasSig = false;
     fNSamples = 0;
+    fNbins = 0;
     fUseStatErr = false;
     fHistoBins = 0;
     fHistoNBinsRebin = -1;
